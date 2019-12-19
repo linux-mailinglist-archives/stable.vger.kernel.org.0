@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31FBC126C22
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D04126C21
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729174AbfLSSuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:50:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44142 "EHLO mail.kernel.org"
+        id S1729531AbfLSSuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:50:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729955AbfLSSuS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:50:18 -0500
+        id S1729010AbfLSSuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:50:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9026724679;
-        Thu, 19 Dec 2019 18:50:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0684324698;
+        Thu, 19 Dec 2019 18:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781418;
-        bh=ZuWPDLYkW8D6jxmnXjG+7dPj38Xobul41Vvyg5T5/Ao=;
+        s=default; t=1576781420;
+        bh=nDv9JRguZevepR6E4EYZ49/omQZmRdfuA8WYE8dj6ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oyUhkJDCz0AARijSY8p7mhOOg8xDvUnnyWCagij2Hm3sBHbz8q1R0oOb4tXYhtoXf
-         4Hl9xQutefXZNoWCeT017PwCin+7L1HsxQ7CBh4JTsmJL6+MiNSeLvCwHGmQUvdllq
-         r+rhWSLv7n3bge2MO3B35XxhOc3iEnPJ+pLCyJ3g=
+        b=Oy6dEQRFkq5yBTZ+vgSgUnsKIE3INOM0K52/cLjZNdYWTPyXNAfpPxAfrBXC9g4gX
+         7Qn6fscYwP28TERPKNGYsI3H8vwUVmRYtGz3fTWpjvXudyTQ0xuuaYspbfF5DnTbIm
+         YF3lsIY0WUyW3IsOQn+5YRND8k9DkOjpkU6FbKaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
+        stable@vger.kernel.org, Mian Yousaf Kaukab <ykaukab@suse.de>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 03/36] net: ethernet: ti: cpsw: fix extra rx interrupt
-Date:   Thu, 19 Dec 2019 19:34:20 +0100
-Message-Id: <20191219182853.432368154@linuxfoundation.org>
+Subject: [PATCH 4.14 04/36] net: thunderx: start phy before starting autonegotiation
+Date:   Thu, 19 Dec 2019 19:34:21 +0100
+Message-Id: <20191219182855.054842355@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
 References: <20191219182848.708141124@linuxfoundation.org>
@@ -44,36 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Mian Yousaf Kaukab <ykaukab@suse.de>
 
-[ Upstream commit 51302f77bedab8768b761ed1899c08f89af9e4e2 ]
+[ Upstream commit a350d2e7adbb57181d33e3aa6f0565632747feaa ]
 
-Now RX interrupt is triggered twice every time, because in
-cpsw_rx_interrupt() it is asked first and then disabled. So there will be
-pending interrupt always, when RX interrupt is enabled again in NAPI
-handler.
+Since commit 2b3e88ea6528 ("net: phy: improve phy state checking")
+phy_start_aneg() expects phy state to be >= PHY_UP. Call phy_start()
+before calling phy_start_aneg() during probe so that autonegotiation
+is initiated.
 
-Fix it by first disabling IRQ and then do ask.
+As phy_start() takes care of calling phy_start_aneg(), drop the explicit
+call to phy_start_aneg().
 
-Fixes: 870915feabdc ("drivers: net: cpsw: remove disable_irq/enable_irq as irq can be masked from cpsw itself")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Network fails without this patch on Octeon TX.
+
+Fixes: 2b3e88ea6528 ("net: phy: improve phy state checking")
+Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/cpsw.c |    2 +-
+ drivers/net/ethernet/cavium/thunder/thunder_bgx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ti/cpsw.c
-+++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -862,8 +862,8 @@ static irqreturn_t cpsw_rx_interrupt(int
- {
- 	struct cpsw_common *cpsw = dev_id;
+--- a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
++++ b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
+@@ -915,7 +915,7 @@ static int bgx_lmac_enable(struct bgx *b
+ 				       phy_interface_mode(lmac->lmac_type)))
+ 			return -ENODEV;
  
--	cpdma_ctlr_eoi(cpsw->dma, CPDMA_EOI_RX);
- 	writel(0, &cpsw->wr_regs->rx_en);
-+	cpdma_ctlr_eoi(cpsw->dma, CPDMA_EOI_RX);
+-		phy_start_aneg(lmac->phydev);
++		phy_start(lmac->phydev);
+ 		return 0;
+ 	}
  
- 	if (cpsw->quirk_irq) {
- 		disable_irq_nosync(cpsw->irqs_table[0]);
 
 
