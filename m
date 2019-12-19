@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CA2F126B98
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F5231269DA
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727533AbfLSSyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:54:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49846 "EHLO mail.kernel.org"
+        id S1728569AbfLSSlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:41:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730209AbfLSSyY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:54:24 -0500
+        id S1728560AbfLSSli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:41:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FF89227BF;
-        Thu, 19 Dec 2019 18:54:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED544206D7;
+        Thu, 19 Dec 2019 18:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781663;
-        bh=NDHlV/5kiS7r+Hm2Cfj1Jf69PpoWZ1Y7BukYPq+qrKU=;
+        s=default; t=1576780897;
+        bh=GqAFOTv0a9RtHQ56hi09qCi4T7GetSCA3QHzEhxSVjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RTwbj+t/UDqO7k+ta/pAT1Ko8RLFSm3rV1Guu00beu/9pUR269hST4b62wT9f18lS
-         4MeYE2XbuPXPCwZeZZZRtAif2LZdESavXthcPwKS/YgPE6Ht7nS5tRHQu+4KEALDEK
-         OMYllSk7hEzgAznxk7avT+6sWke22QhvBaEe2j1s=
+        b=S9HmRLRdVlp4sVrblvg52nnFF1TqtknATTrAO41RuKL9Il4Ik6CmELPtqWpXBsQtw
+         1D9+fP6/V6LnKQ6++89jryzRhf1HuhbAm/yi7CfdF0ok4yFzEdsttwt7JSNGncTXvh
+         HZgGEJXWa/5jEEk849Naf8CnbofXVO40y+Fohk64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Long Li <longli@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 29/80] cifs: smbd: Only queue work for error recovery on memory registration
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 4.4 153/162] xtensa: fix TLB sanity checker
 Date:   Thu, 19 Dec 2019 19:34:21 +0100
-Message-Id: <20191219183103.776965717@linuxfoundation.org>
+Message-Id: <20191219183217.085516474@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
-References: <20191219183031.278083125@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit c21ce58eab1eda4c66507897207e20c82e62a5ac upstream.
+commit 36de10c4788efc6efe6ff9aa10d38cb7eea4c818 upstream.
 
-It's not necessary to queue invalidated memory registration to work queue, as
-all we need to do is to unmap the SG and make it usable again. This can save
-CPU cycles in normal data paths as memory registration errors are rare and
-normally only happens during reconnection.
+Virtual and translated addresses retrieved by the xtensa TLB sanity
+checker must be consistent, i.e. correspond to the same state of the
+checked TLB entry. KASAN shadow memory is mapped dynamically using
+auto-refill TLB entries and thus may change TLB state between the
+virtual and translated address retrieval, resulting in false TLB
+insanity report.
+Move read_xtlb_translation close to read_xtlb_virtual to make sure that
+read values are consistent.
 
-Signed-off-by: Long Li <longli@microsoft.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: a99e07ee5e88 ("xtensa: check TLB sanity on return to userspace")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smbdirect.c |   26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ arch/xtensa/mm/tlb.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/smbdirect.c
-+++ b/fs/cifs/smbdirect.c
-@@ -2269,12 +2269,7 @@ static void smbd_mr_recovery_work(struct
- 	int rc;
+--- a/arch/xtensa/mm/tlb.c
++++ b/arch/xtensa/mm/tlb.c
+@@ -218,6 +218,8 @@ static int check_tlb_entry(unsigned w, u
+ 	unsigned tlbidx = w | (e << PAGE_SHIFT);
+ 	unsigned r0 = dtlb ?
+ 		read_dtlb_virtual(tlbidx) : read_itlb_virtual(tlbidx);
++	unsigned r1 = dtlb ?
++		read_dtlb_translation(tlbidx) : read_itlb_translation(tlbidx);
+ 	unsigned vpn = (r0 & PAGE_MASK) | (e << PAGE_SHIFT);
+ 	unsigned pte = get_pte_for_vaddr(vpn);
+ 	unsigned mm_asid = (get_rasid_register() >> 8) & ASID_MASK;
+@@ -233,8 +235,6 @@ static int check_tlb_entry(unsigned w, u
+ 	}
  
- 	list_for_each_entry(smbdirect_mr, &info->mr_list, list) {
--		if (smbdirect_mr->state == MR_INVALIDATED)
--			ib_dma_unmap_sg(
--				info->id->device, smbdirect_mr->sgl,
--				smbdirect_mr->sgl_count,
--				smbdirect_mr->dir);
--		else if (smbdirect_mr->state == MR_ERROR) {
-+		if (smbdirect_mr->state == MR_ERROR) {
- 
- 			/* recover this MR entry */
- 			rc = ib_dereg_mr(smbdirect_mr->mr);
-@@ -2602,11 +2597,20 @@ int smbd_deregister_mr(struct smbd_mr *s
- 		 */
- 		smbdirect_mr->state = MR_INVALIDATED;
- 
--	/*
--	 * Schedule the work to do MR recovery for future I/Os
--	 * MR recovery is slow and we don't want it to block the current I/O
--	 */
--	queue_work(info->workqueue, &info->mr_recovery_work);
-+	if (smbdirect_mr->state == MR_INVALIDATED) {
-+		ib_dma_unmap_sg(
-+			info->id->device, smbdirect_mr->sgl,
-+			smbdirect_mr->sgl_count,
-+			smbdirect_mr->dir);
-+		smbdirect_mr->state = MR_READY;
-+		if (atomic_inc_return(&info->mr_ready_count) == 1)
-+			wake_up_interruptible(&info->wait_mr);
-+	} else
-+		/*
-+		 * Schedule the work to do MR recovery for future I/Os MR
-+		 * recovery is slow and don't want it to block current I/O
-+		 */
-+		queue_work(info->workqueue, &info->mr_recovery_work);
- 
- done:
- 	if (atomic_dec_and_test(&info->mr_used_count))
+ 	if (tlb_asid == mm_asid) {
+-		unsigned r1 = dtlb ? read_dtlb_translation(tlbidx) :
+-			read_itlb_translation(tlbidx);
+ 		if ((pte ^ r1) & PAGE_MASK) {
+ 			pr_err("%cTLB: way: %u, entry: %u, mapping: %08x->%08x, PTE: %08x\n",
+ 					dtlb ? 'D' : 'I', w, e, r0, r1, pte);
 
 
