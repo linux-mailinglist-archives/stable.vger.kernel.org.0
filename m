@@ -2,84 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B38E6125899
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 01:36:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA42F1259F2
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 04:20:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726818AbfLSAgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Dec 2019 19:36:54 -0500
-Received: from mo-csw1514.securemx.jp ([210.130.202.153]:48690 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726463AbfLSAgv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 19:36:51 -0500
-Received: by mo-csw.securemx.jp (mx-mo-csw1514) id xBJ0aYfM008093; Thu, 19 Dec 2019 09:36:34 +0900
-X-Iguazu-Qid: 34tKGlJZZqk6vL4KLA
-X-Iguazu-QSIG: v=2; s=0; t=1576715794; q=34tKGlJZZqk6vL4KLA; m=SwoY/TSCZoTPn4z9YK3xPmEM2rXSGc3P6PU8pEkguk4=
-Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
-        by relay.securemx.jp (mx-mr1511) id xBJ0aXjQ029406;
-        Thu, 19 Dec 2019 09:36:33 +0900
-Received: from enc02.toshiba.co.jp ([61.202.160.51])
-        by imx12.toshiba.co.jp  with ESMTP id xBJ0aXh7020534;
-        Thu, 19 Dec 2019 09:36:33 +0900 (JST)
-Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id xBJ0aWCm015498;
-        Thu, 19 Dec 2019 09:36:32 +0900
-From:   Punit Agrawal <punit1.agrawal@toshiba.co.jp>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     linux-serial@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, nobuhiro1.iwamatsu@toshiba.co.jp,
-        shrirang.bagul@canonical.com, stable@vger.kernel.org,
-        Rob Herring <robh@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH] serdev: Don't claim unsupported serial devices
-References: <20191218065646.817493-1-punit1.agrawal@toshiba.co.jp>
-        <096046b6-324a-8496-8599-ed7e5ffc6e3c@redhat.com>
-Date:   Thu, 19 Dec 2019 09:37:23 +0900
-In-Reply-To: <096046b6-324a-8496-8599-ed7e5ffc6e3c@redhat.com> (Hans de
-        Goede's message of "Wed, 18 Dec 2019 11:05:40 +0100")
-X-TSB-HOP: ON
-Message-ID: <87eex1noak.fsf@kokedama.swc.toshiba.co.jp>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1726795AbfLSDT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 22:19:59 -0500
+Received: from mail-wr1-f42.google.com ([209.85.221.42]:42189 "EHLO
+        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726777AbfLSDT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 22:19:59 -0500
+Received: by mail-wr1-f42.google.com with SMTP id q6so4417489wro.9
+        for <stable@vger.kernel.org>; Wed, 18 Dec 2019 19:19:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=LnXD5r3hFH+MEUtjx4QBE0EEvoehzCWexnsJ/7LZk8E=;
+        b=Ze0++QssmrwdgGZdwkiBOYWo/q5WNvNM0WgHgDfBrSDOcaOE1bzXMMqo+ZW+SaADdc
+         hCiGx6A79l98DqPkMTv+Od61242XX9IyNNFTEYgsoGtVBkKa8Ot6sTGQ4Yyi5uJxZgzS
+         tuO4mqH8Z/vgBGcZnsVpjUwZZak+WXHuQKJ00ZrAHr9E5wht7+cTzj3FmgibmAL7B4g5
+         gX7vY/50/6q1ql8fVFXGlb5A88So4TnwAd+9ESAxpRzy0Rr1r9TYUvaDINAbVdezFwPr
+         cLJxjTnz5RVUVxIQoS6xMyg61aRj1gGO+9pDr/oe5k1NNU3HTZu5gX/4hyllQGMBy99r
+         hY+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=LnXD5r3hFH+MEUtjx4QBE0EEvoehzCWexnsJ/7LZk8E=;
+        b=NJ2Jn0/bCL71HDziEiFm9Zo5AWiGr8wgpIkEVR2DBg5tO0uLHmXbjylPBLj6pZT0hH
+         bL+beB0C5mGcseSOfiCfF46Ge8Bsh0Pt+ysuzh+mqNL8BThzSdimccrsq5v9aIhN0P5H
+         TDFZBTOzFLSemntMUHUhN+Kbvbw4Bg3OW8Ag3TZ9Uazv28WhGYvDzb/DNjLdD12NvTs+
+         3r8AM6xV3VhYsl31MOh1+d7stfbQuTiJP5MK11wAcX7KQlb2hkn4SPyzq/+x1i0AEgut
+         l2VMSb8c7QgLaolhkrkpFFUKi1TBv9+BUrqNczbCnIdZslEELRXxhQbTleAedd/Rn12B
+         OhAA==
+X-Gm-Message-State: APjAAAUiYFousa3jwTlC0ufEuAATnlUv3b+hOvn1+sH8wIPsOxurnbem
+        t8uXQVLqpizjYgCvVORJimucZZxwDQCgqA==
+X-Google-Smtp-Source: APXvYqxrEt09gorCdp/sGXhZhoHLecqPs7s7bLSdk+PjKdsB7erswwsLnQirWgA+M9tFZEPtHZN74A==
+X-Received: by 2002:adf:d0c1:: with SMTP id z1mr6872924wrh.371.1576725597154;
+        Wed, 18 Dec 2019 19:19:57 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id 60sm5036416wrn.86.2019.12.18.19.19.56
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Dec 2019 19:19:56 -0800 (PST)
+Message-ID: <5dfaec5c.1c69fb81.b9e99.8fee@mx.google.com>
+Date:   Wed, 18 Dec 2019 19:19:56 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.90
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 90 boots: 0 failed,
+ 83 passed with 5 offline, 2 untried/unknown (v4.19.90)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hans de Goede <hdegoede@redhat.com> writes:
+stable-rc/linux-4.19.y boot: 90 boots: 0 failed, 83 passed with 5 offline, =
+2 untried/unknown (v4.19.90)
 
-> Hi,
->
-> On 18-12-2019 07:56, Punit Agrawal wrote:
->> Serdev sub-system claims all serial devices that are not already
->> enumerated. As a result, no device node is created for serial port on
->> certain boards such as the Apollo Lake based UP2. This has the
->> unintended consequence of not being able to raise the login prompt via
->> serial connection.
->>
->> Introduce a blacklist to reject devices that should not be treated as
->> a serdev device. Add the Intel HS UART peripheral ids to the blacklist
->> to bring back serial port on SoCs carrying them.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
->> Cc: Rob Herring <robh@kernel.org>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: Johan Hovold <johan@kernel.org>
->> Cc: Hans de Goede <hdegoede@redhat.com>
->
-> Thank you for addressing this long standing issue.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.90/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.90/
 
-I am surprised there hasn't been more people complaining! Maybe even on
-x86 mainline isn't that widely used on development boards.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.90
+Git Commit: 7d120bf21c05cbe30a679f0feeca884eeaceb069
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 58 unique boards, 20 SoC families, 15 builds out of 206
 
-> The basic approach here looks good to me, once the minor
-> comments from other reviewers are addressed you can add my:
->
-> Acked-by: Hans de Goede <hdegoede@redhat.com>
+Offline Platforms:
 
-Thanks!
+arm:
 
-[...]
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
