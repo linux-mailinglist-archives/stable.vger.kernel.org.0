@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9532126B65
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:57:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B90F126B5A
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:56:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730563AbfLSS4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:56:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52410 "EHLO mail.kernel.org"
+        id S1730765AbfLSS4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:56:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730757AbfLSS4C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:56:02 -0500
+        id S1730762AbfLSS4F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:56:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85C872465E;
-        Thu, 19 Dec 2019 18:56:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01953206EC;
+        Thu, 19 Dec 2019 18:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781762;
-        bh=TV7reKbOwC/Y7RHTX7qKGlBuIi38AILlTu9b0ggzADY=;
+        s=default; t=1576781764;
+        bh=F/DzLy0Md+yRJaxTa2YpI3P8cDeNkEsaZq3s1CPzwF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aQQWg4Toge7/Pw0ATEpIGtDjGW+sVt1WVfuqdACCZ+3U01Bw+1Ek0heU6zCxlMHYV
-         h6ZVzfdxXPlsvX91xoXf8eljz6tx6YyO6Zk2N3VSp9VL74SNzPFSShEtQhIP0DkGhl
-         PLVP+I9a1SkxHTMCLdx5tKh03xpa51HYk8LfRT/k=
+        b=NWcuu++tBXl/frUdaGjzy3Vo3q4rgQLKiikeS8DZhQJc30lsb0jj6KIn74EgJADfj
+         S5pHswLRajGhBNkn4NqynkzdvbtM009hl/DybAu5A/0aKwDm4vLB1hzO/Ah91qXj6z
+         //nubFvBHJmL9rZk5LD1v+O+5ChIB62FivgC99cE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Paulo Zanoni <paulo.r.zanoni@intel.com>,
-        Jian-Hong Pan <jian-hong@endlessm.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 5.4 69/80] drm/i915/fbc: Disable fbc by default on all glk+
-Date:   Thu, 19 Dec 2019 19:35:01 +0100
-Message-Id: <20191219183140.351406355@linuxfoundation.org>
+        stable@vger.kernel.org, Meelis Roos <mroos@linux.ee>,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 70/80] drm/radeon: fix r1xx/r2xx register checker for POT textures
+Date:   Thu, 19 Dec 2019 19:35:02 +0100
+Message-Id: <20191219183141.627747989@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
 References: <20191219183031.278083125@linuxfoundation.org>
@@ -48,42 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 0eb8e74f7202a4a98bbc0c1adeed3986cf50b66a upstream.
+commit 008037d4d972c9c47b273e40e52ae34f9d9e33e7 upstream.
 
-We're missing a workaround in the fbc code for all glk+ platforms
-which can cause corruption around the top of the screen. So
-enabling fbc by default is a bad idea. I'm not keen to backport
-the w/a so let's start by disabling fbc by default on all glk+.
-We'll lift the restriction once the w/a is in place.
+Shift and mask were reversed.  Noticed by chance.
 
+Tested-by: Meelis Roos <mroos@linux.ee>
+Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Cc: Daniel Drake <drake@endlessm.com>
-Cc: Paulo Zanoni <paulo.r.zanoni@intel.com>
-Cc: Jian-Hong Pan <jian-hong@endlessm.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191127201222.16669-2-ville.syrjala@linux.intel.com
-Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-(cherry picked from commit cd8c021b36a66833cefe2c90a79a9e312a2a5690)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/display/intel_fbc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/r100.c |    4 ++--
+ drivers/gpu/drm/radeon/r200.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_fbc.c
-+++ b/drivers/gpu/drm/i915/display/intel_fbc.c
-@@ -1284,7 +1284,7 @@ static int intel_sanitize_fbc_option(str
- 		return 0;
- 
- 	/* https://bugs.freedesktop.org/show_bug.cgi?id=108085 */
--	if (IS_GEMINILAKE(dev_priv))
-+	if (INTEL_GEN(dev_priv) >= 10 || IS_GEMINILAKE(dev_priv))
- 		return 0;
- 
- 	if (IS_BROADWELL(dev_priv) || INTEL_GEN(dev_priv) >= 9)
+--- a/drivers/gpu/drm/radeon/r100.c
++++ b/drivers/gpu/drm/radeon/r100.c
+@@ -1826,8 +1826,8 @@ static int r100_packet0_check(struct rad
+ 			track->textures[i].use_pitch = 1;
+ 		} else {
+ 			track->textures[i].use_pitch = 0;
+-			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
+-			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
++			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
++			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
+ 		}
+ 		if (idx_value & RADEON_TXFORMAT_CUBIC_MAP_ENABLE)
+ 			track->textures[i].tex_coord_type = 2;
+--- a/drivers/gpu/drm/radeon/r200.c
++++ b/drivers/gpu/drm/radeon/r200.c
+@@ -476,8 +476,8 @@ int r200_packet0_check(struct radeon_cs_
+ 			track->textures[i].use_pitch = 1;
+ 		} else {
+ 			track->textures[i].use_pitch = 0;
+-			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
+-			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
++			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
++			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
+ 		}
+ 		if (idx_value & R200_TXFORMAT_LOOKUP_DISABLE)
+ 			track->textures[i].lookup_disable = true;
 
 
