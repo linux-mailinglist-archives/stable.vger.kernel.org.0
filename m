@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5DE126C93
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16EEB126CB6
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729075AbfLSTEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:04:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
+        id S1728864AbfLSSpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:45:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728829AbfLSSqu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:46:50 -0500
+        id S1728304AbfLSSpO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:45:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A29D2222C2;
-        Thu, 19 Dec 2019 18:46:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B351F222C2;
+        Thu, 19 Dec 2019 18:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781209;
-        bh=U4z2sRDYdJKHX1PNo+xR3U0qZN1owb1vJ9hDYEmbJF4=;
+        s=default; t=1576781114;
+        bh=ZR19IDXpPk3hAdCKhmbkx3xf7pwKHMAIoGz17JSoSRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JHYFoKl0sJRk+EmB4cp2Z8js2WL98g3LlnOXHpw6G6KS/TzZKpqhALsgLBoe+BV5H
-         I9q4MzIGyevn7dc8wsP4cLKD524Dofe1VfO/BypwG4jQqefFcc2b+Q/Jo//L68yQuY
-         RAq53cWe9qKnPd3BLLPBqumvzWBZwEyzjGoRWluQ=
+        b=ZJW/7A3SYx92NoCgePiaOvje5P4e8dl8nqOJuG/lzgMuIEWV5VGyPsYIq0OBbbfSd
+         USpxad7Dzx1Xeblw/LZ5qVcIan/Miu2Jbu4cCy0uXTWGx1ksU49oBmOf6JQJjOTiTT
+         FivNZmQNhtlYwt76g8QRAyST8DRIGSFQ3xmFheKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 080/199] tty: vt: keyboard: reject invalid keycodes
-Date:   Thu, 19 Dec 2019 19:32:42 +0100
-Message-Id: <20191219183219.392442234@linuxfoundation.org>
+        stable@vger.kernel.org, Wolfgang Grandegger <wg@grandegger.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        David Miller <davem@davemloft.net>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jouni Hogander <jouni.hogander@unikie.com>
+Subject: [PATCH 4.9 081/199] can: slcan: Fix use-after-free Read in slcan_open
+Date:   Thu, 19 Dec 2019 19:32:43 +0100
+Message-Id: <20191219183219.444180649@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -44,52 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-commit b2b2dd71e0859436d4e05b2f61f86140250ed3f8 upstream.
+commit 9ebd796e24008f33f06ebea5a5e6aceb68b51794 upstream.
 
-Do not try to handle keycodes that are too big, otherwise we risk doing
-out-of-bounds writes:
+Slcan_open doesn't clean-up device which registration failed from the
+slcan_devs device list. On next open this list is iterated and freed
+device is accessed. Fix this by calling slc_free_netdev in error path.
 
-BUG: KASAN: global-out-of-bounds in clear_bit include/asm-generic/bitops-instrumented.h:56 [inline]
-BUG: KASAN: global-out-of-bounds in kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
-BUG: KASAN: global-out-of-bounds in kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
-Write of size 8 at addr ffffffff89a1b2d8 by task syz-executor108/1722
-...
- kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
- kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
- input_to_handler+0x3b6/0x4c0 drivers/input/input.c:118
- input_pass_values.part.0+0x2e3/0x720 drivers/input/input.c:145
- input_pass_values drivers/input/input.c:949 [inline]
- input_set_keycode+0x290/0x320 drivers/input/input.c:954
- evdev_handle_set_keycode_v2+0xc4/0x120 drivers/input/evdev.c:882
- evdev_do_ioctl drivers/input/evdev.c:1150 [inline]
+Driver/net/can/slcan.c is derived from slip.c. Use-after-free error was
+identified in slip_open by syzboz. Same bug is in slcan.c. Here is the
+trace from the Syzbot slip report:
 
-In this case we were dealing with a fuzzed HID device that declared over
-12K buttons, and while HID layer should not be reporting to us such big
-keycodes, we should also be defensive and reject invalid data ourselves as
-well.
+__dump_stack lib/dump_stack.c:77 [inline]
+dump_stack+0x197/0x210 lib/dump_stack.c:118
+print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+__kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
+kasan_report+0x12/0x20 mm/kasan/common.c:634
+__asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:132
+sl_sync drivers/net/slip/slip.c:725 [inline]
+slip_open+0xecd/0x11b7 drivers/net/slip/slip.c:801
+tty_ldisc_open.isra.0+0xa3/0x110 drivers/tty/tty_ldisc.c:469
+tty_set_ldisc+0x30e/0x6b0 drivers/tty/tty_ldisc.c:596
+tiocsetd drivers/tty/tty_io.c:2334 [inline]
+tty_ioctl+0xe8d/0x14f0 drivers/tty/tty_io.c:2594
+vfs_ioctl fs/ioctl.c:46 [inline]
+file_ioctl fs/ioctl.c:509 [inline]
+do_vfs_ioctl+0xdb6/0x13e0 fs/ioctl.c:696
+ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
+__do_sys_ioctl fs/ioctl.c:720 [inline]
+__se_sys_ioctl fs/ioctl.c:718 [inline]
+__x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Reported-by: syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191122204220.GA129459@dtor-ws
+Fixes: ed50e1600b44 ("slcan: Fix memory leak in error path")
+Cc: Wolfgang Grandegger <wg@grandegger.com>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: David Miller <davem@davemloft.net>
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
+Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/keyboard.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/slcan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -1460,7 +1460,7 @@ static void kbd_event(struct input_handl
+--- a/drivers/net/can/slcan.c
++++ b/drivers/net/can/slcan.c
+@@ -613,6 +613,7 @@ err_free_chan:
+ 	sl->tty = NULL;
+ 	tty->disc_data = NULL;
+ 	clear_bit(SLF_INUSE, &sl->flags);
++	slc_free_netdev(sl->dev);
+ 	free_netdev(sl->dev);
  
- 	if (event_type == EV_MSC && event_code == MSC_RAW && HW_RAW(handle->dev))
- 		kbd_rawcode(value);
--	if (event_type == EV_KEY)
-+	if (event_type == EV_KEY && event_code <= KEY_MAX)
- 		kbd_keycode(event_code, value, HW_RAW(handle->dev));
- 
- 	spin_unlock(&kbd_event_lock);
+ err_exit:
 
 
