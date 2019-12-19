@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A60F5126A37
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17745126936
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:35:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727680AbfLSSpN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:45:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37470 "EHLO mail.kernel.org"
+        id S1727166AbfLSSfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:35:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727647AbfLSSpM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:45:12 -0500
+        id S1727150AbfLSSfa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:35:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5138C222C2;
-        Thu, 19 Dec 2019 18:45:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96B1824672;
+        Thu, 19 Dec 2019 18:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781111;
-        bh=PV0xUFIbqSUM/QVO5CU1Hx7+eOyNGkb2FSCxaY8XQJY=;
+        s=default; t=1576780530;
+        bh=otUWK49KyyBOMV/bSn9NkqTZ1N4WCHx+CSRaC3fXr8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uxoJRJz7TES6xgj3nv/YFcwXm/VHxHeYffzo8fs4juAQKhvN0IMEUOGZhrnaUedzg
-         oiqGnKq7Atm48P5YSYNfA43NSvmxYRDeJ57p1RvmKvkeDGUsrR0Dn6ayRWTnMKV34s
-         VAqOhbtsRNYmHUHvJJXZkPzNgEWVqLq7I4adihPs=
+        b=hwAcqti/SgMOBtVLEiJUDcbLLQxqzTecy0WtvT8JoTFL5lu8w2vMDqGz+3SSN2r7b
+         b6xQgVtmQU39PnLxwQ8Iwy7y5U+NHsujr0mIqQNcSIbDpr1kkU9LsTA1Mt09yJ2jNP
+         USYAVzkAeHQoTLmhMLZKUtc9w/bzdpA/n6STnTWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 038/199] dmaengine: coh901318: Fix a double-lock bug
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 012/162] net: ep93xx_eth: fix mismatch of request_mem_region in remove
 Date:   Thu, 19 Dec 2019 19:32:00 +0100
-Message-Id: <20191219183217.027211912@linuxfoundation.org>
+Message-Id: <20191219183203.078403846@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 627469e4445b9b12e0229b3bdf8564d5ce384dd7 ]
+[ Upstream commit 3df70afe8d33f4977d0e0891bdcfb639320b5257 ]
 
-The function coh901318_alloc_chan_resources() calls spin_lock_irqsave()
-before calling coh901318_config().
-But coh901318_config() calls spin_lock_irqsave() again in its
-definition, which may cause a double-lock bug.
+The driver calls release_resource in remove to match request_mem_region
+in probe, which is incorrect.
+Fix it by using the right one, release_mem_region.
 
-Because coh901318_config() is only called by
-coh901318_alloc_chan_resources(), the bug fix is to remove the
-calls to spin-lock and -unlock functions in coh901318_config().
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/coh901318.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/ethernet/cirrus/ep93xx_eth.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/dma/coh901318.c
-+++ b/drivers/dma/coh901318.c
-@@ -1802,8 +1802,6 @@ static int coh901318_config(struct coh90
- 	int channel = cohc->id;
- 	void __iomem *virtbase = cohc->base->virtbase;
+diff --git a/drivers/net/ethernet/cirrus/ep93xx_eth.c b/drivers/net/ethernet/cirrus/ep93xx_eth.c
+index de9f7c97d916d..796ee362ad70c 100644
+--- a/drivers/net/ethernet/cirrus/ep93xx_eth.c
++++ b/drivers/net/ethernet/cirrus/ep93xx_eth.c
+@@ -776,6 +776,7 @@ static int ep93xx_eth_remove(struct platform_device *pdev)
+ {
+ 	struct net_device *dev;
+ 	struct ep93xx_priv *ep;
++	struct resource *mem;
  
--	spin_lock_irqsave(&cohc->lock, flags);
--
- 	if (param)
- 		p = param;
- 	else
-@@ -1823,8 +1821,6 @@ static int coh901318_config(struct coh90
- 	coh901318_set_conf(cohc, p->config);
- 	coh901318_set_ctrl(cohc, p->ctrl_lli_last);
+ 	dev = platform_get_drvdata(pdev);
+ 	if (dev == NULL)
+@@ -791,8 +792,8 @@ static int ep93xx_eth_remove(struct platform_device *pdev)
+ 		iounmap(ep->base_addr);
  
--	spin_unlock_irqrestore(&cohc->lock, flags);
--
- 	return 0;
- }
+ 	if (ep->res != NULL) {
+-		release_resource(ep->res);
+-		kfree(ep->res);
++		mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++		release_mem_region(mem->start, resource_size(mem));
+ 	}
  
+ 	free_netdev(dev);
+-- 
+2.20.1
+
 
 
