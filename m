@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8F4A126C01
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8D7126C3D
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730000AbfLSSwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:52:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46418 "EHLO mail.kernel.org"
+        id S1729228AbfLSStX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:49:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730192AbfLSSv7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:51:59 -0500
+        id S1729769AbfLSStW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:49:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B6A82064B;
-        Thu, 19 Dec 2019 18:51:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B1042465E;
+        Thu, 19 Dec 2019 18:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781518;
-        bh=L8btdrsIjfqpwMqVEQ6JHMwbbAwANIx7VRawtsqGllo=;
+        s=default; t=1576781361;
+        bh=Jrwpqvl/NbwnQ3Y/vpkLFz7VYCol0WrRQ/VbLcu30NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EuZEhwQUgWm0NFjlpHXlCZIK3FHsySMl+ydb6Gzi90wBitn2ed+LMhwdbCcnMd9T5
-         NqDAqdpa0ZUmzS27MuM0tI4XsLVYw8UOqN0ACyAkmxvmjnKopxo7U9xbupdV/YB8be
-         Zd5zzcKpgz1bGjPpuZgNQYDfG/3Jxut2NgdaKOXA=
+        b=G3X/gQXvB4LcDHlh644pgnGBcWPFwTDC3NVbdSe2jG/FYL3EIfNmqCU6SGMOHa+Ok
+         hkb1i5FcL+PMxeyS6t5TGsRBAyQy8Yn4GO1JgVspqhFx6xG6V1TVSHLRwdr16Gz+q+
+         7S8F8NrwIageHzpG3FvJ2/YbyqkFuA7ROZs0b0jU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 18/47] PCI/PM: Always return devices to D0 when thawing
+        stable@vger.kernel.org, Lihua Yao <ylhuajnu@outlook.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4.9 190/199] ARM: dts: s3c64xx: Fix init order of clock providers
 Date:   Thu, 19 Dec 2019 19:34:32 +0100
-Message-Id: <20191219182918.637905168@linuxfoundation.org>
+Message-Id: <20191219183226.251009553@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,87 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Lihua Yao <ylhuajnu@outlook.com>
 
-commit f2c33ccacb2d4bbeae2a255a7ca0cbfd03017b7c upstream.
+commit d60d0cff4ab01255b25375425745c3cff69558ad upstream.
 
-pci_pm_thaw_noirq() is supposed to return the device to D0 and restore its
-configuration registers, but previously it only did that for devices whose
-drivers implemented the new power management ops.
+fin_pll is the parent of clock-controller@7e00f000, specify
+the dependency to ensure proper initialization order of clock
+providers.
 
-Hibernation, e.g., via "echo disk > /sys/power/state", involves freezing
-devices, creating a hibernation image, thawing devices, writing the image,
-and powering off.  The fact that thawing did not return devices with legacy
-power management to D0 caused errors, e.g., in this path:
+without this patch:
+[    0.000000] S3C6410 clocks: apll = 0, mpll = 0
+[    0.000000]  epll = 0, arm_clk = 0
 
-  pci_pm_thaw_noirq
-    if (pci_has_legacy_pm_support(pci_dev)) # true for Mellanox VF driver
-      return pci_legacy_resume_early(dev)   # ... legacy PM skips the rest
-    pci_set_power_state(pci_dev, PCI_D0)
-    pci_restore_state(pci_dev)
-  pci_pm_thaw
-    if (pci_has_legacy_pm_support(pci_dev))
-      pci_legacy_resume
-	drv->resume
-	  mlx4_resume
-	    ...
-	      pci_enable_msix_range
-	        ...
-		  if (dev->current_state != PCI_D0)  # <---
-		    return -EINVAL;
+with this patch:
+[    0.000000] S3C6410 clocks: apll = 532000000, mpll = 532000000
+[    0.000000]  epll = 24000000, arm_clk = 532000000
 
-which caused these warnings:
-
-  mlx4_core a6d1:00:02.0: INTx is not supported in multi-function mode, aborting
-  PM: dpm_run_callback(): pci_pm_thaw+0x0/0xd7 returns -95
-  PM: Device a6d1:00:02.0 failed to thaw: error -95
-
-Return devices to D0 and restore config registers for all devices, not just
-those whose drivers support new power management.
-
-[bhelgaas: also call pci_restore_state() before pci_legacy_resume_early(),
-update comment, add stable tag, commit log]
-Link: https://lore.kernel.org/r/KU1P153MB016637CAEAD346F0AA8E3801BFAD0@KU1P153MB0166.APCP153.PROD.OUTLOOK.COM
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: stable@vger.kernel.org	# v4.13+
+Cc: <stable@vger.kernel.org>
+Fixes: 3f6d439f2022 ("clk: reverse default clk provider initialization order in of_clk_init()")
+Signed-off-by: Lihua Yao <ylhuajnu@outlook.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci-driver.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/s3c6410-mini6410.dts |    4 ++++
+ arch/arm/boot/dts/s3c6410-smdk6410.dts |    4 ++++
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -1042,17 +1042,22 @@ static int pci_pm_thaw_noirq(struct devi
- 			return error;
- 	}
+--- a/arch/arm/boot/dts/s3c6410-mini6410.dts
++++ b/arch/arm/boot/dts/s3c6410-mini6410.dts
+@@ -167,6 +167,10 @@
+ 	};
+ };
  
--	if (pci_has_legacy_pm_support(pci_dev))
--		return pci_legacy_resume_early(dev);
--
- 	/*
--	 * pci_restore_state() requires the device to be in D0 (because of MSI
--	 * restoration among other things), so force it into D0 in case the
--	 * driver's "freeze" callbacks put it into a low-power state directly.
-+	 * Both the legacy ->resume_early() and the new pm->thaw_noirq()
-+	 * callbacks assume the device has been returned to D0 and its
-+	 * config state has been restored.
-+	 *
-+	 * In addition, pci_restore_state() restores MSI-X state in MMIO
-+	 * space, which requires the device to be in D0, so return it to D0
-+	 * in case the driver's "freeze" callbacks put it into a low-power
-+	 * state.
- 	 */
- 	pci_set_power_state(pci_dev, PCI_D0);
- 	pci_restore_state(pci_dev);
- 
-+	if (pci_has_legacy_pm_support(pci_dev))
-+		return pci_legacy_resume_early(dev);
++&clocks {
++	clocks = <&fin_pll>;
++};
 +
- 	if (drv && drv->pm && drv->pm->thaw_noirq)
- 		error = drv->pm->thaw_noirq(dev);
+ &sdhci0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&sd0_clk>, <&sd0_cmd>, <&sd0_cd>, <&sd0_bus4>;
+--- a/arch/arm/boot/dts/s3c6410-smdk6410.dts
++++ b/arch/arm/boot/dts/s3c6410-smdk6410.dts
+@@ -71,6 +71,10 @@
+ 	};
+ };
  
++&clocks {
++	clocks = <&fin_pll>;
++};
++
+ &sdhci0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&sd0_clk>, <&sd0_cmd>, <&sd0_cd>, <&sd0_bus4>;
 
 
