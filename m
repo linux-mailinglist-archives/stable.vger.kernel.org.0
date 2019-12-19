@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97363126CEF
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD469126D03
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728137AbfLSTHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:07:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34970 "EHLO mail.kernel.org"
+        id S1728617AbfLSSmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:42:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727856AbfLSSnW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:43:22 -0500
+        id S1728616AbfLSSmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:42:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75195206D7;
-        Thu, 19 Dec 2019 18:43:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A60D3222C2;
+        Thu, 19 Dec 2019 18:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781001;
-        bh=FiuL7yGSuoi3HNK42m9pi1FS4FRVWMscdsf/ueJ9uoE=;
+        s=default; t=1576780924;
+        bh=tawO3EiEOzoXBA5escWcgSKwcPu0Xc1V1YBXwfOTuws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDgPIgjhEa2lAs8zWoPVMd/4IZotEolpV3JDxCmXLQjc+gPbZcjAn0oY3mkcHIt/A
-         fosl8h4XNcUaB7JnAsIWsw3HlBFVg4une4T6FAiSqGP/oowK2487WX33v/5f2p4lVu
-         ou/U+zDkyfCxiB8a62OCJ2r3VDkAT0PX8KAry0+A=
+        b=uYhz9vsoQxdqERoVQrrhcvNnUAVIiVeWzh6HJjgxsPSqPy4AuviJVtoywBZ+W3Tqd
+         hnBeD8K6Y9u/193ZguhOMBfkqgcR0DahflqFUQ85CEFHjbwSipaOMPQMgt/+j7ZJL2
+         4SKgB9regngPk+JJdm4kX+wY4nEN2MKB8Fwxzc5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
-Subject: [PATCH 4.9 007/199] serial: ifx6x60: add missed pm_runtime_disable
-Date:   Thu, 19 Dec 2019 19:31:29 +0100
-Message-Id: <20191219183215.070695516@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 011/199] audit_get_nd(): dont unlock parent too early
+Date:   Thu, 19 Dec 2019 19:31:33 +0100
+Message-Id: <20191219183215.348027418@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -42,33 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 50b2b571c5f3df721fc81bf9a12c521dfbe019ba upstream.
+[ Upstream commit 69924b89687a2923e88cc42144aea27868913d0e ]
 
-The driver forgets to call pm_runtime_disable in remove.
-Add the missed calls to fix it.
+if the child has been negative and just went positive
+under us, we want coherent d_is_positive() and ->d_inode.
+Don't unlock the parent until we'd done that work...
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191118024833.21587-1-hslester96@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/ifx6x60.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/audit_watch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/ifx6x60.c
-+++ b/drivers/tty/serial/ifx6x60.c
-@@ -1244,6 +1244,9 @@ static int ifx_spi_spi_remove(struct spi
- 	struct ifx_spi_device *ifx_dev = spi_get_drvdata(spi);
- 	/* stop activity */
- 	tasklet_kill(&ifx_dev->io_work_tasklet);
-+
-+	pm_runtime_disable(&spi->dev);
-+
- 	/* free irq */
- 	free_irq(gpio_to_irq(ifx_dev->gpio.reset_out), ifx_dev);
- 	free_irq(gpio_to_irq(ifx_dev->gpio.srdy), ifx_dev);
+diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
+index f036b6ada6efc..712469a3103ac 100644
+--- a/kernel/audit_watch.c
++++ b/kernel/audit_watch.c
+@@ -365,12 +365,12 @@ static int audit_get_nd(struct audit_watch *watch, struct path *parent)
+ 	struct dentry *d = kern_path_locked(watch->path, parent);
+ 	if (IS_ERR(d))
+ 		return PTR_ERR(d);
+-	inode_unlock(d_backing_inode(parent->dentry));
+ 	if (d_is_positive(d)) {
+ 		/* update watch filter fields */
+ 		watch->dev = d->d_sb->s_dev;
+ 		watch->ino = d_backing_inode(d)->i_ino;
+ 	}
++	inode_unlock(d_backing_inode(parent->dentry));
+ 	dput(d);
+ 	return 0;
+ }
+-- 
+2.20.1
+
 
 
