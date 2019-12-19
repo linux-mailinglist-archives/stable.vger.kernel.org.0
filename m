@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E815C126C4A
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:03:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1C7E126D17
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728821AbfLSStA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:49:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42240 "EHLO mail.kernel.org"
+        id S1727858AbfLSSln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:41:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729463AbfLSSs6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:48:58 -0500
+        id S1727815AbfLSSlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:41:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4E9E24679;
-        Thu, 19 Dec 2019 18:48:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2FAF24672;
+        Thu, 19 Dec 2019 18:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781337;
-        bh=pLdYNkVQumSrYcoJkwEPWpM8YP95RC5fAS0Ict/uXys=;
+        s=default; t=1576780902;
+        bh=Jrwpqvl/NbwnQ3Y/vpkLFz7VYCol0WrRQ/VbLcu30NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aFYD4+8+txdI2HIYU2irRpvTwtqzzJ4pxZx2NKGIHPSk0Rfh/Ok4KH5BcJqXl0UAi
-         /4YX65Lchahz6e5LjjnaN0DmFDh89x5orl2f7o0XfKbRawp5yXfo78VAGEBiWJuza7
-         ImsO/QSXt3wza5+MmP0nQmczUudpwAahOg51zyrA=
+        b=V67LpTJZ/YKKIMmfu8prbBEmJukchTorNRhaxbRZL8WXX6GoIZJZsy7qRnuoVY3Ka
+         HM1xE9dQs/CzxNaSQ7tVMXOmg8/g/yu5BbUaVe2xVd1fS+l8J7MLXy4MQrVA2ZyWfR
+         Do5Y8ODVF0C2mqlomF23a3VgaDGczpO1/FXw0+AE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 181/199] inet: protect against too small mtu values.
+        stable@vger.kernel.org, Lihua Yao <ylhuajnu@outlook.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4.4 155/162] ARM: dts: s3c64xx: Fix init order of clock providers
 Date:   Thu, 19 Dec 2019 19:34:23 +0100
-Message-Id: <20191219183225.648601831@linuxfoundation.org>
+Message-Id: <20191219183217.213774864@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,176 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Lihua Yao <ylhuajnu@outlook.com>
 
-[ Upstream commit 501a90c945103e8627406763dac418f20f3837b2 ]
+commit d60d0cff4ab01255b25375425745c3cff69558ad upstream.
 
-syzbot was once again able to crash a host by setting a very small mtu
-on loopback device.
+fin_pll is the parent of clock-controller@7e00f000, specify
+the dependency to ensure proper initialization order of clock
+providers.
 
-Let's make inetdev_valid_mtu() available in include/net/ip.h,
-and use it in ip_setup_cork(), so that we protect both ip_append_page()
-and __ip_append_data()
+without this patch:
+[    0.000000] S3C6410 clocks: apll = 0, mpll = 0
+[    0.000000]  epll = 0, arm_clk = 0
 
-Also add a READ_ONCE() when the device mtu is read.
+with this patch:
+[    0.000000] S3C6410 clocks: apll = 532000000, mpll = 532000000
+[    0.000000]  epll = 24000000, arm_clk = 532000000
 
-Pairs this lockless read with one WRITE_ONCE() in __dev_set_mtu(),
-even if other code paths might write over this field.
-
-Add a big comment in include/linux/netdevice.h about dev->mtu
-needing READ_ONCE()/WRITE_ONCE() annotations.
-
-Hopefully we will add the missing ones in followup patches.
-
-[1]
-
-refcount_t: saturated; leaking memory.
-WARNING: CPU: 0 PID: 9464 at lib/refcount.c:22 refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 9464 Comm: syz-executor850 Not tainted 5.4.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x197/0x210 lib/dump_stack.c:118
- panic+0x2e3/0x75c kernel/panic.c:221
- __warn.cold+0x2f/0x3e kernel/panic.c:582
- report_bug+0x289/0x300 lib/bug.c:195
- fixup_bug arch/x86/kernel/traps.c:174 [inline]
- fixup_bug arch/x86/kernel/traps.c:169 [inline]
- do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
- do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
- invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
-RIP: 0010:refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
-Code: 06 31 ff 89 de e8 c8 f5 e6 fd 84 db 0f 85 6f ff ff ff e8 7b f4 e6 fd 48 c7 c7 e0 71 4f 88 c6 05 56 a6 a4 06 01 e8 c7 a8 b7 fd <0f> 0b e9 50 ff ff ff e8 5c f4 e6 fd 0f b6 1d 3d a6 a4 06 31 ff 89
-RSP: 0018:ffff88809689f550 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff815e4336 RDI: ffffed1012d13e9c
-RBP: ffff88809689f560 R08: ffff88809c50a3c0 R09: fffffbfff15d31b1
-R10: fffffbfff15d31b0 R11: ffffffff8ae98d87 R12: 0000000000000001
-R13: 0000000000040100 R14: ffff888099041104 R15: ffff888218d96e40
- refcount_add include/linux/refcount.h:193 [inline]
- skb_set_owner_w+0x2b6/0x410 net/core/sock.c:1999
- sock_wmalloc+0xf1/0x120 net/core/sock.c:2096
- ip_append_page+0x7ef/0x1190 net/ipv4/ip_output.c:1383
- udp_sendpage+0x1c7/0x480 net/ipv4/udp.c:1276
- inet_sendpage+0xdb/0x150 net/ipv4/af_inet.c:821
- kernel_sendpage+0x92/0xf0 net/socket.c:3794
- sock_sendpage+0x8b/0xc0 net/socket.c:936
- pipe_to_sendpage+0x2da/0x3c0 fs/splice.c:458
- splice_from_pipe_feed fs/splice.c:512 [inline]
- __splice_from_pipe+0x3ee/0x7c0 fs/splice.c:636
- splice_from_pipe+0x108/0x170 fs/splice.c:671
- generic_splice_sendpage+0x3c/0x50 fs/splice.c:842
- do_splice_from fs/splice.c:861 [inline]
- direct_splice_actor+0x123/0x190 fs/splice.c:1035
- splice_direct_to_actor+0x3b4/0xa30 fs/splice.c:990
- do_splice_direct+0x1da/0x2a0 fs/splice.c:1078
- do_sendfile+0x597/0xd00 fs/read_write.c:1464
- __do_sys_sendfile64 fs/read_write.c:1525 [inline]
- __se_sys_sendfile64 fs/read_write.c:1511 [inline]
- __x64_sys_sendfile64+0x1dd/0x220 fs/read_write.c:1511
- do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x441409
-Code: e8 ac e8 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 eb 08 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fffb64c4f78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000441409
-RDX: 0000000000000000 RSI: 0000000000000006 RDI: 0000000000000005
-RBP: 0000000000073b8a R08: 0000000000000010 R09: 0000000000000010
-R10: 0000000000010001 R11: 0000000000000246 R12: 0000000000402180
-R13: 0000000000402210 R14: 0000000000000000 R15: 0000000000000000
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
-
-Fixes: 1470ddf7f8ce ("inet: Remove explicit write references to sk/inet in ip_append_data")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Fixes: 3f6d439f2022 ("clk: reverse default clk provider initialization order in of_clk_init()")
+Signed-off-by: Lihua Yao <ylhuajnu@outlook.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/netdevice.h |    5 +++++
- include/net/ip.h          |    5 +++++
- net/core/dev.c            |    3 ++-
- net/ipv4/devinet.c        |    5 -----
- net/ipv4/ip_output.c      |   14 +++++++++-----
- 5 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1730,6 +1730,11 @@ struct net_device {
- 	unsigned char		if_port;
- 	unsigned char		dma;
+---
+ arch/arm/boot/dts/s3c6410-mini6410.dts |    4 ++++
+ arch/arm/boot/dts/s3c6410-smdk6410.dts |    4 ++++
+ 2 files changed, 8 insertions(+)
+
+--- a/arch/arm/boot/dts/s3c6410-mini6410.dts
++++ b/arch/arm/boot/dts/s3c6410-mini6410.dts
+@@ -167,6 +167,10 @@
+ 	};
+ };
  
-+	/* Note : dev->mtu is often read without holding a lock.
-+	 * Writers usually hold RTNL.
-+	 * It is recommended to use READ_ONCE() to annotate the reads,
-+	 * and to use WRITE_ONCE() to annotate the writes.
-+	 */
- 	unsigned int		mtu;
- 	unsigned short		type;
- 	unsigned short		hard_header_len;
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -620,4 +620,9 @@ extern int sysctl_icmp_msgs_burst;
- int ip_misc_proc_init(void);
- #endif
- 
-+static inline bool inetdev_valid_mtu(unsigned int mtu)
-+{
-+	return likely(mtu >= IPV4_MIN_MTU);
-+}
++&clocks {
++	clocks = <&fin_pll>;
++};
 +
- #endif	/* _IP_H */
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6584,7 +6584,8 @@ static int __dev_set_mtu(struct net_devi
- 	if (ops->ndo_change_mtu)
- 		return ops->ndo_change_mtu(dev, new_mtu);
+ &sdhci0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&sd0_clk>, <&sd0_cmd>, <&sd0_cd>, <&sd0_bus4>;
+--- a/arch/arm/boot/dts/s3c6410-smdk6410.dts
++++ b/arch/arm/boot/dts/s3c6410-smdk6410.dts
+@@ -71,6 +71,10 @@
+ 	};
+ };
  
--	dev->mtu = new_mtu;
-+	/* Pairs with all the lockless reads of dev->mtu in the stack */
-+	WRITE_ONCE(dev->mtu, new_mtu);
- 	return 0;
- }
- 
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -1386,11 +1386,6 @@ skip:
- 	}
- }
- 
--static bool inetdev_valid_mtu(unsigned int mtu)
--{
--	return mtu >= IPV4_MIN_MTU;
--}
--
- static void inetdev_send_gratuitous_arp(struct net_device *dev,
- 					struct in_device *in_dev)
- 
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -1159,13 +1159,17 @@ static int ip_setup_cork(struct sock *sk
- 	rt = *rtp;
- 	if (unlikely(!rt))
- 		return -EFAULT;
--	/*
--	 * We steal reference to this route, caller should not release it
--	 */
--	*rtp = NULL;
++&clocks {
++	clocks = <&fin_pll>;
++};
 +
- 	cork->fragsize = ip_sk_use_pmtu(sk) ?
--			 dst_mtu(&rt->dst) : rt->dst.dev->mtu;
-+			 dst_mtu(&rt->dst) : READ_ONCE(rt->dst.dev->mtu);
-+
-+	if (!inetdev_valid_mtu(cork->fragsize))
-+		return -ENETUNREACH;
-+
- 	cork->dst = &rt->dst;
-+	/* We stole this route, caller should not release it. */
-+	*rtp = NULL;
-+
- 	cork->length = 0;
- 	cork->ttl = ipc->ttl;
- 	cork->tos = ipc->tos;
+ &sdhci0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&sd0_clk>, <&sd0_cmd>, <&sd0_cd>, <&sd0_bus4>;
 
 
