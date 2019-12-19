@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A80E4126D2A
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF96B126C29
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727738AbfLSTJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:09:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59842 "EHLO mail.kernel.org"
+        id S1729376AbfLSSuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:50:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728147AbfLSSk7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:59 -0500
+        id S1727647AbfLSSt7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:49:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D39F3206D7;
-        Thu, 19 Dec 2019 18:40:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B54A62465E;
+        Thu, 19 Dec 2019 18:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780858;
-        bh=rfIC0ZStgrhv1LNPvkfYQ7AgxHcpJY0t1tyAg4iBhwM=;
+        s=default; t=1576781398;
+        bh=jAqISfBf9SHOZCSMjY79SFQJW0oiAT17q9M0WJHEmRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y4GQpI8Gee2NgCMOPIzny2tbZ83kskPoDBgMb9OCz6DzAfjfEbKIm7tc5JWhjCXsn
-         BtS3fxqnqQh2CQL8RQCRCgSZSfODydk2JlUxxX12v0YftI5ROYYK1gD1RhngkmSEOh
-         E7hDdiUoXEjMIpEPzx6v7jyN3t6449ak5WTifo5M=
+        b=HvxT+1PV4I+822m0BfoD8nxz3J0yZl8wO6U7LP5hyDxfbjEwtq1rw7S1FudZwGj1u
+         lSWehtl2UdsJeUkG/wNKRUA+UdKHuWFccE4NSjq06wwmC189EtIbXuNwK6kOynsdzo
+         BaVGHyPrLbh/sI96QywW81GxSF5Q0sNbyeDMMh7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 145/162] tipc: fix ordering of tipc module init and exit routine
-Date:   Thu, 19 Dec 2019 19:34:13 +0100
-Message-Id: <20191219183216.594655264@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
+        NeilBrown <neilb@suse.de>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 172/199] sunrpc: fix crash when cache_head become valid before update
+Date:   Thu, 19 Dec 2019 19:34:14 +0100
+Message-Id: <20191219183225.043554988@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,159 +46,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
 
-[ Upstream commit 9cf1cd8ee3ee09ef2859017df2058e2f53c5347f ]
+[ Upstream commit 5fcaf6982d1167f1cd9b264704f6d1ef4c505d54 ]
 
-In order to set/get/dump, the tipc uses the generic netlink
-infrastructure. So, when tipc module is inserted, init function
-calls genl_register_family().
-After genl_register_family(), set/get/dump commands are immediately
-allowed and these callbacks internally use the net_generic.
-net_generic is allocated by register_pernet_device() but this
-is called after genl_register_family() in the __init function.
-So, these callbacks would use un-initialized net_generic.
+I was investigating a crash in our Virtuozzo7 kernel which happened in
+in svcauth_unix_set_client. I found out that we access m_client field
+in ip_map structure, which was received from sunrpc_cache_lookup (we
+have a bit older kernel, now the code is in sunrpc_cache_add_entry), and
+these field looks uninitialized (m_client == 0x74 don't look like a
+pointer) but in the cache_head in flags we see 0x1 which is CACHE_VALID.
 
-Test commands:
-    #SHELL1
-    while :
-    do
-        modprobe tipc
-        modprobe -rv tipc
-    done
+It looks like the problem appeared from our previous fix to sunrpc (1):
+commit 4ecd55ea0742 ("sunrpc: fix cache_head leak due to queued
+request")
 
-    #SHELL2
-    while :
-    do
-        tipc link list
-    done
+And we've also found a patch already fixing our patch (2):
+commit d58431eacb22 ("sunrpc: don't mark uninitialised items as VALID.")
 
-Splat looks like:
-[   59.616322][ T2788] kasan: CONFIG_KASAN_INLINE enabled
-[   59.617234][ T2788] kasan: GPF could be caused by NULL-ptr deref or user memory access
-[   59.618398][ T2788] general protection fault: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-[   59.619389][ T2788] CPU: 3 PID: 2788 Comm: tipc Not tainted 5.4.0+ #194
-[   59.620231][ T2788] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[   59.621428][ T2788] RIP: 0010:tipc_bcast_get_broadcast_mode+0x131/0x310 [tipc]
-[   59.622379][ T2788] Code: c7 c6 ef 8b 38 c0 65 ff 0d 84 83 c9 3f e8 d7 a5 f2 e3 48 8d bb 38 11 00 00 48 b8 00 00 00 00
-[   59.622550][ T2780] NET: Registered protocol family 30
-[   59.624627][ T2788] RSP: 0018:ffff88804b09f578 EFLAGS: 00010202
-[   59.624630][ T2788] RAX: dffffc0000000000 RBX: 0000000000000011 RCX: 000000008bc66907
-[   59.624631][ T2788] RDX: 0000000000000229 RSI: 000000004b3cf4cc RDI: 0000000000001149
-[   59.624633][ T2788] RBP: ffff88804b09f588 R08: 0000000000000003 R09: fffffbfff4fb3df1
-[   59.624635][ T2788] R10: fffffbfff50318f8 R11: ffff888066cadc18 R12: ffffffffa6cc2f40
-[   59.624637][ T2788] R13: 1ffff11009613eba R14: ffff8880662e9328 R15: ffff8880662e9328
-[   59.624639][ T2788] FS:  00007f57d8f7b740(0000) GS:ffff88806cc00000(0000) knlGS:0000000000000000
-[   59.624645][ T2788] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   59.625875][ T2780] tipc: Started in single node mode
-[   59.626128][ T2788] CR2: 00007f57d887a8c0 CR3: 000000004b140002 CR4: 00000000000606e0
-[   59.633991][ T2788] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   59.635195][ T2788] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   59.636478][ T2788] Call Trace:
-[   59.637025][ T2788]  tipc_nl_add_bc_link+0x179/0x1470 [tipc]
-[   59.638219][ T2788]  ? lock_downgrade+0x6e0/0x6e0
-[   59.638923][ T2788]  ? __tipc_nl_add_link+0xf90/0xf90 [tipc]
-[   59.639533][ T2788]  ? tipc_nl_node_dump_link+0x318/0xa50 [tipc]
-[   59.640160][ T2788]  ? mutex_lock_io_nested+0x1380/0x1380
-[   59.640746][ T2788]  tipc_nl_node_dump_link+0x4fd/0xa50 [tipc]
-[   59.641356][ T2788]  ? tipc_nl_node_reset_link_stats+0x340/0x340 [tipc]
-[   59.642088][ T2788]  ? __skb_ext_del+0x270/0x270
-[   59.642594][ T2788]  genl_lock_dumpit+0x85/0xb0
-[   59.643050][ T2788]  netlink_dump+0x49c/0xed0
-[   59.643529][ T2788]  ? __netlink_sendskb+0xc0/0xc0
-[   59.644044][ T2788]  ? __netlink_dump_start+0x190/0x800
-[   59.644617][ T2788]  ? __mutex_unlock_slowpath+0xd0/0x670
-[   59.645177][ T2788]  __netlink_dump_start+0x5a0/0x800
-[   59.645692][ T2788]  genl_rcv_msg+0xa75/0xe90
-[   59.646144][ T2788]  ? __lock_acquire+0xdfe/0x3de0
-[   59.646692][ T2788]  ? genl_family_rcv_msg_attrs_parse+0x320/0x320
-[   59.647340][ T2788]  ? genl_lock_dumpit+0xb0/0xb0
-[   59.647821][ T2788]  ? genl_unlock+0x20/0x20
-[   59.648290][ T2788]  ? genl_parallel_done+0xe0/0xe0
-[   59.648787][ T2788]  ? find_held_lock+0x39/0x1d0
-[   59.649276][ T2788]  ? genl_rcv+0x15/0x40
-[   59.649722][ T2788]  ? lock_contended+0xcd0/0xcd0
-[   59.650296][ T2788]  netlink_rcv_skb+0x121/0x350
-[   59.650828][ T2788]  ? genl_family_rcv_msg_attrs_parse+0x320/0x320
-[   59.651491][ T2788]  ? netlink_ack+0x940/0x940
-[   59.651953][ T2788]  ? lock_acquire+0x164/0x3b0
-[   59.652449][ T2788]  genl_rcv+0x24/0x40
-[   59.652841][ T2788]  netlink_unicast+0x421/0x600
-[ ... ]
+Though the crash is eliminated, I think the core of the problem is not
+completely fixed:
 
-Fixes: 7e4369057806 ("tipc: fix a slab object leak")
-Fixes: a62fbccecd62 ("tipc: make subscriber server support net namespace")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Neil in the patch (2) makes cache_head CACHE_NEGATIVE, before
+cache_fresh_locked which was added in (1) to fix crash. These way
+cache_is_valid won't say the cache is valid anymore and in
+svcauth_unix_set_client the function cache_check will return error
+instead of 0, and we don't count entry as initialized.
+
+But it looks like we need to remove cache_fresh_locked completely in
+sunrpc_cache_lookup:
+
+In (1) we've only wanted to make cache_fresh_unlocked->cache_dequeue so
+that cache_requests with no readers also release corresponding
+cache_head, to fix their leak.  We with Vasily were not sure if
+cache_fresh_locked and cache_fresh_unlocked should be used in pair or
+not, so we've guessed to use them in pair.
+
+Now we see that we don't want the CACHE_VALID bit set here by
+cache_fresh_locked, as "valid" means "initialized" and there is no
+initialization in sunrpc_cache_add_entry. Both expiry_time and
+last_refresh are not used in cache_fresh_unlocked code-path and also not
+required for the initial fix.
+
+So to conclude cache_fresh_locked was called by mistake, and we can just
+safely remove it instead of crutching it with CACHE_NEGATIVE. It looks
+ideologically better for me. Hope I don't miss something here.
+
+Here is our crash backtrace:
+[13108726.326291] BUG: unable to handle kernel NULL pointer dereference at 0000000000000074
+[13108726.326365] IP: [<ffffffffc01f79eb>] svcauth_unix_set_client+0x2ab/0x520 [sunrpc]
+[13108726.326448] PGD 0
+[13108726.326468] Oops: 0002 [#1] SMP
+[13108726.326497] Modules linked in: nbd isofs xfs loop kpatch_cumulative_81_0_r1(O) xt_physdev nfnetlink_queue bluetooth rfkill ip6table_nat nf_nat_ipv6 ip_vs_wrr ip_vs_wlc ip_vs_sh nf_conntrack_netlink ip_vs_sed ip_vs_pe_sip nf_conntrack_sip ip_vs_nq ip_vs_lc ip_vs_lblcr ip_vs_lblc ip_vs_ftp ip_vs_dh nf_nat_ftp nf_conntrack_ftp iptable_raw xt_recent nf_log_ipv6 xt_hl ip6t_rt nf_log_ipv4 nf_log_common xt_LOG xt_limit xt_TCPMSS xt_tcpmss vxlan ip6_udp_tunnel udp_tunnel xt_statistic xt_NFLOG nfnetlink_log dummy xt_mark xt_REDIRECT nf_nat_redirect raw_diag udp_diag tcp_diag inet_diag netlink_diag af_packet_diag unix_diag rpcsec_gss_krb5 xt_addrtype ip6t_rpfilter ipt_REJECT nf_reject_ipv4 ip6t_REJECT nf_reject_ipv6 ebtable_nat ebtable_broute nf_conntrack_ipv6 nf_defrag_ipv6 ip6table_mangle ip6table_raw nfsv4
+[13108726.327173]  dns_resolver cls_u32 binfmt_misc arptable_filter arp_tables ip6table_filter ip6_tables devlink fuse_kio_pcs ipt_MASQUERADE nf_nat_masquerade_ipv4 xt_nat iptable_nat nf_nat_ipv4 xt_comment nf_conntrack_ipv4 nf_defrag_ipv4 xt_wdog_tmo xt_multiport bonding xt_set xt_conntrack iptable_filter iptable_mangle kpatch(O) ebtable_filter ebt_among ebtables ip_set_hash_ip ip_set nfnetlink vfat fat skx_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass fuse pcspkr ses enclosure joydev sg mei_me hpwdt hpilo lpc_ich mei ipmi_si shpchp ipmi_devintf ipmi_msghandler xt_ipvs acpi_power_meter ip_vs_rr nfsv3 nfsd auth_rpcgss nfs_acl nfs lockd grace fscache nf_nat cls_fw sch_htb sch_cbq sch_sfq ip_vs em_u32 nf_conntrack tun br_netfilter veth overlay ip6_vzprivnet ip6_vznetstat ip_vznetstat
+[13108726.327817]  ip_vzprivnet vziolimit vzevent vzlist vzstat vznetstat vznetdev vzmon vzdev bridge pio_kaio pio_nfs pio_direct pfmt_raw pfmt_ploop1 ploop ip_tables ext4 mbcache jbd2 sd_mod crc_t10dif crct10dif_generic mgag200 i2c_algo_bit drm_kms_helper scsi_transport_iscsi 8021q syscopyarea sysfillrect garp sysimgblt fb_sys_fops mrp stp ttm llc bnx2x crct10dif_pclmul crct10dif_common crc32_pclmul crc32c_intel drm dm_multipath ghash_clmulni_intel uas aesni_intel lrw gf128mul glue_helper ablk_helper cryptd tg3 smartpqi scsi_transport_sas mdio libcrc32c i2c_core usb_storage ptp pps_core wmi sunrpc dm_mirror dm_region_hash dm_log dm_mod [last unloaded: kpatch_cumulative_82_0_r1]
+[13108726.328403] CPU: 35 PID: 63742 Comm: nfsd ve: 51332 Kdump: loaded Tainted: G        W  O   ------------   3.10.0-862.20.2.vz7.73.29 #1 73.29
+[13108726.328491] Hardware name: HPE ProLiant DL360 Gen10/ProLiant DL360 Gen10, BIOS U32 10/02/2018
+[13108726.328554] task: ffffa0a6a41b1160 ti: ffffa0c2a74bc000 task.ti: ffffa0c2a74bc000
+[13108726.328610] RIP: 0010:[<ffffffffc01f79eb>]  [<ffffffffc01f79eb>] svcauth_unix_set_client+0x2ab/0x520 [sunrpc]
+[13108726.328706] RSP: 0018:ffffa0c2a74bfd80  EFLAGS: 00010246
+[13108726.328750] RAX: 0000000000000001 RBX: ffffa0a6183ae000 RCX: 0000000000000000
+[13108726.328811] RDX: 0000000000000074 RSI: 0000000000000286 RDI: ffffa0c2a74bfcf0
+[13108726.328864] RBP: ffffa0c2a74bfe00 R08: ffffa0bab8c22960 R09: 0000000000000001
+[13108726.328916] R10: 0000000000000001 R11: 0000000000000001 R12: ffffa0a32aa7f000
+[13108726.328969] R13: ffffa0a6183afac0 R14: ffffa0c233d88d00 R15: ffffa0c2a74bfdb4
+[13108726.329022] FS:  0000000000000000(0000) GS:ffffa0e17f9c0000(0000) knlGS:0000000000000000
+[13108726.329081] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[13108726.332311] CR2: 0000000000000074 CR3: 00000026a1b28000 CR4: 00000000007607e0
+[13108726.334606] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[13108726.336754] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[13108726.338908] PKRU: 00000000
+[13108726.341047] Call Trace:
+[13108726.343074]  [<ffffffff8a2c78b4>] ? groups_alloc+0x34/0x110
+[13108726.344837]  [<ffffffffc01f5eb4>] svc_set_client+0x24/0x30 [sunrpc]
+[13108726.346631]  [<ffffffffc01f2ac1>] svc_process_common+0x241/0x710 [sunrpc]
+[13108726.348332]  [<ffffffffc01f3093>] svc_process+0x103/0x190 [sunrpc]
+[13108726.350016]  [<ffffffffc07d605f>] nfsd+0xdf/0x150 [nfsd]
+[13108726.351735]  [<ffffffffc07d5f80>] ? nfsd_destroy+0x80/0x80 [nfsd]
+[13108726.353459]  [<ffffffff8a2bf741>] kthread+0xd1/0xe0
+[13108726.355195]  [<ffffffff8a2bf670>] ? create_kthread+0x60/0x60
+[13108726.356896]  [<ffffffff8a9556dd>] ret_from_fork_nospec_begin+0x7/0x21
+[13108726.358577]  [<ffffffff8a2bf670>] ? create_kthread+0x60/0x60
+[13108726.360240] Code: 4c 8b 45 98 0f 8e 2e 01 00 00 83 f8 fe 0f 84 76 fe ff ff 85 c0 0f 85 2b 01 00 00 49 8b 50 40 b8 01 00 00 00 48 89 93 d0 1a 00 00 <f0> 0f c1 02 83 c0 01 83 f8 01 0f 8e 53 02 00 00 49 8b 44 24 38
+[13108726.363769] RIP  [<ffffffffc01f79eb>] svcauth_unix_set_client+0x2ab/0x520 [sunrpc]
+[13108726.365530]  RSP <ffffa0c2a74bfd80>
+[13108726.367179] CR2: 0000000000000074
+
+Fixes: d58431eacb22 ("sunrpc: don't mark uninitialised items as VALID.")
+Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+Acked-by: NeilBrown <neilb@suse.de>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/core.c |   29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
+ net/sunrpc/cache.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -117,14 +117,6 @@ static int __init tipc_init(void)
- 			      TIPC_CRITICAL_IMPORTANCE;
- 	sysctl_tipc_rmem[2] = TIPC_CONN_OVERLOAD_LIMIT;
- 
--	err = tipc_netlink_start();
--	if (err)
--		goto out_netlink;
--
--	err = tipc_netlink_compat_start();
--	if (err)
--		goto out_netlink_compat;
--
- 	err = tipc_register_sysctl();
- 	if (err)
- 		goto out_sysctl;
-@@ -145,8 +137,21 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_bearer;
- 
-+	err = tipc_netlink_start();
-+	if (err)
-+		goto out_netlink;
-+
-+	err = tipc_netlink_compat_start();
-+	if (err)
-+		goto out_netlink_compat;
-+
- 	pr_info("Started in single node mode\n");
- 	return 0;
-+
-+out_netlink_compat:
-+	tipc_netlink_stop();
-+out_netlink:
-+	tipc_bearer_cleanup();
- out_bearer:
- 	unregister_pernet_device(&tipc_topsrv_net_ops);
- out_pernet_topsrv:
-@@ -156,22 +161,18 @@ out_socket:
- out_pernet:
- 	tipc_unregister_sysctl();
- out_sysctl:
--	tipc_netlink_compat_stop();
--out_netlink_compat:
--	tipc_netlink_stop();
--out_netlink:
- 	pr_err("Unable to start in single node mode\n");
- 	return err;
+diff --git a/net/sunrpc/cache.c b/net/sunrpc/cache.c
+index cdcc0fea9f5a1..24e42919a4800 100644
+--- a/net/sunrpc/cache.c
++++ b/net/sunrpc/cache.c
+@@ -54,9 +54,6 @@ static void cache_init(struct cache_head *h, struct cache_detail *detail)
+ 	h->last_refresh = now;
  }
  
- static void __exit tipc_exit(void)
- {
-+	tipc_netlink_compat_stop();
-+	tipc_netlink_stop();
- 	tipc_bearer_cleanup();
- 	unregister_pernet_device(&tipc_topsrv_net_ops);
- 	tipc_socket_stop();
- 	unregister_pernet_device(&tipc_net_ops);
--	tipc_netlink_stop();
--	tipc_netlink_compat_stop();
- 	tipc_unregister_sysctl();
+-static inline int cache_is_valid(struct cache_head *h);
+-static void cache_fresh_locked(struct cache_head *head, time_t expiry,
+-				struct cache_detail *detail);
+ static void cache_fresh_unlocked(struct cache_head *head,
+ 				struct cache_detail *detail);
  
- 	pr_info("Deactivated\n");
+@@ -101,9 +98,6 @@ struct cache_head *sunrpc_cache_lookup(struct cache_detail *detail,
+ 			if (cache_is_expired(detail, tmp)) {
+ 				hlist_del_init(&tmp->cache_list);
+ 				detail->entries --;
+-				if (cache_is_valid(tmp) == -EAGAIN)
+-					set_bit(CACHE_NEGATIVE, &tmp->flags);
+-				cache_fresh_locked(tmp, 0, detail);
+ 				freeme = tmp;
+ 				break;
+ 			}
+-- 
+2.20.1
+
 
 
