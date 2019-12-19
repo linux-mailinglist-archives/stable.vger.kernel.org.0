@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E32AE126D34
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63851126D35
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727110AbfLSSk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:40:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59142 "EHLO mail.kernel.org"
+        id S1728367AbfLSSk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:40:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727778AbfLSSkY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:24 -0500
+        id S1728071AbfLSSk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:40:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C5E124684;
-        Thu, 19 Dec 2019 18:40:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C067624682;
+        Thu, 19 Dec 2019 18:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780823;
-        bh=vzXHKnP5JI4mahibx1TixNsRcMsfvcTepF7Fss3uuK4=;
+        s=default; t=1576780826;
+        bh=atv7YAxSoS79URw9rbDEbE0+hZXe8bkNhGKUBQKyMAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ilRloNEKgJBAUwfDo4kVJu8lf2re2CMR56U3UomwrKd6axgDRJNUcAcTzfMhcHv9w
-         rdfLcMxd0ucLpQIGepr6dtT0uzLVbZJ2N4q+basYwUZrVzlbgdw+ImZ/ycUXx5iF+8
-         ySCb+/rxsUqFBqI1XcspBQTfJZN4U2O7mmNXcblU=
+        b=1FvHsVPvYKMTKEoM3bQXJRck159XKITVlQcpPJOzNSBOH5978ZP1OK4u32U5l+s77
+         0lGS5E+fcdV0FuBdNz+naYFvHz+QXwu6P6vNKAVCc9S8yLXCTZ+zxZBYJKC4nOvA4V
+         uwAkAU5jnkDgptuYJSbIapIuRDag8RtpiMi9/Pkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jarkko Nikula <jarkko.nikula@bitmer.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 132/162] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection GPIO polarity
-Date:   Thu, 19 Dec 2019 19:34:00 +0100
-Message-Id: <20191219183215.816300392@linuxfoundation.org>
+Subject: [PATCH 4.4 133/162] pinctrl: samsung: Fix device node refcount leaks in S3C64xx wakeup controller init
+Date:   Thu, 19 Dec 2019 19:34:01 +0100
+Message-Id: <20191219183215.873963985@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -44,47 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@bitmer.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 287897f9aaa2ad1c923d9875914f57c4dc9159c8 ]
+[ Upstream commit 7f028caadf6c37580d0f59c6c094ed09afc04062 ]
 
-The MMC card detection GPIO polarity is active low on TAO3530, like in many
-other similar boards. Now the card is not detected and it is unable to
-mount rootfs from an SD card.
+In s3c64xx_eint_eint0_init() the for_each_child_of_node() loop is used
+with a break to find a matching child node.  Although each iteration of
+for_each_child_of_node puts the previous node, but early exit from loop
+misses it.  This leads to leak of device node.
 
-Fix this by using the correct polarity.
-
-This incorrect polarity was defined already in the commit 30d95c6d7092
-("ARM: dts: omap3: Add Technexion TAO3530 SOM omap3-tao3530.dtsi") in v3.18
-kernel and later changed to use defined GPIO constants in v4.4 kernel by
-the commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags
-cell for OMAP2+ boards").
-
-While the latter commit did not introduce the issue I'm marking it with
-Fixes tag due the v4.4 kernels still being maintained.
-
-Fixes: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
-Cc: linux-stable <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 61dd72613177 ("pinctrl: Add pinctrl-s3c64xx driver")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3-tao3530.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/samsung/pinctrl-s3c64xx.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/boot/dts/omap3-tao3530.dtsi b/arch/arm/boot/dts/omap3-tao3530.dtsi
-index ae5dbbd9d5692..4f10204c0994c 100644
---- a/arch/arm/boot/dts/omap3-tao3530.dtsi
-+++ b/arch/arm/boot/dts/omap3-tao3530.dtsi
-@@ -225,7 +225,7 @@
- 	pinctrl-0 = <&mmc1_pins>;
- 	vmmc-supply = <&vmmc1>;
- 	vmmc_aux-supply = <&vsim>;
--	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_HIGH>;
-+	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
- 	bus-width = <8>;
- };
+diff --git a/drivers/pinctrl/samsung/pinctrl-s3c64xx.c b/drivers/pinctrl/samsung/pinctrl-s3c64xx.c
+index 43407ab248f51..0cd9f3a7bb11a 100644
+--- a/drivers/pinctrl/samsung/pinctrl-s3c64xx.c
++++ b/drivers/pinctrl/samsung/pinctrl-s3c64xx.c
+@@ -713,6 +713,7 @@ static int s3c64xx_eint_eint0_init(struct samsung_pinctrl_drv_data *d)
+ 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data) {
+ 		dev_err(dev, "could not allocate memory for wkup eint data\n");
++		of_node_put(eint0_np);
+ 		return -ENOMEM;
+ 	}
+ 	data->drvdata = d;
+@@ -723,6 +724,7 @@ static int s3c64xx_eint_eint0_init(struct samsung_pinctrl_drv_data *d)
+ 		irq = irq_of_parse_and_map(eint0_np, i);
+ 		if (!irq) {
+ 			dev_err(dev, "failed to get wakeup EINT IRQ %d\n", i);
++			of_node_put(eint0_np);
+ 			return -ENXIO;
+ 		}
  
+@@ -730,6 +732,7 @@ static int s3c64xx_eint_eint0_init(struct samsung_pinctrl_drv_data *d)
+ 						 s3c64xx_eint0_handlers[i],
+ 						 data);
+ 	}
++	of_node_put(eint0_np);
+ 
+ 	bank = d->pin_banks;
+ 	for (i = 0; i < d->nr_banks; ++i, ++bank) {
 -- 
 2.20.1
 
