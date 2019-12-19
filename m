@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D93DF126BBD
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95DC31269AE
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:40:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728308AbfLSSyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:54:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49328 "EHLO mail.kernel.org"
+        id S1727614AbfLSSkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:40:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730434AbfLSSyA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:54:00 -0500
+        id S1728339AbfLSSkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:40:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E49DE222C2;
-        Thu, 19 Dec 2019 18:53:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63DB5206D7;
+        Thu, 19 Dec 2019 18:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781639;
-        bh=RQyUUDlMhra9YJ2uHOjLojmvdH6zxmXIcsWihEGODXk=;
+        s=default; t=1576780806;
+        bh=HUDxa4sCtle48J86+gvHNgyZO8KfClOJARkzh9eND58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdpoMMRYjombr9Xq14htD1PuSPm+LlRLoB0ccVwi3XpUQWP1wfu2ZmlLVYsLTmgdt
-         hJhBMibb+FgT8HQREmPgywOxn0u4QYXjxwgQWfhWDrCJ4eXkWjixtsScBvZD+qnPSH
-         fdFTC5Z7Jsjpx4GKPXRoSchoqvkF6+YqoBKdrv3M=
+        b=1/B+ndnkI6GEizDLHRyu/MYmK2ame6tosoETsGnyu+rj4l+oddN5y3Hd2OR9mV79/
+         8fR7VE/mT+8dPzSckkDL8im+1qiEzgh90lvzMPrGQqLzKU2LVpirjoCdNgXwNFiXxI
+         ylb3c98dkEEPvoaVKnQW0K5lB7uz0PAeARNZY6E0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 02/80] mmc: block: Make card_busy_detect() a bit more generic
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 126/162] xhci: make sure interrupts are restored to correct state
 Date:   Thu, 19 Dec 2019 19:33:54 +0100
-Message-Id: <20191219183032.988998208@linuxfoundation.org>
+Message-Id: <20191219183215.438374642@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
-References: <20191219183031.278083125@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaotian Jing <chaotian.jing@mediatek.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 3869468e0c4800af52bfe1e0b72b338dcdae2cfc upstream.
+[ Upstream commit bd82873f23c9a6ad834348f8b83f3b6a5bca2c65 ]
 
-To prepare for more users of card_busy_detect(), let's drop the struct
-request * as an in-parameter and convert to log the error message via
-dev_err() instead of pr_err().
+spin_unlock_irqrestore() might be called with stale flags after
+reading port status, possibly restoring interrupts to a incorrect
+state.
 
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+If a usb2 port just finished resuming while the port status is read
+the spin lock will be temporary released and re-acquired in a separate
+function. The flags parameter is passed as value instead of a pointer,
+not updating flags properly before the final spin_unlock_irqrestore()
+is called.
+
+Cc: <stable@vger.kernel.org> # v3.12+
+Fixes: 8b3d45705e54 ("usb: Fix xHCI host issues on remote wakeup.")
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20191211142007.8847-7-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/block.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/usb/host/xhci-hub.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -981,7 +981,7 @@ static inline bool mmc_blk_in_tran_state
- }
- 
- static int card_busy_detect(struct mmc_card *card, unsigned int timeout_ms,
--			    struct request *req, u32 *resp_errs)
-+			    u32 *resp_errs)
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index 421825b44202b..bd31b016c51db 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -704,7 +704,7 @@ static u32 xhci_get_port_status(struct usb_hcd *hcd,
+ 		struct xhci_bus_state *bus_state,
+ 		__le32 __iomem **port_array,
+ 		u16 wIndex, u32 raw_port_status,
+-		unsigned long flags)
++		unsigned long *flags)
+ 	__releases(&xhci->lock)
+ 	__acquires(&xhci->lock)
  {
- 	unsigned long timeout = jiffies + msecs_to_jiffies(timeout_ms);
- 	int err = 0;
-@@ -992,8 +992,8 @@ static int card_busy_detect(struct mmc_c
+@@ -786,12 +786,12 @@ static u32 xhci_get_port_status(struct usb_hcd *hcd,
+ 			xhci_set_link_state(xhci, port_array, wIndex,
+ 					XDEV_U0);
  
- 		err = __mmc_send_status(card, &status, 5);
- 		if (err) {
--			pr_err("%s: error %d requesting status\n",
--			       req->rq_disk->disk_name, err);
-+			dev_err(mmc_dev(card->host),
-+				"error %d requesting status\n", err);
- 			return err;
+-			spin_unlock_irqrestore(&xhci->lock, flags);
++			spin_unlock_irqrestore(&xhci->lock, *flags);
+ 			time_left = wait_for_completion_timeout(
+ 					&bus_state->rexit_done[wIndex],
+ 					msecs_to_jiffies(
+ 						XHCI_MAX_REXIT_TIMEOUT_MS));
+-			spin_lock_irqsave(&xhci->lock, flags);
++			spin_lock_irqsave(&xhci->lock, *flags);
+ 
+ 			if (time_left) {
+ 				slot_id = xhci_find_slot_id_by_port(hcd,
+@@ -937,7 +937,7 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 			break;
  		}
+ 		status = xhci_get_port_status(hcd, bus_state, port_array,
+-				wIndex, temp, flags);
++				wIndex, temp, &flags);
+ 		if (status == 0xffffffff)
+ 			goto error;
  
-@@ -1006,9 +1006,9 @@ static int card_busy_detect(struct mmc_c
- 		 * leaves the program state.
- 		 */
- 		if (done) {
--			pr_err("%s: Card stuck in wrong state! %s %s status: %#x\n",
--				mmc_hostname(card->host),
--				req->rq_disk->disk_name, __func__, status);
-+			dev_err(mmc_dev(card->host),
-+				"Card stuck in wrong state! %s status: %#x\n",
-+				 __func__, status);
- 			return -ETIMEDOUT;
- 		}
- 
-@@ -1671,7 +1671,7 @@ static int mmc_blk_fix_state(struct mmc_
- 
- 	mmc_blk_send_stop(card, timeout);
- 
--	err = card_busy_detect(card, timeout, req, NULL);
-+	err = card_busy_detect(card, timeout, NULL);
- 
- 	mmc_retune_release(card->host);
- 
-@@ -1895,7 +1895,7 @@ static int mmc_blk_card_busy(struct mmc_
- 	if (mmc_host_is_spi(card->host) || rq_data_dir(req) == READ)
- 		return 0;
- 
--	err = card_busy_detect(card, MMC_BLK_TIMEOUT_MS, req, &status);
-+	err = card_busy_detect(card, MMC_BLK_TIMEOUT_MS, &status);
- 
- 	/*
- 	 * Do not assume data transferred correctly if there are any error bits
+-- 
+2.20.1
+
 
 
