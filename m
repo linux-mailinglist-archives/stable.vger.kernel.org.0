@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11A85126C54
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:03:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 132D6126D62
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:10:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729091AbfLSSs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:48:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
+        id S1727831AbfLSSjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:39:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729630AbfLSSs0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:48:26 -0500
+        id S1727824AbfLSSjM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:39:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71C5E2465E;
-        Thu, 19 Dec 2019 18:48:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E22102467F;
+        Thu, 19 Dec 2019 18:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781305;
-        bh=YU3DxByc+F69niV6pf6clyyEWdlANzDaTxDs6Yqk0Ts=;
+        s=default; t=1576780751;
+        bh=RWxwab80TY1PaH/MVpLU0B8OeDnTrNO7TreYWl8Nzmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PpHRFZAaFcPRC9nnxTKv+h0DgjUDStFm1We4z47dw9/Ums07NDMeuXNi9hdwvfLq4
-         VEfKqIVgf78I0kG0OA8QI8LFUUMZgyRpTFK5t8KqZSorUVTESTvUwCjhQwlvsYp4gb
-         M/ayCYHvTLkhva7MBXfiHsQhGuodAk93shAgej9c=
+        b=C72c/2BxyHBnrJizRVQtvk8tgdJ7PCPHS4RTnFcCV6l7An6Qzuegv3vF8RPYBbL6j
+         7XtX/M3oB90RgDtpIANE41jrV1BMk+KY1ZMYpixMuSmdItXF+8UrXy4Pf1fcvYuEt5
+         b893ELUnq8u4hXI1Q4G+1jCvHSfGTr0pSnQOA7Hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        "Williams, Gerald S" <gerald.s.williams@intel.com>,
-        NeilBrown <neilb@suse.de>
-Subject: [PATCH 4.9 126/199] workqueue: Fix pwq ref leak in rescuer_thread()
-Date:   Thu, 19 Dec 2019 19:33:28 +0100
-Message-Id: <20191219183221.957027353@linuxfoundation.org>
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 101/162] rtlwifi: rtl8192de: Fix missing code to retrieve RX buffer address
+Date:   Thu, 19 Dec 2019 19:33:29 +0100
+Message-Id: <20191219183213.921191089@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit e66b39af00f426b3356b96433d620cb3367ba1ff upstream.
+commit 0e531cc575c4e9e3dd52ad287b49d3c2dc74c810 upstream.
 
-008847f66c3 ("workqueue: allow rescuer thread to do more work.") made
-the rescuer worker requeue the pwq immediately if there may be more
-work items which need rescuing instead of waiting for the next mayday
-timer expiration.  Unfortunately, it doesn't check whether the pwq is
-already on the mayday list and unconditionally gets the ref and moves
-it onto the list.  This doesn't corrupt the list but creates an
-additional reference to the pwq.  It got queued twice but will only be
-removed once.
+In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
+new drivers"), a callback to get the RX buffer address was added to
+the PCI driver. Unfortunately, driver rtl8192de was not modified
+appropriately and the code runs into a WARN_ONCE() call. The use
+of an incorrect array is also fixed.
 
-This leak later can trigger pwq refcnt warning on workqueue
-destruction and prevent freeing of the workqueue.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: "Williams, Gerald S" <gerald.s.williams@intel.com>
-Cc: NeilBrown <neilb@suse.de>
-Cc: stable@vger.kernel.org # v3.19+
+Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
+Cc: Stable <stable@vger.kernel.org> # 3.18+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/workqueue.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -2344,8 +2344,14 @@ repeat:
- 			 */
- 			if (need_to_create_worker(pool)) {
- 				spin_lock(&wq_mayday_lock);
--				get_pwq(pwq);
--				list_move_tail(&pwq->mayday_node, &wq->maydays);
-+				/*
-+				 * Queue iff we aren't racing destruction
-+				 * and somebody else hasn't queued it already.
-+				 */
-+				if (wq->rescuer && list_empty(&pwq->mayday_node)) {
-+					get_pwq(pwq);
-+					list_add_tail(&pwq->mayday_node, &wq->maydays);
-+				}
- 				spin_unlock(&wq_mayday_lock);
- 			}
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
+@@ -843,13 +843,15 @@ u32 rtl92de_get_desc(u8 *p_desc, bool is
+ 			break;
  		}
-@@ -4358,7 +4364,8 @@ static void show_pwq(struct pool_workque
- 	pr_info("  pwq %d:", pool->id);
- 	pr_cont_pool_info(pool);
- 
--	pr_cont(" active=%d/%d%s\n", pwq->nr_active, pwq->max_active,
-+	pr_cont(" active=%d/%d refcnt=%d%s\n",
-+		pwq->nr_active, pwq->max_active, pwq->refcnt,
- 		!list_empty(&pwq->mayday_node) ? " MAYDAY" : "");
- 
- 	hash_for_each(pool->busy_hash, bkt, worker, hentry) {
+ 	} else {
+-		struct rx_desc_92c *pdesc = (struct rx_desc_92c *)p_desc;
+ 		switch (desc_name) {
+ 		case HW_DESC_OWN:
+-			ret = GET_RX_DESC_OWN(pdesc);
++			ret = GET_RX_DESC_OWN(p_desc);
+ 			break;
+ 		case HW_DESC_RXPKT_LEN:
+-			ret = GET_RX_DESC_PKT_LEN(pdesc);
++			ret = GET_RX_DESC_PKT_LEN(p_desc);
++			break;
++		case HW_DESC_RXBUFF_ADDR:
++			ret = GET_RX_DESC_BUFF_ADDR(p_desc);
+ 			break;
+ 		default:
+ 			RT_ASSERT(false, "ERR rxdesc :%d not process\n",
 
 
