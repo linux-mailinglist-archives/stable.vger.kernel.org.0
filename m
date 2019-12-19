@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A293126CB4
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F23F6126DBA
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727233AbfLSSpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:45:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37620 "EHLO mail.kernel.org"
+        id S1728026AbfLSTLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:11:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729126AbfLSSpU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:45:20 -0500
+        id S1727894AbfLSSht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:37:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAB092465E;
-        Thu, 19 Dec 2019 18:45:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82DAA20716;
+        Thu, 19 Dec 2019 18:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781119;
-        bh=bMEM8CgX/6uIErmN9B5ttGlNi4wBwVVcAmuXfFf4Z8U=;
+        s=default; t=1576780669;
+        bh=G9x/cT2JjTm+p7FmxQ0buJMWxHTzHgniG95TVrwOgtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKSn5/3Gvvs34FQg7SwvJAsJ8DqL4PFxWAKjBzHYnzC1Pj6Q0ToyW6UD2v9D0soVN
-         B9fHGx6eIF8Fka3Cx6QFRFfmN6XtAFUX2vQi1sg6SHv9mtZ1ee6vHDXOGLJSMuw+/J
-         j366lPkpMYlw729KRwLUqJ9EsdKDbyPQPuh8AnV8=
+        b=PUxU0nn440vMg7jiWn60A6sxB/aUv3aiSHKvyJfiWBIxYKcfMxCv3YU7+mFgXuoJv
+         oS46vTyeqyBY41UkDhi8zvI/aNuitE1SOMa40iF2bLyO6yHTmzq8jMMbwfY1YJhnD3
+         tzjOjcLDXz2vKntRbrUPo9LNV+2ubelVhO67TnmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 091/199] RDMA/qib: Validate ->show()/store() callbacks before calling them
-Date:   Thu, 19 Dec 2019 19:32:53 +0100
-Message-Id: <20191219183219.965713070@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.4 067/162] crypto: user - fix memory leak in crypto_report
+Date:   Thu, 19 Dec 2019 19:32:55 +0100
+Message-Id: <20191219183211.914078182@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit 7ee23491b39259ae83899dd93b2a29ef0f22f0a7 upstream.
+commit ffdde5932042600c6807d46c1550b28b0db6a3bc upstream.
 
-The permissions of the read-only or write-only sysfs files can be
-changed (as root) and the user can then try to read a write-only file or
-write to a read-only file which will lead to kernel crash here.
+In crypto_report, a new skb is created via nlmsg_new(). This skb should
+be released if crypto_report_alg() fails.
 
-Protect against that by always validating the show/store callbacks.
-
-Link: https://lore.kernel.org/r/d45cc26361a174ae12dbb86c994ef334d257924b.1573096807.git.viresh.kumar@linaro.org
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/qib/qib_sysfs.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ crypto/crypto_user.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/qib/qib_sysfs.c
-+++ b/drivers/infiniband/hw/qib/qib_sysfs.c
-@@ -301,6 +301,9 @@ static ssize_t qib_portattr_show(struct
- 	struct qib_pportdata *ppd =
- 		container_of(kobj, struct qib_pportdata, pport_kobj);
+--- a/crypto/crypto_user.c
++++ b/crypto/crypto_user.c
+@@ -249,8 +249,10 @@ static int crypto_report(struct sk_buff
+ drop_alg:
+ 	crypto_mod_put(alg);
  
-+	if (!pattr->show)
-+		return -EIO;
-+
- 	return pattr->show(ppd, buf);
+-	if (err)
++	if (err) {
++		kfree_skb(skb);
+ 		return err;
++	}
+ 
+ 	return nlmsg_unicast(crypto_nlsk, skb, NETLINK_CB(in_skb).portid);
  }
- 
-@@ -312,6 +315,9 @@ static ssize_t qib_portattr_store(struct
- 	struct qib_pportdata *ppd =
- 		container_of(kobj, struct qib_pportdata, pport_kobj);
- 
-+	if (!pattr->store)
-+		return -EIO;
-+
- 	return pattr->store(ppd, buf, len);
- }
- 
 
 
