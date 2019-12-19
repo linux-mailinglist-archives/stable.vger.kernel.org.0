@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E4F6126D48
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:10:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 398CA126C6D
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:04:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728311AbfLSSj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:39:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58476 "EHLO mail.kernel.org"
+        id S1728284AbfLSSri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:47:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728304AbfLSSjz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:39:55 -0500
+        id S1729501AbfLSSri (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:47:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38252222C2;
-        Thu, 19 Dec 2019 18:39:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F74024679;
+        Thu, 19 Dec 2019 18:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780794;
-        bh=WQzeEBnJGmvKkMu+U3O5j7OyqmaBwhe4XyODa9qnvZQ=;
+        s=default; t=1576781257;
+        bh=Oumn+Gt3hM6JkMsZl4AjSWEZE4hwvtsd2P3a1SY+M2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yarlFfTF4ygeVc/Z8Cu50uu3hhbDbhSq15w8RKXrBIxPT4r0JVnzWaWVNj6NfJ3La
-         0Rh+2i/sAL0iyvkUmVn0ZFq2WBoJbRSe7Lwlnroo82SbtFgVnQDhdsEJDIVST8i9/B
-         PmPwycRhhd+hNIQ9rAz8wlzw6Z3/IfhAVg8H79XU=
+        b=2EhymrFi/1uNXUU/21CA1Hjlb2gnaNOOZ2a18uEXHuxMOI+EnNp95VCMtRxlldg5j
+         f8F5CBd5fDdwJuMhRT0AaABgFcaqK2uumcn99wM/Eh0BMvIPDwaFrYLIO+RnSUMURn
+         /FUZZosNPwsqNz3X8RIzJVlsFQEZT6cdwa20zOPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.4 121/162] quota: Check that quota is not dirty before release
+        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 147/199] scsi: zfcp: trace channel log even for FCP command responses
 Date:   Thu, 19 Dec 2019 19:33:49 +0100
-Message-Id: <20191219183215.133351362@linuxfoundation.org>
+Message-Id: <20191219183223.369852139@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+From: Steffen Maier <maier@linux.ibm.com>
 
-commit df4bb5d128e2c44848aeb36b7ceceba3ac85080d upstream.
+[ Upstream commit 100843f176109af94600e500da0428e21030ca7f ]
 
-There is a race window where quota was redirted once we drop dq_list_lock inside dqput(),
-but before we grab dquot->dq_lock inside dquot_release()
+While v2.6.26 commit b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug
+trace") is right that we don't want to flood the (payload) trace ring
+buffer, we don't trace successful FCP command responses by default.  So we
+can include the channel log for problem determination with failed responses
+of any FSF request type.
 
-TASK1                                                       TASK2 (chowner)
-->dqput()
-  we_slept:
-    spin_lock(&dq_list_lock)
-    if (dquot_dirty(dquot)) {
-          spin_unlock(&dq_list_lock);
-          dquot->dq_sb->dq_op->write_dquot(dquot);
-          goto we_slept
-    if (test_bit(DQ_ACTIVE_B, &dquot->dq_flags)) {
-          spin_unlock(&dq_list_lock);
-          dquot->dq_sb->dq_op->release_dquot(dquot);
-                                                            dqget()
-							    mark_dquot_dirty()
-							    dqput()
-          goto we_slept;
-        }
-So dquot dirty quota will be released by TASK1, but on next we_sleept loop
-we detect this and call ->write_dquot() for it.
-XFSTEST: https://github.com/dmonakhov/xfstests/commit/440a80d4cbb39e9234df4d7240aee1d551c36107
-
-Link: https://lore.kernel.org/r/20191031103920.3919-2-dmonakhov@openvz.org
-CC: stable@vger.kernel.org
-Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug trace")
+Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
+Cc: <stable@vger.kernel.org> #2.6.38+
+Link: https://lore.kernel.org/r/e37597b5c4ae123aaa85fd86c23a9f71e994e4a9.1572018132.git.bblock@linux.ibm.com
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/quota_global.c  |    2 +-
- fs/quota/dquot.c         |    2 +-
- include/linux/quotaops.h |   10 ++++++++++
- 3 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/s390/scsi/zfcp_dbf.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/fs/ocfs2/quota_global.c
-+++ b/fs/ocfs2/quota_global.c
-@@ -714,7 +714,7 @@ static int ocfs2_release_dquot(struct dq
+diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+index b6caad0fee24c..c53ea0ac5f460 100644
+--- a/drivers/s390/scsi/zfcp_dbf.c
++++ b/drivers/s390/scsi/zfcp_dbf.c
+@@ -93,11 +93,9 @@ void zfcp_dbf_hba_fsf_res(char *tag, int level, struct zfcp_fsf_req *req)
+ 	memcpy(rec->u.res.fsf_status_qual, &q_head->fsf_status_qual,
+ 	       FSF_STATUS_QUALIFIER_SIZE);
  
- 	mutex_lock(&dquot->dq_lock);
- 	/* Check whether we are not racing with some other dqget() */
--	if (atomic_read(&dquot->dq_count) > 1)
-+	if (dquot_is_busy(dquot))
- 		goto out;
- 	/* Running from downconvert thread? Postpone quota processing to wq */
- 	if (current == osb->dc_task) {
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -472,7 +472,7 @@ int dquot_release(struct dquot *dquot)
+-	if (req->fsf_command != FSF_QTCB_FCP_CMND) {
+-		rec->pl_len = q_head->log_length;
+-		zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
+-				  rec->pl_len, "fsf_res", req->req_id);
+-	}
++	rec->pl_len = q_head->log_length;
++	zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
++			  rec->pl_len, "fsf_res", req->req_id);
  
- 	mutex_lock(&dquot->dq_lock);
- 	/* Check whether we are not racing with some other dqget() */
--	if (atomic_read(&dquot->dq_count) > 1)
-+	if (dquot_is_busy(dquot))
- 		goto out_dqlock;
- 	mutex_lock(&dqopt->dqio_mutex);
- 	if (dqopt->ops[dquot->dq_id.type]->release_dqblk) {
---- a/include/linux/quotaops.h
-+++ b/include/linux/quotaops.h
-@@ -54,6 +54,16 @@ static inline struct dquot *dqgrab(struc
- 	atomic_inc(&dquot->dq_count);
- 	return dquot;
- }
-+
-+static inline bool dquot_is_busy(struct dquot *dquot)
-+{
-+	if (test_bit(DQ_MOD_B, &dquot->dq_flags))
-+		return true;
-+	if (atomic_read(&dquot->dq_count) > 1)
-+		return true;
-+	return false;
-+}
-+
- void dqput(struct dquot *dquot);
- int dquot_scan_active(struct super_block *sb,
- 		      int (*fn)(struct dquot *dquot, unsigned long priv),
+ 	debug_event(dbf->hba, level, rec, sizeof(*rec));
+ 	spin_unlock_irqrestore(&dbf->hba_lock, flags);
+-- 
+2.20.1
+
 
 
