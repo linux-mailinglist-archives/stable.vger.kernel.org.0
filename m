@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4534126BCF
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF5F126AC8
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728135AbfLSS7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48620 "EHLO mail.kernel.org"
+        id S1729778AbfLSSuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:50:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730180AbfLSSxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:53:30 -0500
+        id S1729728AbfLSSuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:50:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2B7524684;
-        Thu, 19 Dec 2019 18:53:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3470720674;
+        Thu, 19 Dec 2019 18:50:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781610;
-        bh=k0PGHl9AFF8Jmbw1yT7FRXieSApRaycBklTB0R9iL2c=;
+        s=default; t=1576781454;
+        bh=RkCqlMxkWpQHQAgkiX7rCYVVXYAeeMu3h4lelkadcqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yhqPHKAry7nP5PrwSRmlgU5pJDAQLdeh97JF1Ai5Lpb3k1h5hu9MnAx5UUb9OUy3i
-         VlInfmEEGvrLUAIBsU5/pgy4l6hkrZ7Iv/cSkVImg/no2KKevzCkBButYgIprTDRym
-         U3SBXnLEovfXS40U4NAzebWW064BiQwFkluIsavc=
+        b=dBV5kNRdQcedBoA6BTzEYQxTBiruh3p8EvL4YA/qnWKC51VPLyWEQkus7sNa2LlSN
+         0mcCkwiLs3R9DPpFcPo6TQebNHqAC99/6XnBRb3Kg5F2AnhR4rHPo15cWW2gfQuSym
+         EWnulpQTQZx50Bc/jjLvXQO8LtjJvSL0AHFCG9yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Long Li <longli@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.19 31/47] cifs: smbd: Return -EAGAIN when transport is reconnecting
-Date:   Thu, 19 Dec 2019 19:34:45 +0100
-Message-Id: <20191219182934.398750129@linuxfoundation.org>
+        stable@vger.kernel.org, Jiang Yi <giangyi@amazon.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 4.14 29/36] vfio/pci: call irq_bypass_unregister_producer() before freeing irq
+Date:   Thu, 19 Dec 2019 19:34:46 +0100
+Message-Id: <20191219182920.242386926@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
+References: <20191219182848.708141124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Jiang Yi <giangyi@amazon.com>
 
-commit 4357d45f50e58672e1d17648d792f27df01dfccd upstream.
+commit d567fb8819162099035e546b11a736e29c2af0ea upstream.
 
-During reconnecting, the transport may have already been destroyed and is in
-the process being reconnected. In this case, return -EAGAIN to not fail and
-to retry this I/O.
+Since irq_bypass_register_producer() is called after request_irq(), we
+should do tear-down in reverse order: irq_bypass_unregister_producer()
+then free_irq().
 
-Signed-off-by: Long Li <longli@microsoft.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Specifically free_irq() may release resources required by the
+irqbypass del_producer() callback.  Notably an example provided by
+Marc Zyngier on arm64 with GICv4 that he indicates has the potential
+to wedge the hardware:
+
+ free_irq(irq)
+   __free_irq(irq)
+     irq_domain_deactivate_irq(irq)
+       its_irq_domain_deactivate()
+         [unmap the VLPI from the ITS]
+
+ kvm_arch_irq_bypass_del_producer(cons, prod)
+   kvm_vgic_v4_unset_forwarding(kvm, irq, ...)
+     its_unmap_vlpi(irq)
+       [Unmap the VLPI from the ITS (again), remap the original LPI]
+
+Signed-off-by: Jiang Yi <giangyi@amazon.com>
+Cc: stable@vger.kernel.org # v4.4+
+Fixes: 6d7425f109d26 ("vfio: Register/unregister irq_bypass_producer")
+Link: https://lore.kernel.org/kvm/20191127164910.15888-1-giangyi@amazon.com
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+[aw: commit log]
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/transport.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/vfio/pci/vfio_pci_intrs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -286,8 +286,11 @@ __smb_send_rqst(struct TCP_Server_Info *
- 	int val = 1;
- 	__be32 rfc1002_marker;
+--- a/drivers/vfio/pci/vfio_pci_intrs.c
++++ b/drivers/vfio/pci/vfio_pci_intrs.c
+@@ -297,8 +297,8 @@ static int vfio_msi_set_vector_signal(st
+ 	irq = pci_irq_vector(pdev, vector);
  
--	if (cifs_rdma_enabled(server) && server->smbd_conn) {
--		rc = smbd_send(server, num_rqst, rqst);
-+	if (cifs_rdma_enabled(server)) {
-+		/* return -EAGAIN when connecting or reconnecting */
-+		rc = -EAGAIN;
-+		if (server->smbd_conn)
-+			rc = smbd_send(server, num_rqst, rqst);
- 		goto smbd_done;
- 	}
- 	if (ssocket == NULL)
+ 	if (vdev->ctx[vector].trigger) {
+-		free_irq(irq, vdev->ctx[vector].trigger);
+ 		irq_bypass_unregister_producer(&vdev->ctx[vector].producer);
++		free_irq(irq, vdev->ctx[vector].trigger);
+ 		kfree(vdev->ctx[vector].name);
+ 		eventfd_ctx_put(vdev->ctx[vector].trigger);
+ 		vdev->ctx[vector].trigger = NULL;
 
 
