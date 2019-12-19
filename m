@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11EE1126AE7
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1263126BA1
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730206AbfLSSwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:52:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46532 "EHLO mail.kernel.org"
+        id S1728041AbfLSSyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:54:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730220AbfLSSwF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:52:05 -0500
+        id S1730565AbfLSSyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:54:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3275222C2;
-        Thu, 19 Dec 2019 18:52:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 311B8206EC;
+        Thu, 19 Dec 2019 18:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781525;
-        bh=8YmT3snhR5BU8vBdUnd/UyYp03pPb1pC78cc4Piu0vM=;
+        s=default; t=1576781692;
+        bh=li7Me4Z/dXWOeP5CzgaRWZCcBrs4ZHrbXmgR707Su98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YRalh3A1JlRniABesIQ8wSfCYyb/qN/Gf/Xg+To6btGfL6P0FniLXn0g0xILKvmTg
-         9HzZeR3LU7kwDBs/+KfoeDI2t7NdGrwEniyq+cjVM9qFEIOVceHWxCtjJ4d61WmViX
-         4aTUaCv7UL0pBrsBFZVEIuipsRyoWwcsU/6XrCMk=
+        b=LCrTOVpEAQAait+UnFSjEPadiTR0WXTKElWSHn9ubfxEbzFAZ6/QSy9DdDtPfoaMI
+         +l3lNf404SjeIKcB7I9wB5xvYjWaYBhFwoLscoPIazOooDKqjvsGS3F/PUKYnG/I3y
+         7DJYdaBjKfGkh7mpaBMvUVmkDgBq+HURwsegaT0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Ashok Raj <ashok.raj@intel.com>
-Subject: [PATCH 4.19 20/47] PCI: Fix Intel ACS quirk UPDCR register address
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.4 42/80] dma-buf: Fix memory leak in sync_file_merge()
 Date:   Thu, 19 Dec 2019 19:34:34 +0100
-Message-Id: <20191219182923.108186669@linuxfoundation.org>
+Message-Id: <20191219183110.617057484@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit d8558ac8c93d429d65d7490b512a3a67e559d0d4 upstream.
+commit 6645d42d79d33e8a9fe262660a75d5f4556bbea9 upstream.
 
-According to documentation [0] the correct offset for the Upstream Peer
-Decode Configuration Register (UPDCR) is 0x1014.  It was previously defined
-as 0x1114.
+In the implementation of sync_file_merge() the allocated sync_file is
+leaked if number of fences overflows. Release sync_file by goto err.
 
-d99321b63b1f ("PCI: Enable quirks for PCIe ACS on Intel PCH root ports")
-intended to enforce isolation between PCI devices allowing them to be put
-into separate IOMMU groups.  Due to the wrong register offset the intended
-isolation was not fully enforced.  This is fixed with this patch.
-
-Please note that I did not test this patch because I have no hardware that
-implements this register.
-
-[0] https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/4th-gen-core-family-mobile-i-o-datasheet.pdf (page 325)
-Fixes: d99321b63b1f ("PCI: Enable quirks for PCIe ACS on Intel PCH root ports")
-Link: https://lore.kernel.org/r/7a3505df-79ba-8a28-464c-88b83eefffa6@kernkonzept.com
-Signed-off-by: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Acked-by: Ashok Raj <ashok.raj@intel.com>
-Cc: stable@vger.kernel.org	# v3.15+
+Fixes: a02b9dc90d84 ("dma-buf/sync_file: refactor fence storage in struct sync_file")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191122220957.30427-1-navid.emamdoost@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c |    2 +-
+ drivers/dma-buf/sync_file.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4576,7 +4576,7 @@ int pci_dev_specific_acs_enabled(struct
- #define INTEL_BSPR_REG_BPPD  (1 << 9)
+--- a/drivers/dma-buf/sync_file.c
++++ b/drivers/dma-buf/sync_file.c
+@@ -221,7 +221,7 @@ static struct sync_file *sync_file_merge
+ 	a_fences = get_fences(a, &a_num_fences);
+ 	b_fences = get_fences(b, &b_num_fences);
+ 	if (a_num_fences > INT_MAX - b_num_fences)
+-		return NULL;
++		goto err;
  
- /* Upstream Peer Decode Configuration Register */
--#define INTEL_UPDCR_REG 0x1114
-+#define INTEL_UPDCR_REG 0x1014
- /* 5:0 Peer Decode Enable bits */
- #define INTEL_UPDCR_REG_MASK 0x3f
+ 	num_fences = a_num_fences + b_num_fences;
  
 
 
