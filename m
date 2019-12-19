@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E171126C83
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:04:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 292D5126C84
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:04:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729246AbfLSSr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:47:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40310 "EHLO mail.kernel.org"
+        id S1729266AbfLSSr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:47:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728808AbfLSSr0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:47:26 -0500
+        id S1727897AbfLSSr2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:47:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8B8524672;
-        Thu, 19 Dec 2019 18:47:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 608B5206D7;
+        Thu, 19 Dec 2019 18:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781245;
-        bh=Z8anMrWmTZjHIUgn0N7JaWIaabcZ42ch5MZ7XopHJD4=;
+        s=default; t=1576781247;
+        bh=3K4N9OE0RaryNp4KTlU4FXDaW7UdwQ7b4wXkp9IHSQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1d9ZBNkrIf1pKlBjR6Uo2StBKreSR9TgyMI+ZMpxf7wUaS+XaXv1LBR8UpjfFlEW
-         dSRguVnsK0cmVsp/r6erjydOolX2JmsD8W8KlGnwr6JY2COXQEZacROlpDAYlefYi7
-         MhUNlf/JpBBPMqIcYhoatQ9P3+qGvzkb3xOCKcvQ=
+        b=YzBqfSdLlQ7Anlqif0sYhL6I2rea6sCwEOd9TlhCbhZTr75YDTBdv7H24YNOKIqlH
+         4/pk2DyKxoW8g4VFbdADSq+dW/ecgOQFHs6OB96v+TEiJM3ZTvBASA7mxOU7yhwkCZ
+         tNp0c0R75rhf8dOL24GYM4nmlBMoArerKBvCuvcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alastair DSilva <alastair@d-silva.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 142/199] powerpc: Allow 64bit VDSO __kernel_sync_dicache to work across ranges >4GB
-Date:   Thu, 19 Dec 2019 19:33:44 +0100
-Message-Id: <20191219183223.040531662@linuxfoundation.org>
+        stable@vger.kernel.org, linux-media@vger.kernel.org,
+        Martin Bugge <marbugge@cisco.com>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 4.9 143/199] video/hdmi: Fix AVI bar unpack
+Date:   Thu, 19 Dec 2019 19:33:45 +0100
+Message-Id: <20191219183223.107627157@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -43,46 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alastair D'Silva <alastair@d-silva.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit f9ec11165301982585e5e5f606739b5bae5331f3 upstream.
+commit 6039f37dd6b76641198e290f26b31c475248f567 upstream.
 
-When calling __kernel_sync_dicache with a size >4GB, we were masking
-off the upper 32 bits, so we would incorrectly flush a range smaller
-than intended.
+The bar values are little endian, not big endian. The pack
+function did it right but the unpack got it wrong. Fix it.
 
-This patch replaces the 32 bit shifts with 64 bit ones, so that
-the full size is accounted for.
-
-Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191104023305.9581-3-alastair@au1.ibm.com
+Cc: linux-media@vger.kernel.org
+Cc: Martin Bugge <marbugge@cisco.com>
+Cc: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Fixes: 2c676f378edb ("[media] hdmi: added unpack and logging functions for InfoFrames")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190919132853.30954-1-ville.syrjala@linux.intel.com
+Reviewed-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/vdso64/cacheflush.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/hdmi.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/kernel/vdso64/cacheflush.S
-+++ b/arch/powerpc/kernel/vdso64/cacheflush.S
-@@ -39,7 +39,7 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5		/* ensure we get enough */
- 	lwz	r9,CFG_DCACHE_LOGBLOCKSZ(r10)
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	crclr	cr0*4+so
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
-@@ -56,7 +56,7 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5
- 	lwz	r9,CFG_ICACHE_LOGBLOCKSZ(r10)
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	crclr	cr0*4+so
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
+--- a/drivers/video/hdmi.c
++++ b/drivers/video/hdmi.c
+@@ -1032,12 +1032,12 @@ static int hdmi_avi_infoframe_unpack(str
+ 	if (ptr[0] & 0x10)
+ 		frame->active_aspect = ptr[1] & 0xf;
+ 	if (ptr[0] & 0x8) {
+-		frame->top_bar = (ptr[5] << 8) + ptr[6];
+-		frame->bottom_bar = (ptr[7] << 8) + ptr[8];
++		frame->top_bar = (ptr[6] << 8) | ptr[5];
++		frame->bottom_bar = (ptr[8] << 8) | ptr[7];
+ 	}
+ 	if (ptr[0] & 0x4) {
+-		frame->left_bar = (ptr[9] << 8) + ptr[10];
+-		frame->right_bar = (ptr[11] << 8) + ptr[12];
++		frame->left_bar = (ptr[10] << 8) | ptr[9];
++		frame->right_bar = (ptr[12] << 8) | ptr[11];
+ 	}
+ 	frame->scan_mode = ptr[0] & 0x3;
+ 
 
 
