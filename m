@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A131F126A6F
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:47:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA07126A70
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728456AbfLSSrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:47:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40154 "EHLO mail.kernel.org"
+        id S1729458AbfLSSrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:47:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728126AbfLSSrQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:47:16 -0500
+        id S1729453AbfLSSrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:47:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A0CC24672;
-        Thu, 19 Dec 2019 18:47:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A7742465E;
+        Thu, 19 Dec 2019 18:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781235;
-        bh=PGBoSnLW4Rb1DhKStngull8p7dQLICcEIG8kZDgP+9Y=;
+        s=default; t=1576781240;
+        bh=64ZZJeR2s2qii8d/CY/DMkDaMWeNxmQ7TB4xWPBQefc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RFNysEBEDBEQ2eD8NaouLei9WZZU+UvELzaRqtQtU6fX+FJ4orvOPaNkFPPfl9OCZ
-         +nLdR+gntLk6vMBb8pyqprz0GNEOLX/mhbMC5214oociR8VRDG2ukddmM7MCw3nS4M
-         QUAZN2No7mhxT2S/MEaar5TgJdt/K6Jbq2nA867U=
+        b=hpyh9QYGKWI8KxekHlZEznWAye5AT42lFqTkIIN3AIfLyT/3v7GVYqUlpccrCY0Rg
+         y1bVtcBhPTJXIrIV4/YqW3nouUI1vfsKA0b1/Y4U9q5sUps8DpurPIrGyQ4zfRdL57
+         bQ13JQj3M+InCKc504K7Vbey9B6M/K9fyN3KCRlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 4.9 139/199] pinctrl: samsung: Fix device node refcount leaks in init code
-Date:   Thu, 19 Dec 2019 19:33:41 +0100
-Message-Id: <20191219183222.838135508@linuxfoundation.org>
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.9 140/199] mmc: host: omap_hsmmc: add code for special init of wl1251 to get rid of pandora_wl1251_init_card
+Date:   Thu, 19 Dec 2019 19:33:42 +0100
+Message-Id: <20191219183222.905360029@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -42,58 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-commit a322b3377f4bac32aa25fb1acb9e7afbbbbd0137 upstream.
+commit f6498b922e57aecbe3b7fa30a308d9d586c0c369 upstream.
 
-Several functions use for_each_child_of_node() loop with a break to find
-a matching child node.  Although each iteration of
-for_each_child_of_node puts the previous node, but early exit from loop
-misses it.  This leads to leak of device node.
+Pandora_wl1251_init_card was used to do special pdata based
+setup of the sdio mmc interface. This does no longer work with
+v4.7 and later. A fix requires a device tree based mmc3 setup.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 9a2c1c3b91aa ("pinctrl: samsung: Allow grouping multiple pinmux/pinconf nodes")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Therefore we move the special setup to omap_hsmmc.c instead
+of calling some pdata supplied init_card function.
+
+The new code checks for a DT child node compatible to wl1251
+so it will not affect other MMC3 use cases.
+
+Generally, this code was and still is a hack and should be
+moved to mmc core to e.g. read such properties from optional
+DT child nodes.
+
+Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Cc: <stable@vger.kernel.org> # v4.7+
+[Ulf: Fixed up some checkpatch complaints]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/samsung/pinctrl-samsung.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/mmc/host/omap_hsmmc.c |   30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
---- a/drivers/pinctrl/samsung/pinctrl-samsung.c
-+++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
-@@ -281,6 +281,7 @@ static int samsung_dt_node_to_map(struct
- 						&reserved_maps, num_maps);
- 		if (ret < 0) {
- 			samsung_dt_free_map(pctldev, *map, *num_maps);
+--- a/drivers/mmc/host/omap_hsmmc.c
++++ b/drivers/mmc/host/omap_hsmmc.c
+@@ -1700,6 +1700,36 @@ static void omap_hsmmc_init_card(struct
+ 
+ 	if (mmc_pdata(host)->init_card)
+ 		mmc_pdata(host)->init_card(card);
++	else if (card->type == MMC_TYPE_SDIO ||
++		 card->type == MMC_TYPE_SD_COMBO) {
++		struct device_node *np = mmc_dev(mmc)->of_node;
++
++		/*
++		 * REVISIT: should be moved to sdio core and made more
++		 * general e.g. by expanding the DT bindings of child nodes
++		 * to provide a mechanism to provide this information:
++		 * Documentation/devicetree/bindings/mmc/mmc-card.txt
++		 */
++
++		np = of_get_compatible_child(np, "ti,wl1251");
++		if (np) {
++			/*
++			 * We have TI wl1251 attached to MMC3. Pass this
++			 * information to the SDIO core because it can't be
++			 * probed by normal methods.
++			 */
++
++			dev_info(host->dev, "found wl1251\n");
++			card->quirks |= MMC_QUIRK_NONSTD_SDIO;
++			card->cccr.wide_bus = 1;
++			card->cis.vendor = 0x104c;
++			card->cis.device = 0x9066;
++			card->cis.blksize = 512;
++			card->cis.max_dtr = 24000000;
++			card->ocr = 0x80;
 +			of_node_put(np);
- 			return ret;
- 		}
- 	}
-@@ -770,8 +771,10 @@ static struct samsung_pmx_func *samsung_
- 		if (!of_get_child_count(cfg_np)) {
- 			ret = samsung_pinctrl_create_function(dev, drvdata,
- 							cfg_np, func);
--			if (ret < 0)
-+			if (ret < 0) {
-+				of_node_put(cfg_np);
- 				return ERR_PTR(ret);
-+			}
- 			if (ret > 0) {
- 				++func;
- 				++func_cnt;
-@@ -782,8 +785,11 @@ static struct samsung_pmx_func *samsung_
- 		for_each_child_of_node(cfg_np, func_np) {
- 			ret = samsung_pinctrl_create_function(dev, drvdata,
- 						func_np, func);
--			if (ret < 0)
-+			if (ret < 0) {
-+				of_node_put(func_np);
-+				of_node_put(cfg_np);
- 				return ERR_PTR(ret);
-+			}
- 			if (ret > 0) {
- 				++func;
- 				++func_cnt;
++		}
++	}
+ }
+ 
+ static void omap_hsmmc_enable_sdio_irq(struct mmc_host *mmc, int enable)
 
 
