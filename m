@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE190126C37
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F28E1126C08
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729242AbfLSStl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:49:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43168 "EHLO mail.kernel.org"
+        id S1728433AbfLSTBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:01:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729558AbfLSStj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:49:39 -0500
+        id S1728279AbfLSSva (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:51:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C0E32064B;
-        Thu, 19 Dec 2019 18:49:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 703832064B;
+        Thu, 19 Dec 2019 18:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781378;
-        bh=B4xBd8KtcnA5q4koEyzNg00cvda+rJBXxur1aBJdAMQ=;
+        s=default; t=1576781488;
+        bh=gx1f6UecOc57In9eyhc/iqzYZc5hHEWeXlAOfJltopU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1EtTZOCBOQK8DQoaOoKGNAE3wWMS2clHUEQ2ZNDlMOccdhceFUyi85y0pqCi2RSv
-         RHsg0FiGqhJjaNRbmZfNi7WyE4Gvsb5RYIMTcgxuos5p61F2qRBOjg+R2oVrWrTP/q
-         NG76j+ZpH0oYGSGG32yOo5cyf86OGKB2AhuXddlM=
+        b=H+h1kYsy5P/fwKd2rNpy3pX+D4tHGL0GGTYLdblp98LowXjFwx9uanM/DePCrC8Xu
+         hRJjR1aYKIEUP6kixrCjZRvJCdVo2DNGSYrom/c4qcCnm0O7z7bqhWzu6/3MgEs+pk
+         0tdC0LaWCqAR3LbJNfnbwp2rG9FEgFS/FW0UQoGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meelis Roos <mroos@linux.ee>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.9 196/199] drm/radeon: fix r1xx/r2xx register checker for POT textures
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Arun Kumar Neelakantam <aneela@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 4.14 21/36] rpmsg: glink: Fix use after free in open_ack TIMEOUT case
 Date:   Thu, 19 Dec 2019 19:34:38 +0100
-Message-Id: <20191219183226.647772491@linuxfoundation.org>
+Message-Id: <20191219182911.992885069@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
+References: <20191219182848.708141124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Arun Kumar Neelakantam <aneela@codeaurora.org>
 
-commit 008037d4d972c9c47b273e40e52ae34f9d9e33e7 upstream.
+commit ac74ea01860170699fb3b6ea80c0476774c8e94f upstream.
 
-Shift and mask were reversed.  Noticed by chance.
+Extra channel reference put when remote sending OPEN_ACK after timeout
+causes use-after-free while handling next remote CLOSE command.
 
-Tested-by: Meelis Roos <mroos@linux.ee>
-Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Remove extra reference put in timeout case to avoid use-after-free.
+
+Fixes: b4f8e52b89f6 ("rpmsg: Introduce Qualcomm RPM glink driver")
 Cc: stable@vger.kernel.org
+Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Arun Kumar Neelakantam <aneela@codeaurora.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/radeon/r100.c |    4 ++--
- drivers/gpu/drm/radeon/r200.c |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/rpmsg/qcom_glink_native.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/radeon/r100.c
-+++ b/drivers/gpu/drm/radeon/r100.c
-@@ -1824,8 +1824,8 @@ static int r100_packet0_check(struct rad
- 			track->textures[i].use_pitch = 1;
- 		} else {
- 			track->textures[i].use_pitch = 0;
--			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
--			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
-+			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
-+			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
- 		}
- 		if (idx_value & RADEON_TXFORMAT_CUBIC_MAP_ENABLE)
- 			track->textures[i].tex_coord_type = 2;
---- a/drivers/gpu/drm/radeon/r200.c
-+++ b/drivers/gpu/drm/radeon/r200.c
-@@ -476,8 +476,8 @@ int r200_packet0_check(struct radeon_cs_
- 			track->textures[i].use_pitch = 1;
- 		} else {
- 			track->textures[i].use_pitch = 0;
--			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
--			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
-+			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
-+			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
- 		}
- 		if (idx_value & R200_TXFORMAT_LOOKUP_DISABLE)
- 			track->textures[i].lookup_disable = true;
+--- a/drivers/rpmsg/qcom_glink_native.c
++++ b/drivers/rpmsg/qcom_glink_native.c
+@@ -1104,13 +1104,12 @@ static int qcom_glink_create_remote(stru
+ close_link:
+ 	/*
+ 	 * Send a close request to "undo" our open-ack. The close-ack will
+-	 * release the last reference.
++	 * release qcom_glink_send_open_req() reference and the last reference
++	 * will be relesed after receiving remote_close or transport unregister
++	 * by calling qcom_glink_native_remove().
+ 	 */
+ 	qcom_glink_send_close_req(glink, channel);
+ 
+-	/* Release qcom_glink_send_open_req() reference */
+-	kref_put(&channel->refcount, qcom_glink_channel_release);
+-
+ 	return ret;
+ }
+ 
 
 
