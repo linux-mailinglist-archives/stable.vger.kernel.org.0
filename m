@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD64126A72
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:47:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B4F126A76
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:47:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729254AbfLSSrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:47:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40254 "EHLO mail.kernel.org"
+        id S1729487AbfLSSre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:47:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729229AbfLSSrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:47:23 -0500
+        id S1729479AbfLSSrb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:47:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A9E1206D7;
-        Thu, 19 Dec 2019 18:47:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6DA224679;
+        Thu, 19 Dec 2019 18:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781243;
-        bh=nuHAsepJtngeuassJ0DTBPKJvjsLu9vQprBq1cI/L3M=;
+        s=default; t=1576781250;
+        bh=ELuzHNkiC1xW2c1mXX5sdT1j1JTRWDgTZT3BlkLO728=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBcyH0zNZTphoEgz7OHafA+krKDksNRg3wiEhi/jIULlvwbShb5bzeiSe34Mgl4EB
-         Y0eFJHDsvOPP19KzMij5fY5FaW36STrb38RYvgM/6SUtU5b4RQVRNFEn4VC9uN+vQN
-         SfxdntyNSawSR1eZLFgP/MqiJ59jA9qlsqC/5UR8=
+        b=wTxMNj+wfAPVrbaHXMNmfpG3bSBi3Tez44mdg+B59ZR5AWkYCHxZQo6TsqK4uX2xO
+         FyAtq3+uagWBwlhB8tXuh7+krZtVtzFMrdROVXNQTx1Kb6i35jhuELSU3Q9nOWZXGo
+         3veyVgc2qAAxZL/FUtltAKG+4hPsVSAm+7uNPNx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.9 141/199] ppdev: fix PPGETTIME/PPSETTIME ioctls
-Date:   Thu, 19 Dec 2019 19:33:43 +0100
-Message-Id: <20191219183222.973502841@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 144/199] quota: Check that quota is not dirty before release
+Date:   Thu, 19 Dec 2019 19:33:46 +0100
+Message-Id: <20191219183223.172713356@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -42,76 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
 
-commit 998174042da229e2cf5841f574aba4a743e69650 upstream.
+commit df4bb5d128e2c44848aeb36b7ceceba3ac85080d upstream.
 
-Going through the uses of timeval in the user space API,
-I noticed two bugs in ppdev that were introduced in the y2038
-conversion:
+There is a race window where quota was redirted once we drop dq_list_lock inside dqput(),
+but before we grab dquot->dq_lock inside dquot_release()
 
-* The range check was accidentally moved from ppsettime to
-  ppgettime
+TASK1                                                       TASK2 (chowner)
+->dqput()
+  we_slept:
+    spin_lock(&dq_list_lock)
+    if (dquot_dirty(dquot)) {
+          spin_unlock(&dq_list_lock);
+          dquot->dq_sb->dq_op->write_dquot(dquot);
+          goto we_slept
+    if (test_bit(DQ_ACTIVE_B, &dquot->dq_flags)) {
+          spin_unlock(&dq_list_lock);
+          dquot->dq_sb->dq_op->release_dquot(dquot);
+                                                            dqget()
+							    mark_dquot_dirty()
+							    dqput()
+          goto we_slept;
+        }
+So dquot dirty quota will be released by TASK1, but on next we_sleept loop
+we detect this and call ->write_dquot() for it.
+XFSTEST: https://github.com/dmonakhov/xfstests/commit/440a80d4cbb39e9234df4d7240aee1d551c36107
 
-* On sparc64, the microseconds are in the other half of the
-  64-bit word.
-
-Fix both, and mark the fix for stable backports.
-
-Cc: stable@vger.kernel.org
-Fixes: 3b9ab374a1e6 ("ppdev: convert to y2038 safe")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20191108203435.112759-8-arnd@arndb.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20191031103920.3919-2-dmonakhov@openvz.org
+CC: stable@vger.kernel.org
+Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ppdev.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ fs/ocfs2/quota_global.c  |    2 +-
+ fs/quota/dquot.c         |    2 +-
+ include/linux/quotaops.h |   10 ++++++++++
+ 3 files changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/char/ppdev.c
-+++ b/drivers/char/ppdev.c
-@@ -624,20 +624,27 @@ static int pp_do_ioctl(struct file *file
- 		if (copy_from_user(time32, argp, sizeof(time32)))
- 			return -EFAULT;
+--- a/fs/ocfs2/quota_global.c
++++ b/fs/ocfs2/quota_global.c
+@@ -714,7 +714,7 @@ static int ocfs2_release_dquot(struct dq
  
-+		if ((time32[0] < 0) || (time32[1] < 0))
-+			return -EINVAL;
+ 	mutex_lock(&dquot->dq_lock);
+ 	/* Check whether we are not racing with some other dqget() */
+-	if (atomic_read(&dquot->dq_count) > 1)
++	if (dquot_is_busy(dquot))
+ 		goto out;
+ 	/* Running from downconvert thread? Postpone quota processing to wq */
+ 	if (current == osb->dc_task) {
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -479,7 +479,7 @@ int dquot_release(struct dquot *dquot)
+ 
+ 	mutex_lock(&dquot->dq_lock);
+ 	/* Check whether we are not racing with some other dqget() */
+-	if (atomic_read(&dquot->dq_count) > 1)
++	if (dquot_is_busy(dquot))
+ 		goto out_dqlock;
+ 	mutex_lock(&dqopt->dqio_mutex);
+ 	if (dqopt->ops[dquot->dq_id.type]->release_dqblk) {
+--- a/include/linux/quotaops.h
++++ b/include/linux/quotaops.h
+@@ -54,6 +54,16 @@ static inline struct dquot *dqgrab(struc
+ 	atomic_inc(&dquot->dq_count);
+ 	return dquot;
+ }
 +
- 		return pp_set_timeout(pp->pdev, time32[0], time32[1]);
- 
- 	case PPSETTIME64:
- 		if (copy_from_user(time64, argp, sizeof(time64)))
- 			return -EFAULT;
- 
-+		if ((time64[0] < 0) || (time64[1] < 0))
-+			return -EINVAL;
++static inline bool dquot_is_busy(struct dquot *dquot)
++{
++	if (test_bit(DQ_MOD_B, &dquot->dq_flags))
++		return true;
++	if (atomic_read(&dquot->dq_count) > 1)
++		return true;
++	return false;
++}
 +
-+		if (IS_ENABLED(CONFIG_SPARC64) && !in_compat_syscall())
-+			time64[1] >>= 32;
-+
- 		return pp_set_timeout(pp->pdev, time64[0], time64[1]);
- 
- 	case PPGETTIME32:
- 		jiffies_to_timespec64(pp->pdev->timeout, &ts);
- 		time32[0] = ts.tv_sec;
- 		time32[1] = ts.tv_nsec / NSEC_PER_USEC;
--		if ((time32[0] < 0) || (time32[1] < 0))
--			return -EINVAL;
- 
- 		if (copy_to_user(argp, time32, sizeof(time32)))
- 			return -EFAULT;
-@@ -648,8 +655,9 @@ static int pp_do_ioctl(struct file *file
- 		jiffies_to_timespec64(pp->pdev->timeout, &ts);
- 		time64[0] = ts.tv_sec;
- 		time64[1] = ts.tv_nsec / NSEC_PER_USEC;
--		if ((time64[0] < 0) || (time64[1] < 0))
--			return -EINVAL;
-+
-+		if (IS_ENABLED(CONFIG_SPARC64) && !in_compat_syscall())
-+			time64[1] <<= 32;
- 
- 		if (copy_to_user(argp, time64, sizeof(time64)))
- 			return -EFAULT;
+ void dqput(struct dquot *dquot);
+ int dquot_scan_active(struct super_block *sb,
+ 		      int (*fn)(struct dquot *dquot, unsigned long priv),
 
 
