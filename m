@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C378F126D11
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:08:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EDBE126C41
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728325AbfLSSl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:41:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32920 "EHLO mail.kernel.org"
+        id S1729745AbfLSStQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:49:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727711AbfLSSlz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:41:55 -0500
+        id S1729747AbfLSStP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:49:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F003324672;
-        Thu, 19 Dec 2019 18:41:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EB0C2465E;
+        Thu, 19 Dec 2019 18:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780914;
-        bh=YAaiHFebq0MAtlX9h1+d1UMOmTcd0OM9rUvU91wapyU=;
+        s=default; t=1576781354;
+        bh=C9BrmtGghdc7FbMcmTiQCbLFEyNo9iA+8rqPmY1HC2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qkQQFpwFMQ8ie93kY+kNjIqrc2tPSoB3bdhQrJrJeERECHmmS4O0f9uKIQs3s7mvf
-         ZzfxXcvrZJrEj5U6IFHJ44KXalFxTYjt6RIadoS5vIA1hvq7wEqU2GU395aJiC4r80
-         wu2ny9wUvsXity/Ewy1XaIa0fMK8gIjztqg/Ff9w=
+        b=gCeNN1kcgnvwf0NFtEgikekGUaKvtjer5zZBE8CLj+EEH8AoEMsMNzFSalPQL9hXE
+         KbQHI6xqeSwYFYc7cvS56tJK+939xFT10AbsikmNh+o5v8tTyvvaKOhuw1UEFDhpWm
+         zHIKbb0Xc9X2m2Yt1PPbltWr/PRJWPvgBS2vLYO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Lee, Hou-hsun" <hou-hsun.lee@intel.com>,
-        "Lee, Chiasheng" <chiasheng.lee@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Lee@vger.kernel.org
-Subject: [PATCH 4.4 160/162] xhci: fix USB3 device initiated resume race with roothub autosuspend
-Date:   Thu, 19 Dec 2019 19:34:28 +0100
-Message-Id: <20191219183217.505075467@linuxfoundation.org>
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.9 187/199] PCI/MSI: Fix incorrect MSI-X masking on resume
+Date:   Thu, 19 Dec 2019 19:34:29 +0100
+Message-Id: <20191219183226.050091693@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,116 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit 057d476fff778f1d3b9f861fdb5437ea1a3cfc99 upstream.
+commit e045fa29e89383c717e308609edd19d2fd29e1be upstream.
 
-A race in xhci USB3 remote wake handling may force device back to suspend
-after it initiated resume siganaling, causing a missed resume event or warm
-reset of device.
+When a driver enables MSI-X, msix_program_entries() reads the MSI-X Vector
+Control register for each vector and saves it in desc->masked.  Each
+register is 32 bits and bit 0 is the actual Mask bit.
 
-When a USB3 link completes resume signaling and goes to enabled (UO)
-state a interrupt is issued and the interrupt handler will clear the
-bus_state->port_remote_wakeup resume flag, allowing bus suspend.
+When we restored these registers during resume, we previously set the Mask
+bit if *any* bit in desc->masked was set instead of when the Mask bit
+itself was set:
 
-If the USB3 roothub thread just finished reading port status before
-the interrupt, finding ports still in suspended (U3) state, but hasn't
-yet started suspending the hub, then the xhci interrupt handler will clear
-the flag that prevented roothub suspend and allow bus to suspend, forcing
-all port links back to suspended (U3) state.
+  pci_restore_state
+    pci_restore_msi_state
+      __pci_restore_msix_state
+        for_each_pci_msi_entry
+          msix_mask_irq(entry, entry->masked)   <-- entire u32 word
+            __pci_msix_desc_mask_irq(desc, flag)
+              mask_bits = desc->masked & ~PCI_MSIX_ENTRY_CTRL_MASKBIT
+              if (flag)       <-- testing entire u32, not just bit 0
+                mask_bits |= PCI_MSIX_ENTRY_CTRL_MASKBIT
+              writel(mask_bits, desc_addr + PCI_MSIX_ENTRY_VECTOR_CTRL)
 
-Example case:
-usb_runtime_suspend() # because all ports still show suspended U3
-  usb_suspend_both()
-    hub_suspend();   # successful as hub->wakeup_bits not set yet
-==> INTERRUPT
-xhci_irq()
-  handle_port_status()
-    clear bus_state->port_remote_wakeup
-    usb_wakeup_notification()
-      sets hub->wakeup_bits;
-        kick_hub_wq()
-<== END INTERRUPT
-      hcd_bus_suspend()
-        xhci_bus_suspend() # success as port_remote_wakeup bits cleared
+This means that after resume, MSI-X vectors were masked when they shouldn't
+be, which leads to timeouts like this:
 
-Fix this by increasing roothub usage count during port resume to prevent
-roothub autosuspend, and by making sure bus_state->port_remote_wakeup
-flag is only cleared after resume completion is visible, i.e.
-after xhci roothub returned U0 or other non-U3 link state link on a
-get port status request.
+  nvme nvme0: I/O 978 QID 3 timeout, completion polled
 
-Issue rootcaused by Chiasheng Lee
+On resume, set the Mask bit only when the saved Mask bit from suspend was
+set.
 
-Cc: <stable@vger.kernel.org>
-Cc: Lee, Hou-hsun <hou-hsun.lee@intel.com>
-Reported-by: Lee, Chiasheng <chiasheng.lee@intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-3-mathias.nyman@linux.intel.com
+This should remove the need for 19ea025e1d28 ("nvme: Add quirk for Kingston
+NVME SSD running FW E8FK11.T").
+
+[bhelgaas: commit log, move fix to __pci_msix_desc_mask_irq()]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=204887
+Link: https://lore.kernel.org/r/20191008034238.2503-1-jian-hong@endlessm.com
+Fixes: f2440d9acbe8 ("PCI MSI: Refactor interrupt masking code")
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/usb/host/xhci-hub.c  |    8 ++++++++
- drivers/usb/host/xhci-ring.c |    6 +-----
- drivers/usb/host/xhci.h      |    1 +
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/pci/msi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -736,6 +736,14 @@ static u32 xhci_get_port_status(struct u
- 			status |= USB_PORT_STAT_C_BH_RESET << 16;
- 		if ((raw_port_status & PORT_CEC))
- 			status |= USB_PORT_STAT_C_CONFIG_ERROR << 16;
-+
-+		/* USB3 remote wake resume signaling completed */
-+		if (bus_state->port_remote_wakeup & (1 << wIndex) &&
-+		    (raw_port_status & PORT_PLS_MASK) != XDEV_RESUME &&
-+		    (raw_port_status & PORT_PLS_MASK) != XDEV_RECOVERY) {
-+			bus_state->port_remote_wakeup &= ~(1 << wIndex);
-+			usb_hcd_end_port_resume(&hcd->self, wIndex);
-+		}
- 	}
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -230,7 +230,7 @@ u32 __pci_msix_desc_mask_irq(struct msi_
+ 		return 0;
  
- 	if (hcd->speed < HCD_USB3) {
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -1602,9 +1602,6 @@ static void handle_port_status(struct xh
- 		usb_hcd_resume_root_hub(hcd);
- 	}
+ 	mask_bits &= ~PCI_MSIX_ENTRY_CTRL_MASKBIT;
+-	if (flag)
++	if (flag & PCI_MSIX_ENTRY_CTRL_MASKBIT)
+ 		mask_bits |= PCI_MSIX_ENTRY_CTRL_MASKBIT;
+ 	writel(mask_bits, pci_msix_desc_addr(desc) + PCI_MSIX_ENTRY_VECTOR_CTRL);
  
--	if (hcd->speed >= HCD_USB3 && (temp & PORT_PLS_MASK) == XDEV_INACTIVE)
--		bus_state->port_remote_wakeup &= ~(1 << faked_port_index);
--
- 	if ((temp & PORT_PLC) && (temp & PORT_PLS_MASK) == XDEV_RESUME) {
- 		xhci_dbg(xhci, "port resume event for port %d\n", port_id);
- 
-@@ -1623,6 +1620,7 @@ static void handle_port_status(struct xh
- 			bus_state->port_remote_wakeup |= 1 << faked_port_index;
- 			xhci_test_and_clear_bit(xhci, port_array,
- 					faked_port_index, PORT_PLC);
-+			usb_hcd_start_port_resume(&hcd->self, faked_port_index);
- 			xhci_set_link_state(xhci, port_array, faked_port_index,
- 						XDEV_U0);
- 			/* Need to wait until the next link state change
-@@ -1660,8 +1658,6 @@ static void handle_port_status(struct xh
- 		if (slot_id && xhci->devs[slot_id])
- 			xhci_ring_device(xhci, slot_id);
- 		if (bus_state->port_remote_wakeup & (1 << faked_port_index)) {
--			bus_state->port_remote_wakeup &=
--				~(1 << faked_port_index);
- 			xhci_test_and_clear_bit(xhci, port_array,
- 					faked_port_index, PORT_PLC);
- 			usb_wakeup_notification(hcd->self.root_hub,
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -314,6 +314,7 @@ struct xhci_op_regs {
- #define XDEV_U3		(0x3 << 5)
- #define XDEV_INACTIVE	(0x6 << 5)
- #define XDEV_POLLING	(0x7 << 5)
-+#define XDEV_RECOVERY	(0x8 << 5)
- #define XDEV_COMP_MODE  (0xa << 5)
- #define XDEV_RESUME	(0xf << 5)
- /* true: port has power (see HCC_PPC) */
 
 
