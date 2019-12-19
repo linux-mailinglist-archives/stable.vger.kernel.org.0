@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C60126998
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:39:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4FB2126A67
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:47:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728184AbfLSSjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:39:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57470 "EHLO mail.kernel.org"
+        id S1729389AbfLSSq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:46:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727467AbfLSSjR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:39:17 -0500
+        id S1729395AbfLSSqy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:46:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C704C24684;
-        Thu, 19 Dec 2019 18:39:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8294E24672;
+        Thu, 19 Dec 2019 18:46:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780756;
-        bh=nooujZ1DsWjnhi4o+/CzvbZ/9qJ5W2ZL6euaFzbSMVc=;
+        s=default; t=1576781214;
+        bh=tlchDs7TvajlhgCZ7OeyLriVnH9A9S73sL+PYnPpnpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZT978HC3MoLoyYqrAF8Q02qjUCvlSXGJ4VhmigcgkRlQDgSQ3VPtu1Lv85PMKPtCK
-         ZBZ9Xc0orYuuxbd9LAskLOvCgQ20oulJYVL8/3JDoi8h/7O2H6tZfykJGST/fB+GIU
-         xBJXpirgMd10gPhFF7LfIGVvnHWGgG0xQQnd9TpQ=
+        b=ppqVDrJnx82hN0OfHtvGOZ8BVj9DY/TZXRCy0NolxfsedJJpZ2mzi8VXno7XtelAq
+         +ogganEQwCWm+AiN9RZCUOuDkvtU/qo5/qAarh1Hw6FP+OG3b4ERHoTPoLITTSrVdU
+         fcjlSiw+f67OVDudG7b1OoOMpxow6mDNXVHyslWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 103/162] rtlwifi: rtl8192de: Fix missing enable interrupt flag
-Date:   Thu, 19 Dec 2019 19:33:31 +0100
-Message-Id: <20191219183214.037943358@linuxfoundation.org>
+        stable@vger.kernel.org, Pontus Fuchs <pontus.fuchs@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Denis Efremov <efremov@linux.com>
+Subject: [PATCH 4.9 130/199] ar5523: check NULL before memcpy() in ar5523_cmd()
+Date:   Thu, 19 Dec 2019 19:33:32 +0100
+Message-Id: <20191219183222.231631189@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Denis Efremov <efremov@linux.com>
 
-commit 330bb7117101099c687e9c7f13d48068670b9c62 upstream.
+commit 315cee426f87658a6799815845788fde965ddaad upstream.
 
-In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
-new drivers"), the flag that indicates that interrupts are enabled was
-never set.
+memcpy() call with "idata == NULL && ilen == 0" results in undefined
+behavior in ar5523_cmd(). For example, NULL is passed in callchain
+"ar5523_stat_work() -> ar5523_cmd_write() -> ar5523_cmd()". This patch
+adds ilen check before memcpy() call in ar5523_cmd() to prevent an
+undefined behavior.
 
-In addition, there are several places when enable/disable interrupts
-were commented out are restored. A sychronize_interrupts() call is
-removed.
-
-Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
-Cc: Stable <stable@vger.kernel.org>	# v3.18+
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Pontus Fuchs <pontus.fuchs@gmail.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: David Laight <David.Laight@ACULAB.COM>
+Cc: stable@vger.kernel.org
+Signed-off-by: Denis Efremov <efremov@linux.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/hw.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/ar5523/ar5523.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/hw.c
-@@ -1206,6 +1206,7 @@ void rtl92de_enable_interrupt(struct iee
+--- a/drivers/net/wireless/ath/ar5523/ar5523.c
++++ b/drivers/net/wireless/ath/ar5523/ar5523.c
+@@ -255,7 +255,8 @@ static int ar5523_cmd(struct ar5523 *ar,
  
- 	rtl_write_dword(rtlpriv, REG_HIMR, rtlpci->irq_mask[0] & 0xFFFFFFFF);
- 	rtl_write_dword(rtlpriv, REG_HIMRE, rtlpci->irq_mask[1] & 0xFFFFFFFF);
-+	rtlpci->irq_enabled = true;
- }
+ 	if (flags & AR5523_CMD_FLAG_MAGIC)
+ 		hdr->magic = cpu_to_be32(1 << 24);
+-	memcpy(hdr + 1, idata, ilen);
++	if (ilen)
++		memcpy(hdr + 1, idata, ilen);
  
- void rtl92de_disable_interrupt(struct ieee80211_hw *hw)
-@@ -1215,7 +1216,7 @@ void rtl92de_disable_interrupt(struct ie
- 
- 	rtl_write_dword(rtlpriv, REG_HIMR, IMR8190_DISABLED);
- 	rtl_write_dword(rtlpriv, REG_HIMRE, IMR8190_DISABLED);
--	synchronize_irq(rtlpci->pdev->irq);
-+	rtlpci->irq_enabled = false;
- }
- 
- static void _rtl92de_poweroff_adapter(struct ieee80211_hw *hw)
-@@ -1386,7 +1387,7 @@ void rtl92de_set_beacon_related_register
- 
- 	bcn_interval = mac->beacon_interval;
- 	atim_window = 2;
--	/*rtl92de_disable_interrupt(hw);  */
-+	rtl92de_disable_interrupt(hw);
- 	rtl_write_word(rtlpriv, REG_ATIMWND, atim_window);
- 	rtl_write_word(rtlpriv, REG_BCN_INTERVAL, bcn_interval);
- 	rtl_write_word(rtlpriv, REG_BCNTCFG, 0x660f);
-@@ -1406,9 +1407,9 @@ void rtl92de_set_beacon_interval(struct
- 
- 	RT_TRACE(rtlpriv, COMP_BEACON, DBG_DMESG,
- 		 "beacon_interval:%d\n", bcn_interval);
--	/* rtl92de_disable_interrupt(hw); */
-+	rtl92de_disable_interrupt(hw);
- 	rtl_write_word(rtlpriv, REG_BCN_INTERVAL, bcn_interval);
--	/* rtl92de_enable_interrupt(hw); */
-+	rtl92de_enable_interrupt(hw);
- }
- 
- void rtl92de_update_interrupt_mask(struct ieee80211_hw *hw,
+ 	cmd->odata = odata;
+ 	cmd->olen = olen;
 
 
