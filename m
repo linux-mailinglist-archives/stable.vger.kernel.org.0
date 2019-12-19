@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A70B126D76
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31003126CE4
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:07:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727431AbfLSSgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:36:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52830 "EHLO mail.kernel.org"
+        id S1728868AbfLSSnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:43:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727411AbfLSSgC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:36:02 -0500
+        id S1728865AbfLSSnj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:43:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 584202467B;
-        Thu, 19 Dec 2019 18:36:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DABAF24672;
+        Thu, 19 Dec 2019 18:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780561;
-        bh=k2Tugx47zeg+LMX++8o2J3UvSOhXZuufBvGIQnE3IIw=;
+        s=default; t=1576781019;
+        bh=bi/8A1ieS2KJBVjW6wsQtCjcWkcfnIBmZ4CPqoDWohg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJGyTSc+xIfqnbapY2y8sxnOHEteXropBRt91jV4dPwCWFHkrVyFwYCBQhfFN8GlC
-         ulQP6E4PbwZwZ1GBexsmOAipegWaDsy+IZra/qW5lP9bqIkK14gUt99wfAHk+S2kOd
-         UaQ6ZVvB/JB5kdjLs03WEaz2C1LamnZad08NYdas=
+        b=SIt/PmXj1t8xZlj6vrFsjEu8ovb/4nG24HD6H6vRAHN/YqFQV16vqJ8TIoj+Mzdat
+         DbHQ43rsYqeA/6GQ+yWHcdsHksgkpO3oVYNB125ipm4oHOoCxILrRzvssMDRVsqct+
+         /a3uqxaFsu1UbJIn1a7k17LVanW1LIEYCxCY3WgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cheng-Yi Chiang <cychiang@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 024/162] regulator: Fix return value of _set_load() stub
+Subject: [PATCH 4.9 050/199] net/x25: fix called/calling length calculation in x25_parse_address_block
 Date:   Thu, 19 Dec 2019 19:32:12 +0100
-Message-Id: <20191219183208.988306001@linuxfoundation.org>
+Message-Id: <20191219183217.725140750@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Martin Schiller <ms@dev.tdt.de>
 
-[ Upstream commit f1abf67217de91f5cd3c757ae857632ca565099a ]
+[ Upstream commit d449ba3d581ed29f751a59792fdc775572c66904 ]
 
-The stub implementation of _set_load() returns a mode value which is
-within the bounds of valid return codes for success (the documentation
-just says that failures are negative error codes) but not sensible or
-what the actual implementation does.  Fix it to just return 0.
+The length of the called and calling address was not calculated
+correctly (BCD encoding).
 
-Reported-by: Cheng-Yi Chiang <cychiang@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/regulator/consumer.h | 2 +-
+ net/x25/af_x25.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/regulator/consumer.h b/include/linux/regulator/consumer.h
-index 9e0e76992be08..bf62713af290e 100644
---- a/include/linux/regulator/consumer.h
-+++ b/include/linux/regulator/consumer.h
-@@ -485,7 +485,7 @@ static inline unsigned int regulator_get_mode(struct regulator *regulator)
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 770ababb8f928..ebd9c5f50a571 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -100,7 +100,7 @@ int x25_parse_address_block(struct sk_buff *skb,
+ 	}
  
- static inline int regulator_set_load(struct regulator *regulator, int load_uA)
- {
--	return REGULATOR_MODE_NORMAL;
-+	return 0;
- }
+ 	len = *skb->data;
+-	needed = 1 + (len >> 4) + (len & 0x0f);
++	needed = 1 + ((len >> 4) + (len & 0x0f) + 1) / 2;
  
- static inline int regulator_allow_bypass(struct regulator *regulator,
+ 	if (!pskb_may_pull(skb, needed)) {
+ 		/* packet is too short to hold the addresses it claims
 -- 
 2.20.1
 
