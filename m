@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24080126A6E
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:47:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 723711269BF
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729060AbfLSSrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:47:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40042 "EHLO mail.kernel.org"
+        id S1728001AbfLSSko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:40:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728456AbfLSSrL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:47:11 -0500
+        id S1728415AbfLSSko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:40:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F8422465E;
-        Thu, 19 Dec 2019 18:47:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13D3124682;
+        Thu, 19 Dec 2019 18:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781231;
-        bh=H3DGoz85rgMJVtyTskbKIpEhEN4V6tNiokZN7CwuBEU=;
+        s=default; t=1576780843;
+        bh=l/h8r2712rG5mlyOgtU7hkWL61xkjIonKVs5KNoRkQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXmqYQ0Ckmq4zxFFh4cbEziozA/tEkXZi19aJ/t/0bRHEbAMHQiI+cUcYKA4HNVsF
-         iWcmVnUjWnPx9o5aa1m4gloXiwhD2T7FxAub++iw49N38rIRaW78shw3MPBVQH05P9
-         TxDkYBXiiahZGzsQ3XcoRvxi5+i8h7KgNcxCbvH4=
+        b=N73oI9xSThMN6aXK5Ps5c66/uxbj4cRQNeftNMRjhVZ0ipfCIHa280oc+Mp2WwR0q
+         +bzxZA0RoDd4+suohIAEZzRYp/mZDbsVkaGJiAb72qvFC2RL2Rn7GVuQkILM4nqYRo
+         LBz5ZednaP/VNK1EmEDgaGcSs4eryvIlJDgt7nSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        Todd Brandt <todd.e.brandt@linux.intel.com>,
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.9 137/199] ACPI: PM: Avoid attaching ACPI PM domain to certain devices
-Date:   Thu, 19 Dec 2019 19:33:39 +0100
-Message-Id: <20191219183222.704767523@linuxfoundation.org>
+Subject: [PATCH 4.4 113/162] cpuidle: Do not unset the driver if it is there already
+Date:   Thu, 19 Dec 2019 19:33:41 +0100
+Message-Id: <20191219183214.621732667@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
 
-commit b9ea0bae260f6aae546db224daa6ac1bd9d94b91 upstream.
+commit 918c1fe9fbbe46fcf56837ff21f0ef96424e8b29 upstream.
 
-Certain ACPI-enumerated devices represented as platform devices in
-Linux, like fans, require special low-level power management handling
-implemented by their drivers that is not in agreement with the ACPI
-PM domain behavior.  That leads to problems with managing ACPI fans
-during system-wide suspend and resume.
+Fix __cpuidle_set_driver() to check if any of the CPUs in the mask has
+a driver different from drv already and, if so, return -EBUSY before
+updating any cpuidle_drivers per-CPU pointers.
 
-For this reason, make acpi_dev_pm_attach() skip the affected devices
-by adding a list of device IDs to avoid to it and putting the IDs of
-the affected devices into that list.
-
-Fixes: e5cc8ef31267 (ACPI / PM: Provide ACPI PM callback routines for subsystems)
-Reported-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Fixes: 82467a5a885d ("cpuidle: simplify multiple driver support")
+Cc: 3.11+ <stable@vger.kernel.org> # 3.11+
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+[ rjw: Subject & changelog ]
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/device_pm.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/cpuidle/driver.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/drivers/acpi/device_pm.c
-+++ b/drivers/acpi/device_pm.c
-@@ -1096,9 +1096,19 @@ static void acpi_dev_pm_detach(struct de
+--- a/drivers/cpuidle/driver.c
++++ b/drivers/cpuidle/driver.c
+@@ -60,24 +60,23 @@ static inline void __cpuidle_unset_drive
+  * __cpuidle_set_driver - set per CPU driver variables for the given driver.
+  * @drv: a valid pointer to a struct cpuidle_driver
+  *
+- * For each CPU in the driver's cpumask, unset the registered driver per CPU
+- * to @drv.
+- *
+- * Returns 0 on success, -EBUSY if the CPUs have driver(s) already.
++ * Returns 0 on success, -EBUSY if any CPU in the cpumask have a driver
++ * different from drv already.
   */
- int acpi_dev_pm_attach(struct device *dev, bool power_on)
+ static inline int __cpuidle_set_driver(struct cpuidle_driver *drv)
  {
-+	/*
-+	 * Skip devices whose ACPI companions match the device IDs below,
-+	 * because they require special power management handling incompatible
-+	 * with the generic ACPI PM domain.
-+	 */
-+	static const struct acpi_device_id special_pm_ids[] = {
-+		{"PNP0C0B", }, /* Generic ACPI fan */
-+		{"INT3404", }, /* Fan */
-+		{}
-+	};
- 	struct acpi_device *adev = ACPI_COMPANION(dev);
+ 	int cpu;
  
--	if (!adev)
-+	if (!adev || !acpi_match_device_ids(adev, special_pm_ids))
- 		return -ENODEV;
+ 	for_each_cpu(cpu, drv->cpumask) {
++		struct cpuidle_driver *old_drv;
  
- 	if (dev->pm_domain)
+-		if (__cpuidle_get_cpu_driver(cpu)) {
+-			__cpuidle_unset_driver(drv);
++		old_drv = __cpuidle_get_cpu_driver(cpu);
++		if (old_drv && old_drv != drv)
+ 			return -EBUSY;
+-		}
++	}
+ 
++	for_each_cpu(cpu, drv->cpumask)
+ 		per_cpu(cpuidle_drivers, cpu) = drv;
+-	}
+ 
+ 	return 0;
+ }
 
 
