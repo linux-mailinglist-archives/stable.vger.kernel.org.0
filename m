@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E997126AE9
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:52:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3403126BA3
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730232AbfLSSwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:52:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46654 "EHLO mail.kernel.org"
+        id S1729702AbfLSSy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:54:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729824AbfLSSwK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:52:10 -0500
+        id S1728670AbfLSSy6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:54:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94130222C2;
-        Thu, 19 Dec 2019 18:52:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07F932465E;
+        Thu, 19 Dec 2019 18:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781530;
-        bh=DGLDLv+d3n/O9WVynloj1PVnNCkOjp5CdHLJ8EgL49k=;
+        s=default; t=1576781697;
+        bh=2psHlqRzmmA3xx2kZl7EqC/jBdJeenrOy2m5Qcvq0PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cql1eLErDsAodsU+P8Hnofbby40zsbWJ/hopkZVqf7jp0MnSTRYnl/BLqSGuUIyg4
-         l0T7hKh5sSA5OYHOBmRVVyQtJqSIJxKhLmDUH9L0uN2T3pL/dX3JZjNCukiNNoSpTB
-         kP9+vUyE7TUFMExydNdWtxaX40FGwgGNGTAdOPpI=
+        b=UwWk3aj80uzbZdJmSChR5C+VRn3cOj5/l9ZJzJ8Nt8Wkbk3+pT6b1T4iumJunUpGU
+         l9nk0gZLxylMICVjaeXhm+y+tcBCT63y7SCK7xkq9gwC9G0ydKC2WfUkJNDAdWc+0U
+         bHNoKoaZrcTrYZKhyyvLnXqUbHQ8DgpKzHVc4B9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        George Cherian <george.cherian@marvell.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Robert Richter <rrichter@marvell.com>
-Subject: [PATCH 4.19 22/47] PCI: Apply Cavium ACS quirk to ThunderX2 and ThunderX3
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Steven Price <steven.price@arm.com>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.4 44/80] drm/panfrost: Fix a BO leak in panfrost_ioctl_mmap_bo()
 Date:   Thu, 19 Dec 2019 19:34:36 +0100
-Message-Id: <20191219182924.729980116@linuxfoundation.org>
+Message-Id: <20191219183111.994129838@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Cherian <george.cherian@marvell.com>
+From: Boris Brezillon <boris.brezillon@collabora.com>
 
-commit f338bb9f0179cb959977b74e8331b312264d720b upstream.
+commit 3bb69dbcb9e8430e0cc9990cff427ca3ae25ffdc upstream.
 
-Enhance the ACS quirk for Cavium Processors. Add the root port vendor IDs
-for ThunderX2 and ThunderX3 series of processors.
+We should release the reference we grabbed when an error occurs.
 
-[bhelgaas: add Fixes: and stable tag]
-Fixes: f2ddaf8dfd4a ("PCI: Apply Cavium ThunderX ACS quirk to more Root Ports")
-Link: https://lore.kernel.org/r/20191111024243.GA11408@dc5-eodlnx05.marvell.com
-Signed-off-by: George Cherian <george.cherian@marvell.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Robert Richter <rrichter@marvell.com>
-Cc: stable@vger.kernel.org	# v4.12+
+Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Acked-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191129135908.2439529-4-boris.brezillon@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_drv.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4219,15 +4219,21 @@ static int pci_quirk_amd_sb_acs(struct p
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -303,14 +303,17 @@ static int panfrost_ioctl_mmap_bo(struct
+ 	}
  
- static bool pci_quirk_cavium_acs_match(struct pci_dev *dev)
- {
-+	if (!pci_is_pcie(dev) || pci_pcie_type(dev) != PCI_EXP_TYPE_ROOT_PORT)
-+		return false;
-+
-+	switch (dev->device) {
- 	/*
--	 * Effectively selects all downstream ports for whole ThunderX 1
--	 * family by 0xf800 mask (which represents 8 SoCs), while the lower
--	 * bits of device ID are used to indicate which subdevice is used
--	 * within the SoC.
-+	 * Effectively selects all downstream ports for whole ThunderX1
-+	 * (which represents 8 SoCs).
- 	 */
--	return (pci_is_pcie(dev) &&
--		(pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT) &&
--		((dev->device & 0xf800) == 0xa000));
-+	case 0xa000 ... 0xa7ff: /* ThunderX1 */
-+	case 0xaf84:  /* ThunderX2 */
-+	case 0xb884:  /* ThunderX3 */
-+		return true;
-+	default:
-+		return false;
+ 	/* Don't allow mmapping of heap objects as pages are not pinned. */
+-	if (to_panfrost_bo(gem_obj)->is_heap)
+-		return -EINVAL;
++	if (to_panfrost_bo(gem_obj)->is_heap) {
++		ret = -EINVAL;
++		goto out;
 +	}
+ 
+ 	ret = drm_gem_create_mmap_offset(gem_obj);
+ 	if (ret == 0)
+ 		args->offset = drm_vma_node_offset_addr(&gem_obj->vma_node);
+-	drm_gem_object_put_unlocked(gem_obj);
+ 
++out:
++	drm_gem_object_put_unlocked(gem_obj);
+ 	return ret;
  }
  
- static int pci_quirk_cavium_acs(struct pci_dev *dev, u16 acs_flags)
 
 
