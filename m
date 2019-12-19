@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77E91126D88
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA22126CB9
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727252AbfLSShC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:37:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54298 "EHLO mail.kernel.org"
+        id S1728695AbfLSSor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:44:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727229AbfLSShB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:37:01 -0500
+        id S1729030AbfLSSop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:44:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06A4324672;
-        Thu, 19 Dec 2019 18:36:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9633E2465E;
+        Thu, 19 Dec 2019 18:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780620;
-        bh=m0Xi4nTk+oGEpyZ0wdmXOfeFk6InEJHjaHdGJ/1h9rE=;
+        s=default; t=1576781085;
+        bh=4xH0UAw3Fkv7ZW/hR8Y2pc2HbXJSz/nlbw4mNY2dFd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ns43stbNQJi85jv9JsG1XUYlcfLToWqip/gN9INC0Dy5PCWlnROxQXGNbQbhpLQmH
-         lr32jw9Yb1Bc70hTqReHSpVCo8U9opth6zv0juKBQfZvNe6ZxigJA5CcA7HLWZtP2j
-         c07WMQD5L2FqVzlJoOGFjg9HIZzqDwuQXn8Ox4V8=
+        b=dfEhEAik8Kd4AaACcYASuDTHGNMz+6ncvYyxBu1NMCSKJ+m83MTfiucJB9eAPnsfQ
+         kcSMN5Zw1X4307sMaItarjfU1S79XcciTUWsoUV4+L9iRlvAmef7HQnxyfEycktv/c
+         OsC2QReWxL3l5ZADJE2PYAFw8gO0xh2pwha6p3ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 048/162] powerpc/math-emu: Update macros from GCC
-Date:   Thu, 19 Dec 2019 19:32:36 +0100
-Message-Id: <20191219183210.816865498@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 075/199] Input: goodix - add upside-down quirk for Teclast X89 tablet
+Date:   Thu, 19 Dec 2019 19:32:37 +0100
+Message-Id: <20191219183219.131076378@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,191 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit b682c8692442711684befe413cf93cf01c5324ea ]
+commit df5b5e555b356662a5e4a23c6774fdfce8547d54 upstream.
 
-The add_ssaaaa, sub_ddmmss, umul_ppmm and udiv_qrnnd macros originate
-from GCC's longlong.h which in turn was copied from GMP's longlong.h a
-few decades ago.
+The touchscreen on the Teclast X89 is mounted upside down in relation to
+the display orientation (the touchscreen itself is mounted upright, but the
+display is mounted upside-down). Add a quirk for this so that we send
+coordinates which match the display orientation.
 
-This was found when compiling with clang:
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
+Link: https://lore.kernel.org/r/20191202085636.6650-1-hdegoede@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-   arch/powerpc/math-emu/fnmsub.c:46:2: error: invalid use of a cast in a
-   inline asm context requiring an l-value: remove the cast or build with
-   -fheinous-gnu-extensions
-           FP_ADD_D(R, T, B);
-           ^~~~~~~~~~~~~~~~~
-   ...
-
-   ./arch/powerpc/include/asm/sfp-machine.h:283:27: note: expanded from
-   macro 'sub_ddmmss'
-                  : "=r" ((USItype)(sh)),                                  \
-                          ~~~~~~~~~~^~~
-
-Segher points out: this was fixed in GCC over 16 years ago
-( https://gcc.gnu.org/r56600 ), and in GMP (where it comes from)
-presumably before that.
-
-Update the add_ssaaaa, sub_ddmmss, umul_ppmm and udiv_qrnnd macros to
-the latest GCC version in order to git rid of the invalid casts. These
-were taken as-is from GCC's longlong in order to make future syncs
-obvious. Other parts of sfp-machine.h were left as-is as the file
-contains more features than present in longlong.h.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/260
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/sfp-machine.h | 92 ++++++++------------------
- 1 file changed, 29 insertions(+), 63 deletions(-)
+ drivers/input/touchscreen/goodix.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/sfp-machine.h b/arch/powerpc/include/asm/sfp-machine.h
-index d89beaba26ff9..8b957aabb826d 100644
---- a/arch/powerpc/include/asm/sfp-machine.h
-+++ b/arch/powerpc/include/asm/sfp-machine.h
-@@ -213,30 +213,18 @@
-  * respectively.  The result is placed in HIGH_SUM and LOW_SUM.  Overflow
-  * (i.e. carry out) is not stored anywhere, and is lost.
-  */
--#define add_ssaaaa(sh, sl, ah, al, bh, bl)				\
-+#define add_ssaaaa(sh, sl, ah, al, bh, bl) \
-   do {									\
-     if (__builtin_constant_p (bh) && (bh) == 0)				\
--      __asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2"		\
--	     : "=r" ((USItype)(sh)),					\
--	       "=&r" ((USItype)(sl))					\
--	     : "%r" ((USItype)(ah)),					\
--	       "%r" ((USItype)(al)),					\
--	       "rI" ((USItype)(bl)));					\
--    else if (__builtin_constant_p (bh) && (bh) ==~(USItype) 0)		\
--      __asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2"		\
--	     : "=r" ((USItype)(sh)),					\
--	       "=&r" ((USItype)(sl))					\
--	     : "%r" ((USItype)(ah)),					\
--	       "%r" ((USItype)(al)),					\
--	       "rI" ((USItype)(bl)));					\
-+      __asm__ ("add%I4c %1,%3,%4\n\taddze %0,%2"		\
-+	     : "=r" (sh), "=&r" (sl) : "r" (ah), "%r" (al), "rI" (bl));\
-+    else if (__builtin_constant_p (bh) && (bh) == ~(USItype) 0)		\
-+      __asm__ ("add%I4c %1,%3,%4\n\taddme %0,%2"		\
-+	     : "=r" (sh), "=&r" (sl) : "r" (ah), "%r" (al), "rI" (bl));\
-     else								\
--      __asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3"		\
--	     : "=r" ((USItype)(sh)),					\
--	       "=&r" ((USItype)(sl))					\
--	     : "%r" ((USItype)(ah)),					\
--	       "r" ((USItype)(bh)),					\
--	       "%r" ((USItype)(al)),					\
--	       "rI" ((USItype)(bl)));					\
-+      __asm__ ("add%I5c %1,%4,%5\n\tadde %0,%2,%3"		\
-+	     : "=r" (sh), "=&r" (sl)					\
-+	     : "%r" (ah), "r" (bh), "%r" (al), "rI" (bl));		\
-   } while (0)
- 
- /* sub_ddmmss is used in op-2.h and udivmodti4.c and should be equivalent to
-@@ -248,44 +236,24 @@
-  * and LOW_DIFFERENCE.  Overflow (i.e. carry out) is not stored anywhere,
-  * and is lost.
-  */
--#define sub_ddmmss(sh, sl, ah, al, bh, bl)				\
-+#define sub_ddmmss(sh, sl, ah, al, bh, bl) \
-   do {									\
-     if (__builtin_constant_p (ah) && (ah) == 0)				\
--      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2"	\
--	       : "=r" ((USItype)(sh)),					\
--		 "=&r" ((USItype)(sl))					\
--	       : "r" ((USItype)(bh)),					\
--		 "rI" ((USItype)(al)),					\
--		 "r" ((USItype)(bl)));					\
--    else if (__builtin_constant_p (ah) && (ah) ==~(USItype) 0)		\
--      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2"	\
--	       : "=r" ((USItype)(sh)),					\
--		 "=&r" ((USItype)(sl))					\
--	       : "r" ((USItype)(bh)),					\
--		 "rI" ((USItype)(al)),					\
--		 "r" ((USItype)(bl)));					\
-+      __asm__ ("subf%I3c %1,%4,%3\n\tsubfze %0,%2"	\
-+	       : "=r" (sh), "=&r" (sl) : "r" (bh), "rI" (al), "r" (bl));\
-+    else if (__builtin_constant_p (ah) && (ah) == ~(USItype) 0)		\
-+      __asm__ ("subf%I3c %1,%4,%3\n\tsubfme %0,%2"	\
-+	       : "=r" (sh), "=&r" (sl) : "r" (bh), "rI" (al), "r" (bl));\
-     else if (__builtin_constant_p (bh) && (bh) == 0)			\
--      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2"		\
--	       : "=r" ((USItype)(sh)),					\
--		 "=&r" ((USItype)(sl))					\
--	       : "r" ((USItype)(ah)),					\
--		 "rI" ((USItype)(al)),					\
--		 "r" ((USItype)(bl)));					\
--    else if (__builtin_constant_p (bh) && (bh) ==~(USItype) 0)		\
--      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2"		\
--	       : "=r" ((USItype)(sh)),					\
--		 "=&r" ((USItype)(sl))					\
--	       : "r" ((USItype)(ah)),					\
--		 "rI" ((USItype)(al)),					\
--		 "r" ((USItype)(bl)));					\
-+      __asm__ ("subf%I3c %1,%4,%3\n\taddme %0,%2"		\
-+	       : "=r" (sh), "=&r" (sl) : "r" (ah), "rI" (al), "r" (bl));\
-+    else if (__builtin_constant_p (bh) && (bh) == ~(USItype) 0)		\
-+      __asm__ ("subf%I3c %1,%4,%3\n\taddze %0,%2"		\
-+	       : "=r" (sh), "=&r" (sl) : "r" (ah), "rI" (al), "r" (bl));\
-     else								\
--      __asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2"	\
--	       : "=r" ((USItype)(sh)),					\
--		 "=&r" ((USItype)(sl))					\
--	       : "r" ((USItype)(ah)),					\
--		 "r" ((USItype)(bh)),					\
--		 "rI" ((USItype)(al)),					\
--		 "r" ((USItype)(bl)));					\
-+      __asm__ ("subf%I4c %1,%5,%4\n\tsubfe %0,%3,%2"	\
-+	       : "=r" (sh), "=&r" (sl)					\
-+	       : "r" (ah), "r" (bh), "rI" (al), "r" (bl));		\
-   } while (0)
- 
- /* asm fragments for mul and div */
-@@ -294,13 +262,10 @@
-  * UWtype integers MULTIPLER and MULTIPLICAND, and generates a two UWtype
-  * word product in HIGH_PROD and LOW_PROD.
-  */
--#define umul_ppmm(ph, pl, m0, m1)					\
-+#define umul_ppmm(ph, pl, m0, m1) \
-   do {									\
-     USItype __m0 = (m0), __m1 = (m1);					\
--    __asm__ ("mulhwu %0,%1,%2"						\
--	     : "=r" ((USItype)(ph))					\
--	     : "%r" (__m0),						\
--               "r" (__m1));						\
-+    __asm__ ("mulhwu %0,%1,%2" : "=r" (ph) : "%r" (m0), "r" (m1));	\
-     (pl) = __m0 * __m1;							\
-   } while (0)
- 
-@@ -312,9 +277,10 @@
-  * significant bit of DENOMINATOR must be 1, then the pre-processor symbol
-  * UDIV_NEEDS_NORMALIZATION is defined to 1.
-  */
--#define udiv_qrnnd(q, r, n1, n0, d)					\
-+#define udiv_qrnnd(q, r, n1, n0, d) \
-   do {									\
--    UWtype __d1, __d0, __q1, __q0, __r1, __r0, __m;			\
-+    UWtype __d1, __d0, __q1, __q0;					\
-+    UWtype __r1, __r0, __m;						\
-     __d1 = __ll_highpart (d);						\
-     __d0 = __ll_lowpart (d);						\
- 									\
-@@ -325,7 +291,7 @@
-     if (__r1 < __m)							\
-       {									\
- 	__q1--, __r1 += (d);						\
--	if (__r1 >= (d)) /* we didn't get carry when adding to __r1 */	\
-+	if (__r1 >= (d)) /* i.e. we didn't get carry when adding to __r1 */\
- 	  if (__r1 < __m)						\
- 	    __q1--, __r1 += (d);					\
-       }									\
--- 
-2.20.1
-
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -90,6 +90,15 @@ static const unsigned long goodix_irq_fl
+ static const struct dmi_system_id rotated_screen[] = {
+ #if defined(CONFIG_DMI) && defined(CONFIG_X86)
+ 	{
++		.ident = "Teclast X89",
++		.matches = {
++			/* tPAD is too generic, also match on bios date */
++			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
++			DMI_MATCH(DMI_BOARD_NAME, "tPAD"),
++			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
++		},
++	},
++	{
+ 		.ident = "WinBook TW100",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
 
 
