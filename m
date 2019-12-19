@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40DFB12696C
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:37:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFC08126A63
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:47:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727830AbfLSSha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:37:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55162 "EHLO mail.kernel.org"
+        id S1729373AbfLSSqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:46:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727824AbfLSSh3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:37:29 -0500
+        id S1729363AbfLSSqn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:46:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0765D24679;
-        Thu, 19 Dec 2019 18:37:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 643E124676;
+        Thu, 19 Dec 2019 18:46:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780649;
-        bh=BH8qikRBDt42ngMKoPw5Pib1vwe/elbNsYhbcf3y2MA=;
+        s=default; t=1576781201;
+        bh=5Q8ef8tjuHuf0kMqNot+Fh9TOq/CFHB91XyZiKLMHGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFhzklpTP+HnOT2JnJkwGIwP3uxwvHj6HNNTTnRuVcqRQmZn71/ZNGDJQoysHYbQ4
-         tgJOj9LU6lXhQJK+wDHxOcdbzXmEBmNs4Du+0dHVAbhbeIp31tdETeZ2nvJ+T5Rr8h
-         aQhl0HU3VTfKqznCtctJ2OwQ7vKzxU2dFzXz/SKM=
+        b=dz+p/x6/P3XLYMUc1t/PiVXyOUkgz8hf/K2PGRM7L8jusRHTzBWAfBBsqHhbMai6M
+         woXB4aBC6m3rFNbzGoxv11mK6efqsyXhstUrEIcjG0HgCH0aQY0zSJpTOBKbNmm8vG
+         oKTW7sn12350uCthGJQpwFB03GsyuueKV3Fa6e+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.4 059/162] CIFS: Fix SMB2 oplock break processing
-Date:   Thu, 19 Dec 2019 19:32:47 +0100
-Message-Id: <20191219183211.467075228@linuxfoundation.org>
+        stable@vger.kernel.org, Sahaj Sarup <sahajsarup@gmail.com>,
+        Mark Salter <msalter@redhat.com>,
+        Gary R Hook <gary.hook@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 087/199] crypto: ccp - fix uninitialized list head
+Date:   Thu, 19 Dec 2019 19:32:49 +0100
+Message-Id: <20191219183219.757570137@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Mark Salter <msalter@redhat.com>
 
-commit fa9c2362497fbd64788063288dc4e74daf977ebb upstream.
+commit 691505a803a7f223b2af621848d581259c61f77d upstream.
 
-Even when mounting modern protocol version the server may be
-configured without supporting SMB2.1 leases and the client
-uses SMB2 oplock to optimize IO performance through local caching.
+A NULL-pointer dereference was reported in fedora bz#1762199 while
+reshaping a raid6 array after adding a fifth drive to an existing
+array.
 
-However there is a problem in oplock break handling that leads
-to missing a break notification on the client who has a file
-opened. It latter causes big latencies to other clients that
-are trying to open the same file.
+[   47.343549] md/raid:md0: raid level 6 active with 3 out of 5 devices, algorithm 2
+[   47.804017] md0: detected capacity change from 0 to 7885289422848
+[   47.822083] Unable to handle kernel read from unreadable memory at virtual address 0000000000000000
+...
+[   47.940477] CPU: 1 PID: 14210 Comm: md0_raid6 Tainted: G        W         5.2.18-200.fc30.aarch64 #1
+[   47.949594] Hardware name: AMD Overdrive/Supercharger/To be filled by O.E.M., BIOS ROD1002C 04/08/2016
+[   47.958886] pstate: 00400085 (nzcv daIf +PAN -UAO)
+[   47.963668] pc : __list_del_entry_valid+0x2c/0xa8
+[   47.968366] lr : ccp_tx_submit+0x84/0x168 [ccp]
+[   47.972882] sp : ffff00001369b970
+[   47.976184] x29: ffff00001369b970 x28: ffff00001369bdb8
+[   47.981483] x27: 00000000ffffffff x26: ffff8003b758af70
+[   47.986782] x25: ffff8003b758b2d8 x24: ffff8003e6245818
+[   47.992080] x23: 0000000000000000 x22: ffff8003e62450c0
+[   47.997379] x21: ffff8003dfd6add8 x20: 0000000000000003
+[   48.002678] x19: ffff8003e6245100 x18: 0000000000000000
+[   48.007976] x17: 0000000000000000 x16: 0000000000000000
+[   48.013274] x15: 0000000000000000 x14: 0000000000000000
+[   48.018572] x13: ffff7e000ef83a00 x12: 0000000000000001
+[   48.023870] x11: ffff000010eff998 x10: 00000000000019a0
+[   48.029169] x9 : 0000000000000000 x8 : ffff8003e6245180
+[   48.034467] x7 : 0000000000000000 x6 : 000000000000003f
+[   48.039766] x5 : 0000000000000040 x4 : ffff8003e0145080
+[   48.045064] x3 : dead000000000200 x2 : 0000000000000000
+[   48.050362] x1 : 0000000000000000 x0 : ffff8003e62450c0
+[   48.055660] Call trace:
+[   48.058095]  __list_del_entry_valid+0x2c/0xa8
+[   48.062442]  ccp_tx_submit+0x84/0x168 [ccp]
+[   48.066615]  async_tx_submit+0x224/0x368 [async_tx]
+[   48.071480]  async_trigger_callback+0x68/0xfc [async_tx]
+[   48.076784]  ops_run_biofill+0x178/0x1e8 [raid456]
+[   48.081566]  raid_run_ops+0x248/0x818 [raid456]
+[   48.086086]  handle_stripe+0x864/0x1208 [raid456]
+[   48.090781]  handle_active_stripes.isra.0+0xb0/0x278 [raid456]
+[   48.096604]  raid5d+0x378/0x618 [raid456]
+[   48.100602]  md_thread+0xa0/0x150
+[   48.103905]  kthread+0x104/0x130
+[   48.107122]  ret_from_fork+0x10/0x18
+[   48.110686] Code: d2804003 f2fbd5a3 eb03003f 54000320 (f9400021)
+[   48.116766] ---[ end trace 23f390a527f7ad77 ]---
 
-The problem reproduces when there are multiple shares from the
-same server mounted on the client. The processing code tries to
-match persistent and volatile file ids from the break notification
-with an open file but it skips all share besides the first one.
-Fix this by looking up in all shares belonging to the server that
-issued the oplock break.
+ccp_tx_submit is passed a dma_async_tx_descriptor which is contained in
+a ccp_dma_desc and adds it to a ccp channel's pending list:
 
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+	list_del(&desc->entry);
+	list_add_tail(&desc->entry, &chan->pending);
+
+The problem is that desc->entry may be uninitialized in the
+async_trigger_callback path where the descriptor was gotten
+from ccp_prep_dma_interrupt which got it from ccp_alloc_dma_desc
+which doesn't initialize the desc->entry list head. So, just
+initialize the list head to avoid the problem.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Sahaj Sarup <sahajsarup@gmail.com>
+Signed-off-by: Mark Salter <msalter@redhat.com>
+Acked-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2misc.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/crypto/ccp/ccp-dmaengine.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -582,10 +582,10 @@ smb2_is_valid_oplock_break(char *buffer,
- 	spin_lock(&cifs_tcp_ses_lock);
- 	list_for_each(tmp, &server->smb_ses_list) {
- 		ses = list_entry(tmp, struct cifs_ses, smb_ses_list);
-+
- 		list_for_each(tmp1, &ses->tcon_list) {
- 			tcon = list_entry(tmp1, struct cifs_tcon, tcon_list);
- 
--			cifs_stats_inc(&tcon->stats.cifs_stats.num_oplock_brks);
- 			spin_lock(&tcon->open_file_lock);
- 			list_for_each(tmp2, &tcon->openFileList) {
- 				cfile = list_entry(tmp2, struct cifsFileInfo,
-@@ -597,6 +597,8 @@ smb2_is_valid_oplock_break(char *buffer,
- 					continue;
- 
- 				cifs_dbg(FYI, "file id match, oplock break\n");
-+				cifs_stats_inc(
-+				    &tcon->stats.cifs_stats.num_oplock_brks);
- 				cinode = CIFS_I(d_inode(cfile->dentry));
- 				spin_lock(&cfile->file_info_lock);
- 				if (!CIFS_CACHE_WRITE(cinode) &&
-@@ -628,9 +630,6 @@ smb2_is_valid_oplock_break(char *buffer,
- 				return true;
- 			}
- 			spin_unlock(&tcon->open_file_lock);
--			spin_unlock(&cifs_tcp_ses_lock);
--			cifs_dbg(FYI, "No matching file for oplock break\n");
--			return true;
- 		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
+--- a/drivers/crypto/ccp/ccp-dmaengine.c
++++ b/drivers/crypto/ccp/ccp-dmaengine.c
+@@ -309,6 +309,7 @@ static struct ccp_dma_desc *ccp_alloc_dm
+ 	desc->tx_desc.flags = flags;
+ 	desc->tx_desc.tx_submit = ccp_tx_submit;
+ 	desc->ccp = chan->ccp;
++	INIT_LIST_HEAD(&desc->entry);
+ 	INIT_LIST_HEAD(&desc->pending);
+ 	INIT_LIST_HEAD(&desc->active);
+ 	desc->status = DMA_IN_PROGRESS;
 
 
