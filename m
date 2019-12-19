@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3A35126CA0
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 188EA126D9C
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727664AbfLSSqE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:46:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38610 "EHLO mail.kernel.org"
+        id S1727698AbfLSSiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:38:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728708AbfLSSqD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:46:03 -0500
+        id S1728008AbfLSSiU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:38:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57FCF24679;
-        Thu, 19 Dec 2019 18:46:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF20F24683;
+        Thu, 19 Dec 2019 18:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781162;
-        bh=OqlRxJ+gCG0jNsJDOzcwV1OoSPzgSFE98BB7xYlWdpM=;
+        s=default; t=1576780700;
+        bh=1X556cXYPxEAIMO19u1jJy89/RHUKO0B66A4saMjNRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+K8LEoh8SDI6jmFdTycUte+ZEuukuSbj3jKQ4is5yyso502aHaywtjB/V94/JBEP
-         wOB9bnw2UK5TWGlQIbY3LJL0kxB5GkWMgdmWkVIVpOfgAWuh/5FpwJwsFQnJo85FSQ
-         p4iGRbUko1jV2/B/stJ6UjcE6w7PWY8nD7C4vGU4=
+        b=ogwpIwLzw2hamHuzT5YBoaL8QS3ROmjt45fnYT6Q6vgsNljsJvkZmzW6zACr34QPm
+         gP9C4f3rxydvO1VsA1bZjT9ACvgJbRgpO6wz+DY3EZXy3JuW3CE05/u7TncnZhkI1W
+         b3+wo86j13mdaRFgdiO3VpA1ATpIUyZq2hAexN6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 108/199] USB: atm: ueagle-atm: add missing endpoint check
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.4 082/162] usb: gadget: configfs: Fix missing spin_lock_init()
 Date:   Thu, 19 Dec 2019 19:33:10 +0100
-Message-Id: <20191219183220.859425820@linuxfoundation.org>
+Message-Id: <20191219183212.791700716@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,90 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 09068c1ad53fb077bdac288869dec2435420bdc4 upstream.
+commit 093edc2baad2c258b1f55d1ab9c63c2b5ae67e42 upstream.
 
-Make sure that the interrupt interface has an endpoint before trying to
-access its endpoint descriptors to avoid dereferencing a NULL pointer.
+The driver allocates the spinlock but not initialize it.
+Use spin_lock_init() on it to initialize it correctly.
 
-The driver binds to the interrupt interface with interface number 0, but
-must not assume that this interface or its current alternate setting are
-the first entries in the corresponding configuration arrays.
+This is detected by Coccinelle semantic patch.
 
-Fixes: b72458a80c75 ("[PATCH] USB: Eagle and ADI 930 usb adsl modem driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.16
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191210112601.3561-2-johan@kernel.org
+Fixes: 1a1c851bbd70 ("usb: gadget: configfs: fix concurrent issue between composite APIs")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20191030034046.188808-1-weiyongjun1@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/atm/ueagle-atm.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/usb/gadget/configfs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/atm/ueagle-atm.c
-+++ b/drivers/usb/atm/ueagle-atm.c
-@@ -2167,10 +2167,11 @@ resubmit:
- /*
-  * Start the modem : init the data and start kernel thread
-  */
--static int uea_boot(struct uea_softc *sc)
-+static int uea_boot(struct uea_softc *sc, struct usb_interface *intf)
- {
--	int ret, size;
- 	struct intr_pkt *intr;
-+	int ret = -ENOMEM;
-+	int size;
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -1542,6 +1542,7 @@ static struct config_group *gadgets_make
+ 	gi->composite.resume = NULL;
+ 	gi->composite.max_speed = USB_SPEED_SUPER;
  
- 	uea_enters(INS_TO_USBDEV(sc));
- 
-@@ -2195,6 +2196,11 @@ static int uea_boot(struct uea_softc *sc
- 	if (UEA_CHIP_VERSION(sc) == ADI930)
- 		load_XILINX_firmware(sc);
- 
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
-+		ret = -ENODEV;
-+		goto err0;
-+	}
-+
- 	intr = kmalloc(size, GFP_KERNEL);
- 	if (!intr)
- 		goto err0;
-@@ -2206,8 +2212,7 @@ static int uea_boot(struct uea_softc *sc
- 	usb_fill_int_urb(sc->urb_int, sc->usb_dev,
- 			 usb_rcvintpipe(sc->usb_dev, UEA_INTR_PIPE),
- 			 intr, size, uea_intr, sc,
--			 sc->usb_dev->actconfig->interface[0]->altsetting[0].
--			 endpoint[0].desc.bInterval);
-+			 intf->cur_altsetting->endpoint[0].desc.bInterval);
- 
- 	ret = usb_submit_urb(sc->urb_int, GFP_KERNEL);
- 	if (ret < 0) {
-@@ -2222,6 +2227,7 @@ static int uea_boot(struct uea_softc *sc
- 	sc->kthread = kthread_create(uea_kthread, sc, "ueagle-atm");
- 	if (IS_ERR(sc->kthread)) {
- 		uea_err(INS_TO_USBDEV(sc), "failed to create thread\n");
-+		ret = PTR_ERR(sc->kthread);
- 		goto err2;
- 	}
- 
-@@ -2236,7 +2242,7 @@ err1:
- 	kfree(intr);
- err0:
- 	uea_leaves(INS_TO_USBDEV(sc));
--	return -ENOMEM;
-+	return ret;
- }
- 
- /*
-@@ -2597,7 +2603,7 @@ static int uea_bind(struct usbatm_data *
- 	if (ret < 0)
- 		goto error;
- 
--	ret = uea_boot(sc);
-+	ret = uea_boot(sc, intf);
- 	if (ret < 0)
- 		goto error_rm_grp;
- 
++	spin_lock_init(&gi->spinlock);
+ 	mutex_init(&gi->lock);
+ 	INIT_LIST_HEAD(&gi->string_list);
+ 	INIT_LIST_HEAD(&gi->available_func);
 
 
