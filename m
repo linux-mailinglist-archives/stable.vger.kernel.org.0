@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5D85126B8F
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E432A126B8D
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:57:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730496AbfLSSzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:55:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51978 "EHLO mail.kernel.org"
+        id S1730723AbfLSSzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:55:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729871AbfLSSzq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:55:46 -0500
+        id S1729789AbfLSSzs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:55:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB27024685;
-        Thu, 19 Dec 2019 18:55:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F1DB24676;
+        Thu, 19 Dec 2019 18:55:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781745;
-        bh=/5VkuBAMF0hcicJrt4OEqJzPZcmo+aSf0A05sH6ht1E=;
+        s=default; t=1576781747;
+        bh=A6O7U4jUTSn2sMgO5pJsU6Gzns8Nq5coPBqaHcHZKoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jtd1qMFiyR+5OAXS9+M1bweSIjiB62oeWW0gcEYOZ2d7k63nJSzV+yBc2HUOLuA1I
-         V8LW0gl5qPaRx7txfxr/p6aoHmXrboDdl1n8nLjA/RRtb4taxRZUDh8JFr7XqHLQwF
-         lSsoiAnJoENUUmgoVliAGoTCCIXnZH5A5D9LiIkk=
+        b=Mo1uVWO5mON+WKT40lDm+m1/aSg9Ne7ooOkHzaCwder+n03t/XrgLcQKqStSWR6PE
+         aaACRC2v84evgCw+TJ6pjgtiE/P3wL8coH0SPsi5dVgPgW04k/GjNGmEezLttBrlyq
+         374msNux1QLw2U3I3NZfdwHXLTynl4ksdHTfqlRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Hernandez <mhernandez@marvell.com>,
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
         Himanshu Madhani <hmadhani@marvell.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Roman Bolshakov <r.bolshakov@yadro.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 62/80] scsi: qla2xxx: Added support for MPI and PEP regions for ISP28XX
-Date:   Thu, 19 Dec 2019 19:34:54 +0100
-Message-Id: <20191219183135.337522801@linuxfoundation.org>
+Subject: [PATCH 5.4 63/80] scsi: qla2xxx: Change discovery state before PLOGI
+Date:   Thu, 19 Dec 2019 19:34:55 +0100
+Message-Id: <20191219183136.597686812@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
 References: <20191219183031.278083125@linuxfoundation.org>
@@ -44,81 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hernandez <mhernandez@marvell.com>
+From: Roman Bolshakov <r.bolshakov@yadro.com>
 
-commit a530bf691f0e4691214562c165e6c8889dc51e57 upstream.
+commit 58e39a2ce4be08162c0368030cdc405f7fd849aa upstream.
 
-This patch adds support for MPI/PEP region updates which is required with
-secure flash updates for ISP28XX.
+When a port sends PLOGI, discovery state should be changed to login
+pending, otherwise RELOGIN_NEEDED bit is set in
+qla24xx_handle_plogi_done_event(). RELOGIN_NEEDED triggers another PLOGI,
+and it never goes out of the loop until login timer expires.
 
-Fixes: 3f006ac342c0 ("scsi: qla2xxx: Secure flash update support for ISP28XX")
+Fixes: 8777e4314d397 ("scsi: qla2xxx: Migrate NVME N2N handling into state machine")
+Fixes: 8b5292bcfcacf ("scsi: qla2xxx: Fix Relogin to prevent modifying scan_state flag")
+Cc: Quinn Tran <qutran@marvell.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191203223657.22109-3-hmadhani@marvell.com
-Signed-off-by: Michael Hernandez <mhernandez@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Link: https://lore.kernel.org/r/20191125165702.1013-6-r.bolshakov@yadro.com
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Tested-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_fw.h  |    4 ++++
- drivers/scsi/qla2xxx/qla_sup.c |   27 ++++++++++++++++++++++-----
- 2 files changed, 26 insertions(+), 5 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/qla2xxx/qla_fw.h
-+++ b/drivers/scsi/qla2xxx/qla_fw.h
-@@ -1523,6 +1523,10 @@ struct qla_flt_header {
- #define FLT_REG_NVRAM_SEC_28XX_1	0x10F
- #define FLT_REG_NVRAM_SEC_28XX_2	0x111
- #define FLT_REG_NVRAM_SEC_28XX_3	0x113
-+#define FLT_REG_MPI_PRI_28XX		0xD3
-+#define FLT_REG_MPI_SEC_28XX		0xF0
-+#define FLT_REG_PEP_PRI_28XX		0xD1
-+#define FLT_REG_PEP_SEC_28XX		0xF1
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -534,6 +534,7 @@ static int qla_post_els_plogi_work(struc
  
- struct qla_flt_region {
- 	uint16_t code;
---- a/drivers/scsi/qla2xxx/qla_sup.c
-+++ b/drivers/scsi/qla2xxx/qla_sup.c
-@@ -2725,8 +2725,11 @@ qla28xx_write_flash_data(scsi_qla_host_t
- 		ql_log(ql_log_warn + ql_dbg_verbose, vha, 0xffff,
- 		    "Region %x is secure\n", region.code);
+ 	e->u.fcport.fcport = fcport;
+ 	fcport->flags |= FCF_ASYNC_ACTIVE;
++	fcport->disc_state = DSC_LOGIN_PEND;
+ 	return qla2x00_post_work(vha, e);
+ }
  
--		if (region.code == FLT_REG_FW ||
--		    region.code == FLT_REG_FW_SEC_27XX) {
-+		switch (region.code) {
-+		case FLT_REG_FW:
-+		case FLT_REG_FW_SEC_27XX:
-+		case FLT_REG_MPI_PRI_28XX:
-+		case FLT_REG_MPI_SEC_28XX:
- 			fw_array = dwptr;
- 
- 			/* 1st fw array */
-@@ -2757,9 +2760,23 @@ qla28xx_write_flash_data(scsi_qla_host_t
- 				buf_size_without_sfub += risc_size;
- 				fw_array += risc_size;
- 			}
--		} else {
--			ql_log(ql_log_warn + ql_dbg_verbose, vha, 0xffff,
--			    "Secure region %x not supported\n",
-+			break;
-+
-+		case FLT_REG_PEP_PRI_28XX:
-+		case FLT_REG_PEP_SEC_28XX:
-+			fw_array = dwptr;
-+
-+			/* 1st fw array */
-+			risc_size = be32_to_cpu(fw_array[3]);
-+			risc_attr = be32_to_cpu(fw_array[9]);
-+
-+			buf_size_without_sfub = risc_size;
-+			fw_array += risc_size;
-+			break;
-+
-+		default:
-+			ql_log(ql_log_warn + ql_dbg_verbose, vha,
-+			    0xffff, "Secure region %x not supported\n",
- 			    region.code);
- 			rval = QLA_COMMAND_ERROR;
- 			goto done;
 
 
