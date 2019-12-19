@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8755B126AF5
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:52:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F55C126B25
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730267AbfLSSwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:52:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47254 "EHLO mail.kernel.org"
+        id S1730320AbfLSSyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:54:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730096AbfLSSwh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:52:37 -0500
+        id S1730485AbfLSSyT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:54:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FE47222C2;
-        Thu, 19 Dec 2019 18:52:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 401C3222C2;
+        Thu, 19 Dec 2019 18:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781556;
-        bh=ptTn8ADqCql0udAL9DknvoKper9lTu7OmBfTYKrgNOw=;
+        s=default; t=1576781658;
+        bh=cbwsBuEqEqia5+bAaY56n4OPjROO8sIYdADYQJI11w0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pK40uluNfhCOGI8WxOeV0EEt3YInNTZ6DQtsRbmsbl1zeB5l2zfesaitcAQz2OKC9
-         O+FdL51E5PC9u8yLATMEeAG6j9Cw/WuwAmtqiF/sQhcdiI+twmIi+al9GL1Gx2wfs3
-         XJTbpMbzQoYoQcbg8RNrfH7p1HGSe/i5aDWQ0CV0=
+        b=An3WehkWnTED1GxJzspdCWxJrj5a8w4zY3ifbpVmDUsXXfas/SCLJjSa4w5tvfjna
+         dShkC90AjvU8JlGPDdQkKPT6jCT6QDmowVuqt0JztWJt6x/ZnLbETHKqLZCRTZaauc
+         uUWBhDv92TwCs+/ZUEOmULmkpMFnq36t0RsOxGwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 05/47] net: ethernet: ti: cpsw: fix extra rx interrupt
+        stable@vger.kernel.org, Chris Lew <clew@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.4 27/80] rpmsg: glink: Free pending deferred work on remove
 Date:   Thu, 19 Dec 2019 19:34:19 +0100
-Message-Id: <20191219182901.301630269@linuxfoundation.org>
+Message-Id: <20191219183103.008476749@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 51302f77bedab8768b761ed1899c08f89af9e4e2 ]
+commit 278bcb7300f61785dba63840bd2a8cf79f14554c upstream.
 
-Now RX interrupt is triggered twice every time, because in
-cpsw_rx_interrupt() it is asked first and then disabled. So there will be
-pending interrupt always, when RX interrupt is enabled again in NAPI
-handler.
+By just cancelling the deferred rx worker during GLINK instance teardown
+any pending deferred commands are leaked, so free them.
 
-Fix it by first disabling IRQ and then do ask.
-
-Fixes: 870915feabdc ("drivers: net: cpsw: remove disable_irq/enable_irq as irq can be masked from cpsw itself")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b4f8e52b89f6 ("rpmsg: Introduce Qualcomm RPM glink driver")
+Cc: stable@vger.kernel.org
+Acked-by: Chris Lew <clew@codeaurora.org>
+Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/ti/cpsw.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ti/cpsw.c
-+++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -954,8 +954,8 @@ static irqreturn_t cpsw_rx_interrupt(int
- {
- 	struct cpsw_common *cpsw = dev_id;
+---
+ drivers/rpmsg/qcom_glink_native.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+--- a/drivers/rpmsg/qcom_glink_native.c
++++ b/drivers/rpmsg/qcom_glink_native.c
+@@ -1562,6 +1562,18 @@ static void qcom_glink_work(struct work_
+ 	}
+ }
  
--	cpdma_ctlr_eoi(cpsw->dma, CPDMA_EOI_RX);
- 	writel(0, &cpsw->wr_regs->rx_en);
-+	cpdma_ctlr_eoi(cpsw->dma, CPDMA_EOI_RX);
++static void qcom_glink_cancel_rx_work(struct qcom_glink *glink)
++{
++	struct glink_defer_cmd *dcmd;
++	struct glink_defer_cmd *tmp;
++
++	/* cancel any pending deferred rx_work */
++	cancel_work_sync(&glink->rx_work);
++
++	list_for_each_entry_safe(dcmd, tmp, &glink->rx_queue, node)
++		kfree(dcmd);
++}
++
+ struct qcom_glink *qcom_glink_native_probe(struct device *dev,
+ 					   unsigned long features,
+ 					   struct qcom_glink_pipe *rx,
+@@ -1639,7 +1651,7 @@ void qcom_glink_native_remove(struct qco
+ 	int ret;
  
- 	if (cpsw->quirk_irq) {
- 		disable_irq_nosync(cpsw->irqs_table[0]);
+ 	disable_irq(glink->irq);
+-	cancel_work_sync(&glink->rx_work);
++	qcom_glink_cancel_rx_work(glink);
+ 
+ 	ret = device_for_each_child(glink->dev, NULL, qcom_glink_remove_device);
+ 	if (ret)
 
 
