@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7664126D97
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D755126D80
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727656AbfLSSiE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:38:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55936 "EHLO mail.kernel.org"
+        id S1727617AbfLSSgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:36:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727951AbfLSSiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:38:04 -0500
+        id S1727632AbfLSSge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:36:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 126EA20716;
-        Thu, 19 Dec 2019 18:38:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AEBF2467B;
+        Thu, 19 Dec 2019 18:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780683;
-        bh=ioL19NGVy6hMx0RYu8e7DqjhRj5BQCCUBbouw/SxLH4=;
+        s=default; t=1576780593;
+        bh=8TgAuhidk5oSTwZ1eaoHs9t4kw2w9ZuWglFYXHYxt9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yw3w1I19TYiEI7IL6Ufc5yOSLOY2H1QbjzmfrotqxRQcg+SLeOE/nqMUHs9MEkzk5
-         UR5MooiwXrbC7wOIPQW0x2PRUAk/FIaR2o/UBXfqyCRjml5oeDhq75N5VjNObPZylI
-         WlfDmeYoFutm26v4ZFA/61RrBjHGT8cR72BPS2B4=
+        b=yFi5C8fHUcLx3GyaqCd2bx80xo3EcAK+sVGkBCeOl34A7VmnoY46TbJqMXsxJLs3g
+         FEsLzL730aVuGjwZp+SB8OnBPthJpdy8dUDuZOvyKQeRIVVAhIrfppfxHczbY364R1
+         Id2a9oOBfQZT4pkXZoMVq1scqcRIV+aSvSU3djNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 036/162] i2c: imx: dont print error message on probe defer
-Date:   Thu, 19 Dec 2019 19:32:24 +0100
-Message-Id: <20191219183210.026925099@linuxfoundation.org>
+Subject: [PATCH 4.4 038/162] nfsd: fix a warning in __cld_pipe_upcall()
+Date:   Thu, 19 Dec 2019 19:32:26 +0100
+Message-Id: <20191219183210.143633078@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -45,35 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Scott Mayhew <smayhew@redhat.com>
 
-[ Upstream commit fece4978510e43f09c8cd386fee15210e8c68493 ]
+[ Upstream commit b493fd31c0b89d9453917e977002de58bebc3802 ]
 
-Probe deferral is a normal operating condition in the probe function,
-so don't spam the log with an error in this case.
+__cld_pipe_upcall() emits a "do not call blocking ops when
+!TASK_RUNNING" warning due to the dput() call in rpc_queue_upcall().
+Fix it by using a completion instead of hand coding the wait.
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfsd/nfs4recover.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index cf1b57a054d09..d121c5732d7db 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1076,7 +1076,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	/* Get I2C clock */
- 	i2c_imx->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(i2c_imx->clk)) {
--		dev_err(&pdev->dev, "can't get I2C clock\n");
-+		if (PTR_ERR(i2c_imx->clk) != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "can't get I2C clock\n");
- 		return PTR_ERR(i2c_imx->clk);
+diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
+index e3d47091b191d..2cb2e61cdbf6c 100644
+--- a/fs/nfsd/nfs4recover.c
++++ b/fs/nfsd/nfs4recover.c
+@@ -655,7 +655,7 @@ struct cld_net {
+ struct cld_upcall {
+ 	struct list_head	 cu_list;
+ 	struct cld_net		*cu_net;
+-	struct task_struct	*cu_task;
++	struct completion	 cu_done;
+ 	struct cld_msg		 cu_msg;
+ };
+ 
+@@ -664,23 +664,18 @@ __cld_pipe_upcall(struct rpc_pipe *pipe, struct cld_msg *cmsg)
+ {
+ 	int ret;
+ 	struct rpc_pipe_msg msg;
++	struct cld_upcall *cup = container_of(cmsg, struct cld_upcall, cu_msg);
+ 
+ 	memset(&msg, 0, sizeof(msg));
+ 	msg.data = cmsg;
+ 	msg.len = sizeof(*cmsg);
+ 
+-	/*
+-	 * Set task state before we queue the upcall. That prevents
+-	 * wake_up_process in the downcall from racing with schedule.
+-	 */
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+ 	ret = rpc_queue_upcall(pipe, &msg);
+ 	if (ret < 0) {
+-		set_current_state(TASK_RUNNING);
+ 		goto out;
  	}
  
+-	schedule();
++	wait_for_completion(&cup->cu_done);
+ 
+ 	if (msg.errno < 0)
+ 		ret = msg.errno;
+@@ -747,7 +742,7 @@ cld_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
+ 	if (copy_from_user(&cup->cu_msg, src, mlen) != 0)
+ 		return -EFAULT;
+ 
+-	wake_up_process(cup->cu_task);
++	complete(&cup->cu_done);
+ 	return mlen;
+ }
+ 
+@@ -762,7 +757,7 @@ cld_pipe_destroy_msg(struct rpc_pipe_msg *msg)
+ 	if (msg->errno >= 0)
+ 		return;
+ 
+-	wake_up_process(cup->cu_task);
++	complete(&cup->cu_done);
+ }
+ 
+ static const struct rpc_pipe_ops cld_upcall_ops = {
+@@ -893,7 +888,7 @@ restart_search:
+ 			goto restart_search;
+ 		}
+ 	}
+-	new->cu_task = current;
++	init_completion(&new->cu_done);
+ 	new->cu_msg.cm_vers = CLD_UPCALL_VERSION;
+ 	put_unaligned(cn->cn_xid++, &new->cu_msg.cm_xid);
+ 	new->cu_net = cn;
 -- 
 2.20.1
 
