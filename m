@@ -2,78 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A8B127168
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 00:25:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EDBB127264
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 01:24:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726996AbfLSXZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 18:25:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59838 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726880AbfLSXZG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 18:25:06 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B45D24676;
-        Thu, 19 Dec 2019 23:25:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576797905;
-        bh=OpW/vFNf8yuCa8Ujk2w/8mdhZTESUxbg4sfNSMdxIHE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M1mE44UBGUY1+ZZYHVyOH2bv1PtMbbuFI06lRR9E7DrnkqhLjcRo9IDKlO5eBwGm1
-         Qd7ximLPII8aePutZuDhgLhjbK2UiFqoYwZ/miTjJSKxDYo4AUcsEE679zgsFz6xfE
-         4MV4L1LITHTN3t1q4yfZwIpmaQgY2SVPukrUvuiI=
-Date:   Thu, 19 Dec 2019 18:25:04 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Daniel Borkmann <daniel@iogearbox.net>
-Cc:     Jakub Kicinski <jakub.kicinski@netronome.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andrii Nakryiko <andriin@fb.com>,
-        Song Liu <songliubraving@fb.com>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, oss-drivers@netronome.com
-Subject: Re: [oss-drivers] [PATCH AUTOSEL 5.4 326/350] bpf: Switch bpf_map
- ref counter to atomic64_t so bpf_map_inc() never fails
-Message-ID: <20191219232504.GV17708@sasha-vm>
-References: <20191210210735.9077-1-sashal@kernel.org>
- <20191210210735.9077-287-sashal@kernel.org>
- <20191210132834.157d5fc5@cakuba.netronome.com>
- <20191212162513.GB1264@localhost.localdomain>
+        id S1726967AbfLTAYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 19:24:48 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54521 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726963AbfLTAYs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 19:24:48 -0500
+Received: by mail-wm1-f68.google.com with SMTP id b19so7213983wmj.4
+        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 16:24:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=+0/dP1Ui+paZJMfapMlYjJ6EYgBbWF6P++a2m+LaySE=;
+        b=qYG/BPDcgAHfzoYHCvaxkKRxcfkzPK9r3pZvxdN6K9xxvFmRN37lNSG3iotGI3DyiC
+         ELWYRzKNGPZXGEP0YTKoCl562qK8oAMWKUIyJyUeaBXO7hwTsUU4r1mrwlJgr1Wzz3jU
+         31kOEdlZbix+UzxcoMQ1jSKy5Lu9EEtDrltkdVmivS0E9faty9f3jer2m8yh+vifXzmI
+         1a0slSOcWxr+KxFEi//NFdHQ4zRr0auCH5gXu6rodSvOWr4eAP3rW6HLn8pilYA+PlW3
+         mXM/G49aBRhUJwqi8wmlPM2bq7hSOnKRqr2Zb5RxizbeHnAq0AsGyVwmLpW8ChzKzLR2
+         uk8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=+0/dP1Ui+paZJMfapMlYjJ6EYgBbWF6P++a2m+LaySE=;
+        b=hdJ8NGJqh7SEcMCwXULzmVXewVcXd19w6uXm4ngrFxCYbVwrWXyA0d1jhUDbHwn38G
+         mr4KQo1T00aLjxocpDYvQfQiizs7rQDLZ9RnfVOQvsaOvcsw0Pp8zQtdLoxDXdeY5uf5
+         cUx7IjfY67HE0TmbfqFrWEWycaB7RZSQ81N8L1o2/gox6HwhN1yCsAdwiij9KukclmC/
+         IfuvhNUTGpO0UCeaHKaSBHAkbpkmEs/dwT0wE8p7kWRGkQw6DK0noWp9cKeSsjIT6HLu
+         ct3/FRG2Wv1HqdAx7KjTUH8vBQXkb+J2rk4rodPxwELQWIH/ei68+uW/lJDb7wxoUqDY
+         7xkA==
+X-Gm-Message-State: APjAAAW+nQvyQpdlNYjbGkdsyFATN5zC+jaRnWmTD64W2lquXceo6s60
+        Wi6RZQPM96/zuvoa8acp7IaTwsEGHJrx0w==
+X-Google-Smtp-Source: APXvYqx3mrx1mFk8hat0XylcXfCRcZ4rhJ+UqEHMcHcUL4QEdw9dojD3W7UobU0EmFQVz5syTSk8EA==
+X-Received: by 2002:a05:600c:22d3:: with SMTP id 19mr12583385wmg.92.1576801485772;
+        Thu, 19 Dec 2019 16:24:45 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id o7sm7539111wmh.11.2019.12.19.16.24.45
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Dec 2019 16:24:45 -0800 (PST)
+Message-ID: <5dfc14cd.1c69fb81.e4721.6c59@mx.google.com>
+Date:   Thu, 19 Dec 2019 16:24:45 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20191212162513.GB1264@localhost.localdomain>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.159-37-g838b72b47f7e
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 114 boots: 2 failed,
+ 105 passed with 5 offline, 2 untried/unknown (v4.14.159-37-g838b72b47f7e)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 12, 2019 at 05:25:13PM +0100, Daniel Borkmann wrote:
->On Tue, Dec 10, 2019 at 01:28:34PM -0800, Jakub Kicinski wrote:
->> On Tue, 10 Dec 2019 16:07:11 -0500, Sasha Levin wrote:
->> > From: Andrii Nakryiko <andriin@fb.com>
->> >
->> > [ Upstream commit 1e0bd5a091e5d9e0f1d5b0e6329b87bb1792f784 ]
->> >
->> > 92117d8443bc ("bpf: fix refcnt overflow") turned refcounting of bpf_map into
->> > potentially failing operation, when refcount reaches BPF_MAX_REFCNT limit
->> > (32k). Due to using 32-bit counter, it's possible in practice to overflow
->> > refcounter and make it wrap around to 0, causing erroneous map free, while
->> > there are still references to it, causing use-after-free problems.
->>
->> I don't think this is a bug fix, the second sentence here is written
->> in a quite confusing way, but there is no bug.
->>
->> Could you drop? I don't think it's worth the backporting pain since it
->> changes bpf_map_inc().
->
->Agree, this is not a bug fix and should not go to stable. (Also agree that
->the changelog is super confusing here and should have been done differently
->to avoid exactly where we are here. I think I pointed that out in the
->original patch, but seems this slipped through the cracks :/)
+stable-rc/linux-4.14.y boot: 114 boots: 2 failed, 105 passed with 5 offline=
+, 2 untried/unknown (v4.14.159-37-g838b72b47f7e)
 
-Sure, dropped, thanks!
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.159-37-g838b72b47f7e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.159-37-g838b72b47f7e/
 
--- 
-Thanks,
-Sasha
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.159-37-g838b72b47f7e
+Git Commit: 838b72b47f7ef92850331f8b87e1228d8301f392
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 69 unique boards, 22 SoC families, 16 builds out of 201
+
+Boot Regressions Detected:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-8:
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.14.159-37-g5=
+f381a956c02)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxl-s905d-p230:
+              lab-baylibre: new failure (last pass: v4.14.159-37-g5f381a956=
+c02)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
