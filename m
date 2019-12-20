@@ -2,165 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5B712727F
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 01:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA281272BF
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 02:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbfLTAdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 19:33:42 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:44808 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726982AbfLTAdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 19:33:42 -0500
-Received: by mail-ot1-f68.google.com with SMTP id h9so6931729otj.11
-        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 16:33:41 -0800 (PST)
+        id S1727020AbfLTBYx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 20:24:53 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:36237 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727006AbfLTBYx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 20:24:53 -0500
+Received: by mail-wm1-f65.google.com with SMTP id p17so7579096wma.1
+        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 17:24:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nigauri-org.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=J/H/mTjA3sQ1iOfBfppKp5HMvTlpRkG5DtVATYOXb5A=;
-        b=DBASogu2Ym9iK05Kjr3e6WMHITpDpePmfHOpvegCi5BEqn6mJWSsoCGDbziNkmnXhC
-         XtRDzZspc2Rit43S/8M0XJARo4AHN0GZ5f3rlUO7mt3eZ+o4BzeY9AinGncpvxMuNAGS
-         WxU0Bgmn2wz7oUf5RTbdcasyDo0SREY/DK6jiNJtD6nM/o7BPyXV5/yvDvkXeEXdlZYv
-         cCCY3SYr0+tb151jFZZ3MG7NYEPbRwA172mx07glzVll/sa6oolu89SZu5rQVSGFpAb4
-         b/+7/kHlJS+JQjx79NuuwmmDznr3Q192TLo4SC4dOgPPjgsu64OJ6zqEwMZaFrATILzf
-         D7QA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=RA+gXYZJ0g+K3M3DQNTJnvbd+pXel8RoSV2e1nZbK04=;
+        b=AeNpLx0japu4ycb+IWldSG5ntHB3157HQ3duTxTNUAOhKZR/hQeY+080N5r2bh1J/6
+         d3U6jUuqYZs50tZUCQ5lqYdrEsrXfQh6+CjAff3Q3cZ7bXwpyxc1Vie0b9nx6dZk6Of5
+         EZUxckbMbK1F9jZwnuTqPeoc51bTEr1cGYy1YEqC30YKCmYlAHZKlbW7lb4LrZzso0GA
+         +4D1qLRJ/pbTkAfsEo0rFJ1uqggWbOYImfIropsoVblOubGn3xXKmzzL0Iak5tIQR5Wu
+         xMGEVzz9z/eEcqka2k6dp6kn9YAnV5A08leCnAw4nMSZ+5XDtw2g2s3wN4rL+exAGcHs
+         /dtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=J/H/mTjA3sQ1iOfBfppKp5HMvTlpRkG5DtVATYOXb5A=;
-        b=gyKp/irZQFIQY/qFt37B6G0ggxcD0NqUrnhjIzWguLQX/36zTLsngK19ViZhEI/fZd
-         5ovgCSTRfTDncIM7bwqFI3b4QtoJPwJZQiDO8CWeL4W6DS0iPFAz690B6hOj2Rnh3JWo
-         2eNGe33ygf/R6eOqL4f7GG5IlvtfKwt12vXLAlo9NDB4GOAsw/PIf14J2XeYXwRO3DbZ
-         lxBvrVwvwpcIj89CChhdKS74kXZRy2zCtCdh9Rj5Y+FhQUWAfGkHhvM0S/PbGUoN7URk
-         7kL03S2uVbAIr5riX/yb0qQWrRosaeup8fnwZGRV09A5Gnx8j59kJ83ZG3pQt9PFf4tr
-         gFCg==
-X-Gm-Message-State: APjAAAUJZZzJPHBIN8ulsdSC0VogtkzzrQ9BygSryNAibbgnGAJ9CRVu
-        dDLduri+bsY00HXeZcsa3rqdd3RtsyuB2uQ8LEab
-X-Google-Smtp-Source: APXvYqyI0sanJXYNa+PROXXcdSjYGyaP7oHkehTfzlVwqRdUSx7lQaFcW/aD7zajc7mmGeNgHjT5CbCipkaSwaDPTS0=
-X-Received: by 2002:a9d:7519:: with SMTP id r25mr3230812otk.284.1576802021009;
- Thu, 19 Dec 2019 16:33:41 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=RA+gXYZJ0g+K3M3DQNTJnvbd+pXel8RoSV2e1nZbK04=;
+        b=nGbfw4AWZsvkwzyos7Q3pRRENUGyWC25vsZtfTvP/0McJu6xAwyWOpDX5Wd2Ig7jzi
+         e+ytVGJR/Jyy/5d+TKXGJ9HYF8vj/1bZIViBv81V2kEmNPMyJzA9phE+rG9U1qp9WX1s
+         WCR5TR2sH4HWdjM31TWxRWW/7rfnZu0b8aa2pOuOMlloqhwND07QDw4f/twxckva9svX
+         xdgoQOi3jwVQ4kkmzeRxgm3xRdSeQtUdBi4Gb9TjqN38+NWBXkutzr5xM/xioP9onc+P
+         9J+Dbjn6XakOQuWMn1UFirnL4N8yIBttmg5wO09xyqNMC8cGdq5q1pVnLcOt2QIJ+0Bm
+         gOCQ==
+X-Gm-Message-State: APjAAAWYdOUvJ4jiGBqpmQAeZNbNq2eAwq4QpuLMt9E/+Bg0Os4xIdx7
+        vt0iaDSkHZDCxYwac6J2NenY/HY8ASv1fg==
+X-Google-Smtp-Source: APXvYqyxO+i09YW8570ihI4p7YfzLEc7uekuGXN90itHTxKTk4H2mZIw0L+dKWPo9UWnNg7G1MyNOQ==
+X-Received: by 2002:a05:600c:1007:: with SMTP id c7mr13804334wmc.158.1576805090585;
+        Thu, 19 Dec 2019 17:24:50 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y139sm8567319wmd.24.2019.12.19.17.24.50
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Dec 2019 17:24:50 -0800 (PST)
+Message-ID: <5dfc22e2.1c69fb81.f4294.c192@mx.google.com>
+Date:   Thu, 19 Dec 2019 17:24:50 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <1576746207205192@kroah.com>
-In-Reply-To: <1576746207205192@kroah.com>
-From:   Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Date:   Fri, 20 Dec 2019 09:33:15 +0900
-Message-ID: <CABMQnVJfKnu35B4K3OF2JGnDgykbaFM+Ym93Yr-RuskJ4M=KyA@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] PCI: rcar: Fix missing MACCTLR register
- setting in" failed to apply to 4.19-stable tree
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        erosca@de.adit-jv.com, geert+renesas@glider.be,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.206-163-g9fe78e96326d
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 81 boots: 1 failed,
+ 75 passed with 5 offline (v4.4.206-163-g9fe78e96326d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-4.4.y boot: 81 boots: 1 failed, 75 passed with 5 offline (v=
+4.4.206-163-g9fe78e96326d)
 
-2019=E5=B9=B412=E6=9C=8819=E6=97=A5(=E6=9C=A8) 18:03 <gregkh@linuxfoundatio=
-n.org>:
->
->
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
->
-> thanks,
->
-> greg k-h
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.206-163-g9fe78e96326d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.206-163-g9fe78e96326d/
 
-This is already applied to 4.19.y tree.
-    https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit=
-/?h=3Dlinux-4.19.y&id=3D2de11b2e5dd2dce4f0f44101bb7aadb49e13de41
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.206-163-g9fe78e96326d
+Git Commit: 9fe78e96326d85ca140930f72dbce8b198001210
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 45 unique boards, 17 SoC families, 15 builds out of 190
 
-Best regards,
-  Nobuhiro
+Boot Regressions Detected:
 
->
-> ------------------ original commit in Linus's tree ------------------
->
-> From 7c7e53e1c93df14690bd12c1f84730fef927a6f1 Mon Sep 17 00:00:00 2001
-> From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-> Date: Tue, 5 Nov 2019 19:51:29 +0900
-> Subject: [PATCH] PCI: rcar: Fix missing MACCTLR register setting in
->  initialization sequence
->
-> The R-Car Gen2/3 manual - available at:
->
-> https://www.renesas.com/eu/en/products/microcontrollers-microprocessors/r=
-z/rzg/rzg1m.html#documents
->
-> "RZ/G Series User's Manual: Hardware" section
->
-> strictly enforces the MACCTLR inizialization value - 39.3.1 - "Initial
-> Setting of PCI Express":
->
-> "Be sure to write the initial value (=3D H'80FF 0000) to MACCTLR before
-> enabling PCIETCTLR.CFINIT".
->
-> To avoid unexpected behavior and to match the SW initialization sequence
-> guidelines, this patch programs the MACCTLR with the correct value.
->
-> Note that the MACCTLR.SPCHG bit in the MACCTLR register description
-> reports that "Only writing 1 is valid and writing 0 is invalid" but this
-> "invalid" has to be interpreted as a write-ignore aka "ignored", not
-> "prohibited".
->
-> Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-> Fixes: c25da4778803 ("PCI: rcar: Add Renesas R-Car PCIe driver")
-> Fixes: be20bbcb0a8c ("PCI: rcar: Add the initialization of PCIe link in r=
-esume_noirq()")
-> Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-> Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Cc: <stable@vger.kernel.org> # v5.2+
->
-> diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/=
-pcie-rcar.c
-> index 40d8c54a17d1..94ba4fe21923 100644
-> --- a/drivers/pci/controller/pcie-rcar.c
-> +++ b/drivers/pci/controller/pcie-rcar.c
-> @@ -91,8 +91,11 @@
->  #define  LINK_SPEED_2_5GTS     (1 << 16)
->  #define  LINK_SPEED_5_0GTS     (2 << 16)
->  #define MACCTLR                        0x011058
-> +#define  MACCTLR_NFTS_MASK     GENMASK(23, 16) /* The name is from SH778=
-6 */
->  #define  SPEED_CHANGE          BIT(24)
->  #define  SCRAMBLE_DISABLE      BIT(27)
-> +#define  LTSMDIS               BIT(31)
-> +#define  MACCTLR_INIT_VAL      (LTSMDIS | MACCTLR_NFTS_MASK)
->  #define PMSR                   0x01105c
->  #define MACS2R                 0x011078
->  #define MACCGSPSETR            0x011084
-> @@ -613,6 +616,8 @@ static int rcar_pcie_hw_init(struct rcar_pcie *pcie)
->         if (IS_ENABLED(CONFIG_PCI_MSI))
->                 rcar_pci_write_reg(pcie, 0x801f0000, PCIEMSITXR);
->
-> +       rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
-> +
->         /* Finish initialization - establish a PCI Express link */
->         rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
->
-> @@ -1235,6 +1240,7 @@ static int rcar_pcie_resume_noirq(struct device *de=
-v)
->                 return 0;
->
->         /* Re-establish the PCIe link */
-> +       rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
->         rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
->         return rcar_pcie_wait_for_dl(pcie);
->  }
->
+arm:
 
+    davinci_all_defconfig:
+        gcc-8:
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.4.206-163-gf=
+a8359d689a7)
 
---=20
-Nobuhiro Iwamatsu
-   iwamatsu at {nigauri.org / debian.org}
-   GPG ID: 40AD1FA6
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
