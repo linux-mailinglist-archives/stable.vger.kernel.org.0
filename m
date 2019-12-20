@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D64127E6D
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:47:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3F8D127E70
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:47:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727680AbfLTOrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:47:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45376 "EHLO mail.kernel.org"
+        id S1727729AbfLTOrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:47:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727667AbfLTOrM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:47:12 -0500
+        id S1727710AbfLTOrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:47:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14B3721D7E;
-        Fri, 20 Dec 2019 14:47:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22C8A2465E;
+        Fri, 20 Dec 2019 14:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576853231;
-        bh=FOQ0/mEpUn8UVBrUe8vUfSUNStlJRwAoum/+OgAaUZo=;
+        s=default; t=1576853233;
+        bh=+DaVvfO99JAJfFS1lRQb5Sdvz/o2T3GbRSLO0P1lpjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCK0IZ3cmrjv0aUrYUJKVcPDq+PLWtOXkY9KL2MMloU/hbXA10Syav1HzRAKNUrHa
-         oH1yzOyvFe0yuXRaJPr+KspYPbcsqjzRVXo42XPDkqrsx5clXY2RyxgpQsDUJxcTT1
-         spLFW1wk7XJGTXANBtIMMrQl8IUGqYM40nE/gphs=
+        b=2myjXAiciubhc0RhTe3yvgGdAlSb3pBkQF1AWjb9IKHTHu5A68iM434cMO+YLRBHY
+         vZ4EXUmebMr8DqnwqRB4qfnExRMJH4AruvsEwvr5yvBq8piS5CNF529uuoiORqoYA7
+         0VGfwuvfB30okAygX6TtVwQ0+Dh2gxoaVt9rruJU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 10/14] s390/cpum_sf: Avoid SBD overflow condition in irq handler
-Date:   Fri, 20 Dec 2019 09:46:54 -0500
-Message-Id: <20191220144658.10414-10-sashal@kernel.org>
+Cc:     Parav Pandit <parav@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 11/14] IB/mlx4: Follow mirror sequence of device add during device removal
+Date:   Fri, 20 Dec 2019 09:46:55 -0500
+Message-Id: <20191220144658.10414-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220144658.10414-1-sashal@kernel.org>
 References: <20191220144658.10414-1-sashal@kernel.org>
@@ -43,75 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Parav Pandit <parav@mellanox.com>
 
-[ Upstream commit 0539ad0b22877225095d8adef0c376f52cc23834 ]
+[ Upstream commit 89f988d93c62384758b19323c886db917a80c371 ]
 
-The s390 CPU Measurement sampling facility has an overflow condition
-which fires when all entries in a SBD are used.
-The measurement alert interrupt is triggered and reads out all samples
-in this SDB. It then tests the successor SDB, if this SBD is not full,
-the interrupt handler does not read any samples at all from this SDB
-The design waits for the hardware to fill this SBD and then trigger
-another meassurement alert interrupt.
+Current code device add sequence is:
 
-This scheme works nicely until
-an perf_event_overflow() function call discards the sample due to
-a too high sampling rate.
-The interrupt handler has logic to read out a partially filled SDB
-when the perf event overflow condition in linux common code is met.
-This causes the CPUM sampling measurement hardware and the PMU
-device driver to operate on the same SBD's trailer entry.
-This should not happen.
+ib_register_device()
+ib_mad_init()
+init_sriov_init()
+register_netdev_notifier()
 
-This can be seen here using this trace:
-   cpumsf_pmu_add: tear:0xb5286000
-   hw_perf_event_update: sdbt 0xb5286000 full 1 over 0 flush_all:0
-   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
-        above shows 1. interrupt
-   hw_perf_event_update: sdbt 0xb5286008 full 1 over 0 flush_all:0
-   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
-        above shows 2. interrupt
-	... this goes on fine until...
-   hw_perf_event_update: sdbt 0xb5286068 full 1 over 0 flush_all:0
-   perf_push_sample1: overflow
-      one or more samples read from the IRQ handler are rejected by
-      perf_event_overflow() and the IRQ handler advances to the next SDB
-      and modifies the trailer entry of a partially filled SDB.
-   hw_perf_event_update: sdbt 0xb5286070 full 0 over 0 flush_all:1
-      timestamp: 14:32:52.519953
+Therefore, the remove sequence should be,
 
-Next time the IRQ handler is called for this SDB the trailer entry shows
-an overflow count of 19 missed entries.
-   hw_perf_event_update: sdbt 0xb5286070 full 1 over 19 flush_all:1
-      timestamp: 14:32:52.970058
+unregister_netdev_notifier()
+close_sriov()
+mad_cleanup()
+ib_unregister_device()
 
-Remove access to a follow on SDB when event overflow happened.
+However it is not above.
+Hence, make do above remove sequence.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: fa417f7b520ee ("IB/mlx4: Add support for IBoE")
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Link: https://lore.kernel.org/r/20191212091214.315005-3-leon@kernel.org
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/infiniband/hw/mlx4/main.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 0cf130d37a325..ed37f3092e81f 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1282,12 +1282,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
- 		 */
- 		if (flush_all && done)
- 			break;
--
--		/* If an event overflow happened, discard samples by
--		 * processing any remaining sample-data-blocks.
--		 */
--		if (event_overflow)
--			flush_all = 1;
+diff --git a/drivers/infiniband/hw/mlx4/main.c b/drivers/infiniband/hw/mlx4/main.c
+index 7ccf7225f75a7..adc46b809ef2a 100644
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -3031,16 +3031,17 @@ static void mlx4_ib_remove(struct mlx4_dev *dev, void *ibdev_ptr)
+ 	ibdev->ib_active = false;
+ 	flush_workqueue(wq);
+ 
+-	mlx4_ib_close_sriov(ibdev);
+-	mlx4_ib_mad_cleanup(ibdev);
+-	ib_unregister_device(&ibdev->ib_dev);
+-	mlx4_ib_diag_cleanup(ibdev);
+ 	if (ibdev->iboe.nb.notifier_call) {
+ 		if (unregister_netdevice_notifier(&ibdev->iboe.nb))
+ 			pr_warn("failure unregistering notifier\n");
+ 		ibdev->iboe.nb.notifier_call = NULL;
  	}
  
- 	/* Account sample overflows in the event hardware structure */
++	mlx4_ib_close_sriov(ibdev);
++	mlx4_ib_mad_cleanup(ibdev);
++	ib_unregister_device(&ibdev->ib_dev);
++	mlx4_ib_diag_cleanup(ibdev);
++
+ 	mlx4_qp_release_range(dev, ibdev->steer_qpn_base,
+ 			      ibdev->steer_qpn_count);
+ 	kfree(ibdev->ib_uc_qpns_bitmap);
 -- 
 2.20.1
 
