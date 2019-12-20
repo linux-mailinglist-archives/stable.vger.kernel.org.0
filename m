@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9E7127EAF
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5AD127EAB
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:49:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727551AbfLTOrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:47:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45240 "EHLO mail.kernel.org"
+        id S1727794AbfLTOsk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:48:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727534AbfLTOrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:47:05 -0500
+        id S1727565AbfLTOrG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:47:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B279924679;
-        Fri, 20 Dec 2019 14:47:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D17B218AC;
+        Fri, 20 Dec 2019 14:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576853224;
-        bh=Z+MCdmo05h5rXHfvB9su6HhSRDHaYClsIBDeUNOFY4c=;
+        s=default; t=1576853226;
+        bh=TGOFOEaM02eSycs8ivW3/kTi++LLIwg1K09ilHSMG3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TakjM5+GfdoH/zt0F0HeyZzXe/Qc4WV4d8ntUo3Clbd0GqNs1bNlA/Rqq4SeldUef
-         +rSlijXpt8FgoJqeRLdMwp04nTvrLEB733hk2KEDh2NJw+zEDbTbkoxAfEtVS8qNmH
-         Xs0HcCNkQ5fLrdYb/DcrOmP0IsKpaQhFyMteXIaM=
+        b=nl9KGp+Gnz1U+bb3rrpptZVeQZqADcSkMxi1DmFPDFst0gJklFd64dz7KTRhlw32I
+         jyM9lExodMnY9euL1bm9TxT+g4x+hlRC5/EuCcbmCZMdOAM4B12vOSlDDCCjVnPy6b
+         181d3oz39o1FemlHjbO7UXikeayp4Z9ea4W1hbtM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roman Bolshakov <r.bolshakov@yadro.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvel.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Himanshu Madhani <hmadhani@marvell.com>,
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 04/14] scsi: qla2xxx: Don't call qlt_async_event twice
-Date:   Fri, 20 Dec 2019 09:46:48 -0500
-Message-Id: <20191220144658.10414-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 05/14] scsi: iscsi: qla4xxx: fix double free in probe
+Date:   Fri, 20 Dec 2019 09:46:49 -0500
+Message-Id: <20191220144658.10414-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220144658.10414-1-sashal@kernel.org>
 References: <20191220144658.10414-1-sashal@kernel.org>
@@ -47,49 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2c2f4bed9b6299e6430a65a29b5d27b8763fdf25 ]
+[ Upstream commit fee92f25777789d73e1936b91472e9c4644457c8 ]
 
-MBA_PORT_UPDATE generates duplicate log lines in target mode because
-qlt_async_event is called twice. Drop the calls within the case as the
-function will be called right after the switch statement.
+On this error path we call qla4xxx_mem_free() and then the caller also
+calls qla4xxx_free_adapter() which calls qla4xxx_mem_free().  It leads to a
+couple double frees:
 
-Cc: Quinn Tran <qutran@marvell.com>
-Link: https://lore.kernel.org/r/20191125165702.1013-8-r.bolshakov@yadro.com
-Acked-by: Himanshu Madhani <hmadhani@marvel.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Tested-by: Hannes Reinecke <hare@suse.de>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+drivers/scsi/qla4xxx/ql4_os.c:8856 qla4xxx_probe_adapter() warn: 'ha->chap_dma_pool' double freed
+drivers/scsi/qla4xxx/ql4_os.c:8856 qla4xxx_probe_adapter() warn: 'ha->fw_ddb_dma_pool' double freed
+
+Fixes: afaf5a2d341d ("[SCSI] Initial Commit of qla4xxx")
+Link: https://lore.kernel.org/r/20191203094421.hw7ex7qr3j2rbsmx@kili.mountain
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/scsi/qla4xxx/ql4_os.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index f0fcff032f8ac..17b1525d492bf 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -973,8 +973,6 @@ qla2x00_async_event(scsi_qla_host_t *vha, struct rsp_que *rsp, uint16_t *mb)
- 			ql_dbg(ql_dbg_async, vha, 0x5011,
- 			    "Asynchronous PORT UPDATE ignored %04x/%04x/%04x.\n",
- 			    mb[1], mb[2], mb[3]);
--
--			qlt_async_event(mb[0], vha, mb);
- 			break;
- 		}
+diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
+index d220b4f691c77..f714d5f917d10 100644
+--- a/drivers/scsi/qla4xxx/ql4_os.c
++++ b/drivers/scsi/qla4xxx/ql4_os.c
+@@ -4285,7 +4285,6 @@ static int qla4xxx_mem_alloc(struct scsi_qla_host *ha)
+ 	return QLA_SUCCESS;
  
-@@ -995,8 +993,6 @@ qla2x00_async_event(scsi_qla_host_t *vha, struct rsp_que *rsp, uint16_t *mb)
- 		set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
- 		set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
- 		set_bit(VP_CONFIG_OK, &vha->vp_flags);
--
--		qlt_async_event(mb[0], vha, mb);
- 		break;
+ mem_alloc_error_exit:
+-	qla4xxx_mem_free(ha);
+ 	return QLA_ERROR;
+ }
  
- 	case MBA_RSCN_UPDATE:		/* State Change Registration */
 -- 
 2.20.1
 
