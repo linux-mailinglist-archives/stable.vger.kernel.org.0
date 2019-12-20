@@ -2,99 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E5AF1272EB
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 02:41:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A458F1272F2
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 02:43:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727165AbfLTBld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 20:41:33 -0500
-Received: from mail-il1-f196.google.com ([209.85.166.196]:40099 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727063AbfLTBld (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 20:41:33 -0500
-Received: by mail-il1-f196.google.com with SMTP id c4so6564463ilo.7
-        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 17:41:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=kihFHk0I3eiSjPlsPOEWwLG5M5I3W9sqheb6sgl2P4k=;
-        b=hiDu43S+ngvlMBE/4HJGTNYC1y1RavL4d+i+AbAdZAnmrfii3Ek2G5DaS1DHwSceO2
-         hkYpdiXmsDhaduWGWG7ZuISR/pQrC7JlsMNpMQLaPA7Zvco28exuJNPYEMTjQa71P3p1
-         nSmP3yaHXzQRXTKiyg9VPBxyCj7audWltZfb8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=kihFHk0I3eiSjPlsPOEWwLG5M5I3W9sqheb6sgl2P4k=;
-        b=Garn2aMu8TQqo5CK6ZBivFsjUkTbjQ3e/S5G3HHGDo4Fs1WNlspPWQZNH0ZklWZkRy
-         I4Wf62ffoU6AJ0AeKrkct6XxJX44nEvwXM0f4pKpHV8sMyWtZ3gzS6L2J5TlfLoHBu2N
-         gQXTIkUe64/6TGQAjBw2HdBIDngfuh6kSPTH4OlKtNoSebRmhnnch6TGoWp6soaZOiSp
-         4YjcuV9EWeOGQ2fSJw8d10m8iElpPG8xxoibotIzrMkxTO//MAC5q+n9y6H1S+whlkYz
-         9Vd5ni0QPTJqRy3dQL3S6vKSAS4y5i0rM+zREPT7gr8D6ELMmVRtxEAujTDZfRKN8Rht
-         zw+w==
-X-Gm-Message-State: APjAAAXAvtGnih9BApY1ejQIKtoFqPQ3jNbcQY5KHFv0M4F7qrgoOQub
-        C+UOFCTejzhgf9J1Vrsra7pz9g==
-X-Google-Smtp-Source: APXvYqxJ1wlBxbfbo8n32neUIKY7qhlUNucAfrLjjhF9jQmtKljvxSLHrLQZTJntHeTRF1avB9VQhA==
-X-Received: by 2002:a92:84dd:: with SMTP id y90mr9120333ilk.99.1576806092085;
-        Thu, 19 Dec 2019 17:41:32 -0800 (PST)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id i136sm1505454ild.23.2019.12.19.17.41.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 19 Dec 2019 17:41:31 -0800 (PST)
-Subject: Re: [PATCH for 5.4 0/3] Restartable Sequences Fixes
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        paulmck <paulmck@linux.ibm.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
-        linux-api <linux-api@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20190917182959.16333-1-mathieu.desnoyers@efficios.com>
- <211848436.2172.1576078102568.JavaMail.zimbra@efficios.com>
- <b67930c1-c8e0-124f-9a88-6ecace27317c@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <7fd53b32-8d9e-5c24-56c5-86c1c7c700dc@linuxfoundation.org>
-Date:   Thu, 19 Dec 2019 18:41:30 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1727031AbfLTBnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 20:43:13 -0500
+Received: from frisell.zx2c4.com ([192.95.5.64]:53159 "EHLO frisell.zx2c4.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727020AbfLTBnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 20:43:13 -0500
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 6083baea
+        for <stable@vger.kernel.org>;
+        Fri, 20 Dec 2019 00:46:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
+        :references:in-reply-to:from:date:message-id:subject:to:cc
+        :content-type; s=mail; bh=XLwH+H8gpSnvg+OJl0InL3nyUUw=; b=b15s1g
+        Bk4EcFfFm0sL/2nn0/7Dzpke74A1+cnATyq/kKAQqjL4991Fs0LkQDTFHap9HGis
+        bjtqpC2+Ta2XB0iOwag6201ozF+sjtAY+vWnZ0cnAUXGfNwtxGjMfB2LjMsQIEbz
+        CTxvBBbBTbxnkMeUFNmIeIXFwSmEdvmJiCeajbI7eGqTTFU6z2RcdncSY65QmLFN
+        6yHWYYBtQYPWFXUvws1hhEKdx/odyiydZhZFBpQAOfjE3d16ANs2dhPSowSafjfs
+        lI/zdBClNKAoBsQ64HTm6rHszm3G0R1vxg6QE9Szh519QhHDBUJ90XMHT6Fb8jFG
+        zC34dbGB68o1j7rw==
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 57195056 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO)
+        for <stable@vger.kernel.org>;
+        Fri, 20 Dec 2019 00:46:25 +0000 (UTC)
+Received: by mail-ot1-f42.google.com with SMTP id w21so1940387otj.7
+        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 17:43:11 -0800 (PST)
+X-Gm-Message-State: APjAAAXErx2k22lLONTwq6oAotgL7Aqm/EUPd/VFIeq33706dMjIIN2K
+        E96qI+IgD2mXZo7BoF2QxmYSlUl8ojQI/MqHdak=
+X-Google-Smtp-Source: APXvYqxhW+TFjrTeB0FhBZAxrz01bJ0xO5DD4cJcTb7jXU9+Fh53GCcaMCv3lSNKByJ1HQsqMvEh+QsGp1O6IgDtPlo=
+X-Received: by 2002:a05:6830:1141:: with SMTP id x1mr12370602otq.120.1576806190494;
+ Thu, 19 Dec 2019 17:43:10 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <b67930c1-c8e0-124f-9a88-6ecace27317c@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20191203205716.1228-1-Jason@zx2c4.com> <20191209154505.6183-1-Jason@zx2c4.com>
+In-Reply-To: <20191209154505.6183-1-Jason@zx2c4.com>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Fri, 20 Dec 2019 02:42:59 +0100
+X-Gmail-Original-Message-ID: <CAHmME9q3mcE+Am5e=R=z=kJrkjwmz_tWqt7jc1b-7DiPt0vWNw@mail.gmail.com>
+Message-ID: <CAHmME9q3mcE+Am5e=R=z=kJrkjwmz_tWqt7jc1b-7DiPt0vWNw@mail.gmail.com>
+Subject: Re: [PATCH] x86/quirks: disable HPET on Intel Coffee Lake Refresh platforms
+To:     X86 ML <x86@kernel.org>
+Cc:     Feng Tang <feng.tang@intel.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/11/19 8:47 AM, Shuah Khan wrote:
-> On 12/11/19 8:28 AM, Mathieu Desnoyers wrote:
->> Hi Thomas,
->>
->> I thought those rseq fixes posted in September were in the -tip tree, 
->> but it
->> seems that they never made it to mainline.
->>
->> Now Shuah Khan noticed the issue with gettid() compatibility with glibc
->> 2.30+. This series contained that fix.
->>
->> Should I re-post it, or is this series on track to get into mainline
->> at some point ?
->>
-> 
-> It will be great this can make it into 5.5-rc2 or so.
-> 
-> thanks,
-> -- Shuah
-> 
+Hi,
 
-I am pulling this patch in for Linux 5.5-rc4.
+Thought I should give a poke here so that this doesn't slip through
+the cracks again. Could we get this in for rc3?
 
-Let me know if you have any objections.
+Thanks,
+Jason
 
-thanks,
--- Shuah
+On Mon, Dec 9, 2019 at 4:45 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+>
+> This is a follow up of fc5db58539b4 ("x86/quirks: Disable HPET on Intel
+> Coffe Lake platforms"), which addressed the issue for 8th generation
+> Coffee Lake. Intel has released Coffee Lake again for 9th generation,
+> apparently still with the same bug:
+>
+> clocksource: timekeeping watchdog on CPU3: Marking clocksource 'tsc' as unstable because the skew is too large:
+> clocksource:                       'hpet' wd_now: 24f422b8 wd_last: 247dea41 mask: ffffffff
+> clocksource:                       'tsc' cs_now: 144d927c4e cs_last: 140ba6e2a0 mask: ffffffffffffffff
+> tsc: Marking TSC unstable due to clocksource watchdog
+> TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
+> sched_clock: Marking unstable (26553416234, 4203921)<-(26567277071, -9656937)
+> clocksource: Switched to clocksource hpet
+>
+> So, we add another quirk for the chipset
+>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> Cc: Feng Tang <feng.tang@intel.com>
+> Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: stable@vger.kernel.org
+> ---
+>  arch/x86/kernel/early-quirks.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
+> index 4cba91ec8049..a73f88dd7f86 100644
+> --- a/arch/x86/kernel/early-quirks.c
+> +++ b/arch/x86/kernel/early-quirks.c
+> @@ -712,6 +712,8 @@ static struct chipset early_qrk[] __initdata = {
+>                 PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>         { PCI_VENDOR_ID_INTEL, 0x3ec4,
+>                 PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+> +       { PCI_VENDOR_ID_INTEL, 0x3e20,
+> +               PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>         { PCI_VENDOR_ID_BROADCOM, 0x4331,
+>           PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
+>         {}
+> --
+> 2.24.0
