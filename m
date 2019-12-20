@@ -2,83 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B16127E95
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:48:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCD68127EAD
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:49:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727920AbfLTOr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:47:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46444 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727861AbfLTOr6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:47:58 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39A3524680;
-        Fri, 20 Dec 2019 14:47:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576853278;
-        bh=Tbquh1Fj1o2WG2c/z313x7NCjA3H4GBJz8gcqT1tAcw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxwfSws05OI5Be+aGh0cEVrycj4alyc445GgDtnqRgHnLv4F58JI1aD8zV24ETQxK
-         zmfuJ9YSi0+9nw8jNlS029d4OAZKcZyzPK2EHbDsDN2Gk8iclreTOqDF5ApjAA18p2
-         g7GpBMMZQTy03v95P+kSqY49MRo9DXVGZiK9G1H4=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Nicholas Tsirakis <niko.tsirakis@gmail.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 4.4 11/11] xen/balloon: fix ballooned page accounting without hotplug enabled
-Date:   Fri, 20 Dec 2019 09:47:43 -0500
-Message-Id: <20191220144744.10565-11-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191220144744.10565-1-sashal@kernel.org>
-References: <20191220144744.10565-1-sashal@kernel.org>
+        id S1727565AbfLTOso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:48:44 -0500
+Received: from bombadil.infradead.org ([198.137.202.133]:36386 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727749AbfLTOsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 09:48:40 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=AOOOoCg9ol7+3vA6+5XlhPuq3fd9liI3dXnfBk0teUM=; b=bJHiZTizdT/XVFZPIT30O1q2g
+        uZy/EjVxrxU8zVxsdADlO9Tn6J1uYtZdWDQndWSjUkuHWzlD6sP/IZVlgirQ6xugzOWCLiqIbbTIa
+        sBIScHhQdSXqQ24hEMkNbIMFYQ1sJ/I4jah0gL35Z+fhkfC4KtcE3bQ4FMG4tImDvvM7r8NEA896a
+        3TbJh8hwblpFZqhfUjTwSjGcMjN3GxNBih8T6OanSKb4iCifMN5mj3IpqZjLY7tZ3pYIhvKf7apbQ
+        CKVfza83lsNJWyUCWatfuYJ7f/K3UxqxzBRc8nOn8GjwuMsGqHAgogBWg8tqOJMZu7LqT1hJNbCDp
+        X6gr5NnEA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iiJZt-00057Z-II; Fri, 20 Dec 2019 14:48:29 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CA508304D00;
+        Fri, 20 Dec 2019 15:47:03 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 950E52026176B; Fri, 20 Dec 2019 15:48:27 +0100 (CET)
+Date:   Fri, 20 Dec 2019 15:48:27 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+        "Paul E . McKenney" <paulmck@linux.ibm.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
+        linux-api@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH for 5.5 0/3] Restartable Sequences Fixes
+Message-ID: <20191220144827.GJ2844@hirez.programming.kicks-ass.net>
+References: <20191211161713.4490-1-mathieu.desnoyers@efficios.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191211161713.4490-1-mathieu.desnoyers@efficios.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+On Wed, Dec 11, 2019 at 11:17:10AM -0500, Mathieu Desnoyers wrote:
+> Hi,
+> 
+> Here is a repost of a small set of rseq fixes which was initially posted
+> in September 2019. It now targets kernel 5.5. Those should be backported
+> to stable kernels >= 4.18.
+> 
+> Thanks,
+> 
+> Mathieu
+> 
+> Mathieu Desnoyers (3):
+>   rseq: Fix: Reject unknown flags on rseq unregister
+>   rseq: Fix: Unregister rseq for clone CLONE_VM
+>   rseq/selftests: Fix: Namespace gettid() for compatibility with glibc
+>     2.30
 
-[ Upstream commit c673ec61ade89bf2f417960f986bc25671762efb ]
-
-When CONFIG_XEN_BALLOON_MEMORY_HOTPLUG is not defined
-reserve_additional_memory() will set balloon_stats.target_pages to a
-wrong value in case there are still some ballooned pages allocated via
-alloc_xenballooned_pages().
-
-This will result in balloon_process() no longer be triggered when
-ballooned pages are freed in batches.
-
-Reported-by: Nicholas Tsirakis <niko.tsirakis@gmail.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/xen/balloon.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index cfab1d24e4bcc..1c789056e7e84 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -392,7 +392,8 @@ static struct notifier_block xen_memory_nb = {
- #else
- static enum bp_state reserve_additional_memory(void)
- {
--	balloon_stats.target_pages = balloon_stats.current_pages;
-+	balloon_stats.target_pages = balloon_stats.current_pages +
-+				     balloon_stats.target_unpopulated;
- 	return BP_ECANCELED;
- }
- #endif /* CONFIG_XEN_BALLOON_MEMORY_HOTPLUG */
--- 
-2.20.1
-
+I've picked up the first two patches, thanks!
