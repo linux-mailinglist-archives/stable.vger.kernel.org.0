@@ -2,63 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A901283CC
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 22:21:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BEFE1283CF
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 22:22:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727422AbfLTVVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 16:21:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53532 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727402AbfLTVVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 16:21:22 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27AF2206DA;
-        Fri, 20 Dec 2019 21:21:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576876881;
-        bh=CIEqPd7kMp6U9L+ghSccv4QM7y9fzwm2jYkXKa3iJ0c=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QIQvw3S4lgHsN3kcZTLi0p4CBiJoVCe2SZOLZcAE3ySblq3tzRSJa62oiqz0RCUOO
-         V0kiHUBiGSFaNOvFD+xWg+Yizf2IjGTuYQhdnalYYJU54DI+fFmwBJDRvNg7npxbKT
-         zHfLQ+f+hwacCwTriyLDKpYFbfCSP4SM1YGKF+Ew=
-Date:   Fri, 20 Dec 2019 22:21:18 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 00/80] 5.4.6-stable review
-Message-ID: <20191220212118.GA26929@kroah.com>
-References: <20191219183031.278083125@linuxfoundation.org>
- <20191220185042.GE26293@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191220185042.GE26293@roeck-us.net>
+        id S1727504AbfLTVWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 16:22:10 -0500
+Received: from mail-pj1-f73.google.com ([209.85.216.73]:43445 "EHLO
+        mail-pj1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727474AbfLTVWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 16:22:10 -0500
+Received: by mail-pj1-f73.google.com with SMTP id 9so4575675pjn.8
+        for <stable@vger.kernel.org>; Fri, 20 Dec 2019 13:22:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=r9lHUhVFmnwnvOI5+OYOqNbrR4sRrsu0Lvjkysu9m60=;
+        b=VccLePC7IXuSG66sx0PbhNexga6fWcYCg7SXxnBD8scdmE77qzrp8kF5tiLoxIvGyZ
+         cgK70KJ/9brCj7xNGnxcD5GmiI3v95REtyIFZKcDUNcjClkCij1om62AJlI1ZIJSwm4r
+         VyLinh19pG1DNbeVj+CrqjyWjdPG57HVKg/ApLWg8GY1NIEIlrb7IwGrAWzZw4AI/CU0
+         5RMbSPsGxtHhlNDlvmajf1daaT8ueDprlX322nqjNm/3N3yqswVvHXR338cTdHW8DZbe
+         77MdGvRoDccK14cs3eCsPZcP1Q1GcXGUFCrwA0WrabkD+Xv9iQ1zQ2h96D2vbpGsc6Os
+         Id/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=r9lHUhVFmnwnvOI5+OYOqNbrR4sRrsu0Lvjkysu9m60=;
+        b=cKEV7iM5hnYHPPT7DAYj8J5Z9a9t3wJCJ/RouwZ6r4IDG5gGHCdvL5cF0pAX7YiPhs
+         r9cFvKUTV1r7lrl6i6DKJlhCitR3V8zeqbPO65qzT3ofdxmuBoWLPdccpe1P0Xj3j87q
+         IftKrxxrPJ/tvjDdzZInEtbByOJ0u6Sr38T2KZJwuLpbmNQfTXy9c6/Tm6O/CUWe9Ygb
+         WvF+M6+CZvXo2m8aP9Kmlv2Jn4Kw8nJXb7k8uT7mwclIzg0NBHFa/3z8fJjQ3MxHW6XN
+         3l1li+hPW4OR4aewHI/s/H73j6NCeQUElmywG9Y3z9DqGjSjH3q0SdzL4662TQ2CKzTU
+         bNjA==
+X-Gm-Message-State: APjAAAW9vBnUqhJOl1zQhZSt34hScBwwGCpok7fTMyVvScRKTBG3OTtI
+        ttVqBqfkaUTro9ywvvEzqeAAVp8QrR4=
+X-Google-Smtp-Source: APXvYqzAyuXgHTXrORNS6szcAloXE1fh1IDUxk+eoYefkB4yiERkk+yPhmXzgc5nXJYrKSjHf0NpTIjsDAA=
+X-Received: by 2002:a63:bc01:: with SMTP id q1mr18010589pge.442.1576876929534;
+ Fri, 20 Dec 2019 13:22:09 -0800 (PST)
+Date:   Fri, 20 Dec 2019 13:22:07 -0800
+Message-Id: <20191220212207.76726-1-adelva@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.24.1.735.g03f4e72817-goog
+Subject: [PATCH net] virtio-net: Skip set_features on non-cvq devices
+From:   Alistair Delva <adelva@google.com>
+To:     netdev@vger.kernel.org
+Cc:     stable@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>, kernel-team@android.com,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 20, 2019 at 10:50:42AM -0800, Guenter Roeck wrote:
-> On Thu, Dec 19, 2019 at 07:33:52PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.6 release.
-> > There are 80 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sat, 21 Dec 2019 18:24:44 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Build results:
-> 	total: 158 pass: 158 fail: 0
-> Qemu test results:
-> 	total: 387 pass: 387 fail: 0
+On devices without control virtqueue support, such as the virtio_net
+implementation in crosvm[1], attempting to configure LRO will panic the
+kernel:
 
-Thanks for testing all of these and letting me know.
+kernel BUG at drivers/net/virtio_net.c:1591!
+invalid opcode: 0000 [#1] PREEMPT SMP PTI
+CPU: 1 PID: 483 Comm: Binder:330_1 Not tainted 5.4.5-01326-g19463e9acaac #1
+Hardware name: ChromiumOS crosvm, BIOS 0
+RIP: 0010:virtnet_send_command+0x15d/0x170 [virtio_net]
+Code: d8 00 00 00 80 78 02 00 0f 94 c0 65 48 8b 0c 25 28 00 00 00 48 3b 4c 24 70 75 11 48 8d 65 d8 5b 41 5c 41 5d 41 5e 41 5f 5d c3 <0f> 0b e8 ec a4 12 c8 66 90 66 2e 0f 1f 84 00 00 00 00 00 55 48 89
+RSP: 0018:ffffb97940e7bb50 EFLAGS: 00010246
+RAX: ffffffffc0596020 RBX: ffffa0e1fc8ea840 RCX: 0000000000000017
+RDX: ffffffffc0596110 RSI: 0000000000000011 RDI: 000000000000000d
+RBP: ffffb97940e7bbf8 R08: ffffa0e1fc8ea0b0 R09: ffffa0e1fc8ea0b0
+R10: ffffffffffffffff R11: ffffffffc0590940 R12: 0000000000000005
+R13: ffffa0e1ffad2c00 R14: ffffb97940e7bc08 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffffa0e1fd100000(006b) knlGS:00000000e5ef7494
+CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
+CR2: 00000000e5eeb82c CR3: 0000000079b06001 CR4: 0000000000360ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ ? preempt_count_add+0x58/0xb0
+ ? _raw_spin_lock_irqsave+0x36/0x70
+ ? _raw_spin_unlock_irqrestore+0x1a/0x40
+ ? __wake_up+0x70/0x190
+ virtnet_set_features+0x90/0xf0 [virtio_net]
+ __netdev_update_features+0x271/0x980
+ ? nlmsg_notify+0x5b/0xa0
+ dev_disable_lro+0x2b/0x190
+ ? inet_netconf_notify_devconf+0xe2/0x120
+ devinet_sysctl_forward+0x176/0x1e0
+ proc_sys_call_handler+0x1f0/0x250
+ proc_sys_write+0xf/0x20
+ __vfs_write+0x3e/0x190
+ ? __sb_start_write+0x6d/0xd0
+ vfs_write+0xd3/0x190
+ ksys_write+0x68/0xd0
+ __ia32_sys_write+0x14/0x20
+ do_fast_syscall_32+0x86/0xe0
+ entry_SYSENTER_compat+0x7c/0x8e
 
-greg k-h
+This happens because virtio_set_features() does not check the presence
+of the control virtqueue feature, which is sanity checked by a BUG_ON
+in virtnet_send_command().
+
+Fix this by skipping any feature processing if the control virtqueue is
+missing. This should be OK for any future feature that is added, as
+presumably all of them would require control virtqueue support to notify
+the endpoint that offload etc. should begin.
+
+[1] https://chromium.googlesource.com/chromiumos/platform/crosvm/
+
+Fixes: a02e8964eaf9 ("virtio-net: ethtool configurable LRO")
+Cc: stable@vger.kernel.org [4.20+]
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: kernel-team@android.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Alistair Delva <adelva@google.com>
+---
+ drivers/net/virtio_net.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 4d7d5434cc5d..709bcd34e485 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2560,6 +2560,9 @@ static int virtnet_set_features(struct net_device *dev,
+ 	u64 offloads;
+ 	int err;
+ 
++	if (!vi->has_cvq)
++		return 0;
++
+ 	if ((dev->features ^ features) & NETIF_F_LRO) {
+ 		if (vi->xdp_queue_pairs)
+ 			return -EBUSY;
+-- 
+2.24.1.735.g03f4e72817-goog
+
