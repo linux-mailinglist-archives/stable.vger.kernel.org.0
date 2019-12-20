@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1184C127E33
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:42:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DCD7127E35
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:42:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727966AbfLTOhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:37:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
+        id S1728252AbfLTOhu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:37:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727857AbfLTOhs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:37:48 -0500
+        id S1728241AbfLTOht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:37:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B201121D7E;
-        Fri, 20 Dec 2019 14:37:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 096B12468A;
+        Fri, 20 Dec 2019 14:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852667;
-        bh=pUkK7ZuOxoCr48VAptZqwfKY5fwthB1NlNFbykjYfvw=;
+        s=default; t=1576852668;
+        bh=S/+D/P89rf3ZaMdTEGFBWcWJ2l3DQINki0/kIE5C6n0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=egttra93VbthcwR91ovsmdT8E0usoo6wGSIvMRASvuGriwI2b7U+rN7PDXvrwZGZT
-         41Jqjp4m7WNUSf/FMcmucw0SJ688XjN59Gn3Rq45iwv08Rzxj2Coc7I5VUWtYPQuEn
-         ZJehYboYO7xvgWqONlK3AfXWckcEO/Fqtt6lq1Ko=
+        b=T5fkQVhJDCTE46GvNqVVAV2At4c6BoTx4Gqz77t2YOSu5MMWTf+bn8Y51zQrzbSpO
+         NhcD0VjdMpWXjXgV86IgrRWy0h0w6XT9kBTCduwfCOa1jJPeM6EScwEnUc63421gZh
+         nhROXkJ5AYM/0K08B18f9k6PkG9vd/TAYeT3v1oo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Parav Pandit <parav@mellanox.com>,
+Cc:     Steve Wise <larrystevenwise@gmail.com>,
         Doug Ledford <dledford@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 04/19] RDMA/cma: add missed unregister_pernet_subsys in init failure
-Date:   Fri, 20 Dec 2019 09:37:25 -0500
-Message-Id: <20191220143741.10220-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 05/19] rxe: correctly calculate iCRC for unaligned payloads
+Date:   Fri, 20 Dec 2019 09:37:26 -0500
+Message-Id: <20191220143741.10220-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220143741.10220-1-sashal@kernel.org>
 References: <20191220143741.10220-1-sashal@kernel.org>
@@ -44,36 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Steve Wise <larrystevenwise@gmail.com>
 
-[ Upstream commit 44a7b6759000ac51b92715579a7bba9e3f9245c2 ]
+[ Upstream commit 2030abddec6884aaf5892f5724c48fc340e6826f ]
 
-The driver forgets to call unregister_pernet_subsys() in the error path
-of cma_init().
-Add the missed call to fix it.
+If RoCE PDUs being sent or received contain pad bytes, then the iCRC
+is miscalculated, resulting in PDUs being emitted by RXE with an incorrect
+iCRC, as well as ingress PDUs being dropped due to erroneously detecting
+a bad iCRC in the PDU.  The fix is to include the pad bytes, if any,
+in iCRC computations.
 
-Fixes: 4be74b42a6d0 ("IB/cma: Separate port allocation to network namespaces")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Link: https://lore.kernel.org/r/20191206012426.12744-1-hslester96@gmail.com
+Note: This bug has caused broken on-the-wire compatibility with actual
+hardware RoCE devices since the soft-RoCE driver was first put into the
+mainstream kernel.  Fixing it will create an incompatibility with the
+original soft-RoCE devices, but is necessary to be compatible with real
+hardware devices.
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Signed-off-by: Steve Wise <larrystevenwise@gmail.com>
+Link: https://lore.kernel.org/r/20191203020319.15036-2-larrystevenwise@gmail.com
 Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/sw/rxe/rxe_recv.c | 2 +-
+ drivers/infiniband/sw/rxe/rxe_req.c  | 6 ++++++
+ drivers/infiniband/sw/rxe/rxe_resp.c | 7 +++++++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index f698c6a28c142..fc4630e4acdd6 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -4568,6 +4568,7 @@ static int __init cma_init(void)
- 	unregister_netdevice_notifier(&cma_nb);
- 	rdma_addr_unregister_client(&addr_client);
- 	ib_sa_unregister_client(&sa_client);
-+	unregister_pernet_subsys(&cma_pernet_operations);
- err_wq:
- 	destroy_workqueue(cma_wq);
- 	return ret;
+diff --git a/drivers/infiniband/sw/rxe/rxe_recv.c b/drivers/infiniband/sw/rxe/rxe_recv.c
+index 83412df726a51..b7098f7bb30e5 100644
+--- a/drivers/infiniband/sw/rxe/rxe_recv.c
++++ b/drivers/infiniband/sw/rxe/rxe_recv.c
+@@ -393,7 +393,7 @@ int rxe_rcv(struct sk_buff *skb)
+ 
+ 	calc_icrc = rxe_icrc_hdr(pkt, skb);
+ 	calc_icrc = rxe_crc32(rxe, calc_icrc, (u8 *)payload_addr(pkt),
+-			      payload_size(pkt));
++			      payload_size(pkt) + bth_pad(pkt));
+ 	calc_icrc = (__force u32)cpu_to_be32(~calc_icrc);
+ 	if (unlikely(calc_icrc != pack_icrc)) {
+ 		if (skb->protocol == htons(ETH_P_IPV6))
+diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
+index 9fd4f04df3b33..e6785b1ea85fc 100644
+--- a/drivers/infiniband/sw/rxe/rxe_req.c
++++ b/drivers/infiniband/sw/rxe/rxe_req.c
+@@ -500,6 +500,12 @@ static int fill_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
+ 			if (err)
+ 				return err;
+ 		}
++		if (bth_pad(pkt)) {
++			u8 *pad = payload_addr(pkt) + paylen;
++
++			memset(pad, 0, bth_pad(pkt));
++			crc = rxe_crc32(rxe, crc, pad, bth_pad(pkt));
++		}
+ 	}
+ 	p = payload_addr(pkt) + paylen + bth_pad(pkt);
+ 
+diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
+index 9207682b7a2ee..a07a29b488632 100644
+--- a/drivers/infiniband/sw/rxe/rxe_resp.c
++++ b/drivers/infiniband/sw/rxe/rxe_resp.c
+@@ -738,6 +738,13 @@ static enum resp_states read_reply(struct rxe_qp *qp,
+ 	if (err)
+ 		pr_err("Failed copying memory\n");
+ 
++	if (bth_pad(&ack_pkt)) {
++		struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
++		u8 *pad = payload_addr(&ack_pkt) + payload;
++
++		memset(pad, 0, bth_pad(&ack_pkt));
++		icrc = rxe_crc32(rxe, icrc, pad, bth_pad(&ack_pkt));
++	}
+ 	p = payload_addr(&ack_pkt) + payload + bth_pad(&ack_pkt);
+ 	*p = ~icrc;
+ 
 -- 
 2.20.1
 
