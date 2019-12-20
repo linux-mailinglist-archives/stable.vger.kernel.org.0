@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5FF2127E8B
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:48:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D9A127EA6
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:49:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727709AbfLTOrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:47:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46136 "EHLO mail.kernel.org"
+        id S1728025AbfLTOs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:48:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727381AbfLTOrq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:47:46 -0500
+        id S1727384AbfLTOrr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:47:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 355E021D7E;
-        Fri, 20 Dec 2019 14:47:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70AD724683;
+        Fri, 20 Dec 2019 14:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576853266;
-        bh=MO0/HY9PnNyk0zObAy/yukYooxhFZmu/FbobxKc5itY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ULsynnl43c3Cjf7487bCQ6bgVR+orGb7F5JtLAy1zBjqGL729pDxvTq8YZmSC6etB
-         JtreBs3f+WmfisFbtDHKGMLvVjA035YpGL6pqZ+7+5KJmuA02spqhxpQrE6nvfpvCR
-         qTvxoDAeire7yycyobKYLsr/p/SflhOmrdytvcAQ=
+        s=default; t=1576853267;
+        bh=SujEwJFHF1vo1d0pe7hFH3Lkq5rGKZCFmgyxuCNPRTA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZloGS0Jp6KRBxpZ4UlbT+S5zc/RYY/kfbHSLn4HBw9u7JQsruvGNTQdJmzBluVER3
+         Yd8jkR2pVMEm7pUh+9nF2q9WYIyBFderlRwV6Joym4IFPbQhCB1rEiy2MqY0dky9fl
+         kXGj89wPQMUv3FHxTDwctcowLq6nDez/t9yKarX4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leonard Crestez <leonard.crestez@nxp.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 01/11] PM / devfreq: Don't fail devfreq_dev_release if not in list
-Date:   Fri, 20 Dec 2019 09:47:33 -0500
-Message-Id: <20191220144744.10565-1-sashal@kernel.org>
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Parav Pandit <parav@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 02/11] RDMA/cma: add missed unregister_pernet_subsys in init failure
+Date:   Fri, 20 Dec 2019 09:47:34 -0500
+Message-Id: <20191220144744.10565-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191220144744.10565-1-sashal@kernel.org>
+References: <20191220144744.10565-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,53 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leonard Crestez <leonard.crestez@nxp.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 42a6b25e67df6ee6675e8d1eaf18065bd73328ba ]
+[ Upstream commit 44a7b6759000ac51b92715579a7bba9e3f9245c2 ]
 
-Right now devfreq_dev_release will print a warning and abort the rest of
-the cleanup if the devfreq instance is not part of the global
-devfreq_list. But this is a valid scenario, for example it can happen if
-the governor can't be found or on any other init error that happens
-after device_register.
+The driver forgets to call unregister_pernet_subsys() in the error path
+of cma_init().
+Add the missed call to fix it.
 
-Initialize devfreq->node to an empty list head in devfreq_add_device so
-that list_del becomes a safe noop inside devfreq_dev_release and we can
-continue the rest of the cleanup.
-
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: 4be74b42a6d0 ("IB/cma: Separate port allocation to network namespaces")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Link: https://lore.kernel.org/r/20191206012426.12744-1-hslester96@gmail.com
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/devfreq.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/infiniband/core/cma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-index 4f6fc1cfd7da2..f01f7434df8eb 100644
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -396,11 +396,6 @@ static int devfreq_notifier_call(struct notifier_block *nb, unsigned long type,
- static void _remove_devfreq(struct devfreq *devfreq)
- {
- 	mutex_lock(&devfreq_list_lock);
--	if (IS_ERR(find_device_devfreq(devfreq->dev.parent))) {
--		mutex_unlock(&devfreq_list_lock);
--		dev_warn(&devfreq->dev, "releasing devfreq which doesn't exist\n");
--		return;
--	}
- 	list_del(&devfreq->node);
- 	mutex_unlock(&devfreq_list_lock);
- 
-@@ -472,6 +467,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
- 	devfreq->dev.parent = dev;
- 	devfreq->dev.class = devfreq_class;
- 	devfreq->dev.release = devfreq_dev_release;
-+	INIT_LIST_HEAD(&devfreq->node);
- 	devfreq->profile = profile;
- 	strncpy(devfreq->governor_name, governor_name, DEVFREQ_NAME_LEN);
- 	devfreq->previous_freq = profile->initial_freq;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 8ad9c6b04769d..5ed9b5f8a0377 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -4109,6 +4109,7 @@ static int __init cma_init(void)
+ 	unregister_netdevice_notifier(&cma_nb);
+ 	rdma_addr_unregister_client(&addr_client);
+ 	ib_sa_unregister_client(&sa_client);
++	unregister_pernet_subsys(&cma_pernet_operations);
+ err_wq:
+ 	destroy_workqueue(cma_wq);
+ 	return ret;
 -- 
 2.20.1
 
