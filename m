@@ -2,166 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC260127559
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 06:35:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 347171275C7
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 07:29:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727176AbfLTFfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 00:35:12 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:47098 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725781AbfLTFfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 00:35:12 -0500
-Received: by mail-lj1-f196.google.com with SMTP id m26so6261569ljc.13
-        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 21:35:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=TvI9uduLULDLfJEVRURikWZJsrpJdtix4Tat0bsUYgY=;
-        b=m+2m8o3um1gRj3SYDVIwsrELxvX/qVZFCWkRnS3QLmu+XFdQKJWF+wrCoS9eag2Eip
-         5e75NBBkaxpoS3yibqzNbLzaiYPFR0oMBj/f7O5j+UFXQWKq4IF6MBYQRolPl1e+o1A6
-         K7D/T5xId16Vm4lg8vIavkFxgUPjZ9X5qafn+d/Q0LY85x0Zv1rUwqFKP/XbQo5lEn7Q
-         roPWtq4+ju4hxHENEakLh3eILIZw9CyMjUZZCb6rRZuvCwLEN0AXw0eNWuB9Yny+LInZ
-         uRUGDsfkQfoHM2lJoh30Xlo0HLYwXgVlFOUCwgkRnArpMfCxJKkGsd0tXTQA5b3kGtWp
-         x43g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=TvI9uduLULDLfJEVRURikWZJsrpJdtix4Tat0bsUYgY=;
-        b=BC3zO7EuKJ9oIN/q07xQMwpNGACc1mfxAi8hvOk/CFRa1eVPSqEpLXxzvYtnjVCuEs
-         ovHhb2GEBn0l0Ticd3g7Jt2EjUsI8bvO1Ku5xb7VOzvvFqjxZJgsqeZ26xo4qGUdyydb
-         9hNybCcvGi2hvFNzz1/30m6EGGpTF0uiVAMeTj10kTwQO368jlPVQVYrMeg+rB8tykii
-         oG+fN/jmEKNZWnPnmaBX1izKvXyXDo8rmFzNTv5l9RB1SCHmmJ+Xmh98mH7hnwLortrP
-         pNKu/i6pm4Rhe5tJy90bhHgKuwoGpv80IE3AaUT5tof2cESakR2gFyUBp6BITTWNURoB
-         R0ig==
-X-Gm-Message-State: APjAAAVKsOwNqVKRB2+ByzEiXTnjpl6vjok0a4JfrGTqGOf3AXkjZUKI
-        TadzdYCPAocFqmnr+tdFRfd4ORn7U+BoPoWgiz/lsA==
-X-Google-Smtp-Source: APXvYqydHYeZnJ2j0VyykXZNfau7hIN3gH6EpNyoC8BrddIhiqzBsAX0U5PRmA68oTttxdLTCLlRIA7zfHLIz5tHUuM=
-X-Received: by 2002:a2e:8316:: with SMTP id a22mr8900403ljh.141.1576820110424;
- Thu, 19 Dec 2019 21:35:10 -0800 (PST)
+        id S1727135AbfLTG2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 01:28:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47920 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725941AbfLTG2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 01:28:48 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0727424680;
+        Fri, 20 Dec 2019 06:28:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576823328;
+        bh=TdXbszKN3r8/fbvvZnRz49hQydGBL8c+do/5KQN4mCo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=olo69ygy1z2Xj5n7VPbFHrVQxeJdB1IZIzRWQhGfE1m6ij+WCy3Ef4wQntcKa+Kao
+         4mOG7v5Xc5vGPAWqlLep9m8Ltq0dl5A+cx4RXsVBo9WZrz8lvMCtfO44/djZ02hQrn
+         3XVAd2+akO3QJoxJqYDv088zuT1IoQpbqlIBc73M=
+Date:   Fri, 20 Dec 2019 07:28:46 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Laura Abbott <labbott@redhat.com>
+Cc:     Stefani Seibold <stefani@seibold.net>, stable@vger.kernel.org
+Subject: Re: broken sound since 5.4.3
+Message-ID: <20191220062846.GA2183748@kroah.com>
+References: <02def6201f9533106e0f195afed1422981215eb0.camel@seibold.net>
+ <240a7610-577a-8253-e880-b55182460c17@redhat.com>
 MIME-Version: 1.0
-References: <20191219182848.708141124@linuxfoundation.org>
-In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 20 Dec 2019 11:04:59 +0530
-Message-ID: <CA+G9fYuV+VLuSFPJzRmy9JOCWFb20aGrSVFSK2YC7N8_vVsTpA@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/36] 4.14.160-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <240a7610-577a-8253-e880-b55182460c17@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 20 Dec 2019 at 00:20, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.160 release.
-> There are 36 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 21 Dec 2019 18:24:44 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.160-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+On Thu, Dec 19, 2019 at 05:24:20PM -0500, Laura Abbott wrote:
+> On 12/19/19 3:59 PM, Stefani Seibold wrote:
+> > Hi,
+> > 
+> > the current Linux Kernel is going kills my speakers of my monitor.
+> > 
+> > Audio level is always 100 at percent.
+> > 
+> > I broke down the issue to the following patch:
+> > 
+> > diff --git a/sound/hda/hdac_stream.c b/sound/hda/hdac_stream.c
+> > index d8fe7ff0cd58..f9707fb05efe 100644
+> > --- a/sound/hda/hdac_stream.c
+> > +++ b/sound/hda/hdac_stream.c
+> > @@ -96,12 +96,14 @@ void snd_hdac_stream_start(struct hdac_stream *azx_dev, bool fresh_start)
+> >   			      1 << azx_dev->index,
+> >   			      1 << azx_dev->index);
+> >   	/* set stripe control */
+> > -	if (azx_dev->substream)
+> > -		stripe_ctl = snd_hdac_get_stream_stripe_ctl(bus, azx_dev->substream);
+> > -	else
+> > -		stripe_ctl = 0;
+> > -	snd_hdac_stream_updateb(azx_dev, SD_CTL_3B, SD_CTL_STRIPE_MASK,
+> > -				stripe_ctl);
+> > +	if (azx_dev->stripe) {
+> > +		if (azx_dev->substream)
+> > +			stripe_ctl = snd_hdac_get_stream_stripe_ctl(bus, azx_dev->substream);
+> > +		else
+> > +			stripe_ctl = 0;
+> > +		snd_hdac_stream_updateb(azx_dev, SD_CTL_3B, SD_CTL_STRIPE_MASK,
+> > +					stripe_ctl);
+> > +	}
+> >   	/* set DMA start and interrupt mask */
+> >   	snd_hdac_stream_updateb(azx_dev, SD_CTL,
+> >   				0, SD_CTL_DMA_START | SD_INT_MASK);
+> > @@ -118,7 +120,10 @@ void snd_hdac_stream_clear(struct hdac_stream *azx_dev)
+> >   	snd_hdac_stream_updateb(azx_dev, SD_CTL,
+> >   				SD_CTL_DMA_START | SD_INT_MASK, 0);
+> >   	snd_hdac_stream_writeb(azx_dev, SD_STS, SD_INT_MASK); /* to be sure */
+> > -	snd_hdac_stream_updateb(azx_dev, SD_CTL_3B, SD_CTL_STRIPE_MASK, 0);
+> > +	if (azx_dev->stripe) {
+> > +		snd_hdac_stream_updateb(azx_dev, SD_CTL_3B, SD_CTL_STRIPE_MASK, 0);
+> > +		azx_dev->stripe = 0;
+> > +	}
+> >   	azx_dev->running = false;
+> >   }
+> >   EXPORT_SYMBOL_GPL(snd_hdac_stream_clear);
+> > 
+> > 
+> > 
+> 
+> I think this is fixed by 6fd739c04ffd ("ALSA: hda: Fix regression by strip mask fix")
+> This is already tagged for stable but it would be nice to pick it up sooner.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Now queued up, thanks.
 
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.14.160-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: 838b72b47f7ef92850331f8b87e1228d8301f392
-git describe: v4.14.159-37-g838b72b47f7e
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.159-37-g838b72b47f7e
-
-
-No regressions (compared to build v4.14.159)
-
-No Fixes (compared to build v4.14.159)
-
-
-Ran 24211 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* network-basic-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-* ssuite
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
