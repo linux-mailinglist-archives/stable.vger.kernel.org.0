@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6458127D6C
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66995127D65
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727735AbfLTOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:33:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
+        id S1727956AbfLTOdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:33:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727762AbfLTOaf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:30:35 -0500
+        id S1727780AbfLTOah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:30:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD1C724688;
-        Fri, 20 Dec 2019 14:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D52924689;
+        Fri, 20 Dec 2019 14:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852235;
-        bh=zfjn9+TFi5SJgfhQJgf9Bq1cAAuX3fYjr4XtIHkOWgU=;
+        s=default; t=1576852236;
+        bh=wkJAdtkBXdnXu9aJYtGZe9L7P79h8OzAjQykNDwnR8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hi99ViiUZavQKitICQvqFENgEgIA0j/AHOJt2CK1xqRhINZ2UPaeGbbeFazDvvBQl
-         /jbhGGOPrzHF77I4rlqsOX4qAX3Gjc6j/su1z8RG+0ZqzAwBvzX0QDQR/2QeQwhMuw
-         XEZBCrgl8Fv4HuDyuQuczeX6vptUvH/+6GWcchiU=
+        b=fvV72O5uH60SYxsRPw0oX0FHw1sniAi1uX4lOH9N3rNvQSYbnQpaHmBvPFwnCdH/X
+         kBdY/i46RwyeMVUuQ8jodc2nqcdg8Xg0qEziE5nfe2KwOlmbAPCapblCzMxCUfw9eR
+         +xgXwMwkHdAN3vQKG+7qNc1kB9imgGfa9Tk0lRFY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Roman Bolshakov <r.bolshakov@yadro.com>,
-        Krishna Kant <krishna.kant@purestorage.com>,
-        Alexei Potashnik <alexei@purestorage.com>,
-        Quinn Tran <qutran@marvell.com>,
         Himanshu Madhani <hmadhani@marvell.com>,
+        Quinn Tran <qutran@marvell.com>,
         Hannes Reinecke <hare@suse.de>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 29/52] scsi: qla2xxx: Send Notify ACK after N2N PLOGI
-Date:   Fri, 20 Dec 2019 09:29:31 -0500
-Message-Id: <20191220142954.9500-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 30/52] scsi: qla2xxx: Don't defer relogin unconditonally
+Date:   Fri, 20 Dec 2019 09:29:32 -0500
+Message-Id: <20191220142954.9500-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220142954.9500-1-sashal@kernel.org>
 References: <20191220142954.9500-1-sashal@kernel.org>
@@ -50,42 +48,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Roman Bolshakov <r.bolshakov@yadro.com>
 
-[ Upstream commit 5e6b01d84b9d20bcd77fc7c4733a2a4149bf220a ]
+[ Upstream commit dabc5ec915f3a2c657ecfb529cd3d4ec303a4412 ]
 
-qlt_handle_login schedules session for deletion even if a login is in
-progress. That causes login bouncing, i.e. a few logins are made before it
-settles down.
+qla2x00_configure_local_loop sets RELOGIN_NEEDED bit and calls
+qla24xx_fcport_handle_login to perform the login. This bit triggers a wake
+up of DPC later after a successful login.
 
-Complete the first login by sending Notify Acknowledge IOCB via
-qlt_plogi_ack_unref if the session is pending login completion.
+The deferred call is not needed if login succeeds, and it's set in
+qla24xx_fcport_handle_login in case of errors, hence it should be safe to
+drop.
 
-Fixes: 9cd883f07a54 ("scsi: qla2xxx: Fix session cleanup for N2N")
-Cc: Krishna Kant <krishna.kant@purestorage.com>
-Cc: Alexei Potashnik <alexei@purestorage.com>
-Link: https://lore.kernel.org/r/20191125165702.1013-11-r.bolshakov@yadro.com
-Acked-by: Quinn Tran <qutran@marvell.com>
+Link: https://lore.kernel.org/r/20191125165702.1013-12-r.bolshakov@yadro.com
 Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Acked-by: Quinn Tran <qutran@marvell.com>
 Reviewed-by: Hannes Reinecke <hare@suse.de>
 Tested-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/qla2xxx/qla_init.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 5bb5249bb822c..ee0d07836b832 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -4804,6 +4804,7 @@ static int qlt_handle_login(struct scsi_qla_host *vha,
- 
- 	switch (sess->disc_state) {
- 	case DSC_DELETED:
-+	case DSC_LOGIN_PEND:
- 		qlt_plogi_ack_unref(vha, pla);
- 		break;
- 
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index 7364f3b62b9d9..1c3a5fcbd3153 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -5043,7 +5043,6 @@ qla2x00_configure_local_loop(scsi_qla_host_t *vha)
+ 				memcpy(&ha->plogi_els_payld.data,
+ 				    (void *)ha->init_cb,
+ 				    sizeof(ha->plogi_els_payld.data));
+-				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+ 			} else {
+ 				ql_dbg(ql_dbg_init, vha, 0x00d1,
+ 				    "PLOGI ELS param read fail.\n");
 -- 
 2.20.1
 
