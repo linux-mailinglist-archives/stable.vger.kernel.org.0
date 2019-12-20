@@ -2,103 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0E2127937
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 11:23:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD8A0127949
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 11:29:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727279AbfLTKXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 05:23:19 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:35766 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727129AbfLTKXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 05:23:19 -0500
-Received: by mail-lf1-f65.google.com with SMTP id 15so6644138lfr.2;
-        Fri, 20 Dec 2019 02:23:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=fVDETBozZ4/qDsszN1mn7+6jrkiK3wgtTef6sQxNVJ4=;
-        b=i0dM/oQQTwXG3nUbFKGEtfXQeZt2hu1rpqn3iuzNZE0oWnPpMXGHPO9ZNW6NVRvz6O
-         8vhMIkXS3sFrHLWSriDBL0gCr3gG77Q+KLFKcqVr+QNWRwkhPk3oq+tKRUcDNljJzO1y
-         LhtufvDXsNYOh2GBGmDYQ+IzEYwIyU+UmvpqrbnpI/zkb7azz8egtrbVJjVSk7zopvTp
-         gLin2lwoLSZmFH82ee0zTUjcZFY0K9Zo9hUGrVT/Ot24q4ZM/rqE92qiAo+A8BYzvxLy
-         YudbKxDQrs6+YW0lqvMeG1Lig5R6DsHpOZxipt0Mf+teMcXMd69oKqqWwMhgGTvCAuwx
-         1HfA==
-X-Gm-Message-State: APjAAAVlrf36ochj1UolRwFNfU2JrsJWOyZNpecZ2wmcdlHDaEjgENZL
-        hOzGdsJpCN00UXLnytUPVsU=
-X-Google-Smtp-Source: APXvYqxnhc7AhHRdkgCq7FXSfcejTVt7KSCTYkqz/ngaR2fEsJGHcFdA3ZXx4mY+iUrPwzq5NkOmrQ==
-X-Received: by 2002:a19:c205:: with SMTP id l5mr8258003lfc.159.1576837397388;
-        Fri, 20 Dec 2019 02:23:17 -0800 (PST)
-Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id h19sm4044923ljk.44.2019.12.20.02.23.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Dec 2019 02:23:16 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@kernel.org>)
-        id 1iiFRD-00018f-PN; Fri, 20 Dec 2019 11:23:15 +0100
-Date:   Fri, 20 Dec 2019 11:23:15 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     Johan Hovold <johan@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
-        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] ALSA: usb-audio: fix set_format altsetting sanity check
-Message-ID: <20191220102315.GU22665@localhost>
-References: <20191220093134.1248-1-johan@kernel.org>
- <s5hbls35nxx.wl-tiwai@suse.de>
+        id S1727188AbfLTK3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 05:29:05 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:17493 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727167AbfLTK3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 05:29:05 -0500
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5dfca2650000>; Fri, 20 Dec 2019 02:28:54 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Fri, 20 Dec 2019 02:29:04 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Fri, 20 Dec 2019 02:29:04 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 20 Dec
+ 2019 10:29:01 +0000
+Subject: Re: [PATCH 4.4 000/162] 4.4.207-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191219183150.477687052@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <ce023201-39da-2b48-dd1c-f3ab277b7433@nvidia.com>
+Date:   Fri, 20 Dec 2019 10:28:59 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hbls35nxx.wl-tiwai@suse.de>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1576837734; bh=c7nLJoBLQoeHk/qBhhobIclk62p4MVYlNFSJ9Xri8/4=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=AhKhhRhXePdE1/j0r6dRG78QXmnIPjci1AqJlG1OKyqS2URelv19D1NOlZOp9rpqZ
+         AgRyC+Az6NQwU9H7LuZq1SrmmpnDo31irenMrYD6+xpLQw7Rd7Yaca2eJcPxe1UTLr
+         3HsAGykEkPc+XTl94tvVhvjMKMcmnhUvOfHMA6O7asRpINBFT1N7alCpmi6PEbiHC4
+         Km59asAYXLAcEjFf1eqvfAZLorAxGtN/NUgKM8ir51kmDKqsJxgNLBGM6DrxEddIMj
+         w8+0o0nzaFEl+6wgajZE+5ua5UNyrlzPoABZY5DGpYX6r+xt5C/TbTXaXOZtfI1PJ0
+         EzJhYWb2hEmdA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 20, 2019 at 10:46:50AM +0100, Takashi Iwai wrote:
-> On Fri, 20 Dec 2019 10:31:34 +0100,
-> Johan Hovold wrote:
-> > 
-> > Make sure to check the return value of usb_altnum_to_altsetting() to
-> > avoid dereferencing a NULL pointer when the requested alternate settings
-> > is missing.
-> > 
-> > The format altsetting number may come from a quirk table and there does
-> > not seem to be any other validation of it (the corresponding index is
-> > checked however).
-> > 
-> > Fixes: b099b9693d23 ("ALSA: usb-audio: Avoid superfluous usb_set_interface() calls")
-> > Cc: stable <stable@vger.kernel.org>     # 4.18
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> >  sound/usb/pcm.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-> > index 9c8930bb00c8..73dd9d21bb42 100644
-> > --- a/sound/usb/pcm.c
-> > +++ b/sound/usb/pcm.c
-> > @@ -506,9 +506,9 @@ static int set_format(struct snd_usb_substream *subs, struct audioformat *fmt)
-> >  	if (WARN_ON(!iface))
-> >  		return -EINVAL;
-> >  	alts = usb_altnum_to_altsetting(iface, fmt->altsetting);
-> > -	altsd = get_iface_desc(alts);
-> > -	if (WARN_ON(altsd->bAlternateSetting != fmt->altsetting))
-> > +	if (WARN_ON(!alts))
-> >  		return -EINVAL;
+
+On 19/12/2019 18:31, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.207 release.
+> There are 162 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Do we need WARN_ON() here?  If this may hit on syzbot, it'll stop at
-> this point because of panic_on_warn.
+> Responses should be made by Sat, 21 Dec 2019 18:24:44 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.207-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -------------
 
-Yeah, I considered that too and decided to leave it in. Just like for
-the WARN_ON(iface), those numbers should be verified at probe.
+All tests are passing for Tegra ...
 
-I tried tracking where fmt->altsetting comes from, and it seems like
-a sanity check needs to be added at least to create_fixed_stream_quirk()
-where, for example, fmt->iface, fmt->altset_idx and the number of
-endpoints are verified.
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
 
-If there are other paths that can end up setting these fields to invalid
-values, we want that WARN_ON() in there so we can fix those.
+Linux version:	4.4.207-rc1-g9fe78e96326d
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-Johan
+Cheers
+Jon
+
+-- 
+nvpublic
