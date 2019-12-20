@@ -2,29 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 580681280DC
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 17:47:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B162E12810E
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 18:04:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727270AbfLTQrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 11:47:47 -0500
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:41449 "EHLO
+        id S1727388AbfLTREz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 12:04:55 -0500
+Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:42930 "EHLO
         mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727181AbfLTQrr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 11:47:47 -0500
+        with ESMTP id S1727270AbfLTREz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 12:04:55 -0500
 Received: from Internal Mail-Server by MTLPINE1 (envelope-from lsun@mellanox.com)
-        with ESMTPS (AES256-SHA encrypted); 20 Dec 2019 18:47:42 +0200
+        with ESMTPS (AES256-SHA encrypted); 20 Dec 2019 19:04:53 +0200
 Received: from farm-0002.mtbu.labs.mlnx (farm-0002.mtbu.labs.mlnx [10.15.2.32])
-        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id xBKGle7Q028679;
-        Fri, 20 Dec 2019 11:47:40 -0500
+        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id xBKH4qpp029077;
+        Fri, 20 Dec 2019 12:04:52 -0500
 Received: (from lsun@localhost)
-        by farm-0002.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id xBKGldRi019926;
-        Fri, 20 Dec 2019 11:47:39 -0500
+        by farm-0002.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id xBKH4nBM020575;
+        Fri, 20 Dec 2019 12:04:49 -0500
 From:   Liming Sun <lsun@mellanox.com>
-To:     David Woods <dwoods@mellanox.com>
-Cc:     Liming Sun <lsun@mellanox.com>, <stable@vger.kernel.org>
+To:     David Woods <dwoods@mellanox.com>,
+        Andy Shevchenko <andy@infradead.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Vadim Pasternak <vadimp@mellanox.com>
+Cc:     Liming Sun <lsun@mellanox.com>, linux-kernel@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, <stable@vger.kernel.org>
 Subject: [PATCH v1 1/1] platform/mellanox: fix potential deadlock in the tmfifo driver
-Date:   Fri, 20 Dec 2019 11:47:35 -0500
-Message-Id: <fb166f8c4504ff754f4bc47d70fc5328def0a2f1.1576860380.git.lsun@mellanox.com>
+Date:   Fri, 20 Dec 2019 12:04:33 -0500
+Message-Id: <7e315c0bf18b05be1ddc1c29a182ea0a27d9f6f6.1576861099.git.lsun@mellanox.com>
 X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -35,28 +39,29 @@ This commit fixes the potential deadlock caused by the console Rx
 and Tx processing at the same time. Rx and Tx both take the console
 and tmfifo spinlock but in different order which causes potential
 deadlock. The fix is to use different tmfifo spinlock for Rx and
-Tx since they protect different resources.
+Tx since they protect different resources and it's safe to split
+the lock.
 
 Below is the reported call trace when copying/pasting large string
 in the console.
 
 Rx:
-    _raw_spin_lock_irqsave
+    _raw_spin_lock_irqsave (hvc lock)
     __hvc_poll
     hvc_poll
     in_intr
     vring_interrupt
-    mlxbf_tmfifo_rxtx_one_desc
+    mlxbf_tmfifo_rxtx_one_desc (tmfifo lock)
     mlxbf_tmfifo_rxtx
     mlxbf_tmfifo_work_rxtx
 Tx:
-    _raw_spin_lock_irqsave
+    _raw_spin_lock_irqsave (tmfifo lock)
     mlxbf_tmfifo_virtio_notify
     virtqueue_notify
     virtqueue_kick
     put_chars
     hvc_push
-    hvc_write
+    hvc_write (hvc lock)
     ...
     do_tty_write
     tty_write
