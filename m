@@ -2,73 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD68127EAD
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:49:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 527A1127EFC
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 16:05:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727565AbfLTOso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:48:44 -0500
-Received: from bombadil.infradead.org ([198.137.202.133]:36386 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727749AbfLTOsk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 09:48:40 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=AOOOoCg9ol7+3vA6+5XlhPuq3fd9liI3dXnfBk0teUM=; b=bJHiZTizdT/XVFZPIT30O1q2g
-        uZy/EjVxrxU8zVxsdADlO9Tn6J1uYtZdWDQndWSjUkuHWzlD6sP/IZVlgirQ6xugzOWCLiqIbbTIa
-        sBIScHhQdSXqQ24hEMkNbIMFYQ1sJ/I4jah0gL35Z+fhkfC4KtcE3bQ4FMG4tImDvvM7r8NEA896a
-        3TbJh8hwblpFZqhfUjTwSjGcMjN3GxNBih8T6OanSKb4iCifMN5mj3IpqZjLY7tZ3pYIhvKf7apbQ
-        CKVfza83lsNJWyUCWatfuYJ7f/K3UxqxzBRc8nOn8GjwuMsGqHAgogBWg8tqOJMZu7LqT1hJNbCDp
-        X6gr5NnEA==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iiJZt-00057Z-II; Fri, 20 Dec 2019 14:48:29 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CA508304D00;
-        Fri, 20 Dec 2019 15:47:03 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 950E52026176B; Fri, 20 Dec 2019 15:48:27 +0100 (CET)
-Date:   Fri, 20 Dec 2019 15:48:27 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
-        linux-api@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH for 5.5 0/3] Restartable Sequences Fixes
-Message-ID: <20191220144827.GJ2844@hirez.programming.kicks-ass.net>
-References: <20191211161713.4490-1-mathieu.desnoyers@efficios.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191211161713.4490-1-mathieu.desnoyers@efficios.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1727359AbfLTPF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 10:05:58 -0500
+Received: from foss.arm.com ([217.140.110.172]:52194 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727233AbfLTPF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 10:05:58 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D609C31B;
+        Fri, 20 Dec 2019 07:05:57 -0800 (PST)
+Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 4E1D83F6CF;
+        Fri, 20 Dec 2019 07:05:56 -0800 (PST)
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org,
+        maz@kernel.org
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Drew Jones <drjones@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Peter Maydell <peter.maydell@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH 1/3] KVM: arm64: correct PSTATE on exception entry
+Date:   Fri, 20 Dec 2019 15:05:47 +0000
+Message-Id: <20191220150549.31948-2-mark.rutland@arm.com>
+X-Mailer: git-send-email 2.11.0
+In-Reply-To: <20191220150549.31948-1-mark.rutland@arm.com>
+References: <20191220150549.31948-1-mark.rutland@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 11, 2019 at 11:17:10AM -0500, Mathieu Desnoyers wrote:
-> Hi,
-> 
-> Here is a repost of a small set of rseq fixes which was initially posted
-> in September 2019. It now targets kernel 5.5. Those should be backported
-> to stable kernels >= 4.18.
-> 
-> Thanks,
-> 
-> Mathieu
-> 
-> Mathieu Desnoyers (3):
->   rseq: Fix: Reject unknown flags on rseq unregister
->   rseq: Fix: Unregister rseq for clone CLONE_VM
->   rseq/selftests: Fix: Namespace gettid() for compatibility with glibc
->     2.30
+When KVM injects an exception into a guest, it generates the PSTATE
+value from scratch, configuring PSTATE.{M[4:0],DAIF}, and setting all
+other bits to zero.
 
-I've picked up the first two patches, thanks!
+This isn't correct, as the architecture specifies that some PSTATE bits
+are (conditionally) cleared or set upon an exception, and others are
+unchanged from the original context.
+
+This patch adds logic to match the architectural behaviour. To make this
+simple to follow/audit/extend, documentation references are provided,
+and bits are configured in order of their layout in SPSR_EL2. This
+layout can be seen in the diagram on ARM DDI 0487E.a page C5-429.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: Drew Jones <drjones@redhat.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Julien Thierry <julien.thierry.kdev@gmail.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Peter Maydell <peter.maydell@linaro.org>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org
+---
+ arch/arm64/include/uapi/asm/ptrace.h |  1 +
+ arch/arm64/kvm/inject_fault.c        | 69 +++++++++++++++++++++++++++++++++---
+ 2 files changed, 65 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm64/include/uapi/asm/ptrace.h b/arch/arm64/include/uapi/asm/ptrace.h
+index 7ed9294e2004..d1bb5b69f1ce 100644
+--- a/arch/arm64/include/uapi/asm/ptrace.h
++++ b/arch/arm64/include/uapi/asm/ptrace.h
+@@ -49,6 +49,7 @@
+ #define PSR_SSBS_BIT	0x00001000
+ #define PSR_PAN_BIT	0x00400000
+ #define PSR_UAO_BIT	0x00800000
++#define PSR_DIT_BIT	0x01000000
+ #define PSR_V_BIT	0x10000000
+ #define PSR_C_BIT	0x20000000
+ #define PSR_Z_BIT	0x40000000
+diff --git a/arch/arm64/kvm/inject_fault.c b/arch/arm64/kvm/inject_fault.c
+index a9d25a305af5..270d91c05246 100644
+--- a/arch/arm64/kvm/inject_fault.c
++++ b/arch/arm64/kvm/inject_fault.c
+@@ -14,9 +14,6 @@
+ #include <asm/kvm_emulate.h>
+ #include <asm/esr.h>
+ 
+-#define PSTATE_FAULT_BITS_64 	(PSR_MODE_EL1h | PSR_A_BIT | PSR_F_BIT | \
+-				 PSR_I_BIT | PSR_D_BIT)
+-
+ #define CURRENT_EL_SP_EL0_VECTOR	0x0
+ #define CURRENT_EL_SP_ELx_VECTOR	0x200
+ #define LOWER_EL_AArch64_VECTOR		0x400
+@@ -50,6 +47,68 @@ static u64 get_except_vector(struct kvm_vcpu *vcpu, enum exception_type type)
+ 	return vcpu_read_sys_reg(vcpu, VBAR_EL1) + exc_offset + type;
+ }
+ 
++/*
++ * When an exception is taken, most PSTATE fields are left unchanged in the
++ * handler. However, some are explicitly overridden (e.g. M[4:0]). Luckily all
++ * of the inherited bits have the same position in the AArch64/AArch32 SPSR_ELx
++ * layouts, so we don't need to shuffle these for exceptions from AArch32 EL0.
++ *
++ * For the SPSR_ELx layout for AArch64, see ARM DDI 0487E.a page C5-429.
++ * For the SPSR_ELx layout for AArch32, see ARM DDI 0487E.a page C5-426.
++ *
++ * Here we manipulate the fields in order of the AArch64 SPSR_ELx layout, from
++ * MSB to LSB.
++ */
++static unsigned long get_except64_pstate(struct kvm_vcpu *vcpu)
++{
++	unsigned long sctlr = vcpu_read_sys_reg(vcpu, SCTLR_EL1);
++	unsigned long old, new;
++
++	old = *vcpu_cpsr(vcpu);
++	new = 0;
++
++	new |= (old & PSR_N_BIT);
++	new |= (old & PSR_Z_BIT);
++	new |= (old & PSR_C_BIT);
++	new |= (old & PSR_V_BIT);
++
++	// TODO: TCO (if/when ARMv8.5-MemTag is exposed to guests)
++
++	new |= (old & PSR_DIT_BIT);
++
++	// PSTATE.UAO is set to zero upon any exception to AArch64
++	// See ARM DDI 0487E.a, page D5-2579.
++
++	// PSTATE.PAN is unchanged unless overridden by SCTLR_ELx.SPAN
++	// See ARM DDI 0487E.a, page D5-2578.
++	new |= (old & PSR_PAN_BIT);
++	if (sctlr & SCTLR_EL1_SPAN)
++		new |= PSR_PAN_BIT;
++
++	// PSTATE.SS is set to zero upon any exception to AArch64
++	// See ARM DDI 0487E.a, page D2-2452.
++
++	// PSTATE.IL is set to zero upon any exception to AArch64
++	// See ARM DDI 0487E.a, page D1-2306.
++
++	// PSTATE.SSBS is set to SCTLR_ELx.DSSBS upon any exception to AArch64
++	// See ARM DDI 0487E.a, page D13-3258
++	if (sctlr & SCTLR_ELx_DSSBS)
++		new |= PSR_SSBS_BIT;
++
++	// PSTATE.BTYPE is set to zero upon any exception to AArch64
++	// See ARM DDI 0487E.a, pages D1-2293 to D1-2294.
++
++	new |= PSR_D_BIT;
++	new |= PSR_A_BIT;
++	new |= PSR_I_BIT;
++	new |= PSR_F_BIT;
++
++	new |= PSR_MODE_EL1h;
++
++	return new;
++}
++
+ static void inject_abt64(struct kvm_vcpu *vcpu, bool is_iabt, unsigned long addr)
+ {
+ 	unsigned long cpsr = *vcpu_cpsr(vcpu);
+@@ -59,7 +118,7 @@ static void inject_abt64(struct kvm_vcpu *vcpu, bool is_iabt, unsigned long addr
+ 	vcpu_write_elr_el1(vcpu, *vcpu_pc(vcpu));
+ 	*vcpu_pc(vcpu) = get_except_vector(vcpu, except_type_sync);
+ 
+-	*vcpu_cpsr(vcpu) = PSTATE_FAULT_BITS_64;
++	*vcpu_cpsr(vcpu) = get_except64_pstate(vcpu);
+ 	vcpu_write_spsr(vcpu, cpsr);
+ 
+ 	vcpu_write_sys_reg(vcpu, addr, FAR_EL1);
+@@ -94,7 +153,7 @@ static void inject_undef64(struct kvm_vcpu *vcpu)
+ 	vcpu_write_elr_el1(vcpu, *vcpu_pc(vcpu));
+ 	*vcpu_pc(vcpu) = get_except_vector(vcpu, except_type_sync);
+ 
+-	*vcpu_cpsr(vcpu) = PSTATE_FAULT_BITS_64;
++	*vcpu_cpsr(vcpu) = get_except64_pstate(vcpu);
+ 	vcpu_write_spsr(vcpu, cpsr);
+ 
+ 	/*
+-- 
+2.11.0
+
