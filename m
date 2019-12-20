@@ -2,45 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD6E12836A
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 21:54:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AEEE12836E
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 21:58:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727473AbfLTUyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 15:54:16 -0500
-Received: from mail.efficios.com ([167.114.142.138]:56160 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727402AbfLTUyP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 15:54:15 -0500
-Received: from localhost (ip6-localhost [IPv6:::1])
-        by mail.efficios.com (Postfix) with ESMTP id 292C568FA4B;
-        Fri, 20 Dec 2019 15:54:14 -0500 (EST)
-Received: from mail.efficios.com ([IPv6:::1])
-        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10032)
-        with ESMTP id Tm2CvV_XYdmJ; Fri, 20 Dec 2019 15:54:13 -0500 (EST)
-Received: from localhost (ip6-localhost [IPv6:::1])
-        by mail.efficios.com (Postfix) with ESMTP id 9CBDF68FA48;
-        Fri, 20 Dec 2019 15:54:13 -0500 (EST)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 9CBDF68FA48
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1576875253;
-        bh=ETinDr1CVgC3p7TD6XfvCrnRXYlKlrPDMZgCwRtUlNY=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=DTA6eZsGHQo50solOTM9RLt0dPzlA9oZPFTBIDUKqQqAS8vEK0+x3z6t73nGx0zTB
-         29b8dC5cze6KjdwqHRIX2PPYzlafNgygFxHSiJz0v0YLXFl9ibwjVHcfCDeXrRqsFG
-         kMT2owxr4HcGwEM4kwJdsAhAFivj8I9G2q3MiUQzogeB9Q8hqLFSAo37y7qQRuhAlO
-         Rvz40HcCzMmV6puNE+82qOJ8dH4/rf/O9fIr0DNKtD43r3XOgzaaFRLiyfcVBbAJoJ
-         szYEPDqayewpCUBMGOn7L/sue4dj0qi24lGSken+3t+TUz/VvJaaDWiqGycKVJWoyW
-         gnPWFGdXG+fPQ==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([IPv6:::1])
-        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10026)
-        with ESMTP id 1ww5H04DdUF8; Fri, 20 Dec 2019 15:54:13 -0500 (EST)
-Received: from mail02.efficios.com (mail02.efficios.com [167.114.142.138])
-        by mail.efficios.com (Postfix) with ESMTP id 83BF568FA32;
-        Fri, 20 Dec 2019 15:54:13 -0500 (EST)
-Date:   Fri, 20 Dec 2019 15:54:13 -0500 (EST)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Florian Weimer <fw@deneb.enyo.de>
+        id S1727413AbfLTU6S convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 20 Dec 2019 15:58:18 -0500
+Received: from albireo.enyo.de ([37.24.231.21]:56130 "EHLO albireo.enyo.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726525AbfLTU6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 15:58:18 -0500
+Received: from [172.17.203.2] (helo=deneb.enyo.de)
+        by albireo.enyo.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        id 1iiPLh-000644-Fp; Fri, 20 Dec 2019 20:58:13 +0000
+Received: from fw by deneb.enyo.de with local (Exim 4.92)
+        (envelope-from <fw@deneb.enyo.de>)
+        id 1iiPKv-0003PZ-UB; Fri, 20 Dec 2019 21:57:25 +0100
+From:   Florian Weimer <fw@deneb.enyo.de>
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 Cc:     Thomas Gleixner <tglx@linutronix.de>,
         linux-kernel <linux-kernel@vger.kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
@@ -51,62 +29,55 @@ Cc:     Thomas Gleixner <tglx@linutronix.de>,
         stable <stable@vger.kernel.org>,
         Dmitry Vyukov <dvyukov@google.com>,
         Neel Natu <neelnatu@google.com>
-Message-ID: <173832695.14381.1576875253374.JavaMail.zimbra@efficios.com>
-In-Reply-To: <87imman36g.fsf@mid.deneb.enyo.de>
-References: <20191220201207.17389-1-mathieu.desnoyers@efficios.com> <87imman36g.fsf@mid.deneb.enyo.de>
-Subject: Re: [PATCH for 5.5 1/2] rseq: Fix: Clarify rseq.h UAPI rseq_cs
- memory reclaim requirements
+Subject: Re: [PATCH for 5.5 1/2] rseq: Fix: Clarify rseq.h UAPI rseq_cs memory reclaim requirements
+References: <20191220201207.17389-1-mathieu.desnoyers@efficios.com>
+        <87imman36g.fsf@mid.deneb.enyo.de>
+        <173832695.14381.1576875253374.JavaMail.zimbra@efficios.com>
+Date:   Fri, 20 Dec 2019 21:57:25 +0100
+In-Reply-To: <173832695.14381.1576875253374.JavaMail.zimbra@efficios.com>
+        (Mathieu Desnoyers's message of "Fri, 20 Dec 2019 15:54:13 -0500
+        (EST)")
+Message-ID: <875zian2a2.fsf@mid.deneb.enyo.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [167.114.142.138]
-X-Mailer: Zimbra 8.8.15_GA_3888 (ZimbraWebClient - FF71 (Linux)/8.8.15_GA_3890)
-Thread-Topic: rseq: Fix: Clarify rseq.h UAPI rseq_cs memory reclaim requirements
-Thread-Index: yDR6ZuRNLoc+9BIlwZu3JhxAJn1lkg==
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ On Dec 20, 2019, at 3:37 PM, Florian Weimer fw@deneb.enyo.de wrote:
+* Mathieu Desnoyers:
 
-> * Mathieu Desnoyers:
-> 
->> diff --git a/include/uapi/linux/rseq.h b/include/uapi/linux/rseq.h
->> index 9a402fdb60e9..6f26b0b148a6 100644
->> --- a/include/uapi/linux/rseq.h
->> +++ b/include/uapi/linux/rseq.h
->> @@ -100,7 +100,9 @@ struct rseq {
->>  	 * instruction sequence block, as well as when the kernel detects that
->>  	 * it is preempting or delivering a signal outside of the range
->>  	 * targeted by the rseq_cs. Also needs to be set to NULL by user-space
->> -	 * before reclaiming memory that contains the targeted struct rseq_cs.
->> +	 * before reclaiming memory that contains the targeted struct rseq_cs
->> +	 * or reclaiming memory that contains the code refered to by the
->> +	 * start_ip and post_commit_offset fields of struct rseq_cs.
-> 
-> Maybe mention that it's good practice to clear rseq_cs before
-> returning from a function that contains a restartable sequence?
+> ----- On Dec 20, 2019, at 3:37 PM, Florian Weimer fw@deneb.enyo.de wrote:
+>
+>> * Mathieu Desnoyers:
+>> 
+>>> diff --git a/include/uapi/linux/rseq.h b/include/uapi/linux/rseq.h
+>>> index 9a402fdb60e9..6f26b0b148a6 100644
+>>> --- a/include/uapi/linux/rseq.h
+>>> +++ b/include/uapi/linux/rseq.h
+>>> @@ -100,7 +100,9 @@ struct rseq {
+>>>  	 * instruction sequence block, as well as when the kernel detects that
+>>>  	 * it is preempting or delivering a signal outside of the range
+>>>  	 * targeted by the rseq_cs. Also needs to be set to NULL by user-space
+>>> -	 * before reclaiming memory that contains the targeted struct rseq_cs.
+>>> +	 * before reclaiming memory that contains the targeted struct rseq_cs
+>>> +	 * or reclaiming memory that contains the code refered to by the
+>>> +	 * start_ip and post_commit_offset fields of struct rseq_cs.
+>> 
+>> Maybe mention that it's good practice to clear rseq_cs before
+>> returning from a function that contains a restartable sequence?
+>
+> Unfortunately, clearing it is not free. Considering that rseq is meant to
+> be used in very hot code paths, it would be preferable that applications
+> clear it in the very infrequent case where the rseq_cs or code will
+> vanish (e.g. dlclose or JIT reclaim), and not require it to be cleared
+> after each critical section. I am therefore reluctant to document the
+> behavior you describe as a "good practice" for rseq.
 
-Unfortunately, clearing it is not free. Considering that rseq is meant to
-be used in very hot code paths, it would be preferable that applications
-clear it in the very infrequent case where the rseq_cs or code will
-vanish (e.g. dlclose or JIT reclaim), and not require it to be cleared
-after each critical section. I am therefore reluctant to document the
-behavior you describe as a "good practice" for rseq.
+You already have to write to rseq_cs before entering the critical
+section, right?  Then you've already determined the address, and the
+cache line is already hot, so it really should be close to zero cost.
 
-> That will deal with the dlclose issue because even if the function
-> calls dlclose itself, unmapping something on call stack for dlclose is
-> already undefined.
-
-It would, but at the cost of adding an extra NULL store on pretty much
-every use of rseq (think memory allocator fast-path for instance).
-
-Thanks,
-
-Mathieu
-
--- 
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
+I mean, you can still discard the advice, but you do so ad your own
+peril …
