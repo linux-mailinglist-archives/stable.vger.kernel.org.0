@@ -2,107 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 925C01278D7
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 11:08:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC0E2127937
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 11:23:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727252AbfLTKIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 05:08:04 -0500
-Received: from bombadil.infradead.org ([198.137.202.133]:45656 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726210AbfLTKIE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 05:08:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=nw+qOmMQ3X+HAx4+dv6Gw33Ycg+rRda7KQnG1oQs3r0=; b=f7WU/lmahCdhnIsmd43rYnwNh
-        pgu/3iKZHl2XsgSwkdsPsaqcy8/WUxBa/yVgQPHbULVKD75mAEKIPX4Ja5LmZsrapWrMyYVHCB7jK
-        DsLfg3MDu2WinXrQKgrQI1RVb5vjh+mNeiCH638/NszGn/KfgzqtE19C2UB8P3Kb9QKcQWcJL0VcP
-        29G3BaYwPgDuAnqlwRrZOqTtuXk8oyKLJKXZpC2qp/TlZX9pmGRekjJAKVSa4BS9sCq7jhVxQqXvS
-        nbUB22vtFuSzIkDiYiTx04D8HbvpIhlmHNAaFyxIyCwmu3y5lh9VsWqzWxPqu3z5oCEapcpR9CQJg
-        IOADSBosQ==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iiFCR-0007FE-13; Fri, 20 Dec 2019 10:07:59 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 1303830411B;
-        Fri, 20 Dec 2019 11:06:33 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id F125C203A8990; Fri, 20 Dec 2019 11:07:56 +0100 (CET)
-Date:   Fri, 20 Dec 2019 11:07:56 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     X86 ML <x86@kernel.org>, Feng Tang <feng.tang@intel.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
-Subject: Re: [PATCH] x86/quirks: disable HPET on Intel Coffee Lake Refresh
- platforms
-Message-ID: <20191220100756.GF2844@hirez.programming.kicks-ass.net>
-References: <20191203205716.1228-1-Jason@zx2c4.com>
- <20191209154505.6183-1-Jason@zx2c4.com>
- <CAHmME9q3mcE+Am5e=R=z=kJrkjwmz_tWqt7jc1b-7DiPt0vWNw@mail.gmail.com>
+        id S1727279AbfLTKXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 05:23:19 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:35766 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727129AbfLTKXT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 05:23:19 -0500
+Received: by mail-lf1-f65.google.com with SMTP id 15so6644138lfr.2;
+        Fri, 20 Dec 2019 02:23:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=fVDETBozZ4/qDsszN1mn7+6jrkiK3wgtTef6sQxNVJ4=;
+        b=i0dM/oQQTwXG3nUbFKGEtfXQeZt2hu1rpqn3iuzNZE0oWnPpMXGHPO9ZNW6NVRvz6O
+         8vhMIkXS3sFrHLWSriDBL0gCr3gG77Q+KLFKcqVr+QNWRwkhPk3oq+tKRUcDNljJzO1y
+         LhtufvDXsNYOh2GBGmDYQ+IzEYwIyU+UmvpqrbnpI/zkb7azz8egtrbVJjVSk7zopvTp
+         gLin2lwoLSZmFH82ee0zTUjcZFY0K9Zo9hUGrVT/Ot24q4ZM/rqE92qiAo+A8BYzvxLy
+         YudbKxDQrs6+YW0lqvMeG1Lig5R6DsHpOZxipt0Mf+teMcXMd69oKqqWwMhgGTvCAuwx
+         1HfA==
+X-Gm-Message-State: APjAAAVlrf36ochj1UolRwFNfU2JrsJWOyZNpecZ2wmcdlHDaEjgENZL
+        hOzGdsJpCN00UXLnytUPVsU=
+X-Google-Smtp-Source: APXvYqxnhc7AhHRdkgCq7FXSfcejTVt7KSCTYkqz/ngaR2fEsJGHcFdA3ZXx4mY+iUrPwzq5NkOmrQ==
+X-Received: by 2002:a19:c205:: with SMTP id l5mr8258003lfc.159.1576837397388;
+        Fri, 20 Dec 2019 02:23:17 -0800 (PST)
+Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
+        by smtp.gmail.com with ESMTPSA id h19sm4044923ljk.44.2019.12.20.02.23.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Dec 2019 02:23:16 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@kernel.org>)
+        id 1iiFRD-00018f-PN; Fri, 20 Dec 2019 11:23:15 +0100
+Date:   Fri, 20 Dec 2019 11:23:15 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     Johan Hovold <johan@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
+        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] ALSA: usb-audio: fix set_format altsetting sanity check
+Message-ID: <20191220102315.GU22665@localhost>
+References: <20191220093134.1248-1-johan@kernel.org>
+ <s5hbls35nxx.wl-tiwai@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHmME9q3mcE+Am5e=R=z=kJrkjwmz_tWqt7jc1b-7DiPt0vWNw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <s5hbls35nxx.wl-tiwai@suse.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 20, 2019 at 02:42:59AM +0100, Jason A. Donenfeld wrote:
-> Hi,
-> 
-> Thought I should give a poke here so that this doesn't slip through
-> the cracks again. Could we get this in for rc3?
-
-I think another version of this patch made it in recently, see commit:
-
-  f8edbde885bb ("x86/intel: Disable HPET on Intel Coffee Lake H platforms")
-
-> On Mon, Dec 9, 2019 at 4:45 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
-> >
-> > This is a follow up of fc5db58539b4 ("x86/quirks: Disable HPET on Intel
-> > Coffe Lake platforms"), which addressed the issue for 8th generation
-> > Coffee Lake. Intel has released Coffee Lake again for 9th generation,
-> > apparently still with the same bug:
-> >
-> > clocksource: timekeeping watchdog on CPU3: Marking clocksource 'tsc' as unstable because the skew is too large:
-> > clocksource:                       'hpet' wd_now: 24f422b8 wd_last: 247dea41 mask: ffffffff
-> > clocksource:                       'tsc' cs_now: 144d927c4e cs_last: 140ba6e2a0 mask: ffffffffffffffff
-> > tsc: Marking TSC unstable due to clocksource watchdog
-> > TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
-> > sched_clock: Marking unstable (26553416234, 4203921)<-(26567277071, -9656937)
-> > clocksource: Switched to clocksource hpet
-> >
-> > So, we add another quirk for the chipset
-> >
-> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > Cc: Feng Tang <feng.tang@intel.com>
-> > Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: stable@vger.kernel.org
+On Fri, Dec 20, 2019 at 10:46:50AM +0100, Takashi Iwai wrote:
+> On Fri, 20 Dec 2019 10:31:34 +0100,
+> Johan Hovold wrote:
+> > 
+> > Make sure to check the return value of usb_altnum_to_altsetting() to
+> > avoid dereferencing a NULL pointer when the requested alternate settings
+> > is missing.
+> > 
+> > The format altsetting number may come from a quirk table and there does
+> > not seem to be any other validation of it (the corresponding index is
+> > checked however).
+> > 
+> > Fixes: b099b9693d23 ("ALSA: usb-audio: Avoid superfluous usb_set_interface() calls")
+> > Cc: stable <stable@vger.kernel.org>     # 4.18
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
 > > ---
-> >  arch/x86/kernel/early-quirks.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
-> > index 4cba91ec8049..a73f88dd7f86 100644
-> > --- a/arch/x86/kernel/early-quirks.c
-> > +++ b/arch/x86/kernel/early-quirks.c
-> > @@ -712,6 +712,8 @@ static struct chipset early_qrk[] __initdata = {
-> >                 PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
-> >         { PCI_VENDOR_ID_INTEL, 0x3ec4,
-> >                 PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
-> > +       { PCI_VENDOR_ID_INTEL, 0x3e20,
-> > +               PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
-> >         { PCI_VENDOR_ID_BROADCOM, 0x4331,
-> >           PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
-> >         {}
-> > --
-> > 2.24.0
+> >  sound/usb/pcm.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+> > index 9c8930bb00c8..73dd9d21bb42 100644
+> > --- a/sound/usb/pcm.c
+> > +++ b/sound/usb/pcm.c
+> > @@ -506,9 +506,9 @@ static int set_format(struct snd_usb_substream *subs, struct audioformat *fmt)
+> >  	if (WARN_ON(!iface))
+> >  		return -EINVAL;
+> >  	alts = usb_altnum_to_altsetting(iface, fmt->altsetting);
+> > -	altsd = get_iface_desc(alts);
+> > -	if (WARN_ON(altsd->bAlternateSetting != fmt->altsetting))
+> > +	if (WARN_ON(!alts))
+> >  		return -EINVAL;
+> 
+> Do we need WARN_ON() here?  If this may hit on syzbot, it'll stop at
+> this point because of panic_on_warn.
+
+Yeah, I considered that too and decided to leave it in. Just like for
+the WARN_ON(iface), those numbers should be verified at probe.
+
+I tried tracking where fmt->altsetting comes from, and it seems like
+a sanity check needs to be added at least to create_fixed_stream_quirk()
+where, for example, fmt->iface, fmt->altset_idx and the number of
+endpoints are verified.
+
+If there are other paths that can end up setting these fields to invalid
+values, we want that WARN_ON() in there so we can fix those.
+
+Johan
