@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3392A127EA1
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:49:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36E39127E90
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:48:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727614AbfLTOsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:48:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46246 "EHLO mail.kernel.org"
+        id S1727842AbfLTOrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:47:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727852AbfLTOrv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:47:51 -0500
+        id S1727861AbfLTOrx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:47:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AA7E21D7E;
-        Fri, 20 Dec 2019 14:47:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 451BA2468C;
+        Fri, 20 Dec 2019 14:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576853270;
-        bh=TGOFOEaM02eSycs8ivW3/kTi++LLIwg1K09ilHSMG3k=;
+        s=default; t=1576853272;
+        bh=Kqn0D6G3j4uFEBm6j3z6Sdq9qM2GpDQSnC3DlTOF2O8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEyxExxC3A+/lmqPPsKq1Kx2BLpDcSj3x4QcJxQK5Di9GfSQEwDj6zsPcXFz8W4qa
-         Mzl3rK9i4sruu/nnS3TuMCp6u9I09Mzj6SDkOBeq5W24OxWYgBKRB6rmxOLJiqV/Mw
-         74MmzdYcOWS42/wQkidL6bzFZpC3oEmDsSRblu5E=
+        b=wsGqfYZYwgSiFPv2vIY0t+IXLV/T7AtxN5V+SFXRN89TywyuOjsullAKLJVfDetrF
+         ps+f2+cvulhFCugywf0Q+BtKI95AbkAuruJZsNzkiyxIFAbKHfORN7bGBIOTuWR5CT
+         /EKN0LIFbeJwOv7fN4QzdC1Be+Wr46jdn0GLGjJI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Jason Yan <yanaijie@huawei.com>, Gao Chuan <gaochuan4@huawei.com>,
+        John Garry <john.garry@huawei.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 05/11] scsi: iscsi: qla4xxx: fix double free in probe
-Date:   Fri, 20 Dec 2019 09:47:37 -0500
-Message-Id: <20191220144744.10565-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 06/11] scsi: libsas: stop discovering if oob mode is disconnected
+Date:   Fri, 20 Dec 2019 09:47:38 -0500
+Message-Id: <20191220144744.10565-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220144744.10565-1-sashal@kernel.org>
 References: <20191220144744.10565-1-sashal@kernel.org>
@@ -43,38 +44,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jason Yan <yanaijie@huawei.com>
 
-[ Upstream commit fee92f25777789d73e1936b91472e9c4644457c8 ]
+[ Upstream commit f70267f379b5e5e11bdc5d72a56bf17e5feed01f ]
 
-On this error path we call qla4xxx_mem_free() and then the caller also
-calls qla4xxx_free_adapter() which calls qla4xxx_mem_free().  It leads to a
-couple double frees:
+The discovering of sas port is driven by workqueue in libsas. When libsas
+is processing port events or phy events in workqueue, new events may rise
+up and change the state of some structures such as asd_sas_phy.  This may
+cause some problems such as follows:
 
-drivers/scsi/qla4xxx/ql4_os.c:8856 qla4xxx_probe_adapter() warn: 'ha->chap_dma_pool' double freed
-drivers/scsi/qla4xxx/ql4_os.c:8856 qla4xxx_probe_adapter() warn: 'ha->fw_ddb_dma_pool' double freed
+==>thread 1                       ==>thread 2
 
-Fixes: afaf5a2d341d ("[SCSI] Initial Commit of qla4xxx")
-Link: https://lore.kernel.org/r/20191203094421.hw7ex7qr3j2rbsmx@kili.mountain
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+                                  ==>phy up
+                                  ==>phy_up_v3_hw()
+                                    ==>oob_mode = SATA_OOB_MODE;
+                                  ==>phy down quickly
+                                  ==>hisi_sas_phy_down()
+                                    ==>sas_ha->notify_phy_event()
+                                    ==>sas_phy_disconnected()
+                                      ==>oob_mode = OOB_NOT_CONNECTED
+==>workqueue wakeup
+==>sas_form_port()
+  ==>sas_discover_domain()
+    ==>sas_get_port_device()
+      ==>oob_mode is OOB_NOT_CONNECTED and device
+         is wrongly taken as expander
+
+This at last lead to the panic when libsas trying to issue a command to
+discover the device.
+
+[183047.614035] Unable to handle kernel NULL pointer dereference at
+virtual address 0000000000000058
+[183047.622896] Mem abort info:
+[183047.625762]   ESR = 0x96000004
+[183047.628893]   Exception class = DABT (current EL), IL = 32 bits
+[183047.634888]   SET = 0, FnV = 0
+[183047.638015]   EA = 0, S1PTW = 0
+[183047.641232] Data abort info:
+[183047.644189]   ISV = 0, ISS = 0x00000004
+[183047.648100]   CM = 0, WnR = 0
+[183047.651145] user pgtable: 4k pages, 48-bit VAs, pgdp =
+00000000b7df67be
+[183047.657834] [0000000000000058] pgd=0000000000000000
+[183047.662789] Internal error: Oops: 96000004 [#1] SMP
+[183047.667740] Process kworker/u16:2 (pid: 31291, stack limit =
+0x00000000417c4974)
+[183047.675208] CPU: 0 PID: 3291 Comm: kworker/u16:2 Tainted: G
+W  OE 4.19.36-vhulk1907.1.0.h410.eulerosv2r8.aarch64 #1
+[183047.687015] Hardware name: N/A N/A/Kunpeng Desktop Board D920S10,
+BIOS 0.15 10/22/2019
+[183047.695007] Workqueue: 0000:74:02.0_disco_q sas_discover_domain
+[183047.700999] pstate: 20c00009 (nzCv daif +PAN +UAO)
+[183047.705864] pc : prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
+[183047.711510] lr : prep_ata_v3_hw+0xb0/0x230 [hisi_sas_v3_hw]
+[183047.717153] sp : ffff00000f28ba60
+[183047.720541] x29: ffff00000f28ba60 x28: ffff8026852d7228
+[183047.725925] x27: ffff8027dba3e0a8 x26: ffff8027c05fc200
+[183047.731310] x25: 0000000000000000 x24: ffff8026bafa8dc0
+[183047.736695] x23: ffff8027c05fc218 x22: ffff8026852d7228
+[183047.742079] x21: ffff80007c2f2940 x20: ffff8027c05fc200
+[183047.747464] x19: 0000000000f80800 x18: 0000000000000010
+[183047.752848] x17: 0000000000000000 x16: 0000000000000000
+[183047.758232] x15: ffff000089a5a4ff x14: 0000000000000005
+[183047.763617] x13: ffff000009a5a50e x12: ffff8026bafa1e20
+[183047.769001] x11: ffff0000087453b8 x10: ffff00000f28b870
+[183047.774385] x9 : 0000000000000000 x8 : ffff80007e58f9b0
+[183047.779770] x7 : 0000000000000000 x6 : 000000000000003f
+[183047.785154] x5 : 0000000000000040 x4 : ffffffffffffffe0
+[183047.790538] x3 : 00000000000000f8 x2 : 0000000002000007
+[183047.795922] x1 : 0000000000000008 x0 : 0000000000000000
+[183047.801307] Call trace:
+[183047.803827]  prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
+[183047.809127]  hisi_sas_task_prep+0x750/0x888 [hisi_sas_main]
+[183047.814773]  hisi_sas_task_exec.isra.7+0x88/0x1f0 [hisi_sas_main]
+[183047.820939]  hisi_sas_queue_command+0x28/0x38 [hisi_sas_main]
+[183047.826757]  smp_execute_task_sg+0xec/0x218
+[183047.831013]  smp_execute_task+0x74/0xa0
+[183047.834921]  sas_discover_expander.part.7+0x9c/0x5f8
+[183047.839959]  sas_discover_root_expander+0x90/0x160
+[183047.844822]  sas_discover_domain+0x1b8/0x1e8
+[183047.849164]  process_one_work+0x1b4/0x3f8
+[183047.853246]  worker_thread+0x54/0x470
+[183047.856981]  kthread+0x134/0x138
+[183047.860283]  ret_from_fork+0x10/0x18
+[183047.863931] Code: f9407a80 528000e2 39409281 72a04002 (b9405800)
+[183047.870097] kernel fault(0x1) notification starting on CPU 0
+[183047.875828] kernel fault(0x1) notification finished on CPU 0
+[183047.881559] Modules linked in: unibsp(OE) hns3(OE) hclge(OE)
+hnae3(OE) mem_drv(OE) hisi_sas_v3_hw(OE) hisi_sas_main(OE)
+[183047.892418] ---[ end trace 4cc26083fc11b783  ]---
+[183047.897107] Kernel panic - not syncing: Fatal exception
+[183047.902403] kernel fault(0x5) notification starting on CPU 0
+[183047.908134] kernel fault(0x5) notification finished on CPU 0
+[183047.913865] SMP: stopping secondary CPUs
+[183047.917861] Kernel Offset: disabled
+[183047.921422] CPU features: 0x2,a2a00a38
+[183047.925243] Memory Limit: none
+[183047.928372] kernel reboot(0x2) notification starting on CPU 0
+[183047.934190] kernel reboot(0x2) notification finished on CPU 0
+[183047.940008] ---[ end Kernel panic - not syncing: Fatal exception
+]---
+
+Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
+Link: https://lore.kernel.org/r/20191206011118.46909-1-yanaijie@huawei.com
+Reported-by: Gao Chuan <gaochuan4@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla4xxx/ql4_os.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/scsi/libsas/sas_discover.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
-index d220b4f691c77..f714d5f917d10 100644
---- a/drivers/scsi/qla4xxx/ql4_os.c
-+++ b/drivers/scsi/qla4xxx/ql4_os.c
-@@ -4285,7 +4285,6 @@ static int qla4xxx_mem_alloc(struct scsi_qla_host *ha)
- 	return QLA_SUCCESS;
+diff --git a/drivers/scsi/libsas/sas_discover.c b/drivers/scsi/libsas/sas_discover.c
+index 60de66252fa2b..b200edc665a58 100644
+--- a/drivers/scsi/libsas/sas_discover.c
++++ b/drivers/scsi/libsas/sas_discover.c
+@@ -97,12 +97,21 @@ static int sas_get_port_device(struct asd_sas_port *port)
+ 		else
+ 			dev->dev_type = SAS_SATA_DEV;
+ 		dev->tproto = SAS_PROTOCOL_SATA;
+-	} else {
++	} else if (port->oob_mode == SAS_OOB_MODE) {
+ 		struct sas_identify_frame *id =
+ 			(struct sas_identify_frame *) dev->frame_rcvd;
+ 		dev->dev_type = id->dev_type;
+ 		dev->iproto = id->initiator_bits;
+ 		dev->tproto = id->target_bits;
++	} else {
++		/* If the oob mode is OOB_NOT_CONNECTED, the port is
++		 * disconnected due to race with PHY down. We cannot
++		 * continue to discover this port
++		 */
++		sas_put_device(dev);
++		pr_warn("Port %016llx is disconnected when discovering\n",
++			SAS_ADDR(port->attached_sas_addr));
++		return -ENODEV;
+ 	}
  
- mem_alloc_error_exit:
--	qla4xxx_mem_free(ha);
- 	return QLA_ERROR;
- }
- 
+ 	sas_init_dev(dev);
 -- 
 2.20.1
 
