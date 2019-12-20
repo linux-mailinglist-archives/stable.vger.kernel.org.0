@@ -2,172 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11AF61280D1
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 17:42:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 580681280DC
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 17:47:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727233AbfLTQmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 11:42:01 -0500
-Received: from vmicros1.altlinux.org ([194.107.17.57]:40554 "EHLO
-        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727181AbfLTQmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 11:42:00 -0500
-Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
-        by vmicros1.altlinux.org (Postfix) with ESMTP id E93B472CCE9;
-        Fri, 20 Dec 2019 19:41:56 +0300 (MSK)
-Received: from altlinux.org (sole.flsd.net [185.75.180.6])
-        by imap.altlinux.org (Postfix) with ESMTPSA id B6D284A4AEF;
-        Fri, 20 Dec 2019 19:41:56 +0300 (MSK)
-Date:   Fri, 20 Dec 2019 19:41:56 +0300
-From:   Vitaly Chikunov <vt@altlinux.org>
-To:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-        "Dmitry V . Levin" <ldv@altlinux.org>, stable@vger.kernel.org,
-        Vitaly Chikunov <vt@altlinux.org>
-Subject: Re: [PATCH] tools lib: Disable redundant-delcs error for strlcpy
-Message-ID: <20191220164155.3gxstkam3ctk7kji@altlinux.org>
-Mail-Followup-To: Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-        "Dmitry V . Levin" <ldv@altlinux.org>, stable@vger.kernel.org
-References: <20191208214607.20679-1-vt@altlinux.org>
- <20191217122331.4g5atx7in6njjlw4@altlinux.org>
- <20191217200420.GD7095@redhat.com>
- <20191220025236.kgu3v6yhjndr3zwb@altlinux.org>
- <20191220123136.GD2032@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191220123136.GD2032@kernel.org>
-User-Agent: NeoMutt/20171215-106-ac61c7
+        id S1727270AbfLTQrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 11:47:47 -0500
+Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:41449 "EHLO
+        mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727181AbfLTQrr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 11:47:47 -0500
+Received: from Internal Mail-Server by MTLPINE1 (envelope-from lsun@mellanox.com)
+        with ESMTPS (AES256-SHA encrypted); 20 Dec 2019 18:47:42 +0200
+Received: from farm-0002.mtbu.labs.mlnx (farm-0002.mtbu.labs.mlnx [10.15.2.32])
+        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id xBKGle7Q028679;
+        Fri, 20 Dec 2019 11:47:40 -0500
+Received: (from lsun@localhost)
+        by farm-0002.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id xBKGldRi019926;
+        Fri, 20 Dec 2019 11:47:39 -0500
+From:   Liming Sun <lsun@mellanox.com>
+To:     David Woods <dwoods@mellanox.com>
+Cc:     Liming Sun <lsun@mellanox.com>, <stable@vger.kernel.org>
+Subject: [PATCH v1 1/1] platform/mellanox: fix potential deadlock in the tmfifo driver
+Date:   Fri, 20 Dec 2019 11:47:35 -0500
+Message-Id: <fb166f8c4504ff754f4bc47d70fc5328def0a2f1.1576860380.git.lsun@mellanox.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Arnaldo,
+This commit fixes the potential deadlock caused by the console Rx
+and Tx processing at the same time. Rx and Tx both take the console
+and tmfifo spinlock but in different order which causes potential
+deadlock. The fix is to use different tmfifo spinlock for Rx and
+Tx since they protect different resources.
 
-On Fri, Dec 20, 2019 at 09:31:36AM -0300, Arnaldo Carvalho de Melo wrote:
-> Em Fri, Dec 20, 2019 at 05:52:36AM +0300, Vitaly Chikunov escreveu:
-> > If this is acceptable I will resend v2 with this.
-> 
-> Go ahead, and please let me know if there is any container image for
-> Altlinux, as I test with clang on all the distros I have container
-> images for, and this hasn't appeared on my radar, i.e. clang + strlcpy
-> warnings :-)
+Below is the reported call trace when copying/pasting large string
+in the console.
 
-ALT Linux container micro how-to:
+Rx:
+    _raw_spin_lock_irqsave
+    __hvc_poll
+    hvc_poll
+    in_intr
+    vring_interrupt
+    mlxbf_tmfifo_rxtx_one_desc
+    mlxbf_tmfifo_rxtx
+    mlxbf_tmfifo_work_rxtx
+Tx:
+    _raw_spin_lock_irqsave
+    mlxbf_tmfifo_virtio_notify
+    virtqueue_notify
+    virtqueue_kick
+    put_chars
+    hvc_push
+    hvc_write
+    ...
+    do_tty_write
+    tty_write
 
-Docker: https://en.altlinux.org/Docker
-  Quick start:
-    # docker run -it alt:sisyphus
-    [root@28fd15798968 /]# apt-get update
-    [root@28fd15798968 /]# apt-get install clang rpm-build
+Fixes: 1357dfd7261f ("platform/mellanox: Add TmFifo driver for Mellanox BlueField Soc")
+Cc: <stable@vger.kernel.org> # 5.4+
+Reviewed-by: David Woods <dwoods@mellanox.com>
+Signed-off-by: Liming Sun <lsun@mellanox.com>
+---
+ drivers/platform/mellanox/mlxbf-tmfifo.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-  It will install clang-7.0.
+diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+index 9a5c9fd..5739a966 100644
+--- a/drivers/platform/mellanox/mlxbf-tmfifo.c
++++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+@@ -149,7 +149,7 @@ struct mlxbf_tmfifo_irq_info {
+  * @work: work struct for deferred process
+  * @timer: background timer
+  * @vring: Tx/Rx ring
+- * @spin_lock: spin lock
++ * @spin_lock: Tx/Rx spin lock
+  * @is_ready: ready flag
+  */
+ struct mlxbf_tmfifo {
+@@ -164,7 +164,7 @@ struct mlxbf_tmfifo {
+ 	struct work_struct work;
+ 	struct timer_list timer;
+ 	struct mlxbf_tmfifo_vring *vring[2];
+-	spinlock_t spin_lock;		/* spin lock */
++	spinlock_t spin_lock[2];	/* spin lock */
+ 	bool is_ready;
+ };
+ 
+@@ -525,7 +525,7 @@ static void mlxbf_tmfifo_console_tx(struct mlxbf_tmfifo *fifo, int avail)
+ 	writeq(*(u64 *)&hdr, fifo->tx_base + MLXBF_TMFIFO_TX_DATA);
+ 
+ 	/* Use spin-lock to protect the 'cons->tx_buf'. */
+-	spin_lock_irqsave(&fifo->spin_lock, flags);
++	spin_lock_irqsave(&fifo->spin_lock[0], flags);
+ 
+ 	while (size > 0) {
+ 		addr = cons->tx_buf.buf + cons->tx_buf.tail;
+@@ -552,7 +552,7 @@ static void mlxbf_tmfifo_console_tx(struct mlxbf_tmfifo *fifo, int avail)
+ 		}
+ 	}
+ 
+-	spin_unlock_irqrestore(&fifo->spin_lock, flags);
++	spin_unlock_irqrestore(&fifo->spin_lock[0], flags);
+ }
+ 
+ /* Rx/Tx one word in the descriptor buffer. */
+@@ -731,9 +731,9 @@ static bool mlxbf_tmfifo_rxtx_one_desc(struct mlxbf_tmfifo_vring *vring,
+ 		fifo->vring[is_rx] = NULL;
+ 
+ 		/* Notify upper layer that packet is done. */
+-		spin_lock_irqsave(&fifo->spin_lock, flags);
++		spin_lock_irqsave(&fifo->spin_lock[is_rx], flags);
+ 		vring_interrupt(0, vring->vq);
+-		spin_unlock_irqrestore(&fifo->spin_lock, flags);
++		spin_unlock_irqrestore(&fifo->spin_lock[is_rx], flags);
+ 	}
+ 
+ mlxbf_tmfifo_desc_done:
+@@ -852,10 +852,10 @@ static bool mlxbf_tmfifo_virtio_notify(struct virtqueue *vq)
+ 		 * worker handler.
+ 		 */
+ 		if (vring->vdev_id == VIRTIO_ID_CONSOLE) {
+-			spin_lock_irqsave(&fifo->spin_lock, flags);
++			spin_lock_irqsave(&fifo->spin_lock[0], flags);
+ 			tm_vdev = fifo->vdev[VIRTIO_ID_CONSOLE];
+ 			mlxbf_tmfifo_console_output(tm_vdev, vring);
+-			spin_unlock_irqrestore(&fifo->spin_lock, flags);
++			spin_unlock_irqrestore(&fifo->spin_lock[0], flags);
+ 		} else if (test_and_set_bit(MLXBF_TM_TX_LWM_IRQ,
+ 					    &fifo->pend_events)) {
+ 			return true;
+@@ -1189,7 +1189,8 @@ static int mlxbf_tmfifo_probe(struct platform_device *pdev)
+ 	if (!fifo)
+ 		return -ENOMEM;
+ 
+-	spin_lock_init(&fifo->spin_lock);
++	spin_lock_init(&fifo->spin_lock[0]);
++	spin_lock_init(&fifo->spin_lock[1]);
+ 	INIT_WORK(&fifo->work, mlxbf_tmfifo_work_handler);
+ 	mutex_init(&fifo->lock);
+ 
+-- 
+1.8.3.1
 
-systemd-nspawn:
-   Images are at http://ftp.altlinux.org/pub/distributions/ALTLinux/images/Sisyphus/cloud/
-   Quick start:
-   # machinectl pull-tar --verify=no http://ftp.altlinux.org/pub/distributions/ALTLinux/images/Sisyphus/cloud/alt-sisyphus-rootfs-systemd-x86_64.tar.xz alttest
-   # systemd-nspawn -M alttest
-   [root@alttest ~]# apt-get update
-   [root@alttest ~]# apt-get install clang rpm-build
-
-There is also LXD support: https://en.altlinux.org/LXD
-
-ps. If you going to use binary clang from http://releases.llvm.org/download.html#9.0.0
-I would recommend version clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
-and `ln -snf x86_64-alt-linux /usr/lib64/gcc/x86_64-unknown-linux` to
-workaround `cannot find -lgcc` error.
-
-Thanks,
-
-> 
-> - Arnaldo
->  
-> > Thanks,
-> > 
-> > > 
-> > > - Arnaldo
-> > >  
-> > > > 1. It seems that people putting strlcpy() into the tools was already aware of
-> > > > the problems it causes and tried to solve them. Probably, that's why they put
-> > > > `__weak` attribute on it (so it would be linkable in the presence of another
-> > > > strlcpy). Then `#ifndef __UCLIBC__`ed and later `#if defined(__GLIBC__) &&
-> > > > !defined(__UCLIBC__)` its declaration. But, solution was incomplete and could
-> > > > be improved to make kernel buildable on more systems (where libc contains
-> > > > strlcpy).
-> > > > 
-> > > > There is not need to make `redundant redeclaration` warning an error in
-> > > > this case.
-> > > > 
-> > > > 2. `#pragma GCC diagnostic ignored` trick is already used multiple times
-> > > > in the kernel:
-> > > > 
-> > > >   $ git grep  '#pragma GCC diagnostic ignored'
-> > > >   arch/arm/lib/xor-neon.c:#pragma GCC diagnostic ignored "-Wunused-variable"
-> > > >   tools/build/feature/test-gtk2-infobar.c:#pragma GCC diagnostic ignored "-Wstrict-prototypes"
-> > > >   tools/build/feature/test-gtk2.c:#pragma GCC diagnostic ignored "-Wstrict-prototypes"
-> > > >   tools/include/linux/string.h:#pragma GCC diagnostic ignored "-Wredundant-decls"
-> > > >   tools/lib/bpf/libbpf.c:#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-> > > >   tools/perf/ui/gtk/gtk.h:#pragma GCC diagnostic ignored "-Wstrict-prototypes"
-> > > >   tools/testing/selftests/kvm/lib/assert.c:#pragma GCC diagnostic ignored "-Wunused-result"
-> > > >   tools/usb/ffs-test.c:#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-> > > > 
-> > > > So the solution does not seem alien in the kernel and should be acceptable.
-> > > > 
-> > > > (I also send this to another of your emails in case I used wrong one before.)
-> > > > 
-> > > > Thanks,
-> > > > 
-> > > > 
-> > > > On Mon, Dec 09, 2019 at 12:46:07AM +0300, Vitaly Chikunov wrote:
-> > > > > Disable `redundant-decls' error for strlcpy declaration and solve build
-> > > > > error allowing users to compile vanilla kernels.
-> > > > > 
-> > > > > When glibc have strlcpy (such as in ALT linux since 2004) objtool and
-> > > > > perf build fails with something like:
-> > > > > 
-> > > > >   In file included from exec-cmd.c:3:
-> > > > >   tools/include/linux/string.h:20:15: error: redundant redeclaration of ‘strlcpy’ [-Werror=redundant-decls]
-> > > > >      20 | extern size_t strlcpy(char *dest, const char *src, size_t size);
-> > > > > 	|               ^~~~~~~
-> > > > > 
-> > > > > It's very hard to produce a perfect fix for that since it is a header
-> > > > > file indirectly pulled from many sources from different Makefile builds.
-> > > > > 
-> > > > > Fixes: ce99091 ("perf tools: Move strlcpy() from perf to tools/lib/string.c")
-> > > > > Fixes: 0215d59 ("tools lib: Reinstate strlcpy() header guard with __UCLIBC__")
-> > > > > Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
-> > > > > Cc: Dmitry V. Levin <ldv@altlinux.org>
-> > > > > Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-> > > > > Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>
-> > > > > Cc: stable@vger.kernel.org
-> > > > > ---
-> > > > >  tools/include/linux/string.h | 3 +++
-> > > > >  1 file changed, 3 insertions(+)
-> > > > > 
-> > > > > diff --git a/tools/include/linux/string.h b/tools/include/linux/string.h
-> > > > > index 980cb9266718..99ede7f5dfb8 100644
-> > > > > --- a/tools/include/linux/string.h
-> > > > > +++ b/tools/include/linux/string.h
-> > > > > @@ -17,7 +17,10 @@ int strtobool(const char *s, bool *res);
-> > > > >   * However uClibc headers also define __GLIBC__ hence the hack below
-> > > > >   */
-> > > > >  #if defined(__GLIBC__) && !defined(__UCLIBC__)
-> > > > > +#pragma GCC diagnostic push
-> > > > > +#pragma GCC diagnostic ignored "-Wredundant-decls"
-> > > > >  extern size_t strlcpy(char *dest, const char *src, size_t size);
-> > > > > +#pragma GCC diagnostic pop
-> > > > >  #endif
-> > > > >  
-> > > > >  char *str_error_r(int errnum, char *buf, size_t buflen);
-> > > 
-> 
-> -- 
-> 
-> - Arnaldo
