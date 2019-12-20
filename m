@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 267F1127D79
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFC67127D7F
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727404AbfLTOei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:34:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38642 "EHLO mail.kernel.org"
+        id S1728189AbfLTOen (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:34:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727580AbfLTOeh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728085AbfLTOeh (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 20 Dec 2019 09:34:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70D2421D7D;
-        Fri, 20 Dec 2019 14:34:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E974524684;
+        Fri, 20 Dec 2019 14:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852475;
-        bh=E3M3Rk+EtBVG5nA2dJqBGAMJi8GXyVnnEdorwCIOzTI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=EOogzwtg/6H9jSoJ7BmQI1EXt7baaBmVqzt3ajOCOlT/10tvDNhlV8uMVwuZ5Xl/U
-         PQ2wZkbzIvxyR7BafhZZCeBTTpDTAts2zpB3c7Fi86cx8PEyqykKgzUhdq+Ll7nTRK
-         7x0l9HowfbvsywIR3vyMMPVMqcDFnCY8CcLGzPlA=
+        s=default; t=1576852476;
+        bh=7CbyhLown2+ZTssUCg+XJlvPODqqCNyO77ZM0dVKEqI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=x4/vMA3r+N+BLB9kBK7BDrwU2XYFoQ7YDGclvJPj7NXObyqaWCUT5Fwh8PUWNMCO1
+         o//ufyOO19fRFBrRRwoGtXMKixvGW/IpcANXkj1EjzYaOUqq+T54c+6lK4rSjCpKEz
+         Xm3yV1jqPTNaUt1JshAcQMOnR/hq0Qo00BOEQWeY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Smart <jsmart2021@gmail.com>,
         Himanshu Madhani <hmadhani@marvell.com>,
-        Christoph Hellwig <hch@lst.de>,
+        "Ewan D . Milne" <emilne@redhat.com>,
         Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 01/34] nvme_fc: add module to ops template to allow module references
-Date:   Fri, 20 Dec 2019 09:34:00 -0500
-Message-Id: <20191220143433.9922-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 02/34] nvme-fc: fix double-free scenarios on hw queues
+Date:   Fri, 20 Dec 2019 09:34:01 -0500
+Message-Id: <20191220143433.9922-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191220143433.9922-1-sashal@kernel.org>
+References: <20191220143433.9922-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,150 +47,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 863fbae929c7a5b64e96b8a3ffb34a29eefb9f8f ]
+[ Upstream commit c869e494ef8b5846d9ba91f1e922c23cd444f0c1 ]
 
-In nvme-fc: it's possible to have connected active controllers
-and as no references are taken on the LLDD, the LLDD can be
-unloaded.  The controller would enter a reconnect state and as
-long as the LLDD resumed within the reconnect timeout, the
-controller would resume.  But if a namespace on the controller
-is the root device, allowing the driver to unload can be problematic.
-To reload the driver, it may require new io to the boot device,
-and as it's no longer connected we get into a catch-22 that
-eventually fails, and the system locks up.
+If an error occurs on one of the ios used for creating an
+association, the creating routine has error paths that are
+invoked by the command failure and the error paths will free
+up the controller resources created to that point.
 
-Fix this issue by taking a module reference for every connected
-controller (which is what the core layer did to the transport
-module). Reference is cleared when the controller is removed.
+But... the io was ultimately determined by an asynchronous
+completion routine that detected the error and which
+unconditionally invokes the error_recovery path which calls
+delete_association. Delete association deletes all outstanding
+io then tears down the controller resources. So the
+create_association thread can be running in parallel with
+the error_recovery thread. What was seen was the LLDD received
+a call to delete a queue, causing the LLDD to do a free of a
+resource, then the transport called the delete queue again
+causing the driver to repeat the free call. The second free
+routine corrupted the allocator. The transport shouldn't be
+making the duplicate call, and the delete queue is just one
+of the resources being freed.
 
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+To fix, it is realized that the create_association path is
+completely serialized with one command at a time. So the
+failed io completion will always be seen by the create_association
+path and as of the failure, there are no ios to terminate and there
+is no reason to be manipulating queue freeze states, etc.
+The serialized condition stays true until the controller is
+transitioned to the LIVE state. Thus the fix is to change the
+error recovery path to check the controller state and only
+invoke the teardown path if not already in the CONNECTING state.
+
+Reviewed-by: Himanshu Madhani <hmadhani@marvell.com>
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c          | 14 ++++++++++++--
- drivers/nvme/target/fcloop.c    |  1 +
- drivers/scsi/lpfc/lpfc_nvme.c   |  2 ++
- drivers/scsi/qla2xxx/qla_nvme.c |  1 +
- include/linux/nvme-fc-driver.h  |  4 ++++
- 5 files changed, 20 insertions(+), 2 deletions(-)
+ drivers/nvme/host/fc.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 565bddcfd130d..d567035571bf2 100644
+index d567035571bf2..1875f6b8a907b 100644
 --- a/drivers/nvme/host/fc.c
 +++ b/drivers/nvme/host/fc.c
-@@ -342,7 +342,8 @@ nvme_fc_register_localport(struct nvme_fc_port_info *pinfo,
- 	    !template->ls_req || !template->fcp_io ||
- 	    !template->ls_abort || !template->fcp_abort ||
- 	    !template->max_hw_queues || !template->max_sgl_segments ||
--	    !template->max_dif_sgl_segments || !template->dma_boundary) {
-+	    !template->max_dif_sgl_segments || !template->dma_boundary ||
-+	    !template->module) {
- 		ret = -EINVAL;
- 		goto out_reghost_failed;
- 	}
-@@ -1986,6 +1987,7 @@ nvme_fc_ctrl_free(struct kref *ref)
- {
- 	struct nvme_fc_ctrl *ctrl =
- 		container_of(ref, struct nvme_fc_ctrl, ref);
-+	struct nvme_fc_lport *lport = ctrl->lport;
- 	unsigned long flags;
- 
- 	if (ctrl->ctrl.tagset) {
-@@ -2011,6 +2013,7 @@ nvme_fc_ctrl_free(struct kref *ref)
- 	if (ctrl->ctrl.opts)
- 		nvmf_free_options(ctrl->ctrl.opts);
- 	kfree(ctrl);
-+	module_put(lport->ops->module);
- }
- 
+@@ -2894,10 +2894,22 @@ nvme_fc_reconnect_or_delete(struct nvme_fc_ctrl *ctrl, int status)
  static void
-@@ -3040,10 +3043,15 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
- 		goto out_fail;
- 	}
+ __nvme_fc_terminate_io(struct nvme_fc_ctrl *ctrl)
+ {
+-	nvme_stop_keep_alive(&ctrl->ctrl);
++	/*
++	 * if state is connecting - the error occurred as part of a
++	 * reconnect attempt. The create_association error paths will
++	 * clean up any outstanding io.
++	 *
++	 * if it's a different state - ensure all pending io is
++	 * terminated. Given this can delay while waiting for the
++	 * aborted io to return, we recheck adapter state below
++	 * before changing state.
++	 */
++	if (ctrl->ctrl.state != NVME_CTRL_CONNECTING) {
++		nvme_stop_keep_alive(&ctrl->ctrl);
  
-+	if (!try_module_get(lport->ops->module)) {
-+		ret = -EUNATCH;
-+		goto out_free_ctrl;
+-	/* will block will waiting for io to terminate */
+-	nvme_fc_delete_association(ctrl);
++		/* will block will waiting for io to terminate */
++		nvme_fc_delete_association(ctrl);
 +	}
-+
- 	idx = ida_simple_get(&nvme_fc_ctrl_cnt, 0, 0, GFP_KERNEL);
- 	if (idx < 0) {
- 		ret = -ENOSPC;
--		goto out_free_ctrl;
-+		goto out_mod_put;
- 	}
  
- 	ctrl->ctrl.opts = opts;
-@@ -3185,6 +3193,8 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
- out_free_ida:
- 	put_device(ctrl->dev);
- 	ida_simple_remove(&nvme_fc_ctrl_cnt, ctrl->cnum);
-+out_mod_put:
-+	module_put(lport->ops->module);
- out_free_ctrl:
- 	kfree(ctrl);
- out_fail:
-diff --git a/drivers/nvme/target/fcloop.c b/drivers/nvme/target/fcloop.c
-index 291f4121f516a..f0536d341f2f2 100644
---- a/drivers/nvme/target/fcloop.c
-+++ b/drivers/nvme/target/fcloop.c
-@@ -825,6 +825,7 @@ fcloop_targetport_delete(struct nvmet_fc_target_port *targetport)
- #define FCLOOP_DMABOUND_4G		0xFFFFFFFF
- 
- static struct nvme_fc_port_template fctemplate = {
-+	.module			= THIS_MODULE,
- 	.localport_delete	= fcloop_localport_delete,
- 	.remoteport_delete	= fcloop_remoteport_delete,
- 	.create_queue		= fcloop_create_queue,
-diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-index f73726e55e44d..6c355d87c709d 100644
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -1903,6 +1903,8 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
- 
- /* Declare and initialization an instance of the FC NVME template. */
- static struct nvme_fc_port_template lpfc_nvme_template = {
-+	.module	= THIS_MODULE,
-+
- 	/* initiator-based functions */
- 	.localport_delete  = lpfc_nvme_localport_delete,
- 	.remoteport_delete = lpfc_nvme_remoteport_delete,
-diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-index 5590d6e8b5762..db367e428095d 100644
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -560,6 +560,7 @@ static void qla_nvme_remoteport_delete(struct nvme_fc_remote_port *rport)
- }
- 
- static struct nvme_fc_port_template qla_nvme_fc_transport = {
-+	.module	= THIS_MODULE,
- 	.localport_delete = qla_nvme_localport_delete,
- 	.remoteport_delete = qla_nvme_remoteport_delete,
- 	.create_queue   = qla_nvme_alloc_queue,
-diff --git a/include/linux/nvme-fc-driver.h b/include/linux/nvme-fc-driver.h
-index 496ff759f84c6..2f3ae41c212dc 100644
---- a/include/linux/nvme-fc-driver.h
-+++ b/include/linux/nvme-fc-driver.h
-@@ -282,6 +282,8 @@ struct nvme_fc_remote_port {
-  *
-  * Host/Initiator Transport Entrypoints/Parameters:
-  *
-+ * @module:  The LLDD module using the interface
-+ *
-  * @localport_delete:  The LLDD initiates deletion of a localport via
-  *       nvme_fc_deregister_localport(). However, the teardown is
-  *       asynchronous. This routine is called upon the completion of the
-@@ -395,6 +397,8 @@ struct nvme_fc_remote_port {
-  *       Value is Mandatory. Allowed to be zero.
-  */
- struct nvme_fc_port_template {
-+	struct module	*module;
-+
- 	/* initiator-based functions */
- 	void	(*localport_delete)(struct nvme_fc_local_port *);
- 	void	(*remoteport_delete)(struct nvme_fc_remote_port *);
+ 	if (ctrl->ctrl.state != NVME_CTRL_CONNECTING &&
+ 	    !nvme_change_ctrl_state(&ctrl->ctrl, NVME_CTRL_CONNECTING))
 -- 
 2.20.1
 
