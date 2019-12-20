@@ -2,165 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA757128088
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 17:22:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11AF61280D1
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 17:42:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727436AbfLTQWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 11:22:47 -0500
-Received: from netrider.rowland.org ([192.131.102.5]:57169 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1727233AbfLTQWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 11:22:47 -0500
-Received: (qmail 7436 invoked by uid 500); 20 Dec 2019 11:22:46 -0500
-Received: from localhost (sendmail-bs@127.0.0.1)
-  by localhost with SMTP; 20 Dec 2019 11:22:46 -0500
-Date:   Fri, 20 Dec 2019 11:22:46 -0500 (EST)
-From:   Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To:     Johan Hovold <johan@kernel.org>
-cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-usb@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] USB: core: fix check for duplicate endpoints
-In-Reply-To: <20191219161016.6695-1-johan@kernel.org>
-Message-ID: <Pine.LNX.4.44L0.1912201121070.5210-100000@netrider.rowland.org>
+        id S1727233AbfLTQmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 11:42:01 -0500
+Received: from vmicros1.altlinux.org ([194.107.17.57]:40554 "EHLO
+        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727181AbfLTQmA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 11:42:00 -0500
+Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
+        by vmicros1.altlinux.org (Postfix) with ESMTP id E93B472CCE9;
+        Fri, 20 Dec 2019 19:41:56 +0300 (MSK)
+Received: from altlinux.org (sole.flsd.net [185.75.180.6])
+        by imap.altlinux.org (Postfix) with ESMTPSA id B6D284A4AEF;
+        Fri, 20 Dec 2019 19:41:56 +0300 (MSK)
+Date:   Fri, 20 Dec 2019 19:41:56 +0300
+From:   Vitaly Chikunov <vt@altlinux.org>
+To:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
+Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+        "Dmitry V . Levin" <ldv@altlinux.org>, stable@vger.kernel.org,
+        Vitaly Chikunov <vt@altlinux.org>
+Subject: Re: [PATCH] tools lib: Disable redundant-delcs error for strlcpy
+Message-ID: <20191220164155.3gxstkam3ctk7kji@altlinux.org>
+Mail-Followup-To: Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+        "Dmitry V . Levin" <ldv@altlinux.org>, stable@vger.kernel.org
+References: <20191208214607.20679-1-vt@altlinux.org>
+ <20191217122331.4g5atx7in6njjlw4@altlinux.org>
+ <20191217200420.GD7095@redhat.com>
+ <20191220025236.kgu3v6yhjndr3zwb@altlinux.org>
+ <20191220123136.GD2032@kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191220123136.GD2032@kernel.org>
+User-Agent: NeoMutt/20171215-106-ac61c7
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 19 Dec 2019, Johan Hovold wrote:
+Arnaldo,
 
-> Amend the endpoint-descriptor sanity checks to detect all duplicate
-> endpoint addresses in a configuration.
+On Fri, Dec 20, 2019 at 09:31:36AM -0300, Arnaldo Carvalho de Melo wrote:
+> Em Fri, Dec 20, 2019 at 05:52:36AM +0300, Vitaly Chikunov escreveu:
+> > If this is acceptable I will resend v2 with this.
 > 
-> Commit 0a8fd1346254 ("USB: fix problems with duplicate endpoint
-> addresses") added a check for duplicate endpoint addresses within a
-> single alternate setting, but did not look for duplicate addresses in
-> other interfaces.
-> 
-> The current check would also not detect all duplicate addresses when one
-> endpoint is as a (bi-directional) control endpoint.
-> 
-> This specifically avoids overwriting the endpoint entries in struct
-> usb_device when enabling a duplicate endpoint, something which could
-> potentially lead to crashes or leaks, for example, when endpoints are
-> later disabled.
-> 
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
-> 
-> Exploiting this to trigger a crash probably requires a lot more
-> malicious intent than the syzbot fuzzer currently possesses, but I think
-> we need to plug this nonetheless.
-> 
-> Johan
+> Go ahead, and please let me know if there is any container image for
+> Altlinux, as I test with clang on all the distros I have container
+> images for, and this hasn't appeared on my radar, i.e. clang + strlcpy
+> warnings :-)
 
-This is a good improvement.
+ALT Linux container micro how-to:
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Docker: https://en.altlinux.org/Docker
+  Quick start:
+    # docker run -it alt:sisyphus
+    [root@28fd15798968 /]# apt-get update
+    [root@28fd15798968 /]# apt-get install clang rpm-build
 
-Alan Stern
+  It will install clang-7.0.
 
->  drivers/usb/core/config.c | 70 ++++++++++++++++++++++++++++++++-------
->  1 file changed, 58 insertions(+), 12 deletions(-)
+systemd-nspawn:
+   Images are at http://ftp.altlinux.org/pub/distributions/ALTLinux/images/Sisyphus/cloud/
+   Quick start:
+   # machinectl pull-tar --verify=no http://ftp.altlinux.org/pub/distributions/ALTLinux/images/Sisyphus/cloud/alt-sisyphus-rootfs-systemd-x86_64.tar.xz alttest
+   # systemd-nspawn -M alttest
+   [root@alttest ~]# apt-get update
+   [root@alttest ~]# apt-get install clang rpm-build
+
+There is also LXD support: https://en.altlinux.org/LXD
+
+ps. If you going to use binary clang from http://releases.llvm.org/download.html#9.0.0
+I would recommend version clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+and `ln -snf x86_64-alt-linux /usr/lib64/gcc/x86_64-unknown-linux` to
+workaround `cannot find -lgcc` error.
+
+Thanks,
+
 > 
-> diff --git a/drivers/usb/core/config.c b/drivers/usb/core/config.c
-> index 5f40117e68e7..21291950cc97 100644
-> --- a/drivers/usb/core/config.c
-> +++ b/drivers/usb/core/config.c
-> @@ -203,9 +203,58 @@ static const unsigned short super_speed_maxpacket_maxes[4] = {
->  	[USB_ENDPOINT_XFER_INT] = 1024,
->  };
+> - Arnaldo
 >  
-> -static int usb_parse_endpoint(struct device *ddev, int cfgno, int inum,
-> -    int asnum, struct usb_host_interface *ifp, int num_ep,
-> -    unsigned char *buffer, int size)
-> +static bool endpoint_is_duplicate(struct usb_endpoint_descriptor *e1,
-> +		struct usb_endpoint_descriptor *e2)
-> +{
-> +	if (e1->bEndpointAddress == e2->bEndpointAddress)
-> +		return true;
-> +
-> +	if (usb_endpoint_xfer_control(e1) || usb_endpoint_xfer_control(e2)) {
-> +		if (usb_endpoint_num(e1) == usb_endpoint_num(e2))
-> +			return true;
-> +	}
-> +
-> +	return false;
-> +}
-> +
-> +/*
-> + * Check for duplicate endpoint addresses in other interfaces and in the
-> + * altsetting currently being parsed.
-> + */
-> +static bool config_endpoint_is_duplicate(struct usb_host_config *config,
-> +		int inum, int asnum, struct usb_endpoint_descriptor *d)
-> +{
-> +	struct usb_endpoint_descriptor *epd;
-> +	struct usb_interface_cache *intfc;
-> +	struct usb_host_interface *alt;
-> +	int i, j, k;
-> +
-> +	for (i = 0; i < config->desc.bNumInterfaces; ++i) {
-> +		intfc = config->intf_cache[i];
-> +
-> +		for (j = 0; j < intfc->num_altsetting; ++j) {
-> +			alt = &intfc->altsetting[j];
-> +
-> +			if (alt->desc.bInterfaceNumber == inum &&
-> +					alt->desc.bAlternateSetting != asnum)
-> +				continue;
-> +
-> +			for (k = 0; k < alt->desc.bNumEndpoints; ++k) {
-> +				epd = &alt->endpoint[k].desc;
-> +
-> +				if (endpoint_is_duplicate(epd, d))
-> +					return true;
-> +			}
-> +		}
-> +	}
-> +
-> +	return false;
-> +}
-> +
-> +static int usb_parse_endpoint(struct device *ddev, int cfgno,
-> +		struct usb_host_config *config, int inum, int asnum,
-> +		struct usb_host_interface *ifp, int num_ep,
-> +		unsigned char *buffer, int size)
->  {
->  	unsigned char *buffer0 = buffer;
->  	struct usb_endpoint_descriptor *d;
-> @@ -242,13 +291,10 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno, int inum,
->  		goto skip_to_next_endpoint_or_interface_descriptor;
->  
->  	/* Check for duplicate endpoint addresses */
-> -	for (i = 0; i < ifp->desc.bNumEndpoints; ++i) {
-> -		if (ifp->endpoint[i].desc.bEndpointAddress ==
-> -		    d->bEndpointAddress) {
-> -			dev_warn(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
-> -			    cfgno, inum, asnum, d->bEndpointAddress);
-> -			goto skip_to_next_endpoint_or_interface_descriptor;
-> -		}
-> +	if (config_endpoint_is_duplicate(config, inum, asnum, d)) {
-> +		dev_warn(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
-> +				cfgno, inum, asnum, d->bEndpointAddress);
-> +		goto skip_to_next_endpoint_or_interface_descriptor;
->  	}
->  
->  	endpoint = &ifp->endpoint[ifp->desc.bNumEndpoints];
-> @@ -522,8 +568,8 @@ static int usb_parse_interface(struct device *ddev, int cfgno,
->  		if (((struct usb_descriptor_header *) buffer)->bDescriptorType
->  		     == USB_DT_INTERFACE)
->  			break;
-> -		retval = usb_parse_endpoint(ddev, cfgno, inum, asnum, alt,
-> -		    num_ep, buffer, size);
-> +		retval = usb_parse_endpoint(ddev, cfgno, config, inum, asnum,
-> +				alt, num_ep, buffer, size);
->  		if (retval < 0)
->  			return retval;
->  		++n;
+> > Thanks,
+> > 
+> > > 
+> > > - Arnaldo
+> > >  
+> > > > 1. It seems that people putting strlcpy() into the tools was already aware of
+> > > > the problems it causes and tried to solve them. Probably, that's why they put
+> > > > `__weak` attribute on it (so it would be linkable in the presence of another
+> > > > strlcpy). Then `#ifndef __UCLIBC__`ed and later `#if defined(__GLIBC__) &&
+> > > > !defined(__UCLIBC__)` its declaration. But, solution was incomplete and could
+> > > > be improved to make kernel buildable on more systems (where libc contains
+> > > > strlcpy).
+> > > > 
+> > > > There is not need to make `redundant redeclaration` warning an error in
+> > > > this case.
+> > > > 
+> > > > 2. `#pragma GCC diagnostic ignored` trick is already used multiple times
+> > > > in the kernel:
+> > > > 
+> > > >   $ git grep  '#pragma GCC diagnostic ignored'
+> > > >   arch/arm/lib/xor-neon.c:#pragma GCC diagnostic ignored "-Wunused-variable"
+> > > >   tools/build/feature/test-gtk2-infobar.c:#pragma GCC diagnostic ignored "-Wstrict-prototypes"
+> > > >   tools/build/feature/test-gtk2.c:#pragma GCC diagnostic ignored "-Wstrict-prototypes"
+> > > >   tools/include/linux/string.h:#pragma GCC diagnostic ignored "-Wredundant-decls"
+> > > >   tools/lib/bpf/libbpf.c:#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+> > > >   tools/perf/ui/gtk/gtk.h:#pragma GCC diagnostic ignored "-Wstrict-prototypes"
+> > > >   tools/testing/selftests/kvm/lib/assert.c:#pragma GCC diagnostic ignored "-Wunused-result"
+> > > >   tools/usb/ffs-test.c:#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+> > > > 
+> > > > So the solution does not seem alien in the kernel and should be acceptable.
+> > > > 
+> > > > (I also send this to another of your emails in case I used wrong one before.)
+> > > > 
+> > > > Thanks,
+> > > > 
+> > > > 
+> > > > On Mon, Dec 09, 2019 at 12:46:07AM +0300, Vitaly Chikunov wrote:
+> > > > > Disable `redundant-decls' error for strlcpy declaration and solve build
+> > > > > error allowing users to compile vanilla kernels.
+> > > > > 
+> > > > > When glibc have strlcpy (such as in ALT linux since 2004) objtool and
+> > > > > perf build fails with something like:
+> > > > > 
+> > > > >   In file included from exec-cmd.c:3:
+> > > > >   tools/include/linux/string.h:20:15: error: redundant redeclaration of ‘strlcpy’ [-Werror=redundant-decls]
+> > > > >      20 | extern size_t strlcpy(char *dest, const char *src, size_t size);
+> > > > > 	|               ^~~~~~~
+> > > > > 
+> > > > > It's very hard to produce a perfect fix for that since it is a header
+> > > > > file indirectly pulled from many sources from different Makefile builds.
+> > > > > 
+> > > > > Fixes: ce99091 ("perf tools: Move strlcpy() from perf to tools/lib/string.c")
+> > > > > Fixes: 0215d59 ("tools lib: Reinstate strlcpy() header guard with __UCLIBC__")
+> > > > > Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
+> > > > > Cc: Dmitry V. Levin <ldv@altlinux.org>
+> > > > > Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+> > > > > Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>
+> > > > > Cc: stable@vger.kernel.org
+> > > > > ---
+> > > > >  tools/include/linux/string.h | 3 +++
+> > > > >  1 file changed, 3 insertions(+)
+> > > > > 
+> > > > > diff --git a/tools/include/linux/string.h b/tools/include/linux/string.h
+> > > > > index 980cb9266718..99ede7f5dfb8 100644
+> > > > > --- a/tools/include/linux/string.h
+> > > > > +++ b/tools/include/linux/string.h
+> > > > > @@ -17,7 +17,10 @@ int strtobool(const char *s, bool *res);
+> > > > >   * However uClibc headers also define __GLIBC__ hence the hack below
+> > > > >   */
+> > > > >  #if defined(__GLIBC__) && !defined(__UCLIBC__)
+> > > > > +#pragma GCC diagnostic push
+> > > > > +#pragma GCC diagnostic ignored "-Wredundant-decls"
+> > > > >  extern size_t strlcpy(char *dest, const char *src, size_t size);
+> > > > > +#pragma GCC diagnostic pop
+> > > > >  #endif
+> > > > >  
+> > > > >  char *str_error_r(int errnum, char *buf, size_t buflen);
+> > > 
 > 
-
+> -- 
+> 
+> - Arnaldo
