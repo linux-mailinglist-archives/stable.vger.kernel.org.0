@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE3D127C90
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:30:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC59F127E2C
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:42:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727512AbfLTOaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:30:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33300 "EHLO mail.kernel.org"
+        id S1727454AbfLTOaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:30:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727509AbfLTOaF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:30:05 -0500
+        id S1727359AbfLTOaB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:30:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6DC5206CB;
-        Fri, 20 Dec 2019 14:30:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB3EA2465E;
+        Fri, 20 Dec 2019 14:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852204;
-        bh=Wnhq2dkFTn8OU/FjGAcQtJk5oK5O3rmGFMjRCEfGvAc=;
+        s=default; t=1576852199;
+        bh=/5aMJwaRdDLfbRD/8GZC/1uh8M6TUwSDTLCSzcArVNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QHSLH4xRx650kz68UbtsKqCUJOX8Bn/1bArdRH/tIex/uaQ2bA2C/JHa9hdq9sFMZ
-         mdbOBItnruWr4Emf/0t8XoCYrkdN5HxtQgwVpn/9b7Z7LSwKzCfYuRs9HPUsHfF6JD
-         0Xu2KEZ8G7SNVlpYqbfh31A2zGvu7jW2+5Ymw8m8=
+        b=pC19sYxhb2LTSNuk6y9JyT6uURc55ZKIKjWCO8885Zn8kOhrzhCrx+cIo5Z8SnHTv
+         A9MtUzcZ6Q43Oq76Htts62kQRz6p1+ii3DgeIvU8e/YcEzSRqFYhTwZlazwT9cwtJN
+         npC9xm+jWm5//MuhM8NN0qblBuEYOkGs0rGd7Tnk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nikola Cornij <nikola.cornij@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 07/52] drm/amd/display: Map DSC resources 1-to-1 if numbers of OPPs and DSCs are equal
-Date:   Fri, 20 Dec 2019 09:29:09 -0500
-Message-Id: <20191220142954.9500-7-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Ewan D . Milne" <emilne@redhat.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 03/52] nvme-fc: fix double-free scenarios on hw queues
+Date:   Fri, 20 Dec 2019 09:29:05 -0500
+Message-Id: <20191220142954.9500-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220142954.9500-1-sashal@kernel.org>
 References: <20191220142954.9500-1-sashal@kernel.org>
@@ -46,74 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikola Cornij <nikola.cornij@amd.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit a1fc44b609b4e9c0941f0e4a1fc69d367af5ab69 ]
+[ Upstream commit c869e494ef8b5846d9ba91f1e922c23cd444f0c1 ]
 
-[why]
-On ASICs where number of DSCs is the same as OPPs there's no need
-for DSC resource management. Mappping 1-to-1 fixes mode-set- or S3-
--related issues for such platforms.
+If an error occurs on one of the ios used for creating an
+association, the creating routine has error paths that are
+invoked by the command failure and the error paths will free
+up the controller resources created to that point.
 
-[how]
-Map DSC resources 1-to-1 to pipes only if number of OPPs is the same
-as number of DSCs. This will still keep other ASICs working.
-A follow-up patch to fix mode-set issues on those ASICs will be
-required if testing shows issues with mode set.
+But... the io was ultimately determined by an asynchronous
+completion routine that detected the error and which
+unconditionally invokes the error_recovery path which calls
+delete_association. Delete association deletes all outstanding
+io then tears down the controller resources. So the
+create_association thread can be running in parallel with
+the error_recovery thread. What was seen was the LLDD received
+a call to delete a queue, causing the LLDD to do a free of a
+resource, then the transport called the delete queue again
+causing the driver to repeat the free call. The second free
+routine corrupted the allocator. The transport shouldn't be
+making the duplicate call, and the delete queue is just one
+of the resources being freed.
 
-Signed-off-by: Nikola Cornij <nikola.cornij@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+To fix, it is realized that the create_association path is
+completely serialized with one command at a time. So the
+failed io completion will always be seen by the create_association
+path and as of the failure, there are no ios to terminate and there
+is no reason to be manipulating queue freeze states, etc.
+The serialized condition stays true until the controller is
+transitioned to the LIVE state. Thus the fix is to change the
+error recovery path to check the controller state and only
+invoke the teardown path if not already in the CONNECTING state.
+
+Reviewed-by: Himanshu Madhani <hmadhani@marvell.com>
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/dcn20/dcn20_resource.c   | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/nvme/host/fc.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-index 6b2f2f1a1c9ce..d95b265ae9b85 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -1419,13 +1419,20 @@ enum dc_status dcn20_build_mapped_resource(const struct dc *dc, struct dc_state
- 
- static void acquire_dsc(struct resource_context *res_ctx,
- 			const struct resource_pool *pool,
--			struct display_stream_compressor **dsc)
-+			struct display_stream_compressor **dsc,
-+			int pipe_idx)
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 3f102d9f39b83..59474bd0c728d 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -2910,10 +2910,22 @@ nvme_fc_reconnect_or_delete(struct nvme_fc_ctrl *ctrl, int status)
+ static void
+ __nvme_fc_terminate_io(struct nvme_fc_ctrl *ctrl)
  {
- 	int i;
+-	nvme_stop_keep_alive(&ctrl->ctrl);
++	/*
++	 * if state is connecting - the error occurred as part of a
++	 * reconnect attempt. The create_association error paths will
++	 * clean up any outstanding io.
++	 *
++	 * if it's a different state - ensure all pending io is
++	 * terminated. Given this can delay while waiting for the
++	 * aborted io to return, we recheck adapter state below
++	 * before changing state.
++	 */
++	if (ctrl->ctrl.state != NVME_CTRL_CONNECTING) {
++		nvme_stop_keep_alive(&ctrl->ctrl);
  
- 	ASSERT(*dsc == NULL);
- 	*dsc = NULL;
- 
-+	if (pool->res_cap->num_dsc == pool->res_cap->num_opp) {
-+		*dsc = pool->dscs[pipe_idx];
-+		res_ctx->is_dsc_acquired[pipe_idx] = true;
-+		return;
+-	/* will block will waiting for io to terminate */
+-	nvme_fc_delete_association(ctrl);
++		/* will block will waiting for io to terminate */
++		nvme_fc_delete_association(ctrl);
 +	}
-+
- 	/* Find first free DSC */
- 	for (i = 0; i < pool->res_cap->num_dsc; i++)
- 		if (!res_ctx->is_dsc_acquired[i]) {
-@@ -1468,7 +1475,7 @@ static enum dc_status add_dsc_to_stream_resource(struct dc *dc,
- 		if (pipe_ctx->stream != dc_stream)
- 			continue;
  
--		acquire_dsc(&dc_ctx->res_ctx, pool, &pipe_ctx->stream_res.dsc);
-+		acquire_dsc(&dc_ctx->res_ctx, pool, &pipe_ctx->stream_res.dsc, i);
- 
- 		/* The number of DSCs can be less than the number of pipes */
- 		if (!pipe_ctx->stream_res.dsc) {
-@@ -1669,7 +1676,7 @@ static bool dcn20_split_stream_for_odm(
- 	next_odm_pipe->stream_res.opp = pool->opps[next_odm_pipe->pipe_idx];
- #ifdef CONFIG_DRM_AMD_DC_DSC_SUPPORT
- 	if (next_odm_pipe->stream->timing.flags.DSC == 1) {
--		acquire_dsc(res_ctx, pool, &next_odm_pipe->stream_res.dsc);
-+		acquire_dsc(res_ctx, pool, &next_odm_pipe->stream_res.dsc, next_odm_pipe->pipe_idx);
- 		ASSERT(next_odm_pipe->stream_res.dsc);
- 		if (next_odm_pipe->stream_res.dsc == NULL)
- 			return false;
+ 	if (ctrl->ctrl.state != NVME_CTRL_CONNECTING &&
+ 	    !nvme_change_ctrl_state(&ctrl->ctrl, NVME_CTRL_CONNECTING))
 -- 
 2.20.1
 
