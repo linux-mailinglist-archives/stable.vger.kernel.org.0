@@ -2,81 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 787FF128270
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 19:50:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A82CD128312
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 21:12:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727404AbfLTSuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 13:50:44 -0500
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:36763 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727390AbfLTSuo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 13:50:44 -0500
-Received: by mail-pf1-f195.google.com with SMTP id x184so5701677pfb.3;
-        Fri, 20 Dec 2019 10:50:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=Ak7VGqCjH/jK0JxWIx/zXhSXNOG6BUrxQ8Rmu2KD6CE=;
-        b=BKn111MNvB0QoAOY8pnbxUhjwIgBr9HUNkGeF7VB2Z6sFbFqykqa3kb9qdhv3LLC+Y
-         jiU6F5VU+5ax8CUKj4D1uI7p2eabylBaJBLMyZMiK6dEvSTQ1Oq5VrPUogQits5s5sU2
-         pA40bp7tczWZt8r963ScrEGkgKypLL7sQCvi5jGlf/y7IsFc/wkinm5fSppfXM/TSxfG
-         MShQsqT5sTHJLR2Gdww6+AsRlagsMRv/lHIJRM0XjRzcAdN5GPYQ0xuzqFfrIGG2l6Uc
-         4fS8OYz0TFBfMHlxqUPWGiGBj2BYPjQhTNGKtK3MxMINVtX2M0wPY6Vfxbg7zrppDu4v
-         wsdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Ak7VGqCjH/jK0JxWIx/zXhSXNOG6BUrxQ8Rmu2KD6CE=;
-        b=m2dBhyodiOwfWb3lS+h9NzpmFGtLb6Q27gwieqpTMtt2rleAPHMELQZeOTzCSwEepp
-         fgeyQknfDThQqf4dh6eNzZyPzLr68/yNkEfKQ2L/sOI+nXLwlQ6Ft1JR7JmzUsJQ2xEw
-         6xJtevKGI3ERQw7w/X8YgF5PAdunBejfk3SPBHAPy6mebwQCVi9C+jqfu2IkScCErBlE
-         nizrqhU2f0d+ttFYHr9eGMyaO86OcN64cbllg0oSuVSESKcGpHj06iQ2lMwzgcxN+5gf
-         +N557o3BCW0xFvjGqFjsVd14fY7zB4X7SkLf2anoWWZE9q+1nYPyERKYA22syto82Age
-         RSDA==
-X-Gm-Message-State: APjAAAWpiTi/5lAkJc31lXBXJnfiLAdJI5aHU5wgCW1X4D2H+z6np4sg
-        rnYagyZcNXRM8daxOtZfiRg=
-X-Google-Smtp-Source: APXvYqwOSBw1YhQulOPHVztDZwVIS0Viru8PJxZMXRGaSRHeBMWYLb2YwjJS67S67SeX+ppLYWE1uQ==
-X-Received: by 2002:a63:5b0a:: with SMTP id p10mr16281847pgb.228.1576867843930;
-        Fri, 20 Dec 2019 10:50:43 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id x33sm12150402pga.86.2019.12.20.10.50.43
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 20 Dec 2019 10:50:43 -0800 (PST)
-Date:   Fri, 20 Dec 2019 10:50:42 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 00/80] 5.4.6-stable review
-Message-ID: <20191220185042.GE26293@roeck-us.net>
-References: <20191219183031.278083125@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        id S1727478AbfLTUMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 15:12:19 -0500
+Received: from mail.efficios.com ([167.114.142.138]:55104 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727394AbfLTUMT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 15:12:19 -0500
+Received: from localhost (ip6-localhost [IPv6:::1])
+        by mail.efficios.com (Postfix) with ESMTP id A616A68FA9A;
+        Fri, 20 Dec 2019 15:12:17 -0500 (EST)
+Received: from mail.efficios.com ([IPv6:::1])
+        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10032)
+        with ESMTP id yqE96adCoYLl; Fri, 20 Dec 2019 15:12:17 -0500 (EST)
+Received: from localhost (ip6-localhost [IPv6:::1])
+        by mail.efficios.com (Postfix) with ESMTP id 1C18A68FA97;
+        Fri, 20 Dec 2019 15:12:17 -0500 (EST)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 1C18A68FA97
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1576872737;
+        bh=980W3whSRgBeVIaqMTIFKJArmeV0Zx+uhmhhz5FKa8s=;
+        h=From:To:Date:Message-Id;
+        b=kIXRicsU3ZmQ2ebkOvSyMn7uOcWZVbX6npx4UZHYpc5L4YiLfNpivw3Eqt+tp7Efj
+         6GbXUD4B3HIKkr1M8kkUUpBRfE1cS73+PUUKsegA403F6whWiCD4OBk7yp963G7gXK
+         O9dSwqCyiyxQuLKLruPrathlMnWNgag+aTHqT+BOvnwC9tm43BwcmpNzV4WzRCL/zk
+         l8qxRd/cXn5zuJZQEN6NlJToiqFGe3w0AhiAXmYFrTc1nx9ZqyvkYqShAIjI0jrX7+
+         F7RFTg204Ob1H//lfNTnwxxNF5HzFMs50x7u+Kqpt2fUwyPeuO4vQIBXw4LtoBka4k
+         DfU1pOpQYZSew==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([IPv6:::1])
+        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10026)
+        with ESMTP id S8tKXA6YpzEL; Fri, 20 Dec 2019 15:12:17 -0500 (EST)
+Received: from localhost.localdomain (192-222-181-218.qc.cable.ebox.net [192.222.181.218])
+        by mail.efficios.com (Postfix) with ESMTPSA id BFE6068FA91;
+        Fri, 20 Dec 2019 15:12:16 -0500 (EST)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     linux-kernel@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Paul E . McKenney" <paulmck@linux.ibm.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
+        linux-api@vger.kernel.org, stable@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Florian Weimer <fw@deneb.enyo.de>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Neel Natu <neelnatu@google.com>
+Subject: [PATCH for 5.5 1/2] rseq: Fix: Clarify rseq.h UAPI rseq_cs memory reclaim requirements
+Date:   Fri, 20 Dec 2019 15:12:06 -0500
+Message-Id: <20191220201207.17389-1-mathieu.desnoyers@efficios.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 19, 2019 at 07:33:52PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.6 release.
-> There are 80 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 21 Dec 2019 18:24:44 +0000.
-> Anything received after that time might be too late.
-> 
+The rseq.h UAPI documents that the rseq_cs field must be cleared
+before reclaiming memory that contains the targeted struct rseq_cs.
 
-Build results:
-	total: 158 pass: 158 fail: 0
-Qemu test results:
-	total: 387 pass: 387 fail: 0
+We should extend this comment to also dictate that the rseq_cs field
+must be cleared before reclaiming memory of the code pointed to by
+the rseq_cs start_ip and post_commit_offset fields.
 
-Guenter
+While we can expect that use of dlclose(3) will typically unmap
+both struct rseq_cs and its associated code at once, nothing would
+theoretically prevent a JIT from reclaiming the code without
+reclaiming the struct rseq_cs, which would erroneously allow the
+kernel to consider new code which is not a rseq critical section
+as a rseq critical section following a code reclaim.
+
+Suggested-by: Florian Weimer <fw@deneb.enyo.de>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Florian Weimer <fw@deneb.enyo.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: "H . Peter Anvin" <hpa@zytor.com>
+Cc: Paul Turner <pjt@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Neel Natu <neelnatu@google.com>
+Cc: linux-api@vger.kernel.org
+---
+ include/uapi/linux/rseq.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/rseq.h b/include/uapi/linux/rseq.h
+index 9a402fdb60e9..6f26b0b148a6 100644
+--- a/include/uapi/linux/rseq.h
++++ b/include/uapi/linux/rseq.h
+@@ -100,7 +100,9 @@ struct rseq {
+ 	 * instruction sequence block, as well as when the kernel detects that
+ 	 * it is preempting or delivering a signal outside of the range
+ 	 * targeted by the rseq_cs. Also needs to be set to NULL by user-space
+-	 * before reclaiming memory that contains the targeted struct rseq_cs.
++	 * before reclaiming memory that contains the targeted struct rseq_cs
++	 * or reclaiming memory that contains the code refered to by the
++	 * start_ip and post_commit_offset fields of struct rseq_cs.
+ 	 *
+ 	 * Read and set by the kernel. Set by user-space with single-copy
+ 	 * atomicity semantics. This field should only be updated by the
+-- 
+2.17.1
+
