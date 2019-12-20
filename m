@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF5C127D40
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0509127CD6
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:32:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727800AbfLTOai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:30:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34338 "EHLO mail.kernel.org"
+        id S1727827AbfLTOam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:30:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727790AbfLTOai (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:30:38 -0500
+        id S1727806AbfLTOaj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:30:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF10C24685;
-        Fri, 20 Dec 2019 14:30:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 201F324688;
+        Fri, 20 Dec 2019 14:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852237;
-        bh=DbXMjSWpi+Z9+KBIdLUKG2sfKhNfYxqWvszvtbwE964=;
+        s=default; t=1576852238;
+        bh=kn1yMQ++v+tSgPYIXSWQshWLlh0px6/1OR/qxa63mqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqnw+HCqXZAH/I4KjUOqt+VRvQ0NWd5lyZt667U4S54A8h7WX1JbZVM92XBKfikSt
-         4zTdJIAAiowTgbyNc/0aZ+zjaN0rx/7QS52+mjd44f1Tw3YqfoxrkS3gCVW6JqvQ3z
-         hHSmGxTfi0OdX8xoDwudlzt1Os6mmY3o24A+7cMs=
+        b=dRQ/rL1hBIdxFHzaj8Df2eZdHvalLVmb8iihpj6zXMaYbhhWXxANpREbmbg1BFXnp
+         n1E3L+u6QOwiHzvWv+RG50N9b1/C6yFUX/Q7dpZlknpyCkBLwIQpcoQ3wHKJFAw3Ag
+         NxXZJlsV5Laskx0Os7bNykmw83nF7K4dm9yw6VOA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roman Bolshakov <r.bolshakov@yadro.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        Hannes Reinecke <hare@suse.de>,
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 31/52] scsi: qla2xxx: Ignore PORT UPDATE after N2N PLOGI
-Date:   Fri, 20 Dec 2019 09:29:33 -0500
-Message-Id: <20191220142954.9500-31-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 32/52] scsi: iscsi: qla4xxx: fix double free in probe
+Date:   Fri, 20 Dec 2019 09:29:34 -0500
+Message-Id: <20191220142954.9500-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220142954.9500-1-sashal@kernel.org>
 References: <20191220142954.9500-1-sashal@kernel.org>
@@ -46,57 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit af22f0c7b052c5c203207f1e5ebd6aa65f87c538 ]
+[ Upstream commit fee92f25777789d73e1936b91472e9c4644457c8 ]
 
-PORT UPDATE asynchronous event is generated on the host that issues PLOGI
-ELS (in the case of higher WWPN). In that case, the event shouldn't be
-handled as it sets unwanted DPC flags (i.e. LOOP_RESYNC_NEEDED) that
-trigger link flap.
+On this error path we call qla4xxx_mem_free() and then the caller also
+calls qla4xxx_free_adapter() which calls qla4xxx_mem_free().  It leads to a
+couple double frees:
 
-Ignore the event if the host has higher WWPN, but handle otherwise.
+drivers/scsi/qla4xxx/ql4_os.c:8856 qla4xxx_probe_adapter() warn: 'ha->chap_dma_pool' double freed
+drivers/scsi/qla4xxx/ql4_os.c:8856 qla4xxx_probe_adapter() warn: 'ha->fw_ddb_dma_pool' double freed
 
-Cc: Quinn Tran <qutran@marvell.com>
-Link: https://lore.kernel.org/r/20191125165702.1013-13-r.bolshakov@yadro.com
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Tested-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Fixes: afaf5a2d341d ("[SCSI] Initial Commit of qla4xxx")
+Link: https://lore.kernel.org/r/20191203094421.hw7ex7qr3j2rbsmx@kili.mountain
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/qla4xxx/ql4_os.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
-index 4d90cf101f5fc..eac76e934cbe2 100644
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -3920,6 +3920,7 @@ qla24xx_report_id_acquisition(scsi_qla_host_t *vha,
- 					vha->d_id.b24 = 0;
- 					vha->d_id.b.al_pa = 1;
- 					ha->flags.n2n_bigger = 1;
-+					ha->flags.n2n_ae = 0;
+diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
+index 8c674eca09f13..2323432a0edbc 100644
+--- a/drivers/scsi/qla4xxx/ql4_os.c
++++ b/drivers/scsi/qla4xxx/ql4_os.c
+@@ -4275,7 +4275,6 @@ static int qla4xxx_mem_alloc(struct scsi_qla_host *ha)
+ 	return QLA_SUCCESS;
  
- 					id.b.al_pa = 2;
- 					ql_dbg(ql_dbg_async, vha, 0x5075,
-@@ -3930,6 +3931,7 @@ qla24xx_report_id_acquisition(scsi_qla_host_t *vha,
- 					    "Format 1: Remote login - Waiting for WWPN %8phC.\n",
- 					    rptid_entry->u.f1.port_name);
- 					ha->flags.n2n_bigger = 0;
-+					ha->flags.n2n_ae = 1;
- 				}
- 				qla24xx_post_newsess_work(vha, &id,
- 				    rptid_entry->u.f1.port_name,
-@@ -3941,7 +3943,6 @@ qla24xx_report_id_acquisition(scsi_qla_host_t *vha,
- 			/* if our portname is higher then initiate N2N login */
+ mem_alloc_error_exit:
+-	qla4xxx_mem_free(ha);
+ 	return QLA_ERROR;
+ }
  
- 			set_bit(N2N_LOGIN_NEEDED, &vha->dpc_flags);
--			ha->flags.n2n_ae = 1;
- 			return;
- 			break;
- 		case TOPO_FL:
 -- 
 2.20.1
 
