@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08E71127D4E
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63EE5127CDF
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727659AbfLTOcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:32:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34810 "EHLO mail.kernel.org"
+        id S1727935AbfLTOax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:30:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727505AbfLTOav (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:30:51 -0500
+        id S1727931AbfLTOax (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:30:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66F7824684;
-        Fri, 20 Dec 2019 14:30:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A45C824688;
+        Fri, 20 Dec 2019 14:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852251;
-        bh=7JgE0/+qMmvES20+Q4uK73b5Uykyb51CBPXEGNZn+E4=;
+        s=default; t=1576852252;
+        bh=0y5ItO9Q0Ez+Cf2qGWWe5Qs14+0yy6BbTXq6yhRnAIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2wmQ52n04SDDKc38+LT6d/wEqBMVAyByA5I0mZEhy3dGhd+WUnkbJJGpQ0enFEOS
-         M41z0gXo3GlKFdZPMDhzOL3ZdzWIsdzFt9M/i8+ypSGCWa60B213NzMUC+kIz1b1Bs
-         84hJeyGKliqSCxFAm/b8wimUMK5LaMClEn/eCTrA=
+        b=iCs7CQgDmQ429w7RM3mSGCOV8kXRhyJgXfTLbN+TjJJeCPeARKOhIG+5KnI0JaoJj
+         ejMMTkf/MEFg9JDZDyg6YhK/lSk5gXsTzwM4azwFwztTLnlwMa/eBRFfn2OifpAgWd
+         uQuzas2a7R4N8+LctUIW0bnAOTncs9ZHMadLjoMI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Jonathan Billings <jsbillings@jsbillings.org>,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 42/52] afs: Fix creation calls in the dynamic root to fail with EOPNOTSUPP
-Date:   Fri, 20 Dec 2019 09:29:44 -0500
-Message-Id: <20191220142954.9500-42-sashal@kernel.org>
+Cc:     Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 43/52] raid5: need to set STRIPE_HANDLE for batch head
+Date:   Fri, 20 Dec 2019 09:29:45 -0500
+Message-Id: <20191220142954.9500-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220142954.9500-1-sashal@kernel.org>
 References: <20191220142954.9500-1-sashal@kernel.org>
@@ -44,39 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-[ Upstream commit 1da4bd9f9d187f53618890d7b66b9628bbec3c70 ]
+[ Upstream commit a7ede3d16808b8f3915c8572d783530a82b2f027 ]
 
-Fix the lookup method on the dynamic root directory such that creation
-calls, such as mkdir, open(O_CREAT), symlink, etc. fail with EOPNOTSUPP
-rather than failing with some odd error (such as EEXIST).
+With commit 6ce220dd2f8ea71d6afc29b9a7524c12e39f374a ("raid5: don't set
+STRIPE_HANDLE to stripe which is in batch list"), we don't want to set
+STRIPE_HANDLE flag for sh which is already in batch list.
 
-lookup() itself tries to create automount directories when it is invoked.
-These are cached locally in RAM and not committed to storage.
+However, the stripe which is the head of batch list should set this flag,
+otherwise panic could happen inside init_stripe at BUG_ON(sh->batch_head),
+it is reproducible with raid5 on top of nvdimm devices per Xiao oberserved.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Jonathan Billings <jsbillings@jsbillings.org>
+Thanks for Xiao's effort to verify the change.
+
+Fixes: 6ce220dd2f8ea ("raid5: don't set STRIPE_HANDLE to stripe which is in batch list")
+Reported-by: Xiao Ni <xni@redhat.com>
+Tested-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/dynroot.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/md/raid5.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/afs/dynroot.c b/fs/afs/dynroot.c
-index 4150280509fff..7503899c0a1b5 100644
---- a/fs/afs/dynroot.c
-+++ b/fs/afs/dynroot.c
-@@ -136,6 +136,9 @@ static struct dentry *afs_dynroot_lookup(struct inode *dir, struct dentry *dentr
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 12a8ce83786ea..36cd7c2fbf408 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -5726,7 +5726,7 @@ static bool raid5_make_request(struct mddev *mddev, struct bio * bi)
+ 				do_flush = false;
+ 			}
  
- 	ASSERTCMP(d_inode(dentry), ==, NULL);
- 
-+	if (flags & LOOKUP_CREATE)
-+		return ERR_PTR(-EOPNOTSUPP);
-+
- 	if (dentry->d_name.len >= AFSNAMEMAX) {
- 		_leave(" = -ENAMETOOLONG");
- 		return ERR_PTR(-ENAMETOOLONG);
+-			if (!sh->batch_head)
++			if (!sh->batch_head || sh == sh->batch_head)
+ 				set_bit(STRIPE_HANDLE, &sh->state);
+ 			clear_bit(STRIPE_DELAYED, &sh->state);
+ 			if ((!sh->batch_head || sh == sh->batch_head) &&
 -- 
 2.20.1
 
