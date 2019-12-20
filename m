@@ -2,52 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B17F71276D8
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 08:59:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 769D6127713
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 09:20:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725941AbfLTH7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 02:59:05 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:33735 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726651AbfLTH7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Dec 2019 02:59:04 -0500
-Received: by mail-lj1-f193.google.com with SMTP id y6so1011648lji.0
-        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 23:59:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=5LWA4PQE7gS1mCBR2NDvStJfINrh3qsGURJJxMiT3u4=;
-        b=T1OAEeYUJZ5uDfoAaru8+r7aLESYI0S5MYrcTBD1ICORjXg1OFrcqjqTM0SzFpzTSC
-         qSNQB7vhcyjdfJdtfCLmGicD4TLnmeL4ApY6+OpVZwbE2IN21klGd8AwjgI5jqGNzUJf
-         3B9tjHEzzg9c5RSeMtb9SRi+Z8NOFJEAHXGguO3N830d2zQ4JNXYw+a4C5d3bvpFeQvQ
-         FMlOHq9oULFOpHCdNz9/Xcf/vvLldxzayXWYvoIyeARh/w/FfDirS+dPgdHpaXFiUdem
-         1A9eswIz1t2tETUs9i8Vzvvv+V1seqdQNemahDImK7nQNuGIk9NJI9aEkOEEu33s+rWp
-         sWvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=5LWA4PQE7gS1mCBR2NDvStJfINrh3qsGURJJxMiT3u4=;
-        b=PagsgPlchubtnrfzlAPG0jeTWdpzdaXXi5/t/8aojokO4GBszhLsFKOslKpDYL+R2u
-         ukXc7LAEtAX5S9yv6dMLMiT4NI+kcv5EOjh9sl4JigS+N4Is4eIp97yBgRhkwKxNxEBy
-         cei+iy+aozQUq+PPVIMHkCI73YJU2xXgcLi0VG6HcYttD4pMOhOHtSn15LqSinPtHDBh
-         oyetIEVKZ12VYhdttRP4f5sUn/GBEa6+2HNzkDaZElh+jC2ES3YfQc7i8Z/R6ygZjF6I
-         JAqsm8ruLqBSlJlzHWEhrbAmbkzH/Mvgyyw40Akq1R8gHNVj1I4TbmhWLXBycfMXGCx4
-         XaYg==
-X-Gm-Message-State: APjAAAVpYXEXWnak50GEEp8GseFvrmD1UlEGLt1Q+4owpEu5N+2/NRa1
-        OAy15sslmN5DNG0Ma34UTdF6FDoWLOOJPeclR5+MJA==
-X-Google-Smtp-Source: APXvYqw3iLLc7jxcyoPkSv+vzYGrKUJbkhRPfjnMeBSeA8HO9a5U8v4C6p4ql9iQ2Rn/C7n3sgTnjLKF2/YmQC9i4ro=
-X-Received: by 2002:a2e:a0c6:: with SMTP id f6mr8712071ljm.46.1576828742070;
- Thu, 19 Dec 2019 23:59:02 -0800 (PST)
-MIME-Version: 1.0
-References: <20191219183150.477687052@linuxfoundation.org>
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 20 Dec 2019 13:28:50 +0530
-Message-ID: <CA+G9fYsnQxo8JPyPv2Zm2Ms0Cf5bT1hqXk3MmZ0p3W5k-a5-4A@mail.gmail.com>
-Subject: Re: [PATCH 4.4 000/162] 4.4.207-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S1727110AbfLTIUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 03:20:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49082 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727089AbfLTIUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 03:20:54 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F4BD24679;
+        Fri, 20 Dec 2019 08:20:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576830054;
+        bh=B6sxBCqmNa67NKuCWahxkcEJvk3lT7JUBCMqAb13n8k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XyTKPxB1OIguO+od8hkIYCtSb/B4fYYUVFLPsELYj6UoeUTcFm8a0dbbZceFrZzzZ
+         P7rUcI0Ud/R9HHUsRUVfkTk72Q9kTiGLI4be7jhtZlOe51vfGsZ366DGY6SyjqTNiE
+         GnsWwDblGwV/7zxlFRSPfJofr/Id6IIx++LwaoVY=
+Date:   Fri, 20 Dec 2019 09:20:51 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -56,165 +34,45 @@ Cc:     open list <linux-kernel@vger.kernel.org>,
         Ben Hutchings <ben.hutchings@codethink.co.uk>,
         lkft-triage@lists.linaro.org,
         linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 5.4 00/80] 5.4.6-stable review
+Message-ID: <20191220082051.GA2253558@kroah.com>
+References: <20191219183031.278083125@linuxfoundation.org>
+ <CA+G9fYtsFr-tmw5jAfYgrrjzo794YaouEBXXj1fE_UH3U9MaxQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYtsFr-tmw5jAfYgrrjzo794YaouEBXXj1fE_UH3U9MaxQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 20 Dec 2019 at 00:06, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.207 release.
-> There are 162 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 21 Dec 2019 18:24:44 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.207-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+On Fri, Dec 20, 2019 at 12:52:56PM +0530, Naresh Kamboju wrote:
+> On Fri, 20 Dec 2019 at 00:24, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.4.6 release.
+> > There are 80 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sat, 21 Dec 2019 18:24:44 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.6-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Wonderful, thanks for testing all of these and letting me know.
 
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.207-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 9fe78e96326d85ca140930f72dbce8b198001210
-git describe: v4.4.206-163-g9fe78e96326d
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.206-163-g9fe78e96326d
-
-No regressions (compared to build v4.4.206)
-
-No fixes (compared to build v4.4.206)
-
-Ran 16802 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* kvm-unit-tests
-* install-android-platform-tools-r2600
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* prep-tmp-disk
-* ssuite
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.207-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.207-rc1-hikey-20191219-637
-git commit: edc1100c367e3d8ec1489ada9ebd94f1024d0f51
-git describe: 4.4.207-rc1-hikey-20191219-637
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.207-rc1-hikey-20191219-637
-
-
-No regressions (compared to build 4.4.207-rc1-hikey-20191219-636)
-
-
-No fixes (compared to build 4.4.207-rc1-hikey-20191219-636)
-
-Ran 1566 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
