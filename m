@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CAE0127D42
+	by mail.lfdr.de (Postfix) with ESMTP id CF6FA127D43
 	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727822AbfLTOal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:30:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34406 "EHLO mail.kernel.org"
+        id S1727837AbfLTOam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:30:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727790AbfLTOak (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:30:40 -0500
+        id S1727816AbfLTOam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:30:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 357292468C;
-        Fri, 20 Dec 2019 14:30:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 737C624684;
+        Fri, 20 Dec 2019 14:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852240;
-        bh=xpZSiw1B0mh/r+4BRCtLUERbNLJsC67GmYMk1Woavl8=;
+        s=default; t=1576852241;
+        bh=/MS10nszUwF6I5dV/Ux6RGz0tsPDlASNy6iNfgudSc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLSVbv2KAkES+qYqETm/ik7UPEXjwhEnV7XZNVSFhA0aQogSFQRNWhUqheGt4+YMW
-         8AC6JagoVhWZZPvsAa4opN9yk9SL8zMchzAjkR+mclpkwpXdJ49cUyxN5GUeACxPcs
-         EUV2zthwn+9nA+KpzQ40cZ1J3T+vAhkumts7nIbQ=
+        b=LCpCmCeguItGmOq5zVSc9K5ChO8Vd/YAWRxOf4Eo7RCQlogR0WXXm8lX5gbi1U0r1
+         Am12DPMZxDHem/lF6UAkwxeORM7YYV7b6VshC0Lbfi/lI38wTW8ofLBb+tKk10mtTR
+         OKkdmaKBBry550Q/9k6A9xvIfw80zFUVrcd5Ys7s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Yan <yanaijie@huawei.com>, Gao Chuan <gaochuan4@huawei.com>,
-        John Garry <john.garry@huawei.com>,
+Cc:     Bo Wu <wubo40@huawei.com>, Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Lee Duncan <lduncan@suse.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 33/52] scsi: libsas: stop discovering if oob mode is disconnected
-Date:   Fri, 20 Dec 2019 09:29:35 -0500
-Message-Id: <20191220142954.9500-33-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, open-iscsi@googlegroups.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 34/52] scsi: iscsi: Avoid potential deadlock in iscsi_if_rx func
+Date:   Fri, 20 Dec 2019 09:29:36 -0500
+Message-Id: <20191220142954.9500-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220142954.9500-1-sashal@kernel.org>
 References: <20191220142954.9500-1-sashal@kernel.org>
@@ -44,145 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Yan <yanaijie@huawei.com>
+From: Bo Wu <wubo40@huawei.com>
 
-[ Upstream commit f70267f379b5e5e11bdc5d72a56bf17e5feed01f ]
+[ Upstream commit bba340c79bfe3644829db5c852fdfa9e33837d6d ]
 
-The discovering of sas port is driven by workqueue in libsas. When libsas
-is processing port events or phy events in workqueue, new events may rise
-up and change the state of some structures such as asd_sas_phy.  This may
-cause some problems such as follows:
+In iscsi_if_rx func, after receiving one request through
+iscsi_if_recv_msg func, iscsi_if_send_reply will be called to try to
+reply to the request in a do-while loop.  If the iscsi_if_send_reply
+function keeps returning -EAGAIN, a deadlock will occur.
 
-==>thread 1                       ==>thread 2
+For example, a client only send msg without calling recvmsg func, then
+it will result in the watchdog soft lockup.  The details are given as
+follows:
 
-                                  ==>phy up
-                                  ==>phy_up_v3_hw()
-                                    ==>oob_mode = SATA_OOB_MODE;
-                                  ==>phy down quickly
-                                  ==>hisi_sas_phy_down()
-                                    ==>sas_ha->notify_phy_event()
-                                    ==>sas_phy_disconnected()
-                                      ==>oob_mode = OOB_NOT_CONNECTED
-==>workqueue wakeup
-==>sas_form_port()
-  ==>sas_discover_domain()
-    ==>sas_get_port_device()
-      ==>oob_mode is OOB_NOT_CONNECTED and device
-         is wrongly taken as expander
+	sock_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ISCSI);
+	retval = bind(sock_fd, (struct sock addr*) & src_addr, sizeof(src_addr);
+	while (1) {
+		state_msg = sendmsg(sock_fd, &msg, 0);
+		//Note: recvmsg(sock_fd, &msg, 0) is not processed here.
+	}
+	close(sock_fd);
 
-This at last lead to the panic when libsas trying to issue a command to
-discover the device.
+watchdog: BUG: soft lockup - CPU#7 stuck for 22s! [netlink_test:253305] Sample time: 4000897528 ns(HZ: 250) Sample stat:
+curr: user: 675503481560, nice: 321724050, sys: 448689506750, idle: 4654054240530, iowait: 40885550700, irq: 14161174020, softirq: 8104324140, st: 0
+deta: user: 0, nice: 0, sys: 3998210100, idle: 0, iowait: 0, irq: 1547170, softirq: 242870, st: 0 Sample softirq:
+         TIMER:        992
+         SCHED:          8
+Sample irqstat:
+         irq    2: delta       1003, curr:    3103802, arch_timer
+CPU: 7 PID: 253305 Comm: netlink_test Kdump: loaded Tainted: G           OE
+Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+pstate: 40400005 (nZcv daif +PAN -UAO)
+pc : __alloc_skb+0x104/0x1b0
+lr : __alloc_skb+0x9c/0x1b0
+sp : ffff000033603a30
+x29: ffff000033603a30 x28: 00000000000002dd
+x27: ffff800b34ced810 x26: ffff800ba7569f00
+x25: 00000000ffffffff x24: 0000000000000000
+x23: ffff800f7c43f600 x22: 0000000000480020
+x21: ffff0000091d9000 x20: ffff800b34eff200
+x19: ffff800ba7569f00 x18: 0000000000000000
+x17: 0000000000000000 x16: 0000000000000000
+x15: 0000000000000000 x14: 0001000101000100
+x13: 0000000101010000 x12: 0101000001010100
+x11: 0001010101010001 x10: 00000000000002dd
+x9 : ffff000033603d58 x8 : ffff800b34eff400
+x7 : ffff800ba7569200 x6 : ffff800b34eff400
+x5 : 0000000000000000 x4 : 00000000ffffffff
+x3 : 0000000000000000 x2 : 0000000000000001
+x1 : ffff800b34eff2c0 x0 : 0000000000000300 Call trace:
+__alloc_skb+0x104/0x1b0
+iscsi_if_rx+0x144/0x12bc [scsi_transport_iscsi]
+netlink_unicast+0x1e0/0x258
+netlink_sendmsg+0x310/0x378
+sock_sendmsg+0x4c/0x70
+sock_write_iter+0x90/0xf0
+__vfs_write+0x11c/0x190
+vfs_write+0xac/0x1c0
+ksys_write+0x6c/0xd8
+__arm64_sys_write+0x24/0x30
+el0_svc_common+0x78/0x130
+el0_svc_handler+0x38/0x78
+el0_svc+0x8/0xc
 
-[183047.614035] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000058
-[183047.622896] Mem abort info:
-[183047.625762]   ESR = 0x96000004
-[183047.628893]   Exception class = DABT (current EL), IL = 32 bits
-[183047.634888]   SET = 0, FnV = 0
-[183047.638015]   EA = 0, S1PTW = 0
-[183047.641232] Data abort info:
-[183047.644189]   ISV = 0, ISS = 0x00000004
-[183047.648100]   CM = 0, WnR = 0
-[183047.651145] user pgtable: 4k pages, 48-bit VAs, pgdp =
-00000000b7df67be
-[183047.657834] [0000000000000058] pgd=0000000000000000
-[183047.662789] Internal error: Oops: 96000004 [#1] SMP
-[183047.667740] Process kworker/u16:2 (pid: 31291, stack limit =
-0x00000000417c4974)
-[183047.675208] CPU: 0 PID: 3291 Comm: kworker/u16:2 Tainted: G
-W  OE 4.19.36-vhulk1907.1.0.h410.eulerosv2r8.aarch64 #1
-[183047.687015] Hardware name: N/A N/A/Kunpeng Desktop Board D920S10,
-BIOS 0.15 10/22/2019
-[183047.695007] Workqueue: 0000:74:02.0_disco_q sas_discover_domain
-[183047.700999] pstate: 20c00009 (nzCv daif +PAN +UAO)
-[183047.705864] pc : prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
-[183047.711510] lr : prep_ata_v3_hw+0xb0/0x230 [hisi_sas_v3_hw]
-[183047.717153] sp : ffff00000f28ba60
-[183047.720541] x29: ffff00000f28ba60 x28: ffff8026852d7228
-[183047.725925] x27: ffff8027dba3e0a8 x26: ffff8027c05fc200
-[183047.731310] x25: 0000000000000000 x24: ffff8026bafa8dc0
-[183047.736695] x23: ffff8027c05fc218 x22: ffff8026852d7228
-[183047.742079] x21: ffff80007c2f2940 x20: ffff8027c05fc200
-[183047.747464] x19: 0000000000f80800 x18: 0000000000000010
-[183047.752848] x17: 0000000000000000 x16: 0000000000000000
-[183047.758232] x15: ffff000089a5a4ff x14: 0000000000000005
-[183047.763617] x13: ffff000009a5a50e x12: ffff8026bafa1e20
-[183047.769001] x11: ffff0000087453b8 x10: ffff00000f28b870
-[183047.774385] x9 : 0000000000000000 x8 : ffff80007e58f9b0
-[183047.779770] x7 : 0000000000000000 x6 : 000000000000003f
-[183047.785154] x5 : 0000000000000040 x4 : ffffffffffffffe0
-[183047.790538] x3 : 00000000000000f8 x2 : 0000000002000007
-[183047.795922] x1 : 0000000000000008 x0 : 0000000000000000
-[183047.801307] Call trace:
-[183047.803827]  prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
-[183047.809127]  hisi_sas_task_prep+0x750/0x888 [hisi_sas_main]
-[183047.814773]  hisi_sas_task_exec.isra.7+0x88/0x1f0 [hisi_sas_main]
-[183047.820939]  hisi_sas_queue_command+0x28/0x38 [hisi_sas_main]
-[183047.826757]  smp_execute_task_sg+0xec/0x218
-[183047.831013]  smp_execute_task+0x74/0xa0
-[183047.834921]  sas_discover_expander.part.7+0x9c/0x5f8
-[183047.839959]  sas_discover_root_expander+0x90/0x160
-[183047.844822]  sas_discover_domain+0x1b8/0x1e8
-[183047.849164]  process_one_work+0x1b4/0x3f8
-[183047.853246]  worker_thread+0x54/0x470
-[183047.856981]  kthread+0x134/0x138
-[183047.860283]  ret_from_fork+0x10/0x18
-[183047.863931] Code: f9407a80 528000e2 39409281 72a04002 (b9405800)
-[183047.870097] kernel fault(0x1) notification starting on CPU 0
-[183047.875828] kernel fault(0x1) notification finished on CPU 0
-[183047.881559] Modules linked in: unibsp(OE) hns3(OE) hclge(OE)
-hnae3(OE) mem_drv(OE) hisi_sas_v3_hw(OE) hisi_sas_main(OE)
-[183047.892418] ---[ end trace 4cc26083fc11b783  ]---
-[183047.897107] Kernel panic - not syncing: Fatal exception
-[183047.902403] kernel fault(0x5) notification starting on CPU 0
-[183047.908134] kernel fault(0x5) notification finished on CPU 0
-[183047.913865] SMP: stopping secondary CPUs
-[183047.917861] Kernel Offset: disabled
-[183047.921422] CPU features: 0x2,a2a00a38
-[183047.925243] Memory Limit: none
-[183047.928372] kernel reboot(0x2) notification starting on CPU 0
-[183047.934190] kernel reboot(0x2) notification finished on CPU 0
-[183047.940008] ---[ end Kernel panic - not syncing: Fatal exception
-]---
-
-Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
-Link: https://lore.kernel.org/r/20191206011118.46909-1-yanaijie@huawei.com
-Reported-by: Gao Chuan <gaochuan4@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Jason Yan <yanaijie@huawei.com>
+Link: https://lore.kernel.org/r/EDBAAA0BBBA2AC4E9C8B6B81DEEE1D6915E3D4D2@dggeml505-mbx.china.huawei.com
+Signed-off-by: Bo Wu <wubo40@huawei.com>
+Reviewed-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_discover.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_transport_iscsi.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/scsi/libsas/sas_discover.c b/drivers/scsi/libsas/sas_discover.c
-index f47b4b281b14a..d7302c2052f91 100644
---- a/drivers/scsi/libsas/sas_discover.c
-+++ b/drivers/scsi/libsas/sas_discover.c
-@@ -81,12 +81,21 @@ static int sas_get_port_device(struct asd_sas_port *port)
- 		else
- 			dev->dev_type = SAS_SATA_DEV;
- 		dev->tproto = SAS_PROTOCOL_SATA;
--	} else {
-+	} else if (port->oob_mode == SAS_OOB_MODE) {
- 		struct sas_identify_frame *id =
- 			(struct sas_identify_frame *) dev->frame_rcvd;
- 		dev->dev_type = id->dev_type;
- 		dev->iproto = id->initiator_bits;
- 		dev->tproto = id->target_bits;
-+	} else {
-+		/* If the oob mode is OOB_NOT_CONNECTED, the port is
-+		 * disconnected due to race with PHY down. We cannot
-+		 * continue to discover this port
-+		 */
-+		sas_put_device(dev);
-+		pr_warn("Port %016llx is disconnected when discovering\n",
-+			SAS_ADDR(port->attached_sas_addr));
-+		return -ENODEV;
- 	}
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 417b868d8735e..ed8d9709b9b96 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -24,6 +24,8 @@
  
- 	sas_init_dev(dev);
+ #define ISCSI_TRANSPORT_VERSION "2.0-870"
+ 
++#define ISCSI_SEND_MAX_ALLOWED  10
++
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/iscsi.h>
+ 
+@@ -3682,6 +3684,7 @@ iscsi_if_rx(struct sk_buff *skb)
+ 		struct nlmsghdr	*nlh;
+ 		struct iscsi_uevent *ev;
+ 		uint32_t group;
++		int retries = ISCSI_SEND_MAX_ALLOWED;
+ 
+ 		nlh = nlmsg_hdr(skb);
+ 		if (nlh->nlmsg_len < sizeof(*nlh) + sizeof(*ev) ||
+@@ -3712,6 +3715,10 @@ iscsi_if_rx(struct sk_buff *skb)
+ 				break;
+ 			err = iscsi_if_send_reply(portid, nlh->nlmsg_type,
+ 						  ev, sizeof(*ev));
++			if (err == -EAGAIN && --retries < 0) {
++				printk(KERN_WARNING "Send reply failed, error %d\n", err);
++				break;
++			}
+ 		} while (err < 0 && err != -ECONNREFUSED && err != -ESRCH);
+ 		skb_pull(skb, rlen);
+ 	}
 -- 
 2.20.1
 
