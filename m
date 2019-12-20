@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B8D127D8A
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C412127D8C
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728298AbfLTOet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:34:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39010 "EHLO mail.kernel.org"
+        id S1728219AbfLTOeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:34:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728213AbfLTOes (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:34:48 -0500
+        id S1727683AbfLTOeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:34:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A22F24695;
-        Fri, 20 Dec 2019 14:34:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B66E024680;
+        Fri, 20 Dec 2019 14:34:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852488;
-        bh=zUpkqMwan0EDcea0gZWwUYSw2llqaLgxDSihAC5ohjM=;
+        s=default; t=1576852489;
+        bh=0tGg4+AZJaHWkUwSGa+LofvkLvWtlVY6XMsyeejDtKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwImDSxoLbj3h6CuG7ZCkpl86R0B7B5YMiJzvj7+KlRVg8MQAvzIr8Q6sOcPu2+36
-         2htUAMkhIXr7wvO9UIVe4GsVAZ9U9GP5Ogaft8oAV/JbzpL9MIWl+he+QFIWltbmYI
-         NZrINpiyOTyMLpJ2byn4dp3pfXESjEjrn7UKA2+I=
+        b=2Ms6UJJ0vKvtGgfPWD0JG4NbA5PROHP5pUyRe+xLTrevb7bmVcx+//aQxX2m0IQQe
+         0ZubZfqv0i6XN/e8xc4fdG51UgCLhVCl7Ucptu4ydA2hnLdkyPuG/APmb0XX2OMT6X
+         QaxgQ7iV5fN5JvMuM+cS69K1Ex0OL6wqOXaz+Fm4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 11/34] afs: Fix SELinux setting security label on /afs
-Date:   Fri, 20 Dec 2019 09:34:10 -0500
-Message-Id: <20191220143433.9922-11-sashal@kernel.org>
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Parav Pandit <parav@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 12/34] RDMA/cma: add missed unregister_pernet_subsys in init failure
+Date:   Fri, 20 Dec 2019 09:34:11 -0500
+Message-Id: <20191220143433.9922-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220143433.9922-1-sashal@kernel.org>
 References: <20191220143433.9922-1-sashal@kernel.org>
@@ -44,40 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit bcbccaf2edcf1b76f73f890e968babef446151a4 ]
+[ Upstream commit 44a7b6759000ac51b92715579a7bba9e3f9245c2 ]
 
-Make the AFS dynamic root superblock R/W so that SELinux can set the
-security label on it.  Without this, upgrades to, say, the Fedora
-filesystem-afs RPM fail if afs is mounted on it because the SELinux label
-can't be (re-)applied.
+The driver forgets to call unregister_pernet_subsys() in the error path
+of cma_init().
+Add the missed call to fix it.
 
-It might be better to make it possible to bypass the R/O check for LSM
-label application through setxattr.
-
-Fixes: 4d673da14533 ("afs: Support the AFS dynamic root")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-cc: selinux@vger.kernel.org
-cc: linux-security-module@vger.kernel.org
+Fixes: 4be74b42a6d0 ("IB/cma: Separate port allocation to network namespaces")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Link: https://lore.kernel.org/r/20191206012426.12744-1-hslester96@gmail.com
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/super.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/infiniband/core/cma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/afs/super.c b/fs/afs/super.c
-index 4d3e274207fb7..bd26082974732 100644
---- a/fs/afs/super.c
-+++ b/fs/afs/super.c
-@@ -404,7 +404,6 @@ static int afs_fill_super(struct super_block *sb,
- 	/* allocate the root inode and dentry */
- 	if (as->dyn_root) {
- 		inode = afs_iget_pseudo_dir(sb, true);
--		sb->s_flags	|= SB_RDONLY;
- 	} else {
- 		sprintf(sb->s_id, "%u", as->volume->vid);
- 		afs_activate_volume(as->volume);
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 1f373ba573b6d..319bfef00a4a8 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -4658,6 +4658,7 @@ static int __init cma_init(void)
+ err:
+ 	unregister_netdevice_notifier(&cma_nb);
+ 	ib_sa_unregister_client(&sa_client);
++	unregister_pernet_subsys(&cma_pernet_operations);
+ err_wq:
+ 	destroy_workqueue(cma_wq);
+ 	return ret;
 -- 
 2.20.1
 
