@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E78127E1D
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFD62127E1B
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728319AbfLTOhz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:37:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42038 "EHLO mail.kernel.org"
+        id S1728345AbfLTOh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:37:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728308AbfLTOhz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:37:55 -0500
+        id S1727847AbfLTOh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:37:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16E932467F;
-        Fri, 20 Dec 2019 14:37:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F25B24680;
+        Fri, 20 Dec 2019 14:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852674;
-        bh=Kqn0D6G3j4uFEBm6j3z6Sdq9qM2GpDQSnC3DlTOF2O8=;
+        s=default; t=1576852675;
+        bh=xM2oklz4FFAtArOB5pqVPEnxLppXiEvGloY3AoOlOlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkYTfWEpwOA0pLgaOpAHqFQeE+MVXlyjldghU96arnttH+7XfS88QsmGrPtKKdeXO
-         RmNsTXFyMr/iabHQV5JYfHYv0uFjP7uirelpNI8i33i/ecXQYswcADZZbXlhtUONre
-         QqgpW7BOoYFIL0qQiil7vnLVp/Wd/kD5BUG0j7Ew=
+        b=CNMw1DZ2YsC+U7S9tZQMktGWuLTcs5qLnrlbfqS9oUVTt5iDjS+TCsXPsdrOqOrrl
+         GzNcRSImbTubCdJKthoNS6Uk8lDWF37tJUlyFbrFBrnmEfK6YwqFvHngT82VHht2k7
+         Bft+FoSc4G8KmqRP7vdRE+XewrQWz0AhOKBvK/mc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Yan <yanaijie@huawei.com>, Gao Chuan <gaochuan4@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/19] scsi: libsas: stop discovering if oob mode is disconnected
-Date:   Fri, 20 Dec 2019 09:37:30 -0500
-Message-Id: <20191220143741.10220-9-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, Lyude Paul <lyude@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 10/19] drm/nouveau: Move the declaration of struct nouveau_conn_atom up a bit
+Date:   Fri, 20 Dec 2019 09:37:31 -0500
+Message-Id: <20191220143741.10220-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220143741.10220-1-sashal@kernel.org>
 References: <20191220143741.10220-1-sashal@kernel.org>
@@ -44,145 +44,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Yan <yanaijie@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f70267f379b5e5e11bdc5d72a56bf17e5feed01f ]
+[ Upstream commit 37a68eab4cd92b507c9e8afd760fdc18e4fecac6 ]
 
-The discovering of sas port is driven by workqueue in libsas. When libsas
-is processing port events or phy events in workqueue, new events may rise
-up and change the state of some structures such as asd_sas_phy.  This may
-cause some problems such as follows:
+Place the declaration of struct nouveau_conn_atom above that of
+struct nouveau_connector. This commit makes no changes to the moved
+block what so ever, it just moves it up a bit.
 
-==>thread 1                       ==>thread 2
+This is a preparation patch to fix some issues with connector handling
+on pre nv50 displays (which do not use atomic modesetting).
 
-                                  ==>phy up
-                                  ==>phy_up_v3_hw()
-                                    ==>oob_mode = SATA_OOB_MODE;
-                                  ==>phy down quickly
-                                  ==>hisi_sas_phy_down()
-                                    ==>sas_ha->notify_phy_event()
-                                    ==>sas_phy_disconnected()
-                                      ==>oob_mode = OOB_NOT_CONNECTED
-==>workqueue wakeup
-==>sas_form_port()
-  ==>sas_discover_domain()
-    ==>sas_get_port_device()
-      ==>oob_mode is OOB_NOT_CONNECTED and device
-         is wrongly taken as expander
-
-This at last lead to the panic when libsas trying to issue a command to
-discover the device.
-
-[183047.614035] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000058
-[183047.622896] Mem abort info:
-[183047.625762]   ESR = 0x96000004
-[183047.628893]   Exception class = DABT (current EL), IL = 32 bits
-[183047.634888]   SET = 0, FnV = 0
-[183047.638015]   EA = 0, S1PTW = 0
-[183047.641232] Data abort info:
-[183047.644189]   ISV = 0, ISS = 0x00000004
-[183047.648100]   CM = 0, WnR = 0
-[183047.651145] user pgtable: 4k pages, 48-bit VAs, pgdp =
-00000000b7df67be
-[183047.657834] [0000000000000058] pgd=0000000000000000
-[183047.662789] Internal error: Oops: 96000004 [#1] SMP
-[183047.667740] Process kworker/u16:2 (pid: 31291, stack limit =
-0x00000000417c4974)
-[183047.675208] CPU: 0 PID: 3291 Comm: kworker/u16:2 Tainted: G
-W  OE 4.19.36-vhulk1907.1.0.h410.eulerosv2r8.aarch64 #1
-[183047.687015] Hardware name: N/A N/A/Kunpeng Desktop Board D920S10,
-BIOS 0.15 10/22/2019
-[183047.695007] Workqueue: 0000:74:02.0_disco_q sas_discover_domain
-[183047.700999] pstate: 20c00009 (nzCv daif +PAN +UAO)
-[183047.705864] pc : prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
-[183047.711510] lr : prep_ata_v3_hw+0xb0/0x230 [hisi_sas_v3_hw]
-[183047.717153] sp : ffff00000f28ba60
-[183047.720541] x29: ffff00000f28ba60 x28: ffff8026852d7228
-[183047.725925] x27: ffff8027dba3e0a8 x26: ffff8027c05fc200
-[183047.731310] x25: 0000000000000000 x24: ffff8026bafa8dc0
-[183047.736695] x23: ffff8027c05fc218 x22: ffff8026852d7228
-[183047.742079] x21: ffff80007c2f2940 x20: ffff8027c05fc200
-[183047.747464] x19: 0000000000f80800 x18: 0000000000000010
-[183047.752848] x17: 0000000000000000 x16: 0000000000000000
-[183047.758232] x15: ffff000089a5a4ff x14: 0000000000000005
-[183047.763617] x13: ffff000009a5a50e x12: ffff8026bafa1e20
-[183047.769001] x11: ffff0000087453b8 x10: ffff00000f28b870
-[183047.774385] x9 : 0000000000000000 x8 : ffff80007e58f9b0
-[183047.779770] x7 : 0000000000000000 x6 : 000000000000003f
-[183047.785154] x5 : 0000000000000040 x4 : ffffffffffffffe0
-[183047.790538] x3 : 00000000000000f8 x2 : 0000000002000007
-[183047.795922] x1 : 0000000000000008 x0 : 0000000000000000
-[183047.801307] Call trace:
-[183047.803827]  prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
-[183047.809127]  hisi_sas_task_prep+0x750/0x888 [hisi_sas_main]
-[183047.814773]  hisi_sas_task_exec.isra.7+0x88/0x1f0 [hisi_sas_main]
-[183047.820939]  hisi_sas_queue_command+0x28/0x38 [hisi_sas_main]
-[183047.826757]  smp_execute_task_sg+0xec/0x218
-[183047.831013]  smp_execute_task+0x74/0xa0
-[183047.834921]  sas_discover_expander.part.7+0x9c/0x5f8
-[183047.839959]  sas_discover_root_expander+0x90/0x160
-[183047.844822]  sas_discover_domain+0x1b8/0x1e8
-[183047.849164]  process_one_work+0x1b4/0x3f8
-[183047.853246]  worker_thread+0x54/0x470
-[183047.856981]  kthread+0x134/0x138
-[183047.860283]  ret_from_fork+0x10/0x18
-[183047.863931] Code: f9407a80 528000e2 39409281 72a04002 (b9405800)
-[183047.870097] kernel fault(0x1) notification starting on CPU 0
-[183047.875828] kernel fault(0x1) notification finished on CPU 0
-[183047.881559] Modules linked in: unibsp(OE) hns3(OE) hclge(OE)
-hnae3(OE) mem_drv(OE) hisi_sas_v3_hw(OE) hisi_sas_main(OE)
-[183047.892418] ---[ end trace 4cc26083fc11b783  ]---
-[183047.897107] Kernel panic - not syncing: Fatal exception
-[183047.902403] kernel fault(0x5) notification starting on CPU 0
-[183047.908134] kernel fault(0x5) notification finished on CPU 0
-[183047.913865] SMP: stopping secondary CPUs
-[183047.917861] Kernel Offset: disabled
-[183047.921422] CPU features: 0x2,a2a00a38
-[183047.925243] Memory Limit: none
-[183047.928372] kernel reboot(0x2) notification starting on CPU 0
-[183047.934190] kernel reboot(0x2) notification finished on CPU 0
-[183047.940008] ---[ end Kernel panic - not syncing: Fatal exception
-]---
-
-Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
-Link: https://lore.kernel.org/r/20191206011118.46909-1-yanaijie@huawei.com
-Reported-by: Gao Chuan <gaochuan4@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_discover.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_connector.h | 110 ++++++++++----------
+ 1 file changed, 55 insertions(+), 55 deletions(-)
 
-diff --git a/drivers/scsi/libsas/sas_discover.c b/drivers/scsi/libsas/sas_discover.c
-index 60de66252fa2b..b200edc665a58 100644
---- a/drivers/scsi/libsas/sas_discover.c
-+++ b/drivers/scsi/libsas/sas_discover.c
-@@ -97,12 +97,21 @@ static int sas_get_port_device(struct asd_sas_port *port)
- 		else
- 			dev->dev_type = SAS_SATA_DEV;
- 		dev->tproto = SAS_PROTOCOL_SATA;
--	} else {
-+	} else if (port->oob_mode == SAS_OOB_MODE) {
- 		struct sas_identify_frame *id =
- 			(struct sas_identify_frame *) dev->frame_rcvd;
- 		dev->dev_type = id->dev_type;
- 		dev->iproto = id->initiator_bits;
- 		dev->tproto = id->target_bits;
-+	} else {
-+		/* If the oob mode is OOB_NOT_CONNECTED, the port is
-+		 * disconnected due to race with PHY down. We cannot
-+		 * continue to discover this port
-+		 */
-+		sas_put_device(dev);
-+		pr_warn("Port %016llx is disconnected when discovering\n",
-+			SAS_ADDR(port->attached_sas_addr));
-+		return -ENODEV;
- 	}
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.h b/drivers/gpu/drm/nouveau/nouveau_connector.h
+index dc7454e7f19aa..b46e99f7641ed 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.h
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.h
+@@ -29,6 +29,7 @@
  
- 	sas_init_dev(dev);
+ #include <nvif/notify.h>
+ 
++#include <drm/drm_crtc.h>
+ #include <drm/drm_edid.h>
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_dp_helper.h>
+@@ -37,6 +38,60 @@
+ 
+ struct nvkm_i2c_port;
+ 
++#define nouveau_conn_atom(p)                                                   \
++	container_of((p), struct nouveau_conn_atom, state)
++
++struct nouveau_conn_atom {
++	struct drm_connector_state state;
++
++	struct {
++		/* The enum values specifically defined here match nv50/gf119
++		 * hw values, and the code relies on this.
++		 */
++		enum {
++			DITHERING_MODE_OFF = 0x00,
++			DITHERING_MODE_ON = 0x01,
++			DITHERING_MODE_DYNAMIC2X2 = 0x10 | DITHERING_MODE_ON,
++			DITHERING_MODE_STATIC2X2 = 0x18 | DITHERING_MODE_ON,
++			DITHERING_MODE_TEMPORAL = 0x20 | DITHERING_MODE_ON,
++			DITHERING_MODE_AUTO
++		} mode;
++		enum {
++			DITHERING_DEPTH_6BPC = 0x00,
++			DITHERING_DEPTH_8BPC = 0x02,
++			DITHERING_DEPTH_AUTO
++		} depth;
++	} dither;
++
++	struct {
++		int mode;	/* DRM_MODE_SCALE_* */
++		struct {
++			enum {
++				UNDERSCAN_OFF,
++				UNDERSCAN_ON,
++				UNDERSCAN_AUTO,
++			} mode;
++			u32 hborder;
++			u32 vborder;
++		} underscan;
++		bool full;
++	} scaler;
++
++	struct {
++		int color_vibrance;
++		int vibrant_hue;
++	} procamp;
++
++	union {
++		struct {
++			bool dither:1;
++			bool scaler:1;
++			bool procamp:1;
++		};
++		u8 mask;
++	} set;
++};
++
+ struct nouveau_connector {
+ 	struct drm_connector base;
+ 	enum dcb_connector_type type;
+@@ -111,61 +166,6 @@ extern int nouveau_ignorelid;
+ extern int nouveau_duallink;
+ extern int nouveau_hdmimhz;
+ 
+-#include <drm/drm_crtc.h>
+-#define nouveau_conn_atom(p)                                                   \
+-	container_of((p), struct nouveau_conn_atom, state)
+-
+-struct nouveau_conn_atom {
+-	struct drm_connector_state state;
+-
+-	struct {
+-		/* The enum values specifically defined here match nv50/gf119
+-		 * hw values, and the code relies on this.
+-		 */
+-		enum {
+-			DITHERING_MODE_OFF = 0x00,
+-			DITHERING_MODE_ON = 0x01,
+-			DITHERING_MODE_DYNAMIC2X2 = 0x10 | DITHERING_MODE_ON,
+-			DITHERING_MODE_STATIC2X2 = 0x18 | DITHERING_MODE_ON,
+-			DITHERING_MODE_TEMPORAL = 0x20 | DITHERING_MODE_ON,
+-			DITHERING_MODE_AUTO
+-		} mode;
+-		enum {
+-			DITHERING_DEPTH_6BPC = 0x00,
+-			DITHERING_DEPTH_8BPC = 0x02,
+-			DITHERING_DEPTH_AUTO
+-		} depth;
+-	} dither;
+-
+-	struct {
+-		int mode;	/* DRM_MODE_SCALE_* */
+-		struct {
+-			enum {
+-				UNDERSCAN_OFF,
+-				UNDERSCAN_ON,
+-				UNDERSCAN_AUTO,
+-			} mode;
+-			u32 hborder;
+-			u32 vborder;
+-		} underscan;
+-		bool full;
+-	} scaler;
+-
+-	struct {
+-		int color_vibrance;
+-		int vibrant_hue;
+-	} procamp;
+-
+-	union {
+-		struct {
+-			bool dither:1;
+-			bool scaler:1;
+-			bool procamp:1;
+-		};
+-		u8 mask;
+-	} set;
+-};
+-
+ void nouveau_conn_attach_properties(struct drm_connector *);
+ void nouveau_conn_reset(struct drm_connector *);
+ struct drm_connector_state *
 -- 
 2.20.1
 
