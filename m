@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE42127DD2
-	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:38:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9B8D127D8A
+	for <lists+stable@lfdr.de>; Fri, 20 Dec 2019 15:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727692AbfLTOgs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Dec 2019 09:36:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38914 "EHLO mail.kernel.org"
+        id S1728298AbfLTOet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Dec 2019 09:34:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728289AbfLTOer (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:34:47 -0500
+        id S1728213AbfLTOes (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:34:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16A11222C2;
-        Fri, 20 Dec 2019 14:34:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A22F24695;
+        Fri, 20 Dec 2019 14:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576852486;
-        bh=dv+JqRDbCcIOhSLjp+k6A9kZqZ63vaPQJPej8O9jRGk=;
+        s=default; t=1576852488;
+        bh=zUpkqMwan0EDcea0gZWwUYSw2llqaLgxDSihAC5ohjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ES024Ypz8p7oHiA8uPdKQZSDJNeEczr99yIR7QfByeUuio8lD0JhQ0zeOr8sgW584
-         oAuk0t5QALwqVbvMkkdHTurjDtyrLqAbinVxXzx34OU2oZYU4dUhrQsebwcloLU67G
-         9I6qWgHdujZmgABdc4l6B1tjup7ln73JaxhK/udg=
+        b=FwImDSxoLbj3h6CuG7ZCkpl86R0B7B5YMiJzvj7+KlRVg8MQAvzIr8Q6sOcPu2+36
+         2htUAMkhIXr7wvO9UIVe4GsVAZ9U9GP5Ogaft8oAV/JbzpL9MIWl+he+QFIWltbmYI
+         NZrINpiyOTyMLpJ2byn4dp3pfXESjEjrn7UKA2+I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
+Cc:     David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 10/34] afs: Fix afs_find_server lookups for ipv4 peers
-Date:   Fri, 20 Dec 2019 09:34:09 -0500
-Message-Id: <20191220143433.9922-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 11/34] afs: Fix SELinux setting security label on /afs
+Date:   Fri, 20 Dec 2019 09:34:10 -0500
+Message-Id: <20191220143433.9922-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191220143433.9922-1-sashal@kernel.org>
 References: <20191220143433.9922-1-sashal@kernel.org>
@@ -43,93 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Dionne <marc.dionne@auristor.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 9bd0160d12370a076e44f8d1320cde9c83f2c647 ]
+[ Upstream commit bcbccaf2edcf1b76f73f890e968babef446151a4 ]
 
-afs_find_server tries to find a server that has an address that
-matches the transport address of an rxrpc peer.  The code assumes
-that the transport address is always ipv6, with ipv4 represented
-as ipv4 mapped addresses, but that's not the case.  If the transport
-family is AF_INET, srx->transport.sin6.sin6_addr.s6_addr32[] will
-be beyond the actual ipv4 address and will always be 0, and all
-ipv4 addresses will be seen as matching.
+Make the AFS dynamic root superblock R/W so that SELinux can set the
+security label on it.  Without this, upgrades to, say, the Fedora
+filesystem-afs RPM fail if afs is mounted on it because the SELinux label
+can't be (re-)applied.
 
-As a result, the first ipv4 address seen on any server will be
-considered a match, and the server returned may be the wrong one.
+It might be better to make it possible to bypass the R/O check for LSM
+label application through setxattr.
 
-One of the consequences is that callbacks received over ipv4 will
-only be correctly applied for the server that happens to have the
-first ipv4 address on the fs_addresses4 list.  Callbacks over ipv4
-from all other servers are dropped, causing the client to serve stale
-data.
-
-This is fixed by looking at the transport family, and comparing ipv4
-addresses based on a sockaddr_in structure rather than a sockaddr_in6.
-
-Fixes: d2ddc776a458 ("afs: Overhaul volume and server record caching and fileserver rotation")
-Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
+Fixes: 4d673da14533 ("afs: Support the AFS dynamic root")
 Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+cc: selinux@vger.kernel.org
+cc: linux-security-module@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/server.c | 21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ fs/afs/super.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/afs/server.c b/fs/afs/server.c
-index 1d329e6981d51..2c7f6211c3601 100644
---- a/fs/afs/server.c
-+++ b/fs/afs/server.c
-@@ -34,18 +34,11 @@ static void afs_dec_servers_outstanding(struct afs_net *net)
- struct afs_server *afs_find_server(struct afs_net *net,
- 				   const struct sockaddr_rxrpc *srx)
- {
--	const struct sockaddr_in6 *a = &srx->transport.sin6, *b;
- 	const struct afs_addr_list *alist;
- 	struct afs_server *server = NULL;
- 	unsigned int i;
--	bool ipv6 = true;
- 	int seq = 0, diff;
- 
--	if (srx->transport.sin6.sin6_addr.s6_addr32[0] == 0 ||
--	    srx->transport.sin6.sin6_addr.s6_addr32[1] == 0 ||
--	    srx->transport.sin6.sin6_addr.s6_addr32[2] == htonl(0xffff))
--		ipv6 = false;
--
- 	rcu_read_lock();
- 
- 	do {
-@@ -54,7 +47,8 @@ struct afs_server *afs_find_server(struct afs_net *net,
- 		server = NULL;
- 		read_seqbegin_or_lock(&net->fs_addr_lock, &seq);
- 
--		if (ipv6) {
-+		if (srx->transport.family == AF_INET6) {
-+			const struct sockaddr_in6 *a = &srx->transport.sin6, *b;
- 			hlist_for_each_entry_rcu(server, &net->fs_addresses6, addr6_link) {
- 				alist = rcu_dereference(server->addresses);
- 				for (i = alist->nr_ipv4; i < alist->nr_addrs; i++) {
-@@ -70,15 +64,16 @@ struct afs_server *afs_find_server(struct afs_net *net,
- 				}
- 			}
- 		} else {
-+			const struct sockaddr_in *a = &srx->transport.sin, *b;
- 			hlist_for_each_entry_rcu(server, &net->fs_addresses4, addr4_link) {
- 				alist = rcu_dereference(server->addresses);
- 				for (i = 0; i < alist->nr_ipv4; i++) {
--					b = &alist->addrs[i].transport.sin6;
--					diff = ((u16 __force)a->sin6_port -
--						(u16 __force)b->sin6_port);
-+					b = &alist->addrs[i].transport.sin;
-+					diff = ((u16 __force)a->sin_port -
-+						(u16 __force)b->sin_port);
- 					if (diff == 0)
--						diff = ((u32 __force)a->sin6_addr.s6_addr32[3] -
--							(u32 __force)b->sin6_addr.s6_addr32[3]);
-+						diff = ((u32 __force)a->sin_addr.s_addr -
-+							(u32 __force)b->sin_addr.s_addr);
- 					if (diff == 0)
- 						goto found;
- 				}
+diff --git a/fs/afs/super.c b/fs/afs/super.c
+index 4d3e274207fb7..bd26082974732 100644
+--- a/fs/afs/super.c
++++ b/fs/afs/super.c
+@@ -404,7 +404,6 @@ static int afs_fill_super(struct super_block *sb,
+ 	/* allocate the root inode and dentry */
+ 	if (as->dyn_root) {
+ 		inode = afs_iget_pseudo_dir(sb, true);
+-		sb->s_flags	|= SB_RDONLY;
+ 	} else {
+ 		sprintf(sb->s_id, "%u", as->volume->vid);
+ 		afs_activate_volume(as->volume);
 -- 
 2.20.1
 
