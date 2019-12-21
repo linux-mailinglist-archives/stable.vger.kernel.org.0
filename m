@@ -2,264 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 143261288E4
-	for <lists+stable@lfdr.de>; Sat, 21 Dec 2019 12:47:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3160E1288F0
+	for <lists+stable@lfdr.de>; Sat, 21 Dec 2019 13:03:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726254AbfLULrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Dec 2019 06:47:49 -0500
-Received: from mail-out.m-online.net ([212.18.0.9]:55038 "EHLO
-        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726098AbfLULrs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Dec 2019 06:47:48 -0500
-Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
-        by mail-out.m-online.net (Postfix) with ESMTP id 47g3l46lyCz1qqkt;
-        Sat, 21 Dec 2019 12:47:44 +0100 (CET)
-Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
-        by mail.m-online.net (Postfix) with ESMTP id 47g3l464hyz1rYb1;
-        Sat, 21 Dec 2019 12:47:44 +0100 (CET)
-X-Virus-Scanned: amavisd-new at mnet-online.de
-Received: from mail.mnet-online.de ([192.168.8.182])
-        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
-        with ESMTP id weIs6Mb35UX3; Sat, 21 Dec 2019 12:47:43 +0100 (CET)
-X-Auth-Info: NwKlhirXql7cnDAD8hE/2FYqL5jZz6OJMmYk6b9OeaU=
-Received: from [IPv6:::1] (unknown [195.140.253.167])
+        id S1726291AbfLUMDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Dec 2019 07:03:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49146 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726254AbfLUMDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 21 Dec 2019 07:03:19 -0500
+Received: from localhost (unknown [38.98.37.136])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.mnet-online.de (Postfix) with ESMTPSA;
-        Sat, 21 Dec 2019 12:47:43 +0100 (CET)
-From:   Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH] can: m_can: Fix default pinmux glitch at init
-To:     Grygorii Strashko <grygorii.strashko@ti.com>,
-        linux-can@vger.kernel.org
-Cc:     Bich Hemon <bich.hemon@st.com>,
-        "J . D . Schroeder" <jay.schroeder@garmin.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Roger Quadros <rogerq@ti.com>,
-        linux-stable <stable@vger.kernel.org>
-References: <20191217100740.2687835-1-marex@denx.de>
- <8b2e0a40-cf23-58a5-4f52-215015c61ea8@ti.com>
- <3c48dd07-154e-bc47-4aff-73769d9efa22@denx.de>
- <be0d0b55-c287-3252-e188-cbaedd5d426c@ti.com>
- <b875d2a3-a39d-b00b-3558-96cab1e00165@denx.de>
- <be6bad41-4893-6e2c-4fab-411125ab5d94@ti.com>
- <c419f0f2-9cfe-ec4c-db36-626ca3c57d32@denx.de>
- <f3ecc2b7-b380-79af-5887-0c2f3360534f@ti.com>
-Message-ID: <3adc4188-c175-a3e7-a104-82bb2e073a35@denx.de>
-Date:   Sat, 21 Dec 2019 12:47:23 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        by mail.kernel.org (Postfix) with ESMTPSA id E45022070C;
+        Sat, 21 Dec 2019 12:03:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576929799;
+        bh=Vj6hqpjP3GeNLyV10OZpide3mDmoUIaZnAD1e5nRDS0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Q6sTAxGtpKjjTwfkyOFXeAi5okUXqUAOJG+BwhQcVzM8x6Bjb9PvwQGr9oGB3nEV4
+         87cFLZENICEI/pQIeRLJOc1xtFExB9OFOnyL+11tFUtfb/AFZJTRxNo7QAvtaU/JSv
+         /vBF6pxXrlyYocSiN67ZGnz/alvhYgJg9TPVXs6w=
+Date:   Sat, 21 Dec 2019 13:03:09 +0100
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     "Mr. FRANQUET" <franquet@protonmail.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "sashal@kernel.org" <sashal@kernel.org>,
+        "tytso@mit.edu" <tytso@mit.edu>,
+        "keescook@chromium.org" <keescook@chromium.org>
+Subject: Re: [PATCH] Add RANDOM_TRUST_CPU to linux-stable.
+Message-ID: <20191221120309.GA70102@kroah.com>
+References: <RznihSm8WDp89qhAMg_uwqq6C8hl8uMyjaEWW3riCvy0bbah4mFE2qcM-ha-qZdsRm6jrgct7DAqU5Dr6ziYrsI23la6Bu-YaIf1JmZOmq4=@protonmail.com>
 MIME-Version: 1.0
-In-Reply-To: <f3ecc2b7-b380-79af-5887-0c2f3360534f@ti.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <RznihSm8WDp89qhAMg_uwqq6C8hl8uMyjaEWW3riCvy0bbah4mFE2qcM-ha-qZdsRm6jrgct7DAqU5Dr6ziYrsI23la6Bu-YaIf1JmZOmq4=@protonmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/21/19 12:12 PM, Grygorii Strashko wrote:
+On Sat, Dec 21, 2019 at 11:57:59AM +0000, Mr. FRANQUET wrote:
+> Hi,
 > 
+> After reading a blog post[1], I have a great trust interest in seeing you take two upstream commits in stable, so:
 > 
-> On 21/12/2019 13:00, Marek Vasut wrote:
->> On 12/21/19 11:53 AM, Grygorii Strashko wrote:
->>>
->>>
->>> On 19/12/2019 23:47, Marek Vasut wrote:
->>>> On 12/19/19 2:37 PM, Grygorii Strashko wrote:
->>>>>
->>>>>
->>>>> On 17/12/2019 12:55, Marek Vasut wrote:
->>>>>> On 12/17/19 11:42 AM, Grygorii Strashko wrote:
->>>>>>>
->>>>>>>
->>>>>>> On 17/12/2019 12:07, Marek Vasut wrote:
->>>>>>>> The current code causes a slight glitch on the pinctrl settings
->>>>>>>> when
->>>>>>>> used.
->>>>>>>> Since commit ab78029 (drivers/pinctrl: grab default handles from
->>>>>>>> device core),
->>>>>>>> the device core will automatically set the default pins. This
->>>>>>>> causes
->>>>>>>> the pins
->>>>>>>> to be momentarily set to the default and then to the sleep state in
->>>>>>>> register_m_can_dev(). By adding an optional "enable" state, boards
->>>>>>>> can
->>>>>>>> set the
->>>>>>>> default pin state to be disabled and avoid the glitch when the
->>>>>>>> switch
->>>>>>>> from
->>>>>>>> default to sleep first occurs. If the "enable" state is not
->>>>>>>> available
->>>>>>>> pinctrl_get_select() falls back to using the "default" pinctrl
->>>>>>>> state.
->>>>>>>>
->>>>>>>> Fixes: c9b3bce18da4 ("can: m_can: select pinctrl state in each
->>>>>>>> suspend/resume function")
->>>>>>>> Signed-off-by: Marek Vasut <marex@denx.de>
->>>>>>>> Cc: Bich Hemon <bich.hemon@st.com>
->>>>>>>> Cc: Grygorii Strashko <grygorii.strashko@ti.com>
->>>>>>>> Cc: J.D. Schroeder <jay.schroeder@garmin.com>
->>>>>>>> Cc: Marc Kleine-Budde <mkl@pengutronix.de>
->>>>>>>> Cc: Roger Quadros <rogerq@ti.com>
->>>>>>>> Cc: linux-stable <stable@vger.kernel.org>
->>>>>>>> To: linux-can@vger.kernel.org
->>>>>>>> ---
->>>>>>>> NOTE: This is commit 033365191136 ("can: c_can: Fix default pinmux
->>>>>>>> glitch at init")
->>>>>>>>           adapted for m_can driver.
->>>>>>>> ---
->>>>>>>>      drivers/net/can/m_can/m_can.c | 8 ++++++++
->>>>>>>>      1 file changed, 8 insertions(+)
->>>>>>>>
->>>>>>>> diff --git a/drivers/net/can/m_can/m_can.c
->>>>>>>> b/drivers/net/can/m_can/m_can.c
->>>>>>>> index 02c5795b73936..afb6760b17427 100644
->>>>>>>> --- a/drivers/net/can/m_can/m_can.c
->>>>>>>> +++ b/drivers/net/can/m_can/m_can.c
->>>>>>>> @@ -1243,12 +1243,20 @@ static void m_can_chip_config(struct
->>>>>>>> net_device *dev)
->>>>>>>>      static void m_can_start(struct net_device *dev)
->>>>>>>>      {
->>>>>>>>          struct m_can_classdev *cdev = netdev_priv(dev);
->>>>>>>> +    struct pinctrl *p;
->>>>>>>>            /* basic m_can configuration */
->>>>>>>>          m_can_chip_config(dev);
->>>>>>>>            cdev->can.state = CAN_STATE_ERROR_ACTIVE;
->>>>>>>>      +    /* Attempt to use "active" if available else use
->>>>>>>> "default" */
->>>>>>>> +    p = pinctrl_get_select(cdev->dev, "active");
->>>>>>>> +    if (!IS_ERR(p))
->>>>>>>> +        pinctrl_put(p);
->>>>>>>> +    else
->>>>>>>> +        pinctrl_pm_select_default_state(cdev->dev);
->>>>>>>> +
->>>>>>>>          m_can_enable_all_interrupts(cdev);
->>>>>>>>      }
->>>>>>>>     
->>>>>>>
->>>>>>> May be init state should be used - #define PINCTRL_STATE_INIT "init"
->>>>>>> instead?
->>>>>>
->>>>>> I'm not sure I quite understand -- how ?
->>>>>>
->>>>>
->>>>> Sry, for delayed reply.
->>>>>
->>>>> I've looked at m_can code and think issue is a little bit deeper
->>>>>    (but I might be wrong as i'm not can expert and below based on code
->>>>> review).
->>>>>
->>>>> First, what going on:
->>>>> probe:
->>>>>    really_probe()
->>>>>     pinctrl_bind_pins()
->>>>>           if (IS_ERR(dev->pins->init_state)) {
->>>>>           ret = pinctrl_select_state(dev->pins->p,
->>>>>                          dev->pins->default_state);
->>>>>       } else {
->>>>>           ret = pinctrl_select_state(dev->pins->p,
->>>>> dev->pins->init_state);
->>>>>       }
->>>>>     [GS] So at this point default_state or init_state is set
->>>>>
->>>>>     ret = dev->bus->probe(dev);
->>>>>          m_can_plat_probe()
->>>>>        m_can_class_register()
->>>>>           m_can_clk_start()
->>>>>             pm_runtime_get_sync()
->>>>>           m_can_runtime_resume()
->>>>>     [GS] Still default_state or init_state is active
->>>>>
->>>>>          register_m_can_dev()
->>>>>     [GS] at this point m_can netdev is registered, which may lead to
->>>>> .ndo_open = m_can_open() call
->>>>>
->>>>>            m_can_clk_stop()
->>>>>              pm_runtime_put_sync()
->>>>>     [GS] if .ndo_open() was called before it will be a nop
->>>>>           m_can_runtime_suspend()
->>>>>            m_can_class_suspend()
->>>>>
->>>>>               if (netif_running(ndev)) {
->>>>>                   netif_stop_queue(ndev);
->>>>>                   netif_device_detach(ndev);
->>>>>                   m_can_stop(ndev);
->>>>>                   m_can_clk_stop(cdev);
->>>>>     [GS] if .ndo_open() was called before it will lead to deadlock
->>>>> here
->>>>>         So, most probably, it will cause deadlock in case of "ifconfig
->>>>> <m_can_dev> up down" case
->>>>>               }
->>>>>
->>>>>               pinctrl_pm_select_sleep_state(dev);
->>>>>     [GS] at this point sleep_state will be set - i assume it's the
->>>>> root
->>>>> cause of your glitch.
->>>>>          Note - As per code, the pinctrl default_state will never ever
->>>>> configured again, so if after
->>>>>          probe m_can will go through PM runtime suspend/resume
->>>>> cycle it
->>>>> will not work any more.
->>>>>
->>>>>     pinctrl_init_done()
->>>>>     [GS] will do nothing in case !init_state
->>>>>
->>>>> As per above, if sleep_state is defined the m_can seems should not
->>>>> work
->>>>> at all without your patch,
->>>>> as there is no code path to switch back sleep_state->default_state.
->>>>> And over all PM runtime m_can code is mixed with System suspend
->>>>> code and
->>>>> so not correct.
->>>>>
->>>>> Also, the very good question - Is it really required to toggle pinctrl
->>>>> states as part of PM runtime?
->>>>> (usually it's enough to handle it only during System suspend).
->>>>
->>>> I suspect this discussion is somewhat a separate topic from what this
->>>> patch is trying to fix ?
->>>>
->>>
->>> Not exactly.
->>
->> I see ?
->>
->>> The reason you need this patch is misuse of PM runtime vs
->>> pin control
->>> in this driver. And this has to be fixed first of all.
->>
->> But then the C_CAN also misuses the PM runtime ? I mean, this patch does
->> literally what the same patch for C_CAN does, so maybe this is a more
->> general problem and needs a separate fix -- unless tristating the pins
->> when the block if disabled is the right thing to do, which it might be.
->>
->>> I feel that just removing of m_can_class_suspend() call from
->>> m_can_runtime_suspend()
->>> will fix things for you - it will toggle pin states only during Suspend
->>> to RAM cycle.
->>
->> I need to configure the pins on boot, this has nothing to do with
->> suspend/resume.
->>
+> 39a8883a2b989d1d21bd8dd99f5557f0c5e89694 (random: add a config option to trust the CPU's hwrng)
+> 9b25436662d5fb4c66eb527ead53cab15f596ee0 (random: make CPU trust a boot parameter)
 > 
-> Then just use default_state in DT and do not define sleep state.
-> Sry, I see no reason for your patch at all.
+> I have just successfully tested this into linux 4.14.159.
 
-Sry, my board does not work without this patch, so I see reason enough.
-Presumably the author of the C_CAN patch did see similar reason.
+If you wish to use this new feature, please just use the 4.19 or newer
+kernel, no need to stick to 4.14.y.  Remember, stable kernels are for
+bugfixes, not new features.
 
-Mind you, STM32MP1 does define both states already.
+thanks,
 
-> And please, try my proposal - don't make me feel I wasted my time doing
-> all above analysis.
-
-But your proposal stops switching the pin states when the core is
-suspended, I don't think that's what's it supposed to do.
-
-> Note. commit ab78029 (drivers/pinctrl: grab default handles from
-> device core) is from Tue Jan 22 10:56:14 2013, while m_can_platfrom is
-> from Thu May 9 11:11:05 2019. So, it's incorrect to even say in commit
-> message that smth. was changed for m_can "Since commit ab78029".
-
-That's not what the commit message says though.
+greg k-h
