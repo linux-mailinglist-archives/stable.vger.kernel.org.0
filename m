@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF7D0129920
-	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 18:12:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23D4C129921
+	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 18:12:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726754AbfLWRMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Dec 2019 12:12:31 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46321 "EHLO
+        id S1726821AbfLWRMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Dec 2019 12:12:40 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55169 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726718AbfLWRMb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 12:12:31 -0500
+        by vger.kernel.org with ESMTP id S1726718AbfLWRMk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 12:12:40 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id D4ABD21C48;
-        Mon, 23 Dec 2019 12:12:29 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 23 Dec 2019 12:12:29 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 7509C21E95;
+        Mon, 23 Dec 2019 12:12:39 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 23 Dec 2019 12:12:39 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Ei9mIZ
-        IKDheaQHz2M3WurlxgmT6FStBRMWGDDagS0Hs=; b=rIl6n7qtcM9gj1wqoq9aSt
-        zXl5UTXliF8lRCwDKh9YHTS1EdpgoqAD4YKVZUOgxa5Eq7e8SbVC/pWVYgkFydlZ
-        DRPuCCj1aq2FoYBDvINB0+DTPS5L75V6vpTjWg+nZci8tXjrOJXHb9mig64G1dT1
-        BNKFe/uSRg3K9U0j+FKh4q9lFzvG0Uqtg2FdcnczEIcRyYcDtIJ7mrUydOB4ziwI
-        haU1zlLNjIXVv/ZMwsHr5+VdgGKOAI0h1eQeG7tGrJE1keWixvbcSqKHPRpm1gaC
-        I8II7b/bgqlE/Aa4BbLSX2g5eJA4oc+0GJeR+duYQSOr08ilSrCdhCjgQGPGs0yw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=KUM4aM
+        NHzhtRfEobX7b9oPfIHHyASdX9HXKzDBc+2dQ=; b=TiI5qS4e+yP9KoH3uQDv0u
+        ZO+3nF/k07qkGE+Kpf6QpavCWAd5Vm4FrN5+wCW8l3/AFL3AGywo/LygLHa2AM29
+        WA6WpYhcOXC0c680bAylmUmlwDCeypeyprOrazeeJkRS4xsKTz9ECURV+QT5I9EO
+        L8sEb1BM6ibqV2aJYCDMOxF8wSjvOBHOoiYZPzz962eE6740nZ13bKVH2h4MxEWr
+        lSKX2hwLHvdRY87HwvwU561tMJbPcgKhDL8sP36ohkBfK2qJNONDW2w+g3iNCMQ4
+        g9T91v+7pqFYwfHDuQavyxvt8vHOvpSpwBPi89d1RkjaM+S78kv8+spTXKeWeM1A
         ==
-X-ME-Sender: <xms:ffUAXjouvs2Oq0XrR2Bi3fZsBk5r0x4lB6TwAROm-s8yGWDHyNyPzQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddvtddgleeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:h_UAXk80ESPdC28fwRLRmvaPbHKslIcCeq2jH0nuzFHgFbybuxS3IQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddvtddgleejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeduleekrdekledrieegrddvgeelnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeej
-X-ME-Proxy: <xmx:ffUAXgYXRIlJqI5MF9RC-Cw9pqese7OfsdyvJkqZ84HMSRyZYaV2ow>
-    <xmx:ffUAXtHMkZ_KvhQ3fd4yg8npapUCg6cjy92YE47Dg03raMueCR6RPQ>
-    <xmx:ffUAXuarwvrx9z_1TYZuHn703b8XVE3MH0QrI6hZABTPGS0bIWHssw>
-    <xmx:ffUAXkYwGZRi_vo9wqm0SHlSzyoqEv2kGNR0C9g-ft36DXscequlpA>
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:h_UAXkXC8L9_PdpNRcLDpShoTlYvMfSBiFnH2lCP6TTVfUCfPVODkQ>
+    <xmx:h_UAXlMBRTIxldKQ3kAIMW9lgf4azfWlJom-K1lHnykTBD-ibWEBNA>
+    <xmx:h_UAXuyHNj0hSc3FYzCxkwFYVO2lXK8tb64qlsNxenkNFI5hAlP46w>
+    <xmx:h_UAXmvp28TqLsFQBfCwbEj6SHJMsiQPMK3h3icGJLHQy3zK7uucsA>
 Received: from localhost (unknown [198.89.64.249])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 551AB8005C;
-        Mon, 23 Dec 2019 12:12:27 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Btrfs: make tree checker detect checksum items with" failed to apply to 4.4-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3A8DB3060845;
+        Mon, 23 Dec 2019 12:12:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: return error pointer from alloc_test_extent_buffer" failed to apply to 4.4-stable tree
+To:     dan.carpenter@oracle.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Dec 2019 12:12:16 -0500
-Message-ID: <1577121136165252@kroah.com>
+Date:   Mon, 23 Dec 2019 12:12:36 -0500
+Message-ID: <157712115664157@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -67,71 +67,74 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ad1d8c439978ede77cbf73cbdd11bafe810421a5 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 2 Dec 2019 11:01:03 +0000
-Subject: [PATCH] Btrfs: make tree checker detect checksum items with
- overlapping ranges
+From b6293c821ea8fa2a631a2112cd86cd435effeb8b Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Tue, 3 Dec 2019 14:24:58 +0300
+Subject: [PATCH] btrfs: return error pointer from alloc_test_extent_buffer
 
-Having checksum items, either on the checksums tree or in a log tree, that
-represent ranges that overlap each other is a sign of a corruption. Such
-case confuses the checksum lookup code and can result in not being able to
-find checksums or find stale checksums.
+Callers of alloc_test_extent_buffer have not correctly interpreted the
+return value as error pointer, as alloc_test_extent_buffer should behave
+as alloc_extent_buffer. The self-tests were unaffected but
+btrfs_find_create_tree_block could call both functions and that would
+cause problems up in the call chain.
 
-So add a check for such case.
-
-This is motivated by a recent fix for a case where a log tree had checksum
-items covering ranges that overlap each other due to extent cloning, and
-resulted in missing checksums after replaying the log tree. It also helps
-detect past issues such as stale and outdated checksums due to overlapping,
-commit 27b9a8122ff71a ("Btrfs: fix csum tree corruption, duplicate and
-outdated checksums").
-
+Fixes: faa2dbf004e8 ("Btrfs: add sanity tests for new qgroup accounting code")
 CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
-index 092b8ece36d7..97f3520b8d98 100644
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -332,7 +332,7 @@ static int check_extent_data_item(struct extent_buffer *leaf,
- }
- 
- static int check_csum_item(struct extent_buffer *leaf, struct btrfs_key *key,
--			   int slot)
-+			   int slot, struct btrfs_key *prev_key)
- {
- 	struct btrfs_fs_info *fs_info = leaf->fs_info;
- 	u32 sectorsize = fs_info->sectorsize;
-@@ -356,6 +356,20 @@ static int check_csum_item(struct extent_buffer *leaf, struct btrfs_key *key,
- 			btrfs_item_size_nr(leaf, slot), csumsize);
- 		return -EUCLEAN;
- 	}
-+	if (slot > 0 && prev_key->type == BTRFS_EXTENT_CSUM_KEY) {
-+		u64 prev_csum_end;
-+		u32 prev_item_size;
-+
-+		prev_item_size = btrfs_item_size_nr(leaf, slot - 1);
-+		prev_csum_end = (prev_item_size / csumsize) * sectorsize;
-+		prev_csum_end += prev_key->offset;
-+		if (prev_csum_end > key->offset) {
-+			generic_err(leaf, slot - 1,
-+"csum end range (%llu) goes beyond the start range (%llu) of the next csum item",
-+				    prev_csum_end, key->offset);
-+			return -EUCLEAN;
-+		}
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index eb8bd0258360..2f4802f405a2 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -5074,12 +5074,14 @@ struct extent_buffer *alloc_test_extent_buffer(struct btrfs_fs_info *fs_info,
+ 		return eb;
+ 	eb = alloc_dummy_extent_buffer(fs_info, start);
+ 	if (!eb)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 	eb->fs_info = fs_info;
+ again:
+ 	ret = radix_tree_preload(GFP_NOFS);
+-	if (ret)
++	if (ret) {
++		exists = ERR_PTR(ret);
+ 		goto free_eb;
 +	}
- 	return 0;
- }
+ 	spin_lock(&fs_info->buffer_lock);
+ 	ret = radix_tree_insert(&fs_info->buffer_radix,
+ 				start >> PAGE_SHIFT, eb);
+diff --git a/fs/btrfs/tests/free-space-tree-tests.c b/fs/btrfs/tests/free-space-tree-tests.c
+index 1a846bf6e197..914eea5ba6a7 100644
+--- a/fs/btrfs/tests/free-space-tree-tests.c
++++ b/fs/btrfs/tests/free-space-tree-tests.c
+@@ -452,9 +452,9 @@ static int run_test(test_func_t test_func, int bitmaps, u32 sectorsize,
+ 	root->fs_info->tree_root = root;
  
-@@ -1355,7 +1369,7 @@ static int check_leaf_item(struct extent_buffer *leaf,
- 		ret = check_extent_data_item(leaf, key, slot, prev_key);
- 		break;
- 	case BTRFS_EXTENT_CSUM_KEY:
--		ret = check_csum_item(leaf, key, slot);
-+		ret = check_csum_item(leaf, key, slot, prev_key);
- 		break;
- 	case BTRFS_DIR_ITEM_KEY:
- 	case BTRFS_DIR_INDEX_KEY:
+ 	root->node = alloc_test_extent_buffer(root->fs_info, nodesize);
+-	if (!root->node) {
++	if (IS_ERR(root->node)) {
+ 		test_std_err(TEST_ALLOC_EXTENT_BUFFER);
+-		ret = -ENOMEM;
++		ret = PTR_ERR(root->node);
+ 		goto out;
+ 	}
+ 	btrfs_set_header_level(root->node, 0);
+diff --git a/fs/btrfs/tests/qgroup-tests.c b/fs/btrfs/tests/qgroup-tests.c
+index 09aaca1efd62..ac035a6fa003 100644
+--- a/fs/btrfs/tests/qgroup-tests.c
++++ b/fs/btrfs/tests/qgroup-tests.c
+@@ -484,9 +484,9 @@ int btrfs_test_qgroups(u32 sectorsize, u32 nodesize)
+ 	 * *cough*backref walking code*cough*
+ 	 */
+ 	root->node = alloc_test_extent_buffer(root->fs_info, nodesize);
+-	if (!root->node) {
++	if (IS_ERR(root->node)) {
+ 		test_err("couldn't allocate dummy buffer");
+-		ret = -ENOMEM;
++		ret = PTR_ERR(root->node);
+ 		goto out;
+ 	}
+ 	btrfs_set_header_level(root->node, 0);
 
