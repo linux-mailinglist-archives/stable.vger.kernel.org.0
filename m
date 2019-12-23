@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70FF112993D
-	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 18:18:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8746C12993E
+	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 18:18:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726821AbfLWRSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Dec 2019 12:18:40 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:49899 "EHLO
+        id S1726824AbfLWRSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Dec 2019 12:18:44 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:32987 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726718AbfLWRSk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 12:18:40 -0500
+        by vger.kernel.org with ESMTP id S1726718AbfLWRSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 12:18:44 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DEEC3217FC;
-        Mon, 23 Dec 2019 12:18:39 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 23 Dec 2019 12:18:39 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id ED1DC21F82;
+        Mon, 23 Dec 2019 12:18:43 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 23 Dec 2019 12:18:43 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ywkn83
-        Z+d+zWyf06A6qqRWIx0eJfafyXZ1DgQij95vM=; b=HI6I6js4MkaYvpOgGvnoTJ
-        eBT1LIzHd7nsZLi+nivrdLiuK7AK/GFOJLzH2qLRhrpMO0RMn5APQVoftcgBMH5G
-        jbWrR3UQOto+ItN9xsgIJ4AbDK45qucMrEnRfDjmIyE2UaHO83MDzrf6iOaCSY+a
-        cjSGS1aim0c0CDtiQKcEMuZMQK/MFgr6q0XaPtIUJeo8l7CsBTrtgxYVs0ST+M13
-        UirWEUXt/ZWXTQ9oIGxg1X3bdSrpsZAbW+Y+M1yXeY9GcihnFvWoMFJ6WwD0APsL
-        HXVqn+wAOfwUyek7X6TohC060UpeTjLtaTXS9ZosbJF/zMd2DVMsnqESAtwmNSTg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mFwyse
+        O4MbpFutRdZWooEufUraKGQDrHiOM9GuaZvrs=; b=U6xE1W95J+GwDoZR3JJGQx
+        EkCxKo/uXuTJ8jllDooa4+gQ2pxAKsvfB2WSOH9Z37gv05PiQPI+ShA7wfwFSJZo
+        Wwqhpr+ApiSGHYspnbhYkxFDWXsJYIZN/KK7i+Yh26J286CPrcAVYnnKSWCuA9Iq
+        CgX+jJoVW3IRZHCwrLMwYH+5uL+O+IOqt81FIiW4Nw6VusNwHdzpRgjMjFe9Gckn
+        XejJ1fGo9RCKMH30RfJlZqN+y+YFru8/C/WTax6C+0eaDr6ZHcuqtm/n1F5VwOfw
+        tqwbzDqD2fWFU5QK2DROKIIKs90ubPrvB9VdLTMoblUt33e5cpp4S1gS7r/rbk8w
         ==
-X-ME-Sender: <xms:7_YAXulgXe7iBXo2ybugwSIutpLnmDa6EZs4DxolMHr-g3F-1z2CEg>
+X-ME-Sender: <xms:8_YAXkY_n82wyOOCVFFDK6XsHvkZZXNtpWK8DrQdhj7paJnGONxeAA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddvtddgleekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepudelkedrkeelrdeige
     drvdegleenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-    necuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:7_YAXhkDIuKkxOq6n9xyc6Kj5k8e8M3IlZZOy3zkvKBYiPKnuxXFWg>
-    <xmx:7_YAXlNHfmCtXoRmD2Uvt2hrXFkXaBC6FkPm6ejRXdRv5vxIA-_v5g>
-    <xmx:7_YAXjsm60Bgsc57hWYVqfl67heNL16Gy19nH_Ca1IH7XYw9UnovnQ>
-    <xmx:7_YAXgjNQ8D5zmLm2jBHGAVEK5D-Sex92tyTHUGLEOhdVvUBreFR3w>
+    necuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:8_YAXskJ33tWylz65PCT435ehKrMqaV055nWGNwbWsTurAcZKFhw_w>
+    <xmx:8_YAXngOEQkkn493us0DPmpHtn7wH0pkWrIi5fsWbdHpZS_yMbdwWQ>
+    <xmx:8_YAXuSWHlCCtSActVi_xc23L_9cnRPWWBDrIfA1pDRYNT03dk5dNQ>
+    <xmx:8_YAXr_n0Kck3rMWOojRBJBJ0hbImROYHF80gWsdbeTEnEt8LmkRsQ>
 Received: from localhost (unknown [198.89.64.249])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A191A30609A0;
-        Mon, 23 Dec 2019 12:18:39 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ALSA: hda/ca0132 - Fix work handling in delayed HP detection" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7E71B8005B;
+        Mon, 23 Dec 2019 12:18:43 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ALSA: hda/ca0132 - Fix work handling in delayed HP detection" failed to apply to 4.4-stable tree
 To:     tiwai@suse.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Dec 2019 12:18:28 -0500
-Message-ID: <157712150812785@kroah.com>
+Date:   Mon, 23 Dec 2019 12:18:29 -0500
+Message-ID: <157712150919273@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
