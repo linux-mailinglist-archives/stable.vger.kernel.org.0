@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B74B512991C
-	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 18:12:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1215112991D
+	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 18:12:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbfLWRMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Dec 2019 12:12:05 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:42407 "EHLO
+        id S1726795AbfLWRMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Dec 2019 12:12:16 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46407 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726718AbfLWRMF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 12:12:05 -0500
+        by vger.kernel.org with ESMTP id S1726718AbfLWRMQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 12:12:16 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 21CD321EA7;
-        Mon, 23 Dec 2019 12:12:04 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 23 Dec 2019 12:12:04 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 6406F21EA7;
+        Mon, 23 Dec 2019 12:12:15 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 23 Dec 2019 12:12:15 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=WGtzZm
-        zb4DuhZQaKbeGz9L2xj6kVPk35b7ptarxANgM=; b=j0ecwXVvnNUSEKSuub7i6T
-        p8OqVx4KuXG7oei/Bj2R2caATfaSqwS+pBVhtXYPTDQ8Y1/14qoqUTp1Fbd+2t7V
-        d+6OjGxxlSIMXohp0hnAMS8KTiPDFAOCYK4PD1HybR+dUU3EuImI973dbx8frVR5
-        EUQ9c+MPMIute48lzKniSztBCoUKtdQn0hsu6g6ncaRJ7p8Ss3SbzoAD/8zWJf9x
-        iLblAgeuhAknUr0v/JWmMk1pv0bJFQdATSC8H1SrlPA5WH9+XUS7fK0cNoe2Bgn9
-        Dro2C/vDHtREwRhhJtLgehW1Cqj7i/AHs7DIUruBbRmaqbG84XwvfeCuslATqcqw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ra6vYS
+        NvMoJox8801DywKxaIM45FQ6WgVboX1LCybmA=; b=u+7LpVVqVEygXSGoBuzJt8
+        ZKjNUjyaJ6JIHAPzRcBc/H8lW2TkrVshkB3rA9hA/eUd1JBI8aKXhsjY5AcWkUm0
+        BnVvIMBXAAUL6F4snOiYU9iphXqyejIp3gM/06UizaUDFj9LU2g39ekU4bsXuoVB
+        APuFHmd7CjBGmDcLe2BLLPxi2jyh2tRhIbeGuy2ByY7V+pChRn9+dLgqNLfus2gX
+        MI4Amu0RW/0vXildthI+t4ciSGgzWVyKAKjxaiE/PepeE662rUP3xloQYYIkw3V1
+        GKK0OlAQ62lq5EwmixTP4Y2E0Y78AXIWOv2ctptdFq2iiaZ7LEMgV5JpbQ6Me37Q
         ==
-X-ME-Sender: <xms:ZPUAXoSO45y1B0wapwrHs6MMi-cJ59zU0kySmLRlL_MeC01ih_3iUA>
+X-ME-Sender: <xms:b_UAXm9Gw-AHNWgZ9gBxlOGpg69qtgoPpq5LlxZme4akIniy9GMdeg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddvtddgleeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeduleekrdekledrieegrddvgeelnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:ZPUAXktLyay8IQZJIUmN3Eu3d83uQhYFAenOZ7T6R_2NCMW78kIlYQ>
-    <xmx:ZPUAXh7kKBKSEaJChsUUAdoWRvwi43ZkU-2Edk_Jawo61cYidXmfJA>
-    <xmx:ZPUAXviE5yhCeUK_q7PbtDVNx--XatGtHmvCNC0Xb21CO13nEXFo7A>
-    <xmx:ZPUAXmOHz9qJxqI0bqJxo-tfB9zpHMuZdzqfVrifxqGqscPbIhPJuw>
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeg
+X-ME-Proxy: <xmx:b_UAXoMgkp4xOQM8VKnAH918qbgN2CTBLVZz4HEJFChXFpWfLXWYxg>
+    <xmx:b_UAXgnpQKSa2_xeU5tIVRQHKTaJGLmnM6iqlr3_W8M1a0bxdJkgBA>
+    <xmx:b_UAXt_4PocXue17aE-hBWHbb9YZxalO4kZlHdfTKFnOnmoA8rZxGQ>
+    <xmx:b_UAXjRSKI7rXLxj2yUgYIPLQhSEeQ-hwxO-dUFukJ9HQf3a5Hv-ag>
 Received: from localhost (unknown [198.89.64.249])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B6A448005C;
-        Mon, 23 Dec 2019 12:12:03 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: do not call synchronize_srcu() in inode_tree_del" failed to apply to 4.4-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1BADD30609A0;
+        Mon, 23 Dec 2019 12:12:15 -0500 (EST)
+Subject: FAILED: patch "[PATCH] Btrfs: make tree checker detect checksum items with" failed to apply to 4.19-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Dec 2019 12:11:50 -0500
-Message-ID: <1577121110200228@kroah.com>
+Date:   Mon, 23 Dec 2019 12:12:12 -0500
+Message-ID: <157712113210134@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,62 +67,71 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f72ff01df9cf5db25c76674cac16605992d15467 Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Tue, 19 Nov 2019 13:59:35 -0500
-Subject: [PATCH] btrfs: do not call synchronize_srcu() in inode_tree_del
+From ad1d8c439978ede77cbf73cbdd11bafe810421a5 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 2 Dec 2019 11:01:03 +0000
+Subject: [PATCH] Btrfs: make tree checker detect checksum items with
+ overlapping ranges
 
-Testing with the new fsstress uncovered a pretty nasty deadlock with
-lookup and snapshot deletion.
+Having checksum items, either on the checksums tree or in a log tree, that
+represent ranges that overlap each other is a sign of a corruption. Such
+case confuses the checksum lookup code and can result in not being able to
+find checksums or find stale checksums.
 
-Process A
-unlink
- -> final iput
-   -> inode_tree_del
-     -> synchronize_srcu(subvol_srcu)
+So add a check for such case.
 
-Process B
-btrfs_lookup  <- srcu_read_lock() acquired here
-  -> btrfs_iget
-    -> find inode that has I_FREEING set
-      -> __wait_on_freeing_inode()
+This is motivated by a recent fix for a case where a log tree had checksum
+items covering ranges that overlap each other due to extent cloning, and
+resulted in missing checksums after replaying the log tree. It also helps
+detect past issues such as stale and outdated checksums due to overlapping,
+commit 27b9a8122ff71a ("Btrfs: fix csum tree corruption, duplicate and
+outdated checksums").
 
-We're holding the srcu_read_lock() while doing the iget in order to make
-sure our fs root doesn't go away, and then we are waiting for the inode
-to finish freeing.  However because the free'ing process is doing a
-synchronize_srcu() we deadlock.
-
-Fix this by dropping the synchronize_srcu() in inode_tree_del().  We
-don't need people to stop accessing the fs root at this point, we're
-only adding our empty root to the dead roots list.
-
-A larger much more invasive fix is forthcoming to address how we deal
-with fs roots, but this fixes the immediate problem.
-
-Fixes: 76dda93c6ae2 ("Btrfs: add snapshot/subvolume destroy ioctl")
 CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 56032c518b26..5766c2d19896 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -5728,7 +5728,6 @@ static void inode_tree_add(struct inode *inode)
+diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
+index 092b8ece36d7..97f3520b8d98 100644
+--- a/fs/btrfs/tree-checker.c
++++ b/fs/btrfs/tree-checker.c
+@@ -332,7 +332,7 @@ static int check_extent_data_item(struct extent_buffer *leaf,
+ }
  
- static void inode_tree_del(struct inode *inode)
+ static int check_csum_item(struct extent_buffer *leaf, struct btrfs_key *key,
+-			   int slot)
++			   int slot, struct btrfs_key *prev_key)
  {
--	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	struct btrfs_root *root = BTRFS_I(inode)->root;
- 	int empty = 0;
+ 	struct btrfs_fs_info *fs_info = leaf->fs_info;
+ 	u32 sectorsize = fs_info->sectorsize;
+@@ -356,6 +356,20 @@ static int check_csum_item(struct extent_buffer *leaf, struct btrfs_key *key,
+ 			btrfs_item_size_nr(leaf, slot), csumsize);
+ 		return -EUCLEAN;
+ 	}
++	if (slot > 0 && prev_key->type == BTRFS_EXTENT_CSUM_KEY) {
++		u64 prev_csum_end;
++		u32 prev_item_size;
++
++		prev_item_size = btrfs_item_size_nr(leaf, slot - 1);
++		prev_csum_end = (prev_item_size / csumsize) * sectorsize;
++		prev_csum_end += prev_key->offset;
++		if (prev_csum_end > key->offset) {
++			generic_err(leaf, slot - 1,
++"csum end range (%llu) goes beyond the start range (%llu) of the next csum item",
++				    prev_csum_end, key->offset);
++			return -EUCLEAN;
++		}
++	}
+ 	return 0;
+ }
  
-@@ -5741,7 +5740,6 @@ static void inode_tree_del(struct inode *inode)
- 	spin_unlock(&root->inode_lock);
- 
- 	if (empty && btrfs_root_refs(&root->root_item) == 0) {
--		synchronize_srcu(&fs_info->subvol_srcu);
- 		spin_lock(&root->inode_lock);
- 		empty = RB_EMPTY_ROOT(&root->inode_tree);
- 		spin_unlock(&root->inode_lock);
+@@ -1355,7 +1369,7 @@ static int check_leaf_item(struct extent_buffer *leaf,
+ 		ret = check_extent_data_item(leaf, key, slot, prev_key);
+ 		break;
+ 	case BTRFS_EXTENT_CSUM_KEY:
+-		ret = check_csum_item(leaf, key, slot);
++		ret = check_csum_item(leaf, key, slot, prev_key);
+ 		break;
+ 	case BTRFS_DIR_ITEM_KEY:
+ 	case BTRFS_DIR_INDEX_KEY:
 
