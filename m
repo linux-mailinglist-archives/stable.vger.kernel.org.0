@@ -2,72 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D94F8129A7E
-	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 20:43:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD405129A93
+	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 20:51:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726934AbfLWTnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Dec 2019 14:43:19 -0500
-Received: from [66.170.99.2] ([66.170.99.2]:26805 "EHLO
-        sid-build-box.eng.vmware.com" rhost-flags-FAIL-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726933AbfLWTm5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 14:42:57 -0500
-Received: by sid-build-box.eng.vmware.com (Postfix, from userid 1000)
-        id 1826DBA17CA; Tue, 24 Dec 2019 01:07:15 +0530 (IST)
-From:   Siddharth Chandrasekaran <csiddharth@vmware.com>
-To:     torvalds@linux-foundation.org
-Cc:     gregkh@linuxfoundation.org, sashal@kernel.org, jannh@google.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        siddharth@embedjournal.com,
-        Siddharth Chandrasekaran <csiddharth@vmware.com>
-Subject: [PATCH 4.9 2/2] filldir[64]: remove WARN_ON_ONCE() for bad directory entries
-Date:   Tue, 24 Dec 2019 01:06:36 +0530
-Message-Id: <511b6865db743cceba4949e7633c80f48306c5b4.1577128417.git.csiddharth@vmware.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <cover.1577128778.git.csiddharth@vmware.com>
-References: <cover.1577128778.git.csiddharth@vmware.com>
-In-Reply-To: <cover.1577128417.git.csiddharth@vmware.com>
-References: <cover.1577128417.git.csiddharth@vmware.com>
+        id S1726884AbfLWTvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Dec 2019 14:51:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42034 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726787AbfLWTvh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Dec 2019 14:51:37 -0500
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2F31206B7;
+        Mon, 23 Dec 2019 19:51:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1577130696;
+        bh=/0UqyxLP9PhhVlx/M31LoxeAEq/RQPtAy28UYxCkrbM=;
+        h=Date:From:To:Subject:From;
+        b=UlfxUWsWNX3QNUaYp3W+mZnVEs+WyvPQyzN2zQPuGPbdoQCQanpJx2i8o1cfWfNEc
+         DhyPG0dJUnY7T9Gllxo3nSoY4anAaZz7XNCLcmwbQUi1U4J5SsQXR645m7/Ess/m6X
+         tuUHULEiuxQW0vIswGva01s00gSH3tOlewWeOOoQ=
+Date:   Mon, 23 Dec 2019 11:51:36 -0800
+From:   akpm@linux-foundation.org
+To:     guro@fb.com, hannes@cmpxchg.org, ktkhai@virtuozzo.com,
+        mhocko@suse.com, mm-commits@vger.kernel.org, shakeelb@google.com,
+        stable@vger.kernel.org, yang.shi@linux.alibaba.com
+Subject:  [merged]
+ mm-vmscan-protect-shrinker-idr-replace-with-config_memcg.patch removed from
+ -mm tree
+Message-ID: <20191223195136.REASfxwIT%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit b9959c7a347d6adbb558fba7e36e9fef3cba3b07 ]
+The patch titled
+     Subject: mm: vmscan: protect shrinker idr replace with CONFIG_MEMCG
+has been removed from the -mm tree.  Its filename was
+     mm-vmscan-protect-shrinker-idr-replace-with-config_memcg.patch
 
-This was always meant to be a temporary thing, just for testing and to
-see if it actually ever triggered.
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-The only thing that reported it was syzbot doing disk image fuzzing, and
-then that warning is expected.  So let's just remove it before -rc4,
-because the extra sanity testing should probably go to -stable, but we
-don't want the warning to do so.
+------------------------------------------------------
+From: Yang Shi <yang.shi@linux.alibaba.com>
+Subject: mm: vmscan: protect shrinker idr replace with CONFIG_MEMCG
 
-Reported-by: syzbot+3031f712c7ad5dd4d926@syzkaller.appspotmail.com
-Fixes: 8a23eb804ca4 ("Make filldir[64]() verify the directory entry filename is valid")
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Siddharth Chandrasekaran <csiddharth@vmware.com>
+Since commit 0a432dcbeb32edc ("mm: shrinker: make shrinker not depend on
+memcg kmem"), shrinkers' idr is protected by CONFIG_MEMCG instead of
+CONFIG_MEMCG_KMEM, so it makes no sense to protect shrinker idr replace
+with CONFIG_MEMCG_KMEM.
+
+And in the CONFIG_MEMCG && CONFIG_SLOB case, shrinker_idr contains only
+shrinker, and it is deferred_split_shrinker.  But it is never actually
+called, since idr_replace() is never compiled due to the wrong #ifdef. 
+The deferred_split_shrinker all the time is staying in half-registered
+state, and it's never called for subordinate mem cgroups.
+
+Link: http://lkml.kernel.org/r/1575486978-45249-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: 0a432dcbeb32 ("mm: shrinker: make shrinker not depend on memcg kmem")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: <stable@vger.kernel.org>	[5.4+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- fs/readdir.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/readdir.c b/fs/readdir.c
-index ace19d9..1059f2a 100644
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -90,9 +90,9 @@ EXPORT_SYMBOL(iterate_dir);
-  */
- static int verify_dirent_name(const char *name, int len)
+ mm/vmscan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/vmscan.c~mm-vmscan-protect-shrinker-idr-replace-with-config_memcg
++++ a/mm/vmscan.c
+@@ -387,7 +387,7 @@ void register_shrinker_prepared(struct s
  {
--	if (WARN_ON_ONCE(!len))
-+	if (!len)
- 		return -EIO;
--	if (WARN_ON_ONCE(memchr(name, '/', len)))
-+	if (memchr(name, '/', len))
- 		return -EIO;
- 	return 0;
- }
--- 
-2.7.4
+ 	down_write(&shrinker_rwsem);
+ 	list_add_tail(&shrinker->list, &shrinker_list);
+-#ifdef CONFIG_MEMCG_KMEM
++#ifdef CONFIG_MEMCG
+ 	if (shrinker->flags & SHRINKER_MEMCG_AWARE)
+ 		idr_replace(&shrinker_idr, shrinker, shrinker->id);
+ #endif
+_
+
+Patches currently in -mm which might be from yang.shi@linux.alibaba.com are
+
+mm-move_pages-return-valid-node-id-in-status-if-the-page-is-already-on-the-target-node.patch
 
