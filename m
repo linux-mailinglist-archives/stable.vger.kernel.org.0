@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 046B8129918
-	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 18:11:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F44129919
+	for <lists+stable@lfdr.de>; Mon, 23 Dec 2019 18:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726766AbfLWRLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Dec 2019 12:11:19 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:50731 "EHLO
+        id S1726787AbfLWRLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Dec 2019 12:11:31 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:56429 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726754AbfLWRLS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 12:11:18 -0500
+        by vger.kernel.org with ESMTP id S1726754AbfLWRLb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 12:11:31 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 80CE821B74;
-        Mon, 23 Dec 2019 12:11:17 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 23 Dec 2019 12:11:17 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id C2E4921EBC;
+        Mon, 23 Dec 2019 12:11:30 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 23 Dec 2019 12:11:30 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=eIdFt/
-        zgDTK8H2Ji3APChxT2tKV8SQ2JHF4BemXZ4aI=; b=tVVxgKSlxoG64jD64DxESq
-        SBd+0fri8ommI6z20BcgjV4doxx3IZdoZlJzwcIZf7mYImM73nl7Gwb67QaXHouF
-        Y3ICQKtLeSFZdidgiIEIVht4j2S9cgMEAMMMAZ5zHjdG2kldT6OYN/9FzPgb6q0R
-        MnxLeg8fhYgs2Ts7OUoi0tWg7JWpnZYllfagO4sUlwA58mc7YirStpCDBCrqpsV6
-        EgFkEfcDt4yPdX+gpiSnMLMUhe5Dy/Pz2lgGU5BTKwSc9W2quovmGds9pL57zS08
-        ndcfZUhqPhr1kPgeq3MiJZI/UQtiqpg7JtoYDMoiPUE7BINfDB/CfMcSwf1fFiKA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=oj4od6
+        yHYjL9/RX1Rlws7eQlPe/Qvbo830e9xnvCpgI=; b=Z/9L55mEkQ1mA5sV7VDgZR
+        jCU+oXAbyWuhVig6fKnjioeLxnQZWMWcr3Ovr7mD3UQp++spUsTqaQN4YfREyf4t
+        JzdP3ptH+XmoOoirhjea2+6CQnfWHkK4wA0HkKsaqexKEupG2MvEt3detYXl5YuK
+        dyLunIo/n7PMUUQ4ekH/AE/AOVt2vOF396TOK6JAiYqiwSmlDl7mXdmzaj7Fxgcp
+        1ynhYv74JXItVhERagr3tCSV6sEUk02s6TkSzhl7iOm4l6QmxRy4Tuc4ZibUe/Ah
+        d1io70li/qYlY62nv7iF0b5o9qRb9Mic99+2xp7XEXwz6oFbCBSaf1kfDHzQ/btA
         ==
-X-ME-Sender: <xms:NfUAXl4jgeXEAjGSv-0byDbp8GeXnBT88V-AyWtm2ihbZxKPgdKcDA>
+X-ME-Sender: <xms:QvUAXqJIYKFaXNHDkjcyiFOQMmLfLnWHaHSOXNClPsvaK3Rq1jDXlA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddvtddgleeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeduleekrdekledrieegrddvgeelnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:NfUAXn9RbMlMI_-ngb--B1MG7B81PE0b1KjFvQEP4-FShXmswVq1Ew>
-    <xmx:NfUAXpcSkUK2EwHSQkZLqLAGIIFNwjCSFBXSzDTrVRKqP1ikKsi01g>
-    <xmx:NfUAXr012zhSL_ylzQCKRNV4-JBfalzZVFSoAnIVTKK5ZM_HXx4lZg>
-    <xmx:NfUAXu3xTvwx-Y76e6ImnATqnJwfO1ZWgyvQExnM_xCiDEbOOyCU8Q>
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:QvUAXun5J4xSTV9Da0bCdj_AziAsKVLFK-5Ok6IdKfZkZwFDOWPc9g>
+    <xmx:QvUAXh8JNxPMZJUtA2Gb24CR-BRCviNsKCUXAGEkuRec1DL3ld-q-Q>
+    <xmx:QvUAXl7YiagOuREmYEffEGhonE6moxmMy2C7k62w3HaSt98ALKR5Yg>
+    <xmx:QvUAXlA5pMtUU0UkqEL695S3DpDQUxX3IEHgqAt8LM6a4NL6S1CaCg>
 Received: from localhost (unknown [198.89.64.249])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 08D453060845;
-        Mon, 23 Dec 2019 12:11:16 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: don't double lock the subvol_sem for rename exchange" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 62B4680062;
+        Mon, 23 Dec 2019 12:11:30 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: don't double lock the subvol_sem for rename exchange" failed to apply to 4.4-stable tree
 To:     josef@toxicpanda.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Dec 2019 12:11:14 -0500
-Message-ID: <1577121074171148@kroah.com>
+Date:   Mon, 23 Dec 2019 12:11:15 -0500
+Message-ID: <157712107589200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
