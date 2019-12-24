@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B349129BE5
-	for <lists+stable@lfdr.de>; Tue, 24 Dec 2019 00:52:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37B08129BEC
+	for <lists+stable@lfdr.de>; Tue, 24 Dec 2019 01:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbfLWXwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Dec 2019 18:52:15 -0500
-Received: from mo-csw1115.securemx.jp ([210.130.202.157]:38176 "EHLO
+        id S1726853AbfLXACH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Dec 2019 19:02:07 -0500
+Received: from mo-csw1515.securemx.jp ([210.130.202.154]:60316 "EHLO
         mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726512AbfLWXwP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 18:52:15 -0500
-Received: by mo-csw.securemx.jp (mx-mo-csw1115) id xBNNqCmm031437; Tue, 24 Dec 2019 08:52:12 +0900
-X-Iguazu-Qid: 2wHHVKvLvcCRfbYH7h
-X-Iguazu-QSIG: v=2; s=0; t=1577145132; q=2wHHVKvLvcCRfbYH7h; m=lVDnz+fWCN4HY4OtdTMDufOGJe60M/Oyq2nCTZ8wdzU=
+        with ESMTP id S1726833AbfLXACG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Dec 2019 19:02:06 -0500
+Received: by mo-csw.securemx.jp (mx-mo-csw1515) id xBO024bQ003102; Tue, 24 Dec 2019 09:02:05 +0900
+X-Iguazu-Qid: 34ts1P8d963rX1mGu7
+X-Iguazu-QSIG: v=2; s=0; t=1577145724; q=34ts1P8d963rX1mGu7; m=HWLF8q+PUDy1RmiSppMdnCeLjyinDBO9RVnSYvvasVs=
 Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
-        by relay.securemx.jp (mx-mr1113) id xBNNqBkB026138;
-        Tue, 24 Dec 2019 08:52:11 +0900
+        by relay.securemx.jp (mx-mr1512) id xBO02497010321;
+        Tue, 24 Dec 2019 09:02:04 +0900
 Received: from enc01.localdomain ([106.186.93.100])
-        by imx2.toshiba.co.jp  with ESMTP id xBNNqBKw020686
-        for <stable@vger.kernel.org>; Tue, 24 Dec 2019 08:52:11 +0900 (JST)
+        by imx2.toshiba.co.jp  with ESMTP id xBO0244S026824
+        for <stable@vger.kernel.org>; Tue, 24 Dec 2019 09:02:04 +0900 (JST)
 Received: from hop001.toshiba.co.jp ([133.199.164.63])
-        by enc01.localdomain  with ESMTP id xBNNqBSS031816
-        for <stable@vger.kernel.org>; Tue, 24 Dec 2019 08:52:11 +0900
+        by enc01.localdomain  with ESMTP id xBO0243G009396
+        for <stable@vger.kernel.org>; Tue, 24 Dec 2019 09:02:04 +0900
 From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 To:     stable@vger.kernel.org
-Subject: [PATCH for 4.4, 4.9, 4.14, 4.19] uio: make symbol 'uio_class_registered' static
-Date:   Tue, 24 Dec 2019 08:52:10 +0900
+Subject: [PATCH for 4.9, 4.14, 4.19] perf strbuf: Remove redundant va_end() in strbuf_addv()
+Date:   Tue, 24 Dec 2019 09:02:03 +0900
 X-TSB-HOP: ON
-Message-Id: <20191223235210.2312-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+Message-Id: <20191224000203.14122-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -37,36 +37,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Mattias Jacobsson <2pi@mok.nu>
 
-commit 6011002c1584d29c317e0895b9667d57f254537a upstream.
+commit 099be748865eece21362aee416c350c0b1ae34df upstream.
 
-Fixes the following sparse warning:
+Each call to va_copy() should have one, and only one, corresponding call
+to va_end(). In strbuf_addv() some code paths result in va_end() getting
+called multiple times. Remove the superfluous va_end().
 
-drivers/uio/uio.c:277:6: warning:
- symbol 'uio_class_registered' was not declared. Should it be static?
-
-Fixes: ae61cf5b9913 ("uio: ensure class is registered before devices")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mattias Jacobsson <2pi@mok.nu>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sanskriti Sharma <sansharm@redhat.com>
+Link: http://lkml.kernel.org/r/20181229141750.16945-1-2pi@mok.nu
+Fixes: ce49d8436cff ("perf strbuf: Match va_{add,copy} with va_end")
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 ---
- drivers/uio/uio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/strbuf.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
-index 2762148c169d..6c8114f77cfa 100644
---- a/drivers/uio/uio.c
-+++ b/drivers/uio/uio.c
-@@ -274,7 +274,7 @@ static struct class uio_class = {
- 	.dev_groups = uio_groups,
- };
- 
--bool uio_class_registered;
-+static bool uio_class_registered;
- 
- /*
-  * device functions
+diff --git a/tools/perf/util/strbuf.c b/tools/perf/util/strbuf.c
+index 9005fbe0780e..23092fd6451d 100644
+--- a/tools/perf/util/strbuf.c
++++ b/tools/perf/util/strbuf.c
+@@ -109,7 +109,6 @@ static int strbuf_addv(struct strbuf *sb, const char *fmt, va_list ap)
+ 			return ret;
+ 		}
+ 		len = vsnprintf(sb->buf + sb->len, sb->alloc - sb->len, fmt, ap_saved);
+-		va_end(ap_saved);
+ 		if (len > strbuf_avail(sb)) {
+ 			pr_debug("this should not happen, your vsnprintf is broken");
+ 			va_end(ap_saved);
 -- 
 2.23.0
 
