@@ -2,199 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9214212AD2B
-	for <lists+stable@lfdr.de>; Thu, 26 Dec 2019 16:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD2112AD5A
+	for <lists+stable@lfdr.de>; Thu, 26 Dec 2019 16:58:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726474AbfLZPFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Dec 2019 10:05:01 -0500
-Received: from mail-bn8nam12on2061.outbound.protection.outlook.com ([40.107.237.61]:25056
-        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726453AbfLZPFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Dec 2019 10:05:01 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=h+8xhrSNqDg3xhvw8rvieRK5LPnLgN/IgiUFvsEEBQrsQWehjmLdB28cTqdIH24qeF2bvBJUFZymGlHmzsOwuU6Eoq0uEjcG4stXEcMGj6XrGHjBTF+IklVndREzsCvaJuUoUJkZk3UvwrPkoAzQDcVG9Jlf4FagnCq4uvX3DdWl/ODOH2SssW5VRb2XMxKsj2iqL5iiaE9zgd4MJK/KtPt77i0Bm9yQMb3j9u66jqDz9y9lqJA/ff65geAHgtT2FcWUs2sdx6LWoLewBDwX5AV1i4llJpGyq8JzUKn66YuTtzDKE3ieHBlEd3ml5GapR0c4DbeehXd1MoVIAJIQ+w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=d1GAEArwlIIvOMMaDzbf9fB5RJGrRHFMbMwN8tDwrWA=;
- b=YLCXqF1LQlo6MDdYY0SBzxV6Wzrs2cCMPrJv6g/V8WirQU49Sbi4IjMTt0PyYjpkxk7xZdsRzK6xlgUPcJ+W9NSoXMUG+UaDxAii5j31favFzkHXEymrAANfStFjY2V2gOV4NVtmMiagz/LqEV4qrW5t18VLFcCz2Ol2Jo523c9KWZ8woYv9ARA/wOVE2+03sGa295s8UiauZJ5HwnzT7IEhgzpjwxrlHTpvpayPUwY7/QgAsf/Liol9p/lFI2JPTKlsTkIu1W340f8VndmE+gZfWeUtOYQddumBw9efpUpIteApMZ/SevHi5wwWHufr8CoX6QE8znODG2Eef097gQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
+        id S1726450AbfLZP6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Dec 2019 10:58:10 -0500
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:38863 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726236AbfLZP6J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Dec 2019 10:58:09 -0500
+Received: by mail-pg1-f193.google.com with SMTP id a33so13030883pgm.5;
+        Thu, 26 Dec 2019 07:58:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=d1GAEArwlIIvOMMaDzbf9fB5RJGrRHFMbMwN8tDwrWA=;
- b=G2N3DWLcent7Sa020qHj1WKawW+OT+6759HnWVNQHdD0+k9ztx9v5qNKRO4SSmcY9PCG24w7WL0BFqz8Blmq5hcg3j4ybaTX8+2fwRLjSFC1Rk+kMFXu3xCU/9X6wLivn7t8cigHv/5sktyZbYVW7Hj963hOfFeAzO6Ep5LfVxk=
-Received: from BYAPR12MB3013.namprd12.prod.outlook.com (20.178.55.219) by
- BYAPR12MB3606.namprd12.prod.outlook.com (20.178.52.214) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2581.11; Thu, 26 Dec 2019 15:04:18 +0000
-Received: from BYAPR12MB3013.namprd12.prod.outlook.com
- ([fe80::ed87:95bf:7c40:3fa5]) by BYAPR12MB3013.namprd12.prod.outlook.com
- ([fe80::ed87:95bf:7c40:3fa5%7]) with mapi id 15.20.2581.007; Thu, 26 Dec 2019
- 15:04:17 +0000
-From:   "Lipski, Mikita" <Mikita.Lipski@amd.com>
-To:     "Lin, Wayne" <Wayne.Lin@amd.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>
-CC:     "lyude@redhat.com" <lyude@redhat.com>,
-        "Kazlauskas, Nicholas" <Nicholas.Kazlauskas@amd.com>,
-        "Wentland, Harry" <Harry.Wentland@amd.com>,
-        "Zuo, Jerry" <Jerry.Zuo@amd.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] drm/dp_mst: Avoid NULL pointer dereference
-Thread-Topic: [PATCH] drm/dp_mst: Avoid NULL pointer dereference
-Thread-Index: AQHVu5TOqUe8yqwXk0mualXCY3AL3KfMg5SZ
-Date:   Thu, 26 Dec 2019 15:04:17 +0000
-Message-ID: <BYAPR12MB3013AADBCF71055D3AD3288CE42B0@BYAPR12MB3013.namprd12.prod.outlook.com>
-References: <20191226023151.5448-1-Wayne.Lin@amd.com>
-In-Reply-To: <20191226023151.5448-1-Wayne.Lin@amd.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_76546daa-41b6-470c-bb85-f6f40f044d7f_Enabled=True;MSIP_Label_76546daa-41b6-470c-bb85-f6f40f044d7f_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;MSIP_Label_76546daa-41b6-470c-bb85-f6f40f044d7f_SetDate=2019-12-26T15:04:18.123Z;MSIP_Label_76546daa-41b6-470c-bb85-f6f40f044d7f_Name=Internal
- Distribution
- Only;MSIP_Label_76546daa-41b6-470c-bb85-f6f40f044d7f_ContentBits=0;MSIP_Label_76546daa-41b6-470c-bb85-f6f40f044d7f_Method=Standard;
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Mikita.Lipski@amd.com; 
-x-originating-ip: [178.125.212.123]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: e89750ad-c45c-40da-c899-08d78a14e14b
-x-ms-traffictypediagnostic: BYAPR12MB3606:|BYAPR12MB3606:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BYAPR12MB3606D816B438F74C8B3F6C1DE42B0@BYAPR12MB3606.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:7219;
-x-forefront-prvs: 02638D901B
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(136003)(376002)(346002)(366004)(396003)(39860400002)(51914003)(199004)(189003)(7696005)(6506007)(316002)(478600001)(66946007)(5660300002)(64756008)(91956017)(53546011)(54906003)(66446008)(66556008)(66476007)(52536014)(2906002)(110136005)(26005)(76116006)(186003)(9686003)(81156014)(8676002)(55016002)(8936002)(33656002)(81166006)(4326008)(71200400001)(86362001);DIR:OUT;SFP:1101;SCL:1;SRVR:BYAPR12MB3606;H:BYAPR12MB3013.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: amd.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: C0oQnuKk0q0TTQQt7DPzK5kvlIZmLBDi/fBx8YDS+6A/iggaPNERCRCbiD/3k5vIFtmA9IACVjbwj+eIknVaJ9LZ8zFL8CvJsJiDwXTw5clYMUyR/1O9pgoi88UOngP+tMGz+N+QnKNfZaPUVJQurT6wA1N23oVW/Y3A6ayYeytB2J9Pnr5FlBKZBuE2VWMXPuWZ9HgM9JBylH9o7BVwNgkqSmihcN0H6gTOBCGgtis0KCerlKOf4/QBr/UksJnab5q7NOK2H19sk99EzsyG3l14GFnJ9b7CIJBFzM1Hb6M3VsH8I8SiRL6sSC7mTOKbE6mxdGomcSzYcIbI3jAzJuis9z+9+pFdM1nx0PF5qkjXHgiN73MpOp2yWf+EqJJAcoHaDIVCZwNuK54etG9+IjDchpQdszyIEjyexHGQ0ipnLivrmXgo0Izx8B6bb48Q5QbYOwEXm+dC5CwcdeN1C1i9/8Vik6sv7kbbUv1ChtQduoDVU9hSBA9d3tenr9cO
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e89750ad-c45c-40da-c899-08d78a14e14b
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Dec 2019 15:04:17.7355
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 7Itp0baOmjDN/UtjKXFZH3PA7FucKegIcHpjAc1q25r/r94s6y1YDyDbpYk+sHSE
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3606
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=Sc/QM60TLDKLCJyG51lQ93byw6/RqTEsu4YWyZPPW+4=;
+        b=ObJhDY3m1giX7IMM+TocG9g+ou2I5nCWXeMf7XFf6tq0yORrDGmN7i3Q8Q10njeqTt
+         QWjHXJJmpUvIdjJUwaCaUhjctHUZ+F/iXiPouMOq1ssnSgFq8W+ESzD5WH8QGOEXDf2J
+         qClVechzGE/Xj0CgeAYLlVtVGtiVVWbBaddt/AWbT/sVeOGsxVZPX+FcxSuUvQgnfm1w
+         fnc+Q4rkOosPe5c9mojXpmSMIPD4q1Ike1/rqTLSDqU2iA1XwKa8R9hdFZSh/WTWXZ8x
+         1vidOBtv2tj7wntzTrmJiLHAMGFGl++QeVy+7M44gmQDVw04JS7yv/fAJoicNVyblivA
+         lZaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
+        bh=Sc/QM60TLDKLCJyG51lQ93byw6/RqTEsu4YWyZPPW+4=;
+        b=ApDEFzPWf1R/OLK/2qr7xn8nFtqXXWPs0xpr27tPKs9r5264rshyuT0QlWS9RSuW0f
+         VkJAO8cwkbOl/Zsto0RWQZCEbnNTBg6/dmHIrLnKikAD8RgsGJuK9ka1QYWVVVlT2bGE
+         st/QP1xO+gbRwBLxQBD6d4dGby0xBEfu1R9sHIdiN30MRH3wL8vguFg8e3drxysQTF3g
+         zDbpND3vbbK0EiYe2RFWwVN8myR24sdkkvFAU0zwwsl0xL5RCqnlkMMw+4cv5BEeeMkT
+         tdPMOiNKPquhQ/LTeWbCoWuyJ4HEOfEUYJjIwg20WED6+gdq5FFwj9KatNjXF6T2Nw19
+         RvZw==
+X-Gm-Message-State: APjAAAWKtyIG7Hk1PLB9D4fmFK1pP8j2aw64VsfnDi+ADIh6xbL0oQJg
+        lzguSANznp2/e9rx1PHjzhQsVnlE
+X-Google-Smtp-Source: APXvYqyZIfc/06xxz7P7R0ZAi+ysQgE1I01Mo/VbflldUlzmyAq3fxGB80h3C8AEKnbCRfN3CaD3Lw==
+X-Received: by 2002:aa7:9aeb:: with SMTP id y11mr50638957pfp.63.1577375889222;
+        Thu, 26 Dec 2019 07:58:09 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 144sm39109626pfc.124.2019.12.26.07.58.07
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 26 Dec 2019 07:58:08 -0800 (PST)
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Peter Chen <peter.chen@freescale.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        stable@vger.kernel.org
+Subject: [PATCH] usb: chipidea: host: Disable port power only if previously enabled
+Date:   Thu, 26 Dec 2019 07:57:54 -0800
+Message-Id: <20191226155754.25451-1-linux@roeck-us.net>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[AMD Official Use Only - Internal Distribution Only]
+On shutdown, ehci_power_off() is called unconditionally to power off
+each port, even if it was never called to power on the port.
+For chipidea, this results in a call to ehci_ci_portpower() with a request
+to power off ports even if the port was never powered on.
+This results in the following warning from the regulator code.
 
-Thanks for the catch,
+WARNING: CPU: 0 PID: 182 at drivers/regulator/core.c:2596 _regulator_disable+0x1a8/0x210
+unbalanced disables for usb_otg2_vbus
+Modules linked in:
+CPU: 0 PID: 182 Comm: init Not tainted 5.4.6 #1
+Hardware name: Freescale i.MX7 Dual (Device Tree)
+[<c0313658>] (unwind_backtrace) from [<c030d698>] (show_stack+0x10/0x14)
+[<c030d698>] (show_stack) from [<c1133afc>] (dump_stack+0xe0/0x10c)
+[<c1133afc>] (dump_stack) from [<c0349098>] (__warn+0xf4/0x10c)
+[<c0349098>] (__warn) from [<c0349128>] (warn_slowpath_fmt+0x78/0xbc)
+[<c0349128>] (warn_slowpath_fmt) from [<c09f36ac>] (_regulator_disable+0x1a8/0x210)
+[<c09f36ac>] (_regulator_disable) from [<c09f374c>] (regulator_disable+0x38/0xe8)
+[<c09f374c>] (regulator_disable) from [<c0df7bac>] (ehci_ci_portpower+0x38/0xdc)
+[<c0df7bac>] (ehci_ci_portpower) from [<c0db4fa4>] (ehci_port_power+0x50/0xa4)
+[<c0db4fa4>] (ehci_port_power) from [<c0db5420>] (ehci_silence_controller+0x5c/0xc4)
+[<c0db5420>] (ehci_silence_controller) from [<c0db7644>] (ehci_stop+0x3c/0xcc)
+[<c0db7644>] (ehci_stop) from [<c0d5bdc4>] (usb_remove_hcd+0xe0/0x19c)
+[<c0d5bdc4>] (usb_remove_hcd) from [<c0df7638>] (host_stop+0x38/0xa8)
+[<c0df7638>] (host_stop) from [<c0df2f34>] (ci_hdrc_remove+0x44/0xe4)
+...
 
-Reviewed-by: Mikita Lipski <Mikita.Lipski@amd.com>
+Keeping track of the power enable state avoids the warning and traceback.
 
-
-
-
-From: Wayne Lin <Wayne.Lin@amd.com>
-
-Sent: Wednesday, December 25, 2019 9:31 PM
-
-To: dri-devel@lists.freedesktop.org <dri-devel@lists.freedesktop.org>; amd-=
-gfx@lists.freedesktop.org <amd-gfx@lists.freedesktop.org>
-
-Cc: lyude@redhat.com <lyude@redhat.com>; Kazlauskas, Nicholas <Nicholas.Kaz=
-lauskas@amd.com>; Wentland, Harry <Harry.Wentland@amd.com>; Lipski, Mikita =
-<Mikita.Lipski@amd.com>; Zuo, Jerry <Jerry.Zuo@amd.com>; stable@vger.kernel=
-.org <stable@vger.kernel.org>;
- Lin, Wayne <Wayne.Lin@amd.com>
-
-Subject: [PATCH] drm/dp_mst: Avoid NULL pointer dereference
-
-
-
-
-[Why]
-
-Found kernel NULL pointer dereference under the below situation:
-
-
-
-        src =97 HDMI_Monitor   src =97 HDMI_Monitor
-
-e.g.:       \            =3D>
-
-             MSTB =97 MSTB     (unplug) MSTB =97 MSTB
-
-
-
-When display 1 HDMI and 2 DP daisy chain monitors, unplugging the dp
-
-cable connected to source causes kernel NULL pointer dereference at
-
-drm_dp_mst_atomic_check_bw_limit(). When calculating pbn_limit, if
-
-branch is null, accessing "&branch->ports" causes the problem.
-
-
-
-[How]
-
-Judge branch is null or not at the beginning. If it is null, return 0.
-
-
-
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-
+Fixes: c8679a2fb8dec ("usb: chipidea: host: add portpower override")
+Cc: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cc: Peter Chen <peter.chen@freescale.com>
 Cc: stable@vger.kernel.org
-
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
+ drivers/usb/chipidea/host.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- drivers/gpu/drm/drm_dp_mst_topology.c | 3 +++
-
- 1 file changed, 3 insertions(+)
-
-
-
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp=
-_mst_topology.c
-
-index 7d2d31eaf003..a6473e3ab448 100644
-
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-
-@@ -4707,6 +4707,9 @@ int drm_dp_mst_atomic_check_bw_limit(struct drm_dp_ms=
-t_branch *branch,
-
-         struct drm_dp_vcpi_allocation *vcpi;
-
-         int pbn_limit =3D 0, pbn_used =3D 0;
-
-
-
-+       if (!branch)
-
-+               return 0;
-
-+
-
-         list_for_each_entry(port, &branch->ports, next) {
-
-                 if (port->mstb)
-
-                         if (drm_dp_mst_atomic_check_bw_limit(port->mstb, m=
-st_state))
-
---
-
+diff --git a/drivers/usb/chipidea/host.c b/drivers/usb/chipidea/host.c
+index b45ceb91c735..48e4a5ca1835 100644
+--- a/drivers/usb/chipidea/host.c
++++ b/drivers/usb/chipidea/host.c
+@@ -26,6 +26,7 @@ static int (*orig_bus_suspend)(struct usb_hcd *hcd);
+ 
+ struct ehci_ci_priv {
+ 	struct regulator *reg_vbus;
++	bool enabled;
+ };
+ 
+ static int ehci_ci_portpower(struct usb_hcd *hcd, int portnum, bool enable)
+@@ -37,7 +38,7 @@ static int ehci_ci_portpower(struct usb_hcd *hcd, int portnum, bool enable)
+ 	int ret = 0;
+ 	int port = HCS_N_PORTS(ehci->hcs_params);
+ 
+-	if (priv->reg_vbus) {
++	if (priv->reg_vbus && enable != priv->enabled) {
+ 		if (port > 1) {
+ 			dev_warn(dev,
+ 				"Not support multi-port regulator control\n");
+@@ -53,6 +54,7 @@ static int ehci_ci_portpower(struct usb_hcd *hcd, int portnum, bool enable)
+ 				enable ? "enable" : "disable", ret);
+ 			return ret;
+ 		}
++		priv->enabled = enable;
+ 	}
+ 
+ 	if (enable && (ci->platdata->phy_mode == USBPHY_INTERFACE_MODE_HSIC)) {
+-- 
 2.17.1
-
-
 
