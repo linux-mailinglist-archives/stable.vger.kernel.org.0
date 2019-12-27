@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AF9F12B705
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:46:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4C812B704
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:46:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728689AbfL0RpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:45:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43634 "EHLO mail.kernel.org"
+        id S1727567AbfL0Rqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:46:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727969AbfL0RpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:45:09 -0500
+        id S1728245AbfL0RpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:45:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09745222C4;
-        Fri, 27 Dec 2019 17:45:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CA9A20740;
+        Fri, 27 Dec 2019 17:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468708;
-        bh=scddgpvllI85i/98LWMYBVIE/Q5evmoMzZcNLa0aPZs=;
+        s=default; t=1577468710;
+        bh=9qcvowxmEQncxH6EJpnreHVGbP7op9XJu/sacMFNzTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KvVZoVB0rpijsBShgzq/OjUM/t815qrTeC+GXORZnhS6i/bY6ts690UsD6+Y7fK5x
-         JWIyCDE42kfu8UWKCqALXIjvSmvogzPPgi9LHhs0XONNmBRImCBwoXUkDfTXVpLoIb
-         3HG+M2cdPbUSZcCXD1Vn4yutp2ZsxafD9Ft333gg=
+        b=P9YNgbuLzSoU4qqVgjrkuY+rPa+yNWhC8z/B1PJ4YHznWp4XhDUCMdaFSpSfB/pO9
+         TjlMmSuDXUs1U9NYvpFKH5/hAWYHvO1c+zUgLKihm1D9MeFl60j7mN+AK9nnRZIIS7
+         Jp/8419sMK5FGovKmgdXI8WhgUdrln4TtMTgv2QA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Vitaly Slobodskoy <vitaly.slobodskoy@intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@redhat.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@redhat.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 64/84] perf/x86/intel/bts: Fix the use of page_private()
-Date:   Fri, 27 Dec 2019 12:43:32 -0500
-Message-Id: <20191227174352.6264-64-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 65/84] perf/x86/intel: Fix PT PMI handling
+Date:   Fri, 27 Dec 2019 12:43:33 -0500
+Message-Id: <20191227174352.6264-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174352.6264-1-sashal@kernel.org>
 References: <20191227174352.6264-1-sashal@kernel.org>
@@ -49,91 +49,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit ff61541cc6c1962957758ba433c574b76f588d23 ]
+[ Upstream commit 92ca7da4bdc24d63bb0bcd241c11441ddb63b80a ]
 
-Commit
+Commit:
 
-  8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
+  ccbebba4c6bf ("perf/x86/intel/pt: Bypass PT vs. LBR exclusivity if the core supports it")
 
-brought in a warning with the BTS buffer initialization
-that is easily tripped with (assuming KPTI is disabled):
+skips the PT/LBR exclusivity check on CPUs where PT and LBRs coexist, but
+also inadvertently skips the active_events bump for PT in that case, which
+is a bug. If there aren't any hardware events at the same time as PT, the
+PMI handler will ignore PT PMIs, as active_events reads zero in that case,
+resulting in the "Uhhuh" spurious NMI warning and PT data loss.
 
-instantly throwing:
+Fix this by always increasing active_events for PT events.
 
-> ------------[ cut here ]------------
-> WARNING: CPU: 2 PID: 326 at arch/x86/events/intel/bts.c:86 bts_buffer_setup_aux+0x117/0x3d0
-> Modules linked in:
-> CPU: 2 PID: 326 Comm: perf Not tainted 5.4.0-rc8-00291-gceb9e77324fa #904
-> RIP: 0010:bts_buffer_setup_aux+0x117/0x3d0
-> Call Trace:
->  rb_alloc_aux+0x339/0x550
->  perf_mmap+0x607/0xc70
->  mmap_region+0x76b/0xbd0
-...
-
-It appears to assume (for lost raisins) that PagePrivate() is set,
-while later it actually tests for PagePrivate() before using
-page_private().
-
-Make it consistent and always check PagePrivate() before using
-page_private().
-
-Fixes: 8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
+Fixes: ccbebba4c6bf ("perf/x86/intel/pt: Bypass PT vs. LBR exclusivity if the core supports it")
+Reported-by: Vitaly Slobodskoy <vitaly.slobodskoy@intel.com>
 Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Alexey Budankov <alexey.budankov@linux.intel.com>
 Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Link: https://lkml.kernel.org/r/20191205142853.28894-2-alexander.shishkin@linux.intel.com
+Link: https://lkml.kernel.org/r/20191210105101.77210-1-alexander.shishkin@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/bts.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ arch/x86/events/core.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
-index 7139f6bf27ad..510f9461407e 100644
---- a/arch/x86/events/intel/bts.c
-+++ b/arch/x86/events/intel/bts.c
-@@ -71,9 +71,17 @@ struct bts_buffer {
+diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+index c9625bff4328..429389489eed 100644
+--- a/arch/x86/events/core.c
++++ b/arch/x86/events/core.c
+@@ -375,7 +375,7 @@ int x86_add_exclusive(unsigned int what)
+ 	 * LBR and BTS are still mutually exclusive.
+ 	 */
+ 	if (x86_pmu.lbr_pt_coexist && what == x86_lbr_exclusive_pt)
+-		return 0;
++		goto out;
  
- static struct pmu bts_pmu;
- 
-+static int buf_nr_pages(struct page *page)
-+{
-+	if (!PagePrivate(page))
-+		return 1;
-+
-+	return 1 << page_private(page);
-+}
-+
- static size_t buf_size(struct page *page)
- {
--	return 1 << (PAGE_SHIFT + page_private(page));
-+	return buf_nr_pages(page) * PAGE_SIZE;
- }
- 
- static void *
-@@ -91,9 +99,7 @@ bts_buffer_setup_aux(struct perf_event *event, void **pages,
- 	/* count all the high order buffers */
- 	for (pg = 0, nbuf = 0; pg < nr_pages;) {
- 		page = virt_to_page(pages[pg]);
--		if (WARN_ON_ONCE(!PagePrivate(page) && nr_pages > 1))
--			return NULL;
--		pg += 1 << page_private(page);
-+		pg += buf_nr_pages(page);
- 		nbuf++;
+ 	if (!atomic_inc_not_zero(&x86_pmu.lbr_exclusive[what])) {
+ 		mutex_lock(&pmc_reserve_mutex);
+@@ -387,6 +387,7 @@ int x86_add_exclusive(unsigned int what)
+ 		mutex_unlock(&pmc_reserve_mutex);
  	}
  
-@@ -117,7 +123,7 @@ bts_buffer_setup_aux(struct perf_event *event, void **pages,
- 		unsigned int __nr_pages;
++out:
+ 	atomic_inc(&active_events);
+ 	return 0;
  
- 		page = virt_to_page(pages[pg]);
--		__nr_pages = PagePrivate(page) ? 1 << page_private(page) : 1;
-+		__nr_pages = buf_nr_pages(page);
- 		buf->buf[nbuf].page = page;
- 		buf->buf[nbuf].offset = offset;
- 		buf->buf[nbuf].displacement = (pad ? BTS_RECORD_SIZE - pad : 0);
+@@ -397,11 +398,15 @@ int x86_add_exclusive(unsigned int what)
+ 
+ void x86_del_exclusive(unsigned int what)
+ {
++	atomic_dec(&active_events);
++
++	/*
++	 * See the comment in x86_add_exclusive().
++	 */
+ 	if (x86_pmu.lbr_pt_coexist && what == x86_lbr_exclusive_pt)
+ 		return;
+ 
+ 	atomic_dec(&x86_pmu.lbr_exclusive[what]);
+-	atomic_dec(&active_events);
+ }
+ 
+ int x86_setup_perfctr(struct perf_event *event)
 -- 
 2.20.1
 
