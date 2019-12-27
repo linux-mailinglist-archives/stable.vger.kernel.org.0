@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6DD912B6A2
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:44:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9511312B7A4
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:51:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728360AbfL0RoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:44:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42072 "EHLO mail.kernel.org"
+        id S1728366AbfL0RoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:44:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727437AbfL0RoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:44:09 -0500
+        id S1728357AbfL0RoK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:44:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D5F6222C2;
-        Fri, 27 Dec 2019 17:44:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6E84222C4;
+        Fri, 27 Dec 2019 17:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468648;
-        bh=ibTZwRKS6VoVkzjX7po10SasPNuQ7+a9R/Nk96beczE=;
+        s=default; t=1577468649;
+        bh=dSpqFK6i710jE4XItym/hIRAQU51Rs8DQiINUBZ5nGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wuKoLlWVp84OTmn1+BnhkZfDhTljcIrEBUoqBfYi4dqENm8kdODUECy6eXXO0o+sH
-         6LFTXLwl7wJO47Dj3FOkxn3HsihoEgMcOV3Zhd6ccI+XWgnEgo4dgmJPWklTYH/Dzi
-         NKi9Pgg1RAiCD0cAd1raetGobhARP7t3Kq88U7DY=
+        b=dj3oI/AWo5Bq52XDgXEz5l8YCX5PVFZji/zgyIUWE0VHK4c4Iu+vxsE6r/G7HK2YL
+         emjPDetdt3/MvB+mTxIAGN5RcxyBt+r9qmMhnHy9j6GFN+t0u1CxvTNq0dCEF/3NG7
+         Ce9BhgjaX37TqJVO4ja9GxU9RI0BZmuD/RvQP4z4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marco Oliverio <marco.oliverio@tanaza.com>,
-        Rocco Folino <rocco.folino@tanaza.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/84] netfilter: nf_queue: enqueue skbs with NULL dst
-Date:   Fri, 27 Dec 2019 12:42:40 -0500
-Message-Id: <20191227174352.6264-12-sashal@kernel.org>
+Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bhupesh Sharma <bhsharma@redhat.com>,
+        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
+        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 13/84] efi/gop: Return EFI_NOT_FOUND if there are no usable GOPs
+Date:   Fri, 27 Dec 2019 12:42:41 -0500
+Message-Id: <20191227174352.6264-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174352.6264-1-sashal@kernel.org>
 References: <20191227174352.6264-1-sashal@kernel.org>
@@ -47,42 +47,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Oliverio <marco.oliverio@tanaza.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit 0b9173f4688dfa7c5d723426be1d979c24ce3d51 ]
+[ Upstream commit 6fc3cec30dfeee7d3c5db8154016aff9d65503c5 ]
 
-Bridge packets that are forwarded have skb->dst == NULL and get
-dropped by the check introduced by
-b60a77386b1d4868f72f6353d35dabe5fbe981f2 (net: make skb_dst_force
-return true when dst is refcounted).
+If we don't find a usable instance of the Graphics Output Protocol
+(GOP) because none of them have a framebuffer (i.e. they were all
+PIXEL_BLT_ONLY), but all the EFI calls succeeded, we will return
+EFI_SUCCESS even though we didn't find a usable GOP.
 
-To fix this we check skb_dst() before skb_dst_force(), so we don't
-drop skb packet with dst == NULL. This holds also for skb at the
-PRE_ROUTING hook so we remove the second check.
+Fix this by explicitly returning EFI_NOT_FOUND if no usable GOPs are
+found, allowing the caller to probe for UGA instead.
 
-Fixes: b60a77386b1d ("net: make skb_dst_force return true when dst is refcounted")
-Signed-off-by: Marco Oliverio <marco.oliverio@tanaza.com>
-Signed-off-by: Rocco Folino <rocco.folino@tanaza.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Bhupesh Sharma <bhsharma@redhat.com>
+Cc: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Cc: linux-efi@vger.kernel.org
+Link: https://lkml.kernel.org/r/20191206165542.31469-3-ardb@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_queue.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/efi/libstub/gop.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/netfilter/nf_queue.c b/net/netfilter/nf_queue.c
-index a96a8c16baf9..ee6d98355081 100644
---- a/net/netfilter/nf_queue.c
-+++ b/net/netfilter/nf_queue.c
-@@ -174,7 +174,7 @@ static int __nf_queue(struct sk_buff *skb, const struct nf_hook_state *state,
- 		goto err;
- 	}
+diff --git a/drivers/firmware/efi/libstub/gop.c b/drivers/firmware/efi/libstub/gop.c
+index 24c461dea7af..16ed61c023e8 100644
+--- a/drivers/firmware/efi/libstub/gop.c
++++ b/drivers/firmware/efi/libstub/gop.c
+@@ -121,7 +121,7 @@ setup_gop32(efi_system_table_t *sys_table_arg, struct screen_info *si,
+ 	u64 fb_base;
+ 	struct efi_pixel_bitmask pixel_info;
+ 	int pixel_format;
+-	efi_status_t status = EFI_NOT_FOUND;
++	efi_status_t status;
+ 	u32 *handles = (u32 *)(unsigned long)gop_handle;
+ 	int i;
  
--	if (!skb_dst_force(skb) && state->hook != NF_INET_PRE_ROUTING) {
-+	if (skb_dst(skb) && !skb_dst_force(skb)) {
- 		status = -ENETDOWN;
- 		goto err;
- 	}
+@@ -177,7 +177,7 @@ setup_gop32(efi_system_table_t *sys_table_arg, struct screen_info *si,
+ 
+ 	/* Did we find any GOPs? */
+ 	if (!first_gop)
+-		goto out;
++		return EFI_NOT_FOUND;
+ 
+ 	/* EFI framebuffer */
+ 	si->orig_video_isVGA = VIDEO_TYPE_EFI;
+@@ -199,7 +199,7 @@ setup_gop32(efi_system_table_t *sys_table_arg, struct screen_info *si,
+ 	si->lfb_size = si->lfb_linelength * si->lfb_height;
+ 
+ 	si->capabilities |= VIDEO_CAPABILITY_SKIP_QUIRKS;
+-out:
++
+ 	return status;
+ }
+ 
+@@ -239,7 +239,7 @@ setup_gop64(efi_system_table_t *sys_table_arg, struct screen_info *si,
+ 	u64 fb_base;
+ 	struct efi_pixel_bitmask pixel_info;
+ 	int pixel_format;
+-	efi_status_t status = EFI_NOT_FOUND;
++	efi_status_t status;
+ 	u64 *handles = (u64 *)(unsigned long)gop_handle;
+ 	int i;
+ 
+@@ -295,7 +295,7 @@ setup_gop64(efi_system_table_t *sys_table_arg, struct screen_info *si,
+ 
+ 	/* Did we find any GOPs? */
+ 	if (!first_gop)
+-		goto out;
++		return EFI_NOT_FOUND;
+ 
+ 	/* EFI framebuffer */
+ 	si->orig_video_isVGA = VIDEO_TYPE_EFI;
+@@ -317,7 +317,7 @@ setup_gop64(efi_system_table_t *sys_table_arg, struct screen_info *si,
+ 	si->lfb_size = si->lfb_linelength * si->lfb_height;
+ 
+ 	si->capabilities |= VIDEO_CAPABILITY_SKIP_QUIRKS;
+-out:
++
+ 	return status;
+ }
+ 
 -- 
 2.20.1
 
