@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2DF212B63F
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9772E12B8D6
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:58:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727432AbfL0RlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:41:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37578 "EHLO mail.kernel.org"
+        id S1727487AbfL0R6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:58:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727423AbfL0RlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:41:23 -0500
+        id S1727401AbfL0Rl0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:41:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECF2621775;
-        Fri, 27 Dec 2019 17:41:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F322A22B48;
+        Fri, 27 Dec 2019 17:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468482;
-        bh=Ap0eT4B2IZ5lOyKqoub0MsmgTbdszsLuhRkh7djPqtc=;
+        s=default; t=1577468484;
+        bh=PAOUSNAxojEzCiLlv75nNZS799ylz9MjHsY1qAlDUQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCe7ECCA9bi2M7/DKa4QeazwYjEt11/TfGLWF7Y6Ic8BvucITeJEBUPDRO0HrKeNO
-         2bAY0bt2nm0WkKJSlHtGz4POPBh2r6AlmKKvghRV9ccBXAlNFyDGCjS2I8T7yGvfDX
-         opOeDuFfWKOmFrbemKHLRDNMQGmC5xH6IgH65KZg=
+        b=Q4zdVrjxH4agQM6pwN7FRkBdsqmC2+5lQLTXW7cymaVqUQW0lP/4bWnCIGg2t8HaR
+         w2E/vCJ4tJT9T/fgDgceK2cO64RqAsQ1eG/GdsfJf2bf2RkCaNMBCoLIGlghEHPCzi
+         MB5xlSw4XCy59M3XNkwzcxUniX/E2x/rzbhqLwrY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Yang <wenyang@linux.alibaba.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 021/187] regulator: core: fix regulator_register() error paths to properly release rdev
-Date:   Fri, 27 Dec 2019 12:38:09 -0500
-Message-Id: <20191227174055.4923-21-sashal@kernel.org>
+Cc:     Dave Young <dyoung@redhat.com>,
+        Michael Weiser <michael@weiser.dinsnail.net>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Borislav Petkov <bp@alien8.de>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        kexec@lists.infradead.org, linux-efi@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org, x86@kernel.org
+Subject: [PATCH AUTOSEL 5.4 022/187] x86/efi: Update e820 with reserved EFI boot services data to fix kexec breakage
+Date:   Fri, 27 Dec 2019 12:38:10 -0500
+Message-Id: <20191227174055.4923-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -44,75 +53,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Dave Young <dyoung@redhat.com>
 
-[ Upstream commit a3cde9534ebdafe18a9bbab208df724c57e6c8e8 ]
+[ Upstream commit af164898482817a1d487964b68f3c21bae7a1beb ]
 
-There are several issues with the error handling code of
-the regulator_register() function:
-        ret = device_register(&rdev->dev);
-        if (ret != 0) {
-                put_device(&rdev->dev); --> rdev released
-                goto unset_supplies;
-        }
-...
-unset_supplies:
-...
-        unset_regulator_supplies(rdev); --> use-after-free
-...
-clean:
-        if (dangling_of_gpiod)
-                gpiod_put(config->ena_gpiod);
-        kfree(rdev);                     --> double free
+Michael Weiser reported that he got this error during a kexec rebooting:
 
-We add a variable to record the failure of device_register() and
-move put_device() down a bit to avoid the above issues.
+  esrt: Unsupported ESRT version 2904149718861218184.
 
-Fixes: c438b9d01736 ("regulator: core: Move registration of regulator device")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/20191201030250.38074-1-wenyang@linux.alibaba.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The ESRT memory stays in EFI boot services data, and it was reserved
+in kernel via efi_mem_reserve().  The initial purpose of the reservation
+is to reuse the EFI boot services data across kexec reboot. For example
+the BGRT image data and some ESRT memory like Michael reported.
+
+But although the memory is reserved it is not updated in the X86 E820 table,
+and kexec_file_load() iterates system RAM in the IO resource list to find places
+for kernel, initramfs and other stuff. In Michael's case the kexec loaded
+initramfs overwrote the ESRT memory and then the failure happened.
+
+Since kexec_file_load() depends on the E820 table being updated, just fix this
+by updating the reserved EFI boot services memory as reserved type in E820.
+
+Originally any memory descriptors with EFI_MEMORY_RUNTIME attribute are
+bypassed in the reservation code path because they are assumed as reserved.
+
+But the reservation is still needed for multiple kexec reboots,
+and it is the only possible case we come here thus just drop the code
+chunk, then everything works without side effects.
+
+On my machine the ESRT memory sits in an EFI runtime data range, it does
+not trigger the problem, but I successfully tested with BGRT instead.
+both kexec_load() and kexec_file_load() work and kdump works as well.
+
+[ mingo: Edited the changelog. ]
+
+Reported-by: Michael Weiser <michael@weiser.dinsnail.net>
+Tested-by: Michael Weiser <michael@weiser.dinsnail.net>
+Signed-off-by: Dave Young <dyoung@redhat.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: kexec@lists.infradead.org
+Cc: linux-efi@vger.kernel.org
+Link: https://lkml.kernel.org/r/20191204075233.GA10520@dhcp-128-65.nay.redhat.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/platform/efi/quirks.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 71c1467e1e2e..8f5c028090e9 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -4990,6 +4990,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	struct regulator_dev *rdev;
- 	bool dangling_cfg_gpiod = false;
- 	bool dangling_of_gpiod = false;
-+	bool reg_device_fail = false;
- 	struct device *dev;
- 	int ret, i;
- 
-@@ -5175,7 +5176,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	dev_set_drvdata(&rdev->dev, rdev);
- 	ret = device_register(&rdev->dev);
- 	if (ret != 0) {
--		put_device(&rdev->dev);
-+		reg_device_fail = true;
- 		goto unset_supplies;
+diff --git a/arch/x86/platform/efi/quirks.c b/arch/x86/platform/efi/quirks.c
+index 3b9fd679cea9..aefe845dff59 100644
+--- a/arch/x86/platform/efi/quirks.c
++++ b/arch/x86/platform/efi/quirks.c
+@@ -260,10 +260,6 @@ void __init efi_arch_mem_reserve(phys_addr_t addr, u64 size)
+ 		return;
  	}
  
-@@ -5205,7 +5206,10 @@ regulator_register(const struct regulator_desc *regulator_desc,
- clean:
- 	if (dangling_of_gpiod)
- 		gpiod_put(config->ena_gpiod);
--	kfree(rdev);
-+	if (reg_device_fail)
-+		put_device(&rdev->dev);
-+	else
-+		kfree(rdev);
- 	kfree(config);
- rinse:
- 	if (dangling_cfg_gpiod)
+-	/* No need to reserve regions that will never be freed. */
+-	if (md.attribute & EFI_MEMORY_RUNTIME)
+-		return;
+-
+ 	size += addr % EFI_PAGE_SIZE;
+ 	size = round_up(size, EFI_PAGE_SIZE);
+ 	addr = round_down(addr, EFI_PAGE_SIZE);
+@@ -293,6 +289,8 @@ void __init efi_arch_mem_reserve(phys_addr_t addr, u64 size)
+ 	early_memunmap(new, new_size);
+ 
+ 	efi_memmap_install(new_phys, num_entries);
++	e820__range_update(addr, size, E820_TYPE_RAM, E820_TYPE_RESERVED);
++	e820__update_table(e820_table);
+ }
+ 
+ /*
 -- 
 2.20.1
 
