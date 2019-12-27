@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A94F12B77F
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:49:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA2612B77C
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:49:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728094AbfL0Rtu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:49:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42428 "EHLO mail.kernel.org"
+        id S1727875AbfL0Rto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:49:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728436AbfL0RoX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:44:23 -0500
+        id S1728443AbfL0RoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:44:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CB8921582;
-        Fri, 27 Dec 2019 17:44:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F16B24653;
+        Fri, 27 Dec 2019 17:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468663;
-        bh=jnChr6xfx1BLBTep35l10JmYx7icGyU5b8Qk13BPgbU=;
+        s=default; t=1577468664;
+        bh=Ph4eGXzhNUrMfMJ+w7vrBMob23ualE7r8SGPNrE8qdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AsbrMm2kAT61GaNYw+cTMLuEAR4nluob0qK4YQOehiiRUi+gxhrzP2FJGiAoZIuyJ
-         yEDiv+hCpIdWI61H+jq5E0r304CmKHFGcm8yW7L4h9A6Khtmnea3hybctZub2ayHMX
-         YRGU1HTlO9GdCpsD5xFm+FstUskXMu2u1m1W/MrU=
+        b=YUGDplx58yJKvE5icCZQdeowepaj/1GRkeuS51zEe5ctSiBGn0h7nFxK0DGin2+xU
+         K5wKiBIpOc4NRzR3VN8GxVny1qvpc1SVNDnAALVhoGqgy2spp/qcDDMhYYTmNkgI0S
+         jcegMkN0BnhwE+/nBTiOWZ9u1WBvxCj8q3fFTLrs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 24/84] selftests/ftrace: Fix multiple kprobe testcase
-Date:   Fri, 27 Dec 2019 12:42:52 -0500
-Message-Id: <20191227174352.6264-24-sashal@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        Ray Jui <ray.jui@broadcom.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 25/84] ARM: dts: Cygnus: Fix MDIO node address/size cells
+Date:   Fri, 27 Dec 2019 12:42:53 -0500
+Message-Id: <20191227174352.6264-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174352.6264-1-sashal@kernel.org>
 References: <20191227174352.6264-1-sashal@kernel.org>
@@ -45,46 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 5cc6c8d4a99d0ee4d5466498e258e593df1d3eb6 ]
+[ Upstream commit fac2c2da3596d77c343988bb0d41a8c533b2e73c ]
 
-Fix multiple kprobe event testcase to work it correctly.
-There are 2 bugfixes.
- - Since `wc -l FILE` returns not only line number but also
-   FILE filename, following "if" statement always failed.
-   Fix this bug by replacing it with 'cat FILE | wc -l'
- - Since "while do-done loop" block with pipeline becomes a
-   subshell, $N local variable is not update outside of
-   the loop.
-   Fix this bug by using actual target number (256) instead
-   of $N.
+The MDIO node on Cygnus had an reversed #address-cells and
+ #size-cells properties, correct those.
 
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 40c26d3af60a ("ARM: dts: Cygnus: Add the ethernet switch and ethernet PHY")
+Reported-by: Simon Horman <simon.horman@netronome.com>
+Reviewed-by: Ray Jui <ray.jui@broadcom.com>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/kprobe/multiple_kprobes.tc      | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/bcm-cygnus.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/multiple_kprobes.tc b/tools/testing/selftests/ftrace/test.d/kprobe/multiple_kprobes.tc
-index ce361b9d62cf..da298f191086 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/multiple_kprobes.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/multiple_kprobes.tc
-@@ -25,9 +25,9 @@ while read i; do
-   test $N -eq 256 && break
- done
+diff --git a/arch/arm/boot/dts/bcm-cygnus.dtsi b/arch/arm/boot/dts/bcm-cygnus.dtsi
+index 253df7170a4e..887a60c317e9 100644
+--- a/arch/arm/boot/dts/bcm-cygnus.dtsi
++++ b/arch/arm/boot/dts/bcm-cygnus.dtsi
+@@ -169,8 +169,8 @@
+ 		mdio: mdio@18002000 {
+ 			compatible = "brcm,iproc-mdio";
+ 			reg = <0x18002000 0x8>;
+-			#size-cells = <1>;
+-			#address-cells = <0>;
++			#size-cells = <0>;
++			#address-cells = <1>;
+ 			status = "disabled";
  
--L=`wc -l kprobe_events`
--if [ $L -ne $N ]; then
--  echo "The number of kprobes events ($L) is not $N"
-+L=`cat kprobe_events | wc -l`
-+if [ $L -ne 256 ]; then
-+  echo "The number of kprobes events ($L) is not 256"
-   exit_fail
- fi
- 
+ 			gphy0: ethernet-phy@0 {
 -- 
 2.20.1
 
