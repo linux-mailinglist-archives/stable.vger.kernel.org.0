@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDD3B12B8EE
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:59:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E4912B8EA
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:59:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727313AbfL0R66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:58:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37272 "EHLO mail.kernel.org"
+        id S1727557AbfL0R6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:58:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727311AbfL0RlN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:41:13 -0500
+        id S1727313AbfL0RlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:41:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 504A321775;
-        Fri, 27 Dec 2019 17:41:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1820222C4;
+        Fri, 27 Dec 2019 17:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468472;
-        bh=RhOztUM382b32dVHgWSZK811NgH2IZ7eDTgbyb621kw=;
+        s=default; t=1577468473;
+        bh=oBkHsDvgkstaVNNnbYEpO4N/JGbrsZczsZ3CbOKCSQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=To+cIE8Z54JQ0gBXIIKzl/YbXkmhgU9NXGOK4T0ZucS5byWhWmtwf94JaI7ipzHhd
-         /jPgso+WE7GQ6dPLICS9KvB9Q52KlcPyAaaLFSAbT7QkYIEPU4J8dFeNCL6KkI0fln
-         b9rx8IUWvK6bGf58qIZLeRRfzdpz+w/Kiy/3sDpM=
+        b=SD31pG16fBdh1CFG3pBljlrcIHfjA9U+jPMMTEa9SQVbEQNoRpFAhda17/9dUSGnh
+         Ktql4uHCdFE5A/6Sf76epxE6PBlL4972Dr/ikTFs+4T0wgAWOlIvxIGNi6i1/DxGvB
+         0M1gxGBCVHJzTpW4mgVArylwvty1fuZIY+gIShgc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marco Elver <elver@google.com>, Qian Cai <cai@lca.pw>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 013/187] locking/spinlock/debug: Fix various data races
-Date:   Fri, 27 Dec 2019 12:38:01 -0500
-Message-Id: <20191227174055.4923-13-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 014/187] netfilter: ctnetlink: netns exit must wait for callbacks
+Date:   Fri, 27 Dec 2019 12:38:02 -0500
+Message-Id: <20191227174055.4923-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -48,143 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 1a365e822372ba24c9da0822bc583894f6f3d821 ]
+[ Upstream commit 18a110b022a5c02e7dc9f6109d0bd93e58ac6ebb ]
 
-This fixes various data races in spinlock_debug. By testing with KCSAN,
-it is observable that the console gets spammed with data races reports,
-suggesting these are extremely frequent.
+Curtis Taylor and Jon Maxwell reported and debugged a crash on 3.10
+based kernel.
 
-Example data race report:
+Crash occurs in ctnetlink_conntrack_events because net->nfnl socket is
+NULL.  The nfnl socket was set to NULL by netns destruction running on
+another cpu.
 
-  read to 0xffff8ab24f403c48 of 4 bytes by task 221 on cpu 2:
-   debug_spin_lock_before kernel/locking/spinlock_debug.c:85 [inline]
-   do_raw_spin_lock+0x9b/0x210 kernel/locking/spinlock_debug.c:112
-   __raw_spin_lock include/linux/spinlock_api_smp.h:143 [inline]
-   _raw_spin_lock+0x39/0x40 kernel/locking/spinlock.c:151
-   spin_lock include/linux/spinlock.h:338 [inline]
-   get_partial_node.isra.0.part.0+0x32/0x2f0 mm/slub.c:1873
-   get_partial_node mm/slub.c:1870 [inline]
-  <snip>
+The exiting network namespace calls the relevant destructors in the
+following order:
 
-  write to 0xffff8ab24f403c48 of 4 bytes by task 167 on cpu 3:
-   debug_spin_unlock kernel/locking/spinlock_debug.c:103 [inline]
-   do_raw_spin_unlock+0xc9/0x1a0 kernel/locking/spinlock_debug.c:138
-   __raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:159 [inline]
-   _raw_spin_unlock_irqrestore+0x2d/0x50 kernel/locking/spinlock.c:191
-   spin_unlock_irqrestore include/linux/spinlock.h:393 [inline]
-   free_debug_processing+0x1b3/0x210 mm/slub.c:1214
-   __slab_free+0x292/0x400 mm/slub.c:2864
-  <snip>
+1. ctnetlink_net_exit_batch
 
-As a side-effect, with KCSAN, this eventually locks up the console, most
-likely due to deadlock, e.g. .. -> printk lock -> spinlock_debug ->
-KCSAN detects data race -> kcsan_print_report() -> printk lock ->
-deadlock.
+This nulls out the event callback pointer in struct netns.
 
-This fix will 1) avoid the data races, and 2) allow using lock debugging
-together with KCSAN.
+2. nfnetlink_net_exit_batch
 
-Reported-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Marco Elver <elver@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Link: https://lkml.kernel.org/r/20191120155715.28089-1-elver@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+This nulls net->nfnl socket and frees it.
+
+3. nf_conntrack_cleanup_net_list
+
+This removes all remaining conntrack entries.
+
+This is order is correct. The only explanation for the crash so ar is:
+
+cpu1: conntrack is dying, eviction occurs:
+ -> nf_ct_delete()
+   -> nf_conntrack_event_report \
+     -> nf_conntrack_eventmask_report
+       -> notify->fcn() (== ctnetlink_conntrack_events).
+
+cpu1: a. fetches rcu protected pointer to obtain ctnetlink event callback.
+      b. gets interrupted.
+ cpu2: runs netns exit handlers:
+     a runs ctnetlink destructor, event cb pointer set to NULL.
+     b runs nfnetlink destructor, nfnl socket is closed and set to NULL.
+cpu1: c. resumes and trips over NULL net->nfnl.
+
+Problem appears to be that ctnetlink_net_exit_batch only prevents future
+callers of nf_conntrack_eventmask_report() from obtaining the callback.
+It doesn't wait of other cpus that might have already obtained the
+callbacks address.
+
+I don't see anything in upstream kernels that would prevent similar
+crash: We need to wait for all cpus to have exited the event callback.
+
+Fixes: 9592a5c01e79dbc59eb56fa ("netfilter: ctnetlink: netns support")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/spinlock_debug.c | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ net/netfilter/nf_conntrack_netlink.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/locking/spinlock_debug.c b/kernel/locking/spinlock_debug.c
-index 399669f7eba8..472dd462a40c 100644
---- a/kernel/locking/spinlock_debug.c
-+++ b/kernel/locking/spinlock_debug.c
-@@ -51,19 +51,19 @@ EXPORT_SYMBOL(__rwlock_init);
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index e2d13cd18875..aa8adf930b3c 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -3602,6 +3602,9 @@ static void __net_exit ctnetlink_net_exit_batch(struct list_head *net_exit_list)
  
- static void spin_dump(raw_spinlock_t *lock, const char *msg)
- {
--	struct task_struct *owner = NULL;
-+	struct task_struct *owner = READ_ONCE(lock->owner);
- 
--	if (lock->owner && lock->owner != SPINLOCK_OWNER_INIT)
--		owner = lock->owner;
-+	if (owner == SPINLOCK_OWNER_INIT)
-+		owner = NULL;
- 	printk(KERN_EMERG "BUG: spinlock %s on CPU#%d, %s/%d\n",
- 		msg, raw_smp_processor_id(),
- 		current->comm, task_pid_nr(current));
- 	printk(KERN_EMERG " lock: %pS, .magic: %08x, .owner: %s/%d, "
- 			".owner_cpu: %d\n",
--		lock, lock->magic,
-+		lock, READ_ONCE(lock->magic),
- 		owner ? owner->comm : "<none>",
- 		owner ? task_pid_nr(owner) : -1,
--		lock->owner_cpu);
-+		READ_ONCE(lock->owner_cpu));
- 	dump_stack();
+ 	list_for_each_entry(net, net_exit_list, exit_list)
+ 		ctnetlink_net_exit(net);
++
++	/* wait for other cpus until they are done with ctnl_notifiers */
++	synchronize_rcu();
  }
  
-@@ -80,16 +80,16 @@ static void spin_bug(raw_spinlock_t *lock, const char *msg)
- static inline void
- debug_spin_lock_before(raw_spinlock_t *lock)
- {
--	SPIN_BUG_ON(lock->magic != SPINLOCK_MAGIC, lock, "bad magic");
--	SPIN_BUG_ON(lock->owner == current, lock, "recursion");
--	SPIN_BUG_ON(lock->owner_cpu == raw_smp_processor_id(),
-+	SPIN_BUG_ON(READ_ONCE(lock->magic) != SPINLOCK_MAGIC, lock, "bad magic");
-+	SPIN_BUG_ON(READ_ONCE(lock->owner) == current, lock, "recursion");
-+	SPIN_BUG_ON(READ_ONCE(lock->owner_cpu) == raw_smp_processor_id(),
- 							lock, "cpu recursion");
- }
- 
- static inline void debug_spin_lock_after(raw_spinlock_t *lock)
- {
--	lock->owner_cpu = raw_smp_processor_id();
--	lock->owner = current;
-+	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
-+	WRITE_ONCE(lock->owner, current);
- }
- 
- static inline void debug_spin_unlock(raw_spinlock_t *lock)
-@@ -99,8 +99,8 @@ static inline void debug_spin_unlock(raw_spinlock_t *lock)
- 	SPIN_BUG_ON(lock->owner != current, lock, "wrong owner");
- 	SPIN_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
- 							lock, "wrong CPU");
--	lock->owner = SPINLOCK_OWNER_INIT;
--	lock->owner_cpu = -1;
-+	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
-+	WRITE_ONCE(lock->owner_cpu, -1);
- }
- 
- /*
-@@ -187,8 +187,8 @@ static inline void debug_write_lock_before(rwlock_t *lock)
- 
- static inline void debug_write_lock_after(rwlock_t *lock)
- {
--	lock->owner_cpu = raw_smp_processor_id();
--	lock->owner = current;
-+	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
-+	WRITE_ONCE(lock->owner, current);
- }
- 
- static inline void debug_write_unlock(rwlock_t *lock)
-@@ -197,8 +197,8 @@ static inline void debug_write_unlock(rwlock_t *lock)
- 	RWLOCK_BUG_ON(lock->owner != current, lock, "wrong owner");
- 	RWLOCK_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
- 							lock, "wrong CPU");
--	lock->owner = SPINLOCK_OWNER_INIT;
--	lock->owner_cpu = -1;
-+	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
-+	WRITE_ONCE(lock->owner_cpu, -1);
- }
- 
- void do_raw_write_lock(rwlock_t *lock)
+ static struct pernet_operations ctnetlink_net_ops = {
 -- 
 2.20.1
 
