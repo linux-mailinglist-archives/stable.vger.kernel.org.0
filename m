@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E00D312B6B7
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:44:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CEC12B73E
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:48:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbfL0Ros (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:44:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43046 "EHLO mail.kernel.org"
+        id S1728470AbfL0RsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:48:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728547AbfL0Roo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:44:44 -0500
+        id S1727860AbfL0Rop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:44:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 197C4222C4;
-        Fri, 27 Dec 2019 17:44:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 455ED20740;
+        Fri, 27 Dec 2019 17:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468683;
-        bh=MYIIQKf/tlrqyLKCFLb0w3uYjfXyqxZTHrF8jHYL8dI=;
+        s=default; t=1577468684;
+        bh=Ghd8K6VPRoWQjIndb3Yakrwxh4d7h/MYFhx9oZL8UIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOjs8EhHA1gKleBA61jAKo6fto+W5LoaF0WCHzPa3LbtxfsUcrFRIzzrELAfCvDco
-         1gYgHTwiaSGfbtUrBo0Yi+y/4L1k8/MUkO/XL8ZrrmfUHdwMlGbfj+VEGoWSPgTd6m
-         uvFRKqn3mmkBGCtjdmQMGcgCBWyWnzCivMOkHgBM=
+        b=Ctv03IHbUGaY9nOJ0Zf5PdBpTs2BscQgidjOMB/5ZICiA7/cqu6YCsipUwgvEUkCg
+         zDlZ0dIaECFC9iMF18Eh7ca88MUBCscandP9k+kN4BpUfHZEZTtuA7E+joUX0lB4je
+         sGImx14K2llLuwdPDXk01gE58qe+F29bD9m71Fsc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Rapoport <rppt@linux.ibm.com>,
-        Christian Zigotzky <chzigotzky@xenosoft.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 42/84] powerpc: Ensure that swiotlb buffer is allocated from low memory
-Date:   Fri, 27 Dec 2019 12:43:10 -0500
-Message-Id: <20191227174352.6264-42-sashal@kernel.org>
+Cc:     Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 43/84] btrfs: Fix error messages in qgroup_rescan_init
+Date:   Fri, 27 Dec 2019 12:43:11 -0500
+Message-Id: <20191227174352.6264-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174352.6264-1-sashal@kernel.org>
 References: <20191227174352.6264-1-sashal@kernel.org>
@@ -45,46 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-[ Upstream commit 8fabc623238e68b3ac63c0dd1657bf86c1fa33af ]
+[ Upstream commit 37d02592f11bb76e4ab1dcaa5b8a2a0715403207 ]
 
-Some powerpc platforms (e.g. 85xx) limit DMA-able memory way below 4G.
-If a system has more physical memory than this limit, the swiotlb
-buffer is not addressable because it is allocated from memblock using
-top-down mode.
+The branch of qgroup_rescan_init which is executed from the mount
+path prints wrong errors messages. The textual print out in case
+BTRFS_QGROUP_STATUS_FLAG_RESCAN/BTRFS_QGROUP_STATUS_FLAG_ON are not
+set are transposed. Fix it by exchanging their place.
 
-Force memblock to bottom-up mode before calling swiotlb_init() to
-ensure that the swiotlb buffer is DMA-able.
-
-Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191204123524.22919-1-rppt@kernel.org
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/mem.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/btrfs/qgroup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 04ccb274a620..9a6afd9f3f9b 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -344,6 +344,14 @@ void __init mem_init(void)
- 	BUILD_BUG_ON(MMU_PAGE_COUNT > 16);
- 
- #ifdef CONFIG_SWIOTLB
-+	/*
-+	 * Some platforms (e.g. 85xx) limit DMA-able memory way below
-+	 * 4G. We force memblock to bottom-up mode to ensure that the
-+	 * memory allocated in swiotlb_init() is DMA-able.
-+	 * As it's the last memblock allocation, no need to reset it
-+	 * back to to-down.
-+	 */
-+	memblock_set_bottom_up(true);
- 	swiotlb_init(0);
- #endif
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index cdd6d5021000..7916f711daf5 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -2862,12 +2862,12 @@ qgroup_rescan_init(struct btrfs_fs_info *fs_info, u64 progress_objectid,
+ 		if (!(fs_info->qgroup_flags &
+ 		      BTRFS_QGROUP_STATUS_FLAG_RESCAN)) {
+ 			btrfs_warn(fs_info,
+-			"qgroup rescan init failed, qgroup is not enabled");
++			"qgroup rescan init failed, qgroup rescan is not queued");
+ 			ret = -EINVAL;
+ 		} else if (!(fs_info->qgroup_flags &
+ 			     BTRFS_QGROUP_STATUS_FLAG_ON)) {
+ 			btrfs_warn(fs_info,
+-			"qgroup rescan init failed, qgroup rescan is not queued");
++			"qgroup rescan init failed, qgroup is not enabled");
+ 			ret = -EINVAL;
+ 		}
  
 -- 
 2.20.1
