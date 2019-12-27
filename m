@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD5E12B9A3
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:06:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B06312B9A1
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:06:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727509AbfL0SG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 13:06:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59786 "EHLO mail.kernel.org"
+        id S1727461AbfL0SGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 13:06:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727856AbfL0SCs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 13:02:48 -0500
+        id S1728137AbfL0SCt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 13:02:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A16F920CC7;
-        Fri, 27 Dec 2019 18:02:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D66B221927;
+        Fri, 27 Dec 2019 18:02:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577469767;
-        bh=goXLQiBb8Jyj+bAQ1SO1/YqFV4H48vkmPhLKYKRMZNY=;
+        s=default; t=1577469768;
+        bh=6JimFqxy5aH8U83M64b4lV/Il/uPj2PHJLfndhZJCZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+pczYWfLNKUxtBFRKrbcnZicUk/nK3OuUxgOjCQPWM6icvHF10A62Xr6t5GM6upf
-         75wnkwIle+A4led2EAmR3TAY6Z9bdwwlGVDeUqk5mtWL0QWfHal+VrBH7Hvso11q0m
-         KMQr/se5RU9isLIkbNkj+blZIpiey4i+J6yudZQg=
+        b=qLFQTHnYxViSdLtX4giNZqBW8dGsKOfwfsHeGX3TSvVaYIE1nV9Z3ssTye2NcFLPA
+         XfgkYtIRUqOJQsQVrNRfBzajPaBanl7hh55Dd151VteG0VYeX4kY5kx7PGrp/G1625
+         yxHSOEwrIHw1xM6KywpNx8iKhbYwFfN+FMGfY1k8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dragos Tarcatu <dragos_tarcatu@mentor.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 19/57] ASoC: topology: Check return value for soc_tplg_pcm_create()
-Date:   Fri, 27 Dec 2019 13:01:44 -0500
-Message-Id: <20191227180222.7076-19-sashal@kernel.org>
+Cc:     Stefan Wahren <wahrenst@gmx.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 20/57] ARM: dts: bcm283x: Fix critical trip point
+Date:   Fri, 27 Dec 2019 13:01:45 -0500
+Message-Id: <20191227180222.7076-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
 References: <20191227180222.7076-1-sashal@kernel.org>
@@ -45,52 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+From: Stefan Wahren <wahrenst@gmx.net>
 
-[ Upstream commit a3039aef52d9ffeb67e9211899cd3e8a2953a01f ]
+[ Upstream commit 30e647a764d446723a7e0fb08d209e0104f16173 ]
 
-The return value of soc_tplg_pcm_create() is currently not checked
-in soc_tplg_pcm_elems_load(). If an error is to occur there, the
-topology ignores it and continues loading.
+During definition of the CPU thermal zone of BCM283x SoC family there
+was a misunderstanding of the meaning "criticial trip point" and the
+thermal throttling range of the VideoCore firmware. The latter one takes
+effect when the core temperature is at least 85 degree celsius or higher
 
-Fix that by checking the status and rejecting the topology on error.
+So the current critical trip point doesn't make sense, because the
+thermal shutdown appears before the firmware has a chance to throttle
+the ARM core(s).
 
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191210003939.15752-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix these unwanted shutdowns by increasing the critical trip point
+to a value which shouldn't be reached with working thermal throttling.
+
+Fixes: 0fe4d2181cc4 ("ARM: dts: bcm283x: Add CPU thermal zone with 1 trip point")
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/bcm283x.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index 2d5cf263515b..72301bcad3bd 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -1921,6 +1921,7 @@ static int soc_tplg_pcm_elems_load(struct soc_tplg *tplg,
- 	int count = hdr->count;
- 	int i;
- 	bool abi_match;
-+	int ret;
+diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
+index 4745e3c7806b..fdb018e1278f 100644
+--- a/arch/arm/boot/dts/bcm283x.dtsi
++++ b/arch/arm/boot/dts/bcm283x.dtsi
+@@ -38,7 +38,7 @@
  
- 	if (tplg->pass != SOC_TPLG_PASS_PCM_DAI)
- 		return 0;
-@@ -1957,7 +1958,12 @@ static int soc_tplg_pcm_elems_load(struct soc_tplg *tplg,
- 		}
- 
- 		/* create the FE DAIs and DAI links */
--		soc_tplg_pcm_create(tplg, _pcm);
-+		ret = soc_tplg_pcm_create(tplg, _pcm);
-+		if (ret < 0) {
-+			if (!abi_match)
-+				kfree(_pcm);
-+			return ret;
-+		}
- 
- 		/* offset by version-specific struct size and
- 		 * real priv data size
+ 			trips {
+ 				cpu-crit {
+-					temperature	= <80000>;
++					temperature	= <90000>;
+ 					hysteresis	= <0>;
+ 					type		= "critical";
+ 				};
 -- 
 2.20.1
 
