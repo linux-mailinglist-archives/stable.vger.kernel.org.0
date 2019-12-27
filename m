@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DB9B12B8CA
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:58:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DC9F12B649
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:41:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727627AbfL0R57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:57:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37942 "EHLO mail.kernel.org"
+        id S1727537AbfL0Rlk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:41:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727519AbfL0Rlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:41:37 -0500
+        id S1727528AbfL0Rli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:41:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95A5A227BF;
-        Fri, 27 Dec 2019 17:41:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1017222C2;
+        Fri, 27 Dec 2019 17:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468496;
-        bh=dCuaddNahKCIMhTzWPxdn0qVvTPLXRYoth7KSZ37i4g=;
+        s=default; t=1577468497;
+        bh=J0cPKhFxQCuZu+uLL9G/eNDy4tjEa8vlQ6PtGjaXh5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0zE8IFjMgJ9TIuhTYpBtUuuuvEg7KHyUB1ub0N8OQImPjTeAKAPvCjOVtbEEHd5es
-         A5r/QvmBaYsVSbowzQ8EIL6Yu5Z//UGmL8+1myoVK9VND6FNxeutXSYeY94jdjk2by
-         gyZOpA1YGAG2jQ2RbHkMIMzY9l87yNehl5NI3a1M=
+        b=riuEwbA+La0oSejcZQfZ8yWQO1PIIfkUWNebBQsf5fNP7pfmseA117B45jFDv6vhy
+         +zJ2P2OKfFzBXEIqdcTCRxv7nvLU+Qhmf0whfeoJw5vFw6KDBEY2urV/XhUU0rsotC
+         tpZYmVUPs7GcoHrbehIc8hhmY/71aF03FX8ZBAwQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+Cc:     Phil Sutter <phil@nwl.cc>, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 031/187] ARM: vexpress: Set-up shared OPP table instead of individual for each CPU
-Date:   Fri, 27 Dec 2019 12:38:19 -0500
-Message-Id: <20191227174055.4923-31-sashal@kernel.org>
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org
+Subject: [PATCH AUTOSEL 5.4 032/187] netfilter: uapi: Avoid undefined left-shift in xt_sctp.h
+Date:   Fri, 27 Dec 2019 12:38:20 -0500
+Message-Id: <20191227174055.4923-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -47,67 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Phil Sutter <phil@nwl.cc>
 
-[ Upstream commit 2a76352ad2cc6b78e58f737714879cc860903802 ]
+[ Upstream commit 164166558aacea01b99c8c8ffb710d930405ba69 ]
 
-Currently we add individual copy of same OPP table for each CPU within
-the cluster. This is redundant and doesn't reflect the reality.
+With 'bytes(__u32)' being 32, a left-shift of 31 may happen which is
+undefined for the signed 32-bit value 1. Avoid this by declaring 1 as
+unsigned.
 
-We can't use core cpumask to set policy->cpus in ve_spc_cpufreq_init()
-anymore as it gets called via cpuhp_cpufreq_online()->cpufreq_online()
-->cpufreq_driver->init() and the cpumask gets updated upon CPU hotplug
-operations. It also may cause issues when the vexpress_spc_cpufreq
-driver is built as a module.
-
-Since ve_spc_clk_init is built-in device initcall, we should be able to
-use the same topology_core_cpumask to set the opp sharing cpumask via
-dev_pm_opp_set_sharing_cpus and use the same later in the driver via
-dev_pm_opp_get_sharing_cpus.
-
-Cc: Liviu Dudau <liviu.dudau@arm.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-vexpress/spc.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ include/uapi/linux/netfilter/xt_sctp.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
-index 354e0e7025ae..1da11bdb1dfb 100644
---- a/arch/arm/mach-vexpress/spc.c
-+++ b/arch/arm/mach-vexpress/spc.c
-@@ -551,8 +551,9 @@ static struct clk *ve_spc_clk_register(struct device *cpu_dev)
+diff --git a/include/uapi/linux/netfilter/xt_sctp.h b/include/uapi/linux/netfilter/xt_sctp.h
+index 4bc6d1a08781..b4d804a9fccb 100644
+--- a/include/uapi/linux/netfilter/xt_sctp.h
++++ b/include/uapi/linux/netfilter/xt_sctp.h
+@@ -41,19 +41,19 @@ struct xt_sctp_info {
+ #define SCTP_CHUNKMAP_SET(chunkmap, type) 		\
+ 	do { 						\
+ 		(chunkmap)[type / bytes(__u32)] |= 	\
+-			1 << (type % bytes(__u32));	\
++			1u << (type % bytes(__u32));	\
+ 	} while (0)
  
- static int __init ve_spc_clk_init(void)
- {
--	int cpu;
-+	int cpu, cluster;
- 	struct clk *clk;
-+	bool init_opp_table[MAX_CLUSTERS] = { false };
+ #define SCTP_CHUNKMAP_CLEAR(chunkmap, type)		 	\
+ 	do {							\
+ 		(chunkmap)[type / bytes(__u32)] &= 		\
+-			~(1 << (type % bytes(__u32)));	\
++			~(1u << (type % bytes(__u32)));	\
+ 	} while (0)
  
- 	if (!info)
- 		return 0; /* Continue only if SPC is initialised */
-@@ -578,8 +579,17 @@ static int __init ve_spc_clk_init(void)
- 			continue;
- 		}
+ #define SCTP_CHUNKMAP_IS_SET(chunkmap, type) 			\
+ ({								\
+ 	((chunkmap)[type / bytes (__u32)] & 		\
+-		(1 << (type % bytes (__u32)))) ? 1: 0;	\
++		(1u << (type % bytes (__u32)))) ? 1: 0;	\
+ })
  
-+		cluster = topology_physical_package_id(cpu_dev->id);
-+		if (init_opp_table[cluster])
-+			continue;
-+
- 		if (ve_init_opp_table(cpu_dev))
- 			pr_warn("failed to initialise cpu%d opp table\n", cpu);
-+		else if (dev_pm_opp_set_sharing_cpus(cpu_dev,
-+			 topology_core_cpumask(cpu_dev->id)))
-+			pr_warn("failed to mark OPPs shared for cpu%d\n", cpu);
-+		else
-+			init_opp_table[cluster] = true;
- 	}
- 
- 	platform_device_register_simple("vexpress-spc-cpufreq", -1, NULL, 0);
+ #define SCTP_CHUNKMAP_RESET(chunkmap) \
 -- 
 2.20.1
 
