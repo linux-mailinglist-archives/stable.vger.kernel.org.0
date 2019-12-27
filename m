@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8BA12B82D
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:54:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5951B12B837
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:54:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727908AbfL0Rmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:42:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39554 "EHLO mail.kernel.org"
+        id S1727479AbfL0RyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:54:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727900AbfL0Rmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:42:35 -0500
+        id S1727874AbfL0Rmg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:42:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A5E0218AC;
-        Fri, 27 Dec 2019 17:42:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EB8721744;
+        Fri, 27 Dec 2019 17:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468554;
-        bh=inSHXxAmEMnLtfzgN61sGOZo9j+enNoa1EQvuFtC+xQ=;
+        s=default; t=1577468556;
+        bh=HbygnXdb9+pNdvN77EkwyXpwBKKeuf9al5hOlxjXzp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6rAPHaVRkUH+wV59MSVeXDXe9dT0uYC5f/74nh8e0g1f+PcT+dfeC5a/h6LSZdEE
-         cXXx5/G+cEGzE2FkjWi9xK6/nZXCFXjewJIxV6lqy3Wcref2iTSiOLlVdJQNmTRHS4
-         U45UoS7eH/zkLQd3TdcWHpV6NdBuJeCfwpEEGLkY=
+        b=rbDGCuyYvvUim1J9xzF+IMceAMXxQ8F+5IM89wbutNCx3kJIoHOeMGQl5SdXg7Fuz
+         ODWPkbZropg584sA7ECQ1hZ4douOI39vEXHBgMMj15gyqaREUBiqWxbw9RRLWuy5GO
+         W95bLPBID99dE/EHGpRECJmAgAg5ziS4f1t23/ns=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Daniel T. Lee" <danieltimlee@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 081/187] samples: bpf: fix syscall_tp due to unused syscall
-Date:   Fri, 27 Dec 2019 12:39:09 -0500
-Message-Id: <20191227174055.4923-81-sashal@kernel.org>
+Cc:     Michael Walle <michael@walle.cc>, Li Yang <leoyang.li@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 082/187] arm64: dts: ls1028a: fix reboot node
+Date:   Fri, 27 Dec 2019 12:39:10 -0500
+Message-Id: <20191227174055.4923-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -44,60 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Daniel T. Lee" <danieltimlee@gmail.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit fe3300897cbfd76c6cb825776e5ac0ca50a91ca4 ]
+[ Upstream commit 3f0fb37b22b460e3dec62bee284932881574acb9 ]
 
-Currently, open() is called from the user program and it calls the syscall
-'sys_openat', not the 'sys_open'. This leads to an error of the program
-of user side, due to the fact that the counter maps are zero since no
-function such 'sys_open' is called.
+The reboot register isn't located inside the DCFG controller, but in its
+own RST controller. Fix it.
 
-This commit adds the kernel bpf program which are attached to the
-tracepoint 'sys_enter_openat' and 'sys_enter_openat'.
-
-Fixes: 1da236b6be963 ("bpf: add a test case for syscalls/sys_{enter|exit}_* tracepoints")
-Signed-off-by: Daniel T. Lee <danieltimlee@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 8897f3255c9c ("arm64: dts: Add support for NXP LS1028A SoC")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/syscall_tp_kern.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/samples/bpf/syscall_tp_kern.c b/samples/bpf/syscall_tp_kern.c
-index 1d78819ffef1..630ce8c4d5a2 100644
---- a/samples/bpf/syscall_tp_kern.c
-+++ b/samples/bpf/syscall_tp_kern.c
-@@ -47,13 +47,27 @@ static __always_inline void count(void *map)
- SEC("tracepoint/syscalls/sys_enter_open")
- int trace_enter_open(struct syscalls_enter_open_args *ctx)
- {
--	count((void *)&enter_open_map);
-+	count(&enter_open_map);
-+	return 0;
-+}
-+
-+SEC("tracepoint/syscalls/sys_enter_openat")
-+int trace_enter_open_at(struct syscalls_enter_open_args *ctx)
-+{
-+	count(&enter_open_map);
- 	return 0;
- }
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+index c7dae9ec17da..bb960fe2bb64 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+@@ -102,7 +102,7 @@
  
- SEC("tracepoint/syscalls/sys_exit_open")
- int trace_enter_exit(struct syscalls_exit_open_args *ctx)
- {
--	count((void *)&exit_open_map);
-+	count(&exit_open_map);
-+	return 0;
-+}
+ 	reboot {
+ 		compatible ="syscon-reboot";
+-		regmap = <&dcfg>;
++		regmap = <&rst>;
+ 		offset = <0xb0>;
+ 		mask = <0x02>;
+ 	};
+@@ -161,6 +161,12 @@
+ 			big-endian;
+ 		};
+ 
++		rst: syscon@1e60000 {
++			compatible = "syscon";
++			reg = <0x0 0x1e60000 0x0 0x10000>;
++			little-endian;
++		};
 +
-+SEC("tracepoint/syscalls/sys_exit_openat")
-+int trace_enter_exit_at(struct syscalls_exit_open_args *ctx)
-+{
-+	count(&exit_open_map);
- 	return 0;
- }
+ 		scfg: syscon@1fc0000 {
+ 			compatible = "fsl,ls1028a-scfg", "syscon";
+ 			reg = <0x0 0x1fc0000 0x0 0x10000>;
 -- 
 2.20.1
 
