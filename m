@@ -2,79 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CE9712B122
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 06:09:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A9CF12B17D
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 06:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725904AbfL0FJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 00:09:17 -0500
-Received: from mga12.intel.com ([192.55.52.136]:37820 "EHLO mga12.intel.com"
+        id S1726014AbfL0FgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 00:36:20 -0500
+Received: from mga02.intel.com ([134.134.136.20]:39754 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725819AbfL0FJQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 00:09:16 -0500
+        id S1725854AbfL0FgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 00:36:20 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Dec 2019 21:09:16 -0800
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Dec 2019 21:36:19 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.69,361,1571727600"; 
-   d="scan'208";a="220420469"
-Received: from psklarow-mobl.ger.corp.intel.com ([10.252.31.109])
-  by orsmga003.jf.intel.com with ESMTP; 26 Dec 2019 21:09:12 -0800
-Message-ID: <f0406ed23a9a64bd7c5dc0e0b403151d6157a8cf.camel@linux.intel.com>
-Subject: Re: [PATCH v2] tpm_tis: reserve chip for duration of
- tpm_tis_core_init
+   d="scan'208";a="212556933"
+Received: from psklarow-mobl.ger.corp.intel.com (HELO localhost) ([10.252.31.109])
+  by orsmga008.jf.intel.com with ESMTP; 26 Dec 2019 21:36:15 -0800
 From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Jerry Snitselaar <jsnitsel@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Christian Bundy <christianbundy@fraction.io>,
+To:     linux-integrity@vger.kernel.org
+Cc:     Stefan Berger <stefanb@linux.ibm.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
         Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>, linux-integrity@vger.kernel.org
-Date:   Fri, 27 Dec 2019 07:09:06 +0200
-In-Reply-To: <20191219100747.fhbqmzk7xby3tt3l@cantor>
-References: <20191211231758.22263-1-jsnitsel@redhat.com>
-         <20191211235455.24424-1-jsnitsel@redhat.com>
-         <5aef0fbe28ed23b963c53d61445b0bac6f108642.camel@linux.intel.com>
-         <CAPcyv4h60z889bfbiwvVhsj6MxmOPiPY8ZuPB_skxkZx-N+OGw@mail.gmail.com>
-         <20191217020022.knh7uxt4pn77wk5m@cantor>
-         <CAPcyv4iepQup4bwMuWzq6r5gdx83hgYckUWFF7yF=rszjz3dtQ@mail.gmail.com>
-         <5d0763334def7d7ae1e7cf931ef9b14184dce238.camel@linux.intel.com>
-         <20191217171844.huqlj5csr262zkkk@cantor>
-         <37f4ed0d6145dbe1e8724a5d05d0da82b593bf9c.camel@linux.intel.com>
-         <CAPcyv4h8sK+geVvBb1534V9CgdvOnkpPeStV3B8Q1Qdve3is0A@mail.gmail.com>
-         <20191219100747.fhbqmzk7xby3tt3l@cantor>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.1-2 
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] tpm: Revert "tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts"
+Date:   Fri, 27 Dec 2019 07:36:10 +0200
+Message-Id: <20191227053610.11160-1-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2019-12-19 at 03:07 -0700, Jerry Snitselaar wrote:
-> > These patches take a usable system and make it unusable:
-> > 
-> > 1ea32c83c699 tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts
-> > 5b359c7c4372 tpm_tis_core: Turn on the TPM before probing IRQ's
-> > 
-> > ...they need to be reverted, or the regression needs to be fixed, but
-> > asserting that you fixed something else unrelated does not help.
-> > 
-> 
-> Reverting 1ea32c83c699 ("tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before
-> probing for interrupts") would at least allow people impacted by this
-> to boot their systems without disabling the tpm, or blacklisting the
-> module while we figure this out. From what I can tell the tpm_tis code
-> was operating in that state since 570a36097f30 ("tpm: drop 'irq' from
-> struct tpm_vendor_specific") until Stefan's patch.
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-I'll formalize a fix based on the reverts.
+Revert the patch that was setting the TPM_CHIP_FLAG_IRQ before probing for
+interrupts.
 
-Sorry for the holiday latency.
+Cc: Jerry Snitselaar <jsnitsel@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Fixes: 1ea32c83c699 ("tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts")
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+---
+Please check and inform if also 2/2 of Stefan's patches is needed. I'll
+prepare the PR accordingly. Thanks.
+ drivers/char/tpm/tpm_tis_core.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-/Jarkko
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+index bb0343ffd235..7ee29e25cb3b 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -1059,7 +1059,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+ 			goto err_probe;
+ 		}
+ 
+-		chip->flags |= TPM_CHIP_FLAG_IRQ;
+ 		if (irq) {
+ 			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
+ 						 irq);
+-- 
+2.20.1
 
