@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8231212B875
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:56:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62AE612B65C
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:42:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727563AbfL0Rzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:55:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38840 "EHLO mail.kernel.org"
+        id S1727771AbfL0RmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:42:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727752AbfL0RmJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:42:09 -0500
+        id S1727768AbfL0RmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:42:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2DD4218AC;
-        Fri, 27 Dec 2019 17:42:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E96FA22B48;
+        Fri, 27 Dec 2019 17:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468528;
-        bh=qw+nnA4BJ0MRDlYO03FDH+s5K6CRzbmFiiJjv7eTQwM=;
+        s=default; t=1577468529;
+        bh=ZWtIO+a0vaQunMSWxVY3ld+/seCZC51wG2H3XXUbHJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OIHj5DafearWrabVdoIuCPKQZDIZcRS66VgsXr1o8lKCcmj0lZnszLAlzXfGDRih6
-         XBwLbYNy2eu7HGV0ILFN+JUKy/i7cOzzxlAKfSJxaF6uGMxpoHBZC/bBpy+iaB18/n
-         rdZtmxSBsuwF/MpPRREF4mIJGaWWD7f8+AjVkz2A=
+        b=E3DEXgk96m8hbXUGTOgHqQ+MMy5eMyKtmu1IWXV57J390muTo7IYjlasq/9qUsYwH
+         pLtZ8wLuM1+QiRsrDWmsIMjzbgQzoLByG6oyIf6Ndkee3pZslNxsAUdWhHy7MuUf9n
+         qTygd1HY3YSBOmA43oGh6PC9Ec1DUpDaweecLwGY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Richard Narron <comet.berkeley@gmail.com>,
-        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 059/187] efi: Don't attempt to map RCI2 config table if it doesn't exist
-Date:   Fri, 27 Dec 2019 12:38:47 -0500
-Message-Id: <20191227174055.4923-59-sashal@kernel.org>
+Cc:     Dragos Tarcatu <dragos_tarcatu@mentor.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 060/187] ASoC: topology: Check return value for snd_soc_add_dai_link()
+Date:   Fri, 27 Dec 2019 12:38:48 -0500
+Message-Id: <20191227174055.4923-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -44,70 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
 
-[ Upstream commit a470552ee8965da0fe6fd4df0aa39c4cda652c7c ]
+[ Upstream commit 76d2703649321c296df7ec0dafd50add96215de4 ]
 
-Commit:
+snd_soc_add_dai_link() might fail. This situation occurs for
+instance in a very specific use case where a PCM device and a
+Back End DAI link are given identical names in the topology.
+When this happens, soc_new_pcm_runtime() fails and then
+snd_soc_add_dai_link() returns -ENOMEM when called from
+soc_tplg_fe_link_create(). Because of that, the link will not
+get added into the card list, so any attempt to remove it later
+ends up in a panic.
 
-  1c5fecb61255aa12 ("efi: Export Runtime Configuration Interface table to sysfs")
+Fix that by checking the return status and free the memory in case
+of an error.
 
-... added support for a Dell specific UEFI configuration table, but
-failed to take into account that mapping the table should not be
-attempted unless the table actually exists. If it doesn't exist,
-the code usually fails silently unless pr_debug() prints are
-enabled. However, on 32-bit PAE x86, the splat below is produced due
-to the attempt to map the placeholder value EFI_INVALID_TABLE_ADDR
-which we use for non-existing UEFI configuration tables, and which
-equals ULONG_MAX.
-
-   memremap attempted on mixed range 0x00000000ffffffff size: 0x1e
-   WARNING: CPU: 1 PID: 1 at kernel/iomem.c:81 memremap+0x1a3/0x1c0
-   Modules linked in:
-   CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.4.2-smp-mine #1
-   Hardware name: Hewlett-Packard HP Z400 Workstation/0B4Ch, BIOS 786G3 v03.61 03/05/2018
-   EIP: memremap+0x1a3/0x1c0
-  ...
-   Call Trace:
-    ? map_properties+0x473/0x473
-    ? efi_rci2_sysfs_init+0x2c/0x154
-    ? map_properties+0x473/0x473
-    ? do_one_initcall+0x49/0x1d4
-    ? parse_args+0x1e8/0x2a0
-    ? do_early_param+0x7a/0x7a
-    ? kernel_init_freeable+0x139/0x1c2
-    ? rest_init+0x8e/0x8e
-    ? kernel_init+0xd/0xf2
-    ? ret_from_fork+0x2e/0x38
-
-Fix this by checking whether the table exists before attempting to map it.
-
-Reported-by: Richard Narron <comet.berkeley@gmail.com>
-Tested-by: Richard Narron <comet.berkeley@gmail.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: linux-efi@vger.kernel.org
-Fixes: 1c5fecb61255aa12 ("efi: Export Runtime Configuration Interface table to sysfs")
-Link: https://lkml.kernel.org/r/20191210090945.11501-2-ardb@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20191210003939.15752-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/rci2-table.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/soc-topology.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/firmware/efi/rci2-table.c b/drivers/firmware/efi/rci2-table.c
-index 76b0c354a027..de1a9a1f9f14 100644
---- a/drivers/firmware/efi/rci2-table.c
-+++ b/drivers/firmware/efi/rci2-table.c
-@@ -81,6 +81,9 @@ static int __init efi_rci2_sysfs_init(void)
- 	struct kobject *tables_kobj;
- 	int ret = -ENOMEM;
- 
-+	if (rci2_table_phys == EFI_INVALID_TABLE_ADDR)
-+		return 0;
+diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
+index 0fd032914a31..c92e360d27b8 100644
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -1918,11 +1918,13 @@ static int soc_tplg_fe_link_create(struct soc_tplg *tplg,
+ 	ret = soc_tplg_dai_link_load(tplg, link, NULL);
+ 	if (ret < 0) {
+ 		dev_err(tplg->comp->dev, "ASoC: FE link loading failed\n");
+-		kfree(link->name);
+-		kfree(link->stream_name);
+-		kfree(link->cpus->dai_name);
+-		kfree(link);
+-		return ret;
++		goto err;
++	}
 +
- 	rci2_base = memremap(rci2_table_phys,
- 			     sizeof(struct rci2_table_global_hdr),
- 			     MEMREMAP_WB);
++	ret = snd_soc_add_dai_link(tplg->comp->card, link);
++	if (ret < 0) {
++		dev_err(tplg->comp->dev, "ASoC: adding FE link failed\n");
++		goto err;
+ 	}
+ 
+ 	link->dobj.index = tplg->index;
+@@ -1930,8 +1932,13 @@ static int soc_tplg_fe_link_create(struct soc_tplg *tplg,
+ 	link->dobj.type = SND_SOC_DOBJ_DAI_LINK;
+ 	list_add(&link->dobj.list, &tplg->comp->dobj_list);
+ 
+-	snd_soc_add_dai_link(tplg->comp->card, link);
+ 	return 0;
++err:
++	kfree(link->name);
++	kfree(link->stream_name);
++	kfree(link->cpus->dai_name);
++	kfree(link);
++	return ret;
+ }
+ 
+ /* create a FE DAI and DAI link from the PCM object */
 -- 
 2.20.1
 
