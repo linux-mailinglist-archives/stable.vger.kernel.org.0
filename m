@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14E4912B8EA
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:59:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B85F112B639
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:41:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727557AbfL0R6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:58:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37290 "EHLO mail.kernel.org"
+        id S1727368AbfL0RlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:41:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727313AbfL0RlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:41:14 -0500
+        id S1727358AbfL0RlQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:41:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1820222C4;
-        Fri, 27 Dec 2019 17:41:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2011B22525;
+        Fri, 27 Dec 2019 17:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468473;
-        bh=oBkHsDvgkstaVNNnbYEpO4N/JGbrsZczsZ3CbOKCSQY=;
+        s=default; t=1577468475;
+        bh=Ho1Xlqow1ZoOG2sC7QTQAP4w132qJ+CdPclVM/y0AEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SD31pG16fBdh1CFG3pBljlrcIHfjA9U+jPMMTEa9SQVbEQNoRpFAhda17/9dUSGnh
-         Ktql4uHCdFE5A/6Sf76epxE6PBlL4972Dr/ikTFs+4T0wgAWOlIvxIGNi6i1/DxGvB
-         0M1gxGBCVHJzTpW4mgVArylwvty1fuZIY+gIShgc=
+        b=rdjReN0VJaOLUeDaMuzU7o1bTaP4qlQE2nxOT3cv5+R8I6InkX990p+ouokJ1mqAB
+         CWxGcn+VnULb3dMo18htrizHF+yRvcdrgi8XpO3V+sgjmoCJGoF4cKG/cfC5WY7557
+         hXyiduhG6zvpZEBzVrGMLPSg7EqqlUEBNtmq5FHY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 014/187] netfilter: ctnetlink: netns exit must wait for callbacks
-Date:   Fri, 27 Dec 2019 12:38:02 -0500
-Message-Id: <20191227174055.4923-14-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
+        feng.tang@intel.com, harry.pan@intel.com, hpa@zytor.com,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 015/187] x86/intel: Disable HPET on Intel Coffee Lake H platforms
+Date:   Fri, 27 Dec 2019 12:38:03 -0500
+Message-Id: <20191227174055.4923-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -45,77 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 18a110b022a5c02e7dc9f6109d0bd93e58ac6ebb ]
+[ Upstream commit f8edbde885bbcab6a2b4a1b5ca614e6ccb807577 ]
 
-Curtis Taylor and Jon Maxwell reported and debugged a crash on 3.10
-based kernel.
+Coffee Lake H SoC has similar behavior as Coffee Lake, skewed HPET timer
+once the SoCs entered PC10.
 
-Crash occurs in ctnetlink_conntrack_events because net->nfnl socket is
-NULL.  The nfnl socket was set to NULL by netns destruction running on
-another cpu.
+So let's disable HPET on CFL-H platforms.
 
-The exiting network namespace calls the relevant destructors in the
-following order:
-
-1. ctnetlink_net_exit_batch
-
-This nulls out the event callback pointer in struct netns.
-
-2. nfnetlink_net_exit_batch
-
-This nulls net->nfnl socket and frees it.
-
-3. nf_conntrack_cleanup_net_list
-
-This removes all remaining conntrack entries.
-
-This is order is correct. The only explanation for the crash so ar is:
-
-cpu1: conntrack is dying, eviction occurs:
- -> nf_ct_delete()
-   -> nf_conntrack_event_report \
-     -> nf_conntrack_eventmask_report
-       -> notify->fcn() (== ctnetlink_conntrack_events).
-
-cpu1: a. fetches rcu protected pointer to obtain ctnetlink event callback.
-      b. gets interrupted.
- cpu2: runs netns exit handlers:
-     a runs ctnetlink destructor, event cb pointer set to NULL.
-     b runs nfnetlink destructor, nfnl socket is closed and set to NULL.
-cpu1: c. resumes and trips over NULL net->nfnl.
-
-Problem appears to be that ctnetlink_net_exit_batch only prevents future
-callers of nf_conntrack_eventmask_report() from obtaining the callback.
-It doesn't wait of other cpus that might have already obtained the
-callbacks address.
-
-I don't see anything in upstream kernels that would prevent similar
-crash: We need to wait for all cpus to have exited the event callback.
-
-Fixes: 9592a5c01e79dbc59eb56fa ("netfilter: ctnetlink: netns support")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: bp@alien8.de
+Cc: feng.tang@intel.com
+Cc: harry.pan@intel.com
+Cc: hpa@zytor.com
+Link: https://lkml.kernel.org/r/20191129062303.18982-1-kai.heng.feng@canonical.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/early-quirks.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index e2d13cd18875..aa8adf930b3c 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -3602,6 +3602,9 @@ static void __net_exit ctnetlink_net_exit_batch(struct list_head *net_exit_list)
- 
- 	list_for_each_entry(net, net_exit_list, exit_list)
- 		ctnetlink_net_exit(net);
-+
-+	/* wait for other cpus until they are done with ctnl_notifiers */
-+	synchronize_rcu();
- }
- 
- static struct pernet_operations ctnetlink_net_ops = {
+diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
+index 4cba91ec8049..606711f5ebf8 100644
+--- a/arch/x86/kernel/early-quirks.c
++++ b/arch/x86/kernel/early-quirks.c
+@@ -710,6 +710,8 @@ static struct chipset early_qrk[] __initdata = {
+ 	 */
+ 	{ PCI_VENDOR_ID_INTEL, 0x0f00,
+ 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
++	{ PCI_VENDOR_ID_INTEL, 0x3e20,
++		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+ 	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
+ 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+ 	{ PCI_VENDOR_ID_BROADCOM, 0x4331,
 -- 
 2.20.1
 
