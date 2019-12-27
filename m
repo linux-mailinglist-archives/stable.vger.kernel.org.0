@@ -2,85 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B09512B609
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:06:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F190C12B61D
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:29:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726923AbfL0RGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:06:48 -0500
-Received: from smtp104.ord1d.emailsrvr.com ([184.106.54.104]:36308 "EHLO
-        smtp104.ord1d.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726920AbfL0RGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Dec 2019 12:06:48 -0500
-X-Greylist: delayed 332 seconds by postgrey-1.27 at vger.kernel.org; Fri, 27 Dec 2019 12:06:47 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=g001.emailsrvr.com;
-        s=20190322-9u7zjiwi; t=1577466075;
-        bh=8ASEO9nb1s4EYQzxV1kAkTa3727cqCnOOe7ocLSymVg=;
-        h=From:To:Subject:Date:From;
-        b=Bf56xgAvmL+QWeNgo80a0UXrlRzHeyeHDNmXeUc44xtLpAIBESlCTFLgob9yR8x6F
-         hvaOP2uYWw8eIz7QozWPrz2WDZdtVlbXmnX/o5tJ/7x7vyuqD7SpsY/CtjN/illg6P
-         BPvLtqigFx+uzQtgoKvAmKc7cbQYd6L2FRTq8Qvg=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
-        s=20190130-41we5z8j; t=1577466075;
-        bh=8ASEO9nb1s4EYQzxV1kAkTa3727cqCnOOe7ocLSymVg=;
-        h=From:To:Subject:Date:From;
-        b=EE4Dtcpfgy7khxaSo8J06m4OOlR5f7Dfq3OD/ptrNjgndvs687adT/fwEfE1V4lGt
-         MWDlBnnclaZUtJIsFkk9wz/Rua3HJyZY4czq3/9iwkOz7djtErb2zE3qGpWcbXLwbQ
-         nHUnnfMUE1mzKvWBARAX5pBL3jxIXNiR8MMvy8aE=
-X-Auth-ID: abbotti@mev.co.uk
-Received: by smtp6.relay.ord1d.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id EB661E0408;
-        Fri, 27 Dec 2019 12:01:13 -0500 (EST)
-X-Sender-Id: abbotti@mev.co.uk
-Received: from konata.homenet (redmecca.plus.com [80.229.15.156])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-GCM-SHA256)
-        by 0.0.0.0:465 (trex/5.7.12);
-        Fri, 27 Dec 2019 12:01:14 -0500
-From:   Ian Abbott <abbotti@mev.co.uk>
-To:     devel@driverdev.osuosl.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        H Hartley Sweeten <hartleys@visionengravers.com>,
-        Ian Abbott <abbotti@mev.co.uk>, linux-kernel@vger.kernel.org,
-        Dmytro Fil <monkdaf@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] staging: comedi: adv_pci1710: fix AI channels 16-31 for PCI-1713
-Date:   Fri, 27 Dec 2019 17:00:54 +0000
-Message-Id: <20191227170054.32051-1-abbotti@mev.co.uk>
-X-Mailer: git-send-email 2.24.1
+        id S1726495AbfL0R3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:29:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33208 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726379AbfL0R3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:29:13 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95EA920882;
+        Fri, 27 Dec 2019 17:29:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1577467753;
+        bh=iWH0MFW5TIsBkDItbrtJZGgrfm8ntD5+Gb/OZCOoeX8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=w/odNDt2mh58np8SzGlCt06+tOPHNI8o48vwuH9aDAVF2RWjjlaciIN1NeSa0Horc
+         U7EsEUmnCkzUprtp8s98j4osUeWuWGK4mZkFE6G3SO73qp9c2uFK/t2vIm/sko2bTw
+         rs6GxcL01XNO07ZR9Nxz0I5feIlBilB2T67WtwWM=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 001/187] ASoC: rt5682: fix i2c arbitration lost issue
+Date:   Fri, 27 Dec 2019 12:26:05 -0500
+Message-Id: <20191227172911.4430-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Advantech PCI-1713 has 32 analog input channels, but an incorrect
-bit-mask in the definition of the `PCI171X_MUX_CHANH(x)` and
-PCI171X_MUX_CHANL(x)` macros is causing channels 16 to 31 to be aliases
-of channels 0 to 15.  Change the bit-mask value from 0xf to 0xff to fix
-it.  Note that the channel numbers will have been range checked already,
-so the bit-mask isn't really needed.
+From: Shuming Fan <shumingf@realtek.com>
 
-Fixes: 92c65e5553ed ("staging: comedi: adv_pci1710: define the mux control register bits")
-Reported-by: Dmytro Fil <monkdaf@gmail.com>
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+[ Upstream commit bc094709de0192a756c6946a7c89c543243ae609 ]
+
+This patch modified the HW initial setting to fix i2c arbitration lost issue.
+
+Signed-off-by: Shuming Fan <shumingf@realtek.com>
+Link: https://lore.kernel.org/r/20191125091940.11953-1-shumingf@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/adv_pci1710.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/rt5682.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/staging/comedi/drivers/adv_pci1710.c b/drivers/staging/comedi/drivers/adv_pci1710.c
-index dbff0f7e7cf5..ddc0dc93d08b 100644
---- a/drivers/staging/comedi/drivers/adv_pci1710.c
-+++ b/drivers/staging/comedi/drivers/adv_pci1710.c
-@@ -46,8 +46,8 @@
- #define PCI171X_RANGE_UNI	BIT(4)
- #define PCI171X_RANGE_GAIN(x)	(((x) & 0x7) << 0)
- #define PCI171X_MUX_REG		0x04	/* W:   A/D multiplexor control */
--#define PCI171X_MUX_CHANH(x)	(((x) & 0xf) << 8)
--#define PCI171X_MUX_CHANL(x)	(((x) & 0xf) << 0)
-+#define PCI171X_MUX_CHANH(x)	(((x) & 0xff) << 8)
-+#define PCI171X_MUX_CHANL(x)	(((x) & 0xff) << 0)
- #define PCI171X_MUX_CHAN(x)	(PCI171X_MUX_CHANH(x) | PCI171X_MUX_CHANL(x))
- #define PCI171X_STATUS_REG	0x06	/* R:   status register */
- #define PCI171X_STATUS_IRQ	BIT(11)	/* 1=IRQ occurred */
+diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
+index c50b75ce82e0..05e883a65d7a 100644
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -72,6 +72,7 @@ struct rt5682_priv {
+ static const struct reg_sequence patch_list[] = {
+ 	{RT5682_HP_IMP_SENS_CTRL_19, 0x1000},
+ 	{RT5682_DAC_ADC_DIG_VOL1, 0xa020},
++	{RT5682_I2C_CTRL, 0x000f},
+ };
+ 
+ static const struct reg_default rt5682_reg[] = {
+@@ -2481,6 +2482,7 @@ static void rt5682_calibrate(struct rt5682_priv *rt5682)
+ 	mutex_lock(&rt5682->calibrate_mutex);
+ 
+ 	rt5682_reset(rt5682->regmap);
++	regmap_write(rt5682->regmap, RT5682_I2C_CTRL, 0x000f);
+ 	regmap_write(rt5682->regmap, RT5682_PWR_ANLG_1, 0xa2af);
+ 	usleep_range(15000, 20000);
+ 	regmap_write(rt5682->regmap, RT5682_PWR_ANLG_1, 0xf2af);
 -- 
-2.24.1
+2.20.1
 
