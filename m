@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A54512B955
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:05:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB3C12B953
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728615AbfL0SDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728628AbfL0SDS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 27 Dec 2019 13:03:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60482 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727579AbfL0SDR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 13:03:17 -0500
+        id S1728608AbfL0SDS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 13:03:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB06F20CC7;
-        Fri, 27 Dec 2019 18:03:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9D61218AC;
+        Fri, 27 Dec 2019 18:03:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577469796;
-        bh=ivUHB4h27mdn4KKhhMwQJrcR/rXC7Sp/ZHyZtHIzZso=;
+        s=default; t=1577469797;
+        bh=4vI5RpeiN7lbtTh/OPsyOoqAfoZFlIyDmqHsTYCLd50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yaa8lsfIU/42vs3OZXjCqT/+w0eLO0TygrQYrxDbRBrnfh2TjsSYvS9euUs61JKf2
-         ZCvZ47XtnDNRshDQCZE3IbId9u65/5VHL7y9yYRcQPlSrXDfmhjVRxm5j8Qj1s8xBm
-         iStq/XdJ99iedlr2lVguMNl4m4KSQKryM9iyFMpM=
+        b=juvmaldqdDEJtp+jb/XTYkkNio1H1bknUDfIE9OLYNKLkVMsRO97nEDdgecOiVF3s
+         uFgHgRUHvyHoQUIi83W3yos79hEHLx4cM5CaqjSjvEhx9ii8Bv/S+xRUNxDKSumm7T
+         LhbEIolQzgqTG6wpei9J7kcm9r4MgzMT32zRRNgk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Sandeen <sandeen@redhat.com>, Jan Kara <jack@suse.cz>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 44/57] fs: avoid softlockups in s_inodes iterators
-Date:   Fri, 27 Dec 2019 13:02:09 -0500
-Message-Id: <20191227180222.7076-44-sashal@kernel.org>
+Cc:     Ben Hutchings <ben@decadent.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 45/57] net: qlogic: Fix error paths in ql_alloc_large_buffers()
+Date:   Fri, 27 Dec 2019 13:02:10 -0500
+Message-Id: <20191227180222.7076-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
 References: <20191227180222.7076-1-sashal@kernel.org>
@@ -43,102 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Sandeen <sandeen@redhat.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-[ Upstream commit 04646aebd30b99f2cfa0182435a2ec252fcb16d0 ]
+[ Upstream commit cad46039e4c99812db067c8ac22a864960e7acc4 ]
 
-Anything that walks all inodes on sb->s_inodes list without rescheduling
-risks softlockups.
+ql_alloc_large_buffers() has the usual RX buffer allocation
+loop where it allocates skbs and maps them for DMA.  It also
+treats failure as a fatal error.
 
-Previous efforts were made in 2 functions, see:
+There are (at least) three bugs in the error paths:
 
-c27d82f fs/drop_caches.c: avoid softlockups in drop_pagecache_sb()
-ac05fbb inode: don't softlockup when evicting inodes
+1. ql_free_large_buffers() assumes that the lrg_buf[] entry for the
+first buffer that couldn't be allocated will have .skb == NULL.
+But the qla_buf[] array is not zero-initialised.
 
-but there hasn't been an audit of all walkers, so do that now.  This
-also consistently moves the cond_resched() calls to the bottom of each
-loop in cases where it already exists.
+2. ql_free_large_buffers() DMA-unmaps all skbs in lrg_buf[].  This is
+incorrect for the last allocated skb, if DMA mapping failed.
 
-One loop remains: remove_dquot_ref(), because I'm not quite sure how
-to deal with that one w/o taking the i_lock.
+3. Commit 1acb8f2a7a9f ("net: qlogic: Fix memory leak in
+ql_alloc_large_buffers") added a direct call to dev_kfree_skb_any()
+after the skb is recorded in lrg_buf[], so ql_free_large_buffers()
+will double-free it.
 
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+The bugs are somewhat inter-twined, so fix them all at once:
+
+* Clear each entry in qla_buf[] before attempting to allocate
+  an skb for it.  This goes half-way to fixing bug 1.
+* Set the .skb field only after the skb is DMA-mapped.  This
+  fixes the rest.
+
+Fixes: 1357bfcf7106 ("qla3xxx: Dynamically size the rx buffer queue ...")
+Fixes: 0f8ab89e825f ("qla3xxx: Check return code from pci_map_single() ...")
+Fixes: 1acb8f2a7a9f ("net: qlogic: Fix memory leak in ql_alloc_large_buffers")
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/drop_caches.c     | 2 +-
- fs/inode.c           | 7 +++++++
- fs/notify/fsnotify.c | 1 +
- fs/quota/dquot.c     | 1 +
- 4 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qla3xxx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/drop_caches.c b/fs/drop_caches.c
-index d31b6c72b476..dc1a1d5d825b 100644
---- a/fs/drop_caches.c
-+++ b/fs/drop_caches.c
-@@ -35,11 +35,11 @@ static void drop_pagecache_sb(struct super_block *sb, void *unused)
- 		spin_unlock(&inode->i_lock);
- 		spin_unlock(&sb->s_inode_list_lock);
+diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
+index 5fca9a75780c..cc53ee26bd3e 100644
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -2756,6 +2756,9 @@ static int ql_alloc_large_buffers(struct ql3_adapter *qdev)
+ 	int err;
  
--		cond_resched();
- 		invalidate_mapping_pages(inode->i_mapping, 0, -1);
- 		iput(toput_inode);
- 		toput_inode = inode;
+ 	for (i = 0; i < qdev->num_large_buffers; i++) {
++		lrg_buf_cb = &qdev->lrg_buf[i];
++		memset(lrg_buf_cb, 0, sizeof(struct ql_rcv_buf_cb));
++
+ 		skb = netdev_alloc_skb(qdev->ndev,
+ 				       qdev->lrg_buffer_len);
+ 		if (unlikely(!skb)) {
+@@ -2766,11 +2769,7 @@ static int ql_alloc_large_buffers(struct ql3_adapter *qdev)
+ 			ql_free_large_buffers(qdev);
+ 			return -ENOMEM;
+ 		} else {
+-
+-			lrg_buf_cb = &qdev->lrg_buf[i];
+-			memset(lrg_buf_cb, 0, sizeof(struct ql_rcv_buf_cb));
+ 			lrg_buf_cb->index = i;
+-			lrg_buf_cb->skb = skb;
+ 			/*
+ 			 * We save some space to copy the ethhdr from first
+ 			 * buffer
+@@ -2792,6 +2791,7 @@ static int ql_alloc_large_buffers(struct ql3_adapter *qdev)
+ 				return -ENOMEM;
+ 			}
  
-+		cond_resched();
- 		spin_lock(&sb->s_inode_list_lock);
- 	}
- 	spin_unlock(&sb->s_inode_list_lock);
-diff --git a/fs/inode.c b/fs/inode.c
-index 76f7535fe754..d2a700c5efce 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -656,6 +656,7 @@ int invalidate_inodes(struct super_block *sb, bool kill_dirty)
- 	struct inode *inode, *next;
- 	LIST_HEAD(dispose);
- 
-+again:
- 	spin_lock(&sb->s_inode_list_lock);
- 	list_for_each_entry_safe(inode, next, &sb->s_inodes, i_sb_list) {
- 		spin_lock(&inode->i_lock);
-@@ -678,6 +679,12 @@ int invalidate_inodes(struct super_block *sb, bool kill_dirty)
- 		inode_lru_list_del(inode);
- 		spin_unlock(&inode->i_lock);
- 		list_add(&inode->i_lru, &dispose);
-+		if (need_resched()) {
-+			spin_unlock(&sb->s_inode_list_lock);
-+			cond_resched();
-+			dispose_list(&dispose);
-+			goto again;
-+		}
- 	}
- 	spin_unlock(&sb->s_inode_list_lock);
- 
-diff --git a/fs/notify/fsnotify.c b/fs/notify/fsnotify.c
-index 506da82ff3f1..a308f7a7e577 100644
---- a/fs/notify/fsnotify.c
-+++ b/fs/notify/fsnotify.c
-@@ -90,6 +90,7 @@ void fsnotify_unmount_inodes(struct super_block *sb)
- 
- 		iput_inode = inode;
- 
-+		cond_resched();
- 		spin_lock(&sb->s_inode_list_lock);
- 	}
- 	spin_unlock(&sb->s_inode_list_lock);
-diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index 3254c90fd899..70098903b45d 100644
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -976,6 +976,7 @@ static int add_dquot_ref(struct super_block *sb, int type)
- 		 * later.
- 		 */
- 		old_inode = inode;
-+		cond_resched();
- 		spin_lock(&sb->s_inode_list_lock);
- 	}
- 	spin_unlock(&sb->s_inode_list_lock);
++			lrg_buf_cb->skb = skb;
+ 			dma_unmap_addr_set(lrg_buf_cb, mapaddr, map);
+ 			dma_unmap_len_set(lrg_buf_cb, maplen,
+ 					  qdev->lrg_buffer_len -
 -- 
 2.20.1
 
