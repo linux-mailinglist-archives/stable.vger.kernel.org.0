@@ -2,94 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A4A12B19F
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 07:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E774212B241
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 08:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726197AbfL0GDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 01:03:51 -0500
-Received: from mga18.intel.com ([134.134.136.126]:28316 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726165AbfL0GDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 01:03:51 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Dec 2019 22:03:49 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,361,1571727600"; 
-   d="scan'208";a="250564551"
-Received: from psklarow-mobl.ger.corp.intel.com ([10.252.31.109])
-  by fmsmga002.fm.intel.com with ESMTP; 26 Dec 2019 22:03:44 -0800
-Message-ID: <a16202a5f569c4fd7d7455bbff6ded9b83edcdc2.camel@linux.intel.com>
-Subject: Re: [PATCH v2] tpm_tis: reserve chip for duration of
- tpm_tis_core_init
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Jerry Snitselaar <jsnitsel@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Christian Bundy <christianbundy@fraction.io>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>, linux-integrity@vger.kernel.org
-Date:   Fri, 27 Dec 2019 08:03:44 +0200
-In-Reply-To: <0f355936c954847089d9e8fb579e30bf8ca43a0e.camel@linux.intel.com>
-References: <20191211231758.22263-1-jsnitsel@redhat.com>
-         <20191211235455.24424-1-jsnitsel@redhat.com>
-         <5aef0fbe28ed23b963c53d61445b0bac6f108642.camel@linux.intel.com>
-         <CAPcyv4h60z889bfbiwvVhsj6MxmOPiPY8ZuPB_skxkZx-N+OGw@mail.gmail.com>
-         <20191217020022.knh7uxt4pn77wk5m@cantor>
-         <CAPcyv4iepQup4bwMuWzq6r5gdx83hgYckUWFF7yF=rszjz3dtQ@mail.gmail.com>
-         <5d0763334def7d7ae1e7cf931ef9b14184dce238.camel@linux.intel.com>
-         <20191217171844.huqlj5csr262zkkk@cantor>
-         <37f4ed0d6145dbe1e8724a5d05d0da82b593bf9c.camel@linux.intel.com>
-         <CAPcyv4h8sK+geVvBb1534V9CgdvOnkpPeStV3B8Q1Qdve3is0A@mail.gmail.com>
-         <20191219100747.fhbqmzk7xby3tt3l@cantor>
-         <f0406ed23a9a64bd7c5dc0e0b403151d6157a8cf.camel@linux.intel.com>
-         <0f355936c954847089d9e8fb579e30bf8ca43a0e.camel@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.1-2 
+        id S1725994AbfL0HIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 02:08:40 -0500
+Received: from mail-io1-f66.google.com ([209.85.166.66]:34835 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725904AbfL0HIj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Dec 2019 02:08:39 -0500
+Received: by mail-io1-f66.google.com with SMTP id v18so25087258iol.2
+        for <stable@vger.kernel.org>; Thu, 26 Dec 2019 23:08:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=uLXlHEEBpgAikA+fy3qah9yLo7f9mtBUQ2BiwpB/jAI=;
+        b=iybghRyy0xtsc2CeCO2htV5ofhXU90D0mIGLcwm2LbzhkhG83tFUjjVsKkmAcxHoy9
+         grC3ZBSb69nqIgsHQKvT6/4o89yeAfSsJrvPsafG9z0OW+rxmHslCl5SyTJ4GTYMyPtb
+         OyZHRV5QVKuJEOmhdELE6tKeAkUD48mMBFsPLkASDYuC3348U4hgQDAbJw0rEvPoCGmJ
+         xkDsvHrXetQtjE3HAzT5yDdS5CpIyu/p27u75J0SllpsxGimathrTReEZ4c6evG+EnCT
+         YdbzM6mdautmS/4OyjwJsG+jhVtGPfCLxBLr/yEh4oA9QcFhQs2Pk490gSzginPNh9dM
+         YEjg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=uLXlHEEBpgAikA+fy3qah9yLo7f9mtBUQ2BiwpB/jAI=;
+        b=LSH8eLZJ/dTon8hjBd8DdMDYvdPVwDeEawh3IegrsPiEqxoYyyGqDzSR/tyg3Ldtkr
+         7249lSJEvT+mcYGoeQcqL+13VDccQVsIwkJKt/CBV2VJ9MZuOCN5Zi0CUdCkX+5KM9X7
+         tnYQ1CkIOwhqFdD82Jv+WepcmQlcvwDYl46T53R4d2usQI5hsMAVVd4Onrcm4Q27bIC+
+         x3zlorpek8EHc9ts7sI2ocExU7aPhMAM+lebLIiEUsmEbZNmqV7NXmc+XWBZdhnurCH0
+         Z/KPcXgoUrNoB25qtlx3YFPG0wI1QKpKw15GcefYVYRePUNQPzSrLueUuoDD0Ky5U6OD
+         S4yA==
+X-Gm-Message-State: APjAAAU1hZbZ9OVOWRrv/LjrkdjETiv4hy/LahYxAYAKDJ10v/j+ubO5
+        emDOVWHLVdP4vBTS24DxotHjQBninp6yHj3Ymsc=
+X-Google-Smtp-Source: APXvYqxoyfTObmRXqaoGKKL47L0by2TOdl5ArngDJDXCD8kWZHbIUg8QqiB1Jg5iSC5j/iv0j1d2p1cOarRGhVZn+7M=
+X-Received: by 2002:a5d:8497:: with SMTP id t23mr15822617iom.230.1577430519222;
+ Thu, 26 Dec 2019 23:08:39 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a92:aa50:0:0:0:0:0 with HTTP; Thu, 26 Dec 2019 23:08:38
+ -0800 (PST)
+Reply-To: info.johnkofi@gmail.com
+From:   "Dr. John Kofi" <mitchelljean8@gmail.com>
+Date:   Fri, 27 Dec 2019 08:08:38 +0100
+Message-ID: <CANHmg1OuskgVDvB7AR9z6Rqy6aSFGHHqhxZFLvGi4roqjvV-ZA@mail.gmail.com>
+Subject: Au Gold Investment.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2019-12-27 at 07:42 +0200, Jarkko Sakkinen wrote:
-> On Fri, 2019-12-27 at 07:09 +0200, Jarkko Sakkinen wrote:
-> > On Thu, 2019-12-19 at 03:07 -0700, Jerry Snitselaar wrote:
-> > > > These patches take a usable system and make it unusable:
-> > > > 
-> > > > 1ea32c83c699 tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts
-> > > > 5b359c7c4372 tpm_tis_core: Turn on the TPM before probing IRQ's
-> > > > 
-> > > > ...they need to be reverted, or the regression needs to be fixed, but
-> > > > asserting that you fixed something else unrelated does not help.
-> > > > 
-> > > 
-> > > Reverting 1ea32c83c699 ("tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before
-> > > probing for interrupts") would at least allow people impacted by this
-> > > to boot their systems without disabling the tpm, or blacklisting the
-> > > module while we figure this out. From what I can tell the tpm_tis code
-> > > was operating in that state since 570a36097f30 ("tpm: drop 'irq' from
-> > > struct tpm_vendor_specific") until Stefan's patch.
-> > 
-> > I'll formalize a fix based on the reverts.
-> > 
-> > Sorry for the holiday latency.
-> 
-> OK, have a branch now for the PR:
-> 
-> for-linus-v5.5-rc4
-> 
-> Note: now contains the first revert but I'll add another patch if required.
+We are Gold dealers.
 
-Jerry, can you check this and send me revert to your earlier fix *if*
-required but first test with just this fix applied.
+Presently we are looking for serious buyer who is willing to go into
+contract with us so that we can supply our Gold monthly basis or which
+ever way buyer want.
+Please,Contact me on price negotiation and the procedures so that we
+can proceed.
+Item available. The product available below:
 
-Thanks.
+Commodity Gold Bar
+Available Quantity:100kg
+Origin : Ghana .
+Quality: 22 Carats
+Purity: 98% plus
+Price:USD28,000 per kg
+Packaging: in metal boxes.
 
-/Jarkko
+If you are interested please get back to me for more details. reply
+via my private email:
+( info.johnkofi@gmail.com )
 
+Regards,
+Dr. John Kofi
