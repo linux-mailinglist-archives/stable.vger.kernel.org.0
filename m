@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F22C312B945
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:04:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A66412B946
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:04:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728089AbfL0SDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 13:03:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60618 "EHLO mail.kernel.org"
+        id S1727692AbfL0SDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 13:03:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728659AbfL0SDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 13:03:24 -0500
+        id S1728671AbfL0SDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 13:03:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93AC221582;
-        Fri, 27 Dec 2019 18:03:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB41F20CC7;
+        Fri, 27 Dec 2019 18:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577469803;
-        bh=15uCv88DqOg4sbjIuVZMtUhC1JnMrYLSD4Kpcggr87k=;
+        s=default; t=1577469804;
+        bh=520u/bTYtujL/2/hNBt3ud192gd9V95qNeRCkgJ5klA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpggWsSgIFLD5W865PYYaDwNfcF8dzY7VDmOmj8S5M6jeUX3zYirGoJ6r0QwiGYdn
-         DDgeN0m8M/hGxF5oYIO1xYG0P4R5DCr8G50hYvN+ANrFr3TpjXzvN+KAW/OXcOcizp
-         ETYnFq9tokA0NBxcg66eSa2SKQ2+pa/A1aOLCDg0=
+        b=NTYacIVJzsn8fs0j9yqDm2oOElHJvAUVTrSLknImDdgPn2/VJ+kE1d8ieN87dpuYH
+         scwrADaJxOYJY5INnGOTTAa+uDxUo2OZm47OpeYIaQdOMgrVg3yAP3G+YSWtVioCBO
+         1eNmn1rpZjCO2woDRkFJlGYWgIC2ZVezhT36uUUc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
+Cc:     Stefan Haberland <sth@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 50/57] s390/dasd/cio: Interpret ccw_device_get_mdc return value correctly
-Date:   Fri, 27 Dec 2019 13:02:15 -0500
-Message-Id: <20191227180222.7076-50-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 51/57] s390/dasd: fix memleak in path handling error case
+Date:   Fri, 27 Dec 2019 13:02:16 -0500
+Message-Id: <20191227180222.7076-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
 References: <20191227180222.7076-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,93 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-[ Upstream commit dd4b3c83b9efac10d48a94c61372119fc555a077 ]
+[ Upstream commit 00b39f698a4f1ee897227cace2e3937fc4412270 ]
 
-The max data count (mdc) is an unsigned 16-bit integer value as per AR
-documentation and is received via ccw_device_get_mdc() for a specific
-path mask from the CIO layer. The function itself also always returns a
-positive mdc value or 0 in case mdc isn't supported or couldn't be
-determined.
+If for whatever reason the dasd_eckd_check_characteristics() function
+exits after at least some paths have their configuration data
+allocated those data is never freed again. In the error case the
+device->private pointer is set to NULL and dasd_eckd_uncheck_device()
+will exit without freeing the path data because of this NULL pointer.
 
-Though, the comment for this function describes a negative return value
-to indicate failures.
+Fix by calling dasd_eckd_clear_conf_data() for error cases.
 
-As a result, the DASD device driver interprets the return value of
-ccw_device_get_mdc() incorrectly. The error case is essentially a dead
-code path.
+Also use dasd_eckd_clear_conf_data() in dasd_eckd_uncheck_device()
+to avoid code duplication.
 
-To fix this behaviour, check explicitly for a return value of 0 and
-change the comment for ccw_device_get_mdc() accordingly.
-
-This fix merely enables the error code path in the DASD functions
-get_fcx_max_data() and verify_fcx_max_data(). The actual functionality
-stays the same and is still correct.
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Reported-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_eckd.c | 9 +++++----
- drivers/s390/cio/device_ops.c  | 2 +-
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 0d5e2d92e05b..81359312a987 100644
+index 81359312a987..aa651403546f 100644
 --- a/drivers/s390/block/dasd_eckd.c
 +++ b/drivers/s390/block/dasd_eckd.c
-@@ -1133,7 +1133,8 @@ static u32 get_fcx_max_data(struct dasd_device *device)
+@@ -1768,7 +1768,7 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ 	dasd_free_block(device->block);
+ 	device->block = NULL;
+ out_err1:
+-	kfree(private->conf_data);
++	dasd_eckd_clear_conf_data(device);
+ 	kfree(device->private);
+ 	device->private = NULL;
+ 	return rc;
+@@ -1777,7 +1777,6 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ static void dasd_eckd_uncheck_device(struct dasd_device *device)
  {
  	struct dasd_eckd_private *private = device->private;
- 	int fcx_in_css, fcx_in_gneq, fcx_in_features;
--	int tpm, mdc;
-+	unsigned int mdc;
-+	int tpm;
+-	int i;
  
- 	if (dasd_nofcx)
- 		return 0;
-@@ -1147,7 +1148,7 @@ static u32 get_fcx_max_data(struct dasd_device *device)
- 		return 0;
+ 	if (!private)
+ 		return;
+@@ -1787,21 +1786,7 @@ static void dasd_eckd_uncheck_device(struct dasd_device *device)
+ 	private->sneq = NULL;
+ 	private->vdsneq = NULL;
+ 	private->gneq = NULL;
+-	private->conf_len = 0;
+-	for (i = 0; i < 8; i++) {
+-		kfree(device->path[i].conf_data);
+-		if ((__u8 *)device->path[i].conf_data ==
+-		    private->conf_data) {
+-			private->conf_data = NULL;
+-			private->conf_len = 0;
+-		}
+-		device->path[i].conf_data = NULL;
+-		device->path[i].cssid = 0;
+-		device->path[i].ssid = 0;
+-		device->path[i].chpid = 0;
+-	}
+-	kfree(private->conf_data);
+-	private->conf_data = NULL;
++	dasd_eckd_clear_conf_data(device);
+ }
  
- 	mdc = ccw_device_get_mdc(device->cdev, 0);
--	if (mdc < 0) {
-+	if (mdc == 0) {
- 		dev_warn(&device->cdev->dev, "Detecting the maximum supported data size for zHPF requests failed\n");
- 		return 0;
- 	} else {
-@@ -1158,12 +1159,12 @@ static u32 get_fcx_max_data(struct dasd_device *device)
- static int verify_fcx_max_data(struct dasd_device *device, __u8 lpm)
- {
- 	struct dasd_eckd_private *private = device->private;
--	int mdc;
-+	unsigned int mdc;
- 	u32 fcx_max_data;
- 
- 	if (private->fcx_max_data) {
- 		mdc = ccw_device_get_mdc(device->cdev, lpm);
--		if ((mdc < 0)) {
-+		if (mdc == 0) {
- 			dev_warn(&device->cdev->dev,
- 				 "Detecting the maximum data size for zHPF "
- 				 "requests failed (rc=%d) for a new path %x\n",
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index b22922ec32d1..474afec9ab87 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -595,7 +595,7 @@ EXPORT_SYMBOL(ccw_device_tm_start_timeout);
-  * @mask: mask of paths to use
-  *
-  * Return the number of 64K-bytes blocks all paths at least support
-- * for a transport command. Return values <= 0 indicate failures.
-+ * for a transport command. Return value 0 indicates failure.
-  */
- int ccw_device_get_mdc(struct ccw_device *cdev, u8 mask)
- {
+ static struct dasd_ccw_req *
 -- 
 2.20.1
 
