@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A47112BA11
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:16:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A73612BA18
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:16:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728320AbfL0SQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 13:16:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41366 "EHLO mail.kernel.org"
+        id S1728334AbfL0SQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 13:16:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728309AbfL0SQN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 13:16:13 -0500
+        id S1728326AbfL0SQO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 13:16:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8DE421582;
-        Fri, 27 Dec 2019 18:16:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2A20218AC;
+        Fri, 27 Dec 2019 18:16:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577470572;
-        bh=CML4ynmYXN0xB1zt3WrGElGGQONxilXaUfFuXX/uags=;
+        s=default; t=1577470573;
+        bh=v0mFT+dJULRtbSxTn4Da5l41HK8LWJUO6RjWITOneDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9Vu0wV5WdDPE8Xh6k2e/Qo4EzlnGs9Z1K//SwN06HKsUsl4N0+CfuqkVsge813/X
-         gsS2fkJLG9II4WEyUq0hTyuYkhy32h/L7ZaC8oncX/+iVFEyhY25SNZhcaYs0BmgDy
-         RcL4FgoTVe2rKZim6J1H/A+BnOCSFjskOKjlGX7A=
+        b=yGzUMCFE52mAxiwJUpgXh8HfubyZ5OQ9x/082kzof4E4PcoY6CtSWbtM6SXCQGkeD
+         Bollvt/qQ6qUe1MFufYPHgF3yuuh5jISdlCcMjZWpVa0lsvHiKz4YRXxqbnmonDjqS
+         gMWAFEKIEoVcDWHcNXbXtqyHj6Mq4Ftgp4mPybvQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Hebb <tommyhebb@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 19/25] kconfig: don't crash on NULL expressions in expr_eq()
-Date:   Fri, 27 Dec 2019 13:15:43 -0500
-Message-Id: <20191227181549.8040-19-sashal@kernel.org>
+Cc:     Ben Hutchings <ben@decadent.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 20/25] net: qlogic: Fix error paths in ql_alloc_large_buffers()
+Date:   Fri, 27 Dec 2019 13:15:44 -0500
+Message-Id: <20191227181549.8040-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227181549.8040-1-sashal@kernel.org>
 References: <20191227181549.8040-1-sashal@kernel.org>
@@ -43,40 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-[ Upstream commit 272a72103012862e3a24ea06635253ead0b6e808 ]
+[ Upstream commit cad46039e4c99812db067c8ac22a864960e7acc4 ]
 
-NULL expressions are taken to always be true, as implemented by the
-expr_is_yes() macro and by several other functions in expr.c. As such,
-they ought to be valid inputs to expr_eq(), which compares two
-expressions.
+ql_alloc_large_buffers() has the usual RX buffer allocation
+loop where it allocates skbs and maps them for DMA.  It also
+treats failure as a fatal error.
 
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+There are (at least) three bugs in the error paths:
+
+1. ql_free_large_buffers() assumes that the lrg_buf[] entry for the
+first buffer that couldn't be allocated will have .skb == NULL.
+But the qla_buf[] array is not zero-initialised.
+
+2. ql_free_large_buffers() DMA-unmaps all skbs in lrg_buf[].  This is
+incorrect for the last allocated skb, if DMA mapping failed.
+
+3. Commit 1acb8f2a7a9f ("net: qlogic: Fix memory leak in
+ql_alloc_large_buffers") added a direct call to dev_kfree_skb_any()
+after the skb is recorded in lrg_buf[], so ql_free_large_buffers()
+will double-free it.
+
+The bugs are somewhat inter-twined, so fix them all at once:
+
+* Clear each entry in qla_buf[] before attempting to allocate
+  an skb for it.  This goes half-way to fixing bug 1.
+* Set the .skb field only after the skb is DMA-mapped.  This
+  fixes the rest.
+
+Fixes: 1357bfcf7106 ("qla3xxx: Dynamically size the rx buffer queue ...")
+Fixes: 0f8ab89e825f ("qla3xxx: Check return code from pci_map_single() ...")
+Fixes: 1acb8f2a7a9f ("net: qlogic: Fix memory leak in ql_alloc_large_buffers")
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/kconfig/expr.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/qlogic/qla3xxx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/scripts/kconfig/expr.c b/scripts/kconfig/expr.c
-index ed29bad1f03a..96420b620963 100644
---- a/scripts/kconfig/expr.c
-+++ b/scripts/kconfig/expr.c
-@@ -201,6 +201,13 @@ static int expr_eq(struct expr *e1, struct expr *e2)
- {
- 	int res, old_count;
+diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
+index c653b97d84d5..f2cb77c3b199 100644
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -2752,6 +2752,9 @@ static int ql_alloc_large_buffers(struct ql3_adapter *qdev)
+ 	int err;
  
-+	/*
-+	 * A NULL expr is taken to be yes, but there's also a different way to
-+	 * represent yes. expr_is_yes() checks for either representation.
-+	 */
-+	if (!e1 || !e2)
-+		return expr_is_yes(e1) && expr_is_yes(e2);
+ 	for (i = 0; i < qdev->num_large_buffers; i++) {
++		lrg_buf_cb = &qdev->lrg_buf[i];
++		memset(lrg_buf_cb, 0, sizeof(struct ql_rcv_buf_cb));
 +
- 	if (e1->type != e2->type)
- 		return 0;
- 	switch (e1->type) {
+ 		skb = netdev_alloc_skb(qdev->ndev,
+ 				       qdev->lrg_buffer_len);
+ 		if (unlikely(!skb)) {
+@@ -2762,11 +2765,7 @@ static int ql_alloc_large_buffers(struct ql3_adapter *qdev)
+ 			ql_free_large_buffers(qdev);
+ 			return -ENOMEM;
+ 		} else {
+-
+-			lrg_buf_cb = &qdev->lrg_buf[i];
+-			memset(lrg_buf_cb, 0, sizeof(struct ql_rcv_buf_cb));
+ 			lrg_buf_cb->index = i;
+-			lrg_buf_cb->skb = skb;
+ 			/*
+ 			 * We save some space to copy the ethhdr from first
+ 			 * buffer
+@@ -2788,6 +2787,7 @@ static int ql_alloc_large_buffers(struct ql3_adapter *qdev)
+ 				return -ENOMEM;
+ 			}
+ 
++			lrg_buf_cb->skb = skb;
+ 			dma_unmap_addr_set(lrg_buf_cb, mapaddr, map);
+ 			dma_unmap_len_set(lrg_buf_cb, maplen,
+ 					  qdev->lrg_buffer_len -
 -- 
 2.20.1
 
