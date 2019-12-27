@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51FEC12B9BC
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:07:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 998B612B9BF
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:07:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727511AbfL0SCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 13:02:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59358 "EHLO mail.kernel.org"
+        id S1727649AbfL0SHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 13:07:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727510AbfL0SCc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 13:02:32 -0500
+        id S1727367AbfL0SCd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 13:02:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1C5922B48;
-        Fri, 27 Dec 2019 18:02:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 978B121775;
+        Fri, 27 Dec 2019 18:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577469751;
-        bh=GKYrCZ9/aDSL9Px/0Qf08dFJn+ZicSl101ldxGOtSH8=;
+        s=default; t=1577469752;
+        bh=Axm9hXdZ97HQ91q0zUCS0GRR7u5ItH7c2RXBxanXijs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lUfjiCc1qpxm0wILDcimGRolnWgX/DtzfXSWl70PCM3lqK2YpAQpXHaBGk5lTSalt
-         g/+pwWyWlFGuxA2ngo7dI0ERGR8sbgj9Zw1Hcnnd8hoc2T1vkXWoI2Vc4sEfvwOYlG
-         Smq7b9pfMXK/qmlIlYBBCLW0s8FD2HgBBxAyKTX8=
+        b=z6p4xwwHAYNWjZax/UlOpS8fdyMwr5sKhdnboQ9ROu05n+KLvPWLm93wd7Nl2EyMX
+         EbUjY4bl8PNvKYewBPXm7Mo2eEgKhUe0GN4xHhJl4zm78c5uWQJStoWy/ZeuFcWq4M
+         nvmFiyeaRAE31dzdQ/SB8A//S/MKjnAjeVIyUDFU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Young <dyoung@redhat.com>,
-        Michael Weiser <michael@weiser.dinsnail.net>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Borislav Petkov <bp@alien8.de>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        kexec@lists.infradead.org, linux-efi@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>,
+Cc:     Marco Oliverio <marco.oliverio@tanaza.com>,
+        Rocco Folino <rocco.folino@tanaza.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org, x86@kernel.org
-Subject: [PATCH AUTOSEL 4.14 06/57] x86/efi: Update e820 with reserved EFI boot services data to fix kexec breakage
-Date:   Fri, 27 Dec 2019 13:01:31 -0500
-Message-Id: <20191227180222.7076-6-sashal@kernel.org>
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 07/57] netfilter: nf_queue: enqueue skbs with NULL dst
+Date:   Fri, 27 Dec 2019 13:01:32 -0500
+Message-Id: <20191227180222.7076-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
 References: <20191227180222.7076-1-sashal@kernel.org>
@@ -53,83 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Young <dyoung@redhat.com>
+From: Marco Oliverio <marco.oliverio@tanaza.com>
 
-[ Upstream commit af164898482817a1d487964b68f3c21bae7a1beb ]
+[ Upstream commit 0b9173f4688dfa7c5d723426be1d979c24ce3d51 ]
 
-Michael Weiser reported that he got this error during a kexec rebooting:
+Bridge packets that are forwarded have skb->dst == NULL and get
+dropped by the check introduced by
+b60a77386b1d4868f72f6353d35dabe5fbe981f2 (net: make skb_dst_force
+return true when dst is refcounted).
 
-  esrt: Unsupported ESRT version 2904149718861218184.
+To fix this we check skb_dst() before skb_dst_force(), so we don't
+drop skb packet with dst == NULL. This holds also for skb at the
+PRE_ROUTING hook so we remove the second check.
 
-The ESRT memory stays in EFI boot services data, and it was reserved
-in kernel via efi_mem_reserve().  The initial purpose of the reservation
-is to reuse the EFI boot services data across kexec reboot. For example
-the BGRT image data and some ESRT memory like Michael reported.
-
-But although the memory is reserved it is not updated in the X86 E820 table,
-and kexec_file_load() iterates system RAM in the IO resource list to find places
-for kernel, initramfs and other stuff. In Michael's case the kexec loaded
-initramfs overwrote the ESRT memory and then the failure happened.
-
-Since kexec_file_load() depends on the E820 table being updated, just fix this
-by updating the reserved EFI boot services memory as reserved type in E820.
-
-Originally any memory descriptors with EFI_MEMORY_RUNTIME attribute are
-bypassed in the reservation code path because they are assumed as reserved.
-
-But the reservation is still needed for multiple kexec reboots,
-and it is the only possible case we come here thus just drop the code
-chunk, then everything works without side effects.
-
-On my machine the ESRT memory sits in an EFI runtime data range, it does
-not trigger the problem, but I successfully tested with BGRT instead.
-both kexec_load() and kexec_file_load() work and kdump works as well.
-
-[ mingo: Edited the changelog. ]
-
-Reported-by: Michael Weiser <michael@weiser.dinsnail.net>
-Tested-by: Michael Weiser <michael@weiser.dinsnail.net>
-Signed-off-by: Dave Young <dyoung@redhat.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: kexec@lists.infradead.org
-Cc: linux-efi@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191204075233.GA10520@dhcp-128-65.nay.redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: b60a77386b1d ("net: make skb_dst_force return true when dst is refcounted")
+Signed-off-by: Marco Oliverio <marco.oliverio@tanaza.com>
+Signed-off-by: Rocco Folino <rocco.folino@tanaza.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/platform/efi/quirks.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/netfilter/nf_queue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/platform/efi/quirks.c b/arch/x86/platform/efi/quirks.c
-index 5b513ccffde4..cadd7fd290fa 100644
---- a/arch/x86/platform/efi/quirks.c
-+++ b/arch/x86/platform/efi/quirks.c
-@@ -257,10 +257,6 @@ void __init efi_arch_mem_reserve(phys_addr_t addr, u64 size)
- 		return;
+diff --git a/net/netfilter/nf_queue.c b/net/netfilter/nf_queue.c
+index 37efcc1c8887..b06ef4c62522 100644
+--- a/net/netfilter/nf_queue.c
++++ b/net/netfilter/nf_queue.c
+@@ -138,7 +138,7 @@ static int __nf_queue(struct sk_buff *skb, const struct nf_hook_state *state,
+ 		goto err;
  	}
  
--	/* No need to reserve regions that will never be freed. */
--	if (md.attribute & EFI_MEMORY_RUNTIME)
--		return;
--
- 	size += addr % EFI_PAGE_SIZE;
- 	size = round_up(size, EFI_PAGE_SIZE);
- 	addr = round_down(addr, EFI_PAGE_SIZE);
-@@ -290,6 +286,8 @@ void __init efi_arch_mem_reserve(phys_addr_t addr, u64 size)
- 	early_memunmap(new, new_size);
- 
- 	efi_memmap_install(new_phys, num_entries);
-+	e820__range_update(addr, size, E820_TYPE_RAM, E820_TYPE_RESERVED);
-+	e820__update_table(e820_table);
- }
- 
- /*
+-	if (!skb_dst_force(skb) && state->hook != NF_INET_PRE_ROUTING) {
++	if (skb_dst(skb) && !skb_dst_force(skb)) {
+ 		status = -ENETDOWN;
+ 		goto err;
+ 	}
 -- 
 2.20.1
 
