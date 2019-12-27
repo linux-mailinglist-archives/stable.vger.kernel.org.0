@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1345612B9F2
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:15:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31C6C12BA04
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:15:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727934AbfL0SPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 13:15:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40136 "EHLO mail.kernel.org"
+        id S1727140AbfL0SPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 13:15:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727912AbfL0SPT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 13:15:19 -0500
+        id S1727134AbfL0SPw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 13:15:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C750C20CC7;
-        Fri, 27 Dec 2019 18:15:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45CD021582;
+        Fri, 27 Dec 2019 18:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577470519;
-        bh=yHCh4QScFjCwLSI9Otg0zyHCn4qOLLgXiiPFPp86E74=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtzMATBDiPXIXVuK3Q1Rqn2tqTEmy17i2nUYWuEV7vB5EmwWn81XXN7wUxS5/ANYk
-         VQbp3/bQJzrwfNARqpC6hobcSGukgRPHKJUrXzEFbxArgKPO8QbdWYlmJO9IalIkIv
-         30sALXjyiMEo+h+F/+U29NlT2wW0XnHDgth3lCfk=
+        s=default; t=1577470551;
+        bh=tLns9gbVAwhHpW2u7vZVvshMGi8XSOoUHu7ct+ahSTA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=wgYQpT5d7e0mkB7JhiGDlKLNeO4z+LFsNEYzPRTPE2T9vzU8l4N6V3xfAgWszM2T8
+         BLyd2fg5ZLTCDOqVERaNFpR1fTF1kTAae4GwNkcujIrzIso+468xcu8C2WC2A+YM35
+         h1/UYmGIdMbD7cjecn/ZzyqSo6xqNMU/VOPEh6Xo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 36/38] net: hisilicon: Fix a BUG trigered by wrong bytes_compl
-Date:   Fri, 27 Dec 2019 13:14:33 -0500
-Message-Id: <20191227181435.7644-36-sashal@kernel.org>
+Cc:     Marco Elver <elver@google.com>, Qian Cai <cai@lca.pw>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 01/25] locking/spinlock/debug: Fix various data races
+Date:   Fri, 27 Dec 2019 13:15:25 -0500
+Message-Id: <20191227181549.8040-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191227181435.7644-1-sashal@kernel.org>
-References: <20191227181435.7644-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,93 +46,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 90b3b339364c76baa2436445401ea9ade040c216 ]
+[ Upstream commit 1a365e822372ba24c9da0822bc583894f6f3d821 ]
 
-When doing stress test, we get the following trace:
-kernel BUG at lib/dynamic_queue_limits.c:26!
-Internal error: Oops - BUG: 0 [#1] SMP ARM
-Modules linked in: hip04_eth
-CPU: 0 PID: 2003 Comm: tDblStackPcap0 Tainted: G           O L  4.4.197 #1
-Hardware name: Hisilicon A15
-task: c3637668 task.stack: de3bc000
-PC is at dql_completed+0x18/0x154
-LR is at hip04_tx_reclaim+0x110/0x174 [hip04_eth]
-pc : [<c041abfc>]    lr : [<bf0003a8>]    psr: 800f0313
-sp : de3bdc2c  ip : 00000000  fp : c020fb10
-r10: 00000000  r9 : c39b4224  r8 : 00000001
-r7 : 00000046  r6 : c39b4000  r5 : 0078f392  r4 : 0078f392
-r3 : 00000047  r2 : 00000000  r1 : 00000046  r0 : df5d5c80
-Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
-Control: 32c5387d  Table: 1e189b80  DAC: 55555555
-Process tDblStackPcap0 (pid: 2003, stack limit = 0xde3bc190)
-Stack: (0xde3bdc2c to 0xde3be000)
-[<c041abfc>] (dql_completed) from [<bf0003a8>] (hip04_tx_reclaim+0x110/0x174 [hip04_eth])
-[<bf0003a8>] (hip04_tx_reclaim [hip04_eth]) from [<bf0012c0>] (hip04_rx_poll+0x20/0x388 [hip04_eth])
-[<bf0012c0>] (hip04_rx_poll [hip04_eth]) from [<c04c8d9c>] (net_rx_action+0x120/0x374)
-[<c04c8d9c>] (net_rx_action) from [<c021eaf4>] (__do_softirq+0x218/0x318)
-[<c021eaf4>] (__do_softirq) from [<c021eea0>] (irq_exit+0x88/0xac)
-[<c021eea0>] (irq_exit) from [<c0240130>] (msa_irq_exit+0x11c/0x1d4)
-[<c0240130>] (msa_irq_exit) from [<c0267ba8>] (__handle_domain_irq+0x110/0x148)
-[<c0267ba8>] (__handle_domain_irq) from [<c0201588>] (gic_handle_irq+0xd4/0x118)
-[<c0201588>] (gic_handle_irq) from [<c0558360>] (__irq_svc+0x40/0x58)
-Exception stack(0xde3bdde0 to 0xde3bde28)
-dde0: 00000000 00008001 c3637668 00000000 00000000 a00f0213 dd3627a0 c0af6380
-de00: c086d380 a00f0213 c0a22a50 de3bde6c 00000002 de3bde30 c0558138 c055813c
-de20: 600f0213 ffffffff
-[<c0558360>] (__irq_svc) from [<c055813c>] (_raw_spin_unlock_irqrestore+0x44/0x54)
-Kernel panic - not syncing: Fatal exception in interrupt
+This fixes various data races in spinlock_debug. By testing with KCSAN,
+it is observable that the console gets spammed with data races reports,
+suggesting these are extremely frequent.
 
-Pre-modification code:
-int hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
-{
-[...]
-[1]	priv->tx_head = TX_NEXT(tx_head);
-[2]	count++;
-[3]	netdev_sent_queue(ndev, skb->len);
-[...]
-}
-An rx interrupt occurs if hip04_mac_start_xmit just executes to the line 2,
-tx_head has been updated, but corresponding 'skb->len' has not been
-added to dql_queue.
+Example data race report:
 
-And then
-hip04_mac_interrupt->__napi_schedule->hip04_rx_poll->hip04_tx_reclaim
+  read to 0xffff8ab24f403c48 of 4 bytes by task 221 on cpu 2:
+   debug_spin_lock_before kernel/locking/spinlock_debug.c:85 [inline]
+   do_raw_spin_lock+0x9b/0x210 kernel/locking/spinlock_debug.c:112
+   __raw_spin_lock include/linux/spinlock_api_smp.h:143 [inline]
+   _raw_spin_lock+0x39/0x40 kernel/locking/spinlock.c:151
+   spin_lock include/linux/spinlock.h:338 [inline]
+   get_partial_node.isra.0.part.0+0x32/0x2f0 mm/slub.c:1873
+   get_partial_node mm/slub.c:1870 [inline]
+  <snip>
 
-In hip04_tx_reclaim, because tx_head has been updated,
-bytes_compl will plus an additional "skb-> len"
-which has not been added to dql_queue. And then
-trigger the BUG_ON(bytes_compl > num_queued - dql->num_completed).
+  write to 0xffff8ab24f403c48 of 4 bytes by task 167 on cpu 3:
+   debug_spin_unlock kernel/locking/spinlock_debug.c:103 [inline]
+   do_raw_spin_unlock+0xc9/0x1a0 kernel/locking/spinlock_debug.c:138
+   __raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:159 [inline]
+   _raw_spin_unlock_irqrestore+0x2d/0x50 kernel/locking/spinlock.c:191
+   spin_unlock_irqrestore include/linux/spinlock.h:393 [inline]
+   free_debug_processing+0x1b3/0x210 mm/slub.c:1214
+   __slab_free+0x292/0x400 mm/slub.c:2864
+  <snip>
 
-To solve the problem described above, we put
-"netdev_sent_queue(ndev, skb->len);"
-before
-"priv->tx_head = TX_NEXT(tx_head);"
+As a side-effect, with KCSAN, this eventually locks up the console, most
+likely due to deadlock, e.g. .. -> printk lock -> spinlock_debug ->
+KCSAN detects data race -> kcsan_print_report() -> printk lock ->
+deadlock.
 
-Fixes: a41ea46a9a12 ("net: hisilicon: new hip04 ethernet driver")
-Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This fix will 1) avoid the data races, and 2) allow using lock debugging
+together with KCSAN.
+
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Marco Elver <elver@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Link: https://lkml.kernel.org/r/20191120155715.28089-1-elver@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hip04_eth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/locking/spinlock_debug.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
-index 4436a0307f32..0b3aa83f3fc1 100644
---- a/drivers/net/ethernet/hisilicon/hip04_eth.c
-+++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
-@@ -455,9 +455,9 @@ static int hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 	skb_tx_timestamp(skb);
+diff --git a/kernel/locking/spinlock_debug.c b/kernel/locking/spinlock_debug.c
+index 0374a596cffa..95e610e3f7ef 100644
+--- a/kernel/locking/spinlock_debug.c
++++ b/kernel/locking/spinlock_debug.c
+@@ -51,19 +51,19 @@ EXPORT_SYMBOL(__rwlock_init);
  
- 	hip04_set_xmit_desc(priv, phys);
--	priv->tx_head = TX_NEXT(tx_head);
- 	count++;
- 	netdev_sent_queue(ndev, skb->len);
-+	priv->tx_head = TX_NEXT(tx_head);
+ static void spin_dump(raw_spinlock_t *lock, const char *msg)
+ {
+-	struct task_struct *owner = NULL;
++	struct task_struct *owner = READ_ONCE(lock->owner);
  
- 	stats->tx_bytes += skb->len;
- 	stats->tx_packets++;
+-	if (lock->owner && lock->owner != SPINLOCK_OWNER_INIT)
+-		owner = lock->owner;
++	if (owner == SPINLOCK_OWNER_INIT)
++		owner = NULL;
+ 	printk(KERN_EMERG "BUG: spinlock %s on CPU#%d, %s/%d\n",
+ 		msg, raw_smp_processor_id(),
+ 		current->comm, task_pid_nr(current));
+ 	printk(KERN_EMERG " lock: %pS, .magic: %08x, .owner: %s/%d, "
+ 			".owner_cpu: %d\n",
+-		lock, lock->magic,
++		lock, READ_ONCE(lock->magic),
+ 		owner ? owner->comm : "<none>",
+ 		owner ? task_pid_nr(owner) : -1,
+-		lock->owner_cpu);
++		READ_ONCE(lock->owner_cpu));
+ 	dump_stack();
+ }
+ 
+@@ -80,16 +80,16 @@ static void spin_bug(raw_spinlock_t *lock, const char *msg)
+ static inline void
+ debug_spin_lock_before(raw_spinlock_t *lock)
+ {
+-	SPIN_BUG_ON(lock->magic != SPINLOCK_MAGIC, lock, "bad magic");
+-	SPIN_BUG_ON(lock->owner == current, lock, "recursion");
+-	SPIN_BUG_ON(lock->owner_cpu == raw_smp_processor_id(),
++	SPIN_BUG_ON(READ_ONCE(lock->magic) != SPINLOCK_MAGIC, lock, "bad magic");
++	SPIN_BUG_ON(READ_ONCE(lock->owner) == current, lock, "recursion");
++	SPIN_BUG_ON(READ_ONCE(lock->owner_cpu) == raw_smp_processor_id(),
+ 							lock, "cpu recursion");
+ }
+ 
+ static inline void debug_spin_lock_after(raw_spinlock_t *lock)
+ {
+-	lock->owner_cpu = raw_smp_processor_id();
+-	lock->owner = current;
++	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
++	WRITE_ONCE(lock->owner, current);
+ }
+ 
+ static inline void debug_spin_unlock(raw_spinlock_t *lock)
+@@ -99,8 +99,8 @@ static inline void debug_spin_unlock(raw_spinlock_t *lock)
+ 	SPIN_BUG_ON(lock->owner != current, lock, "wrong owner");
+ 	SPIN_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
+ 							lock, "wrong CPU");
+-	lock->owner = SPINLOCK_OWNER_INIT;
+-	lock->owner_cpu = -1;
++	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
++	WRITE_ONCE(lock->owner_cpu, -1);
+ }
+ 
+ static void __spin_lock_debug(raw_spinlock_t *lock)
+@@ -233,8 +233,8 @@ static inline void debug_write_lock_before(rwlock_t *lock)
+ 
+ static inline void debug_write_lock_after(rwlock_t *lock)
+ {
+-	lock->owner_cpu = raw_smp_processor_id();
+-	lock->owner = current;
++	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
++	WRITE_ONCE(lock->owner, current);
+ }
+ 
+ static inline void debug_write_unlock(rwlock_t *lock)
+@@ -243,8 +243,8 @@ static inline void debug_write_unlock(rwlock_t *lock)
+ 	RWLOCK_BUG_ON(lock->owner != current, lock, "wrong owner");
+ 	RWLOCK_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
+ 							lock, "wrong CPU");
+-	lock->owner = SPINLOCK_OWNER_INIT;
+-	lock->owner_cpu = -1;
++	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
++	WRITE_ONCE(lock->owner_cpu, -1);
+ }
+ 
+ #if 0		/* This can cause lockups */
 -- 
 2.20.1
 
