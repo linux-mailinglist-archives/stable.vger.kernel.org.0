@@ -2,168 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C15F012B37B
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 10:13:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE4112B494
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 13:44:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726297AbfL0JNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 04:13:23 -0500
-Received: from inva020.nxp.com ([92.121.34.13]:55438 "EHLO inva020.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726169AbfL0JNX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 04:13:23 -0500
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 9E80C1A0E97;
-        Fri, 27 Dec 2019 10:13:20 +0100 (CET)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 518A21A02FE;
-        Fri, 27 Dec 2019 10:13:16 +0100 (CET)
-Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 110B3402D8;
-        Fri, 27 Dec 2019 17:13:10 +0800 (SGT)
-From:   Peter Chen <peter.chen@nxp.com>
-To:     balbi@kernel.org
-Cc:     linux-usb@vger.kernel.org, linux-imx@nxp.com, pawell@cadence.com,
-        rogerq@ti.com, gregkh@linuxfoundation.org,
-        Peter Chen <peter.chen@nxp.com>,
-        "#v5 . 4" <stable@vger.kernel.org>
-Subject: [PATCH 1/1] usb: cdns3: should not use the same dev_id for shared interrupt handler
-Date:   Fri, 27 Dec 2019 17:10:04 +0800
-Message-Id: <1577437804-18146-1-git-send-email-peter.chen@nxp.com>
-X-Mailer: git-send-email 2.7.4
-X-Virus-Scanned: ClamAV using ClamSMTP
+        id S1727023AbfL0MoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 07:44:16 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:36795 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726053AbfL0MoQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Dec 2019 07:44:16 -0500
+Received: by mail-pl1-f196.google.com with SMTP id a6so10964727plm.3
+        for <stable@vger.kernel.org>; Fri, 27 Dec 2019 04:44:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=n+mXUnSBdUmpj+rPxKhgXq+NePAWLTnS1N3EeApr+XU=;
+        b=MClM5SS7oF7CHekECq80qPRhE7p20RkNMF9ENF0twOArz78T0bPiy1T+Wad1Pe57yV
+         dVtWTNHYbEqKmd2k31Okt4zhDIvhG6rIKBexkC4+bbnFIpGgsuFgMffbDT88omSusPNk
+         myDvOHwO+d8TuGbY+A7gBYVha8NY1PRYpiGJ3taTTn+ibKucAerEIfct+2JdY2OVDefj
+         rJhOxatKXAfy9mb8wuyETiK9hZTvSrYzInH7Lbpqt9H3iu8ea1klZI9WdemZHuXdwzyG
+         RGXWPggybOWr65DwbqFv65FlY2oKyzPQbDnKcM4SICDzvb8JGVKU9k1kyMmigRL3UnQR
+         7a5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=n+mXUnSBdUmpj+rPxKhgXq+NePAWLTnS1N3EeApr+XU=;
+        b=bbieQjO1G2Xt27RDoWX4OhC/qpbFW0FMUg2k34rx8zoYUYqcN4CDnOY6Xjdpv3OK5v
+         qqhiJRRRLWSoNsErfDv+D2dXv6g4NNwgoUiOQqoLTk81m8eyNEOIhVTDgbebFaHjrCIj
+         Hk+P6Xg/EWI7rUo9h4M1F09FqjradYH/F6owt/C++91BMhQ4V85+meIlH4LIBkWe0l/1
+         vp2x2xCqZW6xhaeSdSEnKH79jkblo8w66g3JFTxucG6dcbv6XEqHwfD35Zpall7QmyGK
+         ZY5BY38WbqtHShgUOD1JEJyt7qLW/9Z0FTYOsiPCmpPmHY2KyqY7VWLYW7UtJ1aN+8u4
+         NAcg==
+X-Gm-Message-State: APjAAAW+ceMUwCeE96dWWKzpgeZxfMFzXAFsnIEYTa0DhVaPKposyg7U
+        JdicTVzz3N6oH0LDlrYL06c=
+X-Google-Smtp-Source: APXvYqwgKLBTx3Hcbrh/WHlWE/LXA4+A1BPxsuTm/PkYpjc0qumV0yS72w7efbXfZQ5HQDicNLxrAQ==
+X-Received: by 2002:a17:902:241:: with SMTP id 59mr17878300plc.36.1577450655997;
+        Fri, 27 Dec 2019 04:44:15 -0800 (PST)
+Received: from dev.localdomain ([203.100.54.194])
+        by smtp.gmail.com with ESMTPSA id c2sm14125591pjq.27.2019.12.27.04.44.13
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 27 Dec 2019 04:44:15 -0800 (PST)
+From:   Yafang Shao <laoar.shao@gmail.com>
+To:     guro@fb.com, hannes@cmpxchg.org, mhocko@kernel.org,
+        vdavydov.dev@gmail.com, akpm@linux-foundation.org
+Cc:     linux-mm@kvack.org, Yafang Shao <laoar.shao@gmail.com>,
+        Chris Down <chris@chrisdown.name>, stable@vger.kernel.org
+Subject: [PATCH] mm, memcg: reset memcg's memory.{min, low} for reclaiming itself
+Date:   Fri, 27 Dec 2019 07:43:53 -0500
+Message-Id: <1577450633-2098-2-git-send-email-laoar.shao@gmail.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1577450633-2098-1-git-send-email-laoar.shao@gmail.com>
+References: <1577450633-2098-1-git-send-email-laoar.shao@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Both drd and gadget interrupt handler use the struct cdns3 pointer as
-dev_id, it causes devm_free_irq at cdns3_gadget_exit doesn't free
-gadget's interrupt handler, it freed drd's handler. So, when the
-host interrupt occurs, the gadget's interrupt hanlder is still
-called, and causes below oops. To fix it, we use gadget's private
-data priv_dev as interrupt dev_id for gadget.
+memory.{emin, elow} are set in mem_cgroup_protected(), and the values of
+them won't be changed until next recalculation in this function. After
+either or both of them are set, the next reclaimer to relcaim this memcg
+may be a different reclaimer, e.g. this memcg is also the root memcg of
+the new reclaimer, and then in mem_cgroup_protection() in get_scan_count()
+the old values of them will be used to calculate scan count, that is not
+proper. We should reset them to zero in this case.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000380
-Mem abort info:
-  ESR = 0x96000006
-  EC = 0x25: DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-Data abort info:
-  ISV = 0, ISS = 0x00000006
-  CM = 0, WnR = 0
-user pgtable: 4k pages, 48-bit VAs, pgdp=0000000971d79000
-[0000000000000380] pgd=0000000971d6f003, pud=0000000971d6e003, pmd=0000000000000000
-Internal error: Oops: 96000006 [#1] PREEMPT SMP
-Modules linked in: mxc_jpeg_encdec crct10dif_ce fsl_imx8_ddr_perf
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.0-03486-g69f4e7d9c54a-dirty #254
-Hardware name: Freescale i.MX8QM MEK (DT)
-pstate: 00000085 (nzcv daIf -PAN -UAO)
-pc : cdns3_device_irq_handler+0x1c/0xb8
-lr : __handle_irq_event_percpu+0x78/0x2c0
-sp : ffff800010003e30
-x29: ffff800010003e30 x28: ffff8000129bb000
-x27: ffff8000126e9000 x26: ffff0008f61b5600
-x25: ffff800011fe1018 x24: ffff8000126ea120
-x23: ffff800010003f04 x22: 0000000000000000
-x21: 0000000000000093 x20: ffff0008f61b5600
-x19: ffff0008f5061a80 x18: 0000000000000000
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0000000000000000 x14: 003d090000000000
-x13: 00003d0900000000 x12: 0000000000000000
-x11: 00003d0900000000 x10: 0000000000000040
-x9 : ffff800012708cb8 x8 : ffff800012708cb0
-x7 : ffff0008f7c7a9d0 x6 : 0000000000000000
-x5 : ffff0008f7c7a910 x4 : ffff8008ed359000
-x3 : ffff800010003f40 x2 : 0000000000000000
-x1 : ffff0008f5061a80 x0 : ffff800010161a60
-Call trace:
- cdns3_device_irq_handler+0x1c/0xb8
- __handle_irq_event_percpu+0x78/0x2c0
- handle_irq_event_percpu+0x40/0x98
- handle_irq_event+0x4c/0xd0
- handle_fasteoi_irq+0xbc/0x168
- generic_handle_irq+0x34/0x50
- __handle_domain_irq+0x6c/0xc0
- gic_handle_irq+0xd4/0x174
- el1_irq+0xb8/0x180
- arch_cpu_idle+0x3c/0x230
- default_idle_call+0x38/0x40
- do_idle+0x20c/0x298
- cpu_startup_entry+0x28/0x48
- rest_init+0xdc/0xe8
- arch_call_rest_init+0x14/0x1c
- start_kernel+0x48c/0x4b8
-Code: aa0103f3 aa1e03e0 d503201f f9409662 (f941c040)
----[ end trace 091dcf4dee011b0e ]---
-Kernel panic - not syncing: Fatal exception in interrupt
-SMP: stopping secondary CPUs
-Kernel Offset: disabled
-CPU features: 0x0002,2100600c
-Memory Limit: none
----[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+Here's an example of this issue.
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-Cc: <stable@vger.kernel.org> #v5.4
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+    root_mem_cgroup
+         /
+        A   memory.max=1024M memory.min=512M memory.current=800M
+
+Once kswapd is waked up, it will try to scan all MEMCGs, including
+this A, and it will assign memory.emin of A with 512M.
+After that, A may reach its hard limit(memory.max), and then it will
+do memcg reclaim. Because A is the root of this reclaimer, so it will
+not calculate its memory.emin. So the memory.emin is the old value
+512M, and then this old value will be used in
+mem_cgroup_protection() in get_scan_count() to get the scan count.
+That is not proper.
+
+Fixes: 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Cc: Chris Down <chris@chrisdown.name>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: stable@vger.kernel.org
 ---
- drivers/usb/cdns3/gadget.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ mm/memcontrol.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
-index 4c1e75509303..02f6ca2cb1ba 100644
---- a/drivers/usb/cdns3/gadget.c
-+++ b/drivers/usb/cdns3/gadget.c
-@@ -1375,13 +1375,10 @@ static void cdns3_check_usb_interrupt_proceed(struct cdns3_device *priv_dev,
-  */
- static irqreturn_t cdns3_device_irq_handler(int irq, void *data)
- {
--	struct cdns3_device *priv_dev;
--	struct cdns3 *cdns = data;
-+	struct cdns3_device *priv_dev = data;
- 	irqreturn_t ret = IRQ_NONE;
- 	u32 reg;
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index 601405b..bb3925d 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -6287,8 +6287,17 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
  
--	priv_dev = cdns->gadget_dev;
--
- 	/* check USB device interrupt */
- 	reg = readl(&priv_dev->regs->usb_ists);
- 	if (reg) {
-@@ -1419,14 +1416,12 @@ static irqreturn_t cdns3_device_irq_handler(int irq, void *data)
-  */
- static irqreturn_t cdns3_device_thread_irq_handler(int irq, void *data)
- {
--	struct cdns3_device *priv_dev;
--	struct cdns3 *cdns = data;
-+	struct cdns3_device *priv_dev = data;
- 	irqreturn_t ret = IRQ_NONE;
- 	unsigned long flags;
- 	int bit;
- 	u32 reg;
+ 	if (!root)
+ 		root = root_mem_cgroup;
+-	if (memcg == root)
++	if (memcg == root) {
++		/*
++		 * Reset memory.(emin, elow) for reclaiming the memcg
++		 * itself.
++		 */
++		if (memcg != root_mem_cgroup) {
++			memcg->memory.emin = 0;
++			memcg->memory.elow = 0;
++		}
+ 		return MEMCG_PROT_NONE;
++	}
  
--	priv_dev = cdns->gadget_dev;
- 	spin_lock_irqsave(&priv_dev->lock, flags);
- 
- 	reg = readl(&priv_dev->regs->usb_ists);
-@@ -2539,7 +2534,7 @@ void cdns3_gadget_exit(struct cdns3 *cdns)
- 
- 	priv_dev = cdns->gadget_dev;
- 
--	devm_free_irq(cdns->dev, cdns->dev_irq, cdns);
-+	devm_free_irq(cdns->dev, cdns->dev_irq, priv_dev);
- 
- 	pm_runtime_mark_last_busy(cdns->dev);
- 	pm_runtime_put_autosuspend(cdns->dev);
-@@ -2710,7 +2705,8 @@ static int __cdns3_gadget_init(struct cdns3 *cdns)
- 	ret = devm_request_threaded_irq(cdns->dev, cdns->dev_irq,
- 					cdns3_device_irq_handler,
- 					cdns3_device_thread_irq_handler,
--					IRQF_SHARED, dev_name(cdns->dev), cdns);
-+					IRQF_SHARED, dev_name(cdns->dev),
-+					cdns->gadget_dev);
- 
- 	if (ret)
- 		goto err0;
+ 	usage = page_counter_read(&memcg->memory);
+ 	if (!usage)
 -- 
-2.17.1
+1.8.3.1
 
