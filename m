@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8B5012B860
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:55:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D9A12B84A
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:55:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727637AbfL0RzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:55:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39170 "EHLO mail.kernel.org"
+        id S1727330AbfL0RmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:42:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727823AbfL0RmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:42:20 -0500
+        id S1727828AbfL0RmV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:42:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 463FD21744;
-        Fri, 27 Dec 2019 17:42:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50C2A222C3;
+        Fri, 27 Dec 2019 17:42:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468539;
-        bh=mTIUIuPdDWwgh0qX8a/UlwVj8gBl+shZGZxFTaLncsw=;
+        s=default; t=1577468541;
+        bh=Qf+Lke/xZRTcVCvZC0012unFzCPQGzOZY/o5doau+BU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oir1Ph/9nhlQco+WLWxjJXBDXexU1wim2wuFoKY/myz9aRahoLHBDB7CptodrR2oj
-         EEcfS9xT6vIrNv/blsP4sJVhtOCLUoKA+IJ5CDlSkhd32gnqmy1xyynzgXsiWEqc2z
-         VnxKuXTrLLBG3JHe62GBM3C6lQ/hc4zCdjvPV3SI=
+        b=L+IwSrXxzggoZKnoBNBGvM09Li3dGNxONPZGZ6DJycHxunIc0+ZLAIAZnei52zlW0
+         hZtQQEJbxJLj1qptWTH3quoH9xDX2m+dXopcpm1xNihbGvrqH/fW5TtBnQ0b6AZvuz
+         m9D7Sk1uSUJHJQvr1nXN6yZicN3HR44YBeMfdxbI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Netanel Belgazal <netanel@amazon.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 069/187] net: ena: fix napi handler misbehavior when the napi budget is zero
-Date:   Fri, 27 Dec 2019 12:38:57 -0500
-Message-Id: <20191227174055.4923-69-sashal@kernel.org>
+Cc:     Michael Walle <michael@walle.cc>,
+        Tang Yuantian <andy.tang@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 070/187] arm64: dts: ls1028a: fix typo in TMU calibration data
+Date:   Fri, 27 Dec 2019 12:38:58 -0500
+Message-Id: <20191227174055.4923-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -43,57 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Netanel Belgazal <netanel@amazon.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 24dee0c7478d1a1e00abdf5625b7f921467325dc ]
+[ Upstream commit 961f8209c8d5ef5d33da42e6656d7c8179899da0 ]
 
-In netpoll the napi handler could be called with budget equal to zero.
-Current ENA napi handler doesn't take that into consideration.
+The temperature sensor may jump backwards because there is a wrong
+calibration value. Both values have to be monotonically increasing.
+Fix it.
 
-The napi handler handles Rx packets in a do-while loop.
-Currently, the budget check happens only after decrementing the
-budget, therefore the napi handler, in rare cases, could run over
-MAX_INT packets.
+This was tested on a custom board.
 
-In addition to that, this moves all budget related variables to int
-calculation and stop mixing u32 to avoid ambiguity
-
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Netanel Belgazal <netanel@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 571cebfe8e2b ("arm64: dts: ls1028a: Add Thermal Monitor Unit node")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Acked-by: Tang Yuantian <andy.tang@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index c487d2a7d6dd..b4a145220aba 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -1238,8 +1238,8 @@ static int ena_io_poll(struct napi_struct *napi, int budget)
- 	struct ena_napi *ena_napi = container_of(napi, struct ena_napi, napi);
- 	struct ena_ring *tx_ring, *rx_ring;
- 
--	u32 tx_work_done;
--	u32 rx_work_done;
-+	int tx_work_done;
-+	int rx_work_done = 0;
- 	int tx_budget;
- 	int napi_comp_call = 0;
- 	int ret;
-@@ -1256,7 +1256,11 @@ static int ena_io_poll(struct napi_struct *napi, int budget)
- 	}
- 
- 	tx_work_done = ena_clean_tx_irq(tx_ring, tx_budget);
--	rx_work_done = ena_clean_rx_irq(rx_ring, napi, budget);
-+	/* On netpoll the budget is zero and the handler should only clean the
-+	 * tx completions.
-+	 */
-+	if (likely(budget))
-+		rx_work_done = ena_clean_rx_irq(rx_ring, napi, budget);
- 
- 	/* If the device is about to reset or down, avoid unmask
- 	 * the interrupt and return 0 so NAPI won't reschedule
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+index 72b9a75976a1..c7dae9ec17da 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+@@ -567,7 +567,7 @@
+ 					       0x00010004 0x0000003d
+ 					       0x00010005 0x00000045
+ 					       0x00010006 0x0000004d
+-					       0x00010007 0x00000045
++					       0x00010007 0x00000055
+ 					       0x00010008 0x0000005e
+ 					       0x00010009 0x00000066
+ 					       0x0001000a 0x0000006e
 -- 
 2.20.1
 
