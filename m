@@ -2,118 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FE4112B494
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 13:44:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B43612B4B3
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 14:02:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727023AbfL0MoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 07:44:16 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:36795 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726053AbfL0MoQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Dec 2019 07:44:16 -0500
-Received: by mail-pl1-f196.google.com with SMTP id a6so10964727plm.3
-        for <stable@vger.kernel.org>; Fri, 27 Dec 2019 04:44:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=n+mXUnSBdUmpj+rPxKhgXq+NePAWLTnS1N3EeApr+XU=;
-        b=MClM5SS7oF7CHekECq80qPRhE7p20RkNMF9ENF0twOArz78T0bPiy1T+Wad1Pe57yV
-         dVtWTNHYbEqKmd2k31Okt4zhDIvhG6rIKBexkC4+bbnFIpGgsuFgMffbDT88omSusPNk
-         myDvOHwO+d8TuGbY+A7gBYVha8NY1PRYpiGJ3taTTn+ibKucAerEIfct+2JdY2OVDefj
-         rJhOxatKXAfy9mb8wuyETiK9hZTvSrYzInH7Lbpqt9H3iu8ea1klZI9WdemZHuXdwzyG
-         RGXWPggybOWr65DwbqFv65FlY2oKyzPQbDnKcM4SICDzvb8JGVKU9k1kyMmigRL3UnQR
-         7a5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=n+mXUnSBdUmpj+rPxKhgXq+NePAWLTnS1N3EeApr+XU=;
-        b=bbieQjO1G2Xt27RDoWX4OhC/qpbFW0FMUg2k34rx8zoYUYqcN4CDnOY6Xjdpv3OK5v
-         qqhiJRRRLWSoNsErfDv+D2dXv6g4NNwgoUiOQqoLTk81m8eyNEOIhVTDgbebFaHjrCIj
-         Hk+P6Xg/EWI7rUo9h4M1F09FqjradYH/F6owt/C++91BMhQ4V85+meIlH4LIBkWe0l/1
-         vp2x2xCqZW6xhaeSdSEnKH79jkblo8w66g3JFTxucG6dcbv6XEqHwfD35Zpall7QmyGK
-         ZY5BY38WbqtHShgUOD1JEJyt7qLW/9Z0FTYOsiPCmpPmHY2KyqY7VWLYW7UtJ1aN+8u4
-         NAcg==
-X-Gm-Message-State: APjAAAW+ceMUwCeE96dWWKzpgeZxfMFzXAFsnIEYTa0DhVaPKposyg7U
-        JdicTVzz3N6oH0LDlrYL06c=
-X-Google-Smtp-Source: APXvYqwgKLBTx3Hcbrh/WHlWE/LXA4+A1BPxsuTm/PkYpjc0qumV0yS72w7efbXfZQ5HQDicNLxrAQ==
-X-Received: by 2002:a17:902:241:: with SMTP id 59mr17878300plc.36.1577450655997;
-        Fri, 27 Dec 2019 04:44:15 -0800 (PST)
-Received: from dev.localdomain ([203.100.54.194])
-        by smtp.gmail.com with ESMTPSA id c2sm14125591pjq.27.2019.12.27.04.44.13
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 27 Dec 2019 04:44:15 -0800 (PST)
-From:   Yafang Shao <laoar.shao@gmail.com>
-To:     guro@fb.com, hannes@cmpxchg.org, mhocko@kernel.org,
-        vdavydov.dev@gmail.com, akpm@linux-foundation.org
-Cc:     linux-mm@kvack.org, Yafang Shao <laoar.shao@gmail.com>,
-        Chris Down <chris@chrisdown.name>, stable@vger.kernel.org
-Subject: [PATCH] mm, memcg: reset memcg's memory.{min, low} for reclaiming itself
-Date:   Fri, 27 Dec 2019 07:43:53 -0500
-Message-Id: <1577450633-2098-2-git-send-email-laoar.shao@gmail.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1577450633-2098-1-git-send-email-laoar.shao@gmail.com>
-References: <1577450633-2098-1-git-send-email-laoar.shao@gmail.com>
+        id S1726377AbfL0NCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 08:02:07 -0500
+Received: from foss.arm.com ([217.140.110.172]:35284 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726354AbfL0NCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 08:02:07 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B9C8B1FB;
+        Fri, 27 Dec 2019 05:02:06 -0800 (PST)
+Received: from [10.37.8.128] (unknown [10.37.8.128])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BDCA03F68F;
+        Fri, 27 Dec 2019 05:02:03 -0800 (PST)
+Subject: Re: [PATCH 1/3] KVM: arm64: correct PSTATE on exception entry
+To:     Mark Rutland <mark.rutland@arm.com>, kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel@lists.infradead.org, maz@kernel.org
+Cc:     Drew Jones <drjones@redhat.com>, James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Peter Maydell <peter.maydell@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>, stable@vger.kernel.org
+References: <20191220150549.31948-1-mark.rutland@arm.com>
+ <20191220150549.31948-2-mark.rutland@arm.com>
+From:   Alexandru Elisei <alexandru.elisei@arm.com>
+Message-ID: <bace4197-a723-5312-3990-84232aab30d9@arm.com>
+Date:   Fri, 27 Dec 2019 13:01:57 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+In-Reply-To: <20191220150549.31948-2-mark.rutland@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-memory.{emin, elow} are set in mem_cgroup_protected(), and the values of
-them won't be changed until next recalculation in this function. After
-either or both of them are set, the next reclaimer to relcaim this memcg
-may be a different reclaimer, e.g. this memcg is also the root memcg of
-the new reclaimer, and then in mem_cgroup_protection() in get_scan_count()
-the old values of them will be used to calculate scan count, that is not
-proper. We should reset them to zero in this case.
+Hi,
 
-Here's an example of this issue.
+On 12/20/19 3:05 PM, Mark Rutland wrote:
+> When KVM injects an exception into a guest, it generates the PSTATE
+> value from scratch, configuring PSTATE.{M[4:0],DAIF}, and setting all
+> other bits to zero.
+>
+> This isn't correct, as the architecture specifies that some PSTATE bits
+> are (conditionally) cleared or set upon an exception, and others are
+> unchanged from the original context.
+>
+> This patch adds logic to match the architectural behaviour. To make this
+> simple to follow/audit/extend, documentation references are provided,
+> and bits are configured in order of their layout in SPSR_EL2. This
+> layout can be seen in the diagram on ARM DDI 0487E.a page C5-429.
+>
+> Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+> Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+> Cc: Drew Jones <drjones@redhat.com>
+> Cc: James Morse <james.morse@arm.com>
+> Cc: Julien Thierry <julien.thierry.kdev@gmail.com>
+> Cc: Marc Zyngier <maz@kernel.org>
+> Cc: Peter Maydell <peter.maydell@linaro.org>
+> Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  arch/arm64/include/uapi/asm/ptrace.h |  1 +
+>  arch/arm64/kvm/inject_fault.c        | 69 +++++++++++++++++++++++++++++++++---
+>  2 files changed, 65 insertions(+), 5 deletions(-)
+>
+> diff --git a/arch/arm64/include/uapi/asm/ptrace.h b/arch/arm64/include/uapi/asm/ptrace.h
+> index 7ed9294e2004..d1bb5b69f1ce 100644
+> --- a/arch/arm64/include/uapi/asm/ptrace.h
+> +++ b/arch/arm64/include/uapi/asm/ptrace.h
+> @@ -49,6 +49,7 @@
+>  #define PSR_SSBS_BIT	0x00001000
+>  #define PSR_PAN_BIT	0x00400000
+>  #define PSR_UAO_BIT	0x00800000
+> +#define PSR_DIT_BIT	0x01000000
+>  #define PSR_V_BIT	0x10000000
+>  #define PSR_C_BIT	0x20000000
+>  #define PSR_Z_BIT	0x40000000
+> diff --git a/arch/arm64/kvm/inject_fault.c b/arch/arm64/kvm/inject_fault.c
+> index a9d25a305af5..270d91c05246 100644
+> --- a/arch/arm64/kvm/inject_fault.c
+> +++ b/arch/arm64/kvm/inject_fault.c
+> @@ -14,9 +14,6 @@
+>  #include <asm/kvm_emulate.h>
+>  #include <asm/esr.h>
+>  
+> -#define PSTATE_FAULT_BITS_64 	(PSR_MODE_EL1h | PSR_A_BIT | PSR_F_BIT | \
+> -				 PSR_I_BIT | PSR_D_BIT)
+> -
+>  #define CURRENT_EL_SP_EL0_VECTOR	0x0
+>  #define CURRENT_EL_SP_ELx_VECTOR	0x200
+>  #define LOWER_EL_AArch64_VECTOR		0x400
+> @@ -50,6 +47,68 @@ static u64 get_except_vector(struct kvm_vcpu *vcpu, enum exception_type type)
+>  	return vcpu_read_sys_reg(vcpu, VBAR_EL1) + exc_offset + type;
+>  }
+>  
+> +/*
+> + * When an exception is taken, most PSTATE fields are left unchanged in the
+> + * handler. However, some are explicitly overridden (e.g. M[4:0]). Luckily all
+> + * of the inherited bits have the same position in the AArch64/AArch32 SPSR_ELx
+> + * layouts, so we don't need to shuffle these for exceptions from AArch32 EL0.
+> + *
+> + * For the SPSR_ELx layout for AArch64, see ARM DDI 0487E.a page C5-429.
+> + * For the SPSR_ELx layout for AArch32, see ARM DDI 0487E.a page C5-426.
 
-    root_mem_cgroup
-         /
-        A   memory.max=1024M memory.min=512M memory.current=800M
+The commit message mentions only the SPSR_ELx layout for AArch64.
 
-Once kswapd is waked up, it will try to scan all MEMCGs, including
-this A, and it will assign memory.emin of A with 512M.
-After that, A may reach its hard limit(memory.max), and then it will
-do memcg reclaim. Because A is the root of this reclaimer, so it will
-not calculate its memory.emin. So the memory.emin is the old value
-512M, and then this old value will be used in
-mem_cgroup_protection() in get_scan_count() to get the scan count.
-That is not proper.
+> + *
+> + * Here we manipulate the fields in order of the AArch64 SPSR_ELx layout, from
+> + * MSB to LSB.
+> + */
+> +static unsigned long get_except64_pstate(struct kvm_vcpu *vcpu)
+> +{
+> +	unsigned long sctlr = vcpu_read_sys_reg(vcpu, SCTLR_EL1);
+> +	unsigned long old, new;
+> +
+> +	old = *vcpu_cpsr(vcpu);
+> +	new = 0;
+> +
+> +	new |= (old & PSR_N_BIT);
+> +	new |= (old & PSR_Z_BIT);
+> +	new |= (old & PSR_C_BIT);
+> +	new |= (old & PSR_V_BIT);
+> +
+> +	// TODO: TCO (if/when ARMv8.5-MemTag is exposed to guests)
+> +
+> +	new |= (old & PSR_DIT_BIT);
+> +
+> +	// PSTATE.UAO is set to zero upon any exception to AArch64
+> +	// See ARM DDI 0487E.a, page D5-2579.
+> +
+> +	// PSTATE.PAN is unchanged unless overridden by SCTLR_ELx.SPAN
+> +	// See ARM DDI 0487E.a, page D5-2578.
+> +	new |= (old & PSR_PAN_BIT);
+> +	if (sctlr & SCTLR_EL1_SPAN)
+> +		new |= PSR_PAN_BIT;
 
-Fixes: 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Cc: Chris Down <chris@chrisdown.name>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: stable@vger.kernel.org
----
- mm/memcontrol.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+On page D13-3264, it is stated that the PAN bit is set unconditionally if
+SCTLR_EL1.SPAN is clear, not set.
 
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 601405b..bb3925d 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -6287,8 +6287,17 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
- 
- 	if (!root)
- 		root = root_mem_cgroup;
--	if (memcg == root)
-+	if (memcg == root) {
-+		/*
-+		 * Reset memory.(emin, elow) for reclaiming the memcg
-+		 * itself.
-+		 */
-+		if (memcg != root_mem_cgroup) {
-+			memcg->memory.emin = 0;
-+			memcg->memory.elow = 0;
-+		}
- 		return MEMCG_PROT_NONE;
-+	}
- 
- 	usage = page_counter_read(&memcg->memory);
- 	if (!usage)
--- 
-1.8.3.1
+> +
+> +	// PSTATE.SS is set to zero upon any exception to AArch64
+> +	// See ARM DDI 0487E.a, page D2-2452.
+> +
+> +	// PSTATE.IL is set to zero upon any exception to AArch64
+> +	// See ARM DDI 0487E.a, page D1-2306.
+> +
+> +	// PSTATE.SSBS is set to SCTLR_ELx.DSSBS upon any exception to AArch64
+> +	// See ARM DDI 0487E.a, page D13-3258
+> +	if (sctlr & SCTLR_ELx_DSSBS)
+> +		new |= PSR_SSBS_BIT;
+> +
+> +	// PSTATE.BTYPE is set to zero upon any exception to AArch64
+> +	// See ARM DDI 0487E.a, pages D1-2293 to D1-2294.
+> +
+> +	new |= PSR_D_BIT;
+> +	new |= PSR_A_BIT;
+> +	new |= PSR_I_BIT;
+> +	new |= PSR_F_BIT;
+> +
+> +	new |= PSR_MODE_EL1h;
+> +
+> +	return new;
+> +}
+> +
+>  static void inject_abt64(struct kvm_vcpu *vcpu, bool is_iabt, unsigned long addr)
+>  {
+>  	unsigned long cpsr = *vcpu_cpsr(vcpu);
+> @@ -59,7 +118,7 @@ static void inject_abt64(struct kvm_vcpu *vcpu, bool is_iabt, unsigned long addr
+>  	vcpu_write_elr_el1(vcpu, *vcpu_pc(vcpu));
+>  	*vcpu_pc(vcpu) = get_except_vector(vcpu, except_type_sync);
+>  
+> -	*vcpu_cpsr(vcpu) = PSTATE_FAULT_BITS_64;
+> +	*vcpu_cpsr(vcpu) = get_except64_pstate(vcpu);
+>  	vcpu_write_spsr(vcpu, cpsr);
+>  
+>  	vcpu_write_sys_reg(vcpu, addr, FAR_EL1);
+> @@ -94,7 +153,7 @@ static void inject_undef64(struct kvm_vcpu *vcpu)
+>  	vcpu_write_elr_el1(vcpu, *vcpu_pc(vcpu));
+>  	*vcpu_pc(vcpu) = get_except_vector(vcpu, except_type_sync);
+>  
+> -	*vcpu_cpsr(vcpu) = PSTATE_FAULT_BITS_64;
+> +	*vcpu_cpsr(vcpu) = get_except64_pstate(vcpu);
+>  	vcpu_write_spsr(vcpu, cpsr);
+>  
+>  	/*
 
+I've also checked the ARM ARM pages mentioned in the comments, and the
+references are correct. The SPSR_EL2 layouts for exceptions taken from AArch64,
+respectively AArch32, states are compatible with the way we create the SPSR_EL2
+that will be used for eret'ing to the guest, just like the comment says.
+
+I have a suggestion. I think that in ARM ARM, shuffling things between sections
+happens a lot less often than adding/removing things from one particular
+section, so the pages referenced are more likely to change in later versions.
+How about referencing the section instead of the exact page? Something like:
+"This layout can be seen in the diagram on ARM DDI 0487E.a, section C5.2.18,
+when an exception is taken from AArch64 state"?
+
+Thanks,
+Alex
