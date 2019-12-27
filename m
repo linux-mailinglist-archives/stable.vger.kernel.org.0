@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F2BE12B754
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:48:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14AD312B749
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:48:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728289AbfL0Rsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:48:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42956 "EHLO mail.kernel.org"
+        id S1728535AbfL0Ron (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:44:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728523AbfL0Rol (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:44:41 -0500
+        id S1728470AbfL0Rom (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:44:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5E23206F4;
-        Fri, 27 Dec 2019 17:44:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB857206CB;
+        Fri, 27 Dec 2019 17:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468680;
-        bh=Lu/z27rISEQkff99lu4NTlGODLGO7EcU5sfR/JvIbFk=;
+        s=default; t=1577468681;
+        bh=ibZBkiorgbSlD1+KaQsW7L6oi5u2W/TPujsZDyZJGks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VsqxNBY3IVxEQ8rlHAvX0+kUpA04U1DvWNglre8sCTFBM2mbIOACMdCc4qsODiRkX
-         2WfXPpVMOc6yFhVqZRRdfqUvIM1VMfp8EotTlA/jVQ4fZuURRGIGhF+QpK3aYUhHzO
-         s3ujGdlOqZgcCXVWZGzQKwdj0boIJPiIbotkaabs=
+        b=kpdLrf3qK6rUpEkzL9OzE4pbMgLWnS8NiZ4b7Wtmo0nJj0H/Yn9UHpKlcUGJYWQGT
+         Pfp0d2+p1PARu18unzdJk9PeUVMro7eH9PSXY8RGhqqzbFl5iZ1KfqK/CEx+ujCfrH
+         GmKmPuXzChHRB1ijaaSeMAGOhDVNj3m9s1TSBBH4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Yan <leo.yan@linaro.org>,
-        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 39/84] tty: serial: msm_serial: Fix lockup for sysrq and oops
-Date:   Fri, 27 Dec 2019 12:43:07 -0500
-Message-Id: <20191227174352.6264-39-sashal@kernel.org>
+Cc:     Cristian Birsan <cristian.birsan@microchip.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 40/84] net: usb: lan78xx: Fix suspend/resume PHY register access error
+Date:   Fri, 27 Dec 2019 12:43:08 -0500
+Message-Id: <20191227174352.6264-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174352.6264-1-sashal@kernel.org>
 References: <20191227174352.6264-1-sashal@kernel.org>
@@ -45,70 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Cristian Birsan <cristian.birsan@microchip.com>
 
-[ Upstream commit 0e4f7f920a5c6bfe5e851e989f27b35a0cc7fb7e ]
+[ Upstream commit 20032b63586ac6c28c936dff696981159913a13f ]
 
-As the commit 677fe555cbfb ("serial: imx: Fix recursive locking bug")
-has mentioned the uart driver might cause recursive locking between
-normal printing and the kernel debugging facilities (e.g. sysrq and
-oops).  In the commit it gave out suggestion for fixing recursive
-locking issue: "The solution is to avoid locking in the sysrq case
-and trylock in the oops_in_progress case."
+Lan78xx driver accesses the PHY registers through MDIO bus over USB
+connection. When performing a suspend/resume, the PHY registers can be
+accessed before the USB connection is resumed. This will generate an
+error and will prevent the device to resume correctly.
+This patch adds the dependency between the MDIO bus and USB device to
+allow correct handling of suspend/resume.
 
-This patch follows the suggestion (also used the exactly same code with
-other serial drivers, e.g. amba-pl011.c) to fix the recursive locking
-issue, this can avoid stuck caused by deadlock and print out log for
-sysrq and oops.
-
-Fixes: 04896a77a97b ("msm_serial: serial driver for MSM7K onboard serial peripheral.")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Link: https://lore.kernel.org/r/20191127141544.4277-2-leo.yan@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ce85e13ad6ef ("lan78xx: Update to use phylib instead of mii_if_info.")
+Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/msm_serial.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/net/usb/lan78xx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
-index c10d9cc553c6..4caeca67fd14 100644
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -1580,6 +1580,7 @@ static void __msm_console_write(struct uart_port *port, const char *s,
- 	int num_newlines = 0;
- 	bool replaced = false;
- 	void __iomem *tf;
-+	int locked = 1;
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 50bf4b2080d5..6dd24a1ca10d 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -1823,6 +1823,7 @@ static int lan78xx_mdio_init(struct lan78xx_net *dev)
+ 	dev->mdiobus->read = lan78xx_mdiobus_read;
+ 	dev->mdiobus->write = lan78xx_mdiobus_write;
+ 	dev->mdiobus->name = "lan78xx-mdiobus";
++	dev->mdiobus->parent = &dev->udev->dev;
  
- 	if (is_uartdm)
- 		tf = port->membase + UARTDM_TF;
-@@ -1592,7 +1593,13 @@ static void __msm_console_write(struct uart_port *port, const char *s,
- 			num_newlines++;
- 	count += num_newlines;
- 
--	spin_lock(&port->lock);
-+	if (port->sysrq)
-+		locked = 0;
-+	else if (oops_in_progress)
-+		locked = spin_trylock(&port->lock);
-+	else
-+		spin_lock(&port->lock);
-+
- 	if (is_uartdm)
- 		msm_reset_dm_count(port, count);
- 
-@@ -1628,7 +1635,9 @@ static void __msm_console_write(struct uart_port *port, const char *s,
- 		iowrite32_rep(tf, buf, 1);
- 		i += num_chars;
- 	}
--	spin_unlock(&port->lock);
-+
-+	if (locked)
-+		spin_unlock(&port->lock);
- }
- 
- static void msm_console_write(struct console *co, const char *s,
+ 	snprintf(dev->mdiobus->id, MII_BUS_ID_SIZE, "usb-%03d:%03d",
+ 		 dev->udev->bus->busnum, dev->udev->devnum);
 -- 
 2.20.1
 
