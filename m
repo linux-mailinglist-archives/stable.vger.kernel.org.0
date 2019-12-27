@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB54512B985
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:06:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D490812B977
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:06:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727725AbfL0SFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 13:05:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60022 "EHLO mail.kernel.org"
+        id S1728443AbfL0SDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 13:03:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728379AbfL0SC6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 13:02:58 -0500
+        id S1728442AbfL0SC7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 13:02:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DA0721927;
-        Fri, 27 Dec 2019 18:02:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37389222D9;
+        Fri, 27 Dec 2019 18:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577469777;
-        bh=cMnzxgdPe0e5EJ1R/Wt6vME7RxC4ksuH8NrCNU/pS1c=;
+        s=default; t=1577469779;
+        bh=3BSS7eqYolKQLg45blKvyGb2gdE7a0VSAT/zm/DuAvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lj/nv89h1tN1URgWSIopp4rCzYBksmUVvnEtS0LmLb181UtxdR/tEXR+FFF43aMdI
-         dK0V3rY04sK9mKrvpVG0JJ/u6PuN/GgYFMeyamzj6w4gR1wvBasnJoP/TALj75Y92W
-         c1fJri9khZdlqKWQFphJwod7AHFMtNkKVb/SFjdw=
+        b=n9a8oMi9ItSdrNFXdKaW9eUClMLZEnbcg1PBURyJtU9UwSMthepaZ3Z2Dtk/2mz0u
+         ihh/Sa8jnRbkzDLOGnZTYMpOScOmaxYWFtbhUGGvkaoBCtVAWAoJ1+AFLiWmlJsiyC
+         O9SgYnu4TZ0OAtf89U/YHt1s+LqUpoU8Z7msuqn0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 28/57] qede: Fix multicast mac configuration
-Date:   Fri, 27 Dec 2019 13:01:53 -0500
-Message-Id: <20191227180222.7076-28-sashal@kernel.org>
+Cc:     Mike Rapoport <rppt@linux.ibm.com>,
+        Christian Zigotzky <chzigotzky@xenosoft.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 29/57] powerpc: Ensure that swiotlb buffer is allocated from low memory
+Date:   Fri, 27 Dec 2019 13:01:54 -0500
+Message-Id: <20191227180222.7076-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
 References: <20191227180222.7076-1-sashal@kernel.org>
@@ -44,36 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-[ Upstream commit 0af67e49b018e7280a4227bfe7b6005bc9d3e442 ]
+[ Upstream commit 8fabc623238e68b3ac63c0dd1657bf86c1fa33af ]
 
-Driver doesn't accommodate the configuration for max number
-of multicast mac addresses, in such particular case it leaves
-the device with improper/invalid multicast configuration state,
-causing connectivity issues (in lacp bonding like scenarios).
+Some powerpc platforms (e.g. 85xx) limit DMA-able memory way below 4G.
+If a system has more physical memory than this limit, the swiotlb
+buffer is not addressable because it is allocated from memblock using
+top-down mode.
 
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Force memblock to bottom-up mode before calling swiotlb_init() to
+ensure that the swiotlb buffer is DMA-able.
+
+Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191204123524.22919-1-rppt@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_filter.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/mm/mem.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_filter.c b/drivers/net/ethernet/qlogic/qede/qede_filter.c
-index f79e36e4060a..e7ad95de3da8 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_filter.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_filter.c
-@@ -1181,7 +1181,7 @@ qede_configure_mcast_filtering(struct net_device *ndev,
- 	netif_addr_lock_bh(ndev);
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 30bf13b72e5e..3c5abfbbe60e 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -353,6 +353,14 @@ void __init mem_init(void)
+ 	BUILD_BUG_ON(MMU_PAGE_COUNT > 16);
  
- 	mc_count = netdev_mc_count(ndev);
--	if (mc_count < 64) {
-+	if (mc_count <= 64) {
- 		netdev_for_each_mc_addr(ha, ndev) {
- 			ether_addr_copy(temp, ha->addr);
- 			temp += ETH_ALEN;
+ #ifdef CONFIG_SWIOTLB
++	/*
++	 * Some platforms (e.g. 85xx) limit DMA-able memory way below
++	 * 4G. We force memblock to bottom-up mode to ensure that the
++	 * memory allocated in swiotlb_init() is DMA-able.
++	 * As it's the last memblock allocation, no need to reset it
++	 * back to to-down.
++	 */
++	memblock_set_bottom_up(true);
+ 	swiotlb_init(0);
+ #endif
+ 
 -- 
 2.20.1
 
