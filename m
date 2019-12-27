@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD83612BA24
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:16:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A47112BA11
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:16:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728299AbfL0SQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 13:16:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41348 "EHLO mail.kernel.org"
+        id S1728320AbfL0SQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 13:16:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728293AbfL0SQL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 13:16:11 -0500
+        id S1728309AbfL0SQN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 13:16:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E61C6208C4;
-        Fri, 27 Dec 2019 18:16:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8DE421582;
+        Fri, 27 Dec 2019 18:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577470571;
-        bh=5qimiPvZgZq/KiEoumXC++uKAGaZfv4SvZt7uJ03xv4=;
+        s=default; t=1577470572;
+        bh=CML4ynmYXN0xB1zt3WrGElGGQONxilXaUfFuXX/uags=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JmW9EZpfi6PPLYQ83dSHuQAvQvYWkgS6ssgTBdOQvibblrUegQBXX3VxcyXcTIA1N
-         oyVRs3s0RG12LRD15j4srXrfGCxIKy8CZpPsPpOrafiUBLUTgFOJiN4Q3R/Mi6sM0K
-         f6JJ6h5Mt8JTRJMsgbD8UkIjZ/poYlrxiM4XnGPE=
+        b=x9Vu0wV5WdDPE8Xh6k2e/Qo4EzlnGs9Z1K//SwN06HKsUsl4N0+CfuqkVsge813/X
+         gsS2fkJLG9II4WEyUq0hTyuYkhy32h/L7ZaC8oncX/+iVFEyhY25SNZhcaYs0BmgDy
+         RcL4FgoTVe2rKZim6J1H/A+BnOCSFjskOKjlGX7A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Kemnade <andreas@kemnade.info>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 18/25] regulator: rn5t618: fix module aliases
-Date:   Fri, 27 Dec 2019 13:15:42 -0500
-Message-Id: <20191227181549.8040-18-sashal@kernel.org>
+Cc:     Thomas Hebb <tommyhebb@gmail.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 19/25] kconfig: don't crash on NULL expressions in expr_eq()
+Date:   Fri, 27 Dec 2019 13:15:43 -0500
+Message-Id: <20191227181549.8040-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227181549.8040-1-sashal@kernel.org>
 References: <20191227181549.8040-1-sashal@kernel.org>
@@ -43,34 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-[ Upstream commit 62a1923cc8fe095912e6213ed5de27abbf1de77e ]
+[ Upstream commit 272a72103012862e3a24ea06635253ead0b6e808 ]
 
-platform device aliases were missing, preventing
-autoloading of module.
+NULL expressions are taken to always be true, as implemented by the
+expr_is_yes() macro and by several other functions in expr.c. As such,
+they ought to be valid inputs to expr_eq(), which compares two
+expressions.
 
-Fixes: 811b700630ff ("regulator: rn5t618: add driver for Ricoh RN5T618 regulators")
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Link: https://lore.kernel.org/r/20191211221600.29438-1-andreas@kemnade.info
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/rn5t618-regulator.c | 1 +
- 1 file changed, 1 insertion(+)
+ scripts/kconfig/expr.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/regulator/rn5t618-regulator.c b/drivers/regulator/rn5t618-regulator.c
-index b85ceb8ff911..eccdddcf5315 100644
---- a/drivers/regulator/rn5t618-regulator.c
-+++ b/drivers/regulator/rn5t618-regulator.c
-@@ -95,6 +95,7 @@ static struct platform_driver rn5t618_regulator_driver = {
+diff --git a/scripts/kconfig/expr.c b/scripts/kconfig/expr.c
+index ed29bad1f03a..96420b620963 100644
+--- a/scripts/kconfig/expr.c
++++ b/scripts/kconfig/expr.c
+@@ -201,6 +201,13 @@ static int expr_eq(struct expr *e1, struct expr *e2)
+ {
+ 	int res, old_count;
  
- module_platform_driver(rn5t618_regulator_driver);
- 
-+MODULE_ALIAS("platform:rn5t618-regulator");
- MODULE_AUTHOR("Beniamino Galvani <b.galvani@gmail.com>");
- MODULE_DESCRIPTION("RN5T618 regulator driver");
- MODULE_LICENSE("GPL v2");
++	/*
++	 * A NULL expr is taken to be yes, but there's also a different way to
++	 * represent yes. expr_is_yes() checks for either representation.
++	 */
++	if (!e1 || !e2)
++		return expr_is_yes(e1) && expr_is_yes(e2);
++
+ 	if (e1->type != e2->type)
+ 		return 0;
+ 	switch (e1->type) {
 -- 
 2.20.1
 
