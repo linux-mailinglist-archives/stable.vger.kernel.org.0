@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 936C912B9B4
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B08C12B9AC
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 19:07:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727470AbfL0SHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 13:07:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59558 "EHLO mail.kernel.org"
+        id S1727873AbfL0SCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 13:02:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727510AbfL0SCj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 13:02:39 -0500
+        id S1727769AbfL0SCl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 13:02:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D39720CC7;
-        Fri, 27 Dec 2019 18:02:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7273721775;
+        Fri, 27 Dec 2019 18:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577469759;
-        bh=J0cPKhFxQCuZu+uLL9G/eNDy4tjEa8vlQ6PtGjaXh5k=;
+        s=default; t=1577469760;
+        bh=4FTqzjfn+w4KqdDw37CbAaA3bjTre5V3IOWDORrU7oI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZwAp77gbas1+en36/ww7FX6kGwCCejuAmE2qrqVVj4gPEScCaKu3h7s+ng5j5YAb
-         auJuEfKJwbmpBoxe5z/3HwNCpi2E4HW1ZFC49jFNLezv/l0ty6F6d0mWgaxiN5MrDv
-         ZimDoqiITUTn2NHn3fyGLg+KbmNjg6SLabDTlNUs=
+        b=ffd+3BTXV2C/zD5kzbRWOHzA0ut8s8IPw6cvs+gLlIF/y7kWfLxoxY8EVd0tReTgI
+         GWnMKqUkYb0BuSRYEIFxKF208I+pU8O7wYk+t3nxF7RtUZPCdkd/xUEbcc9F2/TuiL
+         FNm2o5fEK0ZLfj+vqBZo/WLAet//3h/ShDB8W7fs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Phil Sutter <phil@nwl.cc>, Pablo Neira Ayuso <pablo@netfilter.org>,
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org
-Subject: [PATCH AUTOSEL 4.14 12/57] netfilter: uapi: Avoid undefined left-shift in xt_sctp.h
-Date:   Fri, 27 Dec 2019 13:01:37 -0500
-Message-Id: <20191227180222.7076-12-sashal@kernel.org>
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 13/57] netfilter: nf_tables: validate NFT_SET_ELEM_INTERVAL_END
+Date:   Fri, 27 Dec 2019 13:01:38 -0500
+Message-Id: <20191227180222.7076-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
 References: <20191227180222.7076-1-sashal@kernel.org>
@@ -43,48 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 164166558aacea01b99c8c8ffb710d930405ba69 ]
+[ Upstream commit bffc124b6fe37d0ae9b428d104efb426403bb5c9 ]
 
-With 'bytes(__u32)' being 32, a left-shift of 31 may happen which is
-undefined for the signed 32-bit value 1. Avoid this by declaring 1 as
-unsigned.
+Only NFTA_SET_ELEM_KEY and NFTA_SET_ELEM_FLAGS make sense for elements
+whose NFT_SET_ELEM_INTERVAL_END flag is set on.
 
-Signed-off-by: Phil Sutter <phil@nwl.cc>
+Fixes: 96518518cc41 ("netfilter: add nftables")
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/netfilter/xt_sctp.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/netfilter/nf_tables_api.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/include/uapi/linux/netfilter/xt_sctp.h b/include/uapi/linux/netfilter/xt_sctp.h
-index 4bc6d1a08781..b4d804a9fccb 100644
---- a/include/uapi/linux/netfilter/xt_sctp.h
-+++ b/include/uapi/linux/netfilter/xt_sctp.h
-@@ -41,19 +41,19 @@ struct xt_sctp_info {
- #define SCTP_CHUNKMAP_SET(chunkmap, type) 		\
- 	do { 						\
- 		(chunkmap)[type / bytes(__u32)] |= 	\
--			1 << (type % bytes(__u32));	\
-+			1u << (type % bytes(__u32));	\
- 	} while (0)
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 7ef126489d4e..91490446ebb4 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3917,14 +3917,20 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 		if (nla[NFTA_SET_ELEM_DATA] == NULL &&
+ 		    !(flags & NFT_SET_ELEM_INTERVAL_END))
+ 			return -EINVAL;
+-		if (nla[NFTA_SET_ELEM_DATA] != NULL &&
+-		    flags & NFT_SET_ELEM_INTERVAL_END)
+-			return -EINVAL;
+ 	} else {
+ 		if (nla[NFTA_SET_ELEM_DATA] != NULL)
+ 			return -EINVAL;
+ 	}
  
- #define SCTP_CHUNKMAP_CLEAR(chunkmap, type)		 	\
- 	do {							\
- 		(chunkmap)[type / bytes(__u32)] &= 		\
--			~(1 << (type % bytes(__u32)));	\
-+			~(1u << (type % bytes(__u32)));	\
- 	} while (0)
- 
- #define SCTP_CHUNKMAP_IS_SET(chunkmap, type) 			\
- ({								\
- 	((chunkmap)[type / bytes (__u32)] & 		\
--		(1 << (type % bytes (__u32)))) ? 1: 0;	\
-+		(1u << (type % bytes (__u32)))) ? 1: 0;	\
- })
- 
- #define SCTP_CHUNKMAP_RESET(chunkmap) \
++	if ((flags & NFT_SET_ELEM_INTERVAL_END) &&
++	     (nla[NFTA_SET_ELEM_DATA] ||
++	      nla[NFTA_SET_ELEM_OBJREF] ||
++	      nla[NFTA_SET_ELEM_TIMEOUT] ||
++	      nla[NFTA_SET_ELEM_EXPIRATION] ||
++	      nla[NFTA_SET_ELEM_USERDATA] ||
++	      nla[NFTA_SET_ELEM_EXPR]))
++		return -EINVAL;
++
+ 	timeout = 0;
+ 	if (nla[NFTA_SET_ELEM_TIMEOUT] != NULL) {
+ 		if (!(set->flags & NFT_SET_TIMEOUT))
 -- 
 2.20.1
 
