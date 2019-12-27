@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D8A112B7D3
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:51:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9501E12B7CF
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:51:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727612AbfL0Rvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:51:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40742 "EHLO mail.kernel.org"
+        id S1727605AbfL0RnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:43:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728194AbfL0RnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:43:18 -0500
+        id S1728204AbfL0RnU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:43:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9008522522;
-        Fri, 27 Dec 2019 17:43:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF58624125;
+        Fri, 27 Dec 2019 17:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468598;
-        bh=X+Ebr00IaI3qLwvQu4pO4xc+Xvp9x6957Zo4dXEN+6U=;
+        s=default; t=1577468599;
+        bh=zOuj6n+fYGJwlWbMnFsq3QNqgVU7cb1hz3VpkEgVXtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsM0DEbfCoikwaL2w0H7Ykb7V8dcuS0ItT2cHry2KV44vLBiP/EfgEk2GllXVpmVX
-         hYTHWskdlvc3AifftCLmgNSjYDwlaUwVGpe219LOuipR/YN7HV1So/fnh32ifiJpp8
-         7ytsGFTY5cCkjwPTQvUN6wTMm9jtjI4D9yNoHezQ=
+        b=czF3PFaFOytCq8N9iKpJ9RCyyCQUd59/JGNQGsKbQ7+XVA4qp3+1en/fMFxKDMtg3
+         OUrv8yPTrvppVhfcVagSGK6uqGz6oDjM4UC+UzdwvckLm+qxXTKeQ5ZzfPd0yTcxWF
+         ALN2QvmMOIDUcpQWvVO/ofxud74CsEV77MWhw5j0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cristian Birsan <cristian.birsan@microchip.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 119/187] net: usb: lan78xx: Fix error message format specifier
-Date:   Fri, 27 Dec 2019 12:39:47 -0500
-Message-Id: <20191227174055.4923-119-sashal@kernel.org>
+Cc:     Sven Schnelle <svens@stackframe.org>,
+        kbuild test robot <lkp@intel.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 120/187] parisc: fix compilation when KEXEC=n and KEXEC_FILE=y
+Date:   Fri, 27 Dec 2019 12:39:48 -0500
+Message-Id: <20191227174055.4923-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -44,33 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Birsan <cristian.birsan@microchip.com>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit 858ce8ca62ea1530f2779d0e3f934b0176e663c3 ]
+[ Upstream commit e16260c21f87b16a33ae8ecac9e8c79f3a8b89bd ]
 
-Display the return code as decimal integer.
+Fix compilation when the CONFIG_KEXEC_FILE=y and
+CONFIG_KEXEC=n.
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/include/asm/kexec.h | 4 ----
+ arch/parisc/kernel/Makefile     | 2 +-
+ 2 files changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index 0becc79fd431..e3cdfdde2265 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -511,7 +511,7 @@ static int lan78xx_read_stats(struct lan78xx_net *dev,
- 		}
- 	} else {
- 		netdev_warn(dev->net,
--			    "Failed to read stat ret = 0x%x", ret);
-+			    "Failed to read stat ret = %d", ret);
- 	}
+diff --git a/arch/parisc/include/asm/kexec.h b/arch/parisc/include/asm/kexec.h
+index a99ea747d7ed..87e174006995 100644
+--- a/arch/parisc/include/asm/kexec.h
++++ b/arch/parisc/include/asm/kexec.h
+@@ -2,8 +2,6 @@
+ #ifndef _ASM_PARISC_KEXEC_H
+ #define _ASM_PARISC_KEXEC_H
  
- 	kfree(stats);
+-#ifdef CONFIG_KEXEC
+-
+ /* Maximum physical address we can use pages from */
+ #define KEXEC_SOURCE_MEMORY_LIMIT (-1UL)
+ /* Maximum address we can reach in physical address mode */
+@@ -32,6 +30,4 @@ static inline void crash_setup_regs(struct pt_regs *newregs,
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+-#endif /* CONFIG_KEXEC */
+-
+ #endif /* _ASM_PARISC_KEXEC_H */
+diff --git a/arch/parisc/kernel/Makefile b/arch/parisc/kernel/Makefile
+index 2663c8f8be11..068d90950d93 100644
+--- a/arch/parisc/kernel/Makefile
++++ b/arch/parisc/kernel/Makefile
+@@ -37,5 +37,5 @@ obj-$(CONFIG_FUNCTION_GRAPH_TRACER)	+= ftrace.o
+ obj-$(CONFIG_JUMP_LABEL)		+= jump_label.o
+ obj-$(CONFIG_KGDB)			+= kgdb.o
+ obj-$(CONFIG_KPROBES)			+= kprobes.o
+-obj-$(CONFIG_KEXEC)			+= kexec.o relocate_kernel.o
++obj-$(CONFIG_KEXEC_CORE)		+= kexec.o relocate_kernel.o
+ obj-$(CONFIG_KEXEC_FILE)		+= kexec_file.o
 -- 
 2.20.1
 
