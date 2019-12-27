@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 003A612B6E4
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B8FF12B6EF
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728754AbfL0RpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:45:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43938 "EHLO mail.kernel.org"
+        id S1728181AbfL0Rpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:45:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728728AbfL0RpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:45:21 -0500
+        id S1728755AbfL0RpW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:45:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D990B24653;
-        Fri, 27 Dec 2019 17:45:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 147F7206CB;
+        Fri, 27 Dec 2019 17:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468720;
-        bh=PA4FxnAk4aNpdZ8YIp/EAybWfqD/vW0X7F1oDdtjVRc=;
+        s=default; t=1577468721;
+        bh=jQybQAdyx9ZBDl/KAmYyeRIYex04N12HCfmKKKywYCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTmrLJS84WQ+YPrO9GRHSju0t2ucBZl0NvJWQbxSGZSGMqoxZLAevGgte7UlIuFV8
-         X9+G3UPw287hXDCQ8R2O53iYwrbVT8SZuqZe0fjgxyvs9m2/zV8W1xxYck4Au2QiYY
-         ALO9PJVde7s2VSIHn9CTVwR7WjL7mfDdhDGEofOU=
+        b=B8/T50fk2/0qKQbF94Hal0IuLUrNz2ORgB2tdZe4pBQeapVEfQ1YPOcjzUYg/dVoI
+         RJ+cAMyUDrGXrX5BV3w09SEpsS0EHzYPMQHoZZaOqpunj75un/3dRZisW8I2bCiZfn
+         /BM6D9+iKXUnAyZM9iFscwa1zZMPu6TNSzNBV4Mk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Inki Dae <inki.dae@samsung.net>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 74/84] drm/exynos: gsc: add missed component_del
-Date:   Fri, 27 Dec 2019 12:43:42 -0500
-Message-Id: <20191227174352.6264-74-sashal@kernel.org>
+Cc:     Alexander Lobakin <alobakin@dlink.ru>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 75/84] net, sysctl: Fix compiler warning when only cBPF is present
+Date:   Fri, 27 Dec 2019 12:43:43 -0500
+Message-Id: <20191227174352.6264-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174352.6264-1-sashal@kernel.org>
 References: <20191227174352.6264-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,33 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Alexander Lobakin <alobakin@dlink.ru>
 
-[ Upstream commit 84c92365b20a44c363b95390ea00dfbdd786f031 ]
+[ Upstream commit 1148f9adbe71415836a18a36c1b4ece999ab0973 ]
 
-The driver forgets to call component_del in remove to match component_add
-in probe.
-Add the missed call to fix it.
+proc_dointvec_minmax_bpf_restricted() has been firstly introduced
+in commit 2e4a30983b0f ("bpf: restrict access to core bpf sysctls")
+under CONFIG_HAVE_EBPF_JIT. Then, this ifdef has been removed in
+ede95a63b5e8 ("bpf: add bpf_jit_limit knob to restrict unpriv
+allocations"), because a new sysctl, bpf_jit_limit, made use of it.
+Finally, this parameter has become long instead of integer with
+fdadd04931c2 ("bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K")
+and thus, a new proc_dolongvec_minmax_bpf_restricted() has been
+added.
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.net>
+With this last change, we got back to that
+proc_dointvec_minmax_bpf_restricted() is used only under
+CONFIG_HAVE_EBPF_JIT, but the corresponding ifdef has not been
+brought back.
+
+So, in configurations like CONFIG_BPF_JIT=y && CONFIG_HAVE_EBPF_JIT=n
+since v4.20 we have:
+
+  CC      net/core/sysctl_net_core.o
+net/core/sysctl_net_core.c:292:1: warning: ‘proc_dointvec_minmax_bpf_restricted’ defined but not used [-Wunused-function]
+  292 | proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Suppress this by guarding it with CONFIG_HAVE_EBPF_JIT again.
+
+Fixes: fdadd04931c2 ("bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K")
+Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20191218091821.7080-1-alobakin@dlink.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_gsc.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/sysctl_net_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_gsc.c b/drivers/gpu/drm/exynos/exynos_drm_gsc.c
-index 7ba414b52faa..d71188b982cb 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_gsc.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_gsc.c
-@@ -1292,6 +1292,7 @@ static int gsc_remove(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index d67ec17f2cc8..6cec08cd0bb9 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -281,6 +281,7 @@ static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
+ 	return ret;
+ }
  
-+	component_del(dev, &gsc_component_ops);
- 	pm_runtime_dont_use_autosuspend(dev);
- 	pm_runtime_disable(dev);
++# ifdef CONFIG_HAVE_EBPF_JIT
+ static int
+ proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
+ 				    void __user *buffer, size_t *lenp,
+@@ -291,6 +292,7 @@ proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
  
+ 	return proc_dointvec_minmax(table, write, buffer, lenp, ppos);
+ }
++# endif /* CONFIG_HAVE_EBPF_JIT */
+ 
+ static int
+ proc_dolongvec_minmax_bpf_restricted(struct ctl_table *table, int write,
 -- 
 2.20.1
 
