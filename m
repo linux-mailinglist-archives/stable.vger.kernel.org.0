@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0FC12B855
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:55:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7514112B666
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727491AbfL0Ryx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:54:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39374 "EHLO mail.kernel.org"
+        id S1727872AbfL0Rma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:42:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727361AbfL0Rm2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:42:28 -0500
+        id S1727867AbfL0Rm3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:42:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 623A124654;
-        Fri, 27 Dec 2019 17:42:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66772222C3;
+        Fri, 27 Dec 2019 17:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468548;
-        bh=jV0Fn+92D1zShlnjiLkLneWO8c8R5+UdB7LDaQECXz8=;
+        s=default; t=1577468549;
+        bh=YsvyNulDze0pM9EOznZ/h1F/BfCyg96OFeBPGK5KHc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P6dKqBrRRbDkPe8GU2r6UvAK7TMOPCYJw+q4s9nL0IwnUWGW5eXCRpsXuOrGd+zqz
-         VHLPmJ7mkAbf05tYl0qqjkSRKpCsTH/y1bypGXyNImZPZXBS6yP7iJ2i7zGIbOHxa3
-         m/UFudYQfUsUx0fi1pnjQrRwze7LyNLWtq2S+xX0=
+        b=VK4HTcaPQP9gze904siS/AzkWtQpdEZKOM2J+6pKxeqs2qz9dcdFC3pQu/GPQzLeM
+         dKRrW6qt4k0oDNK5H8LT1v8VegmAW4gKISzRKNZW/t8qQJvUiEj+fSCRNqIB6bbfCz
+         RpeUY2bKHE83qm7x2BqbBjMm1fYnUwQQf/FHNmT8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Petlan <mpetlan@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 075/187] perf header: Fix false warning when there are no duplicate cache entries
-Date:   Fri, 27 Dec 2019 12:39:03 -0500
-Message-Id: <20191227174055.4923-75-sashal@kernel.org>
+Cc:     Vignesh Raghavendra <vigneshr@ti.com>,
+        Andreas Dannenberg <dannenberg@ti.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 076/187] spi: spi-ti-qspi: Fix a bug when accessing non default CS
+Date:   Fri, 27 Dec 2019 12:39:04 -0500
+Message-Id: <20191227174055.4923-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -43,107 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Petlan <mpetlan@redhat.com>
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-[ Upstream commit 28707826877f84bce0977845ea529cbdd08e4e8d ]
+[ Upstream commit c52c91bb9aa6bd8c38dbf9776158e33038aedd43 ]
 
-Before this patch, perf expected that there might be NPROC*4 unique
-cache entries at max, however, it also expected that some of them would
-be shared and/or of the same size, thus the final number of entries
-would be reduced to be lower than NPROC*4. In case the number of entries
-hadn't been reduced (was NPROC*4), the warning was printed.
+When switching ChipSelect from default CS0 to any other CS, driver fails
+to update the bits in system control module register that control which
+CS is mapped for MMIO access. This causes reads to fail when driver
+tries to access QSPI flash on CS1/2/3.
 
-However, some systems might have unusual cache topology, such as the
-following two-processor KVM guest:
+Fix this by updating appropriate bits whenever active CS changes.
 
-	cpu  level  shared_cpu_list  size
-	  0     1         0           32K
-	  0     1         0           64K
-	  0     2         0           512K
-	  0     3         0           8192K
-	  1     1         1           32K
-	  1     1         1           64K
-	  1     2         1           512K
-	  1     3         1           8192K
-
-This KVM guest has 8 (NPROC*4) unique cache entries, which used to make
-perf printing the message, although there actually aren't "way too many
-cpu caches".
-
-v2: Removing unused argument.
-
-v3: Unifying the way we obtain number of cpus.
-
-v4: Removed '& UINT_MAX' construct which is redundant.
-
-Signed-off-by: Michael Petlan <mpetlan@redhat.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-LPU-Reference: 20191208162056.20772-1-mpetlan@redhat.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: Andreas Dannenberg <dannenberg@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20191211155216.30212-1-vigneshr@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/header.c | 21 ++++++---------------
- 1 file changed, 6 insertions(+), 15 deletions(-)
+ drivers/spi/spi-ti-qspi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index becc2d109423..d3412f2c0d18 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -1089,21 +1089,18 @@ static void cpu_cache_level__fprintf(FILE *out, struct cpu_cache_level *c)
- 	fprintf(out, "L%d %-15s %8s [%s]\n", c->level, c->type, c->size, c->map);
+diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
+index 3cb65371ae3b..66dcb6128539 100644
+--- a/drivers/spi/spi-ti-qspi.c
++++ b/drivers/spi/spi-ti-qspi.c
+@@ -62,6 +62,7 @@ struct ti_qspi {
+ 	u32 dc;
+ 
+ 	bool mmap_enabled;
++	int current_cs;
+ };
+ 
+ #define QSPI_PID			(0x0)
+@@ -487,6 +488,7 @@ static void ti_qspi_enable_memory_map(struct spi_device *spi)
+ 				   MEM_CS_EN(spi->chip_select));
+ 	}
+ 	qspi->mmap_enabled = true;
++	qspi->current_cs = spi->chip_select;
  }
  
--static int build_caches(struct cpu_cache_level caches[], u32 size, u32 *cntp)
-+#define MAX_CACHE_LVL 4
-+
-+static int build_caches(struct cpu_cache_level caches[], u32 *cntp)
- {
- 	u32 i, cnt = 0;
--	long ncpus;
- 	u32 nr, cpu;
- 	u16 level;
+ static void ti_qspi_disable_memory_map(struct spi_device *spi)
+@@ -498,6 +500,7 @@ static void ti_qspi_disable_memory_map(struct spi_device *spi)
+ 		regmap_update_bits(qspi->ctrl_base, qspi->ctrl_reg,
+ 				   MEM_CS_MASK, 0);
+ 	qspi->mmap_enabled = false;
++	qspi->current_cs = -1;
+ }
  
--	ncpus = sysconf(_SC_NPROCESSORS_CONF);
--	if (ncpus < 0)
--		return -1;
--
--	nr = (u32)(ncpus & UINT_MAX);
-+	nr = cpu__max_cpu();
+ static void ti_qspi_setup_mmap_read(struct spi_device *spi, u8 opcode,
+@@ -543,7 +546,7 @@ static int ti_qspi_exec_mem_op(struct spi_mem *mem,
  
- 	for (cpu = 0; cpu < nr; cpu++) {
--		for (level = 0; level < 10; level++) {
-+		for (level = 0; level < MAX_CACHE_LVL; level++) {
- 			struct cpu_cache_level c;
- 			int err;
+ 	mutex_lock(&qspi->list_lock);
  
-@@ -1123,18 +1120,12 @@ static int build_caches(struct cpu_cache_level caches[], u32 size, u32 *cntp)
- 				caches[cnt++] = c;
- 			else
- 				cpu_cache_level__free(&c);
--
--			if (WARN_ONCE(cnt == size, "way too many cpu caches.."))
--				goto out;
+-	if (!qspi->mmap_enabled)
++	if (!qspi->mmap_enabled || qspi->current_cs != mem->spi->chip_select)
+ 		ti_qspi_enable_memory_map(mem->spi);
+ 	ti_qspi_setup_mmap_read(mem->spi, op->cmd.opcode, op->data.buswidth,
+ 				op->addr.nbytes, op->dummy.nbytes);
+@@ -799,6 +802,7 @@ static int ti_qspi_probe(struct platform_device *pdev)
  		}
  	}
-- out:
- 	*cntp = cnt;
- 	return 0;
- }
+ 	qspi->mmap_enabled = false;
++	qspi->current_cs = -1;
  
--#define MAX_CACHE_LVL 4
--
- static int write_cache(struct feat_fd *ff,
- 		       struct evlist *evlist __maybe_unused)
- {
-@@ -1143,7 +1134,7 @@ static int write_cache(struct feat_fd *ff,
- 	u32 cnt = 0, i, version = 1;
- 	int ret;
- 
--	ret = build_caches(caches, max_caches, &cnt);
-+	ret = build_caches(caches, &cnt);
- 	if (ret)
- 		goto out;
- 
+ 	ret = devm_spi_register_master(&pdev->dev, master);
+ 	if (!ret)
 -- 
 2.20.1
 
