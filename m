@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E867F12B830
-	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:54:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FB1F12B833
+	for <lists+stable@lfdr.de>; Fri, 27 Dec 2019 18:54:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727926AbfL0Rmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Dec 2019 12:42:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39654 "EHLO mail.kernel.org"
+        id S1728028AbfL0RyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Dec 2019 12:54:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727910AbfL0Rmi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Dec 2019 12:42:38 -0500
+        id S1727928AbfL0Rmk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:42:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8067320740;
-        Fri, 27 Dec 2019 17:42:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B444221582;
+        Fri, 27 Dec 2019 17:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577468558;
-        bh=Hf4CZu8uzHRFEMDCzaCNvR32Pby0EsPeIx1M1K2odA8=;
+        s=default; t=1577468559;
+        bh=hWovyhmEjiLOx+RStHpljftNqQBfFJ59Eou4Rnua9cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MRFypKvKGkm+MBoA1sU/gVrkzAZ8XV+KcpecHmtZrIix29fNUESdnlTJO/4zLf/GF
-         Nb4j02rWZRG6pMFoAD8hM5K4TMnw04bwWGxuAW3LlL1/rfJ+FAtHw0OPODCXZonvXW
-         /82XzxFXoioqbHebjOF51Z3+CZrUOKnR+M6hl/ew=
+        b=J1+wiuv6w+1iB9dUQ32/oz6OVr4RLg/0p+kJlajr6ECTGKNqlqYcFQaigU3rITp2i
+         Lqs6cVrLSAJOGulwFoRRgkt/AzrilSNoofh5SDgOTlalohd4dGVlsMtaXH/YfEUby6
+         Bx+QhSV+Awdr2CGc5r0aHOaSDMOglqYgX5Q1ZcGs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Yan <leo.yan@linaro.org>,
-        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 084/187] tty: serial: msm_serial: Fix lockup for sysrq and oops
-Date:   Fri, 27 Dec 2019 12:39:12 -0500
-Message-Id: <20191227174055.4923-84-sashal@kernel.org>
+Cc:     Andrew Jeffery <andrew@aj.id.au>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-aspeed@lists.ozlabs.org,
+        openbmc@lists.ozlabs.org, linux-gpio@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 085/187] pinctrl: aspeed-g6: Fix LPC/eSPI mux configuration
+Date:   Fri, 27 Dec 2019 12:39:13 -0500
+Message-Id: <20191227174055.4923-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
 References: <20191227174055.4923-1-sashal@kernel.org>
@@ -45,70 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Andrew Jeffery <andrew@aj.id.au>
 
-[ Upstream commit 0e4f7f920a5c6bfe5e851e989f27b35a0cc7fb7e ]
+[ Upstream commit eb45f2110b036e4e35d3f3aaee1c2ccf49d92425 ]
 
-As the commit 677fe555cbfb ("serial: imx: Fix recursive locking bug")
-has mentioned the uart driver might cause recursive locking between
-normal printing and the kernel debugging facilities (e.g. sysrq and
-oops).  In the commit it gave out suggestion for fixing recursive
-locking issue: "The solution is to avoid locking in the sysrq case
-and trylock in the oops_in_progress case."
+Early revisions of the AST2600 datasheet are conflicted about the state
+of the LPC/eSPI strapping bit (SCU510[6]). Conversations with ASPEED
+determined that the reference pinmux configuration tables were in error
+and the SCU documentation contained the correct configuration. Update
+the driver to reflect the state described in the SCU documentation.
 
-This patch follows the suggestion (also used the exactly same code with
-other serial drivers, e.g. amba-pl011.c) to fix the recursive locking
-issue, this can avoid stuck caused by deadlock and print out log for
-sysrq and oops.
-
-Fixes: 04896a77a97b ("msm_serial: serial driver for MSM7K onboard serial peripheral.")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Link: https://lore.kernel.org/r/20191127141544.4277-2-leo.yan@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2eda1cdec49f ("pinctrl: aspeed: Add AST2600 pinmux support")
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20191202050110.15340-1-andrew@aj.id.au
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/msm_serial.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c | 24 ++++++++--------------
+ 1 file changed, 8 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
-index 00964b6e4ac1..e0718ee5d42a 100644
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -1580,6 +1580,7 @@ static void __msm_console_write(struct uart_port *port, const char *s,
- 	int num_newlines = 0;
- 	bool replaced = false;
- 	void __iomem *tf;
-+	int locked = 1;
+diff --git a/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c b/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
+index c6800d220920..bb07024d22ed 100644
+--- a/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
++++ b/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
+@@ -1088,60 +1088,52 @@ SSSF_PIN_DECL(AF15, GPIOV7, LPCSMI, SIG_DESC_SET(SCU434, 15));
  
- 	if (is_uartdm)
- 		tf = port->membase + UARTDM_TF;
-@@ -1592,7 +1593,13 @@ static void __msm_console_write(struct uart_port *port, const char *s,
- 			num_newlines++;
- 	count += num_newlines;
+ #define AB7 176
+ SIG_EXPR_LIST_DECL_SESG(AB7, LAD0, LPC, SIG_DESC_SET(SCU434, 16),
+-			  SIG_DESC_CLEAR(SCU510, 6));
+-SIG_EXPR_LIST_DECL_SESG(AB7, ESPID0, ESPI, SIG_DESC_SET(SCU434, 16),
+ 			  SIG_DESC_SET(SCU510, 6));
++SIG_EXPR_LIST_DECL_SESG(AB7, ESPID0, ESPI, SIG_DESC_SET(SCU434, 16));
+ PIN_DECL_2(AB7, GPIOW0, LAD0, ESPID0);
  
--	spin_lock(&port->lock);
-+	if (port->sysrq)
-+		locked = 0;
-+	else if (oops_in_progress)
-+		locked = spin_trylock(&port->lock);
-+	else
-+		spin_lock(&port->lock);
-+
- 	if (is_uartdm)
- 		msm_reset_dm_count(port, count);
+ #define AB8 177
+ SIG_EXPR_LIST_DECL_SESG(AB8, LAD1, LPC, SIG_DESC_SET(SCU434, 17),
+-			  SIG_DESC_CLEAR(SCU510, 6));
+-SIG_EXPR_LIST_DECL_SESG(AB8, ESPID1, ESPI, SIG_DESC_SET(SCU434, 17),
+ 			  SIG_DESC_SET(SCU510, 6));
++SIG_EXPR_LIST_DECL_SESG(AB8, ESPID1, ESPI, SIG_DESC_SET(SCU434, 17));
+ PIN_DECL_2(AB8, GPIOW1, LAD1, ESPID1);
  
-@@ -1628,7 +1635,9 @@ static void __msm_console_write(struct uart_port *port, const char *s,
- 		iowrite32_rep(tf, buf, 1);
- 		i += num_chars;
- 	}
--	spin_unlock(&port->lock);
-+
-+	if (locked)
-+		spin_unlock(&port->lock);
- }
+ #define AC8 178
+ SIG_EXPR_LIST_DECL_SESG(AC8, LAD2, LPC, SIG_DESC_SET(SCU434, 18),
+-			  SIG_DESC_CLEAR(SCU510, 6));
+-SIG_EXPR_LIST_DECL_SESG(AC8, ESPID2, ESPI, SIG_DESC_SET(SCU434, 18),
+ 			  SIG_DESC_SET(SCU510, 6));
++SIG_EXPR_LIST_DECL_SESG(AC8, ESPID2, ESPI, SIG_DESC_SET(SCU434, 18));
+ PIN_DECL_2(AC8, GPIOW2, LAD2, ESPID2);
  
- static void msm_console_write(struct console *co, const char *s,
+ #define AC7 179
+ SIG_EXPR_LIST_DECL_SESG(AC7, LAD3, LPC, SIG_DESC_SET(SCU434, 19),
+-			  SIG_DESC_CLEAR(SCU510, 6));
+-SIG_EXPR_LIST_DECL_SESG(AC7, ESPID3, ESPI, SIG_DESC_SET(SCU434, 19),
+ 			  SIG_DESC_SET(SCU510, 6));
++SIG_EXPR_LIST_DECL_SESG(AC7, ESPID3, ESPI, SIG_DESC_SET(SCU434, 19));
+ PIN_DECL_2(AC7, GPIOW3, LAD3, ESPID3);
+ 
+ #define AE7 180
+ SIG_EXPR_LIST_DECL_SESG(AE7, LCLK, LPC, SIG_DESC_SET(SCU434, 20),
+-			  SIG_DESC_CLEAR(SCU510, 6));
+-SIG_EXPR_LIST_DECL_SESG(AE7, ESPICK, ESPI, SIG_DESC_SET(SCU434, 20),
+ 			  SIG_DESC_SET(SCU510, 6));
++SIG_EXPR_LIST_DECL_SESG(AE7, ESPICK, ESPI, SIG_DESC_SET(SCU434, 20));
+ PIN_DECL_2(AE7, GPIOW4, LCLK, ESPICK);
+ 
+ #define AF7 181
+ SIG_EXPR_LIST_DECL_SESG(AF7, LFRAME, LPC, SIG_DESC_SET(SCU434, 21),
+-			  SIG_DESC_CLEAR(SCU510, 6));
+-SIG_EXPR_LIST_DECL_SESG(AF7, ESPICS, ESPI, SIG_DESC_SET(SCU434, 21),
+ 			  SIG_DESC_SET(SCU510, 6));
++SIG_EXPR_LIST_DECL_SESG(AF7, ESPICS, ESPI, SIG_DESC_SET(SCU434, 21));
+ PIN_DECL_2(AF7, GPIOW5, LFRAME, ESPICS);
+ 
+ #define AD7 182
+ SIG_EXPR_LIST_DECL_SESG(AD7, LSIRQ, LSIRQ, SIG_DESC_SET(SCU434, 22),
+-			  SIG_DESC_CLEAR(SCU510, 6));
+-SIG_EXPR_LIST_DECL_SESG(AD7, ESPIALT, ESPIALT, SIG_DESC_SET(SCU434, 22),
+ 			  SIG_DESC_SET(SCU510, 6));
++SIG_EXPR_LIST_DECL_SESG(AD7, ESPIALT, ESPIALT, SIG_DESC_SET(SCU434, 22));
+ PIN_DECL_2(AD7, GPIOW6, LSIRQ, ESPIALT);
+ FUNC_GROUP_DECL(LSIRQ, AD7);
+ FUNC_GROUP_DECL(ESPIALT, AD7);
+ 
+ #define AD8 183
+ SIG_EXPR_LIST_DECL_SESG(AD8, LPCRST, LPC, SIG_DESC_SET(SCU434, 23),
+-			  SIG_DESC_CLEAR(SCU510, 6));
+-SIG_EXPR_LIST_DECL_SESG(AD8, ESPIRST, ESPI, SIG_DESC_SET(SCU434, 23),
+ 			  SIG_DESC_SET(SCU510, 6));
++SIG_EXPR_LIST_DECL_SESG(AD8, ESPIRST, ESPI, SIG_DESC_SET(SCU434, 23));
+ PIN_DECL_2(AD8, GPIOW7, LPCRST, ESPIRST);
+ 
+ FUNC_GROUP_DECL(LPC, AB7, AB8, AC8, AC7, AE7, AF7, AD8);
 -- 
 2.20.1
 
