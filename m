@@ -2,154 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4311C12BEBE
-	for <lists+stable@lfdr.de>; Sat, 28 Dec 2019 20:43:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC5612BEB3
+	for <lists+stable@lfdr.de>; Sat, 28 Dec 2019 20:33:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726388AbfL1TnE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Dec 2019 14:43:04 -0500
-Received: from mx2.yrkesakademin.fi ([85.134.45.195]:33459 "EHLO
-        mx2.yrkesakademin.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726371AbfL1TnE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Dec 2019 14:43:04 -0500
-X-Greylist: delayed 903 seconds by postgrey-1.27 at vger.kernel.org; Sat, 28 Dec 2019 14:43:01 EST
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-From:   Thomas Backlund <tmb@mageia.org>
-Subject: Broken stuff in current 5.4 stable queue
-Message-ID: <b46b8ea9-ad07-264f-69aa-f9ee06148600@mageia.org>
-Date:   Sat, 28 Dec 2019 21:27:56 +0200
+        id S1726391AbfL1TdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Dec 2019 14:33:03 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:57667 "HELO
+        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1726362AbfL1TdD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Dec 2019 14:33:03 -0500
+Received: (qmail 18436 invoked by uid 500); 28 Dec 2019 14:33:01 -0500
+Received: from localhost (sendmail-bs@127.0.0.1)
+  by localhost with SMTP; 28 Dec 2019 14:33:01 -0500
+Date:   Sat, 28 Dec 2019 14:33:01 -0500 (EST)
+From:   Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To:     Guenter Roeck <linux@roeck-us.net>
+cc:     Peter Chen <peter.chen@freescale.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH] usb: chipidea: host: Disable port power only if previously
+ enabled
+In-Reply-To: <20191227165543.GA15950@roeck-us.net>
+Message-ID: <Pine.LNX.4.44L0.1912281431190.18379-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-WatchGuard-Spam-ID: str=0001.0A0C0212.5E07B045.006C,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
-X-WatchGuard-Spam-Score: 0, clean; 0, virus threat unknown
-X-WatchGuard-Mail-Client-IP: 85.134.45.195
-X-WatchGuard-Mail-From: tmb@mageia.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Isn't autosel stuff being buildtested before it ends up in stable queue ?
+On Fri, 27 Dec 2019, Guenter Roeck wrote:
+
+> On Thu, Dec 26, 2019 at 02:46:15PM -0500, Alan Stern wrote:
+> > On Thu, 26 Dec 2019, Guenter Roeck wrote:
+> > 
+> > > On shutdown, ehci_power_off() is called unconditionally to power off
+> > > each port, even if it was never called to power on the port.
+> > > For chipidea, this results in a call to ehci_ci_portpower() with a request
+> > > to power off ports even if the port was never powered on.
+> > > This results in the following warning from the regulator code.
+> > 
+> > That's weird -- we should always power-on every port during hub 
+> > initialization.
+> > 
+> That is what I would have assumed, but test code shows that it doesn't
+> happen.
+> 
+> > It looks like there's a bug in hub.c:hub_activate(): The line under
+> > HUB_INIT which calls hub_power_on() should call
+> > usb_hub_set_port_power() instead.  In fact, the comment near the start
+> 
+> usb_hub_set_port_power() operates on a port of the hub. hub_activate()
+> operates on the hub itself, or at least I think it does. I don't know
+> how to convert the calls. Also, there are more calls to hub_power_on()
+> in the same function.  Can you provide more details on what to do,
+> or even better a patch for me to test ?
+
+Let's try a slightly different approach.  What happens with this patch?
+
+Alan Stern
 
 
-I tried to build the current stuff and end up with:
-
-
-**********
-libbpf.c: In function 'bpf_program__collect_reloc':
-libbpf.c:1795:5: error: implicit declaration of function 'pr_warn'; did 
-you mean 'pr_warning'? [-Werror=implicit-function-declaration]
-  1795 |     pr_warn("bad call relo offset: %lu\n", sym.st_value);
-       |     ^~~~~~~
-       |     pr_warning
-libbpf.c:1795:5: error: nested extern declaration of 'pr_warn' 
-[-Werror=nested-externs]
-
-
-Caused by:
-libbpf-fix-call-relocation-offset-calculation-bug.patch
-
-
-
-**********
-builtin-trace.c: In function 'trace__record':
-builtin-trace.c:2580:17: warning: implicit declaration of function 
-'asprintf__tp_filter_pids' [-Wimplicit-function-declaration]
-  2580 |  char *filter = asprintf__tp_filter_pids(1, &pid);
-       |                 ^~~~~~~~~~~~~~~~~~~~~~~~
-builtin-trace.c:2580:17: warning: nested extern declaration of 
-'asprintf__tp_filter_pids' [-Wnested-externs]
-builtin-trace.c:2580:17: warning: initialization of 'char *' from 'int' 
-makes pointer from integer without a cast [-Wint-conversion]
-
-
-Caused by:
-perf-trace-filter-own-pid-to-avoid-a-feedback-look-i.patch
-
-
-
-**********
-arch/x86/util/auxtrace.c: In function 'auxtrace_record__init_intel':
-arch/x86/util/auxtrace.c:31:16: error: 'struct perf_pmu' has no member 
-named 'auxtrace'
-    31 |   intel_bts_pmu->auxtrace = true;
-       |                ^~
-mv: cannot stat 'arch/x86/util/.auxtrace.o.tmp': No such file or directory
-make[6]: *** [/linux-5.4/tools/build/Makefile.build:97: 
-arch/x86/util/auxtrace.o] Error 1
-make[6]: *** Waiting for unfinished jobs....
-arch/x86/util/intel-bts.c: In function 'intel_bts_recording_options':
-arch/x86/util/intel-bts.c:116:12: error: 'struct record_opts' has no 
-member named 'auxtrace_sample_mode'; did you mean 'auxtrace_snapshot_mode'?
-   116 |  if (opts->auxtrace_sample_mode) {
-       |            ^~~~~~~~~~~~~~~~~~~~
-       |            auxtrace_snapshot_mode
-
-
-Caused by:
-perf-intel-bts-does-not-support-aux-area-sampling.patch
-
-
-
-**********
-util/record.c: In function 'perf_can_aux_sample':
-util/record.c:152:4: error: 'struct perf_event_attr' has no member named 
-'aux_sample_size'
-   152 |   .aux_sample_size = 1,
-       |    ^~~~~~~~~~~~~~~
-
-
-
-Caused by:
-perf-record-add-a-function-to-test-for-kernel-suppor.patch
-
-
-
-**********
-util/parse-events.c: In function 'tracepoint_error':
-util/parse-events.c:508:2: warning: implicit declaration of function 
-'parse_events__handle_error'; did you mean 'parse_events_print_error'? 
-[-Wimplicit-function-declaration]
-   508 |  parse_events__handle_error(e, 0, strdup(str), strdup(help));
-       |  ^~~~~~~~~~~~~~~~~~~~~~~~~~
-       |  parse_events_print_error
-util/parse-events.c:508:2: warning: nested extern declaration of 
-'parse_events__handle_error' [-Wnested-externs]
-
-
-Caused by:
-perf-parse-fix-potential-memory-leak-when-handling-t.patch
-
-
-
-**********
-/usr/bin/ld: perf-in.o: in function `debuginfo__find_probe_point':
-/linux-5.4/tools/perf/util/probe-finder.c:1616: undefined reference to `
-die_entrypc'
-/usr/bin/ld: /linux-5.4/tools/perf/util/probe-finder.c:1633: undefined 
-reference to `die_entrypc'
-/usr/bin/ld: perf-in.o: in function `probe_point_search_cb':
-/linux-5.4/tools/perf/util/probe-finder.c:1012: undefined reference to 
-`die_entrypc'
-/usr/bin/ld: perf-in.o: in function `probe_point_inline_cb':
-/linux-5.4/tools/perf/util/probe-finder.c:960: undefined reference to 
-`die_entrypc'
-/usr/bin/ld: perf-in.o: in function `__die_walk_funclines_cb':
-/linux-5.4/tools/perf/util/dwarf-aux.c:683: undefined reference to 
-`die_entrypc'
-/usr/bin/ld: perf-in.o:/linux-5.4/tools/perf/util/dwarf-aux.c:683: more 
-undefined references to `die_entrypc' follow
-
-
-Caused by:
-perf-probe-fix-to-probe-a-function-which-has-no-entr.patch
-perf-probe-fix-to-show-inlined-function-callsite-wit.patch
-perf-probe-fix-to-list-probe-event-with-correct-line.patch
-perf-probe-fix-to-probe-an-inline-function-which-has.patch
-perf-probe-fix-to-show-ranges-of-variables-in-functi.patch
--- 
-
-Thomas
-
+Index: usb-devel/drivers/usb/core/hub.c
+===================================================================
+--- usb-devel.orig/drivers/usb/core/hub.c
++++ usb-devel/drivers/usb/core/hub.c
+@@ -1065,6 +1065,7 @@ static void hub_activate(struct usb_hub
+ 		if (type == HUB_INIT) {
+ 			delay = hub_power_on_good_delay(hub);
+ 
++			hub->power_bits[0] = ~0UL;	/* All ports on */
+ 			hub_power_on(hub, false);
+ 			INIT_DELAYED_WORK(&hub->init_work, hub_init_func2);
+ 			queue_delayed_work(system_power_efficient_wq,
 
