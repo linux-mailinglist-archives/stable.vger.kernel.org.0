@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD1512C4A5
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9226412C4A7
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:34:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729181AbfL2Rbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:31:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59122 "EHLO mail.kernel.org"
+        id S1728909AbfL2Rbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:31:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729191AbfL2Rbh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:31:37 -0500
+        id S1729194AbfL2Rbk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:31:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51BC6207FD;
-        Sun, 29 Dec 2019 17:31:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA07E20722;
+        Sun, 29 Dec 2019 17:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640696;
-        bh=kf5GFZb2jr/iYcT1559dfHi72Y59J6biQZV9IkhsRyw=;
+        s=default; t=1577640699;
+        bh=gmZzz8RUcAVDI77LGIqj0pmn0yD9rYqUO/EBlGTSvp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLR9sN51Hr0aEFNiUiFcMjAwLmZJS3mGUMcAYhKrhWir8lHQrD0JguUU4F0++I+lp
-         rUYdCLwqK4OU55wSTVFkdZ7XbfIdoUA9YwTMj2GAay2AZwy5rI0HD6UQFM5cr8Kcc0
-         32IlOXuRjR4mDDhthYovJ6i73agIE7xlfiFiIRx8=
+        b=ZyrsmIJP5A6mNwiXp7OoOLkJWrqUewLPepFeTgR+XmC0x3xL1NCVv6e9laEdgVcad
+         paPcPw1P1zhMv7s9vdcBX3sNP2+FZ7k4Y6dcAQL95U+t3Sg72o/jKCaAfSXbjLctAr
+         G8HGpVx98m5cNKjm4DEEYH5uxlia6pejnnNRW5Ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/219] ALSA: hda/hdmi - implement mst_no_extra_pcms flag
-Date:   Sun, 29 Dec 2019 18:18:24 +0100
-Message-Id: <20191229162523.844585380@linuxfoundation.org>
+Subject: [PATCH 4.19 103/219] phy: qcom-usb-hs: Fix extcon double register after power cycle
+Date:   Sun, 29 Dec 2019 18:18:25 +0100
+Message-Id: <20191229162524.013561533@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -47,90 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 2a2edfbbfee47947dd05f5860c66c0e80ee5e09d ]
+[ Upstream commit 64f86b9978449ff05bfa6c64b4c5439e21e9c80b ]
 
-To support the DP-MST multiple streams via single connector feature,
-the HDMI driver was extended with the concept of backup PCMs. See
-commit 9152085defb6 ("ALSA: hda - add DP MST audio support").
+Commit f0b5c2c96370 ("phy: qcom-usb-hs: Replace the extcon API")
+switched from extcon_register_notifier() to the resource-managed
+API, i.e. devm_extcon_register_notifier().
 
-This implementation works fine with snd_hda_intel.c as PCM topology
-is fully managed within the single driver.
+This is problematic in this case, because the extcon notifier
+is dynamically registered/unregistered whenever the PHY is powered
+on/off. The resource-managed API does not unregister the notifier
+until the driver is removed, so as soon as the PHY is power cycled,
+attempting to register the notifier again results in:
 
-When the HDA codec driver is used from ASoC components, the concept
-of backup PCMs no longer fits. For ASoC topologies, the physical
-HDMI converters are presented as backend DAIs and these should match
-with hardware capabilities. The ASoC topology may define arbitrary
-PCMs (i.e. frontend DAIs) and have processing elements before eventual
-routing to the HDMI BE DAIs. With backup PCMs, the link between
-FE and BE DAIs would become dynamic and change when monitors are
-(un)plugged. This would lead to modifying the topology every time
-hotplug events happen, which is not currently possible in ASoC and
-there does not seem to be any obvious benefits from this design.
+	double register detected
+	WARNING: CPU: 1 PID: 182 at kernel/notifier.c:26 notifier_chain_register+0x74/0xa0
+	Call trace:
+	 ...
+	 extcon_register_notifier+0x74/0xb8
+	 devm_extcon_register_notifier+0x54/0xb8
+	 qcom_usb_hs_phy_power_on+0x1fc/0x208
+	 ...
 
-To overcome above problems and enable the HDMI driver to be used
-from ASoC, this patch adds a new mode (mst_no_extra_pcms flags) to
-patch_hdmi.c. In this mode, the codec driver does not assume
-the backup PCMs to be created.
+... and USB stops working after plugging the cable out and in
+another time.
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191029134017.18901-2-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The easiest way to fix this is to make a partial revert of
+commit f0b5c2c96370 ("phy: qcom-usb-hs: Replace the extcon API")
+and avoid using the resource-managed API in this case.
+
+Fixes: f0b5c2c96370 ("phy: qcom-usb-hs: Replace the extcon API")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_codec.h  |  1 +
- sound/pci/hda/patch_hdmi.c | 19 ++++++++++++++-----
- 2 files changed, 15 insertions(+), 5 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-usb-hs.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/hda_codec.h b/sound/pci/hda/hda_codec.h
-index 2003403ce1c8..199927694aef 100644
---- a/sound/pci/hda/hda_codec.h
-+++ b/sound/pci/hda/hda_codec.h
-@@ -262,6 +262,7 @@ struct hda_codec {
- 	unsigned int force_pin_prefix:1; /* Add location prefix */
- 	unsigned int link_down_at_suspend:1; /* link down at runtime suspend */
- 	unsigned int relaxed_resume:1;	/* don't resume forcibly for jack */
-+	unsigned int mst_no_extra_pcms:1; /* no backup PCMs for DP-MST */
- 
- #ifdef CONFIG_PM
- 	unsigned long power_on_acct;
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index c827a2a89cc3..9d5e3c8d62b9 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2063,15 +2063,24 @@ static bool is_hdmi_pcm_attached(struct hdac_device *hdac, int pcm_idx)
- static int generic_hdmi_build_pcms(struct hda_codec *codec)
+diff --git a/drivers/phy/qualcomm/phy-qcom-usb-hs.c b/drivers/phy/qualcomm/phy-qcom-usb-hs.c
+index abbbe75070da..5629d56a6257 100644
+--- a/drivers/phy/qualcomm/phy-qcom-usb-hs.c
++++ b/drivers/phy/qualcomm/phy-qcom-usb-hs.c
+@@ -160,8 +160,8 @@ static int qcom_usb_hs_phy_power_on(struct phy *phy)
+ 		/* setup initial state */
+ 		qcom_usb_hs_phy_vbus_notifier(&uphy->vbus_notify, state,
+ 					      uphy->vbus_edev);
+-		ret = devm_extcon_register_notifier(&ulpi->dev, uphy->vbus_edev,
+-				EXTCON_USB, &uphy->vbus_notify);
++		ret = extcon_register_notifier(uphy->vbus_edev, EXTCON_USB,
++					       &uphy->vbus_notify);
+ 		if (ret)
+ 			goto err_ulpi;
+ 	}
+@@ -182,6 +182,9 @@ static int qcom_usb_hs_phy_power_off(struct phy *phy)
  {
- 	struct hdmi_spec *spec = codec->spec;
--	int idx;
-+	int idx, pcm_num;
+ 	struct qcom_usb_hs_phy *uphy = phy_get_drvdata(phy);
  
- 	/*
- 	 * for non-mst mode, pcm number is the same as before
--	 * for DP MST mode, pcm number is (nid number + dev_num - 1)
--	 *  dev_num is the device entry number in a pin
--	 *
-+	 * for DP MST mode without extra PCM, pcm number is same
-+	 * for DP MST mode with extra PCMs, pcm number is
-+	 *  (nid number + dev_num - 1)
-+	 * dev_num is the device entry number in a pin
- 	 */
--	for (idx = 0; idx < spec->num_nids + spec->dev_num - 1; idx++) {
-+
-+	if (codec->mst_no_extra_pcms)
-+		pcm_num = spec->num_nids;
-+	else
-+		pcm_num = spec->num_nids + spec->dev_num - 1;
-+
-+	codec_dbg(codec, "hdmi: pcm_num set to %d\n", pcm_num);
-+
-+	for (idx = 0; idx < pcm_num; idx++) {
- 		struct hda_pcm *info;
- 		struct hda_pcm_stream *pstr;
- 
++	if (uphy->vbus_edev)
++		extcon_unregister_notifier(uphy->vbus_edev, EXTCON_USB,
++					   &uphy->vbus_notify);
+ 	regulator_disable(uphy->v3p3);
+ 	regulator_disable(uphy->v1p8);
+ 	clk_disable_unprepare(uphy->sleep_clk);
 -- 
 2.20.1
 
