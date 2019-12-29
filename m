@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A176912C68A
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C43512C694
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:54:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731382AbfL2RsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:48:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59012 "EHLO mail.kernel.org"
+        id S1731476AbfL2Rsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:48:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730931AbfL2RsB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:48:01 -0500
+        id S1731474AbfL2Rsb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:48:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86FB621D7E;
-        Sun, 29 Dec 2019 17:47:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 903A221744;
+        Sun, 29 Dec 2019 17:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641680;
-        bh=A8mS2g7mzak7J2IK5FmSJhmX/u36qzAIAVoO32dNVEg=;
+        s=default; t=1577641711;
+        bh=NPabPQxlAlRgLta9Wp5g+qVUkDV7fJuVhnyOopc1cYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kY4F43K5F5+lXeSEbl0J1uxS1N7XCZ1H03p+KhtA2xdMolDEnbWqBWyLH2EL+intJ
-         VMhKRunxoIYXdC0y3qMCnjqNeV1TZPGu9Nsg/hMiaGZHR0eeE+8AbO9mSOUIBBMnCC
-         136SFRK/rOkeUSjhxtnUAD5hO2v0XQtXmZVukn80=
+        b=pCJduSrFwOT4PNcq3+cRUvB3l0ttSJqR6eXU16DVlUAvCU+ALmu9v9GHk6/H2dwR5
+         5Qz23YqCg8oQ3BRr+95eAgldm2gLuZ7sycHu4xsaZUa0IVHu7f46Ky97ZIhg2cf+0S
+         qqxWwYpBaJLZOpgc0V8KWh3vXS83iXkBXGubws2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weihang Li <liweihang@hisilicon.com>,
-        Doug Ledford <dledford@redhat.com>,
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 166/434] RDMA/hns: Fix wrong parameters when initial mtt of srq->idx_que
-Date:   Sun, 29 Dec 2019 18:23:39 +0100
-Message-Id: <20191229172712.829729575@linuxfoundation.org>
+Subject: [PATCH 5.4 178/434] media: ov5640: Make 2592x1944 mode only available at 15 fps
+Date:   Sun, 29 Dec 2019 18:23:51 +0100
+Message-Id: <20191229172713.635485703@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,74 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weihang Li <liweihang@hisilicon.com>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit e8a07de57ea4ca7c2d604871c52826e66899fc70 ]
+[ Upstream commit 981e445454531c9d5ac5d3fa8c0f1bd55262d001 ]
 
-The parameters npages used to initial mtt of srq->idx_que shouldn't be
-same with srq's. And page_shift should be calculated from idx_buf_pg_sz.
-This patch fixes above issues and use field named npage and page_shift
-in hns_roce_buf instead of two temporary variables to let us use them
-anywhere.
+The sensor data sheet clearly state that 2592x1944 only works at 15 fps
+make sure we don't try to miss configure the pll out of acceptable
+range.
 
-Fixes: 18df508c7970 ("RDMA/hns: Remove if-else judgment statements for creating srq")
-Signed-off-by: Weihang Li <liweihang@hisilicon.com>
-Link: https://lore.kernel.org/r/1567566885-23088-3-git-send-email-liweihang@hisilicon.com
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_srq.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ drivers/media/i2c/ov5640.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_srq.c b/drivers/infiniband/hw/hns/hns_roce_srq.c
-index 43ea2c13b212..108667ae6b14 100644
---- a/drivers/infiniband/hw/hns/hns_roce_srq.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_srq.c
-@@ -180,8 +180,7 @@ static int create_user_srq(struct hns_roce_srq *srq, struct ib_udata *udata,
- {
- 	struct hns_roce_dev *hr_dev = to_hr_dev(srq->ibsrq.device);
- 	struct hns_roce_ib_create_srq  ucmd;
--	u32 page_shift;
--	u32 npages;
-+	struct hns_roce_buf *buf;
- 	int ret;
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 500d9bbff10b..18dd2d717088 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -1611,6 +1611,11 @@ ov5640_find_mode(struct ov5640_dev *sensor, enum ov5640_frame_rate fr,
+ 	    !(mode->hact == 640 && mode->vact == 480))
+ 		return NULL;
  
- 	if (ib_copy_from_udata(&ucmd, udata, sizeof(ucmd)))
-@@ -191,11 +190,13 @@ static int create_user_srq(struct hns_roce_srq *srq, struct ib_udata *udata,
- 	if (IS_ERR(srq->umem))
- 		return PTR_ERR(srq->umem);
++	/* 2592x1944 only works at 15fps max */
++	if ((mode->hact == 2592 && mode->vact == 1944) &&
++	    fr > OV5640_15_FPS)
++		return NULL;
++
+ 	return mode;
+ }
  
--	npages = (ib_umem_page_count(srq->umem) +
--		(1 << hr_dev->caps.srqwqe_buf_pg_sz) - 1) /
--		(1 << hr_dev->caps.srqwqe_buf_pg_sz);
--	page_shift = PAGE_SHIFT + hr_dev->caps.srqwqe_buf_pg_sz;
--	ret = hns_roce_mtt_init(hr_dev, npages, page_shift, &srq->mtt);
-+	buf = &srq->buf;
-+	buf->npages = (ib_umem_page_count(srq->umem) +
-+		       (1 << hr_dev->caps.srqwqe_buf_pg_sz) - 1) /
-+		      (1 << hr_dev->caps.srqwqe_buf_pg_sz);
-+	buf->page_shift = PAGE_SHIFT + hr_dev->caps.srqwqe_buf_pg_sz;
-+	ret = hns_roce_mtt_init(hr_dev, buf->npages, buf->page_shift,
-+				&srq->mtt);
- 	if (ret)
- 		goto err_user_buf;
- 
-@@ -212,9 +213,12 @@ static int create_user_srq(struct hns_roce_srq *srq, struct ib_udata *udata,
- 		goto err_user_srq_mtt;
- 	}
- 
--	ret = hns_roce_mtt_init(hr_dev, ib_umem_page_count(srq->idx_que.umem),
--				PAGE_SHIFT, &srq->idx_que.mtt);
--
-+	buf = &srq->idx_que.idx_buf;
-+	buf->npages = DIV_ROUND_UP(ib_umem_page_count(srq->idx_que.umem),
-+				   1 << hr_dev->caps.idx_buf_pg_sz);
-+	buf->page_shift = PAGE_SHIFT + hr_dev->caps.idx_buf_pg_sz;
-+	ret = hns_roce_mtt_init(hr_dev, buf->npages, buf->page_shift,
-+				&srq->idx_que.mtt);
- 	if (ret) {
- 		dev_err(hr_dev->dev, "hns_roce_mtt_init error for idx que\n");
- 		goto err_user_idx_mtt;
 -- 
 2.20.1
 
