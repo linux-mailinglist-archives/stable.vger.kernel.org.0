@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B1112C401
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:25:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B455A12C404
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:25:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728011AbfL2RZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:25:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45566 "EHLO mail.kernel.org"
+        id S1728028AbfL2RZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:25:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728006AbfL2RZf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:25:35 -0500
+        id S1727646AbfL2RZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:25:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5253720409;
-        Sun, 29 Dec 2019 17:25:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8EB720409;
+        Sun, 29 Dec 2019 17:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640334;
-        bh=xS+lBwFLJzDnqF2B0UvTsY6AXhYlAT+VP+Vhr/nouYw=;
+        s=default; t=1577640342;
+        bh=mx433DjZrytfBywvkEgPpFDG8hQ7EcwwP1Q+DK/lcS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VvNfArV/2t4WXQvfg5CBMjq7w1RoxsjDNTVGmH9+oZzA58BvFEJTXuFezHz7l6UyH
-         cB/iaZPsDn6SsVWMtXAFGXBCeVUZ3L3ROfSkwpohVA+L5KW7HsOo7N+Sq7RFSOlo0c
-         bnvdxmwb2sqR5H7r/9uVSVxNCI5L/ElAqPY7+jYA=
+        b=tAlHwAzg1N10cGwKKQYO+04tCduuaydt0817XE5V1VG1pFXvpvnsVj5RJpGQkP+SH
+         UpIPrS7eDVR+tlqeO3v3yq7JUJ4c6coZStHkrlOvAsdY72bB4XCEjke9421qDRsnl6
+         jw2IRW6RHHCva2KfenrjyWz21VHSCxKxYvTF0Hgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 114/161] ASoC: Intel: kbl_rt5663_rt5514_max98927: Add dmic format constraint
-Date:   Sun, 29 Dec 2019 18:19:22 +0100
-Message-Id: <20191229162431.989230651@linuxfoundation.org>
+Subject: [PATCH 4.14 117/161] cpufreq: Register drivers only after CPU devices have been registered
+Date:   Sun, 29 Dec 2019 18:19:25 +0100
+Message-Id: <20191229162433.172423934@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -45,38 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit e2db787bdcb4f2722ecf410168f0583764634e45 ]
+[ Upstream commit 46770be0cf94149ca48be87719bda1d951066644 ]
 
-On KBL platform, the microphone is attached to external codec(rt5514)
-instead of PCH. However, TDM slot between PCH and codec is 16 bits only.
-In order to avoid setting wrong format, we should add a constraint to
-force to use 16 bits format forever.
+The cpufreq core heavily depends on the availability of the struct
+device for CPUs and if they aren't available at the time cpufreq driver
+is registered, we will never succeed in making cpufreq work.
 
-Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190923162940.199580-1-yuhsuan@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This happens due to following sequence of events:
+
+- cpufreq_register_driver()
+  - subsys_interface_register()
+  - return 0; //successful registration of driver
+
+... at a later point of time
+
+- register_cpu();
+  - device_register();
+    - bus_probe_device();
+      - sif->add_dev();
+	- cpufreq_add_dev();
+	  - get_cpu_device(); //FAILS
+  - per_cpu(cpu_sys_devices, num) = &cpu->dev; //used by get_cpu_device()
+  - return 0; //CPU registered successfully
+
+Because the per-cpu variable cpu_sys_devices is set only after the CPU
+device is regsitered, cpufreq will never be able to get it when
+cpufreq_add_dev() is called.
+
+This patch avoids this failure by making sure device structure of at
+least CPU0 is available when the cpufreq driver is registered, else
+return -EPROBE_DEFER.
+
+Reported-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Co-developed-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/cpufreq/cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-index 41cb1fefbd42..405196283688 100644
---- a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-+++ b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-@@ -422,6 +422,9 @@ static int kabylake_dmic_startup(struct snd_pcm_substream *substream)
- 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
- 			dmic_constraints);
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 480e8c13567c..c798a1233e6a 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2475,6 +2475,13 @@ int cpufreq_register_driver(struct cpufreq_driver *driver_data)
+ 	if (cpufreq_disabled())
+ 		return -ENODEV;
  
-+	runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
-+	snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
++	/*
++	 * The cpufreq core depends heavily on the availability of device
++	 * structure, make sure they are available before proceeding further.
++	 */
++	if (!get_cpu_device(0))
++		return -EPROBE_DEFER;
 +
- 	return snd_pcm_hw_constraint_list(substream->runtime, 0,
- 			SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
- }
+ 	if (!driver_data || !driver_data->verify || !driver_data->init ||
+ 	    !(driver_data->setpolicy || driver_data->target_index ||
+ 		    driver_data->target) ||
 -- 
 2.20.1
 
