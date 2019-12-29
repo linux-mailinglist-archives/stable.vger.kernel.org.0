@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F0812C585
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5393F12C588
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730064AbfL2Rgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:36:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41938 "EHLO mail.kernel.org"
+        id S1729793AbfL2Rgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:36:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730063AbfL2Rgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:36:32 -0500
+        id S1729212AbfL2Rge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:36:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76473206CB;
-        Sun, 29 Dec 2019 17:36:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEB10207FD;
+        Sun, 29 Dec 2019 17:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640992;
-        bh=g+N0/g6R4gWKlxZcTIY6rBxf1YdyFsaiJ1YqZUeyx2A=;
+        s=default; t=1577640994;
+        bh=sNEGOUsjQGQ7cznUG+BSOS9n51CubnbSP2N4pT3Ygno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6x657S9A2PJx+/KZc0SZWwnSt+It2Rkn1nTIR18DIEwh9C1uIdN36UQbmANR5Y7t
-         ExOJ3fsCXrjCMzw4N7UMtu743gN09XZQ8iyDYa6C4WDRHz5vukgDQSsOvByV+zBodJ
-         JNsDFbvvsSdKIzR9qu0tBaPrCQTc+n0whU4IoHPg=
+        b=hIzx3DJ4L5yaE9n0GuRI1d21Nf2fcEiTbyw4ytbJobqhIIMrkPxOUL+AhQC4uBJMu
+         x3fDo9yYdMUMvN5hvVVcmcPu1Iy3bTdDpZQGnAyCZJj3zBGETZ2qvoVX4ZeKu0hVOV
+         STaF68A1OvK3khEfqDLBcc6aQ9GbqePfFhAgGCdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangbo Lu <yangbo.lu@nxp.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 216/219] mmc: sdhci-of-esdhc: fix P2020 errata handling
-Date:   Sun, 29 Dec 2019 18:20:18 +0100
-Message-Id: <20191229162543.135029069@linuxfoundation.org>
+Subject: [PATCH 4.19 217/219] mmc: sdhci: Workaround broken command queuing on Intel GLK
+Date:   Sun, 29 Dec 2019 18:20:19 +0100
+Message-Id: <20191229162543.202210496@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -43,47 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangbo Lu <yangbo.lu@nxp.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit fe0acab448f68c3146235afe03fb932e242ec94c upstream.
+commit bedf9fc01ff1f40cfd1a79ccacedd9f3cd8e652a upstream.
 
-Two previous patches introduced below quirks for P2020 platforms.
-- SDHCI_QUIRK_RESET_AFTER_REQUEST
-- SDHCI_QUIRK_BROKEN_TIMEOUT_VAL
+Command queuing has been reported broken on some Lenovo systems based on
+Intel GLK. This is likely a BIOS issue, so disable command queuing for
+Intel GLK if the BIOS vendor string is "LENOVO".
 
-The patches made a mistake to add them in quirks2 of sdhci_host
-structure, while they were defined for quirks.
-	host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
-	host->quirks2 |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
-
-This patch is to fix them.
-	host->quirks |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
-	host->quirks |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
-
-Fixes: 05cb6b2a66fa ("mmc: sdhci-of-esdhc: add erratum eSDHC-A001 and A-008358 support")
-Fixes: a46e42712596 ("mmc: sdhci-of-esdhc: add erratum eSDHC5 support")
-Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+Fixes: 8ee82bda230f ("mmc: sdhci-pci: Add CQHCI support for Intel GLK")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191216031842.40068-1-yangbo.lu@nxp.com
+Link: https://lore.kernel.org/r/20191217095349.14592-1-adrian.hunter@intel.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-esdhc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-pci-core.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -923,8 +923,8 @@ static int sdhci_esdhc_probe(struct plat
- 		host->quirks &= ~SDHCI_QUIRK_NO_BUSY_IRQ;
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -30,6 +30,7 @@
+ #include <linux/mmc/slot-gpio.h>
+ #include <linux/mmc/sdhci-pci-data.h>
+ #include <linux/acpi.h>
++#include <linux/dmi.h>
  
- 	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc")) {
--		host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
--		host->quirks2 |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
-+		host->quirks |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
-+		host->quirks |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
- 	}
+ #include "cqhci.h"
  
- 	if (of_device_is_compatible(np, "fsl,p5040-esdhc") ||
+@@ -732,11 +733,18 @@ static int byt_emmc_probe_slot(struct sd
+ 	return 0;
+ }
+ 
++static bool glk_broken_cqhci(struct sdhci_pci_slot *slot)
++{
++	return slot->chip->pdev->device == PCI_DEVICE_ID_INTEL_GLK_EMMC &&
++	       dmi_match(DMI_BIOS_VENDOR, "LENOVO");
++}
++
+ static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
+ {
+ 	int ret = byt_emmc_probe_slot(slot);
+ 
+-	slot->host->mmc->caps2 |= MMC_CAP2_CQE;
++	if (!glk_broken_cqhci(slot))
++		slot->host->mmc->caps2 |= MMC_CAP2_CQE;
+ 
+ 	if (slot->chip->pdev->device != PCI_DEVICE_ID_INTEL_GLK_EMMC) {
+ 		slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES,
 
 
