@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04EF312C913
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:17:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA2812C8EE
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:17:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733254AbfL2R7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:59:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49524 "EHLO mail.kernel.org"
+        id S2387517AbfL2R6b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:58:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387528AbfL2R61 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:58:27 -0500
+        id S2387537AbfL2R63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:58:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 630E1208C4;
-        Sun, 29 Dec 2019 17:58:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C337A206DB;
+        Sun, 29 Dec 2019 17:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642306;
-        bh=irBTXJO5M41OcAwgoz9Wl6r8hqKKns6HU2jay+CD41M=;
+        s=default; t=1577642309;
+        bh=ct6RR3EXqXFObaq0/biByEaWsnHO72OApa+dEmxh4as=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQVAn8i7/q4Om/Txl2EtrgiUFOPBHEh0pFoCpzqRgL96xU2VfuyDoOoA77Kc8ZYUd
-         6rgTfEVvLwE50842kuDoxaTHynCd+Crm6Sv1ajKhr3OkjNWgkcgHo7xp1DavwhEfER
-         ueK4pM5eaPm4oN705AIUdZRJvrizkWRtozCEXwVg=
+        b=VgCammbl1gVjsFAuYn6nH3QS+BUkiGRfpvvXj48qqQcQ/pJjc5gPScv3jD/MAFfig
+         koYTR5YEQTgohA4VJS7wuCgpnQdHGTQ3+Mbc7PHoKZRjwZ7FvKIa+GSqZ3dUtgxU2L
+         JHB27kTwPD2yrdPXJ3dQCIeqyrVRaJEfFfWCehrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
+        stable@vger.kernel.org, Yangbo Lu <yangbo.lu@nxp.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 429/434] mmc: sdhci: Update the tuning failed messages to pr_debug level
-Date:   Sun, 29 Dec 2019 18:28:02 +0100
-Message-Id: <20191229172731.819065335@linuxfoundation.org>
+Subject: [PATCH 5.4 430/434] mmc: sdhci-of-esdhc: fix P2020 errata handling
+Date:   Sun, 29 Dec 2019 18:28:03 +0100
+Message-Id: <20191229172731.903253580@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -43,43 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faiz Abbas <faiz_abbas@ti.com>
+From: Yangbo Lu <yangbo.lu@nxp.com>
 
-commit 2c92dd20304f505b6ef43d206fff21bda8f1f0ae upstream.
+commit fe0acab448f68c3146235afe03fb932e242ec94c upstream.
 
-Tuning support in DDR50 speed mode was added in SD Specifications Part1
-Physical Layer Specification v3.01. Its not possible to distinguish
-between v3.00 and v3.01 from the SCR and that is why since
-commit 4324f6de6d2e ("mmc: core: enable CMD19 tuning for DDR50 mode")
-tuning failures are ignored in DDR50 speed mode.
+Two previous patches introduced below quirks for P2020 platforms.
+- SDHCI_QUIRK_RESET_AFTER_REQUEST
+- SDHCI_QUIRK_BROKEN_TIMEOUT_VAL
 
-Cards compatible with v3.00 don't respond to CMD19 in DDR50 and this
-error gets printed during enumeration and also if retune is triggered at
-any time during operation. Update the printk level to pr_debug so that
-these errors don't lead to false error reports.
+The patches made a mistake to add them in quirks2 of sdhci_host
+structure, while they were defined for quirks.
+	host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
+	host->quirks2 |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
 
-Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
-Cc: stable@vger.kernel.org # v4.4+
-Link: https://lore.kernel.org/r/20191206114326.15856-1-faiz_abbas@ti.com
+This patch is to fix them.
+	host->quirks |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
+	host->quirks |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
+
+Fixes: 05cb6b2a66fa ("mmc: sdhci-of-esdhc: add erratum eSDHC-A001 and A-008358 support")
+Fixes: a46e42712596 ("mmc: sdhci-of-esdhc: add erratum eSDHC5 support")
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191216031842.40068-1-yangbo.lu@nxp.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci.c |    4 ++--
+ drivers/mmc/host/sdhci-of-esdhc.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -2406,8 +2406,8 @@ static int __sdhci_execute_tuning(struct
- 		sdhci_send_tuning(host, opcode);
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -1123,8 +1123,8 @@ static int sdhci_esdhc_probe(struct plat
+ 		host->quirks &= ~SDHCI_QUIRK_NO_BUSY_IRQ;
  
- 		if (!host->tuning_done) {
--			pr_info("%s: Tuning timeout, falling back to fixed sampling clock\n",
--				mmc_hostname(host->mmc));
-+			pr_debug("%s: Tuning timeout, falling back to fixed sampling clock\n",
-+				 mmc_hostname(host->mmc));
- 			sdhci_abort_tuning(host, opcode);
- 			return -ETIMEDOUT;
- 		}
+ 	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc")) {
+-		host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
+-		host->quirks2 |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
++		host->quirks |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
++		host->quirks |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
+ 	}
+ 
+ 	if (of_device_is_compatible(np, "fsl,p5040-esdhc") ||
 
 
