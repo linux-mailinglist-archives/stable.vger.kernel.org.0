@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA22A12C7E5
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28F7A12C7E6
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731392AbfL2RsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:48:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59160 "EHLO mail.kernel.org"
+        id S1731403AbfL2RsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:48:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731388AbfL2RsF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:48:05 -0500
+        id S1731396AbfL2RsI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:48:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E29C206A4;
-        Sun, 29 Dec 2019 17:48:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD9AC206DB;
+        Sun, 29 Dec 2019 17:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641684;
-        bh=rnb0vu0KmkeJvqYe577EHVGM+RcrITfTqVqyyjunlJg=;
+        s=default; t=1577641687;
+        bh=m1hiCNmAO/xlN2rOqe+QzvPgiIftRSbCb7uyhVoOE8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mEOI7MqNUqKUjDBs//dla1VIFEPx/3TwN6w7zjf3Dzc2FnBEV0EgbBFeobtggcHax
-         btZJCMdiDtaVx7WT/ACnzaDXh5/c2ahCqPcquGp4dYg5Zd0R7KabVTDs6mTDavPma5
-         AKffeEM8zIQ0pEcpduldVLH20ag7f0FjeopEVSVY=
+        b=UOwakJ7RLYFmIv6eN5VvKpQWjn6UdkF2ZSGAwknY8t2LhbW1S+tRVXEpVxc608KNP
+         /HgtCmAr5MmC6Qla9FJCKpmnUiU2betm1KVEfh0i+NlsTdeALkSlHnf7ptyIx47U+p
+         myKjCYvLh7/pR1WTAF7K3VQm/jSA4LexeE4G+fUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
+        Jes Sorensen <Jes.Sorensen@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 168/434] ASoC: soc-pcm: fixup dpcm_prune_paths() loop continue
-Date:   Sun, 29 Dec 2019 18:23:41 +0100
-Message-Id: <20191229172712.962202715@linuxfoundation.org>
+Subject: [PATCH 5.4 169/434] rtl8xxxu: fix RTL8723BU connection failure issue after warm reboot
+Date:   Sun, 29 Dec 2019 18:23:42 +0100
+Message-Id: <20191229172713.028719089@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,75 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Chris Chiu <chiu@endlessm.com>
 
-[ Upstream commit bed646dc3f7bcec91178c278deaf969cce0700a8 ]
+[ Upstream commit 0eeb91ade90ce06d2fa1e2fcb55e3316b64c203c ]
 
-dpcm_prune_paths() is checking widget at 2 parts.
-(A) is for CPU, (B) is for Codec.
-If we focus to (A) part, continue at (a) is for (1) loop. But,
-if we focus to (B) part, continue at (b) is for (2) loop, not for (1).
-This is bug.
-This patch fixup this issue.
+The RTL8723BU has problems connecting to AP after each warm reboot.
+Sometimes it returns no scan result, and in most cases, it fails
+the authentication for unknown reason. However, it works totally
+fine after cold reboot.
 
-	static int dpcm_prune_paths(...)
-	{
-		...
-   (1)		for_each_dpcm_be(fe, stream, dpcm) {
-			...
+Compare the value of register SYS_CR and SYS_CLK_MAC_CLK_ENABLE
+for cold reboot and warm reboot, the registers imply that the MAC
+is already powered and thus some procedures are skipped during
+driver initialization. Double checked the vendor driver, it reads
+the SYS_CR and SYS_CLK_MAC_CLK_ENABLE also but doesn't skip any
+during initialization based on them. This commit only tells the
+RTL8723BU to do full initialization without checking MAC status.
 
- ^			widget = dai_get_widget(...);
- |
-(A)			if (widget && widget_in_list(...))
- | (a)				continue;
- v
- ^ (2)			for_each_rtd_codec_dai(...) {
- |				widget = dai_get_widget(...);
-(B)
- |				if (widget && widget_in_list(...))
- v (b)					continue;
-			}
-			...
-
-Fixes: 2e5894d73789 ("ASoC: pcm: Add support for DAI multicodec")
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87blui64mf.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Chris Chiu <chiu@endlessm.com>
+Signed-off-by: Jes Sorensen <Jes.Sorensen@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h       | 1 +
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c | 1 +
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  | 3 +++
+ 3 files changed, 5 insertions(+)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index b600d3eaaf5c..cdce96a3051b 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1385,6 +1385,7 @@ static int dpcm_prune_paths(struct snd_soc_pcm_runtime *fe, int stream,
- 	struct snd_soc_dapm_widget *widget;
- 	struct snd_soc_dai *dai;
- 	int prune = 0;
-+	int do_prune;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+index ade057d868f7..5e9ce03067de 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+@@ -1341,6 +1341,7 @@ struct rtl8xxxu_fileops {
+ 	u8 has_s0s1:1;
+ 	u8 has_tx_report:1;
+ 	u8 gen2_thermal_meter:1;
++	u8 needs_full_init:1;
+ 	u32 adda_1t_init;
+ 	u32 adda_1t_path_on;
+ 	u32 adda_2t_path_on_a;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c
+index ceffe05bd65b..f3cd314d1a9c 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c
+@@ -1670,6 +1670,7 @@ struct rtl8xxxu_fileops rtl8723bu_fops = {
+ 	.has_s0s1 = 1,
+ 	.has_tx_report = 1,
+ 	.gen2_thermal_meter = 1,
++	.needs_full_init = 1,
+ 	.adda_1t_init = 0x01c00014,
+ 	.adda_1t_path_on = 0x01c00014,
+ 	.adda_2t_path_on_a = 0x01c00014,
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index c6c41fb962ff..361248e97568 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -3902,6 +3902,9 @@ static int rtl8xxxu_init_device(struct ieee80211_hw *hw)
+ 	else
+ 		macpower = true;
  
- 	/* Destroy any old FE <--> BE connections */
- 	for_each_dpcm_be(fe, stream, dpcm) {
-@@ -1398,13 +1399,16 @@ static int dpcm_prune_paths(struct snd_soc_pcm_runtime *fe, int stream,
- 			continue;
- 
- 		/* is there a valid CODEC DAI widget for this BE */
-+		do_prune = 1;
- 		for_each_rtd_codec_dai(dpcm->be, i, dai) {
- 			widget = dai_get_widget(dai, stream);
- 
- 			/* prune the BE if it's no longer in our active list */
- 			if (widget && widget_in_list(list, widget))
--				continue;
-+				do_prune = 0;
- 		}
-+		if (!do_prune)
-+			continue;
- 
- 		dev_dbg(fe->dev, "ASoC: pruning %s BE %s for %s\n",
- 			stream ? "capture" : "playback",
++	if (fops->needs_full_init)
++		macpower = false;
++
+ 	ret = fops->power_on(priv);
+ 	if (ret < 0) {
+ 		dev_warn(dev, "%s: Failed power on\n", __func__);
 -- 
 2.20.1
 
