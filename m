@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FAE012C32B
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 16:47:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22FD112C332
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 16:51:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726653AbfL2PrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 10:47:05 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:58429 "EHLO
+        id S1726535AbfL2PvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 10:51:15 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:52425 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726230AbfL2PrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 10:47:05 -0500
+        by vger.kernel.org with ESMTP id S1726410AbfL2PvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 10:51:15 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 4311E42B;
-        Sun, 29 Dec 2019 10:47:04 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 29 Dec 2019 10:47:04 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 205C53C0;
+        Sun, 29 Dec 2019 10:51:14 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 29 Dec 2019 10:51:14 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=xM0vUO
-        Ggq9KaSgnSEAW3w3JnUizQoS2xUewN9Kdi9TE=; b=E6jdPTnd5lJk0/4U+Rehb4
-        Z5a8HLTIN8pKKcM2veLNmtasVmR5HE1Amz0SXR9srF4qIzEkgpDvgWxQJ8r91GHi
-        RGW9cS7ssVkju7cEEOYrFD/k3xW9s5ykW79KTALZsSX2Ohqw5nFd3X315NSFpms/
-        NCxdylD5trKGgADnDHGPeHDBI5Dd6+lcksUAvI8MokOg6AcQ2E2Skce7nG7oM4vT
-        PRqqqlmGm2Yh9lZNFCWKShENcG17MbjOS+JaUpmwFSo69PxVAZrdLZ1yiTeQhmAL
-        oeE+Q0iMWZdOaFBD7z/lxg3pyCcdFiehbNOOzO4qiO0x3jeWl9BMrRce5R3OuQCg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ulC3dd
+        omjELkjV8ZH7JGJa4AhhdSzbvHaXPmi2FBgM4=; b=UTSszm9CGkN8rusOtVlNky
+        JSyTEobLZqOLPwsOnMwd3C1pkJeZ0GdQpoSTIQVJT+dLGGeUGmYIBZGgstRbwPzt
+        UOrqEfzKQ4Wv2gG4dh8CYgUYTa6gkAjj5SOTQehnHFc/ztm2/yJdK3h2ljCpRIvI
+        GWI4n5ycYenh06/qZIdp0sV2ErrXkS33xX014ClFcBQjiqbLnc1dtjz8frkwwAzN
+        gU/am6DJbs8R2at0xD+ilbpSgYMMdqyDQVvwOe5ddg5KrQ+J342akIRFumRUaN+X
+        1vANFlSkW8H64LmfzL1PHn/dtAcT/Vks2WwoJXNJUkI80nDgD7AD6gJfyZap7nPQ
         ==
-X-ME-Sender: <xms:d8oIXiOPZWV1AexJIZDPJHtpCn9sYSlT01pWjFdMf73HOrMwU53GRg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgkedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:ccsIXlGMZUfNNuP6rI8UO6IQsyox_-a3ae-KfnGBOZ57Is_Uwt8u6g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgkedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepfe
-X-ME-Proxy: <xmx:d8oIXpxx1TcC6LmeqZx7DaNLMBwvHCODfQQCHq-vFLh0QTglCNohBA>
-    <xmx:d8oIXqk4lStga6n_vlv4iSaUzTUF7FLCATQ-gJ530ZSYv4C55AkW4w>
-    <xmx:d8oIXn_6awSVDpDEbiIPr4BrKS88GZF-EcEORcmxsuzAiZ8ghXZ1pw>
-    <xmx:d8oIXmJlVsy4C-wML8jQJakJKOvm1sJqyxmK47AApJfFF7abIUj-hw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:ccsIXrY7qiIbIuuoue3NPE-6XS8-EdyuJ1vrcsotH09XnqEGuHW6ew>
+    <xmx:ccsIXqHFcMpD1_wxZUgO7gixS9Jo-9Cvr5GDiM4kYcZ7ByeXB6zBKQ>
+    <xmx:ccsIXowR2aQpB-ceMjmVX7xC6N35Yvv27Cu9MZASn44-BjOgo7mnGQ>
+    <xmx:ccsIXoT_Jx_pTc7avXuciZS1s_istvCFTNWUyLgZl1x4jvsN3Sq-Ew>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6641080059;
-        Sun, 29 Dec 2019 10:47:03 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pinctrl: baytrail: Really serialize all register accesses" failed to apply to 4.4-stable tree
-To:     hdegoede@redhat.com, andriy.shevchenko@linux.intel.com,
-        mika.westerberg@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 45E173060B17;
+        Sun, 29 Dec 2019 10:51:13 -0500 (EST)
+Subject: FAILED: patch "[PATCH] kvm: x86: Host feature SSBD doesn't imply guest feature" failed to apply to 4.19-stable tree
+To:     jmattson@google.com, ebiggers@kernel.org, jacobhxu@google.com,
+        pbonzini@redhat.com, pshier@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Dec 2019 16:46:56 +0100
-Message-ID: <1577634416230187@kroah.com>
+Date:   Sun, 29 Dec 2019 16:51:06 +0100
+Message-ID: <1577634666179186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,384 +68,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 40ecab551232972a39cdd8b6f17ede54a3fdb296 Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Tue, 19 Nov 2019 16:46:41 +0100
-Subject: [PATCH] pinctrl: baytrail: Really serialize all register accesses
+From 396d2e878f92ec108e4293f1c77ea3bc90b414ff Mon Sep 17 00:00:00 2001
+From: Jim Mattson <jmattson@google.com>
+Date: Fri, 13 Dec 2019 16:15:15 -0800
+Subject: [PATCH] kvm: x86: Host feature SSBD doesn't imply guest feature
+ SPEC_CTRL_SSBD
 
-Commit 39ce8150a079 ("pinctrl: baytrail: Serialize all register access")
-added a spinlock around all register accesses because:
+The host reports support for the synthetic feature X86_FEATURE_SSBD
+when any of the three following hardware features are set:
+  CPUID.(EAX=7,ECX=0):EDX.SSBD[bit 31]
+  CPUID.80000008H:EBX.AMD_SSBD[bit 24]
+  CPUID.80000008H:EBX.VIRT_SSBD[bit 25]
 
-"There is a hardware issue in Intel Baytrail where concurrent GPIO register
- access might result reads of 0xffffffff and writes might get dropped
- completely."
+Either of the first two hardware features implies the existence of the
+IA32_SPEC_CTRL MSR, but CPUID.80000008H:EBX.VIRT_SSBD[bit 25] does
+not. Therefore, CPUID.(EAX=7,ECX=0):EDX.SSBD[bit 31] should only be
+set in the guest if CPUID.(EAX=7,ECX=0):EDX.SSBD[bit 31] or
+CPUID.80000008H:EBX.AMD_SSBD[bit 24] is set on the host.
 
-Testing has shown that this does not catch all cases, there are still
-2 problems remaining
-
-1) The original fix uses a spinlock per byt_gpio device / struct,
-additional testing has shown that this is not sufficient concurent
-accesses to 2 different GPIO banks also suffer from the same problem.
-
-This commit fixes this by moving to a single global lock.
-
-2) The original fix did not add a lock around the register accesses in
-the suspend/resume handling.
-
-Since pinctrl-baytrail.c is using normal suspend/resume handlers,
-interrupts are still enabled during suspend/resume handling. Nothing
-should be using the GPIOs when they are being taken down, _but_ the
-GPIOs themselves may still cause interrupts, which are likely to
-use (read) the triggering GPIO. So we need to protect against
-concurrent GPIO register accesses in the suspend/resume handlers too.
-
-This commit fixes this by adding the missing spin_lock / unlock calls.
-
-The 2 fixes together fix the Acer Switch 10 SW5-012 getting completely
-confused after a suspend resume. The DSDT for this device has a bug
-in its _LID method which reprograms the home and power button trigger-
-flags requesting both high and low _level_ interrupts so the IRQs for
-these 2 GPIOs continuously fire. This combined with the saving of
-registers during suspend, triggers concurrent GPIO register accesses
-resulting in saving 0xffffffff as pconf0 value during suspend and then
-when restoring this on resume the pinmux settings get all messed up,
-resulting in various I2C busses being stuck, the wifi no longer working
-and often the tablet simply not coming out of suspend at all.
-
+Fixes: 0c54914d0c52a ("KVM: x86: use Intel speculation bugs and features as derived in generic x86 code")
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Jacob Xu <jacobhxu@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: stable@vger.kernel.org
-Fixes: 39ce8150a079 ("pinctrl: baytrail: Serialize all register access")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reported-by: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
-index 9ffb22211d2b..7d658e6627e7 100644
---- a/drivers/pinctrl/intel/pinctrl-baytrail.c
-+++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
-@@ -110,7 +110,6 @@ struct byt_gpio {
- 	struct platform_device *pdev;
- 	struct pinctrl_dev *pctl_dev;
- 	struct pinctrl_desc pctl_desc;
--	raw_spinlock_t lock;
- 	const struct intel_pinctrl_soc_data *soc_data;
- 	struct intel_community *communities_copy;
- 	struct byt_gpio_pin_context *saved_context;
-@@ -549,6 +548,8 @@ static const struct intel_pinctrl_soc_data *byt_soc_data[] = {
- 	NULL
- };
- 
-+static DEFINE_RAW_SPINLOCK(byt_lock);
-+
- static struct intel_community *byt_get_community(struct byt_gpio *vg,
- 						 unsigned int pin)
- {
-@@ -658,7 +659,7 @@ static void byt_set_group_simple_mux(struct byt_gpio *vg,
- 	unsigned long flags;
- 	int i;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 
- 	for (i = 0; i < group.npins; i++) {
- 		void __iomem *padcfg0;
-@@ -678,7 +679,7 @@ static void byt_set_group_simple_mux(struct byt_gpio *vg,
- 		writel(value, padcfg0);
- 	}
- 
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- }
- 
- static void byt_set_group_mixed_mux(struct byt_gpio *vg,
-@@ -688,7 +689,7 @@ static void byt_set_group_mixed_mux(struct byt_gpio *vg,
- 	unsigned long flags;
- 	int i;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 
- 	for (i = 0; i < group.npins; i++) {
- 		void __iomem *padcfg0;
-@@ -708,7 +709,7 @@ static void byt_set_group_mixed_mux(struct byt_gpio *vg,
- 		writel(value, padcfg0);
- 	}
- 
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- }
- 
- static int byt_set_mux(struct pinctrl_dev *pctldev, unsigned int func_selector,
-@@ -749,11 +750,11 @@ static void byt_gpio_clear_triggering(struct byt_gpio *vg, unsigned int offset)
- 	unsigned long flags;
- 	u32 value;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 	value = readl(reg);
- 	value &= ~(BYT_TRIG_POS | BYT_TRIG_NEG | BYT_TRIG_LVL);
- 	writel(value, reg);
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- }
- 
- static int byt_gpio_request_enable(struct pinctrl_dev *pctl_dev,
-@@ -765,7 +766,7 @@ static int byt_gpio_request_enable(struct pinctrl_dev *pctl_dev,
- 	u32 value, gpio_mux;
- 	unsigned long flags;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 
- 	/*
- 	 * In most cases, func pin mux 000 means GPIO function.
-@@ -787,7 +788,7 @@ static int byt_gpio_request_enable(struct pinctrl_dev *pctl_dev,
- 			 "pin %u forcibly re-configured as GPIO\n", offset);
- 	}
- 
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 
- 	pm_runtime_get(&vg->pdev->dev);
- 
-@@ -815,7 +816,7 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
- 	unsigned long flags;
- 	u32 value;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 
- 	value = readl(val_reg);
- 	value &= ~BYT_DIR_MASK;
-@@ -832,7 +833,7 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
- 		     "Potential Error: Setting GPIO with direct_irq_en to output");
- 	writel(value, val_reg);
- 
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 
- 	return 0;
- }
-@@ -901,11 +902,11 @@ static int byt_pin_config_get(struct pinctrl_dev *pctl_dev, unsigned int offset,
- 	u32 conf, pull, val, debounce;
- 	u16 arg = 0;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 	conf = readl(conf_reg);
- 	pull = conf & BYT_PULL_ASSIGN_MASK;
- 	val = readl(val_reg);
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 
- 	switch (param) {
- 	case PIN_CONFIG_BIAS_DISABLE:
-@@ -932,9 +933,9 @@ static int byt_pin_config_get(struct pinctrl_dev *pctl_dev, unsigned int offset,
- 		if (!(conf & BYT_DEBOUNCE_EN))
- 			return -EINVAL;
- 
--		raw_spin_lock_irqsave(&vg->lock, flags);
-+		raw_spin_lock_irqsave(&byt_lock, flags);
- 		debounce = readl(db_reg);
--		raw_spin_unlock_irqrestore(&vg->lock, flags);
-+		raw_spin_unlock_irqrestore(&byt_lock, flags);
- 
- 		switch (debounce & BYT_DEBOUNCE_PULSE_MASK) {
- 		case BYT_DEBOUNCE_PULSE_375US:
-@@ -986,7 +987,7 @@ static int byt_pin_config_set(struct pinctrl_dev *pctl_dev,
- 	u32 conf, val, debounce;
- 	int i, ret = 0;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 
- 	conf = readl(conf_reg);
- 	val = readl(val_reg);
-@@ -1094,7 +1095,7 @@ static int byt_pin_config_set(struct pinctrl_dev *pctl_dev,
- 	if (!ret)
- 		writel(conf, conf_reg);
- 
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 
- 	return ret;
- }
-@@ -1119,9 +1120,9 @@ static int byt_gpio_get(struct gpio_chip *chip, unsigned int offset)
- 	unsigned long flags;
- 	u32 val;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 	val = readl(reg);
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 
- 	return !!(val & BYT_LEVEL);
- }
-@@ -1136,13 +1137,13 @@ static void byt_gpio_set(struct gpio_chip *chip, unsigned int offset, int value)
- 	if (!reg)
- 		return;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 	old_val = readl(reg);
- 	if (value)
- 		writel(old_val | BYT_LEVEL, reg);
- 	else
- 		writel(old_val & ~BYT_LEVEL, reg);
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- }
- 
- static int byt_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
-@@ -1155,9 +1156,9 @@ static int byt_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
- 	if (!reg)
- 		return -EINVAL;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 	value = readl(reg);
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 
- 	if (!(value & BYT_OUTPUT_EN))
- 		return 0;
-@@ -1200,14 +1201,14 @@ static void byt_gpio_dbg_show(struct seq_file *s, struct gpio_chip *chip)
- 		const char *label;
- 		unsigned int pin;
- 
--		raw_spin_lock_irqsave(&vg->lock, flags);
-+		raw_spin_lock_irqsave(&byt_lock, flags);
- 		pin = vg->soc_data->pins[i].number;
- 		reg = byt_gpio_reg(vg, pin, BYT_CONF0_REG);
- 		if (!reg) {
- 			seq_printf(s,
- 				   "Could not retrieve pin %i conf0 reg\n",
- 				   pin);
--			raw_spin_unlock_irqrestore(&vg->lock, flags);
-+			raw_spin_unlock_irqrestore(&byt_lock, flags);
- 			continue;
- 		}
- 		conf0 = readl(reg);
-@@ -1216,11 +1217,11 @@ static void byt_gpio_dbg_show(struct seq_file *s, struct gpio_chip *chip)
- 		if (!reg) {
- 			seq_printf(s,
- 				   "Could not retrieve pin %i val reg\n", pin);
--			raw_spin_unlock_irqrestore(&vg->lock, flags);
-+			raw_spin_unlock_irqrestore(&byt_lock, flags);
- 			continue;
- 		}
- 		val = readl(reg);
--		raw_spin_unlock_irqrestore(&vg->lock, flags);
-+		raw_spin_unlock_irqrestore(&byt_lock, flags);
- 
- 		comm = byt_get_community(vg, pin);
- 		if (!comm) {
-@@ -1304,9 +1305,9 @@ static void byt_irq_ack(struct irq_data *d)
- 	if (!reg)
- 		return;
- 
--	raw_spin_lock(&vg->lock);
-+	raw_spin_lock(&byt_lock);
- 	writel(BIT(offset % 32), reg);
--	raw_spin_unlock(&vg->lock);
-+	raw_spin_unlock(&byt_lock);
- }
- 
- static void byt_irq_mask(struct irq_data *d)
-@@ -1330,7 +1331,7 @@ static void byt_irq_unmask(struct irq_data *d)
- 	if (!reg)
- 		return;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 	value = readl(reg);
- 
- 	switch (irqd_get_trigger_type(d)) {
-@@ -1353,7 +1354,7 @@ static void byt_irq_unmask(struct irq_data *d)
- 
- 	writel(value, reg);
- 
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- }
- 
- static int byt_irq_type(struct irq_data *d, unsigned int type)
-@@ -1367,7 +1368,7 @@ static int byt_irq_type(struct irq_data *d, unsigned int type)
- 	if (!reg || offset >= vg->chip.ngpio)
- 		return -EINVAL;
- 
--	raw_spin_lock_irqsave(&vg->lock, flags);
-+	raw_spin_lock_irqsave(&byt_lock, flags);
- 	value = readl(reg);
- 
- 	WARN(value & BYT_DIRECT_IRQ_EN,
-@@ -1389,7 +1390,7 @@ static int byt_irq_type(struct irq_data *d, unsigned int type)
- 	else if (type & IRQ_TYPE_LEVEL_MASK)
- 		irq_set_handler_locked(d, handle_level_irq);
- 
--	raw_spin_unlock_irqrestore(&vg->lock, flags);
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 
- 	return 0;
- }
-@@ -1425,9 +1426,9 @@ static void byt_gpio_irq_handler(struct irq_desc *desc)
- 			continue;
- 		}
- 
--		raw_spin_lock(&vg->lock);
-+		raw_spin_lock(&byt_lock);
- 		pending = readl(reg);
--		raw_spin_unlock(&vg->lock);
-+		raw_spin_unlock(&byt_lock);
- 		for_each_set_bit(pin, &pending, 32) {
- 			virq = irq_find_mapping(vg->chip.irq.domain, base + pin);
- 			generic_handle_irq(virq);
-@@ -1638,8 +1639,6 @@ static int byt_pinctrl_probe(struct platform_device *pdev)
- 		return PTR_ERR(vg->pctl_dev);
- 	}
- 
--	raw_spin_lock_init(&vg->lock);
--
- 	ret = byt_gpio_probe(vg);
- 	if (ret)
- 		return ret;
-@@ -1654,8 +1653,11 @@ static int byt_pinctrl_probe(struct platform_device *pdev)
- static int byt_gpio_suspend(struct device *dev)
- {
- 	struct byt_gpio *vg = dev_get_drvdata(dev);
-+	unsigned long flags;
- 	int i;
- 
-+	raw_spin_lock_irqsave(&byt_lock, flags);
-+
- 	for (i = 0; i < vg->soc_data->npins; i++) {
- 		void __iomem *reg;
- 		u32 value;
-@@ -1676,14 +1678,18 @@ static int byt_gpio_suspend(struct device *dev)
- 		vg->saved_context[i].val = value;
- 	}
- 
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 	return 0;
- }
- 
- static int byt_gpio_resume(struct device *dev)
- {
- 	struct byt_gpio *vg = dev_get_drvdata(dev);
-+	unsigned long flags;
- 	int i;
- 
-+	raw_spin_lock_irqsave(&byt_lock, flags);
-+
- 	for (i = 0; i < vg->soc_data->npins; i++) {
- 		void __iomem *reg;
- 		u32 value;
-@@ -1721,6 +1727,7 @@ static int byt_gpio_resume(struct device *dev)
- 		}
- 	}
- 
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 	return 0;
- }
- #endif
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index c0aa07487eb8..dd18aa6fa317 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -402,7 +402,8 @@ static inline void do_cpuid_7_mask(struct kvm_cpuid_entry2 *entry, int index)
+ 			entry->edx |= F(SPEC_CTRL);
+ 		if (boot_cpu_has(X86_FEATURE_STIBP))
+ 			entry->edx |= F(INTEL_STIBP);
+-		if (boot_cpu_has(X86_FEATURE_SSBD))
++		if (boot_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
++		    boot_cpu_has(X86_FEATURE_AMD_SSBD))
+ 			entry->edx |= F(SPEC_CTRL_SSBD);
+ 		/*
+ 		 * We emulate ARCH_CAPABILITIES in software even
 
