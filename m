@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45CA812C526
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7C4012C59C
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729614AbfL2ReS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:34:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37276 "EHLO mail.kernel.org"
+        id S1727264AbfL2Ri2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:38:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728869AbfL2ReR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:34:17 -0500
+        id S1729618AbfL2ReU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:34:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B854207FD;
-        Sun, 29 Dec 2019 17:34:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF45D20722;
+        Sun, 29 Dec 2019 17:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640856;
-        bh=lnZntBm7+vS9ivFVCtiYcHqf82smGP4ysvQWPpzchOQ=;
+        s=default; t=1577640859;
+        bh=kJX2G7T5wQdl0XPbZtK5nUtz7BoS3Xi4JIGt0TkcmMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLPfqFGjWtFdnGnZiwYcNTaI0O3450Zj2prqZDHPz8+DrnD5gLYOUr7v04vB0vzpR
-         Jvsch4kbk71mt/MPtjkQjmxPownKFJZC1504LuWgAORZy3iT0Wo4fXi7H8kJZ99uvD
-         rIOmMykDPoCEymjMYSGkSLXZr++XJMBGjMKbOMs4=
+        b=Tdcx/lMbXuQS1GLeB/h8XwHyGWKAI9I5v9UKtcp1uM71QhII8mUCT2clXZqxCWKjM
+         /15aKMvlVs6NV08eSBagctzic/27JzZZaH+0LpByw2s7lxbups8Pd6i/cpjTiWz559
+         iur0lcSJ3ySyEjhxduXEl51My5XL36/jL1ImL3Cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petar Penkov <ppenkov@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Gonglei <arei.gonglei@huawei.com>,
+        virtualization@lists.linux-foundation.org,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 166/219] tun: fix data-race in gro_normal_list()
-Date:   Sun, 29 Dec 2019 18:19:28 +0100
-Message-Id: <20191229162533.836350462@linuxfoundation.org>
+Subject: [PATCH 4.19 167/219] crypto: virtio - deal with unsupported input sizes
+Date:   Sun, 29 Dec 2019 18:19:29 +0100
+Message-Id: <20191229162534.140940341@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -46,90 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petar Penkov <ppenkov@google.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit c39e342a050a4425348e6fe7f75827c0a1a7ebc5 ]
+[ Upstream commit 19c5da7d4a2662e85ea67d2d81df57e038fde3ab ]
 
-There is a race in the TUN driver between napi_busy_loop and
-napi_gro_frags. This commit resolves the race by adding the NAPI struct
-via netif_tx_napi_add, instead of netif_napi_add, which disables polling
-for the NAPI struct.
+Return -EINVAL for input sizes that are not a multiple of the AES
+block size, since they are not supported by our CBC chaining mode.
 
-KCSAN reported:
-BUG: KCSAN: data-race in gro_normal_list.part.0 / napi_busy_loop
+While at it, remove the pr_err() that reports unsupported key sizes
+being used: we shouldn't spam the kernel log with that.
 
-write to 0xffff8880b5d474b0 of 4 bytes by task 11205 on cpu 0:
- gro_normal_list.part.0+0x77/0xb0 net/core/dev.c:5682
- gro_normal_list net/core/dev.c:5678 [inline]
- gro_normal_one net/core/dev.c:5692 [inline]
- napi_frags_finish net/core/dev.c:5705 [inline]
- napi_gro_frags+0x625/0x770 net/core/dev.c:5778
- tun_get_user+0x2150/0x26a0 drivers/net/tun.c:1976
- tun_chr_write_iter+0x79/0xd0 drivers/net/tun.c:2022
- call_write_iter include/linux/fs.h:1895 [inline]
- do_iter_readv_writev+0x487/0x5b0 fs/read_write.c:693
- do_iter_write fs/read_write.c:970 [inline]
- do_iter_write+0x13b/0x3c0 fs/read_write.c:951
- vfs_writev+0x118/0x1c0 fs/read_write.c:1015
- do_writev+0xe3/0x250 fs/read_write.c:1058
- __do_sys_writev fs/read_write.c:1131 [inline]
- __se_sys_writev fs/read_write.c:1128 [inline]
- __x64_sys_writev+0x4e/0x60 fs/read_write.c:1128
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-read to 0xffff8880b5d474b0 of 4 bytes by task 11168 on cpu 1:
- gro_normal_list net/core/dev.c:5678 [inline]
- napi_busy_loop+0xda/0x4f0 net/core/dev.c:6126
- sk_busy_loop include/net/busy_poll.h:108 [inline]
- __skb_recv_udp+0x4ad/0x560 net/ipv4/udp.c:1689
- udpv6_recvmsg+0x29e/0xe90 net/ipv6/udp.c:288
- inet6_recvmsg+0xbb/0x240 net/ipv6/af_inet6.c:592
- sock_recvmsg_nosec net/socket.c:871 [inline]
- sock_recvmsg net/socket.c:889 [inline]
- sock_recvmsg+0x92/0xb0 net/socket.c:885
- sock_read_iter+0x15f/0x1e0 net/socket.c:967
- call_read_iter include/linux/fs.h:1889 [inline]
- new_sync_read+0x389/0x4f0 fs/read_write.c:414
- __vfs_read+0xb1/0xc0 fs/read_write.c:427
- vfs_read fs/read_write.c:461 [inline]
- vfs_read+0x143/0x2c0 fs/read_write.c:446
- ksys_read+0xd5/0x1b0 fs/read_write.c:587
- __do_sys_read fs/read_write.c:597 [inline]
- __se_sys_read fs/read_write.c:595 [inline]
- __x64_sys_read+0x4c/0x60 fs/read_write.c:595
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 11168 Comm: syz-executor.0 Not tainted 5.4.0-rc6+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
-Signed-off-by: Petar Penkov <ppenkov@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Gonglei <arei.gonglei@huawei.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tun.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/virtio/virtio_crypto_algs.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index e1ac1c57089f..bbd92221c6ca 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -319,8 +319,8 @@ static void tun_napi_init(struct tun_struct *tun, struct tun_file *tfile,
- 	tfile->napi_enabled = napi_en;
- 	tfile->napi_frags_enabled = napi_en && napi_frags;
- 	if (napi_en) {
--		netif_napi_add(tun->dev, &tfile->napi, tun_napi_poll,
--			       NAPI_POLL_WEIGHT);
-+		netif_tx_napi_add(tun->dev, &tfile->napi, tun_napi_poll,
-+				  NAPI_POLL_WEIGHT);
- 		napi_enable(&tfile->napi);
+diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
+index 2c573d1aaa64..523b712770ac 100644
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -117,8 +117,6 @@ virtio_crypto_alg_validate_key(int key_len, uint32_t *alg)
+ 		*alg = VIRTIO_CRYPTO_CIPHER_AES_CBC;
+ 		break;
+ 	default:
+-		pr_err("virtio_crypto: Unsupported key length: %d\n",
+-			key_len);
+ 		return -EINVAL;
  	}
- }
+ 	return 0;
+@@ -498,6 +496,11 @@ static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
+ 	/* Use the first data virtqueue as default */
+ 	struct data_queue *data_vq = &vcrypto->data_vq[0];
+ 
++	if (!req->nbytes)
++		return 0;
++	if (req->nbytes % AES_BLOCK_SIZE)
++		return -EINVAL;
++
+ 	vc_req->dataq = data_vq;
+ 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
+ 	vc_sym_req->ablkcipher_ctx = ctx;
+@@ -518,6 +521,11 @@ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
+ 	/* Use the first data virtqueue as default */
+ 	struct data_queue *data_vq = &vcrypto->data_vq[0];
+ 
++	if (!req->nbytes)
++		return 0;
++	if (req->nbytes % AES_BLOCK_SIZE)
++		return -EINVAL;
++
+ 	vc_req->dataq = data_vq;
+ 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
+ 	vc_sym_req->ablkcipher_ctx = ctx;
 -- 
 2.20.1
 
