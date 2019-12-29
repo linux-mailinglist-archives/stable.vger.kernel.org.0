@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA9F12C4B5
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13A4D12C5B4
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729253AbfL2RcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:32:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60222 "EHLO mail.kernel.org"
+        id S1728723AbfL2RkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:40:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729251AbfL2RcE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:32:04 -0500
+        id S1729254AbfL2RcG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:32:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D01920409;
-        Sun, 29 Dec 2019 17:32:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A46FA20409;
+        Sun, 29 Dec 2019 17:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640723;
-        bh=V8+AX6NmgPrCd7u5ESCMAsVXX3stlJexHiOjmb4Ny5A=;
+        s=default; t=1577640726;
+        bh=p9hOrNf6ndXsGe6SBR4xfrSHCSiz+e033Ce3mV0k+2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ot52PBzfxAbKGNvxX02bdokgCkKawX8FiS8wK/ZmjbWSdYPENuV39GXcaqJe8tziI
-         i1SjlwmxpesampiVh4J+eScnRp+r1Fn5XrNWeX6r/Wj2GAOUrOlX1G/6NyRychb36D
-         P2lIr/GfCBHVoexwEHDuJH9YyC426fZx3Bm4Jtnw=
+        b=wYuK2tmfgOAchCpeYq6+3NkhO4cCuq9q+WabM0G+BSj1dROo4kx6yC4qQ/s9p7Te8
+         K5smEe0Rp1tQTQD/+x93F89+ckI75ZZsa7iZROvXlCVnWHpdJIdNzHQsLMur6fXMtk
+         Y73EHjlUYvliTl5kKDrgIPUgmmbvzwD4sukp1oIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Johan Hedberg <johan.hedberg@intel.com>,
+        "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 112/219] Bluetooth: Fix advertising duplicated flags
-Date:   Sun, 29 Dec 2019 18:18:34 +0100
-Message-Id: <20191229162525.553429215@linuxfoundation.org>
+Subject: [PATCH 4.19 113/219] pinctrl: amd: fix __iomem annotation in amd_gpio_irq_handler()
+Date:   Sun, 29 Dec 2019 18:18:35 +0100
+Message-Id: <20191229162525.747306464@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -45,58 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
 
-[ Upstream commit 6012b9346d8959194c239fd60a62dfec98d43048 ]
+[ Upstream commit 10ff58aa3c2e2a093b6ad615a7e3d8bb0dc613e5 ]
 
-Instances may have flags set as part of its data in which case the code
-should not attempt to add it again otherwise it can cause duplication:
+The regs pointer in amd_gpio_irq_handler() should have __iomem
+on it, so add that to fix the following sparse warnings:
 
-< HCI Command: LE Set Extended Advertising Data (0x08|0x0037) plen 35
-        Handle: 0x00
-        Operation: Complete extended advertising data (0x03)
-        Fragment preference: Minimize fragmentation (0x01)
-        Data length: 0x06
-        Flags: 0x04
-          BR/EDR Not Supported
-        Flags: 0x06
-          LE General Discoverable Mode
-          BR/EDR Not Supported
+drivers/pinctrl/pinctrl-amd.c:555:14: warning: incorrect type in assignment (different address spaces)
+drivers/pinctrl/pinctrl-amd.c:555:14:    expected unsigned int [usertype] *regs
+drivers/pinctrl/pinctrl-amd.c:555:14:    got void [noderef] <asn:2> *base
+drivers/pinctrl/pinctrl-amd.c:563:34: warning: incorrect type in argument 1 (different address spaces)
+drivers/pinctrl/pinctrl-amd.c:563:34:    expected void const volatile [noderef] <asn:2> *addr
+drivers/pinctrl/pinctrl-amd.c:563:34:    got unsigned int [usertype] *
+drivers/pinctrl/pinctrl-amd.c:580:34: warning: incorrect type in argument 1 (different address spaces)
+drivers/pinctrl/pinctrl-amd.c:580:34:    expected void const volatile [noderef] <asn:2> *addr
+drivers/pinctrl/pinctrl-amd.c:580:34:    got unsigned int [usertype] *
+drivers/pinctrl/pinctrl-amd.c:587:25: warning: incorrect type in argument 2 (different address spaces)
+drivers/pinctrl/pinctrl-amd.c:587:25:    expected void volatile [noderef] <asn:2> *addr
+drivers/pinctrl/pinctrl-amd.c:587:25:    got unsigned int [usertype] *
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Signed-off-by: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
+Link: https://lore.kernel.org/r/20191022151154.5986-1-ben.dooks@codethink.co.uk
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_request.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/pinctrl/pinctrl-amd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_request.c b/net/bluetooth/hci_request.c
-index 9448ebd3780a..a8ddd211e94c 100644
---- a/net/bluetooth/hci_request.c
-+++ b/net/bluetooth/hci_request.c
-@@ -1258,6 +1258,14 @@ static u8 create_instance_adv_data(struct hci_dev *hdev, u8 instance, u8 *ptr)
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index cd7a5d95b499..b1ffdd3f6d07 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -544,7 +544,8 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
+ 	irqreturn_t ret = IRQ_NONE;
+ 	unsigned int i, irqnr;
+ 	unsigned long flags;
+-	u32 *regs, regval;
++	u32 __iomem *regs;
++	u32  regval;
+ 	u64 status, mask;
  
- 	instance_flags = get_adv_instance_flags(hdev, instance);
- 
-+	/* If instance already has the flags set skip adding it once
-+	 * again.
-+	 */
-+	if (adv_instance && eir_get_data(adv_instance->adv_data,
-+					 adv_instance->adv_data_len, EIR_FLAGS,
-+					 NULL))
-+		goto skip_flags;
-+
- 	/* The Add Advertising command allows userspace to set both the general
- 	 * and limited discoverable flags.
- 	 */
-@@ -1290,6 +1298,7 @@ static u8 create_instance_adv_data(struct hci_dev *hdev, u8 instance, u8 *ptr)
- 		}
- 	}
- 
-+skip_flags:
- 	if (adv_instance) {
- 		memcpy(ptr, adv_instance->adv_data,
- 		       adv_instance->adv_data_len);
+ 	/* Read the wake status */
 -- 
 2.20.1
 
