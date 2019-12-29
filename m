@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD4E912C54D
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A4912C596
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729832AbfL2RfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:35:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39516 "EHLO mail.kernel.org"
+        id S1729576AbfL2Rhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:37:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729362AbfL2RfR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:35:17 -0500
+        id S1729516AbfL2RfU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:35:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7332207FF;
-        Sun, 29 Dec 2019 17:35:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 434C9206DB;
+        Sun, 29 Dec 2019 17:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640917;
-        bh=nFsxqlSW5MdU86iOP42+FaKJBOzsfHU8mpAvyNypAEk=;
+        s=default; t=1577640919;
+        bh=Z4NeLnHfinDf0dGZbvxosTXYvPNpnBpXnEzp2QUg3tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8tmatJ2ULk4TpY7w12TeOL0OPljzGbhyhrdSxnaFhAfBSCD2aPSEJ3uMTbCQMe6j
-         BVoIay4iHghN0YCmzDi7bwuUiJkPSVqwA1CGazpzLwpuriyyaGI2yoneozkF+mPlbZ
-         BVQ/RxITy2o3c8CL0QG0Khz/Ov6b9NDDHNrXWWuM=
+        b=qQGrjiBRZijkkrzl7Ss3U9jl4ey/3hjFnxmC8/1AX79fX24cCj8gDNMq6rBN0JbPQ
+         0eGISxKz/LmIqoDmL5lg6QyNphofF7SEp33xE9l0zT/RSdnVgCVFjM/K5OzU2Sc+EH
+         QTUoWfEvZTx4uRIbupu0PVFBAZiLsekRYNXSZdU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Xiaolong Huang <butterflyhuangxx@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 192/219] can: kvaser_usb: kvaser_usb_leaf: Fix some info-leaks to USB devices
-Date:   Sun, 29 Dec 2019 18:19:54 +0100
-Message-Id: <20191229162538.700059491@linuxfoundation.org>
+        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 193/219] usb: xhci: Fix build warning seen with CONFIG_PM=n
+Date:   Sun, 29 Dec 2019 18:19:55 +0100
+Message-Id: <20191229162538.879138816@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -44,52 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolong Huang <butterflyhuangxx@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit da2311a6385c3b499da2ed5d9be59ce331fa93e9 upstream.
+[ Upstream commit 6056a0f8ede27b296d10ef46f7f677cc9d715371 ]
 
-Uninitialized Kernel memory can leak to USB devices.
+The following build warning is seen if CONFIG_PM is disabled.
 
-Fix this by using kzalloc() instead of kmalloc().
+drivers/usb/host/xhci-pci.c:498:13: warning:
+	unused function 'xhci_pci_shutdown'
 
-Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
-Fixes: 7259124eac7d ("can: kvaser_usb: Split driver into kvaser_usb_core.c and kvaser_usb_leaf.c")
-Cc: linux-stable <stable@vger.kernel.org> # >= v4.19
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: f2c710f7dca8 ("usb: xhci: only set D3hot for pci device")
+Cc: Henry Lin <henryl@nvidia.com>
+Cc: stable@vger.kernel.org	# all stable releases with f2c710f7dca8
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20191218011911.6907-1-linux@roeck-us.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci-pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -608,7 +608,7 @@ static int kvaser_usb_leaf_simple_cmd_as
- 	struct kvaser_cmd *cmd;
- 	int err;
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 74aeaa61f5c6..075c49cfe60f 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -493,7 +493,6 @@ static int xhci_pci_resume(struct usb_hcd *hcd, bool hibernated)
+ 	retval = xhci_resume(xhci, hibernated);
+ 	return retval;
+ }
+-#endif /* CONFIG_PM */
  
--	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
-+	cmd = kzalloc(sizeof(*cmd), GFP_ATOMIC);
- 	if (!cmd)
- 		return -ENOMEM;
+ static void xhci_pci_shutdown(struct usb_hcd *hcd)
+ {
+@@ -506,6 +505,7 @@ static void xhci_pci_shutdown(struct usb_hcd *hcd)
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+ 		pci_set_power_state(pdev, PCI_D3hot);
+ }
++#endif /* CONFIG_PM */
  
-@@ -1140,7 +1140,7 @@ static int kvaser_usb_leaf_set_opt_mode(
- 	struct kvaser_cmd *cmd;
- 	int rc;
+ /*-------------------------------------------------------------------------*/
  
--	cmd = kmalloc(sizeof(*cmd), GFP_KERNEL);
-+	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
- 	if (!cmd)
- 		return -ENOMEM;
- 
-@@ -1206,7 +1206,7 @@ static int kvaser_usb_leaf_flush_queue(s
- 	struct kvaser_cmd *cmd;
- 	int rc;
- 
--	cmd = kmalloc(sizeof(*cmd), GFP_KERNEL);
-+	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
- 	if (!cmd)
- 		return -ENOMEM;
- 
+-- 
+2.20.1
+
 
 
