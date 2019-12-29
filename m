@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33CBA12C7C0
+	by mail.lfdr.de (Postfix) with ESMTP id A731012C7C1
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731010AbfL2RqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:46:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55534 "EHLO mail.kernel.org"
+        id S1731024AbfL2RqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:46:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731006AbfL2RqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:46:05 -0500
+        id S1730206AbfL2RqH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:46:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B885207FF;
-        Sun, 29 Dec 2019 17:46:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 675E521744;
+        Sun, 29 Dec 2019 17:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641564;
-        bh=1xcMMT3Xv6K8NqYsrKf0WvTs26fBGJW1QID2H940DkU=;
+        s=default; t=1577641566;
+        bh=q2qlQ1zu1e9Jtr0J4QDuk2XSaGdWhQDJ2Xa9AyyGR54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SP+xUQxKLJuMAnPACK9o6ZVXckzoSXlQ5yBjK0yL18/DDxC3RQd0WIdjw6MUSe/Qo
-         IRQI1vk15H7mhSWGO1SXVswGusbTeCj5cEeYxuxgkTem0bnobaVhoXj7g4n5lG9Yba
-         MtigMidCcG+iAUw+jf8dyPTt/zKZgIgK99VViyhQ=
+        b=SA3d8t1Iy+8TE6Q/WUFmvnTYHVwSuBpuhm4vD7zZJ4J3aHTCaTd2TXKRNkCH9Bahy
+         nP3WBSOA8be+3F4aMdKplRXWxhpz2VKvTKapeIWpNrhCR0I26AvZxOufiNNTb0TsrV
+         mrW8SW3e8yiiZ2vO9BqxV01AWZWPD6rwarhPa9e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Maximets <i.maximets@ovn.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
+        stable@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 119/434] libbpf: Fix passing uninitialized bytes to setsockopt
-Date:   Sun, 29 Dec 2019 18:22:52 +0100
-Message-Id: <20191229172709.591629300@linuxfoundation.org>
+Subject: [PATCH 5.4 120/434] net/smc: increase device refcount for added link group
+Date:   Sun, 29 Dec 2019 18:22:53 +0100
+Message-Id: <20191229172709.661650133@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,45 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Maximets <i.maximets@ovn.org>
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-[ Upstream commit 25bfef430e960e695403b5d9c8dcc11b9f5d62be ]
+[ Upstream commit b3cb53c05f20c5b4026a36a7bbd3010d1f3e0a55 ]
 
-'struct xdp_umem_reg' has 4 bytes of padding at the end that makes
-valgrind complain about passing uninitialized stack memory to the
-syscall:
+SMCD link groups belong to certain ISM-devices and SMCR link group
+links belong to certain IB-devices. Increase the refcount for
+these devices, as long as corresponding link groups exist.
 
-  Syscall param socketcall.setsockopt() points to uninitialised byte(s)
-    at 0x4E7AB7E: setsockopt (in /usr/lib64/libc-2.29.so)
-    by 0x4BDE035: xsk_umem__create@@LIBBPF_0.0.4 (xsk.c:172)
-  Uninitialised value was created by a stack allocation
-    at 0x4BDDEBA: xsk_umem__create@@LIBBPF_0.0.4 (xsk.c:140)
-
-Padding bytes appeared after introducing of a new 'flags' field.
-memset() is required to clear them.
-
-Fixes: 10d30e301732 ("libbpf: add flags to umem config")
-Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20191009164929.17242-1-i.maximets@ovn.org
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/xsk.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/smc/smc_core.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
-index a902838f9fcc..9d5348086203 100644
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -163,6 +163,7 @@ int xsk_umem__create_v0_0_4(struct xsk_umem **umem_ptr, void *umem_area,
- 	umem->umem_area = umem_area;
- 	xsk_set_umem_config(&umem->config, usr_config);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 2ba97ff325a5..0c5fcb8ed404 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -231,10 +231,12 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	lgr->conns_all = RB_ROOT;
+ 	if (ini->is_smcd) {
+ 		/* SMC-D specific settings */
++		get_device(&ini->ism_dev->dev);
+ 		lgr->peer_gid = ini->ism_gid;
+ 		lgr->smcd = ini->ism_dev;
+ 	} else {
+ 		/* SMC-R specific settings */
++		get_device(&ini->ib_dev->ibdev->dev);
+ 		lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
+ 		memcpy(lgr->peer_systemid, ini->ib_lcl->id_for_peer,
+ 		       SMC_SYSTEMID_LEN);
+@@ -433,10 +435,13 @@ static void smc_lgr_free_bufs(struct smc_link_group *lgr)
+ static void smc_lgr_free(struct smc_link_group *lgr)
+ {
+ 	smc_lgr_free_bufs(lgr);
+-	if (lgr->is_smcd)
++	if (lgr->is_smcd) {
+ 		smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
+-	else
++		put_device(&lgr->smcd->dev);
++	} else {
+ 		smc_link_clear(&lgr->lnk[SMC_SINGLE_LINK]);
++		put_device(&lgr->lnk[SMC_SINGLE_LINK].smcibdev->ibdev->dev);
++	}
+ 	kfree(lgr);
+ }
  
-+	memset(&mr, 0, sizeof(mr));
- 	mr.addr = (uintptr_t)umem_area;
- 	mr.len = size;
- 	mr.chunk_size = umem->config.frame_size;
 -- 
 2.20.1
 
