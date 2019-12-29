@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DD7F12C9B9
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1D1812C75D
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727704AbfL2SNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 13:13:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50624 "EHLO mail.kernel.org"
+        id S1728514AbfL2R16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:27:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728496AbfL2R1x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:27:53 -0500
+        id S1728510AbfL2R16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:27:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9984320722;
-        Sun, 29 Dec 2019 17:27:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFDFE20722;
+        Sun, 29 Dec 2019 17:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640473;
-        bh=3LB8rqRiyIvwRRLvI8gR+OWS2XUtX3mgWIjjIKtzew8=;
+        s=default; t=1577640478;
+        bh=aQwAyh+Sp2IeI16kUaqLhGUu5rlmKirX7GMm9Icmtk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eig6ZBNe2Hfqg2zuyE4PPfPQzLbOI3+NH7wn3FJq9lTFRsY0QWxYUyKLgdIIpr6j7
-         BXEBw8tUfNjRmMprMWHqaWj26VAshzSUSE6iJIIiGQ5rErCZZ0HQnk8koNGh01EJWs
-         ThH+hv61iQES3fw8oYC++1GPgV6NVLpuLz7R4bUA=
+        b=kcFE7mr1DNyVwV2i6GIjObh5zBwoSp6mbWRuMtgriOEMwTtIYH85Ikg06ondrbVQC
+         szmLVTuPkDMu74V381ZfP7EoNHvwgqcrPX3hDhcwqZ5rEPKmJM0rk42Nz9wTt1pswq
+         L/qBvDRcLeqLzleGbesNaCrwRkNohANlKEXWrqFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 011/219] qede: Fix multicast mac configuration
-Date:   Sun, 29 Dec 2019 18:16:53 +0100
-Message-Id: <20191229162510.736284506@linuxfoundation.org>
+Subject: [PATCH 4.19 013/219] selftests: forwarding: Delete IPv6 address at the end
+Date:   Sun, 29 Dec 2019 18:16:55 +0100
+Message-Id: <20191229162510.995471060@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -44,33 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit 0af67e49b018e7280a4227bfe7b6005bc9d3e442 ]
+[ Upstream commit 65cb13986229cec02635a1ecbcd1e2dd18353201 ]
 
-Driver doesn't accommodate the configuration for max number
-of multicast mac addresses, in such particular case it leaves
-the device with improper/invalid multicast configuration state,
-causing connectivity issues (in lacp bonding like scenarios).
+When creating the second host in h2_create(), two addresses are assigned
+to the interface, but only one is deleted. When running the test twice
+in a row the following error is observed:
 
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
+$ ./router_bridge_vlan.sh
+TEST: ping                                                          [ OK ]
+TEST: ping6                                                         [ OK ]
+TEST: vlan                                                          [ OK ]
+$ ./router_bridge_vlan.sh
+RTNETLINK answers: File exists
+TEST: ping                                                          [ OK ]
+TEST: ping6                                                         [ OK ]
+TEST: vlan                                                          [ OK ]
+
+Fix this by deleting the address during cleanup.
+
+Fixes: 5b1e7f9ebd56 ("selftests: forwarding: Test routed bridge interface")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_filter.c |    2 +-
+ tools/testing/selftests/net/forwarding/router_bridge_vlan.sh |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qede/qede_filter.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_filter.c
-@@ -1230,7 +1230,7 @@ qede_configure_mcast_filtering(struct ne
- 	netif_addr_lock_bh(ndev);
+--- a/tools/testing/selftests/net/forwarding/router_bridge_vlan.sh
++++ b/tools/testing/selftests/net/forwarding/router_bridge_vlan.sh
+@@ -36,7 +36,7 @@ h2_destroy()
+ {
+ 	ip -6 route del 2001:db8:1::/64 vrf v$h2
+ 	ip -4 route del 192.0.2.0/28 vrf v$h2
+-	simple_if_fini $h2 192.0.2.130/28
++	simple_if_fini $h2 192.0.2.130/28 2001:db8:2::2/64
+ }
  
- 	mc_count = netdev_mc_count(ndev);
--	if (mc_count < 64) {
-+	if (mc_count <= 64) {
- 		netdev_for_each_mc_addr(ha, ndev) {
- 			ether_addr_copy(temp, ha->addr);
- 			temp += ETH_ALEN;
+ router_create()
 
 
