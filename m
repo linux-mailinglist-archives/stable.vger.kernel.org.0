@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F6912C516
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2772012C519
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729496AbfL2Rdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:33:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35728 "EHLO mail.kernel.org"
+        id S1729505AbfL2Rdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:33:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729289AbfL2Rdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:33:41 -0500
+        id S1729228AbfL2Rdn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:33:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D653720722;
-        Sun, 29 Dec 2019 17:33:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B36F207FD;
+        Sun, 29 Dec 2019 17:33:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640820;
-        bh=2OwJljtab62BA09g3wnD3zLucHEjleq5lzs8cGC614Y=;
+        s=default; t=1577640822;
+        bh=bdFXMNImFLAsakPoKu5xkzNEpT/ksNyRURldYJryKh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rBrGfEgzHRZWb6Z+XI8xEa65SRlTeiscnYKCWFpx6paCu+aWSf0MK+9jOfSVv2AkS
-         47FUxT5fOVAL4dFsH0P9q0sgBNWZ2uOAYRBYksdssIS176Z4Yzp2rZiV2GoF2O3RGS
-         KsTH2+uWQXfv1HRjBCcCXU3+Dtu3/Qo1pRNCzB/M=
+        b=UXiAKcp42Q4tVf+axO/1bH7IcTKM+g5hm6OordTRcrpd2pxNOXJ3BV3VIXaqVFqcz
+         ReDWHrU8Hhus6oPeVg8JYnBVJvL41XVMHMBmWPjysH1448B/jACEDzFNSmrDxmOOxY
+         gefrqtkxnsyHxgiiqd1gq1R/3B49UUaqsKUCDcfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Popa <stefan.popa@analog.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 152/219] iio: dac: ad5446: Add support for new AD5600 DAC
-Date:   Sun, 29 Dec 2019 18:19:14 +0100
-Message-Id: <20191229162531.508791270@linuxfoundation.org>
+Subject: [PATCH 4.19 153/219] ASoC: Intel: kbl_rt5663_rt5514_max98927: Add dmic format constraint
+Date:   Sun, 29 Dec 2019 18:19:15 +0100
+Message-Id: <20191229162531.671600386@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -45,74 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Popa <stefan.popa@analog.com>
+From: Yu-Hsuan Hsu <yuhsuan@chromium.org>
 
-[ Upstream commit 6376cbe549fffb378403cee78efd26b8a2c8e450 ]
+[ Upstream commit e2db787bdcb4f2722ecf410168f0583764634e45 ]
 
-The AD5600 is a single channel, 16-bit resolution, voltage output digital
-to analog converter (DAC). The AD5600 uses a 3-wire SPI interface. It is
-part of the AD5541 family of DACs.
+On KBL platform, the microphone is attached to external codec(rt5514)
+instead of PCH. However, TDM slot between PCH and codec is 16 bits only.
+In order to avoid setting wrong format, we should add a constraint to
+force to use 16 bits format forever.
 
-The ad5446 IIO driver implements support for some of these DACs (in the
-AD5441 family), so the change is a simple entry in this driver.
-
-Link: https://www.analog.com/media/en/technical-documentation/data-sheets/AD5600.pdf
-
-Signed-off-by: Stefan Popa <stefan.popa@analog.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20190923162940.199580-1-yuhsuan@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/Kconfig  | 4 ++--
- drivers/iio/dac/ad5446.c | 6 ++++++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iio/dac/Kconfig b/drivers/iio/dac/Kconfig
-index 80beb64e9e0c..69f4cfa6494b 100644
---- a/drivers/iio/dac/Kconfig
-+++ b/drivers/iio/dac/Kconfig
-@@ -59,8 +59,8 @@ config AD5446
- 	help
- 	  Say yes here to build support for Analog Devices AD5300, AD5301, AD5310,
- 	  AD5311, AD5320, AD5321, AD5444, AD5446, AD5450, AD5451, AD5452, AD5453,
--	  AD5512A, AD5541A, AD5542A, AD5543, AD5553, AD5601, AD5602, AD5611, AD5612,
--	  AD5620, AD5621, AD5622, AD5640, AD5641, AD5660, AD5662 DACs
-+	  AD5512A, AD5541A, AD5542A, AD5543, AD5553, AD5600, AD5601, AD5602, AD5611,
-+	  AD5612, AD5620, AD5621, AD5622, AD5640, AD5641, AD5660, AD5662 DACs
- 	  as well as Texas Instruments DAC081S101, DAC101S101, DAC121S101.
+diff --git a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
+index b8a03f58ac8c..f36e33a14728 100644
+--- a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
++++ b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
+@@ -423,6 +423,9 @@ static int kabylake_dmic_startup(struct snd_pcm_substream *substream)
+ 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
+ 			dmic_constraints);
  
- 	  To compile this driver as a module, choose M here: the
-diff --git a/drivers/iio/dac/ad5446.c b/drivers/iio/dac/ad5446.c
-index fd26a4272fc5..d3ce5def4f65 100644
---- a/drivers/iio/dac/ad5446.c
-+++ b/drivers/iio/dac/ad5446.c
-@@ -328,6 +328,7 @@ enum ad5446_supported_spi_device_ids {
- 	ID_AD5541A,
- 	ID_AD5512A,
- 	ID_AD5553,
-+	ID_AD5600,
- 	ID_AD5601,
- 	ID_AD5611,
- 	ID_AD5621,
-@@ -382,6 +383,10 @@ static const struct ad5446_chip_info ad5446_spi_chip_info[] = {
- 		.channel = AD5446_CHANNEL(14, 16, 0),
- 		.write = ad5446_write,
- 	},
-+	[ID_AD5600] = {
-+		.channel = AD5446_CHANNEL(16, 16, 0),
-+		.write = ad5446_write,
-+	},
- 	[ID_AD5601] = {
- 		.channel = AD5446_CHANNEL_POWERDOWN(8, 16, 6),
- 		.write = ad5446_write,
-@@ -449,6 +454,7 @@ static const struct spi_device_id ad5446_spi_ids[] = {
- 	{"ad5542a", ID_AD5541A}, /* ad5541a and ad5542a are compatible */
- 	{"ad5543", ID_AD5541A}, /* ad5541a and ad5543 are compatible */
- 	{"ad5553", ID_AD5553},
-+	{"ad5600", ID_AD5600},
- 	{"ad5601", ID_AD5601},
- 	{"ad5611", ID_AD5611},
- 	{"ad5621", ID_AD5621},
++	runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
++	snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
++
+ 	return snd_pcm_hw_constraint_list(substream->runtime, 0,
+ 			SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
+ }
 -- 
 2.20.1
 
