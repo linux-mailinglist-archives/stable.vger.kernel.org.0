@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18BA812C766
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F52012C76B
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728645AbfL2R2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:28:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52496 "EHLO mail.kernel.org"
+        id S1728357AbfL2R3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:29:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728659AbfL2R2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:28:46 -0500
+        id S1728764AbfL2R3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:29:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01724207FF;
-        Sun, 29 Dec 2019 17:28:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D36902253D;
+        Sun, 29 Dec 2019 17:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640525;
-        bh=XEw1MLkKkBAfT6/DF5ZElitYttQJBPi1wQ5u08eLZhE=;
+        s=default; t=1577640561;
+        bh=d97qlS8VxM98XOMAULtwb8+1EioCF1ED2DucKtX1+jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfNDBqnxMouWrrM6S8FqSf285F6zy4XF2UZ9vaayVZ3ichYsWfWcey+4HZREOsuap
-         OGotBmQpArHiHaEdVXRAkzPtfANJsmRgKl1bEjYoX8ui/qJKRE0xhc/Q2MFqL4K47h
-         KirKsT1I4Oza78K7svViGRmDl5ED2Ujix3HRaUcM=
+        b=BOdUGLFBAtxVmJdAYqYj0OxsrpJavr6fdurGxnq/O6at2heDMrTNYBYqGdBDIWtg6
+         QmDtTgImrng9aHbcqjBfglyU/HaQ2uiz+3/NEgVb3v1foUtd4AE05zGbFHE1KQz02D
+         7nSrYHAyEVdsClZSKfuYGv9EmhI/n30Nqv1pH4Og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 004/219] net: dst: Force 4-byte alignment of dst_metrics
-Date:   Sun, 29 Dec 2019 18:16:46 +0100
-Message-Id: <20191229162509.732442011@linuxfoundation.org>
+Subject: [PATCH 4.19 006/219] net: hisilicon: Fix a BUG trigered by wrong bytes_compl
+Date:   Sun, 29 Dec 2019 18:16:48 +0100
+Message-Id: <20191229162509.898528863@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -43,60 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 
-[ Upstream commit 258a980d1ec23e2c786e9536a7dd260bea74bae6 ]
+[ Upstream commit 90b3b339364c76baa2436445401ea9ade040c216 ]
 
-When storing a pointer to a dst_metrics structure in dst_entry._metrics,
-two flags are added in the least significant bits of the pointer value.
-Hence this assumes all pointers to dst_metrics structures have at least
-4-byte alignment.
+When doing stress test, we get the following trace:
+kernel BUG at lib/dynamic_queue_limits.c:26!
+Internal error: Oops - BUG: 0 [#1] SMP ARM
+Modules linked in: hip04_eth
+CPU: 0 PID: 2003 Comm: tDblStackPcap0 Tainted: G           O L  4.4.197 #1
+Hardware name: Hisilicon A15
+task: c3637668 task.stack: de3bc000
+PC is at dql_completed+0x18/0x154
+LR is at hip04_tx_reclaim+0x110/0x174 [hip04_eth]
+pc : [<c041abfc>]    lr : [<bf0003a8>]    psr: 800f0313
+sp : de3bdc2c  ip : 00000000  fp : c020fb10
+r10: 00000000  r9 : c39b4224  r8 : 00000001
+r7 : 00000046  r6 : c39b4000  r5 : 0078f392  r4 : 0078f392
+r3 : 00000047  r2 : 00000000  r1 : 00000046  r0 : df5d5c80
+Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+Control: 32c5387d  Table: 1e189b80  DAC: 55555555
+Process tDblStackPcap0 (pid: 2003, stack limit = 0xde3bc190)
+Stack: (0xde3bdc2c to 0xde3be000)
+[<c041abfc>] (dql_completed) from [<bf0003a8>] (hip04_tx_reclaim+0x110/0x174 [hip04_eth])
+[<bf0003a8>] (hip04_tx_reclaim [hip04_eth]) from [<bf0012c0>] (hip04_rx_poll+0x20/0x388 [hip04_eth])
+[<bf0012c0>] (hip04_rx_poll [hip04_eth]) from [<c04c8d9c>] (net_rx_action+0x120/0x374)
+[<c04c8d9c>] (net_rx_action) from [<c021eaf4>] (__do_softirq+0x218/0x318)
+[<c021eaf4>] (__do_softirq) from [<c021eea0>] (irq_exit+0x88/0xac)
+[<c021eea0>] (irq_exit) from [<c0240130>] (msa_irq_exit+0x11c/0x1d4)
+[<c0240130>] (msa_irq_exit) from [<c0267ba8>] (__handle_domain_irq+0x110/0x148)
+[<c0267ba8>] (__handle_domain_irq) from [<c0201588>] (gic_handle_irq+0xd4/0x118)
+[<c0201588>] (gic_handle_irq) from [<c0558360>] (__irq_svc+0x40/0x58)
+Exception stack(0xde3bdde0 to 0xde3bde28)
+dde0: 00000000 00008001 c3637668 00000000 00000000 a00f0213 dd3627a0 c0af6380
+de00: c086d380 a00f0213 c0a22a50 de3bde6c 00000002 de3bde30 c0558138 c055813c
+de20: 600f0213 ffffffff
+[<c0558360>] (__irq_svc) from [<c055813c>] (_raw_spin_unlock_irqrestore+0x44/0x54)
+Kernel panic - not syncing: Fatal exception in interrupt
 
-However, on m68k, the minimum alignment of 32-bit values is 2 bytes, not
-4 bytes.  Hence in some kernel builds, dst_default_metrics may be only
-2-byte aligned, leading to obscure boot warnings like:
+Pre-modification code:
+int hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+{
+[...]
+[1]	priv->tx_head = TX_NEXT(tx_head);
+[2]	count++;
+[3]	netdev_sent_queue(ndev, skb->len);
+[...]
+}
+An rx interrupt occurs if hip04_mac_start_xmit just executes to the line 2,
+tx_head has been updated, but corresponding 'skb->len' has not been
+added to dql_queue.
 
-    WARNING: CPU: 0 PID: 7 at lib/refcount.c:28 refcount_warn_saturate+0x44/0x9a
-    refcount_t: underflow; use-after-free.
-    Modules linked in:
-    CPU: 0 PID: 7 Comm: ksoftirqd/0 Tainted: G        W         5.5.0-rc2-atari-01448-g114a1a1038af891d-dirty #261
-    Stack from 10835e6c:
-	    10835e6c 0038134f 00023fa6 00394b0f 0000001c 00000009 00321560 00023fea
-	    00394b0f 0000001c 001a70f8 00000009 00000000 10835eb4 00000001 00000000
-	    04208040 0000000a 00394b4a 10835ed4 00043aa8 001a70f8 00394b0f 0000001c
-	    00000009 00394b4a 0026aba8 003215a4 00000003 00000000 0026d5a8 00000001
-	    003215a4 003a4361 003238d6 000001f0 00000000 003215a4 10aa3b00 00025e84
-	    003ddb00 10834000 002416a8 10aa3b00 00000000 00000080 000aa038 0004854a
-    Call Trace: [<00023fa6>] __warn+0xb2/0xb4
-     [<00023fea>] warn_slowpath_fmt+0x42/0x64
-     [<001a70f8>] refcount_warn_saturate+0x44/0x9a
-     [<00043aa8>] printk+0x0/0x18
-     [<001a70f8>] refcount_warn_saturate+0x44/0x9a
-     [<0026aba8>] refcount_sub_and_test.constprop.73+0x38/0x3e
-     [<0026d5a8>] ipv4_dst_destroy+0x5e/0x7e
-     [<00025e84>] __local_bh_enable_ip+0x0/0x8e
-     [<002416a8>] dst_destroy+0x40/0xae
+And then
+hip04_mac_interrupt->__napi_schedule->hip04_rx_poll->hip04_tx_reclaim
 
-Fix this by forcing 4-byte alignment of all dst_metrics structures.
+In hip04_tx_reclaim, because tx_head has been updated,
+bytes_compl will plus an additional "skb-> len"
+which has not been added to dql_queue. And then
+trigger the BUG_ON(bytes_compl > num_queued - dql->num_completed).
 
-Fixes: e5fd387ad5b30ca3 ("ipv6: do not overwrite inetpeer metrics prematurely")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+To solve the problem described above, we put
+"netdev_sent_queue(ndev, skb->len);"
+before
+"priv->tx_head = TX_NEXT(tx_head);"
+
+Fixes: a41ea46a9a12 ("net: hisilicon: new hip04 ethernet driver")
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/dst.h |    2 +-
+ drivers/net/ethernet/hisilicon/hip04_eth.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/dst.h
-+++ b/include/net/dst.h
-@@ -93,7 +93,7 @@ struct dst_entry {
- struct dst_metrics {
- 	u32		metrics[RTAX_MAX];
- 	refcount_t	refcnt;
--};
-+} __aligned(4);		/* Low pointer bits contain DST_METRICS_FLAGS */
- extern const struct dst_metrics dst_default_metrics;
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -456,9 +456,9 @@ hip04_mac_start_xmit(struct sk_buff *skb
+ 	skb_tx_timestamp(skb);
  
- u32 *dst_cow_metrics_generic(struct dst_entry *dst, unsigned long old);
+ 	hip04_set_xmit_desc(priv, phys);
+-	priv->tx_head = TX_NEXT(tx_head);
+ 	count++;
+ 	netdev_sent_queue(ndev, skb->len);
++	priv->tx_head = TX_NEXT(tx_head);
+ 
+ 	stats->tx_bytes += skb->len;
+ 	stats->tx_packets++;
 
 
