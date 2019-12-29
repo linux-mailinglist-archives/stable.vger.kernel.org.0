@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDB712C5ED
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE90312C5EF
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730262AbfL2RmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:42:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48244 "EHLO mail.kernel.org"
+        id S1730266AbfL2RmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:42:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730255AbfL2RmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:42:11 -0500
+        id S1730265AbfL2RmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:42:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1EC521744;
-        Sun, 29 Dec 2019 17:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33AA721744;
+        Sun, 29 Dec 2019 17:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641331;
-        bh=zHIFrSwZR8EIE5Mo20V+kC+daYYYejuSBO4JhINZu0c=;
+        s=default; t=1577641333;
+        bh=I6zI39l6Sk+6XVLTpSxrMkQlRx8BuEn9+5eZRkxxKH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAFd3/fi8bsmWeN6KFZBZVthnV2xikukrdlKwxrfxXqa/ayZa2mad63wAnzqwnS+f
-         2GvU4AYOuSmOBzwtUuILVbokLFs72Eg7vNcZ9zSYB42hgSv8WsQgFYRu3pI2EZi02w
-         krgBU9GEdPSF7sDbBqbc4S/LxxUMBLkmhRJnKUxA=
+        b=S5Oq+QX/eaYbdjrGCvBa7X6RbK4vhaQBip9lBcSiwO0yAPl1VV6XdxPqDazAIuv+M
+         2XVSU3IhTKj9e1PmGKIICrRqkXTbzkzQ3vyximQ4/u6FwI3rHmvg9nwW7OfLt7u8Wx
+         mbeWdECak5ru8mEylfGW51JO6VwUvA+gwOS00nu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 007/434] net: nfc: nci: fix a possible sleep-in-atomic-context bug in nci_uart_tty_receive()
-Date:   Sun, 29 Dec 2019 18:21:00 +0100
-Message-Id: <20191229172702.803074969@linuxfoundation.org>
+Subject: [PATCH 5.4 008/434] net: phy: ensure that phy IDs are correctly typed
+Date:   Sun, 29 Dec 2019 18:21:01 +0100
+Message-Id: <20191229172702.855371602@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -43,45 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit b7ac893652cafadcf669f78452329727e4e255cc ]
+[ Upstream commit 7d49a32a66d2215c5b3bf9bc67c9036ea9904111 ]
 
-The kernel may sleep while holding a spinlock.
-The function call path (from bottom to top) in Linux 4.19 is:
+PHY IDs are 32-bit unsigned quantities. Ensure that they are always
+treated as such, and not passed around as "int"s.
 
-net/nfc/nci/uart.c, 349:
-	nci_skb_alloc in nci_uart_default_recv_buf
-net/nfc/nci/uart.c, 255:
-	(FUNC_PTR)nci_uart_default_recv_buf in nci_uart_tty_receive
-net/nfc/nci/uart.c, 254:
-	spin_lock in nci_uart_tty_receive
-
-nci_skb_alloc(GFP_KERNEL) can sleep at runtime.
-(FUNC_PTR) means a function pointer is called.
-
-To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC for
-nci_skb_alloc().
-
-This bug is found by a static analysis tool STCheck written by myself.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Fixes: 13d0ab6750b2 ("net: phy: check return code when requesting PHY driver module")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/nci/uart.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/phy_device.c |    8 ++++----
+ include/linux/phy.h          |    2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/net/nfc/nci/uart.c
-+++ b/net/nfc/nci/uart.c
-@@ -346,7 +346,7 @@ static int nci_uart_default_recv_buf(str
- 			nu->rx_packet_len = -1;
- 			nu->rx_skb = nci_skb_alloc(nu->ndev,
- 						   NCI_MAX_PACKET_SIZE,
--						   GFP_KERNEL);
-+						   GFP_ATOMIC);
- 			if (!nu->rx_skb)
- 				return -ENOMEM;
- 		}
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -552,7 +552,7 @@ static const struct device_type mdio_bus
+ 	.pm = MDIO_BUS_PHY_PM_OPS,
+ };
+ 
+-static int phy_request_driver_module(struct phy_device *dev, int phy_id)
++static int phy_request_driver_module(struct phy_device *dev, u32 phy_id)
+ {
+ 	int ret;
+ 
+@@ -564,15 +564,15 @@ static int phy_request_driver_module(str
+ 	 * then modprobe isn't available.
+ 	 */
+ 	if (IS_ENABLED(CONFIG_MODULES) && ret < 0 && ret != -ENOENT) {
+-		phydev_err(dev, "error %d loading PHY driver module for ID 0x%08x\n",
+-			   ret, phy_id);
++		phydev_err(dev, "error %d loading PHY driver module for ID 0x%08lx\n",
++			   ret, (unsigned long)phy_id);
+ 		return ret;
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-struct phy_device *phy_device_create(struct mii_bus *bus, int addr, int phy_id,
++struct phy_device *phy_device_create(struct mii_bus *bus, int addr, u32 phy_id,
+ 				     bool is_c45,
+ 				     struct phy_c45_device_ids *c45_ids)
+ {
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -993,7 +993,7 @@ int phy_modify_paged_changed(struct phy_
+ int phy_modify_paged(struct phy_device *phydev, int page, u32 regnum,
+ 		     u16 mask, u16 set);
+ 
+-struct phy_device *phy_device_create(struct mii_bus *bus, int addr, int phy_id,
++struct phy_device *phy_device_create(struct mii_bus *bus, int addr, u32 phy_id,
+ 				     bool is_c45,
+ 				     struct phy_c45_device_ids *c45_ids);
+ #if IS_ENABLED(CONFIG_PHYLIB)
 
 
