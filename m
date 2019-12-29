@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D23912C70C
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FB8712C70E
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732011AbfL2RxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:53:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40262 "EHLO mail.kernel.org"
+        id S1732458AbfL2Rx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:53:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732167AbfL2RxU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:53:20 -0500
+        id S1732167AbfL2RxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:53:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E143206A4;
-        Sun, 29 Dec 2019 17:53:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4719E206A4;
+        Sun, 29 Dec 2019 17:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642000;
-        bh=q6zEIwie9rdXxldDaGNMf4+uXkOVStGIjIVv2ZHoWX0=;
+        s=default; t=1577642004;
+        bh=d/OxfB3P0umzB0DvmM0BQBZusnP0OtOdTXH9gvu0Fo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1AcGmaR0jM3F3epTQkZW5eD5mIt2ofV6YSdNfOzPSnQQ4bJ6cCE+fuhnCltCzexM6
-         gyergfb+BoHJkEd7KfjQLnrIf071ZK2CquoWMoF/raN6/oEecmsqHUKnV+JRsQe6wj
-         N1LmsMwGjvlm6VsSXnlSWq/qh27P6700/ZC+0b1w=
+        b=nEGrreVF+1Qe+9FKpMX2nyoIlN338KWjh+8B5zGFo2xdDFMxLomQH0qb3rjuHiBts
+         RgY9XpRh/8RXfPsXUqnk5I3onSaaSyo9X5AU9NNqEefqHC8VNMn+ZePU8pDsnjnnpY
+         wCoGWExmqOzqlBoJtRm4v0jLZ6S3+GtjRMYmhEm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 300/434] qtnfmac: fix debugfs support for multiple cards
-Date:   Sun, 29 Dec 2019 18:25:53 +0100
-Message-Id: <20191229172721.878757153@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Lianbo Jiang <lijiang@redhat.com>,
+        Borislav Petkov <bp@suse.de>, bhe@redhat.com,
+        d.hatayama@fujitsu.com, dhowells@redhat.com, dyoung@redhat.com,
+        ebiederm@xmission.com, horms@verge.net.au,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        =?UTF-8?q?J=C3=BCrgen=20Gross?= <jgross@suse.com>,
+        kexec@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>, vgoyal@redhat.com,
+        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 302/434] x86/crash: Add a forward declaration of struct kimage
+Date:   Sun, 29 Dec 2019 18:25:55 +0100
+Message-Id: <20191229172722.012794847@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,45 +51,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+From: Lianbo Jiang <lijiang@redhat.com>
 
-[ Upstream commit dd4c2260dab04f5ae7bdb79b9470e7da56f48145 ]
+[ Upstream commit 112eee5d06007dae561f14458bde7f2a4879ef4e ]
 
-Fix merge artifact for commit 0b68fe10b8e8 ("qtnfmac: modify debugfs
-to support multiple cards") and finally add debugfs support
-for multiple qtnfmac wireless cards.
+Add a forward declaration of struct kimage to the crash.h header because
+future changes will invoke a crash-specific function from the realmode
+init path and the compiler will complain otherwise like this:
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+  In file included from arch/x86/realmode/init.c:11:
+  ./arch/x86/include/asm/crash.h:5:32: warning: ‘struct kimage’ declared inside\
+   parameter list will not be visible outside of this definition or declaration
+      5 | int crash_load_segments(struct kimage *image);
+        |                                ^~~~~~
+  ./arch/x86/include/asm/crash.h:6:37: warning: ‘struct kimage’ declared inside\
+   parameter list will not be visible outside of this definition or declaration
+      6 | int crash_copy_backup_region(struct kimage *image);
+        |                                     ^~~~~~
+  ./arch/x86/include/asm/crash.h:7:39: warning: ‘struct kimage’ declared inside\
+   parameter list will not be visible outside of this definition or declaration
+      7 | int crash_setup_memmap_entries(struct kimage *image,
+        |
+
+ [ bp: Rewrite the commit message. ]
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: bhe@redhat.com
+Cc: d.hatayama@fujitsu.com
+Cc: dhowells@redhat.com
+Cc: dyoung@redhat.com
+Cc: ebiederm@xmission.com
+Cc: horms@verge.net.au
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jürgen Gross <jgross@suse.com>
+Cc: kexec@lists.infradead.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: vgoyal@redhat.com
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20191108090027.11082-4-lijiang@redhat.com
+Link: https://lkml.kernel.org/r/201910310233.EJRtTMWP%25lkp@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/crash.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c b/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c
-index 8ae318b5fe54..4824be0c6231 100644
---- a/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c
-+++ b/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c
-@@ -130,6 +130,8 @@ static int qtnf_dbg_shm_stats(struct seq_file *s, void *data)
+diff --git a/arch/x86/include/asm/crash.h b/arch/x86/include/asm/crash.h
+index 0acf5ee45a21..ef5638f641f2 100644
+--- a/arch/x86/include/asm/crash.h
++++ b/arch/x86/include/asm/crash.h
+@@ -2,6 +2,8 @@
+ #ifndef _ASM_X86_CRASH_H
+ #define _ASM_X86_CRASH_H
  
- int qtnf_pcie_fw_boot_done(struct qtnf_bus *bus)
- {
-+	struct qtnf_pcie_bus_priv *priv = get_bus_priv(bus);
-+	char card_id[64];
- 	int ret;
- 
- 	bus->fw_state = QTNF_FW_STATE_BOOT_DONE;
-@@ -137,7 +139,9 @@ int qtnf_pcie_fw_boot_done(struct qtnf_bus *bus)
- 	if (ret) {
- 		pr_err("failed to attach core\n");
- 	} else {
--		qtnf_debugfs_init(bus, DRV_NAME);
-+		snprintf(card_id, sizeof(card_id), "%s:%s",
-+			 DRV_NAME, pci_name(priv->pdev));
-+		qtnf_debugfs_init(bus, card_id);
- 		qtnf_debugfs_add_entry(bus, "mps", qtnf_dbg_mps_show);
- 		qtnf_debugfs_add_entry(bus, "msi_enabled", qtnf_dbg_msi_show);
- 		qtnf_debugfs_add_entry(bus, "shm_stats", qtnf_dbg_shm_stats);
++struct kimage;
++
+ int crash_load_segments(struct kimage *image);
+ int crash_copy_backup_region(struct kimage *image);
+ int crash_setup_memmap_entries(struct kimage *image,
 -- 
 2.20.1
 
