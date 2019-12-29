@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 741FF12C425
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:28:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C79D412C42A
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728298AbfL2R0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:26:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48480 "EHLO mail.kernel.org"
+        id S1728363AbfL2R1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:27:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727948AbfL2R0v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:26:51 -0500
+        id S1728360AbfL2R1I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:27:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CFE120409;
-        Sun, 29 Dec 2019 17:26:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E219820409;
+        Sun, 29 Dec 2019 17:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640411;
-        bh=R6Ol1tJA9t/eAyTIJtxwUwPUuOVNZo2foII7zEUzqv8=;
+        s=default; t=1577640428;
+        bh=SQfUem9LKoWiyaPB/LHwDpgLiABk0OZo5aZ6uxWIf8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wh4EaMv3Nbajabz2qaGK1L8PzwMKAJApRhbZfaWTmBnxqko2aqE+0brjUlL0R9Wa7
-         cxo8a+Mb8DP+pSDJttEztBAwKvYN4Iatd2FEciAjgAjIj01dDgKyG2iT2i0TmFULjo
-         /dPaLXYoOzZrrKrzHdsCUSM1mOJ3d+ILaiN6ByEk=
+        b=G2s0Z2eOhQHfjk7Sg+kkWPxWhY7w1qnEfCAzlQQ6ClVughGqHe+aVk/naDJfO/mua
+         9glnNuH2Tr+9s/4cfTBAY8Z5MK5IHgZfyTOX8TPFaGJhXr0BB1euIXwou1pQGNHk6m
+         W9XKrzdjiQhnOV7dJK0pCRRVB1GxpcN27CtmtDEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 147/161] intel_th: pci: Add Comet Lake PCH-V support
-Date:   Sun, 29 Dec 2019 18:19:55 +0100
-Message-Id: <20191229162445.694594735@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.14 153/161] ext4: unlock on error in ext4_expand_extra_isize()
+Date:   Sun, 29 Dec 2019 18:20:01 +0100
+Message-Id: <20191229162448.023040916@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -44,35 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit e4de2a5d51f97a6e720a1c0911f93e2d8c2f1c08 upstream.
+commit 7f420d64a08c1dcd65b27be82a27cf2bdb2e7847 upstream.
 
-This adds Intel(R) Trace Hub PCI ID for Comet Lake PCH-V.
+We need to unlock the xattr before returning on this error path.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191217115527.74383-2-alexander.shishkin@linux.intel.com
+Cc: stable@kernel.org # 4.13
+Fixes: c03b45b853f5 ("ext4, project: expand inode extra size if possible")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20191213185010.6k7yl2tck3wlsdkt@kili.mountain
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/pci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/ext4/inode.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -189,6 +189,11 @@ static const struct pci_device_id intel_
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
- 	{
-+		/* Comet Lake PCH-V */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa3a6),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
-+	{
- 		/* Ice Lake NNPI */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x45c5),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5874,7 +5874,7 @@ int ext4_expand_extra_isize(struct inode
+ 	error = ext4_journal_get_write_access(handle, iloc->bh);
+ 	if (error) {
+ 		brelse(iloc->bh);
+-		goto out_stop;
++		goto out_unlock;
+ 	}
+ 
+ 	error = __ext4_expand_extra_isize(inode, new_extra_isize, iloc,
+@@ -5884,8 +5884,8 @@ int ext4_expand_extra_isize(struct inode
+ 	if (!error)
+ 		error = rc;
+ 
++out_unlock:
+ 	ext4_write_unlock_xattr(inode, &no_expand);
+-out_stop:
+ 	ext4_journal_stop(handle);
+ 	return error;
+ }
 
 
