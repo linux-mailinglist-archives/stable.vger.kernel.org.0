@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 086F512C433
+	by mail.lfdr.de (Postfix) with ESMTP id ED30412C435
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:29:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728412AbfL2R1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:27:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49586 "EHLO mail.kernel.org"
+        id S1728429AbfL2R1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:27:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728407AbfL2R1X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:27:23 -0500
+        id S1728427AbfL2R1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:27:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97AF320409;
-        Sun, 29 Dec 2019 17:27:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE143207FF;
+        Sun, 29 Dec 2019 17:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640443;
-        bh=OORXKoTj2jb5eERyHJvdewqHrX+uXcuvpVT8e1gscLg=;
+        s=default; t=1577640450;
+        bh=GeRHI4wtHwGBZ8S0i93TJGTNEm4NYvktmCcr2ia8CD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=You3DEEhvXRf58/J0W5JmFfV6ZxNKYfIwM6+8+H2IQwft883fpZytUE8YZtwYdQmx
-         Fp1f7V77sr+ZlARk+0+YzsuiEWab5jKWdT8nYyHpQFJLXfPkpuzriaGj1EJos8Fz0Y
-         bXq7zUqMeYFqGn8dP47Nx/sENLS3B5w3aBOUfHs8=
+        b=J0Acck0b740b1hUQxoRgpcIywx1XD9Of2YLrpVgQPCj9vXWcGvMPQZk0YHcAuj3A4
+         WMoI7X8ESxTCecULRB3zBj5GAmVWU4A29zPXJKMYvY6zq/C0fqQw5WDVOTg2NEh5G/
+         uA1Cscwtxsb19bI+zZ2Tj4HJnMEu+YfR3Pp9qpx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 159/161] mmc: sdhci: Update the tuning failed messages to pr_debug level
-Date:   Sun, 29 Dec 2019 18:20:07 +0100
-Message-Id: <20191229162449.951014721@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 161/161] nbd: fix shutdown and recv work deadlock v2
+Date:   Sun, 29 Dec 2019 18:20:09 +0100
+Message-Id: <20191229162450.809936938@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -43,43 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faiz Abbas <faiz_abbas@ti.com>
+From: Mike Christie <mchristi@redhat.com>
 
-commit 2c92dd20304f505b6ef43d206fff21bda8f1f0ae upstream.
+commit 1c05839aa973cfae8c3db964a21f9c0eef8fcc21 upstream.
 
-Tuning support in DDR50 speed mode was added in SD Specifications Part1
-Physical Layer Specification v3.01. Its not possible to distinguish
-between v3.00 and v3.01 from the SCR and that is why since
-commit 4324f6de6d2e ("mmc: core: enable CMD19 tuning for DDR50 mode")
-tuning failures are ignored in DDR50 speed mode.
+This fixes a regression added with:
 
-Cards compatible with v3.00 don't respond to CMD19 in DDR50 and this
-error gets printed during enumeration and also if retune is triggered at
-any time during operation. Update the printk level to pr_debug so that
-these errors don't lead to false error reports.
+commit e9e006f5fcf2bab59149cb38a48a4817c1b538b4
+Author: Mike Christie <mchristi@redhat.com>
+Date:   Sun Aug 4 14:10:06 2019 -0500
 
-Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
-Cc: stable@vger.kernel.org # v4.4+
-Link: https://lore.kernel.org/r/20191206114326.15856-1-faiz_abbas@ti.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+    nbd: fix max number of supported devs
+
+where we can deadlock during device shutdown. The problem occurs if
+the recv_work's nbd_config_put occurs after nbd_start_device_ioctl has
+returned and the userspace app has droppped its reference via closing
+the device and running nbd_release. The recv_work nbd_config_put call
+would then drop the refcount to zero and try to destroy the config which
+would try to do destroy_workqueue from the recv work.
+
+This patch just has nbd_start_device_ioctl do a flush_workqueue when it
+wakes so we know after the ioctl returns running works have exited. This
+also fixes a possible race where we could try to reuse the device while
+old recv_works are still running.
+
+Cc: stable@vger.kernel.org
+Fixes: e9e006f5fcf2 ("nbd: fix max number of supported devs")
+Signed-off-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/block/nbd.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -2162,8 +2162,8 @@ static void __sdhci_execute_tuning(struc
- 		sdhci_send_tuning(host, opcode);
- 
- 		if (!host->tuning_done) {
--			pr_info("%s: Tuning timeout, falling back to fixed sampling clock\n",
--				mmc_hostname(host->mmc));
-+			pr_debug("%s: Tuning timeout, falling back to fixed sampling clock\n",
-+				 mmc_hostname(host->mmc));
- 			sdhci_abort_tuning(host, opcode);
- 			return;
- 		}
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1234,10 +1234,10 @@ static int nbd_start_device_ioctl(struct
+ 	mutex_unlock(&nbd->config_lock);
+ 	ret = wait_event_interruptible(config->recv_wq,
+ 					 atomic_read(&config->recv_threads) == 0);
+-	if (ret) {
++	if (ret)
+ 		sock_shutdown(nbd);
+-		flush_workqueue(nbd->recv_workq);
+-	}
++	flush_workqueue(nbd->recv_workq);
++
+ 	mutex_lock(&nbd->config_lock);
+ 	bd_set_size(bdev, 0);
+ 	/* user requested, ignore socket errors */
 
 
