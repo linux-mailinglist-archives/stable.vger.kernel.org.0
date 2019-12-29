@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A41012C3E8
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:25:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B44D12C3EA
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:25:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727781AbfL2RYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:24:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43630 "EHLO mail.kernel.org"
+        id S1727115AbfL2RYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:24:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726798AbfL2RYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:24:40 -0500
+        id S1727461AbfL2RYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:24:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D12721744;
-        Sun, 29 Dec 2019 17:24:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79A2120722;
+        Sun, 29 Dec 2019 17:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640279;
-        bh=qPa9f1D9WvdhoWOuKk8A0b9ytd5Lrof4fW2C7ovkG2s=;
+        s=default; t=1577640281;
+        bh=BofCDVqTkD8Y/rfncmPPBc15ufrbz/f+3k7K6svFldE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haek8nzNQoQ6URlwozFmZop+qXRSdI6G3AT1MRLHjihOZdD/4cxOS4dvzbCnOJVs1
-         +UegNwbXE91InrBi6A78UKow28Hhof4N654OS7kp4y2QfGxaX3a+ecadM+PL8bu3/R
-         +JqLVYsiRJFpDZOGPiAKKqUKDTkVYzwpsSt6LjD8=
+        b=KC/msKVQhvF2W0xOGRYESPUZvv3Gm2oGexFXFRN3OvHrnyRqKOXHu7AR+BTWP6Ro0
+         9zue6cVoo5/uPgWFCEQllUwD5vGI9d94zLVt3Q8kB0Ykb3U6FfWKGRWUMOKVlv6zyR
+         fQNuoWRVJYo7/iqlV84mEkx6vmt0kqAE5hRY4HDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 093/161] perf probe: Fix to list probe event with correct line number
-Date:   Sun, 29 Dec 2019 18:19:01 +0100
-Message-Id: <20191229162426.298124461@linuxfoundation.org>
+Subject: [PATCH 4.14 094/161] perf probe: Walk function lines in lexical blocks
+Date:   Sun, 29 Dec 2019 18:19:02 +0100
+Message-Id: <20191229162426.386977855@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -48,74 +48,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 3895534dd78f0fd4d3f9e05ee52b9cdd444a743e ]
+[ Upstream commit acb6a7047ac2146b723fef69ee1ab6b7143546bf ]
 
-Since debuginfo__find_probe_point() uses dwarf_entrypc() for finding the
-entry address of the function on which a probe is, it will fail when the
-function DIE has only ranges attribute.
+Since some inlined functions are in lexical blocks of given function, we
+have to recursively walk through the DIE tree.  Without this fix,
+perf-probe -L can miss the inlined functions which is in a lexical block
+(like if (..) { func() } case.)
 
-To fix this issue, use die_entrypc() instead of dwarf_entrypc().
+However, even though, to walk the lines in a given function, we don't
+need to follow the children DIE of inlined functions because those do
+not have any lines in the specified function.
 
-Without this fix, perf probe -l shows incorrect offset:
+We need to walk though whole trees only if we walk all lines in a given
+file, because an inlined function can include another inlined function
+in the same file.
 
-  # perf probe -l
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask+18446744071579263632@work/linux/linux/kernel/cpu.c)
-    probe:clear_tasks_mm_cpumask_1 (on clear_tasks_mm_cpumask+18446744071579263752@work/linux/linux/kernel/cpu.c)
-
-With this:
-
-  # perf probe -l
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask@work/linux/linux/kernel/cpu.c)
-    probe:clear_tasks_mm_cpumask_1 (on clear_tasks_mm_cpumask:21@work/linux/linux/kernel/cpu.c)
-
-Committer testing:
-
-Before:
-
-  [root@quaco ~]# perf probe -l
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask+18446744071579765152@kernel/cpu.c)
-  [root@quaco ~]#
-
-After:
-
-  [root@quaco ~]# perf probe -l
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask@kernel/cpu.c)
-  [root@quaco ~]#
-
-Fixes: 1d46ea2a6a40 ("perf probe: Fix listing incorrect line number with inline function")
+Fixes: b0e9cb2802d4 ("perf probe: Fix to search nested inlined functions in CU")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157199321227.8075.14655572419136993015.stgit@devnote2
+Link: http://lore.kernel.org/lkml/157190836514.1859.15996864849678136353.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/perf/util/dwarf-aux.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index a5731de0e5eb..5fee71e960a6 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -1570,7 +1570,7 @@ int debuginfo__find_probe_point(struct debuginfo *dbg, unsigned long addr,
- 		/* Get function entry information */
- 		func = basefunc = dwarf_diename(&spdie);
- 		if (!func ||
--		    dwarf_entrypc(&spdie, &baseaddr) != 0 ||
-+		    die_entrypc(&spdie, &baseaddr) != 0 ||
- 		    dwarf_decl_line(&spdie, &baseline) != 0) {
- 			lineno = 0;
- 			goto post;
-@@ -1587,7 +1587,7 @@ int debuginfo__find_probe_point(struct debuginfo *dbg, unsigned long addr,
- 		while (die_find_top_inlinefunc(&spdie, (Dwarf_Addr)addr,
- 						&indie)) {
- 			/* There is an inline function */
--			if (dwarf_entrypc(&indie, &_addr) == 0 &&
-+			if (die_entrypc(&indie, &_addr) == 0 &&
- 			    _addr == addr) {
- 				/*
- 				 * addr is at an inline function entry.
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index bc52b3840706..e5406e5adb68 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -691,10 +691,9 @@ static int __die_walk_funclines_cb(Dwarf_Die *in_die, void *data)
+ 			if (lw->retval != 0)
+ 				return DIE_FIND_CB_END;
+ 		}
++		if (!lw->recursive)
++			return DIE_FIND_CB_SIBLING;
+ 	}
+-	if (!lw->recursive)
+-		/* Don't need to search recursively */
+-		return DIE_FIND_CB_SIBLING;
+ 
+ 	if (addr) {
+ 		fname = dwarf_decl_file(in_die);
+@@ -741,6 +740,10 @@ static int __die_walk_culines_cb(Dwarf_Die *sp_die, void *data)
+ {
+ 	struct __line_walk_param *lw = data;
+ 
++	/*
++	 * Since inlined function can include another inlined function in
++	 * the same file, we need to walk in it recursively.
++	 */
+ 	lw->retval = __die_walk_funclines(sp_die, true, lw->callback, lw->data);
+ 	if (lw->retval != 0)
+ 		return DWARF_CB_ABORT;
+@@ -830,8 +833,9 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
+ 	 */
+ 	if (rt_die != cu_die)
+ 		/*
+-		 * Don't need walk functions recursively, because nested
+-		 * inlined functions don't have lines of the specified DIE.
++		 * Don't need walk inlined functions recursively, because
++		 * inner inlined functions don't have the lines of the
++		 * specified function.
+ 		 */
+ 		ret = __die_walk_funclines(rt_die, false, callback, data);
+ 	else {
 -- 
 2.20.1
 
