@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2823B12C678
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:54:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84BF712C655
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:54:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731238AbfL2RrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:47:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57754 "EHLO mail.kernel.org"
+        id S1730972AbfL2Rpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:45:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731235AbfL2RrR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:47:17 -0500
+        id S1730970AbfL2Rpu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:45:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F83F208C4;
-        Sun, 29 Dec 2019 17:47:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B788A206A4;
+        Sun, 29 Dec 2019 17:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641636;
-        bh=/hfN6siHm7KQjOiqFX4DdWf836lc/u3N4UUXUl5d0Hs=;
+        s=default; t=1577641550;
+        bh=z+IZKJRaJPxusKXmSuBV2nkmuvRVyX141KVDsdaa2v8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtVjCXxB5BlJbLV0PjJpK1tdAaHfbYrttnqH2KvR56kuTwzqALghC6oyM5hh3758v
-         b1IdsWivw0bQ7IeWCExOvngLd0wupG66ooE936mmoMvbiJB4DIKrltfQyrwKQrNq99
-         LwOqqWxzYcsx2V08l8kUpMZV3H5kgEG72gTeTS+g=
+        b=H92k1kfuiS1xQDsgqo3YxBglNod3VP3VFQnNu+p3Sd/noMx5YCDJRjYKSISfxNrOl
+         WlqMQAhMVWQ1aRUbbJuBMpbtVVsuwMgTc3OnEuxPsT4b47hqoCCNjVJHUwhUj/m6kx
+         ZMkszgRQB5g8v+12rxWH9cc4UpBMNGVn9cwQQcXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sean Paul <sean@poorly.run>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Jonathan Kim <Jonathan.Kim@amd.com>,
+        Oak Zeng <Oak.Zeng@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 109/434] drm/bridge: dw-hdmi: Refuse DDC/CI transfers on the internal I2C controller
-Date:   Sun, 29 Dec 2019 18:22:42 +0100
-Message-Id: <20191229172708.876152596@linuxfoundation.org>
+Subject: [PATCH 5.4 113/434] drm/amdkfd: Fix MQD size calculation
+Date:   Sun, 29 Dec 2019 18:22:46 +0100
+Message-Id: <20191229172709.167510434@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,58 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: Oak Zeng <Oak.Zeng@amd.com>
 
-[ Upstream commit bee447e224b2645911c5d06e35dc90d8433fcef6 ]
+[ Upstream commit 40a9592a26608e16f7545a068ea4165e1869f629 ]
 
-The DDC/CI protocol involves sending a multi-byte request to the
-display via I2C, which is typically followed by a multi-byte
-response. The internal I2C controller only allows single byte
-reads/writes or reads of 8 sequential bytes, hence DDC/CI is not
-supported when the internal I2C controller is used. The I2C
-transfers complete without errors, however the data in the response
-is garbage. Abort transfers to/from slave address 0x37 (DDC) with
--EOPNOTSUPP, to make it evident that the communication is failing.
+On device initialization, a chunk of GTT memory is pre-allocated for
+HIQ and all SDMA queues mqd. The size of this allocation was wrong.
+The correct sdma engine number should be PCIe-optimized SDMA engine
+number plus xgmi SDMA engine number.
 
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Sean Paul <sean@poorly.run>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191002124354.v2.1.I709dfec496f5f0b44a7b61dcd4937924da8d8382@changeid
+Reported-by: Jonathan Kim <Jonathan.Kim@amd.com>
+Signed-off-by: Jonathan Kim <Jonathan.Kim@amd.com>
+Signed-off-by: Oak Zeng <Oak.Zeng@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-index 521d689413c8..3e82d604201e 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-@@ -36,6 +36,7 @@
- #include "dw-hdmi-cec.h"
- #include "dw-hdmi.h"
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+index d985e31fcc1e..f335f73919d1 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+@@ -1676,7 +1676,8 @@ static int allocate_hiq_sdma_mqd(struct device_queue_manager *dqm)
+ 	struct kfd_dev *dev = dqm->dev;
+ 	struct kfd_mem_obj *mem_obj = &dqm->hiq_sdma_mqd;
+ 	uint32_t size = dqm->mqd_mgrs[KFD_MQD_TYPE_SDMA]->mqd_size *
+-		dev->device_info->num_sdma_engines *
++		(dev->device_info->num_sdma_engines +
++		dev->device_info->num_xgmi_sdma_engines) *
+ 		dev->device_info->num_sdma_queues_per_engine +
+ 		dqm->mqd_mgrs[KFD_MQD_TYPE_HIQ]->mqd_size;
  
-+#define DDC_CI_ADDR		0x37
- #define DDC_SEGMENT_ADDR	0x30
- 
- #define HDMI_EDID_LEN		512
-@@ -398,6 +399,15 @@ static int dw_hdmi_i2c_xfer(struct i2c_adapter *adap,
- 	u8 addr = msgs[0].addr;
- 	int i, ret = 0;
- 
-+	if (addr == DDC_CI_ADDR)
-+		/*
-+		 * The internal I2C controller does not support the multi-byte
-+		 * read and write operations needed for DDC/CI.
-+		 * TOFIX: Blacklist the DDC/CI address until we filter out
-+		 * unsupported I2C operations.
-+		 */
-+		return -EOPNOTSUPP;
-+
- 	dev_dbg(hdmi->dev, "xfer: num: %d, addr: %#x\n", num, addr);
- 
- 	for (i = 0; i < num; i++) {
 -- 
 2.20.1
 
