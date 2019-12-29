@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B88712C718
+	by mail.lfdr.de (Postfix) with ESMTP id BEB8312C719
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732578AbfL2Rx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732574AbfL2Rx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 29 Dec 2019 12:53:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732566AbfL2Rxy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:53:54 -0500
+        id S1732572AbfL2Rx4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:53:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69339206A4;
-        Sun, 29 Dec 2019 17:53:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA097206DB;
+        Sun, 29 Dec 2019 17:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642033;
-        bh=rloNvJ1sp6nkRYsCpfljBrPrcFA3N1iM3tF9KZ+ySL4=;
+        s=default; t=1577642036;
+        bh=oYXQTWvyH4yBWYkoSSVx9Y69YbQsbQ3yP4IUKIK1D8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rU8P+ejaug4gSRC0M5QC8waAYPfgdGYmp42X4S26GApMyQ7HUMlAWsA1pYevOV7hP
-         IMzKS93JWsubHxfhgE3aeDQp/oqkJrNbPXzHAK5nCC0tswbbfLIH7Wog/CpAxd+0Pi
-         0XoFL3x9ok0cjs9SRHPFUuauY7dae72uVa7/t4xU=
+        b=zYZ06k4Ho+P0mAo7CPXNHu3annACHMHB029TIGJG9uezmAO6sainkHjRpBW28upGa
+         X9/w2q0Ul8fDM+C9Hrttu87Gb03ICIaSisM2nO/mfP6njjzZVs5sOWDkU4CY+LAJi4
+         nf3g2v8NkF8RkhaxNwuv0NdNLM8Mdfc1PfXfSfmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petar Penkov <ppenkov@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 313/434] tun: fix data-race in gro_normal_list()
-Date:   Sun, 29 Dec 2019 18:26:06 +0100
-Message-Id: <20191229172722.746198342@linuxfoundation.org>
+Subject: [PATCH 5.4 314/434] xhci-pci: Allow host runtime PM as default also for Intel Ice Lake xHCI
+Date:   Sun, 29 Dec 2019 18:26:07 +0100
+Message-Id: <20191229172722.812454048@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,90 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petar Penkov <ppenkov@google.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit c39e342a050a4425348e6fe7f75827c0a1a7ebc5 ]
+[ Upstream commit 07a594f353655b1628f598add352e7e754f44869 ]
 
-There is a race in the TUN driver between napi_busy_loop and
-napi_gro_frags. This commit resolves the race by adding the NAPI struct
-via netif_tx_napi_add, instead of netif_napi_add, which disables polling
-for the NAPI struct.
+Intel Ice Lake has two xHCI controllers one on PCH and the other as part
+of the CPU itself. The latter is also part of the so called Type C
+Subsystem (TCSS) sharing ACPI power resources with the PCIe root ports
+and the Thunderbolt controllers. In order to put the whole TCSS block
+into D3cold the xHCI needs to be runtime suspended as well when idle.
 
-KCSAN reported:
-BUG: KCSAN: data-race in gro_normal_list.part.0 / napi_busy_loop
+For this reason allow runtime PM as default for Ice Lake TCSS xHCI
+controller.
 
-write to 0xffff8880b5d474b0 of 4 bytes by task 11205 on cpu 0:
- gro_normal_list.part.0+0x77/0xb0 net/core/dev.c:5682
- gro_normal_list net/core/dev.c:5678 [inline]
- gro_normal_one net/core/dev.c:5692 [inline]
- napi_frags_finish net/core/dev.c:5705 [inline]
- napi_gro_frags+0x625/0x770 net/core/dev.c:5778
- tun_get_user+0x2150/0x26a0 drivers/net/tun.c:1976
- tun_chr_write_iter+0x79/0xd0 drivers/net/tun.c:2022
- call_write_iter include/linux/fs.h:1895 [inline]
- do_iter_readv_writev+0x487/0x5b0 fs/read_write.c:693
- do_iter_write fs/read_write.c:970 [inline]
- do_iter_write+0x13b/0x3c0 fs/read_write.c:951
- vfs_writev+0x118/0x1c0 fs/read_write.c:1015
- do_writev+0xe3/0x250 fs/read_write.c:1058
- __do_sys_writev fs/read_write.c:1131 [inline]
- __se_sys_writev fs/read_write.c:1128 [inline]
- __x64_sys_writev+0x4e/0x60 fs/read_write.c:1128
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-read to 0xffff8880b5d474b0 of 4 bytes by task 11168 on cpu 1:
- gro_normal_list net/core/dev.c:5678 [inline]
- napi_busy_loop+0xda/0x4f0 net/core/dev.c:6126
- sk_busy_loop include/net/busy_poll.h:108 [inline]
- __skb_recv_udp+0x4ad/0x560 net/ipv4/udp.c:1689
- udpv6_recvmsg+0x29e/0xe90 net/ipv6/udp.c:288
- inet6_recvmsg+0xbb/0x240 net/ipv6/af_inet6.c:592
- sock_recvmsg_nosec net/socket.c:871 [inline]
- sock_recvmsg net/socket.c:889 [inline]
- sock_recvmsg+0x92/0xb0 net/socket.c:885
- sock_read_iter+0x15f/0x1e0 net/socket.c:967
- call_read_iter include/linux/fs.h:1889 [inline]
- new_sync_read+0x389/0x4f0 fs/read_write.c:414
- __vfs_read+0xb1/0xc0 fs/read_write.c:427
- vfs_read fs/read_write.c:461 [inline]
- vfs_read+0x143/0x2c0 fs/read_write.c:446
- ksys_read+0xd5/0x1b0 fs/read_write.c:587
- __do_sys_read fs/read_write.c:597 [inline]
- __se_sys_read fs/read_write.c:595 [inline]
- __x64_sys_read+0x4c/0x60 fs/read_write.c:595
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 11168 Comm: syz-executor.0 Not tainted 5.4.0-rc6+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
-Signed-off-by: Petar Penkov <ppenkov@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1573836603-10871-5-git-send-email-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tun.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index a8d3141582a5..16564ebcde50 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -313,8 +313,8 @@ static void tun_napi_init(struct tun_struct *tun, struct tun_file *tfile,
- 	tfile->napi_enabled = napi_en;
- 	tfile->napi_frags_enabled = napi_en && napi_frags;
- 	if (napi_en) {
--		netif_napi_add(tun->dev, &tfile->napi, tun_napi_poll,
--			       NAPI_POLL_WEIGHT);
-+		netif_tx_napi_add(tun->dev, &tfile->napi, tun_napi_poll,
-+				  NAPI_POLL_WEIGHT);
- 		napi_enable(&tfile->napi);
- 	}
- }
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 1904ef56f61c..2907fe4d78dd 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -48,6 +48,7 @@
+ #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI		0x15e9
+ #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_4C_XHCI		0x15ec
+ #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI		0x15f0
++#define PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI		0x8a13
+ 
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
+@@ -212,7 +213,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_4C_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI))
++	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI))
+ 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
 -- 
 2.20.1
 
