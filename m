@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF11812C9A5
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27F1412C775
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730594AbfL2SMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 13:12:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47834 "EHLO mail.kernel.org"
+        id S1730199AbfL2Rln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:41:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730113AbfL2Rl7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:41:59 -0500
+        id S1730198AbfL2Rlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:41:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81C24206A4;
-        Sun, 29 Dec 2019 17:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE6F524654;
+        Sun, 29 Dec 2019 17:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641319;
-        bh=MOYIgWAP8DXe6sfwEWuxE2tRlxNZzRBowLo1xbmA7PU=;
+        s=default; t=1577641302;
+        bh=08HdQwKZUvJ1oXyHSEscem+bEbXWhakOQFgYdODZJdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b60lffrRsfDd757e/yoynU+K92qJb00ThM+vH/JdCC79LAmp7/4CEUgg1745T7cxK
-         raIxUm7ThBzFpyoDw23IZS4OqbAJl6mEsRauDZ3K3SMpgiSc5S8szuyWoAuNnKo0l7
-         /Uw25031YWHhSHeUD/bOjyZQlSDgyVHzmSH8b/Fk=
+        b=xaqH4RIu7OGQPiA2ibpWswE8bMabCYyG4OKDDudwO2lWjBoyJcULsF+kD13CVab2M
+         xq9XeMAB3EAMWxsdsUj1zrm7FI/gNcORgPrzjav87H+8/bttN3UzqDjGMqA2BfP4/l
+         KCoPS37kP3QRN2av/u2jKgDr6H/CRKCQtAxKxJ5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 002/434] fjes: fix missed check in fjes_acpi_add
-Date:   Sun, 29 Dec 2019 18:20:55 +0100
-Message-Id: <20191229172702.537468638@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+30209ea299c09d8785c9@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        David Miller <davem@davemloft.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jouni Hogander <jouni.hogander@unikie.com>
+Subject: [PATCH 5.4 010/434] net-sysfs: Call dev_hold always in rx_queue_add_kobject
+Date:   Sun, 29 Dec 2019 18:21:03 +0100
+Message-Id: <20191229172702.962912129@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -43,32 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-[ Upstream commit a288f105a03a7e0e629a8da2b31f34ebf0343ee2 ]
+[ Upstream commit ddd9b5e3e765d8ed5a35786a6cb00111713fe161 ]
 
-fjes_acpi_add() misses a check for platform_device_register_simple().
-Add a check to fix it.
+Dev_hold has to be called always in rx_queue_add_kobject.
+Otherwise usage count drops below 0 in case of failure in
+kobject_init_and_add.
 
-Fixes: 658d439b2292 ("fjes: Introduce FUJITSU Extended Socket Network Device driver")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Fixes: b8eb718348b8 ("net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject")
+Reported-by: syzbot <syzbot+30209ea299c09d8785c9@syzkaller.appspotmail.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: David Miller <davem@davemloft.net>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/fjes/fjes_main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/core/net-sysfs.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/net/fjes/fjes_main.c
-+++ b/drivers/net/fjes/fjes_main.c
-@@ -166,6 +166,9 @@ static int fjes_acpi_add(struct acpi_dev
- 	/* create platform_device */
- 	plat_dev = platform_device_register_simple(DRV_NAME, 0, fjes_resource,
- 						   ARRAY_SIZE(fjes_resource));
-+	if (IS_ERR(plat_dev))
-+		return PTR_ERR(plat_dev);
-+
- 	device->driver_data = plat_dev;
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -919,14 +919,17 @@ static int rx_queue_add_kobject(struct n
+ 	struct kobject *kobj = &queue->kobj;
+ 	int error = 0;
  
- 	return 0;
++	/* Kobject_put later will trigger rx_queue_release call which
++	 * decreases dev refcount: Take that reference here
++	 */
++	dev_hold(queue->dev);
++
+ 	kobj->kset = dev->queues_kset;
+ 	error = kobject_init_and_add(kobj, &rx_queue_ktype, NULL,
+ 				     "rx-%u", index);
+ 	if (error)
+ 		goto err;
+ 
+-	dev_hold(queue->dev);
+-
+ 	if (dev->sysfs_rx_queue_group) {
+ 		error = sysfs_create_group(kobj, dev->sysfs_rx_queue_group);
+ 		if (error)
 
 
