@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ED2F12C553
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E215E12C556
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729868AbfL2Rf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:35:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39844 "EHLO mail.kernel.org"
+        id S1729860AbfL2Rfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:35:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729860AbfL2Rf2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:35:28 -0500
+        id S1729877AbfL2Rfa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:35:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A024C20722;
-        Sun, 29 Dec 2019 17:35:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0ADBB207FD;
+        Sun, 29 Dec 2019 17:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640927;
-        bh=c9b6OKlQqOcUvreMwfz4Fjqz6vFxAyl9R2MOdBqkuX8=;
+        s=default; t=1577640929;
+        bh=9+QBl7TrOgrI8z1wzHDeCsLc+etCg3O/tjMsm2XPdbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vyZNBg+jmaeL623pYmQhRmxEq/cDnmxsEdOnMe0UuOgxOaPV5Kv5pAlFgR7pJ1gE1
-         WJ8cq3hsFSWzEmwDGki3PnHI4ZpOYq0D7dI7DK4HpEcFAOP5PYojmlaha+sUpeKULK
-         MDkvAYL94TEooN+1LoU5Yh9FNRS1Pkn6pL+Ol7v0=
+        b=e/UBDAAbO0YUIMidBEZlZiOBlwZVehz3jEJbIUxV5fTque99JC9m5x1Lop4u3y/o8
+         HlbcIlHu3OSyKGb2T8hPJxbseWjRu1RFAz5Jt/PCQ+E+QWvohPb6d8gYolKKddx9/T
+         d5mKUvwxnXWSC45JgW86JGLrqGDZJXtpZ0orL064=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 196/219] btrfs: return error pointer from alloc_test_extent_buffer
-Date:   Sun, 29 Dec 2019 18:19:58 +0100
-Message-Id: <20191229162539.453938271@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Suwan Kim <suwan.kim027@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 4.19 197/219] usbip: Fix receive error in vhci-hcd when using scatter-gather
+Date:   Sun, 29 Dec 2019 18:19:59 +0100
+Message-Id: <20191229162539.623519867@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -44,83 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Suwan Kim <suwan.kim027@gmail.com>
 
-[ Upstream commit b6293c821ea8fa2a631a2112cd86cd435effeb8b ]
+commit d986294ee55d719562b20aabe15a39bf8f863415 upstream.
 
-Callers of alloc_test_extent_buffer have not correctly interpreted the
-return value as error pointer, as alloc_test_extent_buffer should behave
-as alloc_extent_buffer. The self-tests were unaffected but
-btrfs_find_create_tree_block could call both functions and that would
-cause problems up in the call chain.
+When vhci uses SG and receives data whose size is smaller than SG
+buffer size, it tries to receive more data even if it acutally
+receives all the data from the server. If then, it erroneously adds
+error event and triggers connection shutdown.
 
-Fixes: faa2dbf004e8 ("Btrfs: add sanity tests for new qgroup accounting code")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+vhci-hcd should check if it received all the data even if there are
+more SG entries left. So, check if it receivces all the data from
+the server in for_each_sg() loop.
+
+Fixes: ea44d190764b ("usbip: Implement SG support to vhci-hcd and stub driver")
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191213023055.19933-2-suwan.kim027@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/btrfs/extent_io.c                   | 6 ++++--
- fs/btrfs/tests/free-space-tree-tests.c | 4 ++--
- fs/btrfs/tests/qgroup-tests.c          | 4 ++--
- 3 files changed, 8 insertions(+), 6 deletions(-)
+ drivers/usb/usbip/usbip_common.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 88fc5a0c573f..fed44390c049 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4888,12 +4888,14 @@ struct extent_buffer *alloc_test_extent_buffer(struct btrfs_fs_info *fs_info,
- 		return eb;
- 	eb = alloc_dummy_extent_buffer(fs_info, start);
- 	if (!eb)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 	eb->fs_info = fs_info;
- again:
- 	ret = radix_tree_preload(GFP_NOFS);
--	if (ret)
-+	if (ret) {
-+		exists = ERR_PTR(ret);
- 		goto free_eb;
-+	}
- 	spin_lock(&fs_info->buffer_lock);
- 	ret = radix_tree_insert(&fs_info->buffer_radix,
- 				start >> PAGE_SHIFT, eb);
-diff --git a/fs/btrfs/tests/free-space-tree-tests.c b/fs/btrfs/tests/free-space-tree-tests.c
-index 89346da890cf..de8fef91ac48 100644
---- a/fs/btrfs/tests/free-space-tree-tests.c
-+++ b/fs/btrfs/tests/free-space-tree-tests.c
-@@ -462,9 +462,9 @@ static int run_test(test_func_t test_func, int bitmaps, u32 sectorsize,
- 	root->fs_info->tree_root = root;
+--- a/drivers/usb/usbip/usbip_common.c
++++ b/drivers/usb/usbip/usbip_common.c
+@@ -727,6 +727,9 @@ int usbip_recv_xbuff(struct usbip_device
  
- 	root->node = alloc_test_extent_buffer(root->fs_info, nodesize);
--	if (!root->node) {
-+	if (IS_ERR(root->node)) {
- 		test_err("couldn't allocate dummy buffer");
--		ret = -ENOMEM;
-+		ret = PTR_ERR(root->node);
- 		goto out;
- 	}
- 	btrfs_set_header_level(root->node, 0);
-diff --git a/fs/btrfs/tests/qgroup-tests.c b/fs/btrfs/tests/qgroup-tests.c
-index 412b910b04cc..d07dd26194b1 100644
---- a/fs/btrfs/tests/qgroup-tests.c
-+++ b/fs/btrfs/tests/qgroup-tests.c
-@@ -484,9 +484,9 @@ int btrfs_test_qgroups(u32 sectorsize, u32 nodesize)
- 	 * *cough*backref walking code*cough*
- 	 */
- 	root->node = alloc_test_extent_buffer(root->fs_info, nodesize);
--	if (!root->node) {
-+	if (IS_ERR(root->node)) {
- 		test_err("couldn't allocate dummy buffer");
--		ret = -ENOMEM;
-+		ret = PTR_ERR(root->node);
- 		goto out;
- 	}
- 	btrfs_set_header_level(root->node, 0);
--- 
-2.20.1
-
+ 			copy -= recv;
+ 			ret += recv;
++
++			if (!copy)
++				break;
+ 		}
+ 
+ 		if (ret != size)
 
 
