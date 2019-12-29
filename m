@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AB6712C8A5
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F072012C8A8
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733127AbfL2R4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:56:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46784 "EHLO mail.kernel.org"
+        id S1733116AbfL2R4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:56:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733123AbfL2R4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:56:49 -0500
+        id S1733131AbfL2R4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:56:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BF04222C3;
-        Sun, 29 Dec 2019 17:56:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A087222C4;
+        Sun, 29 Dec 2019 17:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642208;
-        bh=c1FQrMMv8I7o3y+VLYP45P+pAFjvh2uqwH/WJErZ/Eo=;
+        s=default; t=1577642211;
+        bh=9+QBl7TrOgrI8z1wzHDeCsLc+etCg3O/tjMsm2XPdbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lzivx37GoMPZxbE83qMDm7WyhL7NbjTleRsm+YdflGjUscCQcEM3KAHystoRcyP7q
-         HA5QVrZwl7YqFknwPOQ+l2vdpYXhkqFk41S0oikhgaCxxMwBzWKqKjBhkD/W0irq16
-         HRwoNwJIubQGTBMYL1wAiLceQuaE2ftaCkCG0hwI=
+        b=javd6JytPKfDtnMrXzpvtl5/j3U1luHzPItYYbrePA3W20jlA1BsAZOKgMk04UD0U
+         C4470RPd8rXpJMr8Ew3qI9eJwp8y1DpL+oG6B2eWcY8Q2xm2af2iwpFReZyEU+iCmb
+         gFzgpL1lepXrqkT1D2LwH4A9fI5Lv1JlfgpuILaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 388/434] can: flexcan: add low power enter/exit acknowledgment helper
-Date:   Sun, 29 Dec 2019 18:27:21 +0100
-Message-Id: <20191229172728.013499830@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Suwan Kim <suwan.kim027@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.4 389/434] usbip: Fix receive error in vhci-hcd when using scatter-gather
+Date:   Sun, 29 Dec 2019 18:27:22 +0100
+Message-Id: <20191229172728.095110722@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,108 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Suwan Kim <suwan.kim027@gmail.com>
 
-[ Upstream commit b7603d080ffcf8689ec91ca300caf84d8dbed317 ]
+commit d986294ee55d719562b20aabe15a39bf8f863415 upstream.
 
-The MCR[LPMACK] read-only bit indicates that FlexCAN is in a lower-power
-mode (Disabled mode, Doze mode, Stop mode).
+When vhci uses SG and receives data whose size is smaller than SG
+buffer size, it tries to receive more data even if it acutally
+receives all the data from the server. If then, it erroneously adds
+error event and triggers connection shutdown.
 
-The CPU can poll this bit to know when FlexCAN has actually entered low
-power mode. The low power enter/exit acknowledgment helper will reduce
-code duplication for disabled mode, doze mode and stop mode.
+vhci-hcd should check if it received all the data even if there are
+more SG entries left. So, check if it receivces all the data from
+the server in for_each_sg() loop.
 
-Tested-by: Sean Nyekjaer <sean@geanix.com>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ea44d190764b ("usbip: Implement SG support to vhci-hcd and stub driver")
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191213023055.19933-2-suwan.kim027@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/can/flexcan.c | 46 +++++++++++++++++++++++++--------------
- 1 file changed, 30 insertions(+), 16 deletions(-)
+ drivers/usb/usbip/usbip_common.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
-index 99b3492ea130..e5c207ad3c77 100644
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -389,6 +389,34 @@ static struct flexcan_mb __iomem *flexcan_get_mb(const struct flexcan_priv *priv
- 		(&priv->regs->mb[bank][priv->mb_size * mb_index]);
- }
+--- a/drivers/usb/usbip/usbip_common.c
++++ b/drivers/usb/usbip/usbip_common.c
+@@ -727,6 +727,9 @@ int usbip_recv_xbuff(struct usbip_device
  
-+static int flexcan_low_power_enter_ack(struct flexcan_priv *priv)
-+{
-+	struct flexcan_regs __iomem *regs = priv->regs;
-+	unsigned int timeout = FLEXCAN_TIMEOUT_US / 10;
+ 			copy -= recv;
+ 			ret += recv;
 +
-+	while (timeout-- && !(priv->read(&regs->mcr) & FLEXCAN_MCR_LPM_ACK))
-+		udelay(10);
-+
-+	if (!(priv->read(&regs->mcr) & FLEXCAN_MCR_LPM_ACK))
-+		return -ETIMEDOUT;
-+
-+	return 0;
-+}
-+
-+static int flexcan_low_power_exit_ack(struct flexcan_priv *priv)
-+{
-+	struct flexcan_regs __iomem *regs = priv->regs;
-+	unsigned int timeout = FLEXCAN_TIMEOUT_US / 10;
-+
-+	while (timeout-- && (priv->read(&regs->mcr) & FLEXCAN_MCR_LPM_ACK))
-+		udelay(10);
-+
-+	if (priv->read(&regs->mcr) & FLEXCAN_MCR_LPM_ACK)
-+		return -ETIMEDOUT;
-+
-+	return 0;
-+}
-+
- static void flexcan_enable_wakeup_irq(struct flexcan_priv *priv, bool enable)
- {
- 	struct flexcan_regs __iomem *regs = priv->regs;
-@@ -493,39 +521,25 @@ static inline int flexcan_transceiver_disable(const struct flexcan_priv *priv)
- static int flexcan_chip_enable(struct flexcan_priv *priv)
- {
- 	struct flexcan_regs __iomem *regs = priv->regs;
--	unsigned int timeout = FLEXCAN_TIMEOUT_US / 10;
- 	u32 reg;
++			if (!copy)
++				break;
+ 		}
  
- 	reg = priv->read(&regs->mcr);
- 	reg &= ~FLEXCAN_MCR_MDIS;
- 	priv->write(reg, &regs->mcr);
- 
--	while (timeout-- && (priv->read(&regs->mcr) & FLEXCAN_MCR_LPM_ACK))
--		udelay(10);
--
--	if (priv->read(&regs->mcr) & FLEXCAN_MCR_LPM_ACK)
--		return -ETIMEDOUT;
--
--	return 0;
-+	return flexcan_low_power_exit_ack(priv);
- }
- 
- static int flexcan_chip_disable(struct flexcan_priv *priv)
- {
- 	struct flexcan_regs __iomem *regs = priv->regs;
--	unsigned int timeout = FLEXCAN_TIMEOUT_US / 10;
- 	u32 reg;
- 
- 	reg = priv->read(&regs->mcr);
- 	reg |= FLEXCAN_MCR_MDIS;
- 	priv->write(reg, &regs->mcr);
- 
--	while (timeout-- && !(priv->read(&regs->mcr) & FLEXCAN_MCR_LPM_ACK))
--		udelay(10);
--
--	if (!(priv->read(&regs->mcr) & FLEXCAN_MCR_LPM_ACK))
--		return -ETIMEDOUT;
--
--	return 0;
-+	return flexcan_low_power_enter_ack(priv);
- }
- 
- static int flexcan_chip_freeze(struct flexcan_priv *priv)
--- 
-2.20.1
-
+ 		if (ret != size)
 
 
