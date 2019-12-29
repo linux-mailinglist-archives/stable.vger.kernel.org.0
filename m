@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0639D12C563
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 680E012C566
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729942AbfL2Rfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:35:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40550 "EHLO mail.kernel.org"
+        id S1729468AbfL2Rfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:35:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729949AbfL2Rft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:35:49 -0500
+        id S1729964AbfL2Rfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:35:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70B0E20722;
-        Sun, 29 Dec 2019 17:35:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFFBF206CB;
+        Sun, 29 Dec 2019 17:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640948;
-        bh=GkB5R2UJ6ARn4a70f3TzS5/TimRwnPueAlRS5du8h58=;
+        s=default; t=1577640951;
+        bh=c7pI5BPeRWKvFov9jV9dvlOvr4Gl0cF47WHKEiQfKFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWWgaRtxa2FbRfNJ1NaqfBlo0jG/2Z82yd72XWIyP3nEX3Bm1dIw5A5hhyb9qokQx
-         oIvbmgFzsrk9eoI9KpUbqU6JMQUrIdrRA6Y7rvdl8kSXorsyTKOqb3KImlk2vqRsi9
-         YLTuZH0HUclqd2B3E2foaU4EzXOfwiFUgnGrvGz4=
+        b=0xULnz/WnWjZPatB0RwpbC8K5TN7i0TilQviC1ODSUbHQJDBAabulpFdb6spQMfBb
+         uiioo5uaXu+KMpZDMFvZ5wJD+RqYgGbfMCNf1dz3XlBs+jI6uupKGNCSTefo2YeXI/
+         8Deb53FXdiOs1+FRjEwYCg4ycNVnX0lbAQEYbKfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.19 204/219] staging: comedi: gsc_hpdi: check dma_alloc_coherent() return value
-Date:   Sun, 29 Dec 2019 18:20:06 +0100
-Message-Id: <20191229162540.582899217@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 205/219] ext4: fix ext4_empty_dir() for directories with holes
+Date:   Sun, 29 Dec 2019 18:20:07 +0100
+Message-Id: <20191229162541.106375449@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -42,54 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Jan Kara <jack@suse.cz>
 
-commit ab42b48f32d4c766420c3499ee9c0289b7028182 upstream.
+commit 64d4ce892383b2ad6d782e080d25502f91bf2a38 upstream.
 
-The "auto-attach" handler function `gsc_hpdi_auto_attach()` calls
-`dma_alloc_coherent()` in a loop to allocate some DMA data buffers, and
-also calls it to allocate a buffer for a DMA descriptor chain.  However,
-it does not check the return value of any of these calls.  Change
-`gsc_hpdi_auto_attach()` to return `-ENOMEM` if any of these
-`dma_alloc_coherent()` calls fail.  This will result in the comedi core
-calling the "detach" handler `gsc_hpdi_detach()` as part of the
-clean-up, which will call `gsc_hpdi_free_dma()` to free any allocated
-DMA coherent memory buffers.
+Function ext4_empty_dir() doesn't correctly handle directories with
+holes and crashes on bh->b_data dereference when bh is NULL. Reorganize
+the loop to use 'offset' variable all the times instead of comparing
+pointers to current direntry with bh->b_data pointer. Also add more
+strict checking of '.' and '..' directory entries to avoid entering loop
+in possibly invalid state on corrupted filesystems.
 
-Cc: <stable@vger.kernel.org> #4.6+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20191216110823.216237-1-abbotti@mev.co.uk
+CC: stable@vger.kernel.org
+Fixes: 4e19d6b65fb4 ("ext4: allow directory holes")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191202170213.4761-2-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/gsc_hpdi.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/ext4/namei.c |   32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
---- a/drivers/staging/comedi/drivers/gsc_hpdi.c
-+++ b/drivers/staging/comedi/drivers/gsc_hpdi.c
-@@ -623,6 +623,11 @@ static int gsc_hpdi_auto_attach(struct c
- 		    dma_alloc_coherent(&pcidev->dev, DMA_BUFFER_SIZE,
- 				       &devpriv->dio_buffer_phys_addr[i],
- 				       GFP_KERNEL);
-+		if (!devpriv->dio_buffer[i]) {
-+			dev_warn(dev->class_dev,
-+				 "failed to allocate DMA buffer\n");
-+			return -ENOMEM;
-+		}
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -2693,7 +2693,7 @@ bool ext4_empty_dir(struct inode *inode)
+ {
+ 	unsigned int offset;
+ 	struct buffer_head *bh;
+-	struct ext4_dir_entry_2 *de, *de1;
++	struct ext4_dir_entry_2 *de;
+ 	struct super_block *sb;
+ 
+ 	if (ext4_has_inline_data(inode)) {
+@@ -2718,19 +2718,25 @@ bool ext4_empty_dir(struct inode *inode)
+ 		return true;
+ 
+ 	de = (struct ext4_dir_entry_2 *) bh->b_data;
+-	de1 = ext4_next_entry(de, sb->s_blocksize);
+-	if (le32_to_cpu(de->inode) != inode->i_ino ||
+-			le32_to_cpu(de1->inode) == 0 ||
+-			strcmp(".", de->name) || strcmp("..", de1->name)) {
+-		ext4_warning_inode(inode, "directory missing '.' and/or '..'");
++	if (ext4_check_dir_entry(inode, NULL, de, bh, bh->b_data, bh->b_size,
++				 0) ||
++	    le32_to_cpu(de->inode) != inode->i_ino || strcmp(".", de->name)) {
++		ext4_warning_inode(inode, "directory missing '.'");
+ 		brelse(bh);
+ 		return true;
  	}
- 	/* allocate dma descriptors */
- 	devpriv->dma_desc = dma_alloc_coherent(&pcidev->dev,
-@@ -630,6 +635,11 @@ static int gsc_hpdi_auto_attach(struct c
- 					       NUM_DMA_DESCRIPTORS,
- 					       &devpriv->dma_desc_phys_addr,
- 					       GFP_KERNEL);
-+	if (!devpriv->dma_desc) {
-+		dev_warn(dev->class_dev,
-+			 "failed to allocate DMA descriptors\n");
-+		return -ENOMEM;
+-	offset = ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize) +
+-		 ext4_rec_len_from_disk(de1->rec_len, sb->s_blocksize);
+-	de = ext4_next_entry(de1, sb->s_blocksize);
++	offset = ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
++	de = ext4_next_entry(de, sb->s_blocksize);
++	if (ext4_check_dir_entry(inode, NULL, de, bh, bh->b_data, bh->b_size,
++				 offset) ||
++	    le32_to_cpu(de->inode) == 0 || strcmp("..", de->name)) {
++		ext4_warning_inode(inode, "directory missing '..'");
++		brelse(bh);
++		return true;
 +	}
- 	if (devpriv->dma_desc_phys_addr & 0xf) {
- 		dev_warn(dev->class_dev,
- 			 " dma descriptors not quad-word aligned (bug)\n");
++	offset += ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
+ 	while (offset < inode->i_size) {
+-		if ((void *) de >= (void *) (bh->b_data+sb->s_blocksize)) {
++		if (!(offset & (sb->s_blocksize - 1))) {
+ 			unsigned int lblock;
+ 			brelse(bh);
+ 			lblock = offset >> EXT4_BLOCK_SIZE_BITS(sb);
+@@ -2741,12 +2747,11 @@ bool ext4_empty_dir(struct inode *inode)
+ 			}
+ 			if (IS_ERR(bh))
+ 				return true;
+-			de = (struct ext4_dir_entry_2 *) bh->b_data;
+ 		}
++		de = (struct ext4_dir_entry_2 *) (bh->b_data +
++					(offset & (sb->s_blocksize - 1)));
+ 		if (ext4_check_dir_entry(inode, NULL, de, bh,
+ 					 bh->b_data, bh->b_size, offset)) {
+-			de = (struct ext4_dir_entry_2 *)(bh->b_data +
+-							 sb->s_blocksize);
+ 			offset = (offset | (sb->s_blocksize - 1)) + 1;
+ 			continue;
+ 		}
+@@ -2755,7 +2760,6 @@ bool ext4_empty_dir(struct inode *inode)
+ 			return false;
+ 		}
+ 		offset += ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
+-		de = ext4_next_entry(de, sb->s_blocksize);
+ 	}
+ 	brelse(bh);
+ 	return true;
 
 
