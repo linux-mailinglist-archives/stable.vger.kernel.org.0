@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CEC512C414
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:28:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D206D12C419
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:28:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728145AbfL2R0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:26:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46930 "EHLO mail.kernel.org"
+        id S1728165AbfL2R0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:26:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727734AbfL2R0L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:26:11 -0500
+        id S1728177AbfL2R0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:26:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46D9420409;
-        Sun, 29 Dec 2019 17:26:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E33EA207FF;
+        Sun, 29 Dec 2019 17:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640370;
-        bh=9Q1KOpc9Gr9mqP8t/Q9Bi0RQNfaCGH6IfPJ4qLdMIvk=;
+        s=default; t=1577640380;
+        bh=QLSXoaU+EitGCTeCJX2uXYUbAWclxZysmq/yrb3//AA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbsHl3Uuy8Qm+3+qqrwRN0/cutP8z2kqpCh4IwvMNlz9k2zXTkR5GR6GRoRXeDI4Z
-         7O7rp8pukC8g1RnQO1GjY9Sl6ohnGNxyAcIhmCavVUONzzeZcTCGUQNX+NZlJXXhn0
-         I2afu6KlM78sYwGM3db+rbI9nrnOUM4HitFGsjaI=
+        b=u1ktnjLNxjTcT4QAJHdnK59xItBXW/Vdg5hKqJ6338L5C/OM+hwz/zQpbK4aI9vGq
+         K4CSruhXRiBwZNisHT10tirLi0YNokD1KhBKE+lHATGEm7CW05rHpgtxUVCOlcGKUR
+         f47PurbHoozVTnG+e4nUg/zrOX5b/7ejq/6W0X7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Pedersen <thomas@adapt-ip.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 131/161] mac80211: consider QoS Null frames for STA_NULLFUNC_ACKED
-Date:   Sun, 29 Dec 2019 18:19:39 +0100
-Message-Id: <20191229162438.526610307@linuxfoundation.org>
+Subject: [PATCH 4.14 135/161] net: phy: initialise phydev speed and duplex sanely
+Date:   Sun, 29 Dec 2019 18:19:43 +0100
+Message-Id: <20191229162439.561110593@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -44,48 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Pedersen <thomas@adapt-ip.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 08a5bdde3812993cb8eb7aa9124703df0de28e4b ]
+[ Upstream commit a5d66f810061e2dd70fb7a108dcd14e535bc639f ]
 
-Commit 7b6ddeaf27ec ("mac80211: use QoS NDP for AP probing")
-let STAs send QoS Null frames as PS triggers if the AP was
-a QoS STA.  However, the mac80211 PS stack relies on an
-interface flag IEEE80211_STA_NULLFUNC_ACKED for
-determining trigger frame ACK, which was not being set for
-acked non-QoS Null frames. The effect is an inability to
-trigger hardware sleep via IEEE80211_CONF_PS since the QoS
-Null frame was seemingly never acked.
+When a phydev is created, the speed and duplex are set to zero and
+-1 respectively, rather than using the predefined SPEED_UNKNOWN and
+DUPLEX_UNKNOWN constants.
 
-This bug only applies to drivers which set both
-IEEE80211_HW_REPORTS_TX_ACK_STATUS and
-IEEE80211_HW_PS_NULLFUNC_STACK.
+There is a window at initialisation time where we may report link
+down using the 0/-1 values.  Tidy this up and use the predefined
+constants, so debug doesn't complain with:
 
-Detect the acked QoS Null frame to restore STA power save.
+"Unsupported (update phy-core.c)/Unsupported (update phy-core.c)"
 
-Fixes: 7b6ddeaf27ec ("mac80211: use QoS NDP for AP probing")
-Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
-Link: https://lore.kernel.org/r/20191119053538.25979-4-thomas@adapt-ip.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+when the speed and duplex settings are printed.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/status.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/phy/phy_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/status.c b/net/mac80211/status.c
-index b18466cf466c..fbe7354aeac7 100644
---- a/net/mac80211/status.c
-+++ b/net/mac80211/status.c
-@@ -856,7 +856,8 @@ static void __ieee80211_tx_status(struct ieee80211_hw *hw,
- 			I802_DEBUG_INC(local->dot11FailedCount);
- 	}
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index ed7e3c70b511..a98c227a4c2e 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -367,8 +367,8 @@ struct phy_device *phy_device_create(struct mii_bus *bus, int addr, int phy_id,
+ 	mdiodev->device_free = phy_mdio_device_free;
+ 	mdiodev->device_remove = phy_mdio_device_remove;
  
--	if (ieee80211_is_nullfunc(fc) && ieee80211_has_pm(fc) &&
-+	if ((ieee80211_is_nullfunc(fc) || ieee80211_is_qos_nullfunc(fc)) &&
-+	    ieee80211_has_pm(fc) &&
- 	    ieee80211_hw_check(&local->hw, REPORTS_TX_ACK_STATUS) &&
- 	    !(info->flags & IEEE80211_TX_CTL_INJECTED) &&
- 	    local->ps_sdata && !(local->scanning)) {
+-	dev->speed = 0;
+-	dev->duplex = -1;
++	dev->speed = SPEED_UNKNOWN;
++	dev->duplex = DUPLEX_UNKNOWN;
+ 	dev->pause = 0;
+ 	dev->asym_pause = 0;
+ 	dev->link = 1;
 -- 
 2.20.1
 
