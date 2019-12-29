@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F65212C580
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D7DE12C581
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730033AbfL2Rg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:36:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41726 "EHLO mail.kernel.org"
+        id S1729769AbfL2Rg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:36:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729769AbfL2RgZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:36:25 -0500
+        id S1727474AbfL2Rg1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:36:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C659206DB;
-        Sun, 29 Dec 2019 17:36:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8AB0206CB;
+        Sun, 29 Dec 2019 17:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640984;
-        bh=aHv3j7rYRPDzFNDOD/MH+u/hrx39JXvqbLREUVDbUlw=;
+        s=default; t=1577640987;
+        bh=coJCxagjgyUDd+VqanPTFNqIug/xnV+LkxVnKj7/EHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wSVTdw34DXLDAyV2D1ujxHmqfrKb+NAZ+fpwPT2aw7MlDiG1LXqtjpqS5jN8N2Yss
-         PlIVV8jKoau1TBwA4s6FKycSSnlzwgqJfcQfSK/3+WXWCXxHa3Wrlx3teCXj97zzCY
-         V/n5uzkZORBlhcRTjj7P7005cP2UsYO3fbPNiuCI=
+        b=af3YbElEwEOzrAb70Irb0/BxSbdiwGtdFZ1xzLbG7hKLSl2Nu+RAEaHDGJLhEDVvk
+         EZWTShZRNsM3vlhCUiFsg4T6x9QtuNj97MvaxhmgqzNUHQjavaNXQCoS/zBDuSLHwF
+         01E0xQuZoRfAj6S2k8O+R2kSqmkOIbGQHrU8+nt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 213/219] mmc: sdhci-msm: Correct the offset and value for DDR_CONFIG register
-Date:   Sun, 29 Dec 2019 18:20:15 +0100
-Message-Id: <20191229162542.647203338@linuxfoundation.org>
+Subject: [PATCH 4.19 214/219] mmc: sdhci-of-esdhc: Revert "mmc: sdhci-of-esdhc: add erratum A-009204 support"
+Date:   Sun, 29 Dec 2019 18:20:16 +0100
+Message-Id: <20191229162542.807700563@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -44,116 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit fa56ac9792265354b565f28def7164e7d7db2b1e upstream.
+commit 8b6dc6b2d60221e90703babbc141f063b8a07e72 upstream.
 
-The DDR_CONFIG register offset got updated after a specific
-minor version of sdcc V4. This offset change has not been properly
-taken care of while updating register changes for sdcc V5.
+This reverts commit 5dd195522562542bc6ebe6e7bd47890d8b7ca93c.
 
-Correcting proper offset for this register.
-Also updating this register value to reflect the recommended RCLK
-delay.
+First, the fix seems to be plain wrong, since the erratum suggests
+waiting 5ms before setting setting SYSCTL[RSTD], but this msleep()
+happens after the call of sdhci_reset() which is where that bit gets
+set (if SDHCI_RESET_DATA is in mask).
 
-Signed-off-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
-Link: https://lore.kernel.org/r/0101016ea738ec72-fa0f852d-20f8-474a-80b2-4b0ef63b132c-000000@us-west-2.amazonses.com
-Fixes: f15358885dda ("mmc: sdhci-msm: Define new Register address map")
+Second, walking the whole device tree to figure out if some node has a
+"fsl,p2020-esdhc" compatible string is hugely expensive - about 70 to
+100 us on our mpc8309 board. Walking the device tree is done under a
+raw_spin_lock, so this is obviously really bad on an -rt system, and a
+waste of time on all.
+
+In fact, since esdhc_reset() seems to get called around 100 times per
+second, that mpc8309 now spends 0.8% of its time determining that
+it is not a p2020. Whether those 100 calls/s are normal or due to some
+other bug or misconfiguration, regularly hitting a 100 us
+non-preemptible window is unacceptable.
+
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191204085447.27491-1-linux@rasmusvillemoes.dk
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-msm.c |   28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/mmc/host/sdhci-of-esdhc.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/mmc/host/sdhci-msm.c
-+++ b/drivers/mmc/host/sdhci-msm.c
-@@ -108,7 +108,7 @@
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -648,9 +648,6 @@ static void esdhc_reset(struct sdhci_hos
+ 	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
+ 	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
  
- #define CORE_PWRSAVE_DLL	BIT(3)
- 
--#define DDR_CONFIG_POR_VAL	0x80040853
-+#define DDR_CONFIG_POR_VAL	0x80040873
- 
- 
- #define INVALID_TUNING_PHASE	-1
-@@ -157,8 +157,9 @@ struct sdhci_msm_offset {
- 	u32 core_ddr_200_cfg;
- 	u32 core_vendor_spec3;
- 	u32 core_dll_config_2;
-+	u32 core_dll_config_3;
-+	u32 core_ddr_config_old; /* Applicable to sdcc minor ver < 0x49 */
- 	u32 core_ddr_config;
--	u32 core_ddr_config_2;
- };
- 
- static const struct sdhci_msm_offset sdhci_msm_v5_offset = {
-@@ -186,8 +187,8 @@ static const struct sdhci_msm_offset sdh
- 	.core_ddr_200_cfg = 0x224,
- 	.core_vendor_spec3 = 0x250,
- 	.core_dll_config_2 = 0x254,
--	.core_ddr_config = 0x258,
--	.core_ddr_config_2 = 0x25c,
-+	.core_dll_config_3 = 0x258,
-+	.core_ddr_config = 0x25c,
- };
- 
- static const struct sdhci_msm_offset sdhci_msm_mci_offset = {
-@@ -216,8 +217,8 @@ static const struct sdhci_msm_offset sdh
- 	.core_ddr_200_cfg = 0x184,
- 	.core_vendor_spec3 = 0x1b0,
- 	.core_dll_config_2 = 0x1b4,
--	.core_ddr_config = 0x1b8,
--	.core_ddr_config_2 = 0x1bc,
-+	.core_ddr_config_old = 0x1b8,
-+	.core_ddr_config = 0x1bc,
- };
- 
- struct sdhci_msm_variant_ops {
-@@ -260,6 +261,7 @@ struct sdhci_msm_host {
- 	const struct sdhci_msm_offset *offset;
- 	bool use_cdr;
- 	u32 transfer_mode;
-+	bool updated_ddr_cfg;
- };
- 
- static const struct sdhci_msm_offset *sdhci_priv_msm_offset(struct sdhci_host *host)
-@@ -931,8 +933,10 @@ out:
- static int sdhci_msm_cm_dll_sdc4_calibration(struct sdhci_host *host)
- {
- 	struct mmc_host *mmc = host->mmc;
--	u32 dll_status, config;
-+	u32 dll_status, config, ddr_cfg_offset;
- 	int ret;
-+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
-+	struct sdhci_msm_host *msm_host = sdhci_pltfm_priv(pltfm_host);
- 	const struct sdhci_msm_offset *msm_offset =
- 					sdhci_priv_msm_offset(host);
- 
-@@ -945,8 +949,11 @@ static int sdhci_msm_cm_dll_sdc4_calibra
- 	 * bootloaders. In the future, if this changes, then the desired
- 	 * values will need to be programmed appropriately.
- 	 */
--	writel_relaxed(DDR_CONFIG_POR_VAL, host->ioaddr +
--			msm_offset->core_ddr_config);
-+	if (msm_host->updated_ddr_cfg)
-+		ddr_cfg_offset = msm_offset->core_ddr_config;
-+	else
-+		ddr_cfg_offset = msm_offset->core_ddr_config_old;
-+	writel_relaxed(DDR_CONFIG_POR_VAL, host->ioaddr + ddr_cfg_offset);
- 
- 	if (mmc->ios.enhanced_strobe) {
- 		config = readl_relaxed(host->ioaddr +
-@@ -1862,6 +1869,9 @@ static int sdhci_msm_probe(struct platfo
- 				msm_offset->core_vendor_spec_capabilities0);
- 	}
- 
-+	if (core_major == 1 && core_minor >= 0x49)
-+		msm_host->updated_ddr_cfg = true;
-+
- 	/*
- 	 * Power on reset state may trigger power irq if previous status of
- 	 * PWRCTL was either BUS_ON or IO_HIGH_V. So before enabling pwr irq
+-	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc"))
+-		mdelay(5);
+-
+ 	if (mask & SDHCI_RESET_ALL) {
+ 		val = sdhci_readl(host, ESDHC_TBCTL);
+ 		val &= ~ESDHC_TB_EN;
 
 
