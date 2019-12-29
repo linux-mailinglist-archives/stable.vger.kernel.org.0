@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFCAB12C7D2
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6AD12C7D3
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731159AbfL2Rqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:46:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57036 "EHLO mail.kernel.org"
+        id S1731165AbfL2Rq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:46:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730887AbfL2Rqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:46:53 -0500
+        id S1731161AbfL2Rqz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:46:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A4AD208C4;
-        Sun, 29 Dec 2019 17:46:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C6DC20718;
+        Sun, 29 Dec 2019 17:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641612;
-        bh=+2Dmoo25/7H+wwcz8gKLj7/ig1lPYuYss2G1OVsCtYU=;
+        s=default; t=1577641615;
+        bh=gh4zcnNIyWIMJrFu26zdLw3eaIby5AewDYGnPymTE7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d2gceeZ2NfMRJwJuIi4bNWCNe8n8NobkTx7u5M6dqcogsPSxhimOQIcQVrHqDlFWq
-         iwh4Nk1qVD9t5E0ZAi4C03mTa3juX/L4RjduKi5qjnbSw3rhbUJtRBHwY9qEI37h/1
-         YCvEKPhq2qT8BKC8aZMX6mVU1fpT3mJhvgs2ZtbY=
+        b=II7W7afVXFVTBtc+KYMU0G070A/IEd9A0E1W4xI44EFqEnW3mZ5LBAJovLd6id3j1
+         1P5Vr86qjiHdQrWQKrc9jOsRR2Uqlu6g/CLiryHNwa7De5qw+szsRzKHf3buF7Cdit
+         0NCEvaH4MhlJObsAPDrw57aeMnbo2124ShIBj324=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 137/434] syscalls/x86: Use the correct function type in SYSCALL_DEFINE0
-Date:   Sun, 29 Dec 2019 18:23:10 +0100
-Message-Id: <20191229172710.822410966@linuxfoundation.org>
+        stable@vger.kernel.org, David Galiffi <david.galiffi@amd.com>,
+        Jun Lei <Jun.Lei@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 138/434] drm/amd/display: Fix dongle_caps containing stale information.
+Date:   Sun, 29 Dec 2019 18:23:11 +0100
+Message-Id: <20191229172710.891593989@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -50,70 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: David Galiffi <david.galiffi@amd.com>
 
-[ Upstream commit 8661d769ab77c675b5eb6c3351a372b9fbc1bf40 ]
+[ Upstream commit dd998291dbe92106d8c4a7581c409b356928d711 ]
 
-Although a syscall defined using SYSCALL_DEFINE0 doesn't accept
-parameters, use the correct function type to avoid type mismatches
-with Control-Flow Integrity (CFI) checking.
+[WHY]
 
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H . Peter Anvin <hpa@zytor.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191008224049.115427-2-samitolvanen@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+During detection:
+function: get_active_converter_info populates link->dpcd_caps.dongle_caps
+only when dpcd_rev >= DPCD_REV_11 and DWN_STRM_PORTX_TYPE is
+DOWN_STREAM_DETAILED_HDMI or DOWN_STREAM_DETAILED_DP_PLUS_PLUS.
+Otherwise, it is not cleared, and stale information remains.
+
+During mode validation:
+function: dp_active_dongle_validate_timing reads
+link->dpcd_caps.dongle_caps->dongle_type to determine the maximum
+pixel clock to support. This information is now stale and no longer
+valid.
+
+[HOW]
+dp_active_dongle_validate_timing should be using
+link->dpcd_caps->dongle_type instead.
+
+Signed-off-by: David Galiffi <david.galiffi@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/syscall_wrapper.h | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c    | 2 +-
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/syscall_wrapper.h b/arch/x86/include/asm/syscall_wrapper.h
-index e046a405743d..90eb70df0b18 100644
---- a/arch/x86/include/asm/syscall_wrapper.h
-+++ b/arch/x86/include/asm/syscall_wrapper.h
-@@ -48,12 +48,13 @@
-  * To keep the naming coherent, re-define SYSCALL_DEFINE0 to create an alias
-  * named __ia32_sys_*()
-  */
--#define SYSCALL_DEFINE0(sname)					\
--	SYSCALL_METADATA(_##sname, 0);				\
--	asmlinkage long __x64_sys_##sname(void);		\
--	ALLOW_ERROR_INJECTION(__x64_sys_##sname, ERRNO);	\
--	SYSCALL_ALIAS(__ia32_sys_##sname, __x64_sys_##sname);	\
--	asmlinkage long __x64_sys_##sname(void)
-+
-+#define SYSCALL_DEFINE0(sname)						\
-+	SYSCALL_METADATA(_##sname, 0);					\
-+	asmlinkage long __x64_sys_##sname(const struct pt_regs *__unused);\
-+	ALLOW_ERROR_INJECTION(__x64_sys_##sname, ERRNO);		\
-+	SYSCALL_ALIAS(__ia32_sys_##sname, __x64_sys_##sname);		\
-+	asmlinkage long __x64_sys_##sname(const struct pt_regs *__unused)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index de1b61595ffb..efc1d30544bb 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -2219,7 +2219,7 @@ static bool dp_active_dongle_validate_timing(
+ 		break;
+ 	}
  
- #define COND_SYSCALL(name)						\
- 	cond_syscall(__x64_sys_##name);					\
-@@ -181,11 +182,11 @@
-  * macros to work correctly.
-  */
- #ifndef SYSCALL_DEFINE0
--#define SYSCALL_DEFINE0(sname)					\
--	SYSCALL_METADATA(_##sname, 0);				\
--	asmlinkage long __x64_sys_##sname(void);		\
--	ALLOW_ERROR_INJECTION(__x64_sys_##sname, ERRNO);	\
--	asmlinkage long __x64_sys_##sname(void)
-+#define SYSCALL_DEFINE0(sname)						\
-+	SYSCALL_METADATA(_##sname, 0);					\
-+	asmlinkage long __x64_sys_##sname(const struct pt_regs *__unused);\
-+	ALLOW_ERROR_INJECTION(__x64_sys_##sname, ERRNO);		\
-+	asmlinkage long __x64_sys_##sname(const struct pt_regs *__unused)
- #endif
+-	if (dongle_caps->dongle_type != DISPLAY_DONGLE_DP_HDMI_CONVERTER ||
++	if (dpcd_caps->dongle_type != DISPLAY_DONGLE_DP_HDMI_CONVERTER ||
+ 		dongle_caps->extendedCapValid == false)
+ 		return true;
  
- #ifndef COND_SYSCALL
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 9e261dbf2e49..5a583707d198 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -2545,6 +2545,7 @@ static void get_active_converter_info(
+ 	uint8_t data, struct dc_link *link)
+ {
+ 	union dp_downstream_port_present ds_port = { .byte = data };
++	memset(&link->dpcd_caps.dongle_caps, 0, sizeof(link->dpcd_caps.dongle_caps));
+ 
+ 	/* decode converter info*/
+ 	if (!ds_port.fields.PORT_PRESENT) {
 -- 
 2.20.1
 
