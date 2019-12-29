@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A4912C89A
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F83312C8A9
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733055AbfL2R41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:56:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46062 "EHLO mail.kernel.org"
+        id S1733144AbfL2R4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:56:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732750AbfL2R41 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:56:27 -0500
+        id S1733140AbfL2R4x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:56:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 822F3222D9;
-        Sun, 29 Dec 2019 17:56:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F123E206DB;
+        Sun, 29 Dec 2019 17:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642187;
-        bh=MDlhEhj2G1pFcoetkRyZjXVVe1s/XlYTo1QrtkXMKTU=;
+        s=default; t=1577642213;
+        bh=DFBJQaHQrB4R7ln8IzQSWLM9FsWAF6QmiL8CvEW4J6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvI9kuHb5yigdwFHUAjFyJ4WILLXn6uHMdPcpseR+66VpTWnJY8c7fzFMZucq++4k
-         KGHF1qQJc8iXvf9DcSdE0303xFoHSAvnEu9sM3KCmjJ5AN+/VgLEUQrwTNrmhaY6g6
-         2yicBlQHXpXFIXK2lVT0THAoZzgX98ZBbEgAYWaQ=
+        b=dDZwSgDe/MzHYJuwQ2Trw9z1UfFyEQz1nvQ5IJ70wZi1DqWyBw5VqbPgk26XdQUir
+         GbQ/trQrlWSPE/giH6GACyialANJil+G3Dg/Wdq0f0vegFRBFJ3YhTD+4CkNbUQgFp
+         ncT/PZiUOl6rxdilbXOiXtHEVrsnBG0Kl5At7/NY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        iommu@lists.linux-foundation.org,
-        Jerry Snitselaar <jsnitsel@redhat.com>
-Subject: [PATCH 5.4 371/434] iommu/vt-d: Allocate reserved region for ISA with correct permission
-Date:   Sun, 29 Dec 2019 18:27:04 +0100
-Message-Id: <20191229172726.637712160@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
+        Srinivas Neeli <srinivas.neeli@xilinx.com>,
+        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 372/434] can: xilinx_can: Fix missing Rx can packets on CANFD2.0
+Date:   Sun, 29 Dec 2019 18:27:05 +0100
+Message-Id: <20191229172726.715381661@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,38 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Snitselaar <jsnitsel@redhat.com>
+From: Srinivas Neeli <srinivas.neeli@xilinx.com>
 
-commit cde9319e884eb6267a0df446f3c131fe1108defb upstream.
+commit 9ab79b06ddf3cdf6484d60b3e5fe113e733145c8 upstream.
 
-Currently the reserved region for ISA is allocated with no
-permissions. If a dma domain is being used, mapping this region will
-fail. Set the permissions to DMA_PTE_READ|DMA_PTE_WRITE.
+CANFD2.0 core uses BRAM for storing acceptance filter ID(AFID) and MASK
+(AFMASK)registers. So by default AFID and AFMASK registers contain random
+data. Due to random data, we are not able to receive all CAN ids.
 
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: iommu@lists.linux-foundation.org
-Cc: stable@vger.kernel.org # v5.3+
-Fixes: d850c2ee5fe2 ("iommu/vt-d: Expose ISA direct mapping region via iommu_get_resv_regions")
-Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Initializing AFID and AFMASK registers with Zero before enabling
+acceptance filter to receive all packets irrespective of ID and Mask.
+
+Fixes: 0db9071353a0 ("can: xilinx: add can 2.0 support")
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
+Reviewed-by: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
+Cc: linux-stable <stable@vger.kernel.org> # >= v5.0
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/intel-iommu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/xilinx_can.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5697,7 +5697,7 @@ static void intel_iommu_get_resv_regions
- 		struct pci_dev *pdev = to_pci_dev(device);
+--- a/drivers/net/can/xilinx_can.c
++++ b/drivers/net/can/xilinx_can.c
+@@ -60,6 +60,8 @@ enum xcan_reg {
+ 	XCAN_TXMSG_BASE_OFFSET	= 0x0100, /* TX Message Space */
+ 	XCAN_RXMSG_BASE_OFFSET	= 0x1100, /* RX Message Space */
+ 	XCAN_RXMSG_2_BASE_OFFSET	= 0x2100, /* RX Message Space */
++	XCAN_AFR_2_MASK_OFFSET	= 0x0A00, /* Acceptance Filter MASK */
++	XCAN_AFR_2_ID_OFFSET	= 0x0A04, /* Acceptance Filter ID */
+ };
  
- 		if ((pdev->class >> 8) == PCI_CLASS_BRIDGE_ISA) {
--			reg = iommu_alloc_resv_region(0, 1UL << 24, 0,
-+			reg = iommu_alloc_resv_region(0, 1UL << 24, prot,
- 						   IOMMU_RESV_DIRECT_RELAXABLE);
- 			if (reg)
- 				list_add_tail(&reg->list, head);
+ #define XCAN_FRAME_ID_OFFSET(frame_base)	((frame_base) + 0x00)
+@@ -1803,6 +1805,11 @@ static int xcan_probe(struct platform_de
+ 
+ 	pm_runtime_put(&pdev->dev);
+ 
++	if (priv->devtype.flags & XCAN_FLAG_CANFD_2) {
++		priv->write_reg(priv, XCAN_AFR_2_ID_OFFSET, 0x00000000);
++		priv->write_reg(priv, XCAN_AFR_2_MASK_OFFSET, 0x00000000);
++	}
++
+ 	netdev_dbg(ndev, "reg_base=0x%p irq=%d clock=%d, tx buffers: actual %d, using %d\n",
+ 		   priv->reg_base, ndev->irq, priv->can.clock.freq,
+ 		   hw_tx_max, priv->tx_max);
 
 
