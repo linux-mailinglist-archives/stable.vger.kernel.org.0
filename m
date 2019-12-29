@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5A3212C7A6
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6461A12C7A7
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730755AbfL2RpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:45:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
+        id S1730803AbfL2RpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:45:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730513AbfL2RpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:45:02 -0500
+        id S1730513AbfL2RpF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:45:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5235F206DB;
-        Sun, 29 Dec 2019 17:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C34FF207FD;
+        Sun, 29 Dec 2019 17:45:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641501;
-        bh=4s50recD2zTR3GjjiFiSOQ5zbm/SVYkEuwcb3LCeR9c=;
+        s=default; t=1577641504;
+        bh=mpPirWg92IrtVVDOdXyaq4I38V4fdwi4EuXwe+8h9DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wy+v3D+5rlRAUr+Xysv8uquhmZZB8Y7l6L9ilprpZpxykT0TLhPjDCNSVa64jwvAJ
-         cQ4y9XchP5lfQ7vRgTiwlsCo9Xqn4yBn3+53lhqSfAcvWe7OjXoroHcULurNX05RIG
-         JVOSG2FwHe+OKfiXtPKXLWeqoHWPFinA5p26LtVg=
+        b=SBT9lZ8jZIICz0aYs+AOOVeK17Zwe6B4710uBgnjWiCt4nJIy2nvXDDuz1LSQCdoD
+         ir5TndzT3f02Gg6HcapV/+8+2e899mLB3nHq2h25jjkzwbKl5iqJjg2pLT5nRbkAld
+         1xgyM12yO2J/+Zug1WVi72jUHjffEu6XkRJH1yyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Elena Petrova <lenaptr@google.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 091/434] pinctrl: devicetree: Avoid taking direct reference to device name string
-Date:   Sun, 29 Dec 2019 18:22:24 +0100
-Message-Id: <20191229172707.596060359@linuxfoundation.org>
+        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
+        Jagan Teki <jagan@amarulasolutions.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 092/434] drm/sun4i: dsi: Fix TCON DRQ set bits
+Date:   Sun, 29 Dec 2019 18:22:25 +0100
+Message-Id: <20191229172707.667396604@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,109 +45,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Jagan Teki <jagan@amarulasolutions.com>
 
-[ Upstream commit be4c60b563edee3712d392aaeb0943a768df7023 ]
+[ Upstream commit 7ac6269968826f9cad61b501bb613cc5cadb7229 ]
 
-When populating the pinctrl mapping table entries for a device, the
-'dev_name' field for each entry is initialised to point directly at the
-string returned by 'dev_name()' for the device and subsequently used by
-'create_pinctrl()' when looking up the mappings for the device being
-probed.
+The LCD timing definitions between Linux DRM vs Allwinner are different,
+below diagram shows this clear differences.
 
-This is unreliable in the presence of calls to 'dev_set_name()', which may
-reallocate the device name string leaving the pinctrl mappings with a
-dangling reference. This then leads to a use-after-free every time the
-name is dereferenced by a device probe:
+           Active                 Front           Sync           Back
+           Region                 Porch                          Porch
+<-----------------------><----------------><--------------><-------------->
+  //////////////////////|
+ ////////////////////// |
+//////////////////////  |..................                ................
+                                           ________________
+<----- [hv]display ----->
+<------------- [hv]sync_start ------------>
+<--------------------- [hv]sync_end ---------------------->
+<-------------------------------- [hv]total ------------------------------>
 
-  | BUG: KASAN: invalid-access in strcmp+0x20/0x64
-  | Read of size 1 at addr 13ffffc153494b00 by task modprobe/590
-  | Pointer tag: [13], memory tag: [fe]
-  |
-  | Call trace:
-  |  __kasan_report+0x16c/0x1dc
-  |  kasan_report+0x10/0x18
-  |  check_memory_region
-  |  __hwasan_load1_noabort+0x4c/0x54
-  |  strcmp+0x20/0x64
-  |  create_pinctrl+0x18c/0x7f4
-  |  pinctrl_get+0x90/0x114
-  |  devm_pinctrl_get+0x44/0x98
-  |  pinctrl_bind_pins+0x5c/0x450
-  |  really_probe+0x1c8/0x9a4
-  |  driver_probe_device+0x120/0x1d8
+<----- lcd_[xy] -------->		  <- lcd_[hv]spw ->
+					  <---------- lcd_[hv]bp --------->
+<-------------------------------- lcd_[hv]t ------------------------------>
 
-Follow the example of sysfs, and duplicate the device name string before
-stashing it away in the pinctrl mapping entries.
+The DSI driver misinterpreted the hbp term from the BSP code to refer
+only to the backporch, when in fact it was backporch + sync. Thus the
+driver incorrectly used the horizontal front porch plus sync in its
+calculation of the DRQ set bit value, when it should not have included
+the sync timing.
 
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Reported-by: Elena Petrova <lenaptr@google.com>
-Tested-by: Elena Petrova <lenaptr@google.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20191002124206.22928-1-will@kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Including additional sync timings leads to flip_done timed out as:
+
+WARNING: CPU: 0 PID: 31 at drivers/gpu/drm/drm_atomic_helper.c:1429 drm_atomic_helper_wait_for_vblanks.part.1+0x298/0x2a0
+[CRTC:46:crtc-0] vblank wait timed out
+Modules linked in:
+CPU: 0 PID: 31 Comm: kworker/0:1 Not tainted 5.1.0-next-20190514-00026-g01f0c75b902d-dirty #13
+Hardware name: Allwinner sun8i Family
+Workqueue: events deferred_probe_work_func
+[<c010ed54>] (unwind_backtrace) from [<c010b76c>] (show_stack+0x10/0x14)
+[<c010b76c>] (show_stack) from [<c0688c70>] (dump_stack+0x84/0x98)
+[<c0688c70>] (dump_stack) from [<c011d9e4>] (__warn+0xfc/0x114)
+[<c011d9e4>] (__warn) from [<c011da40>] (warn_slowpath_fmt+0x44/0x68)
+[<c011da40>] (warn_slowpath_fmt) from [<c040cd50>] (drm_atomic_helper_wait_for_vblanks.part.1+0x298/0x2a0)
+[<c040cd50>] (drm_atomic_helper_wait_for_vblanks.part.1) from [<c040e694>] (drm_atomic_helper_commit_tail_rpm+0x5c/0x6c)
+[<c040e694>] (drm_atomic_helper_commit_tail_rpm) from [<c040e4dc>] (commit_tail+0x40/0x6c)
+[<c040e4dc>] (commit_tail) from [<c040e5cc>] (drm_atomic_helper_commit+0xbc/0x128)
+[<c040e5cc>] (drm_atomic_helper_commit) from [<c0411b64>] (restore_fbdev_mode_atomic+0x1cc/0x1dc)
+[<c0411b64>] (restore_fbdev_mode_atomic) from [<c04156f8>] (drm_fb_helper_restore_fbdev_mode_unlocked+0x54/0xa0)
+[<c04156f8>] (drm_fb_helper_restore_fbdev_mode_unlocked) from [<c0415774>] (drm_fb_helper_set_par+0x30/0x54)
+[<c0415774>] (drm_fb_helper_set_par) from [<c03ad450>] (fbcon_init+0x560/0x5ac)
+[<c03ad450>] (fbcon_init) from [<c03eb8a0>] (visual_init+0xbc/0x104)
+[<c03eb8a0>] (visual_init) from [<c03ed1b8>] (do_bind_con_driver+0x1b0/0x390)
+[<c03ed1b8>] (do_bind_con_driver) from [<c03ed780>] (do_take_over_console+0x13c/0x1c4)
+[<c03ed780>] (do_take_over_console) from [<c03ad800>] (do_fbcon_takeover+0x74/0xcc)
+[<c03ad800>] (do_fbcon_takeover) from [<c013c9c8>] (notifier_call_chain+0x44/0x84)
+[<c013c9c8>] (notifier_call_chain) from [<c013cd20>] (__blocking_notifier_call_chain+0x48/0x60)
+[<c013cd20>] (__blocking_notifier_call_chain) from [<c013cd50>] (blocking_notifier_call_chain+0x18/0x20)
+[<c013cd50>] (blocking_notifier_call_chain) from [<c03a6e44>] (register_framebuffer+0x1e0/0x2f8)
+[<c03a6e44>] (register_framebuffer) from [<c04153c0>] (__drm_fb_helper_initial_config_and_unlock+0x2fc/0x50c)
+[<c04153c0>] (__drm_fb_helper_initial_config_and_unlock) from [<c04158c8>] (drm_fbdev_client_hotplug+0xe8/0x1b8)
+[<c04158c8>] (drm_fbdev_client_hotplug) from [<c0415a20>] (drm_fbdev_generic_setup+0x88/0x118)
+[<c0415a20>] (drm_fbdev_generic_setup) from [<c043f060>] (sun4i_drv_bind+0x128/0x160)
+[<c043f060>] (sun4i_drv_bind) from [<c044b598>] (try_to_bring_up_master+0x164/0x1a0)
+[<c044b598>] (try_to_bring_up_master) from [<c044b668>] (__component_add+0x94/0x140)
+[<c044b668>] (__component_add) from [<c0445e1c>] (sun6i_dsi_probe+0x144/0x234)
+[<c0445e1c>] (sun6i_dsi_probe) from [<c0452ef4>] (platform_drv_probe+0x48/0x9c)
+[<c0452ef4>] (platform_drv_probe) from [<c04512cc>] (really_probe+0x1dc/0x2c8)
+[<c04512cc>] (really_probe) from [<c0451518>] (driver_probe_device+0x60/0x160)
+[<c0451518>] (driver_probe_device) from [<c044f7a4>] (bus_for_each_drv+0x74/0xb8)
+[<c044f7a4>] (bus_for_each_drv) from [<c045107c>] (__device_attach+0xd0/0x13c)
+[<c045107c>] (__device_attach) from [<c0450474>] (bus_probe_device+0x84/0x8c)
+[<c0450474>] (bus_probe_device) from [<c0450900>] (deferred_probe_work_func+0x64/0x90)
+[<c0450900>] (deferred_probe_work_func) from [<c0135970>] (process_one_work+0x204/0x420)
+[<c0135970>] (process_one_work) from [<c013690c>] (worker_thread+0x274/0x5a0)
+[<c013690c>] (worker_thread) from [<c013b3d8>] (kthread+0x11c/0x14c)
+[<c013b3d8>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
+Exception stack(0xde539fb0 to 0xde539ff8)
+9fa0:                                     00000000 00000000 00000000 00000000
+9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+---[ end trace b57eb1e5c64c6b8b ]---
+random: fast init done
+[drm:drm_atomic_helper_wait_for_dependencies] *ERROR* [CRTC:46:crtc-0] flip_done timed out
+[drm:drm_atomic_helper_wait_for_dependencies] *ERROR* [CONNECTOR:48:DSI-1] flip_done timed out
+[drm:drm_atomic_helper_wait_for_dependencies] *ERROR* [PLANE:30:plane-0] flip_done timed out
+
+With the terms(as described in above diagram) fixed, the panel
+displays correctly without any timeouts.
+
+Tested-by: Merlijn Wajer <merlijn@wizzup.org>
+Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+Signed-off-by: Maxime Ripard <mripard@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191003064527.15128-2-jagan@amarulasolutions.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/devicetree.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/devicetree.c b/drivers/pinctrl/devicetree.c
-index 5d6d8b1e9062..dbaacde1b36a 100644
---- a/drivers/pinctrl/devicetree.c
-+++ b/drivers/pinctrl/devicetree.c
-@@ -29,6 +29,13 @@ struct pinctrl_dt_map {
- static void dt_free_map(struct pinctrl_dev *pctldev,
- 		     struct pinctrl_map *map, unsigned num_maps)
- {
-+	int i;
-+
-+	for (i = 0; i < num_maps; ++i) {
-+		kfree_const(map[i].dev_name);
-+		map[i].dev_name = NULL;
-+	}
-+
- 	if (pctldev) {
- 		const struct pinctrl_ops *ops = pctldev->desc->pctlops;
- 		if (ops->dt_free_map)
-@@ -63,7 +70,13 @@ static int dt_remember_or_free_map(struct pinctrl *p, const char *statename,
+diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
+index 1636344ba9ec..f83522717488 100644
+--- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
++++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
+@@ -437,9 +437,9 @@ static void sun6i_dsi_setup_burst(struct sun6i_dsi *dsi,
+ 			     SUN6I_DSI_BURST_LINE_SYNC_POINT(SUN6I_DSI_SYNC_POINT));
  
- 	/* Initialize common mapping table entry fields */
- 	for (i = 0; i < num_maps; i++) {
--		map[i].dev_name = dev_name(p->dev);
-+		const char *devname;
-+
-+		devname = kstrdup_const(dev_name(p->dev), GFP_KERNEL);
-+		if (!devname)
-+			goto err_free_map;
-+
-+		map[i].dev_name = devname;
- 		map[i].name = statename;
- 		if (pctldev)
- 			map[i].ctrl_dev_name = dev_name(pctldev->dev);
-@@ -71,10 +84,8 @@ static int dt_remember_or_free_map(struct pinctrl *p, const char *statename,
+ 		val = SUN6I_DSI_TCON_DRQ_ENABLE_MODE;
+-	} else if ((mode->hsync_end - mode->hdisplay) > 20) {
++	} else if ((mode->hsync_start - mode->hdisplay) > 20) {
+ 		/* Maaaaaagic */
+-		u16 drq = (mode->hsync_end - mode->hdisplay) - 20;
++		u16 drq = (mode->hsync_start - mode->hdisplay) - 20;
  
- 	/* Remember the converted mapping table entries */
- 	dt_map = kzalloc(sizeof(*dt_map), GFP_KERNEL);
--	if (!dt_map) {
--		dt_free_map(pctldev, map, num_maps);
--		return -ENOMEM;
--	}
-+	if (!dt_map)
-+		goto err_free_map;
- 
- 	dt_map->pctldev = pctldev;
- 	dt_map->map = map;
-@@ -82,6 +93,10 @@ static int dt_remember_or_free_map(struct pinctrl *p, const char *statename,
- 	list_add_tail(&dt_map->node, &p->dt_maps);
- 
- 	return pinctrl_register_map(map, num_maps, false);
-+
-+err_free_map:
-+	dt_free_map(pctldev, map, num_maps);
-+	return -ENOMEM;
- }
- 
- struct pinctrl_dev *of_pinctrl_get(struct device_node *np)
+ 		drq *= mipi_dsi_pixel_format_to_bpp(device->format);
+ 		drq /= 32;
 -- 
 2.20.1
 
