@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 016B712C9EA
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8252C12C9E9
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727664AbfL2RZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:25:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45682 "EHLO mail.kernel.org"
+        id S1728032AbfL2RZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:25:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727646AbfL2RZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:25:37 -0500
+        id S1727687AbfL2RZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:25:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCAE820409;
-        Sun, 29 Dec 2019 17:25:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A83520409;
+        Sun, 29 Dec 2019 17:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640337;
-        bh=jWcpthqSn6J2m9fLWFRW4e7HO60xXVjPUi+TVn+OT5M=;
+        s=default; t=1577640339;
+        bh=u1vbAAODFFibUTO2yMqM38STXoTtYukUrreTORXp/oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIzPWxObP8IYFyl5yHIvIp1oY5dyNYhW8hntRcOGbenWVQVCtiPH1lQJAAtXFvZan
-         Au9nIHAlTrzY0RcOjurhN2hB3N/xjqRwwgBWL7i++zywVzGun9gqc87xehlSqQTocW
-         EhfCNZcTeUiFhBTvzSOCtbO/+A34hnHIbkvt/9Ok=
+        b=2qiB4Rt8zVakqw5p/5MACHIJKN5YnjL8z9QW1SyKRl1geAYVkIJkLXMNLCj4qytaS
+         NWhbuA6/E9BysF3xbTd7Sx8SG2YLrMRhop27O9F7iPBNPUvlUS/uxRUjiKHLOZ3Owj
+         JjQlzN1IpX5yftFr+IF064G7Jtvykm7EgQoT/lSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 115/161] s390/disassembler: dont hide instruction addresses
-Date:   Sun, 29 Dec 2019 18:19:23 +0100
-Message-Id: <20191229162432.637730153@linuxfoundation.org>
+Subject: [PATCH 4.14 116/161] parport: load lowlevel driver if ports not found
+Date:   Sun, 29 Dec 2019 18:19:24 +0100
+Message-Id: <20191229162432.956449135@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -44,71 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-[ Upstream commit 544f1d62e3e6c6e6d17a5e56f6139208acb5ff46 ]
+[ Upstream commit 231ec2f24dad18d021b361045bbd618ba62a274e ]
 
-Due to kptr_restrict, JITted BPF code is now displayed like this:
+Usually all the distro will load the parport low level driver as part
+of their initialization. But we can get into a situation where all the
+parallel port drivers are built as module and we unload all the modules
+at a later time. Then if we just do "modprobe parport" it will only
+load the parport module and will not load the low level driver which
+will actually register the ports. So, check the bus if there is any
+parport registered, if not, load the low level driver.
 
-000000000b6ed1b2: ebdff0800024  stmg    %r13,%r15,128(%r15)
-000000004cde2ba0: 41d0f040      la      %r13,64(%r15)
-00000000fbad41b0: a7fbffa0      aghi    %r15,-96
+We can get into the above situation with all distro but only Suse has
+setup the alias for "parport_lowlevel" and so it only works in Suse.
+Users of Debian based distro will need to load the lowlevel module
+manually.
 
-Leaking kernel addresses to dmesg is not a concern in this case, because
-this happens only when JIT debugging is explicitly activated, which only
-root can do.
-
-Use %px in this particular instance, and also to print an instruction
-address in show_code and PCREL (e.g. brasl) arguments in print_insn.
-While at present functionally equivalent to %016lx, %px is recommended
-by Documentation/core-api/printk-formats.rst for such cases.
-
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Link: https://lore.kernel.org/r/20191016144540.18810-3-sudipm.mukherjee@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/dis.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/parport/share.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/arch/s390/kernel/dis.c b/arch/s390/kernel/dis.c
-index 2394557653d5..6d154069c962 100644
---- a/arch/s390/kernel/dis.c
-+++ b/arch/s390/kernel/dis.c
-@@ -1930,10 +1930,11 @@ static int print_insn(char *buffer, unsigned char *code, unsigned long addr)
- 				ptr += sprintf(ptr, "%%c%i", value);
- 			else if (operand->flags & OPERAND_VR)
- 				ptr += sprintf(ptr, "%%v%i", value);
--			else if (operand->flags & OPERAND_PCREL)
--				ptr += sprintf(ptr, "%lx", (signed int) value
--								      + addr);
--			else if (operand->flags & OPERAND_SIGNED)
-+			else if (operand->flags & OPERAND_PCREL) {
-+				void *pcrel = (void *)((int)value + addr);
+diff --git a/drivers/parport/share.c b/drivers/parport/share.c
+index 7b4ee33c1935..15c81cffd2de 100644
+--- a/drivers/parport/share.c
++++ b/drivers/parport/share.c
+@@ -230,6 +230,18 @@ static int port_check(struct device *dev, void *dev_drv)
+ 	return 0;
+ }
+ 
++/*
++ * Iterates through all the devices connected to the bus and return 1
++ * if the device is a parallel port.
++ */
 +
-+				ptr += sprintf(ptr, "%px", pcrel);
-+			} else if (operand->flags & OPERAND_SIGNED)
- 				ptr += sprintf(ptr, "%i", value);
- 			else
- 				ptr += sprintf(ptr, "%u", value);
-@@ -2005,7 +2006,7 @@ void show_code(struct pt_regs *regs)
- 		else
- 			*ptr++ = ' ';
- 		addr = regs->psw.addr + start - 32;
--		ptr += sprintf(ptr, "%016lx: ", addr);
-+		ptr += sprintf(ptr, "%px: ", (void *)addr);
- 		if (start + opsize >= end)
- 			break;
- 		for (i = 0; i < opsize; i++)
-@@ -2033,7 +2034,7 @@ void print_fn_code(unsigned char *code, unsigned long len)
- 		opsize = insn_length(*code);
- 		if (opsize > len)
- 			break;
--		ptr += sprintf(ptr, "%p: ", code);
-+		ptr += sprintf(ptr, "%px: ", code);
- 		for (i = 0; i < opsize; i++)
- 			ptr += sprintf(ptr, "%02x", code[i]);
- 		*ptr++ = '\t';
++static int port_detect(struct device *dev, void *dev_drv)
++{
++	if (is_parport(dev))
++		return 1;
++	return 0;
++}
++
+ /**
+  *	parport_register_driver - register a parallel port device driver
+  *	@drv: structure describing the driver
+@@ -282,6 +294,15 @@ int __parport_register_driver(struct parport_driver *drv, struct module *owner,
+ 		if (ret)
+ 			return ret;
+ 
++		/*
++		 * check if bus has any parallel port registered, if
++		 * none is found then load the lowlevel driver.
++		 */
++		ret = bus_for_each_dev(&parport_bus_type, NULL, NULL,
++				       port_detect);
++		if (!ret)
++			get_lowlevel_driver();
++
+ 		mutex_lock(&registration_lock);
+ 		if (drv->match_port)
+ 			bus_for_each_dev(&parport_bus_type, NULL, drv,
 -- 
 2.20.1
 
