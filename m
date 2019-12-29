@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9FF12C767
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D84A12C769
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728679AbfL2R2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:28:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52738 "EHLO mail.kernel.org"
+        id S1728369AbfL2R26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:28:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728369AbfL2R2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:28:53 -0500
+        id S1728683AbfL2R2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:28:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A0BD207FD;
-        Sun, 29 Dec 2019 17:28:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7D66207FD;
+        Sun, 29 Dec 2019 17:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640532;
-        bh=HeYkE1dswKtSS3SHjwtEdnbPMRwoNIuAdLrCFM0Q8sI=;
+        s=default; t=1577640535;
+        bh=VLyF6Gay6F2xSaGHRXndj5ryoeCGDqbkQqQAhMhrE5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twX8nyT89zLL6Us+bWYnehyE7CY9pKwuhY8IiXFe3j5L2MHqJFeQl9AJ24Efmq07S
-         b0+F4bdkxE50kuc3tvtOLW2lbwtx3gBIzy3ZGEyJVrS9kXPg5uPmwQ5cLGIPMVXyis
-         A9wBTSQff5FrGzXEJ3m5hb9JlbEVCzT2IHvljeVQ=
+        b=mje6BozxtBJIRx1eXi1CGsrJkek3KTFd20GpfeiFcjp5o22xofIzXqgaM/h9v5y8i
+         kyuGz5xCqXbyDebHBuLAT14yRNPEYj3D8ijr4ZAB/M1kQQ79Lb8Gl/mngbZpwPJ9+U
+         9Cquyu2r4wT3zErBBYyxOHR5MYn0ZWkLiu9y3Egg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        stable@vger.kernel.org, Connor Kuehl <connor.kuehl@canonical.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/219] staging: rtl8192u: fix multiple memory leaks on error path
-Date:   Sun, 29 Dec 2019 18:17:15 +0100
-Message-Id: <20191229162513.461734366@linuxfoundation.org>
+Subject: [PATCH 4.19 034/219] staging: rtl8188eu: fix possible null dereference
+Date:   Sun, 29 Dec 2019 18:17:16 +0100
+Message-Id: <20191229162513.575448657@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -44,70 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Connor Kuehl <connor.kuehl@canonical.com>
 
-[ Upstream commit ca312438cf176a16d4b89350cade8789ba8d7133 ]
+[ Upstream commit 228241944a48113470d3c3b46c88ba7fbe0a274b ]
 
-In rtl8192_tx on error handling path allocated urbs and also skb should
-be released.
+Inside a nested 'else' block at the beginning of this function is a
+call that assigns 'psta' to the return value of 'rtw_get_stainfo()'.
+If 'rtw_get_stainfo()' returns NULL and the flow of control reaches
+the 'else if' where 'psta' is dereferenced, then we will dereference
+a NULL pointer.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Link: https://lore.kernel.org/r/20190920025137.29407-1-navid.emamdoost@gmail.com
+Fix this by checking if 'psta' is not NULL before reading its
+'psta->qos_option' data member.
+
+Addresses-Coverity: ("Dereference null return value")
+
+Signed-off-by: Connor Kuehl <connor.kuehl@canonical.com>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Link: https://lore.kernel.org/r/20190926150317.5894-1-connor.kuehl@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192u/r8192U_core.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/staging/rtl8188eu/core/rtw_xmit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
-index e218b5c20642..2066a1d9bc84 100644
---- a/drivers/staging/rtl8192u/r8192U_core.c
-+++ b/drivers/staging/rtl8192u/r8192U_core.c
-@@ -1467,7 +1467,7 @@ short rtl8192_tx(struct net_device *dev, struct sk_buff *skb)
- 		(struct tx_fwinfo_819x_usb *)(skb->data + USB_HWDESC_HEADER_LEN);
- 	struct usb_device *udev = priv->udev;
- 	int pend;
--	int status;
-+	int status, rt = -1;
- 	struct urb *tx_urb = NULL, *tx_urb_zero = NULL;
- 	unsigned int idx_pipe;
+diff --git a/drivers/staging/rtl8188eu/core/rtw_xmit.c b/drivers/staging/rtl8188eu/core/rtw_xmit.c
+index dd9b02d316f3..c6a5b62cb363 100644
+--- a/drivers/staging/rtl8188eu/core/rtw_xmit.c
++++ b/drivers/staging/rtl8188eu/core/rtw_xmit.c
+@@ -778,7 +778,7 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
+ 			memcpy(pwlanhdr->addr2, get_bssid(pmlmepriv), ETH_ALEN);
+ 			memcpy(pwlanhdr->addr3, pattrib->src, ETH_ALEN);
  
-@@ -1611,8 +1611,10 @@ short rtl8192_tx(struct net_device *dev, struct sk_buff *skb)
- 		}
- 		if (bSend0Byte) {
- 			tx_urb_zero = usb_alloc_urb(0, GFP_ATOMIC);
--			if (!tx_urb_zero)
--				return -ENOMEM;
-+			if (!tx_urb_zero) {
-+				rt = -ENOMEM;
-+				goto error;
-+			}
- 			usb_fill_bulk_urb(tx_urb_zero, udev,
- 					  usb_sndbulkpipe(udev, idx_pipe),
- 					  &zero, 0, tx_zero_isr, dev);
-@@ -1622,7 +1624,7 @@ short rtl8192_tx(struct net_device *dev, struct sk_buff *skb)
- 					 "Error TX URB for zero byte %d, error %d",
- 					 atomic_read(&priv->tx_pending[tcb_desc->queue_index]),
- 					 status);
--				return -1;
-+				goto error;
- 			}
- 		}
- 		netif_trans_update(dev);
-@@ -1633,7 +1635,12 @@ short rtl8192_tx(struct net_device *dev, struct sk_buff *skb)
- 	RT_TRACE(COMP_ERR, "Error TX URB %d, error %d",
- 		 atomic_read(&priv->tx_pending[tcb_desc->queue_index]),
- 		 status);
--	return -1;
-+
-+error:
-+	dev_kfree_skb_any(skb);
-+	usb_free_urb(tx_urb);
-+	usb_free_urb(tx_urb_zero);
-+	return rt;
- }
+-			if (psta->qos_option)
++			if (psta && psta->qos_option)
+ 				qos_option = true;
+ 		} else if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) ||
+ 			   check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE)) {
+@@ -786,7 +786,7 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
+ 			memcpy(pwlanhdr->addr2, pattrib->src, ETH_ALEN);
+ 			memcpy(pwlanhdr->addr3, get_bssid(pmlmepriv), ETH_ALEN);
  
- static short rtl8192_usb_initendpoints(struct net_device *dev)
+-			if (psta->qos_option)
++			if (psta && psta->qos_option)
+ 				qos_option = true;
+ 		} else {
+ 			RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("fw_state:%x is not allowed to xmit frame\n", get_fwstate(pmlmepriv)));
 -- 
 2.20.1
 
