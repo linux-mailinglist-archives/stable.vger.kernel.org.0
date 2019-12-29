@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E2412CA4D
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:20:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C12EE12CA46
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727022AbfL2RVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:21:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37222 "EHLO mail.kernel.org"
+        id S1726658AbfL2SSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 13:18:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727018AbfL2RVn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:21:43 -0500
+        id S1727159AbfL2RWK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:22:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFA9720722;
-        Sun, 29 Dec 2019 17:21:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19EE6222D9;
+        Sun, 29 Dec 2019 17:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640103;
-        bh=MSocyokPp3ZBQPuiFkwpp/yyVPhPPFHCNn/SqQAV7Hw=;
+        s=default; t=1577640129;
+        bh=10Bch39nQdG2FDKAX+xNLwifrBrfE1LyaeBkCA4N98E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TAs55hQkfx40Y/lFrq8WmgEfZP25LRhihZnBdup6ubuhyHMoMUwDYXscW0j2GFWGI
-         j59jUXQ4IkEBgKhvCLwrhQfjsj/ZhYgUXwT/4dwAn2j4a2Fqn26e/HBVjntXtchc5g
-         nTi1oZrAOeCi+FrdOoqH3OWYmlu/8PkxMsGid5T0=
+        b=o27vU7U9GL5ZlNzwFa7ATH89AuwX+9LEENfpJyYqQdYl3zPJLTks5NywzPoSSJ6Ah
+         wzbJ7UYOWglrJ7Og1a42BWZphlRcssVe5ml3n3e6KqI6UfrV96C0KGhl4t+pt8zem8
+         gwbEzeCEVyPKxJgPol0rljusg4MHhOQQlL7CtPxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 002/161] fjes: fix missed check in fjes_acpi_add
-Date:   Sun, 29 Dec 2019 18:17:30 +0100
-Message-Id: <20191229162356.313058740@linuxfoundation.org>
+Subject: [PATCH 4.14 003/161] mod_devicetable: fix PHY module format
+Date:   Sun, 29 Dec 2019 18:17:31 +0100
+Message-Id: <20191229162356.570646860@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -43,32 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit a288f105a03a7e0e629a8da2b31f34ebf0343ee2 ]
+[ Upstream commit d2ed49cf6c13e379c5819aa5ac20e1f9674ebc89 ]
 
-fjes_acpi_add() misses a check for platform_device_register_simple().
-Add a check to fix it.
+When a PHY is probed, if the top bit is set, we end up requesting a
+module with the string "mdio:-10101110000000100101000101010001" -
+the top bit is printed to a signed -1 value. This leads to the module
+not being loaded.
 
-Fixes: 658d439b2292 ("fjes: Introduce FUJITSU Extended Socket Network Device driver")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Fix the module format string and the macro generating the values for
+it to ensure that we only print unsigned types and the top bit is
+always 0/1. We correctly end up with
+"mdio:10101110000000100101000101010001".
+
+Fixes: 8626d3b43280 ("phylib: Support phy module autoloading")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/fjes/fjes_main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/mod_devicetable.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/fjes/fjes_main.c
-+++ b/drivers/net/fjes/fjes_main.c
-@@ -181,6 +181,9 @@ static int fjes_acpi_add(struct acpi_dev
- 	/* create platform_device */
- 	plat_dev = platform_device_register_simple(DRV_NAME, 0, fjes_resource,
- 						   ARRAY_SIZE(fjes_resource));
-+	if (IS_ERR(plat_dev))
-+		return PTR_ERR(plat_dev);
-+
- 	device->driver_data = plat_dev;
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -519,9 +519,9 @@ struct platform_device_id {
+ #define MDIO_NAME_SIZE		32
+ #define MDIO_MODULE_PREFIX	"mdio:"
  
- 	return 0;
+-#define MDIO_ID_FMT "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d"
++#define MDIO_ID_FMT "%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u"
+ #define MDIO_ID_ARGS(_id) \
+-	(_id)>>31, ((_id)>>30) & 1, ((_id)>>29) & 1, ((_id)>>28) & 1,	\
++	((_id)>>31) & 1, ((_id)>>30) & 1, ((_id)>>29) & 1, ((_id)>>28) & 1, \
+ 	((_id)>>27) & 1, ((_id)>>26) & 1, ((_id)>>25) & 1, ((_id)>>24) & 1, \
+ 	((_id)>>23) & 1, ((_id)>>22) & 1, ((_id)>>21) & 1, ((_id)>>20) & 1, \
+ 	((_id)>>19) & 1, ((_id)>>18) & 1, ((_id)>>17) & 1, ((_id)>>16) & 1, \
 
 
