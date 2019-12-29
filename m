@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C932612C536
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 456A312C599
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729702AbfL2Rer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:34:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38356 "EHLO mail.kernel.org"
+        id S1729845AbfL2RiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:38:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729717AbfL2Req (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:34:46 -0500
+        id S1729729AbfL2Res (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:34:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2956D206DB;
-        Sun, 29 Dec 2019 17:34:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9FA120722;
+        Sun, 29 Dec 2019 17:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640885;
-        bh=8pxzieCgI+tA0pQaNOHwARrjHhW9WxTRdxKBRkyU30w=;
+        s=default; t=1577640888;
+        bh=wTeLpwQ9NyWe9Ik7bwUjxLI73XPOTIwTnGzR5hpahyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=daDGsU420ZNhVATFoCA9WO7edtIyA9uGoZyzm1tjNtz6CQNezTnpPDiwBYJWZYiBZ
-         zb1j3cpcqUHV18fTHaIf3hYjgqo03fXsVlhFz8armUfl0sR1+APdzXwhFks5jPgGmo
-         JR02zEW1U4pPeR7l8zoXQ7kZZI/EiI1yZ0Pt4+kQ=
+        b=onP9yjqSiRoaTnOZqyumPmVd5Z55gYwJXJHbNVBiybQKsaO3QlEr44/IMQ76Mevpy
+         1rrIxva3OYWUG9Ta5BoYrHcc4bJmlxtdcuiqBo8eCI1F1zivJHDJuZn35ou67MyYiT
+         w6erUdWmGx31ueDlWO9EPiaGJH3iZznL+2pZSN3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 180/219] crypto: sun4i-ss - Fix 64-bit size_t warnings
-Date:   Sun, 29 Dec 2019 18:19:42 +0100
-Message-Id: <20191229162536.066360664@linuxfoundation.org>
+Subject: [PATCH 4.19 181/219] crypto: sun4i-ss - Fix 64-bit size_t warnings on sun4i-ss-hash.c
+Date:   Sun, 29 Dec 2019 18:19:43 +0100
+Message-Id: <20191229162536.490846003@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -44,100 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Corentin Labbe <clabbe.montjoie@gmail.com>
 
-[ Upstream commit d6e9da21ee8246b5e556b3b153401ab045adb986 ]
+[ Upstream commit a7126603d46fe8f01aeedf589e071c6aaa6c6c39 ]
 
 If you try to compile this driver on a 64-bit platform then you
 will get warnings because it mixes size_t with unsigned int which
 only works on 32-bit.
 
-This patch fixes all of the warnings.
-
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Acked-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+This patch fixes all of the warnings on sun4i-ss-hash.c.
+Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sunxi-ss/sun4i-ss-cipher.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/crypto/sunxi-ss/sun4i-ss-hash.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-index 5cf64746731a..22e491857925 100644
---- a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-@@ -81,7 +81,8 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
- 	oi = 0;
- 	oo = 0;
- 	do {
--		todo = min3(rx_cnt, ileft, (mi.length - oi) / 4);
-+		todo = min(rx_cnt, ileft);
-+		todo = min_t(size_t, todo, (mi.length - oi) / 4);
- 		if (todo) {
- 			ileft -= todo;
- 			writesl(ss->base + SS_RXFIFO, mi.addr + oi, todo);
-@@ -96,7 +97,8 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
- 		rx_cnt = SS_RXFIFO_SPACES(spaces);
- 		tx_cnt = SS_TXFIFO_SPACES(spaces);
- 
--		todo = min3(tx_cnt, oleft, (mo.length - oo) / 4);
-+		todo = min(tx_cnt, oleft);
-+		todo = min_t(size_t, todo, (mo.length - oo) / 4);
- 		if (todo) {
- 			oleft -= todo;
- 			readsl(ss->base + SS_TXFIFO, mo.addr + oo, todo);
-@@ -220,7 +222,8 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 			 * todo is the number of consecutive 4byte word that we
- 			 * can read from current SG
+diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
+index f6936bb3b7be..1a724263761b 100644
+--- a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
++++ b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
+@@ -276,8 +276,8 @@ static int sun4i_hash(struct ahash_request *areq)
  			 */
--			todo = min3(rx_cnt, ileft / 4, (mi.length - oi) / 4);
-+			todo = min(rx_cnt, ileft / 4);
-+			todo = min_t(size_t, todo, (mi.length - oi) / 4);
- 			if (todo && !ob) {
- 				writesl(ss->base + SS_RXFIFO, mi.addr + oi,
- 					todo);
-@@ -234,8 +237,8 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 				 * we need to be able to write all buf in one
- 				 * pass, so it is why we min() with rx_cnt
- 				 */
--				todo = min3(rx_cnt * 4 - ob, ileft,
--					    mi.length - oi);
-+				todo = min(rx_cnt * 4 - ob, ileft);
-+				todo = min_t(size_t, todo, mi.length - oi);
- 				memcpy(buf + ob, mi.addr + oi, todo);
- 				ileft -= todo;
- 				oi += todo;
-@@ -255,7 +258,8 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 		spaces = readl(ss->base + SS_FCSR);
- 		rx_cnt = SS_RXFIFO_SPACES(spaces);
- 		tx_cnt = SS_TXFIFO_SPACES(spaces);
--		dev_dbg(ss->dev, "%x %u/%u %u/%u cnt=%u %u/%u %u/%u cnt=%u %u\n",
-+		dev_dbg(ss->dev,
-+			"%x %u/%zu %u/%u cnt=%u %u/%zu %u/%u cnt=%u %u\n",
- 			mode,
- 			oi, mi.length, ileft, areq->cryptlen, rx_cnt,
- 			oo, mo.length, oleft, areq->cryptlen, tx_cnt, ob);
-@@ -263,7 +267,8 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 		if (!tx_cnt)
- 			continue;
- 		/* todo in 4bytes word */
--		todo = min3(tx_cnt, oleft / 4, (mo.length - oo) / 4);
-+		todo = min(tx_cnt, oleft / 4);
-+		todo = min_t(size_t, todo, (mo.length - oo) / 4);
- 		if (todo) {
- 			readsl(ss->base + SS_TXFIFO, mo.addr + oo, todo);
- 			oleft -= todo * 4;
-@@ -287,7 +292,8 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 				 * no more than remaining buffer
- 				 * no need to test against oleft
- 				 */
--				todo = min(mo.length - oo, obl - obo);
-+				todo = min_t(size_t,
-+					     mo.length - oo, obl - obo);
- 				memcpy(mo.addr + oo, bufo + obo, todo);
- 				oleft -= todo;
- 				obo += todo;
+ 			while (op->len < 64 && i < end) {
+ 				/* how many bytes we can read from current SG */
+-				in_r = min3(mi.length - in_i, end - i,
+-					    64 - op->len);
++				in_r = min(end - i, 64 - op->len);
++				in_r = min_t(size_t, mi.length - in_i, in_r);
+ 				memcpy(op->buf + op->len, mi.addr + in_i, in_r);
+ 				op->len += in_r;
+ 				i += in_r;
+@@ -297,8 +297,8 @@ static int sun4i_hash(struct ahash_request *areq)
+ 		}
+ 		if (mi.length - in_i > 3 && i < end) {
+ 			/* how many bytes we can read from current SG */
+-			in_r = min3(mi.length - in_i, areq->nbytes - i,
+-				    ((mi.length - in_i) / 4) * 4);
++			in_r = min_t(size_t, mi.length - in_i, areq->nbytes - i);
++			in_r = min_t(size_t, ((mi.length - in_i) / 4) * 4, in_r);
+ 			/* how many bytes we can write in the device*/
+ 			todo = min3((u32)(end - i) / 4, rx_cnt, (u32)in_r / 4);
+ 			writesl(ss->base + SS_RXFIFO, mi.addr + in_i, todo);
+@@ -324,8 +324,8 @@ static int sun4i_hash(struct ahash_request *areq)
+ 	if ((areq->nbytes - i) < 64) {
+ 		while (i < areq->nbytes && in_i < mi.length && op->len < 64) {
+ 			/* how many bytes we can read from current SG */
+-			in_r = min3(mi.length - in_i, areq->nbytes - i,
+-				    64 - op->len);
++			in_r = min(areq->nbytes - i, 64 - op->len);
++			in_r = min_t(size_t, mi.length - in_i, in_r);
+ 			memcpy(op->buf + op->len, mi.addr + in_i, in_r);
+ 			op->len += in_r;
+ 			i += in_r;
 -- 
 2.20.1
 
