@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1008F12C9C4
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DDC312C9C2
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728358AbfL2R1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:27:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48976 "EHLO mail.kernel.org"
+        id S1727918AbfL2R1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:27:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728352AbfL2R1G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:27:06 -0500
+        id S1728060AbfL2R1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:27:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72FE3207FF;
-        Sun, 29 Dec 2019 17:27:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54C83207FF;
+        Sun, 29 Dec 2019 17:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640425;
-        bh=mW4EO8dmtkIggbvuTHjWqsJV+OdBn4CaRMcl3crir5g=;
+        s=default; t=1577640430;
+        bh=CFq7QeTcEXfVevTxoQrg/wPsOlCDpo63+EilV2uVLvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2STaphIvp1TwOv6mD8wpqmDVS+6p+ymD5RnZ3/8wS3f+b7+zUvnULlMrCPNZxJwFP
-         0wCkn+wpoA4H/oYNzIBYgSp5hfmH7YUMMR8hTsGXURmAjkU22InfEVYjIEbSQPHYH9
-         C7bVz0kuQWPn5OpDjMM6d474enPb2McDxab4Hls4=
+        b=gmhdMeBlPZNx5Z+C+/0+EPDidP08z2c1GeYxHN/M2UEvc5h25QGQXuCecqz6vAPGj
+         myuSBZ9E5r43flLMkF10XHrOTS8Qs/Fd4TdPTLvmDOXDSahlPOba9EGVlqlDkTUFaf
+         QF8hzcOQl2+jHe+h9RtUvivsAILiHP3YhA3MU0dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 152/161] ext4: check for directory entries too close to block end
-Date:   Sun, 29 Dec 2019 18:20:00 +0100
-Message-Id: <20191229162447.625240197@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.14 154/161] KVM: arm64: Ensure params is initialised when looking up sys register
+Date:   Sun, 29 Dec 2019 18:20:02 +0100
+Message-Id: <20191229162448.691821033@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -43,39 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Will Deacon <will@kernel.org>
 
-commit 109ba779d6cca2d519c5dd624a3276d03e21948e upstream.
+commit 1ce74e96c2407df2b5867e5d45a70aacb8923c14 upstream.
 
-ext4_check_dir_entry() currently does not catch a case when a directory
-entry ends so close to the block end that the header of the next
-directory entry would not fit in the remaining space. This can lead to
-directory iteration code trying to access address beyond end of current
-buffer head leading to oops.
+Commit 4b927b94d5df ("KVM: arm/arm64: vgic: Introduce find_reg_by_id()")
+introduced 'find_reg_by_id()', which looks up a system register only if
+the 'id' index parameter identifies a valid system register. As part of
+the patch, existing callers of 'find_reg()' were ported over to the new
+interface, but this breaks 'index_to_sys_reg_desc()' in the case that the
+initial lookup in the vCPU target table fails because we will then call
+into 'find_reg()' for the system register table with an uninitialised
+'param' as the key to the lookup.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191202170213.4761-3-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+GCC 10 is bright enough to spot this (amongst a tonne of false positives,
+but hey!):
+
+  | arch/arm64/kvm/sys_regs.c: In function ‘index_to_sys_reg_desc.part.0.isra’:
+  | arch/arm64/kvm/sys_regs.c:983:33: warning: ‘params.Op2’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  |   983 |   (u32)(x)->CRn, (u32)(x)->CRm, (u32)(x)->Op2);
+  | [...]
+
+Revert the hunk of 4b927b94d5df which breaks 'index_to_sys_reg_desc()' so
+that the old behaviour of checking the index upfront is restored.
+
+Fixes: 4b927b94d5df ("KVM: arm/arm64: vgic: Introduce find_reg_by_id()")
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191212094049.12437-1-will@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/dir.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/kvm/sys_regs.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/dir.c
-+++ b/fs/ext4/dir.c
-@@ -76,6 +76,11 @@ int __ext4_check_dir_entry(const char *f
- 		error_msg = "rec_len is too small for name_len";
- 	else if (unlikely(((char *) de - buf) + rlen > size))
- 		error_msg = "directory entry overrun";
-+	else if (unlikely(((char *) de - buf) + rlen >
-+			  size - EXT4_DIR_REC_LEN(1) &&
-+			  ((char *) de - buf) + rlen != size)) {
-+		error_msg = "directory entry too close to block end";
-+	}
- 	else if (unlikely(le32_to_cpu(de->inode) >
- 			le32_to_cpu(EXT4_SB(dir->i_sb)->s_es->s_inodes_count)))
- 		error_msg = "inode out of bounds";
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1785,8 +1785,11 @@ static const struct sys_reg_desc *index_
+ 	if ((id & KVM_REG_ARM_COPROC_MASK) != KVM_REG_ARM64_SYSREG)
+ 		return NULL;
+ 
++	if (!index_to_params(id, &params))
++		return NULL;
++
+ 	table = get_target_table(vcpu->arch.target, true, &num);
+-	r = find_reg_by_id(id, &params, table, num);
++	r = find_reg(&params, table, num);
+ 	if (!r)
+ 		r = find_reg(&params, sys_reg_descs, ARRAY_SIZE(sys_reg_descs));
+ 
 
 
