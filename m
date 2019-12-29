@@ -2,57 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D58F12C33F
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 16:55:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDBB612C341
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 17:05:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726626AbfL2Pz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 10:55:28 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:58631 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726230AbfL2Pz2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 10:55:28 -0500
+        id S1726597AbfL2QF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 11:05:26 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:36859 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726455AbfL2QFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 11:05:25 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 82A4E21D6E;
-        Sun, 29 Dec 2019 10:55:27 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id AEC0E461;
+        Sun, 29 Dec 2019 11:05:24 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 29 Dec 2019 10:55:27 -0500
+  by compute6.internal (MEProxy); Sun, 29 Dec 2019 11:05:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iV+aIu
-        p0onh/pn/Cj/sdsGWAkrti9aSm3HItR+t4568=; b=XyoC8CTO2ufvi2MwYtIEjB
-        s9veQkK825lQxAZf03ezA0Ta8SzE7LF1wbiu8L/AllK4ZndLBbRxyX5EKBOCn/eK
-        mcGL76Jy/3qhQyvNQX15pqoLF8gIbX/eqTqIAnswBRsqzr5dqUJNI+K9J2RfYpjc
-        6sr/2U69KYIjFIs1SKUxmc3LvhpSd2j6fkSDMGIhOL5B2C4RHbvlQuPV1E7bO58F
-        pHvJBbqjVVIWPW43wUZZseR6u4395r4veHf9ErsN6SS2wgRoNx9h2gmgI7/BwvwL
-        w+mqmThYo4h23C7t3YCjyChP9NrmXiYyizN3wLE6DrmCN+O0ewmqwJOI1X0FpLaQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=uwjXw6
+        fCDHO+eSTqIjET7w/MKCumUPSvMe5162jUkTE=; b=QzuyTZJUkmkVNWZRwMGNb5
+        Ey5qYbLTZMek9P/jix2QcvwGZaW7OWHf+wOHuyiWHZCaCmyKtwQoQTj4wzQnQxB0
+        EvGLNccWAK2ptZfBZppQ+Op1lnEH/7N9dqEtMyiXcP0fUSLFvpDNvgMneybzHUsV
+        x2mHKhB7wvvLJGKrDwQ2b4ZfaIokC3prUuoPN0KmwEQgLQyb9dUWqR5Mc6lXGTsI
+        7Y2USH72QFbIGaqz5LgHK8lEwlKWHSCkkuZQFNniC+U8iX7fhVCGuKqIvejAQM97
+        C8JIGVAosFbDAphoWWsTYRLjbidiuDsOON/CxiFzTcsEKDY6IQ0PFBhkfR5DxYIA
         ==
-X-ME-Sender: <xms:b8wIXoTbVgSUqE4eI4Kqbkw6vo95wB43icc-_RbvUOs_cGenMP6QMQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgkedvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:xM4IXtfPZYJ6lf2kmkcr3iz20WPo5vzbIy616JYPldlcd6YkEUqFPA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgkeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:b8wIXkMsdVU8eDjvLq5gJWSxzYxRmdku4Hzfw4wpuJtIxGgexp0byg>
-    <xmx:b8wIXoe6O8DSVlPyjkYSCwa4-ACsAIQS6dsLTCS7drUKXLVx5x2VkA>
-    <xmx:b8wIXnXL7JM_nwmwO--V1EVfsQ-uCEJFWQVaa6vKdUxKkRhjtUu9aQ>
-    <xmx:b8wIXkVNFj-DTXtMoN87eE-zV-TiykurmTpysMtv1kNSH_x7bV5hbQ>
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:xM4IXiR12osggqj0A9AwePVZZpYcMf31fD2tlKftewV66l2X9wWBZw>
+    <xmx:xM4IXuiAp1Xye_K-rWtq2aOclYCiuPNCSSzygnvP40R4Ic1gFuFMVw>
+    <xmx:xM4IXopfYnxS4_j9WDokNshQjdPUWG3E9-CUAOnHJHIJjMAbwnHSZw>
+    <xmx:xM4IXttSE1Lzncqp2ar7ygPgxRAh-keJkvxF8pG5pnolvT7YGLgXTg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1E4C53060AA8;
-        Sun, 29 Dec 2019 10:55:27 -0500 (EST)
-Subject: FAILED: patch "[PATCH] x86/mce: Fix possibly incorrect severity calculation on AMD" failed to apply to 4.9-stable tree
-To:     jschoenh@amazon.de, Yazen.Ghannam@amd.com, bp@suse.de,
-        hpa@zytor.com, linux-edac@vger.kernel.org, mingo@kernel.org,
-        stable@vger.kernel.org, tglx@linutronix.de, tony.luck@intel.com,
-        x86@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id D552F3060AC7;
+        Sun, 29 Dec 2019 11:05:23 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mmc: sdhci: Update the tuning failed messages to pr_debug" failed to apply to 4.9-stable tree
+To:     faiz_abbas@ti.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Dec 2019 16:55:17 +0100
-Message-ID: <1577634917235161@kroah.com>
+Date:   Sun, 29 Dec 2019 17:05:21 +0100
+Message-ID: <1577635521151247@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -71,44 +68,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a3a57ddad061acc90bef39635caf2b2330ce8f21 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Jan=20H=2E=20Sch=C3=B6nherr?= <jschoenh@amazon.de>
-Date: Tue, 10 Dec 2019 01:07:30 +0100
-Subject: [PATCH] x86/mce: Fix possibly incorrect severity calculation on AMD
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 2c92dd20304f505b6ef43d206fff21bda8f1f0ae Mon Sep 17 00:00:00 2001
+From: Faiz Abbas <faiz_abbas@ti.com>
+Date: Fri, 6 Dec 2019 17:13:26 +0530
+Subject: [PATCH] mmc: sdhci: Update the tuning failed messages to pr_debug
+ level
 
-The function mce_severity_amd_smca() requires m->bank to be initialized
-for correct operation. Fix the one case, where mce_severity() is called
-without doing so.
+Tuning support in DDR50 speed mode was added in SD Specifications Part1
+Physical Layer Specification v3.01. Its not possible to distinguish
+between v3.00 and v3.01 from the SCR and that is why since
+commit 4324f6de6d2e ("mmc: core: enable CMD19 tuning for DDR50 mode")
+tuning failures are ignored in DDR50 speed mode.
 
-Fixes: 6bda529ec42e ("x86/mce: Grade uncorrected errors for SMCA-enabled systems")
-Fixes: d28af26faa0b ("x86/MCE: Initialize mce.bank in the case of a fatal error in mce_no_way_out()")
-Signed-off-by: Jan H. Schönherr <jschoenh@amazon.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Cc: Yazen Ghannam <Yazen.Ghannam@amd.com>
-Link: https://lkml.kernel.org/r/20191210000733.17979-4-jschoenh@amazon.de
+Cards compatible with v3.00 don't respond to CMD19 in DDR50 and this
+error gets printed during enumeration and also if retune is triggered at
+any time during operation. Update the printk level to pr_debug so that
+these errors don't lead to false error reports.
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 5f42f25bac8f..2e2a421c8528 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -819,8 +819,8 @@ static int mce_no_way_out(struct mce *m, char **msg, unsigned long *validp,
- 		if (quirk_no_way_out)
- 			quirk_no_way_out(i, m, regs);
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Cc: stable@vger.kernel.org # v4.4+
+Link: https://lore.kernel.org/r/20191206114326.15856-1-faiz_abbas@ti.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index 296d955ede59..42a9c8179da7 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -2417,8 +2417,8 @@ static int __sdhci_execute_tuning(struct sdhci_host *host, u32 opcode)
+ 		sdhci_send_tuning(host, opcode);
  
-+		m->bank = i;
- 		if (mce_severity(m, mca_cfg.tolerant, &tmp, true) >= MCE_PANIC_SEVERITY) {
--			m->bank = i;
- 			mce_read_aux(m, i);
- 			*msg = tmp;
- 			return 1;
+ 		if (!host->tuning_done) {
+-			pr_info("%s: Tuning timeout, falling back to fixed sampling clock\n",
+-				mmc_hostname(host->mmc));
++			pr_debug("%s: Tuning timeout, falling back to fixed sampling clock\n",
++				 mmc_hostname(host->mmc));
+ 			sdhci_abort_tuning(host, opcode);
+ 			return -ETIMEDOUT;
+ 		}
 
