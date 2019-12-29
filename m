@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26BEB12C42F
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:29:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1773A12C431
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727692AbfL2R1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:27:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49322 "EHLO mail.kernel.org"
+        id S1728404AbfL2R1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:27:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728057AbfL2R1Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:27:16 -0500
+        id S1728401AbfL2R1V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:27:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F8C4208E4;
-        Sun, 29 Dec 2019 17:27:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EC26222C2;
+        Sun, 29 Dec 2019 17:27:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640435;
-        bh=BactduNqTs4sPIgTbO6UqdHepaukg3SW1+IJ6I1vWKM=;
+        s=default; t=1577640440;
+        bh=VY80hTtja85SkMaqS467ItajsdXs54ZTgnddma92D2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLhZrcffw0/ymqi+TO5d5qSd1mWvy4jYV2j4xnITX4BDg9fzMphc+1l10zR8Gy80Q
-         lQnXg9ovHpGmWHQLGYc0gvhF0zmEKdCIE2QVU346cjR5OFSk2OhZPJ2pEudxXuhq6h
-         ulXvspxzitJSBaYV4Am0UrVZfaqyL9lrunXt5GBM=
+        b=D1f6RoX5kMJQyd7qumA+HbnC/QzNMGvnYyd1rxR9rtLJVhkbh3IEjSRWuidXw3/Dq
+         nV40WIYr+ZhSzuvEUgobdh99tS0ORIGBeavFEvSov8eycOZHcyXqY2YBlNLFNhz4gi
+         j4hRz2rf5DEBW7HSMSaO01TzVonfUjRP+hdOVf8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>, x86-ml <x86@kernel.org>
-Subject: [PATCH 4.14 156/161] x86/MCE/AMD: Allow Reserved types to be overwritten in smca_banks[]
-Date:   Sun, 29 Dec 2019 18:20:04 +0100
-Message-Id: <20191229162449.201703020@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 158/161] mmc: sdhci-of-esdhc: Revert "mmc: sdhci-of-esdhc: add erratum A-009204 support"
+Date:   Sun, 29 Dec 2019 18:20:06 +0100
+Message-Id: <20191229162449.884427203@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -47,96 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit 966af20929ac24360ba3fac5533eb2ab003747da upstream.
+commit 8b6dc6b2d60221e90703babbc141f063b8a07e72 upstream.
 
-Each logical CPU in Scalable MCA systems controls a unique set of MCA
-banks in the system. These banks are not shared between CPUs. The bank
-types and ordering will be the same across CPUs on currently available
-systems.
+This reverts commit 5dd195522562542bc6ebe6e7bd47890d8b7ca93c.
 
-However, some CPUs may see a bank as Reserved/Read-as-Zero (RAZ) while
-other CPUs do not. In this case, the bank seen as Reserved on one CPU is
-assumed to be the same type as the bank seen as a known type on another
-CPU.
+First, the fix seems to be plain wrong, since the erratum suggests
+waiting 5ms before setting setting SYSCTL[RSTD], but this msleep()
+happens after the call of sdhci_reset() which is where that bit gets
+set (if SDHCI_RESET_DATA is in mask).
 
-In general, this occurs when the hardware represented by the MCA bank
-is disabled, e.g. disabled memory controllers on certain models, etc.
-The MCA bank is disabled in the hardware, so there is no possibility of
-getting an MCA/MCE from it even if it is assumed to have a known type.
+Second, walking the whole device tree to figure out if some node has a
+"fsl,p2020-esdhc" compatible string is hugely expensive - about 70 to
+100 us on our mpc8309 board. Walking the device tree is done under a
+raw_spin_lock, so this is obviously really bad on an -rt system, and a
+waste of time on all.
 
-For example:
+In fact, since esdhc_reset() seems to get called around 100 times per
+second, that mpc8309 now spends 0.8% of its time determining that
+it is not a p2020. Whether those 100 calls/s are normal or due to some
+other bug or misconfiguration, regularly hitting a 100 us
+non-preemptible window is unacceptable.
 
-Full system:
-	Bank  |  Type seen on CPU0  |  Type seen on CPU1
-	------------------------------------------------
-	 0    |         LS          |          LS
-	 1    |         UMC         |          UMC
-	 2    |         CS          |          CS
-
-System with hardware disabled:
-	Bank  |  Type seen on CPU0  |  Type seen on CPU1
-	------------------------------------------------
-	 0    |         LS          |          LS
-	 1    |         UMC         |          RAZ
-	 2    |         CS          |          CS
-
-For this reason, there is a single, global struct smca_banks[] that is
-initialized at boot time. This array is initialized on each CPU as it
-comes online. However, the array will not be updated if an entry already
-exists.
-
-This works as expected when the first CPU (usually CPU0) has all
-possible MCA banks enabled. But if the first CPU has a subset, then it
-will save a "Reserved" type in smca_banks[]. Successive CPUs will then
-not be able to update smca_banks[] even if they encounter a known bank
-type.
-
-This may result in unexpected behavior. Depending on the system
-configuration, a user may observe issues enumerating the MCA
-thresholding sysfs interface. The issues may be as trivial as sysfs
-entries not being available, or as severe as system hangs.
-
-For example:
-
-	Bank  |  Type seen on CPU0  |  Type seen on CPU1
-	------------------------------------------------
-	 0    |         LS          |          LS
-	 1    |         RAZ         |          UMC
-	 2    |         CS          |          CS
-
-Extend the smca_banks[] entry check to return if the entry is a
-non-reserved type. Otherwise, continue so that CPUs that encounter a
-known bank type can update smca_banks[].
-
-Fixes: 68627a697c19 ("x86/mce/AMD, EDAC/mce_amd: Enumerate Reserved SMCA bank type")
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191121141508.141273-1-Yazen.Ghannam@amd.com
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191204085447.27491-1-linux@rasmusvillemoes.dk
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mcheck/mce_amd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-of-esdhc.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/x86/kernel/cpu/mcheck/mce_amd.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce_amd.c
-@@ -228,7 +228,7 @@ static void smca_configure(unsigned int
- 	}
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -615,9 +615,6 @@ static void esdhc_reset(struct sdhci_hos
+ 	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
+ 	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
  
- 	/* Return early if this bank was already initialized. */
--	if (smca_banks[bank].hwid)
-+	if (smca_banks[bank].hwid && smca_banks[bank].hwid->hwid_mcatype != 0)
- 		return;
- 
- 	if (rdmsr_safe(MSR_AMD64_SMCA_MCx_IPID(bank), &low, &high)) {
+-	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc"))
+-		mdelay(5);
+-
+ 	if (mask & SDHCI_RESET_ALL) {
+ 		val = sdhci_readl(host, ESDHC_TBCTL);
+ 		val &= ~ESDHC_TB_EN;
 
 
