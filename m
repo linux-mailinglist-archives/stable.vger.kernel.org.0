@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 456A312C599
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C78F012C598
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729845AbfL2RiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729641AbfL2RiB (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 29 Dec 2019 12:38:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38438 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729729AbfL2Res (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:34:48 -0500
+        id S1729316AbfL2Reu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:34:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9FA120722;
-        Sun, 29 Dec 2019 17:34:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1677720409;
+        Sun, 29 Dec 2019 17:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640888;
-        bh=wTeLpwQ9NyWe9Ik7bwUjxLI73XPOTIwTnGzR5hpahyQ=;
+        s=default; t=1577640890;
+        bh=GxvnmZXRfJIH+zPTsb1miOWYEPs2FcYBonFE0hpOGzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onP9yjqSiRoaTnOZqyumPmVd5Z55gYwJXJHbNVBiybQKsaO3QlEr44/IMQ76Mevpy
-         1rrIxva3OYWUG9Ta5BoYrHcc4bJmlxtdcuiqBo8eCI1F1zivJHDJuZn35ou67MyYiT
-         w6erUdWmGx31ueDlWO9EPiaGJH3iZznL+2pZSN3M=
+        b=FX6qtolTEYfw8ndOhrGBJhRcVOw02RvxVJHeVtoa5jc1+lLjcPLMQ1alM5l7mPm7s
+         ZVP/d2YkKDT1ZPDLcCEcDnjVD2mDqud0V3qNXkvuiaNXZ2C2cObsEGF1W2EMfbzQ4P
+         RUiJv0sGUYNRv4z9Azah/SEAYsVJyi0GdY4gT62k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Thomas Pedersen <thomas@adapt-ip.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 181/219] crypto: sun4i-ss - Fix 64-bit size_t warnings on sun4i-ss-hash.c
-Date:   Sun, 29 Dec 2019 18:19:43 +0100
-Message-Id: <20191229162536.490846003@linuxfoundation.org>
+Subject: [PATCH 4.19 182/219] mac80211: consider QoS Null frames for STA_NULLFUNC_ACKED
+Date:   Sun, 29 Dec 2019 18:19:44 +0100
+Message-Id: <20191229162536.627394588@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -44,59 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
+From: Thomas Pedersen <thomas@adapt-ip.com>
 
-[ Upstream commit a7126603d46fe8f01aeedf589e071c6aaa6c6c39 ]
+[ Upstream commit 08a5bdde3812993cb8eb7aa9124703df0de28e4b ]
 
-If you try to compile this driver on a 64-bit platform then you
-will get warnings because it mixes size_t with unsigned int which
-only works on 32-bit.
+Commit 7b6ddeaf27ec ("mac80211: use QoS NDP for AP probing")
+let STAs send QoS Null frames as PS triggers if the AP was
+a QoS STA.  However, the mac80211 PS stack relies on an
+interface flag IEEE80211_STA_NULLFUNC_ACKED for
+determining trigger frame ACK, which was not being set for
+acked non-QoS Null frames. The effect is an inability to
+trigger hardware sleep via IEEE80211_CONF_PS since the QoS
+Null frame was seemingly never acked.
 
-This patch fixes all of the warnings on sun4i-ss-hash.c.
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This bug only applies to drivers which set both
+IEEE80211_HW_REPORTS_TX_ACK_STATUS and
+IEEE80211_HW_PS_NULLFUNC_STACK.
+
+Detect the acked QoS Null frame to restore STA power save.
+
+Fixes: 7b6ddeaf27ec ("mac80211: use QoS NDP for AP probing")
+Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
+Link: https://lore.kernel.org/r/20191119053538.25979-4-thomas@adapt-ip.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sunxi-ss/sun4i-ss-hash.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/mac80211/status.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-index f6936bb3b7be..1a724263761b 100644
---- a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-+++ b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-@@ -276,8 +276,8 @@ static int sun4i_hash(struct ahash_request *areq)
- 			 */
- 			while (op->len < 64 && i < end) {
- 				/* how many bytes we can read from current SG */
--				in_r = min3(mi.length - in_i, end - i,
--					    64 - op->len);
-+				in_r = min(end - i, 64 - op->len);
-+				in_r = min_t(size_t, mi.length - in_i, in_r);
- 				memcpy(op->buf + op->len, mi.addr + in_i, in_r);
- 				op->len += in_r;
- 				i += in_r;
-@@ -297,8 +297,8 @@ static int sun4i_hash(struct ahash_request *areq)
- 		}
- 		if (mi.length - in_i > 3 && i < end) {
- 			/* how many bytes we can read from current SG */
--			in_r = min3(mi.length - in_i, areq->nbytes - i,
--				    ((mi.length - in_i) / 4) * 4);
-+			in_r = min_t(size_t, mi.length - in_i, areq->nbytes - i);
-+			in_r = min_t(size_t, ((mi.length - in_i) / 4) * 4, in_r);
- 			/* how many bytes we can write in the device*/
- 			todo = min3((u32)(end - i) / 4, rx_cnt, (u32)in_r / 4);
- 			writesl(ss->base + SS_RXFIFO, mi.addr + in_i, todo);
-@@ -324,8 +324,8 @@ static int sun4i_hash(struct ahash_request *areq)
- 	if ((areq->nbytes - i) < 64) {
- 		while (i < areq->nbytes && in_i < mi.length && op->len < 64) {
- 			/* how many bytes we can read from current SG */
--			in_r = min3(mi.length - in_i, areq->nbytes - i,
--				    64 - op->len);
-+			in_r = min(areq->nbytes - i, 64 - op->len);
-+			in_r = min_t(size_t, mi.length - in_i, in_r);
- 			memcpy(op->buf + op->len, mi.addr + in_i, in_r);
- 			op->len += in_r;
- 			i += in_r;
+diff --git a/net/mac80211/status.c b/net/mac80211/status.c
+index 534a604b75c2..f895c656407b 100644
+--- a/net/mac80211/status.c
++++ b/net/mac80211/status.c
+@@ -867,7 +867,8 @@ static void __ieee80211_tx_status(struct ieee80211_hw *hw,
+ 			I802_DEBUG_INC(local->dot11FailedCount);
+ 	}
+ 
+-	if (ieee80211_is_nullfunc(fc) && ieee80211_has_pm(fc) &&
++	if ((ieee80211_is_nullfunc(fc) || ieee80211_is_qos_nullfunc(fc)) &&
++	    ieee80211_has_pm(fc) &&
+ 	    ieee80211_hw_check(&local->hw, REPORTS_TX_ACK_STATUS) &&
+ 	    !(info->flags & IEEE80211_TX_CTL_INJECTED) &&
+ 	    local->ps_sdata && !(local->scanning)) {
 -- 
 2.20.1
 
