@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AAC312C722
+	by mail.lfdr.de (Postfix) with ESMTP id F0D3912C724
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732643AbfL2RyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:54:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41976 "EHLO mail.kernel.org"
+        id S1732392AbfL2RyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:54:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732655AbfL2RyQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:54:16 -0500
+        id S1732674AbfL2RyV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:54:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E85A20748;
-        Sun, 29 Dec 2019 17:54:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C645920748;
+        Sun, 29 Dec 2019 17:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642055;
-        bh=Drohe3c13LJwpE8DxivQc4cKlz2QZ0vz90HB7vIMBqo=;
+        s=default; t=1577642060;
+        bh=Qi68X8EwhjNhQItLrrrp7bt6hKwH5qQyWhw0sntgeU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1shSOrU+sbGuIxqVZEuFNZhXXpon2AelE7UPIxHEN5kEOx9eWofqj97MCcLmOctt
-         LFQVL9q6NIxyZbR1zS6bO57o7vKCNHmqedyDG3Fdh6UmXPn6GE03GaV0A1F/POK+gy
-         dnocSndvfS4x25GoWRKAb+9OKGGGxPv2613GmXo8=
+        b=qh6BdGJv68B/ttquu+HJ1i+WwcE/OLB7BbKHU0/w9u1XjiiyQ6JNXAOMuQPLrCABd
+         dZcfiibEJBhrodomRkFmr3idypRnRWdZ5Kf0QW+j3T64dEzHWyg469t7R/VW/efXnR
+         btGC43PWHkYOYT8bKAWeCwkrRGJ7ZIeNySl7Md9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 321/434] spi: st-ssc4: add missed pm_runtime_disable
-Date:   Sun, 29 Dec 2019 18:26:14 +0100
-Message-Id: <20191229172723.293182064@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 323/434] perf/core: Fix the mlock accounting, again
+Date:   Sun, 29 Dec 2019 18:26:16 +0100
+Message-Id: <20191229172723.424194731@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,43 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit cd050abeba2a95fe5374eec28ad2244617bcbab6 ]
+[ Upstream commit 36b3db03b4741b8935b68fffc7e69951d8d70a89 ]
 
-The driver forgets to call pm_runtime_disable in probe failure
-and remove.
-Add the missed calls to fix it.
+Commit:
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Link: https://lore.kernel.org/r/20191118024848.21645-1-hslester96@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  5e6c3c7b1ec2 ("perf/aux: Fix tracking of auxiliary trace buffer allocation")
+
+tried to guess the correct combination of arithmetic operations that would
+undo the AUX buffer's mlock accounting, and failed, leaking the bottom part
+when an allocation needs to be charged partially to both user->locked_vm
+and mm->pinned_vm, eventually leaving the user with no locked bonus:
+
+  $ perf record -e intel_pt//u -m1,128 uname
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.061 MB perf.data ]
+
+  $ perf record -e intel_pt//u -m1,128 uname
+  Permission error mapping pages.
+  Consider increasing /proc/sys/kernel/perf_event_mlock_kb,
+  or try again with a smaller value of -m/--mmap_pages.
+  (current value: 1,128)
+
+Fix this by subtracting both locked and pinned counts when AUX buffer is
+unmapped.
+
+Reported-by: Thomas Richter <tmricht@linux.ibm.com>
+Tested-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-st-ssc4.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/events/core.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi-st-ssc4.c b/drivers/spi/spi-st-ssc4.c
-index 0c24c494f386..77d26d64541a 100644
---- a/drivers/spi/spi-st-ssc4.c
-+++ b/drivers/spi/spi-st-ssc4.c
-@@ -381,6 +381,7 @@ static int spi_st_probe(struct platform_device *pdev)
- 	return 0;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 00a014670ed0..8f66a4833ded 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5607,10 +5607,8 @@ static void perf_mmap_close(struct vm_area_struct *vma)
+ 		perf_pmu_output_stop(event);
  
- clk_disable:
-+	pm_runtime_disable(&pdev->dev);
- 	clk_disable_unprepare(spi_st->clk);
- put_master:
- 	spi_master_put(master);
-@@ -392,6 +393,8 @@ static int spi_st_remove(struct platform_device *pdev)
- 	struct spi_master *master = platform_get_drvdata(pdev);
- 	struct spi_st *spi_st = spi_master_get_devdata(master);
+ 		/* now it's safe to free the pages */
+-		if (!rb->aux_mmap_locked)
+-			atomic_long_sub(rb->aux_nr_pages, &mmap_user->locked_vm);
+-		else
+-			atomic64_sub(rb->aux_mmap_locked, &vma->vm_mm->pinned_vm);
++		atomic_long_sub(rb->aux_nr_pages - rb->aux_mmap_locked, &mmap_user->locked_vm);
++		atomic64_sub(rb->aux_mmap_locked, &vma->vm_mm->pinned_vm);
  
-+	pm_runtime_disable(&pdev->dev);
-+
- 	clk_disable_unprepare(spi_st->clk);
- 
- 	pinctrl_pm_select_sleep_state(&pdev->dev);
+ 		/* this has to be the last one */
+ 		rb_free_aux(rb);
 -- 
 2.20.1
 
