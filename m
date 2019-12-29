@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B071012C87B
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A263812C87D
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732883AbfL2RzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:55:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43942 "EHLO mail.kernel.org"
+        id S1732901AbfL2RzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:55:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732879AbfL2RzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:55:21 -0500
+        id S1732895AbfL2RzX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:55:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2855222C3;
-        Sun, 29 Dec 2019 17:55:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C815206A4;
+        Sun, 29 Dec 2019 17:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642120;
-        bh=fsAlUN/G6n68DhtQhTV/M/YPqQwOFu4GkGS865YO4OA=;
+        s=default; t=1577642122;
+        bh=kQCJ1CGG0XjTRC2oSuq4B1B38huGDZTAd4kGmk8mnCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3a/IkRYxpcZcYJaMPntskD3zo3YTXZt3AFR70M/qaSr4pANJUjaWYFwCk4f0tEhG
-         aSzU8PFvoESx62xUlgwdYm1Eidb5B2+lNWIiL769bxQAiMWO2BH5FJndJzoyqfnGiz
-         /OGKbSwr8j8VmvPtF3MEP3kCJQmDaDph9BGT/dOE=
+        b=LAEtH8dBqMATXNVTqB5uQq/gCp2lZmayjP5MI6StovNBUBrJd7PybAwXIFtBrcVNG
+         o7ZHGTXlNnnxeqsfpP2I4qopXb8mF0OYqH5uWuDg+yRWg/Jk0ADcxaupbn9/t/pxMg
+         B69W1ktFOkyEvisMumvU2y6LatYCqhlWjDy3j3fw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Akeem G Abodunrin <akeem.g.abodunrin@intel.com>,
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
         Andrew Bowers <andrewx.bowers@intel.com>,
         Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 350/434] ice: Only disable VF state when freeing each VF resources
-Date:   Sun, 29 Dec 2019 18:26:43 +0100
-Message-Id: <20191229172725.220428240@linuxfoundation.org>
+Subject: [PATCH 5.4 351/434] ice: Fix setting coalesce to handle DCB configuration
+Date:   Sun, 29 Dec 2019 18:26:44 +0100
+Message-Id: <20191229172725.286507970@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,57 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit 1f9639d2fb9188a59acafae9dea626391c442a8d ]
+[ Upstream commit e25f9152bc07de534b2b590ce6c052ea25dd8900 ]
 
-It is wrong to set PF disable state flag for all VFs when freeing VF
-resources - Instead, we should set VF disable state flag for each VF with
-its resources being returned to the device. Right now, all VF opcodes,
-mailbox communication to clear its resources as well fails - since we
-already indicate that PF is in disable state, with all VFs not active. In
-addition, we don't need to notify VF that PF is intending to reset it, if
-it is already in disabled state.
+Currently there can be a case where a DCB map is applied and there are
+more interrupt vectors (vsi->num_q_vectors) than Rx queues (vsi->num_rxq)
+and Tx queues (vsi->num_txq). If we try to set coalesce settings in this
+case it will report a false failure. Fix this by checking if vector index
+is valid with respect to the number of Tx and Rx queues configured.
 
-Signed-off-by: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
 Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
 Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-index b45797f39b2f..c0637a0cbfe8 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-@@ -317,8 +317,9 @@ void ice_free_vfs(struct ice_pf *pf)
- 	pf->num_alloc_vfs = 0;
- 	for (i = 0; i < tmp; i++) {
- 		if (test_bit(ICE_VF_STATE_INIT, pf->vf[i].vf_states)) {
--			/* disable VF qp mappings */
-+			/* disable VF qp mappings and set VF disable state */
- 			ice_dis_vf_mappings(&pf->vf[i]);
-+			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
- 			ice_free_vf_res(&pf->vf[i]);
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index 7e23034df955..1fe9f6050635 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -3368,10 +3368,17 @@ __ice_set_coalesce(struct net_device *netdev, struct ethtool_coalesce *ec,
+ 	struct ice_vsi *vsi = np->vsi;
+ 
+ 	if (q_num < 0) {
+-		int i;
++		int v_idx;
++
++		ice_for_each_q_vector(vsi, v_idx) {
++			/* In some cases if DCB is configured the num_[rx|tx]q
++			 * can be less than vsi->num_q_vectors. This check
++			 * accounts for that so we don't report a false failure
++			 */
++			if (v_idx >= vsi->num_rxq && v_idx >= vsi->num_txq)
++				goto set_complete;
+ 
+-		ice_for_each_q_vector(vsi, i) {
+-			if (ice_set_q_coalesce(vsi, ec, i))
++			if (ice_set_q_coalesce(vsi, ec, v_idx))
+ 				return -EINVAL;
  		}
- 	}
-@@ -1287,9 +1288,12 @@ static void ice_vc_notify_vf_reset(struct ice_vf *vf)
- 	if (!vf || vf->vf_id >= vf->pf->num_alloc_vfs)
- 		return;
- 
--	/* verify if the VF is in either init or active before proceeding */
--	if (!test_bit(ICE_VF_STATE_INIT, vf->vf_states) &&
--	    !test_bit(ICE_VF_STATE_ACTIVE, vf->vf_states))
-+	/* Bail out if VF is in disabled state, neither initialized, nor active
-+	 * state - otherwise proceed with notifications
-+	 */
-+	if ((!test_bit(ICE_VF_STATE_INIT, vf->vf_states) &&
-+	     !test_bit(ICE_VF_STATE_ACTIVE, vf->vf_states)) ||
-+	    test_bit(ICE_VF_STATE_DIS, vf->vf_states))
- 		return;
- 
- 	pfe.event = VIRTCHNL_EVENT_RESET_IMPENDING;
+ 		goto set_complete;
 -- 
 2.20.1
 
