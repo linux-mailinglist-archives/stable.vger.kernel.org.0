@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 310B212C9D1
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E4012C9D0
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728242AbfL2R0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:26:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47790 "EHLO mail.kernel.org"
+        id S1728238AbfL2R0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:26:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728238AbfL2R0f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:26:35 -0500
+        id S1727908AbfL2R0h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:26:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F2BB207FF;
-        Sun, 29 Dec 2019 17:26:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B183E207FD;
+        Sun, 29 Dec 2019 17:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640394;
-        bh=MB4wfjNAr84QKgu1o/8ij9NJCI4/njW1sZSxPHurkPQ=;
+        s=default; t=1577640397;
+        bh=/2cofFv4jiQcCenMb/O5CQ05iDJ500lxRiBNuVyfjP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQKbwvtB0AhtUdKnz8RE9qnojd3TvfFrfewF0UYs3FpsmAMs3AjhKQ89ZsODLcBNx
-         jaZH/Hz8gvu3cswTx6wcabqOTk62Ms6lTq9JOuhVRhh7WpgolsYOCi9RYZr6hUhvAI
-         NeHjMWiTQiux3fsZJBWuYQ41tO/GJ7wAW225yCPE=
+        b=qP+xK0+45wHyqMGmAKekRN+xzLOaBgbjXgOQ9y/2WSnp8whIsB/sZXcBVBiAeoFXq
+         NqDYKmTAHTdlETOkrZzCf9iaBzPZe4Wb9twbtC1fCxcyyY3lrDldEi5tBmSZL8Juyt
+         lumGf3Lin0Nb8OXqay/YH5fARKej/QVIzH25QL0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 140/161] usb: xhci: Fix build warning seen with CONFIG_PM=n
-Date:   Sun, 29 Dec 2019 18:19:48 +0100
-Message-Id: <20191229162441.462168981@linuxfoundation.org>
+Subject: [PATCH 4.14 141/161] s390/ftrace: fix endless recursion in function_graph tracer
+Date:   Sun, 29 Dec 2019 18:19:49 +0100
+Message-Id: <20191229162441.825230276@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -45,46 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 6056a0f8ede27b296d10ef46f7f677cc9d715371 ]
+[ Upstream commit 6feeee8efc53035c3195b02068b58ae947538aa4 ]
 
-The following build warning is seen if CONFIG_PM is disabled.
+The following sequence triggers a kernel stack overflow on s390x:
 
-drivers/usb/host/xhci-pci.c:498:13: warning:
-	unused function 'xhci_pci_shutdown'
+mount -t tracefs tracefs /sys/kernel/tracing
+cd /sys/kernel/tracing
+echo function_graph > current_tracer
+[crash]
 
-Fixes: f2c710f7dca8 ("usb: xhci: only set D3hot for pci device")
-Cc: Henry Lin <henryl@nvidia.com>
-Cc: stable@vger.kernel.org	# all stable releases with f2c710f7dca8
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191218011911.6907-1-linux@roeck-us.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is because preempt_count_{add,sub} are in the list of traced
+functions, which can be demonstrated by:
+
+echo preempt_count_add >set_ftrace_filter
+echo function_graph > current_tracer
+[crash]
+
+The stack overflow happens because get_tod_clock_monotonic() gets called
+by ftrace but itself calls preempt_{disable,enable}(), which leads to a
+endless recursion. Fix this by using preempt_{disable,enable}_notrace().
+
+Fixes: 011620688a71 ("s390/time: ensure get_clock_monotonic() returns monotonic values")
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/timex.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index 021a2d320acc..09f228279c01 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -497,7 +497,6 @@ static int xhci_pci_resume(struct usb_hcd *hcd, bool hibernated)
- 	retval = xhci_resume(xhci, hibernated);
- 	return retval;
- }
--#endif /* CONFIG_PM */
- 
- static void xhci_pci_shutdown(struct usb_hcd *hcd)
+diff --git a/arch/s390/include/asm/timex.h b/arch/s390/include/asm/timex.h
+index 0f12a3f91282..2dc9eb4e1acc 100644
+--- a/arch/s390/include/asm/timex.h
++++ b/arch/s390/include/asm/timex.h
+@@ -195,9 +195,9 @@ static inline unsigned long long get_tod_clock_monotonic(void)
  {
-@@ -510,6 +509,7 @@ static void xhci_pci_shutdown(struct usb_hcd *hcd)
- 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
- 		pci_set_power_state(pdev, PCI_D3hot);
- }
-+#endif /* CONFIG_PM */
+ 	unsigned long long tod;
  
- /*-------------------------------------------------------------------------*/
+-	preempt_disable();
++	preempt_disable_notrace();
+ 	tod = get_tod_clock() - *(unsigned long long *) &tod_clock_base[1];
+-	preempt_enable();
++	preempt_enable_notrace();
+ 	return tod;
+ }
  
 -- 
 2.20.1
