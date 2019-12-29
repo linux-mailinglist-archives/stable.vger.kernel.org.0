@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70A6F12C872
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 633BD12C874
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732824AbfL2Ry4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:54:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43140 "EHLO mail.kernel.org"
+        id S1732761AbfL2Ry5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:54:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732819AbfL2Ryy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:54:54 -0500
+        id S1732494AbfL2Ry4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:54:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69566206A4;
-        Sun, 29 Dec 2019 17:54:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3FC220718;
+        Sun, 29 Dec 2019 17:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642093;
-        bh=D5Qa4H1nSm2HtH/589Qc/UxvnnTvxuWd8D1wsrs9Is4=;
+        s=default; t=1577642096;
+        bh=e0Jf8XfCt+ro6en0WD9ghdHlLEAs8kS8RebIWIpPM1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lS9qyxs/ZLjqQM+/DCVjefEipReCZjcQNMFrsaLyEVNhjNDzX8oeV5+MCnNcWxTUp
-         3/R0+/nzptm5WvFj1qajy4WkzOtvuRM9MxRKW3fML/wD1PmQD3cejUJKmtfE3Psx48
-         ck+MnuSxVutn+9/5HChwvY6k0B4DWuZQLrgCgu58=
+        b=vPb3x+Rcewjk/+GCCXsEN24+PlQXEfcViHQUPnfK5KfY3FHcwZxIY8obLP8FraKF0
+         Pf93v27jGcAzijhrdT2rf2Bo5yNxHMEv3rq5nPCHes8jfK9HBVOcm2Rg1687mRAL+9
+         NEpfHksONuR/rV2UYRW6W+lkFS0/Cq60KdZWuscE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 340/434] net: ethernet: ti: ale: clean ale tbl on init and intf restart
-Date:   Sun, 29 Dec 2019 18:26:33 +0100
-Message-Id: <20191229172724.551875854@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 341/434] mt76: fix possible out-of-bound access in mt7615_fill_txs/mt7603_fill_txs
+Date:   Sun, 29 Dec 2019 18:26:34 +0100
+Message-Id: <20191229172724.619423269@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,40 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 7fe579dfb90fcdf0c7722f33c772d5f0d1bc7cb6 ]
+[ Upstream commit e8b970c8e367e85fab9b8ac4f36080e5d653c38e ]
 
-Clean CPSW ALE on init and intf restart (up/down) to avoid reading obsolete
-or garbage entries from ALE table.
+Fix possible out-of-bound access of status rates array in
+mt7615_fill_txs/mt7603_fill_txs routines
 
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c5211e997eca ("mt76: mt7603: rework and fix tx status reporting")
+Fixes: 4af81f02b49c ("mt76: mt7615: sync with mt7603 rate control changes")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/cpsw_ale.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7603/mac.c | 4 +++-
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/cpsw_ale.c b/drivers/net/ethernet/ti/cpsw_ale.c
-index 84025dcc78d5..e7c24396933e 100644
---- a/drivers/net/ethernet/ti/cpsw_ale.c
-+++ b/drivers/net/ethernet/ti/cpsw_ale.c
-@@ -779,6 +779,7 @@ void cpsw_ale_start(struct cpsw_ale *ale)
- void cpsw_ale_stop(struct cpsw_ale *ale)
- {
- 	del_timer_sync(&ale->timer);
-+	cpsw_ale_control_set(ale, 0, ALE_CLEAR, 1);
- 	cpsw_ale_control_set(ale, 0, ALE_ENABLE, 0);
- }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/mac.c b/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
+index c328192307c4..ff3f3d98b625 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
+@@ -1032,8 +1032,10 @@ mt7603_fill_txs(struct mt7603_dev *dev, struct mt7603_sta *sta,
+ 		if (idx && (cur_rate->idx != info->status.rates[i].idx ||
+ 			    cur_rate->flags != info->status.rates[i].flags)) {
+ 			i++;
+-			if (i == ARRAY_SIZE(info->status.rates))
++			if (i == ARRAY_SIZE(info->status.rates)) {
++				i--;
+ 				break;
++			}
  
-@@ -862,6 +863,7 @@ struct cpsw_ale *cpsw_ale_create(struct cpsw_ale_params *params)
- 					ALE_UNKNOWNVLAN_FORCE_UNTAG_EGRESS;
- 	}
+ 			info->status.rates[i] = *cur_rate;
+ 			info->status.rates[i].count = 0;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+index e07ce2c10013..111e38ff954a 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -914,8 +914,10 @@ static bool mt7615_fill_txs(struct mt7615_dev *dev, struct mt7615_sta *sta,
+ 		if (idx && (cur_rate->idx != info->status.rates[i].idx ||
+ 			    cur_rate->flags != info->status.rates[i].flags)) {
+ 			i++;
+-			if (i == ARRAY_SIZE(info->status.rates))
++			if (i == ARRAY_SIZE(info->status.rates)) {
++				i--;
+ 				break;
++			}
  
-+	cpsw_ale_control_set(ale, 0, ALE_CLEAR, 1);
- 	return ale;
- }
- 
+ 			info->status.rates[i] = *cur_rate;
+ 			info->status.rates[i].count = 0;
 -- 
 2.20.1
 
