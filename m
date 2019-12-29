@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7770A12C84C
+	by mail.lfdr.de (Postfix) with ESMTP id EB2DA12C84D
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732432AbfL2RxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:53:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40092 "EHLO mail.kernel.org"
+        id S1732429AbfL2RxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:53:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732429AbfL2RxQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:53:16 -0500
+        id S1732440AbfL2RxS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:53:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5804206DB;
-        Sun, 29 Dec 2019 17:53:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D217208C4;
+        Sun, 29 Dec 2019 17:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641995;
-        bh=g3Nn7L7C/8x8ErY7HygVtpVdgu4hSNlrNH+FME2Vqpo=;
+        s=default; t=1577641997;
+        bh=zGS+aqvAvxMzGQtbGteTq1Bu11ZdWToCeo4/By73nVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTngj9R7f0diMclRRl4RBm3lWcuwZlpSw32x1slPDBuyYex6WMKMiHxd7W1k5Xlqc
-         aTUrwvZZS+5NkUhwTFwT2t+H0ZP+AG/HXfc0IDbVq7zYFXTtDqXfLjW0V4NbcSmT2w
-         ZSD0TSbJYsaspgeFmFeWkckCqZCcy2GPIAmZThPU=
+        b=r/PE5+ISbURZ+dyOC5f0NA8GLSSdEf7br4qTE0NnVmdcBcBIE37i108/FltGyA1jw
+         fX1Z3gpPaET+EgzzC0HzSDSbTtwSl4YfB+KgebbVPWSxIIR7QT5ZLS1vvQPoQCcEZt
+         XSvuAd9gfXmRc7BVgpIENnEimDUPkCFk0jJ1o7go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 298/434] bcache: fix static checker warning in bcache_device_free()
-Date:   Sun, 29 Dec 2019 18:25:51 +0100
-Message-Id: <20191229172721.745706720@linuxfoundation.org>
+Subject: [PATCH 5.4 299/434] cpufreq: Register drivers only after CPU devices have been registered
+Date:   Sun, 29 Dec 2019 18:25:52 +0100
+Message-Id: <20191229172721.812455633@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,97 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 2d8869518a525c9bce5f5268419df9dfbe3dfdeb ]
+[ Upstream commit 46770be0cf94149ca48be87719bda1d951066644 ]
 
-Commit cafe56359144 ("bcache: A block layer cache") leads to the
-following static checker warning:
+The cpufreq core heavily depends on the availability of the struct
+device for CPUs and if they aren't available at the time cpufreq driver
+is registered, we will never succeed in making cpufreq work.
 
-    ./drivers/md/bcache/super.c:770 bcache_device_free()
-    warn: variable dereferenced before check 'd->disk' (see line 766)
+This happens due to following sequence of events:
 
-drivers/md/bcache/super.c
-   762  static void bcache_device_free(struct bcache_device *d)
-   763  {
-   764          lockdep_assert_held(&bch_register_lock);
-   765
-   766          pr_info("%s stopped", d->disk->disk_name);
-                                      ^^^^^^^^^
-Unchecked dereference.
+- cpufreq_register_driver()
+  - subsys_interface_register()
+  - return 0; //successful registration of driver
 
-   767
-   768          if (d->c)
-   769                  bcache_device_detach(d);
-   770          if (d->disk && d->disk->flags & GENHD_FL_UP)
-                    ^^^^^^^
-Check too late.
+... at a later point of time
 
-   771                  del_gendisk(d->disk);
-   772          if (d->disk && d->disk->queue)
-   773                  blk_cleanup_queue(d->disk->queue);
-   774          if (d->disk) {
-   775                  ida_simple_remove(&bcache_device_idx,
-   776                                    first_minor_to_idx(d->disk->first_minor));
-   777                  put_disk(d->disk);
-   778          }
-   779
+- register_cpu();
+  - device_register();
+    - bus_probe_device();
+      - sif->add_dev();
+	- cpufreq_add_dev();
+	  - get_cpu_device(); //FAILS
+  - per_cpu(cpu_sys_devices, num) = &cpu->dev; //used by get_cpu_device()
+  - return 0; //CPU registered successfully
 
-It is not 100% sure that the gendisk struct of bcache device will always
-be there, the warning makes sense when there is problem in block core.
+Because the per-cpu variable cpu_sys_devices is set only after the CPU
+device is regsitered, cpufreq will never be able to get it when
+cpufreq_add_dev() is called.
 
-This patch tries to remove the static checking warning by checking
-d->disk to avoid NULL pointer deferences.
+This patch avoids this failure by making sure device structure of at
+least CPU0 is available when the cpufreq driver is registered, else
+return -EPROBE_DEFER.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Co-developed-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/cpufreq/cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 20ed838e9413..d2654880b7b9 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -761,20 +761,28 @@ static inline int idx_to_first_minor(int idx)
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index bc19d6c16aaa..a7db4f22a077 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2634,6 +2634,13 @@ int cpufreq_register_driver(struct cpufreq_driver *driver_data)
+ 	if (cpufreq_disabled())
+ 		return -ENODEV;
  
- static void bcache_device_free(struct bcache_device *d)
- {
-+	struct gendisk *disk = d->disk;
++	/*
++	 * The cpufreq core depends heavily on the availability of device
++	 * structure, make sure they are available before proceeding further.
++	 */
++	if (!get_cpu_device(0))
++		return -EPROBE_DEFER;
 +
- 	lockdep_assert_held(&bch_register_lock);
- 
--	pr_info("%s stopped", d->disk->disk_name);
-+	if (disk)
-+		pr_info("%s stopped", disk->disk_name);
-+	else
-+		pr_err("bcache device (NULL gendisk) stopped");
- 
- 	if (d->c)
- 		bcache_device_detach(d);
--	if (d->disk && d->disk->flags & GENHD_FL_UP)
--		del_gendisk(d->disk);
--	if (d->disk && d->disk->queue)
--		blk_cleanup_queue(d->disk->queue);
--	if (d->disk) {
-+
-+	if (disk) {
-+		if (disk->flags & GENHD_FL_UP)
-+			del_gendisk(disk);
-+
-+		if (disk->queue)
-+			blk_cleanup_queue(disk->queue);
-+
- 		ida_simple_remove(&bcache_device_idx,
--				  first_minor_to_idx(d->disk->first_minor));
--		put_disk(d->disk);
-+				  first_minor_to_idx(disk->first_minor));
-+		put_disk(disk);
- 	}
- 
- 	bioset_exit(&d->bio_split);
+ 	if (!driver_data || !driver_data->verify || !driver_data->init ||
+ 	    !(driver_data->setpolicy || driver_data->target_index ||
+ 		    driver_data->target) ||
 -- 
 2.20.1
 
