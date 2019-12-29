@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D59512C5AC
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 642D612C502
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729619AbfL2Rju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:39:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32868 "EHLO mail.kernel.org"
+        id S1729049AbfL2Rcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:32:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729066AbfL2Rc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:32:28 -0500
+        id S1729319AbfL2Rcb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:32:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 832B3207FF;
-        Sun, 29 Dec 2019 17:32:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC43520409;
+        Sun, 29 Dec 2019 17:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640748;
-        bh=DeAFUOqIJW9mvBBsACK0JeC7VLRp80XShrXQniWA2dA=;
+        s=default; t=1577640750;
+        bh=5P5hRCcEtU200IxHbs0Ndh5Xo8yYYvmjd3sb8vq/8+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VnBNp0UD/S0ENeFVjIl9TUDN3kXj3akZQRa1e+QVesCSBquv8Zvyvdcx9fDu9RdW1
-         jr0KbniI6VFnpfx/UKJOKR6GBO0WbX9D/FBRmOyDN7tFi2yQumAFAyf3YgMC+MhynN
-         AkQM+2e781+m14gJbadOpjXVB+8R9xaSwzp1mR44=
+        b=Hk71trwui4oV95IHo+u+aNzPmKnU+5+qo5bykn8IkFk+bnlh4D8qEPndrUeowVaF6
+         /OLAEkCygF46jVX/eUVrCk5wqYGI3mqUWZ4qZQ/Zw+pdiNfBQiVVBUFNSZBFClDl8O
+         8WCj73dGqJ7RfF9jpfAg3Mfaaitzr5zU1wC5D4Tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 121/219] ALSA: timer: Limit max amount of slave instances
-Date:   Sun, 29 Dec 2019 18:18:43 +0100
-Message-Id: <20191229162526.773826147@linuxfoundation.org>
+Subject: [PATCH 4.19 122/219] rtlwifi: fix memory leak in rtl92c_set_fw_rsvdpagepkt()
+Date:   Sun, 29 Dec 2019 18:18:44 +0100
+Message-Id: <20191229162526.926107171@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -43,68 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit fdea53fe5de532969a332d6e5e727f2ad8bf084d ]
+[ Upstream commit 5174f1e41074b5186608badc2e89441d021e8c08 ]
 
-The fuzzer tries to open the timer instances as much as possible, and
-this may cause a system hiccup easily.  We've already introduced the
-cap for the max number of available instances for the h/w timers, and
-we should put such a limit also to the slave timers, too.
+This leak was found by testing the EDIMAX EW-7612 on Raspberry Pi 3B+ with
+Linux 5.4-rc5 (multi_v7_defconfig + rtlwifi + kmemleak) and noticed a
+single memory leak during probe:
 
-This patch introduces the limit to the multiple opened slave timers.
-The upper limit is hard-coded to 1000 for now, which should suffice
-for any practical usages up to now.
+unreferenced object 0xec13ee40 (size 176):
+  comm "kworker/u8:1", pid 36, jiffies 4294939321 (age 5580.790s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<fc1bbb3e>] __netdev_alloc_skb+0x9c/0x164
+    [<863dfa6e>] rtl92c_set_fw_rsvdpagepkt+0x254/0x340 [rtl8192c_common]
+    [<9572be0d>] rtl92cu_set_hw_reg+0xf48/0xfa4 [rtl8192cu]
+    [<116df4d8>] rtl_op_bss_info_changed+0x234/0x96c [rtlwifi]
+    [<8933575f>] ieee80211_bss_info_change_notify+0xb8/0x264 [mac80211]
+    [<d4061e86>] ieee80211_assoc_success+0x934/0x1798 [mac80211]
+    [<e55adb56>] ieee80211_rx_mgmt_assoc_resp+0x174/0x314 [mac80211]
+    [<5974629e>] ieee80211_sta_rx_queued_mgmt+0x3f4/0x7f0 [mac80211]
+    [<d91091c6>] ieee80211_iface_work+0x208/0x318 [mac80211]
+    [<ac5fcae4>] process_one_work+0x22c/0x564
+    [<f5e6d3b6>] worker_thread+0x44/0x5d8
+    [<82c7b073>] kthread+0x150/0x154
+    [<b43e1b7d>] ret_from_fork+0x14/0x2c
+    [<794dff30>] 0x0
 
-Link: https://lore.kernel.org/r/20191106154257.5853-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+It is because 8192cu doesn't implement usb_cmd_send_packet(), and this
+patch just frees the skb within the function to resolve memleak problem
+by now. Since 8192cu doesn't turn on fwctrl_lps that needs to download
+command packet for firmware via the function, applying this patch doesn't
+affect driver behavior.
+
+Reported-by: Stefan Wahren <wahrenst@gmx.net>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/timer.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/core/timer.c b/sound/core/timer.c
-index 86a31e69fc7d..b5dc51030316 100644
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -88,6 +88,9 @@ static LIST_HEAD(snd_timer_slave_list);
- /* lock for slave active lists */
- static DEFINE_SPINLOCK(slave_active_lock);
- 
-+#define MAX_SLAVE_INSTANCES	1000
-+static int num_slaves;
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
+index 1e60f70481f5..8c60a84941d5 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
+@@ -1556,6 +1556,8 @@ static bool usb_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb)
+    * This is maybe necessary:
+    * rtlpriv->cfg->ops->fill_tx_cmddesc(hw, buffer, 1, 1, skb);
+    */
++	dev_kfree_skb(skb);
 +
- static DEFINE_MUTEX(register_mutex);
+ 	return true;
+ }
  
- static int snd_timer_free(struct snd_timer *timer);
-@@ -266,6 +269,10 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 			err = -EINVAL;
- 			goto unlock;
- 		}
-+		if (num_slaves >= MAX_SLAVE_INSTANCES) {
-+			err = -EBUSY;
-+			goto unlock;
-+		}
- 		timeri = snd_timer_instance_new(owner, NULL);
- 		if (!timeri) {
- 			err = -ENOMEM;
-@@ -275,6 +282,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 		timeri->slave_id = tid->device;
- 		timeri->flags |= SNDRV_TIMER_IFLG_SLAVE;
- 		list_add_tail(&timeri->open_list, &snd_timer_slave_list);
-+		num_slaves++;
- 		err = snd_timer_check_slave(timeri);
- 		if (err < 0) {
- 			snd_timer_close_locked(timeri, &card_dev_to_put);
-@@ -364,6 +372,8 @@ static int snd_timer_close_locked(struct snd_timer_instance *timeri,
- 	struct snd_timer_instance *slave, *tmp;
- 
- 	list_del(&timeri->open_list);
-+	if (timeri->flags & SNDRV_TIMER_IFLG_SLAVE)
-+		num_slaves--;
- 
- 	/* force to stop the timer */
- 	snd_timer_stop(timeri);
 -- 
 2.20.1
 
