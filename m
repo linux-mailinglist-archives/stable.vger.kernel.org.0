@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 280A412C61A
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:53:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A8312C622
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:53:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730473AbfL2RnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:43:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50610 "EHLO mail.kernel.org"
+        id S1730532AbfL2Rno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:43:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726741AbfL2RnW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:43:22 -0500
+        id S1730187AbfL2Rno (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:43:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 019AA208C4;
-        Sun, 29 Dec 2019 17:43:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C50AB206DB;
+        Sun, 29 Dec 2019 17:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641401;
-        bh=5d3QfDrXwgi9KKugVFag//9IUJqnFiwLYU7+XprSpko=;
+        s=default; t=1577641423;
+        bh=LWrPzQ32CmT9f26U2+6H21MNNI2hotPTgpv7WYQc9Ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ew46ADavzu8m4Yi0GhPw+ipvu2PKfZntcMZLmDQmOUcOhYYRgLih+MFq/Ad2JVnD8
-         GsLwdDf1C/9fPJRnmpoaeN436zdy2Vm8ujiDCHcW7c6BtAJHyXnIJ0abHP+casv5cT
-         TtV9lX0/TNhkP6/q3AnUUWCaR4xbdvc1u7X96UZg=
+        b=TDcRVVi94P2zpqNTqtjsG/aFet9TiCsJpn2lPj53UE3yhnAbgvS2McOZv1IsUL7M9
+         fgDPBzpIJTp073VCVaZMZSpo6SVa3xa3y57Rq7xQOVi58XGR3UF+hW938ugIFHOy5Q
+         dZy0iWD+ruybIqv+XYB6iluBTFZusR7yVEIxyXXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Sean Paul <sean@poorly.run>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Andres Rodriguez <andresx7@gmail.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 049/434] drm: Use EOPNOTSUPP, not ENOTSUPP
-Date:   Sun, 29 Dec 2019 18:21:42 +0100
-Message-Id: <20191229172705.220789182@linuxfoundation.org>
+Subject: [PATCH 5.4 057/434] drm/ttm: return -EBUSY on pipelining with no_gpu_wait (v2)
+Date:   Sun, 29 Dec 2019 18:21:50 +0100
+Message-Id: <20191229172705.648196234@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -51,118 +46,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit c7581a414d28413c1dd6d116d44859b5a52e0950 ]
+[ Upstream commit 3084cf46cf8110826a42de8c8ef30e8fa48974c2 ]
 
-- it's what we recommend in our docs:
+Setting the no_gpu_wait flag means that the allocate BO must be available
+immediately and we can't wait for any GPU operation to finish.
 
-https://dri.freedesktop.org/docs/drm/gpu/drm-uapi.html#recommended-ioctl-return-values
+v2: squash in mem leak fix, rebase
 
-- it's the overwhelmingly used error code for "operation not
-  supported", at least in drm core (slightly less so in drivers):
-
-$ git grep EOPNOTSUPP -- drivers/gpu/drm/*c | wc -l
-83
-$ git grep ENOTSUPP -- drivers/gpu/drm/*c | wc -l
-5
-
-- include/linux/errno.h makes it fairly clear that these are for nfsv3
-  (plus they also have error codes above 512, which is the block with
-  some special behaviour ...)
-
-/* Defined for the NFSv3 protocol */
-
-If the above isn't reflecting current practice, then I guess we should
-at least update the docs.
-
-Noralf commented:
-
-Ben Hutchings made this comment[1] in a thread about use of ENOTSUPP in
-drivers:
-
-  glibc's strerror() returns these strings for ENOTSUPP and EOPNOTSUPP
-  respectively:
-
-  "Unknown error 524"
-  "Operation not supported"
-
-So at least for errors returned to userspace EOPNOTSUPP makes sense.
-
-José asked:
-
-> Hopefully this will not break any userspace
-
-None of the functions in drm_edid.c affected by this reach userspace,
-it's all driver internal.
-
-Same for the mipi function, that error code should be handled by
-drivers. Drivers are supposed to remap "the hw is on fire" to EIO when
-reporting up to userspace, but I think if a driver sees this it would
-be a driver bug.
-v2: Augment commit message with comments from Noralf and José
-
-Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-Acked-by: Noralf Trønnes <noralf@tronnes.org>
-Cc: José Roberto de Souza <jose.souza@intel.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Sean Paul <sean@poorly.run>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Andres Rodriguez <andresx7@gmail.com>
-Cc: Noralf Trønnes <noralf@tronnes.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190904143942.31756-1-daniel.vetter@ffwll.ch
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c     | 6 +++---
- drivers/gpu/drm/drm_mipi_dbi.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/ttm/ttm_bo.c | 44 +++++++++++++++++++++---------------
+ 1 file changed, 26 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index 6b0177112e18..3f50b8865db4 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -3722,7 +3722,7 @@ cea_db_offsets(const u8 *cea, int *start, int *end)
- 		if (*end < 4 || *end > 127)
- 			return -ERANGE;
- 	} else {
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 	}
- 
- 	return 0;
-@@ -4191,7 +4191,7 @@ int drm_edid_to_sad(struct edid *edid, struct cea_sad **sads)
- 
- 	if (cea_revision(cea) < 3) {
- 		DRM_DEBUG_KMS("SAD: wrong CEA revision\n");
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 	}
- 
- 	if (cea_db_offsets(cea, &start, &end)) {
-@@ -4252,7 +4252,7 @@ int drm_edid_to_speaker_allocation(struct edid *edid, u8 **sadb)
- 
- 	if (cea_revision(cea) < 3) {
- 		DRM_DEBUG_KMS("SAD: wrong CEA revision\n");
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 	}
- 
- 	if (cea_db_offsets(cea, &start, &end)) {
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index c4ee2709a6f3..f8154316a3b0 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -955,7 +955,7 @@ static int mipi_dbi_typec1_command(struct mipi_dbi *dbi, u8 *cmd,
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index 98819462f025..f07803699809 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -926,7 +926,8 @@ EXPORT_SYMBOL(ttm_bo_mem_put);
+  */
+ static int ttm_bo_add_move_fence(struct ttm_buffer_object *bo,
+ 				 struct ttm_mem_type_manager *man,
+-				 struct ttm_mem_reg *mem)
++				 struct ttm_mem_reg *mem,
++				 bool no_wait_gpu)
+ {
+ 	struct dma_fence *fence;
  	int ret;
+@@ -935,19 +936,22 @@ static int ttm_bo_add_move_fence(struct ttm_buffer_object *bo,
+ 	fence = dma_fence_get(man->move);
+ 	spin_unlock(&man->move_lock);
  
- 	if (mipi_dbi_command_is_read(dbi, *cmd))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
+-	if (fence) {
+-		dma_resv_add_shared_fence(bo->base.resv, fence);
++	if (!fence)
++		return 0;
  
- 	MIPI_DBI_DEBUG_COMMAND(*cmd, parameters, num);
+-		ret = dma_resv_reserve_shared(bo->base.resv, 1);
+-		if (unlikely(ret)) {
+-			dma_fence_put(fence);
+-			return ret;
+-		}
++	if (no_wait_gpu)
++		return -EBUSY;
++
++	dma_resv_add_shared_fence(bo->base.resv, fence);
  
+-		dma_fence_put(bo->moving);
+-		bo->moving = fence;
++	ret = dma_resv_reserve_shared(bo->base.resv, 1);
++	if (unlikely(ret)) {
++		dma_fence_put(fence);
++		return ret;
+ 	}
+ 
++	dma_fence_put(bo->moving);
++	bo->moving = fence;
+ 	return 0;
+ }
+ 
+@@ -978,7 +982,7 @@ static int ttm_bo_mem_force_space(struct ttm_buffer_object *bo,
+ 			return ret;
+ 	} while (1);
+ 
+-	return ttm_bo_add_move_fence(bo, man, mem);
++	return ttm_bo_add_move_fence(bo, man, mem, ctx->no_wait_gpu);
+ }
+ 
+ static uint32_t ttm_bo_select_caching(struct ttm_mem_type_manager *man,
+@@ -1120,14 +1124,18 @@ int ttm_bo_mem_space(struct ttm_buffer_object *bo,
+ 		if (unlikely(ret))
+ 			goto error;
+ 
+-		if (mem->mm_node) {
+-			ret = ttm_bo_add_move_fence(bo, man, mem);
+-			if (unlikely(ret)) {
+-				(*man->func->put_node)(man, mem);
+-				goto error;
+-			}
+-			return 0;
++		if (!mem->mm_node)
++			continue;
++
++		ret = ttm_bo_add_move_fence(bo, man, mem, ctx->no_wait_gpu);
++		if (unlikely(ret)) {
++			(*man->func->put_node)(man, mem);
++			if (ret == -EBUSY)
++				continue;
++
++			goto error;
+ 		}
++		return 0;
+ 	}
+ 
+ 	for (i = 0; i < placement->num_busy_placement; ++i) {
 -- 
 2.20.1
 
