@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA5C12CA0D
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEAF512C9FF
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727173AbfL2RY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:24:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43176 "EHLO mail.kernel.org"
+        id S1727524AbfL2RYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:24:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727729AbfL2RY1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:24:27 -0500
+        id S1727827AbfL2RYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:24:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D178208E4;
-        Sun, 29 Dec 2019 17:24:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B48D222D9;
+        Sun, 29 Dec 2019 17:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640267;
-        bh=+6P1ETt2YoWLw9bEILXQxD1Yk8hRMz6G/oly8oMsT8M=;
+        s=default; t=1577640294;
+        bh=kxPhtLQM8W4gUuSv5GGrc2F35c0v3VKCTn2bvwpnJPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgK05l+FJ/IFtAJI6YR2LifU6L5mpdmgAO1FoCtxfl2qzLk3nlLk4bjt+Dsf56itI
-         i+BL7V/xU8UCAxgzzjRbCwxHBCK0/tssbT2YmX2ipQnD1PIpebb6VRP7IHJQGPusGu
-         1AHpNudBUKi2bur6a0sol0WrMhA7iAUmjdyubjoM=
+        b=wIbP+WN/DyADqtmg5I39+2r5e0zkFkpE+UGic8Z6WU4XyGD9zUtSoMmcT4aY7Afo/
+         4qfj9ONR8ZkbR0OHj8KZMT8Au00F6FMMprXZcoYoXo/BO9XGaUT+QMefjYg9St3MoM
+         9CHt+k/zNgEyk4kR8a2BPlTOwa7lac1t+tRg0644=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 080/161] pinctrl: sh-pfc: sh7734: Fix duplicate TCLK1_B
-Date:   Sun, 29 Dec 2019 18:18:48 +0100
-Message-Id: <20191229162424.086034168@linuxfoundation.org>
+Subject: [PATCH 4.14 081/161] iio: dln2-adc: fix iio_triggered_buffer_postenable() position
+Date:   Sun, 29 Dec 2019 18:18:49 +0100
+Message-Id: <20191229162424.250180512@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -44,62 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-[ Upstream commit 884caadad128efad8e00c1cdc3177bc8912ee8ec ]
+[ Upstream commit a7bddfe2dfce1d8859422124abe1964e0ecd386e ]
 
-The definitions for bit field [19:18] of the Peripheral Function Select
-Register 3 were accidentally copied from bit field [20], leading to
-duplicates for the TCLK1_B function, and missing TCLK0, CAN_CLK_B, and
-ET0_ETXD4 functions.
+The iio_triggered_buffer_postenable() hook should be called first to
+attach the poll function. The iio_triggered_buffer_predisable() hook is
+called last (as is it should).
 
-Fix this by adding the missing GPIO_FN_CAN_CLK_B and GPIO_FN_ET0_ETXD4
-enum values, and correcting the functions.
+This change moves iio_triggered_buffer_postenable() to be called first. It
+adds iio_triggered_buffer_predisable() on the error paths of the postenable
+hook.
+For the predisable hook, some code-paths have been changed to make sure
+that the iio_triggered_buffer_predisable() hook gets called in case there
+is an error before it.
 
-Reported-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191024131308.16659-1-geert+renesas@glider.be
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/cpu-sh4/cpu/sh7734.h | 2 +-
- drivers/pinctrl/sh-pfc/pfc-sh7734.c  | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/adc/dln2-adc.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/arch/sh/include/cpu-sh4/cpu/sh7734.h b/arch/sh/include/cpu-sh4/cpu/sh7734.h
-index 96f0246ad2f2..82b63208135a 100644
---- a/arch/sh/include/cpu-sh4/cpu/sh7734.h
-+++ b/arch/sh/include/cpu-sh4/cpu/sh7734.h
-@@ -134,7 +134,7 @@ enum {
- 	GPIO_FN_EX_WAIT1, GPIO_FN_SD1_DAT0_A, GPIO_FN_DREQ2, GPIO_FN_CAN1_TX_C,
- 		GPIO_FN_ET0_LINK_C, GPIO_FN_ET0_ETXD5_A,
- 	GPIO_FN_EX_WAIT0, GPIO_FN_TCLK1_B,
--	GPIO_FN_RD_WR, GPIO_FN_TCLK0,
-+	GPIO_FN_RD_WR, GPIO_FN_TCLK0, GPIO_FN_CAN_CLK_B, GPIO_FN_ET0_ETXD4,
- 	GPIO_FN_EX_CS5, GPIO_FN_SD1_CMD_A, GPIO_FN_ATADIR, GPIO_FN_QSSL_B,
- 		GPIO_FN_ET0_ETXD3_A,
- 	GPIO_FN_EX_CS4, GPIO_FN_SD1_WP_A, GPIO_FN_ATAWR, GPIO_FN_QMI_QIO1_B,
-diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7734.c b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
-index 33232041ee86..3eccc9b3ca84 100644
---- a/drivers/pinctrl/sh-pfc/pfc-sh7734.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
-@@ -1453,7 +1453,7 @@ static const struct pinmux_func pinmux_func_gpios[] = {
- 	GPIO_FN(ET0_ETXD2_A),
- 	GPIO_FN(EX_CS5), GPIO_FN(SD1_CMD_A), GPIO_FN(ATADIR), GPIO_FN(QSSL_B),
- 	GPIO_FN(ET0_ETXD3_A),
--	GPIO_FN(RD_WR), GPIO_FN(TCLK1_B),
-+	GPIO_FN(RD_WR), GPIO_FN(TCLK0), GPIO_FN(CAN_CLK_B), GPIO_FN(ET0_ETXD4),
- 	GPIO_FN(EX_WAIT0), GPIO_FN(TCLK1_B),
- 	GPIO_FN(EX_WAIT1), GPIO_FN(SD1_DAT0_A), GPIO_FN(DREQ2),
- 		GPIO_FN(CAN1_TX_C), GPIO_FN(ET0_LINK_C), GPIO_FN(ET0_ETXD5_A),
-@@ -1949,7 +1949,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
- 	    /* IP3_20 [1] */
- 		FN_EX_WAIT0, FN_TCLK1_B,
- 	    /* IP3_19_18 [2] */
--		FN_RD_WR, FN_TCLK1_B, 0, 0,
-+		FN_RD_WR, FN_TCLK0, FN_CAN_CLK_B, FN_ET0_ETXD4,
- 	    /* IP3_17_15 [3] */
- 		FN_EX_CS5, FN_SD1_CMD_A, FN_ATADIR, FN_QSSL_B,
- 		FN_ET0_ETXD3_A, 0, 0, 0,
+diff --git a/drivers/iio/adc/dln2-adc.c b/drivers/iio/adc/dln2-adc.c
+index ab8d6aed5085..2a299bbd6acf 100644
+--- a/drivers/iio/adc/dln2-adc.c
++++ b/drivers/iio/adc/dln2-adc.c
+@@ -528,6 +528,10 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
+ 	u16 conflict;
+ 	unsigned int trigger_chan;
+ 
++	ret = iio_triggered_buffer_postenable(indio_dev);
++	if (ret)
++		return ret;
++
+ 	mutex_lock(&dln2->mutex);
+ 
+ 	/* Enable ADC */
+@@ -541,6 +545,7 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
+ 				(int)conflict);
+ 			ret = -EBUSY;
+ 		}
++		iio_triggered_buffer_predisable(indio_dev);
+ 		return ret;
+ 	}
+ 
+@@ -554,6 +559,7 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
+ 		mutex_unlock(&dln2->mutex);
+ 		if (ret < 0) {
+ 			dev_dbg(&dln2->pdev->dev, "Problem in %s\n", __func__);
++			iio_triggered_buffer_predisable(indio_dev);
+ 			return ret;
+ 		}
+ 	} else {
+@@ -561,12 +567,12 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
+ 		mutex_unlock(&dln2->mutex);
+ 	}
+ 
+-	return iio_triggered_buffer_postenable(indio_dev);
++	return 0;
+ }
+ 
+ static int dln2_adc_triggered_buffer_predisable(struct iio_dev *indio_dev)
+ {
+-	int ret;
++	int ret, ret2;
+ 	struct dln2_adc *dln2 = iio_priv(indio_dev);
+ 
+ 	mutex_lock(&dln2->mutex);
+@@ -581,12 +587,14 @@ static int dln2_adc_triggered_buffer_predisable(struct iio_dev *indio_dev)
+ 	ret = dln2_adc_set_port_enabled(dln2, false, NULL);
+ 
+ 	mutex_unlock(&dln2->mutex);
+-	if (ret < 0) {
++	if (ret < 0)
+ 		dev_dbg(&dln2->pdev->dev, "Problem in %s\n", __func__);
+-		return ret;
+-	}
+ 
+-	return iio_triggered_buffer_predisable(indio_dev);
++	ret2 = iio_triggered_buffer_predisable(indio_dev);
++	if (ret == 0)
++		ret = ret2;
++
++	return ret;
+ }
+ 
+ static const struct iio_buffer_setup_ops dln2_adc_buffer_setup_ops = {
 -- 
 2.20.1
 
