@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7C7112CA07
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B582412CA05
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727725AbfL2RYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:24:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43544 "EHLO mail.kernel.org"
+        id S1727797AbfL2SQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 13:16:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726843AbfL2RYh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:24:37 -0500
+        id S1727259AbfL2RYo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:24:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4F8E208E4;
-        Sun, 29 Dec 2019 17:24:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D792021744;
+        Sun, 29 Dec 2019 17:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640277;
-        bh=PDUV26fqyqdvMIofAyEcnAER+Gqoxp4cvynXCdRAO3Y=;
+        s=default; t=1577640284;
+        bh=I/BUJr3XFw+UyUsBbw4u/u7TibAB3o7/bA8FzQztPWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kE/k2F47X1hqiNl2uWxDpMEhRBGJTNYPu5LNS+7jsMGfNvUJH/1brG91IXSTFNHMy
-         8Xvbz37UgjFCAOded0xUMlIzwKRO3s/1XeIvBVLslFyxQEFpNL98eJUvMUFKwubguW
-         TSKsKFQLTU1fz3Zde8GhJOVy59YmAyf+jhEWuKvk=
+        b=aF5EzOdGQ48gA+Jw0RSQBTL2WFGSmTsFj2mwBLxQQlhv1nRjlZh2yUAF91L/OJJS9
+         nPVH1PCMWekEc+7w3WftyMgJHKkl4uH3EYTkKA4AEC2eVcXanoTFAxnyx5zQBR4P6A
+         X1XGoJf8SuSmWgJmvO0GlYQZgVSmko8SxcLE744g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 092/161] perf probe: Fix to find range-only function instance
-Date:   Sun, 29 Dec 2019 18:19:00 +0100
-Message-Id: <20191229162426.004352473@linuxfoundation.org>
+Subject: [PATCH 4.14 095/161] perf probe: Fix to probe an inline function which has no entry pc
+Date:   Sun, 29 Dec 2019 18:19:03 +0100
+Message-Id: <20191229162426.515945216@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -48,46 +48,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit b77afa1f810f37bd8a36cb1318178dfe2d7af6b6 ]
+[ Upstream commit eb6933b29d20bf2c3053883d409a53f462c1a3ac ]
 
-Fix die_is_func_instance() to find range-only function instance.
+Fix perf probe to probe an inlne function which has no entry pc
+or low pc but only has ranges attribute.
 
-In some case, a function instance can be made without any low PC or
-entry PC, but only with address ranges by optimization.  (e.g. cold text
-partially in "text.unlikely" section) To find such function instance, we
-have to check the range attribute too.
+This seems very rare case, but I could find a few examples, as
+same as probe_point_search_cb(), use die_entrypc() to get the
+entry address in probe_point_inline_cb() too.
 
-Fixes: e1ecbbc3fa83 ("perf probe: Fix to handle optimized not-inlined functions")
+Without this patch:
+
+  # perf probe -D __amd_put_nb_event_constraints
+  Failed to get entry address of __amd_put_nb_event_constraints.
+  Probe point '__amd_put_nb_event_constraints' not found.
+    Error: Failed to add events.
+
+With this patch:
+
+  # perf probe -D __amd_put_nb_event_constraints
+  p:probe/__amd_put_nb_event_constraints amd_put_event_constraints+43
+
+Committer testing:
+
+Before:
+
+  [root@quaco ~]# perf probe -D __amd_put_nb_event_constraints
+  Failed to get entry address of __amd_put_nb_event_constraints.
+  Probe point '__amd_put_nb_event_constraints' not found.
+    Error: Failed to add events.
+  [root@quaco ~]#
+
+After:
+
+  [root@quaco ~]# perf probe -D __amd_put_nb_event_constraints
+  p:probe/__amd_put_nb_event_constraints _text+33789
+  [root@quaco ~]#
+
+Fixes: 4ea42b181434 ("perf: Add perf probe subcommand, a kprobe-event setup helper")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157190835669.1859.8368628035930950596.stgit@devnote2
+Link: http://lore.kernel.org/lkml/157199320336.8075.16189530425277588587.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ tools/perf/util/probe-finder.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index f5acda13dcfa..bc52b3840706 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -331,10 +331,14 @@ bool die_is_func_def(Dwarf_Die *dw_die)
- bool die_is_func_instance(Dwarf_Die *dw_die)
- {
- 	Dwarf_Addr tmp;
-+	Dwarf_Attribute attr_mem;
- 
- 	/* Actually gcc optimizes non-inline as like as inlined */
--	return !dwarf_func_inline(dw_die) && dwarf_entrypc(dw_die, &tmp) == 0;
-+	return !dwarf_func_inline(dw_die) &&
-+	       (dwarf_entrypc(dw_die, &tmp) == 0 ||
-+		dwarf_attr(dw_die, DW_AT_ranges, &attr_mem) != NULL);
- }
-+
- /**
-  * die_get_data_member_location - Get the data-member offset
-  * @mb_die: a DIE of a member of a data structure
+diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
+index 5fee71e960a6..b06b05bd488e 100644
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -953,7 +953,7 @@ static int probe_point_inline_cb(Dwarf_Die *in_die, void *data)
+ 		ret = find_probe_point_lazy(in_die, pf);
+ 	else {
+ 		/* Get probe address */
+-		if (dwarf_entrypc(in_die, &addr) != 0) {
++		if (die_entrypc(in_die, &addr) != 0) {
+ 			pr_warning("Failed to get entry address of %s.\n",
+ 				   dwarf_diename(in_die));
+ 			return -ENOENT;
 -- 
 2.20.1
 
