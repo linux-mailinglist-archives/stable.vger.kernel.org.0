@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44B4212C9E0
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA5C12CA0D
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728494AbfL2SPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 13:15:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46644 "EHLO mail.kernel.org"
+        id S1727173AbfL2RY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:24:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728113AbfL2R0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:26:04 -0500
+        id S1727729AbfL2RY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:24:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 199F720409;
-        Sun, 29 Dec 2019 17:26:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D178208E4;
+        Sun, 29 Dec 2019 17:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640363;
-        bh=XktTSAd02PzNSs9Fr+ngFpJyUsg0zvuHqJMAgGXLKbU=;
+        s=default; t=1577640267;
+        bh=+6P1ETt2YoWLw9bEILXQxD1Yk8hRMz6G/oly8oMsT8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlnSVbJCrlNaBCUIUsEgcJu6L/ubsHcjBPJb/6NDFLapLrl8RbP5k5xQjjvyUfqop
-         pEstNE5KPb2a0RRKK2KDptGUL+NlXrC4hbc4PVoohygf3QfDFbbaJy1VcnOQx3/8Hv
-         q2sJ9vGy7MK9s7fNmVlrK19Am1aFRz8WZ7YxQ/Ps=
+        b=wgK05l+FJ/IFtAJI6YR2LifU6L5mpdmgAO1FoCtxfl2qzLk3nlLk4bjt+Dsf56itI
+         i+BL7V/xU8UCAxgzzjRbCwxHBCK0/tssbT2YmX2ipQnD1PIpebb6VRP7IHJQGPusGu
+         1AHpNudBUKi2bur6a0sol0WrMhA7iAUmjdyubjoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 079/161] loop: fix no-unmap write-zeroes request behavior
-Date:   Sun, 29 Dec 2019 18:18:47 +0100
-Message-Id: <20191229162424.024626860@linuxfoundation.org>
+Subject: [PATCH 4.14 080/161] pinctrl: sh-pfc: sh7734: Fix duplicate TCLK1_B
+Date:   Sun, 29 Dec 2019 18:18:48 +0100
+Message-Id: <20191229162424.086034168@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -45,81 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit efcfec579f6139528c9e6925eca2bc4a36da65c6 ]
+[ Upstream commit 884caadad128efad8e00c1cdc3177bc8912ee8ec ]
 
-Currently, if the loop device receives a WRITE_ZEROES request, it asks
-the underlying filesystem to punch out the range.  This behavior is
-correct if unmapping is allowed.  However, a NOUNMAP request means that
-the caller doesn't want us to free the storage backing the range, so
-punching out the range is incorrect behavior.
+The definitions for bit field [19:18] of the Peripheral Function Select
+Register 3 were accidentally copied from bit field [20], leading to
+duplicates for the TCLK1_B function, and missing TCLK0, CAN_CLK_B, and
+ET0_ETXD4 functions.
 
-To satisfy a NOUNMAP | WRITE_ZEROES request, loop should ask the
-underlying filesystem to FALLOC_FL_ZERO_RANGE, which is (according to
-the fallocate documentation) required to ensure that the entire range is
-backed by real storage, which suffices for our purposes.
+Fix this by adding the missing GPIO_FN_CAN_CLK_B and GPIO_FN_ET0_ETXD4
+enum values, and correcting the functions.
 
-Fixes: 19372e2769179dd ("loop: implement REQ_OP_WRITE_ZEROES")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191024131308.16659-1-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c | 26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ arch/sh/include/cpu-sh4/cpu/sh7734.h | 2 +-
+ drivers/pinctrl/sh-pfc/pfc-sh7734.c  | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index ec61dd873c93..453e3728e657 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -414,18 +414,20 @@ out_free_page:
- 	return ret;
- }
- 
--static int lo_discard(struct loop_device *lo, struct request *rq, loff_t pos)
-+static int lo_fallocate(struct loop_device *lo, struct request *rq, loff_t pos,
-+			int mode)
- {
- 	/*
--	 * We use punch hole to reclaim the free space used by the
--	 * image a.k.a. discard. However we do not support discard if
--	 * encryption is enabled, because it may give an attacker
--	 * useful information.
-+	 * We use fallocate to manipulate the space mappings used by the image
-+	 * a.k.a. discard/zerorange. However we do not support this if
-+	 * encryption is enabled, because it may give an attacker useful
-+	 * information.
- 	 */
- 	struct file *file = lo->lo_backing_file;
--	int mode = FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE;
- 	int ret;
- 
-+	mode |= FALLOC_FL_KEEP_SIZE;
-+
- 	if ((!file->f_op->fallocate) || lo->lo_encrypt_key_size) {
- 		ret = -EOPNOTSUPP;
- 		goto out;
-@@ -565,9 +567,17 @@ static int do_req_filebacked(struct loop_device *lo, struct request *rq)
- 	switch (req_op(rq)) {
- 	case REQ_OP_FLUSH:
- 		return lo_req_flush(lo, rq);
--	case REQ_OP_DISCARD:
- 	case REQ_OP_WRITE_ZEROES:
--		return lo_discard(lo, rq, pos);
-+		/*
-+		 * If the caller doesn't want deallocation, call zeroout to
-+		 * write zeroes the range.  Otherwise, punch them out.
-+		 */
-+		return lo_fallocate(lo, rq, pos,
-+			(rq->cmd_flags & REQ_NOUNMAP) ?
-+				FALLOC_FL_ZERO_RANGE :
-+				FALLOC_FL_PUNCH_HOLE);
-+	case REQ_OP_DISCARD:
-+		return lo_fallocate(lo, rq, pos, FALLOC_FL_PUNCH_HOLE);
- 	case REQ_OP_WRITE:
- 		if (lo->transfer)
- 			return lo_write_transfer(lo, rq, pos);
+diff --git a/arch/sh/include/cpu-sh4/cpu/sh7734.h b/arch/sh/include/cpu-sh4/cpu/sh7734.h
+index 96f0246ad2f2..82b63208135a 100644
+--- a/arch/sh/include/cpu-sh4/cpu/sh7734.h
++++ b/arch/sh/include/cpu-sh4/cpu/sh7734.h
+@@ -134,7 +134,7 @@ enum {
+ 	GPIO_FN_EX_WAIT1, GPIO_FN_SD1_DAT0_A, GPIO_FN_DREQ2, GPIO_FN_CAN1_TX_C,
+ 		GPIO_FN_ET0_LINK_C, GPIO_FN_ET0_ETXD5_A,
+ 	GPIO_FN_EX_WAIT0, GPIO_FN_TCLK1_B,
+-	GPIO_FN_RD_WR, GPIO_FN_TCLK0,
++	GPIO_FN_RD_WR, GPIO_FN_TCLK0, GPIO_FN_CAN_CLK_B, GPIO_FN_ET0_ETXD4,
+ 	GPIO_FN_EX_CS5, GPIO_FN_SD1_CMD_A, GPIO_FN_ATADIR, GPIO_FN_QSSL_B,
+ 		GPIO_FN_ET0_ETXD3_A,
+ 	GPIO_FN_EX_CS4, GPIO_FN_SD1_WP_A, GPIO_FN_ATAWR, GPIO_FN_QMI_QIO1_B,
+diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7734.c b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
+index 33232041ee86..3eccc9b3ca84 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-sh7734.c
++++ b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
+@@ -1453,7 +1453,7 @@ static const struct pinmux_func pinmux_func_gpios[] = {
+ 	GPIO_FN(ET0_ETXD2_A),
+ 	GPIO_FN(EX_CS5), GPIO_FN(SD1_CMD_A), GPIO_FN(ATADIR), GPIO_FN(QSSL_B),
+ 	GPIO_FN(ET0_ETXD3_A),
+-	GPIO_FN(RD_WR), GPIO_FN(TCLK1_B),
++	GPIO_FN(RD_WR), GPIO_FN(TCLK0), GPIO_FN(CAN_CLK_B), GPIO_FN(ET0_ETXD4),
+ 	GPIO_FN(EX_WAIT0), GPIO_FN(TCLK1_B),
+ 	GPIO_FN(EX_WAIT1), GPIO_FN(SD1_DAT0_A), GPIO_FN(DREQ2),
+ 		GPIO_FN(CAN1_TX_C), GPIO_FN(ET0_LINK_C), GPIO_FN(ET0_ETXD5_A),
+@@ -1949,7 +1949,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
+ 	    /* IP3_20 [1] */
+ 		FN_EX_WAIT0, FN_TCLK1_B,
+ 	    /* IP3_19_18 [2] */
+-		FN_RD_WR, FN_TCLK1_B, 0, 0,
++		FN_RD_WR, FN_TCLK0, FN_CAN_CLK_B, FN_ET0_ETXD4,
+ 	    /* IP3_17_15 [3] */
+ 		FN_EX_CS5, FN_SD1_CMD_A, FN_ATADIR, FN_QSSL_B,
+ 		FN_ET0_ETXD3_A, 0, 0, 0,
 -- 
 2.20.1
 
