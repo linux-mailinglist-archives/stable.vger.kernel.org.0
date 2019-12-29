@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F041012C76A
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E25E12C93B
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:18:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728732AbfL2R3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:29:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
+        id S1732737AbfL2SCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 13:02:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728730AbfL2R3I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:29:08 -0500
+        id S1732515AbfL2SCl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 13:02:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F2CB20722;
-        Sun, 29 Dec 2019 17:29:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CFE1207FF;
+        Sun, 29 Dec 2019 18:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640547;
-        bh=Rgirj3H8NYh1nKmJ6SrOmyEmFgV0feelfe6H2rxU0+U=;
+        s=default; t=1577642561;
+        bh=cbBP26PElhGMUTfVjwvgU4Ks6owPvOsPCrXjCIZ6ljc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kvr9aA0Gk4lF0LFudh1RsrdnyS+zeR+IIuAvCICtK3wm+nEtqdInUIpZJl3FutSQS
-         cC4ItQfUXqLarxGI0/Z8n0iZw0ipYdlOEsF5q901wBi58FpV87HJq3G8UJ+R3NqgbR
-         bP/jO6/Dcw35JBKT8MPqOBCWE8Xk8yV7OlRBKlrU=
+        b=dY3Glp+uhVt7T7dnhgFTL/eAqwaOJgAlNBF7scoTQHgSgvo6THA6aW2W+t8wlnhkk
+         Pv0RTvHsAVo0tnwp9zBxBjFoHKw0+jub1vZ/eOKurzsp1yrLUOGMMkQpOcDhWrDHh+
+         RDtb+zwbaGTg6lowQNTfALoTWUxvG0e9ANBQg5bA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        Lad Prabhakar <prabhakar.csengg@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 039/219] media: am437x-vpfe: Setting STD to current value is not an error
-Date:   Sun, 29 Dec 2019 18:17:21 +0100
-Message-Id: <20191229162514.206369196@linuxfoundation.org>
+Subject: [PATCH 4.19 040/219] media: i2c: ov2659: fix s_stream return value
+Date:   Sun, 29 Dec 2019 18:17:22 +0100
+Message-Id: <20191229162514.276410577@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -48,36 +48,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit 13aa21cfe92ce9ebb51824029d89f19c33f81419 ]
+[ Upstream commit 85c4043f1d403c222d481dfc91846227d66663fb ]
 
-VIDIOC_S_STD should not return an error if the value is identical
-to the current one.
-This error was highlighted by the v4l2-compliance test.
+In ov2659_s_stream() return value for invoked function should be checked
+and propagated.
 
 Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Acked-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/am437x/am437x-vpfe.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/i2c/ov2659.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/platform/am437x/am437x-vpfe.c b/drivers/media/platform/am437x/am437x-vpfe.c
-index b05738a95e55..809320decdeb 100644
---- a/drivers/media/platform/am437x/am437x-vpfe.c
-+++ b/drivers/media/platform/am437x/am437x-vpfe.c
-@@ -1848,6 +1848,10 @@ static int vpfe_s_std(struct file *file, void *priv, v4l2_std_id std_id)
- 	if (!(sdinfo->inputs[0].capabilities & V4L2_IN_CAP_STD))
- 		return -ENODATA;
+diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
+index e6a8b5669b9c..ca079996c7ce 100644
+--- a/drivers/media/i2c/ov2659.c
++++ b/drivers/media/i2c/ov2659.c
+@@ -1203,11 +1203,15 @@ static int ov2659_s_stream(struct v4l2_subdev *sd, int on)
+ 		goto unlock;
+ 	}
  
-+	/* if trying to set the same std then nothing to do */
-+	if (vpfe_standards[vpfe->std_index].std_id == std_id)
-+		return 0;
-+
- 	/* If streaming is started, return error */
- 	if (vb2_is_busy(&vpfe->buffer_queue)) {
- 		vpfe_err(vpfe, "%s device busy\n", __func__);
+-	ov2659_set_pixel_clock(ov2659);
+-	ov2659_set_frame_size(ov2659);
+-	ov2659_set_format(ov2659);
+-	ov2659_set_streaming(ov2659, 1);
+-	ov2659->streaming = on;
++	ret = ov2659_set_pixel_clock(ov2659);
++	if (!ret)
++		ret = ov2659_set_frame_size(ov2659);
++	if (!ret)
++		ret = ov2659_set_format(ov2659);
++	if (!ret) {
++		ov2659_set_streaming(ov2659, 1);
++		ov2659->streaming = on;
++	}
+ 
+ unlock:
+ 	mutex_unlock(&ov2659->lock);
 -- 
 2.20.1
 
