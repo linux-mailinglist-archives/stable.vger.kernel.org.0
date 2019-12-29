@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60A7812C76D
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DD7F12C9B9
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728789AbfL2R3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:29:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54236 "EHLO mail.kernel.org"
+        id S1727704AbfL2SNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 13:13:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728033AbfL2R3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:29:31 -0500
+        id S1728496AbfL2R1x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:27:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B180420409;
-        Sun, 29 Dec 2019 17:29:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9984320722;
+        Sun, 29 Dec 2019 17:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640571;
-        bh=xqW5sDxWkLviDKdFz4/dQ7a6lxvpbNy8KtKJb64JuGY=;
+        s=default; t=1577640473;
+        bh=3LB8rqRiyIvwRRLvI8gR+OWS2XUtX3mgWIjjIKtzew8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09SQRPtpMOQa3wGEtjW5Yq5Nw7ulhBnFAuxnWHXQ/9eOr2mFD8r1dkk8R1razNTp/
-         9mbs8j7XcuZmZIjUEA5ySdXikb7H+LV6HJKqrzXMNRMUvOapKysrg8RmE+WE1umjJu
-         MTYJIJrSlKCXOSXAlSN2myISVfgtr+sKsESCbtbE=
+        b=Eig6ZBNe2Hfqg2zuyE4PPfPQzLbOI3+NH7wn3FJq9lTFRsY0QWxYUyKLgdIIpr6j7
+         BXEBw8tUfNjRmMprMWHqaWj26VAshzSUSE6iJIIiGQ5rErCZZ0HQnk8koNGh01EJWs
+         ThH+hv61iQES3fw8oYC++1GPgV6NVLpuLz7R4bUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
         Ariel Elior <aelior@marvell.com>,
-        Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 010/219] qede: Disable hardware gro when xdp prog is installed
-Date:   Sun, 29 Dec 2019 18:16:52 +0100
-Message-Id: <20191229162510.564163154@linuxfoundation.org>
+Subject: [PATCH 4.19 011/219] qede: Fix multicast mac configuration
+Date:   Sun, 29 Dec 2019 18:16:53 +0100
+Message-Id: <20191229162510.736284506@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -47,49 +46,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Manish Chopra <manishc@marvell.com>
 
-[ Upstream commit 4c8dc00503db24deaf0b89dddfa84b7cba7cd4ce ]
+[ Upstream commit 0af67e49b018e7280a4227bfe7b6005bc9d3e442 ]
 
-commit 18c602dee472 ("qede: Use NETIF_F_GRO_HW.") introduced
-a regression in driver that when xdp program is installed on
-qede device, device's aggregation feature (hardware GRO) is not
-getting disabled, which is unexpected with xdp.
+Driver doesn't accommodate the configuration for max number
+of multicast mac addresses, in such particular case it leaves
+the device with improper/invalid multicast configuration state,
+causing connectivity issues (in lacp bonding like scenarios).
 
-Fixes: 18c602dee472 ("qede: Use NETIF_F_GRO_HW.")
 Signed-off-by: Manish Chopra <manishc@marvell.com>
 Signed-off-by: Ariel Elior <aelior@marvell.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qede/qede_filter.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qede/qede_main.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
-@@ -1362,6 +1362,7 @@ static int qede_alloc_mem_rxq(struct qed
- 		rxq->rx_buf_seg_size = roundup_pow_of_two(size);
- 	} else {
- 		rxq->rx_buf_seg_size = PAGE_SIZE;
-+		edev->ndev->features &= ~NETIF_F_GRO_HW;
- 	}
+--- a/drivers/net/ethernet/qlogic/qede/qede_filter.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_filter.c
+@@ -1230,7 +1230,7 @@ qede_configure_mcast_filtering(struct ne
+ 	netif_addr_lock_bh(ndev);
  
- 	/* Allocate the parallel driver ring for Rx buffers */
-@@ -1406,6 +1407,7 @@ static int qede_alloc_mem_rxq(struct qed
- 		}
- 	}
- 
-+	edev->gro_disable = !(edev->ndev->features & NETIF_F_GRO_HW);
- 	if (!edev->gro_disable)
- 		qede_set_tpa_param(rxq);
- err:
-@@ -1606,8 +1608,6 @@ static void qede_init_fp(struct qede_dev
- 		snprintf(fp->name, sizeof(fp->name), "%s-fp-%d",
- 			 edev->ndev->name, queue_id);
- 	}
--
--	edev->gro_disable = !(edev->ndev->features & NETIF_F_GRO_HW);
- }
- 
- static int qede_set_real_num_queues(struct qede_dev *edev)
+ 	mc_count = netdev_mc_count(ndev);
+-	if (mc_count < 64) {
++	if (mc_count <= 64) {
+ 		netdev_for_each_mc_addr(ha, ndev) {
+ 			ether_addr_copy(temp, ha->addr);
+ 			temp += ETH_ALEN;
 
 
