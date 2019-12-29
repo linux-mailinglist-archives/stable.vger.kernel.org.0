@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 107C912C8CB
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:17:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BA2A12C8CE
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:17:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733276AbfL2R5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:57:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48384 "EHLO mail.kernel.org"
+        id S1729945AbfL2R5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:57:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733294AbfL2R5j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:57:39 -0500
+        id S1733299AbfL2R5l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:57:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81ACA208C4;
-        Sun, 29 Dec 2019 17:57:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC802222C3;
+        Sun, 29 Dec 2019 17:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642259;
-        bh=wBQWZYysjEodPuM7MCs9NoMm8rrwflDKThU5IRqDYts=;
+        s=default; t=1577642261;
+        bh=h8v+R6jxtgqrSNMwvvPHFn6Txf2btWnv7cfOnHF7bDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SqRyNbwRo5s9zaW6a+iApWzeUWz/2J1OQhfIBNFJdFi5lNLHI49wiLW/6fJUQWY4e
-         VwjzkgyQrdS7LvKl90cP7CCNDmvYNBqmMBSx34F97YINhBScThXeBNMq8mR3usbQE7
-         yhw+FO4cD2YCERjcs5f5uiFq3JKQCvZRznV6IsB4=
+        b=Y7M+BwBgUzVDWg1sxuAVu4e6gIb4vmfc6iHIaBPJws5DIMMcvkUEM9H53fk4kH3hG
+         n89T4GRll+nLMdjmoiBk9OOzUcEJN5AV8Qxmsl6E+L/gSSVczrpB9LWKhYW+qg0jAV
+         8Y+F1riYFx9yC75ctjD6nmc36vZau+zQrtsw1His=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.4 407/434] clk: imx: clk-imx7ulp: Add missing sentinel of ulp_div_table
-Date:   Sun, 29 Dec 2019 18:27:40 +0100
-Message-Id: <20191229172729.701544977@linuxfoundation.org>
+Subject: [PATCH 5.4 408/434] clk: imx: clk-composite-8m: add lock to gate/mux
+Date:   Sun, 29 Dec 2019 18:27:41 +0100
+Message-Id: <20191229172729.780057067@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,30 +45,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peng Fan <peng.fan@nxp.com>
 
-commit ed11e31709d7ddb19d4dc451d5bbfb15129f4cad upstream.
+commit 073a01e8d7c23b3efb59a3d4c20aa546f9ec29a9 upstream.
 
-There should be a sentinel of ulp_div_table, otherwise _get_table_div
-may access data out of the array.
+There is a lock to divider in the composite driver, but that's not
+enough. lock to gate/mux are also needed to provide exclusive access
+to the register.
 
-Fixes: b1260067ac3d ("clk: imx: add imx7ulp clk driver")
+Fixes: d3ff9728134e ("clk: imx: Add imx composite clock")
 Signed-off-by: Peng Fan <peng.fan@nxp.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/imx/clk-imx7ulp.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/imx/clk-composite-8m.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/clk/imx/clk-imx7ulp.c
-+++ b/drivers/clk/imx/clk-imx7ulp.c
-@@ -40,6 +40,7 @@ static const struct clk_div_table ulp_di
- 	{ .val = 5, .div = 16, },
- 	{ .val = 6, .div = 32, },
- 	{ .val = 7, .div = 64, },
-+	{ /* sentinel */ },
- };
+--- a/drivers/clk/imx/clk-composite-8m.c
++++ b/drivers/clk/imx/clk-composite-8m.c
+@@ -142,6 +142,7 @@ struct clk *imx8m_clk_composite_flags(co
+ 	mux->reg = reg;
+ 	mux->shift = PCG_PCS_SHIFT;
+ 	mux->mask = PCG_PCS_MASK;
++	mux->lock = &imx_ccm_lock;
  
- static const int pcc2_uart_clk_ids[] __initconst = {
+ 	div = kzalloc(sizeof(*div), GFP_KERNEL);
+ 	if (!div)
+@@ -161,6 +162,7 @@ struct clk *imx8m_clk_composite_flags(co
+ 	gate_hw = &gate->hw;
+ 	gate->reg = reg;
+ 	gate->bit_idx = PCG_CGC_SHIFT;
++	gate->lock = &imx_ccm_lock;
+ 
+ 	hw = clk_hw_register_composite(NULL, name, parent_names, num_parents,
+ 			mux_hw, &clk_mux_ops, div_hw,
 
 
