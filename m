@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD31812C801
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C34412C802
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731707AbfL2Rt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:49:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34054 "EHLO mail.kernel.org"
+        id S1731739AbfL2RuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:50:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731436AbfL2Rt5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:49:57 -0500
+        id S1731729AbfL2RuA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:50:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2723206A4;
-        Sun, 29 Dec 2019 17:49:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1679720718;
+        Sun, 29 Dec 2019 17:49:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641797;
-        bh=HrMe3ZXnXErzjDN33eld/efIaO1w3g7H5ALJT7FOOQg=;
+        s=default; t=1577641799;
+        bh=+uKGfkqX3p9SoCvvXDvnvHaWwHst2Gv0EPmg14apGh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNIUe3AZOEN1wqkqQdJwMmR/ZaXXMbYpO5MQQ16vb6X+ZGbZ4hOb63HRFY3WCmOr6
-         OIfEZ1A3EBsgBrHHzjp/AnxLKWcHzJGvXg+IXM6PSKxS0u09Wvr+uHg4Udv6py3Fjg
-         an1Vjva30ctG4nwKQTKYQHK9ZjllUIRkE3KZAGQo=
+        b=e8aZ/aAnb83RoqJRE2U8qGQxT0w8NPgEPXu6z2wY0FydffpZGYNIiF7MMO54ASE+I
+         kgnUb3H5T6k33ylwqERuTy2W32DdUnIe44+DJ/noJMpuR4Z9VYkyr71ci6Gj0amCt8
+         tehbJc0k9WIr3s5Lqfd6ASciFsNaUBSps6DFTi0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@mellanox.com>,
-        Paul Blakey <paulb@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 215/434] net/mlx5e: Verify that rule has at least one fwd/drop action
-Date:   Sun, 29 Dec 2019 18:24:28 +0100
-Message-Id: <20191229172716.113297722@linuxfoundation.org>
+Subject: [PATCH 5.4 216/434] pinctrl: sh-pfc: sh7734: Fix duplicate TCLK1_B
+Date:   Sun, 29 Dec 2019 18:24:29 +0100
+Message-Id: <20191229172716.182448024@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,45 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@mellanox.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ae2741e2b6ce2bf1b656b1152c4ef147ff35b096 ]
+[ Upstream commit 884caadad128efad8e00c1cdc3177bc8912ee8ec ]
 
-Currently, mlx5 tc layer doesn't verify that rule has at least one forward
-or drop action which leads to following firmware syndrome when user tries
-to offload such action:
+The definitions for bit field [19:18] of the Peripheral Function Select
+Register 3 were accidentally copied from bit field [20], leading to
+duplicates for the TCLK1_B function, and missing TCLK0, CAN_CLK_B, and
+ET0_ETXD4 functions.
 
-[ 1824.860501] mlx5_core 0000:81:00.0: mlx5_cmd_check:753:(pid 29458): SET_FLOW_TABLE_ENTRY(0x936) op_mod(0x0) failed, status bad parameter(0x3), syndrome (0x144b7a)
+Fix this by adding the missing GPIO_FN_CAN_CLK_B and GPIO_FN_ET0_ETXD4
+enum values, and correcting the functions.
 
-Add check at the end of parse_tc_fdb_actions() that verifies that resulting
-attribute has action fwd or drop flag set.
-
-Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
-Reviewed-by: Paul Blakey <paulb@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Reported-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191024131308.16659-1-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/sh/include/cpu-sh4/cpu/sh7734.h | 2 +-
+ drivers/pinctrl/sh-pfc/pfc-sh7734.c  | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index c2c7f214a56a..814a4ba4e7fa 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -3443,6 +3443,12 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
- 		attr->action |= MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
- 	}
- 
-+	if (!(attr->action &
-+	      (MLX5_FLOW_CONTEXT_ACTION_FWD_DEST | MLX5_FLOW_CONTEXT_ACTION_DROP))) {
-+		NL_SET_ERR_MSG(extack, "Rule must have at least one forward/drop action");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	if (attr->split_count > 0 && !mlx5_esw_has_fwd_fdb(priv->mdev)) {
- 		NL_SET_ERR_MSG_MOD(extack,
- 				   "current firmware doesn't support split rule for port mirroring");
+diff --git a/arch/sh/include/cpu-sh4/cpu/sh7734.h b/arch/sh/include/cpu-sh4/cpu/sh7734.h
+index 96f0246ad2f2..82b63208135a 100644
+--- a/arch/sh/include/cpu-sh4/cpu/sh7734.h
++++ b/arch/sh/include/cpu-sh4/cpu/sh7734.h
+@@ -134,7 +134,7 @@ enum {
+ 	GPIO_FN_EX_WAIT1, GPIO_FN_SD1_DAT0_A, GPIO_FN_DREQ2, GPIO_FN_CAN1_TX_C,
+ 		GPIO_FN_ET0_LINK_C, GPIO_FN_ET0_ETXD5_A,
+ 	GPIO_FN_EX_WAIT0, GPIO_FN_TCLK1_B,
+-	GPIO_FN_RD_WR, GPIO_FN_TCLK0,
++	GPIO_FN_RD_WR, GPIO_FN_TCLK0, GPIO_FN_CAN_CLK_B, GPIO_FN_ET0_ETXD4,
+ 	GPIO_FN_EX_CS5, GPIO_FN_SD1_CMD_A, GPIO_FN_ATADIR, GPIO_FN_QSSL_B,
+ 		GPIO_FN_ET0_ETXD3_A,
+ 	GPIO_FN_EX_CS4, GPIO_FN_SD1_WP_A, GPIO_FN_ATAWR, GPIO_FN_QMI_QIO1_B,
+diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7734.c b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
+index 5dfd991ffdaa..dbc36079c381 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-sh7734.c
++++ b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
+@@ -1450,7 +1450,7 @@ static const struct pinmux_func pinmux_func_gpios[] = {
+ 	GPIO_FN(ET0_ETXD2_A),
+ 	GPIO_FN(EX_CS5), GPIO_FN(SD1_CMD_A), GPIO_FN(ATADIR), GPIO_FN(QSSL_B),
+ 	GPIO_FN(ET0_ETXD3_A),
+-	GPIO_FN(RD_WR), GPIO_FN(TCLK1_B),
++	GPIO_FN(RD_WR), GPIO_FN(TCLK0), GPIO_FN(CAN_CLK_B), GPIO_FN(ET0_ETXD4),
+ 	GPIO_FN(EX_WAIT0), GPIO_FN(TCLK1_B),
+ 	GPIO_FN(EX_WAIT1), GPIO_FN(SD1_DAT0_A), GPIO_FN(DREQ2),
+ 		GPIO_FN(CAN1_TX_C), GPIO_FN(ET0_LINK_C), GPIO_FN(ET0_ETXD5_A),
+@@ -1949,7 +1949,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
+ 	    /* IP3_20 [1] */
+ 		FN_EX_WAIT0, FN_TCLK1_B,
+ 	    /* IP3_19_18 [2] */
+-		FN_RD_WR, FN_TCLK1_B, 0, 0,
++		FN_RD_WR, FN_TCLK0, FN_CAN_CLK_B, FN_ET0_ETXD4,
+ 	    /* IP3_17_15 [3] */
+ 		FN_EX_CS5, FN_SD1_CMD_A, FN_ATADIR, FN_QSSL_B,
+ 		FN_ET0_ETXD3_A, 0, 0, 0,
 -- 
 2.20.1
 
