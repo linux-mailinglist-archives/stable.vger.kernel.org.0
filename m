@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D3912C724
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3211112C740
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732392AbfL2RyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:54:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42122 "EHLO mail.kernel.org"
+        id S1732625AbfL2Rzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:55:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732674AbfL2RyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:54:21 -0500
+        id S1732924AbfL2Rza (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:55:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C645920748;
-        Sun, 29 Dec 2019 17:54:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 506A42467C;
+        Sun, 29 Dec 2019 17:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642060;
-        bh=Qi68X8EwhjNhQItLrrrp7bt6hKwH5qQyWhw0sntgeU4=;
+        s=default; t=1577642129;
+        bh=4Mzfrn2wNKIAI1Ihcb5rO6qINSLcOWz1XQG8/ZxA7cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qh6BdGJv68B/ttquu+HJ1i+WwcE/OLB7BbKHU0/w9u1XjiiyQ6JNXAOMuQPLrCABd
-         dZcfiibEJBhrodomRkFmr3idypRnRWdZ5Kf0QW+j3T64dEzHWyg469t7R/VW/efXnR
-         btGC43PWHkYOYT8bKAWeCwkrRGJ7ZIeNySl7Md9M=
+        b=avFHVqn8FtpDbNYZqI27eTJ2yUefxbA1UXY+Tah/ESUZoj4sBMurDjIOx+hZ63YEL
+         RVdUsXwlGKAufuv7D0rVkUne0z6VI2wZqfVx3DRlZU0NWkrwH+o+8qHGi+y5E/jXvo
+         y9vwl6rRHvEw+SR+S5xRQqtPN9iZxB83DLoR5cnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 323/434] perf/core: Fix the mlock accounting, again
-Date:   Sun, 29 Dec 2019 18:26:16 +0100
-Message-Id: <20191229172723.424194731@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 327/434] net: phy: avoid matching all-ones clause 45 PHY IDs
+Date:   Sun, 29 Dec 2019 18:26:20 +0100
+Message-Id: <20191229172723.689874888@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -53,67 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 36b3db03b4741b8935b68fffc7e69951d8d70a89 ]
+[ Upstream commit b95e86d846b63b02ecdc94802ddbeaf9005fb6d9 ]
 
-Commit:
+We currently match clause 45 PHYs using any ID read from a MMD marked
+as present in the "Devices in package" registers 5 and 6.  However,
+this is incorrect.  45.2 says:
 
-  5e6c3c7b1ec2 ("perf/aux: Fix tracking of auxiliary trace buffer allocation")
+  "The definition of the term package is vendor specific and could be
+   a chip, module, or other similar entity."
 
-tried to guess the correct combination of arithmetic operations that would
-undo the AUX buffer's mlock accounting, and failed, leaking the bottom part
-when an allocation needs to be charged partially to both user->locked_vm
-and mm->pinned_vm, eventually leaving the user with no locked bonus:
+so a package could be more or less than the whole PHY - a PHY could be
+made up of several modules instantiated onto a single chip such as the
+Marvell 88x3310, or some of the MMDs could be disabled according to
+chip configuration, such as the Broadcom 84881.
 
-  $ perf record -e intel_pt//u -m1,128 uname
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.061 MB perf.data ]
+In the case of Broadcom 84881, the "Devices in package" registers
+contain 0xc000009b, meaning that there is a PHYXS present in the
+package, but all registers in MMD 4 return 0xffff.  This leads to our
+matching code incorrectly binding this PHY to one of our generic PHY
+drivers.
 
-  $ perf record -e intel_pt//u -m1,128 uname
-  Permission error mapping pages.
-  Consider increasing /proc/sys/kernel/perf_event_mlock_kb,
-  or try again with a smaller value of -m/--mmap_pages.
-  (current value: 1,128)
+This patch changes the way we determine whether to attempt to match a
+MMD identifier, or use it to request a module - if the identifier is
+all-ones, then we skip over it. When reading the identifiers, we
+initialise phydev->c45_ids.device_ids to all-ones, only reading the
+device ID if the "Devices in package" registers indicates we should.
 
-Fix this by subtracting both locked and pinned counts when AUX buffer is
-unmapped.
+This avoids the generic drivers incorrectly matching on a PHY ID of
+0xffffffff.
 
-Reported-by: Thomas Richter <tmricht@linux.ibm.com>
-Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/phy/phy_device.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 00a014670ed0..8f66a4833ded 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5607,10 +5607,8 @@ static void perf_mmap_close(struct vm_area_struct *vma)
- 		perf_pmu_output_stop(event);
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index adb66a2fae18..14c6b7597b06 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -488,7 +488,7 @@ static int phy_bus_match(struct device *dev, struct device_driver *drv)
  
- 		/* now it's safe to free the pages */
--		if (!rb->aux_mmap_locked)
--			atomic_long_sub(rb->aux_nr_pages, &mmap_user->locked_vm);
--		else
--			atomic64_sub(rb->aux_mmap_locked, &vma->vm_mm->pinned_vm);
-+		atomic_long_sub(rb->aux_nr_pages - rb->aux_mmap_locked, &mmap_user->locked_vm);
-+		atomic64_sub(rb->aux_mmap_locked, &vma->vm_mm->pinned_vm);
+ 	if (phydev->is_c45) {
+ 		for (i = 1; i < num_ids; i++) {
+-			if (!(phydev->c45_ids.devices_in_package & (1 << i)))
++			if (phydev->c45_ids.device_ids[i] == 0xffffffff)
+ 				continue;
  
- 		/* this has to be the last one */
- 		rb_free_aux(rb);
+ 			if ((phydrv->phy_id & phydrv->phy_id_mask) ==
+@@ -632,7 +632,7 @@ struct phy_device *phy_device_create(struct mii_bus *bus, int addr, int phy_id,
+ 		int i;
+ 
+ 		for (i = 1; i < num_ids; i++) {
+-			if (!(c45_ids->devices_in_package & (1 << i)))
++			if (c45_ids->device_ids[i] == 0xffffffff)
+ 				continue;
+ 
+ 			ret = phy_request_driver_module(dev,
+@@ -812,10 +812,13 @@ static int get_phy_id(struct mii_bus *bus, int addr, u32 *phy_id,
+  */
+ struct phy_device *get_phy_device(struct mii_bus *bus, int addr, bool is_c45)
+ {
+-	struct phy_c45_device_ids c45_ids = {0};
++	struct phy_c45_device_ids c45_ids;
+ 	u32 phy_id = 0;
+ 	int r;
+ 
++	c45_ids.devices_in_package = 0;
++	memset(c45_ids.device_ids, 0xff, sizeof(c45_ids.device_ids));
++
+ 	r = get_phy_id(bus, addr, &phy_id, is_c45, &c45_ids);
+ 	if (r)
+ 		return ERR_PTR(r);
 -- 
 2.20.1
 
