@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD64512C862
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C42E12C863
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732585AbfL2RyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:54:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
+        id S1732611AbfL2RyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:54:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732590AbfL2RyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:54:02 -0500
+        id S1732603AbfL2RyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:54:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B407A206A4;
-        Sun, 29 Dec 2019 17:54:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A4B020748;
+        Sun, 29 Dec 2019 17:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642041;
-        bh=3Af1l8nmbS3U3q49TbezPN6NtAyHIclll5wiQuWtyW8=;
+        s=default; t=1577642043;
+        bh=slIrzwraZBUfm6H4g4lg6fDEVVhljIZDF+CRD4sxM20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPQusdC016k7qaCe3dIRvuJA5KKQRT//bwNzWj/thjznhjFxT91zk6lDWrX8cjpQp
-         kcmOyXukZdJCEXB4JQ5eTDvuE5hzhkNfvzrmvj0fthrOXpiPdUpBM5wWOgQOLucrWo
-         eiQ07+hfE3DleisUtrix+9J52q/Qhh9bKqwzYpeg=
+        b=GHmmgHa18iGUZEx/5pYzfQM9yRKTcaIGh8jFXyWtBrANyVDk/JAel4Nz7qYttDVWA
+         vmN1ZRSLSKnI18s3Jj33+AcccvQ0h/XeT21gV3sv8NujCvopJE6iOTzAA0resxdEVW
+         Pw6aRaHEAhW8OcmeQqT2oC0iN9+pGWxr5gJAAE0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Harish Jenny K N <harish_kandiga@mentor.com>
-Subject: [PATCH 5.4 316/434] mmc: tmio: Add MMC_CAP_ERASE to allow erase/discard/trim requests
-Date:   Sun, 29 Dec 2019 18:26:09 +0100
-Message-Id: <20191229172722.946797897@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
+        Omar Sandoval <osandov@fb.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 317/434] btrfs: dont prematurely free work in end_workqueue_fn()
+Date:   Sun, 29 Dec 2019 18:26:10 +0100
+Message-Id: <20191229172723.013107086@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -49,71 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniu Rosca <erosca@de.adit-jv.com>
+From: Omar Sandoval <osandov@fb.com>
 
-[ Upstream commit c91843463e9e821dc3b48fe37e3155fa38299f6e ]
+[ Upstream commit 9be490f1e15c34193b1aae17da58e14dd9f55a95 ]
 
-Isolated initially to renesas_sdhi_internal_dmac [1], Ulf suggested
-adding MMC_CAP_ERASE to the TMIO mmc core:
+Currently, end_workqueue_fn() frees the end_io_wq entry (which embeds
+the work item) and then calls bio_endio(). This is another potential
+instance of the bug in "btrfs: don't prematurely free work in
+run_ordered_work()".
 
-On Fri, Nov 15, 2019 at 10:27:25AM +0100, Ulf Hansson wrote:
- -- snip --
- This test and due to the discussions with Wolfram and you in this
- thread, I would actually suggest that you enable MMC_CAP_ERASE for all
- tmio variants, rather than just for this particular one.
+In particular, the endio call may depend on other work items. For
+example, btrfs_end_dio_bio() can call btrfs_subio_endio_read() ->
+__btrfs_correct_data_nocsum() -> dio_read_error() ->
+submit_dio_repair_bio(), which submits a bio that is also completed
+through a end_workqueue_fn() work item. However,
+__btrfs_correct_data_nocsum() waits for the newly submitted bio to
+complete, thus it depends on another work item.
 
- In other words, set the cap in tmio_mmc_host_probe() should be fine,
- as it seems none of the tmio variants supports HW busy detection at
- this point.
- -- snip --
+This example currently usually works because we use different workqueue
+helper functions for BTRFS_WQ_ENDIO_DATA and BTRFS_WQ_ENDIO_DIO_REPAIR.
+However, it may deadlock with stacked filesystems and is fragile
+overall. The proper fix is to free the work item at the very end of the
+work function, so let's do that.
 
-Testing on R-Car H3ULCB-KF doesn't reveal any issues (v5.4-rc7):
-
-root@rcar-gen3:~# lsblk
-NAME         MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
-mmcblk0      179:0    0 59.2G  0 disk  <--- eMMC
-mmcblk0boot0 179:8    0    4M  1 disk
-mmcblk0boot1 179:16   0    4M  1 disk
-mmcblk1      179:24   0   30G  0 disk  <--- SD card
-
-root@rcar-gen3:~# time blkdiscard /dev/mmcblk0
-real    0m8.659s
-user    0m0.001s
-sys     0m1.920s
-
-root@rcar-gen3:~# time blkdiscard /dev/mmcblk1
-real    0m1.176s
-user    0m0.001s
-sys     0m0.124s
-
-[1] https://lore.kernel.org/linux-renesas-soc/20191112134808.23546-1-erosca@de.adit-jv.com/
-
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Andrew Gabbasov <andrew_gabbasov@mentor.com>
-Originally-by: Harish Jenny K N <harish_kandiga@mentor.com>
-Suggested-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/tmio_mmc_core.c | 2 +-
+ fs/btrfs/disk-io.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/tmio_mmc_core.c b/drivers/mmc/host/tmio_mmc_core.c
-index 9b6e1001e77c..dec5a99f52cf 100644
---- a/drivers/mmc/host/tmio_mmc_core.c
-+++ b/drivers/mmc/host/tmio_mmc_core.c
-@@ -1184,7 +1184,7 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
- 	if (ret == -EPROBE_DEFER)
- 		return ret;
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 402b61bf345c..3895c21853cc 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1657,8 +1657,8 @@ static void end_workqueue_fn(struct btrfs_work *work)
+ 	bio->bi_status = end_io_wq->status;
+ 	bio->bi_private = end_io_wq->private;
+ 	bio->bi_end_io = end_io_wq->end_io;
+-	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
+ 	bio_endio(bio);
++	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
+ }
  
--	mmc->caps |= MMC_CAP_4_BIT_DATA | pdata->capabilities;
-+	mmc->caps |= MMC_CAP_ERASE | MMC_CAP_4_BIT_DATA | pdata->capabilities;
- 	mmc->caps2 |= pdata->capabilities2;
- 	mmc->max_segs = pdata->max_segs ? : 32;
- 	mmc->max_blk_size = TMIO_MAX_BLK_SIZE;
+ static int cleaner_kthread(void *arg)
 -- 
 2.20.1
 
