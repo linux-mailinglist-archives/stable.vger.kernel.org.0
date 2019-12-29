@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1D412C5C4
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CE8B12C5C2
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729098AbfL2RbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:31:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57980 "EHLO mail.kernel.org"
+        id S1729099AbfL2RbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:31:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729093AbfL2RbI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:31:08 -0500
+        id S1729102AbfL2RbK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:31:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F6E320722;
-        Sun, 29 Dec 2019 17:31:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A150520409;
+        Sun, 29 Dec 2019 17:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640667;
-        bh=h4t23SUmlTtLdC4v+T1ti6aWL9NaAaQmUVYOp73w/Zo=;
+        s=default; t=1577640670;
+        bh=WHsWUyjkT6BtcW+ctw78vQlYzOCMH3wIY6zzM3e/Ubk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdVlJjiBhWtY3xWIiyUvUozm5fDT3Jg3G/y9rJwonUf+Hva6YNtOTQHCBw6TYP0tE
-         JWAe9O98XaNIVg7jh/Cbe3fUQpZx3oYY/rO5KhQHqYermd11vUbrQwW6DF4DiP6CfT
-         1DpmnZ3OLW/px12OiGvTmTVsY4T0ZvMn+wYgUgEI=
+        b=YAc24KRsGbBgdS6uIPt1PuyADBBuju5qVedlWe6wdij+1P8rk9VJ17d08BexqSyM9
+         OJB0ZgeRtE+cC31EOuj7aNqYyEcrTGs4kDKhi1ti1k4hFebBBjpRcc34pPhXWs1yf6
+         wteiBgCazhJZNZdHFo8GkmzT/Zjlaui7oXOrPGWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/219] selftests/bpf: Correct path to include msg + path
-Date:   Sun, 29 Dec 2019 18:17:32 +0100
-Message-Id: <20191229162514.999519096@linuxfoundation.org>
+Subject: [PATCH 4.19 051/219] media: venus: Fix occasionally failures to suspend
+Date:   Sun, 29 Dec 2019 18:17:33 +0100
+Message-Id: <20191229162515.108617394@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -46,67 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>
+From: Stanimir Varbanov <stanimir.varbanov@linaro.org>
 
-[ Upstream commit c588146378962786ddeec817f7736a53298a7b01 ]
+[ Upstream commit 8dbebb2bd01e6f36e9a215dcde99ace70408f2c8 ]
 
-The "path" buf is supposed to contain path + printf msg up to 24 bytes.
-It will be cut anyway, but compiler generates truncation warns like:
+Failure to suspend (venus_suspend_3xx) happens when the system
+is fresh booted and loading venus driver. This happens once and
+after reload the venus driver modules the problem disrepair.
 
-"
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c: In
-function ‘setup_cgroup_environment’:
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c:52:34:
-warning: ‘/cgroup.controllers’ directive output may be truncated
-writing 19 bytes into a region of size between 1 and 4097
-[-Wformat-truncation=]
-snprintf(path, sizeof(path), "%s/cgroup.controllers", cgroup_path);
-				  ^~~~~~~~~~~~~~~~~~~
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c:52:2:
-note: ‘snprintf’ output between 20 and 4116 bytes into a destination
-of size 4097
-snprintf(path, sizeof(path), "%s/cgroup.controllers", cgroup_path);
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c:72:34:
-warning: ‘/cgroup.subtree_control’ directive output may be truncated
-writing 23 bytes into a region of size between 1 and 4097
-[-Wformat-truncation=]
-snprintf(path, sizeof(path), "%s/cgroup.subtree_control",
-				  ^~~~~~~~~~~~~~~~~~~~~~~
-cgroup_path);
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c:72:2:
-note: ‘snprintf’ output between 24 and 4120 bytes into a destination
-of size 4097
-snprintf(path, sizeof(path), "%s/cgroup.subtree_control",
-cgroup_path);
-"
+Fix the failure by skipping the check for WFI and IDLE bits if
+PC_READY is on in control status register.
 
-In order to avoid warns, lets decrease buf size for cgroup workdir on
-24 bytes with assumption to include also "/cgroup.subtree_control" to
-the address. The cut will never happen anyway.
-
-Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20191002120404.26962-3-ivan.khoronzhuk@linaro.org
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/cgroup_helpers.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/qcom/venus/hfi_venus.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/cgroup_helpers.c b/tools/testing/selftests/bpf/cgroup_helpers.c
-index cf16948aad4a..6af24f9a780d 100644
---- a/tools/testing/selftests/bpf/cgroup_helpers.c
-+++ b/tools/testing/selftests/bpf/cgroup_helpers.c
-@@ -44,7 +44,7 @@
-  */
- int setup_cgroup_environment(void)
+diff --git a/drivers/media/platform/qcom/venus/hfi_venus.c b/drivers/media/platform/qcom/venus/hfi_venus.c
+index 124085556b94..fbcc67c10993 100644
+--- a/drivers/media/platform/qcom/venus/hfi_venus.c
++++ b/drivers/media/platform/qcom/venus/hfi_venus.c
+@@ -1484,6 +1484,7 @@ static int venus_suspend_3xx(struct venus_core *core)
  {
--	char cgroup_workdir[PATH_MAX + 1];
-+	char cgroup_workdir[PATH_MAX - 24];
+ 	struct venus_hfi_device *hdev = to_hfi_priv(core);
+ 	struct device *dev = core->dev;
++	u32 ctrl_status;
+ 	bool val;
+ 	int ret;
  
- 	format_cgroup_path(cgroup_workdir, "");
+@@ -1499,6 +1500,10 @@ static int venus_suspend_3xx(struct venus_core *core)
+ 		return -EINVAL;
+ 	}
  
++	ctrl_status = venus_readl(hdev, CPU_CS_SCIACMDARG0);
++	if (ctrl_status & CPU_CS_SCIACMDARG0_PC_READY)
++		goto power_off;
++
+ 	/*
+ 	 * Power collapse sequence for Venus 3xx and 4xx versions:
+ 	 * 1. Check for ARM9 and video core to be idle by checking WFI bit
+@@ -1523,6 +1528,7 @@ static int venus_suspend_3xx(struct venus_core *core)
+ 	if (ret)
+ 		return ret;
+ 
++power_off:
+ 	mutex_lock(&hdev->lock);
+ 
+ 	ret = venus_power_off(hdev);
 -- 
 2.20.1
 
