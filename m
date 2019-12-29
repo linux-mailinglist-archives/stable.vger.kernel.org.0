@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8CE012C829
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67C9E12C82A
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732115AbfL2Rvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:51:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37102 "EHLO mail.kernel.org"
+        id S1732124AbfL2Rvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:51:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732111AbfL2Rvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:51:35 -0500
+        id S1731631AbfL2Rvh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:51:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AE1321744;
-        Sun, 29 Dec 2019 17:51:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D24B920718;
+        Sun, 29 Dec 2019 17:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641894;
-        bh=eCAlv30TFhjQdVxRoptfBqArYcooBSTsH5cy3YcU/18=;
+        s=default; t=1577641897;
+        bh=DqmDIhrrvqBc3ZWRbEYdReFmzm8pCUnfXzL/zJxHLFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HhiDcC37nYN79FlVeYYC6bTrMmn20bFrCYHHRAGVEFdpnGNdHlWBlG8mPmIjkPxOf
-         qq9letXu2kcWYePIHZFF7Pqov78Hyb/3GGgEePCV+g5LjXziZ5V00gH6CIMGnUXJoz
-         nHksrH5n1fPKc2SBg9mTk85Tgt9WziPFJUCEWrwU=
+        b=H+RIZ0xEGEsVJMcwqvZ2LAolXzk0RACer95QWnB09+FGxHv9jEuNvMIyeFCNwgqLm
+         I8iyyzx3Jz6YTggsjSWDi8TBTi1yU7XGifEAIaIWU6QAIJL7OC5DL6f/5Xj1zl6IH4
+         ccoGh0RVJdDWNmH/y8Zxw6qs7VuEPK+VeWu7haOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Pan Bian <bianpan2016@163.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 256/434] drm/amd/powerplay: fix struct init in renoir_print_clk_levels
-Date:   Sun, 29 Dec 2019 18:25:09 +0100
-Message-Id: <20191229172718.933456949@linuxfoundation.org>
+Subject: [PATCH 5.4 257/434] drm/amdgpu: fix potential double drop fence reference
+Date:   Sun, 29 Dec 2019 18:25:10 +0100
+Message-Id: <20191229172719.001746409@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,43 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raul E Rangel <rrangel@chromium.org>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit d942070575910fdb687b9c8fd5467704b2f77c24 ]
+[ Upstream commit 946ab8db6953535a3a88c957db8328beacdfed9d ]
 
-drivers/gpu/drm/amd/powerplay/renoir_ppt.c:186:2: error: missing braces
-around initializer [-Werror=missing-braces]
-  SmuMetrics_t metrics = {0};
-    ^
+The object fence is not set to NULL after its reference is dropped. As a
+result, its reference may be dropped again if error occurs after that,
+which may lead to a use after free bug. To avoid the issue, fence is
+explicitly set to NULL after dropping its reference.
 
-Fixes: 8b8031703bd7 ("drm/amd/powerplay: implement sysfs for getting dpm clock")
-
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/renoir_ppt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_test.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/renoir_ppt.c b/drivers/gpu/drm/amd/powerplay/renoir_ppt.c
-index e62bfba51562..e5283dafc414 100644
---- a/drivers/gpu/drm/amd/powerplay/renoir_ppt.c
-+++ b/drivers/gpu/drm/amd/powerplay/renoir_ppt.c
-@@ -183,11 +183,13 @@ static int renoir_print_clk_levels(struct smu_context *smu,
- 	int i, size = 0, ret = 0;
- 	uint32_t cur_value = 0, value = 0, count = 0, min = 0, max = 0;
- 	DpmClocks_t *clk_table = smu->smu_table.clocks_table;
--	SmuMetrics_t metrics = {0};
-+	SmuMetrics_t metrics;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_test.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_test.c
+index b66d29d5ffa2..b158230af8db 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_test.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_test.c
+@@ -138,6 +138,7 @@ static void amdgpu_do_test_moves(struct amdgpu_device *adev)
+ 		}
  
- 	if (!clk_table || clk_type >= SMU_CLK_COUNT)
- 		return -EINVAL;
+ 		dma_fence_put(fence);
++		fence = NULL;
  
-+	memset(&metrics, 0, sizeof(metrics));
-+
- 	ret = smu_update_table(smu, SMU_TABLE_SMU_METRICS, 0,
- 			       (void *)&metrics, false);
- 	if (ret)
+ 		r = amdgpu_bo_kmap(vram_obj, &vram_map);
+ 		if (r) {
+@@ -183,6 +184,7 @@ static void amdgpu_do_test_moves(struct amdgpu_device *adev)
+ 		}
+ 
+ 		dma_fence_put(fence);
++		fence = NULL;
+ 
+ 		r = amdgpu_bo_kmap(gtt_obj[i], &gtt_map);
+ 		if (r) {
 -- 
 2.20.1
 
