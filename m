@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C3912CA4C
+	by mail.lfdr.de (Postfix) with ESMTP id 2526B12CA4B
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:20:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727069AbfL2RVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:21:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S1727048AbfL2RVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:21:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727048AbfL2RVv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:21:51 -0500
+        id S1727101AbfL2RVx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:21:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3BE520722;
-        Sun, 29 Dec 2019 17:21:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AC78208E4;
+        Sun, 29 Dec 2019 17:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640110;
-        bh=fM8xVhPwvOcQN6pb87bbxd92F7fym5tpnsk0r0lFxW0=;
+        s=default; t=1577640112;
+        bh=nMaQmfACss/jy3HnBrRn9mpVLBHDdBvmtGOMhDk4xhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OU79URZWfOm2/qgCNp+6i1LVElEpc3oLWIvAWuslzovQhPdgC+P65w5hTYkdDD9Yk
-         jzIysAmON9eSl5TMl+A9dCPBr9VY37Bet8wz4HCCODHFaU1XFogs03UfKwhyZjGGuy
-         5jb5rHv5P0WWe0wV3P4FAGpbGoybkDpwxr8EP/Qs=
+        b=EjPtv2jle7XX82jTHdS14nBTb+XZueL5+AYTPz3sNSpxNyyWSoH9Ldx857ZAvAjID
+         Tkpe6W0k5XOIosPcXgDN1Pw+OsAocpdID5OAbQfI2pBSbmZMe/9jm++7hzitpeQ5SZ
+         8SWqJaYL62n3JBQq9TVl8CNP+OW6Bqix78+p82tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Wilczynski <kw@linux.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Lukasz Majewski <lukma@denx.de>,
+        Mark Brown <broonie@kernel.org>,
+        kbuild test robot <lkp@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/161] iio: light: bh1750: Resolve compiler warning and make code more readable
-Date:   Sun, 29 Dec 2019 18:17:50 +0100
-Message-Id: <20191229162404.703670560@linuxfoundation.org>
+Subject: [PATCH 4.14 023/161] spi: Add call to spi_slave_abort() function when spidev driver is released
+Date:   Sun, 29 Dec 2019 18:17:51 +0100
+Message-Id: <20191229162405.265879446@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -46,49 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczynski <kw@linux.com>
+From: Lukasz Majewski <lukma@denx.de>
 
-[ Upstream commit f552fde983d378e7339f9ea74a25f918563bf0d3 ]
+[ Upstream commit 9f918a728cf86b2757b6a7025e1f46824bfe3155 ]
 
-Separate the declaration of struct bh1750_chip_info from definition
-of bh1750_chip_info_tbl[] in a single statement as it makes the code
-hard to read, and with the extra newline it makes it look as if the
-bh1750_chip_info_tbl[] had no explicit type.
+This change is necessary for spidev devices (e.g. /dev/spidev3.0) working
+in the slave mode (like NXP's dspi driver for Vybrid SoC).
 
-This change also resolves the following compiler warning about the
-unusual position of the static keyword that can be seen when building
-with warnings enabled (W=1):
+When SPI HW works in this mode - the master is responsible for providing
+CS and CLK signals. However, when some fault happens - like for example
+distortion on SPI lines - the SPI Linux driver needs a chance to recover
+from this abnormal situation and prepare itself for next (correct)
+transmission.
 
-drivers/iio/light/bh1750.c:64:1: warning:
-  ‘static’ is not at beginning of declaration [-Wold-style-declaration]
+This change doesn't pose any threat on drivers working in master mode as
+spi_slave_abort() function checks if SPI slave mode is supported.
 
-Related to commit 3a11fbb037a1 ("iio: light: add support for ROHM
-BH1710/BH1715/BH1721/BH1750/BH1751 ambient light sensors").
-
-Signed-off-by: Krzysztof Wilczynski <kw@linux.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Lukasz Majewski <lukma@denx.de>
+Link: https://lore.kernel.org/r/20190924110547.14770-2-lukma@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20190925091143.15468-2-lukma@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/bh1750.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spidev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iio/light/bh1750.c b/drivers/iio/light/bh1750.c
-index 6c61187e630f..0b7ba02c8d16 100644
---- a/drivers/iio/light/bh1750.c
-+++ b/drivers/iio/light/bh1750.c
-@@ -62,9 +62,9 @@ struct bh1750_chip_info {
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index c5fe08bc34a0..028725573e63 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -634,6 +634,9 @@ static int spidev_release(struct inode *inode, struct file *filp)
+ 		if (dofree)
+ 			kfree(spidev);
+ 	}
++#ifdef CONFIG_SPI_SLAVE
++	spi_slave_abort(spidev->spi);
++#endif
+ 	mutex_unlock(&device_list_lock);
  
- 	u16 int_time_low_mask;
- 	u16 int_time_high_mask;
--}
-+};
- 
--static const bh1750_chip_info_tbl[] = {
-+static const struct bh1750_chip_info bh1750_chip_info_tbl[] = {
- 	[BH1710] = { 140, 1022, 300, 400,  250000000, 2, 0x001F, 0x03E0 },
- 	[BH1721] = { 140, 1020, 300, 400,  250000000, 2, 0x0010, 0x03E0 },
- 	[BH1750] = { 31,  254,  69,  1740, 57500000,  1, 0x001F, 0x00E0 },
+ 	return 0;
 -- 
 2.20.1
 
