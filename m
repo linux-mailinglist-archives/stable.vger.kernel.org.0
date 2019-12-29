@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD57C12C54B
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4E912C54D
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727646AbfL2RfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:35:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39434 "EHLO mail.kernel.org"
+        id S1729832AbfL2RfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:35:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729808AbfL2RfP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:35:15 -0500
+        id S1729362AbfL2RfR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:35:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FC0C206DB;
-        Sun, 29 Dec 2019 17:35:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7332207FF;
+        Sun, 29 Dec 2019 17:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640914;
-        bh=w2ErK50CqRFsYFArCbbtqfo0yUFwHzVL5IYv2eqk3qg=;
+        s=default; t=1577640917;
+        bh=nFsxqlSW5MdU86iOP42+FaKJBOzsfHU8mpAvyNypAEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgb/1GUGILRKof3aNQvz5whpUIm+Q7Zr05YU0hBeEYnewnveYHEeBuS1h9MnXpQ5J
-         tGu+piec7wgBxqkEPY30X51SwEVnKKV7NV2PAUQLVPOP3UmKFgBzxNGAOD0JxKZZ1q
-         PfQ/CTOua3O/Ybko/dAVIZPE5f0VTSurkQdQCCdE=
+        b=i8tmatJ2ULk4TpY7w12TeOL0OPljzGbhyhrdSxnaFhAfBSCD2aPSEJ3uMTbCQMe6j
+         BVoIay4iHghN0YCmzDi7bwuUiJkPSVqwA1CGazpzLwpuriyyaGI2yoneozkF+mPlbZ
+         BVQ/RxITy2o3c8CL0QG0Khz/Ov6b9NDDHNrXWWuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 191/219] mmc: mediatek: fix CMD_TA to 2 for MT8173 HS200/HS400 mode
-Date:   Sun, 29 Dec 2019 18:19:53 +0100
-Message-Id: <20191229162538.456000494@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Xiaolong Huang <butterflyhuangxx@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 192/219] can: kvaser_usb: kvaser_usb_leaf: Fix some info-leaks to USB devices
+Date:   Sun, 29 Dec 2019 18:19:54 +0100
+Message-Id: <20191229162538.700059491@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -44,43 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaotian Jing <chaotian.jing@mediatek.com>
+From: Xiaolong Huang <butterflyhuangxx@gmail.com>
 
-commit 8f34e5bd7024d1ffebddd82d7318b1be17be9e9a upstream.
+commit da2311a6385c3b499da2ed5d9be59ce331fa93e9 upstream.
 
-there is a chance that always get response CRC error after HS200 tuning,
-the reason is that need set CMD_TA to 2. this modification is only for
-MT8173.
+Uninitialized Kernel memory can leak to USB devices.
 
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Cc: stable@vger.kernel.org
-Fixes: 1ede5cb88a29 ("mmc: mediatek: Use data tune for CMD line tune")
-Link: https://lore.kernel.org/r/20191204071958.18553-1-chaotian.jing@mediatek.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fix this by using kzalloc() instead of kmalloc().
+
+Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
+Fixes: 7259124eac7d ("can: kvaser_usb: Split driver into kvaser_usb_core.c and kvaser_usb_leaf.c")
+Cc: linux-stable <stable@vger.kernel.org> # >= v4.19
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/mtk-sd.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -228,6 +228,7 @@
- #define MSDC_PATCH_BIT_SPCPUSH    (0x1 << 29)	/* RW */
- #define MSDC_PATCH_BIT_DECRCTMO   (0x1 << 30)	/* RW */
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -608,7 +608,7 @@ static int kvaser_usb_leaf_simple_cmd_as
+ 	struct kvaser_cmd *cmd;
+ 	int err;
  
-+#define MSDC_PATCH_BIT1_CMDTA     (0x7 << 3)    /* RW */
- #define MSDC_PATCH_BIT1_STOP_DLY  (0xf << 8)    /* RW */
+-	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
++	cmd = kzalloc(sizeof(*cmd), GFP_ATOMIC);
+ 	if (!cmd)
+ 		return -ENOMEM;
  
- #define MSDC_PATCH_BIT2_CFGRESP   (0x1 << 15)   /* RW */
-@@ -1673,6 +1674,7 @@ static int hs400_tune_response(struct mm
+@@ -1140,7 +1140,7 @@ static int kvaser_usb_leaf_set_opt_mode(
+ 	struct kvaser_cmd *cmd;
+ 	int rc;
  
- 	/* select EMMC50 PAD CMD tune */
- 	sdr_set_bits(host->base + PAD_CMD_TUNE, BIT(0));
-+	sdr_set_field(host->base + MSDC_PATCH_BIT1, MSDC_PATCH_BIT1_CMDTA, 2);
+-	cmd = kmalloc(sizeof(*cmd), GFP_KERNEL);
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
+ 	if (!cmd)
+ 		return -ENOMEM;
  
- 	if (mmc->ios.timing == MMC_TIMING_MMC_HS200 ||
- 	    mmc->ios.timing == MMC_TIMING_UHS_SDR104)
+@@ -1206,7 +1206,7 @@ static int kvaser_usb_leaf_flush_queue(s
+ 	struct kvaser_cmd *cmd;
+ 	int rc;
+ 
+-	cmd = kmalloc(sizeof(*cmd), GFP_KERNEL);
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
+ 	if (!cmd)
+ 		return -ENOMEM;
+ 
 
 
