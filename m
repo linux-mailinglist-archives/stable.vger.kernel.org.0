@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 884BB12C562
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0639D12C563
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729925AbfL2Rfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:35:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40448 "EHLO mail.kernel.org"
+        id S1729942AbfL2Rfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:35:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729942AbfL2Rfr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:35:47 -0500
+        id S1729949AbfL2Rft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:35:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FBBE206CB;
-        Sun, 29 Dec 2019 17:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70B0E20722;
+        Sun, 29 Dec 2019 17:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640946;
-        bh=11Rva7XpeI0MI+F1ZAnP6sBwik+mBxQW6wPYyPlKJGA=;
+        s=default; t=1577640948;
+        bh=GkB5R2UJ6ARn4a70f3TzS5/TimRwnPueAlRS5du8h58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLcxjRcGDuQv7nfUJaVxwydarG+mRNOfQsCiO9ncjU116PsZ/CaSJTbWU5TA5d7s+
-         3E/IDUzaLk5sVPn3fg3FMY1HH5F7c3DE/CFzz4+JFooEmw7zgVulT/RT3BN1XG2E8w
-         m9VN47+DF33oTHD0Mkh0zQvPioNAoUugw97kj8Bs=
+        b=zWWgaRtxa2FbRfNJ1NaqfBlo0jG/2Z82yd72XWIyP3nEX3Bm1dIw5A5hhyb9qokQx
+         oIvbmgFzsrk9eoI9KpUbqU6JMQUrIdrRA6Y7rvdl8kSXorsyTKOqb3KImlk2vqRsi9
+         YLTuZH0HUclqd2B3E2foaU4EzXOfwiFUgnGrvGz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.19 203/219] platform/x86: hp-wmi: Make buffer for HPWMI_FEATURE2_QUERY 128 bytes
-Date:   Sun, 29 Dec 2019 18:20:05 +0100
-Message-Id: <20191229162540.402985150@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.19 204/219] staging: comedi: gsc_hpdi: check dma_alloc_coherent() return value
+Date:   Sun, 29 Dec 2019 18:20:06 +0100
+Message-Id: <20191229162540.582899217@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -43,42 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 133b2acee3871ae6bf123b8fe34be14464aa3d2c upstream.
+commit ab42b48f32d4c766420c3499ee9c0289b7028182 upstream.
 
-At least on the HP Envy x360 15-cp0xxx model the WMI interface
-for HPWMI_FEATURE2_QUERY requires an outsize of at least 128 bytes,
-otherwise it fails with an error code 5 (HPWMI_RET_INVALID_PARAMETERS):
+The "auto-attach" handler function `gsc_hpdi_auto_attach()` calls
+`dma_alloc_coherent()` in a loop to allocate some DMA data buffers, and
+also calls it to allocate a buffer for a DMA descriptor chain.  However,
+it does not check the return value of any of these calls.  Change
+`gsc_hpdi_auto_attach()` to return `-ENOMEM` if any of these
+`dma_alloc_coherent()` calls fail.  This will result in the comedi core
+calling the "detach" handler `gsc_hpdi_detach()` as part of the
+clean-up, which will call `gsc_hpdi_free_dma()` to free any allocated
+DMA coherent memory buffers.
 
-Dec 06 00:59:38 kernel: hp_wmi: query 0xd returned error 0x5
-
-We do not care about the contents of the buffer, we just want to know
-if the HPWMI_FEATURE2_QUERY command is supported.
-
-This commits bumps the buffer size, fixing the error.
-
-Fixes: 8a1513b4932 ("hp-wmi: limit hotkey enable")
-Cc: stable@vger.kernel.org
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1520703
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: <stable@vger.kernel.org> #4.6+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20191216110823.216237-1-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/hp-wmi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/gsc_hpdi.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -313,7 +313,7 @@ static int __init hp_wmi_bios_2008_later
- 
- static int __init hp_wmi_bios_2009_later(void)
- {
--	int state = 0;
-+	u8 state[128];
- 	int ret = hp_wmi_perform_query(HPWMI_FEATURE2_QUERY, HPWMI_READ, &state,
- 				       sizeof(state), sizeof(state));
- 	if (!ret)
+--- a/drivers/staging/comedi/drivers/gsc_hpdi.c
++++ b/drivers/staging/comedi/drivers/gsc_hpdi.c
+@@ -623,6 +623,11 @@ static int gsc_hpdi_auto_attach(struct c
+ 		    dma_alloc_coherent(&pcidev->dev, DMA_BUFFER_SIZE,
+ 				       &devpriv->dio_buffer_phys_addr[i],
+ 				       GFP_KERNEL);
++		if (!devpriv->dio_buffer[i]) {
++			dev_warn(dev->class_dev,
++				 "failed to allocate DMA buffer\n");
++			return -ENOMEM;
++		}
+ 	}
+ 	/* allocate dma descriptors */
+ 	devpriv->dma_desc = dma_alloc_coherent(&pcidev->dev,
+@@ -630,6 +635,11 @@ static int gsc_hpdi_auto_attach(struct c
+ 					       NUM_DMA_DESCRIPTORS,
+ 					       &devpriv->dma_desc_phys_addr,
+ 					       GFP_KERNEL);
++	if (!devpriv->dma_desc) {
++		dev_warn(dev->class_dev,
++			 "failed to allocate DMA descriptors\n");
++		return -ENOMEM;
++	}
+ 	if (devpriv->dma_desc_phys_addr & 0xf) {
+ 		dev_warn(dev->class_dev,
+ 			 " dma descriptors not quad-word aligned (bug)\n");
 
 
