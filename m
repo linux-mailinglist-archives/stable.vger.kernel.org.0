@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA6C12C706
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D23912C70C
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731902AbfL2RxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:53:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
+        id S1732011AbfL2RxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:53:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732369AbfL2Rw4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:52:56 -0500
+        id S1732167AbfL2RxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:53:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDC3621744;
-        Sun, 29 Dec 2019 17:52:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E143206A4;
+        Sun, 29 Dec 2019 17:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641976;
-        bh=67hY1Lb7tlnDYo5FOvNFwjcR1GyfKn7pHF1V3ZmXvVo=;
+        s=default; t=1577642000;
+        bh=q6zEIwie9rdXxldDaGNMf4+uXkOVStGIjIVv2ZHoWX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKaA7blgxlRK5TP06Qfy08YCI58emnoTU2SNsKdaw/dGwA+7wDcn7WvzVB05jvnjV
-         U7KkwuAWnBC1BUBla2EakXoSgh5hBFc7sGeYkrQnIac9320thL0YtnOhWFK2zjKABt
-         fNzjujTuw8/mE+dEdPoMKuJ4bRarsB3zOI25T/NE=
+        b=1AcGmaR0jM3F3epTQkZW5eD5mIt2ofV6YSdNfOzPSnQQ4bJ6cCE+fuhnCltCzexM6
+         gyergfb+BoHJkEd7KfjQLnrIf071ZK2CquoWMoF/raN6/oEecmsqHUKnV+JRsQe6wj
+         N1LmsMwGjvlm6VsSXnlSWq/qh27P6700/ZC+0b1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 291/434] ASoC: Intel: kbl_rt5663_rt5514_max98927: Add dmic format constraint
-Date:   Sun, 29 Dec 2019 18:25:44 +0100
-Message-Id: <20191229172721.278424035@linuxfoundation.org>
+Subject: [PATCH 5.4 300/434] qtnfmac: fix debugfs support for multiple cards
+Date:   Sun, 29 Dec 2019 18:25:53 +0100
+Message-Id: <20191229172721.878757153@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,38 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
 
-[ Upstream commit e2db787bdcb4f2722ecf410168f0583764634e45 ]
+[ Upstream commit dd4c2260dab04f5ae7bdb79b9470e7da56f48145 ]
 
-On KBL platform, the microphone is attached to external codec(rt5514)
-instead of PCH. However, TDM slot between PCH and codec is 16 bits only.
-In order to avoid setting wrong format, we should add a constraint to
-force to use 16 bits format forever.
+Fix merge artifact for commit 0b68fe10b8e8 ("qtnfmac: modify debugfs
+to support multiple cards") and finally add debugfs support
+for multiple qtnfmac wireless cards.
 
-Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190923162940.199580-1-yuhsuan@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-index 74dda8784f1a..67b276a65a8d 100644
---- a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-+++ b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-@@ -400,6 +400,9 @@ static int kabylake_dmic_startup(struct snd_pcm_substream *substream)
- 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
- 			dmic_constraints);
+diff --git a/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c b/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c
+index 8ae318b5fe54..4824be0c6231 100644
+--- a/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c
++++ b/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c
+@@ -130,6 +130,8 @@ static int qtnf_dbg_shm_stats(struct seq_file *s, void *data)
  
-+	runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
-+	snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
-+
- 	return snd_pcm_hw_constraint_list(substream->runtime, 0,
- 			SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
- }
+ int qtnf_pcie_fw_boot_done(struct qtnf_bus *bus)
+ {
++	struct qtnf_pcie_bus_priv *priv = get_bus_priv(bus);
++	char card_id[64];
+ 	int ret;
+ 
+ 	bus->fw_state = QTNF_FW_STATE_BOOT_DONE;
+@@ -137,7 +139,9 @@ int qtnf_pcie_fw_boot_done(struct qtnf_bus *bus)
+ 	if (ret) {
+ 		pr_err("failed to attach core\n");
+ 	} else {
+-		qtnf_debugfs_init(bus, DRV_NAME);
++		snprintf(card_id, sizeof(card_id), "%s:%s",
++			 DRV_NAME, pci_name(priv->pdev));
++		qtnf_debugfs_init(bus, card_id);
+ 		qtnf_debugfs_add_entry(bus, "mps", qtnf_dbg_mps_show);
+ 		qtnf_debugfs_add_entry(bus, "msi_enabled", qtnf_dbg_msi_show);
+ 		qtnf_debugfs_add_entry(bus, "shm_stats", qtnf_dbg_shm_stats);
 -- 
 2.20.1
 
