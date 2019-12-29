@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B148412C6E2
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14B5512C6E7
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732090AbfL2Rva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:51:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36810 "EHLO mail.kernel.org"
+        id S1732111AbfL2Rvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:51:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731771AbfL2Rv2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:51:28 -0500
+        id S1732130AbfL2Rvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:51:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C21820718;
-        Sun, 29 Dec 2019 17:51:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 366A5207FF;
+        Sun, 29 Dec 2019 17:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641887;
-        bh=xlc7THDxqHOy7omFyY3ozdfR6uXdFyOw7hRsO3wCTyQ=;
+        s=default; t=1577641899;
+        bh=xfqAEOXP8WL0uY3FmB+kfUgO7QT/ivSS/iu6YVabdDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1tAF5pXJqwcjxBkfp6g0F4nneIQcSRUirygO0C+BqikVjkQytsOy61Mi8LRf1bxp7
-         Bd9KNRztvlOnHcabRnPzEVn0DctZmn6D5XPyp4rMRFgzn53bPferUhcRP3aWHn0ztu
-         rjdTpq+z/+9hBjh5UzZXETsDEosJzNRLK0HgYU00=
+        b=ijf7pV1kP/X9CAzU/655USn+K+VDzynTXzkOXDP1rn2kuPmJVrR1Od8fx/aFgG07G
+         yCriZ2OraYFcS/KAuzEVfyIqBtDcWEOTW+oGsnyZC5JhMTDSke3xPsB0IGxBgtr3ga
+         QEZgUkYA3zxPg1Vx1D/8bAUE3i1ikUFt5NPQ+TQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Michal Swiatkowski <michal.swiatkowski@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 253/434] perf tools: Fix cross compile for ARM64
-Date:   Sun, 29 Dec 2019 18:25:06 +0100
-Message-Id: <20191229172718.726560429@linuxfoundation.org>
+Subject: [PATCH 5.4 258/434] ice: Check for null pointer dereference when setting rings
+Date:   Sun, 29 Dec 2019 18:25:11 +0100
+Message-Id: <20191229172719.070656145@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -51,65 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Michal Swiatkowski <michal.swiatkowski@intel.com>
 
-[ Upstream commit 71f699078b154fcb1c9162fd0208ada9ce532ffc ]
+[ Upstream commit eb0ee8abfeb9ff4b98e8e40217b8667bfb08587a ]
 
-Currently when cross compiling perf tool for ARM64 on my x86 machine I
-get this error:
+Without this check rebuild vsi can lead to kernel panic.
 
-  arch/arm64/util/sym-handling.c:9:10: fatal error: gelf.h: No such file or directory
-   #include <gelf.h>
-
-For the build, libelf is reported off:
-
-  Auto-detecting system features:
-  ...
-  ...                        libelf: [ OFF ]
-
-Indeed, test-libelf is not built successfully:
-
-  more ./build/feature/test-libelf.make.output
-  test-libelf.c:2:10: fatal error: libelf.h: No such file or directory
-   #include <libelf.h>
-          ^~~~~~~~~~
-  compilation terminated.
-
-I have no such problems natively compiling on ARM64, and I did not
-previously have this issue for cross compiling. Fix by relocating the
-gelf.h include.
-
-Signed-off-by: John Garry <john.garry@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lore.kernel.org/lkml/1573045254-39833-1-git-send-email-john.garry@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Michal Swiatkowski <michal.swiatkowski@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/arm64/util/sym-handling.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/arch/arm64/util/sym-handling.c b/tools/perf/arch/arm64/util/sym-handling.c
-index 5df788985130..8dfa3e5229f1 100644
---- a/tools/perf/arch/arm64/util/sym-handling.c
-+++ b/tools/perf/arch/arm64/util/sym-handling.c
-@@ -6,9 +6,10 @@
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 214cd6eca405..2408f0de95fc 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -3970,8 +3970,13 @@ int ice_vsi_setup_tx_rings(struct ice_vsi *vsi)
+ 	}
  
- #include "symbol.h" // for the elf__needs_adjust_symbols() prototype
- #include <stdbool.h>
--#include <gelf.h>
- 
- #ifdef HAVE_LIBELF_SUPPORT
-+#include <gelf.h>
+ 	ice_for_each_txq(vsi, i) {
+-		vsi->tx_rings[i]->netdev = vsi->netdev;
+-		err = ice_setup_tx_ring(vsi->tx_rings[i]);
++		struct ice_ring *ring = vsi->tx_rings[i];
 +
- bool elf__needs_adjust_symbols(GElf_Ehdr ehdr)
- {
- 	return ehdr.e_type == ET_EXEC ||
++		if (!ring)
++			return -EINVAL;
++
++		ring->netdev = vsi->netdev;
++		err = ice_setup_tx_ring(ring);
+ 		if (err)
+ 			break;
+ 	}
+@@ -3996,8 +4001,13 @@ int ice_vsi_setup_rx_rings(struct ice_vsi *vsi)
+ 	}
+ 
+ 	ice_for_each_rxq(vsi, i) {
+-		vsi->rx_rings[i]->netdev = vsi->netdev;
+-		err = ice_setup_rx_ring(vsi->rx_rings[i]);
++		struct ice_ring *ring = vsi->rx_rings[i];
++
++		if (!ring)
++			return -EINVAL;
++
++		ring->netdev = vsi->netdev;
++		err = ice_setup_rx_ring(ring);
+ 		if (err)
+ 			break;
+ 	}
 -- 
 2.20.1
 
