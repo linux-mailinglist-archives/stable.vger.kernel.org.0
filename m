@@ -2,154 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C21212CB2E
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 23:38:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B36A12CB49
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 00:00:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726584AbfL2WiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 17:38:25 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:50761 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726490AbfL2WiZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 17:38:25 -0500
-Received: by mail-wm1-f65.google.com with SMTP id a5so12702990wmb.0
-        for <stable@vger.kernel.org>; Sun, 29 Dec 2019 14:38:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1QD3DP3vzNPfNcy148Xk2nziBNOpYNQGlmQ/0wHU2qs=;
-        b=0nB2Ieazrf7nMDqSZkRJ1Cia6zQkld3qXM3P/6ijJ3VavTccBncODRd6UdFHz2C2P4
-         nQLnqCBbXXy6xTK+wam3Dt3DqA2M3X87oW7u1JC9NgbUo2VuCW5Dext0C9OGR8HHqS0E
-         yUNVEdtC1UIQyPL2uy9TMdKqoqIMA7/IKZ6ZeqoGGeHsmINaxPv5t1qFB1tijjWNiGok
-         e6L58gTPD+0kvzUCFe/7r11fdtL03MYgv3O/OcseTARIBBX53LniUDIth9JyAb+zFQaj
-         hTVXOYKhtYmfVyWXZzIGKk/LG7RJDEKSFJIJrRxugnDywWupYBQs+bo1Mslf8g+H+u46
-         jQZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1QD3DP3vzNPfNcy148Xk2nziBNOpYNQGlmQ/0wHU2qs=;
-        b=uYLqLwmI/orLNsD3bjhILEWhsxelOqRu1JGI1K2YoRfKzZpfz6fE0Hh2g1mdFoEr+p
-         8q6p3GI+3t7ozI2GWZIX/daqsBbDwUjuwEQVDRHIcF1VmUQZdgu5NuezBwh0EVArkJLi
-         WSCv700nQr2N4+qGvsvBSNc7mmcqAdmukdlPdRSihZhIMan2xzCxR21qGaifrorQxF1f
-         5fNoG6X14qre2kVNEBBynCvaQVtlITd1phs0WOjVQEZGMJkjQKvA1kb6YOciPNrJI/2h
-         yKJC+75IiRaEejV81GpkXOUPwKQNA6MAXUc4GvidhouZU04Vs5K42uYsgQ1fzWZxULj/
-         IkTA==
-X-Gm-Message-State: APjAAAVcZImXsA1W5dLQtHSxo/U7kEpoelVliUZdkDFMwto8XmmYa9pb
-        eiAH2KmJ0b1uObvHXgTaEtLWkla9Y0upRA==
-X-Google-Smtp-Source: APXvYqwcOiqWWM/RMKp0+1MjOinLaFdok341SI9AooxPBopHJhH0tEuKIuhOmTiKjQhYzskKzDTh3g==
-X-Received: by 2002:a7b:cd11:: with SMTP id f17mr31634062wmj.48.1577659102908;
-        Sun, 29 Dec 2019 14:38:22 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id e18sm43662412wrw.70.2019.12.29.14.38.22
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Dec 2019 14:38:22 -0800 (PST)
-Message-ID: <5e092ade.1c69fb81.825df.a7f5@mx.google.com>
-Date:   Sun, 29 Dec 2019 14:38:22 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726359AbfL2XAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 18:00:18 -0500
+Received: from mx1.yrkesakademin.fi ([85.134.45.194]:25157 "EHLO
+        mx1.yrkesakademin.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726307AbfL2XAS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 18:00:18 -0500
+Subject: Re: [PATCH 5.4 245/434] perf probe: Fix to list probe event with
+ correct line number
+From:   Thomas Backlund <tmb@mageia.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+References: <20191229172702.393141737@linuxfoundation.org>
+ <20191229172718.158972713@linuxfoundation.org>
+ <689591f8-0798-af22-9a04-4a1e6e894a55@mageia.org>
+Message-ID: <f01f3d9a-8b09-7b49-2364-7308f3521d54@mageia.org>
+Date:   Mon, 30 Dec 2019 01:00:14 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.207-110-gaf5664cd41c2
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 95 boots: 0 failed,
- 82 passed with 12 offline, 1 untried/unknown (v4.9.207-110-gaf5664cd41c2)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <689591f8-0798-af22-9a04-4a1e6e894a55@mageia.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-WatchGuard-Spam-ID: str=0001.0A0C0201.5E093001.0029,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
+X-WatchGuard-Spam-Score: 0, clean; 0, virus threat unknown
+X-WatchGuard-Mail-Client-IP: 85.134.45.194
+X-WatchGuard-Mail-From: tmb@mageia.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 95 boots: 0 failed, 82 passed with 12 offline, =
-1 untried/unknown (v4.9.207-110-gaf5664cd41c2)
+Den 29-12-2019 kl. 20:42, skrev Thomas Backlund:
+> Den 29-12-2019 kl. 19:24, skrev Greg Kroah-Hartman:
+>> From: Masami Hiramatsu <mhiramat@kernel.org>
+>>
+>> [ Upstream commit 3895534dd78f0fd4d3f9e05ee52b9cdd444a743e ]
+>>
+>> Since debuginfo__find_probe_point() uses dwarf_entrypc() for finding the
+>> entry address of the function on which a probe is, it will fail when the
+>> function DIE has only ranges attribute.
+>>
+>> To fix this issue, use die_entrypc() instead of dwarf_entrypc().
+>>
+>> Without this fix, perf probe -l shows incorrect offset:
+>>
+>>    # perf probe -l
+>>      probe:clear_tasks_mm_cpumask (on 
+>> clear_tasks_mm_cpumask+18446744071579263632@work/linux/linux/kernel/cpu.c) 
+>>
+>>      probe:clear_tasks_mm_cpumask_1 (on 
+>> clear_tasks_mm_cpumask+18446744071579263752@work/linux/linux/kernel/cpu.c) 
+>>
+>>
+>> With this:
+>>
+>>    # perf probe -l
+>>      probe:clear_tasks_mm_cpumask (on 
+>> clear_tasks_mm_cpumask@work/linux/linux/kernel/cpu.c)
+>>      probe:clear_tasks_mm_cpumask_1 (on 
+>> clear_tasks_mm_cpumask:21@work/linux/linux/kernel/cpu.c)
+>>
+>> Committer testing:
+>>
+>> Before:
+>>
+>>    [root@quaco ~]# perf probe -l
+>>      probe:clear_tasks_mm_cpumask (on 
+>> clear_tasks_mm_cpumask+18446744071579765152@kernel/cpu.c)
+>>    [root@quaco ~]#
+>>
+>> After:
+>>
+>>    [root@quaco ~]# perf probe -l
+>>      probe:clear_tasks_mm_cpumask (on 
+>> clear_tasks_mm_cpumask@kernel/cpu.c)
+>>    [root@quaco ~]#
+>>
+>> Fixes: 1d46ea2a6a40 ("perf probe: Fix listing incorrect line number 
+>> with inline function")
+>> Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+>> Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+>> Cc: Jiri Olsa <jolsa@redhat.com>
+>> Cc: Namhyung Kim <namhyung@kernel.org>
+>> Link: 
+>> http://lore.kernel.org/lkml/157199321227.8075.14655572419136993015.stgit@devnote2 
+>>
+>> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>   tools/perf/util/probe-finder.c | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/tools/perf/util/probe-finder.c 
+>> b/tools/perf/util/probe-finder.c
+>> index cd9f95e5044e..7c8d30fb2b99 100644
+>> --- a/tools/perf/util/probe-finder.c
+>> +++ b/tools/perf/util/probe-finder.c
+>> @@ -1578,7 +1578,7 @@ int debuginfo__find_probe_point(struct debuginfo 
+>> *dbg, unsigned long addr,
+>>           /* Get function entry information */
+>>           func = basefunc = dwarf_diename(&spdie);
+>>           if (!func ||
+>> -            dwarf_entrypc(&spdie, &baseaddr) != 0 ||
+>> +            die_entrypc(&spdie, &baseaddr) != 0 ||
+>>               dwarf_decl_line(&spdie, &baseline) != 0) {
+>>               lineno = 0;
+>>               goto post;
+>> @@ -1595,7 +1595,7 @@ int debuginfo__find_probe_point(struct debuginfo 
+>> *dbg, unsigned long addr,
+>>           while (die_find_top_inlinefunc(&spdie, (Dwarf_Addr)addr,
+>>                           &indie)) {
+>>               /* There is an inline function */
+>> -            if (dwarf_entrypc(&indie, &_addr) == 0 &&
+>> +            if (die_entrypc(&indie, &_addr) == 0 &&
+>>                   _addr == addr) {
+>>                   /*
+>>                    * addr is at an inline function entry.
+>>
+> 
+> 
+> still broken
+> 
+> /usr/bin/ld: perf-in.o: in function `debuginfo__find_probe_point':
+> /work/rpmbuild/BUILD/kernel-x86_64/linux-5.4/tools/perf/util/probe-finder.c:1616: 
+> undefined reference to `die_entrypc'
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.207-110-gaf5664cd41c2/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.207-110-gaf5664cd41c2/
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.207-110-gaf5664cd41c2
-Git Commit: af5664cd41c220ec7cbfb604852207264fabe7b0
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 52 unique boards, 18 SoC families, 16 builds out of 197
+And the fix for the perf build errors I reported against:
+[PATCH 5.4 245/434] perf probe: Fix to list probe event with correct 
+line number
+[PATCH 5.4 248/434] perf probe: Fix to probe an inline function which 
+has no entry pc
+[PATCH 5.4 249/434] perf probe: Fix to show ranges of variables in 
+functions without entry_pc
+[PATCH 5.4 250/434] perf probe: Fix to show inlined function callsite 
+without entry_pc
+[PATCH 5.4 252/434] perf probe: Fix to probe a function which has no 
+entry pc
 
-Boot Regressions Detected:
+is to add the missing:
 
-arm:
+ From 91e2f539eeda26ab00bd03fae8dc434c128c85ed Mon Sep 17 00:00:00 2001
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Date: Thu, 24 Oct 2019 18:12:54 +0900
+Subject: [PATCH] perf probe: Fix to show function entry line as probe-able
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.20=
-7 - first fail: v4.9.207-106-g8425bd2da54f)
 
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.20=
-7 - first fail: v4.9.207-106-g8425bd2da54f)
-          dm365evm,legacy:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.20=
-7 - first fail: v4.9.207-106-g8425bd2da54f)
-
-    socfpga_defconfig:
-        gcc-8:
-          socfpga_cyclone5_de0_sockit:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.20=
-7 - first fail: v4.9.207-106-g8425bd2da54f)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          juno-r2:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.20=
-7 - first fail: v4.9.207-106-g8425bd2da54f)
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            juno-r2: 1 offline lab
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    socfpga_defconfig:
-        gcc-8
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+--
+Thomas
