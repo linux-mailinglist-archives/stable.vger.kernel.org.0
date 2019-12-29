@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEB8312C719
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2600512C71E
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732574AbfL2Rx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:53:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41300 "EHLO mail.kernel.org"
+        id S1732630AbfL2RyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:54:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732572AbfL2Rx4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:53:56 -0500
+        id S1732341AbfL2RyJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:54:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA097206DB;
-        Sun, 29 Dec 2019 17:53:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF50620748;
+        Sun, 29 Dec 2019 17:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642036;
-        bh=oYXQTWvyH4yBWYkoSSVx9Y69YbQsbQ3yP4IUKIK1D8w=;
+        s=default; t=1577642048;
+        bh=ORuNHnW3waNJHxDmzq4XMnJTKKmM4RrZ6wFgyOYqLc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYZ06k4Ho+P0mAo7CPXNHu3annACHMHB029TIGJG9uezmAO6sainkHjRpBW28upGa
-         X9/w2q0Ul8fDM+C9Hrttu87Gb03ICIaSisM2nO/mfP6njjzZVs5sOWDkU4CY+LAJi4
-         nf3g2v8NkF8RkhaxNwuv0NdNLM8Mdfc1PfXfSfmo=
+        b=smDe+79TW0/lwkdcBzOwx9CRFG9N4QwlUHJgzUyshhRX1oBnEQziS38rp9Uybv/ig
+         PKsPC374qNdMAKqIt3ax5tMM1P3ht5+gopwvz5eAR7yDla45S7VTyIHCj4QPKsMmeo
+         HV73rY5jMcW0Nv1+U0Namt4mqLjynBLx2sZF7jDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Omar Sandoval <osandov@fb.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 314/434] xhci-pci: Allow host runtime PM as default also for Intel Ice Lake xHCI
-Date:   Sun, 29 Dec 2019 18:26:07 +0100
-Message-Id: <20191229172722.812454048@linuxfoundation.org>
+Subject: [PATCH 5.4 318/434] btrfs: dont prematurely free work in run_ordered_work()
+Date:   Sun, 29 Dec 2019 18:26:11 +0100
+Message-Id: <20191229172723.079807244@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,50 +46,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Omar Sandoval <osandov@fb.com>
 
-[ Upstream commit 07a594f353655b1628f598add352e7e754f44869 ]
+[ Upstream commit c495dcd6fbe1dce51811a76bb85b4675f6494938 ]
 
-Intel Ice Lake has two xHCI controllers one on PCH and the other as part
-of the CPU itself. The latter is also part of the so called Type C
-Subsystem (TCSS) sharing ACPI power resources with the PCIe root ports
-and the Thunderbolt controllers. In order to put the whole TCSS block
-into D3cold the xHCI needs to be runtime suspended as well when idle.
+We hit the following very strange deadlock on a system with Btrfs on a
+loop device backed by another Btrfs filesystem:
 
-For this reason allow runtime PM as default for Ice Lake TCSS xHCI
-controller.
+1. The top (loop device) filesystem queues an async_cow work item from
+   cow_file_range_async(). We'll call this work X.
+2. Worker thread A starts work X (normal_work_helper()).
+3. Worker thread A executes the ordered work for the top filesystem
+   (run_ordered_work()).
+4. Worker thread A finishes the ordered work for work X and frees X
+   (work->ordered_free()).
+5. Worker thread A executes another ordered work and gets blocked on I/O
+   to the bottom filesystem (still in run_ordered_work()).
+6. Meanwhile, the bottom filesystem allocates and queues an async_cow
+   work item which happens to be the recently-freed X.
+7. The workqueue code sees that X is already being executed by worker
+   thread A, so it schedules X to be executed _after_ worker thread A
+   finishes (see the find_worker_executing_work() call in
+   process_one_work()).
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1573836603-10871-5-git-send-email-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Now, the top filesystem is waiting for I/O on the bottom filesystem, but
+the bottom filesystem is waiting for the top filesystem to finish, so we
+deadlock.
+
+This happens because we are breaking the workqueue assumption that a
+work item cannot be recycled while it still depends on other work. Fix
+it by waiting to free the work item until we are done with all of the
+related ordered work.
+
+P.S.:
+
+One might ask why the workqueue code doesn't try to detect a recycled
+work item. It actually does try by checking whether the work item has
+the same work function (find_worker_executing_work()), but in our case
+the function is the same. This is the only key that the workqueue code
+has available to compare, short of adding an additional, layer-violating
+"custom key". Considering that we're the only ones that have ever hit
+this, we should just play by the rules.
+
+Unfortunately, we haven't been able to create a minimal reproducer other
+than our full container setup using a compress-force=zstd filesystem on
+top of another compress-force=zstd filesystem.
+
+Suggested-by: Tejun Heo <tj@kernel.org>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/async-thread.c | 56 ++++++++++++++++++++++++++++++++---------
+ 1 file changed, 44 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index 1904ef56f61c..2907fe4d78dd 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -48,6 +48,7 @@
- #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI		0x15e9
- #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_4C_XHCI		0x15ec
- #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI		0x15f0
-+#define PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI		0x8a13
+diff --git a/fs/btrfs/async-thread.c b/fs/btrfs/async-thread.c
+index 2e9e13ffbd08..10a04b99798a 100644
+--- a/fs/btrfs/async-thread.c
++++ b/fs/btrfs/async-thread.c
+@@ -252,16 +252,17 @@ out:
+ 	}
+ }
  
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
-@@ -212,7 +213,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_4C_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI))
-+	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI))
- 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+-static void run_ordered_work(struct __btrfs_workqueue *wq)
++static void run_ordered_work(struct __btrfs_workqueue *wq,
++			     struct btrfs_work *self)
+ {
+ 	struct list_head *list = &wq->ordered_list;
+ 	struct btrfs_work *work;
+ 	spinlock_t *lock = &wq->list_lock;
+ 	unsigned long flags;
++	void *wtag;
++	bool free_self = false;
  
- 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
+ 	while (1) {
+-		void *wtag;
+-
+ 		spin_lock_irqsave(lock, flags);
+ 		if (list_empty(list))
+ 			break;
+@@ -287,16 +288,47 @@ static void run_ordered_work(struct __btrfs_workqueue *wq)
+ 		list_del(&work->ordered_list);
+ 		spin_unlock_irqrestore(lock, flags);
+ 
+-		/*
+-		 * We don't want to call the ordered free functions with the
+-		 * lock held though. Save the work as tag for the trace event,
+-		 * because the callback could free the structure.
+-		 */
+-		wtag = work;
+-		work->ordered_free(work);
+-		trace_btrfs_all_work_done(wq->fs_info, wtag);
++		if (work == self) {
++			/*
++			 * This is the work item that the worker is currently
++			 * executing.
++			 *
++			 * The kernel workqueue code guarantees non-reentrancy
++			 * of work items. I.e., if a work item with the same
++			 * address and work function is queued twice, the second
++			 * execution is blocked until the first one finishes. A
++			 * work item may be freed and recycled with the same
++			 * work function; the workqueue code assumes that the
++			 * original work item cannot depend on the recycled work
++			 * item in that case (see find_worker_executing_work()).
++			 *
++			 * Note that the work of one Btrfs filesystem may depend
++			 * on the work of another Btrfs filesystem via, e.g., a
++			 * loop device. Therefore, we must not allow the current
++			 * work item to be recycled until we are really done,
++			 * otherwise we break the above assumption and can
++			 * deadlock.
++			 */
++			free_self = true;
++		} else {
++			/*
++			 * We don't want to call the ordered free functions with
++			 * the lock held though. Save the work as tag for the
++			 * trace event, because the callback could free the
++			 * structure.
++			 */
++			wtag = work;
++			work->ordered_free(work);
++			trace_btrfs_all_work_done(wq->fs_info, wtag);
++		}
+ 	}
+ 	spin_unlock_irqrestore(lock, flags);
++
++	if (free_self) {
++		wtag = self;
++		self->ordered_free(self);
++		trace_btrfs_all_work_done(wq->fs_info, wtag);
++	}
+ }
+ 
+ static void normal_work_helper(struct btrfs_work *work)
+@@ -324,7 +356,7 @@ static void normal_work_helper(struct btrfs_work *work)
+ 	work->func(work);
+ 	if (need_order) {
+ 		set_bit(WORK_DONE_BIT, &work->flags);
+-		run_ordered_work(wq);
++		run_ordered_work(wq, work);
+ 	}
+ 	if (!need_order)
+ 		trace_btrfs_all_work_done(wq->fs_info, wtag);
 -- 
 2.20.1
 
