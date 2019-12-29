@@ -2,40 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1C312C530
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C1A12C531
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729680AbfL2Ref (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:34:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37892 "EHLO mail.kernel.org"
+        id S1729674AbfL2Rej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:34:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729674AbfL2Ree (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:34:34 -0500
+        id S1729681AbfL2Reg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:34:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41263207FF;
-        Sun, 29 Dec 2019 17:34:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 822F5206CB;
+        Sun, 29 Dec 2019 17:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640873;
-        bh=TIF/9YV50EYEwGz2BonF9AsnNyGlH2YFHzvddhM6kbY=;
+        s=default; t=1577640875;
+        bh=Fbu8SHokZjIsjFXUXyXdsJlb652+II5JYYPjk7N0wb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpfx8eQvvtXnYnK0vdg+ybvCd+QMvEZAb2U/DdkPYdgz6sG0ssOM+tEauqQFNx+8J
-         mdUUPg7/7eitTDcW3uNa+YiE7FRQpF9C8BOrdcw6lB9x46PpV7/fXkYFbckYfRpQJ+
-         cWPfneCQwo9bqFuEurviaQiyC6pGkHux9V6FhCI4=
+        b=qjA8Oa3nGyDaO0PmOt6mBM6Wn7cRIo1Q4eCmrKa072NwTYABU6Q0YzLAUKINV5Q4l
+         RvHBIrMYoMyvQnBFZ4gngJ6LSVyfPCYPBOo8F4RI0p8WzlKJGkzuJCdDuqqw1m07qF
+         PnbBcVaELJWZTFD1oYLkFbb5V7zVD0XT0Ezb3YVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        John Garry <john.garry@huawei.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        clang-built-linux@googlegroups.com, netdev@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 135/219] xen/gntdev: Use select for DMA_SHARED_BUFFER
-Date:   Sun, 29 Dec 2019 18:18:57 +0100
-Message-Id: <20191229162529.059565954@linuxfoundation.org>
+Subject: [PATCH 4.19 136/219] perf parse: If pmu configuration fails free terms
+Date:   Sun, 29 Dec 2019 18:18:58 +0100
+Message-Id: <20191229162529.130389505@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -48,46 +61,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit fa6614d8ef13c63aac52ad7c07c5e69ce4aba3dd ]
+[ Upstream commit 38f2c4226e6bc3e8c41c318242821ba5dc825aba ]
 
-DMA_SHARED_BUFFER can not be enabled by the user (it represents a library
-set in the kernel). The kconfig convention is to use select for such
-symbols so they are turned on implicitly when the user enables a kconfig
-that needs them.
+Avoid a memory leak when the configuration fails.
 
-Otherwise the XEN_GNTDEV_DMABUF kconfig is overly difficult to enable.
-
-Fixes: 932d6562179e ("xen/gntdev: Add initial support for dma-buf UAPI")
-Cc: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: xen-devel@lists.xenproject.org
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: clang-built-linux@googlegroups.com
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20191030223448.12930-9-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/perf/util/parse-events.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
-index 90d387b50ab7..0505eeb593b5 100644
---- a/drivers/xen/Kconfig
-+++ b/drivers/xen/Kconfig
-@@ -158,7 +158,8 @@ config XEN_GNTDEV
+diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
+index 7ea1a230e89d..95043cae5774 100644
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -1282,8 +1282,15 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
+ 	if (get_config_terms(head_config, &config_terms))
+ 		return -ENOMEM;
  
- config XEN_GNTDEV_DMABUF
- 	bool "Add support for dma-buf grant access device driver extension"
--	depends on XEN_GNTDEV && XEN_GRANT_DMA_ALLOC && DMA_SHARED_BUFFER
-+	depends on XEN_GNTDEV && XEN_GRANT_DMA_ALLOC
-+	select DMA_SHARED_BUFFER
- 	help
- 	  Allows userspace processes and kernel modules to use Xen backed
- 	  dma-buf implementation. With this extension grant references to
+-	if (perf_pmu__config(pmu, &attr, head_config, parse_state->error))
++	if (perf_pmu__config(pmu, &attr, head_config, parse_state->error)) {
++		struct perf_evsel_config_term *pos, *tmp;
++
++		list_for_each_entry_safe(pos, tmp, &config_terms, list) {
++			list_del_init(&pos->list);
++			free(pos);
++		}
+ 		return -EINVAL;
++	}
+ 
+ 	evsel = __add_event(list, &parse_state->idx, &attr,
+ 			    get_config_name(head_config), pmu,
 -- 
 2.20.1
 
