@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15BCF12C880
+	by mail.lfdr.de (Postfix) with ESMTP id 8953E12C881
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732924AbfL2Rzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:55:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44372 "EHLO mail.kernel.org"
+        id S1732637AbfL2Rzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:55:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732940AbfL2Rzf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:55:35 -0500
+        id S1732948AbfL2Rzh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:55:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1463421744;
-        Sun, 29 Dec 2019 17:55:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72FEA222C3;
+        Sun, 29 Dec 2019 17:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642134;
-        bh=S8SlpLr8wUiokgeBTGg+8fyV1PcseT48fnzXqTlIk3A=;
+        s=default; t=1577642136;
+        bh=oxyRD9qgZnYVLj6ygz7d18ZCJ4L6stRCzg9ScMZ5rSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iD7V4SA/0Q0B7Hw5P3V5z68bNO5RigzwQmPynybyCpmUSOy2xFsqY7EEh4tzjYHrz
-         ZBDgs6QYNiUCIvOJz4s0T2zaNcEIsYakQ826ixao7Bhi6RnsHUrCTEoyAHI5Wl4AM0
-         A71jmBYDnhqADpOqVKdYNeYt1WvWkj/vhswNvHds=
+        b=be0/wnbAQznyquE/A5Qak1CO72cIMI6YVg4DabJXWzRUv6NRh2BZQ65n50hc0MaIB
+         Zw1Y8did/Elj1szrqr+sPaqGohGdEObN9qdCrgKB/w9usmzmXSUQ2haX7EKLVe06eR
+         MFwLQ4oY10mbydI1gI6dz4nv3aqFLyc3lpolhJAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Devesh Sharma <devesh.sharma@broadcom.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 355/434] RDMA/bnxt_re: Fix stat push into dma buffer on gen p5 devices
-Date:   Sun, 29 Dec 2019 18:26:48 +0100
-Message-Id: <20191229172725.550694083@linuxfoundation.org>
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 356/434] bpf: Provide better register bounds after jmp32 instructions
+Date:   Sun, 29 Dec 2019 18:26:49 +0100
+Message-Id: <20191229172725.617663779@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,38 +43,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Devesh Sharma <devesh.sharma@broadcom.com>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 98998ffe5216c7fa2c0225bb5b049ca5cdf8d195 ]
+[ Upstream commit 581738a681b6faae5725c2555439189ca81c0f1f ]
 
-Due to recent advances in the firmware for Broadcom's gen p5 series of
-adaptors the driver code to report hardware counters has been broken
-w.r.t. roce devices.
+With latest llvm (trunk https://github.com/llvm/llvm-project),
+test_progs, which has +alu32 enabled, failed for strobemeta.o.
+The verifier output looks like below with edit to replace large
+decimal numbers with hex ones.
+ 193: (85) call bpf_probe_read_user_str#114
+   R0=inv(id=0)
+ 194: (26) if w0 > 0x1 goto pc+4
+   R0_w=inv(id=0,umax_value=0xffffffff00000001)
+ 195: (6b) *(u16 *)(r7 +80) = r0
+ 196: (bc) w6 = w0
+   R6_w=inv(id=0,umax_value=0xffffffff,var_off=(0x0; 0xffffffff))
+ 197: (67) r6 <<= 32
+   R6_w=inv(id=0,smax_value=0x7fffffff00000000,umax_value=0xffffffff00000000,
+            var_off=(0x0; 0xffffffff00000000))
+ 198: (77) r6 >>= 32
+   R6=inv(id=0,umax_value=0xffffffff,var_off=(0x0; 0xffffffff))
+ ...
+ 201: (79) r8 = *(u64 *)(r10 -416)
+   R8_w=map_value(id=0,off=40,ks=4,vs=13872,imm=0)
+ 202: (0f) r8 += r6
+   R8_w=map_value(id=0,off=40,ks=4,vs=13872,umax_value=0xffffffff,var_off=(0x0; 0xffffffff))
+ 203: (07) r8 += 9696
+   R8_w=map_value(id=0,off=9736,ks=4,vs=13872,umax_value=0xffffffff,var_off=(0x0; 0xffffffff))
+ ...
+ 255: (bf) r1 = r8
+   R1_w=map_value(id=0,off=9736,ks=4,vs=13872,umax_value=0xffffffff,var_off=(0x0; 0xffffffff))
+ ...
+ 257: (85) call bpf_probe_read_user_str#114
+ R1 unbounded memory access, make sure to bounds check any array access into a map
 
-The new firmware command expects dma length to be specified during stat
-dma buffer allocation.
+The value range for register r6 at insn 198 should be really just 0/1.
+The umax_value=0xffffffff caused later verification failure.
 
-Fixes: 2792b5b95ed5 ("bnxt_en: Update firmware interface spec. to 1.10.0.89.")
-Link: https://lore.kernel.org/r/1574317343-23300-3-git-send-email-devesh.sharma@broadcom.com
-Signed-off-by: Devesh Sharma <devesh.sharma@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+After jmp instructions, the current verifier already tried to use just
+obtained information to get better register range. The current mechanism is
+for 64bit register only. This patch implemented to tighten the range
+for 32bit sub-registers after jmp32 instructions.
+With the patch, we have the below range ranges for the
+above code sequence:
+ 193: (85) call bpf_probe_read_user_str#114
+   R0=inv(id=0)
+ 194: (26) if w0 > 0x1 goto pc+4
+   R0_w=inv(id=0,smax_value=0x7fffffff00000001,umax_value=0xffffffff00000001,
+            var_off=(0x0; 0xffffffff00000001))
+ 195: (6b) *(u16 *)(r7 +80) = r0
+ 196: (bc) w6 = w0
+   R6_w=inv(id=0,umax_value=0xffffffff,var_off=(0x0; 0x1))
+ 197: (67) r6 <<= 32
+   R6_w=inv(id=0,umax_value=0x100000000,var_off=(0x0; 0x100000000))
+ 198: (77) r6 >>= 32
+   R6=inv(id=0,umax_value=1,var_off=(0x0; 0x1))
+ ...
+ 201: (79) r8 = *(u64 *)(r10 -416)
+   R8_w=map_value(id=0,off=40,ks=4,vs=13872,imm=0)
+ 202: (0f) r8 += r6
+   R8_w=map_value(id=0,off=40,ks=4,vs=13872,umax_value=1,var_off=(0x0; 0x1))
+ 203: (07) r8 += 9696
+   R8_w=map_value(id=0,off=9736,ks=4,vs=13872,umax_value=1,var_off=(0x0; 0x1))
+ ...
+ 255: (bf) r1 = r8
+   R1_w=map_value(id=0,off=9736,ks=4,vs=13872,umax_value=1,var_off=(0x0; 0x1))
+ ...
+ 257: (85) call bpf_probe_read_user_str#114
+ ...
+
+At insn 194, the register R0 has better var_off.mask and smax_value.
+Especially, the var_off.mask ensures later lshift and rshift
+maintains proper value range.
+
+Suggested-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20191121170650.449030-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/bpf/verifier.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
-index b31e21588200..27e2df44d043 100644
---- a/drivers/infiniband/hw/bnxt_re/main.c
-+++ b/drivers/infiniband/hw/bnxt_re/main.c
-@@ -477,6 +477,7 @@ static int bnxt_re_net_stats_ctx_alloc(struct bnxt_re_dev *rdev,
- 	bnxt_re_init_hwrm_hdr(rdev, (void *)&req, HWRM_STAT_CTX_ALLOC, -1, -1);
- 	req.update_period_ms = cpu_to_le32(1000);
- 	req.stats_dma_addr = cpu_to_le64(dma_map);
-+	req.stats_dma_length = cpu_to_le16(sizeof(struct ctx_hw_stats_ext));
- 	req.stat_ctx_flags = STAT_CTX_ALLOC_REQ_STAT_CTX_FLAGS_ROCE;
- 	bnxt_re_fill_fw_msg(&fw_msg, (void *)&req, sizeof(req), (void *)&resp,
- 			    sizeof(resp), DFLT_HWRM_CMD_TIMEOUT);
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index ffc3e53f5300..9e7cee5307e0 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -978,6 +978,17 @@ static void __reg_bound_offset(struct bpf_reg_state *reg)
+ 						 reg->umax_value));
+ }
+ 
++static void __reg_bound_offset32(struct bpf_reg_state *reg)
++{
++	u64 mask = 0xffffFFFF;
++	struct tnum range = tnum_range(reg->umin_value & mask,
++				       reg->umax_value & mask);
++	struct tnum lo32 = tnum_cast(reg->var_off, 4);
++	struct tnum hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
++
++	reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
++}
++
+ /* Reset the min/max bounds of a register */
+ static void __mark_reg_unbounded(struct bpf_reg_state *reg)
+ {
+@@ -5433,6 +5444,10 @@ static void reg_set_min_max(struct bpf_reg_state *true_reg,
+ 	/* We might have learned some bits from the bounds. */
+ 	__reg_bound_offset(false_reg);
+ 	__reg_bound_offset(true_reg);
++	if (is_jmp32) {
++		__reg_bound_offset32(false_reg);
++		__reg_bound_offset32(true_reg);
++	}
+ 	/* Intersecting with the old var_off might have improved our bounds
+ 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+ 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
+@@ -5542,6 +5557,10 @@ static void reg_set_min_max_inv(struct bpf_reg_state *true_reg,
+ 	/* We might have learned some bits from the bounds. */
+ 	__reg_bound_offset(false_reg);
+ 	__reg_bound_offset(true_reg);
++	if (is_jmp32) {
++		__reg_bound_offset32(false_reg);
++		__reg_bound_offset32(true_reg);
++	}
+ 	/* Intersecting with the old var_off might have improved our bounds
+ 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+ 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
 -- 
 2.20.1
 
