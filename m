@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A6A12C4F9
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:40:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 687C712C4AF
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:34:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728861AbfL2Rbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:31:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59414 "EHLO mail.kernel.org"
+        id S1728047AbfL2Rbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:31:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729207AbfL2Rbo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:31:44 -0500
+        id S1729231AbfL2Rbt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:31:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7784208E4;
-        Sun, 29 Dec 2019 17:31:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A66920722;
+        Sun, 29 Dec 2019 17:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640704;
-        bh=KlQYiksmKM5kFTzFIj/mG8dWpKkR4NxVlxj5Oju68XM=;
+        s=default; t=1577640709;
+        bh=Zdm2lWzGzdb9q+A3Dpzyyy8VkTXq2OqbnjRt4PXS9UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1QvF3jNlKyV2iUSgkh1W9+Bf2FeIabX8wGqy+UgZYiWVm7U0Zv5BxZJrNsdmhxf/l
-         U7MhJwoI77yms12uvOQBMhiE97HvYek91w8Xz2aFtr7aWC4bOvkQfW8wC98r3JCLCn
-         cRRcK4YU3onGl90G9f76ChCAecDrOk2JE/qshPXs=
+        b=RVSWndvz0fwzGDrT++2AVBJC5WHRrd2aee2Y8nT/2QDOHQwXB/yQ4Rtqr+SgNxvZ3
+         F0dA+ftVY73Af5hmZegSahYQvM5kv1tIB4hgFeGz/KUmWGBCHGHRglKFR9OaIYb5lZ
+         Tc5S4MmH9D6vCEqQLO1DTKF3+VPkKdE3bg9DGP1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 105/219] s390/mm: add mm_pxd_folded() checks to pxd_free()
-Date:   Sun, 29 Dec 2019 18:18:27 +0100
-Message-Id: <20191229162524.536681246@linuxfoundation.org>
+Subject: [PATCH 4.19 106/219] net: hns3: add struct netdev_queue debug info for TX timeout
+Date:   Sun, 29 Dec 2019 18:18:28 +0100
+Message-Id: <20191229162524.709507582@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -45,70 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Yunsheng Lin <linyunsheng@huawei.com>
 
-[ Upstream commit 2416cefc504ba8ae9b17e3e6b40afc72708f96be ]
+[ Upstream commit 647522a5ef6401dcdb8ec417421e43fb21910167 ]
 
-Unlike pxd_free_tlb(), the pxd_free() functions do not check for folded
-page tables. This is not an issue so far, as those functions will actually
-never be called, since no code will reach them when page tables are folded.
+When there is a TX timeout, we can tell if the driver or stack
+has stopped the queue by looking at state field, and when has
+the last packet transmited by looking at trans_start field.
 
-In order to avoid future issues, and to make the s390 code more similar to
-other architectures, add mm_pxd_folded() checks, similar to how it is done
-in pxd_free_tlb().
+So this patch prints these two field in the
+hns3_get_tx_timeo_queue_info().
 
-This was found by testing a patch from from Anshuman Khandual, which is
-currently discussed on LKML ("mm/debug: Add tests validating architecture
-page table helpers").
-
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/pgalloc.h | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
-index 5ee733720a57..67838df3f3f9 100644
---- a/arch/s390/include/asm/pgalloc.h
-+++ b/arch/s390/include/asm/pgalloc.h
-@@ -56,7 +56,12 @@ static inline p4d_t *p4d_alloc_one(struct mm_struct *mm, unsigned long address)
- 		crst_table_init(table, _REGION2_ENTRY_EMPTY);
- 	return (p4d_t *) table;
- }
--#define p4d_free(mm, p4d) crst_table_free(mm, (unsigned long *) p4d)
-+
-+static inline void p4d_free(struct mm_struct *mm, p4d_t *p4d)
-+{
-+	if (!mm_p4d_folded(mm))
-+		crst_table_free(mm, (unsigned long *) p4d);
-+}
- 
- static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
- {
-@@ -65,7 +70,12 @@ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
- 		crst_table_init(table, _REGION3_ENTRY_EMPTY);
- 	return (pud_t *) table;
- }
--#define pud_free(mm, pud) crst_table_free(mm, (unsigned long *) pud)
-+
-+static inline void pud_free(struct mm_struct *mm, pud_t *pud)
-+{
-+	if (!mm_pud_folded(mm))
-+		crst_table_free(mm, (unsigned long *) pud);
-+}
- 
- static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
- {
-@@ -83,6 +93,8 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
- 
- static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
- {
-+	if (mm_pmd_folded(mm))
-+		return;
- 	pgtable_pmd_page_dtor(virt_to_page(pmd));
- 	crst_table_free(mm, (unsigned long *) pmd);
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 0788e78747d9..1aaf6e2a3b39 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -1474,6 +1474,9 @@ static bool hns3_get_tx_timeo_queue_info(struct net_device *ndev)
+ 		    time_after(jiffies,
+ 			       (trans_start + ndev->watchdog_timeo))) {
+ 			timeout_queue = i;
++			netdev_info(ndev, "queue state: 0x%lx, delta msecs: %u\n",
++				    q->state,
++				    jiffies_to_msecs(jiffies - trans_start));
+ 			break;
+ 		}
+ 	}
 -- 
 2.20.1
 
