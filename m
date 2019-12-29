@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A11A12C53E
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8573E12C540
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729771AbfL2Re7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:34:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38774 "EHLO mail.kernel.org"
+        id S1729413AbfL2RfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:35:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729745AbfL2Re7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:34:59 -0500
+        id S1729107AbfL2RfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:35:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A587206DB;
-        Sun, 29 Dec 2019 17:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E116F20409;
+        Sun, 29 Dec 2019 17:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640897;
-        bh=fNiXTEGDcvUF3M392SCaoc00rIAL2EBcPiYfH/i1u/w=;
+        s=default; t=1577640900;
+        bh=xmheIYouYHjzQysGkAZks8VAaejYmNwQTYRmOto9HuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FiSLG2Vbbf6ZNGwu0u4vVr6AIw7rs8D3YeFUEvItJer6bkH+hlpu2YOgiAoHWDNEO
-         jZ4w57tKXJzLDpK9lJX6gvwmHOwzlLdUaRWsc72JJH6ibJSaOASuATvu/YpdhZXaIp
-         9CCuzCooguOmqqdvVuWOoyvHkYGyRjE9OBaGXEeI=
+        b=FnRW+TOo8UeEfS9liAI75hX1GqC6xj1fqBkBCmDR1T7jICUotUEC2NxcKOEflbqWA
+         5Pv2fe0FDqlWnctcn4/TwPyzmNHpkrmpTr/mtpNUci8J4ZGTgfCNHrvctLGp0uqNPG
+         Q29K8QuQCR4eoH5lQKoPU++Yxz4zMQ/VM42l4yaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, Mike Rapoport <rppt@kernel.org>,
+        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 185/219] mips: fix build when "48 bits virtual memory" is enabled
-Date:   Sun, 29 Dec 2019 18:19:47 +0100
-Message-Id: <20191229162537.238599739@linuxfoundation.org>
+Subject: [PATCH 4.19 186/219] drm/amdgpu: fix bad DMA from INTERRUPT_CNTL2
+Date:   Sun, 29 Dec 2019 18:19:48 +0100
+Message-Id: <20191229162537.495458963@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -47,79 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Sam Bobroff <sbobroff@linux.ibm.com>
 
-[ Upstream commit 3ed6751bb8fa89c3014399bb0414348499ee202a ]
+[ Upstream commit 3d0e3ce52ce3eb4b9de3caf9c38dbb5a4d3e13c3 ]
 
-With CONFIG_MIPS_VA_BITS_48=y the build fails miserably:
+The INTERRUPT_CNTL2 register expects a valid DMA address, but is
+currently set with a GPU MC address.  This can cause problems on
+systems that detect the resulting DMA read from an invalid address
+(found on a Power8 guest).
 
-  CC      arch/mips/kernel/asm-offsets.s
-In file included from arch/mips/include/asm/pgtable.h:644,
-                 from include/linux/mm.h:99,
-                 from arch/mips/kernel/asm-offsets.c:15:
-include/asm-generic/pgtable.h:16:2: error: #error CONFIG_PGTABLE_LEVELS is not consistent with __PAGETABLE_{P4D,PUD,PMD}_FOLDED
- #error CONFIG_PGTABLE_LEVELS is not consistent with __PAGETABLE_{P4D,PUD,PMD}_FOLDED
-  ^~~~~
-include/asm-generic/pgtable.h:390:28: error: unknown type name 'p4d_t'; did you mean 'pmd_t'?
- static inline int p4d_same(p4d_t p4d_a, p4d_t p4d_b)
-                            ^~~~~
-                            pmd_t
+Instead, use the DMA address of the dummy page because it will always
+be safe.
 
-[ ... more such errors ... ]
-
-scripts/Makefile.build:99: recipe for target 'arch/mips/kernel/asm-offsets.s' failed
-make[2]: *** [arch/mips/kernel/asm-offsets.s] Error 1
-
-This happens because when CONFIG_MIPS_VA_BITS_48 enables 4th level of the
-page tables, but neither pgtable-nop4d.h nor 5level-fixup.h are included to
-cope with the 5th level.
-
-Replace #ifdef conditions around includes of the pgtable-nop{m,u}d.h with
-explicit CONFIG_PGTABLE_LEVELS and add include of 5level-fixup.h for the
-case when CONFIG_PGTABLE_LEVELS==4
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org
-Cc: Mike Rapoport <rppt@kernel.org>
+Fixes: 27ae10641e9c ("drm/amdgpu: add interupt handler implementation for si v3")
+Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/pgtable-64.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/si_ih.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/pgtable-64.h b/arch/mips/include/asm/pgtable-64.h
-index 93a9dce31f25..813dfe5f45a5 100644
---- a/arch/mips/include/asm/pgtable-64.h
-+++ b/arch/mips/include/asm/pgtable-64.h
-@@ -18,10 +18,12 @@
- #include <asm/fixmap.h>
+diff --git a/drivers/gpu/drm/amd/amdgpu/si_ih.c b/drivers/gpu/drm/amd/amdgpu/si_ih.c
+index 60dad63098a2..e40a3fbc3e76 100644
+--- a/drivers/gpu/drm/amd/amdgpu/si_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/si_ih.c
+@@ -62,7 +62,8 @@ static int si_ih_irq_init(struct amdgpu_device *adev)
+ 	u64 wptr_off;
  
- #define __ARCH_USE_5LEVEL_HACK
--#if defined(CONFIG_PAGE_SIZE_64KB) && !defined(CONFIG_MIPS_VA_BITS_48)
-+#if CONFIG_PGTABLE_LEVELS == 2
- #include <asm-generic/pgtable-nopmd.h>
--#elif !(defined(CONFIG_PAGE_SIZE_4KB) && defined(CONFIG_MIPS_VA_BITS_48))
-+#elif CONFIG_PGTABLE_LEVELS == 3
- #include <asm-generic/pgtable-nopud.h>
-+#else
-+#include <asm-generic/5level-fixup.h>
- #endif
- 
- /*
-@@ -216,6 +218,9 @@ static inline unsigned long pgd_page_vaddr(pgd_t pgd)
- 	return pgd_val(pgd);
- }
- 
-+#define pgd_phys(pgd)		virt_to_phys((void *)pgd_val(pgd))
-+#define pgd_page(pgd)		(pfn_to_page(pgd_phys(pgd) >> PAGE_SHIFT))
-+
- static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
- {
- 	return (pud_t *)pgd_page_vaddr(*pgd) + pud_index(address);
+ 	si_ih_disable_interrupts(adev);
+-	WREG32(INTERRUPT_CNTL2, adev->irq.ih.gpu_addr >> 8);
++	/* set dummy read address to dummy page address */
++	WREG32(INTERRUPT_CNTL2, adev->dummy_page_addr >> 8);
+ 	interrupt_cntl = RREG32(INTERRUPT_CNTL);
+ 	interrupt_cntl &= ~IH_DUMMY_RD_OVERRIDE;
+ 	interrupt_cntl &= ~IH_REQ_NONSNOOP_EN;
 -- 
 2.20.1
 
