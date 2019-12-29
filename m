@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF8212C9E7
+	by mail.lfdr.de (Postfix) with ESMTP id 1CF0D12C9E6
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728045AbfL2RZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:25:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45930 "EHLO mail.kernel.org"
+        id S1728064AbfL2RZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:25:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727706AbfL2RZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:25:45 -0500
+        id S1728055AbfL2RZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:25:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC90220409;
-        Sun, 29 Dec 2019 17:25:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4675222C3;
+        Sun, 29 Dec 2019 17:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640344;
-        bh=/4gVWON24o3gT/sJg+4JO2SrZ5r/nsfaYVwhQp0Oat4=;
+        s=default; t=1577640349;
+        bh=uoCCVQ2E57o2gFfchddEt7qarpWnf+VxEsTdlCEr9+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5/ZMhsKjmwBZzqoG6OZtLnKjT4NeVL3yNMPDXWNsiqaUEcgBdhcyispQv0TFTQEe
-         wA1kfZZsKbEuyAtV3qg+sUxfJwtfr6p2dLnQhe1Qpu7VBUcFR/Si1oPKgmBqPr+YTU
-         oIhZyH8/T20rZzF6alqcD7nxyWd8RN+PPLKHRdic=
+        b=Y82w45mdpUIvw5Az2/09XP8MwdL3jrh3WsLVg2wezDm1RNd6wKvVNezLiUEvK4WyD
+         Ho/1uuep1hgpwaZh2jnVnPId9l7hUz6I7R/H6SzjC/p1ABDNX550NVuY9peybv6enM
+         9gbBuKwPcez2HsjY7sAUBRoSy0mA2Be4KW5wvTjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Lianbo Jiang <lijiang@redhat.com>,
-        Borislav Petkov <bp@suse.de>, bhe@redhat.com,
-        d.hatayama@fujitsu.com, dhowells@redhat.com, dyoung@redhat.com,
-        ebiederm@xmission.com, horms@verge.net.au,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        =?UTF-8?q?J=C3=BCrgen=20Gross?= <jgross@suse.com>,
-        kexec@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>, vgoyal@redhat.com,
-        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 118/161] x86/crash: Add a forward declaration of struct kimage
-Date:   Sun, 29 Dec 2019 18:19:26 +0100
-Message-Id: <20191229162433.898340980@linuxfoundation.org>
+        stable@vger.kernel.org, Wang Xuerui <wangxuerui@qiniu.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 119/161] iwlwifi: mvm: fix unaligned read of rx_pkt_status
+Date:   Sun, 29 Dec 2019 18:19:27 +0100
+Message-Id: <20191229162434.759414101@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -51,67 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lianbo Jiang <lijiang@redhat.com>
+From: Wang Xuerui <wangxuerui@qiniu.com>
 
-[ Upstream commit 112eee5d06007dae561f14458bde7f2a4879ef4e ]
+[ Upstream commit c5aaa8be29b25dfe1731e9a8b19fd91b7b789ee3 ]
 
-Add a forward declaration of struct kimage to the crash.h header because
-future changes will invoke a crash-specific function from the realmode
-init path and the compiler will complain otherwise like this:
+This is present since the introduction of iwlmvm.
+Example stack trace on MIPS:
 
-  In file included from arch/x86/realmode/init.c:11:
-  ./arch/x86/include/asm/crash.h:5:32: warning: ‘struct kimage’ declared inside\
-   parameter list will not be visible outside of this definition or declaration
-      5 | int crash_load_segments(struct kimage *image);
-        |                                ^~~~~~
-  ./arch/x86/include/asm/crash.h:6:37: warning: ‘struct kimage’ declared inside\
-   parameter list will not be visible outside of this definition or declaration
-      6 | int crash_copy_backup_region(struct kimage *image);
-        |                                     ^~~~~~
-  ./arch/x86/include/asm/crash.h:7:39: warning: ‘struct kimage’ declared inside\
-   parameter list will not be visible outside of this definition or declaration
-      7 | int crash_setup_memmap_entries(struct kimage *image,
-        |
+[<ffffffffc0789328>] iwl_mvm_rx_rx_mpdu+0xa8/0xb88 [iwlmvm]
+[<ffffffffc0632b40>] iwl_pcie_rx_handle+0x420/0xc48 [iwlwifi]
 
- [ bp: Rewrite the commit message. ]
+Tested with a Wireless AC 7265 for ~6 months, confirmed to fix the
+problem. No other unaligned accesses are spotted yet.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: bhe@redhat.com
-Cc: d.hatayama@fujitsu.com
-Cc: dhowells@redhat.com
-Cc: dyoung@redhat.com
-Cc: ebiederm@xmission.com
-Cc: horms@verge.net.au
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jürgen Gross <jgross@suse.com>
-Cc: kexec@lists.infradead.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: vgoyal@redhat.com
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191108090027.11082-4-lijiang@redhat.com
-Link: https://lkml.kernel.org/r/201910310233.EJRtTMWP%25lkp@intel.com
+Signed-off-by: Wang Xuerui <wangxuerui@qiniu.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/crash.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/crash.h b/arch/x86/include/asm/crash.h
-index a7adb2bfbf0b..6b8ad6fa3979 100644
---- a/arch/x86/include/asm/crash.h
-+++ b/arch/x86/include/asm/crash.h
-@@ -2,6 +2,8 @@
- #ifndef _ASM_X86_CRASH_H
- #define _ASM_X86_CRASH_H
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rx.c b/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
+index c73e4be9bde3..c31303d13069 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
+@@ -62,6 +62,7 @@
+  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  *****************************************************************************/
++#include <asm/unaligned.h>
+ #include <linux/etherdevice.h>
+ #include <linux/skbuff.h>
+ #include "iwl-trans.h"
+@@ -290,7 +291,7 @@ void iwl_mvm_rx_rx_mpdu(struct iwl_mvm *mvm, struct napi_struct *napi,
+ 	rx_res = (struct iwl_rx_mpdu_res_start *)pkt->data;
+ 	hdr = (struct ieee80211_hdr *)(pkt->data + sizeof(*rx_res));
+ 	len = le16_to_cpu(rx_res->byte_count);
+-	rx_pkt_status = le32_to_cpup((__le32 *)
++	rx_pkt_status = get_unaligned_le32((__le32 *)
+ 		(pkt->data + sizeof(*rx_res) + len));
  
-+struct kimage;
-+
- int crash_load_segments(struct kimage *image);
- int crash_copy_backup_region(struct kimage *image);
- int crash_setup_memmap_entries(struct kimage *image,
+ 	/* Dont use dev_alloc_skb(), we'll have enough headroom once
 -- 
 2.20.1
 
