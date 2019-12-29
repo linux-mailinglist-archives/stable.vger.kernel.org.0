@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D60612C322
+	by mail.lfdr.de (Postfix) with ESMTP id F250F12C323
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 16:46:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726575AbfL2PqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 10:46:11 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:54423 "EHLO
+        id S1726597AbfL2PqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 10:46:13 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:47251 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726230AbfL2PqL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 10:46:11 -0500
+        by vger.kernel.org with ESMTP id S1726230AbfL2PqN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 10:46:13 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 8DB1F418;
-        Sun, 29 Dec 2019 10:46:10 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 29 Dec 2019 10:46:10 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 3645741A;
+        Sun, 29 Dec 2019 10:46:12 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 29 Dec 2019 10:46:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=OrZYuL
-        skFvbRkJV8EUeZFg0hMJ1c3QI9Up0L1zXon20=; b=vZmzjI1EhxXH4c5/xxXovN
-        veNykSPoSR9mL+/EBCDGTyHwfkx38e42fo5sPstVrgNx1+C9xEqhE2AVVZJl3dIe
-        MQRK9aYcy+McCyfBSDTHBWSkDvTxhrPgCVk9Qjc9h9XXRp9hmQDmivm7cFdZxZc9
-        xPER3+BN5ecWoxzunSiV0xpTNIO8bWz3uUYblgjpYd8rZRW2M+WYMZbpt7rhusIo
-        TqcN05SuuRVCWU+f9Xj+pxMSwechtxYMk9qllvmVrpt4UnDS2EX55HH3RMzHCjMY
-        7I9B0Xrfy0IexArcXCBwTft1C5WzR2yGotdkdWSBNSFOIOIK6tQnHqxvUaGIHrmA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=b7copE
+        x/iJwS/FhjYCY4i465tHxW/jmSBtM+701HIq8=; b=qy8LUoekfnXL2zhDZ8BTyj
+        FbDwMxRTbEofxwD1Q4PJIv8ZOrYIkzrhNuyDrfc9QGFzVoMIwB9HR1guWv3GaODB
+        lHKTf2a3shbSXiSVaMKy8Kk/c4Y9RdinBfNzVyMf7TvCx8x8GSjuC8EWpULiPtLP
+        v1R71CNG4KAd9xXXbscI/0jrvWovMoUPqKSOQOtDe9qq8vgr3w+0qGxMaDLQZrWY
+        V3OAh//QoodvST4Pp/uMxox1fVDQfVnHAmCt2UA63crmhflTS/V+OQwNxLIQjQI6
+        zPbM+XT/CQJwNihKcU/HFVY7BrGX4CIF1E7C85denD3RWiGRLliDMQjrM7kO1umg
         ==
-X-ME-Sender: <xms:QsoIXpSZvGQyABYp1Lon6X0CS_65o_ltxrYfuAnU_h2247OoMKTTiQ>
+X-ME-Sender: <xms:Q8oIXgMaCd7UzmoVwUKfaTVS2J1Zszw5iKByk73BAUZP-guEsG0sYw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgkedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -35,21 +35,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgkedtucetufdoteggod
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
     ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:QsoIXvFIYwQSr-rMbhNaGHS_mwxoW1wy532MWlgPayggvY0V40jY2A>
-    <xmx:QsoIXhme-VxSHkE2yl4_ZoyIpEupC_G2wSfDrtBvCsRjPWEQA8JMcw>
-    <xmx:QsoIXi1m8h8q3uuwX3qFEu8GBTx7c3mT-UXLxdwSEJw6MMBvGe6wcA>
-    <xmx:QsoIXnwlIdpBlBIN78_VLWgmCs8RbWkGw4u8qGoQfHwquPy1RORcrw>
+X-ME-Proxy: <xmx:Q8oIXiX47-ifdUK3r_JgNwqjmj-lIOk71LuGk_X_n6Tg2DKcnpK_sg>
+    <xmx:Q8oIXlDooa6lAczjM1MhhobkMH8Qo3uCZHaEYvYoynbAEcqtQVrdcg>
+    <xmx:Q8oIXvMAlynzM5wo49rtmcpDRE4g0B6nQ6wZlJ2Aje6vdmmY_Yy39w>
+    <xmx:Q8oIXp-UaAsz4HmABnjn0f3z7-h9l88SkhjUUpQZXirPjeoLGkwA6g>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C3B1730608D7;
-        Sun, 29 Dec 2019 10:46:09 -0500 (EST)
-Subject: FAILED: patch "[PATCH] tty/serial: atmel: fix out of range clock divider handling" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4E7F280059;
+        Sun, 29 Dec 2019 10:46:11 -0500 (EST)
+Subject: FAILED: patch "[PATCH] tty/serial: atmel: fix out of range clock divider handling" failed to apply to 4.9-stable tree
 To:     david.engraf@sysgo.com, gregkh@linuxfoundation.org,
         ludovic.desroches@microchip.com, richard.genoud@gmail.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 29 Dec 2019 16:45:59 +0100
-Message-ID: <157763435922629@kroah.com>
+Message-ID: <157763435917639@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
