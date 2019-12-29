@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF14012C8E2
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:17:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EBA512C8E3
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387477AbfL2R6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:58:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49128 "EHLO mail.kernel.org"
+        id S2387480AbfL2R6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:58:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387469AbfL2R6K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:58:10 -0500
+        id S2387455AbfL2R6N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:58:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F696208C4;
-        Sun, 29 Dec 2019 17:58:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE99A206DB;
+        Sun, 29 Dec 2019 17:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642290;
-        bh=psl8kJoeKTkFyv9dkoUnqIpetpwk3tdC55aWKYKxqUc=;
+        s=default; t=1577642292;
+        bh=PnKKzkZ4//sevqYuJFeMTIRsdv9E8VxA6S6lrGh2OZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZrgJ9GAXsrk/I5CGO6P/WOV5X18X5asQ8Su8HgvlmTmitKzQWAAREpXi/K7B4YA2
-         ztZZGIpQXHfhYFSi5MOpok375WX3eMKYkSpRLgghUX1lB0O7StLV22gB9oLawquTqk
-         JsckQ39ymAfYLYgnifpW4P7qcrAHVPnVGP9sStZ4=
+        b=tz+ljKTvXHM/2db6jobVVqXRg74mMjAHWAq4or64XSlLEunxRiR/ECzP6+otsNSEN
+         n30p66wglhbjtNsrCeKO9Ml1L5q22d6vPnuEU7WQuMf0e2Kyegk30ozF+Iqew1pg77
+         Ha3iMllOq46x4yypyOahVt4pMMaAqklv4Pqb6XLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Pisati <paolo.pisati@canonical.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 378/434] selftests: net: tls: remove recv_rcvbuf test
-Date:   Sun, 29 Dec 2019 18:27:11 +0100
-Message-Id: <20191229172727.211163615@linuxfoundation.org>
+Subject: [PATCH 5.4 379/434] spi: dw: Correct handling of native chipselect
+Date:   Sun, 29 Dec 2019 18:27:12 +0100
+Message-Id: <20191229172727.288496293@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,71 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 6dd504b0fd1039c6e5d391e97cf5c4ee592aefcb ]
+[ Upstream commit ada9e3fcc175db4538f5b5e05abf5dedf626e550 ]
 
-This test only works when [1] is applied, which was rejected.
+This patch reverts commit 6e0a32d6f376 ("spi: dw: Fix default polarity
+of native chipselect").
 
-Basically, the errors are reported and cleared. In this particular case of
-tls sockets, following reads will block.
+The SPI framework always called the set_cs callback with the logic
+level it desired on the chip select line, which is what the drivers
+original handling supported. commit f3186dd87669 ("spi: Optionally
+use GPIO descriptors for CS GPIOs") changed these symantics, but only
+in the case of drivers that also support GPIO chip selects, to true
+meaning apply slave select rather than logic high. This left things in
+an odd state where a driver that only supports hardware chip selects,
+the core would handle polarity but if the driver supported GPIOs as
+well the driver should handle polarity.  At this point the reverted
+change was applied to change the logic in the driver to match new
+system.
 
-The test case was originally submitted with the rejected patch, but, then,
-was included as part of a different patchset, possibly by mistake.
+This was then broken by commit 3e5ec1db8bfe ("spi: Fix SPI_CS_HIGH
+setting when using native and GPIO CS") which reverted the core back
+to consistently calling set_cs with a logic level.
 
-[1] https://lore.kernel.org/netdev/20191007035323.4360-2-jakub.kicinski@netronome.com/#t
+This fix reverts the driver code back to its original state to match
+the current core code. This is probably a better fix as a) the set_cs
+callback is always called with consistent symantics and b) the
+inversion for SPI_CS_HIGH can be handled in the core and doesn't need
+to be coded in each driver supporting it.
 
-Thanks Paolo Pisati for pointing out the original patchset where this
-appeared.
-
-Fixes: 65190f77424d (selftests/tls: add a test for fragmented messages)
-Reported-by: Paolo Pisati <paolo.pisati@canonical.com>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: 3e5ec1db8bfe ("spi: Fix SPI_CS_HIGH setting when using native and GPIO CS")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20191127153936.29719-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/tls.c | 28 ----------------------------
- 1 file changed, 28 deletions(-)
+ drivers/spi/spi-dw.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/net/tls.c b/tools/testing/selftests/net/tls.c
-index 13e5ef615026..0ea44d975b6c 100644
---- a/tools/testing/selftests/net/tls.c
-+++ b/tools/testing/selftests/net/tls.c
-@@ -722,34 +722,6 @@ TEST_F(tls, recv_lowat)
- 	EXPECT_EQ(memcmp(send_mem, recv_mem + 10, 5), 0);
- }
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index 076652d3d051..45972056ed8c 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -129,10 +129,11 @@ void dw_spi_set_cs(struct spi_device *spi, bool enable)
+ 	struct dw_spi *dws = spi_controller_get_devdata(spi->controller);
+ 	struct chip_data *chip = spi_get_ctldata(spi);
  
--TEST_F(tls, recv_rcvbuf)
--{
--	char send_mem[4096];
--	char recv_mem[4096];
--	int rcv_buf = 1024;
--
--	memset(send_mem, 0x1c, sizeof(send_mem));
--
--	EXPECT_EQ(setsockopt(self->cfd, SOL_SOCKET, SO_RCVBUF,
--			     &rcv_buf, sizeof(rcv_buf)), 0);
--
--	EXPECT_EQ(send(self->fd, send_mem, 512, 0), 512);
--	memset(recv_mem, 0, sizeof(recv_mem));
--	EXPECT_EQ(recv(self->cfd, recv_mem, sizeof(recv_mem), 0), 512);
--	EXPECT_EQ(memcmp(send_mem, recv_mem, 512), 0);
--
--	if (self->notls)
--		return;
--
--	EXPECT_EQ(send(self->fd, send_mem, 4096, 0), 4096);
--	memset(recv_mem, 0, sizeof(recv_mem));
--	EXPECT_EQ(recv(self->cfd, recv_mem, sizeof(recv_mem), 0), -1);
--	EXPECT_EQ(errno, EMSGSIZE);
--
--	EXPECT_EQ(recv(self->cfd, recv_mem, sizeof(recv_mem), 0), -1);
--	EXPECT_EQ(errno, EMSGSIZE);
--}
--
- TEST_F(tls, bidir)
- {
- 	char const *test_str = "test_read";
++	/* Chip select logic is inverted from spi_set_cs() */
+ 	if (chip && chip->cs_control)
+-		chip->cs_control(enable);
++		chip->cs_control(!enable);
+ 
+-	if (enable)
++	if (!enable)
+ 		dw_writel(dws, DW_SPI_SER, BIT(spi->chip_select));
+ 	else if (dws->cs_override)
+ 		dw_writel(dws, DW_SPI_SER, 0);
 -- 
 2.20.1
 
