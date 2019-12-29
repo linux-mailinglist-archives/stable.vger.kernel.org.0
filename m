@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AAE612C8B8
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:17:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD9C12C8BA
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:17:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733209AbfL2R5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:57:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47444 "EHLO mail.kernel.org"
+        id S1733215AbfL2R5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:57:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733206AbfL2R5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:57:10 -0500
+        id S1733211AbfL2R5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:57:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B90F7227BF;
-        Sun, 29 Dec 2019 17:57:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2302121D7E;
+        Sun, 29 Dec 2019 17:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642230;
-        bh=YBMaCe+J+xlk2jiqRprad+cQv/PH8L8vT5bPX6bNK2Q=;
+        s=default; t=1577642232;
+        bh=ZnWdU30S9z3CTtN6rCguB5pWHppVpSUgJZm9K6xRL/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNUAlAZIN7OvYLMj3s6zSJWvXZT006lJKZ8CAs3aMgOQZUu+Xbi7hDrabeAhwvujK
-         ZZwyXSIFZZaM/od9g/JfBvRwAk64v0am3ITFXdOwwADPqw2QfldmV8Jvtd+wL75Cb3
-         2CU5dSwWay6JgofoJqYGaPemzRszbd2Rah8wxywU=
+        b=aMbF3ThDPQT8zFFLNqSNTorFosbNlwYU+cQcb4QdZ6zpEx1Yxn9ddadcNE5wa7TDu
+         /rKl1LsJgFhX7BHXs4+ydo9RndMFMRzbwCCVyeK8VaUED8ZBta9GBSoq+EtQfSsTvJ
+         uMj6SdUkWOdbb7FtxZDGYkVbt115gTJnbSAUF6E0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 396/434] mm: vmscan: protect shrinker idr replace with CONFIG_MEMCG
-Date:   Sun, 29 Dec 2019 18:27:29 +0100
-Message-Id: <20191229172728.690545768@linuxfoundation.org>
+        stable@vger.kernel.org, Erkka Talvitie <erkka.talvitie@vincit.fi>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 5.4 397/434] USB: EHCI: Do not return -EPIPE when hub is disconnected
+Date:   Sun, 29 Dec 2019 18:27:30 +0100
+Message-Id: <20191229172728.774680489@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -49,48 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
+From: Erkka Talvitie <erkka.talvitie@vincit.fi>
 
-commit 42a9a53bb394a1de2247ef78f0b802ae86798122 upstream.
+commit 64cc3f12d1c7dd054a215bc1ff9cc2abcfe35832 upstream.
 
-Since commit 0a432dcbeb32 ("mm: shrinker: make shrinker not depend on
-memcg kmem"), shrinkers' idr is protected by CONFIG_MEMCG instead of
-CONFIG_MEMCG_KMEM, so it makes no sense to protect shrinker idr replace
-with CONFIG_MEMCG_KMEM.
+When disconnecting a USB hub that has some child device(s) connected to it
+(such as a USB mouse), then the stack tries to clear halt and
+reset device(s) which are _already_ physically disconnected.
 
-And in the CONFIG_MEMCG && CONFIG_SLOB case, shrinker_idr contains only
-shrinker, and it is deferred_split_shrinker.  But it is never actually
-called, since idr_replace() is never compiled due to the wrong #ifdef.
-The deferred_split_shrinker all the time is staying in half-registered
-state, and it's never called for subordinate mem cgroups.
+The issue has been reproduced with:
 
-Link: http://lkml.kernel.org/r/1575486978-45249-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: 0a432dcbeb32 ("mm: shrinker: make shrinker not depend on memcg kmem")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+CPU: IMX6D5EYM10AD or MCIMX6D5EYM10AE.
+SW: U-Boot 2019.07 and kernel 4.19.40.
+
+CPU: HP Proliant Microserver Gen8.
+SW: Linux version 4.2.3-300.fc23.x86_64
+
+In this situation there will be error bit for MMF active yet the
+CERR equals EHCI_TUNE_CERR + halt. Existing implementation
+interprets this as a stall [1] (chapter 8.4.5).
+
+The possible conditions when the MMF will be active + halt
+can be found from [2] (Table 4-13).
+
+Fix for the issue is to check whether MMF is active and PID Code is
+IN before checking for the stall. If these conditions are true then
+it is not a stall.
+
+What happens after the fix is that when disconnecting a hub with
+attached device(s) the situation is not interpret as a stall.
+
+[1] [https://www.usb.org/document-library/usb-20-specification, usb_20.pdf]
+[2] [https://www.intel.com/content/dam/www/public/us/en/documents/
+     technical-specifications/ehci-specification-for-usb.pdf]
+
+Signed-off-by: Erkka Talvitie <erkka.talvitie@vincit.fi>
+Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/ef70941d5f349767f19c0ed26b0dd9eed8ad81bb.1576050523.git.erkka.talvitie@vincit.fi
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/vmscan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/ehci-q.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -422,7 +422,7 @@ void register_shrinker_prepared(struct s
- {
- 	down_write(&shrinker_rwsem);
- 	list_add_tail(&shrinker->list, &shrinker_list);
--#ifdef CONFIG_MEMCG_KMEM
-+#ifdef CONFIG_MEMCG
- 	if (shrinker->flags & SHRINKER_MEMCG_AWARE)
- 		idr_replace(&shrinker_idr, shrinker, shrinker->id);
- #endif
+--- a/drivers/usb/host/ehci-q.c
++++ b/drivers/usb/host/ehci-q.c
+@@ -27,6 +27,10 @@
+ 
+ /*-------------------------------------------------------------------------*/
+ 
++/* PID Codes that are used here, from EHCI specification, Table 3-16. */
++#define PID_CODE_IN    1
++#define PID_CODE_SETUP 2
++
+ /* fill a qtd, returning how much of the buffer we were able to queue up */
+ 
+ static int
+@@ -190,7 +194,7 @@ static int qtd_copy_status (
+ 	int	status = -EINPROGRESS;
+ 
+ 	/* count IN/OUT bytes, not SETUP (even short packets) */
+-	if (likely (QTD_PID (token) != 2))
++	if (likely(QTD_PID(token) != PID_CODE_SETUP))
+ 		urb->actual_length += length - QTD_LENGTH (token);
+ 
+ 	/* don't modify error codes */
+@@ -206,6 +210,13 @@ static int qtd_copy_status (
+ 		if (token & QTD_STS_BABBLE) {
+ 			/* FIXME "must" disable babbling device's port too */
+ 			status = -EOVERFLOW;
++		/*
++		 * When MMF is active and PID Code is IN, queue is halted.
++		 * EHCI Specification, Table 4-13.
++		 */
++		} else if ((token & QTD_STS_MMF) &&
++					(QTD_PID(token) == PID_CODE_IN)) {
++			status = -EPROTO;
+ 		/* CERR nonzero + halt --> stall */
+ 		} else if (QTD_CERR(token)) {
+ 			status = -EPIPE;
 
 
