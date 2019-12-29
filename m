@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9BC12C51F
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBD9C12C521
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729563AbfL2ReB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:34:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36494 "EHLO mail.kernel.org"
+        id S1729108AbfL2ReE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:34:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729557AbfL2ReA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:34:00 -0500
+        id S1729341AbfL2ReD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:34:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BD3A20409;
-        Sun, 29 Dec 2019 17:33:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB03620722;
+        Sun, 29 Dec 2019 17:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640840;
-        bh=/4gVWON24o3gT/sJg+4JO2SrZ5r/nsfaYVwhQp0Oat4=;
+        s=default; t=1577640842;
+        bh=rUUCdtKigrJ3fjJAqcT3oCeJoZaLGwC5NsEBQHBw/ZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KvNztuR+cF6fz8IuE9xMLXBKdbu2QTrE+3yks+izALegX5HUPYsWqeqfDhuaEt98y
-         yZnqo4D5DgrVq6OkRIn/jRNQmKtqwbMQhnAyH/TJyowBLoBYP2qIkCdIhZU4e6klzF
-         Ql39d0UZEDjDi/Uhk2JjA0p3lR5xHXg0snOk0Q+M=
+        b=KfRVsE6b1Fy/S248zXskkkXSiddBGSCr3LNqdPzzpqppnNxaIbR8fczJik9J8ThUZ
+         SPIzk1Wg2Py+1vamsSUzdzZ3sBknPgLuuVu2R6h3pGIzO8UW3KpwPqUWhBfsTFqsjW
+         cmF6f7zwbzAWrliEiU1pgouAA0snEc+/Zr98GuCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Lianbo Jiang <lijiang@redhat.com>,
-        Borislav Petkov <bp@suse.de>, bhe@redhat.com,
-        d.hatayama@fujitsu.com, dhowells@redhat.com, dyoung@redhat.com,
-        ebiederm@xmission.com, horms@verge.net.au,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        =?UTF-8?q?J=C3=BCrgen=20Gross?= <jgross@suse.com>,
-        kexec@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>, vgoyal@redhat.com,
-        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 159/219] x86/crash: Add a forward declaration of struct kimage
-Date:   Sun, 29 Dec 2019 18:19:21 +0100
-Message-Id: <20191229162532.764428471@linuxfoundation.org>
+        stable@vger.kernel.org, Yuming Han <yuming.han@unisoc.com>,
+        Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 160/219] tracing: use kvcalloc for tgid_map array allocation
+Date:   Sun, 29 Dec 2019 18:19:22 +0100
+Message-Id: <20191229162532.825769004@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -51,67 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lianbo Jiang <lijiang@redhat.com>
+From: Yuming Han <yuming.han@unisoc.com>
 
-[ Upstream commit 112eee5d06007dae561f14458bde7f2a4879ef4e ]
+[ Upstream commit 6ee40511cb838f9ced002dff7131bca87e3ccbdd ]
 
-Add a forward declaration of struct kimage to the crash.h header because
-future changes will invoke a crash-specific function from the realmode
-init path and the compiler will complain otherwise like this:
+Fail to allocate memory for tgid_map, because it requires order-6 page.
+detail as:
 
-  In file included from arch/x86/realmode/init.c:11:
-  ./arch/x86/include/asm/crash.h:5:32: warning: ‘struct kimage’ declared inside\
-   parameter list will not be visible outside of this definition or declaration
-      5 | int crash_load_segments(struct kimage *image);
-        |                                ^~~~~~
-  ./arch/x86/include/asm/crash.h:6:37: warning: ‘struct kimage’ declared inside\
-   parameter list will not be visible outside of this definition or declaration
-      6 | int crash_copy_backup_region(struct kimage *image);
-        |                                     ^~~~~~
-  ./arch/x86/include/asm/crash.h:7:39: warning: ‘struct kimage’ declared inside\
-   parameter list will not be visible outside of this definition or declaration
-      7 | int crash_setup_memmap_entries(struct kimage *image,
-        |
+c3 sh: page allocation failure: order:6,
+   mode:0x140c0c0(GFP_KERNEL), nodemask=(null)
+c3 sh cpuset=/ mems_allowed=0
+c3 CPU: 3 PID: 5632 Comm: sh Tainted: G        W  O    4.14.133+ #10
+c3 Hardware name: Generic DT based system
+c3 Backtrace:
+c3 [<c010bdbc>] (dump_backtrace) from [<c010c08c>](show_stack+0x18/0x1c)
+c3 [<c010c074>] (show_stack) from [<c0993c54>](dump_stack+0x84/0xa4)
+c3 [<c0993bd0>] (dump_stack) from [<c0229858>](warn_alloc+0xc4/0x19c)
+c3 [<c0229798>] (warn_alloc) from [<c022a6e4>](__alloc_pages_nodemask+0xd18/0xf28)
+c3 [<c02299cc>] (__alloc_pages_nodemask) from [<c0248344>](kmalloc_order+0x20/0x38)
+c3 [<c0248324>] (kmalloc_order) from [<c0248380>](kmalloc_order_trace+0x24/0x108)
+c3 [<c024835c>] (kmalloc_order_trace) from [<c01e6078>](set_tracer_flag+0xb0/0x158)
+c3 [<c01e5fc8>] (set_tracer_flag) from [<c01e6404>](trace_options_core_write+0x7c/0xcc)
+c3 [<c01e6388>] (trace_options_core_write) from [<c0278b1c>](__vfs_write+0x40/0x14c)
+c3 [<c0278adc>] (__vfs_write) from [<c0278e10>](vfs_write+0xc4/0x198)
+c3 [<c0278d4c>] (vfs_write) from [<c027906c>](SyS_write+0x6c/0xd0)
+c3 [<c0279000>] (SyS_write) from [<c01079a0>](ret_fast_syscall+0x0/0x54)
 
- [ bp: Rewrite the commit message. ]
+Switch to use kvcalloc to avoid unexpected allocation failures.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: bhe@redhat.com
-Cc: d.hatayama@fujitsu.com
-Cc: dhowells@redhat.com
-Cc: dyoung@redhat.com
-Cc: ebiederm@xmission.com
-Cc: horms@verge.net.au
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jürgen Gross <jgross@suse.com>
-Cc: kexec@lists.infradead.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: vgoyal@redhat.com
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191108090027.11082-4-lijiang@redhat.com
-Link: https://lkml.kernel.org/r/201910310233.EJRtTMWP%25lkp@intel.com
+Link: http://lkml.kernel.org/r/1571888070-24425-1-git-send-email-chunyan.zhang@unisoc.com
+
+Signed-off-by: Yuming Han <yuming.han@unisoc.com>
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/crash.h | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/trace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/crash.h b/arch/x86/include/asm/crash.h
-index a7adb2bfbf0b..6b8ad6fa3979 100644
---- a/arch/x86/include/asm/crash.h
-+++ b/arch/x86/include/asm/crash.h
-@@ -2,6 +2,8 @@
- #ifndef _ASM_X86_CRASH_H
- #define _ASM_X86_CRASH_H
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index bdd7f3d78724..b6ff2f84df17 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -4389,7 +4389,7 @@ int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
  
-+struct kimage;
-+
- int crash_load_segments(struct kimage *image);
- int crash_copy_backup_region(struct kimage *image);
- int crash_setup_memmap_entries(struct kimage *image,
+ 	if (mask == TRACE_ITER_RECORD_TGID) {
+ 		if (!tgid_map)
+-			tgid_map = kcalloc(PID_MAX_DEFAULT + 1,
++			tgid_map = kvcalloc(PID_MAX_DEFAULT + 1,
+ 					   sizeof(*tgid_map),
+ 					   GFP_KERNEL);
+ 		if (!tgid_map) {
 -- 
 2.20.1
 
