@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0931212C7C6
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6820412C7CB
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731067AbfL2RqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:46:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56124 "EHLO mail.kernel.org"
+        id S1730623AbfL2Rq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:46:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731063AbfL2RqY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:46:24 -0500
+        id S1731069AbfL2Rq1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:46:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AE8C206DB;
-        Sun, 29 Dec 2019 17:46:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF8F620718;
+        Sun, 29 Dec 2019 17:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641583;
-        bh=DXF7o8ExpQHb1qVoGDDq9vcyp1WYD4pNzRMkR6MRaOg=;
+        s=default; t=1577641586;
+        bh=RMFOB0y672cN40adGCHabr6xDBGC/365oahggngiGB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HfkHhj7uLpEQZE9cX9y0P8uTzE7K+909E7Z7paUrse02loMe4jFVdq8Agb2f5x0XG
-         cr46VEe9yDtYOpK7brrUXU5M9sINeuKa3wfyMOTFxvQUXggSKSQE6jgE5nA3tjhKxl
-         v0kROcr3IhTQOMJVGaEvupYlCx2MbL7dZOS2Ygn0=
+        b=AH0Sw44wOKQqzboWbr88S1EpmZJ2+pmUaTsWkVMxigq2Dt8rqVohE2ocCRo04kDrC
+         nuFqfGBWMiHNGxJG/Iuc8VfHxo6yXAcHwiiQJoefW3iJxgVozLv3yh6OWwQierQgRv
+         jMLbcYv0kwpLH5t62Bq0lNlaEdvBy8n+x80to5Qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        Nikhil Devshatwar <nikhil.nd@ti.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 126/434] ASoC: SOF: enable sync_write in hdac_bus
-Date:   Sun, 29 Dec 2019 18:22:59 +0100
-Message-Id: <20191229172710.067867230@linuxfoundation.org>
+Subject: [PATCH 5.4 127/434] media: ti-vpe: vpe: Fix Motion Vector vpdma stride
+Date:   Sun, 29 Dec 2019 18:23:00 +0100
+Message-Id: <20191229172710.134098130@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,42 +46,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit f3416e7144f5d4ba0fc5dcef6ebfff891266c46a ]
+[ Upstream commit 102af9b9922f658f705a4b0deaccabac409131bf ]
 
-Align SOF HDA implementation with snd-hda-intel driver and enable
-sync_write flag for all supported Intel platforms in SOF. When set,
-a sync is issued after each verb write.
+commit 3dc2046ca78b ("[media] media: ti-vpe: vpe: allow use of user
+specified stride") and commit da4414eaed15 ("[media] media: ti-vpe: vpdma:
+add support for user specified stride") resulted in the Motion Vector
+stride to be the same as the image stride.
 
-Sync after write has helped to overcome intermittent delays in
-system resume flow on Intel Coffee Lake systems, and most recently
-probe errors related to the HDMI codec on Ice Lake systems.
+This caused memory corruption in the output image as mentioned in
+commit 00db969964c8 ("[media] media: ti-vpe: vpe: Fix line stride
+for output motion vector").
 
-Matches the snd-hda-intel driver change done in commit 2756d9143aa5
-("ALSA: hda - Fix intermittent CORB/RIRB stall on Intel chips").
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191008164443.1358-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 3dc2046ca78b ("[media] media: ti-vpe: vpe: allow use of user specified stride")
+Fixes: da4414eaed15 ("[media] media: ti-vpe: vpdma: add support for user specified stride")
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Acked-by: Nikhil Devshatwar <nikhil.nd@ti.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/ti-vpe/vpe.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 06e84679087b..5a5163eef2ef 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -268,6 +268,7 @@ static int hda_init(struct snd_sof_dev *sdev)
+diff --git a/drivers/media/platform/ti-vpe/vpe.c b/drivers/media/platform/ti-vpe/vpe.c
+index 60b575bb44c4..5ba72445584d 100644
+--- a/drivers/media/platform/ti-vpe/vpe.c
++++ b/drivers/media/platform/ti-vpe/vpe.c
+@@ -1013,11 +1013,14 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
+ 	dma_addr_t dma_addr;
+ 	u32 flags = 0;
+ 	u32 offset = 0;
++	u32 stride;
  
- 	bus->use_posbuf = 1;
- 	bus->bdl_pos_adj = 0;
-+	bus->sync_write = 1;
+ 	if (port == VPE_PORT_MV_OUT) {
+ 		vpdma_fmt = &vpdma_misc_fmts[VPDMA_DATA_FMT_MV];
+ 		dma_addr = ctx->mv_buf_dma[mv_buf_selector];
+ 		q_data = &ctx->q_data[Q_DATA_SRC];
++		stride = ALIGN((q_data->width * vpdma_fmt->depth) >> 3,
++			       VPDMA_STRIDE_ALIGN);
+ 	} else {
+ 		/* to incorporate interleaved formats */
+ 		int plane = fmt->coplanar ? p_data->vb_part : 0;
+@@ -1044,6 +1047,7 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
+ 		}
+ 		/* Apply the offset */
+ 		dma_addr += offset;
++		stride = q_data->bytesperline[VPE_LUMA];
+ 	}
  
- 	mutex_init(&hbus->prepare_mutex);
- 	hbus->pci = pci;
+ 	if (q_data->flags & Q_DATA_FRAME_1D)
+@@ -1055,7 +1059,7 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
+ 			   MAX_W, MAX_H);
+ 
+ 	vpdma_add_out_dtd(&ctx->desc_list, q_data->width,
+-			  q_data->bytesperline[VPE_LUMA], &q_data->c_rect,
++			  stride, &q_data->c_rect,
+ 			  vpdma_fmt, dma_addr, MAX_OUT_WIDTH_REG1,
+ 			  MAX_OUT_HEIGHT_REG1, p_data->channel, flags);
+ }
+@@ -1074,10 +1078,13 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
+ 	dma_addr_t dma_addr;
+ 	u32 flags = 0;
+ 	u32 offset = 0;
++	u32 stride;
+ 
+ 	if (port == VPE_PORT_MV_IN) {
+ 		vpdma_fmt = &vpdma_misc_fmts[VPDMA_DATA_FMT_MV];
+ 		dma_addr = ctx->mv_buf_dma[mv_buf_selector];
++		stride = ALIGN((q_data->width * vpdma_fmt->depth) >> 3,
++			       VPDMA_STRIDE_ALIGN);
+ 	} else {
+ 		/* to incorporate interleaved formats */
+ 		int plane = fmt->coplanar ? p_data->vb_part : 0;
+@@ -1104,6 +1111,7 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
+ 		}
+ 		/* Apply the offset */
+ 		dma_addr += offset;
++		stride = q_data->bytesperline[VPE_LUMA];
+ 
+ 		if (q_data->flags & Q_DATA_INTERLACED_SEQ_TB) {
+ 			/*
+@@ -1139,10 +1147,10 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
+ 	if (p_data->vb_part && fmt->fourcc == V4L2_PIX_FMT_NV12)
+ 		frame_height /= 2;
+ 
+-	vpdma_add_in_dtd(&ctx->desc_list, q_data->width,
+-			 q_data->bytesperline[VPE_LUMA], &q_data->c_rect,
+-		vpdma_fmt, dma_addr, p_data->channel, field, flags, frame_width,
+-		frame_height, 0, 0);
++	vpdma_add_in_dtd(&ctx->desc_list, q_data->width, stride,
++			 &q_data->c_rect, vpdma_fmt, dma_addr,
++			 p_data->channel, field, flags, frame_width,
++			 frame_height, 0, 0);
+ }
+ 
+ /*
 -- 
 2.20.1
 
