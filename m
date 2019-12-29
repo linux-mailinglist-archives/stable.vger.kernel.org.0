@@ -2,122 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0B5912CA7F
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5FD312CA82
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:59:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727131AbfL2Smc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 13:42:32 -0500
-Received: from mx1.yrkesakademin.fi ([85.134.45.194]:16298 "EHLO
-        mx1.yrkesakademin.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726455AbfL2Smc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 13:42:32 -0500
-Subject: Re: [PATCH 5.4 245/434] perf probe: Fix to list probe event with
- correct line number
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <stable@vger.kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <20191229172702.393141737@linuxfoundation.org>
- <20191229172718.158972713@linuxfoundation.org>
-From:   Thomas Backlund <tmb@mageia.org>
-Message-ID: <689591f8-0798-af22-9a04-4a1e6e894a55@mageia.org>
-Date:   Sun, 29 Dec 2019 20:42:28 +0200
+        id S1726465AbfL2S7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 13:59:16 -0500
+Received: from mail-pj1-f44.google.com ([209.85.216.44]:37871 "EHLO
+        mail-pj1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726455AbfL2S7Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 13:59:16 -0500
+Received: by mail-pj1-f44.google.com with SMTP id m13so7228435pjb.2;
+        Sun, 29 Dec 2019 10:59:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=tAjd1uiPZsuPFI/UJM6eJ4os9/hBTboJTt1j2UJRT1M=;
+        b=CZARm84kbG98zgPD5UEbtdUgulL4TlM3icq008J2nAAx+xWwAu+V2hFdpFhNXfRidJ
+         rkVYLty8+lKTh6WWWjKpTE0wHpdl2Cq0gZdYryQFVmlVKTqviKTVl93wzhZxEZhg2Vu3
+         GfQzxGDwgoazbEkXTYmlDmccSvWGP8ataVVjw9xiQ1ApTKVOvbxTed2MrHojaaxH+qIA
+         DP4s1B05quEMoVNMVhjOF83ExM3F/7N1OuOyxBSQSmBrrQr/43PXrteGwPULwXmRc7mM
+         jQD2QroDMdMEDGNMt52dIEzShskUrMgQX3NQIvAjraxfIWOFBjQtPXGh5L1rtZNL4Nd0
+         82Gw==
+X-Gm-Message-State: APjAAAWvphhCHwDDYC/yex8bMfGNHoyLznxTp0/QuXRGNEKdfYkMLPO3
+        EsgrKaKNqANMvj35WvWeT6c=
+X-Google-Smtp-Source: APXvYqwNnq8UfTWxUB2h/uWEnMcyWZc+0Mp6MkMobyfFljo3YKHA1N3Eon4lNDmSua+qHM/hvsx2bw==
+X-Received: by 2002:a17:902:8f96:: with SMTP id z22mr62219611plo.11.1577645954756;
+        Sun, 29 Dec 2019 10:59:14 -0800 (PST)
+Received: from localhost ([2601:646:8a00:9810:5af3:56d9:f882:39d4])
+        by smtp.gmail.com with ESMTPSA id v13sm48565741pgc.54.2019.12.29.10.59.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 29 Dec 2019 10:59:13 -0800 (PST)
+Date:   Sun, 29 Dec 2019 11:01:23 -0800
+From:   Paul Burton <paulburton@kernel.org>
+To:     "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc:     David Laight <David.Laight@aculab.com>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] MIPS: Use __copy_{to,from}_user() for emulated FP
+ loads/stores
+Message-ID: <20191229190123.ju24cz7thuvybejs@lantea.localdomain>
+References: <20191203204933.1642259-1-paulburton@kernel.org>
+ <f5e09155580d417e9dcd07b1c20786ed@AcuMS.aculab.com>
+ <20191204154048.eotzglp4rdlx4yzl@lantea.localdomain>
+ <e220ba9a19da41abba599b5873afa494@AcuMS.aculab.com>
+ <alpine.LFD.2.21.1912260251520.3762799@eddie.linux-mips.org>
 MIME-Version: 1.0
-In-Reply-To: <20191229172718.158972713@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-WatchGuard-Spam-ID: str=0001.0A0C0210.5E08F396.0055,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
-X-WatchGuard-Spam-Score: 0, clean; 0, virus threat unknown
-X-WatchGuard-Mail-Client-IP: 85.134.45.194
-X-WatchGuard-Mail-From: tmb@mageia.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.2.21.1912260251520.3762799@eddie.linux-mips.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Den 29-12-2019 kl. 19:24, skrev Greg Kroah-Hartman:
-> From: Masami Hiramatsu <mhiramat@kernel.org>
-> 
-> [ Upstream commit 3895534dd78f0fd4d3f9e05ee52b9cdd444a743e ]
-> 
-> Since debuginfo__find_probe_point() uses dwarf_entrypc() for finding the
-> entry address of the function on which a probe is, it will fail when the
-> function DIE has only ranges attribute.
-> 
-> To fix this issue, use die_entrypc() instead of dwarf_entrypc().
-> 
-> Without this fix, perf probe -l shows incorrect offset:
-> 
->    # perf probe -l
->      probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask+18446744071579263632@work/linux/linux/kernel/cpu.c)
->      probe:clear_tasks_mm_cpumask_1 (on clear_tasks_mm_cpumask+18446744071579263752@work/linux/linux/kernel/cpu.c)
-> 
-> With this:
-> 
->    # perf probe -l
->      probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask@work/linux/linux/kernel/cpu.c)
->      probe:clear_tasks_mm_cpumask_1 (on clear_tasks_mm_cpumask:21@work/linux/linux/kernel/cpu.c)
-> 
-> Committer testing:
-> 
-> Before:
-> 
->    [root@quaco ~]# perf probe -l
->      probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask+18446744071579765152@kernel/cpu.c)
->    [root@quaco ~]#
-> 
-> After:
-> 
->    [root@quaco ~]# perf probe -l
->      probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask@kernel/cpu.c)
->    [root@quaco ~]#
-> 
-> Fixes: 1d46ea2a6a40 ("perf probe: Fix listing incorrect line number with inline function")
-> Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-> Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-> Cc: Jiri Olsa <jolsa@redhat.com>
-> Cc: Namhyung Kim <namhyung@kernel.org>
-> Link: http://lore.kernel.org/lkml/157199321227.8075.14655572419136993015.stgit@devnote2
-> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   tools/perf/util/probe-finder.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-> index cd9f95e5044e..7c8d30fb2b99 100644
-> --- a/tools/perf/util/probe-finder.c
-> +++ b/tools/perf/util/probe-finder.c
-> @@ -1578,7 +1578,7 @@ int debuginfo__find_probe_point(struct debuginfo *dbg, unsigned long addr,
->   		/* Get function entry information */
->   		func = basefunc = dwarf_diename(&spdie);
->   		if (!func ||
-> -		    dwarf_entrypc(&spdie, &baseaddr) != 0 ||
-> +		    die_entrypc(&spdie, &baseaddr) != 0 ||
->   		    dwarf_decl_line(&spdie, &baseline) != 0) {
->   			lineno = 0;
->   			goto post;
-> @@ -1595,7 +1595,7 @@ int debuginfo__find_probe_point(struct debuginfo *dbg, unsigned long addr,
->   		while (die_find_top_inlinefunc(&spdie, (Dwarf_Addr)addr,
->   						&indie)) {
->   			/* There is an inline function */
-> -			if (dwarf_entrypc(&indie, &_addr) == 0 &&
-> +			if (die_entrypc(&indie, &_addr) == 0 &&
->   			    _addr == addr) {
->   				/*
->   				 * addr is at an inline function entry.
-> 
+Hi Maciej,
 
+On Thu, Dec 26, 2019 at 03:01:06AM +0000, Maciej W. Rozycki wrote:
+> On Wed, 4 Dec 2019, David Laight wrote:
+> > > We used to have separate get_user_unaligned() & put_user_unaligned()
+> > > which would suggest that it's expected that get_user() & put_user()
+> > > require their accesses be aligned, but they were removed by commit
+> > > 3170d8d226c2 ("kill {__,}{get,put}_user_unaligned()") in v4.13.
+> > > 
+> > > But perhaps we should just take the second AdEL exception & recover via
+> > > the fixups table. We definitely don't right now... Needs further
+> > > investigation...
+> > 
+> > get/put_user can fault because the user page is absent (etc).
+> > So there must be code to 'expect' a fault on those instructions.
+> 
+>  As I recall we only emulate unaligned accesses with a subset of integer 
+> load/store instructions (and then only if TIF_FIXADE is set, which is the 
+> default), and never with FP load/store instructions.  Consequently I see 
+> no point in doing this in the FP emulator either and I think these ought 
+> to just send SIGBUS instead.  Otherwise you'll end up with user code that 
+> works differently depending on whether the FP hardware is real or 
+> emulated, which is really bad.
 
-still broken
+That might simplify things here, but it's incorrect. I'm fairly certain
+the intent is that emulate_load_store_insn() handles all non-FP loads &
+stores (though looking at it we're missing some instructions added in
+r6). More importantly though we've been emulating FP loads & stores
+since v3.10 which introduced the change alongside microMIPS support in
+commit 102cedc32a6e ("MIPS: microMIPS: Floating point support."). The
+commit contains no description of why, and I'm not aware of any reason
+microMIPS specifically would need this so I suspect that commit bundled
+this change for no good reason...
 
-/usr/bin/ld: perf-in.o: in function `debuginfo__find_probe_point':
-/work/rpmbuild/BUILD/kernel-x86_64/linux-5.4/tools/perf/util/probe-finder.c:1616: 
-undefined reference to `die_entrypc'
+It's also worth noting that some hardware will handle unaligned FP
+loads/stores, which means having the emulator reject them will result in
+more of a visible difference to userland. ie. on some hardware they'll
+work just fine, but on some you'd get SIGBUS. So I do think emulating
+them makes some sense - just as for non-FP loads & stores it lets
+userland not care whether the hardware will handle them, so long as it's
+not performance critical code. If we knew that had never been used then
+perhaps we could enforce the alignment requirement (and maybe that's
+what you recall doing), but since we've been emulating them for the past
+6 years it's too late for that now.
 
---
-Thomas
+Thanks,
+    Paul
