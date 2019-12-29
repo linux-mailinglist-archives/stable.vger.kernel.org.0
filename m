@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FE7F12CA52
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:20:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E2512C771
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726752AbfL2RVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:21:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36516 "EHLO mail.kernel.org"
+        id S1728893AbfL2R3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:29:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726720AbfL2RVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:21:24 -0500
+        id S1728576AbfL2R3w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:29:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C866208E4;
-        Sun, 29 Dec 2019 17:21:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B7E820409;
+        Sun, 29 Dec 2019 17:29:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640084;
-        bh=s5B3lJwV4LMC3f0kVupUoUXC08V/vbxtaHQo17eQX2I=;
+        s=default; t=1577640591;
+        bh=K9QFq+c8GqpHyIIbuhqi4vkeOg9dl6bOL2jocsocoCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8gKmsQRRYFnmJRq/pME30Q0a6TdkVo7IU/R7DpScabXe5dL2MlsKbae9Yn7eA/A4
-         jRaiZW91Gc9iI0sTLpi+nepAKdTbY0kP4B2a3fkbQsFZbggHCC1R/CuiQsvc1y/lUM
-         BrBWVW9x/brJk3DST2XzCPhU6Fez3LjjRlMnamBg=
+        b=mtR2gvdI9JHW4zE9Nj3u/+3KxUAusDQD+mQnAKw7Z5vWAwtjYjlkHv65UWDk8acic
+         5FOd9wI6Cfuh1XtAFxAz5Mv+2dtE/9aocUb2exI7D+AwKihnAL8OydlrLVasHf3aqp
+         y6tXTwUN0BlmV+5Uc5YdCeqzx78QEhsvRfWzWnAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 012/161] btrfs: do not call synchronize_srcu() in inode_tree_del
-Date:   Sun, 29 Dec 2019 18:17:40 +0100
-Message-Id: <20191229162359.542920188@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        Hannes Reinecke <hare@suse.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 059/219] block: Fix writeback throttling W=1 compiler warnings
+Date:   Sun, 29 Dec 2019 18:17:41 +0100
+Message-Id: <20191229162515.825997343@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
-References: <20191229162355.500086350@linuxfoundation.org>
+In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
+References: <20191229162508.458551679@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +47,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit f72ff01df9cf5db25c76674cac16605992d15467 upstream.
+[ Upstream commit 1d200e9d6f635ae894993a7d0f1b9e0b6e522e3b ]
 
-Testing with the new fsstress uncovered a pretty nasty deadlock with
-lookup and snapshot deletion.
+Fix the following compiler warnings:
 
-Process A
-unlink
- -> final iput
-   -> inode_tree_del
-     -> synchronize_srcu(subvol_srcu)
+In file included from ./include/linux/bitmap.h:9,
+                 from ./include/linux/cpumask.h:12,
+                 from ./arch/x86/include/asm/cpumask.h:5,
+                 from ./arch/x86/include/asm/msr.h:11,
+                 from ./arch/x86/include/asm/processor.h:21,
+                 from ./arch/x86/include/asm/cpufeature.h:5,
+                 from ./arch/x86/include/asm/thread_info.h:53,
+                 from ./include/linux/thread_info.h:38,
+                 from ./arch/x86/include/asm/preempt.h:7,
+                 from ./include/linux/preempt.h:78,
+                 from ./include/linux/spinlock.h:51,
+                 from ./include/linux/mmzone.h:8,
+                 from ./include/linux/gfp.h:6,
+                 from ./include/linux/mm.h:10,
+                 from ./include/linux/bvec.h:13,
+                 from ./include/linux/blk_types.h:10,
+                 from block/blk-wbt.c:23:
+In function 'strncpy',
+    inlined from 'perf_trace_wbt_stat' at ./include/trace/events/wbt.h:15:1:
+./include/linux/string.h:260:9: warning: '__builtin_strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+  return __builtin_strncpy(p, q, size);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function 'strncpy',
+    inlined from 'perf_trace_wbt_lat' at ./include/trace/events/wbt.h:58:1:
+./include/linux/string.h:260:9: warning: '__builtin_strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+  return __builtin_strncpy(p, q, size);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function 'strncpy',
+    inlined from 'perf_trace_wbt_step' at ./include/trace/events/wbt.h:87:1:
+./include/linux/string.h:260:9: warning: '__builtin_strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+  return __builtin_strncpy(p, q, size);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function 'strncpy',
+    inlined from 'perf_trace_wbt_timer' at ./include/trace/events/wbt.h:126:1:
+./include/linux/string.h:260:9: warning: '__builtin_strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+  return __builtin_strncpy(p, q, size);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function 'strncpy',
+    inlined from 'trace_event_raw_event_wbt_stat' at ./include/trace/events/wbt.h:15:1:
+./include/linux/string.h:260:9: warning: '__builtin_strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+  return __builtin_strncpy(p, q, size);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function 'strncpy',
+    inlined from 'trace_event_raw_event_wbt_lat' at ./include/trace/events/wbt.h:58:1:
+./include/linux/string.h:260:9: warning: '__builtin_strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+  return __builtin_strncpy(p, q, size);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function 'strncpy',
+    inlined from 'trace_event_raw_event_wbt_timer' at ./include/trace/events/wbt.h:126:1:
+./include/linux/string.h:260:9: warning: '__builtin_strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+  return __builtin_strncpy(p, q, size);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function 'strncpy',
+    inlined from 'trace_event_raw_event_wbt_step' at ./include/trace/events/wbt.h:87:1:
+./include/linux/string.h:260:9: warning: '__builtin_strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+  return __builtin_strncpy(p, q, size);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Process B
-btrfs_lookup  <- srcu_read_lock() acquired here
-  -> btrfs_iget
-    -> find inode that has I_FREEING set
-      -> __wait_on_freeing_inode()
-
-We're holding the srcu_read_lock() while doing the iget in order to make
-sure our fs root doesn't go away, and then we are waiting for the inode
-to finish freeing.  However because the free'ing process is doing a
-synchronize_srcu() we deadlock.
-
-Fix this by dropping the synchronize_srcu() in inode_tree_del().  We
-don't need people to stop accessing the fs root at this point, we're
-only adding our empty root to the dead roots list.
-
-A larger much more invasive fix is forthcoming to address how we deal
-with fs roots, but this fixes the immediate problem.
-
-Fixes: 76dda93c6ae2 ("Btrfs: add snapshot/subvolume destroy ioctl")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Johannes Thumshirn <jthumshirn@suse.de>
+Fixes: e34cbd307477 ("blk-wbt: add general throttling mechanism"; v4.10).
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c |    2 --
- 1 file changed, 2 deletions(-)
+ include/trace/events/wbt.h | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -5729,7 +5729,6 @@ static void inode_tree_add(struct inode
+diff --git a/include/trace/events/wbt.h b/include/trace/events/wbt.h
+index b048694070e2..37342a13c9cb 100644
+--- a/include/trace/events/wbt.h
++++ b/include/trace/events/wbt.h
+@@ -33,7 +33,8 @@ TRACE_EVENT(wbt_stat,
+ 	),
  
- static void inode_tree_del(struct inode *inode)
- {
--	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	struct btrfs_root *root = BTRFS_I(inode)->root;
- 	int empty = 0;
+ 	TP_fast_assign(
+-		strncpy(__entry->name, dev_name(bdi->dev), 32);
++		strlcpy(__entry->name, dev_name(bdi->dev),
++			ARRAY_SIZE(__entry->name));
+ 		__entry->rmean		= stat[0].mean;
+ 		__entry->rmin		= stat[0].min;
+ 		__entry->rmax		= stat[0].max;
+@@ -67,7 +68,8 @@ TRACE_EVENT(wbt_lat,
+ 	),
  
-@@ -5742,7 +5741,6 @@ static void inode_tree_del(struct inode
- 	spin_unlock(&root->inode_lock);
+ 	TP_fast_assign(
+-		strncpy(__entry->name, dev_name(bdi->dev), 32);
++		strlcpy(__entry->name, dev_name(bdi->dev),
++			ARRAY_SIZE(__entry->name));
+ 		__entry->lat = div_u64(lat, 1000);
+ 	),
  
- 	if (empty && btrfs_root_refs(&root->root_item) == 0) {
--		synchronize_srcu(&fs_info->subvol_srcu);
- 		spin_lock(&root->inode_lock);
- 		empty = RB_EMPTY_ROOT(&root->inode_tree);
- 		spin_unlock(&root->inode_lock);
+@@ -103,7 +105,8 @@ TRACE_EVENT(wbt_step,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name, dev_name(bdi->dev), 32);
++		strlcpy(__entry->name, dev_name(bdi->dev),
++			ARRAY_SIZE(__entry->name));
+ 		__entry->msg	= msg;
+ 		__entry->step	= step;
+ 		__entry->window	= div_u64(window, 1000);
+@@ -138,7 +141,8 @@ TRACE_EVENT(wbt_timer,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name, dev_name(bdi->dev), 32);
++		strlcpy(__entry->name, dev_name(bdi->dev),
++			ARRAY_SIZE(__entry->name));
+ 		__entry->status		= status;
+ 		__entry->step		= step;
+ 		__entry->inflight	= inflight;
+-- 
+2.20.1
+
 
 
