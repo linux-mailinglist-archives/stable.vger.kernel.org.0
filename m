@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7095B12C6C8
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46E1D12C6CE
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731865AbfL2RuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:50:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34862 "EHLO mail.kernel.org"
+        id S1731916AbfL2Ruj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:50:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731524AbfL2RuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:50:24 -0500
+        id S1731145AbfL2Rui (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:50:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 577D1206A4;
-        Sun, 29 Dec 2019 17:50:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFADA208C4;
+        Sun, 29 Dec 2019 17:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641823;
-        bh=KvVcsg5lqPQtLpqPc52N0Vg8q6S+q1oWffGb/QpJtEY=;
+        s=default; t=1577641838;
+        bh=jdNtSF3EYMlYf03kSIiNuT+bTGIm2CtTN/3ghGpQl1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKErp31yQl+ALNwJudkWhKLJogxDM5Qob33bDRkM/U/gERElupAX2EvpvmElzLzZQ
-         uYmOQxMPot3CjMtl5x5fXi9lvJitsd/mMjlAxGkN/i/ZlN78O4LGG+ZqljtEjWjId1
-         ml+OjZazOYUuoyP8BVA8cK29rWekB4bluhAuVfBE=
+        b=K4BZDb39nUDjljQwtwWO26WdfMiHB1+NBgBIuG0YrDEFNDeEqNkZtK+rOoCQ7hIwG
+         U61x3C6DSAHg1gb43JGzH9wM3aFM/rfpr+9u8oDYdb/1vPvkAYRdBxaUXQVhrL0Pbz
+         JcSpbzs7Txd7RFE+d1oiIXfpZuZb6AAUkd47HdRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Max Gurtovoy <maxg@mellanox.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 225/434] pinctrl: amd: fix __iomem annotation in amd_gpio_irq_handler()
-Date:   Sun, 29 Dec 2019 18:24:38 +0100
-Message-Id: <20191229172716.801599919@linuxfoundation.org>
+Subject: [PATCH 5.4 230/434] nvme: introduce "Command Aborted By host" status code
+Date:   Sun, 29 Dec 2019 18:24:43 +0100
+Message-Id: <20191229172717.146191150@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,48 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
+From: Max Gurtovoy <maxg@mellanox.com>
 
-[ Upstream commit 10ff58aa3c2e2a093b6ad615a7e3d8bb0dc613e5 ]
+[ Upstream commit 2dc3947b53f573e8a75ea9cbec5588df88ca502e ]
 
-The regs pointer in amd_gpio_irq_handler() should have __iomem
-on it, so add that to fix the following sparse warnings:
+Fix the status code of canceled requests initiated by the host according
+to TP4028 (Status Code 0x371):
+"Command Aborted By host: The command was aborted as a result of host
+action (e.g., the host disconnected the Fabric connection)."
 
-drivers/pinctrl/pinctrl-amd.c:555:14: warning: incorrect type in assignment (different address spaces)
-drivers/pinctrl/pinctrl-amd.c:555:14:    expected unsigned int [usertype] *regs
-drivers/pinctrl/pinctrl-amd.c:555:14:    got void [noderef] <asn:2> *base
-drivers/pinctrl/pinctrl-amd.c:563:34: warning: incorrect type in argument 1 (different address spaces)
-drivers/pinctrl/pinctrl-amd.c:563:34:    expected void const volatile [noderef] <asn:2> *addr
-drivers/pinctrl/pinctrl-amd.c:563:34:    got unsigned int [usertype] *
-drivers/pinctrl/pinctrl-amd.c:580:34: warning: incorrect type in argument 1 (different address spaces)
-drivers/pinctrl/pinctrl-amd.c:580:34:    expected void const volatile [noderef] <asn:2> *addr
-drivers/pinctrl/pinctrl-amd.c:580:34:    got unsigned int [usertype] *
-drivers/pinctrl/pinctrl-amd.c:587:25: warning: incorrect type in argument 2 (different address spaces)
-drivers/pinctrl/pinctrl-amd.c:587:25:    expected void volatile [noderef] <asn:2> *addr
-drivers/pinctrl/pinctrl-amd.c:587:25:    got unsigned int [usertype] *
+Also in a multipath environment, unless otherwise specified, errors of
+this type (path related) should be retried using a different path, if
+one is available.
 
-Signed-off-by: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
-Link: https://lore.kernel.org/r/20191022151154.5986-1-ben.dooks@codethink.co.uk
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-amd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c      | 2 +-
+ drivers/nvme/host/multipath.c | 1 +
+ include/linux/nvme.h          | 1 +
+ 3 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
-index 2c61141519f8..eab078244a4c 100644
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -540,7 +540,8 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
- 	irqreturn_t ret = IRQ_NONE;
- 	unsigned int i, irqnr;
- 	unsigned long flags;
--	u32 *regs, regval;
-+	u32 __iomem *regs;
-+	u32  regval;
- 	u64 status, mask;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index af3212aec871..b4e1e4379f1f 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -313,7 +313,7 @@ bool nvme_cancel_request(struct request *req, void *data, bool reserved)
+ 	if (blk_mq_request_completed(req))
+ 		return true;
  
- 	/* Read the wake status */
+-	nvme_req(req)->status = NVME_SC_HOST_PATH_ERROR;
++	nvme_req(req)->status = NVME_SC_HOST_ABORTED_CMD;
+ 	blk_mq_complete_request(req);
+ 	return true;
+ }
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index e0f064dcbd02..132ade51ee87 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -95,6 +95,7 @@ void nvme_failover_req(struct request *req)
+ 		}
+ 		break;
+ 	case NVME_SC_HOST_PATH_ERROR:
++	case NVME_SC_HOST_ABORTED_CMD:
+ 		/*
+ 		 * Temporary transport disruption in talking to the controller.
+ 		 * Try to send on a new path.
+diff --git a/include/linux/nvme.h b/include/linux/nvme.h
+index f61d6906e59d..a260cd754f28 100644
+--- a/include/linux/nvme.h
++++ b/include/linux/nvme.h
+@@ -1368,6 +1368,7 @@ enum {
+ 	NVME_SC_ANA_INACCESSIBLE	= 0x302,
+ 	NVME_SC_ANA_TRANSITION		= 0x303,
+ 	NVME_SC_HOST_PATH_ERROR		= 0x370,
++	NVME_SC_HOST_ABORTED_CMD	= 0x371,
+ 
+ 	NVME_SC_CRD			= 0x1800,
+ 	NVME_SC_DNR			= 0x4000,
 -- 
 2.20.1
 
