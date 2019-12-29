@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA53012C4C5
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:34:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6DAB12C505
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:40:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729345AbfL2Rcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:32:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33342 "EHLO mail.kernel.org"
+        id S1727541AbfL2Rcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:32:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729342AbfL2Rck (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:32:40 -0500
+        id S1729358AbfL2Rcr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:32:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7A51208E4;
-        Sun, 29 Dec 2019 17:32:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0009220409;
+        Sun, 29 Dec 2019 17:32:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640760;
-        bh=+Kf9WqdIqt2OINxaomJUPTrMY0shwAmeuuV8RdUx/7Y=;
+        s=default; t=1577640767;
+        bh=37GhvsGRf9iOwK6d9QDIImLR2MRH5h+lFXgn8HZGWhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n4RzOkECTfYuK2ft21KL6Wsr7mlbSffYal/MJm5yyIPgt8P8G9vAFfoLRW+mbQadk
-         9Nrs2NPr04WIppI+oTZG/YuE86W8y1na96UwL9pChShmkgIsFsNaX3xpl3CyohMzmC
-         2S/Inl5LjQgZegbt/aVxc8XEVfnnZ5gXDAS4xV2Y=
+        b=K/bi9PJMWvP5H56GIrD+VCDZ7C2oVNZ0apZk1UT/Js1dYeUeIDk9yr5ricp4xXuH7
+         7i8uz9PtFJReIJbSDMn7r+zZMG+jYcJfNqph1O+TUw+ADFMAcbrjWxTBLdqrM0n/++
+         +qyPlfsfK9F2RFbG1NvhUIuA32RGgHli37C2yyn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sebastian Siewior <bigeasy@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 090/219] x86/ioapic: Prevent inconsistent state when moving an interrupt
-Date:   Sun, 29 Dec 2019 18:18:12 +0100
-Message-Id: <20191229162520.902452219@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 091/219] media: smiapp: Register sensor after enabling runtime PM on the device
+Date:   Sun, 29 Dec 2019 18:18:13 +0100
+Message-Id: <20191229162521.188293750@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -47,79 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit df4393424af3fbdcd5c404077176082a8ce459c4 ]
+[ Upstream commit 90c9e4a4dba9f4de331372e745fb1991c1faa598 ]
 
-There is an issue with threaded interrupts which are marked ONESHOT
-and using the fasteoi handler:
+Earlier it was possible that the parts of the driver that assumed runtime
+PM was enabled were being called before runtime PM was enabled in the
+driver's probe function. So enable runtime PM before registering the
+sub-device.
 
-  if (IS_ONESHOT())
-    mask_irq();
-  ....
-  cond_unmask_eoi_irq()
-    chip->irq_eoi();
-      if (setaffinity_pending) {
-         mask_ioapic();
-         ...
-	 move_affinity();
-	 unmask_ioapic();
-      }
-
-So if setaffinity is pending the interrupt will be moved and then
-unconditionally unmasked at the ioapic level, which is wrong in two
-aspects:
-
- 1) It should be kept masked up to the point where the threaded handler
-    finished.
-
- 2) The physical chip state and the software masked state are inconsistent
-
-Guard both the mask and the unmask with a check for the software masked
-state. If the line is marked masked then the ioapic line is also masked, so
-both mask_ioapic() and unmask_ioapic() can be skipped safely.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sebastian Siewior <bigeasy@linutronix.de>
-Fixes: 3aa551c9b4c4 ("genirq: add threaded interrupt handler support")
-Link: https://lkml.kernel.org/r/20191017101938.321393687@linutronix.de
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/io_apic.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/media/i2c/smiapp/smiapp-core.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index ab22eded61d2..fa3b85b222e3 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -1724,9 +1724,10 @@ static bool io_apic_level_ack_pending(struct mp_chip_data *data)
+diff --git a/drivers/media/i2c/smiapp/smiapp-core.c b/drivers/media/i2c/smiapp/smiapp-core.c
+index 1236683da8f7..4731e1c72f96 100644
+--- a/drivers/media/i2c/smiapp/smiapp-core.c
++++ b/drivers/media/i2c/smiapp/smiapp-core.c
+@@ -3108,19 +3108,23 @@ static int smiapp_probe(struct i2c_client *client,
+ 	if (rval < 0)
+ 		goto out_media_entity_cleanup;
  
- static inline bool ioapic_irqd_mask(struct irq_data *data)
- {
--	/* If we are moving the irq we need to mask it */
-+	/* If we are moving the IRQ we need to mask it */
- 	if (unlikely(irqd_is_setaffinity_pending(data))) {
--		mask_ioapic_irq(data);
-+		if (!irqd_irq_masked(data))
-+			mask_ioapic_irq(data);
- 		return true;
- 	}
- 	return false;
-@@ -1763,7 +1764,9 @@ static inline void ioapic_irqd_unmask(struct irq_data *data, bool masked)
- 		 */
- 		if (!io_apic_level_ack_pending(data->chip_data))
- 			irq_move_masked_irq(data);
--		unmask_ioapic_irq(data);
-+		/* If the IRQ is masked in the core, leave it: */
-+		if (!irqd_irq_masked(data))
-+			unmask_ioapic_irq(data);
- 	}
- }
- #else
+-	rval = v4l2_async_register_subdev_sensor_common(&sensor->src->sd);
+-	if (rval < 0)
+-		goto out_media_entity_cleanup;
+-
+ 	pm_runtime_set_active(&client->dev);
+ 	pm_runtime_get_noresume(&client->dev);
+ 	pm_runtime_enable(&client->dev);
++
++	rval = v4l2_async_register_subdev_sensor_common(&sensor->src->sd);
++	if (rval < 0)
++		goto out_disable_runtime_pm;
++
+ 	pm_runtime_set_autosuspend_delay(&client->dev, 1000);
+ 	pm_runtime_use_autosuspend(&client->dev);
+ 	pm_runtime_put_autosuspend(&client->dev);
+ 
+ 	return 0;
+ 
++out_disable_runtime_pm:
++	pm_runtime_disable(&client->dev);
++
+ out_media_entity_cleanup:
+ 	media_entity_cleanup(&sensor->src->sd.entity);
+ 
 -- 
 2.20.1
 
