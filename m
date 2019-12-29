@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7BF12C578
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 141F112C590
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729525AbfL2RgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:36:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41356 "EHLO mail.kernel.org"
+        id S1729212AbfL2RhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:37:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729313AbfL2RgN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:36:13 -0500
+        id S1729299AbfL2RgP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:36:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CDA0207FF;
-        Sun, 29 Dec 2019 17:36:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A8A5206DB;
+        Sun, 29 Dec 2019 17:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640972;
-        bh=K2C6IWr4EBzuin7+AWj1Jnxey2syn/dls7BFI53OCrU=;
+        s=default; t=1577640975;
+        bh=ErSN2XeBm930ThUzSOLtw9CrlGzqk9HcCu7NpCdJGeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2pj4hJDG+rZvGMeMDNDIuDcwYc7TsWF09e89TyUzL36zCrWc7E9Ob0lyhWtV4b9b
-         VOAKENJeGvZRgwxFOYd2DdXBu0Eo2u/aIDCf7jCai7FhL9wYFmGJLh4qSNmQMQdQWQ
-         vsux0WG2GOA+b0ArSoa6t3kNbxvoRQ0zWtVUhKD4=
+        b=VKYMAij3AwFPWJIpaXiQDK0fTCmaeCQOZd+ZPIJOuh8X+EnLdVo1qNOURLk2iO1ZW
+         3pZP//ey3dSQArma8Dmiq+vSpAhpb5QPVBT0qIts7SO+rDZI6a6fEckv2TgcmlNGOQ
+         Cgzl1iPxHAQS4dZ5CCG+v5V8HrompwB0E/B48AiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 176/219] brcmfmac: remove monitor interface when detaching
-Date:   Sun, 29 Dec 2019 18:19:38 +0100
-Message-Id: <20191229162535.478953369@linuxfoundation.org>
+Subject: [PATCH 4.19 177/219] iwlwifi: check kasprintf() return value
+Date:   Sun, 29 Dec 2019 18:19:39 +0100
+Message-Id: <20191229162535.601060564@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -45,37 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 4f61563da075bc8faefddfd5f8fc0cc14c49650a ]
+[ Upstream commit 5974fbb5e10b018fdbe3c3b81cb4cc54e1105ab9 ]
 
-This fixes a minor WARNING in the cfg80211:
-[  130.658034] ------------[ cut here ]------------
-[  130.662805] WARNING: CPU: 1 PID: 610 at net/wireless/core.c:954 wiphy_unregister+0xb4/0x198 [cfg80211]
+kasprintf() can fail, we should check the return value.
 
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 5ed540aecc2a ("iwlwifi: use mac80211 throughput trigger")
+Fixes: 8ca151b568b6 ("iwlwifi: add the MVM driver")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/dvm/led.c | 3 +++
+ drivers/net/wireless/intel/iwlwifi/mvm/led.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-index 0f56be13c7ad..584e05fdca6a 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-@@ -1246,6 +1246,11 @@ void brcmf_detach(struct device *dev)
+diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/led.c b/drivers/net/wireless/intel/iwlwifi/dvm/led.c
+index 1bbd17ada974..20e16c423990 100644
+--- a/drivers/net/wireless/intel/iwlwifi/dvm/led.c
++++ b/drivers/net/wireless/intel/iwlwifi/dvm/led.c
+@@ -185,6 +185,9 @@ void iwl_leds_init(struct iwl_priv *priv)
  
- 	brcmf_proto_detach_pre_delif(drvr);
- 
-+	if (drvr->mon_if) {
-+		brcmf_net_detach(drvr->mon_if->ndev, false);
-+		drvr->mon_if = NULL;
-+	}
+ 	priv->led.name = kasprintf(GFP_KERNEL, "%s-led",
+ 				   wiphy_name(priv->hw->wiphy));
++	if (!priv->led.name)
++		return;
 +
- 	/* make sure primary interface removed last */
- 	for (i = BRCMF_MAX_IFS-1; i > -1; i--)
- 		brcmf_remove_interface(drvr->iflist[i], false);
+ 	priv->led.brightness_set = iwl_led_brightness_set;
+ 	priv->led.blink_set = iwl_led_blink_set;
+ 	priv->led.max_brightness = 1;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/led.c b/drivers/net/wireless/intel/iwlwifi/mvm/led.c
+index b27269504a62..072f80c90ce4 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/led.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/led.c
+@@ -131,6 +131,9 @@ int iwl_mvm_leds_init(struct iwl_mvm *mvm)
+ 
+ 	mvm->led.name = kasprintf(GFP_KERNEL, "%s-led",
+ 				   wiphy_name(mvm->hw->wiphy));
++	if (!mvm->led.name)
++		return -ENOMEM;
++
+ 	mvm->led.brightness_set = iwl_led_brightness_set;
+ 	mvm->led.max_brightness = 1;
+ 
 -- 
 2.20.1
 
