@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 922CE12C7FA
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10FE212C7FB
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731627AbfL2RtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:49:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33086 "EHLO mail.kernel.org"
+        id S1731637AbfL2RtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:49:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731624AbfL2RtV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:49:21 -0500
+        id S1731633AbfL2RtY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:49:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD28021D7E;
-        Sun, 29 Dec 2019 17:49:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27A3D206DB;
+        Sun, 29 Dec 2019 17:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641761;
-        bh=IIvtXK4zljKP9WSSZCo7XgAgIVI9zg8nm3j28BEUGsI=;
+        s=default; t=1577641763;
+        bh=uNZl7f5UhB+UsZoV84lUGTHZX/E8YRgp6q45n84cjgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6ekKA4zEA2QG0Xf1q8oxOabjTzLbDQRJYn2SmmDW9ar5wUGgbX7OBaTIhuibUM6t
-         f406G7eHdkEbIZriQtbt9ufCqnvDxOQC9WThe0C+/0XLPe+r76oYk4b+ClDd/g20XF
-         NT9iclnmtak1sKNFA6RurjPQiqMby/bpmr8rd+Yw=
+        b=yr1qrbm8M9kjwnRdJpOZqMm0yiF1b7aXH1BhO06RrY4UFwuGRq1Cvsv00xg7GGAH0
+         ocn7eTx7edvl7GVoHHknESdb7CZYYjkdJNzPm+ssVjODqyrYRjRuSgzqVOm3PWhQYK
+         szhkcYBdmHt4F0BiTmwhIarEfJYhcFdHjZ8RmSp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ariel Elior <ariel.elior@marvell.com>,
-        Michal Kalderon <michal.kalderon@marvell.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 201/434] RDMA/qedr: Fix srqs xarray initialization
-Date:   Sun, 29 Dec 2019 18:24:14 +0100
-Message-Id: <20191229172715.180533685@linuxfoundation.org>
+Subject: [PATCH 5.4 202/434] RDMA/core: Set DMA parameters correctly
+Date:   Sun, 29 Dec 2019 18:24:15 +0100
+Message-Id: <20191229172715.246516066@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,37 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Kalderon <michal.kalderon@marvell.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 73ab512f720298aabe23b34110e3f6a8545b0ba5 ]
+[ Upstream commit c9121262d57b8a3be4f08073546436ba0128ca6a ]
 
-There was a missing initialization for the srqs xarray.
-SRQs xarray can also be called from irq context when searching
-for an element and uses the xa_XXX_irq apis, therefore should
-be initialized with IRQ flags.
+The dma_set_max_seg_size() call in setup_dma_device() does not have any
+effect since device->dev.dma_parms is NULL. Fix this by initializing
+device->dev.dma_parms first.
 
-Fixes: 9fd15987ed27 ("qedr: Convert srqidr to XArray")
-Link: https://lore.kernel.org/r/20191027200451.28187-2-michal.kalderon@marvell.com
-Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Link: https://lore.kernel.org/r/20191025225830.257535-5-bvanassche@acm.org
+Fixes: d10bcf947a3e ("RDMA/umem: Combine contiguous PAGE_SIZE regions in SGEs")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/core/device.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
-index dc71b6e16a07..b462eaca1ee3 100644
---- a/drivers/infiniband/hw/qedr/main.c
-+++ b/drivers/infiniband/hw/qedr/main.c
-@@ -357,6 +357,7 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
- 		return -ENOMEM;
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index 50a92442c4f7..e6327d8f5b79 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -1199,9 +1199,21 @@ static void setup_dma_device(struct ib_device *device)
+ 		WARN_ON_ONCE(!parent);
+ 		device->dma_device = parent;
+ 	}
+-	/* Setup default max segment size for all IB devices */
+-	dma_set_max_seg_size(device->dma_device, SZ_2G);
  
- 	spin_lock_init(&dev->sgid_lock);
-+	xa_init_flags(&dev->srqs, XA_FLAGS_LOCK_IRQ);
++	if (!device->dev.dma_parms) {
++		if (parent) {
++			/*
++			 * The caller did not provide DMA parameters, so
++			 * 'parent' probably represents a PCI device. The PCI
++			 * core sets the maximum segment size to 64
++			 * KB. Increase this parameter to 2 GB.
++			 */
++			device->dev.dma_parms = parent->dma_parms;
++			dma_set_max_seg_size(device->dma_device, SZ_2G);
++		} else {
++			WARN_ON_ONCE(true);
++		}
++	}
+ }
  
- 	if (IS_IWARP(dev)) {
- 		xa_init_flags(&dev->qps, XA_FLAGS_LOCK_IRQ);
+ /*
 -- 
 2.20.1
 
