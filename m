@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 598B312CA13
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7F6D12CA10
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727675AbfL2RYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:24:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42524 "EHLO mail.kernel.org"
+        id S1727295AbfL2RYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:24:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727671AbfL2RYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:24:08 -0500
+        id S1727374AbfL2RYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:24:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9EC720722;
-        Sun, 29 Dec 2019 17:24:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A88E3207FD;
+        Sun, 29 Dec 2019 17:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640248;
-        bh=QozURXCJBPVksqCydUnS/f/GwhWTAa4O786kDQPZHIs=;
+        s=default; t=1577640253;
+        bh=PbejQvt92Lv8EXKEFReHeQaUQoigtn6bvBp6eI1MK3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aDJfDrxF9fTpCQvtBkOY83QV8v82YA8T53jMDqnIZJtuMhi96njxi8VNIK8NeyVl0
-         aFCJOoRC0iW1b2Bzge03oi7erZ0E/BLhKLv79+ZvvODSiJSVMnoNPSjV69GHkoX0vW
-         ESSMqSt207wXzsE4BkKW58fO2FUNr0EM3hdZidOw=
+        b=2QozpblgfUXl/NvBSnetolHKQwXILct6IXxQt8VidccBdhVQFDdt9k+rjG5mhXWgJ
+         bxrQ5YIftqwAENBDXyA3oxu6dWq7ObhjWvSSL9CnVk7Oa3NU7eqehNPour/VRPO7gZ
+         NzUR1l4JTPYZRUsHgHgNhhGct8nI/yoRUPeS9ZUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yizhuo <yzhai003@ucr.edu>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 042/161] regulator: max8907: Fix the usage of uninitialized variable in max8907_regulator_probe()
-Date:   Sun, 29 Dec 2019 18:18:10 +0100
-Message-Id: <20191229162412.402709871@linuxfoundation.org>
+Subject: [PATCH 4.14 043/161] media: flexcop-usb: fix NULL-ptr deref in flexcop_usb_transfer_init()
+Date:   Sun, 29 Dec 2019 18:18:11 +0100
+Message-Id: <20191229162412.934047252@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -44,62 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yizhuo <yzhai003@ucr.edu>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 472b39c3d1bba0616eb0e9a8fa3ad0f56927c7d7 ]
+[ Upstream commit 649cd16c438f51d4cd777e71ca1f47f6e0c5e65d ]
 
-Inside function max8907_regulator_probe(), variable val could
-be uninitialized if regmap_read() fails. However, val is used
-later in the if statement to decide the content written to
-"pmic", which is potentially unsafe.
+If usb_set_interface() failed, iface->cur_altsetting will
+not be assigned and it will be used in flexcop_usb_transfer_init()
+It may lead a NULL pointer dereference.
 
-Signed-off-by: Yizhuo <yzhai003@ucr.edu>
-Link: https://lore.kernel.org/r/20191003175813.16415-1-yzhai003@ucr.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Check usb_set_interface() return value in flexcop_usb_init()
+and return failed to avoid using this NULL pointer.
+
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/max8907-regulator.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/media/usb/b2c2/flexcop-usb.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/max8907-regulator.c b/drivers/regulator/max8907-regulator.c
-index 860400d2cd85..a8f2f07239fb 100644
---- a/drivers/regulator/max8907-regulator.c
-+++ b/drivers/regulator/max8907-regulator.c
-@@ -299,7 +299,10 @@ static int max8907_regulator_probe(struct platform_device *pdev)
- 	memcpy(pmic->desc, max8907_regulators, sizeof(pmic->desc));
- 
- 	/* Backwards compatibility with MAX8907B; SD1 uses different voltages */
--	regmap_read(max8907->regmap_gen, MAX8907_REG_II2RR, &val);
-+	ret = regmap_read(max8907->regmap_gen, MAX8907_REG_II2RR, &val);
-+	if (ret)
+diff --git a/drivers/media/usb/b2c2/flexcop-usb.c b/drivers/media/usb/b2c2/flexcop-usb.c
+index ac4fddfd0a43..f1807c16438d 100644
+--- a/drivers/media/usb/b2c2/flexcop-usb.c
++++ b/drivers/media/usb/b2c2/flexcop-usb.c
+@@ -503,7 +503,13 @@ urb_error:
+ static int flexcop_usb_init(struct flexcop_usb *fc_usb)
+ {
+ 	/* use the alternate setting with the larges buffer */
+-	usb_set_interface(fc_usb->udev,0,1);
++	int ret = usb_set_interface(fc_usb->udev, 0, 1);
++
++	if (ret) {
++		err("set interface failed.");
 +		return ret;
++	}
 +
- 	if ((val & MAX8907_II2RR_VERSION_MASK) ==
- 	    MAX8907_II2RR_VERSION_REV_B) {
- 		pmic->desc[MAX8907_SD1].min_uV = 637500;
-@@ -336,14 +339,20 @@ static int max8907_regulator_probe(struct platform_device *pdev)
- 		}
- 
- 		if (pmic->desc[i].ops == &max8907_ldo_ops) {
--			regmap_read(config.regmap, pmic->desc[i].enable_reg,
-+			ret = regmap_read(config.regmap, pmic->desc[i].enable_reg,
- 				    &val);
-+			if (ret)
-+				return ret;
-+
- 			if ((val & MAX8907_MASK_LDO_SEQ) !=
- 			    MAX8907_MASK_LDO_SEQ)
- 				pmic->desc[i].ops = &max8907_ldo_hwctl_ops;
- 		} else if (pmic->desc[i].ops == &max8907_out5v_ops) {
--			regmap_read(config.regmap, pmic->desc[i].enable_reg,
-+			ret = regmap_read(config.regmap, pmic->desc[i].enable_reg,
- 				    &val);
-+			if (ret)
-+				return ret;
-+
- 			if ((val & (MAX8907_MASK_OUT5V_VINEN |
- 						MAX8907_MASK_OUT5V_ENSRC)) !=
- 			    MAX8907_MASK_OUT5V_ENSRC)
+ 	switch (fc_usb->udev->speed) {
+ 	case USB_SPEED_LOW:
+ 		err("cannot handle USB speed because it is too slow.");
 -- 
 2.20.1
 
