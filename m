@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A96B512C63D
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:53:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA8F12C64E
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:54:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730821AbfL2Roz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:44:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53478 "EHLO mail.kernel.org"
+        id S1730922AbfL2Rpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:45:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730816AbfL2Roy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:44:54 -0500
+        id S1728104AbfL2Rpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:45:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02EF920718;
-        Sun, 29 Dec 2019 17:44:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B00A2206A4;
+        Sun, 29 Dec 2019 17:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641494;
-        bh=sARREdcfm0vpuykptTtJgsr9tgcPOczqT4r1+jCHqY0=;
+        s=default; t=1577641533;
+        bh=6c9PzHPVAznoCalWlQZAJygTvLl7Fcorlzke+wc/Iew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEaW044HN50xDcR9gRsi7J+BCjWpWAqm/VZZzuqi7qjqUGtMcgj9iDb7zvcMDg7Yb
-         MgCi2+Q5QsJuaKSoW+EPpAJPL8D8s4+FbKvxxOtmDcg3jgdRIdv/ijM8UUbN+gG2+r
-         65VM/gFluhU/Gbsbdp0zy6M2ks0FgaFiBIPcHO1E=
+        b=ileoBedkgMCQFRtLwx/nUk+dAuXlQx61wGVb4JVw1x/kfI4hmMGWD5yZaDmfC5JKU
+         T0f9HIpUrxxWOV72xEgA6STUiHjIakoVKLjzqAoBH6APLLimkm9QP5vqUiLx7cRL4X
+         8a7ig647BVqZrSf6JJUN56P6QozP6CliTEtUzJxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Majewski <lukma@denx.de>,
-        Mark Brown <broonie@kernel.org>,
-        kbuild test robot <lkp@intel.com>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/434] spi: Add call to spi_slave_abort() function when spidev driver is released
-Date:   Sun, 29 Dec 2019 18:21:55 +0100
-Message-Id: <20191229172705.916806713@linuxfoundation.org>
+Subject: [PATCH 5.4 066/434] rtlwifi: prevent memory leak in rtl_usb_probe
+Date:   Sun, 29 Dec 2019 18:21:59 +0100
+Message-Id: <20191229172706.129248790@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,47 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Majewski <lukma@denx.de>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 9f918a728cf86b2757b6a7025e1f46824bfe3155 ]
+[ Upstream commit 3f93616951138a598d930dcaec40f2bfd9ce43bb ]
 
-This change is necessary for spidev devices (e.g. /dev/spidev3.0) working
-in the slave mode (like NXP's dspi driver for Vybrid SoC).
+In rtl_usb_probe if allocation for usb_data fails the allocated hw
+should be released. In addition the allocated rtlpriv->usb_data should
+be released on error handling path.
 
-When SPI HW works in this mode - the master is responsible for providing
-CS and CLK signals. However, when some fault happens - like for example
-distortion on SPI lines - the SPI Linux driver needs a chance to recover
-from this abnormal situation and prepare itself for next (correct)
-transmission.
-
-This change doesn't pose any threat on drivers working in master mode as
-spi_slave_abort() function checks if SPI slave mode is supported.
-
-Signed-off-by: Lukasz Majewski <lukma@denx.de>
-Link: https://lore.kernel.org/r/20190924110547.14770-2-lukma@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20190925091143.15468-2-lukma@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/realtek/rtlwifi/usb.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index 255786f2e844..3ea9d8a3e6e8 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -627,6 +627,9 @@ static int spidev_release(struct inode *inode, struct file *filp)
- 		if (dofree)
- 			kfree(spidev);
- 	}
-+#ifdef CONFIG_SPI_SLAVE
-+	spi_slave_abort(spidev->spi);
-+#endif
- 	mutex_unlock(&device_list_lock);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
+index 4b59f3b46b28..348b0072cdd6 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/usb.c
++++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
+@@ -1021,8 +1021,10 @@ int rtl_usb_probe(struct usb_interface *intf,
+ 	rtlpriv->hw = hw;
+ 	rtlpriv->usb_data = kcalloc(RTL_USB_MAX_RX_COUNT, sizeof(u32),
+ 				    GFP_KERNEL);
+-	if (!rtlpriv->usb_data)
++	if (!rtlpriv->usb_data) {
++		ieee80211_free_hw(hw);
+ 		return -ENOMEM;
++	}
  
- 	return 0;
+ 	/* this spin lock must be initialized early */
+ 	spin_lock_init(&rtlpriv->locks.usb_lock);
+@@ -1083,6 +1085,7 @@ error_out2:
+ 	_rtl_usb_io_handler_release(hw);
+ 	usb_put_dev(udev);
+ 	complete(&rtlpriv->firmware_loading_complete);
++	kfree(rtlpriv->usb_data);
+ 	return -ENODEV;
+ }
+ EXPORT_SYMBOL(rtl_usb_probe);
 -- 
 2.20.1
 
