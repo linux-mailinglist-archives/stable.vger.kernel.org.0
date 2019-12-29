@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A768912C328
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 16:46:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBBE312C329
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 16:46:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726627AbfL2Pq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 10:46:56 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:42891 "EHLO
+        id S1726647AbfL2Pq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 10:46:58 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:40109 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726230AbfL2Pq4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 10:46:56 -0500
+        by vger.kernel.org with ESMTP id S1726230AbfL2Pq6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 10:46:58 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id A2182416;
-        Sun, 29 Dec 2019 10:46:54 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id EED8C41D;
+        Sun, 29 Dec 2019 10:46:56 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 29 Dec 2019 10:46:54 -0500
+  by compute6.internal (MEProxy); Sun, 29 Dec 2019 10:46:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gNsjYM
-        q7ae/qRUTVFCUyz0Rz5I74wV56OLvvVlaq+U8=; b=RCC3f9VJ+KYoDOlMTftYz0
-        WY7Sj8BCyAXxBkxos97wBrzm/ZcXc5H4Pc+YjkCAKKI2ae4eOZS348XPk6pEoCkN
-        vD/es9SqewZMzwL+xmr0MqHm3eL2Wo40oJ3Sje5hdHXMDmPKJNicUR7p8yUUS7oW
-        7N3njDUIBzYeUT5ZkRbGhKIYAqX3ZUOxcgmXc144vr3EX90c5GpBzJaHxdWmFnWc
-        wzJHP2paqBf3zzJXDilrhj3ccBx8WQUPZ6LqsgJUKoMiZr29jCHty0wPWC2NizNu
-        z1ir8jVX2fvcmOvpjy1QoV/DLH1UrPWVfWDE0TlNyc8Zuu16ZZRI2APJlpp8S7rw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=LNipSD
+        4KJD2rFj/joOAlVazNl5STBfchBm7PZd+8oCU=; b=OXcuY4CXGR6g5FO50Jvg8y
+        vZVHUH3ARznEUPuWrmgLQuXyuZQJyn4LpOh5Mf85fXfv9C0vQuANJnRhA28i1h4y
+        n77nu8m3kjGBcDO6GgwSRKePIHpgnVzNNs7IVZZ+nP40ji+iijXRoIpHnHvOio+l
+        dExzDjYoaNOKJMp6z3aiXWTs4btb3ZYjKAUgd/wpmW7+G1U6gUgbtZn5pzWpskrL
+        PzZvVbk4JRZj5q87g1tsVBWF3Z6fh37NKKD0/ro09CKc+6NYtQKZbUFAeT2iS6tA
+        jgoe+HBY3AQCP81dOxcgw6e5d2iBYYELWc7WXew9s8bpV7HiHhg1fOfCI3j8MvwA
         ==
-X-ME-Sender: <xms:bcoIXr84y8y_Me1TFX7w7TXzaOnQmhN8MwSplp8HegGF13u-w7rCEg>
+X-ME-Sender: <xms:cMoIXu-YV-xZ3pno1ETksg2RSjqJq8qqPiXTPC58nteLs9TcTFyOSA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgkedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:bsoIXqzEC-oxPMayqDSY2tfIfKa7t5hgWjrXNaavBCpwdUqF26e0bA>
-    <xmx:bsoIXjodYwzFxB9Zg42m7QnvUiFUUMYlh7LlcNjIO-k3hk6XA695Iw>
-    <xmx:bsoIXjoF8GgnkttAzE6Qp_3swk1R786BT92O9Ybgkh5EHtrwxhbIPw>
-    <xmx:bsoIXsmcSxoQgUPiTBFWqtGFU7QTZpl6EuiWgh7MF4RO0498TZi7-g>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:cMoIXki0KRdPeTOWT4qaaOcA9cJFWvVEn8dxsOwCw3qdFM_iUOZtDg>
+    <xmx:cMoIXpGFL_l_XXVCIy10vBwMhaliDVha0p_T2aaHm9rlS_9xifEiOg>
+    <xmx:cMoIXlcrhdi5XNQYe1uRAvdDz6aiJ5XK4b0DdKXJVR55itLLm23jvw>
+    <xmx:cMoIXpkKAbq_8YH7ns_lTPcFsoKdSAc53p0eM0G_F-cgDbZyqnuinQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B079B3060A32;
-        Sun, 29 Dec 2019 10:46:53 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pinctrl: baytrail: Really serialize all register accesses" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3A4E93060A32;
+        Sun, 29 Dec 2019 10:46:56 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pinctrl: baytrail: Really serialize all register accesses" failed to apply to 4.14-stable tree
 To:     hdegoede@redhat.com, andriy.shevchenko@linux.intel.com,
         mika.westerberg@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Dec 2019 16:46:52 +0100
-Message-ID: <1577634412127144@kroah.com>
+Date:   Sun, 29 Dec 2019 16:46:53 +0100
+Message-ID: <15776344132811@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
