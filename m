@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B82212CA35
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:20:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC61E12CA34
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:20:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726984AbfL2RWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:22:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39810 "EHLO mail.kernel.org"
+        id S1727458AbfL2RW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:22:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727002AbfL2RWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:22:53 -0500
+        id S1726667AbfL2RW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:22:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88B4620CC7;
-        Sun, 29 Dec 2019 17:22:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E835A22525;
+        Sun, 29 Dec 2019 17:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640173;
-        bh=xi2FPHfQ1DwUJkkDXeIFqp5zIvdo5B1XzYZZ0VLlqUk=;
+        s=default; t=1577640178;
+        bh=BnM3JxEX8BwEsYFRVewNHqghO/nfDAldXYA6Zt6W9XU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RT1QXYw4Jh4oavRD1AifI8v7aFa/6Y8i6sFV8QQmlx3lBubLNWUT1wCDRGYpn/qU7
-         EOyzVF6SrTibldy8AYSv0LN13HDIExlZDhowfKbmBT40SlckyR6muxVEP+Zlc3zBa3
-         4YtQ5dEZaHXIVt2GHuYCMh/43cOBBNyke0Nm7+QA=
+        b=Cu935IsfVG0WJoiGOAhupKtHWKNh0WP6vlODCMFJWuRSZhNFGrXk40tFZPLRkKYMr
+         ikmzp16zwHUggn3vgHN8W+y7E0EDlWveC+gSENR59kB3RJzbx9zx0DBkiygDAJwAzO
+         OqxJwwh0nc6qJApWnT4Ma2qqpQg0YFgD5CrnBciA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 049/161] media: cx88: Fix some error handling path in cx8800_initdev()
-Date:   Sun, 29 Dec 2019 18:18:17 +0100
-Message-Id: <20191229162413.598625208@linuxfoundation.org>
+Subject: [PATCH 4.14 051/161] media: ti-vpe: vpe: fix a v4l2-compliance warning about invalid pixel format
+Date:   Sun, 29 Dec 2019 18:18:19 +0100
+Message-Id: <20191229162414.410510489@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -46,74 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit e1444e9b0424c70def6352580762d660af50e03f ]
+[ Upstream commit 06bec72b250b2cb3ba96fa45c2b8e0fb83745517 ]
 
-A call to 'pci_disable_device()' is missing in the error handling path.
-In some cases, a call to 'free_irq()' may also be missing.
+v4l2-compliance warns with this message:
 
-Reorder the error handling path, add some new labels and fix the 2 issues
-mentionned above.
+   warn: v4l2-test-formats.cpp(717): \
+ 	TRY_FMT cannot handle an invalid pixelformat.
+   warn: v4l2-test-formats.cpp(718): \
+ 	This may or may not be a problem. For more information see:
+   warn: v4l2-test-formats.cpp(719): \
+ 	http://www.mail-archive.com/linux-media@vger.kernel.org/msg56550.html
+	...
+   test VIDIOC_TRY_FMT: FAIL
 
-This way, the error handling path in more in line with 'cx8800_finidev()'
-(i.e. the remove function)
+We need to make sure that the returns a valid pixel format in all
+instance. Based on the v4l2 framework convention drivers must return a
+valid pixel format when the requested pixel format is either invalid or
+not supported.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx88/cx88-video.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/media/platform/ti-vpe/vpe.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/pci/cx88/cx88-video.c b/drivers/media/pci/cx88/cx88-video.c
-index 7d25ecd4404b..1748812bd7e5 100644
---- a/drivers/media/pci/cx88/cx88-video.c
-+++ b/drivers/media/pci/cx88/cx88-video.c
-@@ -1310,7 +1310,7 @@ static int cx8800_initdev(struct pci_dev *pci_dev,
- 	core = cx88_core_get(dev->pci);
- 	if (!core) {
- 		err = -EINVAL;
--		goto fail_free;
-+		goto fail_disable;
- 	}
- 	dev->core = core;
+diff --git a/drivers/media/platform/ti-vpe/vpe.c b/drivers/media/platform/ti-vpe/vpe.c
+index 19c0a2614635..4dc08f5a6081 100644
+--- a/drivers/media/platform/ti-vpe/vpe.c
++++ b/drivers/media/platform/ti-vpe/vpe.c
+@@ -352,20 +352,25 @@ enum {
+ };
  
-@@ -1356,7 +1356,7 @@ static int cx8800_initdev(struct pci_dev *pci_dev,
- 				       cc->step, cc->default_value);
- 		if (!vc) {
- 			err = core->audio_hdl.error;
--			goto fail_core;
-+			goto fail_irq;
- 		}
- 		vc->priv = (void *)cc;
- 	}
-@@ -1370,7 +1370,7 @@ static int cx8800_initdev(struct pci_dev *pci_dev,
- 				       cc->step, cc->default_value);
- 		if (!vc) {
- 			err = core->video_hdl.error;
--			goto fail_core;
-+			goto fail_irq;
- 		}
- 		vc->priv = (void *)cc;
- 		if (vc->id == V4L2_CID_CHROMA_AGC)
-@@ -1533,11 +1533,14 @@ static int cx8800_initdev(struct pci_dev *pci_dev,
+ /* find our format description corresponding to the passed v4l2_format */
+-static struct vpe_fmt *find_format(struct v4l2_format *f)
++static struct vpe_fmt *__find_format(u32 fourcc)
+ {
+ 	struct vpe_fmt *fmt;
+ 	unsigned int k;
  
- fail_unreg:
- 	cx8800_unregister_video(dev);
--	free_irq(pci_dev->irq, dev);
- 	mutex_unlock(&core->lock);
-+fail_irq:
-+	free_irq(pci_dev->irq, dev);
- fail_core:
- 	core->v4ldev = NULL;
- 	cx88_core_put(core, dev->pci);
-+fail_disable:
-+	pci_disable_device(pci_dev);
- fail_free:
- 	kfree(dev);
- 	return err;
+ 	for (k = 0; k < ARRAY_SIZE(vpe_formats); k++) {
+ 		fmt = &vpe_formats[k];
+-		if (fmt->fourcc == f->fmt.pix.pixelformat)
++		if (fmt->fourcc == fourcc)
+ 			return fmt;
+ 	}
+ 
+ 	return NULL;
+ }
+ 
++static struct vpe_fmt *find_format(struct v4l2_format *f)
++{
++	return __find_format(f->fmt.pix.pixelformat);
++}
++
+ /*
+  * there is one vpe_dev structure in the driver, it is shared by
+  * all instances.
+@@ -1608,9 +1613,9 @@ static int __vpe_try_fmt(struct vpe_ctx *ctx, struct v4l2_format *f,
+ 	unsigned int stride = 0;
+ 
+ 	if (!fmt || !(fmt->types & type)) {
+-		vpe_err(ctx->dev, "Fourcc format (0x%08x) invalid.\n",
++		vpe_dbg(ctx->dev, "Fourcc format (0x%08x) invalid.\n",
+ 			pix->pixelformat);
+-		return -EINVAL;
++		fmt = __find_format(V4L2_PIX_FMT_YUYV);
+ 	}
+ 
+ 	if (pix->field != V4L2_FIELD_NONE && pix->field != V4L2_FIELD_ALTERNATE
 -- 
 2.20.1
 
