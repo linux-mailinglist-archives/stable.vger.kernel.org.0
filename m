@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2614E12C334
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 16:51:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B64B12C335
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 16:51:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726627AbfL2PvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 10:51:19 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:36075 "EHLO
+        id S1726647AbfL2PvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 10:51:21 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:37577 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726410AbfL2PvT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 10:51:19 -0500
+        by vger.kernel.org with ESMTP id S1726410AbfL2PvV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 10:51:21 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 5C59142B;
-        Sun, 29 Dec 2019 10:51:18 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 29 Dec 2019 10:51:18 -0500
+        by mailout.west.internal (Postfix) with ESMTP id D371A409;
+        Sun, 29 Dec 2019 10:51:19 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 29 Dec 2019 10:51:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=cBQaIV
-        oMcUU2fBruz6icR3wIYw8NZ+AnYIPu3i5CR78=; b=ovrlLTFmKIoI0jtYPC7oKr
-        oEf3JURtMiJItovqJrmVDcUEBYE193c1mp9+agwqUJB2WanwMOGp0CT6StAfQvFk
-        b6v7CIj7PkhV4ACmhiFQF7gbE6uJO8KPEoy1rm3CIpasjlDtbIsqHNRtP/usvEGp
-        b+Uxv8zOw2G2E8K8wjEw4bdvuwbsRglKC640okJcJ9J8gE8yzaIqypm9PgVO+bxJ
-        feCiIIpbFv57fIXNspN1O7/EVHPoEoFCXMlDnPFWC7esnWuVjaXw5zjfwhyk7lyk
-        g9mSiQ43yf/eUowCpFRgri5cQeoxVKFGnlGFAe/+/jFqNGD4Mzyr/rZMAT+HybuQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=IOkj7X
+        fcAbTcACW1mLfFFWFkc32AMyKt+WZ3kNEtTiA=; b=U68yVCBI7KlY8a6su0mzQS
+        er7PL2wutg5KF6roTA5TmHvfUkEln+EOp2+aPS87CV7vLr0lyus0h4vY2vYhTTqK
+        DIfXzRActACMxJ0liBb0KhNMJ9QaQAXWUbFnoKkBQt0gn6mch7IdofMTOJhA6yO/
+        4ieiP6QWeRe7jtBtwY83A8re8T4LgJ20v6geTOX2EPpRdOA+xKyWI1uLA4/nrgHy
+        xB4UDiwOis8RCu80xy7cfWiwE1wisEooYwRnDOqw0Dh9oltwKcjvkpPyCTJ+QoFe
+        ahV+jSoNVD8a10O9cpf3qYxNwGZ9X9TUh0bf2R47KLmvqsNaY7ZM+XnP3yyzD3Lg
         ==
-X-ME-Sender: <xms:dcsIXmA-4VcscdIbBkkM3jJY21FUf8OJBsev0kAIDIjYa4ODYTPVYA>
+X-ME-Sender: <xms:d8sIXviFHbTbXPCEFrF5-ZI42u78BVj6GyKZIokIv2MThR0L5-mcdA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgkedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:dcsIXo8pNdLySRaa-h5FA-HKAutFqfqUPJhibLsCUd49psTzitHIEw>
-    <xmx:dcsIXqCbunnbOQuL8m70edQZaebsTZY5rG9tMm2st2s3T6PSmOgyHQ>
-    <xmx:dcsIXlTSOxoNiWB9Dub4PvC0CqrpI7UsmgD4i2qOAvhbmLvro-6ziw>
-    <xmx:dssIXooS9vj6Q8Sw5bBU82R5XAOO5C4vhcM41Q814Hkrjs4h2SkJtQ>
+X-ME-Proxy: <xmx:d8sIXhLxMlEASADAMW-xyZi7mnurJXOp6eTiCQRF9bVQfeEiDMcgIQ>
+    <xmx:d8sIXmXaj39u-yScUZizSAb_Qrlgioq8LRkIewXeS7_AwERmAmYb1w>
+    <xmx:d8sIXj2cQHcGYZSRN89F7x6W82q_821AdlYYT84TKwOL_PEpuUO7gQ>
+    <xmx:d8sIXhj9PMgf59UadKQ9Y-WrWS45gFg3xu3DA88LFGY7tmsliU-XCg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 966F93060B17;
-        Sun, 29 Dec 2019 10:51:17 -0500 (EST)
-Subject: FAILED: patch "[PATCH] kvm: x86: Host feature SSBD doesn't imply guest feature" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 068E08005B;
+        Sun, 29 Dec 2019 10:51:18 -0500 (EST)
+Subject: FAILED: patch "[PATCH] kvm: x86: Host feature SSBD doesn't imply guest feature" failed to apply to 4.4-stable tree
 To:     jmattson@google.com, ebiggers@kernel.org, jacobhxu@google.com,
         pbonzini@redhat.com, pshier@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Dec 2019 16:51:07 +0100
-Message-ID: <157763466722642@kroah.com>
+Date:   Sun, 29 Dec 2019 16:51:08 +0100
+Message-ID: <1577634668186110@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
