@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 234E512C9D3
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 310B212C9D1
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:19:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728203AbfL2R0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:26:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47626 "EHLO mail.kernel.org"
+        id S1728242AbfL2R0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:26:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727382AbfL2R0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:26:30 -0500
+        id S1728238AbfL2R0f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:26:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 827F821744;
-        Sun, 29 Dec 2019 17:26:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F2BB207FF;
+        Sun, 29 Dec 2019 17:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640390;
-        bh=ibYh33WcDqtJFx1fzZSI/8T3+GC6ZOgarCVSzWDpJsQ=;
+        s=default; t=1577640394;
+        bh=MB4wfjNAr84QKgu1o/8ij9NJCI4/njW1sZSxPHurkPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6L4F+wdtG9hBqtMvW6Yc17i0LAyasqzmTx5jkPOsdy/lopzUGnuoqznDjvrXZMUs
-         PJrKO/63NuWrl1G8Omba9ddy7bnTmnA4lhFnPbNIkc8S3aDCEDDuOKiEwFvcuTuuCC
-         EBH/xKpWNeD8K4fhvih7UdYpGefbcv50ulqO/pdo=
+        b=iQKbwvtB0AhtUdKnz8RE9qnojd3TvfFrfewF0UYs3FpsmAMs3AjhKQ89ZsODLcBNx
+         jaZH/Hz8gvu3cswTx6wcabqOTk62Ms6lTq9JOuhVRhh7WpgolsYOCi9RYZr6hUhvAI
+         NeHjMWiTQiux3fsZJBWuYQ41tO/GJ7wAW225yCPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 139/161] mmc: mediatek: fix CMD_TA to 2 for MT8173 HS200/HS400 mode
-Date:   Sun, 29 Dec 2019 18:19:47 +0100
-Message-Id: <20191229162441.327994797@linuxfoundation.org>
+        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 140/161] usb: xhci: Fix build warning seen with CONFIG_PM=n
+Date:   Sun, 29 Dec 2019 18:19:48 +0100
+Message-Id: <20191229162441.462168981@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -44,44 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaotian Jing <chaotian.jing@mediatek.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 8f34e5bd7024d1ffebddd82d7318b1be17be9e9a upstream.
+[ Upstream commit 6056a0f8ede27b296d10ef46f7f677cc9d715371 ]
 
-there is a chance that always get response CRC error after HS200 tuning,
-the reason is that need set CMD_TA to 2. this modification is only for
-MT8173.
+The following build warning is seen if CONFIG_PM is disabled.
 
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Cc: stable@vger.kernel.org
-Fixes: 1ede5cb88a29 ("mmc: mediatek: Use data tune for CMD line tune")
-Link: https://lore.kernel.org/r/20191204071958.18553-1-chaotian.jing@mediatek.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+drivers/usb/host/xhci-pci.c:498:13: warning:
+	unused function 'xhci_pci_shutdown'
+
+Fixes: f2c710f7dca8 ("usb: xhci: only set D3hot for pci device")
+Cc: Henry Lin <henryl@nvidia.com>
+Cc: stable@vger.kernel.org	# all stable releases with f2c710f7dca8
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20191218011911.6907-1-linux@roeck-us.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mtk-sd.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/host/xhci-pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -212,6 +212,8 @@
- #define MSDC_PATCH_BIT_SPCPUSH    (0x1 << 29)	/* RW */
- #define MSDC_PATCH_BIT_DECRCTMO   (0x1 << 30)	/* RW */
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 021a2d320acc..09f228279c01 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -497,7 +497,6 @@ static int xhci_pci_resume(struct usb_hcd *hcd, bool hibernated)
+ 	retval = xhci_resume(xhci, hibernated);
+ 	return retval;
+ }
+-#endif /* CONFIG_PM */
  
-+#define MSDC_PATCH_BIT1_CMDTA     (0x7 << 3)    /* RW */
-+
- #define MSDC_PAD_TUNE_DATWRDLY	  (0x1f <<  0)	/* RW */
- #define MSDC_PAD_TUNE_DATRRDLY	  (0x1f <<  8)	/* RW */
- #define MSDC_PAD_TUNE_CMDRDLY	  (0x1f << 16)  /* RW */
-@@ -1442,6 +1444,7 @@ static int hs400_tune_response(struct mm
+ static void xhci_pci_shutdown(struct usb_hcd *hcd)
+ {
+@@ -510,6 +509,7 @@ static void xhci_pci_shutdown(struct usb_hcd *hcd)
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+ 		pci_set_power_state(pdev, PCI_D3hot);
+ }
++#endif /* CONFIG_PM */
  
- 	/* select EMMC50 PAD CMD tune */
- 	sdr_set_bits(host->base + PAD_CMD_TUNE, BIT(0));
-+	sdr_set_field(host->base + MSDC_PATCH_BIT1, MSDC_PATCH_BIT1_CMDTA, 2);
+ /*-------------------------------------------------------------------------*/
  
- 	if (mmc->ios.timing == MMC_TIMING_MMC_HS200 ||
- 	    mmc->ios.timing == MMC_TIMING_UHS_SDR104)
+-- 
+2.20.1
+
 
 
