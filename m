@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1202112C85C
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92C1D12C85B
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729158AbfL2Rxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732529AbfL2Rxp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 29 Dec 2019 12:53:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40820 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732525AbfL2Rxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:53:42 -0500
+        id S1729371AbfL2Rxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:53:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49CC421D7E;
-        Sun, 29 Dec 2019 17:53:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4F5221D7E;
+        Sun, 29 Dec 2019 17:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642021;
-        bh=LUZPtTD5pM3c04znJpxsc7Ia5Cp7M9WEmADmWiEVL4o=;
+        s=default; t=1577642024;
+        bh=A1FOVV26f2ggY+vCfaKrBDnzf+4YILXKM85+hxAUp5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lCQz18XrA4aD2z+Bq1lrRpEiSojQkG3ve2a2+fYXYty0mnR3ctnb6W17c+sBHn8br
-         dlsIjXPyyi14d+DzMV+3iGXcrJoCXI+hfRGiQ4iCpsr34gTcHXf8LgclTOSAVvGcU3
-         ZRdsPgu1CrOXGUeUvEEEx+c5Wh4YdrsHYWOOKF2A=
+        b=B2j0+/46xjfgoXFXUzMBJmckPqwA5VC1E8OIo30DMp/lsLW67FBAV64pbxnaTs7VY
+         P/dmv7UAuxNs2gllxuRHfUzg78QqOPtH0eoEUSp+7N02PKgDajL6IwqLdPxtY3OxTt
+         14yUMgopzZmEWkBX8Q7bNorGkmFEdsRHt/enaJKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Wang Xuerui <wangxuerui@qiniu.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 308/434] bcache: fix deadlock in bcache_allocator
-Date:   Sun, 29 Dec 2019 18:26:01 +0100
-Message-Id: <20191229172722.411865283@linuxfoundation.org>
+Subject: [PATCH 5.4 309/434] iwlwifi: mvm: fix unaligned read of rx_pkt_status
+Date:   Sun, 29 Dec 2019 18:26:02 +0100
+Message-Id: <20191229172722.478297888@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,154 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Wang Xuerui <wangxuerui@qiniu.com>
 
-[ Upstream commit 84c529aea182939e68f618ed9813740c9165c7eb ]
+[ Upstream commit c5aaa8be29b25dfe1731e9a8b19fd91b7b789ee3 ]
 
-bcache_allocator can call the following:
+This is present since the introduction of iwlmvm.
+Example stack trace on MIPS:
 
- bch_allocator_thread()
-  -> bch_prio_write()
-     -> bch_bucket_alloc()
-        -> wait on &ca->set->bucket_wait
+[<ffffffffc0789328>] iwl_mvm_rx_rx_mpdu+0xa8/0xb88 [iwlmvm]
+[<ffffffffc0632b40>] iwl_pcie_rx_handle+0x420/0xc48 [iwlwifi]
 
-But the wake up event on bucket_wait is supposed to come from
-bch_allocator_thread() itself => deadlock:
+Tested with a Wireless AC 7265 for ~6 months, confirmed to fix the
+problem. No other unaligned accesses are spotted yet.
 
-[ 1158.490744] INFO: task bcache_allocato:15861 blocked for more than 10 seconds.
-[ 1158.495929]       Not tainted 5.3.0-050300rc3-generic #201908042232
-[ 1158.500653] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[ 1158.504413] bcache_allocato D    0 15861      2 0x80004000
-[ 1158.504419] Call Trace:
-[ 1158.504429]  __schedule+0x2a8/0x670
-[ 1158.504432]  schedule+0x2d/0x90
-[ 1158.504448]  bch_bucket_alloc+0xe5/0x370 [bcache]
-[ 1158.504453]  ? wait_woken+0x80/0x80
-[ 1158.504466]  bch_prio_write+0x1dc/0x390 [bcache]
-[ 1158.504476]  bch_allocator_thread+0x233/0x490 [bcache]
-[ 1158.504491]  kthread+0x121/0x140
-[ 1158.504503]  ? invalidate_buckets+0x890/0x890 [bcache]
-[ 1158.504506]  ? kthread_park+0xb0/0xb0
-[ 1158.504510]  ret_from_fork+0x35/0x40
-
-Fix by making the call to bch_prio_write() non-blocking, so that
-bch_allocator_thread() never waits on itself.
-
-Moreover, make sure to wake up the garbage collector thread when
-bch_prio_write() is failing to allocate buckets.
-
-BugLink: https://bugs.launchpad.net/bugs/1784665
-BugLink: https://bugs.launchpad.net/bugs/1796292
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Wang Xuerui <wangxuerui@qiniu.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/alloc.c  |  5 ++++-
- drivers/md/bcache/bcache.h |  2 +-
- drivers/md/bcache/super.c  | 27 +++++++++++++++++++++------
- 3 files changed, 26 insertions(+), 8 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/bcache/alloc.c b/drivers/md/bcache/alloc.c
-index 6f776823b9ba..a1df0d95151c 100644
---- a/drivers/md/bcache/alloc.c
-+++ b/drivers/md/bcache/alloc.c
-@@ -377,7 +377,10 @@ retry_invalidate:
- 			if (!fifo_full(&ca->free_inc))
- 				goto retry_invalidate;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rx.c b/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
+index 0ad8ed23a455..5ee33c8ae9d2 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
+@@ -60,6 +60,7 @@
+  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  *****************************************************************************/
++#include <asm/unaligned.h>
+ #include <linux/etherdevice.h>
+ #include <linux/skbuff.h>
+ #include "iwl-trans.h"
+@@ -357,7 +358,7 @@ void iwl_mvm_rx_rx_mpdu(struct iwl_mvm *mvm, struct napi_struct *napi,
+ 	rx_res = (struct iwl_rx_mpdu_res_start *)pkt->data;
+ 	hdr = (struct ieee80211_hdr *)(pkt->data + sizeof(*rx_res));
+ 	len = le16_to_cpu(rx_res->byte_count);
+-	rx_pkt_status = le32_to_cpup((__le32 *)
++	rx_pkt_status = get_unaligned_le32((__le32 *)
+ 		(pkt->data + sizeof(*rx_res) + len));
  
--			bch_prio_write(ca);
-+			if (bch_prio_write(ca, false) < 0) {
-+				ca->invalidate_needs_gc = 1;
-+				wake_up_gc(ca->set);
-+			}
- 		}
- 	}
- out:
-diff --git a/drivers/md/bcache/bcache.h b/drivers/md/bcache/bcache.h
-index 013e35a9e317..deb924e1d790 100644
---- a/drivers/md/bcache/bcache.h
-+++ b/drivers/md/bcache/bcache.h
-@@ -977,7 +977,7 @@ bool bch_cached_dev_error(struct cached_dev *dc);
- __printf(2, 3)
- bool bch_cache_set_error(struct cache_set *c, const char *fmt, ...);
- 
--void bch_prio_write(struct cache *ca);
-+int bch_prio_write(struct cache *ca, bool wait);
- void bch_write_bdev_super(struct cached_dev *dc, struct closure *parent);
- 
- extern struct workqueue_struct *bcache_wq;
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index d2654880b7b9..64999c7a8033 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -529,12 +529,29 @@ static void prio_io(struct cache *ca, uint64_t bucket, int op,
- 	closure_sync(cl);
- }
- 
--void bch_prio_write(struct cache *ca)
-+int bch_prio_write(struct cache *ca, bool wait)
- {
- 	int i;
- 	struct bucket *b;
- 	struct closure cl;
- 
-+	pr_debug("free_prio=%zu, free_none=%zu, free_inc=%zu",
-+		 fifo_used(&ca->free[RESERVE_PRIO]),
-+		 fifo_used(&ca->free[RESERVE_NONE]),
-+		 fifo_used(&ca->free_inc));
-+
-+	/*
-+	 * Pre-check if there are enough free buckets. In the non-blocking
-+	 * scenario it's better to fail early rather than starting to allocate
-+	 * buckets and do a cleanup later in case of failure.
-+	 */
-+	if (!wait) {
-+		size_t avail = fifo_used(&ca->free[RESERVE_PRIO]) +
-+			       fifo_used(&ca->free[RESERVE_NONE]);
-+		if (prio_buckets(ca) > avail)
-+			return -ENOMEM;
-+	}
-+
- 	closure_init_stack(&cl);
- 
- 	lockdep_assert_held(&ca->set->bucket_lock);
-@@ -544,9 +561,6 @@ void bch_prio_write(struct cache *ca)
- 	atomic_long_add(ca->sb.bucket_size * prio_buckets(ca),
- 			&ca->meta_sectors_written);
- 
--	//pr_debug("free %zu, free_inc %zu, unused %zu", fifo_used(&ca->free),
--	//	 fifo_used(&ca->free_inc), fifo_used(&ca->unused));
--
- 	for (i = prio_buckets(ca) - 1; i >= 0; --i) {
- 		long bucket;
- 		struct prio_set *p = ca->disk_buckets;
-@@ -564,7 +578,7 @@ void bch_prio_write(struct cache *ca)
- 		p->magic	= pset_magic(&ca->sb);
- 		p->csum		= bch_crc64(&p->magic, bucket_bytes(ca) - 8);
- 
--		bucket = bch_bucket_alloc(ca, RESERVE_PRIO, true);
-+		bucket = bch_bucket_alloc(ca, RESERVE_PRIO, wait);
- 		BUG_ON(bucket == -1);
- 
- 		mutex_unlock(&ca->set->bucket_lock);
-@@ -593,6 +607,7 @@ void bch_prio_write(struct cache *ca)
- 
- 		ca->prio_last_buckets[i] = ca->prio_buckets[i];
- 	}
-+	return 0;
- }
- 
- static void prio_read(struct cache *ca, uint64_t bucket)
-@@ -1962,7 +1977,7 @@ static int run_cache_set(struct cache_set *c)
- 
- 		mutex_lock(&c->bucket_lock);
- 		for_each_cache(ca, c, i)
--			bch_prio_write(ca);
-+			bch_prio_write(ca, true);
- 		mutex_unlock(&c->bucket_lock);
- 
- 		err = "cannot allocate new UUID bucket";
+ 	/* Dont use dev_alloc_skb(), we'll have enough headroom once
 -- 
 2.20.1
 
