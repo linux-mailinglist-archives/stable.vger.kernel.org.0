@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E761612C3B6
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFB1712C3C8
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:23:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726763AbfL2RWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:22:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38870 "EHLO mail.kernel.org"
+        id S1727509AbfL2RXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:23:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726658AbfL2RW3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:22:29 -0500
+        id S1727507AbfL2RXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:23:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45DF7207FD;
-        Sun, 29 Dec 2019 17:22:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3C49207FF;
+        Sun, 29 Dec 2019 17:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640148;
-        bh=97AH1xh1Qq9DnQUA/Gr+AylmYm9mAMeokZWHItaRuCU=;
+        s=default; t=1577640195;
+        bh=d0/54zHd7bFo7CaWOxGyfNacHyy66MG5DTVPdEA80z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1jj6rfpkVl4H/xM6tL/Q4zk6Wg6Nm2GuvDb9/ONnNKl4NgsiILsdVwu+GpbWK/vyD
-         rMCIeiSKykUnAnjQztYxTCYqXP6XDblcHZG8btvhICTmOr+O7zYPiYokY8OHCl1LhD
-         D6rctMGyvP8KWCTd+4qPZRFfEB68FurT6sS+lbCM=
+        b=AJn1w6UH1+tj5XoFY4IP7ZmHg1YIGqbqaBxBeRqnbAxhSXX1U+nB2tXoX2i1yveDE
+         rcJEM85W66dHlqv0PVdKtjPMEVFf6rxRXl5tORcF5l7Q/cmdpWTMKFkRt3biKeYmq7
+         Gi6d5KQL6gcPgJEIJcHXBs8W8hvYcG3QT4Mpf3vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
-        Antonio Quartulli <antonio.quartulli@kaiwoo.ai>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 037/161] ath10k: fix offchannel tx failure when no ath10k_mac_tx_frm_has_freq
-Date:   Sun, 29 Dec 2019 18:18:05 +0100
-Message-Id: <20191229162410.991105696@linuxfoundation.org>
+Subject: [PATCH 4.14 040/161] usb: renesas_usbhs: add suspend event support in gadget mode
+Date:   Sun, 29 Dec 2019 18:18:08 +0100
+Message-Id: <20191229162411.724779098@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -45,118 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Greear <greearb@candelatech.com>
+From: Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>
 
-[ Upstream commit cc6df017e55764ffef9819dd9554053182535ffd ]
+[ Upstream commit 39abcc84846bbc0538f13c190b6a9c7e36890cd2 ]
 
-Offchannel management frames were failing:
+When R-Car Gen3 USB 2.0 is in Gadget mode, if host is detached an interrupt
+will be generated and Suspended state bit is set in interrupt status
+register. Interrupt handler will call driver->suspend(composite_suspend)
+if suspended state bit is set. composite_suspend will call
+ffs_func_suspend which will post FUNCTIONFS_SUSPEND and will be consumed
+by user space application via /dev/ep0.
 
-[18099.253732] ath10k_pci 0000:01:00.0: timed out waiting for offchannel skb cf0e3780
-[18102.293686] ath10k_pci 0000:01:00.0: timed out waiting for offchannel skb cf0e3780
-[18105.333653] ath10k_pci 0000:01:00.0: timed out waiting for offchannel skb cf0e3780
-[18108.373712] ath10k_pci 0000:01:00.0: timed out waiting for offchannel skb cf0e3780
-[18111.413687] ath10k_pci 0000:01:00.0: timed out waiting for offchannel skb cf0e36c0
-[18114.453726] ath10k_pci 0000:01:00.0: timed out waiting for offchannel skb cf0e3f00
-[18117.493773] ath10k_pci 0000:01:00.0: timed out waiting for offchannel skb cf0e36c0
-[18120.533631] ath10k_pci 0000:01:00.0: timed out waiting for offchannel skb cf0e3f00
+To be able to detect host detach, extend the DVSQ_MASK to cover the
+Suspended bit of the DVSQ[2:0] bitfield from the Interrupt Status
+Register 0 (INTSTS0) register and perform appropriate action in the
+DVST interrupt handler (usbhsg_irq_dev_state).
 
-This bug appears to have been added between 4.0 (which works for us),
-and 4.4, which does not work.
+Without this commit, disconnection of the phone from R-Car-H3 ES2.0
+Salvator-X CN9 port is not recognized and reverse role switch does
+not happen. If phone is connected again it does not enumerate.
 
-I think this is because the tx-offchannel logic gets in a loop when
-ath10k_mac_tx_frm_has_freq(ar) is false, so pkt is never actually
-sent to the firmware for transmit.
+With this commit, disconnection will be recognized and reverse role
+switch will happen by a user space application. If phone is connected
+again it will enumerate properly and will become visible in the output
+of 'lsusb'.
 
-This patch fixes the problem on 4.9 for me, and now HS20 clients
-can work again with my firmware.
-
-Antonio: tested with 10.4-3.5.3-00057 on QCA4019 and QCA9888
-
-Signed-off-by: Ben Greear <greearb@candelatech.com>
-Tested-by: Antonio Quartulli <antonio.quartulli@kaiwoo.ai>
-[kvalo@codeaurora.org: improve commit log, remove unneeded parenthesis]
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1568207756-22325-3-git-send-email-external.veeraiyan.c@de.adit-jv.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/usb/renesas_usbhs/common.h     |  3 ++-
+ drivers/usb/renesas_usbhs/mod_gadget.c | 12 +++++++++---
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index dff34448588f..ea47ad4b2343 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -3627,7 +3627,7 @@ static int ath10k_mac_tx(struct ath10k *ar,
- 			 struct ieee80211_vif *vif,
- 			 enum ath10k_hw_txrx_mode txmode,
- 			 enum ath10k_mac_tx_path txpath,
--			 struct sk_buff *skb)
-+			 struct sk_buff *skb, bool noque_offchan)
+diff --git a/drivers/usb/renesas_usbhs/common.h b/drivers/usb/renesas_usbhs/common.h
+index b8620aa6b72e..8424c165f732 100644
+--- a/drivers/usb/renesas_usbhs/common.h
++++ b/drivers/usb/renesas_usbhs/common.h
+@@ -163,11 +163,12 @@ struct usbhs_priv;
+ #define VBSTS	(1 << 7)	/* VBUS_0 and VBUSIN_0 Input Status */
+ #define VALID	(1 << 3)	/* USB Request Receive */
+ 
+-#define DVSQ_MASK		(0x3 << 4)	/* Device State */
++#define DVSQ_MASK		(0x7 << 4)	/* Device State */
+ #define  POWER_STATE		(0 << 4)
+ #define  DEFAULT_STATE		(1 << 4)
+ #define  ADDRESS_STATE		(2 << 4)
+ #define  CONFIGURATION_STATE	(3 << 4)
++#define  SUSPENDED_STATE	(4 << 4)
+ 
+ #define CTSQ_MASK		(0x7)	/* Control Transfer Stage */
+ #define  IDLE_SETUP_STAGE	0	/* Idle stage or setup stage */
+diff --git a/drivers/usb/renesas_usbhs/mod_gadget.c b/drivers/usb/renesas_usbhs/mod_gadget.c
+index 0dedb0d91dcc..b27f2135b66d 100644
+--- a/drivers/usb/renesas_usbhs/mod_gadget.c
++++ b/drivers/usb/renesas_usbhs/mod_gadget.c
+@@ -465,12 +465,18 @@ static int usbhsg_irq_dev_state(struct usbhs_priv *priv,
  {
- 	struct ieee80211_hw *hw = ar->hw;
- 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
-@@ -3655,10 +3655,10 @@ static int ath10k_mac_tx(struct ath10k *ar,
- 		}
- 	}
+ 	struct usbhsg_gpriv *gpriv = usbhsg_priv_to_gpriv(priv);
+ 	struct device *dev = usbhsg_gpriv_to_dev(gpriv);
++	int state = usbhs_status_get_device_state(irq_state);
  
--	if (info->flags & IEEE80211_TX_CTL_TX_OFFCHAN) {
-+	if (!noque_offchan && info->flags & IEEE80211_TX_CTL_TX_OFFCHAN) {
- 		if (!ath10k_mac_tx_frm_has_freq(ar)) {
--			ath10k_dbg(ar, ATH10K_DBG_MAC, "queued offchannel skb %pK\n",
--				   skb);
-+			ath10k_dbg(ar, ATH10K_DBG_MAC, "mac queued offchannel skb %pK len %d\n",
-+				   skb, skb->len);
+ 	gpriv->gadget.speed = usbhs_bus_get_speed(priv);
  
- 			skb_queue_tail(&ar->offchan_tx_queue, skb);
- 			ieee80211_queue_work(hw, &ar->offchan_tx_work);
-@@ -3720,8 +3720,8 @@ void ath10k_offchan_tx_work(struct work_struct *work)
+-	dev_dbg(dev, "state = %x : speed : %d\n",
+-		usbhs_status_get_device_state(irq_state),
+-		gpriv->gadget.speed);
++	dev_dbg(dev, "state = %x : speed : %d\n", state, gpriv->gadget.speed);
++
++	if (gpriv->gadget.speed != USB_SPEED_UNKNOWN &&
++	    (state & SUSPENDED_STATE)) {
++		if (gpriv->driver && gpriv->driver->suspend)
++			gpriv->driver->suspend(&gpriv->gadget);
++		usb_gadget_set_state(&gpriv->gadget, USB_STATE_SUSPENDED);
++	}
  
- 		mutex_lock(&ar->conf_mutex);
- 
--		ath10k_dbg(ar, ATH10K_DBG_MAC, "mac offchannel skb %pK\n",
--			   skb);
-+		ath10k_dbg(ar, ATH10K_DBG_MAC, "mac offchannel skb %pK len %d\n",
-+			   skb, skb->len);
- 
- 		hdr = (struct ieee80211_hdr *)skb->data;
- 		peer_addr = ieee80211_get_DA(hdr);
-@@ -3767,7 +3767,7 @@ void ath10k_offchan_tx_work(struct work_struct *work)
- 		txmode = ath10k_mac_tx_h_get_txmode(ar, vif, sta, skb);
- 		txpath = ath10k_mac_tx_h_get_txpath(ar, skb, txmode);
- 
--		ret = ath10k_mac_tx(ar, vif, txmode, txpath, skb);
-+		ret = ath10k_mac_tx(ar, vif, txmode, txpath, skb, true);
- 		if (ret) {
- 			ath10k_warn(ar, "failed to transmit offchannel frame: %d\n",
- 				    ret);
-@@ -3777,8 +3777,8 @@ void ath10k_offchan_tx_work(struct work_struct *work)
- 		time_left =
- 		wait_for_completion_timeout(&ar->offchan_tx_completed, 3 * HZ);
- 		if (time_left == 0)
--			ath10k_warn(ar, "timed out waiting for offchannel skb %pK\n",
--				    skb);
-+			ath10k_warn(ar, "timed out waiting for offchannel skb %pK, len: %d\n",
-+				    skb, skb->len);
- 
- 		if (!peer && tmp_peer_created) {
- 			ret = ath10k_peer_delete(ar, vdev_id, peer_addr);
-@@ -3957,7 +3957,7 @@ int ath10k_mac_tx_push_txq(struct ieee80211_hw *hw,
- 		spin_unlock_bh(&ar->htt.tx_lock);
- 	}
- 
--	ret = ath10k_mac_tx(ar, vif, txmode, txpath, skb);
-+	ret = ath10k_mac_tx(ar, vif, txmode, txpath, skb, false);
- 	if (unlikely(ret)) {
- 		ath10k_warn(ar, "failed to push frame: %d\n", ret);
- 
-@@ -4239,7 +4239,7 @@ static void ath10k_mac_op_tx(struct ieee80211_hw *hw,
- 		spin_unlock_bh(&ar->htt.tx_lock);
- 	}
- 
--	ret = ath10k_mac_tx(ar, vif, txmode, txpath, skb);
-+	ret = ath10k_mac_tx(ar, vif, txmode, txpath, skb, false);
- 	if (ret) {
- 		ath10k_warn(ar, "failed to transmit frame: %d\n", ret);
- 		if (is_htt) {
+ 	return 0;
+ }
 -- 
 2.20.1
 
