@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C792012C72A
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6324E12C701
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732719AbfL2Ryf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:54:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42564 "EHLO mail.kernel.org"
+        id S1732342AbfL2Rws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:52:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732716AbfL2Ryf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:54:35 -0500
+        id S1731770AbfL2Rwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:52:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29BCE21744;
-        Sun, 29 Dec 2019 17:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4434020748;
+        Sun, 29 Dec 2019 17:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642074;
-        bh=987a2c0lwekyvqx+mWEoY/ULcA9NIGxcTr8tGTB/pq8=;
+        s=default; t=1577641966;
+        bh=ny3FOPKwe+oyzpG9YmcV/3mbjPsP6yMi/PFrkWTyqvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTtTGIEi5tZD70IqXWaS+lyQld8iGWvWnnhZsNmm1MozjindSjcXfrJBu5Tq3s3rs
-         W3gmDR8vHkJBtA7KW6NMoZx7ji+xvMajR65wOHy9GrRIJGOf17VELp4lCYnzGLhf7+
-         sWkJ/vDq9B4V4SeDIfRQCz+5tbolaoixCD4+W8vw=
+        b=iD/C9x0C63kjTEmdY3TtVkNH7C2aV2OtUwjCP83WJTkMBx9IKQEZ51Gt6+DuT70vv
+         DL8mm2qWpvr3QTDtRV+DDLKrhGqpSL6dR6MNQMB1zGfaBabaYSXjDo/UEWgU/qEFQT
+         BKv0uknXnppEWKwknVNNgiDNNY6QxJz+6nCHnbUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        stable@vger.kernel.org,
+        Mitch Williams <mitch.a.williams@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 278/434] crypto: atmel - Fix authenc support when it is set to m
-Date:   Sun, 29 Dec 2019 18:25:31 +0100
-Message-Id: <20191229172720.408858302@linuxfoundation.org>
+Subject: [PATCH 5.4 279/434] ice: delay less
+Date:   Sun, 29 Dec 2019 18:25:32 +0100
+Message-Id: <20191229172720.475752151@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,136 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Mitch Williams <mitch.a.williams@intel.com>
 
-[ Upstream commit 1520c72596dde7f22b8bd6bed3ef7df2b8b7ef39 ]
+[ Upstream commit 88bb432a55de8ae62106305083a8bfbb23b01ad2 ]
 
-As it is if CONFIG_CRYPTO_DEV_ATMEL_AUTHENC is set to m it is in
-effect disabled.  This patch fixes it by using IS_ENABLED instead
-of ifdef.
+Shorten the delay for SQ responses, but increase the number of loops.
+Max delay time is unchanged, but some operations complete much more
+quickly.
 
-Fixes: 89a82ef87e01 ("crypto: atmel-authenc - add support to...")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+In the process, add a new define to make the delay count and delay time
+more explicit. Add comments to make things more explicit.
+
+This fixes a problem with VF resets failing on with many VFs.
+
+Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/atmel-aes.c     | 18 +++++++++---------
- drivers/crypto/atmel-authenc.h |  2 +-
- drivers/crypto/atmel-sha.c     |  2 +-
- 3 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_controlq.c | 2 +-
+ drivers/net/ethernet/intel/ice/ice_controlq.h | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/atmel-aes.c b/drivers/crypto/atmel-aes.c
-index 00920a2b95ce..db99cee1991c 100644
---- a/drivers/crypto/atmel-aes.c
-+++ b/drivers/crypto/atmel-aes.c
-@@ -145,7 +145,7 @@ struct atmel_aes_xts_ctx {
- 	u32			key2[AES_KEYSIZE_256 / sizeof(u32)];
+diff --git a/drivers/net/ethernet/intel/ice/ice_controlq.c b/drivers/net/ethernet/intel/ice/ice_controlq.c
+index 2353166c654e..c68709c7ef81 100644
+--- a/drivers/net/ethernet/intel/ice/ice_controlq.c
++++ b/drivers/net/ethernet/intel/ice/ice_controlq.c
+@@ -948,7 +948,7 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
+ 		if (ice_sq_done(hw, cq))
+ 			break;
+ 
+-		mdelay(1);
++		udelay(ICE_CTL_Q_SQ_CMD_USEC);
+ 		total_delay++;
+ 	} while (total_delay < cq->sq_cmd_timeout);
+ 
+diff --git a/drivers/net/ethernet/intel/ice/ice_controlq.h b/drivers/net/ethernet/intel/ice/ice_controlq.h
+index 44945c2165d8..4df9da359135 100644
+--- a/drivers/net/ethernet/intel/ice/ice_controlq.h
++++ b/drivers/net/ethernet/intel/ice/ice_controlq.h
+@@ -31,8 +31,9 @@ enum ice_ctl_q {
+ 	ICE_CTL_Q_MAILBOX,
  };
  
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- struct atmel_aes_authenc_ctx {
- 	struct atmel_aes_base_ctx	base;
- 	struct atmel_sha_authenc_ctx	*auth;
-@@ -157,7 +157,7 @@ struct atmel_aes_reqctx {
- 	u32			lastc[AES_BLOCK_SIZE / sizeof(u32)];
- };
+-/* Control Queue default settings */
+-#define ICE_CTL_Q_SQ_CMD_TIMEOUT	250  /* msecs */
++/* Control Queue timeout settings - max delay 250ms */
++#define ICE_CTL_Q_SQ_CMD_TIMEOUT	2500  /* Count 2500 times */
++#define ICE_CTL_Q_SQ_CMD_USEC		100   /* Check every 100usec */
  
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- struct atmel_aes_authenc_reqctx {
- 	struct atmel_aes_reqctx	base;
- 
-@@ -486,7 +486,7 @@ static inline bool atmel_aes_is_encrypt(const struct atmel_aes_dev *dd)
- 	return (dd->flags & AES_FLAGS_ENCRYPT);
- }
- 
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- static void atmel_aes_authenc_complete(struct atmel_aes_dev *dd, int err);
- #endif
- 
-@@ -515,7 +515,7 @@ static void atmel_aes_set_iv_as_last_ciphertext_block(struct atmel_aes_dev *dd)
- 
- static inline int atmel_aes_complete(struct atmel_aes_dev *dd, int err)
- {
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- 	if (dd->ctx->is_aead)
- 		atmel_aes_authenc_complete(dd, err);
- #endif
-@@ -1980,7 +1980,7 @@ static struct crypto_alg aes_xts_alg = {
- 	}
- };
- 
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- /* authenc aead functions */
- 
- static int atmel_aes_authenc_start(struct atmel_aes_dev *dd);
-@@ -2467,7 +2467,7 @@ static void atmel_aes_unregister_algs(struct atmel_aes_dev *dd)
- {
- 	int i;
- 
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- 	if (dd->caps.has_authenc)
- 		for (i = 0; i < ARRAY_SIZE(aes_authenc_algs); i++)
- 			crypto_unregister_aead(&aes_authenc_algs[i]);
-@@ -2514,7 +2514,7 @@ static int atmel_aes_register_algs(struct atmel_aes_dev *dd)
- 			goto err_aes_xts_alg;
- 	}
- 
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- 	if (dd->caps.has_authenc) {
- 		for (i = 0; i < ARRAY_SIZE(aes_authenc_algs); i++) {
- 			err = crypto_register_aead(&aes_authenc_algs[i]);
-@@ -2526,7 +2526,7 @@ static int atmel_aes_register_algs(struct atmel_aes_dev *dd)
- 
- 	return 0;
- 
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- 	/* i = ARRAY_SIZE(aes_authenc_algs); */
- err_aes_authenc_alg:
- 	for (j = 0; j < i; j++)
-@@ -2716,7 +2716,7 @@ static int atmel_aes_probe(struct platform_device *pdev)
- 
- 	atmel_aes_get_cap(aes_dd);
- 
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- 	if (aes_dd->caps.has_authenc && !atmel_sha_authenc_is_ready()) {
- 		err = -EPROBE_DEFER;
- 		goto iclk_unprepare;
-diff --git a/drivers/crypto/atmel-authenc.h b/drivers/crypto/atmel-authenc.h
-index cbd37a2edada..d6de810df44f 100644
---- a/drivers/crypto/atmel-authenc.h
-+++ b/drivers/crypto/atmel-authenc.h
-@@ -12,7 +12,7 @@
- #ifndef __ATMEL_AUTHENC_H__
- #define __ATMEL_AUTHENC_H__
- 
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- 
- #include <crypto/authenc.h>
- #include <crypto/hash.h>
-diff --git a/drivers/crypto/atmel-sha.c b/drivers/crypto/atmel-sha.c
-index 84cb8748a795..d32626458e67 100644
---- a/drivers/crypto/atmel-sha.c
-+++ b/drivers/crypto/atmel-sha.c
-@@ -2212,7 +2212,7 @@ static struct ahash_alg sha_hmac_algs[] = {
- },
- };
- 
--#ifdef CONFIG_CRYPTO_DEV_ATMEL_AUTHENC
-+#if IS_ENABLED(CONFIG_CRYPTO_DEV_ATMEL_AUTHENC)
- /* authenc functions */
- 
- static int atmel_sha_authenc_init2(struct atmel_sha_dev *dd);
+ struct ice_ctl_q_ring {
+ 	void *dma_head;			/* Virtual address to DMA head */
 -- 
 2.20.1
 
