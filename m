@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E271312C45C
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:29:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2FF812C45E
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:29:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728258AbfL2R3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:29:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53006 "EHLO mail.kernel.org"
+        id S1728726AbfL2R3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:29:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728706AbfL2R3A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:29:00 -0500
+        id S1728723AbfL2R3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:29:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B37BB207FD;
-        Sun, 29 Dec 2019 17:28:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E7EB207FD;
+        Sun, 29 Dec 2019 17:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640540;
-        bh=ALFhbbApSdf4l2WXg7oZiq2+bihV32/+wcURhNG/0ZM=;
+        s=default; t=1577640545;
+        bh=FGZqi5ivswLb220n5ilqCFAaFwASW3EK/q7vSwG7bjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fhbd7vsRqjcPfS3QMvcL7x4DHL1nNzIf5O+dxbf+Pm55kXh0+Ee6P9d5NRfJIlcso
-         PtFWOcBv+vKVY3QfStd4UqwTgw4NVM//op0JCo/fjGzOo7WYuAJkpfmKercj3KOr9c
-         P67nhzGV40wspwkYp1SXq+RnphmA8Dz18sKMPL6o=
+        b=pkGeM8EWWCusjjVGamKgY4+ZR2pt8r6Ihs3WCj2eUEre7vQbHWgU3IiDiF1pCOMdo
+         0K27Vaox//ue+8Cfa5tiafy6fTIY/Mu2dvFPIAAl/nfng1qIdraPCgks+o3BQl7Qr8
+         lnO9Tm7wtHbahROxxvb0Ge+E9vevizRbHYBai4j8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Allen Pais <allen.pais@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Max Gurtovoy <maxg@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 036/219] libertas: fix a potential NULL pointer dereference
-Date:   Sun, 29 Dec 2019 18:17:18 +0100
-Message-Id: <20191229162513.921126199@linuxfoundation.org>
+Subject: [PATCH 4.19 038/219] IB/iser: bound protection_sg size by data_sg size
+Date:   Sun, 29 Dec 2019 18:17:20 +0100
+Message-Id: <20191229162514.138568292@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -44,43 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Allen Pais <allen.pais@oracle.com>
+From: Max Gurtovoy <maxg@mellanox.com>
 
-[ Upstream commit 7da413a18583baaf35dd4a8eb414fa410367d7f2 ]
+[ Upstream commit 7718cf03c3ce4b6ebd90107643ccd01c952a1fce ]
 
-alloc_workqueue is not checked for errors and as a result,
-a potential NULL dereference could occur.
+In case we don't set the sg_prot_tablesize, the scsi layer assign the
+default size (65535 entries). We should limit this size since we should
+take into consideration the underlaying device capability. This cap is
+considered when calculating the sg_tablesize. Otherwise, for example,
+we can get that /sys/block/sdb/queue/max_segments is 128 and
+/sys/block/sdb/queue/max_integrity_segments is 65535.
 
-Signed-off-by: Allen Pais <allen.pais@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1569359027-10987-1-git-send-email-maxg@mellanox.com
+Signed-off-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/if_sdio.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/infiniband/ulp/iser/iscsi_iser.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/marvell/libertas/if_sdio.c b/drivers/net/wireless/marvell/libertas/if_sdio.c
-index 39bf85d0ade0..c7f8a29d2606 100644
---- a/drivers/net/wireless/marvell/libertas/if_sdio.c
-+++ b/drivers/net/wireless/marvell/libertas/if_sdio.c
-@@ -1183,6 +1183,10 @@ static int if_sdio_probe(struct sdio_func *func,
+diff --git a/drivers/infiniband/ulp/iser/iscsi_iser.c b/drivers/infiniband/ulp/iser/iscsi_iser.c
+index 3fecd87c9f2b..b4e0ae024575 100644
+--- a/drivers/infiniband/ulp/iser/iscsi_iser.c
++++ b/drivers/infiniband/ulp/iser/iscsi_iser.c
+@@ -646,6 +646,7 @@ iscsi_iser_session_create(struct iscsi_endpoint *ep,
+ 		if (ib_conn->pi_support) {
+ 			u32 sig_caps = ib_conn->device->ib_device->attrs.sig_prot_cap;
  
- 	spin_lock_init(&card->lock);
- 	card->workqueue = alloc_workqueue("libertas_sdio", WQ_MEM_RECLAIM, 0);
-+	if (unlikely(!card->workqueue)) {
-+		ret = -ENOMEM;
-+		goto err_queue;
-+	}
- 	INIT_WORK(&card->packet_worker, if_sdio_host_to_card_worker);
- 	init_waitqueue_head(&card->pwron_waitq);
- 
-@@ -1234,6 +1238,7 @@ err_activate_card:
- 	lbs_remove_card(priv);
- free:
- 	destroy_workqueue(card->workqueue);
-+err_queue:
- 	while (card->packets) {
- 		packet = card->packets;
- 		card->packets = card->packets->next;
++			shost->sg_prot_tablesize = shost->sg_tablesize;
+ 			scsi_host_set_prot(shost, iser_dif_prot_caps(sig_caps));
+ 			scsi_host_set_guard(shost, SHOST_DIX_GUARD_IP |
+ 						   SHOST_DIX_GUARD_CRC);
 -- 
 2.20.1
 
