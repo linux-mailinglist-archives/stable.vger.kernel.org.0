@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 475EF12C841
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5470812C81B
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732310AbfL2Rwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:52:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
+        id S1732029AbfL2RvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:51:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731852AbfL2Rwm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:52:42 -0500
+        id S1732017AbfL2RvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:51:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71E13206A4;
-        Sun, 29 Dec 2019 17:52:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF07B207FD;
+        Sun, 29 Dec 2019 17:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641961;
-        bh=z39Fr7ia2l32HzW7ElZsr8NwpVDF8MpryY5I2YrPTSo=;
+        s=default; t=1577641864;
+        bh=kXUYMUazpeA9aa6t8663MGnk4sLrJM9Oq5+Y8rhQ32w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFa75ui+++MFYPSFyHEecDxfHx0leIYbH6pNImWEKSyhHWKo0Rak40j2SPzqTsQTo
-         S4voUukX3BiNa48svTBYLlTaIVhCWZySU8xBxx1AwRsSXalxrzk7D4dTS2k0jZqF1E
-         9ljzRCyvR2DLpnnTwq3qZRIUXhKPGQlIdy6/K7Hg=
+        b=cEmJ1rAJuX4iyLW3pl/uO1BSa8SDl8jQtcr1h4GP4hUKj69vx3JDlyWBtLStCj3Io
+         AdlnhCvmX2HD7rnMZtBxsBsb8bjR/wZGCJ03+4eGYRHgennz/qEvoRgsOReirMMAFI
+         dmkfybNcYbqK53ZZXNYofj78QQ7uszs+ENa1x9Gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        coresight ml <coresight@lists.linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 242/434] rtlwifi: fix memory leak in rtl92c_set_fw_rsvdpagepkt()
-Date:   Sun, 29 Dec 2019 18:24:55 +0100
-Message-Id: <20191229172717.957859542@linuxfoundation.org>
+Subject: [PATCH 5.4 244/434] perf cs-etm: Fix definition of macro TO_CS_QUEUE_NR
+Date:   Sun, 29 Dec 2019 18:24:57 +0100
+Message-Id: <20191229172718.090768227@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,62 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 5174f1e41074b5186608badc2e89441d021e8c08 ]
+[ Upstream commit 9d604aad4bb022e848dec80d6fe5f73fe87061a2 ]
 
-This leak was found by testing the EDIMAX EW-7612 on Raspberry Pi 3B+ with
-Linux 5.4-rc5 (multi_v7_defconfig + rtlwifi + kmemleak) and noticed a
-single memory leak during probe:
+Macro TO_CS_QUEUE_NR definition has a typo, which uses 'trace_id_chan'
+as its parameter, this doesn't match with its definition body which uses
+'trace_chan_id'.  So renames the parameter to 'trace_chan_id'.
 
-unreferenced object 0xec13ee40 (size 176):
-  comm "kworker/u8:1", pid 36, jiffies 4294939321 (age 5580.790s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<fc1bbb3e>] __netdev_alloc_skb+0x9c/0x164
-    [<863dfa6e>] rtl92c_set_fw_rsvdpagepkt+0x254/0x340 [rtl8192c_common]
-    [<9572be0d>] rtl92cu_set_hw_reg+0xf48/0xfa4 [rtl8192cu]
-    [<116df4d8>] rtl_op_bss_info_changed+0x234/0x96c [rtlwifi]
-    [<8933575f>] ieee80211_bss_info_change_notify+0xb8/0x264 [mac80211]
-    [<d4061e86>] ieee80211_assoc_success+0x934/0x1798 [mac80211]
-    [<e55adb56>] ieee80211_rx_mgmt_assoc_resp+0x174/0x314 [mac80211]
-    [<5974629e>] ieee80211_sta_rx_queued_mgmt+0x3f4/0x7f0 [mac80211]
-    [<d91091c6>] ieee80211_iface_work+0x208/0x318 [mac80211]
-    [<ac5fcae4>] process_one_work+0x22c/0x564
-    [<f5e6d3b6>] worker_thread+0x44/0x5d8
-    [<82c7b073>] kthread+0x150/0x154
-    [<b43e1b7d>] ret_from_fork+0x14/0x2c
-    [<794dff30>] 0x0
+It's luck to have a local variable 'trace_chan_id' in the function
+cs_etm__setup_queue(), even we wrongly define the macro TO_CS_QUEUE_NR,
+the local variable 'trace_chan_id' is used rather than the macro's
+parameter 'trace_id_chan'; so the compiler doesn't complain for this
+before.
 
-It is because 8192cu doesn't implement usb_cmd_send_packet(), and this
-patch just frees the skb within the function to resolve memleak problem
-by now. Since 8192cu doesn't turn on fwctrl_lps that needs to download
-command packet for firmware via the function, applying this patch doesn't
-affect driver behavior.
+After renaming the parameter, it leads to a compiling error due
+cs_etm__setup_queue() has no variable 'trace_id_chan'.  This patch uses
+the variable 'trace_chan_id' for the macro so that fixes the compiling
+error.
 
-Reported-by: Stefan Wahren <wahrenst@gmx.net>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+Cc: coresight ml <coresight@lists.linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: http://lore.kernel.org/lkml/20191021074808.25795-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/util/cs-etm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-index 56cc3bc30860..f070f25bb735 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-@@ -1540,6 +1540,8 @@ static bool usb_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb)
-    * This is maybe necessary:
-    * rtlpriv->cfg->ops->fill_tx_cmddesc(hw, buffer, 1, 1, skb);
-    */
-+	dev_kfree_skb(skb);
-+
- 	return true;
- }
- 
+diff --git a/tools/perf/util/cs-etm.c b/tools/perf/util/cs-etm.c
+index 4ba0f871f086..f5f855fff412 100644
+--- a/tools/perf/util/cs-etm.c
++++ b/tools/perf/util/cs-etm.c
+@@ -110,7 +110,7 @@ static int cs_etm__decode_data_block(struct cs_etm_queue *etmq);
+  * encode the etm queue number as the upper 16 bit and the channel as
+  * the lower 16 bit.
+  */
+-#define TO_CS_QUEUE_NR(queue_nr, trace_id_chan)	\
++#define TO_CS_QUEUE_NR(queue_nr, trace_chan_id)	\
+ 		      (queue_nr << 16 | trace_chan_id)
+ #define TO_QUEUE_NR(cs_queue_nr) (cs_queue_nr >> 16)
+ #define TO_TRACE_CHAN_ID(cs_queue_nr) (cs_queue_nr & 0x0000ffff)
+@@ -819,7 +819,7 @@ static int cs_etm__setup_queue(struct cs_etm_auxtrace *etm,
+ 	 * Note that packets decoded above are still in the traceID's packet
+ 	 * queue and will be processed in cs_etm__process_queues().
+ 	 */
+-	cs_queue_nr = TO_CS_QUEUE_NR(queue_nr, trace_id_chan);
++	cs_queue_nr = TO_CS_QUEUE_NR(queue_nr, trace_chan_id);
+ 	ret = auxtrace_heap__add(&etm->heap, cs_queue_nr, timestamp);
+ out:
+ 	return ret;
 -- 
 2.20.1
 
