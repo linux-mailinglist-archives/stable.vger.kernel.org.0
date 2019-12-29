@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B84612C573
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:41:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03D8612C592
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729995AbfL2RgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:36:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41080 "EHLO mail.kernel.org"
+        id S1729570AbfL2RhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:37:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729971AbfL2RgG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:36:06 -0500
+        id S1729498AbfL2RgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:36:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18F0921744;
-        Sun, 29 Dec 2019 17:36:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 521B120722;
+        Sun, 29 Dec 2019 17:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640965;
-        bh=BactduNqTs4sPIgTbO6UqdHepaukg3SW1+IJ6I1vWKM=;
+        s=default; t=1577640967;
+        bh=WmQjMwLfmQzkh48PcJm8iS2lbh4j5BR/htdezkrsu6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qj3pNeuMqsppso/9lKODlLfIHsqzT6PgP+F4Pknw1disK08QysVYxXbKbkZjt+izG
-         PbiAtZmXg+athzn4oB/r1WHPUJhiQpOa3gdXFXcrap1mFXtey0v9ft0f1Iof/pcBUX
-         rmQ05duZ+n0E8gNPG7Nu3/f1bzopRaqT5HV/4wMs=
+        b=X+Tksg9iNHYHyb+35fgDpdpJcMA90O93xdbFBxKXjfZ0XYFg4Ww3eobM6zOQbekvf
+         ZLrxPslqny1STbA7cQNYzbzc5g6AkNV1mxbE50qtJFBcnCb7B6RWj7OY5Z7fLIWL4S
+         PAUKljr4kmDPhYwAdn0J/rAdaeka3IOXdFhkSjg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>, x86-ml <x86@kernel.org>
-Subject: [PATCH 4.19 210/219] x86/MCE/AMD: Allow Reserved types to be overwritten in smca_banks[]
-Date:   Sun, 29 Dec 2019 18:20:12 +0100
-Message-Id: <20191229162541.818222862@linuxfoundation.org>
+        stable@vger.kernel.org, Parth Shah <parth@linux.ibm.com>,
+        Ihor Pasichnyk <Ihor.Pasichnyk@ibm.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Waiman Long <longman@redhat.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Phil Auld <pauld@redhat.com>,
+        Vaidyanathan Srinivasan <svaidy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 211/219] powerpc/vcpu: Assume dedicated processors as non-preempt
+Date:   Sun, 29 Dec 2019 18:20:13 +0100
+Message-Id: <20191229162541.977593249@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -47,96 +50,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-commit 966af20929ac24360ba3fac5533eb2ab003747da upstream.
+commit 14c73bd344da60abaf7da3ea2e7733ddda35bbac upstream.
 
-Each logical CPU in Scalable MCA systems controls a unique set of MCA
-banks in the system. These banks are not shared between CPUs. The bank
-types and ordering will be the same across CPUs on currently available
-systems.
+With commit 247f2f6f3c70 ("sched/core: Don't schedule threads on
+pre-empted vCPUs"), the scheduler avoids preempted vCPUs to schedule
+tasks on wakeup. This leads to wrong choice of CPU, which in-turn
+leads to larger wakeup latencies. Eventually, it leads to performance
+regression in latency sensitive benchmarks like soltp, schbench etc.
 
-However, some CPUs may see a bank as Reserved/Read-as-Zero (RAZ) while
-other CPUs do not. In this case, the bank seen as Reserved on one CPU is
-assumed to be the same type as the bank seen as a known type on another
-CPU.
+On Powerpc, vcpu_is_preempted() only looks at yield_count. If the
+yield_count is odd, the vCPU is assumed to be preempted. However
+yield_count is increased whenever the LPAR enters CEDE state (idle).
+So any CPU that has entered CEDE state is assumed to be preempted.
 
-In general, this occurs when the hardware represented by the MCA bank
-is disabled, e.g. disabled memory controllers on certain models, etc.
-The MCA bank is disabled in the hardware, so there is no possibility of
-getting an MCA/MCE from it even if it is assumed to have a known type.
+Even if vCPU of dedicated LPAR is preempted/donated, it should have
+right of first-use since they are supposed to own the vCPU.
 
-For example:
+On a Power9 System with 32 cores:
+  # lscpu
+  Architecture:        ppc64le
+  Byte Order:          Little Endian
+  CPU(s):              128
+  On-line CPU(s) list: 0-127
+  Thread(s) per core:  8
+  Core(s) per socket:  1
+  Socket(s):           16
+  NUMA node(s):        2
+  Model:               2.2 (pvr 004e 0202)
+  Model name:          POWER9 (architected), altivec supported
+  Hypervisor vendor:   pHyp
+  Virtualization type: para
+  L1d cache:           32K
+  L1i cache:           32K
+  L2 cache:            512K
+  L3 cache:            10240K
+  NUMA node0 CPU(s):   0-63
+  NUMA node1 CPU(s):   64-127
 
-Full system:
-	Bank  |  Type seen on CPU0  |  Type seen on CPU1
-	------------------------------------------------
-	 0    |         LS          |          LS
-	 1    |         UMC         |          UMC
-	 2    |         CS          |          CS
+  # perf stat -a -r 5 ./schbench
+  v5.4                               v5.4 + patch
+  Latency percentiles (usec)         Latency percentiles (usec)
+        50.0000th: 45                      50.0th: 45
+        75.0000th: 62                      75.0th: 63
+        90.0000th: 71                      90.0th: 74
+        95.0000th: 77                      95.0th: 78
+        *99.0000th: 91                     *99.0th: 82
+        99.5000th: 707                     99.5th: 83
+        99.9000th: 6920                    99.9th: 86
+        min=0, max=10048                   min=0, max=96
+  Latency percentiles (usec)         Latency percentiles (usec)
+        50.0000th: 45                      50.0th: 46
+        75.0000th: 61                      75.0th: 64
+        90.0000th: 72                      90.0th: 75
+        95.0000th: 79                      95.0th: 79
+        *99.0000th: 691                    *99.0th: 83
+        99.5000th: 3972                    99.5th: 85
+        99.9000th: 8368                    99.9th: 91
+        min=0, max=16606                   min=0, max=117
+  Latency percentiles (usec)         Latency percentiles (usec)
+        50.0000th: 45                      50.0th: 46
+        75.0000th: 61                      75.0th: 64
+        90.0000th: 71                      90.0th: 75
+        95.0000th: 77                      95.0th: 79
+        *99.0000th: 106                    *99.0th: 83
+        99.5000th: 2364                    99.5th: 84
+        99.9000th: 7480                    99.9th: 90
+        min=0, max=10001                   min=0, max=95
+  Latency percentiles (usec)         Latency percentiles (usec)
+        50.0000th: 45                      50.0th: 47
+        75.0000th: 62                      75.0th: 65
+        90.0000th: 72                      90.0th: 75
+        95.0000th: 78                      95.0th: 79
+        *99.0000th: 93                     *99.0th: 84
+        99.5000th: 108                     99.5th: 85
+        99.9000th: 6792                    99.9th: 90
+        min=0, max=17681                   min=0, max=117
+  Latency percentiles (usec)         Latency percentiles (usec)
+        50.0000th: 46                      50.0th: 45
+        75.0000th: 62                      75.0th: 64
+        90.0000th: 73                      90.0th: 75
+        95.0000th: 79                      95.0th: 79
+        *99.0000th: 113                    *99.0th: 82
+        99.5000th: 2724                    99.5th: 83
+        99.9000th: 6184                    99.9th: 93
+        min=0, max=9887                    min=0, max=111
 
-System with hardware disabled:
-	Bank  |  Type seen on CPU0  |  Type seen on CPU1
-	------------------------------------------------
-	 0    |         LS          |          LS
-	 1    |         UMC         |          RAZ
-	 2    |         CS          |          CS
+   Performance counter stats for 'system wide' (5 runs):
 
-For this reason, there is a single, global struct smca_banks[] that is
-initialized at boot time. This array is initialized on each CPU as it
-comes online. However, the array will not be updated if an entry already
-exists.
+  context-switches    43,373  ( +-  0.40% )   44,597 ( +-  0.55% )
+  cpu-migrations       1,211  ( +-  5.04% )      220 ( +-  6.23% )
+  page-faults         15,983  ( +-  5.21% )   15,360 ( +-  3.38% )
 
-This works as expected when the first CPU (usually CPU0) has all
-possible MCA banks enabled. But if the first CPU has a subset, then it
-will save a "Reserved" type in smca_banks[]. Successive CPUs will then
-not be able to update smca_banks[] even if they encounter a known bank
-type.
+Waiman Long suggested using static_keys.
 
-This may result in unexpected behavior. Depending on the system
-configuration, a user may observe issues enumerating the MCA
-thresholding sysfs interface. The issues may be as trivial as sysfs
-entries not being available, or as severe as system hangs.
-
-For example:
-
-	Bank  |  Type seen on CPU0  |  Type seen on CPU1
-	------------------------------------------------
-	 0    |         LS          |          LS
-	 1    |         RAZ         |          UMC
-	 2    |         CS          |          CS
-
-Extend the smca_banks[] entry check to return if the entry is a
-non-reserved type. Otherwise, continue so that CPUs that encounter a
-known bank type can update smca_banks[].
-
-Fixes: 68627a697c19 ("x86/mce/AMD, EDAC/mce_amd: Enumerate Reserved SMCA bank type")
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191121141508.141273-1-Yazen.Ghannam@amd.com
+Fixes: 247f2f6f3c70 ("sched/core: Don't schedule threads on pre-empted vCPUs")
+Cc: stable@vger.kernel.org # v4.18+
+Reported-by: Parth Shah <parth@linux.ibm.com>
+Reported-by: Ihor Pasichnyk <Ihor.Pasichnyk@ibm.com>
+Tested-by: Juri Lelli <juri.lelli@redhat.com>
+Acked-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Phil Auld <pauld@redhat.com>
+Reviewed-by: Vaidyanathan Srinivasan <svaidy@linux.ibm.com>
+Tested-by: Parth Shah <parth@linux.ibm.com>
+[mpe: Move the key and setting of the key to pseries/setup.c]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191213035036.6913-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mcheck/mce_amd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/spinlock.h    |    4 +++-
+ arch/powerpc/platforms/pseries/setup.c |    7 +++++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/mcheck/mce_amd.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce_amd.c
-@@ -228,7 +228,7 @@ static void smca_configure(unsigned int
- 	}
+--- a/arch/powerpc/include/asm/spinlock.h
++++ b/arch/powerpc/include/asm/spinlock.h
+@@ -53,10 +53,12 @@
+ #endif
  
- 	/* Return early if this bank was already initialized. */
--	if (smca_banks[bank].hwid)
-+	if (smca_banks[bank].hwid && smca_banks[bank].hwid->hwid_mcatype != 0)
- 		return;
+ #ifdef CONFIG_PPC_PSERIES
++DECLARE_STATIC_KEY_FALSE(shared_processor);
++
+ #define vcpu_is_preempted vcpu_is_preempted
+ static inline bool vcpu_is_preempted(int cpu)
+ {
+-	if (!firmware_has_feature(FW_FEATURE_SPLPAR))
++	if (!static_branch_unlikely(&shared_processor))
+ 		return false;
+ 	return !!(be32_to_cpu(lppaca_of(cpu).yield_count) & 1);
+ }
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -75,6 +75,9 @@
+ #include "pseries.h"
+ #include "../../../../drivers/pci/pci.h"
  
- 	if (rdmsr_safe(MSR_AMD64_SMCA_MCx_IPID(bank), &low, &high)) {
++DEFINE_STATIC_KEY_FALSE(shared_processor);
++EXPORT_SYMBOL_GPL(shared_processor);
++
+ int CMO_PrPSP = -1;
+ int CMO_SecPSP = -1;
+ unsigned long CMO_PageSize = (ASM_CONST(1) << IOMMU_PAGE_SHIFT_4K);
+@@ -761,6 +764,10 @@ static void __init pSeries_setup_arch(vo
+ 
+ 	if (firmware_has_feature(FW_FEATURE_LPAR)) {
+ 		vpa_init(boot_cpuid);
++
++		if (lppaca_shared_proc(get_lppaca()))
++			static_branch_enable(&shared_processor);
++
+ 		ppc_md.power_save = pseries_lpar_idle;
+ 		ppc_md.enable_pmcs = pseries_lpar_enable_pmcs;
+ #ifdef CONFIG_PCI_IOV
 
 
