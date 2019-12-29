@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6DE12C82D
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFAB012C82F
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732158AbfL2Rvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:51:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37468 "EHLO mail.kernel.org"
+        id S1732146AbfL2Rvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:51:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731640AbfL2Rvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:51:48 -0500
+        id S1732164AbfL2Rvt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:51:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DAAC208C4;
-        Sun, 29 Dec 2019 17:51:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2D5A21744;
+        Sun, 29 Dec 2019 17:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641906;
-        bh=jU+bs6JHKUBkA3CAVzOZSRkySZdaooYcCs0khCtU7R0=;
+        s=default; t=1577641909;
+        bh=0Fx2AptUmbnqJWwERQvM0/rovHRB++dwMACcgyDFEv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eF4Opo+cIQPDbrVfLY4atuRVvIlpA96KUn4xLKAv+VjfRbEW7pLBy8I0UNUrikyUe
-         gmAn8/giMTplJZqIvGuA6Y5Ip4KlHp626buWZEwBIyTkUc+8sp+KlZspJnGfbLYp2n
-         8Ym5siER3dcGLP8uz6atLRB129Y5NfrCuYW/rrpw=
+        b=GuzDou2oEQf5MytU/XEIdw8gLz/sba2eT5kD+V9/Ufl6DzVVa30Qwz6iO2cjCTv+X
+         v0j1jnjMZvDNvEs7vGsqGbwkSNJemN5OGAljx/2loy4leoHEadUnbEutz/NVN0fRvQ
+         Yp8y0dnIjz3qPobrqsHSX6E29QcQRORkh+1sM6E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 261/434] perf probe: Skip overlapped location on searching variables
-Date:   Sun, 29 Dec 2019 18:25:14 +0100
-Message-Id: <20191229172719.272992173@linuxfoundation.org>
+Subject: [PATCH 5.4 262/434] net: avoid potential false sharing in neighbor related code
+Date:   Sun, 29 Dec 2019 18:25:15 +0100
+Message-Id: <20191229172719.339035761@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,102 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit dee36a2abb67c175265d49b9a8c7dfa564463d9a ]
+[ Upstream commit 25c7a6d1f90e208ec27ca854b1381ed39842ec57 ]
 
-Since debuginfo__find_probes() callback function can be called with  the
-location which already passed, the callback function must filter out
-such overlapped locations.
+There are common instances of the following construct :
 
-add_probe_trace_event() has already done it by commit 1a375ae7659a
-("perf probe: Skip same probe address for a given line"), but
-add_available_vars() doesn't. Thus perf probe -v shows same address
-repeatedly as below:
+	if (n->confirmed != now)
+		n->confirmed = now;
 
-  # perf probe -V vfs_read:18
-  Available variables at vfs_read:18
-          @<vfs_read+217>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-          @<vfs_read+217>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-          @<vfs_read+226>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
+A C compiler could legally remove the conditional.
 
-With this fix, perf probe -V shows it correctly:
+Use READ_ONCE()/WRITE_ONCE() to avoid this problem.
 
-  # perf probe -V vfs_read:18
-  Available variables at vfs_read:18
-          @<vfs_read+217>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-          @<vfs_read+226>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-
-Fixes: cf6eb489e5c0 ("perf probe: Show accessible local variables")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157241938927.32002.4026859017790562751.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ include/net/arp.h   |  4 ++--
+ include/net/ndisc.h |  8 ++++----
+ include/net/sock.h  | 12 ++++++------
+ 3 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index 4079ed617f53..e4ef8f4935b2 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -1425,6 +1425,18 @@ error:
- 	return DIE_FIND_CB_END;
+diff --git a/include/net/arp.h b/include/net/arp.h
+index c8f580a0e6b1..4950191f6b2b 100644
+--- a/include/net/arp.h
++++ b/include/net/arp.h
+@@ -57,8 +57,8 @@ static inline void __ipv4_confirm_neigh(struct net_device *dev, u32 key)
+ 		unsigned long now = jiffies;
+ 
+ 		/* avoid dirtying neighbour */
+-		if (n->confirmed != now)
+-			n->confirmed = now;
++		if (READ_ONCE(n->confirmed) != now)
++			WRITE_ONCE(n->confirmed, now);
+ 	}
+ 	rcu_read_unlock_bh();
+ }
+diff --git a/include/net/ndisc.h b/include/net/ndisc.h
+index b2f715ca0567..b5ebeb3b0de0 100644
+--- a/include/net/ndisc.h
++++ b/include/net/ndisc.h
+@@ -414,8 +414,8 @@ static inline void __ipv6_confirm_neigh(struct net_device *dev,
+ 		unsigned long now = jiffies;
+ 
+ 		/* avoid dirtying neighbour */
+-		if (n->confirmed != now)
+-			n->confirmed = now;
++		if (READ_ONCE(n->confirmed) != now)
++			WRITE_ONCE(n->confirmed, now);
+ 	}
+ 	rcu_read_unlock_bh();
+ }
+@@ -431,8 +431,8 @@ static inline void __ipv6_confirm_neigh_stub(struct net_device *dev,
+ 		unsigned long now = jiffies;
+ 
+ 		/* avoid dirtying neighbour */
+-		if (n->confirmed != now)
+-			n->confirmed = now;
++		if (READ_ONCE(n->confirmed) != now)
++			WRITE_ONCE(n->confirmed, now);
+ 	}
+ 	rcu_read_unlock_bh();
+ }
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 718e62fbe869..013396e50b91 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1940,8 +1940,8 @@ struct dst_entry *sk_dst_check(struct sock *sk, u32 cookie);
+ 
+ static inline void sk_dst_confirm(struct sock *sk)
+ {
+-	if (!sk->sk_dst_pending_confirm)
+-		sk->sk_dst_pending_confirm = 1;
++	if (!READ_ONCE(sk->sk_dst_pending_confirm))
++		WRITE_ONCE(sk->sk_dst_pending_confirm, 1);
  }
  
-+static bool available_var_finder_overlap(struct available_var_finder *af)
-+{
-+	int i;
-+
-+	for (i = 0; i < af->nvls; i++) {
-+		if (af->pf.addr == af->vls[i].point.address)
-+			return true;
-+	}
-+	return false;
-+
-+}
-+
- /* Add a found vars into available variables list */
- static int add_available_vars(Dwarf_Die *sc_die, struct probe_finder *pf)
- {
-@@ -1435,6 +1447,14 @@ static int add_available_vars(Dwarf_Die *sc_die, struct probe_finder *pf)
- 	Dwarf_Die die_mem;
- 	int ret;
+ static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)
+@@ -1951,10 +1951,10 @@ static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)
+ 		unsigned long now = jiffies;
  
-+	/*
-+	 * For some reason (e.g. different column assigned to same address),
-+	 * this callback can be called with the address which already passed.
-+	 * Ignore it first.
-+	 */
-+	if (available_var_finder_overlap(af))
-+		return 0;
-+
- 	/* Check number of tevs */
- 	if (af->nvls == af->max_vls) {
- 		pr_warning("Too many( > %d) probe point found.\n", af->max_vls);
+ 		/* avoid dirtying neighbour */
+-		if (n->confirmed != now)
+-			n->confirmed = now;
+-		if (sk && sk->sk_dst_pending_confirm)
+-			sk->sk_dst_pending_confirm = 0;
++		if (READ_ONCE(n->confirmed) != now)
++			WRITE_ONCE(n->confirmed, now);
++		if (sk && READ_ONCE(sk->sk_dst_pending_confirm))
++			WRITE_ONCE(sk->sk_dst_pending_confirm, 0);
+ 	}
+ }
+ 
 -- 
 2.20.1
 
