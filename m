@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D769C12C2A6
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 15:20:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC7312C2A8
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 15:21:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726189AbfL2OUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 09:20:22 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:34729 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726535AbfL2OUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 09:20:22 -0500
+        id S1726538AbfL2OVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 09:21:49 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:44853 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726535AbfL2OVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 09:21:49 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 53505463;
-        Sun, 29 Dec 2019 09:20:21 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 4CB3D21583;
+        Sun, 29 Dec 2019 09:21:48 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 29 Dec 2019 09:20:21 -0500
+  by compute6.internal (MEProxy); Sun, 29 Dec 2019 09:21:48 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XFpMc1
-        slCROMo9I0XC3hwidNUHOJexaPKk3v8cgeGfQ=; b=eDjg1fT7emXxbruaHKN1yR
-        ScVjERmqTjDjQwkOAV8Ob1fW3icBKm673e2d/AtjAOeYklWnNyomS7kfOtB5bsie
-        s97FWDYSzRc026x0Heq6J05POT0uYIJMtY/P4FwOhT07Bct4QID6eUvUtc4lWQLE
-        YUg23ezLeJIAu73yW8G1VDnIussALwgwlPK541Jd4A5w0kN7lam+Rs1cTwKgPknF
-        ZXBrNdvnJ06m6QTYAr5F9H/vS3k5gc0emD5itBIcmqOXm4wWIGL8kj7b44fjPpBF
-        79xNLIrcId02KvhCcrM/qHOfJyjwM/NaIQihMvclEjWSZn0Su5HevTQaKkKl4ltg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=t1gbS+
+        tCZ+nAnAA/pIoNNdF63NwyT/MWAODzBl6BCHo=; b=CBJf3zIo96ztnTEKxIplUT
+        qyAmA84Ng5f01WXM0dmlG5AN7k7JU94Z9B0LKwSiUwh9WwFdfmLvmhPZgmBbNIEN
+        c137b8FDEJgNNR/rSpqDDsGjO322uqh7lJkkA4YT47P2XadNtkCrI0NUNAbCoR9v
+        SVBIaKPgqCiYtTU1iGV+t+t6kG4FLOATfsGPVX4kK5j/B5D9NBHtiKYEvgWdevIR
+        J721UZpN/TMVOzezWzT7ujVI+GrqFxcBM9sgT0smxFmqHoGYNnecKnn6DebRWwZx
+        YRBpKz1cueRjRPs9JzIZCeW2ggtOdKDnZm+kSqEGcixhKLJhSQXJhWMO6rfmkQrg
         ==
-X-ME-Sender: <xms:JLYIXoF_DEkdkw9vkCik7NVO90YEflrmR9ki-1FqIDjuUYXkNGiC_w>
+X-ME-Sender: <xms:fLYIXguT4sCqMZmCmkYyfPCjvF0GGzwPKdQxPETjRnzmjhXw6viIpQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgieefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:JLYIXq9nroNOiQN70_Tt-HL68g3OY23-BJFPUxbdhPi2MiJkQMNkWw>
-    <xmx:JLYIXu0ygakNgRQ_BB0tydxtomQmWk-UAxRXPrq7bufZomO6dj2YWA>
-    <xmx:JLYIXrlccPu7UOFKJTJ_2sznYd2eulqsaiJRyScvmvGyMWly3_TWyw>
-    <xmx:JLYIXvU8-75DJ-lWFsU830F6AWq-Zp0Khc9bn6zuUMtxdMZnzxb5_A>
+    ucevlhhushhtvghrufhiiigvpedv
+X-ME-Proxy: <xmx:fLYIXgulY_WvKLM9t1QRHJVOOV3T-SUp7E1KiAIlTIBvIEcwO1gqUA>
+    <xmx:fLYIXv2TaLvw3VtSueTlXQ9sEbT0rU6DsEZwAGQqLSI396PoBLUJ6g>
+    <xmx:fLYIXtOLQ1xFCwB-f8RkpW_mAWf6vxqOFmNAaCtiRsyM_SxCuFzJMg>
+    <xmx:fLYIXpDaf3q5bdlygjpxsF00iFAPNXIP3qtnhKWdS02I95V5A2qwfw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7DB828005A;
-        Sun, 29 Dec 2019 09:20:20 -0500 (EST)
-Subject: FAILED: patch "[PATCH] spi: fsl: don't map irq during probe" failed to apply to 4.14-stable tree
-To:     christophe.leroy@c-s.fr, broonie@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 97DC680059;
+        Sun, 29 Dec 2019 09:21:47 -0500 (EST)
+Subject: FAILED: patch "[PATCH] cpufreq: Avoid leaving stale IRQ work items during CPU" failed to apply to 4.14-stable tree
+To:     rafael.j.wysocki@intel.com, anson.huang@nxp.com, peng.fan@nxp.com,
+        stable@vger.kernel.org, viresh.kumar@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Dec 2019 15:20:11 +0100
-Message-ID: <1577629211246205@kroah.com>
+Date:   Sun, 29 Dec 2019 15:21:46 +0100
+Message-ID: <15776293061514@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,89 +69,170 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3194d2533efffae8b815d84729ecc58b6a9000ab Mon Sep 17 00:00:00 2001
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Date: Mon, 9 Dec 2019 15:27:27 +0000
-Subject: [PATCH] spi: fsl: don't map irq during probe
+From 85572c2c4a45a541e880e087b5b17a48198b2416 Mon Sep 17 00:00:00 2001
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Date: Wed, 11 Dec 2019 11:28:41 +0100
+Subject: [PATCH] cpufreq: Avoid leaving stale IRQ work items during CPU
+ offline
 
-With lastest kernel, the following warning is observed at startup:
+The scheduler code calling cpufreq_update_util() may run during CPU
+offline on the target CPU after the IRQ work lists have been flushed
+for it, so the target CPU should be prevented from running code that
+may queue up an IRQ work item on it at that point.
 
-[    1.500609] ------------[ cut here ]------------
-[    1.505225] remove_proc_entry: removing non-empty directory 'irq/22', leaking at least 'fsl_spi'
-[    1.514234] WARNING: CPU: 0 PID: 1 at fs/proc/generic.c:682 remove_proc_entry+0x198/0x1c0
-[    1.522403] CPU: 0 PID: 1 Comm: swapper Not tainted 5.4.0-s3k-dev-02248-g93532430a4ff #2564
-[    1.530724] NIP:  c0197694 LR: c0197694 CTR: c0050d80
-[    1.535762] REGS: df4a5af0 TRAP: 0700   Not tainted  (5.4.0-02248-g93532430a4ff)
-[    1.543818] MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 22028222  XER: 00000000
-[    1.550524]
-[    1.550524] GPR00: c0197694 df4a5ba8 df4a0000 00000054 00000000 00000000 00004a38 00000010
-[    1.550524] GPR08: c07c5a30 00000800 00000000 00001032 22000208 00000000 c0004b14 00000000
-[    1.550524] GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 c0830000 c07fc078
-[    1.550524] GPR24: c08e8ca0 df665d10 df60ea98 c07c9db8 00000001 df5d5ae3 df5d5a80 df43f8e3
-[    1.585327] NIP [c0197694] remove_proc_entry+0x198/0x1c0
-[    1.590628] LR [c0197694] remove_proc_entry+0x198/0x1c0
-[    1.595829] Call Trace:
-[    1.598280] [df4a5ba8] [c0197694] remove_proc_entry+0x198/0x1c0 (unreliable)
-[    1.605321] [df4a5bd8] [c0067acc] unregister_irq_proc+0x5c/0x70
-[    1.611238] [df4a5bf8] [c005fbc4] free_desc+0x3c/0x80
-[    1.616286] [df4a5c18] [c005fe2c] irq_free_descs+0x70/0xa8
-[    1.621778] [df4a5c38] [c033d3fc] of_fsl_spi_probe+0xdc/0x3cc
-[    1.627525] [df4a5c88] [c02f0f64] platform_drv_probe+0x44/0xa4
-[    1.633350] [df4a5c98] [c02eee44] really_probe+0x1ac/0x418
-[    1.638829] [df4a5cc8] [c02ed3e8] bus_for_each_drv+0x64/0xb0
-[    1.644481] [df4a5cf8] [c02ef950] __device_attach+0xd4/0x128
-[    1.650132] [df4a5d28] [c02ed61c] bus_probe_device+0xa0/0xbc
-[    1.655783] [df4a5d48] [c02ebbe8] device_add+0x544/0x74c
-[    1.661096] [df4a5d88] [c0382b78] of_platform_device_create_pdata+0xa4/0x100
-[    1.668131] [df4a5da8] [c0382cf4] of_platform_bus_create+0x120/0x20c
-[    1.674474] [df4a5df8] [c0382d50] of_platform_bus_create+0x17c/0x20c
-[    1.680818] [df4a5e48] [c0382e88] of_platform_bus_probe+0x9c/0xf0
-[    1.686907] [df4a5e68] [c0751404] __machine_initcall_cmpcpro_cmpcpro_declare_of_platform_devices+0x74/0x1a4
-[    1.696629] [df4a5e98] [c072a4cc] do_one_initcall+0x8c/0x1d4
-[    1.702282] [df4a5ef8] [c072a768] kernel_init_freeable+0x154/0x204
-[    1.708455] [df4a5f28] [c0004b2c] kernel_init+0x18/0x110
-[    1.713769] [df4a5f38] [c00122ac] ret_from_kernel_thread+0x14/0x1c
-[    1.719926] Instruction dump:
-[    1.722889] 2c030000 4182004c 3863ffb0 3c80c05f 80e3005c 388436a0 3c60c06d 7fa6eb78
-[    1.730630] 7fe5fb78 38840280 38634178 4be8c611 <0fe00000> 4bffff6c 3c60c071 7fe4fb78
-[    1.738556] ---[ end trace 05d0720bf2e352e2 ]---
+Unfortunately, that may not be the case if dvfs_possible_from_any_cpu
+is set for at least one cpufreq policy in the system, because that
+allows the CPU going offline to run the utilization update callback
+of the cpufreq governor on behalf of another (online) CPU in some
+cases.
 
-The problem comes from the error path which calls
-irq_dispose_mapping() while the IRQ has been requested with
-devm_request_irq().
+If that happens, the cpufreq governor callback may queue up an IRQ
+work on the CPU running it, which is going offline, and the IRQ work
+may not be flushed after that point.  Moreover, that IRQ work cannot
+be flushed until the "offlining" CPU goes back online, so if any
+other CPU calls irq_work_sync() to wait for the completion of that
+IRQ work, it will have to wait until the "offlining" CPU is back
+online and that may not happen forever.  In particular, a system-wide
+deadlock may occur during CPU online as a result of that.
 
-IRQ doesn't need to be mapped with irq_of_parse_and_map(). The only
-need is to get the IRQ virtual number. For that, use
-of_irq_to_resource() instead of the
-irq_of_parse_and_map()/irq_dispose_mapping() pair.
+The failing scenario is as follows.  CPU0 is the boot CPU, so it
+creates a cpufreq policy and becomes the "leader" of it
+(policy->cpu).  It cannot go offline, because it is the boot CPU.
+Next, other CPUs join the cpufreq policy as they go online and they
+leave it when they go offline.  The last CPU to go offline, say CPU3,
+may queue up an IRQ work while running the governor callback on
+behalf of CPU0 after leaving the cpufreq policy because of the
+dvfs_possible_from_any_cpu effect described above.  Then, CPU0 is
+the only online CPU in the system and the stale IRQ work is still
+queued on CPU3.  When, say, CPU1 goes back online, it will run
+irq_work_sync() to wait for that IRQ work to complete and so it
+will wait for CPU3 to go back online (which may never happen even
+in principle), but (worse yet) CPU0 is waiting for CPU1 at that
+point too and a system-wide deadlock occurs.
 
-Fixes: 500a32abaf81 ("spi: fsl: Call irq_dispose_mapping in err path")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Link: https://lore.kernel.org/r/518cfb83347d5372748e7fe72f94e2e9443d0d4a.1575905123.git.christophe.leroy@c-s.fr
-Signed-off-by: Mark Brown <broonie@kernel.org>
+To address this problem notice that CPUs which cannot run cpufreq
+utilization update code for themselves (for example, because they
+have left the cpufreq policies that they belonged to), should also
+be prevented from running that code on behalf of the other CPUs that
+belong to a cpufreq policy with dvfs_possible_from_any_cpu set and so
+in that case the cpufreq_update_util_data pointer of the CPU running
+the code must not be NULL as well as for the CPU which is the target
+of the cpufreq utilization update in progress.
 
-diff --git a/drivers/spi/spi-fsl-spi.c b/drivers/spi/spi-fsl-spi.c
-index 4b70887cf443..d0ad9709f4a6 100644
---- a/drivers/spi/spi-fsl-spi.c
-+++ b/drivers/spi/spi-fsl-spi.c
-@@ -746,8 +746,8 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
- 	if (ret)
- 		goto err;
+Accordingly, change cpufreq_this_cpu_can_update() into a regular
+function in kernel/sched/cpufreq.c (instead of a static inline in a
+header file) and make it check the cpufreq_update_util_data pointer
+of the local CPU if dvfs_possible_from_any_cpu is set for the target
+cpufreq policy.
+
+Also update the schedutil governor to do the
+cpufreq_this_cpu_can_update() check in the non-fast-switch
+case too to avoid the stale IRQ work issues.
+
+Fixes: 99d14d0e16fa ("cpufreq: Process remote callbacks from any CPU if the platform permits")
+Link: https://lore.kernel.org/linux-pm/20191121093557.bycvdo4xyinbc5cb@vireshk-i7/
+Reported-by: Anson Huang <anson.huang@nxp.com>
+Tested-by: Anson Huang <anson.huang@nxp.com>
+Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Peng Fan <peng.fan@nxp.com> (i.MX8QXP-MEK)
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+diff --git a/include/linux/cpufreq.h b/include/linux/cpufreq.h
+index 92d5fdc8154e..31b1b0e03df8 100644
+--- a/include/linux/cpufreq.h
++++ b/include/linux/cpufreq.h
+@@ -595,17 +595,6 @@ struct governor_attr {
+ 			 size_t count);
+ };
  
--	irq = irq_of_parse_and_map(np, 0);
--	if (!irq) {
-+	irq = of_irq_to_resource(np, 0, NULL);
-+	if (irq <= 0) {
- 		ret = -EINVAL;
- 		goto err;
- 	}
-@@ -761,7 +761,6 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
- 	return 0;
+-static inline bool cpufreq_this_cpu_can_update(struct cpufreq_policy *policy)
+-{
+-	/*
+-	 * Allow remote callbacks if:
+-	 * - dvfs_possible_from_any_cpu flag is set
+-	 * - the local and remote CPUs share cpufreq policy
+-	 */
+-	return policy->dvfs_possible_from_any_cpu ||
+-		cpumask_test_cpu(smp_processor_id(), policy->cpus);
+-}
+-
+ /*********************************************************************
+  *                     FREQUENCY TABLE HELPERS                       *
+  *********************************************************************/
+diff --git a/include/linux/sched/cpufreq.h b/include/linux/sched/cpufreq.h
+index afa940cd50dc..cc6bcc1e96bc 100644
+--- a/include/linux/sched/cpufreq.h
++++ b/include/linux/sched/cpufreq.h
+@@ -12,6 +12,8 @@
+ #define SCHED_CPUFREQ_MIGRATION	(1U << 1)
  
- err:
--	irq_dispose_mapping(irq);
- 	return ret;
+ #ifdef CONFIG_CPU_FREQ
++struct cpufreq_policy;
++
+ struct update_util_data {
+        void (*func)(struct update_util_data *data, u64 time, unsigned int flags);
+ };
+@@ -20,6 +22,7 @@ void cpufreq_add_update_util_hook(int cpu, struct update_util_data *data,
+                        void (*func)(struct update_util_data *data, u64 time,
+ 				    unsigned int flags));
+ void cpufreq_remove_update_util_hook(int cpu);
++bool cpufreq_this_cpu_can_update(struct cpufreq_policy *policy);
+ 
+ static inline unsigned long map_util_freq(unsigned long util,
+ 					unsigned long freq, unsigned long cap)
+diff --git a/kernel/sched/cpufreq.c b/kernel/sched/cpufreq.c
+index b5dcd1d83c7f..7c2fe50fd76d 100644
+--- a/kernel/sched/cpufreq.c
++++ b/kernel/sched/cpufreq.c
+@@ -5,6 +5,8 @@
+  * Copyright (C) 2016, Intel Corporation
+  * Author: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+  */
++#include <linux/cpufreq.h>
++
+ #include "sched.h"
+ 
+ DEFINE_PER_CPU(struct update_util_data __rcu *, cpufreq_update_util_data);
+@@ -57,3 +59,19 @@ void cpufreq_remove_update_util_hook(int cpu)
+ 	rcu_assign_pointer(per_cpu(cpufreq_update_util_data, cpu), NULL);
  }
+ EXPORT_SYMBOL_GPL(cpufreq_remove_update_util_hook);
++
++/**
++ * cpufreq_this_cpu_can_update - Check if cpufreq policy can be updated.
++ * @policy: cpufreq policy to check.
++ *
++ * Return 'true' if:
++ * - the local and remote CPUs share @policy,
++ * - dvfs_possible_from_any_cpu is set in @policy and the local CPU is not going
++ *   offline (in which case it is not expected to run cpufreq updates any more).
++ */
++bool cpufreq_this_cpu_can_update(struct cpufreq_policy *policy)
++{
++	return cpumask_test_cpu(smp_processor_id(), policy->cpus) ||
++		(policy->dvfs_possible_from_any_cpu &&
++		 rcu_dereference_sched(*this_cpu_ptr(&cpufreq_update_util_data)));
++}
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index 322ca8860f54..9b8916fd00a2 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -82,12 +82,10 @@ static bool sugov_should_update_freq(struct sugov_policy *sg_policy, u64 time)
+ 	 * by the hardware, as calculating the frequency is pointless if
+ 	 * we cannot in fact act on it.
+ 	 *
+-	 * For the slow switching platforms, the kthread is always scheduled on
+-	 * the right set of CPUs and any CPU can find the next frequency and
+-	 * schedule the kthread.
++	 * This is needed on the slow switching platforms too to prevent CPUs
++	 * going offline from leaving stale IRQ work items behind.
+ 	 */
+-	if (sg_policy->policy->fast_switch_enabled &&
+-	    !cpufreq_this_cpu_can_update(sg_policy->policy))
++	if (!cpufreq_this_cpu_can_update(sg_policy->policy))
+ 		return false;
  
+ 	if (unlikely(sg_policy->limits_changed)) {
 
