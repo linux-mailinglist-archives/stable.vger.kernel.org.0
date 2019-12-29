@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C90E912C968
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 579B112C7F1
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730703AbfL2SHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 13:07:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60094 "EHLO mail.kernel.org"
+        id S1731507AbfL2Rsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:48:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731482AbfL2Rsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:48:39 -0500
+        id S1731242AbfL2Rsq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:48:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE46D207FD;
-        Sun, 29 Dec 2019 17:48:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E43C9207FF;
+        Sun, 29 Dec 2019 17:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641718;
-        bh=8p3wRkn4txEMO5tMoKe/eRQ5t6aioeCyxRRMj5b4kzM=;
+        s=default; t=1577641725;
+        bh=V4eOyXkk4N9xmbfUukjFxKPeosyoSEs+Nc6oot6P/a0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcXFjUg562rFcJL6XRZWrk3fg7SPQewycaqevJLAhfTtB56vLjGpIWsbe/v5b3X9g
-         ceQSH57m3axr0FBcegI3xvY8weJ2dUhY+Gi47MmMJ2MCVpqLFTa7wghFWpeJFeqVPi
-         YYzo/t8O637xaab/qedS0jZ0Mm6pOUaBHlp44zHI=
+        b=sw2vNdgBuae0HLyWddsyyLJLYQyKPLXmVgx8QfNPeAf7vVl6Sk29ePYp5yuNG3AK8
+         mpBQUWy3SdB110voJHFtGXq9MmQABHH6nBDlFOQ9oHO5XdQq85XoBXzJr5tWORvbbP
+         LrkE+pQxJVtoFrl3dS7kZF5EtO3X/bLYu22hTOc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jae Hyun Yoo <jae.hyun.yoo@intel.com>,
-        Eddie James <eajames@linux.ibm.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 181/434] media: aspeed: clear garbage interrupts
-Date:   Sun, 29 Dec 2019 18:23:54 +0100
-Message-Id: <20191229172713.839949368@linuxfoundation.org>
+Subject: [PATCH 5.4 183/434] md: no longer compare spare disk superblock events in super_load
+Date:   Sun, 29 Dec 2019 18:23:56 +0100
+Message-Id: <20191229172713.972247562@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,80 +44,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jae Hyun Yoo <jae.hyun.yoo@intel.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit 65d270acb2d662c3346793663ac3a759eb4491b8 ]
+[ Upstream commit 6a5cb53aaa4ef515ddeffa04ce18b771121127b4 ]
 
-CAPTURE_COMPLETE and FRAME_COMPLETE interrupts come even when these
-are disabled in the VE_INTERRUPT_CTRL register and eventually this
-behavior causes disabling irq itself like below:
+We have a test case as follow:
 
-[10055.108784] irq 23: nobody cared (try booting with the "irqpoll" option)
-[10055.115525] CPU: 0 PID: 331 Comm: swampd Tainted: G        W         5.3.0-4fde000-dirty-d683e2e #1
-[10055.124565] Hardware name: Generic DT based system
-[10055.129355] Backtrace:
-[10055.131854] [<80107d7c>] (dump_backtrace) from [<80107fb0>] (show_stack+0x20/0x24)
-[10055.139431]  r7:00000017 r6:00000001 r5:00000000 r4:9d51dc00
-[10055.145120] [<80107f90>] (show_stack) from [<8074bf50>] (dump_stack+0x20/0x28)
-[10055.152361] [<8074bf30>] (dump_stack) from [<80150ffc>] (__report_bad_irq+0x40/0xc0)
-[10055.160109] [<80150fbc>] (__report_bad_irq) from [<80150f2c>] (note_interrupt+0x23c/0x294)
-[10055.168374]  r9:015b6e60 r8:00000000 r7:00000017 r6:00000001 r5:00000000 r4:9d51dc00
-[10055.176136] [<80150cf0>] (note_interrupt) from [<8014df1c>] (handle_irq_event_percpu+0x88/0x98)
-[10055.184835]  r10:7eff7910 r9:015b6e60 r8:00000000 r7:9d417600 r6:00000001 r5:00000002
-[10055.192657]  r4:9d51dc00 r3:00000000
-[10055.196248] [<8014de94>] (handle_irq_event_percpu) from [<8014df64>] (handle_irq_event+0x38/0x4c)
-[10055.205113]  r5:80b56d50 r4:9d51dc00
-[10055.208697] [<8014df2c>] (handle_irq_event) from [<80151f1c>] (handle_level_irq+0xbc/0x12c)
-[10055.217037]  r5:80b56d50 r4:9d51dc00
-[10055.220623] [<80151e60>] (handle_level_irq) from [<8014d4b8>] (generic_handle_irq+0x30/0x44)
-[10055.229052]  r5:80b56d50 r4:00000017
-[10055.232648] [<8014d488>] (generic_handle_irq) from [<8014d524>] (__handle_domain_irq+0x58/0xb4)
-[10055.241356] [<8014d4cc>] (__handle_domain_irq) from [<801021e4>] (avic_handle_irq+0x68/0x70)
-[10055.249797]  r9:015b6e60 r8:00c5387d r7:00c5387d r6:ffffffff r5:9dd33fb0 r4:9d402380
-[10055.257539] [<8010217c>] (avic_handle_irq) from [<80101e34>] (__irq_usr+0x54/0x80)
-[10055.265105] Exception stack(0x9dd33fb0 to 0x9dd33ff8)
-[10055.270152] 3fa0:                                     015d0530 00000000 00000000 015d0538
-[10055.278328] 3fc0: 015d0530 015b6e60 00000000 00000000 0052c5d0 015b6e60 7eff7910 7eff7918
-[10055.286496] 3fe0: 76ce5614 7eff7908 0050e2f4 76a3a08c 20000010 ffffffff
-[10055.293104]  r5:20000010 r4:76a3a08c
-[10055.296673] handlers:
-[10055.298967] [<79f218a5>] irq_default_primary_handler threaded [<1de88514>] aspeed_video_irq
-[10055.307344] Disabling IRQ #23
+  mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] \
+	--assume-clean --bitmap=internal
+  mdadm -S /dev/md1
+  mdadm -A /dev/md1 /dev/sd[b-c] --run --force
 
-To fix this issue, this commit makes the interrupt handler clear
-these garbage interrupts. This driver enables and uses only
-COMP_COMPLETE interrupt instead for frame handling.
+  mdadm --zero /dev/sda
+  mdadm /dev/md1 -a /dev/sda
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@intel.com>
-Reviewed-by: Eddie James <eajames@linux.ibm.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+  echo offline > /sys/block/sdc/device/state
+  echo offline > /sys/block/sdb/device/state
+  sleep 5
+  mdadm -S /dev/md1
+
+  echo running > /sys/block/sdb/device/state
+  echo running > /sys/block/sdc/device/state
+  mdadm -A /dev/md1 /dev/sd[a-c] --run --force
+
+When we readd /dev/sda to the array, it started to do recovery.
+After offline the other two disks in md1, the recovery have
+been interrupted and superblock update info cannot be written
+to the offline disks. While the spare disk (/dev/sda) can continue
+to update superblock info.
+
+After stopping the array and assemble it, we found the array
+run fail, with the follow kernel message:
+
+[  172.986064] md: kicking non-fresh sdb from array!
+[  173.004210] md: kicking non-fresh sdc from array!
+[  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
+[  173.022406] md1: failed to create bitmap (-5)
+[  173.023466] md: md1 stopped.
+
+Since both sdb and sdc have the value of 'sb->events' smaller than
+that in sda, they have been kicked from the array. However, the only
+remained disk sda is in 'spare' state before stop and it cannot be
+added to conf->mirrors[] array. In the end, raid array assemble
+and run fail.
+
+In fact, we can use the older disk sdb or sdc to assemble the array.
+That means we should not choose the 'spare' disk as the fresh disk in
+analyze_sbs().
+
+To fix the problem, we do not compare superblock events when it is
+a spare disk, as same as validate_super.
+
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/aspeed-video.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/md/md.c | 57 +++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 51 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
-index 84e0650106f5..096a7c9a8963 100644
---- a/drivers/media/platform/aspeed-video.c
-+++ b/drivers/media/platform/aspeed-video.c
-@@ -606,6 +606,16 @@ static irqreturn_t aspeed_video_irq(int irq, void *arg)
- 			aspeed_video_start_frame(video);
- 	}
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index b8dd56b746da..6f0ecfe8eab2 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -1156,7 +1156,15 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
+ 		rdev->desc_nr = sb->this_disk.number;
  
-+	/*
-+	 * CAPTURE_COMPLETE and FRAME_COMPLETE interrupts come even when these
-+	 * are disabled in the VE_INTERRUPT_CTRL register so clear them to
-+	 * prevent unnecessary interrupt calls.
-+	 */
-+	if (sts & VE_INTERRUPT_CAPTURE_COMPLETE)
-+		sts &= ~VE_INTERRUPT_CAPTURE_COMPLETE;
-+	if (sts & VE_INTERRUPT_FRAME_COMPLETE)
-+		sts &= ~VE_INTERRUPT_FRAME_COMPLETE;
+ 	if (!refdev) {
+-		ret = 1;
++		/*
++		 * Insist on good event counter while assembling, except
++		 * for spares (which don't need an event count)
++		 */
++		if (sb->disks[rdev->desc_nr].state & (
++			(1<<MD_DISK_SYNC) | (1 << MD_DISK_ACTIVE)))
++			ret = 1;
++		else
++			ret = 0;
+ 	} else {
+ 		__u64 ev1, ev2;
+ 		mdp_super_t *refsb = page_address(refdev->sb_page);
+@@ -1172,7 +1180,14 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
+ 		}
+ 		ev1 = md_event(sb);
+ 		ev2 = md_event(refsb);
+-		if (ev1 > ev2)
 +
- 	return sts ? IRQ_NONE : IRQ_HANDLED;
++		/*
++		 * Insist on good event counter while assembling, except
++		 * for spares (which don't need an event count)
++		 */
++		if (sb->disks[rdev->desc_nr].state & (
++			(1<<MD_DISK_SYNC) | (1 << MD_DISK_ACTIVE)) &&
++			(ev1 > ev2))
+ 			ret = 1;
+ 		else
+ 			ret = 0;
+@@ -1532,6 +1547,7 @@ static int super_1_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor_
+ 	sector_t sectors;
+ 	char b[BDEVNAME_SIZE], b2[BDEVNAME_SIZE];
+ 	int bmask;
++	__u64 role;
+ 
+ 	/*
+ 	 * Calculate the position of the superblock in 512byte sectors.
+@@ -1665,8 +1681,20 @@ static int super_1_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor_
+ 	    sb->level != 0)
+ 		return -EINVAL;
+ 
++	role = le16_to_cpu(sb->dev_roles[rdev->desc_nr]);
++
+ 	if (!refdev) {
+-		ret = 1;
++		/*
++		 * Insist of good event counter while assembling, except for
++		 * spares (which don't need an event count)
++		 */
++		if (rdev->desc_nr >= 0 &&
++		    rdev->desc_nr < le32_to_cpu(sb->max_dev) &&
++			(role < MD_DISK_ROLE_MAX ||
++			 role == MD_DISK_ROLE_JOURNAL))
++			ret = 1;
++		else
++			ret = 0;
+ 	} else {
+ 		__u64 ev1, ev2;
+ 		struct mdp_superblock_1 *refsb = page_address(refdev->sb_page);
+@@ -1683,7 +1711,14 @@ static int super_1_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor_
+ 		ev1 = le64_to_cpu(sb->events);
+ 		ev2 = le64_to_cpu(refsb->events);
+ 
+-		if (ev1 > ev2)
++		/*
++		 * Insist of good event counter while assembling, except for
++		 * spares (which don't need an event count)
++		 */
++		if (rdev->desc_nr >= 0 &&
++		    rdev->desc_nr < le32_to_cpu(sb->max_dev) &&
++			(role < MD_DISK_ROLE_MAX ||
++			 role == MD_DISK_ROLE_JOURNAL) && ev1 > ev2)
+ 			ret = 1;
+ 		else
+ 			ret = 0;
+@@ -3604,7 +3639,7 @@ abort_free:
+  * Check a full RAID array for plausibility
+  */
+ 
+-static void analyze_sbs(struct mddev *mddev)
++static int analyze_sbs(struct mddev *mddev)
+ {
+ 	int i;
+ 	struct md_rdev *rdev, *freshest, *tmp;
+@@ -3625,6 +3660,12 @@ static void analyze_sbs(struct mddev *mddev)
+ 			md_kick_rdev_from_array(rdev);
+ 		}
+ 
++	/* Cannot find a valid fresh disk */
++	if (!freshest) {
++		pr_warn("md: cannot find a valid disk\n");
++		return -EINVAL;
++	}
++
+ 	super_types[mddev->major_version].
+ 		validate_super(mddev, freshest);
+ 
+@@ -3659,6 +3700,8 @@ static void analyze_sbs(struct mddev *mddev)
+ 			clear_bit(In_sync, &rdev->flags);
+ 		}
+ 	}
++
++	return 0;
  }
  
+ /* Read a fixed-point number.
+@@ -5577,7 +5620,9 @@ int md_run(struct mddev *mddev)
+ 	if (!mddev->raid_disks) {
+ 		if (!mddev->persistent)
+ 			return -EINVAL;
+-		analyze_sbs(mddev);
++		err = analyze_sbs(mddev);
++		if (err)
++			return -EINVAL;
+ 	}
+ 
+ 	if (mddev->level != LEVEL_NONE)
 -- 
 2.20.1
 
