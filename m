@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92C1D12C85B
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0432012C85E
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732529AbfL2Rxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:53:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40928 "EHLO mail.kernel.org"
+        id S1732541AbfL2Rxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:53:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729371AbfL2Rxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:53:44 -0500
+        id S1732538AbfL2Rxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:53:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4F5221D7E;
-        Sun, 29 Dec 2019 17:53:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F605206A4;
+        Sun, 29 Dec 2019 17:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642024;
-        bh=A1FOVV26f2ggY+vCfaKrBDnzf+4YILXKM85+hxAUp5w=;
+        s=default; t=1577642026;
+        bh=7BlVCiFDwC0vCLjXpAHO61C5t/zW6H3A3ibe++xP7gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B2j0+/46xjfgoXFXUzMBJmckPqwA5VC1E8OIo30DMp/lsLW67FBAV64pbxnaTs7VY
-         P/dmv7UAuxNs2gllxuRHfUzg78QqOPtH0eoEUSp+7N02PKgDajL6IwqLdPxtY3OxTt
-         14yUMgopzZmEWkBX8Q7bNorGkmFEdsRHt/enaJKs=
+        b=0VPrAL/cjW61tYF6JDGO1OVkUtXJ8wlaIYXID0f7JYap2w/QDLg71LuTY59YzU03Z
+         SG7fzCDnGDRX/kwiK+vyUWxaU/QnHGXBnjEWKWBnV+plokSt+DA46vanCbmR5/3x5L
+         tQrr9ontw2XCA9EMX2oXBjXwP+l/aFod+27sGA1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Xuerui <wangxuerui@qiniu.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 309/434] iwlwifi: mvm: fix unaligned read of rx_pkt_status
-Date:   Sun, 29 Dec 2019 18:26:02 +0100
-Message-Id: <20191229172722.478297888@linuxfoundation.org>
+Subject: [PATCH 5.4 310/434] ASoC: wm8904: fix regcache handling
+Date:   Sun, 29 Dec 2019 18:26:03 +0100
+Message-Id: <20191229172722.544935314@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,48 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Xuerui <wangxuerui@qiniu.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit c5aaa8be29b25dfe1731e9a8b19fd91b7b789ee3 ]
+[ Upstream commit e9149b8c00d25dbaef1aa174fc604bed207e576d ]
 
-This is present since the introduction of iwlmvm.
-Example stack trace on MIPS:
+The current code assumes that the power is turned off in
+SND_SOC_BIAS_OFF. If there are no actual regulator the codec isn't
+turned off and the registers are not reset to their default values but
+the regcache is still marked as dirty. Thus a value might not be written
+to the hardware if it is set to the default value. Do a software reset
+before turning off the power to make sure the registers are always reset
+to their default states.
 
-[<ffffffffc0789328>] iwl_mvm_rx_rx_mpdu+0xa8/0xb88 [iwlmvm]
-[<ffffffffc0632b40>] iwl_pcie_rx_handle+0x420/0xc48 [iwlwifi]
-
-Tested with a Wireless AC 7265 for ~6 months, confirmed to fix the
-problem. No other unaligned accesses are spotted yet.
-
-Signed-off-by: Wang Xuerui <wangxuerui@qiniu.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Michael Walle <michael@walle.cc>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20191112223629.21867-1-michael@walle.cc
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/rx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/wm8904.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rx.c b/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
-index 0ad8ed23a455..5ee33c8ae9d2 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
-@@ -60,6 +60,7 @@
-  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *****************************************************************************/
-+#include <asm/unaligned.h>
- #include <linux/etherdevice.h>
- #include <linux/skbuff.h>
- #include "iwl-trans.h"
-@@ -357,7 +358,7 @@ void iwl_mvm_rx_rx_mpdu(struct iwl_mvm *mvm, struct napi_struct *napi,
- 	rx_res = (struct iwl_rx_mpdu_res_start *)pkt->data;
- 	hdr = (struct ieee80211_hdr *)(pkt->data + sizeof(*rx_res));
- 	len = le16_to_cpu(rx_res->byte_count);
--	rx_pkt_status = le32_to_cpup((__le32 *)
-+	rx_pkt_status = get_unaligned_le32((__le32 *)
- 		(pkt->data + sizeof(*rx_res) + len));
+diff --git a/sound/soc/codecs/wm8904.c b/sound/soc/codecs/wm8904.c
+index bcb3c9d5abf0..9e8c564f6e9c 100644
+--- a/sound/soc/codecs/wm8904.c
++++ b/sound/soc/codecs/wm8904.c
+@@ -1917,6 +1917,7 @@ static int wm8904_set_bias_level(struct snd_soc_component *component,
+ 		snd_soc_component_update_bits(component, WM8904_BIAS_CONTROL_0,
+ 				    WM8904_BIAS_ENA, 0);
  
- 	/* Dont use dev_alloc_skb(), we'll have enough headroom once
++		snd_soc_component_write(component, WM8904_SW_RESET_AND_ID, 0);
+ 		regcache_cache_only(wm8904->regmap, true);
+ 		regcache_mark_dirty(wm8904->regmap);
+ 
 -- 
 2.20.1
 
