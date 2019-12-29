@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED30412C435
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F64A12C46A
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:33:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728429AbfL2R1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:27:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49856 "EHLO mail.kernel.org"
+        id S1728787AbfL2R3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:29:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728427AbfL2R1a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:27:30 -0500
+        id S1728778AbfL2R33 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:29:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE143207FF;
-        Sun, 29 Dec 2019 17:27:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D097207FD;
+        Sun, 29 Dec 2019 17:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640450;
-        bh=GeRHI4wtHwGBZ8S0i93TJGTNEm4NYvktmCcr2ia8CD8=;
+        s=default; t=1577640568;
+        bh=prkrhnJRoSbtS7JX9q8fq7A4FByQwa0ZP1hOz0/cf8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J0Acck0b740b1hUQxoRgpcIywx1XD9Of2YLrpVgQPCj9vXWcGvMPQZk0YHcAuj3A4
-         WMoI7X8ESxTCecULRB3zBj5GAmVWU4A29zPXJKMYvY6zq/C0fqQw5WDVOTg2NEh5G/
-         uA1Cscwtxsb19bI+zZ2Tj4HJnMEu+YfR3Pp9qpx8=
+        b=pIgeyKdhmN2kWorL2MaZiaSAH9T7SE/kUZtToIu479RK1XwLA4y/oCB3RKdTBbu3J
+         vYNmMdKFuFDAhFAWmZvCX/xhwLcKpm9go3Apz2J0JQksgM4567gfL5IbpiTfPC36d9
+         Qra/bjuJ5z6QzFAL6V//gmO/msnkBKaGFYRrhLcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 161/161] nbd: fix shutdown and recv work deadlock v2
-Date:   Sun, 29 Dec 2019 18:20:09 +0100
-Message-Id: <20191229162450.809936938@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cristian Birsan <cristian.birsan@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 009/219] net: usb: lan78xx: Fix suspend/resume PHY register access error
+Date:   Sun, 29 Dec 2019 18:16:51 +0100
+Message-Id: <20191229162510.345406284@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
-References: <20191229162355.500086350@linuxfoundation.org>
+In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
+References: <20191229162508.458551679@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <mchristi@redhat.com>
+From: Cristian Birsan <cristian.birsan@microchip.com>
 
-commit 1c05839aa973cfae8c3db964a21f9c0eef8fcc21 upstream.
+[ Upstream commit 20032b63586ac6c28c936dff696981159913a13f ]
 
-This fixes a regression added with:
+Lan78xx driver accesses the PHY registers through MDIO bus over USB
+connection. When performing a suspend/resume, the PHY registers can be
+accessed before the USB connection is resumed. This will generate an
+error and will prevent the device to resume correctly.
+This patch adds the dependency between the MDIO bus and USB device to
+allow correct handling of suspend/resume.
 
-commit e9e006f5fcf2bab59149cb38a48a4817c1b538b4
-Author: Mike Christie <mchristi@redhat.com>
-Date:   Sun Aug 4 14:10:06 2019 -0500
-
-    nbd: fix max number of supported devs
-
-where we can deadlock during device shutdown. The problem occurs if
-the recv_work's nbd_config_put occurs after nbd_start_device_ioctl has
-returned and the userspace app has droppped its reference via closing
-the device and running nbd_release. The recv_work nbd_config_put call
-would then drop the refcount to zero and try to destroy the config which
-would try to do destroy_workqueue from the recv work.
-
-This patch just has nbd_start_device_ioctl do a flush_workqueue when it
-wakes so we know after the ioctl returns running works have exited. This
-also fixes a possible race where we could try to reuse the device while
-old recv_works are still running.
-
-Cc: stable@vger.kernel.org
-Fixes: e9e006f5fcf2 ("nbd: fix max number of supported devs")
-Signed-off-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: ce85e13ad6ef ("lan78xx: Update to use phylib instead of mii_if_info.")
+Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/block/nbd.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/usb/lan78xx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1234,10 +1234,10 @@ static int nbd_start_device_ioctl(struct
- 	mutex_unlock(&nbd->config_lock);
- 	ret = wait_event_interruptible(config->recv_wq,
- 					 atomic_read(&config->recv_threads) == 0);
--	if (ret) {
-+	if (ret)
- 		sock_shutdown(nbd);
--		flush_workqueue(nbd->recv_workq);
--	}
-+	flush_workqueue(nbd->recv_workq);
-+
- 	mutex_lock(&nbd->config_lock);
- 	bd_set_size(bdev, 0);
- 	/* user requested, ignore socket errors */
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -1823,6 +1823,7 @@ static int lan78xx_mdio_init(struct lan7
+ 	dev->mdiobus->read = lan78xx_mdiobus_read;
+ 	dev->mdiobus->write = lan78xx_mdiobus_write;
+ 	dev->mdiobus->name = "lan78xx-mdiobus";
++	dev->mdiobus->parent = &dev->udev->dev;
+ 
+ 	snprintf(dev->mdiobus->id, MII_BUS_ID_SIZE, "usb-%03d:%03d",
+ 		 dev->udev->bus->busnum, dev->udev->devnum);
 
 
