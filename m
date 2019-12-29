@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 094DA12C6A0
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:54:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CCFA12C67C
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:54:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731539AbfL2Rs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:48:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60580 "EHLO mail.kernel.org"
+        id S1731272AbfL2Rra (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:47:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731261AbfL2Rsz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:48:55 -0500
+        id S1731270AbfL2Rr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:47:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57D1D207FF;
-        Sun, 29 Dec 2019 17:48:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37AFD208C4;
+        Sun, 29 Dec 2019 17:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641734;
-        bh=YE6fA8U4hpcf3Who/RGRmXS2l2nWWlDo7ap4HH8yOzc=;
+        s=default; t=1577641648;
+        bh=A+EDZ/daJzoXrePzQdsa4QO2qYkne0kKEtRkuHNt4HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hduXkThxZdhgXMqS53jFbeKQtno58EJRZ3ffS20Nk9ceQVCyjQ+8l8cDGxodaPK8J
-         bkhXOmg7vtXcdv0g6HMRRHjgAiQMrirCAA7ZgTZdOKWMzzYFh+onu9oXdPQ5kgTkR/
-         iQUgR5uPwfY8KMMfHryxNW+a44g0j7CekAo/t5DU=
+        b=RqsF4iYOZotonfZJeOLyS5n8B/JJh+qUKglu73/jCrgpCGGZl3iROiSK8VW9n8KM7
+         GRfZw2eIoPv/q4ZVx4WM+l3sG4o7+TmxS5KwBAfvebCFj5xRYD1BNfDnyivL2LsKcT
+         e9CLe11nzY2yD7ciC3R8jHmOaGKov23yIB/PDyX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, linuxarm@huawei.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Szymon Janc <szymon.janc@codecoup.pl>,
+        =?UTF-8?q?S=C3=B6ren=20Beye?= <linux@hypfer.de>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 148/434] perf vendor events arm64: Fix Hisi hip08 DDRC PMU eventname
-Date:   Sun, 29 Dec 2019 18:23:21 +0100
-Message-Id: <20191229172711.582498387@linuxfoundation.org>
+Subject: [PATCH 5.4 154/434] Bluetooth: Workaround directed advertising bug in Broadcom controllers
+Date:   Sun, 29 Dec 2019 18:23:27 +0100
+Message-Id: <20191229172711.990077339@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -51,43 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Szymon Janc <szymon.janc@codecoup.pl>
 
-[ Upstream commit 84b0975f4853ba32d2d9b3c19ffa2b947f023fb3 ]
+[ Upstream commit 4c371bb95cf06ded80df0e6139fdd77cee1d9a94 ]
 
-The "EventName" for the DDRC precharge command event is incorrect, so
-fix it.
+It appears that some Broadcom controllers (eg BCM20702A0) reject LE Set
+Advertising Parameters command if advertising intervals provided are not
+within range for undirected and low duty directed advertising.
 
-Fixes: 57cc732479ba ("perf jevents: Add support for Hisi hip08 DDRC PMU aliasing")
-Signed-off-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linuxarm@huawei.com
-Link: http://lore.kernel.org/lkml/1567612484-195727-2-git-send-email-john.garry@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Workaround this bug by populating min and max intervals with 'valid'
+values.
+
+< HCI Command: LE Set Advertising Parameters (0x08|0x0006) plen 15
+        Min advertising interval: 0.000 msec (0x0000)
+        Max advertising interval: 0.000 msec (0x0000)
+        Type: Connectable directed - ADV_DIRECT_IND (high duty cycle) (0x01)
+        Own address type: Public (0x00)
+        Direct address type: Random (0x01)
+        Direct address: E2:F0:7B:9F:DC:F4 (Static)
+        Channel map: 37, 38, 39 (0x07)
+        Filter policy: Allow Scan Request from Any, Allow Connect Request from Any (0x00)
+> HCI Event: Command Complete (0x0e) plen 4
+      LE Set Advertising Parameters (0x08|0x0006) ncmd 1
+        Status: Invalid HCI Command Parameters (0x12)
+
+Signed-off-by: Szymon Janc <szymon.janc@codecoup.pl>
+Tested-by: Sören Beye <linux@hypfer.de>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../perf/pmu-events/arch/arm64/hisilicon/hip08/uncore-ddrc.json | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_conn.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/uncore-ddrc.json b/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/uncore-ddrc.json
-index 0d1556fcdffe..99f4fc425564 100644
---- a/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/uncore-ddrc.json
-+++ b/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/uncore-ddrc.json
-@@ -15,7 +15,7 @@
-    },
-    {
- 	    "EventCode": "0x04",
--	    "EventName": "uncore_hisi_ddrc.flux_wr",
-+	    "EventName": "uncore_hisi_ddrc.pre_cmd",
- 	    "BriefDescription": "DDRC precharge commands",
- 	    "PublicDescription": "DDRC precharge commands",
- 	    "Unit": "hisi_sccl,ddrc",
+diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
+index ad5b0ac1f9ce..7ff92dd4c53c 100644
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -934,6 +934,14 @@ static void hci_req_directed_advertising(struct hci_request *req,
+ 			return;
+ 
+ 		memset(&cp, 0, sizeof(cp));
++
++		/* Some controllers might reject command if intervals are not
++		 * within range for undirected advertising.
++		 * BCM20702A0 is known to be affected by this.
++		 */
++		cp.min_interval = cpu_to_le16(0x0020);
++		cp.max_interval = cpu_to_le16(0x0020);
++
+ 		cp.type = LE_ADV_DIRECT_IND;
+ 		cp.own_address_type = own_addr_type;
+ 		cp.direct_addr_type = conn->dst_type;
 -- 
 2.20.1
 
