@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D710B12C6EF
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4964A12C6F2
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:55:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732212AbfL2RwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:52:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38072 "EHLO mail.kernel.org"
+        id S1732226AbfL2RwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:52:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732210AbfL2RwG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:52:06 -0500
+        id S1732222AbfL2RwL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:52:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D9FC207FF;
-        Sun, 29 Dec 2019 17:52:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31979222C2;
+        Sun, 29 Dec 2019 17:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641925;
-        bh=xCXYEYO7WU5ptonoCTDEHOUN/umnP26BvYCg3fb/y1c=;
+        s=default; t=1577641930;
+        bh=d1zhQ0bJrAaQZU96gc9FAq8wWKwEGSO7en0jwZ5FAjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1DSRyDkvyvVvMrqAXq9d79HXKMxcFWdy3fxT57IVHacvWu/99NkmunvQmb7LKGB/
-         MFYt1KLbPIthm0wz+5YWFrtf3/zOEFSLo0h9MhG0pc31BE3xhc94wwl+ZfIxMa+0DG
-         taVLFtbiCFDIfYMfvYclL9Z3thueKkikirLCu6Pw=
+        b=EwJLfBF2vABMM8IQfroKq55OB/rbMWKI/CF9+f7uGMQUg4RkE+oafWek8AhwAvFFa
+         gMz7aYQty1vqL9x/GTwQK6ticcfIaxnF5ZGBxjuYVdkfpa6rNb0VOcpooczZTGW1Md
+         brbyAGD0iN9MXmWQVqUriWjHwSJ7CDbhPCb5nykM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 268/434] s390/bpf: Use kvcalloc for addrs array
-Date:   Sun, 29 Dec 2019 18:25:21 +0100
-Message-Id: <20191229172719.740343130@linuxfoundation.org>
+Subject: [PATCH 5.4 270/434] selftests: proc: Make va_max 1MB
+Date:   Sun, 29 Dec 2019 18:25:23 +0100
+Message-Id: <20191229172719.872667697@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,58 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 166f11d11f6f70439830d09bfa5552ec1b368494 ]
+[ Upstream commit 2f3571ea71311bbb2cbb9c3bbefc9c1969a3e889 ]
 
-A BPF program may consist of 1m instructions, which means JIT
-instruction-address mapping can be as large as 4m. s390 has
-FORCE_MAX_ZONEORDER=9 (for memory hotplug reasons), which means maximum
-kmalloc size is 1m. This makes it impossible to JIT programs with more
-than 256k instructions.
+Currently proc-self-map-files-002.c sets va_max (max test address
+of user virtual address) to 4GB, but it is too big for 32bit
+arch and 1UL << 32 is overflow on 32bit long.
+Also since this value should be enough bigger than vm.mmap_min_addr
+(64KB or 32KB by default), 1MB should be enough.
 
-Fix by using kvcalloc, which falls back to vmalloc for larger
-allocations. An alternative would be to use a radix tree, but that is
-not supported by bpf_prog_fill_jited_linfo.
+Make va_max 1MB unconditionally.
 
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20191107141838.92202-1-iii@linux.ibm.com
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/testing/selftests/proc/proc-self-map-files-002.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index ce88211b9c6c..c8c16b5eed6b 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -23,6 +23,7 @@
- #include <linux/filter.h>
- #include <linux/init.h>
- #include <linux/bpf.h>
-+#include <linux/mm.h>
- #include <asm/cacheflush.h>
- #include <asm/dis.h>
- #include <asm/facility.h>
-@@ -1369,7 +1370,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
- 	}
- 
- 	memset(&jit, 0, sizeof(jit));
--	jit.addrs = kcalloc(fp->len + 1, sizeof(*jit.addrs), GFP_KERNEL);
-+	jit.addrs = kvcalloc(fp->len + 1, sizeof(*jit.addrs), GFP_KERNEL);
- 	if (jit.addrs == NULL) {
- 		fp = orig_fp;
- 		goto out;
-@@ -1422,7 +1423,7 @@ skip_init_ctx:
- 	if (!fp->is_func || extra_pass) {
- 		bpf_prog_fill_jited_linfo(fp, jit.addrs + 1);
- free_addrs:
--		kfree(jit.addrs);
-+		kvfree(jit.addrs);
- 		kfree(jit_data);
- 		fp->aux->jit_data = NULL;
- 	}
+diff --git a/tools/testing/selftests/proc/proc-self-map-files-002.c b/tools/testing/selftests/proc/proc-self-map-files-002.c
+index 47b7473dedef..e6aa00a183bc 100644
+--- a/tools/testing/selftests/proc/proc-self-map-files-002.c
++++ b/tools/testing/selftests/proc/proc-self-map-files-002.c
+@@ -47,7 +47,11 @@ static void fail(const char *fmt, unsigned long a, unsigned long b)
+ int main(void)
+ {
+ 	const int PAGE_SIZE = sysconf(_SC_PAGESIZE);
+-	const unsigned long va_max = 1UL << 32;
++	/*
++	 * va_max must be enough bigger than vm.mmap_min_addr, which is
++	 * 64KB/32KB by default. (depends on CONFIG_LSM_MMAP_MIN_ADDR)
++	 */
++	const unsigned long va_max = 1UL << 20;
+ 	unsigned long va;
+ 	void *p;
+ 	int fd;
 -- 
 2.20.1
 
