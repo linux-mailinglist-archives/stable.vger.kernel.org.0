@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD6FA12C879
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B071012C87B
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732865AbfL2RzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:55:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
+        id S1732883AbfL2RzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:55:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732860AbfL2RzN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:55:13 -0500
+        id S1732879AbfL2RzV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:55:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96234208C4;
-        Sun, 29 Dec 2019 17:55:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2855222C3;
+        Sun, 29 Dec 2019 17:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642113;
-        bh=fAwyF/9a4xpWMgD3+JGAoBypPQoRE3wk1PzN02naiHg=;
+        s=default; t=1577642120;
+        bh=fsAlUN/G6n68DhtQhTV/M/YPqQwOFu4GkGS865YO4OA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SrSwWdfl+rBBfK4DWdNbfEks3YJXL8yQnWBE1tTnfytlylMevwLEGWkrcHy9cteCS
-         3kpiiZu1f+1CvaxfSdtOnqScdfwzmgA7st1rlN8Tj1FxcNHL5oVdDk/v1R0lNVnlF2
-         0faUXfoyWsBfEXEWr4mSe1yqQPtL2Kh+JfR+OIq8=
+        b=Y3a/IkRYxpcZcYJaMPntskD3zo3YTXZt3AFR70M/qaSr4pANJUjaWYFwCk4f0tEhG
+         aSzU8PFvoESx62xUlgwdYm1Eidb5B2+lNWIiL769bxQAiMWO2BH5FJndJzoyqfnGiz
+         /OGKbSwr8j8VmvPtF3MEP3kCJQmDaDph9BGT/dOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hewenliang <hewenliang4@huawei.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Akeem G Abodunrin <akeem.g.abodunrin@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 347/434] libtraceevent: Fix memory leakage in copy_filter_type
-Date:   Sun, 29 Dec 2019 18:26:40 +0100
-Message-Id: <20191229172725.021132192@linuxfoundation.org>
+Subject: [PATCH 5.4 350/434] ice: Only disable VF state when freeing each VF resources
+Date:   Sun, 29 Dec 2019 18:26:43 +0100
+Message-Id: <20191229172725.220428240@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,53 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hewenliang <hewenliang4@huawei.com>
+From: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
 
-[ Upstream commit 10992af6bf46a2048ad964985a5b77464e5563b1 ]
+[ Upstream commit 1f9639d2fb9188a59acafae9dea626391c442a8d ]
 
-It is necessary to free the memory that we have allocated when error occurs.
+It is wrong to set PF disable state flag for all VFs when freeing VF
+resources - Instead, we should set VF disable state flag for each VF with
+its resources being returned to the device. Right now, all VF opcodes,
+mailbox communication to clear its resources as well fails - since we
+already indicate that PF is in disable state, with all VFs not active. In
+addition, we don't need to notify VF that PF is intending to reset it, if
+it is already in disabled state.
 
-Fixes: ef3072cd1d5c ("tools lib traceevent: Get rid of die in add_filter_type()")
-Signed-off-by: Hewenliang <hewenliang4@huawei.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Tzvetomir Stoyanov <tstoyanov@vmware.com>
-Link: http://lore.kernel.org/lkml/20191119014415.57210-1-hewenliang4@huawei.com
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/parse-filter.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/tools/lib/traceevent/parse-filter.c b/tools/lib/traceevent/parse-filter.c
-index 552592d153fb..f3cbf86e51ac 100644
---- a/tools/lib/traceevent/parse-filter.c
-+++ b/tools/lib/traceevent/parse-filter.c
-@@ -1473,8 +1473,10 @@ static int copy_filter_type(struct tep_event_filter *filter,
- 	if (strcmp(str, "TRUE") == 0 || strcmp(str, "FALSE") == 0) {
- 		/* Add trivial event */
- 		arg = allocate_arg();
--		if (arg == NULL)
-+		if (arg == NULL) {
-+			free(str);
- 			return -1;
-+		}
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+index b45797f39b2f..c0637a0cbfe8 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -317,8 +317,9 @@ void ice_free_vfs(struct ice_pf *pf)
+ 	pf->num_alloc_vfs = 0;
+ 	for (i = 0; i < tmp; i++) {
+ 		if (test_bit(ICE_VF_STATE_INIT, pf->vf[i].vf_states)) {
+-			/* disable VF qp mappings */
++			/* disable VF qp mappings and set VF disable state */
+ 			ice_dis_vf_mappings(&pf->vf[i]);
++			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
+ 			ice_free_vf_res(&pf->vf[i]);
+ 		}
+ 	}
+@@ -1287,9 +1288,12 @@ static void ice_vc_notify_vf_reset(struct ice_vf *vf)
+ 	if (!vf || vf->vf_id >= vf->pf->num_alloc_vfs)
+ 		return;
  
- 		arg->type = TEP_FILTER_ARG_BOOLEAN;
- 		if (strcmp(str, "TRUE") == 0)
-@@ -1483,8 +1485,11 @@ static int copy_filter_type(struct tep_event_filter *filter,
- 			arg->boolean.value = 0;
+-	/* verify if the VF is in either init or active before proceeding */
+-	if (!test_bit(ICE_VF_STATE_INIT, vf->vf_states) &&
+-	    !test_bit(ICE_VF_STATE_ACTIVE, vf->vf_states))
++	/* Bail out if VF is in disabled state, neither initialized, nor active
++	 * state - otherwise proceed with notifications
++	 */
++	if ((!test_bit(ICE_VF_STATE_INIT, vf->vf_states) &&
++	     !test_bit(ICE_VF_STATE_ACTIVE, vf->vf_states)) ||
++	    test_bit(ICE_VF_STATE_DIS, vf->vf_states))
+ 		return;
  
- 		filter_type = add_filter_type(filter, event->id);
--		if (filter_type == NULL)
-+		if (filter_type == NULL) {
-+			free(str);
-+			free_arg(arg);
- 			return -1;
-+		}
- 
- 		filter_type->filter = arg;
- 
+ 	pfe.event = VIRTCHNL_EVENT_RESET_IMPENDING;
 -- 
 2.20.1
 
