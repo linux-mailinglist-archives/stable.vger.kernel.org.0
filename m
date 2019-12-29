@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF40312C784
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBF9C12C786
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:14:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730438AbfL2RnN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:43:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50276 "EHLO mail.kernel.org"
+        id S1730441AbfL2RnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:43:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730435AbfL2RnM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:43:12 -0500
+        id S1730460AbfL2RnU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:43:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AB2821744;
-        Sun, 29 Dec 2019 17:43:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B557A206A4;
+        Sun, 29 Dec 2019 17:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641391;
-        bh=8bdOIu18jZB6fruSVNfOW/sII9TzV1EYlcWBJzTdZ1I=;
+        s=default; t=1577641399;
+        bh=hWSVPFhehnGaofdjBZepM4BylQBTdV/G2Ffh62Sv4Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LIH/E6ModobQX+0SdeHfeYTmUExYWEYalTDdMn80KJz7NNAMvsjWyev4qaqq4SFi1
-         i2YGccOX9iAgfU8/A49MdvsDlXlkuVxf/ir59cXj+SrCYSCB62noU0WvuBPQ1SX57Q
-         90AQQloEcl1AieDeJX+mV7DHu+DjIKs2yPuatU84=
+        b=AOP0aJ4BLTTfc0yzyukY2Iam0g5GIHf6fuOOh6EUJdOvsTs3az+1Q8J3lP8wV4J/B
+         ow+WSsswQN/ekukpUTwmdLC19Ae3qNCb/ZKCF/P/itp7FLNb7hmGQtS6E15473i376
+         xxC/CdQ5i3Q2i00VIw35inQvbIbQgK5azb+OBc2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        stable@vger.kernel.org, Dariusz Marcinkiewicz <darekm@google.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/434] drm/mipi-dbi: fix a loop in debugfs code
-Date:   Sun, 29 Dec 2019 18:21:39 +0100
-Message-Id: <20191229172705.060721032@linuxfoundation.org>
+Subject: [PATCH 5.4 048/434] drm: exynos: exynos_hdmi: use cec_notifier_conn_(un)register
+Date:   Sun, 29 Dec 2019 18:21:41 +0100
+Message-Id: <20191229172705.166874507@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,51 +44,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dariusz Marcinkiewicz <darekm@google.com>
 
-[ Upstream commit d72cf01f410aa09868d98b672f3f92328c96b32d ]
+[ Upstream commit 71137bfd98973efb7b762ba168df077b87b34311 ]
 
-This code will likely crash if we try to do a zero byte write.  The code
-looks like this:
+Use the new cec_notifier_conn_(un)register() functions to
+(un)register the notifier for the HDMI connector, and fill in
+the cec_connector_info.
 
-        /* strip trailing whitespace */
-        for (i = count - 1; i > 0; i--)
-                if (isspace(buf[i]))
-			...
+Changes since v7:
+	- err_runtime_disable -> err_rpm_disable
+Changes since v2:
+	- removed unnecessary call to invalidate phys address before
+	deregistering the notifier,
+	- use cec_notifier_phys_addr_invalidate instead of setting
+	invalid address on a notifier.
 
-We're writing zero bytes so count = 0.  You would think that "count - 1"
-would be negative one, but because "i" is unsigned it is a large
-positive numer instead.  The "i > 0" condition is true and the "buf[i]"
-access will be out of bounds.
-
-The fix is to make "i" signed and now everything works as expected.  The
-upper bound of "count" is capped in __kernel_write() at MAX_RW_COUNT so
-we don't have to worry about it being higher than INT_MAX.
-
-Fixes: 02dd95fe3169 ("drm/tinydrm: Add MIPI DBI support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-[noralf: Adjust title]
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190821072456.GJ26957@mwanda
+Signed-off-by: Dariusz Marcinkiewicz <darekm@google.com>
+Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+[hverkuil-cisco@xs4all.nl: use 'if (!hdata->notifier)' instead of '== NULL']
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190828123415.139441-1-darekm@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dbi.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/exynos/exynos_hdmi.c | 31 ++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index 1961f713aaab..c4ee2709a6f3 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -1187,8 +1187,7 @@ static ssize_t mipi_dbi_debugfs_command_write(struct file *file,
- 	struct mipi_dbi_dev *dbidev = m->private;
- 	u8 val, cmd = 0, parameters[64];
- 	char *buf, *pos, *token;
--	unsigned int i;
--	int ret, idx;
-+	int i, ret, idx;
+diff --git a/drivers/gpu/drm/exynos/exynos_hdmi.c b/drivers/gpu/drm/exynos/exynos_hdmi.c
+index bc1565f1822a..09aa73c0f2ad 100644
+--- a/drivers/gpu/drm/exynos/exynos_hdmi.c
++++ b/drivers/gpu/drm/exynos/exynos_hdmi.c
+@@ -852,6 +852,10 @@ static enum drm_connector_status hdmi_detect(struct drm_connector *connector,
  
- 	if (!drm_dev_enter(&dbidev->drm, &idx))
- 		return -ENODEV;
+ static void hdmi_connector_destroy(struct drm_connector *connector)
+ {
++	struct hdmi_context *hdata = connector_to_hdmi(connector);
++
++	cec_notifier_conn_unregister(hdata->notifier);
++
+ 	drm_connector_unregister(connector);
+ 	drm_connector_cleanup(connector);
+ }
+@@ -935,6 +939,7 @@ static int hdmi_create_connector(struct drm_encoder *encoder)
+ {
+ 	struct hdmi_context *hdata = encoder_to_hdmi(encoder);
+ 	struct drm_connector *connector = &hdata->connector;
++	struct cec_connector_info conn_info;
+ 	int ret;
+ 
+ 	connector->interlace_allowed = true;
+@@ -957,6 +962,15 @@ static int hdmi_create_connector(struct drm_encoder *encoder)
+ 			DRM_DEV_ERROR(hdata->dev, "Failed to attach bridge\n");
+ 	}
+ 
++	cec_fill_conn_info_from_drm(&conn_info, connector);
++
++	hdata->notifier = cec_notifier_conn_register(hdata->dev, NULL,
++						     &conn_info);
++	if (!hdata->notifier) {
++		ret = -ENOMEM;
++		DRM_DEV_ERROR(hdata->dev, "Failed to allocate CEC notifier\n");
++	}
++
+ 	return ret;
+ }
+ 
+@@ -1528,8 +1542,8 @@ static void hdmi_disable(struct drm_encoder *encoder)
+ 		 */
+ 		mutex_unlock(&hdata->mutex);
+ 		cancel_delayed_work(&hdata->hotplug_work);
+-		cec_notifier_set_phys_addr(hdata->notifier,
+-					   CEC_PHYS_ADDR_INVALID);
++		if (hdata->notifier)
++			cec_notifier_phys_addr_invalidate(hdata->notifier);
+ 		return;
+ 	}
+ 
+@@ -2006,12 +2020,6 @@ static int hdmi_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	hdata->notifier = cec_notifier_get(&pdev->dev);
+-	if (hdata->notifier == NULL) {
+-		ret = -ENOMEM;
+-		goto err_hdmiphy;
+-	}
+-
+ 	pm_runtime_enable(dev);
+ 
+ 	audio_infoframe = &hdata->audio.infoframe;
+@@ -2023,7 +2031,7 @@ static int hdmi_probe(struct platform_device *pdev)
+ 
+ 	ret = hdmi_register_audio_device(hdata);
+ 	if (ret)
+-		goto err_notifier_put;
++		goto err_rpm_disable;
+ 
+ 	ret = component_add(&pdev->dev, &hdmi_component_ops);
+ 	if (ret)
+@@ -2034,8 +2042,7 @@ static int hdmi_probe(struct platform_device *pdev)
+ err_unregister_audio:
+ 	platform_device_unregister(hdata->audio.pdev);
+ 
+-err_notifier_put:
+-	cec_notifier_put(hdata->notifier);
++err_rpm_disable:
+ 	pm_runtime_disable(dev);
+ 
+ err_hdmiphy:
+@@ -2054,12 +2061,10 @@ static int hdmi_remove(struct platform_device *pdev)
+ 	struct hdmi_context *hdata = platform_get_drvdata(pdev);
+ 
+ 	cancel_delayed_work_sync(&hdata->hotplug_work);
+-	cec_notifier_set_phys_addr(hdata->notifier, CEC_PHYS_ADDR_INVALID);
+ 
+ 	component_del(&pdev->dev, &hdmi_component_ops);
+ 	platform_device_unregister(hdata->audio.pdev);
+ 
+-	cec_notifier_put(hdata->notifier);
+ 	pm_runtime_disable(&pdev->dev);
+ 
+ 	if (!IS_ERR(hdata->reg_hdmi_en))
 -- 
 2.20.1
 
