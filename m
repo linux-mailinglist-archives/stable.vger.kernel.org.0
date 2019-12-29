@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 842FF12C7FC
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BED912C95F
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:18:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731206AbfL2Rtb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:49:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33326 "EHLO mail.kernel.org"
+        id S1730243AbfL2SGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 13:06:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727287AbfL2Rtb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:49:31 -0500
+        id S1731665AbfL2Rti (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:49:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60FE120718;
-        Sun, 29 Dec 2019 17:49:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6608C206DB;
+        Sun, 29 Dec 2019 17:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641770;
-        bh=iaRKoO/NwOSQZ2zS1eIaHYnh0kIVL7zYHYUjEcLWo2A=;
+        s=default; t=1577641777;
+        bh=x2r+e3JdB2qUFXvnUBjJV4lqIGf/0i+xV8Ab4Od/bOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzgGrJu1jp7gLwYsV5PfAfzPPb3+gJwGLo1WqzbF6KAQDx4Tb3KyK9rR2M1hd2VFD
-         Mbo9QRCZ2QEOw0LEcUKJ0ZbmMG1aluQS1fX1SrXAaxDfQOUkhI/tFCp6EUD715U+fP
-         OMNtawfbdWtHLX7GW1SHLtBSgceqoOrczCU4d5Kk=
+        b=WPfCmMnAczddwlyYiS38QPeiC03BPnHNuX4lD7wVQc14ReQc2uNLW+d+J7B+w0EQg
+         ubs8Co5hP6xZND6eEtZJTa0r7hZ4p7cxh5lAFQDsuBax0osMUDnYgSOWFEGpPqu9+1
+         kb6/fcVumTQjhcdTAUG1wtZV223AijazH/pF1vxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <maowenan@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 205/434] net: dsa: LAN9303: select REGMAP when LAN9303 enable
-Date:   Sun, 29 Dec 2019 18:24:18 +0100
-Message-Id: <20191229172715.444896792@linuxfoundation.org>
+Subject: [PATCH 5.4 207/434] phy: renesas: phy-rcar-gen2: Fix the array off by one warning
+Date:   Sun, 29 Dec 2019 18:24:20 +0100
+Message-Id: <20191229172715.577487969@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -44,41 +49,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Wenan <maowenan@huawei.com>
+From: Biju Das <biju.das@bp.renesas.com>
 
-[ Upstream commit b6989d248a2d13f02895bae1a9321b3bbccc0283 ]
+[ Upstream commit c9baab38fe0e28762d0d67611cbe2aef0fb3fc72 ]
 
-When NET_DSA_SMSC_LAN9303=y and NET_DSA_SMSC_LAN9303_MDIO=y,
-below errors can be seen:
-drivers/net/dsa/lan9303_mdio.c:87:23: error: REGMAP_ENDIAN_LITTLE
-undeclared here (not in a function)
-  .reg_format_endian = REGMAP_ENDIAN_LITTLE,
-drivers/net/dsa/lan9303_mdio.c:93:3: error: const struct regmap_config
-has no member named reg_read
-  .reg_read = lan9303_mdio_read,
+Fix the below smatch warning by adding variable check rather than the
+hardcoded value.
+warn: array off by one? 'data->select_value[channel_num]'
 
-It should select REGMAP in config NET_DSA_SMSC_LAN9303.
-
-Fixes: dc7005831523 ("net: dsa: LAN9303: add MDIO managed mode support")
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Biju Das <biju.das@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/phy/renesas/phy-rcar-gen2.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
-index f6232ce8481f..685e12b05a7c 100644
---- a/drivers/net/dsa/Kconfig
-+++ b/drivers/net/dsa/Kconfig
-@@ -77,6 +77,7 @@ config NET_DSA_REALTEK_SMI
- config NET_DSA_SMSC_LAN9303
- 	tristate
- 	select NET_DSA_TAG_LAN9303
-+	select REGMAP
- 	---help---
- 	  This enables support for the SMSC/Microchip LAN9303 3 port ethernet
- 	  switch chips.
+diff --git a/drivers/phy/renesas/phy-rcar-gen2.c b/drivers/phy/renesas/phy-rcar-gen2.c
+index 2926e4937301..2e279ac0fa4d 100644
+--- a/drivers/phy/renesas/phy-rcar-gen2.c
++++ b/drivers/phy/renesas/phy-rcar-gen2.c
+@@ -71,6 +71,7 @@ struct rcar_gen2_phy_driver {
+ struct rcar_gen2_phy_data {
+ 	const struct phy_ops *gen2_phy_ops;
+ 	const u32 (*select_value)[PHYS_PER_CHANNEL];
++	const u32 num_channels;
+ };
+ 
+ static int rcar_gen2_phy_init(struct phy *p)
+@@ -271,11 +272,13 @@ static const u32 usb20_select_value[][PHYS_PER_CHANNEL] = {
+ static const struct rcar_gen2_phy_data rcar_gen2_usb_phy_data = {
+ 	.gen2_phy_ops = &rcar_gen2_phy_ops,
+ 	.select_value = pci_select_value,
++	.num_channels = ARRAY_SIZE(pci_select_value),
+ };
+ 
+ static const struct rcar_gen2_phy_data rz_g1c_usb_phy_data = {
+ 	.gen2_phy_ops = &rz_g1c_phy_ops,
+ 	.select_value = usb20_select_value,
++	.num_channels = ARRAY_SIZE(usb20_select_value),
+ };
+ 
+ static const struct of_device_id rcar_gen2_phy_match_table[] = {
+@@ -389,7 +392,7 @@ static int rcar_gen2_phy_probe(struct platform_device *pdev)
+ 		channel->selected_phy = -1;
+ 
+ 		error = of_property_read_u32(np, "reg", &channel_num);
+-		if (error || channel_num > 2) {
++		if (error || channel_num >= data->num_channels) {
+ 			dev_err(dev, "Invalid \"reg\" property\n");
+ 			of_node_put(np);
+ 			return error;
 -- 
 2.20.1
 
