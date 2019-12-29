@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B44D12C3EA
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:25:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED97112C3ED
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:25:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727115AbfL2RYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:24:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43704 "EHLO mail.kernel.org"
+        id S1727198AbfL2RYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:24:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727461AbfL2RYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:24:42 -0500
+        id S1727814AbfL2RYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:24:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79A2120722;
-        Sun, 29 Dec 2019 17:24:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B467E21744;
+        Sun, 29 Dec 2019 17:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640281;
-        bh=BofCDVqTkD8Y/rfncmPPBc15ufrbz/f+3k7K6svFldE=;
+        s=default; t=1577640289;
+        bh=CrTKOL/JK4sjKRXD6vu4PCPwRLXhxoI5TymAj38itLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KC/msKVQhvF2W0xOGRYESPUZvv3Gm2oGexFXFRN3OvHrnyRqKOXHu7AR+BTWP6Ro0
-         9zue6cVoo5/uPgWFCEQllUwD5vGI9d94zLVt3Q8kB0Ykb3U6FfWKGRWUMOKVlv6zyR
-         fQNuoWRVJYo7/iqlV84mEkx6vmt0kqAE5hRY4HDs=
+        b=2lTBE7Nm5eCLCJGZQpmZC43EjPE7E/XSc8GlAFYDqvOUHsvjFWJgdeGw/rFqZT3fN
+         HiFWjpWg7HlU+c7Pux4TeOWoPUtH3T6DDZIKq0LymCVgb6sFYdrGW4QclproCRZEhE
+         wa6BS8dPj3cswCEIGoHA3n4qQ4DW4naR5eSwFq7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 094/161] perf probe: Walk function lines in lexical blocks
-Date:   Sun, 29 Dec 2019 18:19:02 +0100
-Message-Id: <20191229162426.386977855@linuxfoundation.org>
+Subject: [PATCH 4.14 097/161] perf probe: Fix to show inlined function callsite without entry_pc
+Date:   Sun, 29 Dec 2019 18:19:05 +0100
+Message-Id: <20191229162426.644909354@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 References: <20191229162355.500086350@linuxfoundation.org>
@@ -48,72 +48,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit acb6a7047ac2146b723fef69ee1ab6b7143546bf ]
+[ Upstream commit 18e21eb671dc87a4f0546ba505a89ea93598a634 ]
 
-Since some inlined functions are in lexical blocks of given function, we
-have to recursively walk through the DIE tree.  Without this fix,
-perf-probe -L can miss the inlined functions which is in a lexical block
-(like if (..) { func() } case.)
+Fix 'perf probe --line' option to show inlined function callsite lines
+even if the function DIE has only ranges.
 
-However, even though, to walk the lines in a given function, we don't
-need to follow the children DIE of inlined functions because those do
-not have any lines in the specified function.
+Without this:
 
-We need to walk though whole trees only if we walk all lines in a given
-file, because an inlined function can include another inlined function
-in the same file.
+  # perf probe -L amd_put_event_constraints
+  ...
+      2  {
+      3         if (amd_has_nb(cpuc) && amd_is_nb_event(&event->hw))
+                        __amd_put_nb_event_constraints(cpuc, event);
+      5  }
 
-Fixes: b0e9cb2802d4 ("perf probe: Fix to search nested inlined functions in CU")
+With this patch:
+
+  # perf probe -L amd_put_event_constraints
+  ...
+      2  {
+      3         if (amd_has_nb(cpuc) && amd_is_nb_event(&event->hw))
+      4                 __amd_put_nb_event_constraints(cpuc, event);
+      5  }
+
+Committer testing:
+
+Before:
+
+  [root@quaco ~]# perf probe -L amd_put_event_constraints
+  <amd_put_event_constraints@/usr/src/debug/kernel-5.2.fc30/linux-5.2.18-200.fc30.x86_64/arch/x86/events/amd/core.c:0>
+        0  static void amd_put_event_constraints(struct cpu_hw_events *cpuc,
+                                                struct perf_event *event)
+        2  {
+        3         if (amd_has_nb(cpuc) && amd_is_nb_event(&event->hw))
+                          __amd_put_nb_event_constraints(cpuc, event);
+        5  }
+
+           PMU_FORMAT_ATTR(event, "config:0-7,32-35");
+           PMU_FORMAT_ATTR(umask, "config:8-15"   );
+
+  [root@quaco ~]#
+
+After:
+
+  [root@quaco ~]# perf probe -L amd_put_event_constraints
+  <amd_put_event_constraints@/usr/src/debug/kernel-5.2.fc30/linux-5.2.18-200.fc30.x86_64/arch/x86/events/amd/core.c:0>
+        0  static void amd_put_event_constraints(struct cpu_hw_events *cpuc,
+                                                struct perf_event *event)
+        2  {
+        3         if (amd_has_nb(cpuc) && amd_is_nb_event(&event->hw))
+        4                 __amd_put_nb_event_constraints(cpuc, event);
+        5  }
+
+           PMU_FORMAT_ATTR(event, "config:0-7,32-35");
+           PMU_FORMAT_ATTR(umask, "config:8-15"   );
+
+  [root@quaco ~]# perf probe amd_put_event_constraints:4
+  Added new event:
+    probe:amd_put_event_constraints (on amd_put_event_constraints:4)
+
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe:amd_put_event_constraints -aR sleep 1
+
+  [root@quaco ~]#
+
+  [root@quaco ~]# perf probe -l
+    probe:amd_put_event_constraints (on amd_put_event_constraints:4@arch/x86/events/amd/core.c)
+    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask@kernel/cpu.c)
+  [root@quaco ~]#
+
+Using it:
+
+  [root@quaco ~]# perf trace -e probe:*
+  ^C[root@quaco ~]#
+
+Ok, Intel system here... :-)
+
+Fixes: 4cc9cec636e7 ("perf probe: Introduce lines walker interface")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157190836514.1859.15996864849678136353.stgit@devnote2
+Link: http://lore.kernel.org/lkml/157199322107.8075.12659099000567865708.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ tools/perf/util/dwarf-aux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index bc52b3840706..e5406e5adb68 100644
+index 21c2ed42ad6b..0a5de865563c 100644
 --- a/tools/perf/util/dwarf-aux.c
 +++ b/tools/perf/util/dwarf-aux.c
-@@ -691,10 +691,9 @@ static int __die_walk_funclines_cb(Dwarf_Die *in_die, void *data)
+@@ -686,7 +686,7 @@ static int __die_walk_funclines_cb(Dwarf_Die *in_die, void *data)
+ 	if (dwarf_tag(in_die) == DW_TAG_inlined_subroutine) {
+ 		fname = die_get_call_file(in_die);
+ 		lineno = die_get_call_lineno(in_die);
+-		if (fname && lineno > 0 && dwarf_entrypc(in_die, &addr) == 0) {
++		if (fname && lineno > 0 && die_entrypc(in_die, &addr) == 0) {
+ 			lw->retval = lw->callback(fname, lineno, addr, lw->data);
  			if (lw->retval != 0)
  				return DIE_FIND_CB_END;
- 		}
-+		if (!lw->recursive)
-+			return DIE_FIND_CB_SIBLING;
- 	}
--	if (!lw->recursive)
--		/* Don't need to search recursively */
--		return DIE_FIND_CB_SIBLING;
- 
- 	if (addr) {
- 		fname = dwarf_decl_file(in_die);
-@@ -741,6 +740,10 @@ static int __die_walk_culines_cb(Dwarf_Die *sp_die, void *data)
- {
- 	struct __line_walk_param *lw = data;
- 
-+	/*
-+	 * Since inlined function can include another inlined function in
-+	 * the same file, we need to walk in it recursively.
-+	 */
- 	lw->retval = __die_walk_funclines(sp_die, true, lw->callback, lw->data);
- 	if (lw->retval != 0)
- 		return DWARF_CB_ABORT;
-@@ -830,8 +833,9 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
- 	 */
- 	if (rt_die != cu_die)
- 		/*
--		 * Don't need walk functions recursively, because nested
--		 * inlined functions don't have lines of the specified DIE.
-+		 * Don't need walk inlined functions recursively, because
-+		 * inner inlined functions don't have the lines of the
-+		 * specified function.
- 		 */
- 		ret = __die_walk_funclines(rt_die, false, callback, data);
- 	else {
 -- 
 2.20.1
 
