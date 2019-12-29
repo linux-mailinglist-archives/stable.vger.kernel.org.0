@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A074A12C7F8
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 922CE12C7FA
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731597AbfL2RtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:49:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32888 "EHLO mail.kernel.org"
+        id S1731627AbfL2RtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:49:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731594AbfL2RtO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:49:14 -0500
+        id S1731624AbfL2RtV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:49:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BB01206DB;
-        Sun, 29 Dec 2019 17:49:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD28021D7E;
+        Sun, 29 Dec 2019 17:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641753;
-        bh=K9POBxm1u89RcdrXOn5pkPqQUwc1eiv0p76XUst1iLM=;
+        s=default; t=1577641761;
+        bh=IIvtXK4zljKP9WSSZCo7XgAgIVI9zg8nm3j28BEUGsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oodTcwmSZDMEOgt7CvWNtJq4TYTsraXzlQOC4lirG1a37gL09RAMD8Cj3NuuTErXq
-         nBf4osDsGXVe+2XooP3KtUeZW7dQq4IA/7eaRtTLoJGSSYFJj7zrIqz3WMPU1Cc2QZ
-         zvd1o+5ag5sc0es/5phfLAqpYax2l3VznbfM+IoY=
+        b=k6ekKA4zEA2QG0Xf1q8oxOabjTzLbDQRJYn2SmmDW9ar5wUGgbX7OBaTIhuibUM6t
+         f406G7eHdkEbIZriQtbt9ufCqnvDxOQC9WThe0C+/0XLPe+r76oYk4b+ClDd/g20XF
+         NT9iclnmtak1sKNFA6RurjPQiqMby/bpmr8rd+Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Ariel Elior <ariel.elior@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 198/434] ACPI: button: Add DMI quirk for Medion Akoya E2215T
-Date:   Sun, 29 Dec 2019 18:24:11 +0100
-Message-Id: <20191229172714.979896361@linuxfoundation.org>
+Subject: [PATCH 5.4 201/434] RDMA/qedr: Fix srqs xarray initialization
+Date:   Sun, 29 Dec 2019 18:24:14 +0100
+Message-Id: <20191229172715.180533685@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,53 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Michal Kalderon <michal.kalderon@marvell.com>
 
-[ Upstream commit 932e1ba486117de2fcea3df27ad8218ad6c11470 ]
+[ Upstream commit 73ab512f720298aabe23b34110e3f6a8545b0ba5 ]
 
-The Medion Akoya E2215T's ACPI _LID implementation is quite broken:
+There was a missing initialization for the srqs xarray.
+SRQs xarray can also be called from irq context when searching
+for an element and uses the xa_XXX_irq apis, therefore should
+be initialized with IRQ flags.
 
- 1. For notifications it uses an ActiveLow Edge GpioInt, rather then
-    an ActiveBoth one, meaning that the device is only notified when the
-    lid is closed, not when it is opened.
-
-2. Matching with this its _LID method simply always returns 0 (closed)
-
-  In order for the Linux LID code to work properly with this implementation,
-  the lid_init_state selection needs to be set to ACPI_BUTTON_LID_INIT_OPEN.
-
-This commit adds a DMI quirk for this.
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 9fd15987ed27 ("qedr: Convert srqidr to XArray")
+Link: https://lore.kernel.org/r/20191027200451.28187-2-michal.kalderon@marvell.com
+Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/button.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/infiniband/hw/qedr/main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-index 4a2cde2c536a..ce93a355bd1c 100644
---- a/drivers/acpi/button.c
-+++ b/drivers/acpi/button.c
-@@ -78,6 +78,17 @@ static const struct dmi_system_id lid_blacklst[] = {
- 			DMI_MATCH(DMI_BIOS_VERSION, "BYT70A.YNCHENG.WIN.007"),
- 		},
- 	},
-+	{
-+		/*
-+		 * Medion Akoya E2215T, notification of the LID device only
-+		 * happens on close, not on open and _LID always returns closed.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "E2215T MD60198"),
-+		},
-+		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
-+	},
- 	{}
- };
+diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
+index dc71b6e16a07..b462eaca1ee3 100644
+--- a/drivers/infiniband/hw/qedr/main.c
++++ b/drivers/infiniband/hw/qedr/main.c
+@@ -357,6 +357,7 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
+ 		return -ENOMEM;
  
+ 	spin_lock_init(&dev->sgid_lock);
++	xa_init_flags(&dev->srqs, XA_FLAGS_LOCK_IRQ);
+ 
+ 	if (IS_IWARP(dev)) {
+ 		xa_init_flags(&dev->qps, XA_FLAGS_LOCK_IRQ);
 -- 
 2.20.1
 
