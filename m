@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A43C112C80F
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BFA212C815
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731870AbfL2Ru3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:50:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35000 "EHLO mail.kernel.org"
+        id S1731632AbfL2Rur (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:50:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731882AbfL2Ru3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:50:29 -0500
+        id S1731929AbfL2Ruq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:50:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37E20222C3;
-        Sun, 29 Dec 2019 17:50:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20338207FD;
+        Sun, 29 Dec 2019 17:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641828;
-        bh=LPi1426rsVbv0B6jQmiHlJRqJnNTlgPmM7p/7ONp2Lo=;
+        s=default; t=1577641845;
+        bh=ZkIBtwBjEDbbhwugtThGzhgGGUDvFbuITYStAhQMrmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdli3PaVTf5TmqA2hTNDBWt0NimAVUhHFdguZ1IU5+Rf1Z7UHzlNSSpNdqKLs7Ttd
-         KdFHqvkoz0pds2ZrQBc/rcq+IHs/NTlOOwjZi90XUScIOffscZKKHWepLmSFNz88Q8
-         ncwL8Gxiv0zcd/CjxCw3v4+uuF6cVAuENUSkiD9M=
+        b=hjTQ5J246Tro2vjmVMUX6Dix1mSOsu0W9WkiCqM/GqhcGNsYx4wuXMlTF7BnWZslO
+         fZOziYcQAaRwTd+VJoAFZBbHCIb4ZkoRnTRtVDyYSok7kPppgm+M1w3oI33mBIfDV8
+         K7yYt9T703jkDox1F+w4PrxniNyXhGfZohyctZlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 191/434] drm/amd/display: correctly populate dpp refclk in fpga
-Date:   Sun, 29 Dec 2019 18:24:04 +0100
-Message-Id: <20191229172714.509042266@linuxfoundation.org>
+Subject: [PATCH 5.4 192/434] i40e: Wrong Advertised FEC modes after set FEC to AUTO
+Date:   Sun, 29 Dec 2019 18:24:05 +0100
+Message-Id: <20191229172714.576002535@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,61 +45,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Koo <Anthony.Koo@amd.com>
+From: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
 
-[ Upstream commit 952f6c4b5d72d40f93f3deb61239290b357d434e ]
+[ Upstream commit e42b7e9cefca9dd008cbafffca97285cf264f72d ]
 
-[Why]
-In diags environment we are not programming the DPP DTO
-correctly.
+Fix display of parameters "Configured FEC encodings:" and "Advertised
+FEC modes:" in ethtool.  Implemented by setting proper FEC bits in
+“advertising” bitmask of link_modes struct and “fec” bitmask in
+ethtool_fecparam struct. Without this patch wrong FEC settings
+can be shown.
 
-[How]
-Populate the dpp refclk in dccg so it can be used to correctly
-program DPP DTO.
-
-Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c   | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_common.c | 13 ++++++--
+ .../net/ethernet/intel/i40e/i40e_ethtool.c    | 32 +++++++++----------
+ 2 files changed, 26 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
-index 3e8ac303bd52..23ec283eb07b 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
-@@ -320,6 +320,8 @@ void dcn2_update_clocks_fpga(struct clk_mgr *clk_mgr,
- 		struct dc_state *context,
- 		bool safe_to_lower)
- {
-+	struct clk_mgr_internal *clk_mgr_int = TO_CLK_MGR_INTERNAL(clk_mgr);
-+
- 	struct dc_clocks *new_clocks = &context->bw_ctx.bw.dcn.clk;
- 	/* Min fclk = 1.2GHz since all the extra scemi logic seems to run off of it */
- 	int fclk_adj = new_clocks->fclk_khz > 1200000 ? new_clocks->fclk_khz : 1200000;
-@@ -357,14 +359,18 @@ void dcn2_update_clocks_fpga(struct clk_mgr *clk_mgr,
- 		clk_mgr->clks.dispclk_khz = new_clocks->dispclk_khz;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_common.c b/drivers/net/ethernet/intel/i40e/i40e_common.c
+index 7560f06768e0..3160b5bbe672 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_common.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_common.c
+@@ -2571,9 +2571,16 @@ noinline_for_stack i40e_status i40e_update_link_info(struct i40e_hw *hw)
+ 		if (status)
+ 			return status;
+ 
+-		hw->phy.link_info.req_fec_info =
+-			abilities.fec_cfg_curr_mod_ext_info &
+-			(I40E_AQ_REQUEST_FEC_KR | I40E_AQ_REQUEST_FEC_RS);
++		if (abilities.fec_cfg_curr_mod_ext_info &
++		    I40E_AQ_ENABLE_FEC_AUTO)
++			hw->phy.link_info.req_fec_info =
++				(I40E_AQ_REQUEST_FEC_KR |
++				 I40E_AQ_REQUEST_FEC_RS);
++		else
++			hw->phy.link_info.req_fec_info =
++				abilities.fec_cfg_curr_mod_ext_info &
++				(I40E_AQ_REQUEST_FEC_KR |
++				 I40E_AQ_REQUEST_FEC_RS);
+ 
+ 		memcpy(hw->phy.link_info.module_type, &abilities.module_type,
+ 		       sizeof(hw->phy.link_info.module_type));
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index 41e1240acaea..b577e6adf3bf 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -722,7 +722,14 @@ static void i40e_get_settings_link_up_fec(u8 req_fec_info,
+ 	ethtool_link_ksettings_add_link_mode(ks, supported, FEC_RS);
+ 	ethtool_link_ksettings_add_link_mode(ks, supported, FEC_BASER);
+ 
+-	if (I40E_AQ_SET_FEC_REQUEST_RS & req_fec_info) {
++	if ((I40E_AQ_SET_FEC_REQUEST_RS & req_fec_info) &&
++	    (I40E_AQ_SET_FEC_REQUEST_KR & req_fec_info)) {
++		ethtool_link_ksettings_add_link_mode(ks, advertising,
++						     FEC_NONE);
++		ethtool_link_ksettings_add_link_mode(ks, advertising,
++						     FEC_BASER);
++		ethtool_link_ksettings_add_link_mode(ks, advertising, FEC_RS);
++	} else if (I40E_AQ_SET_FEC_REQUEST_RS & req_fec_info) {
+ 		ethtool_link_ksettings_add_link_mode(ks, advertising, FEC_RS);
+ 	} else if (I40E_AQ_SET_FEC_REQUEST_KR & req_fec_info) {
+ 		ethtool_link_ksettings_add_link_mode(ks, advertising,
+@@ -730,12 +737,6 @@ static void i40e_get_settings_link_up_fec(u8 req_fec_info,
+ 	} else {
+ 		ethtool_link_ksettings_add_link_mode(ks, advertising,
+ 						     FEC_NONE);
+-		if (I40E_AQ_SET_FEC_AUTO & req_fec_info) {
+-			ethtool_link_ksettings_add_link_mode(ks, advertising,
+-							     FEC_RS);
+-			ethtool_link_ksettings_add_link_mode(ks, advertising,
+-							     FEC_BASER);
+-		}
  	}
- 
--	/* Both fclk and dppclk ref are run on the same scemi clock so we
--	 * need to keep the same value for both
-+	/* Both fclk and ref_dppclk run on the same scemi clock.
-+	 * So take the higher value since the DPP DTO is typically programmed
-+	 * such that max dppclk is 1:1 with ref_dppclk.
- 	 */
- 	if (clk_mgr->clks.fclk_khz > clk_mgr->clks.dppclk_khz)
- 		clk_mgr->clks.dppclk_khz = clk_mgr->clks.fclk_khz;
- 	if (clk_mgr->clks.dppclk_khz > clk_mgr->clks.fclk_khz)
- 		clk_mgr->clks.fclk_khz = clk_mgr->clks.dppclk_khz;
- 
-+	// Both fclk and ref_dppclk run on the same scemi clock.
-+	clk_mgr_int->dccg->ref_dppclk = clk_mgr->clks.fclk_khz;
-+
- 	dm_set_dcn_clocks(clk_mgr->ctx, &clk_mgr->clks);
  }
  
+@@ -1437,6 +1438,7 @@ static int i40e_get_fec_param(struct net_device *netdev,
+ 	struct i40e_hw *hw = &pf->hw;
+ 	i40e_status status = 0;
+ 	int err = 0;
++	u8 fec_cfg;
+ 
+ 	/* Get the current phy config */
+ 	memset(&abilities, 0, sizeof(abilities));
+@@ -1448,18 +1450,16 @@ static int i40e_get_fec_param(struct net_device *netdev,
+ 	}
+ 
+ 	fecparam->fec = 0;
+-	if (abilities.fec_cfg_curr_mod_ext_info & I40E_AQ_SET_FEC_AUTO)
++	fec_cfg = abilities.fec_cfg_curr_mod_ext_info;
++	if (fec_cfg & I40E_AQ_SET_FEC_AUTO)
+ 		fecparam->fec |= ETHTOOL_FEC_AUTO;
+-	if ((abilities.fec_cfg_curr_mod_ext_info &
+-	     I40E_AQ_SET_FEC_REQUEST_RS) ||
+-	    (abilities.fec_cfg_curr_mod_ext_info &
+-	     I40E_AQ_SET_FEC_ABILITY_RS))
++	else if (fec_cfg & (I40E_AQ_SET_FEC_REQUEST_RS |
++		 I40E_AQ_SET_FEC_ABILITY_RS))
+ 		fecparam->fec |= ETHTOOL_FEC_RS;
+-	if ((abilities.fec_cfg_curr_mod_ext_info &
+-	     I40E_AQ_SET_FEC_REQUEST_KR) ||
+-	    (abilities.fec_cfg_curr_mod_ext_info & I40E_AQ_SET_FEC_ABILITY_KR))
++	else if (fec_cfg & (I40E_AQ_SET_FEC_REQUEST_KR |
++		 I40E_AQ_SET_FEC_ABILITY_KR))
+ 		fecparam->fec |= ETHTOOL_FEC_BASER;
+-	if (abilities.fec_cfg_curr_mod_ext_info == 0)
++	if (fec_cfg == 0)
+ 		fecparam->fec |= ETHTOOL_FEC_OFF;
+ 
+ 	if (hw->phy.link_info.fec_info & I40E_AQ_CONFIG_FEC_KR_ENA)
 -- 
 2.20.1
 
