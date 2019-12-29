@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 261A012C86B
+	by mail.lfdr.de (Postfix) with ESMTP id 995AC12C86C
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:16:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732679AbfL2Ry3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:54:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42368 "EHLO mail.kernel.org"
+        id S1732691AbfL2Ryb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:54:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732691AbfL2Ry2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:54:28 -0500
+        id S1732701AbfL2Rya (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:54:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02644208C4;
-        Sun, 29 Dec 2019 17:54:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6453E21744;
+        Sun, 29 Dec 2019 17:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642067;
-        bh=mm8nLITE/zsdgNDK5cdSWWOfSlr8+odlBsxKKHtYCcg=;
+        s=default; t=1577642069;
+        bh=Q432QctRkoU5hLRYShE/8499UXQRF6N38JWH7IIpFkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n24Fzyo3Yy+ZfVaxw2Dq1oSazYJt7DflpRjKN0zAuZrG6V3FbekAhLP2a9u86tBUK
-         JU/mySfDNTm8qtsdMzJ/nKWz2lfR3D+aQol85tn0ROdOKLVlzsliAJnZzqT5Bq1edg
-         lgV7s8ZUrd4T4kE6QuRqr6bzFFJ/CIxARcxmw6TI=
+        b=aj++kNP10t1dbxxUEqLqpx/R7jbgbgrsKY7hqyq+pwm5VG4sUtNbIZwu5q8U4bFdG
+         ZhM1Zle6VGxAk29LC8aoP3vKxr+rusMZmUVYvcaxUMby1crnwzsIAqa3fqAs3KIvz2
+         WqA01dWXjhYMLErmrEdz07/LBB9oVJyk5H3CjEIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 285/434] media: vicodec: media_device_cleanup was called too early
-Date:   Sun, 29 Dec 2019 18:25:38 +0100
-Message-Id: <20191229172720.880050075@linuxfoundation.org>
+Subject: [PATCH 5.4 286/434] media: vim2m: media_device_cleanup was called too early
+Date:   Sun, 29 Dec 2019 18:25:39 +0100
+Message-Id: <20191229172720.946084488@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -46,102 +46,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 693c5f144aeb9636ae161a3c61a838c50b2ae41c ]
+[ Upstream commit 9f22e88a4bba270d3427684cee84dfbf67489e86 ]
 
-Running the contrib/test/test-media script in v4l-utils with the vicodec argument
+Running the contrib/test/test-media script in v4l-utils with the vim2m argument
 will cause this kernel warning:
 
-[  372.298824] ------------[ cut here ]------------
-[  372.298848] DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-[  372.298896] WARNING: CPU: 11 PID: 2220 at kernel/locking/mutex.c:938 __mutex_lock+0x919/0xc10
-[  372.298907] Modules linked in: vicodec v4l2_mem2mem vivid rc_cec v4l2_tpg videobuf2_dma_contig cec rc_core v4l2_dv_timings videobuf2_vmalloc videobuf2_memops videobuf2_v4l2 videobuf2_common videodev mc vmw_balloon vmw_vmci button vmwgfx [last unloaded: vimc]
-[  372.298961] CPU: 11 PID: 2220 Comm: sleep Not tainted 5.4.0-rc1-test-no #150
-[  372.298970] Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 07/29/2019
-[  372.298983] RIP: 0010:__mutex_lock+0x919/0xc10
-[  372.298995] Code: 59 83 e8 9a fc 16 ff 44 8b 05 23 61 38 01 45 85 c0 0f 85 ef f7 ff ff 48 c7 c6 a0 1f 87 82 48 c7 c7 a0 1e 87 82 e8 cd bb f7 fe <0f> 0b e9 d5 f7 ff ff f6 c3 04 0f 84 3b fd ff ff 49 89 df 41 83 e7
-[  372.299004] RSP: 0018:ffff8881b400fb80 EFLAGS: 00010286
-[  372.299014] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-[  372.299022] RDX: 0000000000000003 RSI: 0000000000000004 RDI: ffffed1036801f62
-[  372.299030] RBP: ffff8881b400fcf0 R08: ffffffff81217c91 R09: fffffbfff061c271
-[  372.299038] R10: fffffbfff061c270 R11: ffffffff830e1383 R12: ffff88814761dc80
-[  372.299046] R13: 0000000000000000 R14: ffff88814761cbf0 R15: ffff88814761d030
-[  372.299055] FS:  0000000000000000(0000) GS:ffff8881b68c0000(0000) knlGS:0000000000000000
-[  372.299063] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  372.299071] CR2: 00007f606d78aa20 CR3: 0000000003013002 CR4: 00000000001606e0
-[  372.299153] Call Trace:
-[  372.299176]  ? __kasan_slab_free+0x12f/0x180
-[  372.299187]  ? kmem_cache_free+0x9b/0x250
-[  372.299200]  ? do_exit+0xcdf/0x1200
-[  372.299210]  ? do_group_exit+0x85/0x130
-[  372.299220]  ? __x64_sys_exit_group+0x23/0x30
-[  372.299231]  ? do_syscall_64+0x5e/0x1c0
-[  372.299241]  ? entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[  372.299295]  ? v4l2_release+0xed/0x190 [videodev]
-[  372.299309]  ? mutex_lock_io_nested+0xb80/0xb80
-[  372.299323]  ? find_held_lock+0x85/0xa0
-[  372.299335]  ? fsnotify+0x5b0/0x600
-[  372.299351]  ? locks_remove_file+0x78/0x2b0
-[  372.299363]  ? __fsnotify_update_child_dentry_flags.part.0+0x170/0x170
-[  372.299383]  ? vidioc_querycap+0x50/0x50 [vicodec]
-[  372.299426]  ? v4l2_release+0xed/0x190 [videodev]
-[  372.299467]  v4l2_release+0xed/0x190 [videodev]
-[  372.299484]  __fput+0x15a/0x390
-[  372.299499]  task_work_run+0xb2/0xe0
-[  372.299512]  do_exit+0x4d0/0x1200
-[  372.299528]  ? do_user_addr_fault+0x367/0x610
-[  372.299538]  ? release_task+0x990/0x990
-[  372.299552]  ? rwsem_spin_on_owner+0x170/0x170
-[  372.299567]  ? vmacache_find+0xb2/0x100
-[  372.299580]  do_group_exit+0x85/0x130
-[  372.299592]  __x64_sys_exit_group+0x23/0x30
-[  372.299602]  do_syscall_64+0x5e/0x1c0
-[  372.299614]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[  372.299624] RIP: 0033:0x7f606d74a9d6
-[  372.299640] Code: Bad RIP value.
-[  372.299648] RSP: 002b:00007fff65364468 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
-[  372.299658] RAX: ffffffffffffffda RBX: 00007f606d83b760 RCX: 00007f606d74a9d6
-[  372.299666] RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
-[  372.299673] RBP: 0000000000000000 R08: 00000000000000e7 R09: ffffffffffffff80
-[  372.299681] R10: 00007fff65364334 R11: 0000000000000246 R12: 00007f606d83b760
-[  372.299689] R13: 0000000000000002 R14: 00007f606d844428 R15: 0000000000000000
-[  372.299704] ---[ end trace add7d62ca4bc65e3 ]---
+[  554.430157] ------------[ cut here ]------------
+[  554.433034] DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+[  554.433064] WARNING: CPU: 0 PID: 616 at kernel/locking/mutex.c:938 __mutex_lock+0xd7a/0x1380
+[  554.439736] Modules linked in: vim2m v4l2_mem2mem vivid rc_cec videobuf2_dma_contig v4l2_dv_timings cec videobuf2_vmalloc videobuf2_memops v4l2_tpg videobuf2_v4l2 videobuf2_common videodev mc rc_core [last unloaded: vivid]
+[  554.445794] CPU: 0 PID: 616 Comm: sleep Not tainted 5.4.0-rc1-virtme #1
+[  554.448481] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
+[  554.453088] RIP: 0010:__mutex_lock+0xd7a/0x1380
+[  554.454955] Code: d2 0f 85 de 05 00 00 44 8b 05 82 d9 f7 00 45 85 c0 0f 85 bf f3 ff ff 48 c7 c6 e0 30 a6 b7 48 c7 c7 e0 2e a6 b7 e8 5c 76 36 fe <0f> 0b e9 a5 f3 ff ff 65 48 8b 1c 25 80 ef 01 00 be 08 00 00 00 48
+[  554.462836] RSP: 0018:ffff88803a4cfad0 EFLAGS: 00010282
+[  554.465129] RAX: 0000000000000000 RBX: 0000000000000000 RCX: ffffffffb5a3d24f
+[  554.468143] RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffffb85273f4
+[  554.471000] RBP: ffff88803a4cfc50 R08: fffffbfff701e681 R09: fffffbfff701e681
+[  554.473990] R10: fffffbfff701e680 R11: ffffffffb80f3403 R12: 0000000000000000
+[  554.476831] R13: dffffc0000000000 R14: ffffffffb9714f00 R15: ffff888053103fc8
+[  554.479622] FS:  00007fac6358a540(0000) GS:ffff88805d000000(0000) knlGS:0000000000000000
+[  554.482673] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  554.484949] CR2: 00007fac6343faf0 CR3: 0000000036c22000 CR4: 00000000003406f0
+[  554.487811] Call Trace:
+[  554.488860]  ? v4l2_release+0x1b8/0x390 [videodev]
+[  554.490818]  ? do_exit+0x946/0x2980
+[  554.492269]  ? mutex_lock_io_nested+0x1250/0x1250
+[  554.494128]  ? __lock_acquire+0xe90/0x3c30
+[  554.495774]  ? fsnotify_first_mark+0x120/0x120
+[  554.497487]  ? vim2m_device_release+0x50/0x50 [vim2m]
+[  554.499469]  ? v4l2_release+0x1b8/0x390 [videodev]
+[  554.501493]  v4l2_release+0x1b8/0x390 [videodev]
+[  554.503430]  __fput+0x256/0x790
+[  554.504711]  task_work_run+0x109/0x190
+[  554.506145]  do_exit+0x95e/0x2980
+[  554.507421]  ? vfs_lock_file+0x21/0xf0
+[  554.509013]  ? find_held_lock+0x33/0x1c0
+[  554.510382]  ? __close_fd+0xee/0x190
+[  554.511862]  ? release_task.part.21+0x1310/0x1310
+[  554.513701]  ? lock_downgrade+0x6d0/0x6d0
+[  554.515299]  do_group_exit+0xeb/0x2d0
+[  554.516862]  __x64_sys_exit_group+0x35/0x40
+[  554.518610]  do_syscall_64+0x90/0x450
+[  554.520142]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  554.522289] RIP: 0033:0x7fac6348ecf6
+[  554.523876] Code: Bad RIP value.
+[  554.525294] RSP: 002b:00007ffe6373dc58 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+[  554.528555] RAX: ffffffffffffffda RBX: 00007fac6357f760 RCX: 00007fac6348ecf6
+[  554.531537] RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
+[  554.534709] RBP: 0000000000000000 R08: 00000000000000e7 R09: ffffffffffffff80
+[  554.536752] R10: 00007ffe6373db24 R11: 0000000000000246 R12: 00007fac6357f760
+[  554.538643] R13: 0000000000000002 R14: 00007fac63588428 R15: 0000000000000000
+[  554.540634] irq event stamp: 21731
+[  554.541618] hardirqs last  enabled at (21731): [<ffffffffb75b3cd4>] _raw_spin_unlock_irq+0x24/0x30
+[  554.544145] hardirqs last disabled at (21730): [<ffffffffb75b3ada>] _raw_spin_lock_irq+0xa/0x40
+[  554.547027] softirqs last  enabled at (20148): [<ffffffffb780064d>] __do_softirq+0x64d/0x906
+[  554.550385] softirqs last disabled at (19857): [<ffffffffb5926bd5>] irq_exit+0x175/0x1a0
+[  554.553668] ---[ end trace a389c80c2ca84244 ]---
 
 This is caused by media_device_cleanup() which destroys
 v4l2_dev->mdev->req_queue_mutex. But v4l2_release() tries to lock
 that mutex after media_device_cleanup() is called.
 
-By moving media_device_cleanup() to the v4l2_device's release function it is
+By moving media_device_cleanup() to the video_device's release function it is
 guaranteed that the mutex is valid whenever v4l2_release is called.
 
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vicodec/vicodec-core.c | 4 +++-
+ drivers/media/platform/vim2m.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/vicodec/vicodec-core.c b/drivers/media/platform/vicodec/vicodec-core.c
-index 0ee143ae0f6b..82350097503e 100644
---- a/drivers/media/platform/vicodec/vicodec-core.c
-+++ b/drivers/media/platform/vicodec/vicodec-core.c
-@@ -2139,6 +2139,9 @@ static void vicodec_v4l2_dev_release(struct v4l2_device *v4l2_dev)
- 	v4l2_m2m_release(dev->stateful_enc.m2m_dev);
- 	v4l2_m2m_release(dev->stateful_dec.m2m_dev);
- 	v4l2_m2m_release(dev->stateless_dec.m2m_dev);
+diff --git a/drivers/media/platform/vim2m.c b/drivers/media/platform/vim2m.c
+index e17792f837f8..8d6b09623d88 100644
+--- a/drivers/media/platform/vim2m.c
++++ b/drivers/media/platform/vim2m.c
+@@ -1275,6 +1275,9 @@ static void vim2m_device_release(struct video_device *vdev)
+ 
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+ 	v4l2_m2m_release(dev->m2m_dev);
 +#ifdef CONFIG_MEDIA_CONTROLLER
 +	media_device_cleanup(&dev->mdev);
 +#endif
  	kfree(dev);
  }
  
-@@ -2250,7 +2253,6 @@ static int vicodec_remove(struct platform_device *pdev)
- 	v4l2_m2m_unregister_media_controller(dev->stateful_enc.m2m_dev);
- 	v4l2_m2m_unregister_media_controller(dev->stateful_dec.m2m_dev);
- 	v4l2_m2m_unregister_media_controller(dev->stateless_dec.m2m_dev);
+@@ -1399,7 +1402,6 @@ static int vim2m_remove(struct platform_device *pdev)
+ #ifdef CONFIG_MEDIA_CONTROLLER
+ 	media_device_unregister(&dev->mdev);
+ 	v4l2_m2m_unregister_media_controller(dev->m2m_dev);
 -	media_device_cleanup(&dev->mdev);
  #endif
+ 	video_unregister_device(&dev->vfd);
  
- 	video_unregister_device(&dev->stateful_enc.vfd);
 -- 
 2.20.1
 
