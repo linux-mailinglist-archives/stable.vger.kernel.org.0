@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1707612C8D5
+	by mail.lfdr.de (Postfix) with ESMTP id 89BEA12C8D6
 	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:17:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387400AbfL2R5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:57:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48686 "EHLO mail.kernel.org"
+        id S2387423AbfL2R5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:57:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387412AbfL2R5v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:57:51 -0500
+        id S1732946AbfL2R5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:57:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CC06206DB;
-        Sun, 29 Dec 2019 17:57:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCE35206DB;
+        Sun, 29 Dec 2019 17:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577642270;
-        bh=kInf8AiDuC57fCDS/s235eRuwT5V2lXhyqwTypBgl4E=;
+        s=default; t=1577642273;
+        bh=i6RWq8MAUqRQwT6Hv4u28DExcfMhvAHzQe96GrJ3VB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcJ+0od+kN77uCK1Z0NqBggIv3TOJFlJvTx1tt148rUlQ+yvKcx4Irl1GeM37asnv
-         cIGM3odQ871KoRhUPKUPJhHQUqmL6VOmlhP/ybcxxpWrDTs3/9eSHIBNSEC4TTyVzR
-         9+bmYzB68t7RSc9th+2BDpH5B4hzaWBXXkOtvHd8=
+        b=yr/Np4Zt+bL/8tUuPv/YxpCa8ztV+p4S+9aPH2V2gajjLr9oH4Y1k/BdB1ZlczdDv
+         sdHsH9ebep9w1OJo5DAndI8URa4uEfJx5DshZIKtsVvsiudUIVpz8BZUdB/tJSY2dk
+         qami01Ef4zJdxNeiyfo0TLXCd4InGeoAd0PBlnUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 411/434] ext4: check for directory entries too close to block end
-Date:   Sun, 29 Dec 2019 18:27:44 +0100
-Message-Id: <20191229172730.048079366@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.4 412/434] ext4: unlock on error in ext4_expand_extra_isize()
+Date:   Sun, 29 Dec 2019 18:27:45 +0100
+Message-Id: <20191229172730.122152887@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -43,39 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 109ba779d6cca2d519c5dd624a3276d03e21948e upstream.
+commit 7f420d64a08c1dcd65b27be82a27cf2bdb2e7847 upstream.
 
-ext4_check_dir_entry() currently does not catch a case when a directory
-entry ends so close to the block end that the header of the next
-directory entry would not fit in the remaining space. This can lead to
-directory iteration code trying to access address beyond end of current
-buffer head leading to oops.
+We need to unlock the xattr before returning on this error path.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191202170213.4761-3-jack@suse.cz
+Cc: stable@kernel.org # 4.13
+Fixes: c03b45b853f5 ("ext4, project: expand inode extra size if possible")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20191213185010.6k7yl2tck3wlsdkt@kili.mountain
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/dir.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/ext4/inode.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/dir.c
-+++ b/fs/ext4/dir.c
-@@ -81,6 +81,11 @@ int __ext4_check_dir_entry(const char *f
- 		error_msg = "rec_len is too small for name_len";
- 	else if (unlikely(((char *) de - buf) + rlen > size))
- 		error_msg = "directory entry overrun";
-+	else if (unlikely(((char *) de - buf) + rlen >
-+			  size - EXT4_DIR_REC_LEN(1) &&
-+			  ((char *) de - buf) + rlen != size)) {
-+		error_msg = "directory entry too close to block end";
-+	}
- 	else if (unlikely(le32_to_cpu(de->inode) >
- 			le32_to_cpu(EXT4_SB(dir->i_sb)->s_es->s_inodes_count)))
- 		error_msg = "inode out of bounds";
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -6035,7 +6035,7 @@ int ext4_expand_extra_isize(struct inode
+ 	error = ext4_journal_get_write_access(handle, iloc->bh);
+ 	if (error) {
+ 		brelse(iloc->bh);
+-		goto out_stop;
++		goto out_unlock;
+ 	}
+ 
+ 	error = __ext4_expand_extra_isize(inode, new_extra_isize, iloc,
+@@ -6045,8 +6045,8 @@ int ext4_expand_extra_isize(struct inode
+ 	if (!error)
+ 		error = rc;
+ 
++out_unlock:
+ 	ext4_write_unlock_xattr(inode, &no_expand);
+-out_stop:
+ 	ext4_journal_stop(handle);
+ 	return error;
+ }
 
 
