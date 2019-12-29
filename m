@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE1B12C5D2
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E0E112C5CC
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728738AbfL2Rae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:30:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56740 "EHLO mail.kernel.org"
+        id S1729999AbfL2RlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:41:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728414AbfL2Rad (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:30:33 -0500
+        id S1728414AbfL2Rag (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:30:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F14420409;
-        Sun, 29 Dec 2019 17:30:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECD3720722;
+        Sun, 29 Dec 2019 17:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577640632;
-        bh=oUVRcmTYBjOZhCNSm5SCyLzxj3e2QekjNNF5eebYrZ4=;
+        s=default; t=1577640635;
+        bh=xgfG21dEu0LH+RzJCNRvuC1/quwx7EIbl/cBnZNiFUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/lGR4XkJAv4zSlhnZL5bhIqbYLqx6Sc72C4BAy5qyylTSswV+0N6cGJdr35geNWE
-         wRP87lglX1nfOah7UI0CrIWAC8UI7m2Io0j90yYAOJP7/yPUANeg0hNd0bFnHhK0f6
-         p5LOjThMTJzciBEfs1piAxPkQOSJBBjIIKrzE/7I=
+        b=ZpMAJSwxAQmign0cLqI71T/2NzALDl+FhdJgiM3uzAjeoXLlVy5jTcml3/wznsAaV
+         iwB7S7nbnOCFySDm6y0aG+Bnb6O54b751x1okVWt8F6Ja7yfQDiPNJj+okxfvCHtR2
+         5P+rf7Gyb5MyjnijoZjTsHljmsmhFjUlwVhHdQTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 074/219] x86/mm: Use the correct function type for native_set_fixmap()
-Date:   Sun, 29 Dec 2019 18:17:56 +0100
-Message-Id: <20191229162517.309548399@linuxfoundation.org>
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 075/219] ath10k: Correct error handling of dma_map_single()
+Date:   Sun, 29 Dec 2019 18:17:57 +0100
+Message-Id: <20191229162517.375855022@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 References: <20191229162508.458551679@linuxfoundation.org>
@@ -52,63 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit f53e2cd0b8ab7d9e390414470bdbd830f660133f ]
+[ Upstream commit d43810b2c1808ac865aa1a2a2c291644bf95345c ]
 
-We call native_set_fixmap indirectly through the function pointer
-struct pv_mmu_ops::set_fixmap, which expects the first parameter to be
-'unsigned' instead of 'enum fixed_addresses'. This patch changes the
-function type for native_set_fixmap to match the pointer, which fixes
-indirect call mismatches with Control-Flow Integrity (CFI) checking.
+The return value of dma_map_single() should be checked for errors using
+dma_mapping_error() and the skb has been dequeued so it needs to be
+freed.
 
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H . Peter Anvin <hpa@zytor.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190913211402.193018-1-samitolvanen@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+This was found when enabling CONFIG_DMA_API_DEBUG and it warned about the
+missing dma_mapping_error() call.
+
+Fixes: 1807da49733e ("ath10k: wmi: add management tx by reference support over wmi")
+Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/fixmap.h | 2 +-
- arch/x86/mm/pgtable.c         | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/fixmap.h b/arch/x86/include/asm/fixmap.h
-index 6390bd8c141b..5e12b2319d7a 100644
---- a/arch/x86/include/asm/fixmap.h
-+++ b/arch/x86/include/asm/fixmap.h
-@@ -159,7 +159,7 @@ extern pte_t *kmap_pte;
- extern pte_t *pkmap_page_table;
- 
- void __native_set_fixmap(enum fixed_addresses idx, pte_t pte);
--void native_set_fixmap(enum fixed_addresses idx,
-+void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
- 		       phys_addr_t phys, pgprot_t flags);
- 
- #ifndef CONFIG_PARAVIRT
-diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-index 59274e2c1ac4..bf52106ab9c4 100644
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -660,8 +660,8 @@ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte)
- 	fixmaps_set++;
- }
- 
--void native_set_fixmap(enum fixed_addresses idx, phys_addr_t phys,
--		       pgprot_t flags)
-+void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
-+		       phys_addr_t phys, pgprot_t flags)
- {
- 	/* Sanitize 'prot' against any unsupported bits: */
- 	pgprot_val(flags) &= __default_kernel_pte_mask;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 174e0ce31c42..448e3a8c33a6 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -3844,8 +3844,10 @@ void ath10k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 			     ar->running_fw->fw_file.fw_features)) {
+ 			paddr = dma_map_single(ar->dev, skb->data,
+ 					       skb->len, DMA_TO_DEVICE);
+-			if (!paddr)
++			if (dma_mapping_error(ar->dev, paddr)) {
++				ieee80211_free_txskb(ar->hw, skb);
+ 				continue;
++			}
+ 			ret = ath10k_wmi_mgmt_tx_send(ar, skb, paddr);
+ 			if (ret) {
+ 				ath10k_warn(ar, "failed to transmit management frame by ref via WMI: %d\n",
 -- 
 2.20.1
 
