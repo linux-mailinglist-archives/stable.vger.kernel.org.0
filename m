@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6186C12C2A5
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 15:20:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D769C12C2A6
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 15:20:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726455AbfL2OUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 09:20:13 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:36311 "EHLO
+        id S1726189AbfL2OUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 09:20:22 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:34729 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726189AbfL2OUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 09:20:13 -0500
+        by vger.kernel.org with ESMTP id S1726535AbfL2OUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 09:20:22 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 43FB0461;
-        Sun, 29 Dec 2019 09:20:12 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 29 Dec 2019 09:20:12 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 53505463;
+        Sun, 29 Dec 2019 09:20:21 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 29 Dec 2019 09:20:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=xm3ZJT
-        plOSQC7vjiuowKgffoS1EwI0Cm/hu3yUrGpgQ=; b=BDJXENkk8XkC7s4NQMN+oD
-        z1zQsrV421kNW9Mha8cONK67BmsdNv9ij2ECI7bWaP1ycvy4hvhz3uYLCCCLhR27
-        z2gPPkx1wS+KOvqkPzlgb3A7JA+3vgn9RYVwj7fmvtNNZAnsMTgIqG0vlPxb5hm2
-        Jqqt/6WvtatIKshI0Qc+1RtqR7tlRmVs6vNUYr4qT+EhBsa8WO+7CZBCm6PZcYqI
-        hElx/o6pHNPixX7R/SnfSG4N9WC2Z2B2o+2IigyFCmq6Ncwr2nMmFm7U0Hr/1E2I
-        hsjj5l18pqddwOsyWx+20PDsF4xeBnBImR1JblWInNbzCASJhfPJvnwgzMqQl4eg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XFpMc1
+        slCROMo9I0XC3hwidNUHOJexaPKk3v8cgeGfQ=; b=eDjg1fT7emXxbruaHKN1yR
+        ScVjERmqTjDjQwkOAV8Ob1fW3icBKm673e2d/AtjAOeYklWnNyomS7kfOtB5bsie
+        s97FWDYSzRc026x0Heq6J05POT0uYIJMtY/P4FwOhT07Bct4QID6eUvUtc4lWQLE
+        YUg23ezLeJIAu73yW8G1VDnIussALwgwlPK541Jd4A5w0kN7lam+Rs1cTwKgPknF
+        ZXBrNdvnJ06m6QTYAr5F9H/vS3k5gc0emD5itBIcmqOXm4wWIGL8kj7b44fjPpBF
+        79xNLIrcId02KvhCcrM/qHOfJyjwM/NaIQihMvclEjWSZn0Su5HevTQaKkKl4ltg
         ==
-X-ME-Sender: <xms:G7YIXid-eNJhR7ED2pRiLO6qcDyCESpkbD1FWW0Rt3EpZ-iaIkn7fw>
+X-ME-Sender: <xms:JLYIXoF_DEkdkw9vkCik7NVO90YEflrmR9ki-1FqIDjuUYXkNGiC_w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeffedgieefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:G7YIXs0wfF3moG8ee_svc8AeyAVrrtkVolMgGD1mo2dN2as0mupv5w>
-    <xmx:G7YIXurERntPjn_oishR2wys1MrYlastV0dBnum-7vworC00stwJIA>
-    <xmx:G7YIXkgeb6BItVRQFEkr8aPrIr1kNwGccNUbvU61yYC09sl9ly5Vzw>
-    <xmx:G7YIXtEI9_Hhplpt0DkaeiXkTUumKAoURbuwV4lb2nx2QP0qHIMvDA>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:JLYIXq9nroNOiQN70_Tt-HL68g3OY23-BJFPUxbdhPi2MiJkQMNkWw>
+    <xmx:JLYIXu0ygakNgRQ_BB0tydxtomQmWk-UAxRXPrq7bufZomO6dj2YWA>
+    <xmx:JLYIXrlccPu7UOFKJTJ_2sznYd2eulqsaiJRyScvmvGyMWly3_TWyw>
+    <xmx:JLYIXvU8-75DJ-lWFsU830F6AWq-Zp0Khc9bn6zuUMtxdMZnzxb5_A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 489813060A32;
-        Sun, 29 Dec 2019 09:20:11 -0500 (EST)
-Subject: FAILED: patch "[PATCH] spi: fsl: don't map irq during probe" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7DB828005A;
+        Sun, 29 Dec 2019 09:20:20 -0500 (EST)
+Subject: FAILED: patch "[PATCH] spi: fsl: don't map irq during probe" failed to apply to 4.14-stable tree
 To:     christophe.leroy@c-s.fr, broonie@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Dec 2019 15:20:09 +0100
-Message-ID: <157762920917019@kroah.com>
+Date:   Sun, 29 Dec 2019 15:20:11 +0100
+Message-ID: <1577629211246205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
