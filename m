@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8937512C813
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08C5E12C814
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 19:15:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731924AbfL2Rul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:50:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35322 "EHLO mail.kernel.org"
+        id S1731922AbfL2Ruo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:50:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731922AbfL2Rul (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:50:41 -0500
+        id S1731929AbfL2Run (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:50:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49AA6207FD;
-        Sun, 29 Dec 2019 17:50:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABDAA207FF;
+        Sun, 29 Dec 2019 17:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641840;
-        bh=UQVBqdez+252ZswhVCLPUiiQMOUu5N1qj7XTgAdg38M=;
+        s=default; t=1577641843;
+        bh=OVcBZ1vI0n9gYNNKGvvB/lsUyK3SeL6T/OeQLbRzZts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GA8CdYJzfvQWgqAjhM8Cpvd5ZB8C8P60SHh8iC8pn8yIzmkqcEaiY+Y+Z/86v5sh6
-         I9/8OvOE4xPMM+L09nvWO4RbhOnJp6BqB/PZOZbo0+wsCHhLRqTUQXK9I8IugOcZ9q
-         U8VIby5NG4tYUQx6PiXbGsVDoK/Neg0AAtBrcZVw=
+        b=zgA2N28GIcQJwpGAAn+eiYO70n51MFwP4VL+k78MWOe8ORt0cwSOQ9rMUwxODFvkN
+         9DdCJZoLAqU0nznSA0yeNNCe8360VoJ/8cDJSneAvTa0jXbBw24S3vyir53jB/nrg8
+         6hFt6xnLEat/Y3DmXGKocklT5ODqbeUksiiA3fUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 231/434] media: staging/imx: Use a shorter name for driver
-Date:   Sun, 29 Dec 2019 18:24:44 +0100
-Message-Id: <20191229172717.214349931@linuxfoundation.org>
+Subject: [PATCH 5.4 232/434] nvmem: imx-ocotp: reset error status on probe
+Date:   Sun, 29 Dec 2019 18:24:45 +0100
+Message-Id: <20191229172717.282542486@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -45,56 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit ce22c6f242b6d7b5e0318da2c92b5b00b5bbc698 ]
+[ Upstream commit c33c585f1b3a99d53920bdac614aca461d8db06f ]
 
-Currently v4l2-compliance tool returns the following output:
+If software running before the OCOTP driver is loaded left the
+controller with the error status pending, the driver will never
+be able to complete the read timing setup. Reset the error status
+on probe to make sure the controller is in usable state.
 
-Compliance test for imx-media-captu device /dev/video0:
-
-Driver Info:
-        Driver name      : imx-media-captu
-        Card type        : imx-media-capture
-...
-
-The driver name string is limited to 16 characters, so provide
-a shorter name so that we can have a better output.
-
-While at it, use the same shorter name for driver and card.
-
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20191029114240.14905-6-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx-media-capture.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/nvmem/imx-ocotp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/staging/media/imx/imx-media-capture.c b/drivers/staging/media/imx/imx-media-capture.c
-index b33a07bc9105..46576e32581f 100644
---- a/drivers/staging/media/imx/imx-media-capture.c
-+++ b/drivers/staging/media/imx/imx-media-capture.c
-@@ -26,6 +26,8 @@
- #include <media/imx.h>
- #include "imx-media.h"
+diff --git a/drivers/nvmem/imx-ocotp.c b/drivers/nvmem/imx-ocotp.c
+index dff2f3c357f5..fc40555ca4cd 100644
+--- a/drivers/nvmem/imx-ocotp.c
++++ b/drivers/nvmem/imx-ocotp.c
+@@ -521,6 +521,10 @@ static int imx_ocotp_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->clk))
+ 		return PTR_ERR(priv->clk);
  
-+#define IMX_CAPTURE_NAME "imx-capture"
++	clk_prepare_enable(priv->clk);
++	imx_ocotp_clr_err_if_set(priv->base);
++	clk_disable_unprepare(priv->clk);
 +
- struct capture_priv {
- 	struct imx_media_video_dev vdev;
- 
-@@ -69,8 +71,8 @@ static int vidioc_querycap(struct file *file, void *fh,
- {
- 	struct capture_priv *priv = video_drvdata(file);
- 
--	strscpy(cap->driver, "imx-media-capture", sizeof(cap->driver));
--	strscpy(cap->card, "imx-media-capture", sizeof(cap->card));
-+	strscpy(cap->driver, IMX_CAPTURE_NAME, sizeof(cap->driver));
-+	strscpy(cap->card, IMX_CAPTURE_NAME, sizeof(cap->card));
- 	snprintf(cap->bus_info, sizeof(cap->bus_info),
- 		 "platform:%s", priv->src_sd->name);
- 
+ 	priv->params = of_device_get_match_data(&pdev->dev);
+ 	imx_ocotp_nvmem_config.size = 4 * priv->params->nregs;
+ 	imx_ocotp_nvmem_config.dev = dev;
 -- 
 2.20.1
 
