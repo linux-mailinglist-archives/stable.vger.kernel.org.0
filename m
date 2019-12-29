@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E187812C66D
-	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:54:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 511D612C672
+	for <lists+stable@lfdr.de>; Sun, 29 Dec 2019 18:54:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731151AbfL2Rqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 12:46:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56936 "EHLO mail.kernel.org"
+        id S1731198AbfL2RrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 12:47:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731146AbfL2Rqu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 12:46:50 -0500
+        id S1731191AbfL2RrF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 12:47:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E18A421744;
-        Sun, 29 Dec 2019 17:46:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1A9D206DB;
+        Sun, 29 Dec 2019 17:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577641610;
-        bh=NYOsa8ZXF6GV+pcdvY07gSXrsUw9TGjEoR/itfLaXU4=;
+        s=default; t=1577641624;
+        bh=MkNcUybdADWvdamOB6zS++HxLBROXBRnhT7JYiimUjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fyJtDQxA24dKhTKkMnnBYgpH91WrhqlaVe7qI1VhU+yOuy1JD0+/RXSmP7WffAT60
-         Hd+0zUHOOmCAOBbO58ZH2uiyq9zik7uIDsh6cWd4NjAAMVhoMcqShS9xaf7yDRqkiE
-         vZvnY6Ur7ww5DeT4YsQbmnnpDU7a0e0wCEfC1DhQ=
+        b=IkxS4Fcd/unKN2KQ6RvGuO6jownTuVbkwc7omb6TVWMCTO8t//2tdHKiA4nSUDyHu
+         ZQRzpd/2JQcFndsmBUpOhKTx1XtCXCspxvEgLMPY8cVKobyGMvtPO07wPnCt1ZDF6x
+         W8TTrO9BTYP5CRjJmghyAG1tM4SA7sHMOef18vbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Prosyak <vitaly.prosyak@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Vitaly Prosyak <Vitaly.Prosyak@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 136/434] drm/amd/display: add new active dongle to existent w/a
-Date:   Sun, 29 Dec 2019 18:23:09 +0100
-Message-Id: <20191229172710.752131749@linuxfoundation.org>
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 141/434] x86/mm: Use the correct function type for native_set_fixmap()
+Date:   Sun, 29 Dec 2019 18:23:14 +0100
+Message-Id: <20191229172711.098355004@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 References: <20191229172702.393141737@linuxfoundation.org>
@@ -47,52 +52,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Prosyak <vitaly.prosyak@amd.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 566b4252fe9da9582dde008c5e9c3eb7c136e348 ]
+[ Upstream commit f53e2cd0b8ab7d9e390414470bdbd830f660133f ]
 
-[Why & How]
-Dongle 0x00E04C power down all internal circuits including
-AUX communication preventing reading DPCD table.
-Encoder will skip DP RX power down on disable output
-to keep receiver powered all the time.
+We call native_set_fixmap indirectly through the function pointer
+struct pv_mmu_ops::set_fixmap, which expects the first parameter to be
+'unsigned' instead of 'enum fixed_addresses'. This patch changes the
+function type for native_set_fixmap to match the pointer, which fixes
+indirect call mismatches with Control-Flow Integrity (CFI) checking.
 
-Signed-off-by: Vitaly Prosyak <vitaly.prosyak@amd.com>
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Acked-by: Vitaly Prosyak <Vitaly.Prosyak@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: H . Peter Anvin <hpa@zytor.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190913211402.193018-1-samitolvanen@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c        | 1 +
- drivers/gpu/drm/amd/display/include/ddc_service_types.h | 2 ++
- 2 files changed, 3 insertions(+)
+ arch/x86/include/asm/fixmap.h | 2 +-
+ arch/x86/mm/pgtable.c         | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index f5742719b5d9..9e261dbf2e49 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -2691,6 +2691,7 @@ static void dp_wa_power_up_0010FA(struct dc_link *link, uint8_t *dpcd_data,
- 		 * keep receiver powered all the time.*/
- 		case DP_BRANCH_DEVICE_ID_0010FA:
- 		case DP_BRANCH_DEVICE_ID_0080E1:
-+		case DP_BRANCH_DEVICE_ID_00E04C:
- 			link->wa_flags.dp_keep_receiver_powered = true;
- 			break;
+diff --git a/arch/x86/include/asm/fixmap.h b/arch/x86/include/asm/fixmap.h
+index 0c47aa82e2e2..28183ee3cc42 100644
+--- a/arch/x86/include/asm/fixmap.h
++++ b/arch/x86/include/asm/fixmap.h
+@@ -156,7 +156,7 @@ extern pte_t *kmap_pte;
+ extern pte_t *pkmap_page_table;
  
-diff --git a/drivers/gpu/drm/amd/display/include/ddc_service_types.h b/drivers/gpu/drm/amd/display/include/ddc_service_types.h
-index 18961707db23..9ad49da50a17 100644
---- a/drivers/gpu/drm/amd/display/include/ddc_service_types.h
-+++ b/drivers/gpu/drm/amd/display/include/ddc_service_types.h
-@@ -31,6 +31,8 @@
- #define DP_BRANCH_DEVICE_ID_0022B9 0x0022B9
- #define DP_BRANCH_DEVICE_ID_00001A 0x00001A
- #define DP_BRANCH_DEVICE_ID_0080E1 0x0080e1
-+#define DP_BRANCH_DEVICE_ID_90CC24 0x90CC24
-+#define DP_BRANCH_DEVICE_ID_00E04C 0x00E04C
+ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte);
+-void native_set_fixmap(enum fixed_addresses idx,
++void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
+ 		       phys_addr_t phys, pgprot_t flags);
  
- enum ddc_result {
- 	DDC_RESULT_UNKNOWN = 0,
+ #ifndef CONFIG_PARAVIRT_XXL
+diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
+index 3e4b9035bb9a..7bd2c3a52297 100644
+--- a/arch/x86/mm/pgtable.c
++++ b/arch/x86/mm/pgtable.c
+@@ -643,8 +643,8 @@ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte)
+ 	fixmaps_set++;
+ }
+ 
+-void native_set_fixmap(enum fixed_addresses idx, phys_addr_t phys,
+-		       pgprot_t flags)
++void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
++		       phys_addr_t phys, pgprot_t flags)
+ {
+ 	/* Sanitize 'prot' against any unsupported bits: */
+ 	pgprot_val(flags) &= __default_kernel_pte_mask;
 -- 
 2.20.1
 
