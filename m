@@ -2,104 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F2C12CB80
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 01:57:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1842912CBDB
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 03:18:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726640AbfL3A5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 19:57:45 -0500
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:44420 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726315AbfL3A5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 19:57:45 -0500
-Received: by mail-pg1-f196.google.com with SMTP id x7so17241374pgl.11;
-        Sun, 29 Dec 2019 16:57:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=UVnprGvLewdhuWA7pzt73rmpOg554J2l+Ch1m7KvQNQ=;
-        b=M8nb6HdXs4EZh2oyQEe/0LpTjEerc6Qzg8fLvT8k+c4V7MauftFfWMIYuayRMs0NUY
-         6B4tLSAHGqBo2RAJgxA3waMxqHkEiHi2cdQZbBCwfADp+f/HHgvfzuzxYSrcL5k94/qx
-         7hKtxJHXBtP9vjC9Uk6lo4qKbRdQUpfrjRlvKoGsyWlHh/LlsQyEugNIlNzZNxJPZVao
-         aMyWljFroZzMNQfz56Zg+jafw7Z2bF6q27iC/lHlZZj0FjiHy7HJD3iCYvKAb55M/x95
-         yDQ+qlvNYCC3DnM84IahITsa0/mz4Csd2sIzVoQqOXsM/y3JNc4p+wG4xAWWLPz7rkht
-         f88Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=UVnprGvLewdhuWA7pzt73rmpOg554J2l+Ch1m7KvQNQ=;
-        b=fN2QeZ8ruzBIikiNZjL91iDO5lj52uZRni2loIa8f9YjopNz47rfhb0MJ27N5BYsM6
-         pbo6pz9NTj7NZ8b85sRR7bxBpL7MPX6QQYSZa651pTJeTlEK6ZaKbE35SC0z3domF0II
-         QLCxNk6FTzN//wQXHB/cw4pRgnLakNzHwaE3mjh8EQkbQd6ApNk8shST9x32zPy4XK2f
-         td5oS9DhZ80+Xv/nxrQQUEOnWMjAW3ZBb+vMaQshrjwN2rFDVfoTl6BufdR+cpR9nIOs
-         sT+CYBWpJZE4OIdYktgUJfF5GsSjXAVPPgT/uSczqoUkUcQd3Oqj8Q576KTUmzwWZSRj
-         WzUw==
-X-Gm-Message-State: APjAAAVvozQ1J27BX7+edk+14s6YUPLtYgnHYtHv1DN8Vp16pEk4mjDU
-        w1YJECaDIny41jtpzmd3BV/cBjZ/
-X-Google-Smtp-Source: APXvYqxwQcbGRxWsq5dg8Tr+u+V6Yx8Fqv406yJ4eqHhgpfiPLjgdTHOhSmj5+wXMxtGKxi12ud5cg==
-X-Received: by 2002:a63:d041:: with SMTP id s1mr69679419pgi.363.1577667464428;
-        Sun, 29 Dec 2019 16:57:44 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z13sm22222445pjz.15.2019.12.29.16.57.43
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 29 Dec 2019 16:57:43 -0800 (PST)
-Date:   Sun, 29 Dec 2019 16:57:42 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        USB list <linux-usb@vger.kernel.org>,
-        Kernel development list <linux-kernel@vger.kernel.org>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] usb: chipidea: host: Disable port power only if
- previously enabled
-Message-ID: <20191230005742.GA25100@roeck-us.net>
-References: <20191229162811.GA21566@roeck-us.net>
- <Pine.LNX.4.44L0.1912291137150.19645-100000@netrider.rowland.org>
+        id S1726726AbfL3CSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 21:18:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47984 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726714AbfL3CSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 21:18:55 -0500
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04EC3206DB;
+        Mon, 30 Dec 2019 02:18:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1577672334;
+        bh=+S4aITAsWobXtF7TxWN6D/spxCJq4OYxcaq0JY4M/I0=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=de+UlJpyXM6C2SfNnqpG5JKC519h5f5T971ks1wIJaNZNa9O789lMA+Is63SyYFcI
+         6UqoJffqlh4pRccvixtUhzXpm1h4EQnJvk0SQm93Rjl/ZFm17pineFGggZNVnZoRKa
+         fxHUCZpAoGjIdjhffSkriPLHgvDzmnbeFe1rVfAY=
+Subject: Re: [PATCH 5.4 000/434] 5.4.7-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20191229172702.393141737@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <c61bc847-9e64-07da-169a-67964a870b12@kernel.org>
+Date:   Sun, 29 Dec 2019 19:18:53 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1912291137150.19645-100000@netrider.rowland.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 29, 2019 at 11:40:52AM -0500, Alan Stern wrote:
-> On Sun, 29 Dec 2019, Guenter Roeck wrote:
+On 12/29/19 10:20 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.7 release.
+> There are 434 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> > On Sat, Dec 28, 2019 at 02:33:01PM -0500, Alan Stern wrote:
-> > > 
-> > > Let's try a slightly different approach.  What happens with this patch?
-> > > 
-> > > Alan Stern
-> > > 
-> > > 
-> > > Index: usb-devel/drivers/usb/core/hub.c
-> > > ===================================================================
-> > > --- usb-devel.orig/drivers/usb/core/hub.c
-> > > +++ usb-devel/drivers/usb/core/hub.c
-> > > @@ -1065,6 +1065,7 @@ static void hub_activate(struct usb_hub
-> > >  		if (type == HUB_INIT) {
-> > >  			delay = hub_power_on_good_delay(hub);
-> > >  
-> > > +			hub->power_bits[0] = ~0UL;	/* All ports on */
-> > >  			hub_power_on(hub, false);
-> > >  			INIT_DELAYED_WORK(&hub->init_work, hub_init_func2);
-> > >  			queue_delayed_work(system_power_efficient_wq,
-> > > 
-> > 
-> > That doesn't make a difference - the traceback is still seen with this patch
-> > applied.
+> Responses should be made by Tue, 31 Dec 2019 17:25:52 +0000.
+> Anything received after that time might be too late.
 > 
-> Can you trace what's going on?  Does this code pathway now end up
-> calling ehci_port_power() for each root-hub port, and from there down
-> into the chipidea driver?  If not, can you find where it gets
-> sidetracked?
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.7-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
 > 
-Sure, I'll do that. It will have to wait for the new year, though -
-internet connectivity is terrible where I am right now,
+> thanks,
+> 
+> greg k-h
+> 
 
-Guenter
+Compiled and booted on my test system. No dmesg regressions.
+
+thanks,
+-- Shuah
