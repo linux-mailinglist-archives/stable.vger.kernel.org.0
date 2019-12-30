@@ -2,71 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF5B912CBEC
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 03:26:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D43C12CC2C
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 04:36:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726832AbfL3C0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 21:26:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49426 "EHLO mail.kernel.org"
+        id S1727075AbfL3Df6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 22:35:58 -0500
+Received: from smtp.infotech.no ([82.134.31.41]:59458 "EHLO smtp.infotech.no"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726726AbfL3C0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Dec 2019 21:26:25 -0500
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B016020718;
-        Mon, 30 Dec 2019 02:26:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577672785;
-        bh=iiKV+RKqxqnXDNnnnoWIICdP8SMC0mH+QCvS24BGJeY=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=J4zfldU5gd81fN8eAivxbQ3P7kK8XeCcVmVX2TWL9QjG2X+B3FtVLJEuPDJjBtTj8
-         b0zAvuBPqtN16VGzDkGnXx8t6gf8TsArW+bHdqk9FqlRDppaL6lXnuXcQRQJY/cbST
-         YvkMTb1lTUt7jTAyxpabgiALEJJ1O9Pg1eqCfNsI=
-Subject: Re: [PATCH 4.14 000/161] 4.14.161-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S1727065AbfL3Df6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Dec 2019 22:35:58 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by smtp.infotech.no (Postfix) with ESMTP id C945B204247;
+        Mon, 30 Dec 2019 04:35:55 +0100 (CET)
+X-Virus-Scanned: by amavisd-new-2.6.6 (20110518) (Debian) at infotech.no
+Received: from smtp.infotech.no ([127.0.0.1])
+        by localhost (smtp.infotech.no [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id 0AVJGC7Mh64q; Mon, 30 Dec 2019 04:35:48 +0100 (CET)
+Received: from xtwo70.bingwo.ca (host-23-251-188-50.dyn.295.ca [23.251.188.50])
+        by smtp.infotech.no (Postfix) with ESMTPA id 00741204157;
+        Mon, 30 Dec 2019 04:35:47 +0100 (CET)
+From:   Douglas Gilbert <dgilbert@interlog.com>
+To:     linux-usb@vger.kernel.org
+Cc:     linux@roeck-us.net, stable@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20191229162355.500086350@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <4a29a98b-d271-2489-1b27-e9654d369aba@kernel.org>
-Date:   Sun, 29 Dec 2019 19:26:24 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+Subject: [PATCH] USB-PD tcpm: bad warning+size, PPS adapters
+Date:   Sun, 29 Dec 2019 22:35:44 -0500
+Message-Id: <20191230033544.1809-1-dgilbert@interlog.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/29/19 10:17 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.161 release.
-> There are 161 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Tue, 31 Dec 2019 16:17:25 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.161-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Augmented Power Delivery Objects (A)PDO_s are used by USB-C
+PD power adapters to advertize the voltages and currents
+they support. There can be up to 7 PDO_s but before PPS
+(programmable power supply) there were seldom more than 4
+or 5. Recently Samsung released an optional PPS 45 Watt power
+adapter (EP-TA485) that has 7 PDO_s. It is for the Galaxy 10+
+tablet and charges it quicker than the adapter supplied at
+purchase. The EP-TA485 causes an overzealous WARN_ON to soil
+the log plus it miscalculates the number of bytes to read.
 
-Compiled and booted on my test system. No dmesg regressions.
+So this bug has been there for some time but goes
+undetected for the majority of USB-C PD power adapters on
+the market today that have 6 or less PDO_s. That may soon
+change as more USB-C PD adapters with PPS come to market.
 
-thanks,
--- Shuah
+Tested on a EP-TA485 and an older Lenovo PN: SA10M13950
+USB-C 65 Watt adapter (without PPS and has 4 PDO_s) plus
+several other PD power adapters.
+
+Signed-off-by: Douglas Gilbert <dgilbert@interlog.com>
+---
+ drivers/usb/typec/tcpm/tcpci.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
+index c1f7073a56de..8b4ff9fff340 100644
+--- a/drivers/usb/typec/tcpm/tcpci.c
++++ b/drivers/usb/typec/tcpm/tcpci.c
+@@ -432,20 +432,30 @@ irqreturn_t tcpci_irq(struct tcpci *tcpci)
+ 
+ 	if (status & TCPC_ALERT_RX_STATUS) {
+ 		struct pd_message msg;
+-		unsigned int cnt;
++		unsigned int cnt, payload_cnt;
+ 		u16 header;
+ 
+ 		regmap_read(tcpci->regmap, TCPC_RX_BYTE_CNT, &cnt);
++		/*
++		 * 'cnt' corresponds to READABLE_BYTE_COUNT in section 4.4.14
++		 * of the TCPCI spec [Rev 2.0 Ver 1.0 October 2017] and is
++		 * defined in table 4-36 as one greater than the number of
++		 * bytes received. And that number includes the header. So:
++		 */
++		if (cnt > 3)
++			payload_cnt = cnt - (1 + sizeof(msg.header));
++		else
++			payload_cnt = 0;
+ 
+ 		tcpci_read16(tcpci, TCPC_RX_HDR, &header);
+ 		msg.header = cpu_to_le16(header);
+ 
+-		if (WARN_ON(cnt > sizeof(msg.payload)))
+-			cnt = sizeof(msg.payload);
++		if (WARN_ON(payload_cnt > sizeof(msg.payload)))
++			payload_cnt = sizeof(msg.payload);
+ 
+-		if (cnt > 0)
++		if (payload_cnt > 0)
+ 			regmap_raw_read(tcpci->regmap, TCPC_RX_DATA,
+-					&msg.payload, cnt);
++					&msg.payload, payload_cnt);
+ 
+ 		/* Read complete, clear RX status alert bit */
+ 		tcpci_write16(tcpci, TCPC_ALERT, TCPC_ALERT_RX_STATUS);
+-- 
+2.24.1
+
