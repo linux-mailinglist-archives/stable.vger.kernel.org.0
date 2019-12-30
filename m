@@ -2,88 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 090A012CEF1
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 11:32:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4D512CF60
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 12:15:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727334AbfL3KcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 05:32:21 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:60364 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726196AbfL3KcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 05:32:21 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 8DE3A1C2604; Mon, 30 Dec 2019 11:32:19 +0100 (CET)
-Date:   Mon, 30 Dec 2019 11:32:18 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        tony camuso <tcamuso@redhat.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 089/219] ipmi: Dont allow device module unload when
- in use
-Message-ID: <20191230103218.GA10304@amd>
-References: <20191229162508.458551679@linuxfoundation.org>
- <20191229162520.260768030@linuxfoundation.org>
+        id S1727450AbfL3LPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 06:15:35 -0500
+Received: from mail.fireflyinternet.com ([109.228.58.192]:57110 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727448AbfL3LPf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 06:15:35 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 19725340-1500050 
+        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 11:15:31 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gt: Detect if we miss WaIdleLiteRestore
+Date:   Mon, 30 Dec 2019 11:15:30 +0000
+Message-Id: <20191230111530.3750048-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.25.0.rc0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
-Content-Disposition: inline
-In-Reply-To: <20191229162520.260768030@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+In order to avoid confusing the HW, we must never submit an empty ring
+during lite-restore, that is we should always advance the RING_TAIL
+before submitting to stay ahead of the RING_HEAD.
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Normally this is prevented by keeping a couple of spare NOPs in the
+request->wa_tail so that on resubmission we can advance the tail. This
+relies on the request only being resubmitted once, which is the normal
+condition as it is seen once for ELSP[1] and then later in ELSP[0]. On
+preemption, the requests are unwound and the tail reset back to the
+normal end point (as we know the request is incomplete and therefore its
+RING_HEAD is even earlier).
 
-On Sun 2019-12-29 18:18:11, Greg Kroah-Hartman wrote:
-> From: Corey Minyard <cminyard@mvista.com>
->=20
-> [ Upstream commit cbb79863fc3175ed5ac506465948b02a893a8235 ]
->=20
-> If something has the IPMI driver open, don't allow the device
-> module to be unloaded.  Before it would unload and the user would
-> get errors on use.
->=20
-> This change is made on user request, and it makes it consistent
-> with the I2C driver, which has the same behavior.
->=20
-> It does change things a little bit with respect to kernel users.
-> If the ACPI or IPMI watchdog (or any other kernel user) has
-> created a user, then the device module cannot be unloaded.  Before
-> it could be unloaded,
->=20
-> This does not affect hot-plug.  If the device goes away (it's on
-> something removable that is removed or is hot-removed via sysfs)
-> then it still behaves as it did before.
+However, if this w/a should fail we would try and resubmit the request
+with the RING_TAIL already set to the location of this request's wa_tail
+potentially causing a GPU hang. We can spot when we do try and
+incorrectly resubmit without advancing the RING_TAIL and spare any
+embarrassment by forcing the context restore.
 
-I don't think this is good idea for stable. First, it includes
-unrelated function rename, and second, it does not really fix any bug;
-it just changes behaviour.
+In the case of preempt-to-busy, we leave the requests running on the HW
+while we unwind. As the ring is still live, we cannot rewind our
+rq->tail without forcing a reload so leave it set to rq->wa_tail and
+only force a reload if we resubmit after a lite-restore. (Normally, the
+forced reload will be a part of the preemption event.)
 
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+Fixes: 22b7a426bbe1 ("drm/i915/execlists: Preempt-to-busy")
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/673
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20191209023215.3519970-1-chris@chris-wilson.co.uk
+(cherry picked from commit 82c69bf58650e644c61aa2bf5100b63a1070fd2f)
+---
+ drivers/gpu/drm/i915/gt/intel_lrc.c | 42 ++++++++++++++---------------
+ 1 file changed, 20 insertions(+), 22 deletions(-)
 
---Kj7319i9nmIyA2yE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 06a506c29463..6600b2e08fe3 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -471,12 +471,6 @@ lrc_descriptor(struct intel_context *ce, struct intel_engine_cs *engine)
+ 	return desc;
+ }
+ 
+-static void unwind_wa_tail(struct i915_request *rq)
+-{
+-	rq->tail = intel_ring_wrap(rq->ring, rq->wa_tail - WA_TAIL_BYTES);
+-	assert_ring_tail_valid(rq->ring, rq->tail);
+-}
+-
+ static struct i915_request *
+ __unwind_incomplete_requests(struct intel_engine_cs *engine)
+ {
+@@ -495,7 +489,6 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
+ 			continue; /* XXX */
+ 
+ 		__i915_request_unsubmit(rq);
+-		unwind_wa_tail(rq);
+ 
+ 		/*
+ 		 * Push the request back into the queue for later resubmission.
+@@ -649,13 +642,29 @@ execlists_schedule_out(struct i915_request *rq)
+ 	i915_request_put(rq);
+ }
+ 
+-static u64 execlists_update_context(const struct i915_request *rq)
++static u64 execlists_update_context(struct i915_request *rq)
+ {
+ 	struct intel_context *ce = rq->hw_context;
+-	u64 desc;
++	u64 desc = ce->lrc_desc;
++	u32 tail;
+ 
+-	ce->lrc_reg_state[CTX_RING_TAIL + 1] =
+-		intel_ring_set_tail(rq->ring, rq->tail);
++	/*
++	 * WaIdleLiteRestore:bdw,skl
++	 *
++	 * We should never submit the context with the same RING_TAIL twice
++	 * just in case we submit an empty ring, which confuses the HW.
++	 *
++	 * We append a couple of NOOPs (gen8_emit_wa_tail) after the end of
++	 * the normal request to be able to always advance the RING_TAIL on
++	 * subsequent resubmissions (for lite restore). Should that fail us,
++	 * and we try and submit the same tail again, force the context
++	 * reload.
++	 */
++	tail = intel_ring_set_tail(rq->ring, rq->tail);
++	if (unlikely(ce->lrc_reg_state[CTX_RING_TAIL + 1] == tail))
++		desc |= CTX_DESC_FORCE_RESTORE;
++	ce->lrc_reg_state[CTX_RING_TAIL + 1] = tail;
++	rq->tail = rq->wa_tail;
+ 
+ 	/*
+ 	 * Make sure the context image is complete before we submit it to HW.
+@@ -674,7 +683,6 @@ static u64 execlists_update_context(const struct i915_request *rq)
+ 	 */
+ 	mb();
+ 
+-	desc = ce->lrc_desc;
+ 	ce->lrc_desc &= ~CTX_DESC_FORCE_RESTORE;
+ 
+ 	return desc;
+@@ -1149,16 +1157,6 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 			if (!list_is_last(&last->sched.link,
+ 					  &engine->active.requests))
+ 				return;
+-
+-			/*
+-			 * WaIdleLiteRestore:bdw,skl
+-			 * Apply the wa NOOPs to prevent
+-			 * ring:HEAD == rq:TAIL as we resubmit the
+-			 * request. See gen8_emit_fini_breadcrumb() for
+-			 * where we prepare the padding after the
+-			 * end of the request.
+-			 */
+-			last->tail = last->wa_tail;
+ 		}
+ 	}
+ 
+-- 
+2.25.0.rc0
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl4J0jIACgkQMOfwapXb+vIKggCgl+EWWYdfU5yQtZi0Q4qW0y6Z
-U0QAnA5Tj/Bb01z6IIIqyU9tF6PPDzx2
-=7iOH
------END PGP SIGNATURE-----
-
---Kj7319i9nmIyA2yE--
