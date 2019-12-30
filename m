@@ -2,137 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5558E12CB5B
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 00:27:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F2C12CB80
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 01:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726416AbfL2X10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Dec 2019 18:27:26 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:54867 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726082AbfL2X1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 18:27:25 -0500
-Received: by mail-wm1-f66.google.com with SMTP id b19so12726001wmj.4
-        for <stable@vger.kernel.org>; Sun, 29 Dec 2019 15:27:24 -0800 (PST)
+        id S1726640AbfL3A5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Dec 2019 19:57:45 -0500
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:44420 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726315AbfL3A5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Dec 2019 19:57:45 -0500
+Received: by mail-pg1-f196.google.com with SMTP id x7so17241374pgl.11;
+        Sun, 29 Dec 2019 16:57:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=VE8jPHqnos0Llo4pnu5d9yi04cDJSE4vFVP0ioAEIMo=;
-        b=F1UgeZCH907I45kOT2OZCd2T4owkgUxxcMo873hp65gFqXXU1cZh9ScO7XYaTpVLxF
-         J+s7uWKJkqO8tEE4ckuP+dpp4NT76LiL+sxipPZrPxuD0LsLlTMb6M9O2MCGl18M/zfI
-         M1ExGlSzUlIluLR8DSt6HrgGkzEeDnewWu7hnZumPCh8xbIArFbWK/8wtmMArCOq17jr
-         3MSL6rCu3ilLSWd9ygrfmPw2TwoCYiKZ6pefOqCUriK7JrCeF9bEo9YYYA34yH0PW1ji
-         X76m1AGRkIXL4G6F2Jf34jda3u0LOWgj5BcZL3ZTxjr5y0wokQSyY0D0tytyRTCcxDkG
-         hmRw==
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=UVnprGvLewdhuWA7pzt73rmpOg554J2l+Ch1m7KvQNQ=;
+        b=M8nb6HdXs4EZh2oyQEe/0LpTjEerc6Qzg8fLvT8k+c4V7MauftFfWMIYuayRMs0NUY
+         6B4tLSAHGqBo2RAJgxA3waMxqHkEiHi2cdQZbBCwfADp+f/HHgvfzuzxYSrcL5k94/qx
+         7hKtxJHXBtP9vjC9Uk6lo4qKbRdQUpfrjRlvKoGsyWlHh/LlsQyEugNIlNzZNxJPZVao
+         aMyWljFroZzMNQfz56Zg+jafw7Z2bF6q27iC/lHlZZj0FjiHy7HJD3iCYvKAb55M/x95
+         yDQ+qlvNYCC3DnM84IahITsa0/mz4Csd2sIzVoQqOXsM/y3JNc4p+wG4xAWWLPz7rkht
+         f88Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=VE8jPHqnos0Llo4pnu5d9yi04cDJSE4vFVP0ioAEIMo=;
-        b=KJgKiOU7xBiFhqFOz3G1kMJbab/k75gaoLhXZeb27PtRmUXOFwM0xAirz1TQVALul9
-         rMLk8UNojQ41MlGg5t9dw/5dt8EzX6YJTQWgulnnEU6wp1/5MC7j687euD6g2ZYaGrfL
-         i4E4ADKE5zfNMyMMHBvC9Xg1sEXi7k7I5tGaoPPIXODnbpnUxGWXf227QKyqOU8T/Aku
-         gAD2ZD4650S/jdMnwSIiPQAVQFNy3ElPqi64MLCrfM9IZgUkKL4Cgo61I26c/rnC6+Ew
-         csLb3uB+QMphliG610Sh/RlFNcaw7o8IR0Mtq6mAnJT0taVKBd8nJRwRxo0scUESpng7
-         RZFg==
-X-Gm-Message-State: APjAAAVSRbMIQpuMIgNzZyuRI/idgVw9pBMmjOKdCW8qW8PaTMGFkaem
-        qacrukILkCZfvyaQjYrtLR10D6xNd598Vw==
-X-Google-Smtp-Source: APXvYqzqTt2Beqqs3aVA13QVK+G+N6Cr7zasvdfOMWc/lWoSpIiHQqejfbizFYFKZL1a4GJJ4C/aNQ==
-X-Received: by 2002:a7b:c847:: with SMTP id c7mr31144284wml.3.1577662043497;
-        Sun, 29 Dec 2019 15:27:23 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u14sm43681850wrm.51.2019.12.29.15.27.22
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Dec 2019 15:27:22 -0800 (PST)
-Message-ID: <5e09365a.1c69fb81.c9c42.a949@mx.google.com>
-Date:   Sun, 29 Dec 2019 15:27:22 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=UVnprGvLewdhuWA7pzt73rmpOg554J2l+Ch1m7KvQNQ=;
+        b=fN2QeZ8ruzBIikiNZjL91iDO5lj52uZRni2loIa8f9YjopNz47rfhb0MJ27N5BYsM6
+         pbo6pz9NTj7NZ8b85sRR7bxBpL7MPX6QQYSZa651pTJeTlEK6ZaKbE35SC0z3domF0II
+         QLCxNk6FTzN//wQXHB/cw4pRgnLakNzHwaE3mjh8EQkbQd6ApNk8shST9x32zPy4XK2f
+         td5oS9DhZ80+Xv/nxrQQUEOnWMjAW3ZBb+vMaQshrjwN2rFDVfoTl6BufdR+cpR9nIOs
+         sT+CYBWpJZE4OIdYktgUJfF5GsSjXAVPPgT/uSczqoUkUcQd3Oqj8Q576KTUmzwWZSRj
+         WzUw==
+X-Gm-Message-State: APjAAAVvozQ1J27BX7+edk+14s6YUPLtYgnHYtHv1DN8Vp16pEk4mjDU
+        w1YJECaDIny41jtpzmd3BV/cBjZ/
+X-Google-Smtp-Source: APXvYqxwQcbGRxWsq5dg8Tr+u+V6Yx8Fqv406yJ4eqHhgpfiPLjgdTHOhSmj5+wXMxtGKxi12ud5cg==
+X-Received: by 2002:a63:d041:: with SMTP id s1mr69679419pgi.363.1577667464428;
+        Sun, 29 Dec 2019 16:57:44 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id z13sm22222445pjz.15.2019.12.29.16.57.43
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Sun, 29 Dec 2019 16:57:43 -0800 (PST)
+Date:   Sun, 29 Dec 2019 16:57:42 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Alan Stern <stern@rowland.harvard.edu>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        USB list <linux-usb@vger.kernel.org>,
+        Kernel development list <linux-kernel@vger.kernel.org>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] usb: chipidea: host: Disable port power only if
+ previously enabled
+Message-ID: <20191230005742.GA25100@roeck-us.net>
+References: <20191229162811.GA21566@roeck-us.net>
+ <Pine.LNX.4.44L0.1912291137150.19645-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.207-89-g5a02460e9487
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 59 boots: 1 failed,
- 48 passed with 10 offline (v4.4.207-89-g5a02460e9487)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.1912291137150.19645-100000@netrider.rowland.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 59 boots: 1 failed, 48 passed with 10 offline (=
-v4.4.207-89-g5a02460e9487)
+On Sun, Dec 29, 2019 at 11:40:52AM -0500, Alan Stern wrote:
+> On Sun, 29 Dec 2019, Guenter Roeck wrote:
+> 
+> > On Sat, Dec 28, 2019 at 02:33:01PM -0500, Alan Stern wrote:
+> > > 
+> > > Let's try a slightly different approach.  What happens with this patch?
+> > > 
+> > > Alan Stern
+> > > 
+> > > 
+> > > Index: usb-devel/drivers/usb/core/hub.c
+> > > ===================================================================
+> > > --- usb-devel.orig/drivers/usb/core/hub.c
+> > > +++ usb-devel/drivers/usb/core/hub.c
+> > > @@ -1065,6 +1065,7 @@ static void hub_activate(struct usb_hub
+> > >  		if (type == HUB_INIT) {
+> > >  			delay = hub_power_on_good_delay(hub);
+> > >  
+> > > +			hub->power_bits[0] = ~0UL;	/* All ports on */
+> > >  			hub_power_on(hub, false);
+> > >  			INIT_DELAYED_WORK(&hub->init_work, hub_init_func2);
+> > >  			queue_delayed_work(system_power_efficient_wq,
+> > > 
+> > 
+> > That doesn't make a difference - the traceback is still seen with this patch
+> > applied.
+> 
+> Can you trace what's going on?  Does this code pathway now end up
+> calling ehci_port_power() for each root-hub port, and from there down
+> into the chipidea driver?  If not, can you find where it gets
+> sidetracked?
+> 
+Sure, I'll do that. It will have to wait for the new year, though -
+internet connectivity is terrible where I am right now,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.207-89-g5a02460e9487/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.207-89-g5a02460e9487/
-
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.207-89-g5a02460e9487
-Git Commit: 5a02460e948743bd660340b3c20a592fc0a82a08
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 36 unique boards, 13 SoC families, 14 builds out of 190
-
-Boot Regressions Detected:
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.20=
-7 - first fail: v4.4.207-86-g789721385a38)
-
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.20=
-7 - first fail: v4.4.207-86-g789721385a38)
-          dm365evm,legacy:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.20=
-7 - first fail: v4.4.207-86-g789721385a38)
-
-Boot Failure Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            omap3-beagle: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Guenter
