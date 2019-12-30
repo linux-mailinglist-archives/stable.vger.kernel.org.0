@@ -2,153 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4D512CF60
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 12:15:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C7212CF62
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 12:16:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727450AbfL3LPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 06:15:35 -0500
-Received: from mail.fireflyinternet.com ([109.228.58.192]:57110 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727448AbfL3LPf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 06:15:35 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 19725340-1500050 
-        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 11:15:31 +0000
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     stable@vger.kernel.org
-Subject: [PATCH] drm/i915/gt: Detect if we miss WaIdleLiteRestore
-Date:   Mon, 30 Dec 2019 11:15:30 +0000
-Message-Id: <20191230111530.3750048-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.25.0.rc0
+        id S1727421AbfL3LQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 06:16:01 -0500
+Received: from mout.kundenserver.de ([212.227.126.134]:50191 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727360AbfL3LQB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 06:16:01 -0500
+Received: from mail-qt1-f180.google.com ([209.85.160.180]) by
+ mrelayeu.kundenserver.de (mreue011 [212.227.15.129]) with ESMTPSA (Nemesis)
+ id 1M2ep5-1il3HF324d-004Bkb; Mon, 30 Dec 2019 12:15:58 +0100
+Received: by mail-qt1-f180.google.com with SMTP id w47so29434814qtk.4;
+        Mon, 30 Dec 2019 03:15:58 -0800 (PST)
+X-Gm-Message-State: APjAAAWRKPLaOKy1oQE+nPPeAArtfy5GBIADarQBAAYcO+8UG9TefZK+
+        1SO8KJ6Zgj9js0Y8ea3Z3DbBKri+1PH3sHz0a5M=
+X-Google-Smtp-Source: APXvYqzHiTliOPmvJABpokJdFOnog5iqQcMnXOuJ16bjZruhXTBvSkZi1OShEfRbZgiT36fzXJXLxudI1x/qQMXDWeA=
+X-Received: by 2002:ac8:6153:: with SMTP id d19mr47625025qtm.18.1577704557555;
+ Mon, 30 Dec 2019 03:15:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191216141506.121728-4-arnd@arndb.de> <20191225235522.3516B20727@mail.kernel.org>
+In-Reply-To: <20191225235522.3516B20727@mail.kernel.org>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Mon, 30 Dec 2019 12:15:41 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a1SHpjv2xQXjfGC-A9whciH-Etp4weHScvD_HuTQG+sUA@mail.gmail.com>
+Message-ID: <CAK8P3a1SHpjv2xQXjfGC-A9whciH-Etp4weHScvD_HuTQG+sUA@mail.gmail.com>
+Subject: Re: [PATCH v6 3/8] media: v4l2-core: compat: ignore native command codes
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
+        Linux Media Mailing List <linux-media@vger.kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:YWqY0bpM5IvDO76YC3uKR3WM1vB9fLYEUIZgNl84S/tTnFEynf1
+ KTfz6OeTfeML/W54MV17RUPv3zee5NklXU0vJ74Sw40f8kDPsRXlH7aCDeBrWpVbStWVQor
+ /urh0QSM4TcxpFcFradUDlYv382YNGJkZdP6l4UjYYFGzkqj/dOLYIC3pLTsLTOB76u13Do
+ Qr3Cdr0yegPyNQuxmjjig==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:vHNxFid2/iE=:g6rZcKxQPW2QCcTzH/RGV6
+ v+qluQLQC2e6pLvSljGI6w3snnObKpqp2kaJMSuFGyLDhdiur0duFXMDkUShXCfiv+AXzK8lQ
+ FNyrgncbmZdSLF8wxCyx4/OO9Ung7MfABquZHjz1kTDx/+bc2uuckNRZMw1mA64VepJfbUraO
+ +ZNdgXFb+aChehU3mhca8+3yQbOEL0srcUFZQ6E6hBFk2WofA5AwkJs8Ud/8u3u0PdeoejBmn
+ twbxF7/ynT/kTyoUbYErB3mGLIfUzZjuLjSziCAAoRmBiVYSljG07GTDE9pkM0PY1NWNzO0LJ
+ 75Lz8qcGWsCNR3yzDC75A4xFhmrqu8XS4H02kd8ObrmRIZRjMvD1yWYri1XB1nkr2vT41EqLU
+ +kDRSVGQNiMRd2/aCG8+89jcyO6LcVRQawHUf2K9V+CxBdbiO+XJM83vx/kDp/+oCKE0der49
+ BA5fSvOSkiRX3nqTdUFvoOFe3fcRihg2fYhzP0CoeGmx/bn1fVQJR2rn5vx9bFjon/iJm9E0v
+ 1XtGvd2byIklS3bk+74NTL3eX70+sfNDZFkRr8eVyTTMSt6t4CNWo2/fIR2JB/beBNBR4L4ha
+ Pq9Q+VXmkXKqPROWTDxFUQHlwlzyyxlQTDwASqbHYlxxDFALVGojJ++Th2ay/Ybv0TdYQqiJP
+ i5VGgSpGDUH/QS3LVyuHqLuO4yvOuP56GlrFliUQOuQ7eJs6Vj1Ty/mMwFTniICKiIwCDtmcX
+ M1HgBmJayqJn2EjozUp9iSupBwE4arxTfN5wNojq2+88KporbxN+wIerkKVS0R+aacjRWiY5t
+ w0VF1bTWYhccIbkK9pRxhAEYoQvHLhtNwV2qxaSU88ENLGu3TBwaoMDIwLoTHu5XkHCq6qXlR
+ b1wgZfQ9xMLL4sATFUnQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In order to avoid confusing the HW, we must never submit an empty ring
-during lite-restore, that is we should always advance the RING_TAIL
-before submitting to stay ahead of the RING_HEAD.
+On Thu, Dec 26, 2019 at 12:55 AM Sasha Levin <sashal@kernel.org> wrote:
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+>
+> The bot has tested the following trees: v5.4.5, v5.3.18, v4.19.90, v4.14.159, v4.9.206, v4.4.206.
+>
+> v5.4.5: Build OK!
+> v5.3.18: Build OK!
+> v4.19.90: Build OK!
+> v4.14.159: Failed to apply! Possible dependencies:
+>     6dd0394f5fcd ("media: v4l2-compat-ioctl32: better name userspace pointers")
+>     fef6cc6b3618 ("media: v4l2-compat-ioctl32: fix several __user annotations")
+>
+> v4.9.206: Failed to apply! Possible dependencies:
+>     6dd0394f5fcd ("media: v4l2-compat-ioctl32: better name userspace pointers")
+>     a56bc171598c ("[media] v4l: compat: Prevent allocating excessive amounts of memory")
+>     ba7ed691dcce ("[media] v4l2-compat-ioctl32: VIDIOC_S_EDID should return all fields on error")
+>     fb9ffa6a7f7e ("[media] v4l: Add metadata buffer type and format")
+>     fef6cc6b3618 ("media: v4l2-compat-ioctl32: fix several __user annotations")
+>
+> v4.4.206: Failed to apply! Possible dependencies:
+>     0579e6e3a326 ("doc-rst: linux_tv: remove whitespaces")
+>     17defc282fe6 ("Documentation: add meta-documentation for Sphinx and kernel-doc")
+>     22cba31bae9d ("Documentation/sphinx: add basic working Sphinx configuration and build")
+>     234d549662a7 ("doc-rst: video: use reference for VIDIOC_ENUMINPUT")
+>     5377d91f3e88 ("doc-rst: linux_tv DocBook to reST migration (docs-next)")
+>     6dd0394f5fcd ("media: v4l2-compat-ioctl32: better name userspace pointers")
+>     7347081e8a52 ("doc-rst: linux_tv: simplify references")
+>     789818845202 ("doc-rst: audio: Fix some cross references")
+>     94fff0dc5333 ("doc-rst: dmx_fcalls: improve man-like format")
+>     9e00ffca8cc7 ("doc-rst: querycap: fix troubles on some references")
+>     af4a4d0db8ab ("doc-rst: linux_tv: Replace reference names to match ioctls")
+>     c2b66cafdf02 ("[media] v4l: doc: Remove row numbers from tables")
+>     e6702ee18e24 ("doc-rst: app-pri: Fix a bad reference")
+>     fb9ffa6a7f7e ("[media] v4l: Add metadata buffer type and format")
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
 
-Normally this is prevented by keeping a couple of spare NOPs in the
-request->wa_tail so that on resubmission we can advance the tail. This
-relies on the request only being resubmitted once, which is the normal
-condition as it is seen once for ELSP[1] and then later in ELSP[0]. On
-preemption, the requests are unwound and the tail reset back to the
-normal end point (as we know the request is incomplete and therefore its
-RING_HEAD is even earlier).
+I think we need it to support users of musl on old kernels: musl is
+adding conversion functions for emulating the new (time64) ioctl
+commands on top of the old format, and without my patch, the
+new commands do not necessarily return an error that musl can
+catch.
 
-However, if this w/a should fail we would try and resubmit the request
-with the RING_TAIL already set to the location of this request's wa_tail
-potentially causing a GPU hang. We can spot when we do try and
-incorrectly resubmit without advancing the RING_TAIL and spare any
-embarrassment by forcing the context restore.
+I can provide a backport of my patch to v4.4 and v4.9 for this when
+the patch has made it into mainline. Can you notify me again when
+the time has come?
 
-In the case of preempt-to-busy, we leave the requests running on the HW
-while we unwind. As the ring is still live, we cannot rewind our
-rq->tail without forcing a reload so leave it set to rq->wa_tail and
-only force a reload if we resubmit after a lite-restore. (Normally, the
-forced reload will be a part of the preemption event.)
+A related question that we should address is whether we want the v4l2
+and alsa time64 ioctl patches backported as well, and to which kernels
+(if any).
 
-Fixes: 22b7a426bbe1 ("drm/i915/execlists: Preempt-to-busy")
-Closes: https://gitlab.freedesktop.org/drm/intel/issues/673
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20191209023215.3519970-1-chris@chris-wilson.co.uk
-(cherry picked from commit 82c69bf58650e644c61aa2bf5100b63a1070fd2f)
----
- drivers/gpu/drm/i915/gt/intel_lrc.c | 42 ++++++++++++++---------------
- 1 file changed, 20 insertions(+), 22 deletions(-)
+My feeling is that we don't want them those in v4.14 and earlier because
+that is rather pointless with musl already having emulation in user space
+and the rest of the kernel not being y2038 safe at all.
+For v5.4 I'd say we do want them, and possibly all the other remaining
+y2038 patches as well, I have a tree[1] that I try to keep up to date
+with the versions that got posted and/or merged, as I know there is
+demand for it. If you prefer not to have them in v5.4.y, I can keep them
+here myself and make sure it's possible to my branch into that instead.
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index 06a506c29463..6600b2e08fe3 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -471,12 +471,6 @@ lrc_descriptor(struct intel_context *ce, struct intel_engine_cs *engine)
- 	return desc;
- }
- 
--static void unwind_wa_tail(struct i915_request *rq)
--{
--	rq->tail = intel_ring_wrap(rq->ring, rq->wa_tail - WA_TAIL_BYTES);
--	assert_ring_tail_valid(rq->ring, rq->tail);
--}
--
- static struct i915_request *
- __unwind_incomplete_requests(struct intel_engine_cs *engine)
- {
-@@ -495,7 +489,6 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
- 			continue; /* XXX */
- 
- 		__i915_request_unsubmit(rq);
--		unwind_wa_tail(rq);
- 
- 		/*
- 		 * Push the request back into the queue for later resubmission.
-@@ -649,13 +642,29 @@ execlists_schedule_out(struct i915_request *rq)
- 	i915_request_put(rq);
- }
- 
--static u64 execlists_update_context(const struct i915_request *rq)
-+static u64 execlists_update_context(struct i915_request *rq)
- {
- 	struct intel_context *ce = rq->hw_context;
--	u64 desc;
-+	u64 desc = ce->lrc_desc;
-+	u32 tail;
- 
--	ce->lrc_reg_state[CTX_RING_TAIL + 1] =
--		intel_ring_set_tail(rq->ring, rq->tail);
-+	/*
-+	 * WaIdleLiteRestore:bdw,skl
-+	 *
-+	 * We should never submit the context with the same RING_TAIL twice
-+	 * just in case we submit an empty ring, which confuses the HW.
-+	 *
-+	 * We append a couple of NOOPs (gen8_emit_wa_tail) after the end of
-+	 * the normal request to be able to always advance the RING_TAIL on
-+	 * subsequent resubmissions (for lite restore). Should that fail us,
-+	 * and we try and submit the same tail again, force the context
-+	 * reload.
-+	 */
-+	tail = intel_ring_set_tail(rq->ring, rq->tail);
-+	if (unlikely(ce->lrc_reg_state[CTX_RING_TAIL + 1] == tail))
-+		desc |= CTX_DESC_FORCE_RESTORE;
-+	ce->lrc_reg_state[CTX_RING_TAIL + 1] = tail;
-+	rq->tail = rq->wa_tail;
- 
- 	/*
- 	 * Make sure the context image is complete before we submit it to HW.
-@@ -674,7 +683,6 @@ static u64 execlists_update_context(const struct i915_request *rq)
- 	 */
- 	mb();
- 
--	desc = ce->lrc_desc;
- 	ce->lrc_desc &= ~CTX_DESC_FORCE_RESTORE;
- 
- 	return desc;
-@@ -1149,16 +1157,6 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
- 			if (!list_is_last(&last->sched.link,
- 					  &engine->active.requests))
- 				return;
--
--			/*
--			 * WaIdleLiteRestore:bdw,skl
--			 * Apply the wa NOOPs to prevent
--			 * ring:HEAD == rq:TAIL as we resubmit the
--			 * request. See gen8_emit_fini_breadcrumb() for
--			 * where we prepare the padding after the
--			 * end of the request.
--			 */
--			last->tail = last->wa_tail;
- 		}
- 	}
- 
--- 
-2.25.0.rc0
+v4.19 is a bit borderline: if we decide to do the backports to v5.4 and
+there is demand for v4.19.y, I could also try to pick the most important
+patches from my tree and backport them to v4.19.0 (including a lot of
+work that went into v5.1) and then look at that tree to see if it should
+be part of the official v4.19.y or not.
 
+       Arnd
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/?h=y2038-endgame
