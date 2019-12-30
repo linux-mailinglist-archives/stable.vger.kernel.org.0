@@ -2,153 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F54312D176
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 16:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E122612D19F
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 16:56:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727630AbfL3Pbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 10:31:52 -0500
-Received: from mail-yb1-f194.google.com ([209.85.219.194]:38619 "EHLO
-        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727540AbfL3Pbw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 10:31:52 -0500
-Received: by mail-yb1-f194.google.com with SMTP id f130so14202546ybb.5
-        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 07:31:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=VgN0f74n93tGTgkhfr9FTqN9kiv7Wh194Tbtr5XNZxw=;
-        b=REdtk3oLqsPRcejY05tSBV5c+6tvc7x4TXn/QxI9SJCRI+pw164OqmhiAVu940MMb9
-         2Y/LSfRlwNBFI2N54i4JhheP/x7HByLpeS7DmsOk5EX2PjyzVNdcsg8qKpWpaHV9fLOH
-         UbyMu2LccqM74QVRakPL8NagG1AMoTw81edwkeupikEP9M2I1c1ScvpEijD8WYM+xZsv
-         WCzQLb5D5G2YlhS3twaeVuIV4u3qSc+0xeN5zVGyVZw0a3ttfn4AXX06Vi5uvvItdUBP
-         9+P8A8mOEf2KQKmZ9h7V2VGIo1qv7Pkdvz3ilGj9kW04MfQceFi330dkw6YJmuJ/YXJf
-         aEiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to;
-        bh=VgN0f74n93tGTgkhfr9FTqN9kiv7Wh194Tbtr5XNZxw=;
-        b=IKVZjUqEg2GTmprrgCR998JGzU4XbX8cr8SFMC7+zLejii7dqElq7yCr070vwA2JQq
-         KL7o4CkMo3hhNGgjY6ORL5qdQ+SHMuQxCeiZQnwtDS3ZAhLTXZ2nYCFMvcJonHc+b3iP
-         zO8eK1Fwg+qD4jR2mWpPZP4qPLq5JwN8fQ6JHzyglRzGtpWLOOuNgZW2j5/EFaXA1brY
-         XvzrXcLDSPjaiuUBgNbTk2KFQpURExWWjyiD7jOhuNrjsYaa0LlgjNlHOfc3kjzolnX0
-         bejVfG8ltDVZ85VnGh7Fg531KaIF9HYhz5IKI62ogDUXP5RsHyutVVh6DHlmy0TmGvk0
-         fIjA==
-X-Gm-Message-State: APjAAAUOEsdkg7uKiizY0lp2lmtv8Tbg0RjreWzInuBmps+mWdLMmsIJ
-        DGJ88P3xMSFYQEQZMu3BpWBs7Q==
-X-Google-Smtp-Source: APXvYqyKKgPiOr0yig1s9K6Iz9OxWZJxWuOq+WrgTqnhEirqV4q5aqJ0f2LUZh3N1cV8pXe7PbbGBw==
-X-Received: by 2002:a25:3346:: with SMTP id z67mr47756636ybz.423.1577719911387;
-        Mon, 30 Dec 2019 07:31:51 -0800 (PST)
-Received: from localhost (c-75-72-120-115.hsd1.mn.comcast.net. [75.72.120.115])
-        by smtp.gmail.com with ESMTPSA id l200sm18265425ywl.106.2019.12.30.07.31.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Dec 2019 07:31:50 -0800 (PST)
-Date:   Mon, 30 Dec 2019 09:31:49 -0600
-From:   Dan Rue <dan.rue@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 000/219] 4.19.92-stable review
-Message-ID: <20191230153149.po3ovtiuiqjywmj3@xps.therub.org>
-Mail-Followup-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-References: <20191229162508.458551679@linuxfoundation.org>
+        id S1727515AbfL3P4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 10:56:40 -0500
+Received: from mx2.suse.de ([195.135.220.15]:45680 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727538AbfL3P4j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Dec 2019 10:56:39 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id BF24DAC35;
+        Mon, 30 Dec 2019 15:56:37 +0000 (UTC)
+Date:   Mon, 30 Dec 2019 16:56:21 +0100
+From:   Borislav Petkov <bp@suse.de>
+To:     gregkh@linuxfoundation.org
+Cc:     jschoenh@amazon.de, Yazen.Ghannam@amd.com, hpa@zytor.com,
+        linux-edac@vger.kernel.org, mingo@kernel.org,
+        stable@vger.kernel.org, tglx@linutronix.de, tony.luck@intel.com,
+        x86@kernel.org
+Subject: Re: FAILED: patch "[PATCH] x86/mce: Fix possibly incorrect severity
+ calculation on AMD" failed to apply to 4.19-stable tree
+Message-ID: <20191230155621.GA30811@zn.tnic>
+References: <157763491612458@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
+In-Reply-To: <157763491612458@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 29, 2019 at 06:16:42PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.92 release.
-> There are 219 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Sun, Dec 29, 2019 at 04:55:16PM +0100, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Results from Linaro’s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Here's a backport for all 4.x stable series. It only needed a
+file-rename.
 
-Summary
-------------------------------------------------------------------------
+---
+From a3a57ddad061acc90bef39635caf2b2330ce8f21 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jan=20H=2E=20Sch=C3=B6nherr?= <jschoenh@amazon.de>
+Date: Tue, 10 Dec 2019 01:07:30 +0100
+Subject: [PATCH] x86/mce: Fix possibly incorrect severity calculation on AMD
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-kernel: 4.19.92-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-git branch: linux-4.19.y
-git commit: 798b10a6009db6f4b1baf1b3f76b844b46bfee32
-git describe: v4.19.91-220-g798b10a6009d
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/build/v4.19.91-220-g798b10a6009d
+commit a3a57ddad061acc90bef39635caf2b2330ce8f21 upstream.
 
+The function mce_severity_amd_smca() requires m->bank to be initialized
+for correct operation. Fix the one case, where mce_severity() is called
+without doing so.
 
-No regressions (compared to build v4.19.91)
+Fixes: 6bda529ec42e ("x86/mce: Grade uncorrected errors for SMCA-enabled systems")
+Fixes: d28af26faa0b ("x86/MCE: Initialize mce.bank in the case of a fatal error in mce_no_way_out()")
+Signed-off-by: Jan H. Schönherr <jschoenh@amazon.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yazen Ghannam <Yazen.Ghannam@amd.com>
+Link: https://lkml.kernel.org/r/20191210000733.17979-4-jschoenh@amazon.de
+---
+ arch/x86/kernel/cpu/mcheck/mce.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-No fixes (compared to build v4.19.91)
+diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
+index 5f42f25bac8f..2e2a421c8528 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce.c
++++ b/arch/x86/kernel/cpu/mcheck/mce.c
+@@ -819,8 +819,8 @@ static int mce_no_way_out(struct mce *m, char **msg, unsigned long *validp,
+ 		if (quirk_no_way_out)
+ 			quirk_no_way_out(i, m, regs);
+ 
++		m->bank = i;
+ 		if (mce_severity(m, mca_cfg.tolerant, &tmp, true) >= MCE_PANIC_SEVERITY) {
+-			m->bank = i;
+ 			mce_read_aux(m, i);
+ 			*msg = tmp;
+ 			return 1;
+-- 
+2.21.0
 
-Ran 24318 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* ltp-fs-tests
-* network-basic-tests
-* v4l2-compliance
-* ltp-open-posix-tests
-* kvm-unit-tests
-* ssuite
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
 
 -- 
-Linaro LKFT
-https://lkft.linaro.org
+Regards/Gruss,
+    Boris.
+
+SUSE Software Solutions Germany GmbH, GF: Felix Imendörffer, HRB 36809, AG Nürnberg
