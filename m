@@ -2,117 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBCFC12D508
-	for <lists+stable@lfdr.de>; Tue, 31 Dec 2019 00:24:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74C3812D50D
+	for <lists+stable@lfdr.de>; Tue, 31 Dec 2019 00:28:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727767AbfL3XY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 18:24:57 -0500
-Received: from mail25.static.mailgun.info ([104.130.122.25]:19757 "EHLO
-        mail25.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727746AbfL3XY5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 18:24:57 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1577748296; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=vBXvyWu/WmFpK3s/9QyjuCrueKEXWqV2Lek88cSNWSQ=;
- b=XJVRG1RP8sgVrjsc2QsktrXIcGjcOvfUocUyELzHMVcxmPMrNfQVy6n0gF0qGxMj+pFeVSmU
- MenizJUrahHDBoezBal91yfP6Kk4xmYbKbNWieXoXIg7bNzu1NVAvtEx1nDoSGnAbysEXW9X
- tRIzITIjJ8+Y35b7XdPucAdsREs=
-X-Mailgun-Sending-Ip: 104.130.122.25
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e0a8748.7fe87b388298-smtp-out-n02;
- Mon, 30 Dec 2019 23:24:56 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 0007AC447A4; Mon, 30 Dec 2019 23:24:55 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: asutoshd)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 9A397C43383;
-        Mon, 30 Dec 2019 23:24:54 +0000 (UTC)
+        id S1727761AbfL3X2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 18:28:06 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:35121 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727740AbfL3X2G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 18:28:06 -0500
+Received: by mail-wr1-f66.google.com with SMTP id g17so33961688wro.2
+        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 15:28:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xtVeVlWslrvn/YqUwOKZ2MNg3SXb9T39AaJssadLfe4=;
+        b=vIrXavMU3ggQhoc26cqAKfCzJ7cRzeblcKA/2/CWICx/w7u1pDN4s7jiy/nhMmo0xO
+         jw7XVq890Xq5P44ca6UdCOtvd7sTtX9KS0jrXqRHBNNAW418MNS9KO7vjgH6C0isJc1Y
+         qmC2zjX2nwDL85qnti+//CSzajzcquwRXXfhnG3BSl6TxMa9YkYhalBgi8kl44x+YsEG
+         ed7/DTfVyGNDEhnggYgWFEScIuwDo+H5sPKL1gSIqyFhDeK1ugkMpj4y1Ir7rLv5wC0r
+         xwO8qMm5EOPe9EcpfgGY7WoH449EmDM193ppn+EUr/jOLzTRKQYjisakjdW6V3YM+Gu5
+         W//A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xtVeVlWslrvn/YqUwOKZ2MNg3SXb9T39AaJssadLfe4=;
+        b=mxjLHsyVZIDhVF2Dl1onby62we+B4gnDw41LjFoMcNKAel+XKxQKz6m0OBsbN+5MBA
+         hCFDhmQu4j2crPN1TME6UXO9o70MU1q5YFOgB7H0C9o6nxMznCgEnxSk6ZtlCbCcWS0T
+         FnY1fnDzt5X10Lu/piArN7n3gBypxlmuOqjfgoneGbGGgvEh2EQFFIWEuKVziWVcZ6uB
+         Noi4bEVQIzTGBPkoYUYpCkMsPKNXWZ/Kl0LCWOZrBqtHzIznQ/glwNDidVGQzR04r1gT
+         /DEXXkL/7hBEa+wtl0c0sPUdJJNnWbGnEbbuqW77LYPh4hnTZK/jMR94f3TrETy5sRw8
+         eSjg==
+X-Gm-Message-State: APjAAAVMfnlJUbwOhsuPQOXIddFKE6dOqaakQZ/j0GbEdYEr8/tX7+Ce
+        Ymr+3BxWzDVLnEmCYzQ4FVPT9UgT29gjvQ==
+X-Google-Smtp-Source: APXvYqxJm7ZaMQC0LxHVTeDxm2OmTv5t7mazVD3/hfXNtNXgUk7zXH7dRqN9yadYncwhdaX8Rn1jIg==
+X-Received: by 2002:adf:f990:: with SMTP id f16mr70766538wrr.185.1577748483810;
+        Mon, 30 Dec 2019 15:28:03 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id o129sm877835wmb.1.2019.12.30.15.28.03
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Dec 2019 15:28:03 -0800 (PST)
+Message-ID: <5e0a8803.1c69fb81.7766e.4be6@mx.google.com>
+Date:   Mon, 30 Dec 2019 15:28:03 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Mon, 30 Dec 2019 15:24:54 -0800
-From:   asutoshd@codeaurora.org
-To:     Stanley Chu <stanley.chu@mediatek.com>
-Cc:     linux-scsi@vger.kernel.org, martin.petersen@oracle.com,
-        avri.altman@wdc.com, alim.akhtar@samsung.com,
-        pedrom.sousa@synopsys.com, jejb@linux.ibm.com,
-        matthias.bgg@gmail.com, bvanassche@acm.org,
-        subhashj@codeaurora.org, beanhuo@micron.com, cang@codeaurora.org,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kuohong.wang@mediatek.com, peter.wang@mediatek.com,
-        chun-hung.wu@mediatek.com, andy.teng@mediatek.com,
-        stable@vger.kernel.org, linux-scsi-owner@vger.kernel.org
-Subject: Re: [PATCH v1 1/2] scsi: ufs: set device as default active power mode
- during initialization only
-In-Reply-To: <1577693546-7598-2-git-send-email-stanley.chu@mediatek.com>
-References: <1577693546-7598-1-git-send-email-stanley.chu@mediatek.com>
- <1577693546-7598-2-git-send-email-stanley.chu@mediatek.com>
-Message-ID: <fd129b859c013852bd80f60a36425757@codeaurora.org>
-X-Sender: asutoshd@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.91-219-gbd997e91293d
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 90 boots: 1 failed,
+ 77 passed with 12 offline (v4.19.91-219-gbd997e91293d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Stanley,
+stable-rc/linux-4.19.y boot: 90 boots: 1 failed, 77 passed with 12 offline =
+(v4.19.91-219-gbd997e91293d)
 
-On 2019-12-30 00:12, Stanley Chu wrote:
-> Currently ufshcd_probe_hba() always sets device status as "active".
-> This shall be by an assumption that device is already in active state
-> during the boot stage before kernel.
-> 
-> However, if link is configured as "off" state and device is requested
-> to enter "sleep" or "powerdown" power mode during suspend flow, device
-> will NOT be waken up to "active" power mode during resume flow because
-> device is already set as "active" power mode in ufhcd_probe_hba().
-> 
-> Fix it by setting device as default active power mode during
-> initialization only, and skipping changing mode during PM flow
-> in ufshcd_probe_hba().
-> 
-> Fixes: 7caf489b99a4 (scsi: ufs: issue link starup 2 times if device
-> isn't active)
-> Cc: Alim Akhtar <alim.akhtar@samsung.com>
-> Cc: Avri Altman <avri.altman@wdc.com>
-> Cc: Bart Van Assche <bvanassche@acm.org>
-> Cc: Bean Huo <beanhuo@micron.com>
-> Cc: Can Guo <cang@codeaurora.org>
-> Cc: Matthias Brugger <matthias.bgg@gmail.com>
-> Cc: Subhash Jadavani <subhashj@codeaurora.org>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-> ---
->  drivers/scsi/ufs/ufshcd.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-> index ed02a704c1c2..9abb7085a5d0 100644
-> --- a/drivers/scsi/ufs/ufshcd.c
-> +++ b/drivers/scsi/ufs/ufshcd.c
-> @@ -6986,7 +6986,8 @@ static int ufshcd_probe_hba(struct ufs_hba *hba)
->  	ufshcd_tune_unipro_params(hba);
-> 
->  	/* UFS device is also active now */
-> -	ufshcd_set_ufs_dev_active(hba);
-> +	if (!hba->pm_op_in_progress)
-> +		ufshcd_set_ufs_dev_active(hba);
->  	ufshcd_force_reset_auto_bkops(hba);
->  	hba->wlun_dev_clr_ua = true;
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.91-219-gbd997e91293d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.91-219-gbd997e91293d/
 
-I see that there's a get_sync done before.
-So, how would the suspend be triggered in that case?
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.91-219-gbd997e91293d
+Git Commit: bd997e91293dfd45337c580be508331465c386a7
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 62 unique boards, 19 SoC families, 17 builds out of 206
 
-Thanks,
-asd
+Boot Regressions Detected:
+
+arm:
+
+    bcm2835_defconfig:
+        gcc-8:
+          bcm2835-rpi-b:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.9=
+1 - first fail: v4.19.91-220-g798b10a6009d)
+
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.9=
+1 - first fail: v4.19.91-220-g798b10a6009d)
+          dm365evm,legacy:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.9=
+1 - first fail: v4.19.91-220-g798b10a6009d)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxl-s805x-p241:
+              lab-baylibre: new failure (last pass: v4.19.91-220-g798b10a60=
+09d)
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s805x-p241: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            juno-r2: 1 offline lab
+            mt7622-rfb1: 1 offline lab
+
+arm:
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
