@@ -2,96 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F9D12D4DC
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 23:42:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E85E712D4EE
+	for <lists+stable@lfdr.de>; Tue, 31 Dec 2019 00:14:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727746AbfL3Wl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 17:41:57 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:37022 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727695AbfL3Wl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 17:41:57 -0500
-Received: by mail-pl1-f193.google.com with SMTP id c23so15181793plz.4
-        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 14:41:56 -0800 (PST)
+        id S1727746AbfL3XOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 18:14:35 -0500
+Received: from mail-qv1-f68.google.com ([209.85.219.68]:33988 "EHLO
+        mail-qv1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727695AbfL3XOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 18:14:35 -0500
+Received: by mail-qv1-f68.google.com with SMTP id o18so12900927qvf.1
+        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 15:14:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=xba8FIFzefmv0Pl2yIOHKi2YLMOHTYOjvq/MJDGzbZk=;
-        b=oaVlu4ZMb4nJbS8ZAIVbkqLg70LBaTIXwRgvcZZv9SZ248sYUojeDA7qhAd886zZac
-         rh9TzFPFxLxPtXU7prskTsr7rL+40M5oYvNuQKFkHgDq1RBNMlak+5SOCJSpFS7YClZY
-         c3MHo8ep6VHp9qeUWmCewR18X79OodEPTizuJvdhuUdB/jGBfRyKT/CLR0Kj449F9dSo
-         Awr5vHUv3bb8kLJVrFqN8VqLk90VYqZQrVorTvzh20YpKWxTOWEjo0VbAV1/WsozKxJW
-         M3WZo8273CPMcm+gw5Bx1T5jRiQnoHQP8MprR5YvRbcakf6ZfvOqfGSUQuPZgdOCAyLd
-         Ycrw==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=jO81914J26kusqpC86zZi6OGoB/7iKBbQpWs5ZvOpXI=;
+        b=HNISyecp13BPtFpRvvGx0+V/0AGRan9c4lpLJaPfK9+WKP5mIXn39PGkNcSpGijNEE
+         Keuven8GBn9BRmS+N1GHAHoCr5mjhKYR2ya/G5EfUQGv1Ci17Kt2MOHLzdl9k+3kGJee
+         EjGosVOYqh7bYgC8XXu/rY5OIqpX3/i7WQsrW39+PpdKy0tneJ9oXJrOgxkSNNhsgHrW
+         9kFT5u5tsDUZW92hDsqfy1gc3Y14z6DEOQC8bY/aUP4dXiCoj/HfqGuvTMr/RnkQbufB
+         DaMCIcwEIqons4DSRfBcN06vEX1BxKNvJ7Cht/6Miicg+jS3QI1Zi8LRAarU0tYxUa4A
+         FaTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=xba8FIFzefmv0Pl2yIOHKi2YLMOHTYOjvq/MJDGzbZk=;
-        b=erZ9n1vArpDquAXl9J4Lk+hf0+eAgWt8RAdkPZo8HyswhAAaIJ67XnhObH5xnNKszz
-         XNAw5zeU/p+EfzhIXSuTiNUYe2oZ6g/jrUnAS7TzZqld8ajN3+TZsFM+kIrXhO/21q8E
-         YmQ0kDT32eAMr6CRfT19lD774vk1oXzi1ns72IpE8hLWIm2ou/y/+Zp7SCDgMX9WJFqZ
-         0wVnz9dEY2AZmqPu3gunyV55ola3MhBQr+O41m78D/xjrQdngfW0Fjy41Y79MyMr7rI0
-         zlBL6Smg/BCgEvwPex6O6JVhIgwN3N36obnQiDZMWb2qpFnUvDbfJcaT88Y5E5WpBx23
-         IMig==
-X-Gm-Message-State: APjAAAXlIlHmgTTm3atbUV+S/fF4mC/4DNWZQVroZ1JG9e4CRkQwjNMi
-        QjXB+0FFOL1oDS0za3mOnmQ6rg==
-X-Google-Smtp-Source: APXvYqxDJQOkw3IpX2MxSfODfbrqMn2AEST8zRa82EX9XuOmIXDLDrUxdaPdU89Cg2vVy5Y5+ZNBDw==
-X-Received: by 2002:a17:902:a5c1:: with SMTP id t1mr47250002plq.87.1577745716055;
-        Mon, 30 Dec 2019 14:41:56 -0800 (PST)
-Received: from debian ([122.164.19.238])
-        by smtp.gmail.com with ESMTPSA id z19sm49933366pfn.49.2019.12.30.14.41.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Dec 2019 14:41:55 -0800 (PST)
-Date:   Tue, 31 Dec 2019 04:11:43 +0530
-From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        jeffrin@rajagiritech.edu.in
-Subject: Re: [PATCH 5.4 000/434] 5.4.7-stable review
-Message-ID: <20191230224143.GA3074@debian>
-References: <20191229172702.393141737@linuxfoundation.org>
- <20191230174336.GA1498696@kroah.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=jO81914J26kusqpC86zZi6OGoB/7iKBbQpWs5ZvOpXI=;
+        b=uQXXo7I8/2Dtzl7U+rkXDeBruhW7d7LbTAUHFTtyVXuYPlE8ZaPfVLzFh4IbGCyDm4
+         19iYGZd1Xhwm98IJsDvwiJTYDgV9HncIb2R8f4VC4sclND8gbXJDLCl8An/XONmZ3b4Z
+         Eu0KFdOFiEWGJmxcuZx3v3l9yLo0Sl8ZQuQkVC3w1GBfWWB5h8sOb3EUCErlAIfpdY6U
+         7QtTnAL6FKQU7JJpbe88ZFPG3cjNLIDf/zaKgCpf38i4eKOLiO6o69Wq71RmNWbfriOI
+         /189P1CEiDDRoJSsqSftnrqkBF+nKZzQJgurdJA7Zu0rmE8//G80SYKsOX6Bn23tyWGt
+         TxWA==
+X-Gm-Message-State: APjAAAVMSkUNUKHSMiQBsZ0M2lMtCcBnyocrLdZ8O99ekLNkqMpSJVUI
+        KDrAZUeKa0FOsyj2WwUZbMcP0stOl+9sbTjuGRqcIg==
+X-Google-Smtp-Source: APXvYqxVWdh9I7Vf8vB75oO4YoPp+qy9+xAjtNkIFmc15HsXG4+Acr8d4KUOSxTqS0JoYBxVUDhqboZXpaeoTok2AwU=
+X-Received: by 2002:a0c:d788:: with SMTP id z8mr44746719qvi.211.1577747673604;
+ Mon, 30 Dec 2019 15:14:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191230174336.GA1498696@kroah.com>
+References: <20191211204753.242298-8-pomonis@google.com> <20191225235523.470232075B@mail.kernel.org>
+In-Reply-To: <20191225235523.470232075B@mail.kernel.org>
+From:   Marios Pomonis <pomonis@google.com>
+Date:   Mon, 30 Dec 2019 15:14:22 -0800
+Message-ID: <CAKXAmdgLV5BZ1JHU0qLcUaQksD6FE3x2cuYkT6jqjGcrxsag-g@mail.gmail.com>
+Subject: Re: [PATCH v2 07/13] KVM: x86: Protect MSR-based index computations
+ in fixed_msr_to_seg_unit() from Spectre-v1/L1TF attacks
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, rkrcmar@redhat.com,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 30, 2019 at 06:43:36PM +0100, Greg Kroah-Hartman wrote:
-> On Sun, Dec 29, 2019 at 06:20:53PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.7 release.
-> > There are 434 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Tue, 31 Dec 2019 17:25:52 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.7-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> 
-> I have pushed out -rc2:
->  	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.7-rc2.gz
-> 
-> to resolve some reported issues.
-> 
-> greg k-h
+Hi Sasha,
 
-i have compiled 5.4.7-rc2+ related and "dmesg -l err" has no new errors.
-"dmesg -l warn" all clean
+These build issues can be fixed by including linux/nospec.h to
+arch/x86/kvm/mtrr.c. Below you can find a patch that compiles on both
+v4.9.206 and v4.4.206.
 
---
-software engineer
-rajagiri school of engineering and technology
+Please let me know if you need anything else.
 
+Marios
+
+=3D=3D=3D=3D=3D=3D=3D=3D
+diff --git a/arch/x86/kvm/mtrr.c b/arch/x86/kvm/mtrr.c
+index 0149ac59c273..f223f1315998 100644
+--- a/arch/x86/kvm/mtrr.c
++++ b/arch/x86/kvm/mtrr.c
+@@ -18,6 +18,7 @@
+
+ #include <linux/kvm_host.h>
+ #include <asm/mtrr.h>
++#include <linux/nospec.h>
+
+ #include "cpuid.h"
+ #include "mmu.h"
+@@ -202,11 +203,15 @@ static bool fixed_msr_to_seg_unit(u32 msr, int
+*seg, int *unit)
+                break;
+        case MSR_MTRRfix16K_80000 ... MSR_MTRRfix16K_A0000:
+                *seg =3D 1;
+-               *unit =3D msr - MSR_MTRRfix16K_80000;
++               *unit =3D array_index_nospec(
++                       msr - MSR_MTRRfix16K_80000,
++                       MSR_MTRRfix16K_A0000 - MSR_MTRRfix16K_80000 + 1);
+                break;
+        case MSR_MTRRfix4K_C0000 ... MSR_MTRRfix4K_F8000:
+                *seg =3D 2;
+-               *unit =3D msr - MSR_MTRRfix4K_C0000;
++               *unit =3D array_index_nospec(
++                       msr - MSR_MTRRfix4K_C0000,
++                       MSR_MTRRfix4K_F8000 - MSR_MTRRfix4K_C0000 + 1);
+                break;
+        default:
+                return false;
+
+On Wed, Dec 25, 2019 at 3:55 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> Hi,
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: de9aef5e1ad6 ("KVM: MTRR: introduce fixed_mtrr_segment tab=
+le").
+>
+> The bot has tested the following trees: v5.4.5, v5.3.18, v4.19.90, v4.14.=
+159, v4.9.206, v4.4.206.
+>
+> v5.4.5: Build OK!
+> v5.3.18: Build OK!
+> v4.19.90: Build OK!
+> v4.14.159: Build OK!
+> v4.9.206: Build failed! Errors:
+>     arch/x86/kvm/mtrr.c:205:11: error: implicit declaration of function =
+=E2=80=98array_index_nospec=E2=80=99; did you mean =E2=80=98array_index_mas=
+k_nospec=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+>
+> v4.4.206: Build failed! Errors:
+>     arch/x86/kvm/mtrr.c:205:11: error: implicit declaration of function =
+=E2=80=98array_index_nospec=E2=80=99; did you mean =E2=80=98array_index_mas=
+k_nospec=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
+>
+> --
+> Thanks,
+> Sasha
+
+
+
+--=20
+Marios Pomonis
+Software Engineer, Security
+GCP Platform Security
+US-KIR-6THC
