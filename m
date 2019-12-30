@@ -2,70 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E89512CF9A
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 12:34:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8726112CF90
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 12:32:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727434AbfL3Lee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 06:34:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35580 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727360AbfL3Lee (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Dec 2019 06:34:34 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBB3620730;
-        Mon, 30 Dec 2019 11:34:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577705674;
-        bh=90lEMuP09iwuXMSV8Oyzmx6ab/XfA4IdZZTwHmBqXq0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TdTm9hbx30s7IsdNew/r7G45Ykt7FhutRumccAZgxhAn+jvnR51IhhiaD3Fi4067G
-         jVRQXSjHwcIBZKVGwnQTCsxLQIdi3jk/8dL3NnuD2A+lqRoEcYxkbxwE5JVKfZ+R4k
-         1F+fqV1m3PZMR5JFw+XGo8sFlHoOmowvczHitytE=
-Date:   Mon, 30 Dec 2019 12:32:04 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     shuah <shuah@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 000/434] 5.4.7-stable review
-Message-ID: <20191230113204.GB884080@kroah.com>
-References: <20191229172702.393141737@linuxfoundation.org>
- <c61bc847-9e64-07da-169a-67964a870b12@kernel.org>
+        id S1727378AbfL3LcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 06:32:18 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:37904 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727360AbfL3LcR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 06:32:17 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id BBBF21C2604; Mon, 30 Dec 2019 12:32:15 +0100 (CET)
+Date:   Mon, 30 Dec 2019 12:32:14 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 102/219] ALSA: hda/hdmi - implement
+ mst_no_extra_pcms flag
+Message-ID: <20191230113214.GB10304@amd>
+References: <20191229162508.458551679@linuxfoundation.org>
+ <20191229162523.844585380@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
 Content-Disposition: inline
-In-Reply-To: <c61bc847-9e64-07da-169a-67964a870b12@kernel.org>
+In-Reply-To: <20191229162523.844585380@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 29, 2019 at 07:18:53PM -0700, shuah wrote:
-> On 12/29/19 10:20 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.7 release.
-> > There are 434 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Tue, 31 Dec 2019 17:25:52 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.7-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> Compiled and booted on my test system. No dmesg regressions.
 
-Thanks for testing all 3 of these and letting me know.
+--ADZbWkCsHQ7r3kzd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+Hi!
+
+> From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+>=20
+> [ Upstream commit 2a2edfbbfee47947dd05f5860c66c0e80ee5e09d ]
+>=20
+> To support the DP-MST multiple streams via single connector feature,
+> the HDMI driver was extended with the concept of backup PCMs. See
+> commit 9152085defb6 ("ALSA: hda - add DP MST audio support").
+=2E..
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+This variable is not ever set in this patch, nor is it set elsewhere
+in 4.19-stable. This means this patch is not suitable for stable.
+
+Best regards,
+								Pavel
+
+> index 2003403ce1c8..199927694aef 100644
+> --- a/sound/pci/hda/hda_codec.h
+> +++ b/sound/pci/hda/hda_codec.h
+> @@ -262,6 +262,7 @@ struct hda_codec {
+>  	unsigned int force_pin_prefix:1; /* Add location prefix */
+>  	unsigned int link_down_at_suspend:1; /* link down at runtime suspend */
+>  	unsigned int relaxed_resume:1;	/* don't resume forcibly for jack */
+> +	unsigned int mst_no_extra_pcms:1; /* no backup PCMs for DP-MST */
+> =20
+>  #ifdef CONFIG_PM
+>  	unsigned long power_on_acct;
+> diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+> index c827a2a89cc3..9d5e3c8d62b9 100644
+> --- a/sound/pci/hda/patch_hdmi.c
+> +++ b/sound/pci/hda/patch_hdmi.c
+> @@ -2063,15 +2063,24 @@ static bool is_hdmi_pcm_attached(struct hdac_devi=
+ce *hdac, int pcm_idx)
+>  static int generic_hdmi_build_pcms(struct hda_codec *codec)
+>  {
+>  	struct hdmi_spec *spec =3D codec->spec;
+> -	int idx;
+> +	int idx, pcm_num;
+> =20
+>  	/*
+>  	 * for non-mst mode, pcm number is the same as before
+> -	 * for DP MST mode, pcm number is (nid number + dev_num - 1)
+> -	 *  dev_num is the device entry number in a pin
+> -	 *
+> +	 * for DP MST mode without extra PCM, pcm number is same
+> +	 * for DP MST mode with extra PCMs, pcm number is
+> +	 *  (nid number + dev_num - 1)
+> +	 * dev_num is the device entry number in a pin
+>  	 */
+> -	for (idx =3D 0; idx < spec->num_nids + spec->dev_num - 1; idx++) {
+> +
+> +	if (codec->mst_no_extra_pcms)
+> +		pcm_num =3D spec->num_nids;
+> +	else
+> +		pcm_num =3D spec->num_nids + spec->dev_num - 1;
+> +
+> +	codec_dbg(codec, "hdmi: pcm_num set to %d\n", pcm_num);
+> +
+> +	for (idx =3D 0; idx < pcm_num; idx++) {
+>  		struct hda_pcm *info;
+>  		struct hda_pcm_stream *pstr;
+> =20
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--ADZbWkCsHQ7r3kzd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl4J4D4ACgkQMOfwapXb+vJXXgCeNDh4A40dM5KvH84pVurQdugK
+kUAAn3hedVY2L21yEaPLrk59oZ2eJyrx
+=BvHn
+-----END PGP SIGNATURE-----
+
+--ADZbWkCsHQ7r3kzd--
