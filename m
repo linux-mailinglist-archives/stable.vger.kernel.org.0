@@ -2,134 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA5212D1B8
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 17:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9C3312D209
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 17:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727479AbfL3QHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 11:07:31 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:42836 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727471AbfL3QHb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 11:07:31 -0500
-Received: by mail-pg1-f194.google.com with SMTP id s64so18198829pgb.9;
-        Mon, 30 Dec 2019 08:07:30 -0800 (PST)
+        id S1727163AbfL3Qek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 11:34:40 -0500
+Received: from mail-yb1-f194.google.com ([209.85.219.194]:35009 "EHLO
+        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726607AbfL3Qek (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 11:34:40 -0500
+Received: by mail-yb1-f194.google.com with SMTP id a124so14285699ybg.2
+        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 08:34:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=QQifhEvd0qlOro5mq55/v6MzZxcRB/EQ8GzsSLDvKvQ=;
-        b=NIqxuaZLjE0bnw2trLuyaKCZlOURs2/yVNquCgje//3TbuWs8CCcqgzfTuEQMYq5Gu
-         IdC2MuXxAmVo7Ke2A8LTaJXUKNePtWGOW09awQrpPWIpUBYPlbd9OnRk4BPT8Hdd3vAc
-         KrGMRAF+11XvtTWVQl1VOODUZuEv/qO/0lndaOrPSAaSuZF4DQ75WVukArcZmv2qaMXx
-         SiRVh4bi0dIO96A2XKy1qYT4k8ODlb/W/zB+wBruI55Kdqz+/NHk9yb517H6OAKavRGp
-         ww2lKDNMuyQwY1savCtFsgg1MlFNmm2FehvzRQvRXSn+vTBLRiGLxiNCFtNe9KV+5/CX
-         sM8A==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:mail-followup-to:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=SifrDRNuZI7FjGGbJzx9F32WU6UCkJPUxer3u46pdDA=;
+        b=Z35wHsyiNpP4RlEFRxabnN4fXuzsizFg+xlvkcOZWkAsXoTppdGT9xoMcEjd35huJZ
+         C+hvSJHTfqVcN2b9qaIV1hXlT4/TU+yvw9AUYGQZGO79zuSBnUZucz/PCzoXHgI/u+Gu
+         IJdQXOcSS6EqM4JMh5sqBPNcNtOVXjbgqOg++zxGi6CeTA8p3KtYcE4Flzmx7krRbxPm
+         PqI/5HdBPZWZgmE2lBdoKJHsWhfTAwKJgY+ys/KiEbJJmKtVL2TT3M0CaDYQGmRtMqmO
+         DdYf/Ll4VMGVqNemtm5z5+pe31O+TD+fX68R4GK253AQ1p1vvPrzLEz+CQx50ywHiovl
+         lcCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=QQifhEvd0qlOro5mq55/v6MzZxcRB/EQ8GzsSLDvKvQ=;
-        b=Wx9V8BfWuedfE2xTbAS/bFm/fjJq/5RKEeOUMxXd+EMGvRPEQ4rKvGKi3+PDsOzvSv
-         UcwbBBmNGEUFuQKdYoP+uNNVFsgA8GAEbRXZRXx6jv5dmdQZjVJsfShMRC4TPxCJdH8z
-         TgAhiOiI6f6Kgr3asCuoJsU39JlyTgxuCoY5WK4Z9Y1q2izVkdPtEKhTT6TFxZuDtUj2
-         AiG+sZV2oOz6OpZiu461WOdJQ9VNtBYVx9C0MuTkfaR4bsaJOjh0cMu5mi/JXms5A1bd
-         xffqlRiPq0kNvWPK4s+HBMiNyB5RvMZvNXzzsigBpDSNaXljlmP0V2Sl98RukZMeqUEd
-         R1Pg==
-X-Gm-Message-State: APjAAAVr2FJCjYRUdGaqVlq/SkNEjfkmx+UDfqZ208lAQDBUxOiPfYSV
-        2uTcTJ+twExcvBns9/IcmqCX+msW
-X-Google-Smtp-Source: APXvYqw5acYxqgdINUs+FyQDAeNUkty8IHAD+FtPNa+5uPBm42ipxImSwOPnn/wLQLHeIRF091ukpw==
-X-Received: by 2002:a63:6fca:: with SMTP id k193mr75185418pgc.416.1577722050295;
-        Mon, 30 Dec 2019 08:07:30 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t63sm52734279pfb.70.2019.12.30.08.07.28
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 30 Dec 2019 08:07:29 -0800 (PST)
-Date:   Mon, 30 Dec 2019 08:07:27 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Douglas Gilbert <dgilbert@interlog.com>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB-PD tcpm: bad warning+size, PPS adapters
-Message-ID: <20191230160727.GA12958@roeck-us.net>
-References: <20191230033544.1809-1-dgilbert@interlog.com>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id
+         :mail-followup-to:references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to;
+        bh=SifrDRNuZI7FjGGbJzx9F32WU6UCkJPUxer3u46pdDA=;
+        b=B2pgd7bRXYnNzT+typQUHXJId3CPeX6jrSVz+X07vGA2dUi/ywl+3KbUPZHtXtihBv
+         OHkb9AuuyXXyqwSaKSMxo1byb4oSP8Y/7LPRVuAPORyx2eKlwyc2lu9ApKT6O7qyMxxj
+         nDB+5LQD6+tF/np7y9Mo1uTpKE03gAwm0xKDiZuPEF8ha6XVC0kAEWY/6xLXBzLLxATe
+         tNBog1nfxS5M53Cw9Tt1wgDX9Lx1bkk/QE1MUzgDs8PjRfl4K2hD+w3EeT5EkVKoshxh
+         to7hE3JydDsWcO0LeIGjWFubbz4xXEbPrCA9J3FKkzjPIbNkOi5x9AOr0LTJ9acEOhzf
+         tTTA==
+X-Gm-Message-State: APjAAAVoLvlRjHhzQGeZ2AVKEltyAqjUz9G5Eu/YM7sq7PPTlstUwZXT
+        l2BnE9tGOiCY66BSEYBousJOBQ==
+X-Google-Smtp-Source: APXvYqwVL1AGDxGOv9b+LmFFMDFhX73etoc+MAkFLDhsbdHVxQtSeRdSsqK9QQx6kco1isCoQm4JnQ==
+X-Received: by 2002:a5b:38d:: with SMTP id k13mr23670721ybp.147.1577723679224;
+        Mon, 30 Dec 2019 08:34:39 -0800 (PST)
+Received: from localhost (c-75-72-120-115.hsd1.mn.comcast.net. [75.72.120.115])
+        by smtp.gmail.com with ESMTPSA id a189sm18679079ywh.92.2019.12.30.08.34.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Dec 2019 08:34:38 -0800 (PST)
+Date:   Mon, 30 Dec 2019 10:34:37 -0600
+From:   Dan Rue <dan.rue@linaro.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 000/434] 5.4.7-stable review
+Message-ID: <20191230163437.sz4mb5gh7ed2htfa@xps.therub.org>
+Mail-Followup-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+References: <20191229172702.393141737@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20191230033544.1809-1-dgilbert@interlog.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191229172702.393141737@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 29, 2019 at 10:35:44PM -0500, Douglas Gilbert wrote:
-> Augmented Power Delivery Objects (A)PDO_s are used by USB-C
-> PD power adapters to advertize the voltages and currents
-> they support. There can be up to 7 PDO_s but before PPS
-> (programmable power supply) there were seldom more than 4
-> or 5. Recently Samsung released an optional PPS 45 Watt power
-> adapter (EP-TA485) that has 7 PDO_s. It is for the Galaxy 10+
-> tablet and charges it quicker than the adapter supplied at
-> purchase. The EP-TA485 causes an overzealous WARN_ON to soil
-> the log plus it miscalculates the number of bytes to read.
-> 
-> So this bug has been there for some time but goes
-> undetected for the majority of USB-C PD power adapters on
-> the market today that have 6 or less PDO_s. That may soon
-> change as more USB-C PD adapters with PPS come to market.
-> 
-> Tested on a EP-TA485 and an older Lenovo PN: SA10M13950
-> USB-C 65 Watt adapter (without PPS and has 4 PDO_s) plus
-> several other PD power adapters.
-> 
-> Signed-off-by: Douglas Gilbert <dgilbert@interlog.com>
+On Sun, Dec 29, 2019 at 06:20:53PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.7 release.
+> There are 434 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Results from Linaro’s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> ---
->  drivers/usb/typec/tcpm/tcpci.c | 20 +++++++++++++++-----
->  1 file changed, 15 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
-> index c1f7073a56de..8b4ff9fff340 100644
-> --- a/drivers/usb/typec/tcpm/tcpci.c
-> +++ b/drivers/usb/typec/tcpm/tcpci.c
-> @@ -432,20 +432,30 @@ irqreturn_t tcpci_irq(struct tcpci *tcpci)
->  
->  	if (status & TCPC_ALERT_RX_STATUS) {
->  		struct pd_message msg;
-> -		unsigned int cnt;
-> +		unsigned int cnt, payload_cnt;
->  		u16 header;
->  
->  		regmap_read(tcpci->regmap, TCPC_RX_BYTE_CNT, &cnt);
-> +		/*
-> +		 * 'cnt' corresponds to READABLE_BYTE_COUNT in section 4.4.14
-> +		 * of the TCPCI spec [Rev 2.0 Ver 1.0 October 2017] and is
-> +		 * defined in table 4-36 as one greater than the number of
-> +		 * bytes received. And that number includes the header. So:
-> +		 */
-> +		if (cnt > 3)
-> +			payload_cnt = cnt - (1 + sizeof(msg.header));
-> +		else
-> +			payload_cnt = 0;
->  
->  		tcpci_read16(tcpci, TCPC_RX_HDR, &header);
->  		msg.header = cpu_to_le16(header);
->  
-> -		if (WARN_ON(cnt > sizeof(msg.payload)))
-> -			cnt = sizeof(msg.payload);
-> +		if (WARN_ON(payload_cnt > sizeof(msg.payload)))
-> +			payload_cnt = sizeof(msg.payload);
->  
-> -		if (cnt > 0)
-> +		if (payload_cnt > 0)
->  			regmap_raw_read(tcpci->regmap, TCPC_RX_DATA,
-> -					&msg.payload, cnt);
-> +					&msg.payload, payload_cnt);
->  
->  		/* Read complete, clear RX status alert bit */
->  		tcpci_write16(tcpci, TCPC_ALERT, TCPC_ALERT_RX_STATUS);
-> -- 
-> 2.24.1
-> 
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.4.7-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+git branch: linux-5.4.y
+git commit: 6bc086f94af53b930b413d3cc85fe11061b4a0a2
+git describe: v5.4.6-436-g6bc086f94af5
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/build/v5.4.6-436-g6bc086f94af5
+
+
+No regressions (compared to build v5.4.6)
+
+No fixes (compared to build v5.4.6)
+
+Ran 22880 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-hugetlb-tests
+* ltp-mm-tests
+* ltp-open-posix-tests
+* ltp-syscalls-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
