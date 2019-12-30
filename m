@@ -2,145 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E85E712D4EE
-	for <lists+stable@lfdr.de>; Tue, 31 Dec 2019 00:14:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBCFC12D508
+	for <lists+stable@lfdr.de>; Tue, 31 Dec 2019 00:24:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727746AbfL3XOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 18:14:35 -0500
-Received: from mail-qv1-f68.google.com ([209.85.219.68]:33988 "EHLO
-        mail-qv1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727695AbfL3XOf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 18:14:35 -0500
-Received: by mail-qv1-f68.google.com with SMTP id o18so12900927qvf.1
-        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 15:14:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=jO81914J26kusqpC86zZi6OGoB/7iKBbQpWs5ZvOpXI=;
-        b=HNISyecp13BPtFpRvvGx0+V/0AGRan9c4lpLJaPfK9+WKP5mIXn39PGkNcSpGijNEE
-         Keuven8GBn9BRmS+N1GHAHoCr5mjhKYR2ya/G5EfUQGv1Ci17Kt2MOHLzdl9k+3kGJee
-         EjGosVOYqh7bYgC8XXu/rY5OIqpX3/i7WQsrW39+PpdKy0tneJ9oXJrOgxkSNNhsgHrW
-         9kFT5u5tsDUZW92hDsqfy1gc3Y14z6DEOQC8bY/aUP4dXiCoj/HfqGuvTMr/RnkQbufB
-         DaMCIcwEIqons4DSRfBcN06vEX1BxKNvJ7Cht/6Miicg+jS3QI1Zi8LRAarU0tYxUa4A
-         FaTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=jO81914J26kusqpC86zZi6OGoB/7iKBbQpWs5ZvOpXI=;
-        b=uQXXo7I8/2Dtzl7U+rkXDeBruhW7d7LbTAUHFTtyVXuYPlE8ZaPfVLzFh4IbGCyDm4
-         19iYGZd1Xhwm98IJsDvwiJTYDgV9HncIb2R8f4VC4sclND8gbXJDLCl8An/XONmZ3b4Z
-         Eu0KFdOFiEWGJmxcuZx3v3l9yLo0Sl8ZQuQkVC3w1GBfWWB5h8sOb3EUCErlAIfpdY6U
-         7QtTnAL6FKQU7JJpbe88ZFPG3cjNLIDf/zaKgCpf38i4eKOLiO6o69Wq71RmNWbfriOI
-         /189P1CEiDDRoJSsqSftnrqkBF+nKZzQJgurdJA7Zu0rmE8//G80SYKsOX6Bn23tyWGt
-         TxWA==
-X-Gm-Message-State: APjAAAVMSkUNUKHSMiQBsZ0M2lMtCcBnyocrLdZ8O99ekLNkqMpSJVUI
-        KDrAZUeKa0FOsyj2WwUZbMcP0stOl+9sbTjuGRqcIg==
-X-Google-Smtp-Source: APXvYqxVWdh9I7Vf8vB75oO4YoPp+qy9+xAjtNkIFmc15HsXG4+Acr8d4KUOSxTqS0JoYBxVUDhqboZXpaeoTok2AwU=
-X-Received: by 2002:a0c:d788:: with SMTP id z8mr44746719qvi.211.1577747673604;
- Mon, 30 Dec 2019 15:14:33 -0800 (PST)
+        id S1727767AbfL3XY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 18:24:57 -0500
+Received: from mail25.static.mailgun.info ([104.130.122.25]:19757 "EHLO
+        mail25.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727746AbfL3XY5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 18:24:57 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1577748296; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=vBXvyWu/WmFpK3s/9QyjuCrueKEXWqV2Lek88cSNWSQ=;
+ b=XJVRG1RP8sgVrjsc2QsktrXIcGjcOvfUocUyELzHMVcxmPMrNfQVy6n0gF0qGxMj+pFeVSmU
+ MenizJUrahHDBoezBal91yfP6Kk4xmYbKbNWieXoXIg7bNzu1NVAvtEx1nDoSGnAbysEXW9X
+ tRIzITIjJ8+Y35b7XdPucAdsREs=
+X-Mailgun-Sending-Ip: 104.130.122.25
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e0a8748.7fe87b388298-smtp-out-n02;
+ Mon, 30 Dec 2019 23:24:56 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 0007AC447A4; Mon, 30 Dec 2019 23:24:55 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,URIBL_BLOCKED
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: asutoshd)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 9A397C43383;
+        Mon, 30 Dec 2019 23:24:54 +0000 (UTC)
 MIME-Version: 1.0
-References: <20191211204753.242298-8-pomonis@google.com> <20191225235523.470232075B@mail.kernel.org>
-In-Reply-To: <20191225235523.470232075B@mail.kernel.org>
-From:   Marios Pomonis <pomonis@google.com>
-Date:   Mon, 30 Dec 2019 15:14:22 -0800
-Message-ID: <CAKXAmdgLV5BZ1JHU0qLcUaQksD6FE3x2cuYkT6jqjGcrxsag-g@mail.gmail.com>
-Subject: Re: [PATCH v2 07/13] KVM: x86: Protect MSR-based index computations
- in fixed_msr_to_seg_unit() from Spectre-v1/L1TF attacks
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, rkrcmar@redhat.com,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Mon, 30 Dec 2019 15:24:54 -0800
+From:   asutoshd@codeaurora.org
+To:     Stanley Chu <stanley.chu@mediatek.com>
+Cc:     linux-scsi@vger.kernel.org, martin.petersen@oracle.com,
+        avri.altman@wdc.com, alim.akhtar@samsung.com,
+        pedrom.sousa@synopsys.com, jejb@linux.ibm.com,
+        matthias.bgg@gmail.com, bvanassche@acm.org,
+        subhashj@codeaurora.org, beanhuo@micron.com, cang@codeaurora.org,
+        linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        kuohong.wang@mediatek.com, peter.wang@mediatek.com,
+        chun-hung.wu@mediatek.com, andy.teng@mediatek.com,
+        stable@vger.kernel.org, linux-scsi-owner@vger.kernel.org
+Subject: Re: [PATCH v1 1/2] scsi: ufs: set device as default active power mode
+ during initialization only
+In-Reply-To: <1577693546-7598-2-git-send-email-stanley.chu@mediatek.com>
+References: <1577693546-7598-1-git-send-email-stanley.chu@mediatek.com>
+ <1577693546-7598-2-git-send-email-stanley.chu@mediatek.com>
+Message-ID: <fd129b859c013852bd80f60a36425757@codeaurora.org>
+X-Sender: asutoshd@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+Hi Stanley,
 
-These build issues can be fixed by including linux/nospec.h to
-arch/x86/kvm/mtrr.c. Below you can find a patch that compiles on both
-v4.9.206 and v4.4.206.
+On 2019-12-30 00:12, Stanley Chu wrote:
+> Currently ufshcd_probe_hba() always sets device status as "active".
+> This shall be by an assumption that device is already in active state
+> during the boot stage before kernel.
+> 
+> However, if link is configured as "off" state and device is requested
+> to enter "sleep" or "powerdown" power mode during suspend flow, device
+> will NOT be waken up to "active" power mode during resume flow because
+> device is already set as "active" power mode in ufhcd_probe_hba().
+> 
+> Fix it by setting device as default active power mode during
+> initialization only, and skipping changing mode during PM flow
+> in ufshcd_probe_hba().
+> 
+> Fixes: 7caf489b99a4 (scsi: ufs: issue link starup 2 times if device
+> isn't active)
+> Cc: Alim Akhtar <alim.akhtar@samsung.com>
+> Cc: Avri Altman <avri.altman@wdc.com>
+> Cc: Bart Van Assche <bvanassche@acm.org>
+> Cc: Bean Huo <beanhuo@micron.com>
+> Cc: Can Guo <cang@codeaurora.org>
+> Cc: Matthias Brugger <matthias.bgg@gmail.com>
+> Cc: Subhash Jadavani <subhashj@codeaurora.org>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+> ---
+>  drivers/scsi/ufs/ufshcd.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+> index ed02a704c1c2..9abb7085a5d0 100644
+> --- a/drivers/scsi/ufs/ufshcd.c
+> +++ b/drivers/scsi/ufs/ufshcd.c
+> @@ -6986,7 +6986,8 @@ static int ufshcd_probe_hba(struct ufs_hba *hba)
+>  	ufshcd_tune_unipro_params(hba);
+> 
+>  	/* UFS device is also active now */
+> -	ufshcd_set_ufs_dev_active(hba);
+> +	if (!hba->pm_op_in_progress)
+> +		ufshcd_set_ufs_dev_active(hba);
+>  	ufshcd_force_reset_auto_bkops(hba);
+>  	hba->wlun_dev_clr_ua = true;
 
-Please let me know if you need anything else.
+I see that there's a get_sync done before.
+So, how would the suspend be triggered in that case?
 
-Marios
-
-=3D=3D=3D=3D=3D=3D=3D=3D
-diff --git a/arch/x86/kvm/mtrr.c b/arch/x86/kvm/mtrr.c
-index 0149ac59c273..f223f1315998 100644
---- a/arch/x86/kvm/mtrr.c
-+++ b/arch/x86/kvm/mtrr.c
-@@ -18,6 +18,7 @@
-
- #include <linux/kvm_host.h>
- #include <asm/mtrr.h>
-+#include <linux/nospec.h>
-
- #include "cpuid.h"
- #include "mmu.h"
-@@ -202,11 +203,15 @@ static bool fixed_msr_to_seg_unit(u32 msr, int
-*seg, int *unit)
-                break;
-        case MSR_MTRRfix16K_80000 ... MSR_MTRRfix16K_A0000:
-                *seg =3D 1;
--               *unit =3D msr - MSR_MTRRfix16K_80000;
-+               *unit =3D array_index_nospec(
-+                       msr - MSR_MTRRfix16K_80000,
-+                       MSR_MTRRfix16K_A0000 - MSR_MTRRfix16K_80000 + 1);
-                break;
-        case MSR_MTRRfix4K_C0000 ... MSR_MTRRfix4K_F8000:
-                *seg =3D 2;
--               *unit =3D msr - MSR_MTRRfix4K_C0000;
-+               *unit =3D array_index_nospec(
-+                       msr - MSR_MTRRfix4K_C0000,
-+                       MSR_MTRRfix4K_F8000 - MSR_MTRRfix4K_C0000 + 1);
-                break;
-        default:
-                return false;
-
-On Wed, Dec 25, 2019 at 3:55 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi,
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: de9aef5e1ad6 ("KVM: MTRR: introduce fixed_mtrr_segment tab=
-le").
->
-> The bot has tested the following trees: v5.4.5, v5.3.18, v4.19.90, v4.14.=
-159, v4.9.206, v4.4.206.
->
-> v5.4.5: Build OK!
-> v5.3.18: Build OK!
-> v4.19.90: Build OK!
-> v4.14.159: Build OK!
-> v4.9.206: Build failed! Errors:
->     arch/x86/kvm/mtrr.c:205:11: error: implicit declaration of function =
-=E2=80=98array_index_nospec=E2=80=99; did you mean =E2=80=98array_index_mas=
-k_nospec=E2=80=99? [-Werror=3Dimplicit-function-declaration]
->
-> v4.4.206: Build failed! Errors:
->     arch/x86/kvm/mtrr.c:205:11: error: implicit declaration of function =
-=E2=80=98array_index_nospec=E2=80=99; did you mean =E2=80=98array_index_mas=
-k_nospec=E2=80=99? [-Werror=3Dimplicit-function-declaration]
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
->
-> --
-> Thanks,
-> Sasha
-
-
-
---=20
-Marios Pomonis
-Software Engineer, Security
-GCP Platform Security
-US-KIR-6THC
+Thanks,
+asd
