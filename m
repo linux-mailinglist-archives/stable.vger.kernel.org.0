@@ -2,120 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B43F412D0D3
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 15:37:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A99C212D175
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 16:30:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727499AbfL3OhD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 09:37:03 -0500
-Received: from mga18.intel.com ([134.134.136.126]:39952 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727445AbfL3OhD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Dec 2019 09:37:03 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 30 Dec 2019 06:37:02 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,375,1571727600"; 
-   d="scan'208";a="209027737"
-Received: from anhtuanb-mobl.ccr.corp.intel.com (HELO M5530.gar.corp.intel.com) ([10.255.175.157])
-  by orsmga007.jf.intel.com with ESMTP; 30 Dec 2019 06:36:59 -0800
-From:   Harry Pan <harry.pan@intel.com>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     gs0622@gmail.com, Harry Pan <harry.pan@intel.com>,
-        stable@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        linux-pm@vger.kernel.org
-Subject: [PATCH] powercap/intel_rapl: refine RAPL error handling to respect initial CPU matching
-Date:   Mon, 30 Dec 2019 22:36:56 +0800
-Message-Id: <20191230223645.1.I79ea8bb1c5a70c04c810d8305f5f7dee4ebed577@changeid>
-X-Mailer: git-send-email 2.24.1
+        id S1727588AbfL3Pac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 10:30:32 -0500
+Received: from mail-yb1-f196.google.com ([209.85.219.196]:38562 "EHLO
+        mail-yb1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727573AbfL3Pac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 10:30:32 -0500
+Received: by mail-yb1-f196.google.com with SMTP id f130so14200977ybb.5
+        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 07:30:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:mail-followup-to:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=PT5AYVBG8ze7MmJ0pij7dPQPT0MFfSk0Gv5539zJ7QE=;
+        b=Ya0G7HI6/8LYyGOiVw8D19AnkDkDjGVuSfiuguonUzsum1K8vD9q97Nu+fhEw+CGUe
+         Qzuqvup4Qe6FJzFjUXsVkEXaApLj2QRlKtKkEnqynAJg+uC7P7L4BMH9h+SsZoPh+fvL
+         6qqIY9CvYNngksuc1xyoJospbEfmisscnpjTYeMs6WK1f+0IfpTbY240FgtuNPIrJ1Xx
+         yfZxnVL70OCJpKZ3GdowNXvSHYfCeKSTcjSYqF8BQ71c9fVUckvXUtk9tSOmFCPdPoPz
+         TbCBnCAqe5WgZ2R9diVDLYGr2XUt8vRlPSpSymXEueFg9XiX6Ga0/eUXIdy/ySuAxyt1
+         YqsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id
+         :mail-followup-to:references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to;
+        bh=PT5AYVBG8ze7MmJ0pij7dPQPT0MFfSk0Gv5539zJ7QE=;
+        b=F/Qeg9ZWRK2dt2XnhUKlgZwWvm9dI2/9QQ2n1+SdOqdcwPYS1SmMzAR1jsxps4BZ0e
+         /lG7fNYvsii5fJMIBnyv1DhRkF4Fs2+NdCaYhsFTMtwxs6TmssitpBARaix+6gYOYwpd
+         LxAj1ZToBvGXwgq47uwt7VrNwS0nnr4kvx3cBfK1RzLR8y2Fre4z+TcUXanR7dndnnLh
+         5S1CBNwNYlwfUIV8tegkA43VIXQKYbpZIbGJsjn7nRfOn3DMm7CkNLexwlehcbsJeqLR
+         bSSGPsETl9HMFYzsjkS+eY6ZzdYXJ+QC1wvcwrYbcR2imbOboPw9r+FR/VNc5rMSWD3k
+         8rng==
+X-Gm-Message-State: APjAAAWMeDqyRifqUXTwmA94hICoAMpB60sQnHg5DX8WXFa5Ttda7YgJ
+        TUg6UidYGUqqOkdyhJQZ2SsRpQ==
+X-Google-Smtp-Source: APXvYqxYDsQ6lt+v/VGyEx984yXWB69Auykckie+ntmEC3fgXH0WDxGfF/51fE3I200mYbvzrxamUQ==
+X-Received: by 2002:a25:32d6:: with SMTP id y205mr45395971yby.457.1577719830948;
+        Mon, 30 Dec 2019 07:30:30 -0800 (PST)
+Received: from localhost (c-75-72-120-115.hsd1.mn.comcast.net. [75.72.120.115])
+        by smtp.gmail.com with ESMTPSA id a23sm17626325ywa.32.2019.12.30.07.30.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Dec 2019 07:30:30 -0800 (PST)
+Date:   Mon, 30 Dec 2019 09:30:29 -0600
+From:   Dan Rue <dan.rue@linaro.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 000/161] 4.14.161-stable review
+Message-ID: <20191230153029.35zasheymdjckips@xps.therub.org>
+Mail-Followup-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+References: <20191229162355.500086350@linuxfoundation.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RAPL MMIO support depends on RAPL common driver, in case a new generation
-of CPU is booting but not in the RAPL support list, the processor_thermal
-driver invokes CPU hotplug API to enforce RAPL common driver adding new
-RAPL domain which would cause kernel crash by null pointer dereference
-because the internal RAPL domain resource mapping is not initialized after
-the common init.
+On Sun, Dec 29, 2019 at 06:17:28PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.161 release.
+> There are 161 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-Add error handling to detect non initialized RAPL domain resource mapping
-and return error code to the caller; such that, it avoids early crash for
-new CPU and leave error messages through processor_thermal driver.
+Results from Linaro’s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Before:
-[    4.188566] BUG: kernel NULL pointer dereference, address: 0000000000000020
-...snip...
-[    4.189555] RIP: 0010:rapl_add_package+0x223/0x574
-[    4.189555] Code: b5 a0 31 c0 49 8b 4d 78 48 01 d9 48 8b 0c c1 49 89 4c c6 10 48 ff c0 48 83 f8 05 75 e7 49 83 ff 03 75 15 48 8b 05 09 bc 18 01 <8b> 70 20 41 89 b6 0c 05 00 00 85 f6 75 1a 49 81 c6 18 9
-[    4.189555] RSP: 0000:ffffb3adc00b3d90 EFLAGS: 00010246
-[    4.189555] RAX: 0000000000000000 RBX: 0000000000000098 RCX: 0000000000000000
-[    4.267161] usb 1-1: New USB device found, idVendor=2109, idProduct=2812, bcdDevice= b.e0
-[    4.189555] RDX: 0000000000001000 RSI: 0000000000000000 RDI: ffff9340caafd000
-[    4.189555] RBP: ffffb3adc00b3df8 R08: ffffffffa0246e28 R09: ffff9340caafc000
-[    4.189555] R10: 000000000000024a R11: ffffffff9ff1f6f2 R12: 00000000ffffffed
-[    4.189555] R13: ffff9340caa94800 R14: ffff9340caafc518 R15: 0000000000000003
-[    4.189555] FS:  0000000000000000(0000) GS:ffff9340ce200000(0000) knlGS:0000000000000000
-[    4.189555] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    4.189555] CR2: 0000000000000020 CR3: 0000000302c14001 CR4: 00000000003606f0
-[    4.189555] Call Trace:
-[    4.189555]  ? __switch_to_asm+0x40/0x70
-[    4.189555]  rapl_mmio_cpu_online+0x47/0x64
-[    4.189555]  ? rapl_mmio_write_raw+0x33/0x33
-[    4.281059] usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[    4.189555]  cpuhp_invoke_callback+0x29f/0x66f
-[    4.189555]  ? __schedule+0x46d/0x6a0
-[    4.189555]  cpuhp_thread_fun+0xb9/0x11c
-[    4.189555]  smpboot_thread_fn+0x17d/0x22f
-[    4.297006] usb 1-1: Product: USB2.0 Hub
-[    4.189555]  ? cpu_report_death+0x43/0x43
-[    4.189555]  kthread+0x137/0x13f
-[    4.189555]  ? cpu_report_death+0x43/0x43
-[    4.189555]  ? kthread_blkcg+0x2e/0x2e
-[    4.312951] usb 1-1: Manufacturer: VIA Labs, Inc.
-[    4.189555]  ret_from_fork+0x1f/0x40
-[    4.189555] Modules linked in:
-[    4.189555] CR2: 0000000000000020
-[    4.189555] ---[ end trace 01bb812aabc791f4 ]---
+Summary
+------------------------------------------------------------------------
 
-After:
-[    0.787125] intel_rapl_common: driver does not support CPU family 6 model 166
-...snip...
-[    4.245273] proc_thermal 0000:00:04.0: failed to add RAPL MMIO interface
+kernel: 4.14.161-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+git branch: linux-4.14.y
+git commit: 9973cdd1885ac46b53c6db9f07b9e22003b8b1fd
+git describe: v4.14.160-162-g9973cdd1885a
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.160-162-g9973cdd1885a
 
-Note:
-This example above is on a v5.4 branch without below two CML commits yet:
-commit f84fdcbc8ec0 ("powercap/intel_rapl: add support for Cometlake desktop")
-commit cae478114fbe ("powercap/intel_rapl: add support for CometLake Mobile")
 
-Fixes: 555c45fe0d04 ("int340X/processor_thermal_device: add support for MMIO RAPL")
+No regressions (compared to build v4.14.160)
 
-Cc: <stable@vger.kernel.org> # v5.3+
-Signed-off-by: Harry Pan <harry.pan@intel.com>
+No fixes (compared to build v4.14.160)
 
----
+Ran 24205 total tests in the following environments and test suites.
 
- drivers/powercap/intel_rapl_common.c | 3 +++
- 1 file changed, 3 insertions(+)
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
 
-diff --git a/drivers/powercap/intel_rapl_common.c b/drivers/powercap/intel_rapl_common.c
-index 318d023a6a11..aa0a8de413b1 100644
---- a/drivers/powercap/intel_rapl_common.c
-+++ b/drivers/powercap/intel_rapl_common.c
-@@ -1294,6 +1294,9 @@ struct rapl_package *rapl_add_package(int cpu, struct rapl_if_priv *priv)
- 	struct cpuinfo_x86 *c = &cpu_data(cpu);
- 	int ret;
- 
-+	if (!rapl_defaults)
-+		return ERR_PTR(-ENODEV);
-+
- 	rp = kzalloc(sizeof(struct rapl_package), GFP_KERNEL);
- 	if (!rp)
- 		return ERR_PTR(-ENOMEM);
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-dio-tests
+* ltp-io-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
+
 -- 
-2.24.1
-
+Linaro LKFT
+https://lkft.linaro.org
