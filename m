@@ -2,180 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C1C112CE21
-	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 10:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E2312CEA7
+	for <lists+stable@lfdr.de>; Mon, 30 Dec 2019 11:14:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727247AbfL3JO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 04:14:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34274 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727243AbfL3JO1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Dec 2019 04:14:27 -0500
-Received: from devnote2 (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA8182072E;
-        Mon, 30 Dec 2019 09:14:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577697265;
-        bh=Jtv2Oqg+19UNbmF4oyZbciqhWHNUAETFbeiuH1l/y9E=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=JslN9Gb19kdZ+42Z11azLYVaEAVAZchT6BhvZS3hAKN4nh52HDcXDx0mkw+w2pzlZ
-         VAQRhMZJLLq0szxtHceSe9YoPzj7lMqfUeJRpAKzpG4L1jOCt6B5JYRx2dWXPhmReJ
-         wCMZbxfk6Hp0wDNeKUWolUhDFFCbjbDSUX6V2Crg=
-Date:   Mon, 30 Dec 2019 18:14:20 +0900
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-To:     Thomas Backlund <tmb@mageia.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+        id S1727320AbfL3KOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 05:14:23 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:57904 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727322AbfL3KOX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 05:14:23 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 0F6051C2604; Mon, 30 Dec 2019 11:14:21 +0100 (CET)
+Date:   Mon, 30 Dec 2019 11:14:20 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.4 245/434] perf probe: Fix to list probe event with
- correct line number
-Message-Id: <20191230181420.737a4da2a8a3efd158f01b06@kernel.org>
-In-Reply-To: <f01f3d9a-8b09-7b49-2364-7308f3521d54@mageia.org>
+Subject: Re: [PATCH 5.4 162/434] power: supply: cpcap-battery: Check voltage
+ before orderly_poweroff
+Message-ID: <20191230101420.GA11922@amd>
 References: <20191229172702.393141737@linuxfoundation.org>
-        <20191229172718.158972713@linuxfoundation.org>
-        <689591f8-0798-af22-9a04-4a1e6e894a55@mageia.org>
-        <f01f3d9a-8b09-7b49-2364-7308f3521d54@mageia.org>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+ <20191229172712.537510975@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
+Content-Disposition: inline
+In-Reply-To: <20191229172712.537510975@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 30 Dec 2019 01:00:14 +0200
-Thomas Backlund <tmb@mageia.org> wrote:
 
-> Den 29-12-2019 kl. 20:42, skrev Thomas Backlund:
-> > Den 29-12-2019 kl. 19:24, skrev Greg Kroah-Hartman:
-> >> From: Masami Hiramatsu <mhiramat@kernel.org>
-> >>
-> >> [ Upstream commit 3895534dd78f0fd4d3f9e05ee52b9cdd444a743e ]
-> >>
-> >> Since debuginfo__find_probe_point() uses dwarf_entrypc() for finding the
-> >> entry address of the function on which a probe is, it will fail when the
-> >> function DIE has only ranges attribute.
-> >>
-> >> To fix this issue, use die_entrypc() instead of dwarf_entrypc().
-> >>
-> >> Without this fix, perf probe -l shows incorrect offset:
-> >>
-> >>    # perf probe -l
-> >>      probe:clear_tasks_mm_cpumask (on 
-> >> clear_tasks_mm_cpumask+18446744071579263632@work/linux/linux/kernel/cpu.c) 
-> >>
-> >>      probe:clear_tasks_mm_cpumask_1 (on 
-> >> clear_tasks_mm_cpumask+18446744071579263752@work/linux/linux/kernel/cpu.c) 
-> >>
-> >>
-> >> With this:
-> >>
-> >>    # perf probe -l
-> >>      probe:clear_tasks_mm_cpumask (on 
-> >> clear_tasks_mm_cpumask@work/linux/linux/kernel/cpu.c)
-> >>      probe:clear_tasks_mm_cpumask_1 (on 
-> >> clear_tasks_mm_cpumask:21@work/linux/linux/kernel/cpu.c)
-> >>
-> >> Committer testing:
-> >>
-> >> Before:
-> >>
-> >>    [root@quaco ~]# perf probe -l
-> >>      probe:clear_tasks_mm_cpumask (on 
-> >> clear_tasks_mm_cpumask+18446744071579765152@kernel/cpu.c)
-> >>    [root@quaco ~]#
-> >>
-> >> After:
-> >>
-> >>    [root@quaco ~]# perf probe -l
-> >>      probe:clear_tasks_mm_cpumask (on 
-> >> clear_tasks_mm_cpumask@kernel/cpu.c)
-> >>    [root@quaco ~]#
-> >>
-> >> Fixes: 1d46ea2a6a40 ("perf probe: Fix listing incorrect line number 
-> >> with inline function")
-> >> Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-> >> Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-> >> Cc: Jiri Olsa <jolsa@redhat.com>
-> >> Cc: Namhyung Kim <namhyung@kernel.org>
-> >> Link: 
-> >> http://lore.kernel.org/lkml/157199321227.8075.14655572419136993015.stgit@devnote2 
-> >>
-> >> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-> >> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> >> ---
-> >>   tools/perf/util/probe-finder.c | 4 ++--
-> >>   1 file changed, 2 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/tools/perf/util/probe-finder.c 
-> >> b/tools/perf/util/probe-finder.c
-> >> index cd9f95e5044e..7c8d30fb2b99 100644
-> >> --- a/tools/perf/util/probe-finder.c
-> >> +++ b/tools/perf/util/probe-finder.c
-> >> @@ -1578,7 +1578,7 @@ int debuginfo__find_probe_point(struct debuginfo 
-> >> *dbg, unsigned long addr,
-> >>           /* Get function entry information */
-> >>           func = basefunc = dwarf_diename(&spdie);
-> >>           if (!func ||
-> >> -            dwarf_entrypc(&spdie, &baseaddr) != 0 ||
-> >> +            die_entrypc(&spdie, &baseaddr) != 0 ||
-> >>               dwarf_decl_line(&spdie, &baseline) != 0) {
-> >>               lineno = 0;
-> >>               goto post;
-> >> @@ -1595,7 +1595,7 @@ int debuginfo__find_probe_point(struct debuginfo 
-> >> *dbg, unsigned long addr,
-> >>           while (die_find_top_inlinefunc(&spdie, (Dwarf_Addr)addr,
-> >>                           &indie)) {
-> >>               /* There is an inline function */
-> >> -            if (dwarf_entrypc(&indie, &_addr) == 0 &&
-> >> +            if (die_entrypc(&indie, &_addr) == 0 &&
-> >>                   _addr == addr) {
-> >>                   /*
-> >>                    * addr is at an inline function entry.
-> >>
-> > 
-> > 
-> > still broken
-> > 
-> > /usr/bin/ld: perf-in.o: in function `debuginfo__find_probe_point':
-> > /work/rpmbuild/BUILD/kernel-x86_64/linux-5.4/tools/perf/util/probe-finder.c:1616: 
-> > undefined reference to `die_entrypc'
-> > 
-> 
-> 
-> And the fix for the perf build errors I reported against:
-> [PATCH 5.4 245/434] perf probe: Fix to list probe event with correct 
-> line number
-> [PATCH 5.4 248/434] perf probe: Fix to probe an inline function which 
-> has no entry pc
-> [PATCH 5.4 249/434] perf probe: Fix to show ranges of variables in 
-> functions without entry_pc
-> [PATCH 5.4 250/434] perf probe: Fix to show inlined function callsite 
-> without entry_pc
-> [PATCH 5.4 252/434] perf probe: Fix to probe a function which has no 
-> entry pc
-> 
-> is to add the missing:
-> 
->  From 91e2f539eeda26ab00bd03fae8dc434c128c85ed Mon Sep 17 00:00:00 2001
-> From: Masami Hiramatsu <mhiramat@kernel.org>
-> Date: Thu, 24 Oct 2019 18:12:54 +0900
-> Subject: [PATCH] perf probe: Fix to show function entry line as probe-able
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks Thomas, you're right.
-The die_entrypc() was newly added by that commit for finding correct
-entry PC of functions.
+On Sun 2019-12-29 18:23:35, Greg Kroah-Hartman wrote:
+> From: Tony Lindgren <tony@atomide.com>
+>=20
+> [ Upstream commit 639c1524da3b273d20c42ff2387d08eb4b12e903 ]
+>=20
+> We can get the low voltage interrupt trigger sometimes way too early,
+> maybe because of CPU load spikes. This causes orderly_poweroff() be
+> called too easily.
+>=20
+> Let's check the voltage before orderly_poweroff in case it was not
+> yet a permanent condition. We will be getting more interrupts anyways
+> if the condition persists.
+>=20
+> Let's also show the measured voltages for low battery and battery
+> empty warnings since we have them.
 
-Greg, could you please apply above fix too?
+I don't believe this is good idea for stable.
 
-Thank you,
+Yes, it may be useful on older batteries, but may cause too late
+shutdowns on new batteries, or something like that. Certainly needs a
+lot more testing than it got.
 
--- 
-Masami Hiramatsu <mhiramat@kernel.org>
+Best regards,
+							Pavel
+
+> Cc: Merlijn Wajer <merlijn@wizzup.org>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/power/supply/cpcap-battery.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/power/supply/cpcap-battery.c b/drivers/power/supply/=
+cpcap-battery.c
+> index 61d6447d1966..00a96e4a1cdc 100644
+> --- a/drivers/power/supply/cpcap-battery.c
+> +++ b/drivers/power/supply/cpcap-battery.c
+> @@ -562,12 +562,14 @@ static irqreturn_t cpcap_battery_irq_thread(int irq=
+, void *data)
+>  	switch (d->action) {
+>  	case CPCAP_BATTERY_IRQ_ACTION_BATTERY_LOW:
+>  		if (latest->current_ua >=3D 0)
+> -			dev_warn(ddata->dev, "Battery low at 3.3V!\n");
+> +			dev_warn(ddata->dev, "Battery low at %imV!\n",
+> +				latest->voltage / 1000);
+>  		break;
+>  	case CPCAP_BATTERY_IRQ_ACTION_POWEROFF:
+> -		if (latest->current_ua >=3D 0) {
+> +		if (latest->current_ua >=3D 0 && latest->voltage <=3D 3200000) {
+>  			dev_emerg(ddata->dev,
+> -				  "Battery empty at 3.1V, powering off\n");
+> +				  "Battery empty at %imV, powering off\n",
+> +				  latest->voltage / 1000);
+>  			orderly_poweroff(true);
+>  		}
+>  		break;
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--vkogqOf2sHV7VnPd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl4JzfwACgkQMOfwapXb+vL56ACeLmgSqGAZlFg6JQS4nsWN1zLk
+PF8An1U/nOXr0XWkU1Ldtf54vlvlrl5z
+=PN0n
+-----END PGP SIGNATURE-----
+
+--vkogqOf2sHV7VnPd--
