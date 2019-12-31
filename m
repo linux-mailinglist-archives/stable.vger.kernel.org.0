@@ -2,80 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0469812DA68
-	for <lists+stable@lfdr.de>; Tue, 31 Dec 2019 17:50:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 273D312DA6B
+	for <lists+stable@lfdr.de>; Tue, 31 Dec 2019 17:52:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726720AbfLaQu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Dec 2019 11:50:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52058 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726060AbfLaQu3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Dec 2019 11:50:29 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAAC8206DB;
-        Tue, 31 Dec 2019 16:50:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577811028;
-        bh=OrQoLAFQuxv9ST20C22yNuOyuDPJ/JzuMuHVY+QZ1z8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zqIF6aE0dLChLp5dlf06PPcBCp09sH0Qt/jFrN9dibZCtaDmuxlt8ofhGuhVYqDEa
-         /OI3ZhznfB8f02NKta4eC165lqzkdWtDdxJoFFzDcm/oRF85SffwnqydZapIl9qqc4
-         mHIFYhS0DgCkNQJjOpw6RvYx+l91BHWNECOxCjj0=
-Date:   Tue, 31 Dec 2019 17:50:25 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 000/434] 5.4.7-stable review
-Message-ID: <20191231165025.GD2279398@kroah.com>
-References: <20191229172702.393141737@linuxfoundation.org>
- <20191231160910.GC11542@roeck-us.net>
+        id S1727054AbfLaQwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Dec 2019 11:52:54 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:38576 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726060AbfLaQwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Dec 2019 11:52:54 -0500
+Received: by mail-wr1-f65.google.com with SMTP id y17so35613565wrh.5
+        for <stable@vger.kernel.org>; Tue, 31 Dec 2019 08:52:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HoQnw5uz3nLhPDN6sExnhRdsN4LQ31NX/cWftIRXwZU=;
+        b=EVmqPkS3ApjU/vJJgt2WqlgjT9rFRcfSE8tVCjfgXqzedZXKIEX+qxZpEPsnGO/moU
+         6PiqiAIZvhCCL3k8t0M1C4h4/TVoJmm+qVCAvi73CU42wbgi0foW2Jjb/H+BC3dgO96D
+         ZNNJjmfTe1PlteQfl8LZp7y44npaAM5GlwOxIi9nX1hRbBOzCLK8v4Q+e3Qj+68nkqMM
+         JqrR6TKbmVcOMfCSSB8PRTKajS69lgl+7cAowR8kfQ4lJMQrlZ8czVZvoyRVLPRgEV5e
+         p9C3xcrJMwrzQztzaBfpvavbFXibFnXeiY0WROKkccpK0S6LOZAEFLkOP0QLwb+7IdL3
+         OS/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HoQnw5uz3nLhPDN6sExnhRdsN4LQ31NX/cWftIRXwZU=;
+        b=k/MyHU9+KvxlPjG9GxEeNzydA5DELGcLOWTNlpNyqX7aQG6BZiwWgceXEl6pEJnHXs
+         LC7jwcJRyc3cUOrti6SY2LdGKlMxI19UbXKRH0TzqTl4zunRkGqejsjySW+QEFUi9VX1
+         IqoMUQVbUbbROveoKIdJUo2I03B7dlsOPbSKNcLnfSwOzP65jnC2HrlZldVzhMgv1Nis
+         MUfkXGLLsasp3KJ8DCZLJyWkFQjYYREW6kBtnSrQgAE4enc/zG4MGbR4cAjofpZcdHjK
+         iE/bz7yAChlZfAyrSV8Csm9k3vzGQxtyFgQsNaq0wp4gU71kOuAAGZ7FvcRdUUJGdY27
+         3R2g==
+X-Gm-Message-State: APjAAAWidbViYYeVIvsmqnR99VZaDbL4A/UARV03BO1u2k3XJiyZ8VFw
+        6XhPbXdUs54JqURSN9udNjBpWnOjxkfJQw==
+X-Google-Smtp-Source: APXvYqwYYUeHbDvIL1jAqncgSKFaCO+my98M52ZVigFbb1ewo3DHabDs9yg4PNxImmeDTNbs08w7UA==
+X-Received: by 2002:a5d:6b82:: with SMTP id n2mr72649798wrx.153.1577811171747;
+        Tue, 31 Dec 2019 08:52:51 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id e6sm48914050wru.44.2019.12.31.08.52.51
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 31 Dec 2019 08:52:51 -0800 (PST)
+Message-ID: <5e0b7ce3.1c69fb81.dd8ea.0afa@mx.google.com>
+Date:   Tue, 31 Dec 2019 08:52:51 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191231160910.GC11542@roeck-us.net>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.161
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable/linux-4.14.y boot: 66 boots: 1 failed,
+ 64 passed with 1 untried/unknown (v4.14.161)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 31, 2019 at 08:09:10AM -0800, Guenter Roeck wrote:
-> On Sun, Dec 29, 2019 at 06:20:53PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.7 release.
-> > There are 434 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Tue, 31 Dec 2019 17:25:52 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> For -rc2:
-> 
-> Build results:
-> 	total: 158 pass: 148 fail: 10
-> Failed builds:
-> 	<almost all mips>
-> Qemu test results:
-> 	total: 385 pass: 320 fail: 65
-> Failed tests:
-> 	<all mips>
-> 	<ppc64 as with mainline and v4.19.y>
-> 
-> mips and ppc as previously reported.
-> 
-> mips:
-> 
-> In file included from kernel/futex.c:60:
-> arch/mips/include/asm/futex.h:19:10: fatal error: asm/sync.h: No such file or directory
+stable/linux-4.14.y boot: 66 boots: 1 failed, 64 passed with 1 untried/unkn=
+own (v4.14.161)
 
-Ugh, I thought I caught this already.  I'll go queue up a revert for the
-next 5.4.y release with this fixed.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.161/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.161/
 
-thanks,
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.161
+Git Commit: 4c5bf01e16a7ec59e59a38a61f793c5d1d5560c7
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 40 unique boards, 14 SoC families, 12 builds out of 201
 
-greg k-h
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
