@@ -2,78 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4219E12D53D
-	for <lists+stable@lfdr.de>; Tue, 31 Dec 2019 01:27:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFB9612D548
+	for <lists+stable@lfdr.de>; Tue, 31 Dec 2019 01:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727766AbfLaA1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Dec 2019 19:27:45 -0500
-Received: from mail-vs1-f65.google.com ([209.85.217.65]:40135 "EHLO
-        mail-vs1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727750AbfLaA1p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 19:27:45 -0500
-Received: by mail-vs1-f65.google.com with SMTP id g23so21891365vsr.7
-        for <stable@vger.kernel.org>; Mon, 30 Dec 2019 16:27:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
-        b=NSLUZft2l+2QcHu8AE8GynA6mAarctady/dzPQdOyo2TOXqYefEXGKKCVXEFqu4yOA
-         DfyQaEknPVDouHrg1L3nB7t9QpPy5DgZXY+yw6FSgZpmRn1o2oq7RkeRqWrP6+JtcfSK
-         nVkb6fvXN+fF4Jj4rLI4tt+GTnA+Od2z/Vtva4eBN8BQ3yzV50iKCz/kqcS/oVnDox36
-         sUzZMqY2vbkt7WjkasjCmsY0zbrW8xvDsDTI+Te7LhyWgRURY7EC3fnnoYVss0aW6X17
-         +MC2NQ1ihAKNtogVsVr2z/MP9P10nkTBgDDMXXh6+GdMraopZZT86hmzVU8xR94hDW+l
-         bYfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
-        b=kf21U7G0PnZZ7K6n6S/3rb/nsW2jZj84irFxcBwCDiaa65ZfXKEXDmr/uwWS53hs3c
-         AQwQC7BRjPnA/lUCXv8Iyj6Xem1B7JHHljE1p3JQzb/0qTWXSyNjiMxdagXPl46n/vJY
-         LJFG35fHL2O+IRLsRxx1yNoxyPZ25P9DRrON0w72fQ2ZruEd6Cna7FAvSuNWWYPJQokU
-         3ZcjnRxpkVq7C9bygWUbtMIlZm2pz44D0P/ZzBrAnsGXJYGh0QTXGI3+qArKcVu6foje
-         j0gBvVIfPc+klA7EWafej0svKuy/o0POOrvCAUvFUXR4Y3cONjRAyIxkAKgrs7d/f7aJ
-         QnUw==
-X-Gm-Message-State: APjAAAVqjhkm79GZW87oCW7/XUh5Mg7bu8wt/I1GERBV7wKJ24XO4exT
-        Q5I6n+o7cqPlQt9+KRPYgMEq8T3+S36rVXL2Tps=
-X-Google-Smtp-Source: APXvYqyXPq3PDikscTR7m7qZ8bR6UtoGAqxQEZ1dkaTF0gnK8LRUfgqzmgxn+KZIAzOwRyzf+yIk5CCwCPccVbFAXyc=
-X-Received: by 2002:a67:6746:: with SMTP id b67mr37660570vsc.193.1577752064306;
- Mon, 30 Dec 2019 16:27:44 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:a67:2d0f:0:0:0:0:0 with HTTP; Mon, 30 Dec 2019 16:27:43
- -0800 (PST)
-Reply-To: dunawattara96@outlook.com
-From:   Mr Duna Wattara <drhajizongod@gmail.com>
-Date:   Mon, 30 Dec 2019 16:27:43 -0800
-Message-ID: <CA+aQzqzT_dDnA52Hyeq=1KRB6AQxr3i=XaZsvzTYf++ZXcObDw@mail.gmail.com>
-Subject: with due respect
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S1727842AbfLaAar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Dec 2019 19:30:47 -0500
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:46366 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727774AbfLaAaq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Dec 2019 19:30:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
+        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
+        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
+        List-Archive; bh=DROXetT+eBIXdqH8ADWOFTU5N4oiRNZmfVjong4RfCY=; b=PoBL7PMZH0xO
+        3+SQ5Z1vbsPaU/xMdrJPLfy8ju2pfJ5b2rm2ggJJ5TK2vEmlcolsWBeIfU7HgVP9sCpD3XB6TDM8v
+        LPWerwGPjQxxpHU4EgBPNoeDIUtzMkvZUQ3JMQ8KWeikH/k+XmzlVhGazDwDIhl0hOqZu8AZOtpx/
+        57fKk=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=fitzroy.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1im5Qn-0002p8-Lp; Tue, 31 Dec 2019 00:30:41 +0000
+Received: by fitzroy.sirena.org.uk (Postfix, from userid 1000)
+        id 3103ED01A24; Tue, 31 Dec 2019 00:30:41 +0000 (GMT)
+From:   Mark Brown <broonie@kernel.org>
+To:     Vladimir Oltean <olteanv@gmail.com>
+Cc:     broonie@kernel.org, Chuanhua Han <chuanhua.han@nxp.com>,
+        Esben Haabendal <eha@deif.com>, linux-spi@vger.kernel.org,
+        Mark Brown <broonie@kernel.org>, stable@vger.kernel.org
+Subject: Applied "spi: spi-fsl-dspi: Fix 16-bit word order in 32-bit XSPI mode" to the spi tree
+In-Reply-To:  <20191228135536.14284-1-olteanv@gmail.com>
+Message-Id:  <applied-20191228135536.14284-1-olteanv@gmail.com>
+X-Patchwork-Hint: ignore
+Date:   Tue, 31 Dec 2019 00:30:41 +0000 (GMT)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+The patch
 
-I know that this mail will come to you as a surprise as we have never
-met before, but need not to worry as I am contacting you independently
-of my investigation and no one is informed of this communication.
+   spi: spi-fsl-dspi: Fix 16-bit word order in 32-bit XSPI mode
 
-I need your urgent assistance in transferring the sum of $11.3million
-immediately to your private account.The money has been here in our
-Bank lying dormant for years now without anybody coming for the claim of it.
+has been applied to the spi tree at
 
-I want to release the money to you as the relative to our deceased
-customer (the account owner) who died a long with his supposed NEXT OF
-KIN since 16th October 2005. The Banking laws here does not allow such
-money to stay more than 15 years, because the money will be recalled
-to the Bank treasury account as unclaimed fund.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git 
 
-By indicating your interest I will send you the full details on how
-the business will be executed.
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
 
-Please respond urgently and delete if you are not interested.
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-Best Regards,
-Mr. Duna Wattara.
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
+From ca59d5a51690d5b9340343dc36792a252e9414ae Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <olteanv@gmail.com>
+Date: Sat, 28 Dec 2019 15:55:36 +0200
+Subject: [PATCH] spi: spi-fsl-dspi: Fix 16-bit word order in 32-bit XSPI mode
+
+When used in Extended SPI mode on LS1021A, the DSPI controller wants to
+have the least significant 16-bit word written first to the TX FIFO.
+
+In fact, the LS1021A reference manual says:
+
+33.5.2.4.2 Draining the TX FIFO
+
+When Extended SPI Mode (DSPIx_MCR[XSPI]) is enabled, if the frame size
+of SPI Data to be transmitted is more than 16 bits, then it causes two
+Data entries to be popped from TX FIFO simultaneously which are
+transferred to the shift register. The first of the two popped entries
+forms the 16 least significant bits of the SPI frame to be transmitted.
+
+So given the following TX buffer:
+
+ +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+ | 0x0 | 0x1 | 0x2 | 0x3 | 0x4 | 0x5 | 0x6 | 0x7 | 0x8 | 0x9 | 0xa | 0xb |
+ +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+ |     32-bit word 1     |     32-bit word 2     |     32-bit word 3     |
+ +-----------------------+-----------------------+-----------------------+
+
+The correct way that a little-endian system should transmit it on the
+wire when bits_per_word is 32 is:
+
+0x03020100
+0x07060504
+0x0b0a0908
+
+But it is actually transmitted as following, as seen with a scope:
+
+0x01000302
+0x05040706
+0x09080b0a
+
+It appears that this patch has been submitted at least once before:
+https://lkml.org/lkml/2018/9/21/286
+but in that case Chuanhua Han did not manage to explain the problem
+clearly enough and the patch did not get merged, leaving XSPI mode
+broken.
+
+Fixes: 8fcd151d2619 ("spi: spi-fsl-dspi: XSPI FIFO handling (in TCFQ mode)")
+Cc: Esben Haabendal <eha@deif.com>
+Cc: Chuanhua Han <chuanhua.han@nxp.com>
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20191228135536.14284-1-olteanv@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+---
+ drivers/spi/spi-fsl-dspi.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index 9c3934efe2b1..8428b69c858b 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -587,21 +587,14 @@ static void dspi_tcfq_write(struct fsl_dspi *dspi)
+ 	dspi->tx_cmd |= SPI_PUSHR_CMD_CTCNT;
+ 
+ 	if (dspi->devtype_data->xspi_mode && dspi->bits_per_word > 16) {
+-		/* Write two TX FIFO entries first, and then the corresponding
+-		 * CMD FIFO entry.
++		/* Write the CMD FIFO entry first, and then the two
++		 * corresponding TX FIFO entries.
+ 		 */
+ 		u32 data = dspi_pop_tx(dspi);
+ 
+-		if (dspi->cur_chip->ctar_val & SPI_CTAR_LSBFE) {
+-			/* LSB */
+-			tx_fifo_write(dspi, data & 0xFFFF);
+-			tx_fifo_write(dspi, data >> 16);
+-		} else {
+-			/* MSB */
+-			tx_fifo_write(dspi, data >> 16);
+-			tx_fifo_write(dspi, data & 0xFFFF);
+-		}
+ 		cmd_fifo_write(dspi);
++		tx_fifo_write(dspi, data & 0xFFFF);
++		tx_fifo_write(dspi, data >> 16);
+ 	} else {
+ 		/* Write one entry to both TX FIFO and CMD FIFO
+ 		 * simultaneously.
+-- 
+2.20.1
+
