@@ -2,61 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FD5312DF99
-	for <lists+stable@lfdr.de>; Wed,  1 Jan 2020 18:01:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4D5512DF9B
+	for <lists+stable@lfdr.de>; Wed,  1 Jan 2020 18:02:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727201AbgAARBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jan 2020 12:01:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55434 "EHLO mail.kernel.org"
+        id S1727233AbgAARCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jan 2020 12:02:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727170AbgAARBB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jan 2020 12:01:01 -0500
+        id S1727170AbgAARCJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jan 2020 12:02:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 662F92073D;
-        Wed,  1 Jan 2020 17:01:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 929B22073D;
+        Wed,  1 Jan 2020 17:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577898060;
-        bh=p44QX7qkhhAsrDQvnh6TLdMG6Dc5n99KiON82LzgW1Y=;
+        s=default; t=1577898129;
+        bh=Z72xXzYeU8UO0ouYCieTIKHb116ITy/6JH6vJ93XMxQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jYnN4sP9K+rdgnisY++8fHI9VICwuScNDaIt299Ip8jo+TXVLszbUsC4dd+pMna3J
-         hi+ixD8jPsMvi6wJEsZth2rQG/FJdzOOLgQabDDCds9Dps5HubFYSUlH4U0ewM8v3h
-         lJwCfjg7vnDPU+iVonIeEFKC/b0sfY3qu3bqvibc=
-Date:   Wed, 1 Jan 2020 18:00:58 +0100
+        b=SivCZ0gfnnZqSc4fevvGwb2QwqfAyRiHZAY0/TIPGqU1By+JvNLWFs8318c/Vy/0K
+         m5Nz10llvAnSiVNAIi/LSyNVuH4cfuN2i9yS3E0v8zTSCeh/HvtUQeqa4eGYvKVCX1
+         QzlfeUqTcdrr9q25NvINh/R/22aMEASFW2z9mIS8=
+Date:   Wed, 1 Jan 2020 18:02:06 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Siddharth Chandrasekaran <csiddharth@vmware.com>
-Cc:     torvalds@linux-foundation.org, sashal@kernel.org, jannh@google.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        siddharth@embedjournal.com
-Subject: Re: [PATCH 4.14 0/2] Backport readdir sanity checking patches
-Message-ID: <20200101170058.GB2712976@kroah.com>
-References: <cover.1577128778.git.csiddharth@vmware.com>
+To:     Luca Coelho <luca@coelho.fi>
+Cc:     stable@vger.kernel.org, linux-wireless@vger.kernel.org
+Subject: Re: [PATCH v5.4] Revert "iwlwifi: assign directly to iwl_trans->cfg
+ in QuZ detection"
+Message-ID: <20200101170206.GC2712976@kroah.com>
+References: <20191223125612.1475700-1-luca@coelho.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1577128778.git.csiddharth@vmware.com>
+In-Reply-To: <20191223125612.1475700-1-luca@coelho.fi>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 24, 2019 at 01:06:25AM +0530, Siddharth Chandrasekaran wrote:
-> Hello,
+On Mon, Dec 23, 2019 at 02:56:12PM +0200, Luca Coelho wrote:
+> From: Anders Kaseorg <andersk@mit.edu>
 > 
-> This patchset is a backport of upstream commits that makes getdents() and
-> getdents64() do sanity checking on the pathname that it gives to user
-> space.
+> This reverts commit 968dcfb4905245dc64d65312c0d17692fa087b99.
 > 
-> Sid
+> Both that commit and commit 809805a820c6445f7a701ded24fdc6bbc841d1e4
+> attempted to fix the same bug (dead assignments to the local variable
+> cfg), but they did so in incompatible ways. When they were both merged,
+> independently of each other, the combination actually caused the bug to
+> reappear, leading to a firmware crash on boot for some cards.
 > 
-> Linus Torvalds (2):
->   Make filldir[64]() verify the directory entry filename is valid
->   filldir[64]: remove WARN_ON_ONCE() for bad directory entries
+> https://bugzilla.kernel.org/show_bug.cgi?id=205719
 > 
->  fs/readdir.c | 40 ++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 40 insertions(+)
+> Signed-off-by: Anders Kaseorg <andersk@mit.edu>
+> Acked-by: Luca Coelho <luciano.coelho@intel.com>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> ---
+>  drivers/net/wireless/intel/iwlwifi/pcie/drv.c | 24 +++++++++----------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
+> 
 
-All applied to all branches, thanks.
+Next time a hint as to what this git commit id is in Linus's tree would
+be nice :)
+
+thanks,
 
 greg k-h
