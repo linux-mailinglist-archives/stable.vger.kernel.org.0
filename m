@@ -2,68 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D5512DF9B
-	for <lists+stable@lfdr.de>; Wed,  1 Jan 2020 18:02:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A93B12DF9D
+	for <lists+stable@lfdr.de>; Wed,  1 Jan 2020 18:02:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727233AbgAARCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jan 2020 12:02:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56806 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727170AbgAARCJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jan 2020 12:02:09 -0500
+        id S1727210AbgAARCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jan 2020 12:02:54 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:42215 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727170AbgAARCy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jan 2020 12:02:54 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id CD4F621EFE;
+        Wed,  1 Jan 2020 12:02:52 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 01 Jan 2020 12:02:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=MAkW5HOVDbL6U65BugZhLWiC8WF
+        DjukILBSbnpq0heM=; b=dZX0NVKz/nfP4q7JiaQma3dzTPR4o/ZW7iXACKGZB62
+        2EXFgrwJlWCZKUjDgaGCw2WruIHCI0wZLkYyQuOAc4iqkjhn7Ay1LTp1aHfjgSmd
+        c87uNpagcIu9ehtrOFe8Hb611JXXfsd3+f25MnPKDH0G+1Q5/DESMdmsA1IX7oJC
+        h7PnX9NmjHgQbY5HxtvFcs7HquxhxIc8eloDRMOxzpoHwYVv8Azj9oAd9ljKhoGB
+        aTSu6kURpBQ2CHeNr4uR7dcrx21EyCACk5XVMQNjJVJsNrZz15vIk2PgiUfn1w1w
+        IhlrmlisSauJXJ44SGbYD32UWK43o4ZkGOtomFojT3w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=MAkW5H
+        OVDbL6U65BugZhLWiC8WFDjukILBSbnpq0heM=; b=BPnAB88OmtCXOQAM2ItJgJ
+        PesHQqa6Nx4WAWnEpbdtzRqhsyAsSkxE0oHdGIl1FDs975EiB7025xCNo6kscaGH
+        atWIsq+gPVJwW7PmF6BEPdeimfP90YrB9RYq33/zj4Cyl3yySHIGW59Ax2KPAiPW
+        4PrsmCoOMvRsVBOhL1xK+yBN9zTcEBmEIRgxewLceZC23zkasatY9feK5e/lAZHu
+        wfjw4I/IH7YEllrn8I2UlSQZSxz2KW43YfqPbdNXB9WVvPHeLtnfDTtqe5oOR72z
+        DVwUcBCjKsjhNTgKPsMX92AtBFhv127403joe3qOZNhEcq+vDvVKJ5Y9/pChcIpA
+        ==
+X-ME-Sender: <xms:vNAMXho_Neo6Gly_pSOiqrd1GdgKiHUXGTpIVdztAvHKikw2mlg6Rg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdefledgleehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:vNAMXrnwS0uAZW_Ll8-UKDVlpIXe5an064vtYsOlXfwjxpQbZi6cSg>
+    <xmx:vNAMXla-zbfAqlrFN1BOGQ9u6nfrQNYTFvM9bcQSZYBbncfg4yLg9w>
+    <xmx:vNAMXjWsxjtZ9IRlNDo9gmeTqBhVEVS6sJTL8kH5DbkLC-r-VOZWNQ>
+    <xmx:vNAMXjOVt05QkHcBwMQCavRMjyOQvhdQ_FmZFRGuP0VIJArF-AJJ7Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 929B22073D;
-        Wed,  1 Jan 2020 17:02:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577898129;
-        bh=Z72xXzYeU8UO0ouYCieTIKHb116ITy/6JH6vJ93XMxQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SivCZ0gfnnZqSc4fevvGwb2QwqfAyRiHZAY0/TIPGqU1By+JvNLWFs8318c/Vy/0K
-         m5Nz10llvAnSiVNAIi/LSyNVuH4cfuN2i9yS3E0v8zTSCeh/HvtUQeqa4eGYvKVCX1
-         QzlfeUqTcdrr9q25NvINh/R/22aMEASFW2z9mIS8=
-Date:   Wed, 1 Jan 2020 18:02:06 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Luca Coelho <luca@coelho.fi>
-Cc:     stable@vger.kernel.org, linux-wireless@vger.kernel.org
-Subject: Re: [PATCH v5.4] Revert "iwlwifi: assign directly to iwl_trans->cfg
- in QuZ detection"
-Message-ID: <20200101170206.GC2712976@kroah.com>
-References: <20191223125612.1475700-1-luca@coelho.fi>
+        by mail.messagingengine.com (Postfix) with ESMTPA id CEBF23060886;
+        Wed,  1 Jan 2020 12:02:51 -0500 (EST)
+Date:   Wed, 1 Jan 2020 18:02:49 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Daniel Wagner <dwagner@suse.de>
+Cc:     stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v4.4] net: davinci_cpdma: use dma_addr_t for DMA address
+Message-ID: <20200101170249.GD2712976@kroah.com>
+References: <20191221104948.10233-1-dwagner@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191223125612.1475700-1-luca@coelho.fi>
+In-Reply-To: <20191221104948.10233-1-dwagner@suse.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 23, 2019 at 02:56:12PM +0200, Luca Coelho wrote:
-> From: Anders Kaseorg <andersk@mit.edu>
+On Sat, Dec 21, 2019 at 11:49:48AM +0100, Daniel Wagner wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> This reverts commit 968dcfb4905245dc64d65312c0d17692fa087b99.
+> [ Upstream commit 84092996673211f16ef3b942a191d7952e9dfea9 ]
 > 
-> Both that commit and commit 809805a820c6445f7a701ded24fdc6bbc841d1e4
-> attempted to fix the same bug (dead assignments to the local variable
-> cfg), but they did so in incompatible ways. When they were both merged,
-> independently of each other, the combination actually caused the bug to
-> reappear, leading to a firmware crash on boot for some cards.
+> The davinci_cpdma mixes up physical addresses as seen from the CPU
+> and DMA addresses as seen from a DMA master, since it can operate
+> on both normal memory or an on-chip buffer. If dma_addr_t is
+> different from phys_addr_t, this means we get a compile-time warning
+> about the type mismatch:
 > 
-> https://bugzilla.kernel.org/show_bug.cgi?id=205719
+> ethernet/ti/davinci_cpdma.c: In function 'cpdma_desc_pool_create':
+> ethernet/ti/davinci_cpdma.c:182:48: error: passing argument 3 of 'dma_alloc_coherent' from incompatible pointer type [-Werror=incompatible-pointer-types]
+>    pool->cpumap = dma_alloc_coherent(dev, size, &pool->phys,
+> In file included from ethernet/ti/davinci_cpdma.c:21:0:
+> dma-mapping.h:398:21: note: expected 'dma_addr_t * {aka long long unsigned int *}' but argument is of type 'phys_addr_t * {aka unsigned int *}'
+>  static inline void *dma_alloc_coherent(struct device *dev, size_t size,
 > 
-> Signed-off-by: Anders Kaseorg <andersk@mit.edu>
-> Acked-by: Luca Coelho <luciano.coelho@intel.com>
-> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> This slightly restructures the code so the address we use for
+> mapping RAM into a DMA address is always a dma_addr_t, avoiding
+> the warning. The code is correct even if both types are 32-bit
+> because the DMA master in this device only supports 32-bit addressing
+> anyway, independent of the types that are used.
+> 
+> We still assign this value to pool->phys, and that is wrong if
+> the driver is ever used with an IOMMU, but that value appears to
+> be never used, so there is no problem really. I've added a couple
+> of comments about where we do things that are slightly violating
+> the API.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Daniel Wagner <dwagner@suse.de>
 > ---
->  drivers/net/wireless/intel/iwlwifi/pcie/drv.c | 24 +++++++++----------
->  1 file changed, 12 insertions(+), 12 deletions(-)
 > 
+> Hi,
+> 
+> Pavel reported this fix is needed for the CIP kernel.
+> 
+> Since this patch was added to v4.5, we only need to backport
+> to v4.4.
 
-Next time a hint as to what this git commit id is in Linus's tree would
-be nice :)
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
