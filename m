@@ -2,82 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74FFF12E104
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 00:37:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A40BA12E10C
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 00:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727437AbgAAXhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jan 2020 18:37:07 -0500
-Received: from mail-wr1-f41.google.com ([209.85.221.41]:44091 "EHLO
-        mail-wr1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727393AbgAAXhH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jan 2020 18:37:07 -0500
-Received: by mail-wr1-f41.google.com with SMTP id q10so37804306wrm.11
-        for <stable@vger.kernel.org>; Wed, 01 Jan 2020 15:37:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=NvwgUura2WC5DAMsUpMckgI4ZmtW450bHQR9eiqM6Y0=;
-        b=0mXWsAS9tHSzZ6TJlN7yXjqwxf93K4vU04WXsajoENYXYnxUMM7FtsuGShsNKQ6uA7
-         Ut9YIpf6daaCLQA34Sma04R2oCIMOrgmiF81Y0pB13PDMDRenSsu/apkLe3B9oYnFPfQ
-         nuy5uqg7Hhzq4KUBsOgORnIAoOeo1h57AhxZ2tdvgdSP0+PuMn1youBbFOiXpgAAtTtJ
-         YPmLQNzhDD3xo36q62yY/3X1kvPnUezw12gv9VFpCNMVVvF8O++qjj3lnopXwiRtw58q
-         POrz7oVwu4D92+W7fgbaeZ0OOPBXotygukaOFgaTw/CQt8Y019qBUS6EVS9NCF1g5lO1
-         Ro4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=NvwgUura2WC5DAMsUpMckgI4ZmtW450bHQR9eiqM6Y0=;
-        b=J5CZsej09pr9kn7In/IZGqglDwrgqoxtn/+VbrdFyF1o6lBU78EilXcssA/pYn0iqj
-         G3NfpoQJTtTcVoav4WqJfUnTNXeomnnrAPICSnnT8R5TwkaPlW2BvThx1qTwAqLZZsx8
-         9mCdJ4fAJLz5EP35LWsBnXlGK4s6lEQGyRU/bq8UU1D+tUBfZMfNd2WJaKrXWzTo+6qs
-         0Vk/bzg71HD0Nk2bAFWC7pMuGyGBn7GhdZdUz9WCpuUcwk0n+EebWpZsCrdjEXS5nGeB
-         ED3KN7O08aTucdwRtPt6NF6h6rdNyvotipcHykCR3zjvyApYCAxmIyzzlA4Bbw4vB6CY
-         x/Tg==
-X-Gm-Message-State: APjAAAVQ/PXFEzqgZQhaEYk/J0AalTl9A8wcWHjJouDLJOQtd1GUFz1K
-        ibkpzM76DURk755e1/0WQj057IxKy+fudA==
-X-Google-Smtp-Source: APXvYqxuFhLlsUeFv3nofxYVzCd37rlqsbCNT55K2ztpuYP9Cw8WyXLGcDfZVRAGil+9QiaGAPNjLg==
-X-Received: by 2002:adf:814c:: with SMTP id 70mr76139718wrm.157.1577921825325;
-        Wed, 01 Jan 2020 15:37:05 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u22sm57726971wru.30.2020.01.01.15.37.04
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jan 2020 15:37:04 -0800 (PST)
-Message-ID: <5e0d2d20.1c69fb81.f2db1.8fce@mx.google.com>
-Date:   Wed, 01 Jan 2020 15:37:04 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727447AbgAAXk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jan 2020 18:40:26 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:59804 "EHLO
+        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727429AbgAAXk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jan 2020 18:40:26 -0500
+Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1imnb0-000JcJ-0Q; Wed, 01 Jan 2020 23:40:10 +0000
+Date:   Wed, 1 Jan 2020 23:40:09 +0000
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Aleksa Sarai <cyphar@cyphar.com>
+Cc:     David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
+        containers@lists.linux-foundation.org, linux-api@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+Message-ID: <20200101234009.GB8904@ZenIV.linux.org.uk>
+References: <20191230052036.8765-1-cyphar@cyphar.com>
+ <20191230054413.GX4203@ZenIV.linux.org.uk>
+ <20191230054913.c5avdjqbygtur2l7@yavin.dot.cyphar.com>
+ <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com>
+ <20200101004324.GA11269@ZenIV.linux.org.uk>
+ <20200101005446.GH4203@ZenIV.linux.org.uk>
+ <20200101030815.GA17593@ZenIV.linux.org.uk>
+ <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.207-136-g375f24644bef
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 36 boots: 0 failed,
- 36 passed (v4.4.207-136-g375f24644bef)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 36 boots: 0 failed, 36 passed (v4.4.207-136-g37=
-5f24644bef)
+On Thu, Jan 02, 2020 at 01:44:07AM +1100, Aleksa Sarai wrote:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.207-136-g375f24644bef/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.207-136-g375f24644bef/
+> Thanks, this fixes the issue for me (and also fixes another reproducer I
+> found -- mounting a symlink on top of itself then trying to umount it).
+> 
+> Reported-by: Aleksa Sarai <cyphar@cyphar.com>
+> Tested-by: Aleksa Sarai <cyphar@cyphar.com>
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.207-136-g375f24644bef
-Git Commit: 375f24644bef51fa102699a3f74d67b7b93ea0c5
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 20 unique boards, 9 SoC families, 9 builds out of 190
+Pushed into #fixes.
 
----
-For more info write to <info@kernelci.org>
+> As for the original topic of bind-mounting symlinks -- given this is a
+> supported feature, would you be okay with me sending an updated
+> O_EMPTYPATH series?
+
+Post it on fsdevel; I'll need to reread it anyway to say anything useful...
