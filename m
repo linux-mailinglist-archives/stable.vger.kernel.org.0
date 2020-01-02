@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2474312F065
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:53:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 543DD12EEC4
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:41:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728949AbgABWW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:22:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42920 "EHLO mail.kernel.org"
+        id S1729128AbgABWlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:41:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728788AbgABWWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:22:25 -0500
+        id S1731086AbgABWh2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:37:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E92420866;
-        Thu,  2 Jan 2020 22:22:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8007820866;
+        Thu,  2 Jan 2020 22:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003745;
-        bh=ZkEToZ9kZMhEnnK6bd6YMhqCMwF2xVX5AH3G3JiaVE0=;
+        s=default; t=1578004648;
+        bh=oAKlgiLASENKMc8vSC96bQbrxPcQYChYFw69i5cC5YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SF0gSKeogOt7bXufzaOyif+ieouaLMOdTkEaxIZlzFQtg/FYJVNDIUe9KCy5GNY4t
-         WdWtfivsyBNV0lkHbg18DbTacH3KD4907PxDa5iMt03dZdt7ZS/ZwIeG/XzO+talHZ
-         5dVvOwzIhdE6eCP/8O/yXTMahNWGFW1PZrvI16Gg=
+        b=pYoQZW+YxcEsEQTULL8JABI71mlcB0ofTupSeKYudWknYzNbCcOOVdCkTR6p8PsTE
+         mwFCy3kS8PDdGyKhdl1XHQFUew80wE4lcT+Jbdi0Dk4iaF5dKPjnmx9NjxB9r2WZ/t
+         23OO5X2oFUNa+5IqGo5oLJ2KO47/xLluzLnmSj+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 096/114] vhost/vsock: accept only packets with the right dst_cid
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 095/137] scsi: lpfc: Fix SLI3 hba in loop mode not discovering devices
 Date:   Thu,  2 Jan 2020 23:07:48 +0100
-Message-Id: <20200102220038.848209888@linuxfoundation.org>
+Message-Id: <20200102220559.762033259@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 8a3cc29c316c17de590e3ff8b59f3d6cbfd37b0a ]
+[ Upstream commit feff8b3d84d3d9570f893b4d83e5eab6693d6a52 ]
 
-When we receive a new packet from the guest, we check if the
-src_cid is correct, but we forgot to check the dst_cid.
+When operating in private loop mode, PLOGI exchanges are racing and the
+driver tries to abort it's PLOGI. But the PLOGI abort ends up terminating
+the login with the other end causing the other end to abort its PLOGI as
+well. Discovery never fully completes.
 
-The host should accept only packets where dst_cid is
-equal to the host CID.
+Fix by disabling the PLOGI abort when private loop and letting the state
+machine play out.
 
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20191018211832.7917-5-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vsock.c |    4 +++-
+ drivers/scsi/lpfc/lpfc_nportdisc.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -436,7 +436,9 @@ static void vhost_vsock_handle_tx_kick(s
- 		virtio_transport_deliver_tap_pkt(pkt);
- 
- 		/* Only accept correctly addressed packets */
--		if (le64_to_cpu(pkt->hdr.src_cid) == vsock->guest_cid)
-+		if (le64_to_cpu(pkt->hdr.src_cid) == vsock->guest_cid &&
-+		    le64_to_cpu(pkt->hdr.dst_cid) ==
-+		    vhost_transport_get_local_cid())
- 			virtio_transport_recv_pkt(pkt);
- 		else
- 			virtio_transport_free_pkt(pkt);
+diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
+index 3a4613f9fb9f..6aa0698925da 100644
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -454,8 +454,10 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 	 * single discovery thread, this will cause a huge delay in
+ 	 * discovery. Also this will cause multiple state machines
+ 	 * running in parallel for this node.
++	 * This only applies to a fabric environment.
+ 	 */
+-	if (ndlp->nlp_state == NLP_STE_PLOGI_ISSUE) {
++	if ((ndlp->nlp_state == NLP_STE_PLOGI_ISSUE) &&
++	    (vport->fc_flag & FC_FABRIC)) {
+ 		/* software abort outstanding PLOGI */
+ 		lpfc_els_abort(phba, ndlp);
+ 	}
+-- 
+2.20.1
+
 
 
