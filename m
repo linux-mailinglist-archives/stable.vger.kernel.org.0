@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F1B812EE03
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:34:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D141A12F132
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730570AbgABWeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:34:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42690 "EHLO mail.kernel.org"
+        id S1727180AbgABWPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:15:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730692AbgABWeQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:34:16 -0500
+        id S1727156AbgABWPM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:15:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EACEF20866;
-        Thu,  2 Jan 2020 22:34:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9A7A21582;
+        Thu,  2 Jan 2020 22:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004456;
-        bh=dpgVr1QVj+B+LzMWGayZ6JEGYI7stkUsUlNTDoGhtTw=;
+        s=default; t=1578003311;
+        bh=Ntjc8Wl3a9ScWfKbBQt5/x2fazMxvzR850E7vCqoHKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uY3/rh9FYj15jh/3gTNaJrUbPGoazsBgcPkxK16tTWUwg1+Su7XjabbrltQBDVdAy
-         LnaJQL+m59Fhhbdu4cM7e3HCTFoleUp5SvpOFgH8uFiSWuhhVegzDuIUFUwcHKkNZ7
-         RLurezpKkH1b2yFEgalKwl6Tz8mMqTUVV2s6JLOw=
+        b=N6Ek2+yuMSwCBhnF1fr5Cvq8dJqpVseNyGS9RVzakPbm+gVJm7Mnbl14DlGnSh5d1
+         JxdDToZa2Tqx04mgWixwt0hYUz2vBaWYR0Wc9AXfbnWG++VBIK4pDCBYXj6cuCxn3l
+         iVKV7+WCYvtT3+6aBER1bOHLIycExPebxF52GdZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
         Nathan Chancellor <natechancellor@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 015/137] tools/power/cpupower: Fix initializer override in hsw_ext_cstates
-Date:   Thu,  2 Jan 2020 23:06:28 +0100
-Message-Id: <20200102220548.748117111@linuxfoundation.org>
+Subject: [PATCH 5.4 107/191] powerpc: Dont add -mabi= flags when building with Clang
+Date:   Thu,  2 Jan 2020 23:06:29 +0100
+Message-Id: <20200102215841.382299263@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,59 +47,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 7e5705c635ecfccde559ebbbe1eaf05b5cc60529 ]
+[ Upstream commit 465bfd9c44dea6b55962b5788a23ac87a467c923 ]
 
-When building cpupower with clang, the following warning appears:
+When building pseries_defconfig, building vdso32 errors out:
 
- utils/idle_monitor/hsw_ext_idle.c:42:16: warning: initializer overrides
- prior initialization of this subobject [-Winitializer-overrides]
-                 .desc                   = N_("Processor Package C2"),
-                                              ^~~~~~~~~~~~~~~~~~~~~~
- ./utils/helpers/helpers.h:25:33: note: expanded from macro 'N_'
- #define N_(String) gettext_noop(String)
-                                 ^~~~~~
- ./utils/helpers/helpers.h:23:30: note: expanded from macro
- 'gettext_noop'
- #define gettext_noop(String) String
-                              ^~~~~~
- utils/idle_monitor/hsw_ext_idle.c:41:16: note: previous initialization
- is here
-                 .desc                   = N_("Processor Package C9"),
-                                              ^~~~~~~~~~~~~~~~~~~~~~
- ./utils/helpers/helpers.h:25:33: note: expanded from macro 'N_'
- #define N_(String) gettext_noop(String)
-                                 ^~~~~~
- ./utils/helpers/helpers.h:23:30: note: expanded from macro
- 'gettext_noop'
- #define gettext_noop(String) String
-                             ^~~~~~
- 1 warning generated.
+  error: unknown target ABI 'elfv1'
 
-This appears to be a copy and paste or merge mistake because the name
-and id fields both have PC9 in them, not PC2. Remove the second
-assignment to fix the warning.
+This happens because -m32 in clang changes the target to 32-bit,
+which does not allow the ABI to be changed.
 
-Fixes: 7ee767b69b68 ("cpupower: Add Haswell family 0x45 specific idle monitor to show PC8,9,10 states")
-Link: https://github.com/ClangBuiltLinux/linux/issues/718
+Commit 4dc831aa8813 ("powerpc: Fix compiling a BE kernel with a
+powerpc64le toolchain") added these flags to fix building big endian
+kernels with a little endian GCC.
+
+Clang doesn't need -mabi because the target triple controls the
+default value. -mlittle-endian and -mbig-endian manipulate the triple
+into either powerpc64-* or powerpc64le-*, which properly sets the
+default ABI.
+
+Adding a debug print out in the PPC64TargetInfo constructor after line
+383 above shows this:
+
+  $ echo | ./clang -E --target=powerpc64-linux -mbig-endian -o /dev/null -
+  Default ABI: elfv1
+
+  $ echo | ./clang -E --target=powerpc64-linux -mlittle-endian -o /dev/null -
+  Default ABI: elfv2
+
+  $ echo | ./clang -E --target=powerpc64le-linux -mbig-endian -o /dev/null -
+  Default ABI: elfv1
+
+  $ echo | ./clang -E --target=powerpc64le-linux -mlittle-endian -o /dev/null -
+  Default ABI: elfv2
+
+Don't specify -mabi when building with clang to avoid the build error
+with -m32 and not change any code generation.
+
+-mcall-aixdesc is not an implemented flag in clang so it can be safely
+excluded as well, see commit 238abecde8ad ("powerpc: Don't use gcc
+specific options on clang").
+
+pseries_defconfig successfully builds after this patch and
+powernv_defconfig and ppc44x_defconfig don't regress.
+
+Reviewed-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+[mpe: Trim clang links in change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191119045712.39633-2-natechancellor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c b/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c
-index ebeaba6571a3..475e18e04318 100644
---- a/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c
-+++ b/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c
-@@ -40,7 +40,6 @@ static cstate_t hsw_ext_cstates[HSW_EXT_CSTATE_COUNT] = {
- 	{
- 		.name			= "PC9",
- 		.desc			= N_("Processor Package C9"),
--		.desc			= N_("Processor Package C2"),
- 		.id			= PC9,
- 		.range			= RANGE_PACKAGE,
- 		.get_count_percent	= hsw_ext_get_count_percent,
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index 83522c9fc7b6..37ac731a556b 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -91,11 +91,13 @@ MULTIPLEWORD	:= -mmultiple
+ endif
+ 
+ ifdef CONFIG_PPC64
++ifndef CONFIG_CC_IS_CLANG
+ cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
+ cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mcall-aixdesc)
+ aflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
+ aflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mabi=elfv2
+ endif
++endif
+ 
+ ifndef CONFIG_CC_IS_CLANG
+   cflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mno-strict-align
+@@ -141,6 +143,7 @@ endif
+ endif
+ 
+ CFLAGS-$(CONFIG_PPC64)	:= $(call cc-option,-mtraceback=no)
++ifndef CONFIG_CC_IS_CLANG
+ ifdef CONFIG_CPU_LITTLE_ENDIAN
+ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2,$(call cc-option,-mcall-aixdesc))
+ AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2)
+@@ -149,6 +152,7 @@ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
+ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcall-aixdesc)
+ AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
+ endif
++endif
+ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcmodel=medium,$(call cc-option,-mminimal-toc))
+ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mno-pointers-to-nested-functions)
+ 
 -- 
 2.20.1
 
