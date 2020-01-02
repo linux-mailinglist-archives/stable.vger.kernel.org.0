@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D16812EBC7
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:12:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1F7712EBC9
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:12:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727382AbgABWMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:12:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50888 "EHLO mail.kernel.org"
+        id S1727438AbgABWMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:12:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727374AbgABWME (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:12:04 -0500
+        id S1727420AbgABWML (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:12:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA90521835;
-        Thu,  2 Jan 2020 22:12:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DBE121835;
+        Thu,  2 Jan 2020 22:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003124;
-        bh=OiT+WmO8Wve8OpONx14Vr1EhdbL7GD6nrzUZul1vrqI=;
+        s=default; t=1578003131;
+        bh=UaSWdl5NAmEagx4muM7QupwMugM/lWzMusOjB/JUZQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNs+1GK2nRusvrsf8pjcC1VFBMmQb3mY0Ms5dlXdQJFXBViTu9FUIJQxugKYatmah
-         qiSiacvGUa8mizNkzgazgLgVKu7MetK+8zpKpeuBrVYwbB8JIwwFr81tsO9Xyno8XN
-         LxNRDmnTUyYISxWyzkJ089955vhlrUhhkFe5oaiM=
+        b=NhvXkF6/V9ODR927GySem0KDc7jEYdnIPzyCPFMtiWPTefHLUulOBc/NMWAN29zYB
+         sKHJ8vy3hsSp/JCF/bHiMsROYCOrPyNtMttW/gg0god4jMk2sEvLYHQe6Jrx2nkNsF
+         lGBE3rCvuS7rEe2AOvF7JfBrjCBabnzYNZIMn5/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 003/191] scsi: lpfc: Fix spinlock_irq issues in lpfc_els_flush_cmd()
-Date:   Thu,  2 Jan 2020 23:04:45 +0100
-Message-Id: <20200102215830.223956798@linuxfoundation.org>
+Subject: [PATCH 5.4 006/191] scsi: lpfc: Fix locking on mailbox command completion
+Date:   Thu,  2 Jan 2020 23:04:48 +0100
+Message-Id: <20200102215830.496052424@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
 References: <20200102215829.911231638@linuxfoundation.org>
@@ -47,87 +47,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit d38b4a527fe898f859f74a3a43d4308f48ac7855 ]
+[ Upstream commit 07b8582430370097238b589f4e24da7613ca6dd3 ]
 
-While reviewing the CT behavior, issues with spinlock_irq were seen. The
-driver should be using spinlock_irqsave/irqrestore in the els flush
-routine.
+Symptoms were seen of the driver not having valid data for mailbox
+commands. After debugging, the following sequence was found:
 
-Changed to spinlock_irqsave/irqrestore.
+The driver maintains a port-wide pointer of the mailbox command that is
+currently in execution. Once finished, the port-wide pointer is cleared
+(done in lpfc_sli4_mq_release()). The next mailbox command issued will set
+the next pointer and so on.
 
-Link: https://lore.kernel.org/r/20190922035906.10977-15-jsmart2021@gmail.com
+The mailbox response data is only copied if there is a valid port-wide
+pointer.
+
+In the failing case, it was seen that a new mailbox command was being
+attempted in parallel with the completion.  The parallel path was seeing
+the mailbox no long in use (flag check under lock) and thus set the port
+pointer.  The completion path had cleared the active flag under lock, but
+had not touched the port pointer.  The port pointer is cleared after the
+lock is released. In this case, the completion path cleared the just-set
+value by the parallel path.
+
+Fix by making the calls that clear mbox state/port pointer while under
+lock.  Also slightly cleaned up the error path.
+
+Link: https://lore.kernel.org/r/20190922035906.10977-8-jsmart2021@gmail.com
 Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index d5303994bfd6..0052b341587d 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -7986,20 +7986,22 @@ lpfc_els_flush_cmd(struct lpfc_vport *vport)
- 	struct lpfc_sli_ring *pring;
- 	struct lpfc_iocbq *tmp_iocb, *piocb;
- 	IOCB_t *cmd = NULL;
-+	unsigned long iflags = 0;
- 
- 	lpfc_fabric_abort_vport(vport);
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 5ed4219675eb..e847244dfde3 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -13161,13 +13161,19 @@ send_current_mbox:
+ 	phba->sli.sli_flag &= ~LPFC_SLI_MBOX_ACTIVE;
+ 	/* Setting active mailbox pointer need to be in sync to flag clear */
+ 	phba->sli.mbox_active = NULL;
++	if (bf_get(lpfc_trailer_consumed, mcqe))
++		lpfc_sli4_mq_release(phba->sli4_hba.mbx_wq);
+ 	spin_unlock_irqrestore(&phba->hbalock, iflags);
+ 	/* Wake up worker thread to post the next pending mailbox command */
+ 	lpfc_worker_wake_up(phba);
++	return workposted;
 +
- 	/*
- 	 * For SLI3, only the hbalock is required.  But SLI4 needs to coordinate
- 	 * with the ring insert operation.  Because lpfc_sli_issue_abort_iotag
- 	 * ultimately grabs the ring_lock, the driver must splice the list into
- 	 * a working list and release the locks before calling the abort.
- 	 */
--	spin_lock_irq(&phba->hbalock);
+ out_no_mqe_complete:
 +	spin_lock_irqsave(&phba->hbalock, iflags);
- 	pring = lpfc_phba_elsring(phba);
- 
- 	/* Bail out if we've no ELS wq, like in PCI error recovery case. */
- 	if (unlikely(!pring)) {
--		spin_unlock_irq(&phba->hbalock);
-+		spin_unlock_irqrestore(&phba->hbalock, iflags);
- 		return;
- 	}
- 
-@@ -8037,21 +8039,21 @@ lpfc_els_flush_cmd(struct lpfc_vport *vport)
- 
- 	if (phba->sli_rev == LPFC_SLI_REV4)
- 		spin_unlock(&pring->ring_lock);
--	spin_unlock_irq(&phba->hbalock);
+ 	if (bf_get(lpfc_trailer_consumed, mcqe))
+ 		lpfc_sli4_mq_release(phba->sli4_hba.mbx_wq);
+-	return workposted;
 +	spin_unlock_irqrestore(&phba->hbalock, iflags);
++	return false;
+ }
  
- 	/* Abort each txcmpl iocb on aborted list and remove the dlist links. */
- 	list_for_each_entry_safe(piocb, tmp_iocb, &abort_list, dlist) {
--		spin_lock_irq(&phba->hbalock);
-+		spin_lock_irqsave(&phba->hbalock, iflags);
- 		list_del_init(&piocb->dlist);
- 		lpfc_sli_issue_abort_iotag(phba, pring, piocb);
--		spin_unlock_irq(&phba->hbalock);
-+		spin_unlock_irqrestore(&phba->hbalock, iflags);
- 	}
- 	if (!list_empty(&abort_list))
- 		lpfc_printf_vlog(vport, KERN_ERR, LOG_ELS,
- 				 "3387 abort list for txq not empty\n");
- 	INIT_LIST_HEAD(&abort_list);
- 
--	spin_lock_irq(&phba->hbalock);
-+	spin_lock_irqsave(&phba->hbalock, iflags);
- 	if (phba->sli_rev == LPFC_SLI_REV4)
- 		spin_lock(&pring->ring_lock);
- 
-@@ -8091,7 +8093,7 @@ lpfc_els_flush_cmd(struct lpfc_vport *vport)
- 
- 	if (phba->sli_rev == LPFC_SLI_REV4)
- 		spin_unlock(&pring->ring_lock);
--	spin_unlock_irq(&phba->hbalock);
-+	spin_unlock_irqrestore(&phba->hbalock, iflags);
- 
- 	/* Cancel all the IOCBs from the completions list */
- 	lpfc_sli_cancel_iocbs(phba, &abort_list,
+ /**
 -- 
 2.20.1
 
