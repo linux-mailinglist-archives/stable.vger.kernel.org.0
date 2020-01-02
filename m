@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA6012EDB1
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:31:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F14A212F115
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727993AbgABWaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:30:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35244 "EHLO mail.kernel.org"
+        id S1728141AbgABWPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:15:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730019AbgABWav (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:30:51 -0500
+        id S1727636AbgABWPu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:15:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C02820863;
-        Thu,  2 Jan 2020 22:30:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCA6B24649;
+        Thu,  2 Jan 2020 22:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004251;
-        bh=obYcbybQK0iRzuQodJ35Y2/yu1p1+C2bxabYBA70L0c=;
+        s=default; t=1578003349;
+        bh=ewQqqAkatl8XFdCnqlrKbXXTEwFiH/F5vWFPgVBScdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MfwnlQQOvgNIh0qLMZiGXcxFfLSZQloPPa9ljjmIri81y5sZqGmJrhQfl9yQ/E2go
-         gY1TeVDl0fcNsu27R1a3NJ+Zj/F1wPXipZxVhRAuRnGNtH4l63Uuur2o8x0jxUnaA1
-         dYvXc+MRHUOyT7WqFdYUA0pqZRAOgbQ9bNsV9axw=
+        b=ekZ8Qvj9JEJfZFGd9mXhexGgIJhWQc8XS6hxs+c4VX7Eh31xKYYUHfJBb5Q8gBJXm
+         X94eN6MwY+uNUZOkdtCICNarq7ZqH0W6zrR0LzrYLuK85/fmjJF7B0IWyJS/rKbdYN
+         BmwJHh83dbqruTPDVp7PA9+9qJZmj/et8TzG5UgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
-        Omar Sandoval <osandov@fb.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Richard Zhu <hongxing.zhu@nxp.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 075/171] btrfs: dont prematurely free work in end_workqueue_fn()
+Subject: [PATCH 5.4 124/191] mailbox: imx: Fix Tx doorbell shutdown path
 Date:   Thu,  2 Jan 2020 23:06:46 +0100
-Message-Id: <20200102220557.382989729@linuxfoundation.org>
+Message-Id: <20200102215843.075852024@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +47,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Daniel Baluta <daniel.baluta@nxp.com>
 
-[ Upstream commit 9be490f1e15c34193b1aae17da58e14dd9f55a95 ]
+[ Upstream commit bf159d151a0b844be28882f39e316b5800acaa2b ]
 
-Currently, end_workqueue_fn() frees the end_io_wq entry (which embeds
-the work item) and then calls bio_endio(). This is another potential
-instance of the bug in "btrfs: don't prematurely free work in
-run_ordered_work()".
+Tx doorbell is handled by txdb_tasklet and doesn't
+have an associated IRQ.
 
-In particular, the endio call may depend on other work items. For
-example, btrfs_end_dio_bio() can call btrfs_subio_endio_read() ->
-__btrfs_correct_data_nocsum() -> dio_read_error() ->
-submit_dio_repair_bio(), which submits a bio that is also completed
-through a end_workqueue_fn() work item. However,
-__btrfs_correct_data_nocsum() waits for the newly submitted bio to
-complete, thus it depends on another work item.
+Anyhow, imx_mu_shutdown ignores this and tries to
+free an IRQ that wasn't requested for Tx DB resulting
+in the following warning:
 
-This example currently usually works because we use different workqueue
-helper functions for BTRFS_WQ_ENDIO_DATA and BTRFS_WQ_ENDIO_DIO_REPAIR.
-However, it may deadlock with stacked filesystems and is fragile
-overall. The proper fix is to free the work item at the very end of the
-work function, so let's do that.
+[    1.967644] Trying to free already-free IRQ 26
+[    1.972108] WARNING: CPU: 2 PID: 157 at kernel/irq/manage.c:1708 __free_irq+0xc0/0x358
+[    1.980024] Modules linked in:
+[    1.983088] CPU: 2 PID: 157 Comm: kworker/2:1 Tainted: G
+[    1.993524] Hardware name: Freescale i.MX8QXP MEK (DT)
+[    1.998668] Workqueue: events deferred_probe_work_func
+[    2.003812] pstate: 60000085 (nZCv daIf -PAN -UAO)
+[    2.008607] pc : __free_irq+0xc0/0x358
+[    2.012364] lr : __free_irq+0xc0/0x358
+[    2.016111] sp : ffff00001179b7e0
+[    2.019422] x29: ffff00001179b7e0 x28: 0000000000000018
+[    2.024736] x27: ffff000011233000 x26: 0000000000000004
+[    2.030053] x25: 000000000000001a x24: ffff80083bec74d4
+[    2.035369] x23: 0000000000000000 x22: ffff80083bec7588
+[    2.040686] x21: ffff80083b1fe8d8 x20: ffff80083bec7400
+[    2.046003] x19: 0000000000000000 x18: ffffffffffffffff
+[    2.051320] x17: 0000000000000000 x16: 0000000000000000
+[    2.056637] x15: ffff0000111296c8 x14: ffff00009179b517
+[    2.061953] x13: ffff00001179b525 x12: ffff000011142000
+[    2.067270] x11: ffff000011129f20 x10: ffff0000105da970
+[    2.072587] x9 : 00000000ffffffd0 x8 : 0000000000000194
+[    2.077903] x7 : 612065657266206f x6 : ffff0000111e7b09
+[    2.083220] x5 : 0000000000000003 x4 : 0000000000000000
+[    2.088537] x3 : 0000000000000000 x2 : 00000000ffffffff
+[    2.093854] x1 : 28b70f0a2b60a500 x0 : 0000000000000000
+[    2.099173] Call trace:
+[    2.101618]  __free_irq+0xc0/0x358
+[    2.105021]  free_irq+0x38/0x98
+[    2.108170]  imx_mu_shutdown+0x90/0xb0
+[    2.111921]  mbox_free_channel.part.2+0x24/0xb8
+[    2.116453]  mbox_free_channel+0x18/0x28
 
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This bug is present from the beginning of times.
+
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Signed-off-by: Richard Zhu <hongxing.zhu@nxp.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mailbox/imx-mailbox.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 9d3352fe8dc9..b37519241eb1 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1712,8 +1712,8 @@ static void end_workqueue_fn(struct btrfs_work *work)
- 	bio->bi_error = end_io_wq->error;
- 	bio->bi_private = end_io_wq->private;
- 	bio->bi_end_io = end_io_wq->end_io;
--	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
- 	bio_endio(bio);
-+	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
- }
+diff --git a/drivers/mailbox/imx-mailbox.c b/drivers/mailbox/imx-mailbox.c
+index d28bbd47ff88..afe625e88a5c 100644
+--- a/drivers/mailbox/imx-mailbox.c
++++ b/drivers/mailbox/imx-mailbox.c
+@@ -214,8 +214,10 @@ static void imx_mu_shutdown(struct mbox_chan *chan)
+ 	struct imx_mu_priv *priv = to_imx_mu_priv(chan->mbox);
+ 	struct imx_mu_con_priv *cp = chan->con_priv;
  
- static int cleaner_kthread(void *arg)
+-	if (cp->type == IMX_MU_TYPE_TXDB)
++	if (cp->type == IMX_MU_TYPE_TXDB) {
+ 		tasklet_kill(&cp->txdb_tasklet);
++		return;
++	}
+ 
+ 	switch (cp->type) {
+ 	case IMX_MU_TYPE_TX:
 -- 
 2.20.1
 
