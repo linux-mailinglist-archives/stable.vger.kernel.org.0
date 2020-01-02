@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FAC12E947
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 18:24:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4712712E943
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 18:24:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727962AbgABRYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 12:24:34 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:53364 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727859AbgABRYX (ORCPT
+        id S1727896AbgABRYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 12:24:25 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:55580 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727880AbgABRYX (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 12:24:23 -0500
-Received: by mail-wm1-f65.google.com with SMTP id m24so6194626wmc.3;
-        Thu, 02 Jan 2020 09:24:22 -0800 (PST)
+Received: by mail-wm1-f68.google.com with SMTP id q9so6190248wmj.5;
+        Thu, 02 Jan 2020 09:24:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=nhEROhYvxQBpHG5tza2RMbb/t8HVyPfGN5knOZoumCE=;
-        b=eknhSys+rc63QT2i9bwpakpxMChXuthSC86wntebhDjo69A4H0UfbC0yOzBpSL0mHx
-         MzuY7eWJeovQ65PLjYUk+CDjXzlJ3ImpOBULYzHOhZsYriuhakcrf8SyuJBUFh6y/3Hq
-         VWVwO/ATOi94iP5KoHKW2faAlxyArNiGP50VuGYBBtZTsmHx1sortGoCpsvBl6NZjYkf
-         XX+z0vs0XF+9u/WL9yhTf6DG1T/MwTpu1jnkz2AQQofREbruYuzfaII/ZWrhJXPTWHgN
-         2usCqVM/+wSjv6gB/LlC4HWHlX9zV9RjLTjeCzEoceTtOZRNmcBvIEKmrmXp1slsftIR
-         3hZA==
+        bh=Vn6xY74ZAHf5UXr9SkY5xfMygu9Z5Gc/im6mstwFvf0=;
+        b=h4rz0FNbsGFBoCp9A74wHTOndORuPQ0li2XYGekvUA2OyINJgjgFUX3YhOPQCGJt30
+         uoDbXxwA5mLFlnFeecPALaEQQD8T4qunF9Yc1KjfEvMDJL7hTMIf3E/VRiP992QN67MD
+         rlSd8QmM9osfSfYjZacCchY15eUB6uTTR+uSzII+0b/CdK0AShMgWeZmUc7pAtW0puGu
+         UgddoyEoxt0eu6NB/4TWmLQIU8pc29ZXZtUAZQJdj3IYJKOot0dVySR5AWfntF1aWDlp
+         YiEVFzxiHI/4mDqmoOkYYekatoYgjaYaz/KHSXYa4Q/p7zpBzs/jJ4ksC+tt10GVr3t9
+         apSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=nhEROhYvxQBpHG5tza2RMbb/t8HVyPfGN5knOZoumCE=;
-        b=VxD4PKco2qQHwUhnfwZ83+lU0uKmsu0l4Xio3ZiDzoanvW2VM97hkp4b4tgUgJnmEz
-         L5iUrlaJFRNX8faH5AAwDjafzIjuoREKfupLU/N+k1Xb2H4NSARVxnQ7HFlyLbzK76ls
-         LJdw4X7Jki2Jv+daRtVy9J+fQMmNzW2qSprE98Pq8O5K+NiJHUWLSHLPP4bh88LGxD2o
-         FJUk2hLnSe2UofOkTZSXq40R0J3K+9pmSLr6UgEk7+qjTZwHdNhR+wJlZPFuR9GALCZj
-         iPDSB8quzn/UNJinkvKnC8vBAFAgT1/ikIR+XMR10NAdF6VLV7Uy1Yts91QwdJveNcuu
-         MxAg==
-X-Gm-Message-State: APjAAAWboMsWgBKK9Qh+6TfI/qDvmavqP6L23O0F0ip0om3hFl5L2+7m
-        7zfl12Gr4BEoyw0C3caAFW/FbjPaZzjwuYPr
-X-Google-Smtp-Source: APXvYqxLvMSwkkjy+lC/cVYbgrgkLkZ9PFS2hChYg9j0ye+fawiAzQzUVh+XFvNyZWFc136aIXGdLg==
-X-Received: by 2002:a1c:ded6:: with SMTP id v205mr15076301wmg.86.1577985861294;
-        Thu, 02 Jan 2020 09:24:21 -0800 (PST)
+        bh=Vn6xY74ZAHf5UXr9SkY5xfMygu9Z5Gc/im6mstwFvf0=;
+        b=pLWy5ojzukBgteMpl/OU9ceIc++52M2Fs+CzOuuukmSEEKUMp4rAjkwHvgZjTn07Hl
+         2yURQO5P68NHEHDfI/scOsTO3wGWtstG1dmEI7ZxhZRO+U5FuRIAsVpX+72nD1JvscZl
+         cqKdKkBau8tmQxjGqpQg3i+0e4ozuPqsW20MyGP+YfAhT90TAGR/34thk+mlajyASlQ7
+         PrgHh2mNWV9YEo4z/e+bDUvTM+U0HOu3x0aJC/unvP7aMAUw7rDHYO7yoYJf5Tmm2Teq
+         czElzigYVMyenrQJ3fsV93KkT4+F1xYaJ1cqOA/SYF/kTunELGdHfOTRlq5M//cOe6cO
+         LFXw==
+X-Gm-Message-State: APjAAAXxzjPKwUtALPdb4DXX7Usm5Npa8a+qb0c2RVsMt+09NUM8DEv1
+        3bkjZNhWIv2LNJb1AZ5vxiVaQ79peVZ6rh3T
+X-Google-Smtp-Source: APXvYqwyb8nu0nKF/2GxMONQB6130c1fK0CNWOm9EaQnistFdiJE9rEtJTHx+J++25XZoJEDS/g8AQ==
+X-Received: by 2002:a1c:964f:: with SMTP id y76mr15063961wmd.62.1577985862154;
+        Thu, 02 Jan 2020 09:24:22 -0800 (PST)
 Received: from amanieu-laptop.home ([2a01:cb19:8051:6200:3fe7:84:7f3:e713])
-        by smtp.gmail.com with ESMTPSA id z21sm9480328wml.5.2020.01.02.09.24.20
+        by smtp.gmail.com with ESMTPSA id z21sm9480328wml.5.2020.01.02.09.24.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Jan 2020 09:24:20 -0800 (PST)
+        Thu, 02 Jan 2020 09:24:21 -0800 (PST)
 From:   Amanieu d'Antras <amanieu@gmail.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     Christian Brauner <christian@brauner.io>, stable@vger.kernel.org,
-        Amanieu d'Antras <amanieu@gmail.com>,
-        linux-xtensa@linux-xtensa.org
-Subject: [PATCH 6/7] xtensa: Implement copy_thread_tls
-Date:   Thu,  2 Jan 2020 18:24:12 +0100
-Message-Id: <20200102172413.654385-7-amanieu@gmail.com>
+        Amanieu d'Antras <amanieu@gmail.com>
+Subject: [PATCH 7/7] clone3: ensure copy_thread_tls is implemented
+Date:   Thu,  2 Jan 2020 18:24:13 +0100
+Message-Id: <20200102172413.654385-8-amanieu@gmail.com>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102172413.654385-1-amanieu@gmail.com>
 References: <20200102172413.654385-1-amanieu@gmail.com>
@@ -62,56 +61,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is required for clone3 which passes the TLS value through a
-struct rather than a register.
+copy_thread implementations handle CLONE_SETTLS by reading the TLS
+value from the registers containing the syscall arguments for
+clone. This doesn't work with clone3 since the TLS value is passed
+in clone_args instead.
 
 Signed-off-by: Amanieu d'Antras <amanieu@gmail.com>
-Cc: linux-xtensa@linux-xtensa.org
 Cc: <stable@vger.kernel.org> # 5.3.x
 ---
- arch/xtensa/Kconfig          | 1 +
- arch/xtensa/kernel/process.c | 8 ++++----
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ kernel/fork.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
-index 4a3fa295d8fe..296c5324dace 100644
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -24,6 +24,7 @@ config XTENSA
- 	select HAVE_ARCH_JUMP_LABEL if !XIP_KERNEL
- 	select HAVE_ARCH_KASAN if MMU && !XIP_KERNEL
- 	select HAVE_ARCH_TRACEHOOK
-+	select HAVE_COPY_THREAD_TLS
- 	select HAVE_DEBUG_KMEMLEAK
- 	select HAVE_DMA_CONTIGUOUS
- 	select HAVE_EXIT_THREAD
-diff --git a/arch/xtensa/kernel/process.c b/arch/xtensa/kernel/process.c
-index 9e1c49134c07..3edecc41ef8c 100644
---- a/arch/xtensa/kernel/process.c
-+++ b/arch/xtensa/kernel/process.c
-@@ -202,8 +202,9 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
-  * involved.  Much simpler to just not copy those live frames across.
-  */
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 2508a4f238a3..080809560072 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2578,6 +2578,16 @@ SYSCALL_DEFINE5(clone, unsigned long, clone_flags, unsigned long, newsp,
+ #endif
  
--int copy_thread(unsigned long clone_flags, unsigned long usp_thread_fn,
--		unsigned long thread_fn_arg, struct task_struct *p)
-+int copy_thread_tls(unsigned long clone_flags, unsigned long usp_thread_fn,
-+		unsigned long thread_fn_arg, struct task_struct *p,
-+		unsigned long tls)
- {
- 	struct pt_regs *childregs = task_pt_regs(p);
- 
-@@ -266,9 +267,8 @@ int copy_thread(unsigned long clone_flags, unsigned long usp_thread_fn,
- 
- 		childregs->syscall = regs->syscall;
- 
--		/* The thread pointer is passed in the '4th argument' (= a5) */
- 		if (clone_flags & CLONE_SETTLS)
--			childregs->threadptr = childregs->areg[5];
-+			childregs->threadptr = tls;
- 	} else {
- 		p->thread.ra = MAKE_RA_FOR_CALL(
- 				(unsigned long)ret_from_kernel_thread, 1);
+ #ifdef __ARCH_WANT_SYS_CLONE3
++
++/*
++ * copy_thread implementations handle CLONE_SETTLS by reading the TLS value from
++ * the registers containing the syscall arguments for clone. This doesn't work
++ * with clone3 since the TLS value is passed in clone_args instead.
++ */
++#ifndef CONFIG_HAVE_COPY_THREAD_TLS
++#error clone3 requires copy_thread_tls support in arch
++#endif
++
+ noinline static int copy_clone_args_from_user(struct kernel_clone_args *kargs,
+ 					      struct clone_args __user *uargs,
+ 					      size_t usize)
 -- 
 2.24.1
 
