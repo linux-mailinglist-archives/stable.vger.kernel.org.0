@@ -2,86 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A27E612E3E9
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 09:36:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C3C12E417
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 09:58:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727780AbgABIgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 03:36:51 -0500
-Received: from mail-il1-f196.google.com ([209.85.166.196]:40046 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727767AbgABIgv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 03:36:51 -0500
-Received: by mail-il1-f196.google.com with SMTP id c4so33567522ilo.7
-        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 00:36:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=GpNdYRES46RfzpVIgTMPzZ6u6WQI6KIHaSlhSlcg/+c=;
-        b=EvzESA04zialDxgyjD3naDqEbXH7g6+CbxMfhGuMZyK/mvVWfJHGRECv782+Ts6hvQ
-         egNCI1BH5eMVs+A6sCt0CL7C0YA9uQJB1jaOgDZgFVKDrbiZIuIMAzfGEHOJO4BJR+vP
-         jDvJrU/XHtUfuixtdmo2c8ESU9vE09F5lK/hwBFm53/tal56GqqhNiJfoGygVCd1QnbN
-         jj/QTEFNwaGJqg8FtKAwnPqHJLc5sBUu/4pGqa6Ooull+ANO64/d9N2ztHKJyVsBdVvL
-         u/0BjxGnBJGACHPjsh6yW5EGjqOnzuT770kt50QkKS1SFjOTJoU5W2wKxw6rXguS/VrS
-         wxeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=GpNdYRES46RfzpVIgTMPzZ6u6WQI6KIHaSlhSlcg/+c=;
-        b=LyJx7vOWxYkO0nh3hemVy/B0ao+uD01QE4FKX+6oZNia9n/FQtWKIL6pAO5s8vuCJV
-         84Tx4tZC1nisjP+QZBePkd+v7BgsBahQzj6dd2GRQyJ3fThbjcG9Xn7k9y7PK4YW327I
-         2lyKIAQW2ZGUJHiwYS74rfgCoyuBdDFtC/GBS7abajiK4TIIdNGpbklzAxceo0r+/gkZ
-         RdX5zLJD0tfCBOed4wQFY+dZgfqI5s9TkPqh3xR/KoktPNhdJfVXI+hYZ5QRMo7K4Dfl
-         GO0GocGLd23b0gCCL7wf296srGe+vS4/fBQZMsfiggNqKot0aFkJA2qJLIQDTuSQE8R+
-         Wgkg==
-X-Gm-Message-State: APjAAAU/5MuBEnpQ0kzJAghkH1dFVoiG8qjnzJ3TgGJZR99AlIKB+9Ms
-        MrdDDFoP33K91TSgsqHU2ti+DmqLyZIoOKiFmQ==
-X-Google-Smtp-Source: APXvYqyl3EqZwCIr++dVRvde6GFWZfsQ0sE2mtC1H3AR88cpL/YWjgU6xcUkI+h8HI8VCC6JInGiO4lA4+Uz4TP7gBI=
-X-Received: by 2002:a92:1547:: with SMTP id v68mr66279276ilk.58.1577954210797;
- Thu, 02 Jan 2020 00:36:50 -0800 (PST)
+        id S1727817AbgABI6O convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 2 Jan 2020 03:58:14 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:39954 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727835AbgABI6O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 03:58:14 -0500
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-62-0-8UGkBPNxus61PG9BdnHA-1; Thu, 02 Jan 2020 08:58:10 +0000
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Thu, 2 Jan 2020 08:58:09 +0000
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Thu, 2 Jan 2020 08:58:09 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Aleksa Sarai' <cyphar@cyphar.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+CC:     Al Viro <viro@zeniv.linux.org.uk>,
+        David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        stable <stable@vger.kernel.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>,
+        "dev@opencontainers.org" <dev@opencontainers.org>,
+        "Linux Containers" <containers@lists.linux-foundation.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+Thread-Topic: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+Thread-Index: AQHVvuu3ha8TNgK7w0ufQ/mBgQviWKfXFrEg
+Date:   Thu, 2 Jan 2020 08:58:09 +0000
+Message-ID: <e1066da936244de99e7ee827695d6583@AcuMS.aculab.com>
+References: <20191230052036.8765-1-cyphar@cyphar.com>
+ <20191230054413.GX4203@ZenIV.linux.org.uk>
+ <20191230054913.c5avdjqbygtur2l7@yavin.dot.cyphar.com>
+ <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com>
+ <CAHk-=whxNw7hYT6bJn9mVrB_a=7Y-irmpaPsp1R4xbHHkicv7g@mail.gmail.com>
+ <20191230083224.sbk2jspqmup43obs@yavin.dot.cyphar.com>
+In-Reply-To: <20191230083224.sbk2jspqmup43obs@yavin.dot.cyphar.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Received: by 2002:a05:6638:262:0:0:0:0 with HTTP; Thu, 2 Jan 2020 00:36:50
- -0800 (PST)
-Reply-To: kylieelizabethwatson2019@gmail.com
-From:   "Sgt,Kylie Elizabeth Watson" <alasanahmad300@gmail.com>
-Date:   Thu, 2 Jan 2020 13:06:50 +0430
-Message-ID: <CAAhE2Cq=bMuCykiJ+dcAPk5LuCmd5T=PCCcosNT0owC+cZxsPw@mail.gmail.com>
-Subject: Assist Request From You
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+X-MC-Unique: 0-8UGkBPNxus61PG9BdnHA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Accept my greetings to you
+From: Aleksa Sarai
+> Sent: 30 December 2019 08:32
+...
+> I'm not sure I agree -- as I mentioned in my other mail, re-opening
+> through /proc/self/fd/$n works *very* well and has for a long time (in
+> fact, both LXC and runc depend on this working).
 
-Assist Request From You
+I thought it was marginally broken because it is followed as a symlink?
+On, for example, NetBSD /proc/<n>/fd/<n> is a real reference to the
+filesystem inode and can be used to link the file back into the filesystem
+if all the directory entries have been removed.
 
-I am 28 years old single an orphan my parents died when I am five
-years old nobody to help me,I send you my business proposal with tears
-and sorrow,Please let this not be a surprised message to you because I
-decided to contact you on this magnitude and lucrative transaction for
-our present and future survival in life. Moreover, I have laid all the
-solemn trust in you before i decided to disclose this successful and
-confidential transaction to you.
+	David
 
-I am  Kylie Elizabeth Watson ,I hope all is well with you? I am female
-soldier working as United Nations peace keeping troop in Afghanistan
-on war against terrorism. I have in my possession the sum of
-$3.5million USD Which I made here in Afghanistan 2014,I deposited this
-money with a Red Cross agent. I want you to stand as my beneficiary
-and receive the fund And keep it safe so that as soon as am through
-with my mission here in Afghanistan.
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
-You will assist me to invest it in a good profitable Venture or you
-keep it for me until I arrive your country, I will give You 40% of the
-total money for your assistance after you have receive The money.
-Please reply back to me if you are willing to work with me so that I
-can send you the information where the money is been deposited, your
-urgent reply is needed in my email address below
-(kylieelizabethwatson2019@gmail.com) so i can send you more details.
-
-Thank Yours
-Sgt,Kylie Elizabeth Watson
