@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E6212EF6E
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1820A12EEE4
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:42:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730004AbgABWbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:31:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36170 "EHLO mail.kernel.org"
+        id S1730810AbgABWgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:36:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730120AbgABWbO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:31:14 -0500
+        id S1730940AbgABWgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:36:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2ACEE20866;
-        Thu,  2 Jan 2020 22:31:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 163AE21D7D;
+        Thu,  2 Jan 2020 22:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004272;
-        bh=DF/zNNSmy9moWJcGF6ffgJY4tdKF7S2cTuVnmuVeuDc=;
+        s=default; t=1578004583;
+        bh=kl004tIylIy2HeVOharYYJ5vMSraklAz5CHA3QF/Qis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j1vjZYyca/6V7yIX9zRMnXtPQyzATLYCW2bwj0D02dthUE5q2uDQ46sOhiRzYewXF
-         1sFSGJw/odXx9yPg/jpAKeVKoyVz5DO3m5oyqDpv+KoG2aXYvGnduzKA1nb3zwdGNn
-         QwcElm/IUwki2DpZFupAuo5n2uMuU5GsqLcim3Dk=
+        b=aUQ8TfKBAfEPidlHDPd/GxO/lGECgfvBaDWIuaV7C8f61VTcj5zQZG/Wh7lwQaejS
+         SO0WpCdjkG6P/bDNLCUKCxByEsKp643zzqW62dzBhnnGlcfmJyLdQZ/EOlr8LBm830
+         xi7PPlNJK4OAKmyst7yGJzKOXfNuVgH78/52pQkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Thomas Backlund <tmb@mageia.org>
-Subject: [PATCH 4.9 110/171] perf probe: Fix to show function entry line as probe-able
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 068/137] btrfs: do not call synchronize_srcu() in inode_tree_del
 Date:   Thu,  2 Jan 2020 23:07:21 +0100
-Message-Id: <20200102220602.398963748@linuxfoundation.org>
+Message-Id: <20200102220555.698776544@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,85 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 91e2f539eeda26ab00bd03fae8dc434c128c85ed upstream.
+[ Upstream commit f72ff01df9cf5db25c76674cac16605992d15467 ]
 
-Fix die_walk_lines() to list the function entry line correctly.  Since
-the dwarf_entrypc() does not return the entry pc if the DIE has only
-range attribute, __die_walk_funclines() fails to list the declaration
-line (entry line) in that case.
+Testing with the new fsstress uncovered a pretty nasty deadlock with
+lookup and snapshot deletion.
 
-To solve this issue, this introduces die_entrypc() which correctly
-returns the entry PC (the first address range) even if the DIE has only
-range attribute. With this fix die_walk_lines() shows the function entry
-line is able to probe correctly.
+Process A
+unlink
+ -> final iput
+   -> inode_tree_del
+     -> synchronize_srcu(subvol_srcu)
 
-Fixes: 4cc9cec636e7 ("perf probe: Introduce lines walker interface")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157190837419.1859.4619125803596816752.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Thomas Backlund <tmb@mageia.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Process B
+btrfs_lookup  <- srcu_read_lock() acquired here
+  -> btrfs_iget
+    -> find inode that has I_FREEING set
+      -> __wait_on_freeing_inode()
 
+We're holding the srcu_read_lock() while doing the iget in order to make
+sure our fs root doesn't go away, and then we are waiting for the inode
+to finish freeing.  However because the free'ing process is doing a
+synchronize_srcu() we deadlock.
+
+Fix this by dropping the synchronize_srcu() in inode_tree_del().  We
+don't need people to stop accessing the fs root at this point, we're
+only adding our empty root to the dead roots list.
+
+A larger much more invasive fix is forthcoming to address how we deal
+with fs roots, but this fixes the immediate problem.
+
+Fixes: 76dda93c6ae2 ("Btrfs: add snapshot/subvolume destroy ioctl")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c |   24 +++++++++++++++++++++++-
- tools/perf/util/dwarf-aux.h |    3 +++
- 2 files changed, 26 insertions(+), 1 deletion(-)
+ fs/btrfs/inode.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -318,6 +318,28 @@ bool die_is_func_def(Dwarf_Die *dw_die)
- }
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 383717ccecc7..548e9cd1a337 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -5506,7 +5506,6 @@ static void inode_tree_del(struct inode *inode)
+ 	spin_unlock(&root->inode_lock);
  
- /**
-+ * die_entrypc - Returns entry PC (the lowest address) of a DIE
-+ * @dw_die: a DIE
-+ * @addr: where to store entry PC
-+ *
-+ * Since dwarf_entrypc() does not return entry PC if the DIE has only address
-+ * range, we have to use this to retrieve the lowest address from the address
-+ * range attribute.
-+ */
-+int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
-+{
-+	Dwarf_Addr base, end;
-+
-+	if (!addr)
-+		return -EINVAL;
-+
-+	if (dwarf_entrypc(dw_die, addr) == 0)
-+		return 0;
-+
-+	return dwarf_ranges(dw_die, 0, &base, addr, &end) < 0 ? -ENOENT : 0;
-+}
-+
-+/**
-  * die_is_func_instance - Ensure that this DIE is an instance of a subprogram
-  * @dw_die: a DIE
-  *
-@@ -730,7 +752,7 @@ static int __die_walk_funclines(Dwarf_Di
- 	/* Handle function declaration line */
- 	fname = dwarf_decl_file(sp_die);
- 	if (fname && dwarf_decl_line(sp_die, &lineno) == 0 &&
--	    dwarf_entrypc(sp_die, &addr) == 0) {
-+	    die_entrypc(sp_die, &addr) == 0) {
- 		lw.retval = callback(fname, lineno, addr, data);
- 		if (lw.retval != 0)
- 			goto done;
---- a/tools/perf/util/dwarf-aux.h
-+++ b/tools/perf/util/dwarf-aux.h
-@@ -41,6 +41,9 @@ int cu_walk_functions_at(Dwarf_Die *cu_d
- /* Get DW_AT_linkage_name (should be NULL for C binary) */
- const char *die_get_linkage_name(Dwarf_Die *dw_die);
- 
-+/* Get the lowest PC in DIE (including range list) */
-+int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr);
-+
- /* Ensure that this DIE is a subprogram and definition (not declaration) */
- bool die_is_func_def(Dwarf_Die *dw_die);
- 
+ 	if (empty && btrfs_root_refs(&root->root_item) == 0) {
+-		synchronize_srcu(&root->fs_info->subvol_srcu);
+ 		spin_lock(&root->inode_lock);
+ 		empty = RB_EMPTY_ROOT(&root->inode_tree);
+ 		spin_unlock(&root->inode_lock);
+-- 
+2.20.1
+
 
 
