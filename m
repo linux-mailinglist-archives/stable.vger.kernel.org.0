@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48B1612F0E8
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:56:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 621A612EE51
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbgABWSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:18:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33236 "EHLO mail.kernel.org"
+        id S1731076AbgABWhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:37:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727677AbgABWSN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:18:13 -0500
+        id S1730615AbgABWhX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:37:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88B9721582;
-        Thu,  2 Jan 2020 22:18:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB1FF20866;
+        Thu,  2 Jan 2020 22:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003493;
-        bh=LSdjDLvKNHfNxie0XJXACoE9tDOscECLo/lBTlcOcjU=;
+        s=default; t=1578004643;
+        bh=aynnZg1Zp9sJfa60R+Dxa0s0biQO2MN521u2guWaLWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vy2G5yRwoLcO/4pgw0wdTzqEHAfPXfnlXRtW4Oq0GRnBpDgYqJ+lLQM4VQQlpa+Oo
-         /YmAO8BdgfSus3SytlQOX2fM5btcEP1Ndi79EJEn0BpJkAw4KaQD8LUK3TA++7DnxF
-         b1IgwwPwTRuktDYyo0XjPSi7eC+XC/POhjKmjOTE=
+        b=z2pTbbrSid0zH+vISbLMOsE8X69Ay0tD4AniCcadzUN7udCt52oR22KoyQ3a6sf6q
+         AlPfXWFzUXJWgJbM3ecFESIYgjxCVXym5jz16Y1o42aPdzREbnBvSB4Tw1lrd1Hxwa
+         mMGcbt4ktDSml58k/aCjw5RSOQqR7EfuBF19nOB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 5.4 184/191] gtp: do not allow adding duplicate tid and ms_addr pdp context
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 093/137] iommu/tegra-smmu: Fix page tables in > 4 GiB memory
 Date:   Thu,  2 Jan 2020 23:07:46 +0100
-Message-Id: <20200102215849.150307012@linuxfoundation.org>
+Message-Id: <20200102220559.374969871@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 6b01b1d9b2d38dc84ac398bfe9f00baff06a31e5 ]
+[ Upstream commit 96d3ab802e4930a29a33934373157d6dff1b2c7e ]
 
-GTP RX packet path lookups pdp context with TID. If duplicate TID pdp
-contexts are existing in the list, it couldn't select correct pdp context.
-So, TID value  should be unique.
-GTP TX packet path lookups pdp context with ms_addr. If duplicate ms_addr pdp
-contexts are existing in the list, it couldn't select correct pdp context.
-So, ms_addr value should be unique.
+Page tables that reside in physical memory beyond the 4 GiB boundary are
+currently not working properly. The reason is that when the physical
+address for page directory entries is read, it gets truncated at 32 bits
+and can cause crashes when passing that address to the DMA API.
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by first casting the PDE value to a dma_addr_t and then using
+the page frame number mask for the SMMU instance to mask out the invalid
+bits, which are typically used for mapping attributes, etc.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/gtp.c |   32 ++++++++++++++++++++++----------
- 1 file changed, 22 insertions(+), 10 deletions(-)
+ drivers/iommu/tegra-smmu.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -928,24 +928,31 @@ static void ipv4_pdp_fill(struct pdp_ctx
- 	}
+diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
+index c4eb293b1524..04cec050e42b 100644
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -153,9 +153,9 @@ static bool smmu_dma_addr_valid(struct tegra_smmu *smmu, dma_addr_t addr)
+ 	return (addr & smmu->pfn_mask) == addr;
  }
  
--static int ipv4_pdp_add(struct gtp_dev *gtp, struct sock *sk,
--			struct genl_info *info)
-+static int gtp_pdp_add(struct gtp_dev *gtp, struct sock *sk,
-+		       struct genl_info *info)
+-static dma_addr_t smmu_pde_to_dma(u32 pde)
++static dma_addr_t smmu_pde_to_dma(struct tegra_smmu *smmu, u32 pde)
  {
-+	struct pdp_ctx *pctx, *pctx_tid = NULL;
- 	struct net_device *dev = gtp->dev;
- 	u32 hash_ms, hash_tid = 0;
--	struct pdp_ctx *pctx;
-+	unsigned int version;
- 	bool found = false;
- 	__be32 ms_addr;
+-	return pde << 12;
++	return (dma_addr_t)(pde & smmu->pfn_mask) << 12;
+ }
  
- 	ms_addr = nla_get_be32(info->attrs[GTPA_MS_ADDRESS]);
- 	hash_ms = ipv4_hashfn(ms_addr) % gtp->hash_size;
-+	version = nla_get_u32(info->attrs[GTPA_VERSION]);
+ static void smmu_flush_ptc_all(struct tegra_smmu *smmu)
+@@ -540,6 +540,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
+ 				  dma_addr_t *dmap)
+ {
+ 	unsigned int pd_index = iova_pd_index(iova);
++	struct tegra_smmu *smmu = as->smmu;
+ 	struct page *pt_page;
+ 	u32 *pd;
  
--	hlist_for_each_entry_rcu(pctx, &gtp->addr_hash[hash_ms], hlist_addr) {
--		if (pctx->ms_addr_ip4.s_addr == ms_addr) {
--			found = true;
--			break;
--		}
--	}
-+	pctx = ipv4_pdp_find(gtp, ms_addr);
-+	if (pctx)
-+		found = true;
-+	if (version == GTP_V0)
-+		pctx_tid = gtp0_pdp_find(gtp,
-+					 nla_get_u64(info->attrs[GTPA_TID]));
-+	else if (version == GTP_V1)
-+		pctx_tid = gtp1_pdp_find(gtp,
-+					 nla_get_u32(info->attrs[GTPA_I_TEI]));
-+	if (pctx_tid)
-+		found = true;
+@@ -548,7 +549,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
+ 		return NULL;
  
- 	if (found) {
- 		if (info->nlhdr->nlmsg_flags & NLM_F_EXCL)
-@@ -953,6 +960,11 @@ static int ipv4_pdp_add(struct gtp_dev *
- 		if (info->nlhdr->nlmsg_flags & NLM_F_REPLACE)
- 			return -EOPNOTSUPP;
+ 	pd = page_address(as->pd);
+-	*dmap = smmu_pde_to_dma(pd[pd_index]);
++	*dmap = smmu_pde_to_dma(smmu, pd[pd_index]);
  
-+		if (pctx && pctx_tid)
-+			return -EEXIST;
-+		if (!pctx)
-+			pctx = pctx_tid;
-+
- 		ipv4_pdp_fill(pctx, info);
+ 	return tegra_smmu_pte_offset(pt_page, iova);
+ }
+@@ -590,7 +591,7 @@ static u32 *as_get_pte(struct tegra_smmu_as *as, dma_addr_t iova,
+ 	} else {
+ 		u32 *pd = page_address(as->pd);
  
- 		if (pctx->gtp_version == GTP_V0)
-@@ -1076,7 +1088,7 @@ static int gtp_genl_new_pdp(struct sk_bu
- 		goto out_unlock;
+-		*dmap = smmu_pde_to_dma(pd[pde]);
++		*dmap = smmu_pde_to_dma(smmu, pd[pde]);
  	}
  
--	err = ipv4_pdp_add(gtp, sk, info);
-+	err = gtp_pdp_add(gtp, sk, info);
+ 	return tegra_smmu_pte_offset(as->pts[pde], iova);
+@@ -615,7 +616,7 @@ static void tegra_smmu_pte_put_use(struct tegra_smmu_as *as, unsigned long iova)
+ 	if (--as->count[pde] == 0) {
+ 		struct tegra_smmu *smmu = as->smmu;
+ 		u32 *pd = page_address(as->pd);
+-		dma_addr_t pte_dma = smmu_pde_to_dma(pd[pde]);
++		dma_addr_t pte_dma = smmu_pde_to_dma(smmu, pd[pde]);
  
- out_unlock:
- 	rcu_read_unlock();
+ 		tegra_smmu_set_pde(as, iova, 0);
+ 
+-- 
+2.20.1
+
 
 
