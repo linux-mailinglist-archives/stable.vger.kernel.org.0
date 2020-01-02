@@ -2,89 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86DFD12F4C8
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 07:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98D7812F4CD
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 08:00:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725890AbgACG6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 01:58:13 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:34329 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726657AbgACG6M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 01:58:12 -0500
-Received: by mail-wm1-f68.google.com with SMTP id c127so6340646wme.1
-        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 22:58:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+qLgZ0mZxTNjJUOJ0rJS2Xbs4eWNJvR+wJp7/pTOFx0=;
-        b=GD1ZAvHrGjSw6DjW3WNf/z8oG7lw4/i+mPDCO486N75KiQjjdlcK8W4/muNMq/7PSc
-         cad+53s/Z+Yc42gvd9w2/qMLwEOpqWPvEbLmN4M9n8CUEJmOxhRis7VWI8qWfhIM4SsL
-         3oNW1FVe1LHZk8A50nJ/gARA6ZszzCR6brhvdCSr/opO3vkjbX8DjKM+sVBfnw8n+06P
-         kLS0RdxabinMLU779YdDzCDWITDF9ZPTW/Am4ke9wVTWiO8tL7sCS7PS5u5E1apwdbQK
-         WElqZb+YjOXMnoVVLCOao7vS5KhA/XL+2yhs2rjrxuS0udQ0RMaY+0od4S9IMGVngOwJ
-         GCqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+qLgZ0mZxTNjJUOJ0rJS2Xbs4eWNJvR+wJp7/pTOFx0=;
-        b=hplOZappFAiwuj4bVvEqr8lTcESUnb7aJOX6MWf5GBgk1hky6YM98kVNtiG9iLc8f9
-         B6AvqVmltIuaY/rqi1ZjRHOVAvt8rxfsq7UYDPGCp/cZXqfWBB+lKxXu9AwSPISHnRp4
-         rlRHgBQrlx1vTIMLLAD6kj8FaCSCYO5EhB380L88jdf0X76uumweBsX6Jozb/LuLEcxn
-         yEvEoSXHyCSN8+4uQk6Kh+8O2A/3tBEVXcFypRuP2RwK9/XRiXlfDdcAk3QkPbXUcA9l
-         UKtiq7MG4Jr+i54u4U+0un1Gsbo9NzyHmXdiYxF5WTI6QQj1KZ6uYyBy+NyjqSaD+8tq
-         klWA==
-X-Gm-Message-State: APjAAAUWlEWIxvNqhuVnjt65dnqVf1pWVX6uBaLeA3PxNoZxvcbglejL
-        XshW/Zb8+CFTgeB/TFzRTKbal8rCWpkI6Q==
-X-Google-Smtp-Source: APXvYqzc8xqqHvOHMmIIHWrh9VeZtEl/+Wlzhdm0NkgE1rtjkGN57xd1BfKgMxMorXuDeW/SwAAInw==
-X-Received: by 2002:a1c:7d93:: with SMTP id y141mr18574731wmc.111.1578034690658;
-        Thu, 02 Jan 2020 22:58:10 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id w13sm59570232wru.38.2020.01.02.22.58.10
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Jan 2020 22:58:10 -0800 (PST)
-Message-ID: <5e0ee602.1c69fb81.45f7e.1643@mx.google.com>
-Date:   Thu, 02 Jan 2020 22:58:10 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727186AbgACHA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 02:00:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46672 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725972AbgACHA3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jan 2020 02:00:29 -0500
+Received: from localhost (unknown [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DB0B22B48;
+        Fri,  3 Jan 2020 07:00:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578034828;
+        bh=htnSJ2v1c60OdUCi+bDcxmkv0NSoIt1JIHoxcJ+ELQI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=zA10VrS+XslhhyKFs+fhyhKJuTRhcHk9Cnb46wza+qL5eFqaKTOoWLhgwnSLfKicm
+         7eNapXNuLbkOkwYbpkr3kJBX1tfdh71skxGkwa1Nz04tAQaW3qwutsv164ci+gskb4
+         1E6F9F3duTM7hTa56vJojAZKYZuTcBrfK2FCC+/g=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 018/171] media: i2c: ov2659: Fix missing 720p register config
+Date:   Thu,  2 Jan 2020 23:05:49 +0100
+Message-Id: <20200102220549.514102980@linuxfoundation.org>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.161-92-gbeaf509ee27b
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 52 boots: 1 failed,
- 49 passed with 2 untried/unknown (v4.14.161-92-gbeaf509ee27b)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 52 boots: 1 failed, 49 passed with 2 untried/u=
-nknown (v4.14.161-92-gbeaf509ee27b)
+From: Benoit Parrot <bparrot@ti.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.161-92-gbeaf509ee27b/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.161-92-gbeaf509ee27b/
+[ Upstream commit 9d669fbfca20e6035ead814e55d9ef1a6b500540 ]
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.161-92-gbeaf509ee27b
-Git Commit: beaf509ee27b5e0f370d06b10dd05851efabeca1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 33 unique boards, 13 SoC families, 12 builds out of 201
+The initial registers sequence is only loaded at probe
+time. Afterward only the resolution and format specific
+register are modified. Care must be taken to make sure
+registers modified by one resolution setting are reverted
+back when another resolution is programmed.
 
-Boot Failure Detected:
+This was not done properly for the 720p case.
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
-
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/media/i2c/ov2659.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
+index 49196afd15a8..ade3c48e2e0c 100644
+--- a/drivers/media/i2c/ov2659.c
++++ b/drivers/media/i2c/ov2659.c
+@@ -419,10 +419,14 @@ static struct sensor_register ov2659_720p[] = {
+ 	{ REG_TIMING_YINC, 0x11 },
+ 	{ REG_TIMING_VERT_FORMAT, 0x80 },
+ 	{ REG_TIMING_HORIZ_FORMAT, 0x00 },
++	{ 0x370a, 0x12 },
+ 	{ 0x3a03, 0xe8 },
+ 	{ 0x3a09, 0x6f },
+ 	{ 0x3a0b, 0x5d },
+ 	{ 0x3a15, 0x9a },
++	{ REG_VFIFO_READ_START_H, 0x00 },
++	{ REG_VFIFO_READ_START_L, 0x80 },
++	{ REG_ISP_CTRL02, 0x00 },
+ 	{ REG_NULL, 0x00 },
+ };
+ 
+-- 
+2.20.1
+
+
+
