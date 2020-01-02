@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8E1112F17E
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:01:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7786B12F185
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:02:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728142AbgABXAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 18:00:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51280 "EHLO mail.kernel.org"
+        id S1726231AbgABWLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:11:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727442AbgABWMR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:12:17 -0500
+        id S1726194AbgABWLV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:11:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E098221835;
-        Thu,  2 Jan 2020 22:12:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91B6C21D7D;
+        Thu,  2 Jan 2020 22:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003136;
-        bh=3CZRpoCYbEuB7Sm43TDfe1oKWGuVqkSm8Cgi9hPRVvY=;
+        s=default; t=1578003081;
+        bh=JrOqbF6YDPDMz5f+9FqIzqyRoV/6CWGrgcynEh5Fehw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDe/BcE5Pv/KKbBVRHeg53QgRMoRhJIthjdTItdUc/gh7IedhNe5b2jR3EdnDr1gp
-         Lz8wNcXRITXDyGey+e4nAxNCB0mLqTFPYZZucBoavWwB+j0I+GJssDWLqYlfp/7u5y
-         8A3vjJEKLiW/KuBzAMo8rB5667w+bn/+EIf1AOeA=
+        b=VcP2dqXUsRr1nwcT+0xQFzQJVtZcwfw9kXjj9LkELOmqXOqfnRFdTbqKlKnIRq9zv
+         Fe0L84dxFlgsUEhprjDbK29+87tE4EH0y45ZGbS464FA0CR39B7j/i1oD7paMmoWCo
+         96a4WisZnpSQG3UF0SMo1+OixahlrViy3EBSzcB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, Vaibhav Jain <vaibhav@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 008/191] gpio: mxc: Only get the second IRQ when there is more than one IRQ
-Date:   Thu,  2 Jan 2020 23:04:50 +0100
-Message-Id: <20200102215830.678377647@linuxfoundation.org>
+Subject: [PATCH 5.4 012/191] powerpc/papr_scm: Fix an off-by-one check in papr_scm_meta_{get, set}
+Date:   Thu,  2 Jan 2020 23:04:54 +0100
+Message-Id: <20200102215831.033993270@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
 References: <20200102215829.911231638@linuxfoundation.org>
@@ -44,61 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit c8f3d144004dd3f471ffd414690d15a005e4acd6 ]
+[ Upstream commit 612ee81b9461475b5a5612c2e8d71559dd3c7920 ]
 
-On some of i.MX SoCs like i.MX8QXP, there is ONLY one IRQ for each
-GPIO bank, so it is better to check the IRQ count before getting
-second IRQ to avoid below error message during probe:
+A validation check to prevent out of bounds read/write inside
+functions papr_scm_meta_{get,set}() is off-by-one that prevent reads
+and writes to the last byte of the label area.
 
-[    1.070908] gpio-mxc 5d080000.gpio: IRQ index 1 not found
-[    1.077420] gpio-mxc 5d090000.gpio: IRQ index 1 not found
-[    1.083766] gpio-mxc 5d0a0000.gpio: IRQ index 1 not found
-[    1.090122] gpio-mxc 5d0b0000.gpio: IRQ index 1 not found
-[    1.096470] gpio-mxc 5d0c0000.gpio: IRQ index 1 not found
-[    1.102804] gpio-mxc 5d0d0000.gpio: IRQ index 1 not found
-[    1.109144] gpio-mxc 5d0e0000.gpio: IRQ index 1 not found
-[    1.115475] gpio-mxc 5d0f0000.gpio: IRQ index 1 not found
+This bug manifests as a failure to probe a dimm when libnvdimm is
+unable to read the entire config-area as advertised by
+ND_CMD_GET_CONFIG_SIZE. This usually happens when there are large
+number of namespaces created in the region backed by the dimm and the
+label-index spans max possible config-area. An error of the form below
+usually reported in the kernel logs:
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+[  255.293912] nvdimm: probe of nmem0 failed with error -22
+
+The patch fixes these validation checks there by letting libnvdimm
+access the entire config-area.
+
+Fixes: 53e80bd042773('powerpc/nvdimm: Add support for multibyte read/write for metadata')
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190927062002.3169-1-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mxc.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/powerpc/platforms/pseries/papr_scm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-mxc.c b/drivers/gpio/gpio-mxc.c
-index 7907a8755866..c77d474185f3 100644
---- a/drivers/gpio/gpio-mxc.c
-+++ b/drivers/gpio/gpio-mxc.c
-@@ -411,6 +411,7 @@ static int mxc_gpio_probe(struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
- 	struct mxc_gpio_port *port;
-+	int irq_count;
- 	int irq_base;
- 	int err;
+diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
+index 61883291defc..ee07d0718bf1 100644
+--- a/arch/powerpc/platforms/pseries/papr_scm.c
++++ b/arch/powerpc/platforms/pseries/papr_scm.c
+@@ -152,7 +152,7 @@ static int papr_scm_meta_get(struct papr_scm_priv *p,
+ 	int len, read;
+ 	int64_t ret;
  
-@@ -426,9 +427,15 @@ static int mxc_gpio_probe(struct platform_device *pdev)
- 	if (IS_ERR(port->base))
- 		return PTR_ERR(port->base);
+-	if ((hdr->in_offset + hdr->in_length) >= p->metadata_size)
++	if ((hdr->in_offset + hdr->in_length) > p->metadata_size)
+ 		return -EINVAL;
  
--	port->irq_high = platform_get_irq(pdev, 1);
--	if (port->irq_high < 0)
--		port->irq_high = 0;
-+	irq_count = platform_irq_count(pdev);
-+	if (irq_count < 0)
-+		return irq_count;
-+
-+	if (irq_count > 1) {
-+		port->irq_high = platform_get_irq(pdev, 1);
-+		if (port->irq_high < 0)
-+			port->irq_high = 0;
-+	}
+ 	for (len = hdr->in_length; len; len -= read) {
+@@ -206,7 +206,7 @@ static int papr_scm_meta_set(struct papr_scm_priv *p,
+ 	__be64 data_be;
+ 	int64_t ret;
  
- 	port->irq = platform_get_irq(pdev, 0);
- 	if (port->irq < 0)
+-	if ((hdr->in_offset + hdr->in_length) >= p->metadata_size)
++	if ((hdr->in_offset + hdr->in_length) > p->metadata_size)
+ 		return -EINVAL;
+ 
+ 	for (len = hdr->in_length; len; len -= wrote) {
 -- 
 2.20.1
 
