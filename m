@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E98012F01C
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BC3A12F07E
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728759AbgABWZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:25:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50810 "EHLO mail.kernel.org"
+        id S1728926AbgABWVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:21:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729238AbgABWZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:25:25 -0500
+        id S1728920AbgABWVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:21:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D407522B48;
-        Thu,  2 Jan 2020 22:25:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A68920866;
+        Thu,  2 Jan 2020 22:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003925;
-        bh=gYr/zNUZiO7HfENANZzCp2RXCcAamM1IeohEXgpihEY=;
+        s=default; t=1578003661;
+        bh=iprWCtLGEBo8BgYJE9kAck3R9X49tsn0AWg2uJ6REZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yz7GCguZE47rP1mxZkI08AJYJtdhz+vcIUtkudmY98rfQXQhyqwpq+ocxTv/keOxU
-         WFCZKyYf4JJIFAMuX+/Bx79Q1dMyNPyh9+F3Y8LlzHNm2OX6YyVeug5FT9ldQSeXoV
-         LT4o7vehy0tEq7p2fFPyFH1CC6JwO8Jemeai+aLY=
+        b=rDX2BFz2/A7osvKq9EZ0IFU2LQs2ovhoSsk8XsO5h8Dpvh3VzLreLPYeZfL9PD4xE
+         GG3FXUJ+GwlHYzxjGEMhAxjeYuDn6YweraIdb03yUxtPR+GaBm71zNOLYDjLCxgvRw
+         JQz1hnSfte86Abcccd/N8b+06NbygEKY6HA8sf3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Jarzmik <robert.jarzmik@free.fr>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 31/91] clk: pxa: fix one of the pxa RTC clocks
-Date:   Thu,  2 Jan 2020 23:07:13 +0100
-Message-Id: <20200102220430.873096830@linuxfoundation.org>
+Subject: [PATCH 4.19 062/114] f2fs: choose hardlimit when softlimit is larger than hardlimit in f2fs_statfs_project()
+Date:   Thu,  2 Jan 2020 23:07:14 +0100
+Message-Id: <20200102220035.294585461@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Jarzmik <robert.jarzmik@free.fr>
+From: Chengguang Xu <cgxu519@mykernel.net>
 
-[ Upstream commit 46acbcb4849b2ca2e6e975e7c8130c1d61c8fd0c ]
+[ Upstream commit 909110c060f22e65756659ec6fa957ae75777e00 ]
 
-The pxa27x platforms have a single IP with 2 drivers, sa1100-rtc and
-rtc-pxa drivers.
+Setting softlimit larger than hardlimit seems meaningless
+for disk quota but currently it is allowed. In this case,
+there may be a bit of comfusion for users when they run
+df comamnd to directory which has project quota.
 
-A previous patch fixed the sa1100-rtc case, but the pxa-rtc wasn't
-fixed. This patch completes the previous one.
+For example, we set 20M softlimit and 10M hardlimit of
+block usage limit for project quota of test_dir(project id 123).
 
-Fixes: 8b6d10345e16 ("clk: pxa: add missing pxa27x clocks for Irda and sa1100-rtc")
-Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Link: https://lkml.kernel.org/r/20191026194420.11918-1-robert.jarzmik@free.fr
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+[root@hades f2fs]# repquota -P -a
+*** Report for project quotas on device /dev/nvme0n1p8
+Block grace time: 7days; Inode grace time: 7days
+Block limits File limits
+Project used soft hard grace used soft hard grace
+----------------------------------------------------------------------
+0 -- 4 0 0 1 0 0
+123 +- 10248 20480 10240 2 0 0
+
+The result of df command as below:
+
+[root@hades f2fs]# df -h /mnt/f2fs/test
+Filesystem Size Used Avail Use% Mounted on
+/dev/nvme0n1p8 20M 11M 10M 51% /mnt/f2fs
+
+Even though it looks like there is another 10M free space to use,
+if we write new data to diretory test(inherit project id),
+the write will fail with errno(-EDQUOT).
+
+After this patch, the df result looks like below.
+
+[root@hades f2fs]# df -h /mnt/f2fs/test
+Filesystem Size Used Avail Use% Mounted on
+/dev/nvme0n1p8 10M 10M 0 100% /mnt/f2fs
+
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/pxa/clk-pxa27x.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/super.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/clk/pxa/clk-pxa27x.c b/drivers/clk/pxa/clk-pxa27x.c
-index 25a30194d27a..b67ea86ff156 100644
---- a/drivers/clk/pxa/clk-pxa27x.c
-+++ b/drivers/clk/pxa/clk-pxa27x.c
-@@ -462,6 +462,7 @@ struct dummy_clk {
- };
- static struct dummy_clk dummy_clks[] __initdata = {
- 	DUMMY_CLK(NULL, "pxa27x-gpio", "osc_32_768khz"),
-+	DUMMY_CLK(NULL, "pxa-rtc", "osc_32_768khz"),
- 	DUMMY_CLK(NULL, "sa1100-rtc", "osc_32_768khz"),
- 	DUMMY_CLK("UARTCLK", "pxa2xx-ir", "STUART"),
- };
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 7a9cc64f5ca3..662c7de58b99 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1148,9 +1148,13 @@ static int f2fs_statfs_project(struct super_block *sb,
+ 		return PTR_ERR(dquot);
+ 	spin_lock(&dquot->dq_dqb_lock);
+ 
+-	limit = (dquot->dq_dqb.dqb_bsoftlimit ?
+-		 dquot->dq_dqb.dqb_bsoftlimit :
+-		 dquot->dq_dqb.dqb_bhardlimit) >> sb->s_blocksize_bits;
++	limit = 0;
++	if (dquot->dq_dqb.dqb_bsoftlimit)
++		limit = dquot->dq_dqb.dqb_bsoftlimit;
++	if (dquot->dq_dqb.dqb_bhardlimit &&
++			(!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
++		limit = dquot->dq_dqb.dqb_bhardlimit;
++
+ 	if (limit && buf->f_blocks > limit) {
+ 		curblock = dquot->dq_dqb.dqb_curspace >> sb->s_blocksize_bits;
+ 		buf->f_blocks = limit;
+@@ -1159,9 +1163,13 @@ static int f2fs_statfs_project(struct super_block *sb,
+ 			 (buf->f_blocks - curblock) : 0;
+ 	}
+ 
+-	limit = dquot->dq_dqb.dqb_isoftlimit ?
+-		dquot->dq_dqb.dqb_isoftlimit :
+-		dquot->dq_dqb.dqb_ihardlimit;
++	limit = 0;
++	if (dquot->dq_dqb.dqb_isoftlimit)
++		limit = dquot->dq_dqb.dqb_isoftlimit;
++	if (dquot->dq_dqb.dqb_ihardlimit &&
++			(!limit || dquot->dq_dqb.dqb_ihardlimit < limit))
++		limit = dquot->dq_dqb.dqb_ihardlimit;
++
+ 	if (limit && buf->f_files > limit) {
+ 		buf->f_files = limit;
+ 		buf->f_ffree =
 -- 
 2.20.1
 
