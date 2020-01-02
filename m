@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2219D12EFEA
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:50:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E5F12EF22
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729620AbgABWtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:49:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54988 "EHLO mail.kernel.org"
+        id S1730654AbgABWd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:33:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729692AbgABW1C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:27:02 -0500
+        id S1730651AbgABWd5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:33:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 573F120863;
-        Thu,  2 Jan 2020 22:27:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7571F20863;
+        Thu,  2 Jan 2020 22:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004021;
-        bh=U91LhnmEMjYOi3Oo29SjooxKMkH9Z6LjFhSMF75SUDg=;
+        s=default; t=1578004435;
+        bh=vUJzybXlkf4YX80NJ3kAZY1n6Hv4+W5e1YedIvgDxG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MCQzyw1zKBmshPE9QeGzrrjAuPXsTB4AU1DdMil/INMW+bq+rqYHow+x1d68tS2Dq
-         G5179up3ci+Zj45Y9xJ2GV2denk4CGcleuH9jiSglSzZheMlx8DJbmAD1mjvGzPuIg
-         8Q5Mw1auNAddMbzU4rufhS+cgKcuD/t7X6Z+qyms=
+        b=GF9Ql6d/ZMhUnlZ9mjM5ItCINNIB+423FfMRazRWsBc+csum/y2XS2Evt/HruEOoJ
+         7g6v3R0Sf2Dr6aFiYTOOrzJS1WmtB/46JKwFVwf+LWFCxkQrJ5t3r9vp5TEPn8lgCX
+         npdK8hZHtCXbaicK9FXtk4AiAIpKmbsQ9Y1OnZTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.14 89/91] gtp: fix wrong condition in gtp_genl_dump_pdp()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.9 160/171] netfilter: bridge: make sure to pull arp header in br_nf_forward_arp()
 Date:   Thu,  2 Jan 2020 23:08:11 +0100
-Message-Id: <20200102220453.112109771@linuxfoundation.org>
+Message-Id: <20200102220609.037819974@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 94a6d9fb88df43f92d943c32b84ce398d50bf49f ]
+commit 5604285839aaedfb23ebe297799c6e558939334d upstream.
 
-gtp_genl_dump_pdp() is ->dumpit() callback of GTP module and it is used
-to dump pdp contexts. it would be re-executed because of dump packet size.
+syzbot is kind enough to remind us we need to call skb_may_pull()
 
-If dump packet size is too big, it saves current dump pointer
-(gtp interface pointer, bucket, TID value) then it restarts dump from
-last pointer.
-Current GTP code allows adding zero TID pdp context but dump code
-ignores zero TID value. So, last dump pointer will not be found.
+BUG: KMSAN: uninit-value in br_nf_forward_arp+0xe61/0x1230 net/bridge/br_netfilter_hooks.c:665
+CPU: 1 PID: 11631 Comm: syz-executor.1 Not tainted 5.4.0-rc8-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0x128/0x220 mm/kmsan/kmsan_report.c:108
+ __msan_warning+0x64/0xc0 mm/kmsan/kmsan_instr.c:245
+ br_nf_forward_arp+0xe61/0x1230 net/bridge/br_netfilter_hooks.c:665
+ nf_hook_entry_hookfn include/linux/netfilter.h:135 [inline]
+ nf_hook_slow+0x18b/0x3f0 net/netfilter/core.c:512
+ nf_hook include/linux/netfilter.h:260 [inline]
+ NF_HOOK include/linux/netfilter.h:303 [inline]
+ __br_forward+0x78f/0xe30 net/bridge/br_forward.c:109
+ br_flood+0xef0/0xfe0 net/bridge/br_forward.c:234
+ br_handle_frame_finish+0x1a77/0x1c20 net/bridge/br_input.c:162
+ nf_hook_bridge_pre net/bridge/br_input.c:245 [inline]
+ br_handle_frame+0xfb6/0x1eb0 net/bridge/br_input.c:348
+ __netif_receive_skb_core+0x20b9/0x51a0 net/core/dev.c:4830
+ __netif_receive_skb_one_core net/core/dev.c:4927 [inline]
+ __netif_receive_skb net/core/dev.c:5043 [inline]
+ process_backlog+0x610/0x13c0 net/core/dev.c:5874
+ napi_poll net/core/dev.c:6311 [inline]
+ net_rx_action+0x7a6/0x1aa0 net/core/dev.c:6379
+ __do_softirq+0x4a1/0x83a kernel/softirq.c:293
+ do_softirq_own_stack+0x49/0x80 arch/x86/entry/entry_64.S:1091
+ </IRQ>
+ do_softirq kernel/softirq.c:338 [inline]
+ __local_bh_enable_ip+0x184/0x1d0 kernel/softirq.c:190
+ local_bh_enable+0x36/0x40 include/linux/bottom_half.h:32
+ rcu_read_unlock_bh include/linux/rcupdate.h:688 [inline]
+ __dev_queue_xmit+0x38e8/0x4200 net/core/dev.c:3819
+ dev_queue_xmit+0x4b/0x60 net/core/dev.c:3825
+ packet_snd net/packet/af_packet.c:2959 [inline]
+ packet_sendmsg+0x8234/0x9100 net/packet/af_packet.c:2984
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg net/socket.c:657 [inline]
+ __sys_sendto+0xc44/0xc70 net/socket.c:1952
+ __do_sys_sendto net/socket.c:1964 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:1960
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:1960
+ do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45a679
+Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f0a3c9e5c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 0000000000000006 RCX: 000000000045a679
+RDX: 000000000000000e RSI: 0000000020000200 RDI: 0000000000000003
+RBP: 000000000075bf20 R08: 00000000200000c0 R09: 0000000000000014
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f0a3c9e66d4
+R13: 00000000004c8ec1 R14: 00000000004dfe28 R15: 00000000ffffffff
 
-In addition, this patch adds missing rcu_read_lock() in
-gtp_genl_dump_pdp().
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:149 [inline]
+ kmsan_internal_poison_shadow+0x5c/0x110 mm/kmsan/kmsan.c:132
+ kmsan_slab_alloc+0x97/0x100 mm/kmsan/kmsan_hooks.c:86
+ slab_alloc_node mm/slub.c:2773 [inline]
+ __kmalloc_node_track_caller+0xe27/0x11a0 mm/slub.c:4381
+ __kmalloc_reserve net/core/skbuff.c:141 [inline]
+ __alloc_skb+0x306/0xa10 net/core/skbuff.c:209
+ alloc_skb include/linux/skbuff.h:1049 [inline]
+ alloc_skb_with_frags+0x18c/0xa80 net/core/skbuff.c:5662
+ sock_alloc_send_pskb+0xafd/0x10a0 net/core/sock.c:2244
+ packet_alloc_skb net/packet/af_packet.c:2807 [inline]
+ packet_snd net/packet/af_packet.c:2902 [inline]
+ packet_sendmsg+0x63a6/0x9100 net/packet/af_packet.c:2984
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg net/socket.c:657 [inline]
+ __sys_sendto+0xc44/0xc70 net/socket.c:1952
+ __do_sys_sendto net/socket.c:1964 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:1960
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:1960
+ do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: c4e70a87d975 ("netfilter: bridge: rename br_netfilter.c to br_netfilter_hooks.c")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/gtp.c |   36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -42,7 +42,6 @@ struct pdp_ctx {
- 	struct hlist_node	hlist_addr;
- 
- 	union {
--		u64		tid;
- 		struct {
- 			u64	tid;
- 			u16	flow;
-@@ -1247,43 +1246,46 @@ static int gtp_genl_dump_pdp(struct sk_b
- 				struct netlink_callback *cb)
- {
- 	struct gtp_dev *last_gtp = (struct gtp_dev *)cb->args[2], *gtp;
-+	int i, j, bucket = cb->args[0], skip = cb->args[1];
- 	struct net *net = sock_net(skb->sk);
--	struct gtp_net *gn = net_generic(net, gtp_net_id);
--	unsigned long tid = cb->args[1];
--	int i, k = cb->args[0], ret;
- 	struct pdp_ctx *pctx;
-+	struct gtp_net *gn;
-+
-+	gn = net_generic(net, gtp_net_id);
- 
- 	if (cb->args[4])
- 		return 0;
- 
-+	rcu_read_lock();
- 	list_for_each_entry_rcu(gtp, &gn->gtp_dev_list, list) {
- 		if (last_gtp && last_gtp != gtp)
- 			continue;
- 		else
- 			last_gtp = NULL;
- 
--		for (i = k; i < gtp->hash_size; i++) {
--			hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i], hlist_tid) {
--				if (tid && tid != pctx->u.tid)
--					continue;
--				else
--					tid = 0;
--
--				ret = gtp_genl_fill_info(skb,
--							 NETLINK_CB(cb->skb).portid,
--							 cb->nlh->nlmsg_seq,
--							 cb->nlh->nlmsg_type, pctx);
--				if (ret < 0) {
-+		for (i = bucket; i < gtp->hash_size; i++) {
-+			j = 0;
-+			hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i],
-+						 hlist_tid) {
-+				if (j >= skip &&
-+				    gtp_genl_fill_info(skb,
-+					    NETLINK_CB(cb->skb).portid,
-+					    cb->nlh->nlmsg_seq,
-+					    cb->nlh->nlmsg_type, pctx)) {
- 					cb->args[0] = i;
--					cb->args[1] = pctx->u.tid;
-+					cb->args[1] = j;
- 					cb->args[2] = (unsigned long)gtp;
- 					goto out;
- 				}
-+				j++;
- 			}
-+			skip = 0;
- 		}
-+		bucket = 0;
+---
+ net/bridge/br_netfilter_hooks.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -643,6 +643,9 @@ static unsigned int br_nf_forward_arp(vo
+ 		nf_bridge_pull_encap_header(skb);
  	}
- 	cb->args[4] = 1;
- out:
-+	rcu_read_unlock();
- 	return skb->len;
- }
  
++	if (unlikely(!pskb_may_pull(skb, sizeof(struct arphdr))))
++		return NF_DROP;
++
+ 	if (arp_hdr(skb)->ar_pln != 4) {
+ 		if (IS_VLAN_ARP(skb))
+ 			nf_bridge_push_encap_header(skb);
 
 
