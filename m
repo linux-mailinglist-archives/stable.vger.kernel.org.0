@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6153612EC65
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:19:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8922912EC5C
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728020AbgABWSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:18:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60994 "EHLO mail.kernel.org"
+        id S1727443AbgABWRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:17:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728396AbgABWR7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:17:59 -0500
+        id S1728112AbgABWRm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:17:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E33821582;
-        Thu,  2 Jan 2020 22:17:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B22B21582;
+        Thu,  2 Jan 2020 22:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003478;
-        bh=79QEl3uNsGGdQxJrS1lrgxWzg7KEIku2bSFGvvmV4+4=;
+        s=default; t=1578003461;
+        bh=cDGxvQ6VaN64SpWCnKdSQZiZKTB9gPZsUPK1SbMRtkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hlAiiWYrb9fzxFBqLwRhtwPilqt3YnKvbex7pMy6cZ3TzzOV/+9xM1m7TVYzaU554
-         FkyM+cugoqtKFfMtJe4BxwKQtAYyqaDRfhnPsaP6RrIazv41mi5ij1mTqr5pCaTXKk
-         nguetGCJlesBVIDIN7gZxv5dwvxVhdsa+I8a62LE=
+        b=CTpqaWOJ8DgZv5dypiPatNiT5Ae+fx0Dn+wikmJdgEAz6m/FTyCoxnEPI1jObwl5Y
+         KEkh8Xds2tdajJlEQOdx9htnaqPzWSYb6Rzn0qwCsifLqo+mBUIbsz9llBUIYkc6oA
+         70+AC8/45q60riHyBi39k3VRmUhHqQJgEE2bncds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 141/191] net: icmp: fix data-race in cmp_global_allow()
-Date:   Thu,  2 Jan 2020 23:07:03 +0100
-Message-Id: <20200102215844.681734978@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 144/191] uaccess: disallow > INT_MAX copy sizes
+Date:   Thu,  2 Jan 2020 23:07:06 +0100
+Message-Id: <20200102215844.953035794@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
 References: <20200102215829.911231638@linuxfoundation.org>
@@ -44,116 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit bbab7ef235031f6733b5429ae7877bfa22339712 upstream.
+commit 6d13de1489b6bf539695f96d945de3860e6d5e17 upstream.
 
-This code reads two global variables without protection
-of a lock. We need READ_ONCE()/WRITE_ONCE() pairs to
-avoid load/store-tearing and better document the intent.
+As we've done with VFS, string operations, etc, reject usercopy sizes
+larger than INT_MAX, which would be nice to have for catching bugs
+related to size calculation overflows[1].
 
-KCSAN reported :
-BUG: KCSAN: data-race in icmp_global_allow / icmp_global_allow
+This adds 10 bytes to x86_64 defconfig text and 1980 bytes to the data
+section:
 
-read to 0xffffffff861a8014 of 4 bytes by task 11201 on cpu 0:
- icmp_global_allow+0x36/0x1b0 net/ipv4/icmp.c:254
- icmpv6_global_allow net/ipv6/icmp.c:184 [inline]
- icmpv6_global_allow net/ipv6/icmp.c:179 [inline]
- icmp6_send+0x493/0x1140 net/ipv6/icmp.c:514
- icmpv6_send+0x71/0xb0 net/ipv6/ip6_icmp.c:43
- ip6_link_failure+0x43/0x180 net/ipv6/route.c:2640
- dst_link_failure include/net/dst.h:419 [inline]
- vti_xmit net/ipv4/ip_vti.c:243 [inline]
- vti_tunnel_xmit+0x27f/0xa50 net/ipv4/ip_vti.c:279
- __netdev_start_xmit include/linux/netdevice.h:4420 [inline]
- netdev_start_xmit include/linux/netdevice.h:4434 [inline]
- xmit_one net/core/dev.c:3280 [inline]
- dev_hard_start_xmit+0xef/0x430 net/core/dev.c:3296
- __dev_queue_xmit+0x14c9/0x1b60 net/core/dev.c:3873
- dev_queue_xmit+0x21/0x30 net/core/dev.c:3906
- neigh_direct_output+0x1f/0x30 net/core/neighbour.c:1530
- neigh_output include/net/neighbour.h:511 [inline]
- ip6_finish_output2+0x7a6/0xec0 net/ipv6/ip6_output.c:116
- __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
- __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
- ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
- NF_HOOK_COND include/linux/netfilter.h:294 [inline]
- ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
- dst_output include/net/dst.h:436 [inline]
- ip6_local_out+0x74/0x90 net/ipv6/output_core.c:179
+     text    data     bss     dec     hex filename
+  19691167        5134320 1646664 26472151        193eed7 vmlinux.before
+  19691177        5136300 1646664 26474141        193f69d vmlinux.after
 
-write to 0xffffffff861a8014 of 4 bytes by task 11183 on cpu 1:
- icmp_global_allow+0x174/0x1b0 net/ipv4/icmp.c:272
- icmpv6_global_allow net/ipv6/icmp.c:184 [inline]
- icmpv6_global_allow net/ipv6/icmp.c:179 [inline]
- icmp6_send+0x493/0x1140 net/ipv6/icmp.c:514
- icmpv6_send+0x71/0xb0 net/ipv6/ip6_icmp.c:43
- ip6_link_failure+0x43/0x180 net/ipv6/route.c:2640
- dst_link_failure include/net/dst.h:419 [inline]
- vti_xmit net/ipv4/ip_vti.c:243 [inline]
- vti_tunnel_xmit+0x27f/0xa50 net/ipv4/ip_vti.c:279
- __netdev_start_xmit include/linux/netdevice.h:4420 [inline]
- netdev_start_xmit include/linux/netdevice.h:4434 [inline]
- xmit_one net/core/dev.c:3280 [inline]
- dev_hard_start_xmit+0xef/0x430 net/core/dev.c:3296
- __dev_queue_xmit+0x14c9/0x1b60 net/core/dev.c:3873
- dev_queue_xmit+0x21/0x30 net/core/dev.c:3906
- neigh_direct_output+0x1f/0x30 net/core/neighbour.c:1530
- neigh_output include/net/neighbour.h:511 [inline]
- ip6_finish_output2+0x7a6/0xec0 net/ipv6/ip6_output.c:116
- __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
- __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
- ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
- NF_HOOK_COND include/linux/netfilter.h:294 [inline]
- ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
+[1] https://marc.info/?l=linux-s390&m=156631939010493&w=2
 
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 11183 Comm: syz-executor.2 Not tainted 5.4.0-rc3+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 4cdf507d5452 ("icmp: add a global rate limitation")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: http://lkml.kernel.org/r/201908251612.F9902D7A@keescook
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/icmp.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ include/linux/thread_info.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -249,10 +249,11 @@ bool icmp_global_allow(void)
- 	bool rc = false;
- 
- 	/* Check if token bucket is empty and cannot be refilled
--	 * without taking the spinlock.
-+	 * without taking the spinlock. The READ_ONCE() are paired
-+	 * with the following WRITE_ONCE() in this same function.
- 	 */
--	if (!icmp_global.credit) {
--		delta = min_t(u32, now - icmp_global.stamp, HZ);
-+	if (!READ_ONCE(icmp_global.credit)) {
-+		delta = min_t(u32, now - READ_ONCE(icmp_global.stamp), HZ);
- 		if (delta < HZ / 50)
- 			return false;
+--- a/include/linux/thread_info.h
++++ b/include/linux/thread_info.h
+@@ -147,6 +147,8 @@ check_copy_size(const void *addr, size_t
+ 			__bad_copy_to();
+ 		return false;
  	}
-@@ -262,14 +263,14 @@ bool icmp_global_allow(void)
- 	if (delta >= HZ / 50) {
- 		incr = sysctl_icmp_msgs_per_sec * delta / HZ ;
- 		if (incr)
--			icmp_global.stamp = now;
-+			WRITE_ONCE(icmp_global.stamp, now);
- 	}
- 	credit = min_t(u32, icmp_global.credit + incr, sysctl_icmp_msgs_burst);
- 	if (credit) {
- 		credit--;
- 		rc = true;
- 	}
--	icmp_global.credit = credit;
-+	WRITE_ONCE(icmp_global.credit, credit);
- 	spin_unlock(&icmp_global.lock);
- 	return rc;
++	if (WARN_ON_ONCE(bytes > INT_MAX))
++		return false;
+ 	check_object_size(addr, bytes, is_source);
+ 	return true;
  }
 
 
