@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F1712F082
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9032F12EF70
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728637AbgABWVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:21:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
+        id S1729163AbgABWqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:46:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728716AbgABWVP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:21:15 -0500
+        id S1730246AbgABWbI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:31:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB1B3222C3;
-        Thu,  2 Jan 2020 22:21:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4968C20863;
+        Thu,  2 Jan 2020 22:31:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003675;
-        bh=s5hrIeR/stKztvZ6petLntQp/eDSvEeUVZssIHzRhHg=;
+        s=default; t=1578004267;
+        bh=zCDTEKqulQ5WWoR3gp/l+LFyviaRUjMFPWj8HUFfsl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wafiGzB6REmu7HeMbdQCa+byZ7LpvuP9zXzoxEGRw1Vtw20gNGoHXAlyZSbpM6gkb
-         +jyqSLiHoyk9U2uvAWE1J7Ba5HQdZQidntVjTpZ63IZgihF4QC72xsFBkuLCJOPU3u
-         ISwGMnsFEDH1088aA30YQLBKbliTyn+wmArtJ6vs=
+        b=Lmjfm03A7ReXDLAjsauJIRTo+GOHrZ6v5zLQ0rWkIDAjWGb2EQSuKZFtaaweakme7
+         aC/XDkhfwJ4p1ldfiUAkgaw0/XaA/4hueXRyEwh5T5DvrFPgDxV9ZYD2qnvle0Xq8Q
+         UR85oWbT7mSyzKVBcKRFsdyKLvR4I1f3eywPbJOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 067/114] libfdt: define INT32_MAX and UINT32_MAX in libfdt_env.h
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 108/171] powerpc/irq: fix stack overflow verification
 Date:   Thu,  2 Jan 2020 23:07:19 +0100
-Message-Id: <20200102220035.827015006@linuxfoundation.org>
+Message-Id: <20200102220602.146773569@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit a8de1304b7df30e3a14f2a8b9709bb4ff31a0385 ]
+commit 099bc4812f09155da77eeb960a983470249c9ce1 upstream.
 
-The DTC v1.5.1 added references to (U)INT32_MAX.
+Before commit 0366a1c70b89 ("powerpc/irq: Run softirqs off the top of
+the irq stack"), check_stack_overflow() was called by do_IRQ(), before
+switching to the irq stack.
+In that commit, do_IRQ() was renamed __do_irq(), and is now executing
+on the irq stack, so check_stack_overflow() has just become almost
+useless.
 
-This is no problem for user-space programs since <stdint.h> defines
-(U)INT32_MAX along with (u)int32_t.
+Move check_stack_overflow() call in do_IRQ() to do the check while
+still on the current stack.
 
-For the kernel space, libfdt_env.h needs to be adjusted before we
-pull in the changes.
+Fixes: 0366a1c70b89 ("powerpc/irq: Run softirqs off the top of the irq stack")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/e033aa8116ab12b7ca9a9c75189ad0741e3b9b5f.1575872340.git.christophe.leroy@c-s.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-In the kernel, we usually use s/u32 instead of (u)int32_t for the
-fixed-width types.
-
-Accordingly, we already have S/U32_MAX for their max values.
-So, we should not add (U)INT32_MAX to <linux/limits.h> any more.
-
-Instead, add them to the in-kernel libfdt_env.h to compile the
-latest libfdt.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/libfdt_env.h | 4 +++-
- arch/powerpc/boot/libfdt_env.h        | 2 ++
- include/linux/libfdt_env.h            | 3 +++
- 3 files changed, 8 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/irq.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/compressed/libfdt_env.h b/arch/arm/boot/compressed/libfdt_env.h
-index b36c0289a308..6a0f1f524466 100644
---- a/arch/arm/boot/compressed/libfdt_env.h
-+++ b/arch/arm/boot/compressed/libfdt_env.h
-@@ -2,11 +2,13 @@
- #ifndef _ARM_LIBFDT_ENV_H
- #define _ARM_LIBFDT_ENV_H
+--- a/arch/powerpc/kernel/irq.c
++++ b/arch/powerpc/kernel/irq.c
+@@ -527,8 +527,6 @@ void __do_irq(struct pt_regs *regs)
  
-+#include <linux/limits.h>
- #include <linux/types.h>
- #include <linux/string.h>
- #include <asm/byteorder.h>
+ 	trace_irq_entry(regs);
  
--#define INT_MAX			((int)(~0U>>1))
-+#define INT32_MAX	S32_MAX
-+#define UINT32_MAX	U32_MAX
+-	check_stack_overflow();
+-
+ 	/*
+ 	 * Query the platform PIC for the interrupt & ack it.
+ 	 *
+@@ -560,6 +558,8 @@ void do_IRQ(struct pt_regs *regs)
+ 	irqtp = hardirq_ctx[raw_smp_processor_id()];
+ 	sirqtp = softirq_ctx[raw_smp_processor_id()];
  
- typedef __be16 fdt16_t;
- typedef __be32 fdt32_t;
-diff --git a/arch/powerpc/boot/libfdt_env.h b/arch/powerpc/boot/libfdt_env.h
-index 2abc8e83b95e..9757d4f6331e 100644
---- a/arch/powerpc/boot/libfdt_env.h
-+++ b/arch/powerpc/boot/libfdt_env.h
-@@ -6,6 +6,8 @@
- #include <string.h>
- 
- #define INT_MAX			((int)(~0U>>1))
-+#define UINT32_MAX		((u32)~0U)
-+#define INT32_MAX		((s32)(UINT32_MAX >> 1))
- 
- #include "of.h"
- 
-diff --git a/include/linux/libfdt_env.h b/include/linux/libfdt_env.h
-index edb0f0c30904..1adf54aad2df 100644
---- a/include/linux/libfdt_env.h
-+++ b/include/linux/libfdt_env.h
-@@ -7,6 +7,9 @@
- 
- #include <asm/byteorder.h>
- 
-+#define INT32_MAX	S32_MAX
-+#define UINT32_MAX	U32_MAX
++	check_stack_overflow();
 +
- typedef __be16 fdt16_t;
- typedef __be32 fdt32_t;
- typedef __be64 fdt64_t;
--- 
-2.20.1
-
+ 	/* Already there ? */
+ 	if (unlikely(curtp == irqtp || curtp == sirqtp)) {
+ 		__do_irq(regs);
 
 
