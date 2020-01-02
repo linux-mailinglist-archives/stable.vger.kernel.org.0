@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0B7B12ECB8
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:21:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3921C12ED29
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:25:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728940AbgABWVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:21:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39582 "EHLO mail.kernel.org"
+        id S1729532AbgABWZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:25:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728931AbgABWVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:21:03 -0500
+        id S1728975AbgABWZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:25:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6FC021582;
-        Thu,  2 Jan 2020 22:21:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CF6E222C3;
+        Thu,  2 Jan 2020 22:25:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003663;
-        bh=IMSOtqcwaP6UlIqYmPsM13lnT/jot8oLkrsfRUmghbg=;
+        s=default; t=1578003932;
+        bh=iQakv2HMdpUsEwfVpNwP9YWmVBHMaqzX4AKPcOY+4XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPoP68wSNv3TPcxrz0YtV6+MFhpfCkgOgQ0P0pVX3MchcJ1eYhtbGWvzkZCEIGJc1
-         XdbTICVQ74SGTyaFy3MNSUG55x45bUYXtIjNinjvRpaeasK61T7PTJ6FTq0+lz2xvF
-         L9TqbxOO8jbhzg0Eu5TLLt8eifw18SBWnq1bIx+M=
+        b=AwHfQmZ7vqpWeyLUU944CCQyzfq/Pv0V6JGkwcTMwbsCMLf8W943+MpqZ6zPAbvtY
+         gfCHt96mmVm42225TjXHcWIgYNv1PT39iLPEU2dgKhxrLzsJm7fPfqYQNPvbo8/nMY
+         yEmb11LVgxk6D0+MrsXQK4menpyAMxmfAI+TB0L8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-scsi@vger.kernel.org,
-        =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 063/114] cdrom: respect device capabilities during opening action
-Date:   Thu,  2 Jan 2020 23:07:15 +0100
-Message-Id: <20200102220035.429538902@linuxfoundation.org>
+Subject: [PATCH 4.14 34/91] libnvdimm/btt: fix variable rc set but not used
+Date:   Thu,  2 Jan 2020 23:07:16 +0100
+Message-Id: <20200102220431.958542621@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Diego Elio Pettenò <flameeyes@flameeyes.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 366ba7c71ef77c08d06b18ad61b26e2df7352338 ]
+[ Upstream commit 4e24e37d5313edca8b4ab86f240c046c731e28d6 ]
 
-Reading the TOC only works if the device can play audio, otherwise
-these commands fail (and possibly bring the device to an unhealthy
-state.)
+drivers/nvdimm/btt.c: In function 'btt_read_pg':
+drivers/nvdimm/btt.c:1264:8: warning: variable 'rc' set but not used
+[-Wunused-but-set-variable]
+    int rc;
+        ^~
 
-Similarly, cdrom_mmc3_profile() should only be called if the device
-supports generic packet commands.
+Add a ratelimited message in case a storm of errors is encountered.
 
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Signed-off-by: Diego Elio Pettenò <flameeyes@flameeyes.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: d9b83c756953 ("libnvdimm, btt: rework error clearing")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/1572530719-32161-1-git-send-email-cai@lca.pw
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cdrom/cdrom.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/nvdimm/btt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-index 933268b8d6a5..d3947388a3ef 100644
---- a/drivers/cdrom/cdrom.c
-+++ b/drivers/cdrom/cdrom.c
-@@ -996,6 +996,12 @@ static void cdrom_count_tracks(struct cdrom_device_info *cdi, tracktype *tracks)
- 	tracks->xa = 0;
- 	tracks->error = 0;
- 	cd_dbg(CD_COUNT_TRACKS, "entering cdrom_count_tracks\n");
-+
-+	if (!CDROM_CAN(CDC_PLAY_AUDIO)) {
-+		tracks->error = CDS_NO_INFO;
-+		return;
-+	}
-+
- 	/* Grab the TOC header so we can see how many tracks there are */
- 	ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCHDR, &header);
- 	if (ret) {
-@@ -1162,7 +1168,8 @@ int cdrom_open(struct cdrom_device_info *cdi, struct block_device *bdev,
- 		ret = open_for_data(cdi);
- 		if (ret)
- 			goto err;
--		cdrom_mmc3_profile(cdi);
-+		if (CDROM_CAN(CDC_GENERIC_PACKET))
-+			cdrom_mmc3_profile(cdi);
- 		if (mode & FMODE_WRITE) {
- 			ret = -EROFS;
- 			if (cdrom_open_write(cdi))
-@@ -2882,6 +2889,9 @@ int cdrom_get_last_written(struct cdrom_device_info *cdi, long *last_written)
- 	   it doesn't give enough information or fails. then we return
- 	   the toc contents. */
- use_toc:
-+	if (!CDROM_CAN(CDC_PLAY_AUDIO))
-+		return -ENOSYS;
-+
- 	toc.cdte_format = CDROM_MSF;
- 	toc.cdte_track = CDROM_LEADOUT;
- 	if ((ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCENTRY, &toc)))
+diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
+index b2feda35966b..471498469d0a 100644
+--- a/drivers/nvdimm/btt.c
++++ b/drivers/nvdimm/btt.c
+@@ -1259,11 +1259,11 @@ static int btt_read_pg(struct btt *btt, struct bio_integrity_payload *bip,
+ 
+ 		ret = btt_data_read(arena, page, off, postmap, cur_len);
+ 		if (ret) {
+-			int rc;
+-
+ 			/* Media error - set the e_flag */
+-			rc = btt_map_write(arena, premap, postmap, 0, 1,
+-				NVDIMM_IO_ATOMIC);
++			if (btt_map_write(arena, premap, postmap, 0, 1, NVDIMM_IO_ATOMIC))
++				dev_warn_ratelimited(to_dev(arena),
++					"Error persistently tracking bad blocks at %#x\n",
++					premap);
+ 			goto out_rtt;
+ 		}
+ 
 -- 
 2.20.1
 
