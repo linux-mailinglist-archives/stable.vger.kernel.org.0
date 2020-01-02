@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBDF12EC91
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:19:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D55D712ED08
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728670AbgABWTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:19:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36414 "EHLO mail.kernel.org"
+        id S1729097AbgABWYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:24:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728665AbgABWTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:19:49 -0500
+        id S1729375AbgABWYQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:24:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A558622B48;
-        Thu,  2 Jan 2020 22:19:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6137E20863;
+        Thu,  2 Jan 2020 22:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003589;
-        bh=4oyLsrmYWoS4GjZR0IN8IUt5EC2eJlOpBX7eJQplCFo=;
+        s=default; t=1578003855;
+        bh=oVwTf1C/yabIoOxrk2K4gKq/YQtGQJRmTDX44jNet1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nbWrLSWm/7XVzHg1D0uvebFcZEGYKDzFum7navWh0A2CLgw6kizdim7LySerQgS/O
-         kk/pfpip8ZcG30SaXPjl2wEnT1vy+cSWd694Dw2tKFZ1IN/VYevI1Fm/PIDVjuSqZi
-         +GQ2LQnLljlmH8C9A2pJT78/c+uwi3f89S+BxEnw=
+        b=loZR1a2KNjhDyT40G9yS4g4z4wWiBUC0TjHUfp4ZH0JD6X5PQJAm18WOb9FfxtIyb
+         WuyENSQDUytqaBW8NME0LHpmXmZ3HJWu06a2VgwbuBA7GWKfxgSVIacm3vy+Uw6ZNz
+         G8djj/GYj82fASo7+0ELHByLyhOOxGqXfD8n6Q3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Barry Song <Baohua.Song@csr.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 032/114] mfd: mfd-core: Honour Device Trees request to disable a child-device
-Date:   Thu,  2 Jan 2020 23:06:44 +0100
-Message-Id: <20200102220032.331065471@linuxfoundation.org>
+Subject: [PATCH 4.14 04/91] Input: atmel_mxt_ts - disable IRQ across suspend
+Date:   Thu,  2 Jan 2020 23:06:46 +0100
+Message-Id: <20200102220402.321876076@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Evan Green <evgreen@chromium.org>
 
-[ Upstream commit 6b5c350648b857047b47acf74a57087ad27d6183 ]
+[ Upstream commit 463fa44eec2fef50d111ed0199cf593235065c04 ]
 
-Until now, MFD has assumed all child devices passed to it (via
-mfd_cells) are to be registered. It does not take into account
-requests from Device Tree and the like to disable child devices
-on a per-platform basis.
+Across suspend and resume, we are seeing error messages like the following:
 
-Well now it does.
+atmel_mxt_ts i2c-PRP0001:00: __mxt_read_reg: i2c transfer failed (-121)
+atmel_mxt_ts i2c-PRP0001:00: Failed to read T44 and T5 (-121)
 
-Link: https://www.spinics.net/lists/arm-kernel/msg366309.html
-Link: https://lkml.org/lkml/2019/8/22/1350
+This occurs because the driver leaves its IRQ enabled. Upon resume, there
+is an IRQ pending, but the interrupt is serviced before both the driver and
+the underlying I2C bus have been resumed. This causes EREMOTEIO errors.
 
-Reported-by: Barry Song <Baohua.Song@csr.com>
-Reported-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Tested-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Disable the IRQ in suspend, and re-enable it on resume. If there are cases
+where the driver enters suspend with interrupts disabled, that's a bug we
+should fix separately.
+
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/mfd-core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-index 182973df1aed..99a9c5c56ea9 100644
---- a/drivers/mfd/mfd-core.c
-+++ b/drivers/mfd/mfd-core.c
-@@ -178,6 +178,11 @@ static int mfd_add_device(struct device *parent, int id,
- 	if (parent->of_node && cell->of_compatible) {
- 		for_each_child_of_node(parent->of_node, np) {
- 			if (of_device_is_compatible(np, cell->of_compatible)) {
-+				if (!of_device_is_available(np)) {
-+					/* Ignore disabled devices error free */
-+					ret = 0;
-+					goto fail_alias;
-+				}
- 				pdev->dev.of_node = np;
- 				pdev->dev.fwnode = &np->fwnode;
- 				break;
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 59aaac43db91..138d1f3b12b2 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -3257,6 +3257,8 @@ static int __maybe_unused mxt_suspend(struct device *dev)
+ 
+ 	mutex_unlock(&input_dev->mutex);
+ 
++	disable_irq(data->irq);
++
+ 	return 0;
+ }
+ 
+@@ -3269,6 +3271,8 @@ static int __maybe_unused mxt_resume(struct device *dev)
+ 	if (!input_dev)
+ 		return 0;
+ 
++	enable_irq(data->irq);
++
+ 	mutex_lock(&input_dev->mutex);
+ 
+ 	if (input_dev->users)
 -- 
 2.20.1
 
