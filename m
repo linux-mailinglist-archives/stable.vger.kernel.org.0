@@ -2,95 +2,313 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10CEC12EB5E
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 22:28:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F3512EB5F
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 22:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726194AbgABV2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 16:28:40 -0500
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:40499 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725851AbgABV2k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 16:28:40 -0500
-Received: by mail-pg1-f196.google.com with SMTP id k25so22479118pgt.7
-        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 13:28:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=hvpWTN6e4RnlgXWsJ95hXmR8kwS5bjTaUI17lXlqFb4=;
-        b=K5NDO+/7A5gcJkr0169Vk6rRb+F08BFqVKjgtY3hle/mN3yW5qgCpM2+qsse+iVAjg
-         SDoedQVZSUuAdQAxIlC4NufghQ7ADyHK2RO7yv31diYUxORr+EepiR0a7yM849QxqbZP
-         mQRu8hsnZFCKRbNnvcei24IgiNjy2ZjfB1TcP7U0qpAsNo7HzlrhodPoGbOZGuhmA4OO
-         zQe0LrfhnEXXsNBX121NYvWzyrLct/jV4I3VENp8XAPukiju9UTuPOJknKkUVpqd1uCi
-         mfHh9sHu8iiM4paLqGhzoeBDRX+NrtX0Te2T1rUFYbK4SprV2+OyeJ0LVwMtV9q9sjpa
-         mp1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=hvpWTN6e4RnlgXWsJ95hXmR8kwS5bjTaUI17lXlqFb4=;
-        b=cCslWa+5Lt3PIpdk0ZcT5Au4Ik9hxAg6F0sY3sBxQMXKiI9C1aCuNCjTAo9X2t8VzF
-         O5wJr1oNJrCB3SD9RJp7vgjvSuh4+oBsVh/07ETXp10DvOokR7n8ZYBfY8qCCyNBblH8
-         iJTC4AesrT5xrs2lnXXERG06q7o+MGd03+CzFsl7RHugHSZTQU3VXEyJlL6XpAfFq3R4
-         trUrNrwXt74X+ev5okrpvgMcK1XKfWf8i6TqIDSkbKxJD0S7D5BD061KcV6nrnSDVORh
-         X5ruEuWUENPKnvUHZQCVP/0njjSvNWsrmki8qHXO7lm9SoUFLCToUxLoZWhtsZquqeLg
-         ohhw==
-X-Gm-Message-State: APjAAAXLkY/2iWTnRfKDuF0nuOeT+5bGPk54FQ6CvlnWyMZGtYl3vkk2
-        UpDgc/HUoGx3cyQAEKiP0I4=
-X-Google-Smtp-Source: APXvYqxoKDzOwCnUMaJ9zy15JFpUknLmupbULghr0LLxSB0UKHZvQ1fRW3Ub3/gVRkESCOPWXHVSXg==
-X-Received: by 2002:a63:f107:: with SMTP id f7mr92451094pgi.76.1578000519308;
-        Thu, 02 Jan 2020 13:28:39 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id w11sm64002644pfn.4.2020.01.02.13.28.37
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 02 Jan 2020 13:28:38 -0800 (PST)
-Date:   Thu, 2 Jan 2020 13:28:37 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>, Stephen Boyd <sboyd@kernel.org>
-Subject: Re: Clock related crashes in v5.4.y-queue
-Message-ID: <20200102212837.GA9400@roeck-us.net>
-References: <029dab5a-22f5-c4e9-0797-54cdba0f3539@roeck-us.net>
- <20200102210119.GA250861@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200102210119.GA250861@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        id S1726146AbgABV2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 16:28:48 -0500
+Received: from mx2.suse.de ([195.135.220.15]:36574 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725851AbgABV2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 16:28:48 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id AB688ADD5;
+        Thu,  2 Jan 2020 21:28:44 +0000 (UTC)
+Received: by unicorn.suse.cz (Postfix, from userid 1000)
+        id 0D734E0095; Thu,  2 Jan 2020 22:28:44 +0100 (CET)
+In-Reply-To: <CA+G9fYv3=oJSFodFp4wwF7G7_g5FWYRYbc4F0AMU6jyfLT689A@mail.gmail.com>
+References: <CA+G9fYv3=oJSFodFp4wwF7G7_g5FWYRYbc4F0AMU6jyfLT689A@mail.gmail.com>
+From:   Michal Kubecek <mkubecek@suse.cz>
+Subject: [PATCH stable-4.19] tcp/dccp: fix possible race
+ __inet_lookup_established()
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Firo Yang <firo.yang@suse.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        rcu@vger.kernel.org, netdev@vger.kernel.org,
+        lkft-triage@lists.linaro.org,
+        Naresh Kamboju <naresh.kamboju@linaro.org>
+Message-Id: <20200102212844.0D734E0095@unicorn.suse.cz>
+Date:   Thu,  2 Jan 2020 22:28:44 +0100 (CET)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 02, 2020 at 10:01:19PM +0100, Greg Kroah-Hartman wrote:
-> On Wed, Jan 01, 2020 at 06:44:08PM -0800, Guenter Roeck wrote:
-> > Hi,
-> > 
-> > I see a number of crashes in the latest v5.4.y-queue; please see below
-> > for details. The problem bisects to commit 54a311c5d3988d ("clk: Fix memory
-> > leak in clk_unregister()").
-> > 
-> > The context suggests recovery from a failed driver probe, and it appears
-> > that the memory is released twice. Interestingly, I don't see the problem
-> > in mainline.
-> > 
-> > I would suggest to drop that patch from the stable queue.
-> 
-> That does not look right, as you point out, so I will go drop it now.
-> 
-> The logic of the clk structure lifetimes seems crazy, messing with krefs
-> and just "knowing" the lifecycle of the other structures seems like a
-> problem just waiting to happen...
-> 
+From: Eric Dumazet <edumazet@google.com>
 
-I agree. While the patch itself seems to be ok per Stephen's feedback,
-we have to assume that there will be more secondary failures in addition
-to the one I have discovered. Given that clocks are not normally
-unregistered, I don't think fixing the memory leak is important enough
-to risk the stability of stable releases.
+[ Upstream commit 8dbd76e79a16b45b2ccb01d2f2e08dbf64e71e40 ]
 
-With all that in mind, I'd rather have this in mainline for a prolonged
-period of time before considering it for stable release (if at all).
+Michal Kubecek and Firo Yang did a very nice analysis of crashes
+happening in __inet_lookup_established().
 
-Thanks,
-Guenter
+Since a TCP socket can go from TCP_ESTABLISH to TCP_LISTEN
+(via a close()/socket()/listen() cycle) without a RCU grace period,
+I should not have changed listeners linkage in their hash table.
+
+They must use the nulls protocol (Documentation/RCU/rculist_nulls.txt),
+so that a lookup can detect a socket in a hash list was moved in
+another one.
+
+Since we added code in commit d296ba60d8e2 ("soreuseport: Resolve
+merge conflict for v4/v6 ordering fix"), we have to add
+hlist_nulls_add_tail_rcu() helper.
+
+stable-4.19: we also need to update code in __inet_lookup_listener() and
+inet6_lookup_listener() which has been removed in 5.0-rc1.
+
+Fixes: 3b24d854cb35 ("tcp/dccp: do not touch listener sk_refcnt under synflood")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Michal Kubecek <mkubecek@suse.cz>
+Reported-by: Firo Yang <firo.yang@suse.com>
+Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
+Link: https://lore.kernel.org/netdev/20191120083919.GH27852@unicorn.suse.cz/
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+---
+ include/linux/rculist_nulls.h | 37 +++++++++++++++++++++++++++++++++++
+ include/net/inet_hashtables.h | 12 +++++++++---
+ include/net/sock.h            |  5 +++++
+ net/ipv4/inet_diag.c          |  3 ++-
+ net/ipv4/inet_hashtables.c    | 19 +++++++++---------
+ net/ipv4/tcp_ipv4.c           |  7 ++++---
+ net/ipv6/inet6_hashtables.c   |  3 ++-
+ 7 files changed, 69 insertions(+), 17 deletions(-)
+
+diff --git a/include/linux/rculist_nulls.h b/include/linux/rculist_nulls.h
+index bc8206a8f30e..61974c4c566b 100644
+--- a/include/linux/rculist_nulls.h
++++ b/include/linux/rculist_nulls.h
+@@ -100,6 +100,43 @@ static inline void hlist_nulls_add_head_rcu(struct hlist_nulls_node *n,
+ 		first->pprev = &n->next;
+ }
+ 
++/**
++ * hlist_nulls_add_tail_rcu
++ * @n: the element to add to the hash list.
++ * @h: the list to add to.
++ *
++ * Description:
++ * Adds the specified element to the specified hlist_nulls,
++ * while permitting racing traversals.
++ *
++ * The caller must take whatever precautions are necessary
++ * (such as holding appropriate locks) to avoid racing
++ * with another list-mutation primitive, such as hlist_nulls_add_head_rcu()
++ * or hlist_nulls_del_rcu(), running on this same list.
++ * However, it is perfectly legal to run concurrently with
++ * the _rcu list-traversal primitives, such as
++ * hlist_nulls_for_each_entry_rcu(), used to prevent memory-consistency
++ * problems on Alpha CPUs.  Regardless of the type of CPU, the
++ * list-traversal primitive must be guarded by rcu_read_lock().
++ */
++static inline void hlist_nulls_add_tail_rcu(struct hlist_nulls_node *n,
++					    struct hlist_nulls_head *h)
++{
++	struct hlist_nulls_node *i, *last = NULL;
++
++	/* Note: write side code, so rcu accessors are not needed. */
++	for (i = h->first; !is_a_nulls(i); i = i->next)
++		last = i;
++
++	if (last) {
++		n->next = last->next;
++		n->pprev = &last->next;
++		rcu_assign_pointer(hlist_next_rcu(last), n);
++	} else {
++		hlist_nulls_add_head_rcu(n, h);
++	}
++}
++
+ /**
+  * hlist_nulls_for_each_entry_rcu - iterate over rcu list of given type
+  * @tpos:	the type * to use as a loop cursor.
+diff --git a/include/net/inet_hashtables.h b/include/net/inet_hashtables.h
+index 9141e95529e7..b875dcef173c 100644
+--- a/include/net/inet_hashtables.h
++++ b/include/net/inet_hashtables.h
+@@ -106,13 +106,19 @@ struct inet_bind_hashbucket {
+ 	struct hlist_head	chain;
+ };
+ 
+-/*
+- * Sockets can be hashed in established or listening table
++/* Sockets can be hashed in established or listening table.
++ * We must use different 'nulls' end-of-chain value for all hash buckets :
++ * A socket might transition from ESTABLISH to LISTEN state without
++ * RCU grace period. A lookup in ehash table needs to handle this case.
+  */
++#define LISTENING_NULLS_BASE (1U << 29)
+ struct inet_listen_hashbucket {
+ 	spinlock_t		lock;
+ 	unsigned int		count;
+-	struct hlist_head	head;
++	union {
++		struct hlist_head	head;
++		struct hlist_nulls_head	nulls_head;
++	};
+ };
+ 
+ /* This is for listening sockets, thus all sockets which possess wildcards. */
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 4545a9ecc219..f359e5c94762 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -721,6 +721,11 @@ static inline void __sk_nulls_add_node_rcu(struct sock *sk, struct hlist_nulls_h
+ 	hlist_nulls_add_head_rcu(&sk->sk_nulls_node, list);
+ }
+ 
++static inline void __sk_nulls_add_node_tail_rcu(struct sock *sk, struct hlist_nulls_head *list)
++{
++	hlist_nulls_add_tail_rcu(&sk->sk_nulls_node, list);
++}
++
+ static inline void sk_nulls_add_node_rcu(struct sock *sk, struct hlist_nulls_head *list)
+ {
+ 	sock_hold(sk);
+diff --git a/net/ipv4/inet_diag.c b/net/ipv4/inet_diag.c
+index 5731670c560b..9742b37afe1d 100644
+--- a/net/ipv4/inet_diag.c
++++ b/net/ipv4/inet_diag.c
+@@ -918,11 +918,12 @@ void inet_diag_dump_icsk(struct inet_hashinfo *hashinfo, struct sk_buff *skb,
+ 
+ 		for (i = s_i; i < INET_LHTABLE_SIZE; i++) {
+ 			struct inet_listen_hashbucket *ilb;
++			struct hlist_nulls_node *node;
+ 
+ 			num = 0;
+ 			ilb = &hashinfo->listening_hash[i];
+ 			spin_lock(&ilb->lock);
+-			sk_for_each(sk, &ilb->head) {
++			sk_nulls_for_each(sk, node, &ilb->nulls_head) {
+ 				struct inet_sock *inet = inet_sk(sk);
+ 
+ 				if (!net_eq(sock_net(sk), net))
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 7be966a60801..b53da2691adb 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -308,6 +308,7 @@ struct sock *__inet_lookup_listener(struct net *net,
+ 	bool exact_dif = inet_exact_dif_match(net, skb);
+ 	struct inet_listen_hashbucket *ilb2;
+ 	struct sock *sk, *result = NULL;
++	struct hlist_nulls_node *node;
+ 	int score, hiscore = 0;
+ 	unsigned int hash2;
+ 	u32 phash = 0;
+@@ -343,7 +344,7 @@ struct sock *__inet_lookup_listener(struct net *net,
+ 	goto done;
+ 
+ port_lookup:
+-	sk_for_each_rcu(sk, &ilb->head) {
++	sk_nulls_for_each_rcu(sk, node, &ilb->nulls_head) {
+ 		score = compute_score(sk, net, hnum, daddr,
+ 				      dif, sdif, exact_dif);
+ 		if (score > hiscore) {
+@@ -560,10 +561,11 @@ static int inet_reuseport_add_sock(struct sock *sk,
+ 				   struct inet_listen_hashbucket *ilb)
+ {
+ 	struct inet_bind_bucket *tb = inet_csk(sk)->icsk_bind_hash;
++	const struct hlist_nulls_node *node;
+ 	struct sock *sk2;
+ 	kuid_t uid = sock_i_uid(sk);
+ 
+-	sk_for_each_rcu(sk2, &ilb->head) {
++	sk_nulls_for_each_rcu(sk2, node, &ilb->nulls_head) {
+ 		if (sk2 != sk &&
+ 		    sk2->sk_family == sk->sk_family &&
+ 		    ipv6_only_sock(sk2) == ipv6_only_sock(sk) &&
+@@ -599,9 +601,9 @@ int __inet_hash(struct sock *sk, struct sock *osk)
+ 	}
+ 	if (IS_ENABLED(CONFIG_IPV6) && sk->sk_reuseport &&
+ 		sk->sk_family == AF_INET6)
+-		hlist_add_tail_rcu(&sk->sk_node, &ilb->head);
++		__sk_nulls_add_node_tail_rcu(sk, &ilb->nulls_head);
+ 	else
+-		hlist_add_head_rcu(&sk->sk_node, &ilb->head);
++		__sk_nulls_add_node_rcu(sk, &ilb->nulls_head);
+ 	inet_hash2(hashinfo, sk);
+ 	ilb->count++;
+ 	sock_set_flag(sk, SOCK_RCU_FREE);
+@@ -650,11 +652,9 @@ void inet_unhash(struct sock *sk)
+ 		reuseport_detach_sock(sk);
+ 	if (ilb) {
+ 		inet_unhash2(hashinfo, sk);
+-		 __sk_del_node_init(sk);
+-		 ilb->count--;
+-	} else {
+-		__sk_nulls_del_node_init_rcu(sk);
++		ilb->count--;
+ 	}
++	__sk_nulls_del_node_init_rcu(sk);
+ 	sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
+ unlock:
+ 	spin_unlock_bh(lock);
+@@ -790,7 +790,8 @@ void inet_hashinfo_init(struct inet_hashinfo *h)
+ 
+ 	for (i = 0; i < INET_LHTABLE_SIZE; i++) {
+ 		spin_lock_init(&h->listening_hash[i].lock);
+-		INIT_HLIST_HEAD(&h->listening_hash[i].head);
++		INIT_HLIST_NULLS_HEAD(&h->listening_hash[i].nulls_head,
++				      i + LISTENING_NULLS_BASE);
+ 		h->listening_hash[i].count = 0;
+ 	}
+ 
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index bfec48849735..5553f6a833f3 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -2020,13 +2020,14 @@ static void *listening_get_next(struct seq_file *seq, void *cur)
+ 	struct tcp_iter_state *st = seq->private;
+ 	struct net *net = seq_file_net(seq);
+ 	struct inet_listen_hashbucket *ilb;
++	struct hlist_nulls_node *node;
+ 	struct sock *sk = cur;
+ 
+ 	if (!sk) {
+ get_head:
+ 		ilb = &tcp_hashinfo.listening_hash[st->bucket];
+ 		spin_lock(&ilb->lock);
+-		sk = sk_head(&ilb->head);
++		sk = sk_nulls_head(&ilb->nulls_head);
+ 		st->offset = 0;
+ 		goto get_sk;
+ 	}
+@@ -2034,9 +2035,9 @@ static void *listening_get_next(struct seq_file *seq, void *cur)
+ 	++st->num;
+ 	++st->offset;
+ 
+-	sk = sk_next(sk);
++	sk = sk_nulls_next(sk);
+ get_sk:
+-	sk_for_each_from(sk) {
++	sk_nulls_for_each_from(sk, node) {
+ 		if (!net_eq(sock_net(sk), net))
+ 			continue;
+ 		if (sk->sk_family == afinfo->family)
+diff --git a/net/ipv6/inet6_hashtables.c b/net/ipv6/inet6_hashtables.c
+index 91d6ea937ffb..d9e2575dad94 100644
+--- a/net/ipv6/inet6_hashtables.c
++++ b/net/ipv6/inet6_hashtables.c
+@@ -171,6 +171,7 @@ struct sock *inet6_lookup_listener(struct net *net,
+ 	bool exact_dif = inet6_exact_dif_match(net, skb);
+ 	struct inet_listen_hashbucket *ilb2;
+ 	struct sock *sk, *result = NULL;
++	struct hlist_nulls_node *node;
+ 	int score, hiscore = 0;
+ 	unsigned int hash2;
+ 	u32 phash = 0;
+@@ -206,7 +207,7 @@ struct sock *inet6_lookup_listener(struct net *net,
+ 	goto done;
+ 
+ port_lookup:
+-	sk_for_each(sk, &ilb->head) {
++	sk_nulls_for_each(sk, node, &ilb->nulls_head) {
+ 		score = compute_score(sk, net, hnum, daddr, dif, sdif, exact_dif);
+ 		if (score > hiscore) {
+ 			if (sk->sk_reuseport) {
+-- 
+2.24.1
+
