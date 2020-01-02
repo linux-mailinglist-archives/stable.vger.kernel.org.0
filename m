@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A94112EFF5
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:50:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7998412F043
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:52:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729633AbgABW0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:26:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53416 "EHLO mail.kernel.org"
+        id S1729125AbgABWwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:52:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729627AbgABW0S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:26:18 -0500
+        id S1728308AbgABWXV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:23:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD22822525;
-        Thu,  2 Jan 2020 22:26:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C862520863;
+        Thu,  2 Jan 2020 22:23:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003978;
-        bh=ZkEToZ9kZMhEnnK6bd6YMhqCMwF2xVX5AH3G3JiaVE0=;
+        s=default; t=1578003800;
+        bh=2UtYePbH9BvFGO0ZBIyEg1YlG7Ppbt5KXfY0NKANhfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ps7GH1DhN5+g5v10E4IAjd93auUOHodzPfUa/Kvr1ytiGFG9aufsio3xbbJ7/zXUj
-         sJKUxtc9H4xnbYYpX1AjRvCxtDFLTLjklTNjasbdi+Z+GV4Y8o79rG/ssvAh+aHUAO
-         cQrA9CIvB7AmTGTztKyUErNwHXpuvRCkyOgTfhX4=
+        b=kxzkNpt1NYNhZ/upM/yWuoTfjf8vX/RD3Ziexh5X/Rxu3YvL+JmIrS/epxhBdeMyI
+         IyCn2WqlmrO6VYQO7Csdlkz3WFKORPZaLFyQH9pxFt6vcQSmniEekUhA6EdWDnaxRE
+         dwg10QFTPfoxylY6wRjGNInTBJMtGjXb94oyl0pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 78/91] vhost/vsock: accept only packets with the right dst_cid
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Christoph Paasch <cpaasch@apple.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Jason Baron <jbaron@akamai.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 4.19 108/114] tcp: do not send empty skb from tcp_write_xmit()
 Date:   Thu,  2 Jan 2020 23:08:00 +0100
-Message-Id: <20200102220448.782346731@linuxfoundation.org>
+Message-Id: <20200102220040.041353549@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 8a3cc29c316c17de590e3ff8b59f3d6cbfd37b0a ]
+[ Upstream commit 1f85e6267caca44b30c54711652b0726fadbb131 ]
 
-When we receive a new packet from the guest, we check if the
-src_cid is correct, but we forgot to check the dst_cid.
+Backport of commit fdfc5c8594c2 ("tcp: remove empty skb from
+write queue in error cases") in linux-4.14 stable triggered
+various bugs. One of them has been fixed in commit ba2ddb43f270
+("tcp: Don't dequeue SYN/FIN-segments from write-queue"), but
+we still have crashes in some occasions.
 
-The host should accept only packets where dst_cid is
-equal to the host CID.
+Root-cause is that when tcp_sendmsg() has allocated a fresh
+skb and could not append a fragment before being blocked
+in sk_stream_wait_memory(), tcp_write_xmit() might be called
+and decide to send this fresh and empty skb.
 
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Sending an empty packet is not only silly, it might have caused
+many issues we had in the past with tp->packets_out being
+out of sync.
+
+Fixes: c65f7f00c587 ("[TCP]: Simplify SKB data portion allocation with NETIF_F_SG.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Christoph Paasch <cpaasch@apple.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Cc: Jason Baron <jbaron@akamai.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vsock.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_output.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -436,7 +436,9 @@ static void vhost_vsock_handle_tx_kick(s
- 		virtio_transport_deliver_tap_pkt(pkt);
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -2376,6 +2376,14 @@ static bool tcp_write_xmit(struct sock *
+ 		if (tcp_small_queue_check(sk, skb, 0))
+ 			break;
  
- 		/* Only accept correctly addressed packets */
--		if (le64_to_cpu(pkt->hdr.src_cid) == vsock->guest_cid)
-+		if (le64_to_cpu(pkt->hdr.src_cid) == vsock->guest_cid &&
-+		    le64_to_cpu(pkt->hdr.dst_cid) ==
-+		    vhost_transport_get_local_cid())
- 			virtio_transport_recv_pkt(pkt);
- 		else
- 			virtio_transport_free_pkt(pkt);
++		/* Argh, we hit an empty skb(), presumably a thread
++		 * is sleeping in sendmsg()/sk_stream_wait_memory().
++		 * We do not want to send a pure-ack packet and have
++		 * a strange looking rtx queue with empty packet(s).
++		 */
++		if (TCP_SKB_CB(skb)->end_seq == TCP_SKB_CB(skb)->seq)
++			break;
++
+ 		if (unlikely(tcp_transmit_skb(sk, skb, 1, gfp)))
+ 			break;
+ 
 
 
