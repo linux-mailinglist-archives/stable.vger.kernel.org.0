@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B75512EC94
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:20:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E67F712EC96
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:20:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728698AbgABWT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:19:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36662 "EHLO mail.kernel.org"
+        id S1727973AbgABWUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:20:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728691AbgABWT4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:19:56 -0500
+        id S1728507AbgABWT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:19:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD79421582;
-        Thu,  2 Jan 2020 22:19:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 371CC22314;
+        Thu,  2 Jan 2020 22:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003596;
-        bh=kZcTL9tAJMrBdan8lMVYHcwWVatpSIctS3+lsaHzVEM=;
+        s=default; t=1578003598;
+        bh=gkNryoQdQeCUL1UzSkod7HxNfAsDk2MseLcigk/kfgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1sy9OUFpJHZcvtulbaG8ENhc9OTUol+cmQ7sLyw6etY+Cc2grOMrllNk+skVC0nOm
-         rvZ+o8YwhxUte1lYeXR2veQhRt2pBgHchi1DSp5E4oa+J/GwqkknIqd+wnxYe+JlLR
-         SdCGw5MydKRJT2bjNDJxwruacph5oHmUbUblsqQU=
+        b=ad1184IXXl7pSBA1zAkq8280Ajf/Lz5ifR/sgvsYD1k0Z/wT0ULvJrOrGvV22+FUI
+         +oGCGmNtrE5PW7qWYetSz8sHmb/u4e8dA9IsSRzlsMIljFzaA+rJ3RoiJVZQQM01Y6
+         VE7dRySokusgOG+xurTlJ6Dbt8NEy8s7h4OWuTdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 035/114] PCI: rpaphp: Fix up pointer to first drc-info entry
-Date:   Thu,  2 Jan 2020 23:06:47 +0100
-Message-Id: <20200102220032.630670712@linuxfoundation.org>
+Subject: [PATCH 4.19 036/114] scsi: ufs: fix potential bug which ends in system hang
+Date:   Thu,  2 Jan 2020 23:06:48 +0100
+Message-Id: <20200102220032.725515295@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
 References: <20200102220029.183913184@linuxfoundation.org>
@@ -45,41 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Bean Huo <beanhuo@micron.com>
 
-[ Upstream commit 9723c25f99aff0451cfe6392e1b9fdd99d0bf9f0 ]
+[ Upstream commit cfcbae3895b86c390ede57b2a8f601dd5972b47b ]
 
-The first entry of the ibm,drc-info property is an int encoded count
-of the number of drc-info entries that follow. The "value" pointer
-returned by of_prop_next_u32() is still pointing at the this value
-when we call of_read_drc_info_cell(), but the helper function
-expects that value to be pointing at the first element of an entry.
+In function __ufshcd_query_descriptor(), in the event of an error
+happening, we directly goto out_unlock and forget to invaliate
+hba->dev_cmd.query.descriptor pointer. This results in this pointer still
+valid in ufshcd_copy_query_response() for other query requests which go
+through ufshcd_exec_raw_upiu_cmd(). This will cause __memcpy() crash and
+system hangs. Log as shown below:
 
-Fix up by incrementing the "value" pointer to point at the first
-element of the first drc-info entry prior.
+Unable to handle kernel paging request at virtual address
+ffff000012233c40
+Mem abort info:
+   ESR = 0x96000047
+   Exception class = DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+Data abort info:
+   ISV = 0, ISS = 0x00000047
+   CM = 0, WnR = 1
+swapper pgtable: 4k pages, 48-bit VAs, pgdp = 0000000028cc735c
+[ffff000012233c40] pgd=00000000bffff003, pud=00000000bfffe003,
+pmd=00000000ba8b8003, pte=0000000000000000
+ Internal error: Oops: 96000047 [#2] PREEMPT SMP
+ ...
+ Call trace:
+  __memcpy+0x74/0x180
+  ufshcd_issue_devman_upiu_cmd+0x250/0x3c0
+  ufshcd_exec_raw_upiu_cmd+0xfc/0x1a8
+  ufs_bsg_request+0x178/0x3b0
+  bsg_queue_rq+0xc0/0x118
+  blk_mq_dispatch_rq_list+0xb0/0x538
+  blk_mq_sched_dispatch_requests+0x18c/0x1d8
+  __blk_mq_run_hw_queue+0xb4/0x118
+  blk_mq_run_work_fn+0x28/0x38
+  process_one_work+0x1ec/0x470
+  worker_thread+0x48/0x458
+  kthread+0x130/0x138
+  ret_from_fork+0x10/0x1c
+ Code: 540000ab a8c12027 a88120c7 a8c12027 (a88120c7)
+ ---[ end trace 793e1eb5dff69f2d ]---
+ note: kworker/0:2H[2054] exited with preempt_count 1
 
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1573449697-5448-5-git-send-email-tyreld@linux.ibm.com
+This patch is to move "descriptor = NULL" down to below the label
+"out_unlock".
+
+Fixes: d44a5f98bb49b2(ufs: query descriptor API)
+Link: https://lore.kernel.org/r/20191112223436.27449-3-huobean@gmail.com
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/rpaphp_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/ufs/ufshcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
-index cc860c5f7d26..f56004243591 100644
---- a/drivers/pci/hotplug/rpaphp_core.c
-+++ b/drivers/pci/hotplug/rpaphp_core.c
-@@ -239,6 +239,8 @@ static int rpaphp_check_drc_props_v2(struct device_node *dn, char *drc_name,
- 	value = of_prop_next_u32(info, NULL, &entries);
- 	if (!value)
- 		return -EINVAL;
-+	else
-+		value++;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 8bce755e0f5b..7510d8328d4d 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -3011,10 +3011,10 @@ static int __ufshcd_query_descriptor(struct ufs_hba *hba,
+ 		goto out_unlock;
+ 	}
  
- 	for (j = 0; j < entries; j++) {
- 		of_read_drc_info_cell(&info, &value, &drc);
+-	hba->dev_cmd.query.descriptor = NULL;
+ 	*buf_len = be16_to_cpu(response->upiu_res.length);
+ 
+ out_unlock:
++	hba->dev_cmd.query.descriptor = NULL;
+ 	mutex_unlock(&hba->dev_cmd.lock);
+ out:
+ 	ufshcd_release(hba);
 -- 
 2.20.1
 
