@@ -2,110 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E212D12E499
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 10:52:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE3E12E529
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 11:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbgABJws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 04:52:48 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:39980 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727958AbgABJwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 04:52:47 -0500
-Received: by mail-wr1-f67.google.com with SMTP id c14so38647201wrn.7
-        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 01:52:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=drDwGgal5TUYRLkCDV6SsqvW+d2Wey2XiKi6dv44ATY=;
-        b=M48W68hhx6dqwANSVa+YttvAs1Fke/PFY6dUEYVqlFuc5tyv9YWRjYsSxpSbuWjuM/
-         +FSFKHG1+ZE3dRT4C80R+nR1fc+wLZoJe+X3TsgaI7b53fRY9r2sL5jZ1ZtXsbiCQ6ad
-         rPJK8e3KQnKAWaQB53BpnwzPnMEzxXHULkGFqwxOGVSayMkElkJDkkIJ/D83OPGi4WuR
-         8qSONrllLNlrS5bwLXBufAxp5qmtzFld87JD4gVNsJwsFPWyh1eDCQSpkTPtGp5pd6Ew
-         +bP6vXr3DSMsipOGRU3HrydMJEpSCVFLJYyfpL6T7IyM3bA6o5VIFyIa6gX8OvDy4T+Q
-         RKEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=drDwGgal5TUYRLkCDV6SsqvW+d2Wey2XiKi6dv44ATY=;
-        b=FNvQ0lCZ6NW6J5KBGK34UQwsFgvwIBqNmEs3KJwjHFGoZyV8n3zdWheJsyWx78lcUo
-         qlXbsEnsQh/u3DWPfmZNbSu7TWtcfp64aaBjKTRXKVKKlEf2HKSpywJFA1P/N35kfcQo
-         s6JrBZQmWPQzeVNVKIeC/HKyopF/0EMww4aFn+ZZiuXdy4cJYJuYH6G9lXZjQpPRR9zN
-         v3V7H2tWXbXZOcMlgfjJPFiYwxmJmOki0CPrAXCxgeTyZAbpWrNRa7YoX7hH4MQ/ZkyQ
-         MUyCJHlQcZSy2NNEP82CZOnDmqTIFssI794bTZVYe8t1dX/X7Cjs/39zrAv6Mdqce1Wb
-         ahwQ==
-X-Gm-Message-State: APjAAAV8H743UgQHorzx2tm+43xow0oPPPOQxH7v8fh/GhPQqBuopABt
-        ZZ35t7W9WxR4yvEvH4T46P3SeEyN
-X-Google-Smtp-Source: APXvYqyPog459cZCP0PqUZSdWTG+XjchNRieUa10dBVQ+SY5+QYyb9y3hPCF7REwZ99QphicT2mqhw==
-X-Received: by 2002:a5d:46d0:: with SMTP id g16mr85841438wrs.287.1577958765784;
-        Thu, 02 Jan 2020 01:52:45 -0800 (PST)
-Received: from [192.168.2.41] ([46.227.18.67])
-        by smtp.gmail.com with ESMTPSA id h8sm57952794wrx.63.2020.01.02.01.52.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Jan 2020 01:52:45 -0800 (PST)
-Subject: Re: FAILED: patch "[PATCH] tty/serial: atmel: fix out of range clock
- divider handling" failed to apply to 4.19-stable tree
-To:     Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org
-Cc:     david.engraf@sysgo.com, ludovic.desroches@microchip.com,
-        stable@vger.kernel.org
-References: <1577634359228165@kroah.com> <20200102004729.GB16372@sasha-vm>
-From:   Richard Genoud <richard.genoud@gmail.com>
-Message-ID: <184e09a3-1c45-f774-84f4-d27271593f91@gmail.com>
-Date:   Thu, 2 Jan 2020 10:52:40 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        id S1728080AbgABK63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 05:58:29 -0500
+Received: from frisell.zx2c4.com ([192.95.5.64]:55777 "EHLO frisell.zx2c4.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728044AbgABK63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 05:58:29 -0500
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id f8cfe1fd;
+        Thu, 2 Jan 2020 09:59:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
+        :references:in-reply-to:from:date:message-id:subject:to:cc
+        :content-type; s=mail; bh=1gVIOhY+u8AhCXDCI9oGBXaH8oE=; b=w9VpIE
+        Wg6c2Zj4fgbXNbMd5W9DPHSR6J7CewQ4twfNHv6AiOhYA7V++oCQuvYVsrEB+w/U
+        qHeO/fq1mhl6VU9uO8lVZj40icJ9688HNAfgM31g8AbKv51Z4iA+miVBhY6NpojF
+        o19/LDa/Nx7pIvnH3zlnWQGX7brA0Cw+SE8Z/+9e8C11zBDjeNQ4eSgJ6sC1XFZ2
+        6PQVlGqUIc3aa2JqbIAguaZ1TSys1Y2pcSeI4eeauI+vV4dO/LpjsNzF34Ud5HLZ
+        tPtykMmAE6J8Zh7ehN3oL5dadAy3kTALewvEnc4nLNeLc2llTxpZX/4xA0WHmIPY
+        agNyxZJESxKhu+OA==
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id b1032272 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
+        Thu, 2 Jan 2020 09:59:57 +0000 (UTC)
+Received: by mail-ot1-f51.google.com with SMTP id 66so56535028otd.9;
+        Thu, 02 Jan 2020 02:58:26 -0800 (PST)
+X-Gm-Message-State: APjAAAVkfU1h2PH/rowPkD1RgWXiL7Dt4coCyJFLEXfqzfNBdDRCI6t7
+        dj7ZthYXMzNQkyyrMYyl3qAkNWmAbqX/hHksPRk=
+X-Google-Smtp-Source: APXvYqw3d16YC7Jfrp9aGazNFsvu+BpYew09tXhaWieR6L/gBkf/gxI9tCzn7SRBtOsoMTyrCfsH4hY52pXEb/FixXk=
+X-Received: by 2002:a9d:4f18:: with SMTP id d24mr88169228otl.179.1577962705850;
+ Thu, 02 Jan 2020 02:58:25 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20200102004729.GB16372@sasha-vm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20200102005343.GA495913@rani.riverdale.lan> <20200102045038.102772-1-paulburton@kernel.org>
+In-Reply-To: <20200102045038.102772-1-paulburton@kernel.org>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Thu, 2 Jan 2020 11:58:15 +0100
+X-Gmail-Original-Message-ID: <CAHmME9r7pzca4ccF_GT3y09_fJQw-EPG_35V2ZM7OVamwLuH0w@mail.gmail.com>
+Message-ID: <CAHmME9r7pzca4ccF_GT3y09_fJQw-EPG_35V2ZM7OVamwLuH0w@mail.gmail.com>
+Subject: Re: [PATCH v2] MIPS: Avoid VDSO ABI breakage due to global register variable
+To:     Paul Burton <paulburton@kernel.org>
+Cc:     "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Christian Brauner <christian.brauner@canonical.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le 02/01/2020 à 01:47, Sasha Levin a écrit :
-> On Sun, Dec 29, 2019 at 04:45:59PM +0100, gregkh@linuxfoundation.org wrote:
->>
->> The patch below does not apply to the 4.19-stable tree.
->> If someone wants it applied there, or to any other stable or longterm
->> tree, then please email the backport, including the original git commit
->> id to <stable@vger.kernel.org>.
->>
->> thanks,
->>
->> greg k-h
->>
->> ------------------ original commit in Linus's tree ------------------
->>
->> From cb47b9f8630ae3fa3f5fbd0c7003faba7abdf711 Mon Sep 17 00:00:00 2001
->> From: David Engraf <david.engraf@sysgo.com>
->> Date: Mon, 16 Dec 2019 09:54:03 +0100
->> Subject: [PATCH] tty/serial: atmel: fix out of range clock divider
->> handling
->>
->> Use MCK_DIV8 when the clock divider is > 65535. Unfortunately the mode
->> register was already written thus the clock selection is ignored.
->>
->> Fix by doing the baud rate calulation before setting the mode.
->>
->> Fixes: 5bf5635ac170 ("tty/serial: atmel: add fractional baud rate
->> support")
->> Signed-off-by: David Engraf <david.engraf@sysgo.com>
->> Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
->> Acked-by: Richard Genoud <richard.genoud@gmail.com>
->> Cc: stable <stable@vger.kernel.org>
->> Link:
->> https://lore.kernel.org/r/20191216085403.17050-1-david.engraf@sysgo.com
->> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> Fixed up context due to missing 377fedd1866a ("tty/serial: atmel: add
-> ISO7816
-> support"), queued for 4.19-4.9.
-> 
-Thanks for taking care of this Sacha !
+Thanks, looks good to me:
 
-regards,
-Richard
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+    or
+Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
