@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 549CE12EE5B
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E94012F0D5
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:56:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731113AbgABWhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:37:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50480 "EHLO mail.kernel.org"
+        id S1728371AbgABW4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:56:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731103AbgABWhk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:37:40 -0500
+        id S1727320AbgABWSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:18:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93B4020863;
-        Thu,  2 Jan 2020 22:37:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B6B121582;
+        Thu,  2 Jan 2020 22:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004660;
-        bh=eRSMkoQmHJfQsGIgeNGeeDD/XC6HM12laJvD/wmZqF0=;
+        s=default; t=1578003514;
+        bh=ADi4dWgw5nGqY+3If4iTJXPUNjYkDaZvDqozVpHUR4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HAJkaeu7PxcI6jKGPU38LxTtwMUqTvCsbT5fYUqGkZaqb0RYCnJhD8TvKVnPfT6ue
-         xza148T2eedL0pxkY9SiiKwZOySV3sMgDEqYIkmyBs/44/UjQr8fIAeLyhKMLUhISx
-         WswpVGLrVwRKdkxCiRKxpwN8vndwhciiNf7qYyuU=
+        b=vAsBqNDRt40CCC87fp9wC5P/DlKr9O0RQEQkMwhMNHcy6MiGzQYK4Y4A/8XaFyOQ6
+         TjKswII8CCG3pdORTyFX2ZBDy4nn+XbVOQB+BehC+iMWtoIgUAMQHYhLFWKfSr883l
+         ORwtChwQcqANsEtAGU57K95BX3R4jEUT95Q/0Gzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Suwan Kim <suwan.kim027@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.4 082/137] usbip: Fix error path of vhci_recv_ret_submit()
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        David Ahern <dsahern@gmail.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 173/191] sit: do not confirm neighbor when do pmtu update
 Date:   Thu,  2 Jan 2020 23:07:35 +0100
-Message-Id: <20200102220557.745590718@linuxfoundation.org>
+Message-Id: <20200102215847.839524945@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suwan Kim <suwan.kim027@gmail.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit aabb5b833872524eaf28f52187e5987984982264 upstream.
+[ Upstream commit 4d42df46d6372ece4cb4279870b46c2ea7304a47 ]
 
-If a transaction error happens in vhci_recv_ret_submit(), event
-handler closes connection and changes port status to kick hub_event.
-Then hub tries to flush the endpoint URBs, but that causes infinite
-loop between usb_hub_flush_endpoint() and vhci_urb_dequeue() because
-"vhci_priv" in vhci_urb_dequeue() was already released by
-vhci_recv_ret_submit() before a transmission error occurred. Thus,
-vhci_urb_dequeue() terminates early and usb_hub_flush_endpoint()
-continuously calls vhci_urb_dequeue().
+When do IPv6 tunnel PMTU update and calls __ip6_rt_update_pmtu() in the end,
+we should not call dst_confirm_neigh() as there is no two-way communication.
 
-The root cause of this issue is that vhci_recv_ret_submit()
-terminates early without giving back URB when transaction error
-occurs in vhci_recv_ret_submit(). That causes the error URB to still
-be linked at endpoint list without “vhci_priv".
+v5: No change.
+v4: No change.
+v3: Do not remove dst_confirm_neigh, but add a new bool parameter in
+    dst_ops.update_pmtu to control whether we should do neighbor confirm.
+    Also split the big patch to small ones for each area.
+v2: Remove dst_confirm_neigh in __ip6_rt_update_pmtu.
 
-So, in the case of transaction error in vhci_recv_ret_submit(),
-unlink URB from the endpoint, insert proper error code in
-urb->status and give back URB.
-
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20191213023055.19933-3-suwan.kim027@gmail.com
+Reviewed-by: Guillaume Nault <gnault@redhat.com>
+Acked-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/usbip/vhci_rx.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/ipv6/sit.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/usbip/vhci_rx.c
-+++ b/drivers/usb/usbip/vhci_rx.c
-@@ -89,16 +89,21 @@ static void vhci_recv_ret_submit(struct
- 	usbip_pack_pdu(pdu, urb, USBIP_RET_SUBMIT, 0);
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -944,7 +944,7 @@ static netdev_tx_t ipip6_tunnel_xmit(str
+ 		}
  
- 	/* recv transfer buffer */
--	if (usbip_recv_xbuff(ud, urb) < 0)
--		return;
-+	if (usbip_recv_xbuff(ud, urb) < 0) {
-+		urb->status = -EPROTO;
-+		goto error;
-+	}
+ 		if (tunnel->parms.iph.daddr)
+-			skb_dst_update_pmtu(skb, mtu);
++			skb_dst_update_pmtu_no_confirm(skb, mtu);
  
- 	/* recv iso_packet_descriptor */
--	if (usbip_recv_iso(ud, urb) < 0)
--		return;
-+	if (usbip_recv_iso(ud, urb) < 0) {
-+		urb->status = -EPROTO;
-+		goto error;
-+	}
- 
- 	/* restore the padding in iso packets */
- 	usbip_pad_iso(ud, urb);
- 
-+error:
- 	if (usbip_dbg_flag_vhci_rx)
- 		usbip_dump_urb(urb);
- 
+ 		if (skb->len > mtu && !skb_is_gso(skb)) {
+ 			icmpv6_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
 
 
