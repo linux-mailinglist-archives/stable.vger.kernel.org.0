@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CCEA12EE8D
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99D6812EF20
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731075AbgABWjU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:39:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55266 "EHLO mail.kernel.org"
+        id S1730465AbgABWdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:33:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731177AbgABWjU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:39:20 -0500
+        id S1730635AbgABWdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:33:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6E72217F4;
-        Thu,  2 Jan 2020 22:39:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A16DD20863;
+        Thu,  2 Jan 2020 22:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004760;
-        bh=+O2zlRv2fKp69OE2+WSiH7GwneOvEM7wrJNwqYSuv3c=;
+        s=default; t=1578004431;
+        bh=V2Nil5YpI/z4tduL7Qr+mVMVndu2kX3d1y6DMtNllKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dmXaZgTjq9O0nOpsuZT8Om1g6e8Ev3fEJPAAgY37bjhQ0+/I6a8oiuTzuY4y0htXt
-         DVsotmYSr0NsSVQiOCahnlqfqRYyhR+0Rxy4FNT/MBoEWURGE0l4OXrJ6U4f2HylhR
-         brr1n/PCfVmP1ooxROFu8O1/PQGkn0qLjJ6dFARM=
+        b=VeK5JArW7CsF+AzCWdp7Kv7kid1G4UY/suRUH2fVyjox0dJMkHO2xsPWgZ3exZTkp
+         e/cKjHz1f84YbdeFLuEbGnboeU+KrXpksll6z5NLHI2FLzfEVyb6DU7kULaUZpfIiY
+         xe9PyAvUWp+2kMmUbHBVsRWd+V5iMS4KQ6K2B31w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 116/137] ext4: work around deleting a file with i_nlink == 0 safely
+        stable@vger.kernel.org,
+        syzbot+f68108fed972453a0ad4@syzkaller.appspotmail.com,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.9 158/171] netfilter: ebtables: compat: reject all padding in matches/watchers
 Date:   Thu,  2 Jan 2020 23:08:09 +0100
-Message-Id: <20200102220602.757575928@linuxfoundation.org>
+Message-Id: <20200102220608.712806035@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +45,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit c7df4a1ecb8579838ec8c56b2bb6a6716e974f37 ]
+commit e608f631f0ba5f1fc5ee2e260a3a35d13107cbfe upstream.
 
-If the file system is corrupted such that a file's i_links_count is
-too small, then it's possible that when unlinking that file, i_nlink
-will already be zero.  Previously we were working around this kind of
-corruption by forcing i_nlink to one; but we were doing this before
-trying to delete the directory entry --- and if the file system is
-corrupted enough that ext4_delete_entry() fails, then we exit with
-i_nlink elevated, and this causes the orphan inode list handling to be
-FUBAR'ed, such that when we unmount the file system, the orphan inode
-list can get corrupted.
+syzbot reported following splat:
 
-A better way to fix this is to simply skip trying to call drop_nlink()
-if i_nlink is already zero, thus moving the check to the place where
-it makes the most sense.
+BUG: KASAN: vmalloc-out-of-bounds in size_entry_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
+BUG: KASAN: vmalloc-out-of-bounds in compat_copy_entries+0x128b/0x1380 net/bridge/netfilter/ebtables.c:2155
+Read of size 4 at addr ffffc900004461f4 by task syz-executor267/7937
 
-https://bugzilla.kernel.org/show_bug.cgi?id=205433
+CPU: 1 PID: 7937 Comm: syz-executor267 Not tainted 5.5.0-rc1-syzkaller #0
+ size_entry_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
+ compat_copy_entries+0x128b/0x1380 net/bridge/netfilter/ebtables.c:2155
+ compat_do_replace+0x344/0x720 net/bridge/netfilter/ebtables.c:2249
+ compat_do_ebt_set_ctl+0x22f/0x27e net/bridge/netfilter/ebtables.c:2333
+ [..]
 
-Link: https://lore.kernel.org/r/20191112032903.8828-1-tytso@mit.edu
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Because padding isn't considered during computation of ->buf_user_offset,
+"total" is decremented by fewer bytes than it should.
+
+Therefore, the first part of
+
+if (*total < sizeof(*entry) || entry->next_offset < sizeof(*entry))
+
+will pass, -- it should not have.  This causes oob access:
+entry->next_offset is past the vmalloced size.
+
+Reject padding and check that computed user offset (sum of ebt_entry
+structure plus all individual matches/watchers/targets) is same
+value that userspace gave us as the offset of the next entry.
+
+Reported-by: syzbot+f68108fed972453a0ad4@syzkaller.appspotmail.com
+Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ext4/namei.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ net/bridge/netfilter/ebtables.c |   33 ++++++++++++++++-----------------
+ 1 file changed, 16 insertions(+), 17 deletions(-)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index aa08e129149d..712bf332e394 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3040,18 +3040,17 @@ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
- 	if (IS_DIRSYNC(dir))
- 		ext4_handle_sync(handle);
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1894,7 +1894,7 @@ static int ebt_buf_count(struct ebt_entr
+ }
  
--	if (inode->i_nlink == 0) {
--		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
--				   dentry->d_name.len, dentry->d_name.name);
--		set_nlink(inode, 1);
+ static int ebt_buf_add(struct ebt_entries_buf_state *state,
+-		       void *data, unsigned int sz)
++		       const void *data, unsigned int sz)
+ {
+ 	if (state->buf_kern_start == NULL)
+ 		goto count_only;
+@@ -1928,7 +1928,7 @@ enum compat_mwt {
+ 	EBT_COMPAT_TARGET,
+ };
+ 
+-static int compat_mtw_from_user(struct compat_ebt_entry_mwt *mwt,
++static int compat_mtw_from_user(const struct compat_ebt_entry_mwt *mwt,
+ 				enum compat_mwt compat_mwt,
+ 				struct ebt_entries_buf_state *state,
+ 				const unsigned char *base)
+@@ -2004,22 +2004,23 @@ static int compat_mtw_from_user(struct c
+ /* return size of all matches, watchers or target, including necessary
+  * alignment and padding.
+  */
+-static int ebt_size_mwt(struct compat_ebt_entry_mwt *match32,
++static int ebt_size_mwt(const struct compat_ebt_entry_mwt *match32,
+ 			unsigned int size_left, enum compat_mwt type,
+ 			struct ebt_entries_buf_state *state, const void *base)
+ {
++	const char *buf = (const char *)match32;
+ 	int growth = 0;
+-	char *buf;
+ 
+ 	if (size_left == 0)
+ 		return 0;
+ 
+-	buf = (char *) match32;
+-
+-	while (size_left >= sizeof(*match32)) {
++	do {
+ 		struct ebt_entry_match *match_kern;
+ 		int ret;
+ 
++		if (size_left < sizeof(*match32))
++			return -EINVAL;
++
+ 		match_kern = (struct ebt_entry_match *) state->buf_kern_start;
+ 		if (match_kern) {
+ 			char *tmp;
+@@ -2056,22 +2057,18 @@ static int ebt_size_mwt(struct compat_eb
+ 		if (match_kern)
+ 			match_kern->match_size = ret;
+ 
+-		/* rule should have no remaining data after target */
+-		if (type == EBT_COMPAT_TARGET && size_left)
+-			return -EINVAL;
+-
+ 		match32 = (struct compat_ebt_entry_mwt *) buf;
 -	}
- 	retval = ext4_delete_entry(handle, dir, de, bh);
- 	if (retval)
- 		goto end_unlink;
- 	dir->i_ctime = dir->i_mtime = ext4_current_time(dir);
- 	ext4_update_dx_flag(dir);
- 	ext4_mark_inode_dirty(handle, dir);
--	drop_nlink(inode);
-+	if (inode->i_nlink == 0)
-+		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
-+				   dentry->d_name.len, dentry->d_name.name);
-+	else
-+		drop_nlink(inode);
- 	if (!inode->i_nlink)
- 		ext4_orphan_add(handle, inode);
- 	inode->i_ctime = ext4_current_time(inode);
--- 
-2.20.1
-
++	} while (size_left);
+ 
+ 	return growth;
+ }
+ 
+ /* called for all ebt_entry structures. */
+-static int size_entry_mwt(struct ebt_entry *entry, const unsigned char *base,
++static int size_entry_mwt(const struct ebt_entry *entry, const unsigned char *base,
+ 			  unsigned int *total,
+ 			  struct ebt_entries_buf_state *state)
+ {
+-	unsigned int i, j, startoff, new_offset = 0;
++	unsigned int i, j, startoff, next_expected_off, new_offset = 0;
+ 	/* stores match/watchers/targets & offset of next struct ebt_entry: */
+ 	unsigned int offsets[4];
+ 	unsigned int *offsets_update = NULL;
+@@ -2158,11 +2155,13 @@ static int size_entry_mwt(struct ebt_ent
+ 			return ret;
+ 	}
+ 
+-	startoff = state->buf_user_offset - startoff;
++	next_expected_off = state->buf_user_offset - startoff;
++	if (next_expected_off != entry->next_offset)
++		return -EINVAL;
+ 
+-	if (WARN_ON(*total < startoff))
++	if (*total < entry->next_offset)
+ 		return -EINVAL;
+-	*total -= startoff;
++	*total -= entry->next_offset;
+ 	return 0;
+ }
+ 
 
 
