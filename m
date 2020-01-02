@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EAFC12EEB9
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5273F12F06C
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:53:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731266AbgABWiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:38:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51700 "EHLO mail.kernel.org"
+        id S1729118AbgABWxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:53:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731263AbgABWiJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:38:09 -0500
+        id S1728643AbgABWV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:21:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4911E20863;
-        Thu,  2 Jan 2020 22:38:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA074222C3;
+        Thu,  2 Jan 2020 22:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004688;
-        bh=1no84OwhjmvmHKpesHvV6bG38grz6JAXz/O5PiNgOFY=;
+        s=default; t=1578003718;
+        bh=xp112zKb8v80psbV/puqDOGOBn1/rLffnVodRk8j5xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pCZL7gwCWAUHHv5QxJK9O3RKHGzxrUT3F10PUnp4li1IRPkLN41/A6cgbzTQPXwEZ
-         dYGtGhPBgGYL9J/UAS/X3bUtcC/1alJx28/zIJp5FTprfPOIQCHnJIC7n69T91ddRY
-         +qY5lAJbD0Y/If89UTSM89Z6I6RSku1g53lnefxo=
+        b=pHVmF0g5Mmagb81W1uCllsehk9OtXPlLFcwpGOzGimOsTYgI3SD/x4BYkKTbx+7xc
+         eayvIMtvfBykQmQMnKsxoEPAv1q7IpOQJvo4WiPawxkVVZfXUm4OW2EfTrBgu+Dw9K
+         wE5ss5FqjSOqj1FyDIWd/FhCcp2mej0pSOoZK2rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.4 084/137] platform/x86: hp-wmi: Make buffer for HPWMI_FEATURE2_QUERY 128 bytes
-Date:   Thu,  2 Jan 2020 23:07:37 +0100
-Message-Id: <20200102220557.990485445@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 086/114] inetpeer: fix data-race in inet_putpeer / inet_putpeer
+Date:   Thu,  2 Jan 2020 23:07:38 +0100
+Message-Id: <20200102220037.855963462@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 133b2acee3871ae6bf123b8fe34be14464aa3d2c upstream.
+commit 71685eb4ce80ae9c49eff82ca4dd15acab215de9 upstream.
 
-At least on the HP Envy x360 15-cp0xxx model the WMI interface
-for HPWMI_FEATURE2_QUERY requires an outsize of at least 128 bytes,
-otherwise it fails with an error code 5 (HPWMI_RET_INVALID_PARAMETERS):
+We need to explicitely forbid read/store tearing in inet_peer_gc()
+and inet_putpeer().
 
-Dec 06 00:59:38 kernel: hp_wmi: query 0xd returned error 0x5
+The following syzbot report reminds us about inet_putpeer()
+running without a lock held.
 
-We do not care about the contents of the buffer, we just want to know
-if the HPWMI_FEATURE2_QUERY command is supported.
+BUG: KCSAN: data-race in inet_putpeer / inet_putpeer
 
-This commits bumps the buffer size, fixing the error.
+write to 0xffff888121fb2ed0 of 4 bytes by interrupt on cpu 0:
+ inet_putpeer+0x37/0xa0 net/ipv4/inetpeer.c:240
+ ip4_frag_free+0x3d/0x50 net/ipv4/ip_fragment.c:102
+ inet_frag_destroy_rcu+0x58/0x80 net/ipv4/inet_fragment.c:228
+ __rcu_reclaim kernel/rcu/rcu.h:222 [inline]
+ rcu_do_batch+0x256/0x5b0 kernel/rcu/tree.c:2157
+ rcu_core+0x369/0x4d0 kernel/rcu/tree.c:2377
+ rcu_core_si+0x12/0x20 kernel/rcu/tree.c:2386
+ __do_softirq+0x115/0x33f kernel/softirq.c:292
+ invoke_softirq kernel/softirq.c:373 [inline]
+ irq_exit+0xbb/0xe0 kernel/softirq.c:413
+ exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+ smp_apic_timer_interrupt+0xe6/0x280 arch/x86/kernel/apic/apic.c:1137
+ apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
+ native_safe_halt+0xe/0x10 arch/x86/kernel/paravirt.c:71
+ arch_cpu_idle+0x1f/0x30 arch/x86/kernel/process.c:571
+ default_idle_call+0x1e/0x40 kernel/sched/idle.c:94
+ cpuidle_idle_call kernel/sched/idle.c:154 [inline]
+ do_idle+0x1af/0x280 kernel/sched/idle.c:263
 
-Fixes: 8a1513b4932 ("hp-wmi: limit hotkey enable")
-Cc: stable@vger.kernel.org
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1520703
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+write to 0xffff888121fb2ed0 of 4 bytes by interrupt on cpu 1:
+ inet_putpeer+0x37/0xa0 net/ipv4/inetpeer.c:240
+ ip4_frag_free+0x3d/0x50 net/ipv4/ip_fragment.c:102
+ inet_frag_destroy_rcu+0x58/0x80 net/ipv4/inet_fragment.c:228
+ __rcu_reclaim kernel/rcu/rcu.h:222 [inline]
+ rcu_do_batch+0x256/0x5b0 kernel/rcu/tree.c:2157
+ rcu_core+0x369/0x4d0 kernel/rcu/tree.c:2377
+ rcu_core_si+0x12/0x20 kernel/rcu/tree.c:2386
+ __do_softirq+0x115/0x33f kernel/softirq.c:292
+ run_ksoftirqd+0x46/0x60 kernel/softirq.c:603
+ smpboot_thread_fn+0x37d/0x4a0 kernel/smpboot.c:165
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 16 Comm: ksoftirqd/1 Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 4b9d9be839fd ("inetpeer: remove unused list")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/hp-wmi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/inetpeer.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -309,7 +309,7 @@ static int __init hp_wmi_bios_2008_later
+--- a/net/ipv4/inetpeer.c
++++ b/net/ipv4/inetpeer.c
+@@ -160,7 +160,12 @@ static void inet_peer_gc(struct inet_pee
+ 					base->total / inet_peer_threshold * HZ;
+ 	for (i = 0; i < gc_cnt; i++) {
+ 		p = gc_stack[i];
+-		delta = (__u32)jiffies - p->dtime;
++
++		/* The READ_ONCE() pairs with the WRITE_ONCE()
++		 * in inet_putpeer()
++		 */
++		delta = (__u32)jiffies - READ_ONCE(p->dtime);
++
+ 		if (delta < ttl || !refcount_dec_if_one(&p->refcnt))
+ 			gc_stack[i] = NULL;
+ 	}
+@@ -237,7 +242,10 @@ EXPORT_SYMBOL_GPL(inet_getpeer);
  
- static int __init hp_wmi_bios_2009_later(void)
+ void inet_putpeer(struct inet_peer *p)
  {
--	int state = 0;
-+	u8 state[128];
- 	int ret = hp_wmi_perform_query(HPWMI_FEATURE2_QUERY, 0, &state,
- 				       sizeof(state), sizeof(state));
- 	if (!ret)
+-	p->dtime = (__u32)jiffies;
++	/* The WRITE_ONCE() pairs with itself (we run lockless)
++	 * and the READ_ONCE() in inet_peer_gc()
++	 */
++	WRITE_ONCE(p->dtime, (__u32)jiffies);
+ 
+ 	if (refcount_dec_and_test(&p->refcnt))
+ 		call_rcu(&p->rcu, inetpeer_free_rcu);
 
 
