@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8869F12EBF1
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:14:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D5912ED63
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727762AbgABWNr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:13:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53726 "EHLO mail.kernel.org"
+        id S1729780AbgABW1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:27:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727445AbgABWNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:13:43 -0500
+        id S1728289AbgABW1n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:27:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66B4C21D7D;
-        Thu,  2 Jan 2020 22:13:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6769F24649;
+        Thu,  2 Jan 2020 22:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003222;
-        bh=Fra8aZasCrfdjr2SqA6CMzh9DAlocZ+YwGMIgLze7jk=;
+        s=default; t=1578004062;
+        bh=iaAB1UP2/ipYxTs9HP+qrYGox4Mpulz0HRRkbq4v94g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QaDohJchHauPpddrFOebyQ4AXMViyr72caJvi1Dd2QlRqoCa6BQAr8iGvTk8kr/MC
-         fpYF5eipu/xJO2Ev84T6K56kTuBHcM24c6jstkFjkUMZodk8oqNrmFV+6ciyIdYYiQ
-         8VSxJGrfA00mKDZa7I6CwgvQKRuo214vaX0c3AwU=
+        b=J74lOLQJu7Y2SSOmyONXcuFIMpFcsX/uEx9mAPXUL8Ky24C9lU7LbAcqfOZ888rCn
+         TSybeeaJ9OS3REDsWnIA9LbblU8UU6BR3YWgT71HXNi8LDUYkUEkYqgOP9yxHLJJMp
+         5ZZ2ORrbqZ4DTBqmsW4gbW98tyAxzg5RqIlsPbl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Adam Ford <aford173@gmail.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tero Kristo <t-kristo@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 071/191] powerpc/book3s/mm: Update Oops message to print the correct translation in use
+Subject: [PATCH 4.9 022/171] hwrng: omap3-rom - Call clk_disable_unprepare() on exit only if not idled
 Date:   Thu,  2 Jan 2020 23:05:53 +0100
-Message-Id: <20200102215837.517222128@linuxfoundation.org>
+Message-Id: <20200102220550.169658007@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,66 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit d7e02f7b7991dbe14a2acfb0e53d675cd149001c ]
+[ Upstream commit eaecce12f5f0d2c35d278e41e1bc4522393861ab ]
 
-Avoids confusion when printing Oops message like below
+When unloading omap3-rom-rng, we'll get the following:
 
- Faulting instruction address: 0xc00000000008bdb4
- Oops: Kernel access of bad area, sig: 11 [#1]
- LE PAGE_SIZE=64K MMU=Radix MMU=Hash SMP NR_CPUS=2048 NUMA PowerNV
+WARNING: CPU: 0 PID: 100 at drivers/clk/clk.c:948 clk_core_disable
 
-This was because we never clear the MMU_FTR_HPTE_TABLE feature flag
-even if we run with radix translation. It was discussed that we should
-look at this feature flag as an indication of the capability to run
-hash translation and we should not clear the flag even if we run in
-radix translation. All the code paths check for radix_enabled() check and
-if found true consider we are running with radix translation. Follow the
-same sequence for finding the MMU translation string to be used in Oops
-message.
+This is because the clock may be already disabled by omap3_rom_rng_idle().
+Let's fix the issue by checking for rng_idle on exit.
 
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Acked-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190711145814.17970-1-aneesh.kumar@linux.ibm.com
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Adam Ford <aford173@gmail.com>
+Cc: Pali Rohár <pali.rohar@gmail.com>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: Tero Kristo <t-kristo@ti.com>
+Fixes: 1c6b7c2108bd ("hwrng: OMAP3 ROM Random Number Generator support")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/traps.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/char/hw_random/omap3-rom-rng.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index 82f43535e686..014ff0701f24 100644
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -250,15 +250,22 @@ static void oops_end(unsigned long flags, struct pt_regs *regs,
- }
- NOKPROBE_SYMBOL(oops_end);
- 
-+static char *get_mmu_str(void)
-+{
-+	if (early_radix_enabled())
-+		return " MMU=Radix";
-+	if (early_mmu_has_feature(MMU_FTR_HPTE_TABLE))
-+		return " MMU=Hash";
-+	return "";
-+}
-+
- static int __die(const char *str, struct pt_regs *regs, long err)
+diff --git a/drivers/char/hw_random/omap3-rom-rng.c b/drivers/char/hw_random/omap3-rom-rng.c
+index 37a58d78aab3..3324a7f4bee3 100644
+--- a/drivers/char/hw_random/omap3-rom-rng.c
++++ b/drivers/char/hw_random/omap3-rom-rng.c
+@@ -114,7 +114,8 @@ static int omap3_rom_rng_remove(struct platform_device *pdev)
  {
- 	printk("Oops: %s, sig: %ld [#%d]\n", str, err, ++die_counter);
+ 	cancel_delayed_work_sync(&idle_work);
+ 	hwrng_unregister(&omap3_rom_rng_ops);
+-	clk_disable_unprepare(rng_clk);
++	if (!rng_idle)
++		clk_disable_unprepare(rng_clk);
+ 	return 0;
+ }
  
--	printk("%s PAGE_SIZE=%luK%s%s%s%s%s%s%s %s\n",
-+	printk("%s PAGE_SIZE=%luK%s%s%s%s%s%s %s\n",
- 	       IS_ENABLED(CONFIG_CPU_LITTLE_ENDIAN) ? "LE" : "BE",
--	       PAGE_SIZE / 1024,
--	       early_radix_enabled() ? " MMU=Radix" : "",
--	       early_mmu_has_feature(MMU_FTR_HPTE_TABLE) ? " MMU=Hash" : "",
-+	       PAGE_SIZE / 1024, get_mmu_str(),
- 	       IS_ENABLED(CONFIG_PREEMPT) ? " PREEMPT" : "",
- 	       IS_ENABLED(CONFIG_SMP) ? " SMP" : "",
- 	       IS_ENABLED(CONFIG_SMP) ? (" NR_CPUS=" __stringify(NR_CPUS)) : "",
 -- 
 2.20.1
 
