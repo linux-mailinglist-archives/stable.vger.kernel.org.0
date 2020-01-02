@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D582D12EEFD
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FB6B12F10C
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730541AbgABWfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:35:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45148 "EHLO mail.kernel.org"
+        id S1728203AbgABWQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:16:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730706AbgABWf0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:35:26 -0500
+        id S1727915AbgABWQQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:16:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91D0B20863;
-        Thu,  2 Jan 2020 22:35:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1C2A21582;
+        Thu,  2 Jan 2020 22:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004526;
-        bh=a8t8FuYO2SHNXMtQiSejOpMZB3LWTT4qrFJO7aIh7e8=;
+        s=default; t=1578003375;
+        bh=yMBh0zmrIgqBdB0ibdD6WVsRvNgih2rJdZf1gz/liqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3fyRSMbXBeV4owZMafQ6YBrgh1nH5jxdkqH3GOQFUPWCsEXjnrBUtwpmbtHZCOKD
-         2pP4pg+dMf71tBfsxe0pfbSSl9GMHa1iJu+yYhnHvvYf/j1Fofop6eo7iHl+MRZie2
-         5kYqPorQk3hbyE61wnQsGvrEJSNmWNSk6XDGLpfI=
+        b=StQGYIS9zt6bA2ueGgNWvmLuVlehz9hSyybVXwvnVuql0oKhCa2BfD/8s0jTN2peX
+         mJp90Wng79bRHvQhBAoqCyOO2amJyspuoaEDpgVq/jvXppwrol13kjs5elZW8Hdxrw
+         AwBZHPSKcEhvxh21Obte9v0HrLyJFL9DgqXbTPY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 043/137] perf probe: Fix to show inlined function callsite without entry_pc
+        stable@vger.kernel.org,
+        syzbot+f68108fed972453a0ad4@syzkaller.appspotmail.com,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 134/191] netfilter: ebtables: compat: reject all padding in matches/watchers
 Date:   Thu,  2 Jan 2020 23:06:56 +0100
-Message-Id: <20200102220552.387223309@linuxfoundation.org>
+Message-Id: <20200102215844.024562701@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,112 +45,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 18e21eb671dc87a4f0546ba505a89ea93598a634 ]
+commit e608f631f0ba5f1fc5ee2e260a3a35d13107cbfe upstream.
 
-Fix 'perf probe --line' option to show inlined function callsite lines
-even if the function DIE has only ranges.
+syzbot reported following splat:
 
-Without this:
+BUG: KASAN: vmalloc-out-of-bounds in size_entry_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
+BUG: KASAN: vmalloc-out-of-bounds in compat_copy_entries+0x128b/0x1380 net/bridge/netfilter/ebtables.c:2155
+Read of size 4 at addr ffffc900004461f4 by task syz-executor267/7937
 
-  # perf probe -L amd_put_event_constraints
-  ...
-      2  {
-      3         if (amd_has_nb(cpuc) && amd_is_nb_event(&event->hw))
-                        __amd_put_nb_event_constraints(cpuc, event);
-      5  }
+CPU: 1 PID: 7937 Comm: syz-executor267 Not tainted 5.5.0-rc1-syzkaller #0
+ size_entry_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
+ compat_copy_entries+0x128b/0x1380 net/bridge/netfilter/ebtables.c:2155
+ compat_do_replace+0x344/0x720 net/bridge/netfilter/ebtables.c:2249
+ compat_do_ebt_set_ctl+0x22f/0x27e net/bridge/netfilter/ebtables.c:2333
+ [..]
 
-With this patch:
+Because padding isn't considered during computation of ->buf_user_offset,
+"total" is decremented by fewer bytes than it should.
 
-  # perf probe -L amd_put_event_constraints
-  ...
-      2  {
-      3         if (amd_has_nb(cpuc) && amd_is_nb_event(&event->hw))
-      4                 __amd_put_nb_event_constraints(cpuc, event);
-      5  }
+Therefore, the first part of
 
-Committer testing:
+if (*total < sizeof(*entry) || entry->next_offset < sizeof(*entry))
 
-Before:
+will pass, -- it should not have.  This causes oob access:
+entry->next_offset is past the vmalloced size.
 
-  [root@quaco ~]# perf probe -L amd_put_event_constraints
-  <amd_put_event_constraints@/usr/src/debug/kernel-5.2.fc30/linux-5.2.18-200.fc30.x86_64/arch/x86/events/amd/core.c:0>
-        0  static void amd_put_event_constraints(struct cpu_hw_events *cpuc,
-                                                struct perf_event *event)
-        2  {
-        3         if (amd_has_nb(cpuc) && amd_is_nb_event(&event->hw))
-                          __amd_put_nb_event_constraints(cpuc, event);
-        5  }
+Reject padding and check that computed user offset (sum of ebt_entry
+structure plus all individual matches/watchers/targets) is same
+value that userspace gave us as the offset of the next entry.
 
-           PMU_FORMAT_ATTR(event, "config:0-7,32-35");
-           PMU_FORMAT_ATTR(umask, "config:8-15"   );
+Reported-by: syzbot+f68108fed972453a0ad4@syzkaller.appspotmail.com
+Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  [root@quaco ~]#
-
-After:
-
-  [root@quaco ~]# perf probe -L amd_put_event_constraints
-  <amd_put_event_constraints@/usr/src/debug/kernel-5.2.fc30/linux-5.2.18-200.fc30.x86_64/arch/x86/events/amd/core.c:0>
-        0  static void amd_put_event_constraints(struct cpu_hw_events *cpuc,
-                                                struct perf_event *event)
-        2  {
-        3         if (amd_has_nb(cpuc) && amd_is_nb_event(&event->hw))
-        4                 __amd_put_nb_event_constraints(cpuc, event);
-        5  }
-
-           PMU_FORMAT_ATTR(event, "config:0-7,32-35");
-           PMU_FORMAT_ATTR(umask, "config:8-15"   );
-
-  [root@quaco ~]# perf probe amd_put_event_constraints:4
-  Added new event:
-    probe:amd_put_event_constraints (on amd_put_event_constraints:4)
-
-  You can now use it in all perf tools, such as:
-
-  	perf record -e probe:amd_put_event_constraints -aR sleep 1
-
-  [root@quaco ~]#
-
-  [root@quaco ~]# perf probe -l
-    probe:amd_put_event_constraints (on amd_put_event_constraints:4@arch/x86/events/amd/core.c)
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask@kernel/cpu.c)
-  [root@quaco ~]#
-
-Using it:
-
-  [root@quaco ~]# perf trace -e probe:*
-  ^C[root@quaco ~]#
-
-Ok, Intel system here... :-)
-
-Fixes: 4cc9cec636e7 ("perf probe: Introduce lines walker interface")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157199322107.8075.12659099000567865708.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/netfilter/ebtables.c |   33 ++++++++++++++++-----------------
+ 1 file changed, 16 insertions(+), 17 deletions(-)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index ed7777ed4d38..5f32fed5eeb3 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -659,7 +659,7 @@ static int __die_walk_funclines_cb(Dwarf_Die *in_die, void *data)
- 	if (dwarf_tag(in_die) == DW_TAG_inlined_subroutine) {
- 		fname = die_get_call_file(in_die);
- 		lineno = die_get_call_lineno(in_die);
--		if (fname && lineno > 0 && dwarf_entrypc(in_die, &addr) == 0) {
-+		if (fname && lineno > 0 && die_entrypc(in_die, &addr) == 0) {
- 			lw->retval = lw->callback(fname, lineno, addr, lw->data);
- 			if (lw->retval != 0)
- 				return DIE_FIND_CB_END;
--- 
-2.20.1
-
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1867,7 +1867,7 @@ static int ebt_buf_count(struct ebt_entr
+ }
+ 
+ static int ebt_buf_add(struct ebt_entries_buf_state *state,
+-		       void *data, unsigned int sz)
++		       const void *data, unsigned int sz)
+ {
+ 	if (state->buf_kern_start == NULL)
+ 		goto count_only;
+@@ -1901,7 +1901,7 @@ enum compat_mwt {
+ 	EBT_COMPAT_TARGET,
+ };
+ 
+-static int compat_mtw_from_user(struct compat_ebt_entry_mwt *mwt,
++static int compat_mtw_from_user(const struct compat_ebt_entry_mwt *mwt,
+ 				enum compat_mwt compat_mwt,
+ 				struct ebt_entries_buf_state *state,
+ 				const unsigned char *base)
+@@ -1979,22 +1979,23 @@ static int compat_mtw_from_user(struct c
+ /* return size of all matches, watchers or target, including necessary
+  * alignment and padding.
+  */
+-static int ebt_size_mwt(struct compat_ebt_entry_mwt *match32,
++static int ebt_size_mwt(const struct compat_ebt_entry_mwt *match32,
+ 			unsigned int size_left, enum compat_mwt type,
+ 			struct ebt_entries_buf_state *state, const void *base)
+ {
++	const char *buf = (const char *)match32;
+ 	int growth = 0;
+-	char *buf;
+ 
+ 	if (size_left == 0)
+ 		return 0;
+ 
+-	buf = (char *) match32;
+-
+-	while (size_left >= sizeof(*match32)) {
++	do {
+ 		struct ebt_entry_match *match_kern;
+ 		int ret;
+ 
++		if (size_left < sizeof(*match32))
++			return -EINVAL;
++
+ 		match_kern = (struct ebt_entry_match *) state->buf_kern_start;
+ 		if (match_kern) {
+ 			char *tmp;
+@@ -2031,22 +2032,18 @@ static int ebt_size_mwt(struct compat_eb
+ 		if (match_kern)
+ 			match_kern->match_size = ret;
+ 
+-		/* rule should have no remaining data after target */
+-		if (type == EBT_COMPAT_TARGET && size_left)
+-			return -EINVAL;
+-
+ 		match32 = (struct compat_ebt_entry_mwt *) buf;
+-	}
++	} while (size_left);
+ 
+ 	return growth;
+ }
+ 
+ /* called for all ebt_entry structures. */
+-static int size_entry_mwt(struct ebt_entry *entry, const unsigned char *base,
++static int size_entry_mwt(const struct ebt_entry *entry, const unsigned char *base,
+ 			  unsigned int *total,
+ 			  struct ebt_entries_buf_state *state)
+ {
+-	unsigned int i, j, startoff, new_offset = 0;
++	unsigned int i, j, startoff, next_expected_off, new_offset = 0;
+ 	/* stores match/watchers/targets & offset of next struct ebt_entry: */
+ 	unsigned int offsets[4];
+ 	unsigned int *offsets_update = NULL;
+@@ -2132,11 +2129,13 @@ static int size_entry_mwt(struct ebt_ent
+ 			return ret;
+ 	}
+ 
+-	startoff = state->buf_user_offset - startoff;
++	next_expected_off = state->buf_user_offset - startoff;
++	if (next_expected_off != entry->next_offset)
++		return -EINVAL;
+ 
+-	if (WARN_ON(*total < startoff))
++	if (*total < entry->next_offset)
+ 		return -EINVAL;
+-	*total -= startoff;
++	*total -= entry->next_offset;
+ 	return 0;
+ }
+ 
 
 
