@@ -2,72 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD53B12F18D
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:02:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4320512F19A
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:05:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727163AbgABWLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:11:36 -0500
-Received: from mail-il1-f196.google.com ([209.85.166.196]:44108 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727145AbgABWLd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 17:11:33 -0500
-Received: by mail-il1-f196.google.com with SMTP id z12so35166536iln.11
-        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 14:11:33 -0800 (PST)
+        id S1725900AbgABXFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 18:05:20 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:38644 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725890AbgABXFU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 18:05:20 -0500
+Received: by mail-pf1-f193.google.com with SMTP id x185so22717752pfc.5;
+        Thu, 02 Jan 2020 15:05:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TAtfJttIxgArAqalRsE9mMvgtVv8FMRCh1uwyT0m3+U=;
-        b=b5cb8HgUn4y016LDct8uf0JTFFVeYaYwRcAhgHCEDnLIHkkpkU4qCQ7GfhDlpj0FXU
-         vrxRYrkRj2vWcu+d7IV3n1qOjZRJwnXU5v5HZAaqEZV0UitQ5JMHn0C0KLwIY7aAX+ck
-         U6MPxHWIvCxXYVoK1UlSZzG7YiqNKxGXKvfS6wSo1B1HIIwS8+33Ww8T2KoSfouFnbfF
-         LmdojdZJwHivimho2ptOWiBMwVmyqGRYGwogVDEiLG+EOqjf2bcdScFU9bpb5XNgfmXS
-         H6yY30fkWBJrZu/TSYuAUiSPLdCPrinRp3ixiPuxjIiysePaLtW9esTb4Unyf+wV8wSn
-         lOVA==
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=ryxK0mpRSxESJVWZudLQb/s67AYldpkB0jSH1Eh1Afw=;
+        b=aLeDg29p2KmC/fcmH39b5xWwftAl2vmN2tDI78IvgZ6okRJ5LBdipUUBwbatq4qlgJ
+         1aNDo7E/8HYOiiwV6+iY3XlcZ4+tTrQPKH8kXppZaAs3ViSizlVTHQn32A7F8pYo+yxP
+         7A9EUxHltGR3cLoMw0+gZWuVT8IuAQRyLXPVAI68sXpVdu+2Vu+mhE03ChwzjPXC7+na
+         MEXkHYURiJrTFz6joKR56JNB71mt0ISgWE+/4JTflb7xdoPcHHxPz8HZlnkmsLBKhftm
+         F7hlGnTQ90SgE6yzVUUsjaSHYcqHCccfHHNZH2Sc+18odqiYAX2nq3ilFvlob1N+JY8V
+         W3/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TAtfJttIxgArAqalRsE9mMvgtVv8FMRCh1uwyT0m3+U=;
-        b=I8tKBSoQ5B3TuESoE3zuacOSq+w4swcSTe4bfm8fHrYV/0npndiPuCQ3LP+thD2p4A
-         UjVn0+0M07HNdJP9lSkQyIPCulZXZWWeuy2H5pknBRdhovsruSvec3w2AmxRUeOXeXpP
-         UXtSNC9f4AX2I8K1ORS4v0YsFyG/d27QZbqhtyDlgaKxQv6Yl5BUhKvUhSvdXv/Ax1DL
-         lWJE5IpIFlFRL5ZxEDdop2Xpy+xPrbfZuuELeBjRKsERp7auIiWwV0qw0oZev8OOd1wa
-         DHNLgBz/7QytfeMHHJ3jT8WlMNasAwnt1YaA/Art42LOqZHaNklULdsvO1MIs+LooRo3
-         1QZg==
-X-Gm-Message-State: APjAAAVh+pB+XRCFIp35eZeU/oIxiOH/bOXUX6VueDuMw6XP+wqalFtL
-        L3GlaAtTEoqFFy5Sz9JErvNAmPcFX1CRQ951eaQKJg==
-X-Google-Smtp-Source: APXvYqzYO9o7e9dax4o03rQ8+nEvALSLVpe9d466//omxSnHfUn6rcS4fod16+2cw5Ij/dhQ4kUi74aztq45/Jhb3yI=
-X-Received: by 2002:a92:d642:: with SMTP id x2mr71916941ilp.169.1578003092636;
- Thu, 02 Jan 2020 14:11:32 -0800 (PST)
-MIME-Version: 1.0
-References: <20191213225748.11256-1-matthewgarrett@google.com> <3a472005-83a7-9787-0bfc-35673702be09@molgen.mpg.de>
-In-Reply-To: <3a472005-83a7-9787-0bfc-35673702be09@molgen.mpg.de>
-From:   Matthew Garrett <mjg59@google.com>
-Date:   Thu, 2 Jan 2020 14:11:21 -0800
-Message-ID: <CACdnJusAW=R0XgaZwfY2G_5cJzoq94RYiyzj09jLEbZqWRbjzg@mail.gmail.com>
-Subject: Re: [PATCH] tpm: Don't make log failures fatal
-To:     Paul Menzel <pmenzel@molgen.mpg.de>
-Cc:     linux-integrity <linux-integrity@vger.kernel.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=ryxK0mpRSxESJVWZudLQb/s67AYldpkB0jSH1Eh1Afw=;
+        b=bPzJwnVa0lSw92x1NdO+RLDoesLU5auKqwh5/YB5XZmDJPZ/6tgRKIg6tTYx0Am73v
+         LaRBdS4OOCZiK7YWpeTCRg5WrHRMOd6YJiioCst3sAsidY2cIHCAvGlJCYBL/fKWvdtZ
+         N6kCN6eHEyX5z3G8Kh/1kVfLdAbXW524HkxkaUf7nEWHX5h6J7gsaURKTPFlXw29Msa0
+         w2xF3CJR+dSQMNF4Ju1MJn2ZNvIyEZv2CxGDjdIsCLp60x48V3l+JiS08dBTUirgwwyy
+         XbDc9nO1+eoLiLPADQLg2WbGUaoW0HvxepJfC6lSKqWXdyBwFtGpM6UiIyJPSvRbEG1i
+         VoFw==
+X-Gm-Message-State: APjAAAVL22iarJ8n2E78YyFhAWg308560eXQ05Rot9cSTbemJLmlm2bP
+        OERM1h+yjhaDYIDOS8GgObM=
+X-Google-Smtp-Source: APXvYqzRWoUbS3Y9gTmH/CRnK1CzA1PLL56ZbDydCwBi6vJWZQmBQydnOJ6BNg36lSEJWkP6r4NRZw==
+X-Received: by 2002:aa7:968d:: with SMTP id f13mr88709714pfk.67.1578006319882;
+        Thu, 02 Jan 2020 15:05:19 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id q15sm60886561pgi.55.2020.01.02.15.05.18
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 02 Jan 2020 15:05:19 -0800 (PST)
+Date:   Thu, 2 Jan 2020 15:05:18 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 4.14 00/91] 4.14.162-stable review
+Message-ID: <20200102230518.GA1087@roeck-us.net>
+References: <20200102220356.856162165@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 17, 2019 at 4:15 AM Paul Menzel <pmenzel@molgen.mpg.de> wrote:
-> Am 13.12.19 um 23:57 schrieb Matthew Garrett:
-> > If a TPM is in disabled state, it's reasonable for it to have an empty
-> > log. Bailing out of probe in this case means that the PPI interface
-> > isn't available, so there's no way to then enable the TPM from the OS.
-> > In general it seems reasonable to ignore log errors - they shouldn't
-> > itnerfere with any other TPM functionality.
->
-> interfere
->
-> Can this be tested with QEMU somehow?
+On Thu, Jan 02, 2020 at 11:06:42PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.162 release.
+> There are 91 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 04 Jan 2020 22:01:54 +0000.
+> Anything received after that time might be too late.
+> 
 
-I think you could hack ovmf to disable the event log, but I can't
-think of a trivial test otherwise.
+drivers/pci/switch/switchtec.c: In function 'ioctl_event_summary':
+drivers/pci/switch/switchtec.c:901:18: error: implicit declaration of function 'readq'; did you mean 'readl'?
+
+The problem also affects v4.19.y. Seen with various 32-bit builds,
+including i386:allmodconfig and arm:allmodconfig.
+
+The backport replaces ioread64 with readq, which may not have been
+such a good idea.
+
+Guenter
