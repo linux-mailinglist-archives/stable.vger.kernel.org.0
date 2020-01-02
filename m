@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1383012ECCB
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:21:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E4E512ECCC
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:22:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729062AbgABWVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:21:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41630 "EHLO mail.kernel.org"
+        id S1729073AbgABWV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:21:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728611AbgABWVw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:21:52 -0500
+        id S1729070AbgABWV5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:21:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AED1E21D7D;
-        Thu,  2 Jan 2020 22:21:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8502621D7D;
+        Thu,  2 Jan 2020 22:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003711;
-        bh=zZsaeynMCpwoa3ybK+tlz92a77OWMbnxZCQX6T/LXss=;
+        s=default; t=1578003716;
+        bh=I/JR50ZC9Rhd2Upyt8g/ADt1TtyEJ5BQB+a+IhDFKdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmI/oxtWkROBJy0amHfcgNUB8MX1YNIFsUepopUui5q6BPi6kuiEAjx4/JgB8fmKF
-         0EwzuV/AxpWGsaAHwEgPWAzgWUdnHflHO0AhudQ2JbHvc+YMZjmD3np51MogLTbQ3n
-         vuQHHXIYDwDPibKVLpZIZS7/sZ2VpfJxwwjTRNqQ=
+        b=AqUIjLEm00YWQKTj2AmPu8iHLNjVRnB7kpIYagcsksgCTKyu+/tk18pzonIU8MYtO
+         sd8B6Oy78bFUuTy6RvRwDf74fCdtMAdV1Q1MIF95nCsXBhpFXfoubFlIFdBZ5jDPKN
+         4iHtSouTgxx1uLGpyLRWeZDmd5Ob1GnvtORj1qgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f68108fed972453a0ad4@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 083/114] netfilter: ebtables: compat: reject all padding in matches/watchers
-Date:   Thu,  2 Jan 2020 23:07:35 +0100
-Message-Id: <20200102220037.546181771@linuxfoundation.org>
+Subject: [PATCH 4.19 085/114] netfilter: bridge: make sure to pull arp header in br_nf_forward_arp()
+Date:   Thu,  2 Jan 2020 23:07:37 +0100
+Message-Id: <20200102220037.745748815@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
 References: <20200102220029.183913184@linuxfoundation.org>
@@ -45,138 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit e608f631f0ba5f1fc5ee2e260a3a35d13107cbfe upstream.
+commit 5604285839aaedfb23ebe297799c6e558939334d upstream.
 
-syzbot reported following splat:
+syzbot is kind enough to remind us we need to call skb_may_pull()
 
-BUG: KASAN: vmalloc-out-of-bounds in size_entry_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
-BUG: KASAN: vmalloc-out-of-bounds in compat_copy_entries+0x128b/0x1380 net/bridge/netfilter/ebtables.c:2155
-Read of size 4 at addr ffffc900004461f4 by task syz-executor267/7937
+BUG: KMSAN: uninit-value in br_nf_forward_arp+0xe61/0x1230 net/bridge/br_netfilter_hooks.c:665
+CPU: 1 PID: 11631 Comm: syz-executor.1 Not tainted 5.4.0-rc8-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0x128/0x220 mm/kmsan/kmsan_report.c:108
+ __msan_warning+0x64/0xc0 mm/kmsan/kmsan_instr.c:245
+ br_nf_forward_arp+0xe61/0x1230 net/bridge/br_netfilter_hooks.c:665
+ nf_hook_entry_hookfn include/linux/netfilter.h:135 [inline]
+ nf_hook_slow+0x18b/0x3f0 net/netfilter/core.c:512
+ nf_hook include/linux/netfilter.h:260 [inline]
+ NF_HOOK include/linux/netfilter.h:303 [inline]
+ __br_forward+0x78f/0xe30 net/bridge/br_forward.c:109
+ br_flood+0xef0/0xfe0 net/bridge/br_forward.c:234
+ br_handle_frame_finish+0x1a77/0x1c20 net/bridge/br_input.c:162
+ nf_hook_bridge_pre net/bridge/br_input.c:245 [inline]
+ br_handle_frame+0xfb6/0x1eb0 net/bridge/br_input.c:348
+ __netif_receive_skb_core+0x20b9/0x51a0 net/core/dev.c:4830
+ __netif_receive_skb_one_core net/core/dev.c:4927 [inline]
+ __netif_receive_skb net/core/dev.c:5043 [inline]
+ process_backlog+0x610/0x13c0 net/core/dev.c:5874
+ napi_poll net/core/dev.c:6311 [inline]
+ net_rx_action+0x7a6/0x1aa0 net/core/dev.c:6379
+ __do_softirq+0x4a1/0x83a kernel/softirq.c:293
+ do_softirq_own_stack+0x49/0x80 arch/x86/entry/entry_64.S:1091
+ </IRQ>
+ do_softirq kernel/softirq.c:338 [inline]
+ __local_bh_enable_ip+0x184/0x1d0 kernel/softirq.c:190
+ local_bh_enable+0x36/0x40 include/linux/bottom_half.h:32
+ rcu_read_unlock_bh include/linux/rcupdate.h:688 [inline]
+ __dev_queue_xmit+0x38e8/0x4200 net/core/dev.c:3819
+ dev_queue_xmit+0x4b/0x60 net/core/dev.c:3825
+ packet_snd net/packet/af_packet.c:2959 [inline]
+ packet_sendmsg+0x8234/0x9100 net/packet/af_packet.c:2984
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg net/socket.c:657 [inline]
+ __sys_sendto+0xc44/0xc70 net/socket.c:1952
+ __do_sys_sendto net/socket.c:1964 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:1960
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:1960
+ do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45a679
+Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f0a3c9e5c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 0000000000000006 RCX: 000000000045a679
+RDX: 000000000000000e RSI: 0000000020000200 RDI: 0000000000000003
+RBP: 000000000075bf20 R08: 00000000200000c0 R09: 0000000000000014
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f0a3c9e66d4
+R13: 00000000004c8ec1 R14: 00000000004dfe28 R15: 00000000ffffffff
 
-CPU: 1 PID: 7937 Comm: syz-executor267 Not tainted 5.5.0-rc1-syzkaller #0
- size_entry_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
- compat_copy_entries+0x128b/0x1380 net/bridge/netfilter/ebtables.c:2155
- compat_do_replace+0x344/0x720 net/bridge/netfilter/ebtables.c:2249
- compat_do_ebt_set_ctl+0x22f/0x27e net/bridge/netfilter/ebtables.c:2333
- [..]
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:149 [inline]
+ kmsan_internal_poison_shadow+0x5c/0x110 mm/kmsan/kmsan.c:132
+ kmsan_slab_alloc+0x97/0x100 mm/kmsan/kmsan_hooks.c:86
+ slab_alloc_node mm/slub.c:2773 [inline]
+ __kmalloc_node_track_caller+0xe27/0x11a0 mm/slub.c:4381
+ __kmalloc_reserve net/core/skbuff.c:141 [inline]
+ __alloc_skb+0x306/0xa10 net/core/skbuff.c:209
+ alloc_skb include/linux/skbuff.h:1049 [inline]
+ alloc_skb_with_frags+0x18c/0xa80 net/core/skbuff.c:5662
+ sock_alloc_send_pskb+0xafd/0x10a0 net/core/sock.c:2244
+ packet_alloc_skb net/packet/af_packet.c:2807 [inline]
+ packet_snd net/packet/af_packet.c:2902 [inline]
+ packet_sendmsg+0x63a6/0x9100 net/packet/af_packet.c:2984
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg net/socket.c:657 [inline]
+ __sys_sendto+0xc44/0xc70 net/socket.c:1952
+ __do_sys_sendto net/socket.c:1964 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:1960
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:1960
+ do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Because padding isn't considered during computation of ->buf_user_offset,
-"total" is decremented by fewer bytes than it should.
-
-Therefore, the first part of
-
-if (*total < sizeof(*entry) || entry->next_offset < sizeof(*entry))
-
-will pass, -- it should not have.  This causes oob access:
-entry->next_offset is past the vmalloced size.
-
-Reject padding and check that computed user offset (sum of ebt_entry
-structure plus all individual matches/watchers/targets) is same
-value that userspace gave us as the offset of the next entry.
-
-Reported-by: syzbot+f68108fed972453a0ad4@syzkaller.appspotmail.com
-Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fixes: c4e70a87d975 ("netfilter: bridge: rename br_netfilter.c to br_netfilter_hooks.c")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bridge/netfilter/ebtables.c |   33 ++++++++++++++++-----------------
- 1 file changed, 16 insertions(+), 17 deletions(-)
+ net/bridge/br_netfilter_hooks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1876,7 +1876,7 @@ static int ebt_buf_count(struct ebt_entr
- }
- 
- static int ebt_buf_add(struct ebt_entries_buf_state *state,
--		       void *data, unsigned int sz)
-+		       const void *data, unsigned int sz)
- {
- 	if (state->buf_kern_start == NULL)
- 		goto count_only;
-@@ -1910,7 +1910,7 @@ enum compat_mwt {
- 	EBT_COMPAT_TARGET,
- };
- 
--static int compat_mtw_from_user(struct compat_ebt_entry_mwt *mwt,
-+static int compat_mtw_from_user(const struct compat_ebt_entry_mwt *mwt,
- 				enum compat_mwt compat_mwt,
- 				struct ebt_entries_buf_state *state,
- 				const unsigned char *base)
-@@ -1988,22 +1988,23 @@ static int compat_mtw_from_user(struct c
- /* return size of all matches, watchers or target, including necessary
-  * alignment and padding.
-  */
--static int ebt_size_mwt(struct compat_ebt_entry_mwt *match32,
-+static int ebt_size_mwt(const struct compat_ebt_entry_mwt *match32,
- 			unsigned int size_left, enum compat_mwt type,
- 			struct ebt_entries_buf_state *state, const void *base)
- {
-+	const char *buf = (const char *)match32;
- 	int growth = 0;
--	char *buf;
- 
- 	if (size_left == 0)
- 		return 0;
- 
--	buf = (char *) match32;
--
--	while (size_left >= sizeof(*match32)) {
-+	do {
- 		struct ebt_entry_match *match_kern;
- 		int ret;
- 
-+		if (size_left < sizeof(*match32))
-+			return -EINVAL;
-+
- 		match_kern = (struct ebt_entry_match *) state->buf_kern_start;
- 		if (match_kern) {
- 			char *tmp;
-@@ -2040,22 +2041,18 @@ static int ebt_size_mwt(struct compat_eb
- 		if (match_kern)
- 			match_kern->match_size = ret;
- 
--		/* rule should have no remaining data after target */
--		if (type == EBT_COMPAT_TARGET && size_left)
--			return -EINVAL;
--
- 		match32 = (struct compat_ebt_entry_mwt *) buf;
--	}
-+	} while (size_left);
- 
- 	return growth;
- }
- 
- /* called for all ebt_entry structures. */
--static int size_entry_mwt(struct ebt_entry *entry, const unsigned char *base,
-+static int size_entry_mwt(const struct ebt_entry *entry, const unsigned char *base,
- 			  unsigned int *total,
- 			  struct ebt_entries_buf_state *state)
- {
--	unsigned int i, j, startoff, new_offset = 0;
-+	unsigned int i, j, startoff, next_expected_off, new_offset = 0;
- 	/* stores match/watchers/targets & offset of next struct ebt_entry: */
- 	unsigned int offsets[4];
- 	unsigned int *offsets_update = NULL;
-@@ -2141,11 +2138,13 @@ static int size_entry_mwt(struct ebt_ent
- 			return ret;
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -646,6 +646,9 @@ static unsigned int br_nf_forward_arp(vo
+ 		nf_bridge_pull_encap_header(skb);
  	}
  
--	startoff = state->buf_user_offset - startoff;
-+	next_expected_off = state->buf_user_offset - startoff;
-+	if (next_expected_off != entry->next_offset)
-+		return -EINVAL;
- 
--	if (WARN_ON(*total < startoff))
-+	if (*total < entry->next_offset)
- 		return -EINVAL;
--	*total -= startoff;
-+	*total -= entry->next_offset;
- 	return 0;
- }
- 
++	if (unlikely(!pskb_may_pull(skb, sizeof(struct arphdr))))
++		return NF_DROP;
++
+ 	if (arp_hdr(skb)->ar_pln != 4) {
+ 		if (IS_VLAN_ARP(skb))
+ 			nf_bridge_push_encap_header(skb);
 
 
