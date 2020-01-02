@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ACE612EF5C
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBCD012EE5A
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729062AbgABWpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:45:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38798 "EHLO mail.kernel.org"
+        id S1731111AbgABWhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:37:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730417AbgABWc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:32:27 -0500
+        id S1731107AbgABWhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:37:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BADEC20866;
-        Thu,  2 Jan 2020 22:32:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 356BE20866;
+        Thu,  2 Jan 2020 22:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004347;
-        bh=+zrt2PfYOEuMTQxgmUYYfno+qL18+KOj8WYPPz4YJmk=;
+        s=default; t=1578004657;
+        bh=DlMgruxUavY/yDjUbcfaObemlMrERpWGQGiTZD65ZEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oblRzrpGsWHg6YakEeLYyAkQoSEK7yppO9DlPvQoOqajs02M19bDvaxTa8hzGkq1u
-         BsppBwi7WNOpn9SjXVP2utJjA1w9JmfYGZdGNT3TBvGqUQZCzPf5DaHyFDtFh7C+8R
-         Zqm1ArXsFNYh3OvCk80Fi0H4qpnjvOt6hcPvyYTk=
+        b=vIhRJOgCCV2RicTrPsxCam32ucO6Bn+WCwLGK7W6JFea9mhcx5/HGL/C4/BkO4GMD
+         yBq4Qhih085CGl9H+ok+fJpuLSOBfk2KzMbnXigwicBETKjnz6kikXhDg5GmEmjbBE
+         elHckpRtDK7zfGQjHTTM7XDI9CnTXn/tNzrAe+eA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
-        peter chang <dpf@google.com>,
-        Deepak Ukey <deepak.ukey@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 141/171] scsi: pm80xx: Fix for SATA device discovery
+Subject: [PATCH 4.4 099/137] clocksource/drivers/asm9260: Add a check for of_clk_get
 Date:   Thu,  2 Jan 2020 23:07:52 +0100
-Message-Id: <20200102220606.740133097@linuxfoundation.org>
+Message-Id: <20200102220600.371316602@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,39 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: peter chang <dpf@google.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit ce21c63ee995b7a8b7b81245f2cee521f8c3c220 ]
+[ Upstream commit 6e001f6a4cc73cd06fc7b8c633bc4906c33dd8ad ]
 
-Driver was missing complete() call in mpi_sata_completion which result in
-SATA abort error handling timing out. That causes the device to be left in
-the in_recovery state so subsequent commands sent to the device fail and
-the OS removes access to it.
+asm9260_timer_init misses a check for of_clk_get.
+Add a check for it and print errors like other clocksource drivers.
 
-Link: https://lore.kernel.org/r/20191114100910.6153-2-deepak.ukey@microchip.com
-Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: peter chang <dpf@google.com>
-Signed-off-by: Deepak Ukey <deepak.ukey@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20191016124330.22211-1-hslester96@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm80xx_hwi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/clocksource/asm9260_timer.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 9edd61c063a1..df5f0bc29587 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -2368,6 +2368,8 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 			pm8001_printk("task 0x%p done with io_status 0x%x"
- 			" resp 0x%x stat 0x%x but aborted by upper layer!\n",
- 			t, status, ts->resp, ts->stat));
-+		if (t->slow_task)
-+			complete(&t->slow_task->completion);
- 		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
- 	} else {
- 		spin_unlock_irqrestore(&t->task_state_lock, flags);
+diff --git a/drivers/clocksource/asm9260_timer.c b/drivers/clocksource/asm9260_timer.c
+index 217438d39eb3..38a28240f84f 100644
+--- a/drivers/clocksource/asm9260_timer.c
++++ b/drivers/clocksource/asm9260_timer.c
+@@ -196,6 +196,10 @@ static void __init asm9260_timer_init(struct device_node *np)
+ 		panic("%s: unable to map resource", np->name);
+ 
+ 	clk = of_clk_get(np, 0);
++	if (IS_ERR(clk)) {
++		pr_err("Failed to get clk!\n");
++		return PTR_ERR(clk);
++	}
+ 
+ 	ret = clk_prepare_enable(clk);
+ 	if (ret)
 -- 
 2.20.1
 
