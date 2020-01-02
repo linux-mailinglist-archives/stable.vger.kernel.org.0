@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E788112F0F7
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D641612F0F9
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727644AbgABWRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:17:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59638 "EHLO mail.kernel.org"
+        id S1728432AbgABW5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:57:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727523AbgABWRQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:17:16 -0500
+        id S1727627AbgABWRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:17:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1CFE22314;
-        Thu,  2 Jan 2020 22:17:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5BCE21582;
+        Thu,  2 Jan 2020 22:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003435;
-        bh=JtLYn0MtFvBnueObwatmpR2LIRFiEG+lTAFO9J5RQyo=;
+        s=default; t=1578003440;
+        bh=cTA2eAYld73xYFoSNXCACbowDDFywcmMTcA6QE+outE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZI+8sYJCq/LlVYZAHRP83PZJeMX1oSkUPRtOdtl41srGOQK9/MyW4SegSJ/EuSOG
-         HsuCsgdVQMUyXJ//0tpCjDE0H4H2lP399iON84wM/aVocRG1OdqJQLRidB6Tcs+V+e
-         1H1U5xoDwCNOjL79eFVdbNjrS7nnqJn1H0H5kOUE=
+        b=AgX6OQUzmwniEpqWxlxJsnAtX4VvW8i4SZX/DoSgSMuc6z0WEqKLm18ga6YvBJQ+D
+         zqHx9fTShRlSAnRmrr0CY1QtcrOze/QEl8aLT1YK2CG2PvIMudRxy65N7pbnPVlEEH
+         JbbBfnVzTSFbJ06kGnPXgGdJs3vmHQIKmOwO+QSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
         Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 160/191] bnxt_en: Return error if FW returns more data than dump length
-Date:   Thu,  2 Jan 2020 23:07:22 +0100
-Message-Id: <20200102215846.529500465@linuxfoundation.org>
+Subject: [PATCH 5.4 161/191] bnxt_en: Fix bp->fw_health allocation and free logic.
+Date:   Thu,  2 Jan 2020 23:07:23 +0100
+Message-Id: <20200102215846.635578505@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
 References: <20200102215829.911231638@linuxfoundation.org>
@@ -47,142 +47,117 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit c74751f4c39232c31214ec6a3bc1c7e62f5c728b ]
+[ Upstream commit 8280b38e01f71e0f89389ccad3fa43b79e57c604 ]
 
-If any change happened in the configuration of VF in VM while
-collecting live dump, there could be a race and firmware can return
-more data than allocated dump length. Fix it by keeping track of
-the accumulated core dump length copied so far and abort the copy
-with error code if the next chunk of core dump will exceed the
-original dump length.
+bp->fw_health needs to be allocated for either the firmware initiated
+reset feature or the driver initiated error recovery feature.  The
+current code is not allocating bp->fw_health for all the necessary cases.
+This patch corrects the logic to allocate bp->fw_health correctly when
+needed.  If allocation fails, we clear the feature flags.
 
-Fixes: 6c5657d085ae ("bnxt_en: Add support for ethtool get dump.")
+We also add the the missing kfree(bp->fw_health) when the driver is
+unloaded.  If we get an async reset message from the firmware, we also
+need to make sure that we have a valid bp->fw_health before proceeding.
+
+Fixes: 07f83d72d238 ("bnxt_en: Discover firmware error recovery capabilities.")
 Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |   38 +++++++++++++++++-----
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.h |    4 ++
- 2 files changed, 34 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |   36 +++++++++++++++++++++---------
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h |    1 
+ 2 files changed, 27 insertions(+), 10 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -3064,8 +3064,15 @@ static int bnxt_hwrm_dbg_dma_data(struct
- 			}
- 		}
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -1995,6 +1995,9 @@ static int bnxt_async_event_process(stru
+ 	case ASYNC_EVENT_CMPL_EVENT_ID_RESET_NOTIFY: {
+ 		u32 data1 = le32_to_cpu(cmpl->event_data1);
  
--		if (info->dest_buf)
--			memcpy(info->dest_buf + off, dma_buf, len);
-+		if (info->dest_buf) {
-+			if ((info->seg_start + off + len) <=
-+			    BNXT_COREDUMP_BUF_LEN(info->buf_len)) {
-+				memcpy(info->dest_buf + off, dma_buf, len);
-+			} else {
-+				rc = -ENOBUFS;
-+				break;
-+			}
-+		}
- 
- 		if (cmn_req->req_type ==
- 				cpu_to_le16(HWRM_DBG_COREDUMP_RETRIEVE))
-@@ -3119,7 +3126,7 @@ static int bnxt_hwrm_dbg_coredump_initia
- 
- static int bnxt_hwrm_dbg_coredump_retrieve(struct bnxt *bp, u16 component_id,
- 					   u16 segment_id, u32 *seg_len,
--					   void *buf, u32 offset)
-+					   void *buf, u32 buf_len, u32 offset)
- {
- 	struct hwrm_dbg_coredump_retrieve_input req = {0};
- 	struct bnxt_hwrm_dbg_dma_info info = {NULL};
-@@ -3134,8 +3141,11 @@ static int bnxt_hwrm_dbg_coredump_retrie
- 				seq_no);
- 	info.data_len_off = offsetof(struct hwrm_dbg_coredump_retrieve_output,
- 				     data_len);
--	if (buf)
-+	if (buf) {
- 		info.dest_buf = buf + offset;
-+		info.buf_len = buf_len;
-+		info.seg_start = offset;
-+	}
- 
- 	rc = bnxt_hwrm_dbg_dma_data(bp, &req, sizeof(req), &info);
- 	if (!rc)
-@@ -3225,14 +3235,17 @@ bnxt_fill_coredump_record(struct bnxt *b
- static int bnxt_get_coredump(struct bnxt *bp, void *buf, u32 *dump_len)
- {
- 	u32 ver_get_resp_len = sizeof(struct hwrm_ver_get_output);
-+	u32 offset = 0, seg_hdr_len, seg_record_len, buf_len = 0;
- 	struct coredump_segment_record *seg_record = NULL;
--	u32 offset = 0, seg_hdr_len, seg_record_len;
- 	struct bnxt_coredump_segment_hdr seg_hdr;
- 	struct bnxt_coredump coredump = {NULL};
- 	time64_t start_time;
- 	u16 start_utc;
- 	int rc = 0, i;
- 
-+	if (buf)
-+		buf_len = *dump_len;
++		if (!bp->fw_health)
++			goto async_event_process_exit;
 +
- 	start_time = ktime_get_real_seconds();
- 	start_utc = sys_tz.tz_minuteswest * 60;
- 	seg_hdr_len = sizeof(seg_hdr);
-@@ -3265,6 +3278,12 @@ static int bnxt_get_coredump(struct bnxt
- 		u32 duration = 0, seg_len = 0;
- 		unsigned long start, end;
+ 		bp->fw_reset_timestamp = jiffies;
+ 		bp->fw_reset_min_dsecs = cmpl->timestamp_lo;
+ 		if (!bp->fw_reset_min_dsecs)
+@@ -4438,8 +4441,9 @@ static int bnxt_hwrm_func_drv_rgtr(struc
+ 			    FUNC_DRV_RGTR_REQ_ENABLES_VER);
  
-+		if (buf && ((offset + seg_hdr_len) >
-+			    BNXT_COREDUMP_BUF_LEN(buf_len))) {
-+			rc = -ENOBUFS;
-+			goto err;
-+		}
-+
- 		start = jiffies;
- 
- 		rc = bnxt_hwrm_dbg_coredump_initiate(bp, comp_id, seg_id);
-@@ -3277,9 +3296,11 @@ static int bnxt_get_coredump(struct bnxt
- 
- 		/* Write segment data into the buffer */
- 		rc = bnxt_hwrm_dbg_coredump_retrieve(bp, comp_id, seg_id,
--						     &seg_len, buf,
-+						     &seg_len, buf, buf_len,
- 						     offset + seg_hdr_len);
--		if (rc)
-+		if (rc && rc == -ENOBUFS)
-+			goto err;
-+		else if (rc)
- 			netdev_err(bp->dev,
- 				   "Failed to retrieve coredump for seg = %d\n",
- 				   seg_record->segment_id);
-@@ -3309,7 +3330,8 @@ err:
- 					  rc);
- 	kfree(coredump.data);
- 	*dump_len += sizeof(struct bnxt_coredump_record);
--
-+	if (rc == -ENOBUFS)
-+		netdev_err(bp->dev, "Firmware returned large coredump buffer");
- 	return rc;
+ 	req.os_type = cpu_to_le16(FUNC_DRV_RGTR_REQ_OS_TYPE_LINUX);
+-	flags = FUNC_DRV_RGTR_REQ_FLAGS_16BIT_VER_MODE |
+-		FUNC_DRV_RGTR_REQ_FLAGS_HOT_RESET_SUPPORT;
++	flags = FUNC_DRV_RGTR_REQ_FLAGS_16BIT_VER_MODE;
++	if (bp->fw_cap & BNXT_FW_CAP_HOT_RESET)
++		flags |= FUNC_DRV_RGTR_REQ_FLAGS_HOT_RESET_SUPPORT;
+ 	if (bp->fw_cap & BNXT_FW_CAP_ERROR_RECOVERY)
+ 		flags |= FUNC_DRV_RGTR_REQ_FLAGS_ERROR_RECOVERY_SUPPORT;
+ 	req.flags = cpu_to_le32(flags);
+@@ -7096,14 +7100,6 @@ static int bnxt_hwrm_error_recovery_qcfg
+ 	rc = _hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
+ 	if (rc)
+ 		goto err_recovery_out;
+-	if (!fw_health) {
+-		fw_health = kzalloc(sizeof(*fw_health), GFP_KERNEL);
+-		bp->fw_health = fw_health;
+-		if (!fw_health) {
+-			rc = -ENOMEM;
+-			goto err_recovery_out;
+-		}
+-	}
+ 	fw_health->flags = le32_to_cpu(resp->flags);
+ 	if ((fw_health->flags & ERROR_RECOVERY_QCFG_RESP_FLAGS_CO_CPU) &&
+ 	    !(bp->fw_cap & BNXT_FW_CAP_KONG_MB_CHNL)) {
+@@ -10419,6 +10415,23 @@ static void bnxt_init_dflt_coal(struct b
+ 	bp->stats_coal_ticks = BNXT_DEF_STATS_COAL_TICKS;
  }
  
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.h
-@@ -31,6 +31,8 @@ struct bnxt_coredump {
- 	u16		total_segs;
- };
- 
-+#define BNXT_COREDUMP_BUF_LEN(len) ((len) - sizeof(struct bnxt_coredump_record))
++static void bnxt_alloc_fw_health(struct bnxt *bp)
++{
++	if (bp->fw_health)
++		return;
 +
- struct bnxt_hwrm_dbg_dma_info {
- 	void *dest_buf;
- 	int dest_buf_size;
-@@ -38,6 +40,8 @@ struct bnxt_hwrm_dbg_dma_info {
- 	u16 seq_off;
- 	u16 data_len_off;
- 	u16 segs;
-+	u32 seg_start;
-+	u32 buf_len;
- };
++	if (!(bp->fw_cap & BNXT_FW_CAP_HOT_RESET) &&
++	    !(bp->fw_cap & BNXT_FW_CAP_ERROR_RECOVERY))
++		return;
++
++	bp->fw_health = kzalloc(sizeof(*bp->fw_health), GFP_KERNEL);
++	if (!bp->fw_health) {
++		netdev_warn(bp->dev, "Failed to allocate fw_health\n");
++		bp->fw_cap &= ~BNXT_FW_CAP_HOT_RESET;
++		bp->fw_cap &= ~BNXT_FW_CAP_ERROR_RECOVERY;
++	}
++}
++
+ static int bnxt_fw_init_one_p1(struct bnxt *bp)
+ {
+ 	int rc;
+@@ -10465,6 +10478,7 @@ static int bnxt_fw_init_one_p2(struct bn
+ 		netdev_warn(bp->dev, "hwrm query adv flow mgnt failure rc: %d\n",
+ 			    rc);
  
- struct hwrm_dbg_cmn_input {
++	bnxt_alloc_fw_health(bp);
+ 	rc = bnxt_hwrm_error_recovery_qcfg(bp);
+ 	if (rc)
+ 		netdev_warn(bp->dev, "hwrm query error recovery failure rc: %d\n",
+@@ -11344,6 +11358,8 @@ static void bnxt_remove_one(struct pci_d
+ 	bnxt_dcb_free(bp);
+ 	kfree(bp->edev);
+ 	bp->edev = NULL;
++	kfree(bp->fw_health);
++	bp->fw_health = NULL;
+ 	bnxt_cleanup_pci(bp);
+ 	bnxt_free_ctx_mem(bp);
+ 	kfree(bp->ctx);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -1658,6 +1658,7 @@ struct bnxt {
+ 	#define BNXT_FW_CAP_PCIE_STATS_SUPPORTED	0x00020000
+ 	#define BNXT_FW_CAP_EXT_STATS_SUPPORTED		0x00040000
+ 	#define BNXT_FW_CAP_ERR_RECOVER_RELOAD		0x00100000
++	#define BNXT_FW_CAP_HOT_RESET			0x00200000
+ 
+ #define BNXT_NEW_RM(bp)		((bp)->fw_cap & BNXT_FW_CAP_NEW_RM)
+ 	u32			hwrm_spec_code;
 
 
