@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 482E712EE23
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:35:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8649112F0A9
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730564AbgABWfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:35:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45254 "EHLO mail.kernel.org"
+        id S1727236AbgABWym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:54:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730827AbgABWf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:35:29 -0500
+        id S1728434AbgABWUX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:20:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3ECD20866;
-        Thu,  2 Jan 2020 22:35:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FDD521D7D;
+        Thu,  2 Jan 2020 22:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004528;
-        bh=scHw81928gop1ZE0UAGcwRdBbSOsWLPj8/dTEaxSuqs=;
+        s=default; t=1578003622;
+        bh=gv28rBkTL9o0vnvk0kKvbqmyiblnHuCUs4CfzVZgSCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klT/jN53FssTM3tM9MFuuS1fzsePiTpfrwD4D8rg7lAkb8PvE0972uGbE0DpENYTa
-         CohicJ1r077obL7NvaR3P2pfVP250WcfHWnyzEyN4fYlPXTFVrglSTmCQ9Bqeboaa1
-         B7OdsdhWT5bK2kVH23bmeSOVFxHTUoGTbRB/kKvY=
+        b=slR8EJOojIvkVaPFWB2wbKzoFWDLaDgcLliUIWZPBmxY3kLNNK7cbGmtUSkmq9H6j
+         M9OECdG35xJdvCQqYtFeMtv3VJ81E6aBmJsVpd1RWorYcDYRqNt0vkErFrC9ztqRTa
+         wCWKdtjJ1Cs9CByN/rVdEvGnLKt1hzNCcZjOucSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 044/137] perf probe: Skip overlapped location on searching variables
+        stable@vger.kernel.org, Jinke Fan <fanjinke@hygon.cn>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 045/114] HID: quirks: Add quirk for HP MSU1465 PIXART OEM mouse
 Date:   Thu,  2 Jan 2020 23:06:57 +0100
-Message-Id: <20200102220552.511521256@linuxfoundation.org>
+Message-Id: <20200102220033.622873989@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,102 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Jinke Fan <fanjinke@hygon.cn>
 
-[ Upstream commit dee36a2abb67c175265d49b9a8c7dfa564463d9a ]
+[ Upstream commit f1a0094cbbe97a5f8aca7bdc64bfe43ac9dc6879 ]
 
-Since debuginfo__find_probes() callback function can be called with  the
-location which already passed, the callback function must filter out
-such overlapped locations.
+The PixArt OEM mouse disconnets/reconnects every minute on
+Linux. All contents of dmesg are repetitive:
 
-add_probe_trace_event() has already done it by commit 1a375ae7659a
-("perf probe: Skip same probe address for a given line"), but
-add_available_vars() doesn't. Thus perf probe -v shows same address
-repeatedly as below:
+[ 1465.810014] usb 1-2.2: USB disconnect, device number 20
+[ 1467.431509] usb 1-2.2: new low-speed USB device number 21 using xhci_hcd
+[ 1467.654982] usb 1-2.2: New USB device found, idVendor=03f0,idProduct=1f4a, bcdDevice= 1.00
+[ 1467.654985] usb 1-2.2: New USB device strings: Mfr=1, Product=2,SerialNumber=0
+[ 1467.654987] usb 1-2.2: Product: HP USB Optical Mouse
+[ 1467.654988] usb 1-2.2: Manufacturer: PixArt
+[ 1467.699722] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:07.1/0000:05:00.3/usb1/1-2/1-2.2/1-2.2:1.0/0003:03F0:1F4A.0012/input/input19
+[ 1467.700124] hid-generic 0003:03F0:1F4A.0012: input,hidraw0: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:05:00.3-2.2/input0
 
-  # perf probe -V vfs_read:18
-  Available variables at vfs_read:18
-          @<vfs_read+217>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-          @<vfs_read+217>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-          @<vfs_read+226>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
+So add HID_QUIRK_ALWAYS_POLL for this one as well.
+Test the patch, the mouse is no longer disconnected and there are no
+duplicate logs in dmesg.
 
-With this fix, perf probe -V shows it correctly:
+Reference:
+https://github.com/sriemer/fix-linux-mouse
 
-  # perf probe -V vfs_read:18
-  Available variables at vfs_read:18
-          @<vfs_read+217>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-          @<vfs_read+226>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-
-Fixes: cf6eb489e5c0 ("perf probe: Show accessible local variables")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157241938927.32002.4026859017790562751.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Jinke Fan <fanjinke@hygon.cn>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index 28a0f37b05c0..d917f83e8e85 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -1331,6 +1331,18 @@ static int collect_variables_cb(Dwarf_Die *die_mem, void *data)
- 		return DIE_FIND_CB_SIBLING;
- }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 02c263a4c083..1949d6fca53e 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -563,6 +563,7 @@
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941	0x0941
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
++#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a	0x1f4a
  
-+static bool available_var_finder_overlap(struct available_var_finder *af)
-+{
-+	int i;
-+
-+	for (i = 0; i < af->nvls; i++) {
-+		if (af->pf.addr == af->vls[i].point.address)
-+			return true;
-+	}
-+	return false;
-+
-+}
-+
- /* Add a found vars into available variables list */
- static int add_available_vars(Dwarf_Die *sc_die, struct probe_finder *pf)
- {
-@@ -1341,6 +1353,14 @@ static int add_available_vars(Dwarf_Die *sc_die, struct probe_finder *pf)
- 	Dwarf_Die die_mem;
- 	int ret;
- 
-+	/*
-+	 * For some reason (e.g. different column assigned to same address),
-+	 * this callback can be called with the address which already passed.
-+	 * Ignore it first.
-+	 */
-+	if (available_var_finder_overlap(af))
-+		return 0;
-+
- 	/* Check number of tevs */
- 	if (af->nvls == af->max_vls) {
- 		pr_warning("Too many( > %d) probe point found.\n", af->max_vls);
+ #define USB_VENDOR_ID_HUION		0x256c
+ #define USB_DEVICE_ID_HUION_TABLET	0x006e
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index a407fd2399ff..57d6fe9ed416 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -96,6 +96,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X), HID_QUIRK_MULTI_INPUT },
 -- 
 2.20.1
 
