@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E2612F134
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46EEF12EF10
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:43:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727655AbgABWPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:15:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56134 "EHLO mail.kernel.org"
+        id S1730286AbgABWec (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:34:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727753AbgABWPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:15:21 -0500
+        id S1730532AbgABWeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:34:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42D2D2253D;
-        Thu,  2 Jan 2020 22:15:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E59722314;
+        Thu,  2 Jan 2020 22:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003320;
-        bh=bf552ruxuUI7QMhE+xOcCycft/fZFhLHYKX/xrzuPmA=;
+        s=default; t=1578004470;
+        bh=av8gZuq+0abHRu6UaGoeAMPxv9tgYdnnG/MRCOMyuMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g0poRwovI7Yk+FB+le99PAE/5iGkyNaerp0d1Gqc4zcaRPGZYDKanwZtiTS7DJZa+
-         gRaOGvvqp3jqnuBuSEqIYevLT1eiX4G/wMeXHYNdJcMYwe+roodHWU2rxFF6FOek5m
-         2oMJR1jfcJF1viz5AeBE5bwIMvT3jinfQLdjBrSk=
+        b=BIuM25O8pkroRB7yMKcuiY1srKbQZ2VgMmpO0y/SvMrY0ZuAiPZBjZW6+6y8VtxyS
+         uez+wXHxj4gUg9fm33hDccp1ldbG/xhjcLVGtCCX0jOtOelUWMmP/M/wMQBI02W1bP
+         TeBn21bc5vbffQrVIOywq6xlT2VDaQ4odCF+9otw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0d818c0d39399188f393@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 111/191] io_uring: io_allocate_scq_urings() should return a sane state
+        stable@vger.kernel.org, "Daniel T. Lee" <danieltimlee@gmail.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 020/137] samples: pktgen: fix proc_cmd command result check logic
 Date:   Thu,  2 Jan 2020 23:06:33 +0100
-Message-Id: <20200102215841.790190941@linuxfoundation.org>
+Message-Id: <20200102220549.375314349@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Daniel T. Lee <danieltimlee@gmail.com>
 
-[ Upstream commit eb065d301e8c83643367bdb0898becc364046bda ]
+[ Upstream commit 3cad8f911575191fb3b81d8ed0e061e30f922223 ]
 
-We currently rely on the ring destroy on cleaning things up in case of
-failure, but io_allocate_scq_urings() can leave things half initialized
-if only parts of it fails.
+Currently, proc_cmd is used to dispatch command to 'pg_ctrl', 'pg_thread',
+'pg_set'. proc_cmd is designed to check command result with grep the
+"Result:", but this might fail since this string is only shown in
+'pg_thread' and 'pg_set'.
 
-Be nice and return with either everything setup in success, or return an
-error with things nicely cleaned up.
+This commit fixes this logic by grep-ing the "Result:" string only when
+the command is not for 'pg_ctrl'.
 
-Reported-by: syzbot+0d818c0d39399188f393@syzkaller.appspotmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+For clarity of an execution flow, 'errexit' flag has been set.
+
+To cleanup pktgen on exit, trap has been added for EXIT signal.
+
+Signed-off-by: Daniel T. Lee <danieltimlee@gmail.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ samples/pktgen/functions.sh | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a340147387ec..74e786578c77 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3773,12 +3773,18 @@ static int io_allocate_scq_urings(struct io_ring_ctx *ctx,
- 	ctx->cq_entries = rings->cq_ring_entries;
+diff --git a/samples/pktgen/functions.sh b/samples/pktgen/functions.sh
+index 205e4cde4601..065a7e296ee3 100644
+--- a/samples/pktgen/functions.sh
++++ b/samples/pktgen/functions.sh
+@@ -5,6 +5,8 @@
+ # Author: Jesper Dangaaard Brouer
+ # License: GPL
  
- 	size = array_size(sizeof(struct io_uring_sqe), p->sq_entries);
--	if (size == SIZE_MAX)
-+	if (size == SIZE_MAX) {
-+		io_mem_free(ctx->rings);
-+		ctx->rings = NULL;
- 		return -EOVERFLOW;
-+	}
++set -o errexit
++
+ ## -- General shell logging cmds --
+ function err() {
+     local exitcode=$1
+@@ -58,6 +60,7 @@ function pg_set() {
+ function proc_cmd() {
+     local result
+     local proc_file=$1
++    local status=0
+     # after shift, the remaining args are contained in $@
+     shift
+     local proc_ctrl=${PROC_DIR}/$proc_file
+@@ -73,13 +76,13 @@ function proc_cmd() {
+ 	echo "cmd: $@ > $proc_ctrl"
+     fi
+     # Quoting of "$@" is important for space expansion
+-    echo "$@" > "$proc_ctrl"
+-    local status=$?
++    echo "$@" > "$proc_ctrl" || status=$?
  
- 	ctx->sq_sqes = io_mem_alloc(size);
--	if (!ctx->sq_sqes)
-+	if (!ctx->sq_sqes) {
-+		io_mem_free(ctx->rings);
-+		ctx->rings = NULL;
- 		return -ENOMEM;
-+	}
- 
- 	return 0;
+-    result=$(grep "Result: OK:" $proc_ctrl)
+-    # Due to pgctrl, cannot use exit code $? from grep
+-    if [[ "$result" == "" ]]; then
+-	grep "Result:" $proc_ctrl >&2
++    if [[ "$proc_file" != "pgctrl" ]]; then
++        result=$(grep "Result: OK:" $proc_ctrl) || true
++        if [[ "$result" == "" ]]; then
++            grep "Result:" $proc_ctrl >&2
++        fi
+     fi
+     if (( $status != 0 )); then
+ 	err 5 "Write error($status) occurred cmd: \"$@ > $proc_ctrl\""
+@@ -105,6 +108,8 @@ function pgset() {
+     fi
  }
+ 
++[[ $EUID -eq 0 ]] && trap 'pg_ctrl "reset"' EXIT
++
+ ## -- General shell tricks --
+ 
+ function root_check_run_with_sudo() {
 -- 
 2.20.1
 
