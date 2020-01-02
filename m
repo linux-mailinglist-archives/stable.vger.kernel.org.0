@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD19B12EE6C
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:38:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E924812EF30
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731316AbgABWig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:38:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52850 "EHLO mail.kernel.org"
+        id S1728358AbgABWd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:33:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730956AbgABWif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:38:35 -0500
+        id S1730247AbgABWd1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:33:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 878F722525;
-        Thu,  2 Jan 2020 22:38:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90C3C20863;
+        Thu,  2 Jan 2020 22:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004715;
-        bh=rcnVMJc/Ue+1kfjEu7lPDDS+WJmCoToHcrT1xM+JEOo=;
+        s=default; t=1578004407;
+        bh=RhCCQf6vbMWOz/PzvEA9pf9RgyUz1RetvwxKHW8BPEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WlIEzJrEaQeTEO9q/e0ZF4Y9Ysqhc6e0s3qk7NqGRXEz7t4lzncEWUkAChJdQC95V
-         LxX/gwRZ7QTgUrfdv8XGhNbVwqJkSyzI/NhT3jPPJLVcR4t2ZpudoTFCtHb9cxtlw2
-         hCazMEOnMONCtCJdBzdOBHYGrQt3DbWfv3OCQi6o=
+        b=fClO2FcxrotAcLFxAj9Dh4kQhBPEaRkjEQVa+PmIETzFykN0S4dHBZMMpxcPTgcnk
+         rjH139f+UFsc7hnd1fwQf79li0rRBvzpuz2SX9nyW4zEog/GExigM47a/fCm6gKCNb
+         P7OLd9LsOwkeSKdRuezOdE68htwEkiOuqSRShkgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 123/137] libfdt: define INT32_MAX and UINT32_MAX in libfdt_env.h
-Date:   Thu,  2 Jan 2020 23:08:16 +0100
-Message-Id: <20200102220603.700867192@linuxfoundation.org>
+        stable@vger.kernel.org, Netanel Belgazal <netanel@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 166/171] net: ena: fix napi handler misbehavior when the napi budget is zero
+Date:   Thu,  2 Jan 2020 23:08:17 +0100
+Message-Id: <20200102220609.736665065@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Netanel Belgazal <netanel@amazon.com>
 
-[ Upstream commit a8de1304b7df30e3a14f2a8b9709bb4ff31a0385 ]
+[ Upstream commit 24dee0c7478d1a1e00abdf5625b7f921467325dc ]
 
-The DTC v1.5.1 added references to (U)INT32_MAX.
+In netpoll the napi handler could be called with budget equal to zero.
+Current ENA napi handler doesn't take that into consideration.
 
-This is no problem for user-space programs since <stdint.h> defines
-(U)INT32_MAX along with (u)int32_t.
+The napi handler handles Rx packets in a do-while loop.
+Currently, the budget check happens only after decrementing the
+budget, therefore the napi handler, in rare cases, could run over
+MAX_INT packets.
 
-For the kernel space, libfdt_env.h needs to be adjusted before we
-pull in the changes.
+In addition to that, this moves all budget related variables to int
+calculation and stop mixing u32 to avoid ambiguity
 
-In the kernel, we usually use s/u32 instead of (u)int32_t for the
-fixed-width types.
-
-Accordingly, we already have S/U32_MAX for their max values.
-So, we should not add (U)INT32_MAX to <linux/limits.h> any more.
-
-Instead, add them to the in-kernel libfdt_env.h to compile the
-latest libfdt.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Netanel Belgazal <netanel@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/compressed/libfdt_env.h | 4 +++-
- arch/powerpc/boot/libfdt_env.h        | 2 ++
- include/linux/libfdt_env.h            | 3 +++
- 3 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/compressed/libfdt_env.h b/arch/arm/boot/compressed/libfdt_env.h
-index 005bf4ff1b4c..f3ddd4f599e3 100644
---- a/arch/arm/boot/compressed/libfdt_env.h
-+++ b/arch/arm/boot/compressed/libfdt_env.h
-@@ -1,11 +1,13 @@
- #ifndef _ARM_LIBFDT_ENV_H
- #define _ARM_LIBFDT_ENV_H
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -1105,8 +1105,8 @@ static int ena_io_poll(struct napi_struc
+ 	struct ena_ring *tx_ring, *rx_ring;
+ 	struct ena_eth_io_intr_reg intr_reg;
  
-+#include <linux/limits.h>
- #include <linux/types.h>
- #include <linux/string.h>
- #include <asm/byteorder.h>
+-	u32 tx_work_done;
+-	u32 rx_work_done;
++	int tx_work_done;
++	int rx_work_done = 0;
+ 	int tx_budget;
+ 	int napi_comp_call = 0;
+ 	int ret;
+@@ -1122,7 +1122,11 @@ static int ena_io_poll(struct napi_struc
+ 	}
  
--#define INT_MAX			((int)(~0U>>1))
-+#define INT32_MAX	S32_MAX
-+#define UINT32_MAX	U32_MAX
+ 	tx_work_done = ena_clean_tx_irq(tx_ring, tx_budget);
+-	rx_work_done = ena_clean_rx_irq(rx_ring, napi, budget);
++	/* On netpoll the budget is zero and the handler should only clean the
++	 * tx completions.
++	 */
++	if (likely(budget))
++		rx_work_done = ena_clean_rx_irq(rx_ring, napi, budget);
  
- typedef __be16 fdt16_t;
- typedef __be32 fdt32_t;
-diff --git a/arch/powerpc/boot/libfdt_env.h b/arch/powerpc/boot/libfdt_env.h
-index 0b3db6322c79..5f2cb1c53e15 100644
---- a/arch/powerpc/boot/libfdt_env.h
-+++ b/arch/powerpc/boot/libfdt_env.h
-@@ -5,6 +5,8 @@
- #include <string.h>
- 
- #define INT_MAX			((int)(~0U>>1))
-+#define UINT32_MAX		((u32)~0U)
-+#define INT32_MAX		((s32)(UINT32_MAX >> 1))
- 
- #include "of.h"
- 
-diff --git a/include/linux/libfdt_env.h b/include/linux/libfdt_env.h
-index 8850e243c940..bd0a55821177 100644
---- a/include/linux/libfdt_env.h
-+++ b/include/linux/libfdt_env.h
-@@ -6,6 +6,9 @@
- 
- #include <asm/byteorder.h>
- 
-+#define INT32_MAX	S32_MAX
-+#define UINT32_MAX	U32_MAX
-+
- typedef __be16 fdt16_t;
- typedef __be32 fdt32_t;
- typedef __be64 fdt64_t;
--- 
-2.20.1
-
+ 	if ((budget > rx_work_done) && (tx_budget > tx_work_done)) {
+ 		napi_complete_done(napi, rx_work_done);
 
 
