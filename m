@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 539DA12EE0E
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:34:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2E0212F13E
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:59:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730572AbgABWeo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:34:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43620 "EHLO mail.kernel.org"
+        id S1727958AbgABWOq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:14:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730713AbgABWen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:34:43 -0500
+        id S1727955AbgABWOp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:14:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37B01222C3;
-        Thu,  2 Jan 2020 22:34:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B4A722314;
+        Thu,  2 Jan 2020 22:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004482;
-        bh=TZt9TgbZFdaBw2bUpn+icelLm5SELcw/ulBioatx4Cs=;
+        s=default; t=1578003285;
+        bh=eFSrbM0YLx7ixvZ4o7BDvCfWiEf9hFG1YCjCboxeDWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IchDlXu6HHsKbR2ggaC0JxI/lNDyBjLtfYMYmEEWxKvg1DQZDuy5LIuGiP9N0RHRT
-         Ep7yxEQnUUYq334CZ1ZW/2C64+6A17X2R6IW5X7J+tFg3Eil71s/pQpbHWV5dLzot8
-         MZ3DvGeXUPxE++kKKEY3ZHb80ZxUafXyivoMco8Y=
+        b=xJTSd7pam8Gjs6SNl3qIVs6kh7eS13xEdDagSX2P0la7RcLmVsfiL3k9VRly3pO9Y
+         7K0UTaVN/F0Kheq494JyndbyFIqqlTQAmuQakT0WtVQ8BE2PBDR3Ls3kUWGKXO0ZB0
+         HQ1ehDcui9/IgMN/Z8tDQqvHTGrkFmYYamWd/lTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Todd Previte <tprevite@gmail.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, Sean Paul <seanpaul@chromium.org>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 005/137] drm: mst: Fix query_payload ack reply struct
-Date:   Thu,  2 Jan 2020 23:06:18 +0100
-Message-Id: <20200102220547.330497623@linuxfoundation.org>
+Subject: [PATCH 5.4 097/191] gpio/mpc8xxx: fix qoriq GPIO reading
+Date:   Thu,  2 Jan 2020 23:06:19 +0100
+Message-Id: <20200102215840.304056588@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,45 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Paul <seanpaul@chromium.org>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 268de6530aa18fe5773062367fd119f0045f6e88 ]
+[ Upstream commit 787b64a43f7acacf8099329ea08872e663f1e74f ]
 
-Spec says[1] Allocated_PBN is 16 bits
+Qoriq requires the IBE register to be set to enable GPIO inputs to be
+read.  Set it.
 
-[1]- DisplayPort 1.2 Spec, Section 2.11.9.8, Table 2-98
-
-Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Todd Previte <tprevite@gmail.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190829165223.129662-1-sean@poorly.run
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/E1iX3HC-00069N-0T@rmk-PC.armlinux.org.uk
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/drm/drm_dp_mst_helper.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-mpc8xxx.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/drm/drm_dp_mst_helper.h b/include/drm/drm_dp_mst_helper.h
-index f356f9716474..674472ac067a 100644
---- a/include/drm/drm_dp_mst_helper.h
-+++ b/include/drm/drm_dp_mst_helper.h
-@@ -303,7 +303,7 @@ struct drm_dp_resource_status_notify {
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index 16a47de29c94..b863421ae730 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -386,6 +386,9 @@ static int mpc8xxx_probe(struct platform_device *pdev)
  
- struct drm_dp_query_payload_ack_reply {
- 	u8 port_number;
--	u8 allocated_pbn;
-+	u16 allocated_pbn;
- };
+ 	gc->to_irq = mpc8xxx_gpio_to_irq;
  
- struct drm_dp_sideband_msg_req_body {
++	if (of_device_is_compatible(np, "fsl,qoriq-gpio"))
++		gc->write_reg(mpc8xxx_gc->regs + GPIO_IBE, 0xffffffff);
++
+ 	ret = gpiochip_add_data(gc, mpc8xxx_gc);
+ 	if (ret) {
+ 		pr_err("%pOF: GPIO chip registration failed with status %d\n",
 -- 
 2.20.1
 
