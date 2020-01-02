@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4458212F0E5
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:56:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12A1712EF43
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728514AbgABW40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:56:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33498 "EHLO mail.kernel.org"
+        id S1730395AbgABWcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:32:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728416AbgABWSU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:18:20 -0500
+        id S1730390AbgABWcU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:32:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE2B722B48;
-        Thu,  2 Jan 2020 22:18:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8923420866;
+        Thu,  2 Jan 2020 22:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003500;
-        bh=JS4nCumSHXOPnUPaodSkpRD8uMS2vX+hdTN30K62b4s=;
+        s=default; t=1578004340;
+        bh=C65c9+yziQohp1zFjPI6GUPJ9ttdc57+2D6hh3v2Z5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HfXNHHhPhdhr+/g2XDIljxJTg7avrW0vG72NZtz1Gnmffm3iAxcagvM2wNjLR7a+S
-         /qBn4xpZR2w2Mxq1psKkuxwDqxGeyt33Ow9tAzJM+k2TJ7v/tmO6eX2IkgIlrGze8S
-         XArgYdNjOJmT4VM98GhHDrJYg5bSk3d93MQc0HcI=
+        b=eWwSZ9yvmmHGX8ssB3WdYoBw4gB8EXiac3oG2SToqRY7k2rWRzGV4FO325ZU+4ddE
+         ESoLZkwJkyfdA8j4Ga2VTXulRyrkQKwtjPCXqk8+3C0W0Ftpv7CPGnwagDGQjpp1P4
+         UrN4EfGMlXXLp1mr2hfob0VEEFwWnyhE6tf7PQPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 5.4 187/191] net: phylink: fix interface passed to mac_link_up
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 138/171] bcache: at least try to shrink 1 node in bch_mca_scan()
 Date:   Thu,  2 Jan 2020 23:07:49 +0100
-Message-Id: <20200102215849.625414474@linuxfoundation.org>
+Message-Id: <20200102220606.218334938@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit 9b2079c046a9d6c9c73a4ec33816678565ee01f3 ]
+[ Upstream commit 9fcc34b1a6dd4b8e5337e2b6ef45e428897eca6b ]
 
-A mismerge between the following two commits:
+In bch_mca_scan(), the number of shrinking btree node is calculated
+by code like this,
+	unsigned long nr = sc->nr_to_scan;
 
-c678726305b9 ("net: phylink: ensure consistent phy interface mode")
-27755ff88c0e ("net: phylink: Add phylink_mac_link_{up, down} wrapper functions")
+        nr /= c->btree_pages;
+        nr = min_t(unsigned long, nr, mca_can_free(c));
+variable sc->nr_to_scan is number of objects (here is bcache B+tree
+nodes' number) to shrink, and pointer variable sc is sent from memory
+management code as parametr of a callback.
 
-resulted in the wrong interface being passed to the mac_link_up()
-function. Fix this up.
+If sc->nr_to_scan is smaller than c->btree_pages, after the above
+calculation, variable 'nr' will be 0 and nothing will be shrunk. It is
+frequeently observed that only 1 or 2 is set to sc->nr_to_scan and make
+nr to be zero. Then bch_mca_scan() will do nothing more then acquiring
+and releasing mutex c->bucket_lock.
 
-Fixes: b4b12b0d2f02 ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch checkes whether nr is 0 after the above calculation, if 0
+is the result then set 1 to variable 'n'. Then at least bch_mca_scan()
+will try to shrink a single B+tree node.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phylink.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/md/bcache/btree.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -444,8 +444,7 @@ static void phylink_mac_link_up(struct p
+diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
+index 4e34afb6e36a..c8c5e3368b8b 100644
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -681,6 +681,8 @@ static unsigned long bch_mca_scan(struct shrinker *shrink,
+ 	 * IO can always make forward progress:
+ 	 */
+ 	nr /= c->btree_pages;
++	if (nr == 0)
++		nr = 1;
+ 	nr = min_t(unsigned long, nr, mca_can_free(c));
  
- 	pl->cur_interface = link_state.interface;
- 	pl->ops->mac_link_up(pl->config, pl->link_an_mode,
--			     pl->phy_state.interface,
--			     pl->phydev);
-+			     pl->cur_interface, pl->phydev);
- 
- 	if (ndev)
- 		netif_carrier_on(ndev);
+ 	i = 0;
+-- 
+2.20.1
+
 
 
