@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90DB712F077
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7319412EEFA
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728118AbgABWUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:20:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38776 "EHLO mail.kernel.org"
+        id S1730658AbgABWmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:42:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728864AbgABWUo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:20:44 -0500
+        id S1730835AbgABWfe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:35:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D90F624650;
-        Thu,  2 Jan 2020 22:20:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D063920863;
+        Thu,  2 Jan 2020 22:35:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003644;
-        bh=ep9gLDaU4fQuW4s5VjCKlb/xQtq90DV88lZZIOURVh0=;
+        s=default; t=1578004533;
+        bh=Lu/ZTgUSr4vXlL6FAJcrMZtok1ksT4m1zI6WN6EUk/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uTSPwpC6T12g8zgK1Qtb098eeyviwPbE0lIx4R6YeBt+4JpoJ9g9UHtffclnfg2ZD
-         cWCU5pfVUMI+ZsluNq8hsdV7uCab4NE9MdMn0qihjsaJvQaIvh9kQjNpzz8+IX5lJx
-         uaZ0R/kB7j0JodoogVyla4u5sg0mwQ3zp2VMC0a4=
+        b=g51SyVrkXdW93sHHO6vliqqrDeN08IFDedIVZJ6N8M8IzyNzXQgJqNHPjJUAH33ew
+         wZF8UCpGfrykGmI6gpVMrWTpGQmLB+B6e/CM6R4mToPiNV+sH3l21WBX0sTW248qym
+         gC7yRFD1n1iZbntkkQq26JqnJBR4PYaMB9wzb+tI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/114] ARM: 8937/1: spectre-v2: remove Brahma-B53 from hardening
+Subject: [PATCH 4.4 046/137] perf probe: Fix to show calling lines of inlined functions
 Date:   Thu,  2 Jan 2020 23:06:59 +0100
-Message-Id: <20200102220033.831569340@linuxfoundation.org>
+Message-Id: <20200102220552.778892681@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 4ae5061a19b550dfe25397843427ed2ebab16b16 ]
+[ Upstream commit 86c0bf8539e7f46d91bd105e55eda96e0064caef ]
 
-When the default processor handling was added to the function
-cpu_v7_spectre_init() it only excluded other ARM implemented processor
-cores. The Broadcom Brahma B53 core is not implemented by ARM so it
-ended up falling through into the set of processors that attempt to use
-the ARM_SMCCC_ARCH_WORKAROUND_1 service to harden the branch predictor.
+Fix to show calling lines of inlined functions (where an inline function
+is called).
 
-Since this workaround is not necessary for the Brahma-B53 this commit
-explicitly checks for it and prevents it from applying a branch
-predictor hardening workaround.
+die_walk_lines() filtered out the lines inside inlined functions based
+on the address. However this also filtered out the lines which call
+those inlined functions from the target function.
 
-Fixes: 10115105cb3a ("ARM: spectre-v2: add firmware based hardening")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+To solve this issue, check the call_file and call_line attributes and do
+not filter out if it matches to the line information.
+
+Without this fix, perf probe -L doesn't show some lines correctly.
+(don't see the lines after 17)
+
+  # perf probe -L vfs_read
+  <vfs_read@/home/mhiramat/ksrc/linux/fs/read_write.c:0>
+        0  ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
+        1  {
+        2         ssize_t ret;
+
+        4         if (!(file->f_mode & FMODE_READ))
+                          return -EBADF;
+        6         if (!(file->f_mode & FMODE_CAN_READ))
+                          return -EINVAL;
+        8         if (unlikely(!access_ok(buf, count)))
+                          return -EFAULT;
+
+       11         ret = rw_verify_area(READ, file, pos, count);
+       12         if (!ret) {
+       13                 if (count > MAX_RW_COUNT)
+                                  count =  MAX_RW_COUNT;
+       15                 ret = __vfs_read(file, buf, count, pos);
+       16                 if (ret > 0) {
+                                  fsnotify_access(file);
+                                  add_rchar(current, ret);
+                          }
+
+With this fix:
+
+  # perf probe -L vfs_read
+  <vfs_read@/home/mhiramat/ksrc/linux/fs/read_write.c:0>
+        0  ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
+        1  {
+        2         ssize_t ret;
+
+        4         if (!(file->f_mode & FMODE_READ))
+                          return -EBADF;
+        6         if (!(file->f_mode & FMODE_CAN_READ))
+                          return -EINVAL;
+        8         if (unlikely(!access_ok(buf, count)))
+                          return -EFAULT;
+
+       11         ret = rw_verify_area(READ, file, pos, count);
+       12         if (!ret) {
+       13                 if (count > MAX_RW_COUNT)
+                                  count =  MAX_RW_COUNT;
+       15                 ret = __vfs_read(file, buf, count, pos);
+       16                 if (ret > 0) {
+       17                         fsnotify_access(file);
+       18                         add_rchar(current, ret);
+                          }
+       20                 inc_syscr(current);
+                  }
+
+Fixes: 4cc9cec636e7 ("perf probe: Introduce lines walker interface")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/157241937995.32002.17899884017011512577.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/proc-v7-bugs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/util/dwarf-aux.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
-index 9a07916af8dd..a6554fdb56c5 100644
---- a/arch/arm/mm/proc-v7-bugs.c
-+++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -65,6 +65,9 @@ static void cpu_v7_spectre_init(void)
- 		break;
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index 5f32fed5eeb3..6851f1d0e253 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -741,7 +741,7 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
+ 	Dwarf_Lines *lines;
+ 	Dwarf_Line *line;
+ 	Dwarf_Addr addr;
+-	const char *fname, *decf = NULL;
++	const char *fname, *decf = NULL, *inf = NULL;
+ 	int lineno, ret = 0;
+ 	int decl = 0, inl;
+ 	Dwarf_Die die_mem, *cu_die;
+@@ -785,13 +785,21 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
+ 			 */
+ 			if (!dwarf_haspc(rt_die, addr))
+ 				continue;
++
+ 			if (die_find_inlinefunc(rt_die, addr, &die_mem)) {
++				/* Call-site check */
++				inf = die_get_call_file(&die_mem);
++				if ((inf && !strcmp(inf, decf)) &&
++				    die_get_call_lineno(&die_mem) == lineno)
++					goto found;
++
+ 				dwarf_decl_line(&die_mem, &inl);
+ 				if (inl != decl ||
+ 				    decf != dwarf_decl_file(&die_mem))
+ 					continue;
+ 			}
+ 		}
++found:
+ 		/* Get source line */
+ 		fname = dwarf_linesrc(line, NULL, NULL);
  
- #ifdef CONFIG_ARM_PSCI
-+	case ARM_CPU_PART_BRAHMA_B53:
-+		/* Requires no workaround */
-+		break;
- 	default:
- 		/* Other ARM CPUs require no workaround */
- 		if (read_cpuid_implementor() == ARM_CPU_IMP_ARM)
 -- 
 2.20.1
 
