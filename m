@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7256D12EFB5
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:48:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A9912F15D
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:00:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728479AbgABW2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:28:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58822 "EHLO mail.kernel.org"
+        id S1727668AbgABW74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:59:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728368AbgABW2m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:28:42 -0500
+        id S1727430AbgABWNg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:13:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01B3F21835;
-        Thu,  2 Jan 2020 22:28:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D2A922525;
+        Thu,  2 Jan 2020 22:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004121;
-        bh=kjRuJZ4zkqTaPLb6Mcyl6g1KSYaK54CVS5pfTHJB3jk=;
+        s=default; t=1578003215;
+        bh=1+1H71gkxh1RMYV0boeJNEBPTmDAqEBkqTBL8rFOMXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0SSvHrEatQQ5JBy58jWBA2MYdEjsxBc85gN/DSacoUpihy/6ruyg7olc7gA4hFGTK
-         AVC9vDnVt2/+y2779TacEvcijf2G1R6XN23VnWmCwGk+hcAhcehA01MKdwRMAtE1bg
-         Pu/tJerQnrGgxm0qRcL80C/fw9sMiDjvR1GMd9ao=
+        b=EcATy+zTYMRPF3UYFbNEsm3I3wx8Tczouin9vlkKTFEukAKuIAFz9h1O3klXxUh59
+         7L3tlvNfQ8YN3DZ9u49X58Z+FHHm1VZfqOPKeI3qTnnuNvVaDz3rPuRD0wp+DbH2dp
+         PJCqaldRuDzdHRFlILnwzEb7RaLCAvI6SerTFPRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 019/171] media: ov6650: Fix stored frame format not in sync with hardware
+Subject: [PATCH 5.4 068/191] PCI: rpaphp: Correctly match ibm, my-drc-index to drc-name when using drc-info
 Date:   Thu,  2 Jan 2020 23:05:50 +0100
-Message-Id: <20200102220549.705666599@linuxfoundation.org>
+Message-Id: <20200102215837.241451641@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit 3143b459de4cdcce67b36827476c966e93c1cf01 ]
+[ Upstream commit 4f9f2d3d7a434b7f882b72550194c9278f4a3925 ]
 
-The driver stores frame format settings supposed to be in line with
-hardware state in a device private structure.  Since the driver initial
-submission, those settings are updated before they are actually applied
-on hardware.  If an error occurs on device update, the stored settings
-my not reflect hardware state anymore and consecutive calls to
-.get_fmt() may return incorrect information.  That in turn may affect
-ability of a bridge device to use correct DMA transfer settings if such
-incorrect informmation on active frame format returned by .get_fmt() is
-used.
+The newer ibm,drc-info property is a condensed description of the old
+ibm,drc-* properties (ie. names, types, indexes, and power-domains).
+When matching a drc-index to a drc-name we need to verify that the
+index is within the start and last drc-index range and map it to a
+drc-name using the drc-name-prefix and logical index.
 
-Assuming a failed device update means its state hasn't changed, update
-frame format related settings stored in the device private structure
-only after they are successfully applied so the stored values always
-reflect hardware state as closely as possible.
+Fix the mapping by checking that the index is within the range of the
+current drc-info entry, and build the name from the drc-name-prefix
+concatenated with the starting drc-name-suffix value and the sequential
+index obtained by subtracting ibm,my-drc-index from this entries
+drc-start-index.
 
-Fixes: 2f6e2404799a ("[media] SoC Camera: add driver for OV6650 sensor")
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1573449697-5448-10-git-send-email-tyreld@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/soc_camera/ov6650.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/pci/hotplug/rpaphp_core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/soc_camera/ov6650.c b/drivers/media/i2c/soc_camera/ov6650.c
-index fc187c5aeb1e..7a119466f973 100644
---- a/drivers/media/i2c/soc_camera/ov6650.c
-+++ b/drivers/media/i2c/soc_camera/ov6650.c
-@@ -612,7 +612,6 @@ static int ov6650_s_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *mf)
- 		dev_err(&client->dev, "Pixel format not handled: 0x%x\n", code);
- 		return -EINVAL;
+diff --git a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
+index abb10b3c0b70..32eab1776cfe 100644
+--- a/drivers/pci/hotplug/rpaphp_core.c
++++ b/drivers/pci/hotplug/rpaphp_core.c
+@@ -248,9 +248,10 @@ static int rpaphp_check_drc_props_v2(struct device_node *dn, char *drc_name,
+ 		/* Should now know end of current entry */
+ 
+ 		/* Found it */
+-		if (my_index <= drc.last_drc_index) {
++		if (my_index >= drc.drc_index_start && my_index <= drc.last_drc_index) {
++			int index = my_index - drc.drc_index_start;
+ 			sprintf(cell_drc_name, "%s%d", drc.drc_name_prefix,
+-				my_index);
++				drc.drc_name_suffix_start + index);
+ 			break;
+ 		}
  	}
--	priv->code = code;
- 
- 	if (code == MEDIA_BUS_FMT_Y8_1X8 ||
- 			code == MEDIA_BUS_FMT_SBGGR8_1X8) {
-@@ -638,7 +637,6 @@ static int ov6650_s_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *mf)
- 		dev_dbg(&client->dev, "max resolution: CIF\n");
- 		coma_mask |= COMA_QCIF;
- 	}
--	priv->half_scale = half_scale;
- 
- 	if (sense) {
- 		if (sense->master_clock == 8000000) {
-@@ -678,8 +676,13 @@ static int ov6650_s_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *mf)
- 		ret = ov6650_reg_rmw(client, REG_COMA, coma_set, coma_mask);
- 	if (!ret)
- 		ret = ov6650_reg_write(client, REG_CLKRC, clkrc);
--	if (!ret)
-+	if (!ret) {
-+		priv->half_scale = half_scale;
-+
- 		ret = ov6650_reg_rmw(client, REG_COML, coml_set, coml_mask);
-+	}
-+	if (!ret)
-+		priv->code = code;
- 
- 	if (!ret) {
- 		mf->colorspace	= priv->colorspace;
 -- 
 2.20.1
 
