@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA47E12EFFA
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:50:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F0AC12EEBD
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729611AbgABW0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:26:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52836 "EHLO mail.kernel.org"
+        id S1728738AbgABWke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:40:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729608AbgABW0G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:26:06 -0500
+        id S1731273AbgABWiL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:38:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE3112253D;
-        Thu,  2 Jan 2020 22:26:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5AE9217F4;
+        Thu,  2 Jan 2020 22:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003966;
-        bh=MTf0aAiPTOiajZujZI+wd/PHq0w7Fnm3cm7lguMSgSo=;
+        s=default; t=1578004691;
+        bh=DrMkQubWzL8TRWQ6BdEhxtUI4bDasxnhwOZ4Cpj6aeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E4eA7nRurvHX27gn0j5WGOdvo7bNam+XJ7ga9yjnF30hASXJ4Q/hF0gRhlCM3HeYl
-         uiSirQjpWQKn1+TalNXMR13HvURjLRE3KrqNdpf3/EYTC4O4CvoglnNsOjbBZ9HVdY
-         qxPMzLSj7k41+nHOlgDWPPP0gNZNPy3K+IoG43uA=
+        b=vqC7JMZD52O50zOqq0F5QKnZzv9WRZHsKMxc+VbzKyD+DnQMllsEV2Fz40e+BegwD
+         dbP0i9HiAcdlVIw5SOAt1XQW8JSTabTqMUjiw8NojS/MNASzAb/cprAtjTA7bukQu0
+         Yzj9nfLrUzprfbWETc7toXH8MWdsC+qt9QRobZzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@dlink.ru>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 56/91] net, sysctl: Fix compiler warning when only cBPF is present
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.4 085/137] staging: comedi: gsc_hpdi: check dma_alloc_coherent() return value
 Date:   Thu,  2 Jan 2020 23:07:38 +0100
-Message-Id: <20200102220439.135595611@linuxfoundation.org>
+Message-Id: <20200102220558.121434781@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@dlink.ru>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-[ Upstream commit 1148f9adbe71415836a18a36c1b4ece999ab0973 ]
+commit ab42b48f32d4c766420c3499ee9c0289b7028182 upstream.
 
-proc_dointvec_minmax_bpf_restricted() has been firstly introduced
-in commit 2e4a30983b0f ("bpf: restrict access to core bpf sysctls")
-under CONFIG_HAVE_EBPF_JIT. Then, this ifdef has been removed in
-ede95a63b5e8 ("bpf: add bpf_jit_limit knob to restrict unpriv
-allocations"), because a new sysctl, bpf_jit_limit, made use of it.
-Finally, this parameter has become long instead of integer with
-fdadd04931c2 ("bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K")
-and thus, a new proc_dolongvec_minmax_bpf_restricted() has been
-added.
+The "auto-attach" handler function `gsc_hpdi_auto_attach()` calls
+`dma_alloc_coherent()` in a loop to allocate some DMA data buffers, and
+also calls it to allocate a buffer for a DMA descriptor chain.  However,
+it does not check the return value of any of these calls.  Change
+`gsc_hpdi_auto_attach()` to return `-ENOMEM` if any of these
+`dma_alloc_coherent()` calls fail.  This will result in the comedi core
+calling the "detach" handler `gsc_hpdi_detach()` as part of the
+clean-up, which will call `gsc_hpdi_free_dma()` to free any allocated
+DMA coherent memory buffers.
 
-With this last change, we got back to that
-proc_dointvec_minmax_bpf_restricted() is used only under
-CONFIG_HAVE_EBPF_JIT, but the corresponding ifdef has not been
-brought back.
+Cc: <stable@vger.kernel.org> #4.6+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20191216110823.216237-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-So, in configurations like CONFIG_BPF_JIT=y && CONFIG_HAVE_EBPF_JIT=n
-since v4.20 we have:
-
-  CC      net/core/sysctl_net_core.o
-net/core/sysctl_net_core.c:292:1: warning: ‘proc_dointvec_minmax_bpf_restricted’ defined but not used [-Wunused-function]
-  292 | proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Suppress this by guarding it with CONFIG_HAVE_EBPF_JIT again.
-
-Fixes: fdadd04931c2 ("bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K")
-Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20191218091821.7080-1-alobakin@dlink.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sysctl_net_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/comedi/drivers/gsc_hpdi.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index 144cd1acd7e3..069e3c4fcc44 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -274,6 +274,7 @@ static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
- 	return ret;
- }
- 
-+# ifdef CONFIG_HAVE_EBPF_JIT
- static int
- proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
- 				    void __user *buffer, size_t *lenp,
-@@ -284,6 +285,7 @@ proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
- 
- 	return proc_dointvec_minmax(table, write, buffer, lenp, ppos);
- }
-+# endif /* CONFIG_HAVE_EBPF_JIT */
- 
- static int
- proc_dolongvec_minmax_bpf_restricted(struct ctl_table *table, int write,
--- 
-2.20.1
-
+--- a/drivers/staging/comedi/drivers/gsc_hpdi.c
++++ b/drivers/staging/comedi/drivers/gsc_hpdi.c
+@@ -632,12 +632,22 @@ static int gsc_hpdi_auto_attach(struct c
+ 		devpriv->dio_buffer[i] =
+ 		    pci_alloc_consistent(pcidev, DMA_BUFFER_SIZE,
+ 					 &devpriv->dio_buffer_phys_addr[i]);
++		if (!devpriv->dio_buffer[i]) {
++			dev_warn(dev->class_dev,
++				 "failed to allocate DMA buffer\n");
++			return -ENOMEM;
++		}
+ 	}
+ 	/* allocate dma descriptors */
+ 	devpriv->dma_desc = pci_alloc_consistent(pcidev,
+ 						 sizeof(struct plx_dma_desc) *
+ 						 NUM_DMA_DESCRIPTORS,
+ 						 &devpriv->dma_desc_phys_addr);
++	if (!devpriv->dma_desc) {
++		dev_warn(dev->class_dev,
++			 "failed to allocate DMA descriptors\n");
++		return -ENOMEM;
++	}
+ 	if (devpriv->dma_desc_phys_addr & 0xf) {
+ 		dev_warn(dev->class_dev,
+ 			 " dma descriptors not quad-word aligned (bug)\n");
 
 
