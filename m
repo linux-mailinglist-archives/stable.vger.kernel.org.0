@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F7712ECC9
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:21:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9878912ECDA
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:22:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729050AbgABWVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:21:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41386 "EHLO mail.kernel.org"
+        id S1729163AbgABWWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:22:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729047AbgABWVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:21:47 -0500
+        id S1729029AbgABWWh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:22:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E58AF21835;
-        Thu,  2 Jan 2020 22:21:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85A2A20863;
+        Thu,  2 Jan 2020 22:22:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003706;
-        bh=U5GgqEyn+KoZCexv7j0LgkAynPcyqk8Rd4HfTxE53UA=;
+        s=default; t=1578003757;
+        bh=jQybQAdyx9ZBDl/KAmYyeRIYex04N12HCfmKKKywYCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IIMQM9w+BoqzxYMrMUqhNCe8D+9Anzr5CglvIlJ2keV1Ek+coj3nibCBqRI/yBLWo
-         OdzAYreOjfIz3rGRT8viq/X0Y0ZpWEwuZfnksJ/U544DVTYK7LTEX2TQUsrA3hSIJS
-         35SeIpToutTwd3HEU+MVuOeid4mSXiVmrUUC60gk=
+        b=sL4VJNY3kVMN+vL5GzZ33LTalChpkCHg5zlZLsdnjk2smDCJ1Q3KyDt5TdYrV0rdl
+         Y8bDP+c7ExauNX5XbfaY18x/bj8p2sa7UCbtiJctRRTaTnFrZI0rJaxrzprhaQzrGk
+         wBcqkqDXbEuUdimeiodjdqXFHhg/9X1f9k550PC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Parth Shah <parth@linux.ibm.com>,
-        Ihor Pasichnyk <Ihor.Pasichnyk@ibm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Waiman Long <longman@redhat.com>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Phil Auld <pauld@redhat.com>,
-        Vaidyanathan Srinivasan <svaidy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 073/114] Revert "powerpc/vcpu: Assume dedicated processors as non-preempt"
-Date:   Thu,  2 Jan 2020 23:07:25 +0100
-Message-Id: <20200102220036.470720283@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@dlink.ru>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 075/114] net, sysctl: Fix compiler warning when only cBPF is present
+Date:   Thu,  2 Jan 2020 23:07:27 +0100
+Message-Id: <20200102220036.657934932@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
 References: <20200102220029.183913184@linuxfoundation.org>
@@ -51,68 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Alexander Lobakin <alobakin@dlink.ru>
 
-This reverts commit 4ba32bdbd8c66d9c7822aea8dcf4e51410df84a8 which is
-commit 14c73bd344da60abaf7da3ea2e7733ddda35bbac upstream.
+[ Upstream commit 1148f9adbe71415836a18a36c1b4ece999ab0973 ]
 
-It breaks the build.
+proc_dointvec_minmax_bpf_restricted() has been firstly introduced
+in commit 2e4a30983b0f ("bpf: restrict access to core bpf sysctls")
+under CONFIG_HAVE_EBPF_JIT. Then, this ifdef has been removed in
+ede95a63b5e8 ("bpf: add bpf_jit_limit knob to restrict unpriv
+allocations"), because a new sysctl, bpf_jit_limit, made use of it.
+Finally, this parameter has become long instead of integer with
+fdadd04931c2 ("bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K")
+and thus, a new proc_dolongvec_minmax_bpf_restricted() has been
+added.
 
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Parth Shah <parth@linux.ibm.com>
-Cc: Ihor Pasichnyk <Ihor.Pasichnyk@ibm.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Waiman Long <longman@redhat.com>
-Cc: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Cc: Phil Auld <pauld@redhat.com>
-Cc: Vaidyanathan Srinivasan <svaidy@linux.ibm.com>
-Cc: Parth Shah <parth@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+With this last change, we got back to that
+proc_dointvec_minmax_bpf_restricted() is used only under
+CONFIG_HAVE_EBPF_JIT, but the corresponding ifdef has not been
+brought back.
+
+So, in configurations like CONFIG_BPF_JIT=y && CONFIG_HAVE_EBPF_JIT=n
+since v4.20 we have:
+
+  CC      net/core/sysctl_net_core.o
+net/core/sysctl_net_core.c:292:1: warning: ‘proc_dointvec_minmax_bpf_restricted’ defined but not used [-Wunused-function]
+  292 | proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Suppress this by guarding it with CONFIG_HAVE_EBPF_JIT again.
+
+Fixes: fdadd04931c2 ("bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K")
+Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20191218091821.7080-1-alobakin@dlink.ru
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/spinlock.h    |    4 +---
- arch/powerpc/platforms/pseries/setup.c |    7 -------
- 2 files changed, 1 insertion(+), 10 deletions(-)
+ net/core/sysctl_net_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/include/asm/spinlock.h
-+++ b/arch/powerpc/include/asm/spinlock.h
-@@ -53,12 +53,10 @@
- #endif
- 
- #ifdef CONFIG_PPC_PSERIES
--DECLARE_STATIC_KEY_FALSE(shared_processor);
--
- #define vcpu_is_preempted vcpu_is_preempted
- static inline bool vcpu_is_preempted(int cpu)
- {
--	if (!static_branch_unlikely(&shared_processor))
-+	if (!firmware_has_feature(FW_FEATURE_SPLPAR))
- 		return false;
- 	return !!(be32_to_cpu(lppaca_of(cpu).yield_count) & 1);
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index d67ec17f2cc8..6cec08cd0bb9 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -281,6 +281,7 @@ static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
+ 	return ret;
  }
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -75,9 +75,6 @@
- #include "pseries.h"
- #include "../../../../drivers/pci/pci.h"
  
--DEFINE_STATIC_KEY_FALSE(shared_processor);
--EXPORT_SYMBOL_GPL(shared_processor);
--
- int CMO_PrPSP = -1;
- int CMO_SecPSP = -1;
- unsigned long CMO_PageSize = (ASM_CONST(1) << IOMMU_PAGE_SHIFT_4K);
-@@ -764,10 +761,6 @@ static void __init pSeries_setup_arch(vo
++# ifdef CONFIG_HAVE_EBPF_JIT
+ static int
+ proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
+ 				    void __user *buffer, size_t *lenp,
+@@ -291,6 +292,7 @@ proc_dointvec_minmax_bpf_restricted(struct ctl_table *table, int write,
  
- 	if (firmware_has_feature(FW_FEATURE_LPAR)) {
- 		vpa_init(boot_cpuid);
--
--		if (lppaca_shared_proc(get_lppaca()))
--			static_branch_enable(&shared_processor);
--
- 		ppc_md.power_save = pseries_lpar_idle;
- 		ppc_md.enable_pmcs = pseries_lpar_enable_pmcs;
- #ifdef CONFIG_PCI_IOV
+ 	return proc_dointvec_minmax(table, write, buffer, lenp, ppos);
+ }
++# endif /* CONFIG_HAVE_EBPF_JIT */
+ 
+ static int
+ proc_dolongvec_minmax_bpf_restricted(struct ctl_table *table, int write,
+-- 
+2.20.1
+
 
 
