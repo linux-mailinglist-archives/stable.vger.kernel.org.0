@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6520512F0F8
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAA512F08F
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728133AbgABWRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:17:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59700 "EHLO mail.kernel.org"
+        id S1727523AbgABWxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:53:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726781AbgABWRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:17:18 -0500
+        id S1729020AbgABWVh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:21:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CBCF227BF;
-        Thu,  2 Jan 2020 22:17:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E5E820863;
+        Thu,  2 Jan 2020 22:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003437;
-        bh=vGEiSPzPvuEHzZI+F9IqVYZ3YL+4aIjczUHdbVUGx8g=;
+        s=default; t=1578003696;
+        bh=CMzUwSsyVQSqBUOiejZscCQQm1OBmrt+0022tPOxSKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gsxLaqif0RXDmT0zzCDGZbaLch1dkaPMDkrwAfZpcmpiuAcMznMoRlxhbnVltqDda
-         ALIRhQ9d7fM23GEKl5ltZtm6LI9CWESOl56aEaYUbwmfSbdIGmyxJyKd/MLBm3nrdQ
-         pYEB9dzQ5/o9g3CqrnA58CG4c8UNJP1a6o+YQjvc=
+        b=Yg+Rf7smd0Iuw/CYS2Jw8v/FIh+Kgcvs7eUYzRHGl8syJU3zJ8l2xScofcK7dXUp8
+         texujMJo5oioCPEnh4D3NtJ6ixbZU8C7jbM2meT5N0AMpLoO1J9Ar0X2f3OlTC0OPd
+         5HktiMckqDq7VR4vN2KomQTYZi1rwHsiTUPYYdWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+0341f6a4d729d4e0acf1@syzkaller.appspotmail.com>,
-        James Morris <jmorris@namei.org>
-Subject: [PATCH 5.4 143/191] tomoyo: Dont use nifty names on sockets.
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Subhash Jadavani <subhashj@codeaurora.org>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 053/114] scsi: ufs: Fix error handing during hibern8 enter
 Date:   Thu,  2 Jan 2020 23:07:05 +0100
-Message-Id: <20200102215844.863867281@linuxfoundation.org>
+Message-Id: <20200102220034.406463258@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,80 +47,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Subhash Jadavani <subhashj@codeaurora.org>
 
-commit 6f7c41374b62fd80bbd8aae3536c43688c54d95e upstream.
+[ Upstream commit 6d303e4b19d694cdbebf76bcdb51ada664ee953d ]
 
-syzbot is reporting that use of SOCKET_I()->sk from open() can result in
-use after free problem [1], for socket's inode is still reachable via
-/proc/pid/fd/n despite destruction of SOCKET_I()->sk already completed.
+During clock gating (ufshcd_gate_work()), we first put the link hibern8 by
+calling ufshcd_uic_hibern8_enter() and if ufshcd_uic_hibern8_enter()
+returns success (0) then we gate all the clocks.  Now let’s zoom in to what
+ufshcd_uic_hibern8_enter() does internally: It calls
+__ufshcd_uic_hibern8_enter() and if failure is encountered, link recovery
+shall put the link back to the highest HS gear and returns success (0) to
+ufshcd_uic_hibern8_enter() which is the issue as link is still in active
+state due to recovery!  Now ufshcd_uic_hibern8_enter() returns success to
+ufshcd_gate_work() and hence it goes ahead with gating the UFS clock while
+link is still in active state hence I believe controller would raise UIC
+error interrupts. But when we service the interrupt, clocks might have
+already been disabled!
 
-At first I thought that this race condition applies to only open/getattr
-permission checks. But James Morris has pointed out that there are more
-permission checks where this race condition applies to. Thus, get rid of
-tomoyo_get_socket_name() instead of conditionally bypassing permission
-checks on sockets. As a side effect of this patch,
-"socket:[family=\$:type=\$:protocol=\$]" in the policy files has to be
-rewritten to "socket:[\$]".
+This change fixes for this by returning failure from
+__ufshcd_uic_hibern8_enter() if recovery succeeds as link is still not in
+hibern8, upon receiving the error ufshcd_hibern8_enter() would initiate
+retry to put the link state back into hibern8.
 
-[1] https://syzkaller.appspot.com/bug?id=73d590010454403d55164cca23bd0565b1eb3b74
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: syzbot <syzbot+0341f6a4d729d4e0acf1@syzkaller.appspotmail.com>
-Reported-by: James Morris <jmorris@namei.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/1573798172-20534-8-git-send-email-cang@codeaurora.org
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Subhash Jadavani <subhashj@codeaurora.org>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/tomoyo/realpath.c |   32 +-------------------------------
- 1 file changed, 1 insertion(+), 31 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/security/tomoyo/realpath.c
-+++ b/security/tomoyo/realpath.c
-@@ -218,31 +218,6 @@ out:
- }
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 7510d8328d4d..3601e770da16 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -3875,15 +3875,24 @@ static int __ufshcd_uic_hibern8_enter(struct ufs_hba *hba)
+ 			     ktime_to_us(ktime_sub(ktime_get(), start)), ret);
  
- /**
-- * tomoyo_get_socket_name - Get the name of a socket.
-- *
-- * @path:   Pointer to "struct path".
-- * @buffer: Pointer to buffer to return value in.
-- * @buflen: Sizeof @buffer.
-- *
-- * Returns the buffer.
-- */
--static char *tomoyo_get_socket_name(const struct path *path, char * const buffer,
--				    const int buflen)
--{
--	struct inode *inode = d_backing_inode(path->dentry);
--	struct socket *sock = inode ? SOCKET_I(inode) : NULL;
--	struct sock *sk = sock ? sock->sk : NULL;
--
--	if (sk) {
--		snprintf(buffer, buflen, "socket:[family=%u:type=%u:protocol=%u]",
--			 sk->sk_family, sk->sk_type, sk->sk_protocol);
--	} else {
--		snprintf(buffer, buflen, "socket:[unknown]");
--	}
--	return buffer;
--}
--
--/**
-  * tomoyo_realpath_from_path - Returns realpath(3) of the given pathname but ignores chroot'ed root.
-  *
-  * @path: Pointer to "struct path".
-@@ -279,12 +254,7 @@ char *tomoyo_realpath_from_path(const st
- 			break;
- 		/* To make sure that pos is '\0' terminated. */
- 		buf[buf_len - 1] = '\0';
--		/* Get better name for socket. */
--		if (sb->s_magic == SOCKFS_MAGIC) {
--			pos = tomoyo_get_socket_name(path, buf, buf_len - 1);
--			goto encode;
--		}
--		/* For "pipe:[\$]". */
-+		/* For "pipe:[\$]" and "socket:[\$]". */
- 		if (dentry->d_op && dentry->d_op->d_dname) {
- 			pos = dentry->d_op->d_dname(dentry, buf, buf_len - 1);
- 			goto encode;
+ 	if (ret) {
++		int err;
++
+ 		dev_err(hba->dev, "%s: hibern8 enter failed. ret = %d\n",
+ 			__func__, ret);
+ 
+ 		/*
+-		 * If link recovery fails then return error so that caller
+-		 * don't retry the hibern8 enter again.
++		 * If link recovery fails then return error code returned from
++		 * ufshcd_link_recovery().
++		 * If link recovery succeeds then return -EAGAIN to attempt
++		 * hibern8 enter retry again.
+ 		 */
+-		if (ufshcd_link_recovery(hba))
+-			ret = -ENOLINK;
++		err = ufshcd_link_recovery(hba);
++		if (err) {
++			dev_err(hba->dev, "%s: link recovery failed", __func__);
++			ret = err;
++		} else {
++			ret = -EAGAIN;
++		}
+ 	} else
+ 		ufshcd_vops_hibern8_notify(hba, UIC_CMD_DME_HIBER_ENTER,
+ 								POST_CHANGE);
+@@ -3897,7 +3906,7 @@ static int ufshcd_uic_hibern8_enter(struct ufs_hba *hba)
+ 
+ 	for (retries = UIC_HIBERN8_ENTER_RETRIES; retries > 0; retries--) {
+ 		ret = __ufshcd_uic_hibern8_enter(hba);
+-		if (!ret || ret == -ENOLINK)
++		if (!ret)
+ 			goto out;
+ 	}
+ out:
+-- 
+2.20.1
+
 
 
