@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E3D12ECE7
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:23:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD58A12ECE9
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:23:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728024AbgABWXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:23:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44682 "EHLO mail.kernel.org"
+        id S1727898AbgABWXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:23:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729215AbgABWXI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:23:08 -0500
+        id S1729221AbgABWXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:23:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B860424679;
-        Thu,  2 Jan 2020 22:23:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22F9020863;
+        Thu,  2 Jan 2020 22:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003788;
-        bh=Sa0Wq/spQZNysR2EdVjr6NZEGFYtDrLXYdngVGpyCps=;
+        s=default; t=1578003790;
+        bh=d4sefYQ2m87dOwAhA8yb6VvH2WIHKektXLZdHJodcCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/UyLCHCJNWZYEAb68ZIpvEDirUQN0D3Pm/AP8DWSwHUuE8VgWYl+UI30siKc/sQ9
-         +a24gRVuO1FpUKjFD6oW8UWKTQvwC6naeVDNFPrZEGCVpB3XqtV/RL7xmY0QnSSBBD
-         I62ZU0m4DL2DBjRgl3386ZY7+IViv1L4JXQwa7i4=
+        b=UOed+SrYOFyNXZy6DQxe5WKgOEB1TI8oFCxRKK+1ZMM7xtKcVOioCak1Zo1/uuHvd
+         Qdq5bBgMjRwk8QX30g6XtOvjUMGWH67xloV+0huh2BFdabFp8J+PdKxHDEbFETxUll
+         V4XAH4sBV2KbDud5vs8atn59BQ4HZE5UvVLFE6zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         David Ahern <dsahern@gmail.com>,
         Hangbin Liu <liuhangbin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 103/114] sit: do not confirm neighbor when do pmtu update
-Date:   Thu,  2 Jan 2020 23:07:55 +0100
-Message-Id: <20200102220039.593132310@linuxfoundation.org>
+Subject: [PATCH 4.19 104/114] net/dst: do not confirm neighbor for vxlan and geneve pmtu update
+Date:   Thu,  2 Jan 2020 23:07:56 +0100
+Message-Id: <20200102220039.676886345@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
 References: <20200102220029.183913184@linuxfoundation.org>
@@ -47,10 +47,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 4d42df46d6372ece4cb4279870b46c2ea7304a47 ]
+[ Upstream commit f081042d128a0c7acbd67611def62e1b52e2d294 ]
 
 When do IPv6 tunnel PMTU update and calls __ip6_rt_update_pmtu() in the end,
 we should not call dst_confirm_neigh() as there is no two-way communication.
+
+So disable the neigh confirm for vxlan and geneve pmtu update.
 
 v5: No change.
 v4: No change.
@@ -59,25 +61,28 @@ v3: Do not remove dst_confirm_neigh, but add a new bool parameter in
     Also split the big patch to small ones for each area.
 v2: Remove dst_confirm_neigh in __ip6_rt_update_pmtu.
 
+Fixes: a93bf0ff4490 ("vxlan: update skb dst pmtu on tx path")
+Fixes: 52a589d51f10 ("geneve: update skb dst pmtu on tx path")
 Reviewed-by: Guillaume Nault <gnault@redhat.com>
+Tested-by: Guillaume Nault <gnault@redhat.com>
 Acked-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c |    2 +-
+ include/net/dst.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -943,7 +943,7 @@ static netdev_tx_t ipip6_tunnel_xmit(str
- 		}
+--- a/include/net/dst.h
++++ b/include/net/dst.h
+@@ -546,7 +546,7 @@ static inline void skb_tunnel_check_pmtu
+ 	u32 encap_mtu = dst_mtu(encap_dst);
  
- 		if (tunnel->parms.iph.daddr)
--			skb_dst_update_pmtu(skb, mtu);
-+			skb_dst_update_pmtu_no_confirm(skb, mtu);
+ 	if (skb->len > encap_mtu - headroom)
+-		skb_dst_update_pmtu(skb, encap_mtu - headroom);
++		skb_dst_update_pmtu_no_confirm(skb, encap_mtu - headroom);
+ }
  
- 		if (skb->len > mtu && !skb_is_gso(skb)) {
- 			icmpv6_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+ #endif /* _NET_DST_H */
 
 
