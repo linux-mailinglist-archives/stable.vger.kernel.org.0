@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58D6B12F123
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D95712EF9E
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:47:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727835AbgABWPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:15:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
+        id S1729410AbgABWrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:47:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727619AbgABWPi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:15:38 -0500
+        id S1730059AbgABW3f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:29:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E39421582;
-        Thu,  2 Jan 2020 22:15:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC6B1227BF;
+        Thu,  2 Jan 2020 22:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003337;
-        bh=ktJKEAWXUTLyrY2sUZUuhp1aL/UNRx+omAdTUxPO6FU=;
+        s=default; t=1578004174;
+        bh=Om2MnQ8zQIdV9DmBe4vs/eAju66eTxW/580jpUClxsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inDgMfTpM2dmtunPhQ+T1e41PmJo2xvfa4n75AIiFQA5gT2EdpvRP4dIw5CQg+pyE
-         bPsqEe+ygXrXawTDemIk56lDCo9m6ORr2t/1JHUFvaPJN2iqR5/Yp302NCjNkEC4RX
-         npI3F1RQ8bD8tdbHDN1Y/oTCLh8106/APEYGGIZ8=
+        b=01zwjWLwyqC10K4o708t6M/UX2vV2TwxN62uxirIOrkjhD6Nz9ceV044sVGetVYxb
+         oftUnrIw3xt5I2N9ZqreoI33veZzNrEHtuxaAXkfESspg2W5YvEOY6J2XkMbThbN8u
+         kmOY7EWM4KI6QGEcbQ+TUd3NrlqYRpAxZjp+LUFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anatol Pomazau <anatol@google.com>,
-        Frank Mayhar <fmayhar@google.com>,
-        Bharath Ravi <rbharath@google.com>,
-        Khazhimsel Kumykov <khazhy@google.com>,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Lee Duncan <lduncan@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/191] scsi: iscsi: Dont send data to unbound connection
+Subject: [PATCH 4.9 044/171] pinctrl: sh-pfc: sh7734: Fix duplicate TCLK1_B
 Date:   Thu,  2 Jan 2020 23:06:15 +0100
-Message-Id: <20200102215839.879507921@linuxfoundation.org>
+Message-Id: <20200102220553.027746472@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,94 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anatol Pomazau <anatol@google.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 238191d65d7217982d69e21c1d623616da34b281 ]
+[ Upstream commit 884caadad128efad8e00c1cdc3177bc8912ee8ec ]
 
-If a faulty initiator fails to bind the socket to the iSCSI connection
-before emitting a command, for instance, a subsequent send_pdu, it will
-crash the kernel due to a null pointer dereference in sock_sendmsg(), as
-shown in the log below.  This patch makes sure the bind succeeded before
-trying to use the socket.
+The definitions for bit field [19:18] of the Peripheral Function Select
+Register 3 were accidentally copied from bit field [20], leading to
+duplicates for the TCLK1_B function, and missing TCLK0, CAN_CLK_B, and
+ET0_ETXD4 functions.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000018
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP PTI
-CPU: 3 PID: 7 Comm: kworker/u8:0 Not tainted 5.4.0-rc2.iscsi+ #13
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-[   24.158246] Workqueue: iscsi_q_0 iscsi_xmitworker
-[   24.158883] RIP: 0010:apparmor_socket_sendmsg+0x5/0x20
-[...]
-[   24.161739] RSP: 0018:ffffab6440043ca0 EFLAGS: 00010282
-[   24.162400] RAX: ffffffff891c1c00 RBX: ffffffff89d53968 RCX: 0000000000000001
-[   24.163253] RDX: 0000000000000030 RSI: ffffab6440043d00 RDI: 0000000000000000
-[   24.164104] RBP: 0000000000000030 R08: 0000000000000030 R09: 0000000000000030
-[   24.165166] R10: ffffffff893e66a0 R11: 0000000000000018 R12: ffffab6440043d00
-[   24.166038] R13: 0000000000000000 R14: 0000000000000000 R15: ffff9d5575a62e90
-[   24.166919] FS:  0000000000000000(0000) GS:ffff9d557db80000(0000) knlGS:0000000000000000
-[   24.167890] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   24.168587] CR2: 0000000000000018 CR3: 000000007a838000 CR4: 00000000000006e0
-[   24.169451] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   24.170320] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   24.171214] Call Trace:
-[   24.171537]  security_socket_sendmsg+0x3a/0x50
-[   24.172079]  sock_sendmsg+0x16/0x60
-[   24.172506]  iscsi_sw_tcp_xmit_segment+0x77/0x120
-[   24.173076]  iscsi_sw_tcp_pdu_xmit+0x58/0x170
-[   24.173604]  ? iscsi_dbg_trace+0x63/0x80
-[   24.174087]  iscsi_tcp_task_xmit+0x101/0x280
-[   24.174666]  iscsi_xmit_task+0x83/0x110
-[   24.175206]  iscsi_xmitworker+0x57/0x380
-[   24.175757]  ? __schedule+0x2a2/0x700
-[   24.176273]  process_one_work+0x1b5/0x360
-[   24.176837]  worker_thread+0x50/0x3c0
-[   24.177353]  kthread+0xf9/0x130
-[   24.177799]  ? process_one_work+0x360/0x360
-[   24.178401]  ? kthread_park+0x90/0x90
-[   24.178915]  ret_from_fork+0x35/0x40
-[   24.179421] Modules linked in:
-[   24.179856] CR2: 0000000000000018
-[   24.180327] ---[ end trace b4b7674b6df5f480 ]---
+Fix this by adding the missing GPIO_FN_CAN_CLK_B and GPIO_FN_ET0_ETXD4
+enum values, and correcting the functions.
 
-Signed-off-by: Anatol Pomazau <anatol@google.com>
-Co-developed-by: Frank Mayhar <fmayhar@google.com>
-Signed-off-by: Frank Mayhar <fmayhar@google.com>
-Co-developed-by: Bharath Ravi <rbharath@google.com>
-Signed-off-by: Bharath Ravi <rbharath@google.com>
-Co-developed-by: Khazhimsel Kumykov <khazhy@google.com>
-Signed-off-by: Khazhimsel Kumykov <khazhy@google.com>
-Co-developed-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191024131308.16659-1-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/iscsi_tcp.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/sh/include/cpu-sh4/cpu/sh7734.h | 2 +-
+ drivers/pinctrl/sh-pfc/pfc-sh7734.c  | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-index 7bedbe877704..0bc63a7ab41c 100644
---- a/drivers/scsi/iscsi_tcp.c
-+++ b/drivers/scsi/iscsi_tcp.c
-@@ -369,8 +369,16 @@ static int iscsi_sw_tcp_pdu_xmit(struct iscsi_task *task)
- {
- 	struct iscsi_conn *conn = task->conn;
- 	unsigned int noreclaim_flag;
-+	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
-+	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
- 	int rc = 0;
- 
-+	if (!tcp_sw_conn->sock) {
-+		iscsi_conn_printk(KERN_ERR, conn,
-+				  "Transport not bound to socket!\n");
-+		return -EINVAL;
-+	}
-+
- 	noreclaim_flag = memalloc_noreclaim_save();
- 
- 	while (iscsi_sw_tcp_xmit_qlen(conn)) {
+diff --git a/arch/sh/include/cpu-sh4/cpu/sh7734.h b/arch/sh/include/cpu-sh4/cpu/sh7734.h
+index 2fb9a7b71b41..a2667c9b5819 100644
+--- a/arch/sh/include/cpu-sh4/cpu/sh7734.h
++++ b/arch/sh/include/cpu-sh4/cpu/sh7734.h
+@@ -133,7 +133,7 @@ enum {
+ 	GPIO_FN_EX_WAIT1, GPIO_FN_SD1_DAT0_A, GPIO_FN_DREQ2, GPIO_FN_CAN1_TX_C,
+ 		GPIO_FN_ET0_LINK_C, GPIO_FN_ET0_ETXD5_A,
+ 	GPIO_FN_EX_WAIT0, GPIO_FN_TCLK1_B,
+-	GPIO_FN_RD_WR, GPIO_FN_TCLK0,
++	GPIO_FN_RD_WR, GPIO_FN_TCLK0, GPIO_FN_CAN_CLK_B, GPIO_FN_ET0_ETXD4,
+ 	GPIO_FN_EX_CS5, GPIO_FN_SD1_CMD_A, GPIO_FN_ATADIR, GPIO_FN_QSSL_B,
+ 		GPIO_FN_ET0_ETXD3_A,
+ 	GPIO_FN_EX_CS4, GPIO_FN_SD1_WP_A, GPIO_FN_ATAWR, GPIO_FN_QMI_QIO1_B,
+diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7734.c b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
+index 33232041ee86..3eccc9b3ca84 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-sh7734.c
++++ b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
+@@ -1453,7 +1453,7 @@ static const struct pinmux_func pinmux_func_gpios[] = {
+ 	GPIO_FN(ET0_ETXD2_A),
+ 	GPIO_FN(EX_CS5), GPIO_FN(SD1_CMD_A), GPIO_FN(ATADIR), GPIO_FN(QSSL_B),
+ 	GPIO_FN(ET0_ETXD3_A),
+-	GPIO_FN(RD_WR), GPIO_FN(TCLK1_B),
++	GPIO_FN(RD_WR), GPIO_FN(TCLK0), GPIO_FN(CAN_CLK_B), GPIO_FN(ET0_ETXD4),
+ 	GPIO_FN(EX_WAIT0), GPIO_FN(TCLK1_B),
+ 	GPIO_FN(EX_WAIT1), GPIO_FN(SD1_DAT0_A), GPIO_FN(DREQ2),
+ 		GPIO_FN(CAN1_TX_C), GPIO_FN(ET0_LINK_C), GPIO_FN(ET0_ETXD5_A),
+@@ -1949,7 +1949,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
+ 	    /* IP3_20 [1] */
+ 		FN_EX_WAIT0, FN_TCLK1_B,
+ 	    /* IP3_19_18 [2] */
+-		FN_RD_WR, FN_TCLK1_B, 0, 0,
++		FN_RD_WR, FN_TCLK0, FN_CAN_CLK_B, FN_ET0_ETXD4,
+ 	    /* IP3_17_15 [3] */
+ 		FN_EX_CS5, FN_SD1_CMD_A, FN_ATADIR, FN_QSSL_B,
+ 		FN_ET0_ETXD3_A, 0, 0, 0,
 -- 
 2.20.1
 
