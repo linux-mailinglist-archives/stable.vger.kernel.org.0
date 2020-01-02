@@ -2,32 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D94E912E880
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 17:10:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B1112E87C
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 17:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728835AbgABQJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 11:09:48 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:38863 "EHLO
+        id S1728855AbgABQJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 11:09:47 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:34209 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728853AbgABQJr (ORCPT
+        with ESMTP id S1728813AbgABQJr (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 11:09:47 -0500
 Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
         by metis.ext.pengutronix.de with esmtp (Exim 4.92)
         (envelope-from <mkl@pengutronix.de>)
-        id 1in32a-0000mM-QQ; Thu, 02 Jan 2020 17:09:40 +0100
+        id 1in32b-0000mM-HD; Thu, 02 Jan 2020 17:09:41 +0100
 From:   Marc Kleine-Budde <mkl@pengutronix.de>
 To:     netdev@vger.kernel.org
 Cc:     davem@davemloft.net, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Jimmy Assarsson <extja@kvaser.com>,
-        Christer Beskow <chbe@kvaser.com>,
-        Nicklas Johansson <extnj@kvaser.com>,
-        Martin Henriksson <mh@kvaser.com>,
+        kernel@pengutronix.de, Florian Faber <faber@faberman.de>,
+        linux-stable <stable@vger.kernel.org>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 7/9] can: kvaser_usb: fix interface sanity check
-Date:   Thu,  2 Jan 2020 17:09:32 +0100
-Message-Id: <20200102160934.1524-8-mkl@pengutronix.de>
+Subject: [PATCH 9/9] can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
+Date:   Thu,  2 Jan 2020 17:09:34 +0100
+Message-Id: <20200102160934.1524-10-mkl@pengutronix.de>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102160934.1524-1-mkl@pengutronix.de>
 References: <20200102160934.1524-1-mkl@pengutronix.de>
@@ -42,53 +38,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Florian Faber <faber@faberman.de>
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+Under load, the RX side of the mscan driver can get stuck while TX still
+works. Restarting the interface locks up the system. This behaviour
+could be reproduced reliably on a MPC5121e based system.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+The patch fixes the return value of the NAPI polling function (should be
+the number of processed packets, not constant 1) and the condition under
+which IRQs are enabled again after polling is finished.
 
-Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
-Cc: stable <stable@vger.kernel.org>     # 4.19
-Cc: Jimmy Assarsson <extja@kvaser.com>
-Cc: Christer Beskow <chbe@kvaser.com>
-Cc: Nicklas Johansson <extnj@kvaser.com>
-Cc: Martin Henriksson <mh@kvaser.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+With this patch, no more lockups were observed over a test period of ten
+days.
+
+Fixes: afa17a500a36 ("net/can: add driver for mscan family & mpc52xx_mscan")
+Signed-off-by: Florian Faber <faber@faberman.de>
+Cc: linux-stable <stable@vger.kernel.org>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 2 +-
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/mscan/mscan.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-index 5fc0be564274..7ab87a758754 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-@@ -1590,7 +1590,7 @@ static int kvaser_usb_hydra_setup_endpoints(struct kvaser_usb *dev)
- 	struct usb_endpoint_descriptor *ep;
- 	int i;
+diff --git a/drivers/net/can/mscan/mscan.c b/drivers/net/can/mscan/mscan.c
+index 8caf7af0dee2..99101d7027a8 100644
+--- a/drivers/net/can/mscan/mscan.c
++++ b/drivers/net/can/mscan/mscan.c
+@@ -381,13 +381,12 @@ static int mscan_rx_poll(struct napi_struct *napi, int quota)
+ 	struct net_device *dev = napi->dev;
+ 	struct mscan_regs __iomem *regs = priv->reg_base;
+ 	struct net_device_stats *stats = &dev->stats;
+-	int npackets = 0;
+-	int ret = 1;
++	int work_done = 0;
+ 	struct sk_buff *skb;
+ 	struct can_frame *frame;
+ 	u8 canrflg;
  
--	iface_desc = &dev->intf->altsetting[0];
-+	iface_desc = dev->intf->cur_altsetting;
+-	while (npackets < quota) {
++	while (work_done < quota) {
+ 		canrflg = in_8(&regs->canrflg);
+ 		if (!(canrflg & (MSCAN_RXF | MSCAN_ERR_IF)))
+ 			break;
+@@ -408,18 +407,18 @@ static int mscan_rx_poll(struct napi_struct *napi, int quota)
  
- 	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
- 		ep = &iface_desc->endpoint[i].desc;
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index ae4c37e1bb75..1b9957f12459 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -1310,7 +1310,7 @@ static int kvaser_usb_leaf_setup_endpoints(struct kvaser_usb *dev)
- 	struct usb_endpoint_descriptor *endpoint;
- 	int i;
+ 		stats->rx_packets++;
+ 		stats->rx_bytes += frame->can_dlc;
+-		npackets++;
++		work_done++;
+ 		netif_receive_skb(skb);
+ 	}
  
--	iface_desc = &dev->intf->altsetting[0];
-+	iface_desc = dev->intf->cur_altsetting;
+-	if (!(in_8(&regs->canrflg) & (MSCAN_RXF | MSCAN_ERR_IF))) {
+-		napi_complete(&priv->napi);
+-		clear_bit(F_RX_PROGRESS, &priv->flags);
+-		if (priv->can.state < CAN_STATE_BUS_OFF)
+-			out_8(&regs->canrier, priv->shadow_canrier);
+-		ret = 0;
++	if (work_done < quota) {
++		if (likely(napi_complete_done(&priv->napi, work_done))) {
++			clear_bit(F_RX_PROGRESS, &priv->flags);
++			if (priv->can.state < CAN_STATE_BUS_OFF)
++				out_8(&regs->canrier, priv->shadow_canrier);
++		}
+ 	}
+-	return ret;
++	return work_done;
+ }
  
- 	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
- 		endpoint = &iface_desc->endpoint[i].desc;
+ static irqreturn_t mscan_isr(int irq, void *dev_id)
 -- 
 2.24.1
 
