@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A67CD12EF83
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FC4012F034
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:52:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727382AbgABWqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:46:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34760 "EHLO mail.kernel.org"
+        id S1728430AbgABWv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:51:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730184AbgABWaj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:30:39 -0500
+        id S1729364AbgABWYJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:24:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93DC620863;
-        Thu,  2 Jan 2020 22:30:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E31721D7D;
+        Thu,  2 Jan 2020 22:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004239;
-        bh=RqPbXn9WCFczp8Txz+bqmcTAIDrgHDVNoUmCRT01amE=;
+        s=default; t=1578003848;
+        bh=Pc7uPvcuM7w2rBzOwHBf9lGobcUqEHEdyQ6mhiTC5U0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rn11TSlknAOU3VoCHJiNUg1aY4wkhkFdVMUQfyBwl5CkHCCr8QfVnAR1GLrjmhYUf
-         c+KgiEzHR7t2huDamoMe+QQk0dN4+bCQbBN9kIOPVochAoT0S3jGBmqWNavirZ/8v4
-         Jdt2aocd/ltKQ5u9w2ceypKmfFcEw6+YfKADuUo8=
+        b=u2cj6BiedViZ6pqkXGcW3mTEN4juzXbD8Y7quUMwjX/69Vvcw5iN1Ej144VzNv4ZP
+         fW3TnGJrPBirT8tR2icF8IfXLBhBb3fDA8IiuIU6iSzurzQgfLpjEz830gwFhHVlkc
+         5KeM1HoGNy6slDDbUNRPllnnxMwH7U0jev2uvxck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 095/171] mod_devicetable: fix PHY module format
+        stable@vger.kernel.org, Barry Song <Baohua.Song@csr.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 24/91] mfd: mfd-core: Honour Device Trees request to disable a child-device
 Date:   Thu,  2 Jan 2020 23:07:06 +0100
-Message-Id: <20200102220600.388131080@linuxfoundation.org>
+Message-Id: <20200102220424.847265838@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit d2ed49cf6c13e379c5819aa5ac20e1f9674ebc89 ]
+[ Upstream commit 6b5c350648b857047b47acf74a57087ad27d6183 ]
 
-When a PHY is probed, if the top bit is set, we end up requesting a
-module with the string "mdio:-10101110000000100101000101010001" -
-the top bit is printed to a signed -1 value. This leads to the module
-not being loaded.
+Until now, MFD has assumed all child devices passed to it (via
+mfd_cells) are to be registered. It does not take into account
+requests from Device Tree and the like to disable child devices
+on a per-platform basis.
 
-Fix the module format string and the macro generating the values for
-it to ensure that we only print unsigned types and the top bit is
-always 0/1. We correctly end up with
-"mdio:10101110000000100101000101010001".
+Well now it does.
 
-Fixes: 8626d3b43280 ("phylib: Support phy module autoloading")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://www.spinics.net/lists/arm-kernel/msg366309.html
+Link: https://lkml.org/lkml/2019/8/22/1350
+
+Reported-by: Barry Song <Baohua.Song@csr.com>
+Reported-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Tested-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mod_devicetable.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mfd/mfd-core.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -502,9 +502,9 @@ struct platform_device_id {
- 
- #define MDIO_MODULE_PREFIX	"mdio:"
- 
--#define MDIO_ID_FMT "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d"
-+#define MDIO_ID_FMT "%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u"
- #define MDIO_ID_ARGS(_id) \
--	(_id)>>31, ((_id)>>30) & 1, ((_id)>>29) & 1, ((_id)>>28) & 1,	\
-+	((_id)>>31) & 1, ((_id)>>30) & 1, ((_id)>>29) & 1, ((_id)>>28) & 1, \
- 	((_id)>>27) & 1, ((_id)>>26) & 1, ((_id)>>25) & 1, ((_id)>>24) & 1, \
- 	((_id)>>23) & 1, ((_id)>>22) & 1, ((_id)>>21) & 1, ((_id)>>20) & 1, \
- 	((_id)>>19) & 1, ((_id)>>18) & 1, ((_id)>>17) & 1, ((_id)>>16) & 1, \
+diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
+index 5c8ed2150c8b..fae7bfe7a21a 100644
+--- a/drivers/mfd/mfd-core.c
++++ b/drivers/mfd/mfd-core.c
+@@ -178,6 +178,11 @@ static int mfd_add_device(struct device *parent, int id,
+ 	if (parent->of_node && cell->of_compatible) {
+ 		for_each_child_of_node(parent->of_node, np) {
+ 			if (of_device_is_compatible(np, cell->of_compatible)) {
++				if (!of_device_is_available(np)) {
++					/* Ignore disabled devices error free */
++					ret = 0;
++					goto fail_alias;
++				}
+ 				pdev->dev.of_node = np;
+ 				pdev->dev.fwnode = &np->fwnode;
+ 				break;
+-- 
+2.20.1
+
 
 
