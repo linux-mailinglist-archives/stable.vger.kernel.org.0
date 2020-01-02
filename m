@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DAD012EF99
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:47:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 539DA12EE0E
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:34:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727932AbgABWrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:47:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60872 "EHLO mail.kernel.org"
+        id S1730572AbgABWeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:34:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729508AbgABW3l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:29:41 -0500
+        id S1730713AbgABWen (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:34:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10B9220863;
-        Thu,  2 Jan 2020 22:29:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37B01222C3;
+        Thu,  2 Jan 2020 22:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004181;
-        bh=hmWCdqztjAp1Mjdb0Aca23x/E1Qclg6hUE9U9kkaU/Y=;
+        s=default; t=1578004482;
+        bh=TZt9TgbZFdaBw2bUpn+icelLm5SELcw/ulBioatx4Cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fhr+bDZ07qiRloQrsg+dtx8iOSb51dBZC/Zr56Gaf1JJXitMoD5nmHwjh6VdWAP6w
-         lkeTNpJrcaK99Bs5j+meMF9rciNremfG9bgiAkLSgZgxNqu+waZ/fyotABX8opoOUX
-         +I+V4Si6VA70fAfrlNj4IvNiSX4gR8YLPcRXzPRM=
+        b=IchDlXu6HHsKbR2ggaC0JxI/lNDyBjLtfYMYmEEWxKvg1DQZDuy5LIuGiP9N0RHRT
+         Ep7yxEQnUUYq334CZ1ZW/2C64+6A17X2R6IW5X7J+tFg3Eil71s/pQpbHWV5dLzot8
+         MZ3DvGeXUPxE++kKKEY3ZHb80ZxUafXyivoMco8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Todd Previte <tprevite@gmail.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, Sean Paul <seanpaul@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 047/171] spi: img-spfi: fix potential double release
+Subject: [PATCH 4.4 005/137] drm: mst: Fix query_payload ack reply struct
 Date:   Thu,  2 Jan 2020 23:06:18 +0100
-Message-Id: <20200102220553.485273060@linuxfoundation.org>
+Message-Id: <20200102220547.330497623@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +50,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Sean Paul <seanpaul@chromium.org>
 
-[ Upstream commit e9a8ba9769a0e354341bc6cc01b98aadcea1dfe9 ]
+[ Upstream commit 268de6530aa18fe5773062367fd119f0045f6e88 ]
 
-The channels spfi->tx_ch and spfi->rx_ch are not set to NULL after they
-are released. As a result, they will be released again, either on the
-error handling branch in the same function or in the corresponding
-remove function, i.e. img_spfi_remove(). This patch fixes the bug by
-setting the two members to NULL.
+Spec says[1] Allocated_PBN is 16 bits
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/1573007769-20131-1-git-send-email-bianpan2016@163.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[1]- DisplayPort 1.2 Spec, Section 2.11.9.8, Table 2-98
+
+Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Todd Previte <tprevite@gmail.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Sean Paul <sean@poorly.run>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190829165223.129662-1-sean@poorly.run
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-img-spfi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/drm/drm_dp_mst_helper.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
-index 7a37090dabbe..2e65b70c7879 100644
---- a/drivers/spi/spi-img-spfi.c
-+++ b/drivers/spi/spi-img-spfi.c
-@@ -673,6 +673,8 @@ static int img_spfi_probe(struct platform_device *pdev)
- 			dma_release_channel(spfi->tx_ch);
- 		if (spfi->rx_ch)
- 			dma_release_channel(spfi->rx_ch);
-+		spfi->tx_ch = NULL;
-+		spfi->rx_ch = NULL;
- 		dev_warn(spfi->dev, "Failed to get DMA channels, falling back to PIO mode\n");
- 	} else {
- 		master->dma_tx = spfi->tx_ch;
+diff --git a/include/drm/drm_dp_mst_helper.h b/include/drm/drm_dp_mst_helper.h
+index f356f9716474..674472ac067a 100644
+--- a/include/drm/drm_dp_mst_helper.h
++++ b/include/drm/drm_dp_mst_helper.h
+@@ -303,7 +303,7 @@ struct drm_dp_resource_status_notify {
+ 
+ struct drm_dp_query_payload_ack_reply {
+ 	u8 port_number;
+-	u8 allocated_pbn;
++	u16 allocated_pbn;
+ };
+ 
+ struct drm_dp_sideband_msg_req_body {
 -- 
 2.20.1
 
