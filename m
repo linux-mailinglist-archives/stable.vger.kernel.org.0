@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D7812EFAE
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:48:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34FBE12F0C8
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:55:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729335AbgABWrz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:47:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59358 "EHLO mail.kernel.org"
+        id S1728259AbgABWTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:19:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728962AbgABW24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:28:56 -0500
+        id S1728497AbgABWTC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:19:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69C9E20866;
-        Thu,  2 Jan 2020 22:28:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98F2821582;
+        Thu,  2 Jan 2020 22:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004135;
-        bh=13OFvzZQ0Q30Idk4GboofqMDCJq1C6miGVVUqqSX/eI=;
+        s=default; t=1578003541;
+        bh=6v7SqYOffrsxvnPYUOOCvnJoyLw2eZJ622LJOKWVnSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1bSJs9xJcr2el3S0/yoAas4fyYZkUECt5T1X3llNNx1wy4dt+HjH0MA3wtQ7IHdDm
-         x1dg/LPgryjFLkpCfyBvz6j0A4GKSzwqhHETy+6uMhiX4i9pCa1Fk++zrR+FY9C49E
-         nf3SPWW6s4mKFi/jHK9NVfxtLQ1EjikSryW0oMSU=
+        b=YrHNAEGljCxW9U5vAzVG7ppx6aaWsJzzgN4/oyqm8dhT5VdrUTDIVFzNC/zTGct1x
+         GPMWXnDI4fmsXalIVGDxPX4Oky7SaV9Hsm/EKeDSWQrTxEQVS9epSdzgZoh+cCqPeF
+         vnf7zfIjx4TwQ14P6DraacfvGHSJ90FWGwlxfz7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 053/171] perf probe: Fix to probe an inline function which has no entry pc
+Subject: [PATCH 4.19 012/114] scsi: hisi_sas: Replace in_softirq() check in hisi_sas_task_exec()
 Date:   Thu,  2 Jan 2020 23:06:24 +0100
-Message-Id: <20200102220554.350556591@linuxfoundation.org>
+Message-Id: <20200102220030.364541809@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-[ Upstream commit eb6933b29d20bf2c3053883d409a53f462c1a3ac ]
+[ Upstream commit 550c0d89d52d3bec5c299f69b4ed5d2ee6b8a9a6 ]
 
-Fix perf probe to probe an inlne function which has no entry pc
-or low pc but only has ranges attribute.
+For IOs from upper layer, preemption may be disabled as it may be called by
+function __blk_mq_delay_run_hw_queue which will call get_cpu() (it disables
+preemption). So if flags HISI_SAS_REJECT_CMD_BIT is set in function
+hisi_sas_task_exec(), it may disable preempt twice after down() and up()
+which will cause following call trace:
 
-This seems very rare case, but I could find a few examples, as
-same as probe_point_search_cb(), use die_entrypc() to get the
-entry address in probe_point_inline_cb() too.
+BUG: scheduling while atomic: fio/60373/0x00000002
+Call trace:
+dump_backtrace+0x0/0x150
+show_stack+0x24/0x30
+dump_stack+0xa0/0xc4
+__schedule_bug+0x68/0x88
+__schedule+0x4b8/0x548
+schedule+0x40/0xd0
+schedule_timeout+0x200/0x378
+__down+0x78/0xc8
+down+0x54/0x70
+hisi_sas_task_exec.isra.10+0x598/0x8d8 [hisi_sas_main]
+hisi_sas_queue_command+0x28/0x38 [hisi_sas_main]
+sas_queuecommand+0x168/0x1b0 [libsas]
+scsi_queue_rq+0x2ac/0x980
+blk_mq_dispatch_rq_list+0xb0/0x550
+blk_mq_do_dispatch_sched+0x6c/0x110
+blk_mq_sched_dispatch_requests+0x114/0x1d8
+__blk_mq_run_hw_queue+0xb8/0x130
+__blk_mq_delay_run_hw_queue+0x1c0/0x220
+blk_mq_run_hw_queue+0xb0/0x128
+blk_mq_sched_insert_requests+0xdc/0x208
+blk_mq_flush_plug_list+0x1b4/0x3a0
+blk_flush_plug_list+0xdc/0x110
+blk_finish_plug+0x3c/0x50
+blkdev_direct_IO+0x404/0x550
+generic_file_read_iter+0x9c/0x848
+blkdev_read_iter+0x50/0x78
+aio_read+0xc8/0x170
+io_submit_one+0x1fc/0x8d8
+__arm64_sys_io_submit+0xdc/0x280
+el0_svc_common.constprop.0+0xe0/0x1e0
+el0_svc_handler+0x34/0x90
+el0_svc+0x10/0x14
+...
 
-Without this patch:
+To solve the issue, check preemptible() to avoid disabling preempt multiple
+when flag HISI_SAS_REJECT_CMD_BIT is set.
 
-  # perf probe -D __amd_put_nb_event_constraints
-  Failed to get entry address of __amd_put_nb_event_constraints.
-  Probe point '__amd_put_nb_event_constraints' not found.
-    Error: Failed to add events.
-
-With this patch:
-
-  # perf probe -D __amd_put_nb_event_constraints
-  p:probe/__amd_put_nb_event_constraints amd_put_event_constraints+43
-
-Committer testing:
-
-Before:
-
-  [root@quaco ~]# perf probe -D __amd_put_nb_event_constraints
-  Failed to get entry address of __amd_put_nb_event_constraints.
-  Probe point '__amd_put_nb_event_constraints' not found.
-    Error: Failed to add events.
-  [root@quaco ~]#
-
-After:
-
-  [root@quaco ~]# perf probe -D __amd_put_nb_event_constraints
-  p:probe/__amd_put_nb_event_constraints _text+33789
-  [root@quaco ~]#
-
-Fixes: 4ea42b181434 ("perf: Add perf probe subcommand, a kprobe-event setup helper")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157199320336.8075.16189530425277588587.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lore.kernel.org/r/1571926105-74636-5-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index 248d3ff7e345..9fc6fedcfa1a 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -950,7 +950,7 @@ static int probe_point_inline_cb(Dwarf_Die *in_die, void *data)
- 		ret = find_probe_point_lazy(in_die, pf);
- 	else {
- 		/* Get probe address */
--		if (dwarf_entrypc(in_die, &addr) != 0) {
-+		if (die_entrypc(in_die, &addr) != 0) {
- 			pr_warning("Failed to get entry address of %s.\n",
- 				   dwarf_diename(in_die));
- 			return -ENOENT;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index f35c56217694..33191673249c 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -485,7 +485,13 @@ static int hisi_sas_task_exec(struct sas_task *task, gfp_t gfp_flags,
+ 	struct hisi_sas_dq *dq = NULL;
+ 
+ 	if (unlikely(test_bit(HISI_SAS_REJECT_CMD_BIT, &hisi_hba->flags))) {
+-		if (in_softirq())
++		/*
++		 * For IOs from upper layer, it may already disable preempt
++		 * in the IO path, if disable preempt again in down(),
++		 * function schedule() will report schedule_bug(), so check
++		 * preemptible() before goto down().
++		 */
++		if (!preemptible())
+ 			return -EINVAL;
+ 
+ 		down(&hisi_hba->sem);
 -- 
 2.20.1
 
