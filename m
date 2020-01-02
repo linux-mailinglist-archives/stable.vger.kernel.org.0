@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E30C12EEB7
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8496F12EDCF
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:32:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731039AbgABWiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:38:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51616 "EHLO mail.kernel.org"
+        id S1730368AbgABWcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:32:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731233AbgABWiH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:38:07 -0500
+        id S1730366AbgABWcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:32:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB9A2222C3;
-        Thu,  2 Jan 2020 22:38:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92B4D21835;
+        Thu,  2 Jan 2020 22:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004686;
-        bh=gBQc9wnm+0AAJoVibGTOaRCB9H6x608sIeSwwSe4xBQ=;
+        s=default; t=1578004328;
+        bh=yzxD6HKKw68W+50LlaU+rd6VsjAH0kcFO5/v4j3i8bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSPeJnV2+AYOfVHcQI8c8PIG34Wr7vZZvwIyfmwZGTVp0gl1OyouvXC/7AmI0apts
-         FlQkV99RiaJdYbO33WKrG1vgL/JCA1IYtYen+ioeD4FKh+U8qn0mDtYpT34LMyxabf
-         AjfyYeB6rHBHgM86pLii7FxCR85JHzHGwSzK6vzY=
+        b=A9co1EAi8RY6Etq6NXBIzj9tb/ll9X5MB7+HeMmn4kasF7UKhGDAX44nhairPmrPH
+         k3rPJe75y2E855Eg/duRwKKf1+Vy2CCfBYc/Qo9EJV3AVhjrQtvvDtPr0e1YDLP1mi
+         3eECX9cVH7JvJHt7OyFOotYkLtyLSh3rBQA25kSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erkka Talvitie <erkka.talvitie@vincit.fi>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.4 083/137] USB: EHCI: Do not return -EPIPE when hub is disconnected
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 125/171] scsi: tracing: Fix handling of TRANSFER LENGTH == 0 for READ(6) and WRITE(6)
 Date:   Thu,  2 Jan 2020 23:07:36 +0100
-Message-Id: <20200102220557.857532955@linuxfoundation.org>
+Message-Id: <20200102220604.429135969@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,85 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erkka Talvitie <erkka.talvitie@vincit.fi>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 64cc3f12d1c7dd054a215bc1ff9cc2abcfe35832 upstream.
+[ Upstream commit f6b8540f40201bff91062dd64db8e29e4ddaaa9d ]
 
-When disconnecting a USB hub that has some child device(s) connected to it
-(such as a USB mouse), then the stack tries to clear halt and
-reset device(s) which are _already_ physically disconnected.
+According to SBC-2 a TRANSFER LENGTH field of zero means that 256 logical
+blocks must be transferred. Make the SCSI tracing code follow SBC-2.
 
-The issue has been reproduced with:
-
-CPU: IMX6D5EYM10AD or MCIMX6D5EYM10AE.
-SW: U-Boot 2019.07 and kernel 4.19.40.
-
-CPU: HP Proliant Microserver Gen8.
-SW: Linux version 4.2.3-300.fc23.x86_64
-
-In this situation there will be error bit for MMF active yet the
-CERR equals EHCI_TUNE_CERR + halt. Existing implementation
-interprets this as a stall [1] (chapter 8.4.5).
-
-The possible conditions when the MMF will be active + halt
-can be found from [2] (Table 4-13).
-
-Fix for the issue is to check whether MMF is active and PID Code is
-IN before checking for the stall. If these conditions are true then
-it is not a stall.
-
-What happens after the fix is that when disconnecting a hub with
-attached device(s) the situation is not interpret as a stall.
-
-[1] [https://www.usb.org/document-library/usb-20-specification, usb_20.pdf]
-[2] [https://www.intel.com/content/dam/www/public/us/en/documents/
-     technical-specifications/ehci-specification-for-usb.pdf]
-
-Signed-off-by: Erkka Talvitie <erkka.talvitie@vincit.fi>
-Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/ef70941d5f349767f19c0ed26b0dd9eed8ad81bb.1576050523.git.erkka.talvitie@vincit.fi
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: bf8162354233 ("[SCSI] add scsi trace core functions and put trace points")
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Douglas Gilbert <dgilbert@interlog.com>
+Link: https://lore.kernel.org/r/20191105215553.185018-1-bvanassche@acm.org
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-q.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_trace.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/host/ehci-q.c
-+++ b/drivers/usb/host/ehci-q.c
-@@ -40,6 +40,10 @@
+diff --git a/drivers/scsi/scsi_trace.c b/drivers/scsi/scsi_trace.c
+index 0ff083bbf5b1..617a60737590 100644
+--- a/drivers/scsi/scsi_trace.c
++++ b/drivers/scsi/scsi_trace.c
+@@ -30,15 +30,18 @@ static const char *
+ scsi_trace_rw6(struct trace_seq *p, unsigned char *cdb, int len)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p);
+-	sector_t lba = 0, txlen = 0;
++	u32 lba = 0, txlen;
  
- /*-------------------------------------------------------------------------*/
+ 	lba |= ((cdb[1] & 0x1F) << 16);
+ 	lba |=  (cdb[2] << 8);
+ 	lba |=   cdb[3];
+-	txlen = cdb[4];
++	/*
++	 * From SBC-2: a TRANSFER LENGTH field set to zero specifies that 256
++	 * logical blocks shall be read (READ(6)) or written (WRITE(6)).
++	 */
++	txlen = cdb[4] ? cdb[4] : 256;
  
-+/* PID Codes that are used here, from EHCI specification, Table 3-16. */
-+#define PID_CODE_IN    1
-+#define PID_CODE_SETUP 2
-+
- /* fill a qtd, returning how much of the buffer we were able to queue up */
+-	trace_seq_printf(p, "lba=%llu txlen=%llu",
+-			 (unsigned long long)lba, (unsigned long long)txlen);
++	trace_seq_printf(p, "lba=%u txlen=%u", lba, txlen);
+ 	trace_seq_putc(p, 0);
  
- static int
-@@ -199,7 +203,7 @@ static int qtd_copy_status (
- 	int	status = -EINPROGRESS;
- 
- 	/* count IN/OUT bytes, not SETUP (even short packets) */
--	if (likely (QTD_PID (token) != 2))
-+	if (likely(QTD_PID(token) != PID_CODE_SETUP))
- 		urb->actual_length += length - QTD_LENGTH (token);
- 
- 	/* don't modify error codes */
-@@ -215,6 +219,13 @@ static int qtd_copy_status (
- 		if (token & QTD_STS_BABBLE) {
- 			/* FIXME "must" disable babbling device's port too */
- 			status = -EOVERFLOW;
-+		/*
-+		 * When MMF is active and PID Code is IN, queue is halted.
-+		 * EHCI Specification, Table 4-13.
-+		 */
-+		} else if ((token & QTD_STS_MMF) &&
-+					(QTD_PID(token) == PID_CODE_IN)) {
-+			status = -EPROTO;
- 		/* CERR nonzero + halt --> stall */
- 		} else if (QTD_CERR(token)) {
- 			status = -EPIPE;
+ 	return ret;
+-- 
+2.20.1
+
 
 
