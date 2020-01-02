@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC0912ED30
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:25:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5163A12ED33
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:25:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729578AbgABWZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:25:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51832 "EHLO mail.kernel.org"
+        id S1729465AbgABWZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:25:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729572AbgABWZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:25:47 -0500
+        id S1729334AbgABWZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:25:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57B532253D;
-        Thu,  2 Jan 2020 22:25:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 367FB20863;
+        Thu,  2 Jan 2020 22:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003946;
-        bh=vUJzybXlkf4YX80NJ3kAZY1n6Hv4+W5e1YedIvgDxG4=;
+        s=default; t=1578003951;
+        bh=b/KwFZ07DpEj6OWIHnQKcIq3IybnsxcbJgAuNQzc85w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zrNTyg7yVWr1U1e1yRz5x8BnVgVjmeIM6xKK7W+74WOL5RnEBwTMPfy6QyjikxKRR
-         cyAJK9005lCiawGzTxjSDynlsfekWxJNTM1LSQupwzIClqwUoj56IaROvTwQM5b4iv
-         PaFOdv0I5FwqNFm+vOkCh036RgWlj37vGd72Xzno=
+        b=PxXIMJaLJtmljSwFOfyBMxErelpLwQFdicJ/W4j1ZJHel37czvIRT8u33fKhMUcQL
+         /NS3Wa4p9tm/+VFP+d0SEcUeREsPjCQ5TxxbhvkYP1bHgvC2O/kbfNoudMVMyhEHRg
+         fVx6V4JfNOVVEpuT8dfJgF25GwJxEnV3GNTyHQBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 66/91] netfilter: bridge: make sure to pull arp header in br_nf_forward_arp()
-Date:   Thu,  2 Jan 2020 23:07:48 +0100
-Message-Id: <20200102220443.788555918@linuxfoundation.org>
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 68/91] net: add a READ_ONCE() in skb_peek_tail()
+Date:   Thu,  2 Jan 2020 23:07:50 +0100
+Message-Id: <20200102220444.875000284@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
 References: <20200102220356.856162165@linuxfoundation.org>
@@ -47,108 +46,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit 5604285839aaedfb23ebe297799c6e558939334d upstream.
+commit f8cc62ca3e660ae3fdaee533b1d554297cd2ae82 upstream.
 
-syzbot is kind enough to remind us we need to call skb_may_pull()
+skb_peek_tail() can be used without protection of a lock,
+as spotted by KCSAN [1]
 
-BUG: KMSAN: uninit-value in br_nf_forward_arp+0xe61/0x1230 net/bridge/br_netfilter_hooks.c:665
-CPU: 1 PID: 11631 Comm: syz-executor.1 Not tainted 5.4.0-rc8-syzkaller #0
+In order to avoid load-stearing, add a READ_ONCE()
+
+Note that the corresponding WRITE_ONCE() are already there.
+
+[1]
+BUG: KCSAN: data-race in sk_wait_data / skb_queue_tail
+
+read to 0xffff8880b36a4118 of 8 bytes by task 20426 on cpu 1:
+ skb_peek_tail include/linux/skbuff.h:1784 [inline]
+ sk_wait_data+0x15b/0x250 net/core/sock.c:2477
+ kcm_wait_data+0x112/0x1f0 net/kcm/kcmsock.c:1103
+ kcm_recvmsg+0xac/0x320 net/kcm/kcmsock.c:1130
+ sock_recvmsg_nosec net/socket.c:871 [inline]
+ sock_recvmsg net/socket.c:889 [inline]
+ sock_recvmsg+0x92/0xb0 net/socket.c:885
+ ___sys_recvmsg+0x1a0/0x3e0 net/socket.c:2480
+ do_recvmmsg+0x19a/0x5c0 net/socket.c:2601
+ __sys_recvmmsg+0x1ef/0x200 net/socket.c:2680
+ __do_sys_recvmmsg net/socket.c:2703 [inline]
+ __se_sys_recvmmsg net/socket.c:2696 [inline]
+ __x64_sys_recvmmsg+0x89/0xb0 net/socket.c:2696
+ do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+write to 0xffff8880b36a4118 of 8 bytes by task 451 on cpu 0:
+ __skb_insert include/linux/skbuff.h:1852 [inline]
+ __skb_queue_before include/linux/skbuff.h:1958 [inline]
+ __skb_queue_tail include/linux/skbuff.h:1991 [inline]
+ skb_queue_tail+0x7e/0xc0 net/core/skbuff.c:3145
+ kcm_queue_rcv_skb+0x202/0x310 net/kcm/kcmsock.c:206
+ kcm_rcv_strparser+0x74/0x4b0 net/kcm/kcmsock.c:370
+ __strp_recv+0x348/0xf50 net/strparser/strparser.c:309
+ strp_recv+0x84/0xa0 net/strparser/strparser.c:343
+ tcp_read_sock+0x174/0x5c0 net/ipv4/tcp.c:1639
+ strp_read_sock+0xd4/0x140 net/strparser/strparser.c:366
+ do_strp_work net/strparser/strparser.c:414 [inline]
+ strp_work+0x9a/0xe0 net/strparser/strparser.c:423
+ process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
+ worker_thread+0xa0/0x800 kernel/workqueue.c:2415
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 451 Comm: kworker/u4:3 Not tainted 5.4.0-rc3+ #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0x128/0x220 mm/kmsan/kmsan_report.c:108
- __msan_warning+0x64/0xc0 mm/kmsan/kmsan_instr.c:245
- br_nf_forward_arp+0xe61/0x1230 net/bridge/br_netfilter_hooks.c:665
- nf_hook_entry_hookfn include/linux/netfilter.h:135 [inline]
- nf_hook_slow+0x18b/0x3f0 net/netfilter/core.c:512
- nf_hook include/linux/netfilter.h:260 [inline]
- NF_HOOK include/linux/netfilter.h:303 [inline]
- __br_forward+0x78f/0xe30 net/bridge/br_forward.c:109
- br_flood+0xef0/0xfe0 net/bridge/br_forward.c:234
- br_handle_frame_finish+0x1a77/0x1c20 net/bridge/br_input.c:162
- nf_hook_bridge_pre net/bridge/br_input.c:245 [inline]
- br_handle_frame+0xfb6/0x1eb0 net/bridge/br_input.c:348
- __netif_receive_skb_core+0x20b9/0x51a0 net/core/dev.c:4830
- __netif_receive_skb_one_core net/core/dev.c:4927 [inline]
- __netif_receive_skb net/core/dev.c:5043 [inline]
- process_backlog+0x610/0x13c0 net/core/dev.c:5874
- napi_poll net/core/dev.c:6311 [inline]
- net_rx_action+0x7a6/0x1aa0 net/core/dev.c:6379
- __do_softirq+0x4a1/0x83a kernel/softirq.c:293
- do_softirq_own_stack+0x49/0x80 arch/x86/entry/entry_64.S:1091
- </IRQ>
- do_softirq kernel/softirq.c:338 [inline]
- __local_bh_enable_ip+0x184/0x1d0 kernel/softirq.c:190
- local_bh_enable+0x36/0x40 include/linux/bottom_half.h:32
- rcu_read_unlock_bh include/linux/rcupdate.h:688 [inline]
- __dev_queue_xmit+0x38e8/0x4200 net/core/dev.c:3819
- dev_queue_xmit+0x4b/0x60 net/core/dev.c:3825
- packet_snd net/packet/af_packet.c:2959 [inline]
- packet_sendmsg+0x8234/0x9100 net/packet/af_packet.c:2984
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg net/socket.c:657 [inline]
- __sys_sendto+0xc44/0xc70 net/socket.c:1952
- __do_sys_sendto net/socket.c:1964 [inline]
- __se_sys_sendto+0x107/0x130 net/socket.c:1960
- __x64_sys_sendto+0x6e/0x90 net/socket.c:1960
- do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45a679
-Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f0a3c9e5c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-RAX: ffffffffffffffda RBX: 0000000000000006 RCX: 000000000045a679
-RDX: 000000000000000e RSI: 0000000020000200 RDI: 0000000000000003
-RBP: 000000000075bf20 R08: 00000000200000c0 R09: 0000000000000014
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f0a3c9e66d4
-R13: 00000000004c8ec1 R14: 00000000004dfe28 R15: 00000000ffffffff
+Workqueue: kstrp strp_work
 
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:149 [inline]
- kmsan_internal_poison_shadow+0x5c/0x110 mm/kmsan/kmsan.c:132
- kmsan_slab_alloc+0x97/0x100 mm/kmsan/kmsan_hooks.c:86
- slab_alloc_node mm/slub.c:2773 [inline]
- __kmalloc_node_track_caller+0xe27/0x11a0 mm/slub.c:4381
- __kmalloc_reserve net/core/skbuff.c:141 [inline]
- __alloc_skb+0x306/0xa10 net/core/skbuff.c:209
- alloc_skb include/linux/skbuff.h:1049 [inline]
- alloc_skb_with_frags+0x18c/0xa80 net/core/skbuff.c:5662
- sock_alloc_send_pskb+0xafd/0x10a0 net/core/sock.c:2244
- packet_alloc_skb net/packet/af_packet.c:2807 [inline]
- packet_snd net/packet/af_packet.c:2902 [inline]
- packet_sendmsg+0x63a6/0x9100 net/packet/af_packet.c:2984
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg net/socket.c:657 [inline]
- __sys_sendto+0xc44/0xc70 net/socket.c:1952
- __do_sys_sendto net/socket.c:1964 [inline]
- __se_sys_sendto+0x107/0x130 net/socket.c:1960
- __x64_sys_sendto+0x6e/0x90 net/socket.c:1960
- do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: c4e70a87d975 ("netfilter: bridge: rename br_netfilter.c to br_netfilter_hooks.c")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bridge/br_netfilter_hooks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/skbuff.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -643,6 +643,9 @@ static unsigned int br_nf_forward_arp(vo
- 		nf_bridge_pull_encap_header(skb);
- 	}
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1655,7 +1655,7 @@ static inline struct sk_buff *skb_peek_n
+  */
+ static inline struct sk_buff *skb_peek_tail(const struct sk_buff_head *list_)
+ {
+-	struct sk_buff *skb = list_->prev;
++	struct sk_buff *skb = READ_ONCE(list_->prev);
  
-+	if (unlikely(!pskb_may_pull(skb, sizeof(struct arphdr))))
-+		return NF_DROP;
-+
- 	if (arp_hdr(skb)->ar_pln != 4) {
- 		if (IS_VLAN_ARP(skb))
- 			nf_bridge_push_encap_header(skb);
+ 	if (skb == (struct sk_buff *)list_)
+ 		skb = NULL;
+@@ -1723,7 +1723,9 @@ static inline void __skb_insert(struct s
+ 				struct sk_buff *prev, struct sk_buff *next,
+ 				struct sk_buff_head *list)
+ {
+-	/* see skb_queue_empty_lockless() for the opposite READ_ONCE() */
++	/* See skb_queue_empty_lockless() and skb_peek_tail()
++	 * for the opposite READ_ONCE()
++	 */
+ 	WRITE_ONCE(newsk->next, next);
+ 	WRITE_ONCE(newsk->prev, prev);
+ 	WRITE_ONCE(next->prev, newsk);
 
 
