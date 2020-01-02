@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BAF12EDC9
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:32:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46A5F12EE4B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730341AbgABWby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:31:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37568 "EHLO mail.kernel.org"
+        id S1730497AbgABWhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:37:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730340AbgABWby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:31:54 -0500
+        id S1730775AbgABWhH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:37:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36DF1222C3;
-        Thu,  2 Jan 2020 22:31:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C04820866;
+        Thu,  2 Jan 2020 22:37:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004313;
-        bh=G4IQT9yQ3RYgtofCZxFhL1uzsyB48PGKX/G/oh9lTm8=;
+        s=default; t=1578004626;
+        bh=U2qYoOiaGhL2B9XinPMYzI08i3GZ/0YyIxkN8c2aBDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1WXg7Dgy52nXs8GThNQbo8/GGkK/YVwa/KX3+vCk0vzfGNJT66JS6f9ZZhb2nkX1
-         kf+UEJXbE889eSuahl200qgb5q6XyG9qMNhrMZXpkJwbNdRjSMiQidR/Syyp0HWXyu
-         X7xEQn9oUe6gOqtJd7jwI8c6bAHBq59bfwLDpUO4=
+        b=KsvVl848kQUQiNdnpcsJq3ffmaR7fTpIG2US5dx1mqfaFWIyPpye+tSlqLy+TJ6f+
+         G6BVZteAAFH6tgeSKmcGEpQ5ThdI45++N1cdxrh0SQ+eEeXW7nymWF1aGgiSrzJjhj
+         w9onCgYZQcKOiSFyJJpCfD3tluHy7kBG5m3VrDzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 101/171] net: dst: Force 4-byte alignment of dst_metrics
+        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
+        Omar Sandoval <osandov@fb.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 059/137] btrfs: dont prematurely free work in end_workqueue_fn()
 Date:   Thu,  2 Jan 2020 23:07:12 +0100
-Message-Id: <20200102220601.194131296@linuxfoundation.org>
+Message-Id: <20200102220554.475553450@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Omar Sandoval <osandov@fb.com>
 
-[ Upstream commit 258a980d1ec23e2c786e9536a7dd260bea74bae6 ]
+[ Upstream commit 9be490f1e15c34193b1aae17da58e14dd9f55a95 ]
 
-When storing a pointer to a dst_metrics structure in dst_entry._metrics,
-two flags are added in the least significant bits of the pointer value.
-Hence this assumes all pointers to dst_metrics structures have at least
-4-byte alignment.
+Currently, end_workqueue_fn() frees the end_io_wq entry (which embeds
+the work item) and then calls bio_endio(). This is another potential
+instance of the bug in "btrfs: don't prematurely free work in
+run_ordered_work()".
 
-However, on m68k, the minimum alignment of 32-bit values is 2 bytes, not
-4 bytes.  Hence in some kernel builds, dst_default_metrics may be only
-2-byte aligned, leading to obscure boot warnings like:
+In particular, the endio call may depend on other work items. For
+example, btrfs_end_dio_bio() can call btrfs_subio_endio_read() ->
+__btrfs_correct_data_nocsum() -> dio_read_error() ->
+submit_dio_repair_bio(), which submits a bio that is also completed
+through a end_workqueue_fn() work item. However,
+__btrfs_correct_data_nocsum() waits for the newly submitted bio to
+complete, thus it depends on another work item.
 
-    WARNING: CPU: 0 PID: 7 at lib/refcount.c:28 refcount_warn_saturate+0x44/0x9a
-    refcount_t: underflow; use-after-free.
-    Modules linked in:
-    CPU: 0 PID: 7 Comm: ksoftirqd/0 Tainted: G        W         5.5.0-rc2-atari-01448-g114a1a1038af891d-dirty #261
-    Stack from 10835e6c:
-	    10835e6c 0038134f 00023fa6 00394b0f 0000001c 00000009 00321560 00023fea
-	    00394b0f 0000001c 001a70f8 00000009 00000000 10835eb4 00000001 00000000
-	    04208040 0000000a 00394b4a 10835ed4 00043aa8 001a70f8 00394b0f 0000001c
-	    00000009 00394b4a 0026aba8 003215a4 00000003 00000000 0026d5a8 00000001
-	    003215a4 003a4361 003238d6 000001f0 00000000 003215a4 10aa3b00 00025e84
-	    003ddb00 10834000 002416a8 10aa3b00 00000000 00000080 000aa038 0004854a
-    Call Trace: [<00023fa6>] __warn+0xb2/0xb4
-     [<00023fea>] warn_slowpath_fmt+0x42/0x64
-     [<001a70f8>] refcount_warn_saturate+0x44/0x9a
-     [<00043aa8>] printk+0x0/0x18
-     [<001a70f8>] refcount_warn_saturate+0x44/0x9a
-     [<0026aba8>] refcount_sub_and_test.constprop.73+0x38/0x3e
-     [<0026d5a8>] ipv4_dst_destroy+0x5e/0x7e
-     [<00025e84>] __local_bh_enable_ip+0x0/0x8e
-     [<002416a8>] dst_destroy+0x40/0xae
+This example currently usually works because we use different workqueue
+helper functions for BTRFS_WQ_ENDIO_DATA and BTRFS_WQ_ENDIO_DIO_REPAIR.
+However, it may deadlock with stacked filesystems and is fragile
+overall. The proper fix is to free the work item at the very end of the
+work function, so let's do that.
 
-Fix this by forcing 4-byte alignment of all dst_metrics structures.
-
-Fixes: e5fd387ad5b30ca3 ("ipv6: do not overwrite inetpeer metrics prematurely")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/dst.h |    2 +-
+ fs/btrfs/disk-io.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/dst.h
-+++ b/include/net/dst.h
-@@ -110,7 +110,7 @@ struct dst_entry {
- struct dst_metrics {
- 	u32		metrics[RTAX_MAX];
- 	atomic_t	refcnt;
--};
-+} __aligned(4);		/* Low pointer bits contain DST_METRICS_FLAGS */
- extern const struct dst_metrics dst_default_metrics;
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 78722aaffecd..d50fc503f73b 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1698,8 +1698,8 @@ static void end_workqueue_fn(struct btrfs_work *work)
+ 	bio->bi_error = end_io_wq->error;
+ 	bio->bi_private = end_io_wq->private;
+ 	bio->bi_end_io = end_io_wq->end_io;
+-	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
+ 	bio_endio(bio);
++	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
+ }
  
- u32 *dst_cow_metrics_generic(struct dst_entry *dst, unsigned long old);
+ static int cleaner_kthread(void *arg)
+-- 
+2.20.1
+
 
 
