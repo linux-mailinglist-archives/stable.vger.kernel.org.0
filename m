@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A64312F04B
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:52:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2A912F028
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727432AbgABWWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:22:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43750 "EHLO mail.kernel.org"
+        id S1728356AbgABWul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:50:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728966AbgABWWr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:22:47 -0500
+        id S1729468AbgABWZJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:25:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F322222C3;
-        Thu,  2 Jan 2020 22:22:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 450E321D7D;
+        Thu,  2 Jan 2020 22:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003766;
-        bh=Yb86dZj1zmqQt6V3G33LYnP/wlfh0kQGGKcZlNl/Qlg=;
+        s=default; t=1578003908;
+        bh=oOeQ4Kf/UQMKZ0eDLAFhI8krS8HYeMHYiaxRSnwd178=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05QjX7kKOt+H19WxBw1Q0hNiZaepLCPuxB+E3G7ASZArOHM5PeqwU5WSGdjFhj9lr
-         +cQrw4yPK3jxwetSYKHJEU55amuBMXe4UyrM/1EYwkmDPHJOTh15CxNZ3sawTrTjQR
-         m01t1kP4MBY+qHoqFVugaW3zILSeihmLmiTQpFKs=
+        b=H1w8TblLL7u8aeSPY4+uCpZSQwLuMESikc6C/5mFg5kVHzjMb1K1jvx0bdwJRfAgM
+         8CRhhjr9zSu6cf1l0huPe+zcE/INoO6p4An1mX3cXLSOrQ2dllJsZdt4DCRpUA+cLL
+         rqr+7ADpzhwkAHf2EJaO/bd/czhJUcEO9ttfjZOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mattias Jacobsson <2pi@mok.nu>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sanskriti Sharma <sansharm@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.19 079/114] perf strbuf: Remove redundant va_end() in strbuf_addv()
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 49/91] s390/zcrypt: handle new reply code FILTERED_BY_HYPERVISOR
 Date:   Thu,  2 Jan 2020 23:07:31 +0100
-Message-Id: <20200102220037.065790380@linuxfoundation.org>
+Message-Id: <20200102220436.759078807@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,37 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mattias Jacobsson <2pi@mok.nu>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-commit 099be748865eece21362aee416c350c0b1ae34df upstream.
+[ Upstream commit 6733775a92eacd612ac88afa0fd922e4ffeb2bc7 ]
 
-Each call to va_copy() should have one, and only one, corresponding call
-to va_end(). In strbuf_addv() some code paths result in va_end() getting
-called multiple times. Remove the superfluous va_end().
+This patch introduces support for a new architectured reply
+code 0x8B indicating that a hypervisor layer (if any) has
+rejected an ap message.
 
-Signed-off-by: Mattias Jacobsson <2pi@mok.nu>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sanskriti Sharma <sansharm@redhat.com>
-Link: http://lkml.kernel.org/r/20181229141750.16945-1-2pi@mok.nu
-Fixes: ce49d8436cff ("perf strbuf: Match va_{add,copy} with va_end")
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Linux may run as a guest on top of a hypervisor like zVM
+or KVM. So the crypto hardware seen by the ap bus may be
+restricted by the hypervisor for example only a subset like
+only clear key crypto requests may be supported. Other
+requests will be filtered out - rejected by the hypervisor.
+The new reply code 0x8B will appear in such cases and needs
+to get recognized by the ap bus and zcrypt device driver zoo.
 
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/strbuf.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/s390/crypto/zcrypt_error.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/tools/perf/util/strbuf.c
-+++ b/tools/perf/util/strbuf.c
-@@ -109,7 +109,6 @@ static int strbuf_addv(struct strbuf *sb
- 			return ret;
- 		}
- 		len = vsnprintf(sb->buf + sb->len, sb->alloc - sb->len, fmt, ap_saved);
--		va_end(ap_saved);
- 		if (len > strbuf_avail(sb)) {
- 			pr_debug("this should not happen, your vsnprintf is broken");
- 			va_end(ap_saved);
+diff --git a/drivers/s390/crypto/zcrypt_error.h b/drivers/s390/crypto/zcrypt_error.h
+index 9499cd3a05f8..02a936db0092 100644
+--- a/drivers/s390/crypto/zcrypt_error.h
++++ b/drivers/s390/crypto/zcrypt_error.h
+@@ -75,6 +75,7 @@ struct error_hdr {
+ #define REP82_ERROR_EVEN_MOD_IN_OPND	    0x85
+ #define REP82_ERROR_RESERVED_FIELD	    0x88
+ #define REP82_ERROR_INVALID_DOMAIN_PENDING  0x8A
++#define REP82_ERROR_FILTERED_BY_HYPERVISOR  0x8B
+ #define REP82_ERROR_TRANSPORT_FAIL	    0x90
+ #define REP82_ERROR_PACKET_TRUNCATED	    0xA0
+ #define REP82_ERROR_ZERO_BUFFER_LEN	    0xB0
+@@ -105,6 +106,7 @@ static inline int convert_error(struct zcrypt_queue *zq,
+ 	case REP82_ERROR_INVALID_DOMAIN_PRECHECK:
+ 	case REP82_ERROR_INVALID_DOMAIN_PENDING:
+ 	case REP82_ERROR_INVALID_SPECIAL_CMD:
++	case REP82_ERROR_FILTERED_BY_HYPERVISOR:
+ 	//   REP88_ERROR_INVALID_KEY		// '82' CEX2A
+ 	//   REP88_ERROR_OPERAND		// '84' CEX2A
+ 	//   REP88_ERROR_OPERAND_EVEN_MOD	// '85' CEX2A
+-- 
+2.20.1
+
 
 
