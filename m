@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA87112EBD4
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:12:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 381A112EBD5
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:12:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727506AbgABWMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:12:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51916 "EHLO mail.kernel.org"
+        id S1726697AbgABWMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:12:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727517AbgABWMi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:12:38 -0500
+        id S1727534AbgABWMl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:12:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B686D21582;
-        Thu,  2 Jan 2020 22:12:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F35421582;
+        Thu,  2 Jan 2020 22:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003158;
-        bh=5wlfYLRaitE2BvwSnj30HiUJevx8/kf/c+kSpE5a1wM=;
+        s=default; t=1578003160;
+        bh=/YUthY9vE9Z0PtWMgd0UlmOKUFE+2Y8/i6JHRz80FYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvEvivHnQ8hb5EM/I9oIKG6M0FMCyqleSmJvx2eXgJuHy8YLPTD2SPk+1cyxlI1XY
-         K3MG2m++FJEyc7++fAnAijVdKckzdWI+SLFJZ+nrUtYOpXxLuWlAjSfnTw4r9PLrue
-         6v3pGaNNfYOVhYVpuFOjEy4H6Rb24kzhtARf4wKM=
+        b=q+zSZisJlAPYeoQpR7KJ3jL58U5VKngrOd2DcKZ3VX0w2a/arm5gAEcpkFk0oI8gO
+         QpqzEJAtNsBJvybj5zZj+cjMfLxxiEacDnbR43jZAS/UfdNAe//56ifS6DJ4d1srOV
+         u7CrHkllDprGqfVx0HZgKkylKsmRl9xNAWt9A27E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 044/191] jbd2: Fix statistics for the number of logged blocks
-Date:   Thu,  2 Jan 2020 23:05:26 +0100
-Message-Id: <20200102215834.635792415@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 045/191] scsi: tracing: Fix handling of TRANSFER LENGTH == 0 for READ(6) and WRITE(6)
+Date:   Thu,  2 Jan 2020 23:05:27 +0100
+Message-Id: <20200102215834.738714064@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
 References: <20200102215829.911231638@linuxfoundation.org>
@@ -43,59 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 015c6033068208d6227612c878877919f3fcf6b6 ]
+[ Upstream commit f6b8540f40201bff91062dd64db8e29e4ddaaa9d ]
 
-jbd2 statistics counting number of blocks logged in a transaction was
-wrong. It didn't count the commit block and more importantly it didn't
-count revoke descriptor blocks. Make sure these get properly counted.
+According to SBC-2 a TRANSFER LENGTH field of zero means that 256 logical
+blocks must be transferred. Make the SCSI tracing code follow SBC-2.
 
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191105164437.32602-13-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: bf8162354233 ("[SCSI] add scsi trace core functions and put trace points")
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Douglas Gilbert <dgilbert@interlog.com>
+Link: https://lore.kernel.org/r/20191105215553.185018-1-bvanassche@acm.org
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/commit.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_trace.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
-index 132fb92098c7..c43591cd70f1 100644
---- a/fs/jbd2/commit.c
-+++ b/fs/jbd2/commit.c
-@@ -727,7 +727,6 @@ start_journal_io:
- 				submit_bh(REQ_OP_WRITE, REQ_SYNC, bh);
- 			}
- 			cond_resched();
--			stats.run.rs_blocks_logged += bufs;
+diff --git a/drivers/scsi/scsi_trace.c b/drivers/scsi/scsi_trace.c
+index 0f17e7dac1b0..07a2425ffa2c 100644
+--- a/drivers/scsi/scsi_trace.c
++++ b/drivers/scsi/scsi_trace.c
+@@ -18,15 +18,18 @@ static const char *
+ scsi_trace_rw6(struct trace_seq *p, unsigned char *cdb, int len)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p);
+-	sector_t lba = 0, txlen = 0;
++	u32 lba = 0, txlen;
  
- 			/* Force a new descriptor to be generated next
-                            time round the loop. */
-@@ -814,6 +813,7 @@ start_journal_io:
- 		if (unlikely(!buffer_uptodate(bh)))
- 			err = -EIO;
- 		jbd2_unfile_log_bh(bh);
-+		stats.run.rs_blocks_logged++;
+ 	lba |= ((cdb[1] & 0x1F) << 16);
+ 	lba |=  (cdb[2] << 8);
+ 	lba |=   cdb[3];
+-	txlen = cdb[4];
++	/*
++	 * From SBC-2: a TRANSFER LENGTH field set to zero specifies that 256
++	 * logical blocks shall be read (READ(6)) or written (WRITE(6)).
++	 */
++	txlen = cdb[4] ? cdb[4] : 256;
  
- 		/*
- 		 * The list contains temporary buffer heads created by
-@@ -859,6 +859,7 @@ start_journal_io:
- 		BUFFER_TRACE(bh, "ph5: control buffer writeout done: unfile");
- 		clear_buffer_jwrite(bh);
- 		jbd2_unfile_log_bh(bh);
-+		stats.run.rs_blocks_logged++;
- 		__brelse(bh);		/* One for getblk */
- 		/* AKPM: bforget here */
- 	}
-@@ -880,6 +881,7 @@ start_journal_io:
- 	}
- 	if (cbh)
- 		err = journal_wait_on_commit_record(journal, cbh);
-+	stats.run.rs_blocks_logged++;
- 	if (jbd2_has_feature_async_commit(journal) &&
- 	    journal->j_flags & JBD2_BARRIER) {
- 		blkdev_issue_flush(journal->j_dev, GFP_NOFS, NULL);
+-	trace_seq_printf(p, "lba=%llu txlen=%llu",
+-			 (unsigned long long)lba, (unsigned long long)txlen);
++	trace_seq_printf(p, "lba=%u txlen=%u", lba, txlen);
+ 	trace_seq_putc(p, 0);
+ 
+ 	return ret;
 -- 
 2.20.1
 
