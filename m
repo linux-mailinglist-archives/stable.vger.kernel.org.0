@@ -2,49 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75FA912EFEF
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:50:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E30C12EEB7
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:41:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729022AbgABWtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:49:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
+        id S1731039AbgABWiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:38:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729545AbgABW0p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:26:45 -0500
+        id S1731233AbgABWiH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:38:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9225320863;
-        Thu,  2 Jan 2020 22:26:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB9A2222C3;
+        Thu,  2 Jan 2020 22:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004005;
-        bh=lJQC4/Con0Ugxzstlc8xq8amDaSrx9aFFStPvk0jE1s=;
+        s=default; t=1578004686;
+        bh=gBQc9wnm+0AAJoVibGTOaRCB9H6x608sIeSwwSe4xBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=su5u8NS2OKip20vXxZ+X+3srh1yzdTIZb8ukx5OnNgSw6Oc7ZHJoc7mm1tdD376Xj
-         X3AJJIGo6+L3Hovb4N5q/i7vF1ER7zN4k8GZ0VJJYKdZ6ZjwqHO6OBzlNv085XLX/6
-         weTkKpbT0yVlLmRZGSt9/Kt4AwuFE70/YhXiFKBY=
+        b=jSPeJnV2+AYOfVHcQI8c8PIG34Wr7vZZvwIyfmwZGTVp0gl1OyouvXC/7AmI0apts
+         FlQkV99RiaJdYbO33WKrG1vgL/JCA1IYtYen+ioeD4FKh+U8qn0mDtYpT34LMyxabf
+         AjfyYeB6rHBHgM86pLii7FxCR85JHzHGwSzK6vzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Daniel Colascione <dancol@google.com>,
-        Jann Horn <jannh@google.com>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        Nick Kralevich <nnk@google.com>,
-        Nosh Minwalla <nosh@google.com>,
-        Pavel Emelyanov <ovzxemul@gmail.com>,
-        Tim Murray <timmurray@google.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 54/91] userfaultfd: require CAP_SYS_PTRACE for UFFD_FEATURE_EVENT_FORK
+        stable@vger.kernel.org, Erkka Talvitie <erkka.talvitie@vincit.fi>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.4 083/137] USB: EHCI: Do not return -EPIPE when hub is disconnected
 Date:   Thu,  2 Jan 2020 23:07:36 +0100
-Message-Id: <20200102220438.300825166@linuxfoundation.org>
+Message-Id: <20200102220557.857532955@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Erkka Talvitie <erkka.talvitie@vincit.fi>
 
-[ Upstream commit 3c1c24d91ffd536de0a64688a9df7f49e58fadbc ]
+commit 64cc3f12d1c7dd054a215bc1ff9cc2abcfe35832 upstream.
 
-A while ago Andy noticed
-(http://lkml.kernel.org/r/CALCETrWY+5ynDct7eU_nDUqx=okQvjm=Y5wJvA4ahBja=CQXGw@mail.gmail.com)
-that UFFD_FEATURE_EVENT_FORK used by an unprivileged user may have
-security implications.
+When disconnecting a USB hub that has some child device(s) connected to it
+(such as a USB mouse), then the stack tries to clear halt and
+reset device(s) which are _already_ physically disconnected.
 
-As the first step of the solution the following patch limits the availably
-of UFFD_FEATURE_EVENT_FORK only for those having CAP_SYS_PTRACE.
+The issue has been reproduced with:
 
-The usage of CAP_SYS_PTRACE ensures compatibility with CRIU.
+CPU: IMX6D5EYM10AD or MCIMX6D5EYM10AE.
+SW: U-Boot 2019.07 and kernel 4.19.40.
 
-Yet, if there are other users of non-cooperative userfaultfd that run
-without CAP_SYS_PTRACE, they would be broken :(
+CPU: HP Proliant Microserver Gen8.
+SW: Linux version 4.2.3-300.fc23.x86_64
 
-Current implementation of UFFD_FEATURE_EVENT_FORK modifies the file
-descriptor table from the read() implementation of uffd, which may have
-security implications for unprivileged use of the userfaultfd.
+In this situation there will be error bit for MMF active yet the
+CERR equals EHCI_TUNE_CERR + halt. Existing implementation
+interprets this as a stall [1] (chapter 8.4.5).
 
-Limit availability of UFFD_FEATURE_EVENT_FORK only for callers that have
-CAP_SYS_PTRACE.
+The possible conditions when the MMF will be active + halt
+can be found from [2] (Table 4-13).
 
-Link: http://lkml.kernel.org/r/1572967777-8812-2-git-send-email-rppt@linux.ibm.com
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Daniel Colascione <dancol@google.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Lokesh Gidra <lokeshgidra@google.com>
-Cc: Nick Kralevich <nnk@google.com>
-Cc: Nosh Minwalla <nosh@google.com>
-Cc: Pavel Emelyanov <ovzxemul@gmail.com>
-Cc: Tim Murray <timmurray@google.com>
-Cc: Aleksa Sarai <cyphar@cyphar.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix for the issue is to check whether MMF is active and PID Code is
+IN before checking for the stall. If these conditions are true then
+it is not a stall.
+
+What happens after the fix is that when disconnecting a hub with
+attached device(s) the situation is not interpret as a stall.
+
+[1] [https://www.usb.org/document-library/usb-20-specification, usb_20.pdf]
+[2] [https://www.intel.com/content/dam/www/public/us/en/documents/
+     technical-specifications/ehci-specification-for-usb.pdf]
+
+Signed-off-by: Erkka Talvitie <erkka.talvitie@vincit.fi>
+Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/ef70941d5f349767f19c0ed26b0dd9eed8ad81bb.1576050523.git.erkka.talvitie@vincit.fi
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/userfaultfd.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/usb/host/ehci-q.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index a609d480606d..e2b2196fd942 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -1807,13 +1807,12 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
- 	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
- 		goto out;
- 	features = uffdio_api.features;
--	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES)) {
--		memset(&uffdio_api, 0, sizeof(uffdio_api));
--		if (copy_to_user(buf, &uffdio_api, sizeof(uffdio_api)))
--			goto out;
--		ret = -EINVAL;
--		goto out;
--	}
-+	ret = -EINVAL;
-+	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES))
-+		goto err_out;
-+	ret = -EPERM;
-+	if ((features & UFFD_FEATURE_EVENT_FORK) && !capable(CAP_SYS_PTRACE))
-+		goto err_out;
- 	/* report all available features and ioctls to userland */
- 	uffdio_api.features = UFFD_API_FEATURES;
- 	uffdio_api.ioctls = UFFD_API_IOCTLS;
-@@ -1826,6 +1825,11 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
- 	ret = 0;
- out:
- 	return ret;
-+err_out:
-+	memset(&uffdio_api, 0, sizeof(uffdio_api));
-+	if (copy_to_user(buf, &uffdio_api, sizeof(uffdio_api)))
-+		ret = -EFAULT;
-+	goto out;
- }
+--- a/drivers/usb/host/ehci-q.c
++++ b/drivers/usb/host/ehci-q.c
+@@ -40,6 +40,10 @@
  
- static long userfaultfd_ioctl(struct file *file, unsigned cmd,
--- 
-2.20.1
-
+ /*-------------------------------------------------------------------------*/
+ 
++/* PID Codes that are used here, from EHCI specification, Table 3-16. */
++#define PID_CODE_IN    1
++#define PID_CODE_SETUP 2
++
+ /* fill a qtd, returning how much of the buffer we were able to queue up */
+ 
+ static int
+@@ -199,7 +203,7 @@ static int qtd_copy_status (
+ 	int	status = -EINPROGRESS;
+ 
+ 	/* count IN/OUT bytes, not SETUP (even short packets) */
+-	if (likely (QTD_PID (token) != 2))
++	if (likely(QTD_PID(token) != PID_CODE_SETUP))
+ 		urb->actual_length += length - QTD_LENGTH (token);
+ 
+ 	/* don't modify error codes */
+@@ -215,6 +219,13 @@ static int qtd_copy_status (
+ 		if (token & QTD_STS_BABBLE) {
+ 			/* FIXME "must" disable babbling device's port too */
+ 			status = -EOVERFLOW;
++		/*
++		 * When MMF is active and PID Code is IN, queue is halted.
++		 * EHCI Specification, Table 4-13.
++		 */
++		} else if ((token & QTD_STS_MMF) &&
++					(QTD_PID(token) == PID_CODE_IN)) {
++			status = -EPROTO;
+ 		/* CERR nonzero + halt --> stall */
+ 		} else if (QTD_CERR(token)) {
+ 			status = -EPIPE;
 
 
