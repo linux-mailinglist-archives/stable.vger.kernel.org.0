@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE7D12EF44
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9349812F066
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:53:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729986AbgABWcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:32:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38618 "EHLO mail.kernel.org"
+        id S1729142AbgABWWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:22:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730162AbgABWcX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:32:23 -0500
+        id S1728798AbgABWWa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:22:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E650C20866;
-        Thu,  2 Jan 2020 22:32:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56D3F227BF;
+        Thu,  2 Jan 2020 22:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004342;
-        bh=iHda5XgKGbk3pId6NVo3JQZl350sef0Tb2WL7hX3Jk4=;
+        s=default; t=1578003749;
+        bh=OgM9MrVpmk2MQlLVEKOHu21cL5Jv8U4SBPAvaoSO6Fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9Gv/LaPWb3slG258LKYhFUfK6sTx8VxwBGc21WaDALSE+QuIXbk/BPYAnbZxuHx4
-         jiJ0iM8biU0U+KE/Et1fMjIUOau3soP8tNtNv1VxmjOD1M0XEk5JaE4LZzyCi66jzt
-         J4Y3IDFSzHWMSQ77WZviRzAv6NqDLMtRPcis6uL0=
+        b=xJuH2NOWH7CnASC7Ou0xzBgu8ao2ihg2E4O1HwJSnPkCpr5Hd9VJ52kDZo7CpO661
+         I6pnJGS6TgjyddlMOGBXVDdwxVo3bmM8MNpkR7zNF+5jGr5pusQcESkVDhm4jfLdIa
+         p6gGEE82ItPeDx/217R4Oj/yGoh4rXtnRTRhLz9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Bla=C5=BE=20Hrastnik?= <blaz@mxxn.io>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 139/171] HID: Improve Windows Precision Touchpad detection.
+        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        David Ahern <dsahern@gmail.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 098/114] ip6_gre: do not confirm neighbor when do pmtu update
 Date:   Thu,  2 Jan 2020 23:07:50 +0100
-Message-Id: <20200102220606.386475352@linuxfoundation.org>
+Message-Id: <20200102220039.090563518@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Blaž Hrastnik <blaz@mxxn.io>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 2dbc6f113acd74c66b04bf49fb027efd830b1c5a ]
+[ Upstream commit 675d76ad0ad5bf41c9a129772ef0aba8f57ea9a7 ]
 
-Per Microsoft spec, usage 0xC5 (page 0xFF) returns a blob containing
-data used to verify the touchpad as a Windows Precision Touchpad.
+When we do ipv6 gre pmtu update, we will also do neigh confirm currently.
+This will cause the neigh cache be refreshed and set to REACHABLE before
+xmit.
 
-   0x85, REPORTID_PTPHQA,    //    REPORT_ID (PTPHQA)
-    0x09, 0xC5,              //    USAGE (Vendor Usage 0xC5)
-    0x15, 0x00,              //    LOGICAL_MINIMUM (0)
-    0x26, 0xff, 0x00,        //    LOGICAL_MAXIMUM (0xff)
-    0x75, 0x08,              //    REPORT_SIZE (8)
-    0x96, 0x00, 0x01,        //    REPORT_COUNT (0x100 (256))
-    0xb1, 0x02,              //    FEATURE (Data,Var,Abs)
+But if the remote mac address changed, e.g. device is deleted and recreated,
+we will not able to notice this and still use the old mac address as the neigh
+cache is REACHABLE.
 
-However, some devices, namely Microsoft's Surface line of products
-instead implement a "segmented device certification report" (usage 0xC6)
-which returns the same report, but in smaller chunks.
+Fix this by disable neigh confirm when do pmtu update
 
-    0x06, 0x00, 0xff,        //     USAGE_PAGE (Vendor Defined)
-    0x85, REPORTID_PTPHQA,   //     REPORT_ID (PTPHQA)
-    0x09, 0xC6,              //     USAGE (Vendor usage for segment #)
-    0x25, 0x08,              //     LOGICAL_MAXIMUM (8)
-    0x75, 0x08,              //     REPORT_SIZE (8)
-    0x95, 0x01,              //     REPORT_COUNT (1)
-    0xb1, 0x02,              //     FEATURE (Data,Var,Abs)
-    0x09, 0xC7,              //     USAGE (Vendor Usage)
-    0x26, 0xff, 0x00,        //     LOGICAL_MAXIMUM (0xff)
-    0x95, 0x20,              //     REPORT_COUNT (32)
-    0xb1, 0x02,              //     FEATURE (Data,Var,Abs)
+v5: No change.
+v4: No change.
+v3: Do not remove dst_confirm_neigh, but add a new bool parameter in
+    dst_ops.update_pmtu to control whether we should do neighbor confirm.
+    Also split the big patch to small ones for each area.
+v2: Remove dst_confirm_neigh in __ip6_rt_update_pmtu.
 
-By expanding Win8 touchpad detection to also look for the segmented
-report, all Surface touchpads are now properly recognized by
-hid-multitouch.
-
-Signed-off-by: Blaž Hrastnik <blaz@mxxn.io>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Reviewed-by: Guillaume Nault <gnault@redhat.com>
+Acked-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv6/ip6_gre.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 42d1b350afd2..c89eb3c3965c 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -761,6 +761,10 @@ static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
- 	if (usage == 0xff0000c5 && parser->global.report_count == 256 &&
- 	    parser->global.report_size == 8)
- 		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
-+
-+	if (usage == 0xff0000c6 && parser->global.report_count == 1 &&
-+	    parser->global.report_size == 8)
-+		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
- }
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -1060,7 +1060,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit
  
- static void hid_scan_collection(struct hid_parser *parser, unsigned type)
--- 
-2.20.1
-
+ 	/* TooBig packet may have updated dst->dev's mtu */
+ 	if (!t->parms.collect_md && dst && dst_mtu(dst) > dst->dev->mtu)
+-		dst->ops->update_pmtu(dst, NULL, skb, dst->dev->mtu, true);
++		dst->ops->update_pmtu(dst, NULL, skb, dst->dev->mtu, false);
+ 
+ 	err = ip6_tnl_xmit(skb, dev, dsfield, &fl6, encap_limit, &mtu,
+ 			   NEXTHDR_GRE);
 
 
