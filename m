@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C67FA12EE58
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 645E312EF5E
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730942AbgABWhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:37:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50174 "EHLO mail.kernel.org"
+        id S1730578AbgABWpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:45:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731103AbgABWhd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:37:33 -0500
+        id S1730409AbgABWcZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:32:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BCBB20866;
-        Thu,  2 Jan 2020 22:37:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59307222C3;
+        Thu,  2 Jan 2020 22:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004652;
-        bh=5BdZNPlIuoHYht69VTOQ8owNdfGgzIMJwxpwq/gplxk=;
+        s=default; t=1578004344;
+        bh=QVQNXYhm774xEJ0esdujKP+OZHgv/yx5eUykMewmE/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eSblfb6vgX9Q7/E3KFp4zNwIPMvq2zU4twY6PADWFnwMRWhLh+QwoOKfsD/qTX5B/
-         HDFHg1278nA1YpEfWcwPAUSZLkxJU6KgtSO3/Z69Q2oLG+rQtxxpK1eFmyJwKGd7vo
-         7ZkYz/5aGkyzYGiUO3GPENNuXYyUYXZrJB4YKxr8=
+        b=XD4QRki4isF9c9yxpr/3VIg1wWtQlzRggTGA2MaxEAAUT2B+PYSc0Ym2d06xecokS
+         Kj5RFGTuLjCxe4cLQuxqEOaendq2tJGDaqx2IfQ/5kDW2O3HQY8ubj8G/mrCIMDPKb
+         jTb3K6Nsk6EAmgM+R9axrlOE7BtoioIpEDNwjB6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 097/137] powerpc/pseries: Mark accumulate_stolen_time() as notrace
-Date:   Thu,  2 Jan 2020 23:07:50 +0100
-Message-Id: <20200102220600.092568994@linuxfoundation.org>
+Subject: [PATCH 4.9 140/171] ext4: work around deleting a file with i_nlink == 0 safely
+Date:   Thu,  2 Jan 2020 23:07:51 +0100
+Message-Id: <20200102220606.559791102@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit eb8e20f89093b64f48975c74ccb114e6775cee22 ]
+[ Upstream commit c7df4a1ecb8579838ec8c56b2bb6a6716e974f37 ]
 
-accumulate_stolen_time() is called prior to interrupt state being
-reconciled, which can trip the warning in arch_local_irq_restore():
+If the file system is corrupted such that a file's i_links_count is
+too small, then it's possible that when unlinking that file, i_nlink
+will already be zero.  Previously we were working around this kind of
+corruption by forcing i_nlink to one; but we were doing this before
+trying to delete the directory entry --- and if the file system is
+corrupted enough that ext4_delete_entry() fails, then we exit with
+i_nlink elevated, and this causes the orphan inode list handling to be
+FUBAR'ed, such that when we unmount the file system, the orphan inode
+list can get corrupted.
 
-  WARNING: CPU: 5 PID: 1017 at arch/powerpc/kernel/irq.c:258 .arch_local_irq_restore+0x9c/0x130
-  ...
-  NIP .arch_local_irq_restore+0x9c/0x130
-  LR  .rb_start_commit+0x38/0x80
-  Call Trace:
-    .ring_buffer_lock_reserve+0xe4/0x620
-    .trace_function+0x44/0x210
-    .function_trace_call+0x148/0x170
-    .ftrace_ops_no_ops+0x180/0x1d0
-    ftrace_call+0x4/0x8
-    .accumulate_stolen_time+0x1c/0xb0
-    decrementer_common+0x124/0x160
+A better way to fix this is to simply skip trying to call drop_nlink()
+if i_nlink is already zero, thus moving the check to the place where
+it makes the most sense.
 
-For now just mark it as notrace. We may change the ordering to call it
-after interrupt state has been reconciled, but that is a larger
-change.
+https://bugzilla.kernel.org/show_bug.cgi?id=205433
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191024055932.27940-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20191112032903.8828-1-tytso@mit.edu
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/namei.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 2e9cae5f8d17..397076474a71 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -245,7 +245,7 @@ static u64 scan_dispatch_log(u64 stop_tb)
-  * Accumulate stolen time by scanning the dispatch trace log.
-  * Called on entry from user mode.
-  */
--void accumulate_stolen_time(void)
-+void notrace accumulate_stolen_time(void)
- {
- 	u64 sst, ust;
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 6608cc01a3db..f0ce535d514c 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3082,18 +3082,17 @@ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
+ 	if (IS_DIRSYNC(dir))
+ 		ext4_handle_sync(handle);
  
+-	if (inode->i_nlink == 0) {
+-		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
+-				   dentry->d_name.len, dentry->d_name.name);
+-		set_nlink(inode, 1);
+-	}
+ 	retval = ext4_delete_entry(handle, dir, de, bh);
+ 	if (retval)
+ 		goto end_unlink;
+ 	dir->i_ctime = dir->i_mtime = ext4_current_time(dir);
+ 	ext4_update_dx_flag(dir);
+ 	ext4_mark_inode_dirty(handle, dir);
+-	drop_nlink(inode);
++	if (inode->i_nlink == 0)
++		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
++				   dentry->d_name.len, dentry->d_name.name);
++	else
++		drop_nlink(inode);
+ 	if (!inode->i_nlink)
+ 		ext4_orphan_add(handle, inode);
+ 	inode->i_ctime = ext4_current_time(inode);
 -- 
 2.20.1
 
