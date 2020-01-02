@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B27E112F0A3
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 852FE12EFA3
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:47:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728053AbgABWU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:20:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37864 "EHLO mail.kernel.org"
+        id S1729505AbgABWrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:47:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728781AbgABWUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:20:25 -0500
+        id S1725872AbgABW3U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:29:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B80062253D;
-        Thu,  2 Jan 2020 22:20:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B16C20866;
+        Thu,  2 Jan 2020 22:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003625;
-        bh=Ey+4mqV5as7tmiwq9ePBpI3MdmtvqTfueHdaI/JCZIg=;
+        s=default; t=1578004159;
+        bh=mtzmqGg3QZ/YgGmPmq8BQn51XP27MECATe9X3l1cymk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJYHSa+hE3VezLI+cgXHn3AOukyHZszZt3NMhYWt3HljDF+vY6ymA49+Ie6EGepXp
-         bttnRQc1ypQWHayM3E0cAuO9t7BVrCo24TQMxxKWH/77G2mk4Jm0mcixfPlpaNbHhT
-         A8wnRTixvZou9lBM61gj0eCABD24vP3U8uRUofdk=
+        b=x/iFHEDyoh712Vq2qS19TTEjRrwiBry+xbNcu/oEkJBg9lxwgRuQ/VbhjWyG9EuUk
+         NKmF/dpqf8+xUfdapvaRtoz4btdoyePxAJdU7PWofbm1DDh7ag0egrmGucRbDNIrOy
+         2U7mgUh4qbLYGWJPUb20s9RSKtCp0LdlJnBw0sI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anthony Steinhauser <asteinhauser@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Hou Bao Hou <houbao@codeaurora.org>,
+        Anilkumar Kolli <akolli@codeaurora.org>,
+        Miaoqing Pan <miaoqing@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 020/114] powerpc/security/book3s64: Report L1TF status in sysfs
-Date:   Thu,  2 Jan 2020 23:06:32 +0100
-Message-Id: <20200102220031.162084250@linuxfoundation.org>
+Subject: [PATCH 4.9 062/171] ath10k: fix get invalid tx rate for Mesh metric
+Date:   Thu,  2 Jan 2020 23:06:33 +0100
+Message-Id: <20200102220555.498918634@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Steinhauser <asteinhauser@google.com>
+From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-[ Upstream commit 8e6b6da91ac9b9ec5a925b6cb13f287a54bd547d ]
+[ Upstream commit 05a11003a56507023f18d3249a4d4d119c0a3e9c ]
 
-Some PowerPC CPUs are vulnerable to L1TF to the same extent as to
-Meltdown. It is also mitigated by flushing the L1D on privilege
-transition.
+ath10k does not provide transmit rate info per MSDU
+in tx completion, mark that as -1 so mac80211
+will ignore the rates. This fixes mac80211 update Mesh
+link metric with invalid transmit rate info.
 
-Currently the sysfs gives a false negative on L1TF on CPUs that I
-verified to be vulnerable, a Power9 Talos II Boston 004e 1202, PowerNV
-T2P9D01.
+Tested HW: QCA9984
+Tested FW: 10.4-3.9.0.2-00035
 
-Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-[mpe: Just have cpu_show_l1tf() call cpu_show_meltdown() directly]
-Link: https://lore.kernel.org/r/20191029190759.84821-1-asteinhauser@google.com
+Signed-off-by: Hou Bao Hou <houbao@codeaurora.org>
+Signed-off-by: Anilkumar Kolli <akolli@codeaurora.org>
+Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/security.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/ath/ath10k/txrx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/security.c b/arch/powerpc/kernel/security.c
-index a5c5940d970a..a4354c4f6bc5 100644
---- a/arch/powerpc/kernel/security.c
-+++ b/arch/powerpc/kernel/security.c
-@@ -160,6 +160,11 @@ ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr, cha
+diff --git a/drivers/net/wireless/ath/ath10k/txrx.c b/drivers/net/wireless/ath/ath10k/txrx.c
+index 9852c5d51139..beeb6be06939 100644
+--- a/drivers/net/wireless/ath/ath10k/txrx.c
++++ b/drivers/net/wireless/ath/ath10k/txrx.c
+@@ -99,6 +99,8 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
  
- 	return sprintf(buf, "Vulnerable\n");
- }
+ 	info = IEEE80211_SKB_CB(msdu);
+ 	memset(&info->status, 0, sizeof(info->status));
++	info->status.rates[0].idx = -1;
 +
-+ssize_t cpu_show_l1tf(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	return cpu_show_meltdown(dev, attr, buf);
-+}
- #endif
+ 	trace_ath10k_txrx_tx_unref(ar, tx_done->msdu_id);
  
- ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr, char *buf)
+ 	if (tx_done->status == HTT_TX_COMPL_STATE_DISCARD) {
 -- 
 2.20.1
 
