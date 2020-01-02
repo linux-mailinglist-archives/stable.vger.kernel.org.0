@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D38B12F0D1
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:56:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0C612EF56
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727718AbgABWSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:18:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34154 "EHLO mail.kernel.org"
+        id S1729099AbgABWom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:44:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728362AbgABWSm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:18:42 -0500
+        id S1730336AbgABWc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:32:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5783421582;
-        Thu,  2 Jan 2020 22:18:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52C3021835;
+        Thu,  2 Jan 2020 22:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003521;
-        bh=0LXVk6jEhqxeLmaZ4jPfN2Vp4to1fWueQPFCjiLDdgc=;
+        s=default; t=1578004375;
+        bh=+74P8MMxOQETzEH5GZB2WhF2h8TPvZSqXVt137Hd8dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kUI8KHQd5bODERye9O7mQ7hWHQyoNiOyUrh3Hdmv+Dl4xDsQA8Jf9WyAGAPzyJF0
-         3otDhMdcTQ9L73Wsj2MUIDjHQxPGzZnVi05a++vX+Z7kYHRsRs+4DXco/R8f8D5EaN
-         Gzzaj1pCq5e97ljrWdW/Viy6ErOHMwDlQglUgRgQ=
+        b=heINmV/TlMJl7lYHcgZoRBH1oe6zPjVltCJyMYl31xnIiGdBpOI7FzOpAYl4TZOXK
+         yrrRkEifr1Q69V1GVdOU5onqbSTW3n2PU/6/2aoyvh8CQgMOwzAF5b1AHp2frZqtQA
+         3KvxykM+wy0jzVjB/KTDwmG4NsYhvjM+PVzPApAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Antoine Tenart <antoine.tenart@bootlin.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 5.4 176/191] net: marvell: mvpp2: phylink requires the link interrupt
+        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 127/171] clk: qcom: Allow constant ratio freq tables for rcg
 Date:   Thu,  2 Jan 2020 23:07:38 +0100
-Message-Id: <20200102215848.146757519@linuxfoundation.org>
+Message-Id: <20200102220604.670497536@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 
-[ Upstream commit f3f2364ea14d1cf6bf966542f31eadcf178f1577 ]
+[ Upstream commit efd164b5520afd6fb2883b68e0d408a7de29c491 ]
 
-phylink requires the MAC to report when its link status changes when
-operating in inband modes.  Failure to report link status changes
-means that phylink has no idea when the link events happen, which
-results in either the network interface's carrier remaining up or
-remaining permanently down.
+Some RCGs (the gfx_3d_src_clk in msm8998 for example) are basically just
+some constant ratio from the input across the entire frequency range.  It
+would be great if we could specify the frequency table as a single entry
+constant ratio instead of a long list, ie:
 
-For example, with a fiber module, if the interface is brought up and
-link is initially established, taking the link down at the far end
-will cut the optical power.  The SFP module's LOS asserts, we
-deactivate the link, and the network interface reports no carrier.
+	{ .src = P_GPUPLL0_OUT_EVEN, .pre_div = 3 },
+        { }
 
-When the far end is brought back up, the SFP module's LOS deasserts,
-but the MAC may be slower to establish link.  If this happens (which
-in my tests is a certainty) then phylink never hears that the MAC
-has established link with the far end, and the network interface is
-stuck reporting no carrier.  This means the interface is
-non-functional.
+So, lets support that.
 
-Avoiding the link interrupt when we have phylink is basically not
-an option, so remove the !port->phylink from the test.
+We need to fix a corner case in qcom_find_freq() where if the freq table
+is non-null, but has no frequencies, we end up returning an "entry" before
+the table array, which is bad.  Then, we need ignore the freq from the
+table, and instead base everything on the requested freq.
 
-Fixes: 4bb043262878 ("net: mvpp2: phylink support")
-Tested-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Tested-by: Antoine Tenart <antoine.tenart@bootlin.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Link: https://lkml.kernel.org/r/20191031185715.15504-1-jeffrey.l.hugo@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/qcom/clk-rcg2.c | 2 ++
+ drivers/clk/qcom/common.c   | 3 +++
+ 2 files changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -3674,7 +3674,7 @@ static int mvpp2_open(struct net_device
- 		valid = true;
- 	}
+diff --git a/drivers/clk/qcom/clk-rcg2.c b/drivers/clk/qcom/clk-rcg2.c
+index a071bba8018c..0ae1b0a66eb5 100644
+--- a/drivers/clk/qcom/clk-rcg2.c
++++ b/drivers/clk/qcom/clk-rcg2.c
+@@ -196,6 +196,8 @@ static int _freq_tbl_determine_rate(struct clk_hw *hw,
+ 	p = clk_hw_get_parent_by_index(hw, index);
+ 	if (clk_flags & CLK_SET_RATE_PARENT) {
+ 		if (f->pre_div) {
++			if (!rate)
++				rate = req->rate;
+ 			rate /= 2;
+ 			rate *= f->pre_div + 1;
+ 		}
+diff --git a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
+index fffcbaf0fba7..f89a9f0aa606 100644
+--- a/drivers/clk/qcom/common.c
++++ b/drivers/clk/qcom/common.c
+@@ -37,6 +37,9 @@ struct freq_tbl *qcom_find_freq(const struct freq_tbl *f, unsigned long rate)
+ 	if (!f)
+ 		return NULL;
  
--	if (priv->hw_version == MVPP22 && port->link_irq && !port->phylink) {
-+	if (priv->hw_version == MVPP22 && port->link_irq) {
- 		err = request_irq(port->link_irq, mvpp2_link_status_isr, 0,
- 				  dev->name, port);
- 		if (err) {
++	if (!f->freq)
++		return f;
++
+ 	for (; f->freq; f++)
+ 		if (rate <= f->freq)
+ 			return f;
+-- 
+2.20.1
+
 
 
