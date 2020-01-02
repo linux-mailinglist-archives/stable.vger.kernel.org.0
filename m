@@ -2,38 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BA0D12F02F
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF40112F11B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728278AbgABWvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:51:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48446 "EHLO mail.kernel.org"
+        id S1727820AbgABW6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:58:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729256AbgABWY2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:24:28 -0500
+        id S1727701AbgABWQC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:16:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59F0D222C3;
-        Thu,  2 Jan 2020 22:24:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B29F621582;
+        Thu,  2 Jan 2020 22:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003867;
-        bh=pAVe+hWOgWyKDdn9K32HXdVAcd4Lp9YJCc37+Z+FiRo=;
+        s=default; t=1578003361;
+        bh=OhY9CAsLkxIZOLlGYxFrgHEj3kuAGOIgU1jy5q4CoRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sG4VUTZs/JQ45oJ9XrW/+vgSnB6E4t7mGZae7lTofLZoROnJTM62l52vQi6ILgLg6
-         EyhvcrYPtRTQQZWfJNX6LxQcEqUkuBEAjWztlbP6MgQHkMvIyOJp2lyCQGA1FbOT/B
-         cbWUK3RWgl1v8i1z/egdNq9jSfkpjOQJrpbHOrMg=
+        b=vxk2GpUYMS4cPlMdygqkpq3RUrtrXpEe7jCFIiffEP7svpLto3W9pmuR2yOSVQ5/n
+         6hl78bLeavBMGbu9HfoSJG5vL76sZPlUzYhk6K7MDJ9oDWONeh9bAq/QJKIjmg4NEr
+         61GrGLwZw12kxqY88S+qIq1sq2lxz2QOh9Dxe9B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Daniel Colascione <dancol@google.com>,
+        Jann Horn <jannh@google.com>,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        Nick Kralevich <nnk@google.com>,
+        Nosh Minwalla <nosh@google.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Tim Murray <timmurray@google.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/91] powerpc/pseries: Mark accumulate_stolen_time() as notrace
+Subject: [PATCH 5.4 129/191] userfaultfd: require CAP_SYS_PTRACE for UFFD_FEATURE_EVENT_FORK
 Date:   Thu,  2 Jan 2020 23:06:51 +0100
-Message-Id: <20200102220407.826536439@linuxfoundation.org>
+Message-Id: <20200102215843.542976659@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-[ Upstream commit eb8e20f89093b64f48975c74ccb114e6775cee22 ]
+[ Upstream commit 3c1c24d91ffd536de0a64688a9df7f49e58fadbc ]
 
-accumulate_stolen_time() is called prior to interrupt state being
-reconciled, which can trip the warning in arch_local_irq_restore():
+A while ago Andy noticed
+(http://lkml.kernel.org/r/CALCETrWY+5ynDct7eU_nDUqx=okQvjm=Y5wJvA4ahBja=CQXGw@mail.gmail.com)
+that UFFD_FEATURE_EVENT_FORK used by an unprivileged user may have
+security implications.
 
-  WARNING: CPU: 5 PID: 1017 at arch/powerpc/kernel/irq.c:258 .arch_local_irq_restore+0x9c/0x130
-  ...
-  NIP .arch_local_irq_restore+0x9c/0x130
-  LR  .rb_start_commit+0x38/0x80
-  Call Trace:
-    .ring_buffer_lock_reserve+0xe4/0x620
-    .trace_function+0x44/0x210
-    .function_trace_call+0x148/0x170
-    .ftrace_ops_no_ops+0x180/0x1d0
-    ftrace_call+0x4/0x8
-    .accumulate_stolen_time+0x1c/0xb0
-    decrementer_common+0x124/0x160
+As the first step of the solution the following patch limits the availably
+of UFFD_FEATURE_EVENT_FORK only for those having CAP_SYS_PTRACE.
 
-For now just mark it as notrace. We may change the ordering to call it
-after interrupt state has been reconciled, but that is a larger
-change.
+The usage of CAP_SYS_PTRACE ensures compatibility with CRIU.
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191024055932.27940-1-mpe@ellerman.id.au
+Yet, if there are other users of non-cooperative userfaultfd that run
+without CAP_SYS_PTRACE, they would be broken :(
+
+Current implementation of UFFD_FEATURE_EVENT_FORK modifies the file
+descriptor table from the read() implementation of uffd, which may have
+security implications for unprivileged use of the userfaultfd.
+
+Limit availability of UFFD_FEATURE_EVENT_FORK only for callers that have
+CAP_SYS_PTRACE.
+
+Link: http://lkml.kernel.org/r/1572967777-8812-2-git-send-email-rppt@linux.ibm.com
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Daniel Colascione <dancol@google.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Lokesh Gidra <lokeshgidra@google.com>
+Cc: Nick Kralevich <nnk@google.com>
+Cc: Nosh Minwalla <nosh@google.com>
+Cc: Pavel Emelyanov <ovzxemul@gmail.com>
+Cc: Tim Murray <timmurray@google.com>
+Cc: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/userfaultfd.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 14f3f28a089e..66a9987dc0f8 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -241,7 +241,7 @@ static u64 scan_dispatch_log(u64 stop_tb)
-  * Accumulate stolen time by scanning the dispatch trace log.
-  * Called on entry from user mode.
-  */
--void accumulate_stolen_time(void)
-+void notrace accumulate_stolen_time(void)
- {
- 	u64 sst, ust;
- 	u8 save_soft_enabled = local_paca->soft_enabled;
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index f9fd18670e22..d99d166fd892 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -1834,13 +1834,12 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
+ 	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
+ 		goto out;
+ 	features = uffdio_api.features;
+-	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES)) {
+-		memset(&uffdio_api, 0, sizeof(uffdio_api));
+-		if (copy_to_user(buf, &uffdio_api, sizeof(uffdio_api)))
+-			goto out;
+-		ret = -EINVAL;
+-		goto out;
+-	}
++	ret = -EINVAL;
++	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES))
++		goto err_out;
++	ret = -EPERM;
++	if ((features & UFFD_FEATURE_EVENT_FORK) && !capable(CAP_SYS_PTRACE))
++		goto err_out;
+ 	/* report all available features and ioctls to userland */
+ 	uffdio_api.features = UFFD_API_FEATURES;
+ 	uffdio_api.ioctls = UFFD_API_IOCTLS;
+@@ -1853,6 +1852,11 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
+ 	ret = 0;
+ out:
+ 	return ret;
++err_out:
++	memset(&uffdio_api, 0, sizeof(uffdio_api));
++	if (copy_to_user(buf, &uffdio_api, sizeof(uffdio_api)))
++		ret = -EFAULT;
++	goto out;
+ }
+ 
+ static long userfaultfd_ioctl(struct file *file, unsigned cmd,
 -- 
 2.20.1
 
