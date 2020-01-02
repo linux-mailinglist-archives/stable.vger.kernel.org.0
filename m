@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F14C12EF1F
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D91D12EE8C
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727656AbgABWdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:33:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41648 "EHLO mail.kernel.org"
+        id S1731268AbgABWjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:39:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730202AbgABWdt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:33:49 -0500
+        id S1731177AbgABWjS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:39:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B03E20863;
-        Thu,  2 Jan 2020 22:33:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 546A120866;
+        Thu,  2 Jan 2020 22:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004428;
-        bh=JZ80ThWIog+FolcMXpSKaik1yjlU0edrlPqLSvayDvM=;
+        s=default; t=1578004757;
+        bh=Z6uOq0PO3HCgfXMAtRf+qJM8bg/nar9HCljMC2v2tHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UT2I0mtu5neknr9COdlZfwBMPGwGOAGsgZJYOGUqCEE4tRLQjh60VnNLk17P20AC3
-         QIvfm2+a7208bPW9RjCFib888oYSqFK22dRVI24Rhl1CvgADuVRnhU5Hn3zDNq3rEL
-         bWM9nQ1VNzJ70mAXD1Ah2rfEiRNXquOyxwb6R4SY=
+        b=2RtHH6TRcpoU9IPAZYvBrCJLsVUV+VLcEy+rVchGfR/Sm/Vo3/DwLnCi0vOQ4SgRl
+         8cyn+fneoLLRzYgWMXMQ8lVHrIqEoBB5Y1ydqIr3s0qMdAI279P3XqPZpLiUELFrL+
+         eLq2CJQIN8KGelYEq1wEX7eMIYw8sm6JLvheN/FY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+3031f712c7ad5dd4d926@syzkaller.appspotmail.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Siddharth Chandrasekaran <csiddharth@vmware.com>
-Subject: [PATCH 4.9 157/171] filldir[64]: remove WARN_ON_ONCE() for bad directory entries
+        =?UTF-8?q?Bla=C5=BE=20Hrastnik?= <blaz@mxxn.io>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 115/137] HID: Improve Windows Precision Touchpad detection.
 Date:   Thu,  2 Jan 2020 23:08:08 +0100
-Message-Id: <20200102220608.584364685@linuxfoundation.org>
+Message-Id: <20200102220602.621156753@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Blaž Hrastnik <blaz@mxxn.io>
 
-commit b9959c7a347d6adbb558fba7e36e9fef3cba3b07 upstream.
+[ Upstream commit 2dbc6f113acd74c66b04bf49fb027efd830b1c5a ]
 
-This was always meant to be a temporary thing, just for testing and to
-see if it actually ever triggered.
+Per Microsoft spec, usage 0xC5 (page 0xFF) returns a blob containing
+data used to verify the touchpad as a Windows Precision Touchpad.
 
-The only thing that reported it was syzbot doing disk image fuzzing, and
-then that warning is expected.  So let's just remove it before -rc4,
-because the extra sanity testing should probably go to -stable, but we
-don't want the warning to do so.
+   0x85, REPORTID_PTPHQA,    //    REPORT_ID (PTPHQA)
+    0x09, 0xC5,              //    USAGE (Vendor Usage 0xC5)
+    0x15, 0x00,              //    LOGICAL_MINIMUM (0)
+    0x26, 0xff, 0x00,        //    LOGICAL_MAXIMUM (0xff)
+    0x75, 0x08,              //    REPORT_SIZE (8)
+    0x96, 0x00, 0x01,        //    REPORT_COUNT (0x100 (256))
+    0xb1, 0x02,              //    FEATURE (Data,Var,Abs)
 
-Reported-by: syzbot+3031f712c7ad5dd4d926@syzkaller.appspotmail.com
-Fixes: 8a23eb804ca4 ("Make filldir[64]() verify the directory entry filename is valid")
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Siddharth Chandrasekaran <csiddharth@vmware.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, some devices, namely Microsoft's Surface line of products
+instead implement a "segmented device certification report" (usage 0xC6)
+which returns the same report, but in smaller chunks.
 
+    0x06, 0x00, 0xff,        //     USAGE_PAGE (Vendor Defined)
+    0x85, REPORTID_PTPHQA,   //     REPORT_ID (PTPHQA)
+    0x09, 0xC6,              //     USAGE (Vendor usage for segment #)
+    0x25, 0x08,              //     LOGICAL_MAXIMUM (8)
+    0x75, 0x08,              //     REPORT_SIZE (8)
+    0x95, 0x01,              //     REPORT_COUNT (1)
+    0xb1, 0x02,              //     FEATURE (Data,Var,Abs)
+    0x09, 0xC7,              //     USAGE (Vendor Usage)
+    0x26, 0xff, 0x00,        //     LOGICAL_MAXIMUM (0xff)
+    0x95, 0x20,              //     REPORT_COUNT (32)
+    0xb1, 0x02,              //     FEATURE (Data,Var,Abs)
+
+By expanding Win8 touchpad detection to also look for the segmented
+report, all Surface touchpads are now properly recognized by
+hid-multitouch.
+
+Signed-off-by: Blaž Hrastnik <blaz@mxxn.io>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/readdir.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -90,9 +90,9 @@ EXPORT_SYMBOL(iterate_dir);
-  */
- static int verify_dirent_name(const char *name, int len)
- {
--	if (WARN_ON_ONCE(!len))
-+	if (!len)
- 		return -EIO;
--	if (WARN_ON_ONCE(memchr(name, '/', len)))
-+	if (memchr(name, '/', len))
- 		return -EIO;
- 	return 0;
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index c60bb6f8eceb..7cd945575463 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -761,6 +761,10 @@ static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
+ 	if (usage == 0xff0000c5 && parser->global.report_count == 256 &&
+ 	    parser->global.report_size == 8)
+ 		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
++
++	if (usage == 0xff0000c6 && parser->global.report_count == 1 &&
++	    parser->global.report_size == 8)
++		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
  }
+ 
+ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+-- 
+2.20.1
+
 
 
