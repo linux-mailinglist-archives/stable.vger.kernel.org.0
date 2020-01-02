@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18F6A12ECB2
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:21:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C9F12EC48
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:17:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728915AbgABWVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:21:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39384 "EHLO mail.kernel.org"
+        id S1728096AbgABWRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:17:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728048AbgABWU7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:20:59 -0500
+        id S1727905AbgABWQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:16:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3199021582;
-        Thu,  2 Jan 2020 22:20:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00069227BF;
+        Thu,  2 Jan 2020 22:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003658;
-        bh=d8OYjwglSwSZ+zYIi3BgcyA/ugNN0+pst0NzjE764HM=;
+        s=default; t=1578003418;
+        bh=/GNAuNFE5e987/ISVIjYsKkE1UFI+Kx0wFE1vVGjSA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ps1dkUPy8v3AZAvxVQH/sWXAGGq9VCWookRVWGToP6evkSE07wKag1oRiJvtpuHrc
-         XtoXX1Zb8vFKTIsNMfKAst8QNRyXUL+HR7EbHDjmolo0CyvZwykAEPkwfpjRqxxPN8
-         GXtLgiZT3HmCWsh0CDFJTIkmCo5ycetlOkpxXPr8=
+        b=uay4+HsLjWkVjZcBfMFFLdZxT7OK2ioOaUo58VS92fmPfkPVe7DxuKAk3d29znTTJ
+         2siwinEvLnMB/Wt0jFDfB85znkxtgLGq7D8rckg+Lvuhw9yh3Fot7ykr0LHaAe1/jv
+         UnQewgK7/0O2rMkjwvlUe5kVlLQTUbVxPyV7B/Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 061/114] powerpc: Dont add -mabi= flags when building with Clang
-Date:   Thu,  2 Jan 2020 23:07:13 +0100
-Message-Id: <20200102220035.195017102@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 153/191] net_sched: sch_fq: properly set sk->sk_pacing_status
+Date:   Thu,  2 Jan 2020 23:07:15 +0100
+Message-Id: <20200102215845.838130304@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,97 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 465bfd9c44dea6b55962b5788a23ac87a467c923 ]
+[ Upstream commit bb3d0b8bf5be61ab1d6f472c43cbf34de17e796b ]
 
-When building pseries_defconfig, building vdso32 errors out:
+If fq_classify() recycles a struct fq_flow because
+a socket structure has been reallocated, we do not
+set sk->sk_pacing_status immediately, but later if the
+flow becomes detached.
 
-  error: unknown target ABI 'elfv1'
+This means that any flow requiring pacing (BBR, or SO_MAX_PACING_RATE)
+might fallback to TCP internal pacing, which requires a per-socket
+high resolution timer, and therefore more cpu cycles.
 
-This happens because -m32 in clang changes the target to 32-bit,
-which does not allow the ABI to be changed.
-
-Commit 4dc831aa8813 ("powerpc: Fix compiling a BE kernel with a
-powerpc64le toolchain") added these flags to fix building big endian
-kernels with a little endian GCC.
-
-Clang doesn't need -mabi because the target triple controls the
-default value. -mlittle-endian and -mbig-endian manipulate the triple
-into either powerpc64-* or powerpc64le-*, which properly sets the
-default ABI.
-
-Adding a debug print out in the PPC64TargetInfo constructor after line
-383 above shows this:
-
-  $ echo | ./clang -E --target=powerpc64-linux -mbig-endian -o /dev/null -
-  Default ABI: elfv1
-
-  $ echo | ./clang -E --target=powerpc64-linux -mlittle-endian -o /dev/null -
-  Default ABI: elfv2
-
-  $ echo | ./clang -E --target=powerpc64le-linux -mbig-endian -o /dev/null -
-  Default ABI: elfv1
-
-  $ echo | ./clang -E --target=powerpc64le-linux -mlittle-endian -o /dev/null -
-  Default ABI: elfv2
-
-Don't specify -mabi when building with clang to avoid the build error
-with -m32 and not change any code generation.
-
--mcall-aixdesc is not an implemented flag in clang so it can be safely
-excluded as well, see commit 238abecde8ad ("powerpc: Don't use gcc
-specific options on clang").
-
-pseries_defconfig successfully builds after this patch and
-powernv_defconfig and ppc44x_defconfig don't regress.
-
-Reviewed-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-[mpe: Trim clang links in change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191119045712.39633-2-natechancellor@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 218af599fa63 ("tcp: internal implementation for pacing")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Soheil Hassas Yeganeh <soheil@google.com>
+Cc: Neal Cardwell <ncardwell@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/sched/sch_fq.c |   17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index dfcb698ec8f3..e43321f46a3b 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -90,11 +90,13 @@ MULTIPLEWORD	:= -mmultiple
- endif
+--- a/net/sched/sch_fq.c
++++ b/net/sched/sch_fq.c
+@@ -301,6 +301,9 @@ static struct fq_flow *fq_classify(struc
+ 				     f->socket_hash != sk->sk_hash)) {
+ 				f->credit = q->initial_quantum;
+ 				f->socket_hash = sk->sk_hash;
++				if (q->rate_enable)
++					smp_store_release(&sk->sk_pacing_status,
++							  SK_PACING_FQ);
+ 				if (fq_flow_is_throttled(f))
+ 					fq_flow_unset_throttled(q, f);
+ 				f->time_next_packet = 0ULL;
+@@ -322,8 +325,12 @@ static struct fq_flow *fq_classify(struc
  
- ifdef CONFIG_PPC64
-+ifndef CONFIG_CC_IS_CLANG
- cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
- cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mcall-aixdesc)
- aflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
- aflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mabi=elfv2
- endif
-+endif
+ 	fq_flow_set_detached(f);
+ 	f->sk = sk;
+-	if (skb->sk == sk)
++	if (skb->sk == sk) {
+ 		f->socket_hash = sk->sk_hash;
++		if (q->rate_enable)
++			smp_store_release(&sk->sk_pacing_status,
++					  SK_PACING_FQ);
++	}
+ 	f->credit = q->initial_quantum;
  
- ifneq ($(cc-name),clang)
-   cflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mno-strict-align
-@@ -134,6 +136,7 @@ endif
- endif
+ 	rb_link_node(&f->fq_node, parent, p);
+@@ -428,17 +435,9 @@ static int fq_enqueue(struct sk_buff *sk
+ 	f->qlen++;
+ 	qdisc_qstats_backlog_inc(sch, skb);
+ 	if (fq_flow_is_detached(f)) {
+-		struct sock *sk = skb->sk;
+-
+ 		fq_flow_add_tail(&q->new_flows, f);
+ 		if (time_after(jiffies, f->age + q->flow_refill_delay))
+ 			f->credit = max_t(u32, f->credit, q->quantum);
+-		if (sk && q->rate_enable) {
+-			if (unlikely(smp_load_acquire(&sk->sk_pacing_status) !=
+-				     SK_PACING_FQ))
+-				smp_store_release(&sk->sk_pacing_status,
+-						  SK_PACING_FQ);
+-		}
+ 		q->inactive_flows--;
+ 	}
  
- CFLAGS-$(CONFIG_PPC64)	:= $(call cc-option,-mtraceback=no)
-+ifndef CONFIG_CC_IS_CLANG
- ifdef CONFIG_CPU_LITTLE_ENDIAN
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2,$(call cc-option,-mcall-aixdesc))
- AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2)
-@@ -142,6 +145,7 @@ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcall-aixdesc)
- AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
- endif
-+endif
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcmodel=medium,$(call cc-option,-mminimal-toc))
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mno-pointers-to-nested-functions)
- 
--- 
-2.20.1
-
 
 
