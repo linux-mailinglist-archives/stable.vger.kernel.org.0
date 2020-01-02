@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 066BC12EF18
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:43:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58D6B12F123
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728069AbgABWng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:43:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43092 "EHLO mail.kernel.org"
+        id S1727835AbgABWPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:15:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730559AbgABWe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:34:28 -0500
+        id S1727619AbgABWPi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:15:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E267A20866;
-        Thu,  2 Jan 2020 22:34:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E39421582;
+        Thu,  2 Jan 2020 22:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004468;
-        bh=POlYgQfhkJv2yEf8YsXysIuUDdLsDpL3K68G9T0j/Ek=;
+        s=default; t=1578003337;
+        bh=ktJKEAWXUTLyrY2sUZUuhp1aL/UNRx+omAdTUxPO6FU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iz4/z29AgB7zU3eLBC59uv/+K4K8hxgVueJ2VX9hIgYBD+Y8tVj0iq6c0nMJALwqJ
-         /WzgwupAIaSW1roC5DpXuXYfbQ3/VFhneTmABNDZkuKDCc4+B6B1MWt5En75cFXvh5
-         hpNBPz7SsWbdcC223wG4NXLuZKvrbqJHzb37XnV8=
+        b=inDgMfTpM2dmtunPhQ+T1e41PmJo2xvfa4n75AIiFQA5gT2EdpvRP4dIw5CQg+pyE
+         bPsqEe+ygXrXawTDemIk56lDCo9m6ORr2t/1JHUFvaPJN2iqR5/Yp302NCjNkEC4RX
+         npI3F1RQ8bD8tdbHDN1Y/oTCLh8106/APEYGGIZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.4 002/137] btrfs: handle ENOENT in btrfs_uuid_tree_iterate
+        stable@vger.kernel.org, Anatol Pomazau <anatol@google.com>,
+        Frank Mayhar <fmayhar@google.com>,
+        Bharath Ravi <rbharath@google.com>,
+        Khazhimsel Kumykov <khazhy@google.com>,
+        Gabriel Krisman Bertazi <krisman@collabora.com>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 093/191] scsi: iscsi: Dont send data to unbound connection
 Date:   Thu,  2 Jan 2020 23:06:15 +0100
-Message-Id: <20200102220546.931969543@linuxfoundation.org>
+Message-Id: <20200102215839.879507921@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +49,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Anatol Pomazau <anatol@google.com>
 
-commit 714cd3e8cba6841220dce9063a7388a81de03825 upstream.
+[ Upstream commit 238191d65d7217982d69e21c1d623616da34b281 ]
 
-If we get an -ENOENT back from btrfs_uuid_iter_rem when iterating the
-uuid tree we'll just continue and do btrfs_next_item().  However we've
-done a btrfs_release_path() at this point and no longer have a valid
-path.  So increment the key and go back and do a normal search.
+If a faulty initiator fails to bind the socket to the iSCSI connection
+before emitting a command, for instance, a subsequent send_pdu, it will
+crash the kernel due to a null pointer dereference in sock_sendmsg(), as
+shown in the log below.  This patch makes sure the bind succeeded before
+trying to use the socket.
 
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BUG: kernel NULL pointer dereference, address: 0000000000000018
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP PTI
+CPU: 3 PID: 7 Comm: kworker/u8:0 Not tainted 5.4.0-rc2.iscsi+ #13
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+[   24.158246] Workqueue: iscsi_q_0 iscsi_xmitworker
+[   24.158883] RIP: 0010:apparmor_socket_sendmsg+0x5/0x20
+[...]
+[   24.161739] RSP: 0018:ffffab6440043ca0 EFLAGS: 00010282
+[   24.162400] RAX: ffffffff891c1c00 RBX: ffffffff89d53968 RCX: 0000000000000001
+[   24.163253] RDX: 0000000000000030 RSI: ffffab6440043d00 RDI: 0000000000000000
+[   24.164104] RBP: 0000000000000030 R08: 0000000000000030 R09: 0000000000000030
+[   24.165166] R10: ffffffff893e66a0 R11: 0000000000000018 R12: ffffab6440043d00
+[   24.166038] R13: 0000000000000000 R14: 0000000000000000 R15: ffff9d5575a62e90
+[   24.166919] FS:  0000000000000000(0000) GS:ffff9d557db80000(0000) knlGS:0000000000000000
+[   24.167890] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   24.168587] CR2: 0000000000000018 CR3: 000000007a838000 CR4: 00000000000006e0
+[   24.169451] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   24.170320] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   24.171214] Call Trace:
+[   24.171537]  security_socket_sendmsg+0x3a/0x50
+[   24.172079]  sock_sendmsg+0x16/0x60
+[   24.172506]  iscsi_sw_tcp_xmit_segment+0x77/0x120
+[   24.173076]  iscsi_sw_tcp_pdu_xmit+0x58/0x170
+[   24.173604]  ? iscsi_dbg_trace+0x63/0x80
+[   24.174087]  iscsi_tcp_task_xmit+0x101/0x280
+[   24.174666]  iscsi_xmit_task+0x83/0x110
+[   24.175206]  iscsi_xmitworker+0x57/0x380
+[   24.175757]  ? __schedule+0x2a2/0x700
+[   24.176273]  process_one_work+0x1b5/0x360
+[   24.176837]  worker_thread+0x50/0x3c0
+[   24.177353]  kthread+0xf9/0x130
+[   24.177799]  ? process_one_work+0x360/0x360
+[   24.178401]  ? kthread_park+0x90/0x90
+[   24.178915]  ret_from_fork+0x35/0x40
+[   24.179421] Modules linked in:
+[   24.179856] CR2: 0000000000000018
+[   24.180327] ---[ end trace b4b7674b6df5f480 ]---
 
+Signed-off-by: Anatol Pomazau <anatol@google.com>
+Co-developed-by: Frank Mayhar <fmayhar@google.com>
+Signed-off-by: Frank Mayhar <fmayhar@google.com>
+Co-developed-by: Bharath Ravi <rbharath@google.com>
+Signed-off-by: Bharath Ravi <rbharath@google.com>
+Co-developed-by: Khazhimsel Kumykov <khazhy@google.com>
+Signed-off-by: Khazhimsel Kumykov <khazhy@google.com>
+Co-developed-by: Gabriel Krisman Bertazi <krisman@collabora.com>
+Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/uuid-tree.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/iscsi_tcp.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/btrfs/uuid-tree.c
-+++ b/fs/btrfs/uuid-tree.c
-@@ -332,6 +332,8 @@ again_search_slot:
- 				}
- 				if (ret < 0 && ret != -ENOENT)
- 					goto out;
-+				key.offset++;
-+				goto again_search_slot;
- 			}
- 			item_size -= sizeof(subid_le);
- 			offset += sizeof(subid_le);
+diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
+index 7bedbe877704..0bc63a7ab41c 100644
+--- a/drivers/scsi/iscsi_tcp.c
++++ b/drivers/scsi/iscsi_tcp.c
+@@ -369,8 +369,16 @@ static int iscsi_sw_tcp_pdu_xmit(struct iscsi_task *task)
+ {
+ 	struct iscsi_conn *conn = task->conn;
+ 	unsigned int noreclaim_flag;
++	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
++	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
+ 	int rc = 0;
+ 
++	if (!tcp_sw_conn->sock) {
++		iscsi_conn_printk(KERN_ERR, conn,
++				  "Transport not bound to socket!\n");
++		return -EINVAL;
++	}
++
+ 	noreclaim_flag = memalloc_noreclaim_save();
+ 
+ 	while (iscsi_sw_tcp_xmit_qlen(conn)) {
+-- 
+2.20.1
+
 
 
