@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 269F412EC05
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:15:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50CBC12ED76
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:28:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726927AbgABWO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:14:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54692 "EHLO mail.kernel.org"
+        id S1728543AbgABW2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:28:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727912AbgABWO0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:14:26 -0500
+        id S1729892AbgABW2f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:28:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62A2524653;
-        Thu,  2 Jan 2020 22:14:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B642222525;
+        Thu,  2 Jan 2020 22:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003265;
-        bh=Sdd+9oGeB8DlpNRG5CotalsKfgsgUEcu2SQl7U+pO2s=;
+        s=default; t=1578004115;
+        bh=kl4Ff26FZIbpndBMnWNEJ8X5DcfRqeLex2D91wYf+dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EB6yzEYOwvgeLJOpDn4sFf8UXyxTY+9rnl2NyLi4+/ZsRfkFt0pecRyxl1SHBSniy
-         U+RkzqXPKh8jDsJtg1hB3WV/RGVAM84CXQwCQ9p7FtOVQJsn+z4KQ6iYEvXTUTsFpO
-         YYOTsdnYEAHipqo9ZIqMX8NnmnZD3bLE6qGbnp98=
+        b=yiPWpS/PANE71wI8iU9l841wiEtgKpUBg9Fuyjdq6MUF4MEZWDJr4pwItFMn28C3i
+         lU7UmxpcHxC//TPnm+9owLJm3BiyUnDYKSS+ZHDp/XqUpvweOQ5lQcslkkhpUeKn5G
+         CCv2X5VZO7i3CNtKIY0Nv9BJpw1oflLRbtyS7BsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        Lad Prabhakar <prabhakar.csengg@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/191] PCI: rpaphp: Fix up pointer to first drc-info entry
-Date:   Thu,  2 Jan 2020 23:05:45 +0100
-Message-Id: <20200102215836.725789187@linuxfoundation.org>
+Subject: [PATCH 4.9 016/171] media: am437x-vpfe: Setting STD to current value is not an error
+Date:   Thu,  2 Jan 2020 23:05:47 +0100
+Message-Id: <20200102220549.248125902@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit 9723c25f99aff0451cfe6392e1b9fdd99d0bf9f0 ]
+[ Upstream commit 13aa21cfe92ce9ebb51824029d89f19c33f81419 ]
 
-The first entry of the ibm,drc-info property is an int encoded count
-of the number of drc-info entries that follow. The "value" pointer
-returned by of_prop_next_u32() is still pointing at the this value
-when we call of_read_drc_info_cell(), but the helper function
-expects that value to be pointing at the first element of an entry.
+VIDIOC_S_STD should not return an error if the value is identical
+to the current one.
+This error was highlighted by the v4l2-compliance test.
 
-Fix up by incrementing the "value" pointer to point at the first
-element of the first drc-info entry prior.
-
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1573449697-5448-5-git-send-email-tyreld@linux.ibm.com
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Acked-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/rpaphp_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/platform/am437x/am437x-vpfe.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
-index 18627bb21e9e..e3502644a45c 100644
---- a/drivers/pci/hotplug/rpaphp_core.c
-+++ b/drivers/pci/hotplug/rpaphp_core.c
-@@ -239,6 +239,8 @@ static int rpaphp_check_drc_props_v2(struct device_node *dn, char *drc_name,
- 	value = of_prop_next_u32(info, NULL, &entries);
- 	if (!value)
- 		return -EINVAL;
-+	else
-+		value++;
+diff --git a/drivers/media/platform/am437x/am437x-vpfe.c b/drivers/media/platform/am437x/am437x-vpfe.c
+index 05489a401c5c..bd500f12d0f7 100644
+--- a/drivers/media/platform/am437x/am437x-vpfe.c
++++ b/drivers/media/platform/am437x/am437x-vpfe.c
+@@ -1847,6 +1847,10 @@ static int vpfe_s_std(struct file *file, void *priv, v4l2_std_id std_id)
+ 	if (!(sdinfo->inputs[0].capabilities & V4L2_IN_CAP_STD))
+ 		return -ENODATA;
  
- 	for (j = 0; j < entries; j++) {
- 		of_read_drc_info_cell(&info, &value, &drc);
++	/* if trying to set the same std then nothing to do */
++	if (vpfe_standards[vpfe->std_index].std_id == std_id)
++		return 0;
++
+ 	/* If streaming is started, return error */
+ 	if (vb2_is_busy(&vpfe->buffer_queue)) {
+ 		vpfe_err(vpfe, "%s device busy\n", __func__);
 -- 
 2.20.1
 
