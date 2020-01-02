@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 852FE12EFA3
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0E2612F134
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729505AbgABWrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:47:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60266 "EHLO mail.kernel.org"
+        id S1727655AbgABWPY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:15:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725872AbgABW3U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:29:20 -0500
+        id S1727753AbgABWPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:15:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B16C20866;
-        Thu,  2 Jan 2020 22:29:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42D2D2253D;
+        Thu,  2 Jan 2020 22:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004159;
-        bh=mtzmqGg3QZ/YgGmPmq8BQn51XP27MECATe9X3l1cymk=;
+        s=default; t=1578003320;
+        bh=bf552ruxuUI7QMhE+xOcCycft/fZFhLHYKX/xrzuPmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/iFHEDyoh712Vq2qS19TTEjRrwiBry+xbNcu/oEkJBg9lxwgRuQ/VbhjWyG9EuUk
-         NKmF/dpqf8+xUfdapvaRtoz4btdoyePxAJdU7PWofbm1DDh7ag0egrmGucRbDNIrOy
-         2U7mgUh4qbLYGWJPUb20s9RSKtCp0LdlJnBw0sI4=
+        b=g0poRwovI7Yk+FB+le99PAE/5iGkyNaerp0d1Gqc4zcaRPGZYDKanwZtiTS7DJZa+
+         gRaOGvvqp3jqnuBuSEqIYevLT1eiX4G/wMeXHYNdJcMYwe+roodHWU2rxFF6FOek5m
+         2oMJR1jfcJF1viz5AeBE5bwIMvT3jinfQLdjBrSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Bao Hou <houbao@codeaurora.org>,
-        Anilkumar Kolli <akolli@codeaurora.org>,
-        Miaoqing Pan <miaoqing@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 062/171] ath10k: fix get invalid tx rate for Mesh metric
+        stable@vger.kernel.org,
+        syzbot+0d818c0d39399188f393@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 111/191] io_uring: io_allocate_scq_urings() should return a sane state
 Date:   Thu,  2 Jan 2020 23:06:33 +0100
-Message-Id: <20200102220555.498918634@linuxfoundation.org>
+Message-Id: <20200102215841.790190941@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 05a11003a56507023f18d3249a4d4d119c0a3e9c ]
+[ Upstream commit eb065d301e8c83643367bdb0898becc364046bda ]
 
-ath10k does not provide transmit rate info per MSDU
-in tx completion, mark that as -1 so mac80211
-will ignore the rates. This fixes mac80211 update Mesh
-link metric with invalid transmit rate info.
+We currently rely on the ring destroy on cleaning things up in case of
+failure, but io_allocate_scq_urings() can leave things half initialized
+if only parts of it fails.
 
-Tested HW: QCA9984
-Tested FW: 10.4-3.9.0.2-00035
+Be nice and return with either everything setup in success, or return an
+error with things nicely cleaned up.
 
-Signed-off-by: Hou Bao Hou <houbao@codeaurora.org>
-Signed-off-by: Anilkumar Kolli <akolli@codeaurora.org>
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Reported-by: syzbot+0d818c0d39399188f393@syzkaller.appspotmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/txrx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/io_uring.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/txrx.c b/drivers/net/wireless/ath/ath10k/txrx.c
-index 9852c5d51139..beeb6be06939 100644
---- a/drivers/net/wireless/ath/ath10k/txrx.c
-+++ b/drivers/net/wireless/ath/ath10k/txrx.c
-@@ -99,6 +99,8 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index a340147387ec..74e786578c77 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3773,12 +3773,18 @@ static int io_allocate_scq_urings(struct io_ring_ctx *ctx,
+ 	ctx->cq_entries = rings->cq_ring_entries;
  
- 	info = IEEE80211_SKB_CB(msdu);
- 	memset(&info->status, 0, sizeof(info->status));
-+	info->status.rates[0].idx = -1;
-+
- 	trace_ath10k_txrx_tx_unref(ar, tx_done->msdu_id);
+ 	size = array_size(sizeof(struct io_uring_sqe), p->sq_entries);
+-	if (size == SIZE_MAX)
++	if (size == SIZE_MAX) {
++		io_mem_free(ctx->rings);
++		ctx->rings = NULL;
+ 		return -EOVERFLOW;
++	}
  
- 	if (tx_done->status == HTT_TX_COMPL_STATE_DISCARD) {
+ 	ctx->sq_sqes = io_mem_alloc(size);
+-	if (!ctx->sq_sqes)
++	if (!ctx->sq_sqes) {
++		io_mem_free(ctx->rings);
++		ctx->rings = NULL;
+ 		return -ENOMEM;
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
