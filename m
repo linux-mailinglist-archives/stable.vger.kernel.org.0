@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 621A612EE51
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B0AB12F063
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:53:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731076AbgABWhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:37:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49850 "EHLO mail.kernel.org"
+        id S1727815AbgABWWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:22:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730615AbgABWhX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:37:23 -0500
+        id S1729131AbgABWWU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:22:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB1FF20866;
-        Thu,  2 Jan 2020 22:37:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB75321D7D;
+        Thu,  2 Jan 2020 22:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004643;
-        bh=aynnZg1Zp9sJfa60R+Dxa0s0biQO2MN521u2guWaLWY=;
+        s=default; t=1578003740;
+        bh=QCKbD5lsG3y8EzqeBjyyj/2nvanhz5ueWZviiPgGRrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z2pTbbrSid0zH+vISbLMOsE8X69Ay0tD4AniCcadzUN7udCt52oR22KoyQ3a6sf6q
-         AlPfXWFzUXJWgJbM3ecFESIYgjxCVXym5jz16Y1o42aPdzREbnBvSB4Tw1lrd1Hxwa
-         mMGcbt4ktDSml58k/aCjw5RSOQqR7EfuBF19nOB4=
+        b=ViRX9ZtQbRDdVCmKFZCeA6oOxUj9ZMC/7UFLU1qXnGGxcizZ4/UXYxOss0ljht4Py
+         42aArmlIqJex4N4W2aliOtD6o+10Ln7hIvGDkKGrymQswnyfamwiypnDIOCVq7F3UH
+         B/9PYr6YhUCjCApraTTp/VwhuGQX/6dak0YELhRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 093/137] iommu/tegra-smmu: Fix page tables in > 4 GiB memory
+        stable@vger.kernel.org, Cambda Zhu <cambda@linux.alibaba.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 094/114] tcp: Fix highest_sack and highest_sack_seq
 Date:   Thu,  2 Jan 2020 23:07:46 +0100
-Message-Id: <20200102220559.374969871@linuxfoundation.org>
+Message-Id: <20200102220038.629285760@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Cambda Zhu <cambda@linux.alibaba.com>
 
-[ Upstream commit 96d3ab802e4930a29a33934373157d6dff1b2c7e ]
+[ Upstream commit 853697504de043ff0bfd815bd3a64de1dce73dc7 ]
 
-Page tables that reside in physical memory beyond the 4 GiB boundary are
-currently not working properly. The reason is that when the physical
-address for page directory entries is read, it gets truncated at 32 bits
-and can cause crashes when passing that address to the DMA API.
+>From commit 50895b9de1d3 ("tcp: highest_sack fix"), the logic about
+setting tp->highest_sack to the head of the send queue was removed.
+Of course the logic is error prone, but it is logical. Before we
+remove the pointer to the highest sack skb and use the seq instead,
+we need to set tp->highest_sack to NULL when there is no skb after
+the last sack, and then replace NULL with the real skb when new skb
+inserted into the rtx queue, because the NULL means the highest sack
+seq is tp->snd_nxt. If tp->highest_sack is NULL and new data sent,
+the next ACK with sack option will increase tp->reordering unexpectedly.
 
-Fix this by first casting the PDE value to a dma_addr_t and then using
-the page frame number mask for the SMMU instance to mask out the invalid
-bits, which are typically used for mapping attributes, etc.
+This patch sets tp->highest_sack to the tail of the rtx queue if
+it's NULL and new data is sent. The patch keeps the rule that the
+highest_sack can only be maintained by sack processing, except for
+this only case.
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 50895b9de1d3 ("tcp: highest_sack fix")
+Signed-off-by: Cambda Zhu <cambda@linux.alibaba.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/tegra-smmu.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/ipv4/tcp_output.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
-index c4eb293b1524..04cec050e42b 100644
---- a/drivers/iommu/tegra-smmu.c
-+++ b/drivers/iommu/tegra-smmu.c
-@@ -153,9 +153,9 @@ static bool smmu_dma_addr_valid(struct tegra_smmu *smmu, dma_addr_t addr)
- 	return (addr & smmu->pfn_mask) == addr;
- }
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -60,6 +60,9 @@ static void tcp_event_new_data_sent(stru
+ 	__skb_unlink(skb, &sk->sk_write_queue);
+ 	tcp_rbtree_insert(&sk->tcp_rtx_queue, skb);
  
--static dma_addr_t smmu_pde_to_dma(u32 pde)
-+static dma_addr_t smmu_pde_to_dma(struct tegra_smmu *smmu, u32 pde)
- {
--	return pde << 12;
-+	return (dma_addr_t)(pde & smmu->pfn_mask) << 12;
- }
- 
- static void smmu_flush_ptc_all(struct tegra_smmu *smmu)
-@@ -540,6 +540,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
- 				  dma_addr_t *dmap)
- {
- 	unsigned int pd_index = iova_pd_index(iova);
-+	struct tegra_smmu *smmu = as->smmu;
- 	struct page *pt_page;
- 	u32 *pd;
- 
-@@ -548,7 +549,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
- 		return NULL;
- 
- 	pd = page_address(as->pd);
--	*dmap = smmu_pde_to_dma(pd[pd_index]);
-+	*dmap = smmu_pde_to_dma(smmu, pd[pd_index]);
- 
- 	return tegra_smmu_pte_offset(pt_page, iova);
- }
-@@ -590,7 +591,7 @@ static u32 *as_get_pte(struct tegra_smmu_as *as, dma_addr_t iova,
- 	} else {
- 		u32 *pd = page_address(as->pd);
- 
--		*dmap = smmu_pde_to_dma(pd[pde]);
-+		*dmap = smmu_pde_to_dma(smmu, pd[pde]);
- 	}
- 
- 	return tegra_smmu_pte_offset(as->pts[pde], iova);
-@@ -615,7 +616,7 @@ static void tegra_smmu_pte_put_use(struct tegra_smmu_as *as, unsigned long iova)
- 	if (--as->count[pde] == 0) {
- 		struct tegra_smmu *smmu = as->smmu;
- 		u32 *pd = page_address(as->pd);
--		dma_addr_t pte_dma = smmu_pde_to_dma(pd[pde]);
-+		dma_addr_t pte_dma = smmu_pde_to_dma(smmu, pd[pde]);
- 
- 		tegra_smmu_set_pde(as, iova, 0);
- 
--- 
-2.20.1
-
++	if (tp->highest_sack == NULL)
++		tp->highest_sack = skb;
++
+ 	tp->packets_out += tcp_skb_pcount(skb);
+ 	if (!prior_packets || icsk->icsk_pending == ICSK_TIME_LOSS_PROBE)
+ 		tcp_rearm_rto(sk);
 
 
