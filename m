@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 922F012EE2D
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC7D612F0AF
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:55:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730740AbgABWf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:35:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
+        id S1728664AbgABWTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:19:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730652AbgABWfz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:35:55 -0500
+        id S1728657AbgABWTr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:19:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 503AF20863;
-        Thu,  2 Jan 2020 22:35:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 489AB21582;
+        Thu,  2 Jan 2020 22:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004554;
-        bh=XoMf6wJyLsUUUWEQUxxFJJn5wqs2g8YdtFV7Q8DoI7o=;
+        s=default; t=1578003586;
+        bh=AFNVl8nrgOrO2tqw7CjSzHBMngU35vBQOYU2AwsBhrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lcBwSH8bMq7wGlVeXXNZRk6cziw3pqQY+J2/d5ohahGaU7Ok2mOAuFiJijMTEoB+T
-         SS8RiDD7o3oJviu38l4MNHUX9FF8BZnoPGuZtJBlAhJZ4VZbSOvquFs6oPvHO1qgvh
-         Cd1MO5r29KKuRbwgLoix9K9NJNMxbnyv3ua1c5sA=
+        b=BZtjUkK5SItZ1f+Dcqfc7MxigmmT7nRATkSF2Ut7qPC2/wOYedyDtLHLqf0R5Js+B
+         QVScHDn0rdkcfglkYAKhiR8YYouZVtxEBhJ739C/Vsen8Eeyw59nUVa70qYDBDOVS6
+         MlQhAiUUTYTQ2BprC/bEOo60Lup1Dh5JE2NRyc6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 030/137] drm/gma500: fix memory disclosures due to uninitialized bytes
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 031/114] irqchip: ingenic: Error out if IRQ domain creation failed
 Date:   Thu,  2 Jan 2020 23:06:43 +0100
-Message-Id: <20200102220550.699241106@linuxfoundation.org>
+Message-Id: <20200102220032.233364107@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kangjie Lu <kjlu@umn.edu>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit ec3b7b6eb8c90b52f61adff11b6db7a8db34de19 ]
+[ Upstream commit 52ecc87642f273a599c9913b29fd179c13de457b ]
 
-"clock" may be copied to "best_clock". Initializing best_clock
-is not sufficient. The fix initializes clock as well to avoid
-memory disclosures and informaiton leaks.
+If we cannot create the IRQ domain, the driver should fail to probe
+instead of succeeding with just a warning message.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191018044150.1899-1-kjlu@umn.edu
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/1570015525-27018-3-git-send-email-zhouyanjie@zoho.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/oaktrail_crtc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/irqchip/irq-ingenic.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/oaktrail_crtc.c b/drivers/gpu/drm/gma500/oaktrail_crtc.c
-index 1048f0c7c6ce..31e0899035f9 100644
---- a/drivers/gpu/drm/gma500/oaktrail_crtc.c
-+++ b/drivers/gpu/drm/gma500/oaktrail_crtc.c
-@@ -139,6 +139,7 @@ static bool mrst_sdvo_find_best_pll(const struct gma_limit_t *limit,
- 	s32 freq_error, min_error = 100000;
+diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
+index 2ff08986b536..be6923abf9a4 100644
+--- a/drivers/irqchip/irq-ingenic.c
++++ b/drivers/irqchip/irq-ingenic.c
+@@ -117,6 +117,14 @@ static int __init ingenic_intc_of_init(struct device_node *node,
+ 		goto out_unmap_irq;
+ 	}
  
- 	memset(best_clock, 0, sizeof(*best_clock));
-+	memset(&clock, 0, sizeof(clock));
++	domain = irq_domain_add_legacy(node, num_chips * 32,
++				       JZ4740_IRQ_BASE, 0,
++				       &irq_domain_simple_ops, NULL);
++	if (!domain) {
++		err = -ENOMEM;
++		goto out_unmap_base;
++	}
++
+ 	for (i = 0; i < num_chips; i++) {
+ 		/* Mask all irqs */
+ 		writel(0xffffffff, intc->base + (i * CHIP_SIZE) +
+@@ -143,14 +151,11 @@ static int __init ingenic_intc_of_init(struct device_node *node,
+ 				       IRQ_NOPROBE | IRQ_LEVEL);
+ 	}
  
- 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
- 		for (clock.n = limit->n.min; clock.n <= limit->n.max;
-@@ -195,6 +196,7 @@ static bool mrst_lvds_find_best_pll(const struct gma_limit_t *limit,
- 	int err = target;
+-	domain = irq_domain_add_legacy(node, num_chips * 32, JZ4740_IRQ_BASE, 0,
+-				       &irq_domain_simple_ops, NULL);
+-	if (!domain)
+-		pr_warn("unable to register IRQ domain\n");
+-
+ 	setup_irq(parent_irq, &intc_cascade_action);
+ 	return 0;
  
- 	memset(best_clock, 0, sizeof(*best_clock));
-+	memset(&clock, 0, sizeof(clock));
- 
- 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
- 		for (clock.p1 = limit->p1.min; clock.p1 <= limit->p1.max;
++out_unmap_base:
++	iounmap(intc->base);
+ out_unmap_irq:
+ 	irq_dispose_mapping(parent_irq);
+ out_free:
 -- 
 2.20.1
 
