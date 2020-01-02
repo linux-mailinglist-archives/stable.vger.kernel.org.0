@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 355B112EC6B
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:19:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC0912ED30
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:25:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728004AbgABWSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:18:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33182 "EHLO mail.kernel.org"
+        id S1729578AbgABWZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:25:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728287AbgABWSL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:18:11 -0500
+        id S1729572AbgABWZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:25:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C27D21582;
-        Thu,  2 Jan 2020 22:18:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57B532253D;
+        Thu,  2 Jan 2020 22:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003490;
-        bh=u7AJp6aY2wcMMaHCl2ODy/YgR0ISvMD223Ik7ShRyxU=;
+        s=default; t=1578003946;
+        bh=vUJzybXlkf4YX80NJ3kAZY1n6Hv4+W5e1YedIvgDxG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1uRyoSPM5pAW487ywZScAuHFYwOMaD7KfnWdghsaPtWGV68/h5CCn5ufPNQHAa3R
-         Gj/DGd1SG1QDT/Yx4NZwFDv4kB1sh1d4+Hy0rI8FhWhr5P6A6K6pxa/3dtKdD4lE0X
-         N5EqL7Z5Q2p9hfxdNJENg3drTVKn2eI84rVb7DVQ=
+        b=zrNTyg7yVWr1U1e1yRz5x8BnVgVjmeIM6xKK7W+74WOL5RnEBwTMPfy6QyjikxKRR
+         cyAJK9005lCiawGzTxjSDynlsfekWxJNTM1LSQupwzIClqwUoj56IaROvTwQM5b4iv
+         PaFOdv0I5FwqNFm+vOkCh036RgWlj37vGd72Xzno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 5.4 183/191] gtp: fix an use-after-free in ipv4_pdp_find()
-Date:   Thu,  2 Jan 2020 23:07:45 +0100
-Message-Id: <20200102215848.996096028@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 66/91] netfilter: bridge: make sure to pull arp header in br_nf_forward_arp()
+Date:   Thu,  2 Jan 2020 23:07:48 +0100
+Message-Id: <20200102220443.788555918@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,160 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 94dc550a5062030569d4aa76e10e50c8fc001930 ]
+commit 5604285839aaedfb23ebe297799c6e558939334d upstream.
 
-ipv4_pdp_find() is called in TX packet path of GTP.
-ipv4_pdp_find() internally uses gtp->tid_hash to lookup pdp context.
-In the current code, gtp->tid_hash and gtp->addr_hash are freed by
-->dellink(), which is gtp_dellink().
-But gtp_dellink() would be called while packets are processing.
-So, gtp_dellink() should not free gtp->tid_hash and gtp->addr_hash.
-Instead, dev->priv_destructor() would be used because this callback
-is called after all packet processing safely.
+syzbot is kind enough to remind us we need to call skb_may_pull()
 
-Test commands:
-    ip link add veth1 type veth peer name veth2
-    ip a a 172.0.0.1/24 dev veth1
-    ip link set veth1 up
-    ip a a 172.99.0.1/32 dev lo
+BUG: KMSAN: uninit-value in br_nf_forward_arp+0xe61/0x1230 net/bridge/br_netfilter_hooks.c:665
+CPU: 1 PID: 11631 Comm: syz-executor.1 Not tainted 5.4.0-rc8-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0x128/0x220 mm/kmsan/kmsan_report.c:108
+ __msan_warning+0x64/0xc0 mm/kmsan/kmsan_instr.c:245
+ br_nf_forward_arp+0xe61/0x1230 net/bridge/br_netfilter_hooks.c:665
+ nf_hook_entry_hookfn include/linux/netfilter.h:135 [inline]
+ nf_hook_slow+0x18b/0x3f0 net/netfilter/core.c:512
+ nf_hook include/linux/netfilter.h:260 [inline]
+ NF_HOOK include/linux/netfilter.h:303 [inline]
+ __br_forward+0x78f/0xe30 net/bridge/br_forward.c:109
+ br_flood+0xef0/0xfe0 net/bridge/br_forward.c:234
+ br_handle_frame_finish+0x1a77/0x1c20 net/bridge/br_input.c:162
+ nf_hook_bridge_pre net/bridge/br_input.c:245 [inline]
+ br_handle_frame+0xfb6/0x1eb0 net/bridge/br_input.c:348
+ __netif_receive_skb_core+0x20b9/0x51a0 net/core/dev.c:4830
+ __netif_receive_skb_one_core net/core/dev.c:4927 [inline]
+ __netif_receive_skb net/core/dev.c:5043 [inline]
+ process_backlog+0x610/0x13c0 net/core/dev.c:5874
+ napi_poll net/core/dev.c:6311 [inline]
+ net_rx_action+0x7a6/0x1aa0 net/core/dev.c:6379
+ __do_softirq+0x4a1/0x83a kernel/softirq.c:293
+ do_softirq_own_stack+0x49/0x80 arch/x86/entry/entry_64.S:1091
+ </IRQ>
+ do_softirq kernel/softirq.c:338 [inline]
+ __local_bh_enable_ip+0x184/0x1d0 kernel/softirq.c:190
+ local_bh_enable+0x36/0x40 include/linux/bottom_half.h:32
+ rcu_read_unlock_bh include/linux/rcupdate.h:688 [inline]
+ __dev_queue_xmit+0x38e8/0x4200 net/core/dev.c:3819
+ dev_queue_xmit+0x4b/0x60 net/core/dev.c:3825
+ packet_snd net/packet/af_packet.c:2959 [inline]
+ packet_sendmsg+0x8234/0x9100 net/packet/af_packet.c:2984
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg net/socket.c:657 [inline]
+ __sys_sendto+0xc44/0xc70 net/socket.c:1952
+ __do_sys_sendto net/socket.c:1964 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:1960
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:1960
+ do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45a679
+Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f0a3c9e5c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 0000000000000006 RCX: 000000000045a679
+RDX: 000000000000000e RSI: 0000000020000200 RDI: 0000000000000003
+RBP: 000000000075bf20 R08: 00000000200000c0 R09: 0000000000000014
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f0a3c9e66d4
+R13: 00000000004c8ec1 R14: 00000000004dfe28 R15: 00000000ffffffff
 
-    gtp-link add gtp1 &
+Uninit was created at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:149 [inline]
+ kmsan_internal_poison_shadow+0x5c/0x110 mm/kmsan/kmsan.c:132
+ kmsan_slab_alloc+0x97/0x100 mm/kmsan/kmsan_hooks.c:86
+ slab_alloc_node mm/slub.c:2773 [inline]
+ __kmalloc_node_track_caller+0xe27/0x11a0 mm/slub.c:4381
+ __kmalloc_reserve net/core/skbuff.c:141 [inline]
+ __alloc_skb+0x306/0xa10 net/core/skbuff.c:209
+ alloc_skb include/linux/skbuff.h:1049 [inline]
+ alloc_skb_with_frags+0x18c/0xa80 net/core/skbuff.c:5662
+ sock_alloc_send_pskb+0xafd/0x10a0 net/core/sock.c:2244
+ packet_alloc_skb net/packet/af_packet.c:2807 [inline]
+ packet_snd net/packet/af_packet.c:2902 [inline]
+ packet_sendmsg+0x63a6/0x9100 net/packet/af_packet.c:2984
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg net/socket.c:657 [inline]
+ __sys_sendto+0xc44/0xc70 net/socket.c:1952
+ __do_sys_sendto net/socket.c:1964 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:1960
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:1960
+ do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-    gtp-tunnel add gtp1 v1 200 100 172.99.0.2 172.0.0.2
-    ip r a  172.99.0.2/32 dev gtp1
-    ip link set gtp1 mtu 1500
-
-    ip netns add ns2
-    ip link set veth2 netns ns2
-    ip netns exec ns2 ip a a 172.0.0.2/24 dev veth2
-    ip netns exec ns2 ip link set veth2 up
-    ip netns exec ns2 ip a a 172.99.0.2/32 dev lo
-    ip netns exec ns2 ip link set lo up
-
-    ip netns exec ns2 gtp-link add gtp2 &
-    ip netns exec ns2 gtp-tunnel add gtp2 v1 100 200 172.99.0.1 172.0.0.1
-    ip netns exec ns2 ip r a 172.99.0.1/32 dev gtp2
-    ip netns exec ns2 ip link set gtp2 mtu 1500
-
-    hping3 172.99.0.2 -2 --flood &
-    ip link del gtp1
-
-Splat looks like:
-[   72.568081][ T1195] BUG: KASAN: use-after-free in ipv4_pdp_find.isra.12+0x130/0x170 [gtp]
-[   72.568916][ T1195] Read of size 8 at addr ffff8880b9a35d28 by task hping3/1195
-[   72.569631][ T1195]
-[   72.569861][ T1195] CPU: 2 PID: 1195 Comm: hping3 Not tainted 5.5.0-rc1 #199
-[   72.570547][ T1195] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[   72.571438][ T1195] Call Trace:
-[   72.571764][ T1195]  dump_stack+0x96/0xdb
-[   72.572171][ T1195]  ? ipv4_pdp_find.isra.12+0x130/0x170 [gtp]
-[   72.572761][ T1195]  print_address_description.constprop.5+0x1be/0x360
-[   72.573400][ T1195]  ? ipv4_pdp_find.isra.12+0x130/0x170 [gtp]
-[   72.573971][ T1195]  ? ipv4_pdp_find.isra.12+0x130/0x170 [gtp]
-[   72.574544][ T1195]  __kasan_report+0x12a/0x16f
-[   72.575014][ T1195]  ? ipv4_pdp_find.isra.12+0x130/0x170 [gtp]
-[   72.575593][ T1195]  kasan_report+0xe/0x20
-[   72.576004][ T1195]  ipv4_pdp_find.isra.12+0x130/0x170 [gtp]
-[   72.576577][ T1195]  gtp_build_skb_ip4+0x199/0x1420 [gtp]
-[ ... ]
-[   72.647671][ T1195] BUG: unable to handle page fault for address: ffff8880b9a35d28
-[   72.648512][ T1195] #PF: supervisor read access in kernel mode
-[   72.649158][ T1195] #PF: error_code(0x0000) - not-present page
-[   72.649849][ T1195] PGD a6c01067 P4D a6c01067 PUD 11fb07067 PMD 11f939067 PTE 800fffff465ca060
-[   72.652958][ T1195] Oops: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-[   72.653834][ T1195] CPU: 2 PID: 1195 Comm: hping3 Tainted: G    B             5.5.0-rc1 #199
-[   72.668062][ T1195] RIP: 0010:ipv4_pdp_find.isra.12+0x86/0x170 [gtp]
-[ ... ]
-[   72.679168][ T1195] Call Trace:
-[   72.679603][ T1195]  gtp_build_skb_ip4+0x199/0x1420 [gtp]
-[   72.681915][ T1195]  ? ipv4_pdp_find.isra.12+0x170/0x170 [gtp]
-[   72.682513][ T1195]  ? lock_acquire+0x164/0x3b0
-[   72.682966][ T1195]  ? gtp_dev_xmit+0x35e/0x890 [gtp]
-[   72.683481][ T1195]  gtp_dev_xmit+0x3c2/0x890 [gtp]
-[ ... ]
-
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: c4e70a87d975 ("netfilter: bridge: rename br_netfilter.c to br_netfilter_hooks.c")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/gtp.c |   34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -640,9 +640,16 @@ static void gtp_link_setup(struct net_de
- }
+---
+ net/bridge/br_netfilter_hooks.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -643,6 +643,9 @@ static unsigned int br_nf_forward_arp(vo
+ 		nf_bridge_pull_encap_header(skb);
+ 	}
  
- static int gtp_hashtable_new(struct gtp_dev *gtp, int hsize);
--static void gtp_hashtable_free(struct gtp_dev *gtp);
- static int gtp_encap_enable(struct gtp_dev *gtp, struct nlattr *data[]);
- 
-+static void gtp_destructor(struct net_device *dev)
-+{
-+	struct gtp_dev *gtp = netdev_priv(dev);
++	if (unlikely(!pskb_may_pull(skb, sizeof(struct arphdr))))
++		return NF_DROP;
 +
-+	kfree(gtp->addr_hash);
-+	kfree(gtp->tid_hash);
-+}
-+
- static int gtp_newlink(struct net *src_net, struct net_device *dev,
- 		       struct nlattr *tb[], struct nlattr *data[],
- 		       struct netlink_ext_ack *extack)
-@@ -680,13 +687,15 @@ static int gtp_newlink(struct net *src_n
- 
- 	gn = net_generic(dev_net(dev), gtp_net_id);
- 	list_add_rcu(&gtp->list, &gn->gtp_dev_list);
-+	dev->priv_destructor = gtp_destructor;
- 
- 	netdev_dbg(dev, "registered new GTP interface\n");
- 
- 	return 0;
- 
- out_hashtable:
--	gtp_hashtable_free(gtp);
-+	kfree(gtp->addr_hash);
-+	kfree(gtp->tid_hash);
- out_encap:
- 	gtp_encap_disable(gtp);
- 	return err;
-@@ -695,8 +704,13 @@ out_encap:
- static void gtp_dellink(struct net_device *dev, struct list_head *head)
- {
- 	struct gtp_dev *gtp = netdev_priv(dev);
-+	struct pdp_ctx *pctx;
-+	int i;
-+
-+	for (i = 0; i < gtp->hash_size; i++)
-+		hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i], hlist_tid)
-+			pdp_context_delete(pctx);
- 
--	gtp_hashtable_free(gtp);
- 	list_del_rcu(&gtp->list);
- 	unregister_netdevice_queue(dev, head);
- }
-@@ -774,20 +788,6 @@ err1:
- 	return -ENOMEM;
- }
- 
--static void gtp_hashtable_free(struct gtp_dev *gtp)
--{
--	struct pdp_ctx *pctx;
--	int i;
--
--	for (i = 0; i < gtp->hash_size; i++)
--		hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i], hlist_tid)
--			pdp_context_delete(pctx);
--
--	synchronize_rcu();
--	kfree(gtp->addr_hash);
--	kfree(gtp->tid_hash);
--}
--
- static struct sock *gtp_encap_enable_socket(int fd, int type,
- 					    struct gtp_dev *gtp)
- {
+ 	if (arp_hdr(skb)->ar_pln != 4) {
+ 		if (IS_VLAN_ARP(skb))
+ 			nf_bridge_push_encap_header(skb);
 
 
