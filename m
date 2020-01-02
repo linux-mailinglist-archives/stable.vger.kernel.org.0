@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37BC012EF62
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A6EE12F07A
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727700AbgABWpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:45:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37468 "EHLO mail.kernel.org"
+        id S1728591AbgABWUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:20:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730333AbgABWbw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:31:52 -0500
+        id S1726927AbgABWUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:20:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7F3E21D7D;
-        Thu,  2 Jan 2020 22:31:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DC3D21582;
+        Thu,  2 Jan 2020 22:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004311;
-        bh=Ra7SkgAlmbNH8pb22TGnp/DTOVE9GOkD+9r7D2iJyhc=;
+        s=default; t=1578003653;
+        bh=1HQOmY+/vAg36JcMkUhBh/Zavmr/ssHnliyiwLhDux8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSd66pkkW4hh+c4X3RjCFSqrJUGZHf2HSJSUdvrBFTgbXs53r3bVnjHA8MpY4FDwI
-         kjv8+PQzyCk2aAho5BX7wtJCtLBwepp+Q8b63dP0FzCBGF+5VDHlDTCO+EYakqa9cF
-         zOkp6v4VlPtKRF/cnZK7KIeRVSvZicoVbsRt71t0=
+        b=bB6N+WIfWcBohw6kFVbm0kr73+AXu3u8hAWou9a/s55o4hJAgKpqm7dnwBt+PP40c
+         4R5Ci+b5/6kP55tniOSaMux8DAX2DDfcvinDudilU2S6VEuoEHvcp0d09Fsak7Z4gw
+         E2UNVdIlPJG9DaUNB7N8enrbFJ1mY/bBnBdmkngI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6dcbfea81cd3d4dd0b02@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 100/171] sctp: fully initialize v4 addr in some functions
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 059/114] apparmor: fix unsigned len comparison with less than zero
 Date:   Thu,  2 Jan 2020 23:07:11 +0100
-Message-Id: <20200102220601.061751680@linuxfoundation.org>
+Message-Id: <20200102220034.968393658@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,99 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit b6f3320b1d5267e7b583a6d0c88dda518101740c ]
+[ Upstream commit 00e0590dbaec6f1bcaa36a85467d7e3497ced522 ]
 
-Syzbot found a crash:
+The sanity check in macro update_for_len checks to see if len
+is less than zero, however, len is a size_t so it can never be
+less than zero, so this sanity check is a no-op.  Fix this by
+making len a ssize_t so the comparison will work and add ulen
+that is a size_t copy of len so that the min() macro won't
+throw warnings about comparing different types.
 
-  BUG: KMSAN: uninit-value in crc32_body lib/crc32.c:112 [inline]
-  BUG: KMSAN: uninit-value in crc32_le_generic lib/crc32.c:179 [inline]
-  BUG: KMSAN: uninit-value in __crc32c_le_base+0x4fa/0xd30 lib/crc32.c:202
-  Call Trace:
-    crc32_body lib/crc32.c:112 [inline]
-    crc32_le_generic lib/crc32.c:179 [inline]
-    __crc32c_le_base+0x4fa/0xd30 lib/crc32.c:202
-    chksum_update+0xb2/0x110 crypto/crc32c_generic.c:90
-    crypto_shash_update+0x4c5/0x530 crypto/shash.c:107
-    crc32c+0x150/0x220 lib/libcrc32c.c:47
-    sctp_csum_update+0x89/0xa0 include/net/sctp/checksum.h:36
-    __skb_checksum+0x1297/0x12a0 net/core/skbuff.c:2640
-    sctp_compute_cksum include/net/sctp/checksum.h:59 [inline]
-    sctp_packet_pack net/sctp/output.c:528 [inline]
-    sctp_packet_transmit+0x40fb/0x4250 net/sctp/output.c:597
-    sctp_outq_flush_transports net/sctp/outqueue.c:1146 [inline]
-    sctp_outq_flush+0x1823/0x5d80 net/sctp/outqueue.c:1194
-    sctp_outq_uncork+0xd0/0xf0 net/sctp/outqueue.c:757
-    sctp_cmd_interpreter net/sctp/sm_sideeffect.c:1781 [inline]
-    sctp_side_effects net/sctp/sm_sideeffect.c:1184 [inline]
-    sctp_do_sm+0x8fe1/0x9720 net/sctp/sm_sideeffect.c:1155
-    sctp_primitive_REQUESTHEARTBEAT+0x175/0x1a0 net/sctp/primitive.c:185
-    sctp_apply_peer_addr_params+0x212/0x1d40 net/sctp/socket.c:2433
-    sctp_setsockopt_peer_addr_params net/sctp/socket.c:2686 [inline]
-    sctp_setsockopt+0x189bb/0x19090 net/sctp/socket.c:4672
-
-The issue was caused by transport->ipaddr set with uninit addr param, which
-was passed by:
-
-  sctp_transport_init net/sctp/transport.c:47 [inline]
-  sctp_transport_new+0x248/0xa00 net/sctp/transport.c:100
-  sctp_assoc_add_peer+0x5ba/0x2030 net/sctp/associola.c:611
-  sctp_process_param net/sctp/sm_make_chunk.c:2524 [inline]
-
-where 'addr' is set by sctp_v4_from_addr_param(), and it doesn't initialize
-the padding of addr->v4.
-
-Later when calling sctp_make_heartbeat(), hbinfo.daddr(=transport->ipaddr)
-will become the part of skb, and the issue occurs.
-
-This patch is to fix it by initializing the padding of addr->v4 in
-sctp_v4_from_addr_param(), as well as other functions that do the similar
-thing, and these functions shouldn't trust that the caller initializes the
-memory, as Marcelo suggested.
-
-Reported-by: syzbot+6dcbfea81cd3d4dd0b02@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("Macro compares unsigned to 0")
+Fixes: f1bd904175e8 ("apparmor: add the base fns() for domain labels")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/protocol.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ security/apparmor/label.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -257,6 +257,7 @@ static void sctp_v4_from_sk(union sctp_a
- 	addr->v4.sin_family = AF_INET;
- 	addr->v4.sin_port = 0;
- 	addr->v4.sin_addr.s_addr = inet_sk(sk)->inet_rcv_saddr;
-+	memset(addr->v4.sin_zero, 0, sizeof(addr->v4.sin_zero));
- }
+diff --git a/security/apparmor/label.c b/security/apparmor/label.c
+index ba11bdf9043a..2469549842d2 100644
+--- a/security/apparmor/label.c
++++ b/security/apparmor/label.c
+@@ -1462,11 +1462,13 @@ static inline bool use_label_hname(struct aa_ns *ns, struct aa_label *label,
+ /* helper macro for snprint routines */
+ #define update_for_len(total, len, size, str)	\
+ do {					\
++	size_t ulen = len;		\
++					\
+ 	AA_BUG(len < 0);		\
+-	total += len;			\
+-	len = min(len, size);		\
+-	size -= len;			\
+-	str += len;			\
++	total += ulen;			\
++	ulen = min(ulen, size);		\
++	size -= ulen;			\
++	str += ulen;			\
+ } while (0)
  
- /* Initialize sk->sk_rcv_saddr from sctp_addr. */
-@@ -279,6 +280,7 @@ static void sctp_v4_from_addr_param(unio
- 	addr->v4.sin_family = AF_INET;
- 	addr->v4.sin_port = port;
- 	addr->v4.sin_addr.s_addr = param->v4.addr.s_addr;
-+	memset(addr->v4.sin_zero, 0, sizeof(addr->v4.sin_zero));
- }
+ /**
+@@ -1601,7 +1603,7 @@ int aa_label_snxprint(char *str, size_t size, struct aa_ns *ns,
+ 	struct aa_ns *prev_ns = NULL;
+ 	struct label_it i;
+ 	int count = 0, total = 0;
+-	size_t len;
++	ssize_t len;
  
- /* Initialize an address parameter from a sctp_addr and return the length
-@@ -303,6 +305,7 @@ static void sctp_v4_dst_saddr(union sctp
- 	saddr->v4.sin_family = AF_INET;
- 	saddr->v4.sin_port = port;
- 	saddr->v4.sin_addr.s_addr = fl4->saddr;
-+	memset(saddr->v4.sin_zero, 0, sizeof(saddr->v4.sin_zero));
- }
- 
- /* Compare two addresses exactly. */
-@@ -325,6 +328,7 @@ static void sctp_v4_inaddr_any(union sct
- 	addr->v4.sin_family = AF_INET;
- 	addr->v4.sin_addr.s_addr = htonl(INADDR_ANY);
- 	addr->v4.sin_port = port;
-+	memset(addr->v4.sin_zero, 0, sizeof(addr->v4.sin_zero));
- }
- 
- /* Is this a wildcard address? */
+ 	AA_BUG(!str && size != 0);
+ 	AA_BUG(!label);
+-- 
+2.20.1
+
 
 
