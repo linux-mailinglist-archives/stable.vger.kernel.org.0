@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A1712EF43
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D44CE12F002
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:50:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730395AbgABWcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:32:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38520 "EHLO mail.kernel.org"
+        id S1729216AbgABWZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:25:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730390AbgABWcU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:32:20 -0500
+        id S1728945AbgABWZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:25:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8923420866;
-        Thu,  2 Jan 2020 22:32:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2D0C20866;
+        Thu,  2 Jan 2020 22:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004340;
-        bh=C65c9+yziQohp1zFjPI6GUPJ9ttdc57+2D6hh3v2Z5E=;
+        s=default; t=1578003949;
+        bh=vLlKlXevzI3Vj7EKTmJs/LKeBKR2McXB4OXCW52YFeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWwSZ9yvmmHGX8ssB3WdYoBw4gB8EXiac3oG2SToqRY7k2rWRzGV4FO325ZU+4ddE
-         ESoLZkwJkyfdA8j4Ga2VTXulRyrkQKwtjPCXqk8+3C0W0Ftpv7CPGnwagDGQjpp1P4
-         UrN4EfGMlXXLp1mr2hfob0VEEFwWnyhE6tf7PQPg=
+        b=N/Syqe3qK1P47tKfI7SPK8Q7B6oZHxVVKjRe7LN1rhqwEt4tBBsZhFdqLJwMKGf2q
+         bKsrBezWwn8yxvAiY+MWXVX3YdyGY11x1FW9WZAt87uSnGdroGt2aqvDkv2PkW1suW
+         ri6BvBh558AcPb8oZ9MofainktGaJr8SV+Bvs53E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 138/171] bcache: at least try to shrink 1 node in bch_mca_scan()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 67/91] inetpeer: fix data-race in inet_putpeer / inet_putpeer
 Date:   Thu,  2 Jan 2020 23:07:49 +0100
-Message-Id: <20200102220606.218334938@linuxfoundation.org>
+Message-Id: <20200102220444.663281937@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 9fcc34b1a6dd4b8e5337e2b6ef45e428897eca6b ]
+commit 71685eb4ce80ae9c49eff82ca4dd15acab215de9 upstream.
 
-In bch_mca_scan(), the number of shrinking btree node is calculated
-by code like this,
-	unsigned long nr = sc->nr_to_scan;
+We need to explicitely forbid read/store tearing in inet_peer_gc()
+and inet_putpeer().
 
-        nr /= c->btree_pages;
-        nr = min_t(unsigned long, nr, mca_can_free(c));
-variable sc->nr_to_scan is number of objects (here is bcache B+tree
-nodes' number) to shrink, and pointer variable sc is sent from memory
-management code as parametr of a callback.
+The following syzbot report reminds us about inet_putpeer()
+running without a lock held.
 
-If sc->nr_to_scan is smaller than c->btree_pages, after the above
-calculation, variable 'nr' will be 0 and nothing will be shrunk. It is
-frequeently observed that only 1 or 2 is set to sc->nr_to_scan and make
-nr to be zero. Then bch_mca_scan() will do nothing more then acquiring
-and releasing mutex c->bucket_lock.
+BUG: KCSAN: data-race in inet_putpeer / inet_putpeer
 
-This patch checkes whether nr is 0 after the above calculation, if 0
-is the result then set 1 to variable 'n'. Then at least bch_mca_scan()
-will try to shrink a single B+tree node.
+write to 0xffff888121fb2ed0 of 4 bytes by interrupt on cpu 0:
+ inet_putpeer+0x37/0xa0 net/ipv4/inetpeer.c:240
+ ip4_frag_free+0x3d/0x50 net/ipv4/ip_fragment.c:102
+ inet_frag_destroy_rcu+0x58/0x80 net/ipv4/inet_fragment.c:228
+ __rcu_reclaim kernel/rcu/rcu.h:222 [inline]
+ rcu_do_batch+0x256/0x5b0 kernel/rcu/tree.c:2157
+ rcu_core+0x369/0x4d0 kernel/rcu/tree.c:2377
+ rcu_core_si+0x12/0x20 kernel/rcu/tree.c:2386
+ __do_softirq+0x115/0x33f kernel/softirq.c:292
+ invoke_softirq kernel/softirq.c:373 [inline]
+ irq_exit+0xbb/0xe0 kernel/softirq.c:413
+ exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+ smp_apic_timer_interrupt+0xe6/0x280 arch/x86/kernel/apic/apic.c:1137
+ apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
+ native_safe_halt+0xe/0x10 arch/x86/kernel/paravirt.c:71
+ arch_cpu_idle+0x1f/0x30 arch/x86/kernel/process.c:571
+ default_idle_call+0x1e/0x40 kernel/sched/idle.c:94
+ cpuidle_idle_call kernel/sched/idle.c:154 [inline]
+ do_idle+0x1af/0x280 kernel/sched/idle.c:263
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+write to 0xffff888121fb2ed0 of 4 bytes by interrupt on cpu 1:
+ inet_putpeer+0x37/0xa0 net/ipv4/inetpeer.c:240
+ ip4_frag_free+0x3d/0x50 net/ipv4/ip_fragment.c:102
+ inet_frag_destroy_rcu+0x58/0x80 net/ipv4/inet_fragment.c:228
+ __rcu_reclaim kernel/rcu/rcu.h:222 [inline]
+ rcu_do_batch+0x256/0x5b0 kernel/rcu/tree.c:2157
+ rcu_core+0x369/0x4d0 kernel/rcu/tree.c:2377
+ rcu_core_si+0x12/0x20 kernel/rcu/tree.c:2386
+ __do_softirq+0x115/0x33f kernel/softirq.c:292
+ run_ksoftirqd+0x46/0x60 kernel/softirq.c:603
+ smpboot_thread_fn+0x37d/0x4a0 kernel/smpboot.c:165
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 16 Comm: ksoftirqd/1 Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 4b9d9be839fd ("inetpeer: remove unused list")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/bcache/btree.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/inetpeer.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index 4e34afb6e36a..c8c5e3368b8b 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -681,6 +681,8 @@ static unsigned long bch_mca_scan(struct shrinker *shrink,
- 	 * IO can always make forward progress:
- 	 */
- 	nr /= c->btree_pages;
-+	if (nr == 0)
-+		nr = 1;
- 	nr = min_t(unsigned long, nr, mca_can_free(c));
+--- a/net/ipv4/inetpeer.c
++++ b/net/ipv4/inetpeer.c
+@@ -159,7 +159,12 @@ static void inet_peer_gc(struct inet_pee
+ 					base->total / inet_peer_threshold * HZ;
+ 	for (i = 0; i < gc_cnt; i++) {
+ 		p = gc_stack[i];
+-		delta = (__u32)jiffies - p->dtime;
++
++		/* The READ_ONCE() pairs with the WRITE_ONCE()
++		 * in inet_putpeer()
++		 */
++		delta = (__u32)jiffies - READ_ONCE(p->dtime);
++
+ 		if (delta < ttl || !refcount_dec_if_one(&p->refcnt))
+ 			gc_stack[i] = NULL;
+ 	}
+@@ -236,7 +241,10 @@ EXPORT_SYMBOL_GPL(inet_getpeer);
  
- 	i = 0;
--- 
-2.20.1
-
+ void inet_putpeer(struct inet_peer *p)
+ {
+-	p->dtime = (__u32)jiffies;
++	/* The WRITE_ONCE() pairs with itself (we run lockless)
++	 * and the READ_ONCE() in inet_peer_gc()
++	 */
++	WRITE_ONCE(p->dtime, (__u32)jiffies);
+ 
+ 	if (refcount_dec_and_test(&p->refcnt))
+ 		call_rcu(&p->rcu, inetpeer_free_rcu);
 
 
