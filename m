@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A247712EFD4
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:49:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95AE012F169
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:00:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729728AbgABW1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:27:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55650 "EHLO mail.kernel.org"
+        id S1727460AbgABXAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 18:00:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729291AbgABW1V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:27:21 -0500
+        id S1727226AbgABWNF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:13:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F91E20863;
-        Thu,  2 Jan 2020 22:27:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F6D721D7D;
+        Thu,  2 Jan 2020 22:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004041;
-        bh=wQT4xWXNIzsEabQI1mSrwFFkt4xowQeeU7x6mRr+IQY=;
+        s=default; t=1578003184;
+        bh=PBHb5ijfB+T3bwG+9x4hokUpoUPYGrSirFzfyZnrxJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYzUHfOhb3qRe6z+avFrsVJvUe+s8Vgee1eTxOuwW1+1MXrcdef8HoKHiGC+B3V48
-         awP8niVAcVL8ypFv6F1USw7dEQX2j5rEfrWk0VcSQ32QEwSi69njbi1xwh2OoVECkG
-         R/JL0JL2J4EqYOeKS5JVlvUjy98B0PCYRT8PVX5E=
+        b=BZT+rDLKybt1uOAMNvSI0/2gZfPqfatkYhUewVfcTTnvR4zPtcYjLxGc1XjCkVQrE
+         LMWryoQW80m6MBL/7spyXRCy/Wd3ItNVw/9TZ2qXfqiHJp8C8VkdchCHFQLsMaeRQ0
+         bnUYzTCRw6TBah1lM+J4eeazru/ZuhM8X64Luack=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lionel Koenig <lionel.koenig@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 004/171] ALSA: pcm: Avoid possible info leaks from PCM stream buffers
-Date:   Thu,  2 Jan 2020 23:05:35 +0100
-Message-Id: <20200102220547.519128833@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 054/191] dma-direct: check for overflows on 32 bit DMA addresses
+Date:   Thu,  2 Jan 2020 23:05:36 +0100
+Message-Id: <20200102215835.696014868@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-commit add9d56d7b3781532208afbff5509d7382fb6efe upstream.
+[ Upstream commit b12d66278dd627cbe1ea7c000aa4715aaf8830c8 ]
 
-The current PCM code doesn't initialize explicitly the buffers
-allocated for PCM streams, hence it might leak some uninitialized
-kernel data or previous stream contents by mmapping or reading the
-buffer before actually starting the stream.
+As seen on the new Raspberry Pi 4 and sta2x11's DMA implementation it is
+possible for a device configured with 32 bit DMA addresses and a partial
+DMA mapping located at the end of the address space to overflow. It
+happens when a higher physical address, not DMAable, is translated to
+it's DMA counterpart.
 
-Since this is a common problem, this patch simply adds the clearance
-of the buffer data at hw_params callback.  Although this does only
-zero-clear no matter which format is used, which doesn't mean the
-silence for some formats, but it should be OK because the intention is
-just to clear the previous data on the buffer.
+For example the Raspberry Pi 4, configurable up to 4 GB of memory, has
+an interconnect capable of addressing the lower 1 GB of physical memory
+with a DMA offset of 0xc0000000. It transpires that, any attempt to
+translate physical addresses higher than the first GB will result in an
+overflow which dma_capable() can't detect as it only checks for
+addresses bigger then the maximum allowed DMA address.
 
-Reported-by: Lionel Koenig <lionel.koenig@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191211155742.3213-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by verifying in dma_capable() if the DMA address range provided
+is at any point lower than the minimum possible DMA address on the bus.
 
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_native.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/dma-direct.h | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -587,6 +587,10 @@ static int snd_pcm_hw_params(struct snd_
- 	while (runtime->boundary * 2 <= LONG_MAX - runtime->buffer_size)
- 		runtime->boundary *= 2;
+diff --git a/include/linux/dma-direct.h b/include/linux/dma-direct.h
+index adf993a3bd58..6a18a97b76a8 100644
+--- a/include/linux/dma-direct.h
++++ b/include/linux/dma-direct.h
+@@ -3,8 +3,11 @@
+ #define _LINUX_DMA_DIRECT_H 1
  
-+	/* clear the buffer for avoiding possible kernel info leaks */
-+	if (runtime->dma_area)
-+		memset(runtime->dma_area, 0, runtime->dma_bytes);
+ #include <linux/dma-mapping.h>
++#include <linux/memblock.h> /* for min_low_pfn */
+ #include <linux/mem_encrypt.h>
+ 
++static inline dma_addr_t phys_to_dma(struct device *dev, phys_addr_t paddr);
 +
- 	snd_pcm_timer_resolution_change(substream);
- 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
+ #ifdef CONFIG_ARCH_HAS_PHYS_TO_DMA
+ #include <asm/dma-direct.h>
+ #else
+@@ -24,11 +27,16 @@ static inline phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t dev_addr)
  
+ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+ {
++	dma_addr_t end = addr + size - 1;
++
+ 	if (!dev->dma_mask)
+ 		return false;
+ 
+-	return addr + size - 1 <=
+-		min_not_zero(*dev->dma_mask, dev->bus_dma_mask);
++	if (!IS_ENABLED(CONFIG_ARCH_DMA_ADDR_T_64BIT) &&
++	    min(addr, end) < phys_to_dma(dev, PFN_PHYS(min_low_pfn)))
++		return false;
++
++	return end <= min_not_zero(*dev->dma_mask, dev->bus_dma_mask);
+ }
+ #endif /* !CONFIG_ARCH_HAS_PHYS_TO_DMA */
+ 
+-- 
+2.20.1
+
 
 
