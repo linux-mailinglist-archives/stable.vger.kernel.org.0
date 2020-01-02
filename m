@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A6EE12F07A
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FCE712F01B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728591AbgABWUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:20:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39156 "EHLO mail.kernel.org"
+        id S1729502AbgABWZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:25:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726927AbgABWUy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:20:54 -0500
+        id S1729489AbgABWZV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:25:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DC3D21582;
-        Thu,  2 Jan 2020 22:20:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CC1522B48;
+        Thu,  2 Jan 2020 22:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003653;
-        bh=1HQOmY+/vAg36JcMkUhBh/Zavmr/ssHnliyiwLhDux8=;
+        s=default; t=1578003920;
+        bh=BchiV5Joz7jQ6Dsi93I6E9W9qyu9w853MdoklAKconY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bB6N+WIfWcBohw6kFVbm0kr73+AXu3u8hAWou9a/s55o4hJAgKpqm7dnwBt+PP40c
-         4R5Ci+b5/6kP55tniOSaMux8DAX2DDfcvinDudilU2S6VEuoEHvcp0d09Fsak7Z4gw
-         E2UNVdIlPJG9DaUNB7N8enrbFJ1mY/bBnBdmkngI=
+        b=FbLWpXzCYHUTr1Iiom2bM5GV3BloodRnqDIuuvD1K9xOxj/J+5zKxhO+i34qv8enm
+         Nu1Kw+bftGNY//qnCDPuUSjXhCsFtv3I/SohIntBml0OzZsw2MgmcvWJTerlrS5QmB
+         q+71dknHV9pc+VjHu0z947Jw2cGz8VTe5dXrWhc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        John Johansen <john.johansen@canonical.com>,
+        stable@vger.kernel.org,
+        "Gustavo L. F. Walbon" <gwalbon@linux.ibm.com>,
+        "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/114] apparmor: fix unsigned len comparison with less than zero
+Subject: [PATCH 4.14 29/91] powerpc/security: Fix wrong message when RFI Flush is disable
 Date:   Thu,  2 Jan 2020 23:07:11 +0100
-Message-Id: <20200102220034.968393658@linuxfoundation.org>
+Message-Id: <20200102220430.192984292@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Gustavo L. F. Walbon <gwalbon@linux.ibm.com>
 
-[ Upstream commit 00e0590dbaec6f1bcaa36a85467d7e3497ced522 ]
+[ Upstream commit 4e706af3cd8e1d0503c25332b30cad33c97ed442 ]
 
-The sanity check in macro update_for_len checks to see if len
-is less than zero, however, len is a size_t so it can never be
-less than zero, so this sanity check is a no-op.  Fix this by
-making len a ssize_t so the comparison will work and add ulen
-that is a size_t copy of len so that the min() macro won't
-throw warnings about comparing different types.
+The issue was showing "Mitigation" message via sysfs whatever the
+state of "RFI Flush", but it should show "Vulnerable" when it is
+disabled.
 
-Addresses-Coverity: ("Macro compares unsigned to 0")
-Fixes: f1bd904175e8 ("apparmor: add the base fns() for domain labels")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+If you have "L1D private" feature enabled and not "RFI Flush" you are
+vulnerable to meltdown attacks.
+
+"RFI Flush" is the key feature to mitigate the meltdown whatever the
+"L1D private" state.
+
+SEC_FTR_L1D_THREAD_PRIV is a feature for Power9 only.
+
+So the message should be as the truth table shows:
+
+  CPU | L1D private | RFI Flush |                sysfs
+  ----|-------------|-----------|-------------------------------------
+   P9 |    False    |   False   | Vulnerable
+   P9 |    False    |   True    | Mitigation: RFI Flush
+   P9 |    True     |   False   | Vulnerable: L1D private per thread
+   P9 |    True     |   True    | Mitigation: RFI Flush, L1D private per thread
+   P8 |    False    |   False   | Vulnerable
+   P8 |    False    |   True    | Mitigation: RFI Flush
+
+Output before this fix:
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Mitigation: RFI Flush, L1D private per thread
+  # echo 0 > /sys/kernel/debug/powerpc/rfi_flush
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Mitigation: L1D private per thread
+
+Output after fix:
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Mitigation: RFI Flush, L1D private per thread
+  # echo 0 > /sys/kernel/debug/powerpc/rfi_flush
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Vulnerable: L1D private per thread
+
+Signed-off-by: Gustavo L. F. Walbon <gwalbon@linux.ibm.com>
+Signed-off-by: Mauro S. M. Rodrigues <maurosr@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190502210907.42375-1-gwalbon@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/label.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/powerpc/kernel/security.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/security/apparmor/label.c b/security/apparmor/label.c
-index ba11bdf9043a..2469549842d2 100644
---- a/security/apparmor/label.c
-+++ b/security/apparmor/label.c
-@@ -1462,11 +1462,13 @@ static inline bool use_label_hname(struct aa_ns *ns, struct aa_label *label,
- /* helper macro for snprint routines */
- #define update_for_len(total, len, size, str)	\
- do {					\
-+	size_t ulen = len;		\
-+					\
- 	AA_BUG(len < 0);		\
--	total += len;			\
--	len = min(len, size);		\
--	size -= len;			\
--	str += len;			\
-+	total += ulen;			\
-+	ulen = min(ulen, size);		\
-+	size -= ulen;			\
-+	str += ulen;			\
- } while (0)
+diff --git a/arch/powerpc/kernel/security.c b/arch/powerpc/kernel/security.c
+index fef3f09fc238..b3f540c9f410 100644
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -134,26 +134,22 @@ ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr, cha
  
- /**
-@@ -1601,7 +1603,7 @@ int aa_label_snxprint(char *str, size_t size, struct aa_ns *ns,
- 	struct aa_ns *prev_ns = NULL;
- 	struct label_it i;
- 	int count = 0, total = 0;
--	size_t len;
-+	ssize_t len;
+ 	thread_priv = security_ftr_enabled(SEC_FTR_L1D_THREAD_PRIV);
  
- 	AA_BUG(!str && size != 0);
- 	AA_BUG(!label);
+-	if (rfi_flush || thread_priv) {
++	if (rfi_flush) {
+ 		struct seq_buf s;
+ 		seq_buf_init(&s, buf, PAGE_SIZE - 1);
+ 
+-		seq_buf_printf(&s, "Mitigation: ");
+-
+-		if (rfi_flush)
+-			seq_buf_printf(&s, "RFI Flush");
+-
+-		if (rfi_flush && thread_priv)
+-			seq_buf_printf(&s, ", ");
+-
++		seq_buf_printf(&s, "Mitigation: RFI Flush");
+ 		if (thread_priv)
+-			seq_buf_printf(&s, "L1D private per thread");
++			seq_buf_printf(&s, ", L1D private per thread");
+ 
+ 		seq_buf_printf(&s, "\n");
+ 
+ 		return s.len;
+ 	}
+ 
++	if (thread_priv)
++		return sprintf(buf, "Vulnerable: L1D private per thread\n");
++
+ 	if (!security_ftr_enabled(SEC_FTR_L1D_FLUSH_HV) &&
+ 	    !security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR))
+ 		return sprintf(buf, "Not affected\n");
 -- 
 2.20.1
 
