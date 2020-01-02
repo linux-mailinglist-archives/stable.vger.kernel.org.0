@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99D6812EF20
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DACA12EFCD
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730465AbgABWdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:33:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41706 "EHLO mail.kernel.org"
+        id S1729582AbgABW07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:26:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730635AbgABWdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:33:52 -0500
+        id S1729686AbgABW06 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:26:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A16DD20863;
-        Thu,  2 Jan 2020 22:33:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8915D20863;
+        Thu,  2 Jan 2020 22:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004431;
-        bh=V2Nil5YpI/z4tduL7Qr+mVMVndu2kX3d1y6DMtNllKo=;
+        s=default; t=1578004017;
+        bh=jc+qO1VZD54Glysxw99t0uI+bP97RJjPfv5K2gzqr8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VeK5JArW7CsF+AzCWdp7Kv7kid1G4UY/suRUH2fVyjox0dJMkHO2xsPWgZ3exZTkp
-         e/cKjHz1f84YbdeFLuEbGnboeU+KrXpksll6z5NLHI2FLzfEVyb6DU7kULaUZpfIiY
-         xe9PyAvUWp+2kMmUbHBVsRWd+V5iMS4KQ6K2B31w=
+        b=roWB5OIgJtPuNMMXIZiGQV9+2UkHq4vqBFWChq4m1yb4dtwM1DW5blwYlb/uiTIEi
+         TGP2QrdmqI/MAuQsga+JoCRu9dTs7ieVjgYmFUmZLFx1OPxXSXXSOrH8uYjBpbb1XM
+         K6O4Me3N7iHcx3a35fRYfN6wBVkhRpIMtbEKqhx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f68108fed972453a0ad4@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 158/171] netfilter: ebtables: compat: reject all padding in matches/watchers
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Michal Kubecek <mkubecek@suse.cz>,
+        Firo Yang <firo.yang@suse.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 4.14 87/91] tcp/dccp: fix possible race __inet_lookup_established()
 Date:   Thu,  2 Jan 2020 23:08:09 +0100
-Message-Id: <20200102220608.712806035@linuxfoundation.org>
+Message-Id: <20200102220452.099374555@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,138 +45,251 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit e608f631f0ba5f1fc5ee2e260a3a35d13107cbfe upstream.
+commit 8dbd76e79a16b45b2ccb01d2f2e08dbf64e71e40 upstream.
 
-syzbot reported following splat:
+Michal Kubecek and Firo Yang did a very nice analysis of crashes
+happening in __inet_lookup_established().
 
-BUG: KASAN: vmalloc-out-of-bounds in size_entry_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
-BUG: KASAN: vmalloc-out-of-bounds in compat_copy_entries+0x128b/0x1380 net/bridge/netfilter/ebtables.c:2155
-Read of size 4 at addr ffffc900004461f4 by task syz-executor267/7937
+Since a TCP socket can go from TCP_ESTABLISH to TCP_LISTEN
+(via a close()/socket()/listen() cycle) without a RCU grace period,
+I should not have changed listeners linkage in their hash table.
 
-CPU: 1 PID: 7937 Comm: syz-executor267 Not tainted 5.5.0-rc1-syzkaller #0
- size_entry_mwt net/bridge/netfilter/ebtables.c:2063 [inline]
- compat_copy_entries+0x128b/0x1380 net/bridge/netfilter/ebtables.c:2155
- compat_do_replace+0x344/0x720 net/bridge/netfilter/ebtables.c:2249
- compat_do_ebt_set_ctl+0x22f/0x27e net/bridge/netfilter/ebtables.c:2333
- [..]
+They must use the nulls protocol (Documentation/RCU/rculist_nulls.txt),
+so that a lookup can detect a socket in a hash list was moved in
+another one.
 
-Because padding isn't considered during computation of ->buf_user_offset,
-"total" is decremented by fewer bytes than it should.
+Since we added code in commit d296ba60d8e2 ("soreuseport: Resolve
+merge conflict for v4/v6 ordering fix"), we have to add
+hlist_nulls_add_tail_rcu() helper.
 
-Therefore, the first part of
-
-if (*total < sizeof(*entry) || entry->next_offset < sizeof(*entry))
-
-will pass, -- it should not have.  This causes oob access:
-entry->next_offset is past the vmalloced size.
-
-Reject padding and check that computed user offset (sum of ebt_entry
-structure plus all individual matches/watchers/targets) is same
-value that userspace gave us as the offset of the next entry.
-
-Reported-by: syzbot+f68108fed972453a0ad4@syzkaller.appspotmail.com
-Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 3b24d854cb35 ("tcp/dccp: do not touch listener sk_refcnt under synflood")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Michal Kubecek <mkubecek@suse.cz>
+Reported-by: Firo Yang <firo.yang@suse.com>
+Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
+Link: https://lore.kernel.org/netdev/20191120083919.GH27852@unicorn.suse.cz/
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+[stable-4.14: we also need to update code in __inet_lookup_listener() and
+ inet6_lookup_listener() which has been removed in 5.0-rc1.]
+Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bridge/netfilter/ebtables.c |   33 ++++++++++++++++-----------------
- 1 file changed, 16 insertions(+), 17 deletions(-)
+ include/linux/rculist_nulls.h |   37 +++++++++++++++++++++++++++++++++++++
+ include/net/inet_hashtables.h |   12 +++++++++---
+ include/net/sock.h            |    5 +++++
+ net/ipv4/inet_diag.c          |    3 ++-
+ net/ipv4/inet_hashtables.c    |   18 +++++++++---------
+ net/ipv4/tcp_ipv4.c           |    7 ++++---
+ net/ipv6/inet6_hashtables.c   |    3 ++-
+ 7 files changed, 68 insertions(+), 17 deletions(-)
 
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1894,7 +1894,7 @@ static int ebt_buf_count(struct ebt_entr
+--- a/include/linux/rculist_nulls.h
++++ b/include/linux/rculist_nulls.h
+@@ -101,6 +101,43 @@ static inline void hlist_nulls_add_head_
  }
  
- static int ebt_buf_add(struct ebt_entries_buf_state *state,
--		       void *data, unsigned int sz)
-+		       const void *data, unsigned int sz)
- {
- 	if (state->buf_kern_start == NULL)
- 		goto count_only;
-@@ -1928,7 +1928,7 @@ enum compat_mwt {
- 	EBT_COMPAT_TARGET,
+ /**
++ * hlist_nulls_add_tail_rcu
++ * @n: the element to add to the hash list.
++ * @h: the list to add to.
++ *
++ * Description:
++ * Adds the specified element to the specified hlist_nulls,
++ * while permitting racing traversals.
++ *
++ * The caller must take whatever precautions are necessary
++ * (such as holding appropriate locks) to avoid racing
++ * with another list-mutation primitive, such as hlist_nulls_add_head_rcu()
++ * or hlist_nulls_del_rcu(), running on this same list.
++ * However, it is perfectly legal to run concurrently with
++ * the _rcu list-traversal primitives, such as
++ * hlist_nulls_for_each_entry_rcu(), used to prevent memory-consistency
++ * problems on Alpha CPUs.  Regardless of the type of CPU, the
++ * list-traversal primitive must be guarded by rcu_read_lock().
++ */
++static inline void hlist_nulls_add_tail_rcu(struct hlist_nulls_node *n,
++					    struct hlist_nulls_head *h)
++{
++	struct hlist_nulls_node *i, *last = NULL;
++
++	/* Note: write side code, so rcu accessors are not needed. */
++	for (i = h->first; !is_a_nulls(i); i = i->next)
++		last = i;
++
++	if (last) {
++		n->next = last->next;
++		n->pprev = &last->next;
++		rcu_assign_pointer(hlist_next_rcu(last), n);
++	} else {
++		hlist_nulls_add_head_rcu(n, h);
++	}
++}
++
++/**
+  * hlist_nulls_for_each_entry_rcu - iterate over rcu list of given type
+  * @tpos:	the type * to use as a loop cursor.
+  * @pos:	the &struct hlist_nulls_node to use as a loop cursor.
+--- a/include/net/inet_hashtables.h
++++ b/include/net/inet_hashtables.h
+@@ -106,12 +106,18 @@ struct inet_bind_hashbucket {
+ 	struct hlist_head	chain;
  };
  
--static int compat_mtw_from_user(struct compat_ebt_entry_mwt *mwt,
-+static int compat_mtw_from_user(const struct compat_ebt_entry_mwt *mwt,
- 				enum compat_mwt compat_mwt,
- 				struct ebt_entries_buf_state *state,
- 				const unsigned char *base)
-@@ -2004,22 +2004,23 @@ static int compat_mtw_from_user(struct c
- /* return size of all matches, watchers or target, including necessary
-  * alignment and padding.
+-/*
+- * Sockets can be hashed in established or listening table
++/* Sockets can be hashed in established or listening table.
++ * We must use different 'nulls' end-of-chain value for all hash buckets :
++ * A socket might transition from ESTABLISH to LISTEN state without
++ * RCU grace period. A lookup in ehash table needs to handle this case.
   */
--static int ebt_size_mwt(struct compat_ebt_entry_mwt *match32,
-+static int ebt_size_mwt(const struct compat_ebt_entry_mwt *match32,
- 			unsigned int size_left, enum compat_mwt type,
- 			struct ebt_entries_buf_state *state, const void *base)
- {
-+	const char *buf = (const char *)match32;
- 	int growth = 0;
--	char *buf;
++#define LISTENING_NULLS_BASE (1U << 29)
+ struct inet_listen_hashbucket {
+ 	spinlock_t		lock;
+-	struct hlist_head	head;
++	union {
++		struct hlist_head	head;
++		struct hlist_nulls_head	nulls_head;
++	};
+ };
  
- 	if (size_left == 0)
- 		return 0;
+ /* This is for listening sockets, thus all sockets which possess wildcards. */
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -693,6 +693,11 @@ static inline void __sk_nulls_add_node_r
+ 	hlist_nulls_add_head_rcu(&sk->sk_nulls_node, list);
+ }
  
--	buf = (char *) match32;
--
--	while (size_left >= sizeof(*match32)) {
-+	do {
- 		struct ebt_entry_match *match_kern;
- 		int ret;
- 
-+		if (size_left < sizeof(*match32))
-+			return -EINVAL;
++static inline void __sk_nulls_add_node_tail_rcu(struct sock *sk, struct hlist_nulls_head *list)
++{
++	hlist_nulls_add_tail_rcu(&sk->sk_nulls_node, list);
++}
 +
- 		match_kern = (struct ebt_entry_match *) state->buf_kern_start;
- 		if (match_kern) {
- 			char *tmp;
-@@ -2056,22 +2057,18 @@ static int ebt_size_mwt(struct compat_eb
- 		if (match_kern)
- 			match_kern->match_size = ret;
- 
--		/* rule should have no remaining data after target */
--		if (type == EBT_COMPAT_TARGET && size_left)
--			return -EINVAL;
--
- 		match32 = (struct compat_ebt_entry_mwt *) buf;
--	}
-+	} while (size_left);
- 
- 	return growth;
- }
- 
- /* called for all ebt_entry structures. */
--static int size_entry_mwt(struct ebt_entry *entry, const unsigned char *base,
-+static int size_entry_mwt(const struct ebt_entry *entry, const unsigned char *base,
- 			  unsigned int *total,
- 			  struct ebt_entries_buf_state *state)
+ static inline void sk_nulls_add_node_rcu(struct sock *sk, struct hlist_nulls_head *list)
  {
--	unsigned int i, j, startoff, new_offset = 0;
-+	unsigned int i, j, startoff, next_expected_off, new_offset = 0;
- 	/* stores match/watchers/targets & offset of next struct ebt_entry: */
- 	unsigned int offsets[4];
- 	unsigned int *offsets_update = NULL;
-@@ -2158,11 +2155,13 @@ static int size_entry_mwt(struct ebt_ent
- 			return ret;
+ 	sock_hold(sk);
+--- a/net/ipv4/inet_diag.c
++++ b/net/ipv4/inet_diag.c
+@@ -911,11 +911,12 @@ void inet_diag_dump_icsk(struct inet_has
+ 
+ 		for (i = s_i; i < INET_LHTABLE_SIZE; i++) {
+ 			struct inet_listen_hashbucket *ilb;
++			struct hlist_nulls_node *node;
+ 
+ 			num = 0;
+ 			ilb = &hashinfo->listening_hash[i];
+ 			spin_lock(&ilb->lock);
+-			sk_for_each(sk, &ilb->head) {
++			sk_nulls_for_each(sk, node, &ilb->nulls_head) {
+ 				struct inet_sock *inet = inet_sk(sk);
+ 
+ 				if (!net_eq(sock_net(sk), net))
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -219,9 +219,10 @@ struct sock *__inet_lookup_listener(stru
+ 	int score, hiscore = 0, matches = 0, reuseport = 0;
+ 	bool exact_dif = inet_exact_dif_match(net, skb);
+ 	struct sock *sk, *result = NULL;
++	struct hlist_nulls_node *node;
+ 	u32 phash = 0;
+ 
+-	sk_for_each_rcu(sk, &ilb->head) {
++	sk_nulls_for_each_rcu(sk, node, &ilb->nulls_head) {
+ 		score = compute_score(sk, net, hnum, daddr,
+ 				      dif, sdif, exact_dif);
+ 		if (score > hiscore) {
+@@ -442,10 +443,11 @@ static int inet_reuseport_add_sock(struc
+ 				   struct inet_listen_hashbucket *ilb)
+ {
+ 	struct inet_bind_bucket *tb = inet_csk(sk)->icsk_bind_hash;
++	const struct hlist_nulls_node *node;
+ 	struct sock *sk2;
+ 	kuid_t uid = sock_i_uid(sk);
+ 
+-	sk_for_each_rcu(sk2, &ilb->head) {
++	sk_nulls_for_each_rcu(sk2, node, &ilb->nulls_head) {
+ 		if (sk2 != sk &&
+ 		    sk2->sk_family == sk->sk_family &&
+ 		    ipv6_only_sock(sk2) == ipv6_only_sock(sk) &&
+@@ -480,9 +482,9 @@ int __inet_hash(struct sock *sk, struct
  	}
+ 	if (IS_ENABLED(CONFIG_IPV6) && sk->sk_reuseport &&
+ 		sk->sk_family == AF_INET6)
+-		hlist_add_tail_rcu(&sk->sk_node, &ilb->head);
++		__sk_nulls_add_node_tail_rcu(sk, &ilb->nulls_head);
+ 	else
+-		hlist_add_head_rcu(&sk->sk_node, &ilb->head);
++		__sk_nulls_add_node_rcu(sk, &ilb->nulls_head);
+ 	sock_set_flag(sk, SOCK_RCU_FREE);
+ 	sock_prot_inuse_add(sock_net(sk), sk->sk_prot, 1);
+ unlock:
+@@ -525,10 +527,7 @@ void inet_unhash(struct sock *sk)
+ 	spin_lock_bh(lock);
+ 	if (rcu_access_pointer(sk->sk_reuseport_cb))
+ 		reuseport_detach_sock(sk);
+-	if (listener)
+-		done = __sk_del_node_init(sk);
+-	else
+-		done = __sk_nulls_del_node_init_rcu(sk);
++	done = __sk_nulls_del_node_init_rcu(sk);
+ 	if (done)
+ 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
+ 	spin_unlock_bh(lock);
+@@ -664,7 +663,8 @@ void inet_hashinfo_init(struct inet_hash
  
--	startoff = state->buf_user_offset - startoff;
-+	next_expected_off = state->buf_user_offset - startoff;
-+	if (next_expected_off != entry->next_offset)
-+		return -EINVAL;
- 
--	if (WARN_ON(*total < startoff))
-+	if (*total < entry->next_offset)
- 		return -EINVAL;
--	*total -= startoff;
-+	*total -= entry->next_offset;
- 	return 0;
+ 	for (i = 0; i < INET_LHTABLE_SIZE; i++) {
+ 		spin_lock_init(&h->listening_hash[i].lock);
+-		INIT_HLIST_HEAD(&h->listening_hash[i].head);
++		INIT_HLIST_NULLS_HEAD(&h->listening_hash[i].nulls_head,
++				      i + LISTENING_NULLS_BASE);
+ 	}
  }
+ EXPORT_SYMBOL_GPL(inet_hashinfo_init);
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1936,13 +1936,14 @@ static void *listening_get_next(struct s
+ 	struct tcp_iter_state *st = seq->private;
+ 	struct net *net = seq_file_net(seq);
+ 	struct inet_listen_hashbucket *ilb;
++	struct hlist_nulls_node *node;
+ 	struct sock *sk = cur;
  
+ 	if (!sk) {
+ get_head:
+ 		ilb = &tcp_hashinfo.listening_hash[st->bucket];
+ 		spin_lock(&ilb->lock);
+-		sk = sk_head(&ilb->head);
++		sk = sk_nulls_head(&ilb->nulls_head);
+ 		st->offset = 0;
+ 		goto get_sk;
+ 	}
+@@ -1950,9 +1951,9 @@ get_head:
+ 	++st->num;
+ 	++st->offset;
+ 
+-	sk = sk_next(sk);
++	sk = sk_nulls_next(sk);
+ get_sk:
+-	sk_for_each_from(sk) {
++	sk_nulls_for_each_from(sk, node) {
+ 		if (!net_eq(sock_net(sk), net))
+ 			continue;
+ 		if (sk->sk_family == st->family)
+--- a/net/ipv6/inet6_hashtables.c
++++ b/net/ipv6/inet6_hashtables.c
+@@ -137,9 +137,10 @@ struct sock *inet6_lookup_listener(struc
+ 	int score, hiscore = 0, matches = 0, reuseport = 0;
+ 	bool exact_dif = inet6_exact_dif_match(net, skb);
+ 	struct sock *sk, *result = NULL;
++	struct hlist_nulls_node *node;
+ 	u32 phash = 0;
+ 
+-	sk_for_each(sk, &ilb->head) {
++	sk_nulls_for_each(sk, node, &ilb->nulls_head) {
+ 		score = compute_score(sk, net, hnum, daddr, dif, sdif, exact_dif);
+ 		if (score > hiscore) {
+ 			reuseport = sk->sk_reuseport;
 
 
