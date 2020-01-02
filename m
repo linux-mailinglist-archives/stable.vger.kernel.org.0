@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC0412EF66
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0FE912F016
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729548AbgABWpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:45:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36804 "EHLO mail.kernel.org"
+        id S1729462AbgABWZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:25:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729896AbgABWbc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:31:32 -0500
+        id S1729228AbgABWZE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:25:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 928C822525;
-        Thu,  2 Jan 2020 22:31:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7655F20863;
+        Thu,  2 Jan 2020 22:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004292;
-        bh=K7Da7CfJG3el96WvT6CvaZfsTE8nEfsPdfq4Qrvr6vU=;
+        s=default; t=1578003903;
+        bh=G93ks7k8eBj0aa7qwsjn2y4dE6k5PQPMQPrOp2zGVOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X/kNvvrO9hk0PBtdzTf3deFCXNBQCcWR/6jG4oBc9d3HxoTaieT4EVld3d/toc5+/
-         P5Sx36QtbKbBY7WtglmdXCQjgpBLGCyvLEvhuzfs3GUvEIUlOgN4BsX6W9w8jHHaU+
-         Q/JyYvbYO3hikFWHG15KTChqbJJRbJuAqyKg9DqA=
+        b=iK7btvzZbshF451+cu/rGJr+cgg4XW3DFvdo1VJAQhMZH5gUnDgr6hBI5PKmuXtSZ
+         7tQVe7LJpZNkaODaxaZTUJQwtt7h6R99AgFHW6Cq54RT9bKF36Vy81zkHiJXPnaf62
+         tNhy9ocEEgx/w8gU1yMYow76o98Cl1XzuGHo+IXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 117/171] scsi: csiostor: Dont enable IRQs too early
-Date:   Thu,  2 Jan 2020 23:07:28 +0100
-Message-Id: <20200102220603.330602478@linuxfoundation.org>
+Subject: [PATCH 4.14 47/91] perf script: Fix brstackinsn for AUXTRACE
+Date:   Thu,  2 Jan 2020 23:07:29 +0100
+Message-Id: <20200102220436.288188857@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit d6c9b31ac3064fbedf8961f120a4c117daa59932 ]
+[ Upstream commit 0cd032d3b5fcebf5454315400ab310746a81ca53 ]
 
-These are called with IRQs disabled from csio_mgmt_tmo_handler() so we
-can't call spin_unlock_irq() or it will enable IRQs prematurely.
+brstackinsn must be allowed to be set by the user when AUX area data has
+been captured because, in that case, the branch stack might be
+synthesized on the fly. This fixes the following error:
 
-Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
-Link: https://lore.kernel.org/r/20191019085913.GA14245@mwanda
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Before:
+
+  $ perf record -e '{intel_pt//,cpu/mem_inst_retired.all_loads,aux-sample-size=8192/pp}:u' grep -rqs jhgjhg /boot
+  [ perf record: Woken up 19 times to write data ]
+  [ perf record: Captured and wrote 2.274 MB perf.data ]
+  $ perf script -F +brstackinsn --xed --itrace=i1usl100 | head
+  Display of branch stack assembler requested, but non all-branch filter set
+  Hint: run 'perf record -b ...'
+
+After:
+
+  $ perf record -e '{intel_pt//,cpu/mem_inst_retired.all_loads,aux-sample-size=8192/pp}:u' grep -rqs jhgjhg /boot
+  [ perf record: Woken up 19 times to write data ]
+  [ perf record: Captured and wrote 2.274 MB perf.data ]
+  $ perf script -F +brstackinsn --xed --itrace=i1usl100 | head
+            grep 13759 [002]  8091.310257:       1862                                        instructions:uH:      5641d58069eb bmexec+0x86b (/bin/grep)
+        bmexec+2485:
+        00005641d5806b35                        jnz 0x5641d5806bd0              # MISPRED
+        00005641d5806bd0                        movzxb  (%r13,%rdx,1), %eax
+        00005641d5806bd6                        add %rdi, %rax
+        00005641d5806bd9                        movzxb  -0x1(%rax), %edx
+        00005641d5806bdd                        cmp %rax, %r14
+        00005641d5806be0                        jnb 0x5641d58069c0              # MISPRED
+        mismatch of LBR data and executable
+        00005641d58069c0                        movzxb  (%r13,%rdx,1), %edi
+
+Fixes: 48d02a1d5c13 ("perf script: Add 'brstackinsn' for branch stacks")
+Reported-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Link: http://lore.kernel.org/lkml/20191127095322.15417-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/csiostor/csio_lnode.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ tools/perf/builtin-script.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/csiostor/csio_lnode.c b/drivers/scsi/csiostor/csio_lnode.c
-index be5ee2d37815..957767d38361 100644
---- a/drivers/scsi/csiostor/csio_lnode.c
-+++ b/drivers/scsi/csiostor/csio_lnode.c
-@@ -301,6 +301,7 @@ csio_ln_fdmi_rhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	struct fc_fdmi_port_name *port_name;
- 	uint8_t buf[64];
- 	uint8_t *fc4_type;
-+	unsigned long flags;
- 
- 	if (fdmi_req->wr_status != FW_SUCCESS) {
- 		csio_ln_dbg(ln, "WR error:%x in processing fdmi rhba cmd\n",
-@@ -377,13 +378,13 @@ csio_ln_fdmi_rhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	len = (uint32_t)(pld - (uint8_t *)cmd);
- 
- 	/* Submit FDMI RPA request */
--	spin_lock_irq(&hw->lock);
-+	spin_lock_irqsave(&hw->lock, flags);
- 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_done,
- 				FCOE_CT, &fdmi_req->dma_buf, len)) {
- 		CSIO_INC_STATS(ln, n_fdmi_err);
- 		csio_ln_dbg(ln, "Failed to issue fdmi rpa req\n");
+diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
+index 76789523429a..09c4380bc225 100644
+--- a/tools/perf/builtin-script.c
++++ b/tools/perf/builtin-script.c
+@@ -355,7 +355,7 @@ static int perf_evsel__check_attr(struct perf_evsel *evsel,
+ 		       "selected. Hence, no address to lookup the source line number.\n");
+ 		return -EINVAL;
  	}
--	spin_unlock_irq(&hw->lock);
-+	spin_unlock_irqrestore(&hw->lock, flags);
- }
- 
- /*
-@@ -404,6 +405,7 @@ csio_ln_fdmi_dprt_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	struct fc_fdmi_rpl *reg_pl;
- 	struct fs_fdmi_attrs *attrib_blk;
- 	uint8_t buf[64];
-+	unsigned long flags;
- 
- 	if (fdmi_req->wr_status != FW_SUCCESS) {
- 		csio_ln_dbg(ln, "WR error:%x in processing fdmi dprt cmd\n",
-@@ -483,13 +485,13 @@ csio_ln_fdmi_dprt_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	attrib_blk->numattrs = htonl(numattrs);
- 
- 	/* Submit FDMI RHBA request */
--	spin_lock_irq(&hw->lock);
-+	spin_lock_irqsave(&hw->lock, flags);
- 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_rhba_cbfn,
- 				FCOE_CT, &fdmi_req->dma_buf, len)) {
- 		CSIO_INC_STATS(ln, n_fdmi_err);
- 		csio_ln_dbg(ln, "Failed to issue fdmi rhba req\n");
- 	}
--	spin_unlock_irq(&hw->lock);
-+	spin_unlock_irqrestore(&hw->lock, flags);
- }
- 
- /*
-@@ -504,6 +506,7 @@ csio_ln_fdmi_dhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	void *cmd;
- 	struct fc_fdmi_port_name *port_name;
- 	uint32_t len;
-+	unsigned long flags;
- 
- 	if (fdmi_req->wr_status != FW_SUCCESS) {
- 		csio_ln_dbg(ln, "WR error:%x in processing fdmi dhba cmd\n",
-@@ -534,13 +537,13 @@ csio_ln_fdmi_dhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	len += sizeof(*port_name);
- 
- 	/* Submit FDMI request */
--	spin_lock_irq(&hw->lock);
-+	spin_lock_irqsave(&hw->lock, flags);
- 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_dprt_cbfn,
- 				FCOE_CT, &fdmi_req->dma_buf, len)) {
- 		CSIO_INC_STATS(ln, n_fdmi_err);
- 		csio_ln_dbg(ln, "Failed to issue fdmi dprt req\n");
- 	}
--	spin_unlock_irq(&hw->lock);
-+	spin_unlock_irqrestore(&hw->lock, flags);
- }
- 
- /**
+-	if (PRINT_FIELD(BRSTACKINSN) &&
++	if (PRINT_FIELD(BRSTACKINSN) && !allow_user_set &&
+ 	    !(perf_evlist__combined_branch_type(session->evlist) &
+ 	      PERF_SAMPLE_BRANCH_ANY)) {
+ 		pr_err("Display of branch stack assembler requested, but non all-branch filter set\n"
 -- 
 2.20.1
 
