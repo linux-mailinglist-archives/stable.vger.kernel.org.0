@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9A4712F0FB
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C080F12EDB7
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:31:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727627AbgABW5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:57:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59530 "EHLO mail.kernel.org"
+        id S1730256AbgABWbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:31:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728335AbgABWRL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:17:11 -0500
+        id S1730252AbgABWbK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:31:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C39A22314;
-        Thu,  2 Jan 2020 22:17:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAD9520866;
+        Thu,  2 Jan 2020 22:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003430;
-        bh=FEU+wb56kXY41/LbKxx41Q+u86Vh8kPfLw7+5HaC4Gw=;
+        s=default; t=1578004270;
+        bh=5+zLHn7HrkoGk5mRtLllbP3/vp81iPVrTS2zV/XIP4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01GBSuv8yqSmg/qzIO62JyB+FM6o/x35COJ+1rAfDPplkqvLtr7+wW4ECzbDcV1q7
-         sypVXBA7y/n+eP/3KAei0XO/aXXPfH44XKpdTBMwQnMq3UthmduvRa6dSrkQAm+Nyx
-         fLPzJlBA2gDIkMmnv1pBbb9kVVGNCKKAJMiCe7nM=
+        b=d6VKee3KApmmxXb2q/MuCApYyok0+O/XoHdL269OQgi070Lc5IjUjXx40aWGUjqgi
+         wLo7PHjrs6tuDjHpEIUoD5FQFlk5zXRbdTo0lvxAVse0UmcQLRi9DTV4ziPhAHVMJ7
+         FVGe1aQPW1qGxiwbbN0X4pTqSHmw1oKpKOioNuQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 158/191] bnxt_en: Fix MSIX request logic for RDMA driver.
+        stable@vger.kernel.org, Yangbo Lu <yangbo.lu@nxp.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.9 109/171] mmc: sdhci-of-esdhc: fix P2020 errata handling
 Date:   Thu,  2 Jan 2020 23:07:20 +0100
-Message-Id: <20200102215846.336461084@linuxfoundation.org>
+Message-Id: <20200102220602.269257119@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Yangbo Lu <yangbo.lu@nxp.com>
 
-[ Upstream commit 0c722ec0a289c7f6b53f89bad1cfb7c4db3f7a62 ]
+commit fe0acab448f68c3146235afe03fb932e242ec94c upstream.
 
-The logic needs to check both bp->total_irqs and the reserved IRQs in
-hw_resc->resv_irqs if applicable and see if both are enough to cover
-the L2 and RDMA requested vectors.  The current code is only checking
-bp->total_irqs and can fail in some code paths, such as the TX timeout
-code path with the RDMA driver requesting vectors after recovery.  In
-this code path, we have not reserved enough MSIX resources for the
-RDMA driver yet.
+Two previous patches introduced below quirks for P2020 platforms.
+- SDHCI_QUIRK_RESET_AFTER_REQUEST
+- SDHCI_QUIRK_BROKEN_TIMEOUT_VAL
 
-Fixes: 75720e6323a1 ("bnxt_en: Keep track of reserved IRQs.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The patches made a mistake to add them in quirks2 of sdhci_host
+structure, while they were defined for quirks.
+	host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
+	host->quirks2 |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
+
+This patch is to fix them.
+	host->quirks |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
+	host->quirks |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
+
+Fixes: 05cb6b2a66fa ("mmc: sdhci-of-esdhc: add erratum eSDHC-A001 and A-008358 support")
+Fixes: a46e42712596 ("mmc: sdhci-of-esdhc: add erratum eSDHC5 support")
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191216031842.40068-1-yangbo.lu@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
-@@ -113,8 +113,10 @@ static int bnxt_req_msix_vecs(struct bnx
- {
- 	struct net_device *dev = edev->net;
- 	struct bnxt *bp = netdev_priv(dev);
-+	struct bnxt_hw_resc *hw_resc;
- 	int max_idx, max_cp_rings;
- 	int avail_msix, idx;
-+	int total_vecs;
- 	int rc = 0;
+---
+ drivers/mmc/host/sdhci-of-esdhc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -637,8 +637,8 @@ static int sdhci_esdhc_probe(struct plat
+ 		host->quirks &= ~SDHCI_QUIRK_NO_BUSY_IRQ;
  
- 	ASSERT_RTNL();
-@@ -142,7 +144,10 @@ static int bnxt_req_msix_vecs(struct bnx
- 	}
- 	edev->ulp_tbl[ulp_id].msix_base = idx;
- 	edev->ulp_tbl[ulp_id].msix_requested = avail_msix;
--	if (bp->total_irqs < (idx + avail_msix)) {
-+	hw_resc = &bp->hw_resc;
-+	total_vecs = idx + avail_msix;
-+	if (bp->total_irqs < total_vecs ||
-+	    (BNXT_NEW_RM(bp) && hw_resc->resv_irqs < total_vecs)) {
- 		if (netif_running(dev)) {
- 			bnxt_close_nic(bp, true, false);
- 			rc = bnxt_open_nic(bp, true, false);
-@@ -156,7 +161,6 @@ static int bnxt_req_msix_vecs(struct bnx
+ 	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc")) {
+-		host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
+-		host->quirks2 |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
++		host->quirks |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
++		host->quirks |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
  	}
  
- 	if (BNXT_NEW_RM(bp)) {
--		struct bnxt_hw_resc *hw_resc = &bp->hw_resc;
- 		int resv_msix;
- 
- 		resv_msix = hw_resc->resv_irqs - bp->cp_nr_rings;
+ 	if (of_device_is_compatible(np, "fsl,p5040-esdhc") ||
 
 
