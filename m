@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CB8A12F118
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EDEE12EF93
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:47:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727891AbgABWQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:16:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57528 "EHLO mail.kernel.org"
+        id S1727437AbgABWrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:47:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728153AbgABWP7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:15:59 -0500
+        id S1730110AbgABW36 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:29:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 771EE2253D;
-        Thu,  2 Jan 2020 22:15:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD8572253D;
+        Thu,  2 Jan 2020 22:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003358;
-        bh=FStZvUidJVP7Ac9iFDia61wcqTXaw0GAPm9tS7Bq4d0=;
+        s=default; t=1578004198;
+        bh=UEDvGixjMfM6/sPs/Vui0OLptROBGANMXxK5AkW3MM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGtoQBe7lmBw+C4zA4bS6nGQ3DtqKnaQ2elWCiz0sbMZe32mlyZsfPw504AD2XVws
-         7ogq7LEAlPIdW7U1QccZMKtaBoX+zDU4Zx0pi1Xz6Kvf5bXOjPjM7VTeeaKhLvLZ1N
-         rLYgChfVFicNDNG9LaqWzPbX27Mr59EDn+GrXHFQ=
+        b=ZDYvXNe04XXsC/5/VP3BZUPeL0sFCXKpj1k5Db5DPQNQGzIBbsEPF4uEDmutNdc9h
+         1tM5ZvMxxsQGFvF+LTUXM/jicVhrk3nPFi643h/TpJ5+TZ5KQH9euailOR0nGojx35
+         aNd+97ReoX0ymRoK6fI17hbi5WKPmtaJUH4T2INI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>,
-        Chris Down <chris@chrisdown.name>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Hildenbrand <david@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 128/191] kernel: sysctl: make drop_caches write-only
+Subject: [PATCH 4.9 079/171] iwlwifi: check kasprintf() return value
 Date:   Thu,  2 Jan 2020 23:06:50 +0100
-Message-Id: <20200102215843.444023100@linuxfoundation.org>
+Message-Id: <20200102220557.904934883@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,51 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Weiner <hannes@cmpxchg.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 204cb79ad42f015312a5bbd7012d09c93d9b46fb ]
+[ Upstream commit 5974fbb5e10b018fdbe3c3b81cb4cc54e1105ab9 ]
 
-Currently, the drop_caches proc file and sysctl read back the last value
-written, suggesting this is somehow a stateful setting instead of a
-one-time command.  Make it write-only, like e.g.  compact_memory.
+kasprintf() can fail, we should check the return value.
 
-While mitigating a VM problem at scale in our fleet, there was confusion
-about whether writing to this file will permanently switch the kernel into
-a non-caching mode.  This influences the decision making in a tense
-situation, where tens of people are trying to fix tens of thousands of
-affected machines: Do we need a rollback strategy?  What are the
-performance implications of operating in a non-caching state for several
-days?  It also caused confusion when the kernel team said we may need to
-write the file several times to make sure it's effective ("But it already
-reads back 3?").
-
-Link: http://lkml.kernel.org/r/20191031221602.9375-1-hannes@cmpxchg.org
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Chris Down <chris@chrisdown.name>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 5ed540aecc2a ("iwlwifi: use mac80211 throughput trigger")
+Fixes: 8ca151b568b6 ("iwlwifi: add the MVM driver")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sysctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/dvm/led.c | 3 +++
+ drivers/net/wireless/intel/iwlwifi/mvm/led.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index b6f2f35d0bcf..70665934d53e 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1466,7 +1466,7 @@ static struct ctl_table vm_table[] = {
- 		.procname	= "drop_caches",
- 		.data		= &sysctl_drop_caches,
- 		.maxlen		= sizeof(int),
--		.mode		= 0644,
-+		.mode		= 0200,
- 		.proc_handler	= drop_caches_sysctl_handler,
- 		.extra1		= SYSCTL_ONE,
- 		.extra2		= &four,
+diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/led.c b/drivers/net/wireless/intel/iwlwifi/dvm/led.c
+index 1bbd17ada974..20e16c423990 100644
+--- a/drivers/net/wireless/intel/iwlwifi/dvm/led.c
++++ b/drivers/net/wireless/intel/iwlwifi/dvm/led.c
+@@ -185,6 +185,9 @@ void iwl_leds_init(struct iwl_priv *priv)
+ 
+ 	priv->led.name = kasprintf(GFP_KERNEL, "%s-led",
+ 				   wiphy_name(priv->hw->wiphy));
++	if (!priv->led.name)
++		return;
++
+ 	priv->led.brightness_set = iwl_led_brightness_set;
+ 	priv->led.blink_set = iwl_led_blink_set;
+ 	priv->led.max_brightness = 1;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/led.c b/drivers/net/wireless/intel/iwlwifi/mvm/led.c
+index 1e51fbe95f7c..73c351a64187 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/led.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/led.c
+@@ -109,6 +109,9 @@ int iwl_mvm_leds_init(struct iwl_mvm *mvm)
+ 
+ 	mvm->led.name = kasprintf(GFP_KERNEL, "%s-led",
+ 				   wiphy_name(mvm->hw->wiphy));
++	if (!mvm->led.name)
++		return -ENOMEM;
++
+ 	mvm->led.brightness_set = iwl_led_brightness_set;
+ 	mvm->led.max_brightness = 1;
+ 
 -- 
 2.20.1
 
