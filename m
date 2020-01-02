@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C68B12F008
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2168112EF3F
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728950AbgABWYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:24:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47762 "EHLO mail.kernel.org"
+        id S1730364AbgABWcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:32:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729216AbgABWYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:24:11 -0500
+        id S1730360AbgABWcG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:32:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8804D20863;
-        Thu,  2 Jan 2020 22:24:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 311EF20866;
+        Thu,  2 Jan 2020 22:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003851;
-        bh=ahhPLmHnpeiZ5zIMVY1mHLBA2HgPkgXBFbDu4dmrIR0=;
+        s=default; t=1578004325;
+        bh=z7fnNHlOtntI+6PPW3XY2967h6pBm3S2QYCo9C8eF6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZDWA9FmMfQuuUnvl+R93EK8pvXpcaMdFPy7XKDGDKi09Ngy9v77H49sGEnztqAh+
-         tqTBhjNVdR5nmNyjaAcc3J7H579ODYUlvqoRU69TbUajVYJXP7Xk7PtPwLzVlf87d0
-         It+bFfJo1xLMMP0YvVGKdhVdL21Bzsw/wMzIk+MQ=
+        b=c/zTczNjK2/k8sONZt2w4TAJcc47Ah7l42RkFVk8/lrpzLFGCQeiXCeusIZMSVt0M
+         gfPcOqx3Wi4YN11k78FH3qdxrO2Qnv89l49V+xXL2g+GIymB0Lt8dfAy5wFmehZmre
+         Ib3jEFEo0s/9+klOtkGs1Yq3wkkPouwGAaJ8UYRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/91] fs/quota: handle overflows of sysctl fs.quota.* and report as unsigned long
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 096/171] net: hisilicon: Fix a BUG trigered by wrong bytes_compl
 Date:   Thu,  2 Jan 2020 23:07:07 +0100
-Message-Id: <20200102220425.643813788@linuxfoundation.org>
+Message-Id: <20200102220600.553861907@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,147 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 
-[ Upstream commit 6fcbcec9cfc7b3c6a2c1f1a23ebacedff7073e0a ]
+[ Upstream commit 90b3b339364c76baa2436445401ea9ade040c216 ]
 
-Quota statistics counted as 64-bit per-cpu counter. Reading sums per-cpu
-fractions as signed 64-bit int, filters negative values and then reports
-lower half as signed 32-bit int.
+When doing stress test, we get the following trace:
+kernel BUG at lib/dynamic_queue_limits.c:26!
+Internal error: Oops - BUG: 0 [#1] SMP ARM
+Modules linked in: hip04_eth
+CPU: 0 PID: 2003 Comm: tDblStackPcap0 Tainted: G           O L  4.4.197 #1
+Hardware name: Hisilicon A15
+task: c3637668 task.stack: de3bc000
+PC is at dql_completed+0x18/0x154
+LR is at hip04_tx_reclaim+0x110/0x174 [hip04_eth]
+pc : [<c041abfc>]    lr : [<bf0003a8>]    psr: 800f0313
+sp : de3bdc2c  ip : 00000000  fp : c020fb10
+r10: 00000000  r9 : c39b4224  r8 : 00000001
+r7 : 00000046  r6 : c39b4000  r5 : 0078f392  r4 : 0078f392
+r3 : 00000047  r2 : 00000000  r1 : 00000046  r0 : df5d5c80
+Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+Control: 32c5387d  Table: 1e189b80  DAC: 55555555
+Process tDblStackPcap0 (pid: 2003, stack limit = 0xde3bc190)
+Stack: (0xde3bdc2c to 0xde3be000)
+[<c041abfc>] (dql_completed) from [<bf0003a8>] (hip04_tx_reclaim+0x110/0x174 [hip04_eth])
+[<bf0003a8>] (hip04_tx_reclaim [hip04_eth]) from [<bf0012c0>] (hip04_rx_poll+0x20/0x388 [hip04_eth])
+[<bf0012c0>] (hip04_rx_poll [hip04_eth]) from [<c04c8d9c>] (net_rx_action+0x120/0x374)
+[<c04c8d9c>] (net_rx_action) from [<c021eaf4>] (__do_softirq+0x218/0x318)
+[<c021eaf4>] (__do_softirq) from [<c021eea0>] (irq_exit+0x88/0xac)
+[<c021eea0>] (irq_exit) from [<c0240130>] (msa_irq_exit+0x11c/0x1d4)
+[<c0240130>] (msa_irq_exit) from [<c0267ba8>] (__handle_domain_irq+0x110/0x148)
+[<c0267ba8>] (__handle_domain_irq) from [<c0201588>] (gic_handle_irq+0xd4/0x118)
+[<c0201588>] (gic_handle_irq) from [<c0558360>] (__irq_svc+0x40/0x58)
+Exception stack(0xde3bdde0 to 0xde3bde28)
+dde0: 00000000 00008001 c3637668 00000000 00000000 a00f0213 dd3627a0 c0af6380
+de00: c086d380 a00f0213 c0a22a50 de3bde6c 00000002 de3bde30 c0558138 c055813c
+de20: 600f0213 ffffffff
+[<c0558360>] (__irq_svc) from [<c055813c>] (_raw_spin_unlock_irqrestore+0x44/0x54)
+Kernel panic - not syncing: Fatal exception in interrupt
 
-Result may looks like:
+Pre-modification code:
+int hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+{
+[...]
+[1]	priv->tx_head = TX_NEXT(tx_head);
+[2]	count++;
+[3]	netdev_sent_queue(ndev, skb->len);
+[...]
+}
+An rx interrupt occurs if hip04_mac_start_xmit just executes to the line 2,
+tx_head has been updated, but corresponding 'skb->len' has not been
+added to dql_queue.
 
-fs.quota.allocated_dquots = 22327
-fs.quota.cache_hits = -489852115
-fs.quota.drops = -487288718
-fs.quota.free_dquots = 22083
-fs.quota.lookups = -486883485
-fs.quota.reads = 22327
-fs.quota.syncs = 335064
-fs.quota.writes = 3088689
+And then
+hip04_mac_interrupt->__napi_schedule->hip04_rx_poll->hip04_tx_reclaim
 
-Values bigger than 2^31-1 reported as negative.
+In hip04_tx_reclaim, because tx_head has been updated,
+bytes_compl will plus an additional "skb-> len"
+which has not been added to dql_queue. And then
+trigger the BUG_ON(bytes_compl > num_queued - dql->num_completed).
 
-All counters except "allocated_dquots" and "free_dquots" are monotonic,
-thus they should be reported as is without filtering negative values.
+To solve the problem described above, we put
+"netdev_sent_queue(ndev, skb->len);"
+before
+"priv->tx_head = TX_NEXT(tx_head);"
 
-Kernel doesn't have generic helper for 64-bit sysctl yet,
-let's use at least unsigned long.
-
-Link: https://lore.kernel.org/r/157337934693.2078.9842146413181153727.stgit@buzz
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a41ea46a9a12 ("net: hisilicon: new hip04 ethernet driver")
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/quota/dquot.c      | 29 +++++++++++++++++------------
- include/linux/quota.h |  2 +-
- 2 files changed, 18 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index 3254c90fd899..3fdbdd29702b 100644
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -2849,68 +2849,73 @@ EXPORT_SYMBOL(dquot_quotactl_sysfile_ops);
- static int do_proc_dqstats(struct ctl_table *table, int write,
- 		     void __user *buffer, size_t *lenp, loff_t *ppos)
- {
--	unsigned int type = (int *)table->data - dqstats.stat;
-+	unsigned int type = (unsigned long *)table->data - dqstats.stat;
-+	s64 value = percpu_counter_sum(&dqstats.counter[type]);
-+
-+	/* Filter negative values for non-monotonic counters */
-+	if (value < 0 && (type == DQST_ALLOC_DQUOTS ||
-+			  type == DQST_FREE_DQUOTS))
-+		value = 0;
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -455,9 +455,9 @@ static int hip04_mac_start_xmit(struct s
+ 	skb_tx_timestamp(skb);
  
- 	/* Update global table */
--	dqstats.stat[type] =
--			percpu_counter_sum_positive(&dqstats.counter[type]);
--	return proc_dointvec(table, write, buffer, lenp, ppos);
-+	dqstats.stat[type] = value;
-+	return proc_doulongvec_minmax(table, write, buffer, lenp, ppos);
- }
+ 	hip04_set_xmit_desc(priv, phys);
+-	priv->tx_head = TX_NEXT(tx_head);
+ 	count++;
+ 	netdev_sent_queue(ndev, skb->len);
++	priv->tx_head = TX_NEXT(tx_head);
  
- static struct ctl_table fs_dqstats_table[] = {
- 	{
- 		.procname	= "lookups",
- 		.data		= &dqstats.stat[DQST_LOOKUPS],
--		.maxlen		= sizeof(int),
-+		.maxlen		= sizeof(unsigned long),
- 		.mode		= 0444,
- 		.proc_handler	= do_proc_dqstats,
- 	},
- 	{
- 		.procname	= "drops",
- 		.data		= &dqstats.stat[DQST_DROPS],
--		.maxlen		= sizeof(int),
-+		.maxlen		= sizeof(unsigned long),
- 		.mode		= 0444,
- 		.proc_handler	= do_proc_dqstats,
- 	},
- 	{
- 		.procname	= "reads",
- 		.data		= &dqstats.stat[DQST_READS],
--		.maxlen		= sizeof(int),
-+		.maxlen		= sizeof(unsigned long),
- 		.mode		= 0444,
- 		.proc_handler	= do_proc_dqstats,
- 	},
- 	{
- 		.procname	= "writes",
- 		.data		= &dqstats.stat[DQST_WRITES],
--		.maxlen		= sizeof(int),
-+		.maxlen		= sizeof(unsigned long),
- 		.mode		= 0444,
- 		.proc_handler	= do_proc_dqstats,
- 	},
- 	{
- 		.procname	= "cache_hits",
- 		.data		= &dqstats.stat[DQST_CACHE_HITS],
--		.maxlen		= sizeof(int),
-+		.maxlen		= sizeof(unsigned long),
- 		.mode		= 0444,
- 		.proc_handler	= do_proc_dqstats,
- 	},
- 	{
- 		.procname	= "allocated_dquots",
- 		.data		= &dqstats.stat[DQST_ALLOC_DQUOTS],
--		.maxlen		= sizeof(int),
-+		.maxlen		= sizeof(unsigned long),
- 		.mode		= 0444,
- 		.proc_handler	= do_proc_dqstats,
- 	},
- 	{
- 		.procname	= "free_dquots",
- 		.data		= &dqstats.stat[DQST_FREE_DQUOTS],
--		.maxlen		= sizeof(int),
-+		.maxlen		= sizeof(unsigned long),
- 		.mode		= 0444,
- 		.proc_handler	= do_proc_dqstats,
- 	},
- 	{
- 		.procname	= "syncs",
- 		.data		= &dqstats.stat[DQST_SYNCS],
--		.maxlen		= sizeof(int),
-+		.maxlen		= sizeof(unsigned long),
- 		.mode		= 0444,
- 		.proc_handler	= do_proc_dqstats,
- 	},
-diff --git a/include/linux/quota.h b/include/linux/quota.h
-index 5ac9de4fcd6f..aa9a42eceab0 100644
---- a/include/linux/quota.h
-+++ b/include/linux/quota.h
-@@ -263,7 +263,7 @@ enum {
- };
- 
- struct dqstats {
--	int stat[_DQST_DQSTAT_LAST];
-+	unsigned long stat[_DQST_DQSTAT_LAST];
- 	struct percpu_counter counter[_DQST_DQSTAT_LAST];
- };
- 
--- 
-2.20.1
-
+ 	stats->tx_bytes += skb->len;
+ 	stats->tx_packets++;
 
 
