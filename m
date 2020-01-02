@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75A9512EF46
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C442D12EE5E
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730295AbgABWck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:32:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39114 "EHLO mail.kernel.org"
+        id S1731146AbgABWhu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:37:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729907AbgABWch (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:32:37 -0500
+        id S1731142AbgABWhu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:37:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7291D22314;
-        Thu,  2 Jan 2020 22:32:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D72A20863;
+        Thu,  2 Jan 2020 22:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004356;
-        bh=zmhLVLYo7AmsgDCb5HUMzyyEhu2cun8hHrTua1I/Ek0=;
+        s=default; t=1578004669;
+        bh=eWf9WbLF7nulpcJC+82Dx0PCDNXNjLHUHyQVz1FSm/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sl7dGwuLLVM6Yg/cehXJDaRIp4HtDCp6i2XWJFK95t4sw2FwP6BXb9v2pLidl0k2z
-         FJzcMLj2tgNT7WWA8+pGazPTBNuyG4ciCCLoMoujg4n0bKtwlKBSl4JbT+OTjweYfq
-         VAimulfdmksnGlJPhzVO7t0WhlynngdV0skP7Bac=
+        b=wrZeueB+58vykrqnrJZZMe18teVH8wREIahqLQ/KYLvwXbts9J3ECOBYg5vUhMTHO
+         NFM1KpxibxSmRp/VlXZlkoPO5PTTMyLARwgepnwTkkwO6MFTGNqVsStSqQGtQ6jYuj
+         kwuQXXipfX+rhF322+dR5/SYVStg62jnYSkpsNqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Michael Walle <michael@walle.cc>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 144/171] gpio: mpc8xxx: Dont overwrite default irq_set_type callback
-Date:   Thu,  2 Jan 2020 23:07:55 +0100
-Message-Id: <20200102220607.157038496@linuxfoundation.org>
+Subject: [PATCH 4.4 103/137] scsi: lpfc: Fix duplicate unreg_rpi error in port offline flow
+Date:   Thu,  2 Jan 2020 23:07:56 +0100
+Message-Id: <20200102220600.928909168@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 4e50573f39229d5e9c985fa3b4923a8b29619ade ]
+[ Upstream commit 7cfd5639d99bec0d27af089d0c8c114330e43a72 ]
 
-The per-SoC devtype structures can contain their own callbacks that
-overwrite mpc8xxx_gpio_devtype_default.
+If the driver receives a login that is later then LOGO'd by the remote port
+(aka ndlp), the driver, upon the completion of the LOGO ACC transmission,
+will logout the node and unregister the rpi that is being used for the
+node.  As part of the unreg, the node's rpi value is replaced by the
+LPFC_RPI_ALLOC_ERROR value.  If the port is subsequently offlined, the
+offline walks the nodes and ensures they are logged out, which possibly
+entails unreg'ing their rpi values.  This path does not validate the node's
+rpi value, thus doesn't detect that it has been unreg'd already.  The
+replaced rpi value is then used when accessing the rpi bitmask array which
+tracks active rpi values.  As the LPFC_RPI_ALLOC_ERROR value is not a valid
+index for the bitmask, it may fault the system.
 
-The clear intention is that mpc8xxx_irq_set_type is used in case the SoC
-does not specify a more specific callback. But what happens is that if
-the SoC doesn't specify one, its .irq_set_type is de-facto NULL, and
-this overwrites mpc8xxx_irq_set_type to a no-op. This means that the
-following SoCs are affected:
+Revise the rpi release code to detect when the rpi value is the replaced
+RPI_ALLOC_ERROR value and ignore further release steps.
 
-- fsl,mpc8572-gpio
-- fsl,ls1028a-gpio
-- fsl,ls1088a-gpio
-
-On these boards, the irq_set_type does exactly nothing, and the GPIO
-controller keeps its GPICR register in the hardware-default state. On
-the LS1028A, that is ACTIVE_BOTH, which means 2 interrupts are raised
-even if the IRQ client requests LEVEL_HIGH. Another implication is that
-the IRQs are not checked (e.g. level-triggered interrupts are not
-rejected, although they are not supported).
-
-Fixes: 82e39b0d8566 ("gpio: mpc8xxx: handle differences between incarnations at a single place")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20191115125551.31061-1-olteanv@gmail.com
-Tested-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20191105005708.7399-2-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mpc8xxx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
-index 793518a30afe..bd777687233b 100644
---- a/drivers/gpio/gpio-mpc8xxx.c
-+++ b/drivers/gpio/gpio-mpc8xxx.c
-@@ -337,7 +337,8 @@ static int mpc8xxx_probe(struct platform_device *pdev)
- 	 * It's assumed that only a single type of gpio controller is available
- 	 * on the current machine, so overwriting global data is fine.
- 	 */
--	mpc8xxx_irq_chip.irq_set_type = devtype->irq_set_type;
-+	if (devtype->irq_set_type)
-+		mpc8xxx_irq_chip.irq_set_type = devtype->irq_set_type;
- 
- 	if (devtype->gpio_dir_out)
- 		gc->direction_output = devtype->gpio_dir_out;
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 9b8867c023b9..065fdc17bbfb 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -15792,6 +15792,13 @@ lpfc_sli4_alloc_rpi(struct lpfc_hba *phba)
+ static void
+ __lpfc_sli4_free_rpi(struct lpfc_hba *phba, int rpi)
+ {
++	/*
++	 * if the rpi value indicates a prior unreg has already
++	 * been done, skip the unreg.
++	 */
++	if (rpi == LPFC_RPI_ALLOC_ERROR)
++		return;
++
+ 	if (test_and_clear_bit(rpi, phba->sli4_hba.rpi_bmask)) {
+ 		phba->sli4_hba.rpi_count--;
+ 		phba->sli4_hba.max_cfg_param.rpi_used--;
 -- 
 2.20.1
 
