@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2256B12F049
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:52:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEB8D12EE78
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729206AbgABWXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:23:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44416 "EHLO mail.kernel.org"
+        id S1731356AbgABWiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:38:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729203AbgABWXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:23:04 -0500
+        id S1730998AbgABWiw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:38:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6FDE21D7D;
-        Thu,  2 Jan 2020 22:23:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F00D722B48;
+        Thu,  2 Jan 2020 22:38:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003783;
-        bh=0BoAm34Asy31l41x/NqZ75+i5jcgeDXKfVAPQYuGWjg=;
+        s=default; t=1578004731;
+        bh=Ty0n/R4nCrM8KnO4jFTWTV5N+ViGu4ynNPmcZnP2paY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpbJH/C982QSXAMiMM2a67SgCcLWp9Sq3Laf2feMNHK+Dno6e38My/Urgkl8M7U3N
-         rAugu00wShMs32T6To9OgnC+h/JZfqE3y8cgSB0EdbI4W+ncS1/os8OhMV30bp7iP0
-         JXf05H+OVyGu8S+tFnTDNcX7GS+nHLz1SFDkIiIQ=
+        b=HY8e8aNzLSZweommQltSrcfmRjO1j0zyVVa8lwc7SLqPU6LA0mPHt4hsc475ehvWc
+         erUUJkJf7F1+RPKJ/d5QQ1Oumkztclcx1Qw9EESKmjZhYk7y3dm+JMJSjQtuOpD6WL
+         hvlI0CIAMUU8zUTiUAl8an6IV86vtfUbZPV9lSGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Engraf <david.engraf@sysgo.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Richard Genoud <richard.genoud@gmail.com>,
+        stable@vger.kernel.org,
+        "Gustavo L. F. Walbon" <gwalbon@linux.ibm.com>,
+        "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 113/114] tty/serial: atmel: fix out of range clock divider handling
+Subject: [PATCH 4.4 112/137] powerpc/security: Fix wrong message when RFI Flush is disable
 Date:   Thu,  2 Jan 2020 23:08:05 +0100
-Message-Id: <20200102220040.512118203@linuxfoundation.org>
+Message-Id: <20200102220602.235210317@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,88 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Engraf <david.engraf@sysgo.com>
+From: Gustavo L. F. Walbon <gwalbon@linux.ibm.com>
 
-[ Upstream commit cb47b9f8630ae3fa3f5fbd0c7003faba7abdf711 ]
+[ Upstream commit 4e706af3cd8e1d0503c25332b30cad33c97ed442 ]
 
-Use MCK_DIV8 when the clock divider is > 65535. Unfortunately the mode
-register was already written thus the clock selection is ignored.
+The issue was showing "Mitigation" message via sysfs whatever the
+state of "RFI Flush", but it should show "Vulnerable" when it is
+disabled.
 
-Fix by doing the baud rate calulation before setting the mode.
+If you have "L1D private" feature enabled and not "RFI Flush" you are
+vulnerable to meltdown attacks.
 
-Fixes: 5bf5635ac170 ("tty/serial: atmel: add fractional baud rate support")
-Signed-off-by: David Engraf <david.engraf@sysgo.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Acked-by: Richard Genoud <richard.genoud@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191216085403.17050-1-david.engraf@sysgo.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+"RFI Flush" is the key feature to mitigate the meltdown whatever the
+"L1D private" state.
+
+SEC_FTR_L1D_THREAD_PRIV is a feature for Power9 only.
+
+So the message should be as the truth table shows:
+
+  CPU | L1D private | RFI Flush |                sysfs
+  ----|-------------|-----------|-------------------------------------
+   P9 |    False    |   False   | Vulnerable
+   P9 |    False    |   True    | Mitigation: RFI Flush
+   P9 |    True     |   False   | Vulnerable: L1D private per thread
+   P9 |    True     |   True    | Mitigation: RFI Flush, L1D private per thread
+   P8 |    False    |   False   | Vulnerable
+   P8 |    False    |   True    | Mitigation: RFI Flush
+
+Output before this fix:
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Mitigation: RFI Flush, L1D private per thread
+  # echo 0 > /sys/kernel/debug/powerpc/rfi_flush
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Mitigation: L1D private per thread
+
+Output after fix:
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Mitigation: RFI Flush, L1D private per thread
+  # echo 0 > /sys/kernel/debug/powerpc/rfi_flush
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Vulnerable: L1D private per thread
+
+Signed-off-by: Gustavo L. F. Walbon <gwalbon@linux.ibm.com>
+Signed-off-by: Mauro S. M. Rodrigues <maurosr@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190502210907.42375-1-gwalbon@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/atmel_serial.c | 43 ++++++++++++++++---------------
- 1 file changed, 22 insertions(+), 21 deletions(-)
+ arch/powerpc/kernel/security.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
-index dd8949e8fcd7..f34520e9ad6e 100644
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -2154,27 +2154,6 @@ static void atmel_set_termios(struct uart_port *port, struct ktermios *termios,
- 		mode |= ATMEL_US_USMODE_NORMAL;
+diff --git a/arch/powerpc/kernel/security.c b/arch/powerpc/kernel/security.c
+index fc5c49046aa7..45778c83038f 100644
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -135,26 +135,22 @@ ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr, cha
+ 
+ 	thread_priv = security_ftr_enabled(SEC_FTR_L1D_THREAD_PRIV);
+ 
+-	if (rfi_flush || thread_priv) {
++	if (rfi_flush) {
+ 		struct seq_buf s;
+ 		seq_buf_init(&s, buf, PAGE_SIZE - 1);
+ 
+-		seq_buf_printf(&s, "Mitigation: ");
+-
+-		if (rfi_flush)
+-			seq_buf_printf(&s, "RFI Flush");
+-
+-		if (rfi_flush && thread_priv)
+-			seq_buf_printf(&s, ", ");
+-
++		seq_buf_printf(&s, "Mitigation: RFI Flush");
+ 		if (thread_priv)
+-			seq_buf_printf(&s, "L1D private per thread");
++			seq_buf_printf(&s, ", L1D private per thread");
+ 
+ 		seq_buf_printf(&s, "\n");
+ 
+ 		return s.len;
  	}
  
--	/* set the mode, clock divisor, parity, stop bits and data size */
--	atmel_uart_writel(port, ATMEL_US_MR, mode);
--
--	/*
--	 * when switching the mode, set the RTS line state according to the
--	 * new mode, otherwise keep the former state
--	 */
--	if ((old_mode & ATMEL_US_USMODE) != (mode & ATMEL_US_USMODE)) {
--		unsigned int rts_state;
--
--		if ((mode & ATMEL_US_USMODE) == ATMEL_US_USMODE_HWHS) {
--			/* let the hardware control the RTS line */
--			rts_state = ATMEL_US_RTSDIS;
--		} else {
--			/* force RTS line to low level */
--			rts_state = ATMEL_US_RTSEN;
--		}
--
--		atmel_uart_writel(port, ATMEL_US_CR, rts_state);
--	}
--
- 	/*
- 	 * Set the baud rate:
- 	 * Fractional baudrate allows to setup output frequency more
-@@ -2200,6 +2179,28 @@ static void atmel_set_termios(struct uart_port *port, struct ktermios *termios,
- 	quot = cd | fp << ATMEL_US_FP_OFFSET;
- 
- 	atmel_uart_writel(port, ATMEL_US_BRGR, quot);
++	if (thread_priv)
++		return sprintf(buf, "Vulnerable: L1D private per thread\n");
 +
-+	/* set the mode, clock divisor, parity, stop bits and data size */
-+	atmel_uart_writel(port, ATMEL_US_MR, mode);
-+
-+	/*
-+	 * when switching the mode, set the RTS line state according to the
-+	 * new mode, otherwise keep the former state
-+	 */
-+	if ((old_mode & ATMEL_US_USMODE) != (mode & ATMEL_US_USMODE)) {
-+		unsigned int rts_state;
-+
-+		if ((mode & ATMEL_US_USMODE) == ATMEL_US_USMODE_HWHS) {
-+			/* let the hardware control the RTS line */
-+			rts_state = ATMEL_US_RTSDIS;
-+		} else {
-+			/* force RTS line to low level */
-+			rts_state = ATMEL_US_RTSEN;
-+		}
-+
-+		atmel_uart_writel(port, ATMEL_US_CR, rts_state);
-+	}
-+
- 	atmel_uart_writel(port, ATMEL_US_CR, ATMEL_US_RSTSTA | ATMEL_US_RSTRX);
- 	atmel_uart_writel(port, ATMEL_US_CR, ATMEL_US_TXEN | ATMEL_US_RXEN);
- 	atmel_port->tx_stopped = false;
+ 	if (!security_ftr_enabled(SEC_FTR_L1D_FLUSH_HV) &&
+ 	    !security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR))
+ 		return sprintf(buf, "Not affected\n");
 -- 
 2.20.1
 
