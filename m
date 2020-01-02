@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 954C312EBDC
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:13:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5335012ED59
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:28:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727595AbgABWNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:13:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
+        id S1726005AbgABW11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:27:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727593AbgABWNA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:13:00 -0500
+        id S1729737AbgABW10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:27:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50BE321D7D;
-        Thu,  2 Jan 2020 22:12:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FCF42253D;
+        Thu,  2 Jan 2020 22:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003179;
-        bh=9ywlydh4xSjuZ+e4L3AQDlf5+DYPZ7PPPnw0Rikh5+0=;
+        s=default; t=1578004045;
+        bh=iPj0zluIWzyqWRoO57oi2l4TB1Hqdaa8CAffhmRVyYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtkDaEFprzrIutvgGafryaXVkp7Qir51WsvQ2bltwuLmyHIU9bhEC7frJMOSpf4iM
-         OHfUgCezZabg/0QS0vxk6Am5p2AEpmLynooVfvjKDJR1K18KN1BU9Hfs4MUyqCH68t
-         E/BOZoypXmHf+JCyFQOyoNlBkF1QGGHb0ByIMVos=
+        b=csbm6LuH9Zh8UIeN2Rv8suH0bQ4UHJU/Yksj1lsxiEMCVC+gPSWAUT9sBmmxIf+59
+         eS3cjnP9F0gc8040+kK3xJoIa1KsMMWTs8/SLqx2yQY2dAlGnQmE6pt2U1Bdm8M++q
+         dNgWbV4/xbHwqqOWVBN58I2OE2e8a+ULERu7CTi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/191] irqchip/irq-bcm7038-l1: Enable parent IRQ if necessary
-Date:   Thu,  2 Jan 2020 23:05:34 +0100
-Message-Id: <20200102215835.474444287@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 006/171] ALSA: hda/ca0132 - Avoid endless loop
+Date:   Thu,  2 Jan 2020 23:05:37 +0100
+Message-Id: <20200102220547.819086859@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 27eebb60357ed5aa6659442f92907c0f7368d6ae ]
+commit cb04fc3b6b076f67d228a0b7d096c69ad486c09c upstream.
 
-If the 'brcm,irq-can-wake' property is specified, make sure we also
-enable the corresponding parent interrupt we are attached to.
+Introduce a timeout to dspio_clear_response_queue() so that it won't
+be caught in an endless loop even if the hardware doesn't respond
+properly.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20191024201415.23454-4-f.fainelli@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a73d511c4867 ("ALSA: hda/ca0132: Add unsol handler for DSP and jack detection")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191213085111.22855-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/irqchip/irq-bcm7038-l1.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/hda/patch_ca0132.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/irqchip/irq-bcm7038-l1.c b/drivers/irqchip/irq-bcm7038-l1.c
-index fc75c61233aa..58bec2126966 100644
---- a/drivers/irqchip/irq-bcm7038-l1.c
-+++ b/drivers/irqchip/irq-bcm7038-l1.c
-@@ -281,6 +281,10 @@ static int __init bcm7038_l1_init_one(struct device_node *dn,
- 		pr_err("failed to map parent interrupt %d\n", parent_irq);
- 		return -EINVAL;
- 	}
-+
-+	if (of_property_read_bool(dn, "brcm,irq-can-wake"))
-+		enable_irq_wake(parent_irq);
-+
- 	irq_set_chained_handler_and_data(parent_irq, bcm7038_l1_irq_handle,
- 					 intc);
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -1300,13 +1300,14 @@ struct scp_msg {
  
--- 
-2.20.1
-
+ static void dspio_clear_response_queue(struct hda_codec *codec)
+ {
++	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+ 	unsigned int dummy = 0;
+-	int status = -1;
++	int status;
+ 
+ 	/* clear all from the response queue */
+ 	do {
+ 		status = dspio_read(codec, &dummy);
+-	} while (status == 0);
++	} while (status == 0 && time_before(jiffies, timeout));
+ }
+ 
+ static int dspio_get_response_data(struct hda_codec *codec)
 
 
