@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CB2012F168
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A247712EFD4
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:49:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727230AbgABWNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:13:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52570 "EHLO mail.kernel.org"
+        id S1729728AbgABW1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:27:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727602AbgABWNC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:13:02 -0500
+        id S1729291AbgABW1V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:27:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF6AB22B48;
-        Thu,  2 Jan 2020 22:13:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F91E20863;
+        Thu,  2 Jan 2020 22:27:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003182;
-        bh=pDuXdvwcH9iqYEt10AaDUURx/7FQZnI+NBdX5KLKZNc=;
+        s=default; t=1578004041;
+        bh=wQT4xWXNIzsEabQI1mSrwFFkt4xowQeeU7x6mRr+IQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFC9Q9zlTS/EfAZB/GmbGgG5o2flyY1gYOUU2oUCVPyaSqzXOFVaRp0cqjP8fyo1J
-         WFPT2rDO0Pw6ACzF8k0OjbdRKYGTBT9o6EYpa1Hl7slLO8R7tr4fpcxkt0+xFwGrx+
-         yuaUZqYrDfrkMzrCGegPGtwOm6JCgTNepRQIipRs=
+        b=zYzUHfOhb3qRe6z+avFrsVJvUe+s8Vgee1eTxOuwW1+1MXrcdef8HoKHiGC+B3V48
+         awP8niVAcVL8ypFv6F1USw7dEQX2j5rEfrWk0VcSQ32QEwSi69njbi1xwh2OoVECkG
+         R/JL0JL2J4EqYOeKS5JVlvUjy98B0PCYRT8PVX5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 053/191] irqchip: ingenic: Error out if IRQ domain creation failed
+        stable@vger.kernel.org, Lionel Koenig <lionel.koenig@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 004/171] ALSA: pcm: Avoid possible info leaks from PCM stream buffers
 Date:   Thu,  2 Jan 2020 23:05:35 +0100
-Message-Id: <20200102215835.586756286@linuxfoundation.org>
+Message-Id: <20200102220547.519128833@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 52ecc87642f273a599c9913b29fd179c13de457b ]
+commit add9d56d7b3781532208afbff5509d7382fb6efe upstream.
 
-If we cannot create the IRQ domain, the driver should fail to probe
-instead of succeeding with just a warning message.
+The current PCM code doesn't initialize explicitly the buffers
+allocated for PCM streams, hence it might leak some uninitialized
+kernel data or previous stream contents by mmapping or reading the
+buffer before actually starting the stream.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/1570015525-27018-3-git-send-email-zhouyanjie@zoho.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since this is a common problem, this patch simply adds the clearance
+of the buffer data at hw_params callback.  Although this does only
+zero-clear no matter which format is used, which doesn't mean the
+silence for some formats, but it should be OK because the intention is
+just to clear the previous data on the buffer.
+
+Reported-by: Lionel Koenig <lionel.koenig@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191211155742.3213-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/irqchip/irq-ingenic.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ sound/core/pcm_native.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
-index f126255b3260..dda512dfe2c1 100644
---- a/drivers/irqchip/irq-ingenic.c
-+++ b/drivers/irqchip/irq-ingenic.c
-@@ -108,6 +108,14 @@ static int __init ingenic_intc_of_init(struct device_node *node,
- 		goto out_unmap_irq;
- 	}
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -587,6 +587,10 @@ static int snd_pcm_hw_params(struct snd_
+ 	while (runtime->boundary * 2 <= LONG_MAX - runtime->buffer_size)
+ 		runtime->boundary *= 2;
  
-+	domain = irq_domain_add_legacy(node, num_chips * 32,
-+				       JZ4740_IRQ_BASE, 0,
-+				       &irq_domain_simple_ops, NULL);
-+	if (!domain) {
-+		err = -ENOMEM;
-+		goto out_unmap_base;
-+	}
++	/* clear the buffer for avoiding possible kernel info leaks */
++	if (runtime->dma_area)
++		memset(runtime->dma_area, 0, runtime->dma_bytes);
 +
- 	for (i = 0; i < num_chips; i++) {
- 		/* Mask all irqs */
- 		writel(0xffffffff, intc->base + (i * CHIP_SIZE) +
-@@ -134,14 +142,11 @@ static int __init ingenic_intc_of_init(struct device_node *node,
- 				       IRQ_NOPROBE | IRQ_LEVEL);
- 	}
+ 	snd_pcm_timer_resolution_change(substream);
+ 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
  
--	domain = irq_domain_add_legacy(node, num_chips * 32, JZ4740_IRQ_BASE, 0,
--				       &irq_domain_simple_ops, NULL);
--	if (!domain)
--		pr_warn("unable to register IRQ domain\n");
--
- 	setup_irq(parent_irq, &intc_cascade_action);
- 	return 0;
- 
-+out_unmap_base:
-+	iounmap(intc->base);
- out_unmap_irq:
- 	irq_dispose_mapping(parent_irq);
- out_free:
--- 
-2.20.1
-
 
 
