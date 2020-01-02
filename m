@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C111712EFE5
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:50:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB2012F168
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:00:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729713AbgABWtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:49:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55566 "EHLO mail.kernel.org"
+        id S1727230AbgABWNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:13:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728936AbgABW1T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:27:19 -0500
+        id S1727602AbgABWNC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:13:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34D9B21835;
-        Thu,  2 Jan 2020 22:27:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF6AB22B48;
+        Thu,  2 Jan 2020 22:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004038;
-        bh=eBj3zebOOUYoWjFTVIh6KdupIP+SGfAub9H2UCBOmD4=;
+        s=default; t=1578003182;
+        bh=pDuXdvwcH9iqYEt10AaDUURx/7FQZnI+NBdX5KLKZNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhaaypLDEiAJzsln0560BtK4ivnmUxUTyQZLSapnzc87dx1ecT0SE3Ov2wxSsJsi7
-         qZZXYXbZmdCOiCVIZ/1qerLkjLCPW0oiP+BOiXfhqutE+gUkK/9ZmssWAOGelFWm2T
-         9aDplqybHxlB+PvIX3i8YZMFxXCwcVT4Q9MhHaKo=
+        b=KFC9Q9zlTS/EfAZB/GmbGgG5o2flyY1gYOUU2oUCVPyaSqzXOFVaRp0cqjP8fyo1J
+         WFPT2rDO0Pw6ACzF8k0OjbdRKYGTBT9o6EYpa1Hl7slLO8R7tr4fpcxkt0+xFwGrx+
+         yuaUZqYrDfrkMzrCGegPGtwOm6JCgTNepRQIipRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9 003/171] btrfs: handle ENOENT in btrfs_uuid_tree_iterate
-Date:   Thu,  2 Jan 2020 23:05:34 +0100
-Message-Id: <20200102220547.376342956@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 053/191] irqchip: ingenic: Error out if IRQ domain creation failed
+Date:   Thu,  2 Jan 2020 23:05:35 +0100
+Message-Id: <20200102215835.586756286@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 714cd3e8cba6841220dce9063a7388a81de03825 upstream.
+[ Upstream commit 52ecc87642f273a599c9913b29fd179c13de457b ]
 
-If we get an -ENOENT back from btrfs_uuid_iter_rem when iterating the
-uuid tree we'll just continue and do btrfs_next_item().  However we've
-done a btrfs_release_path() at this point and no longer have a valid
-path.  So increment the key and go back and do a normal search.
+If we cannot create the IRQ domain, the driver should fail to probe
+instead of succeeding with just a warning message.
 
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/1570015525-27018-3-git-send-email-zhouyanjie@zoho.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/uuid-tree.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/irqchip/irq-ingenic.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/uuid-tree.c
-+++ b/fs/btrfs/uuid-tree.c
-@@ -335,6 +335,8 @@ again_search_slot:
- 				}
- 				if (ret < 0 && ret != -ENOENT)
- 					goto out;
-+				key.offset++;
-+				goto again_search_slot;
- 			}
- 			item_size -= sizeof(subid_le);
- 			offset += sizeof(subid_le);
+diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
+index f126255b3260..dda512dfe2c1 100644
+--- a/drivers/irqchip/irq-ingenic.c
++++ b/drivers/irqchip/irq-ingenic.c
+@@ -108,6 +108,14 @@ static int __init ingenic_intc_of_init(struct device_node *node,
+ 		goto out_unmap_irq;
+ 	}
+ 
++	domain = irq_domain_add_legacy(node, num_chips * 32,
++				       JZ4740_IRQ_BASE, 0,
++				       &irq_domain_simple_ops, NULL);
++	if (!domain) {
++		err = -ENOMEM;
++		goto out_unmap_base;
++	}
++
+ 	for (i = 0; i < num_chips; i++) {
+ 		/* Mask all irqs */
+ 		writel(0xffffffff, intc->base + (i * CHIP_SIZE) +
+@@ -134,14 +142,11 @@ static int __init ingenic_intc_of_init(struct device_node *node,
+ 				       IRQ_NOPROBE | IRQ_LEVEL);
+ 	}
+ 
+-	domain = irq_domain_add_legacy(node, num_chips * 32, JZ4740_IRQ_BASE, 0,
+-				       &irq_domain_simple_ops, NULL);
+-	if (!domain)
+-		pr_warn("unable to register IRQ domain\n");
+-
+ 	setup_irq(parent_irq, &intc_cascade_action);
+ 	return 0;
+ 
++out_unmap_base:
++	iounmap(intc->base);
+ out_unmap_irq:
+ 	irq_dispose_mapping(parent_irq);
+ out_free:
+-- 
+2.20.1
+
 
 
