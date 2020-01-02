@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 910A012EEE5
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:42:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 622ED12EED2
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:41:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729153AbgABWmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:42:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47866 "EHLO mail.kernel.org"
+        id S1730218AbgABWgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:36:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730563AbgABWgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:36:32 -0500
+        id S1730507AbgABWgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:36:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4574421835;
-        Thu,  2 Jan 2020 22:36:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2016F20866;
+        Thu,  2 Jan 2020 22:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004590;
-        bh=f160mG0OuevRzBxd7nlx3AVqJfgARLe47fn1vVaGqu4=;
+        s=default; t=1578004614;
+        bh=HfxmJov3jysFVXqwPS9/x0Kez02+vReiXBOF2m6UGz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8vcJXSAL5hDrr6BTMresijOUNVm9fai7PGptMBrGMqT4EHXfJit+xJJ+X3l3b/Tc
-         nXf0GtlpEFUxpw6L7DsIXjAvwnFqY8usG7VH4dCg0BJATfGr/3XXRpu16UVcbCw221
-         wI6iTEZ3iKpNyGpQfkYRpWfs73o9RTzwgOHkHKEI=
+        b=ovkaDDFhXdiwJDiTpK7g94lsK9RJG4ArLytLxyKtpcPYDuyA2HG2m4CjMk4R3QXjg
+         XwlqVSW60AZi/w7Rwph9s7p8ipEisaQWhtH8d6lpK/mHwY3DM+HuQ8oSFbm/VoB3FE
+         bx6poTHj1ljN7TdeBc3AB08lBBi+YODUnkT5lvJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        stable@vger.kernel.org, Ben Zhang <benzh@chromium.org>,
+        Curtis Malainey <cujomalainey@chromium.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 053/137] spi: pxa2xx: Add missed security checks
-Date:   Thu,  2 Jan 2020 23:07:06 +0100
-Message-Id: <20200102220553.652840941@linuxfoundation.org>
+Subject: [PATCH 4.4 054/137] ASoC: rt5677: Mark reg RT5677_PWR_ANLG2 as volatile
+Date:   Thu,  2 Jan 2020 23:07:07 +0100
+Message-Id: <20200102220553.765864082@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
 References: <20200102220546.618583146@linuxfoundation.org>
@@ -44,43 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Ben Zhang <benzh@chromium.org>
 
-[ Upstream commit 5eb263ef08b5014cfc2539a838f39d2fd3531423 ]
+[ Upstream commit eabf424f7b60246c76dcb0ea6f1e83ef9abbeaa6 ]
 
-pxa2xx_spi_init_pdata misses checks for devm_clk_get and
-platform_get_irq.
-Add checks for them to fix the bugs.
+The codec dies when RT5677_PWR_ANLG2(MX-64h) is set to 0xACE1
+while it's streaming audio over SPI. The DSP firmware turns
+on PLL2 (MX-64 bit 8) when SPI streaming starts.  However regmap
+does not believe that register can change by itself. When
+BST1 (bit 15) is turned on with regmap_update_bits(), it doesn't
+read the register first before write, so PLL2 power bit is
+cleared by accident.
 
-Since ssp->clk and ssp->irq are used in probe, they are mandatory here.
-So we cannot use _optional() for devm_clk_get and platform_get_irq.
+Marking MX-64h as volatile in regmap solved the issue.
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Link: https://lore.kernel.org/r/20191109080943.30428-1-hslester96@gmail.com
+Signed-off-by: Ben Zhang <benzh@chromium.org>
+Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
+Link: https://lore.kernel.org/r/20191106011335.223061-6-cujomalainey@chromium.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/soc/codecs/rt5677.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index 193aa3da5033..96ed01cb6489 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1425,7 +1425,13 @@ pxa2xx_spi_init_pdata(struct platform_device *pdev)
- 	}
- 
- 	ssp->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(ssp->clk))
-+		return NULL;
-+
- 	ssp->irq = platform_get_irq(pdev, 0);
-+	if (ssp->irq < 0)
-+		return NULL;
-+
- 	ssp->type = type;
- 	ssp->pdev = pdev;
- 	ssp->port_id = pxa2xx_spi_get_port_id(adev);
+diff --git a/sound/soc/codecs/rt5677.c b/sound/soc/codecs/rt5677.c
+index 69d987a9935c..90f8173123f6 100644
+--- a/sound/soc/codecs/rt5677.c
++++ b/sound/soc/codecs/rt5677.c
+@@ -295,6 +295,7 @@ static bool rt5677_volatile_register(struct device *dev, unsigned int reg)
+ 	case RT5677_I2C_MASTER_CTRL7:
+ 	case RT5677_I2C_MASTER_CTRL8:
+ 	case RT5677_HAP_GENE_CTRL2:
++	case RT5677_PWR_ANLG2: /* Modified by DSP firmware */
+ 	case RT5677_PWR_DSP_ST:
+ 	case RT5677_PRIV_DATA:
+ 	case RT5677_PLL1_CTRL2:
 -- 
 2.20.1
 
