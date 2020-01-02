@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5C9F12EC48
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:17:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B7B12ECB8
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:21:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728096AbgABWRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:17:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59192 "EHLO mail.kernel.org"
+        id S1728940AbgABWVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:21:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727905AbgABWQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:16:58 -0500
+        id S1728931AbgABWVD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:21:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00069227BF;
-        Thu,  2 Jan 2020 22:16:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6FC021582;
+        Thu,  2 Jan 2020 22:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003418;
-        bh=/GNAuNFE5e987/ISVIjYsKkE1UFI+Kx0wFE1vVGjSA0=;
+        s=default; t=1578003663;
+        bh=IMSOtqcwaP6UlIqYmPsM13lnT/jot8oLkrsfRUmghbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uay4+HsLjWkVjZcBfMFFLdZxT7OK2ioOaUo58VS92fmPfkPVe7DxuKAk3d29znTTJ
-         2siwinEvLnMB/Wt0jFDfB85znkxtgLGq7D8rckg+Lvuhw9yh3Fot7ykr0LHaAe1/jv
-         UnQewgK7/0O2rMkjwvlUe5kVlLQTUbVxPyV7B/Y0=
+        b=sPoP68wSNv3TPcxrz0YtV6+MFhpfCkgOgQ0P0pVX3MchcJ1eYhtbGWvzkZCEIGJc1
+         XdbTICVQ74SGTyaFy3MNSUG55x45bUYXtIjNinjvRpaeasK61T7PTJ6FTq0+lz2xvF
+         L9TqbxOO8jbhzg0Eu5TLLt8eifw18SBWnq1bIx+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 153/191] net_sched: sch_fq: properly set sk->sk_pacing_status
+        stable@vger.kernel.org, linux-scsi@vger.kernel.org,
+        =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 063/114] cdrom: respect device capabilities during opening action
 Date:   Thu,  2 Jan 2020 23:07:15 +0100
-Message-Id: <20200102215845.838130304@linuxfoundation.org>
+Message-Id: <20200102220035.429538902@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Diego Elio Pettenò <flameeyes@flameeyes.com>
 
-[ Upstream commit bb3d0b8bf5be61ab1d6f472c43cbf34de17e796b ]
+[ Upstream commit 366ba7c71ef77c08d06b18ad61b26e2df7352338 ]
 
-If fq_classify() recycles a struct fq_flow because
-a socket structure has been reallocated, we do not
-set sk->sk_pacing_status immediately, but later if the
-flow becomes detached.
+Reading the TOC only works if the device can play audio, otherwise
+these commands fail (and possibly bring the device to an unhealthy
+state.)
 
-This means that any flow requiring pacing (BBR, or SO_MAX_PACING_RATE)
-might fallback to TCP internal pacing, which requires a per-socket
-high resolution timer, and therefore more cpu cycles.
+Similarly, cdrom_mmc3_profile() should only be called if the device
+supports generic packet commands.
 
-Fixes: 218af599fa63 ("tcp: internal implementation for pacing")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Cc: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org
+Signed-off-by: Diego Elio Pettenò <flameeyes@flameeyes.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_fq.c |   17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/cdrom/cdrom.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/net/sched/sch_fq.c
-+++ b/net/sched/sch_fq.c
-@@ -301,6 +301,9 @@ static struct fq_flow *fq_classify(struc
- 				     f->socket_hash != sk->sk_hash)) {
- 				f->credit = q->initial_quantum;
- 				f->socket_hash = sk->sk_hash;
-+				if (q->rate_enable)
-+					smp_store_release(&sk->sk_pacing_status,
-+							  SK_PACING_FQ);
- 				if (fq_flow_is_throttled(f))
- 					fq_flow_unset_throttled(q, f);
- 				f->time_next_packet = 0ULL;
-@@ -322,8 +325,12 @@ static struct fq_flow *fq_classify(struc
- 
- 	fq_flow_set_detached(f);
- 	f->sk = sk;
--	if (skb->sk == sk)
-+	if (skb->sk == sk) {
- 		f->socket_hash = sk->sk_hash;
-+		if (q->rate_enable)
-+			smp_store_release(&sk->sk_pacing_status,
-+					  SK_PACING_FQ);
+diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+index 933268b8d6a5..d3947388a3ef 100644
+--- a/drivers/cdrom/cdrom.c
++++ b/drivers/cdrom/cdrom.c
+@@ -996,6 +996,12 @@ static void cdrom_count_tracks(struct cdrom_device_info *cdi, tracktype *tracks)
+ 	tracks->xa = 0;
+ 	tracks->error = 0;
+ 	cd_dbg(CD_COUNT_TRACKS, "entering cdrom_count_tracks\n");
++
++	if (!CDROM_CAN(CDC_PLAY_AUDIO)) {
++		tracks->error = CDS_NO_INFO;
++		return;
 +	}
- 	f->credit = q->initial_quantum;
- 
- 	rb_link_node(&f->fq_node, parent, p);
-@@ -428,17 +435,9 @@ static int fq_enqueue(struct sk_buff *sk
- 	f->qlen++;
- 	qdisc_qstats_backlog_inc(sch, skb);
- 	if (fq_flow_is_detached(f)) {
--		struct sock *sk = skb->sk;
--
- 		fq_flow_add_tail(&q->new_flows, f);
- 		if (time_after(jiffies, f->age + q->flow_refill_delay))
- 			f->credit = max_t(u32, f->credit, q->quantum);
--		if (sk && q->rate_enable) {
--			if (unlikely(smp_load_acquire(&sk->sk_pacing_status) !=
--				     SK_PACING_FQ))
--				smp_store_release(&sk->sk_pacing_status,
--						  SK_PACING_FQ);
--		}
- 		q->inactive_flows--;
- 	}
- 
++
+ 	/* Grab the TOC header so we can see how many tracks there are */
+ 	ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCHDR, &header);
+ 	if (ret) {
+@@ -1162,7 +1168,8 @@ int cdrom_open(struct cdrom_device_info *cdi, struct block_device *bdev,
+ 		ret = open_for_data(cdi);
+ 		if (ret)
+ 			goto err;
+-		cdrom_mmc3_profile(cdi);
++		if (CDROM_CAN(CDC_GENERIC_PACKET))
++			cdrom_mmc3_profile(cdi);
+ 		if (mode & FMODE_WRITE) {
+ 			ret = -EROFS;
+ 			if (cdrom_open_write(cdi))
+@@ -2882,6 +2889,9 @@ int cdrom_get_last_written(struct cdrom_device_info *cdi, long *last_written)
+ 	   it doesn't give enough information or fails. then we return
+ 	   the toc contents. */
+ use_toc:
++	if (!CDROM_CAN(CDC_PLAY_AUDIO))
++		return -ENOSYS;
++
+ 	toc.cdte_format = CDROM_MSF;
+ 	toc.cdte_track = CDROM_LEADOUT;
+ 	if ((ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCENTRY, &toc)))
+-- 
+2.20.1
+
 
 
