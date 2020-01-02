@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DEAA12EF28
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CB8A12F118
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730781AbgABWfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:35:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44656 "EHLO mail.kernel.org"
+        id S1727891AbgABWQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:16:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730778AbgABWfJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:35:09 -0500
+        id S1728153AbgABWP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:15:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7B8A2464E;
-        Thu,  2 Jan 2020 22:35:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 771EE2253D;
+        Thu,  2 Jan 2020 22:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004509;
-        bh=ofJW6LqalfFIe9nIUe4jFIfDwpyYMk7Pw2SGVdIRS64=;
+        s=default; t=1578003358;
+        bh=FStZvUidJVP7Ac9iFDia61wcqTXaw0GAPm9tS7Bq4d0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odGT8iwPu7TkiJMGOgKxRS/nzVeJTRkwgrHS2tsgaT9nDw3po6fBKepgqCVTGc02m
-         kPtC6eB7PK8HwToIE6H5tDV+CXnJzXNapQPteilZnVTn7rYp5RVgqXjz9aILDtFJTM
-         VqlY0eh3R7dPC1U/94NOADChBtBArlpW93ntbcYw=
+        b=tGtoQBe7lmBw+C4zA4bS6nGQ3DtqKnaQ2elWCiz0sbMZe32mlyZsfPw504AD2XVws
+         7ogq7LEAlPIdW7U1QccZMKtaBoX+zDU4Zx0pi1Xz6Kvf5bXOjPjM7VTeeaKhLvLZ1N
+         rLYgChfVFicNDNG9LaqWzPbX27Mr59EDn+GrXHFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>,
+        Chris Down <chris@chrisdown.name>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 037/137] rtlwifi: fix memory leak in rtl92c_set_fw_rsvdpagepkt()
+Subject: [PATCH 5.4 128/191] kernel: sysctl: make drop_caches write-only
 Date:   Thu,  2 Jan 2020 23:06:50 +0100
-Message-Id: <20200102220551.650170941@linuxfoundation.org>
+Message-Id: <20200102215843.444023100@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +50,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-[ Upstream commit 5174f1e41074b5186608badc2e89441d021e8c08 ]
+[ Upstream commit 204cb79ad42f015312a5bbd7012d09c93d9b46fb ]
 
-This leak was found by testing the EDIMAX EW-7612 on Raspberry Pi 3B+ with
-Linux 5.4-rc5 (multi_v7_defconfig + rtlwifi + kmemleak) and noticed a
-single memory leak during probe:
+Currently, the drop_caches proc file and sysctl read back the last value
+written, suggesting this is somehow a stateful setting instead of a
+one-time command.  Make it write-only, like e.g.  compact_memory.
 
-unreferenced object 0xec13ee40 (size 176):
-  comm "kworker/u8:1", pid 36, jiffies 4294939321 (age 5580.790s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<fc1bbb3e>] __netdev_alloc_skb+0x9c/0x164
-    [<863dfa6e>] rtl92c_set_fw_rsvdpagepkt+0x254/0x340 [rtl8192c_common]
-    [<9572be0d>] rtl92cu_set_hw_reg+0xf48/0xfa4 [rtl8192cu]
-    [<116df4d8>] rtl_op_bss_info_changed+0x234/0x96c [rtlwifi]
-    [<8933575f>] ieee80211_bss_info_change_notify+0xb8/0x264 [mac80211]
-    [<d4061e86>] ieee80211_assoc_success+0x934/0x1798 [mac80211]
-    [<e55adb56>] ieee80211_rx_mgmt_assoc_resp+0x174/0x314 [mac80211]
-    [<5974629e>] ieee80211_sta_rx_queued_mgmt+0x3f4/0x7f0 [mac80211]
-    [<d91091c6>] ieee80211_iface_work+0x208/0x318 [mac80211]
-    [<ac5fcae4>] process_one_work+0x22c/0x564
-    [<f5e6d3b6>] worker_thread+0x44/0x5d8
-    [<82c7b073>] kthread+0x150/0x154
-    [<b43e1b7d>] ret_from_fork+0x14/0x2c
-    [<794dff30>] 0x0
+While mitigating a VM problem at scale in our fleet, there was confusion
+about whether writing to this file will permanently switch the kernel into
+a non-caching mode.  This influences the decision making in a tense
+situation, where tens of people are trying to fix tens of thousands of
+affected machines: Do we need a rollback strategy?  What are the
+performance implications of operating in a non-caching state for several
+days?  It also caused confusion when the kernel team said we may need to
+write the file several times to make sure it's effective ("But it already
+reads back 3?").
 
-It is because 8192cu doesn't implement usb_cmd_send_packet(), and this
-patch just frees the skb within the function to resolve memleak problem
-by now. Since 8192cu doesn't turn on fwctrl_lps that needs to download
-command packet for firmware via the function, applying this patch doesn't
-affect driver behavior.
-
-Reported-by: Stefan Wahren <wahrenst@gmx.net>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: http://lkml.kernel.org/r/20191031221602.9375-1-hannes@cmpxchg.org
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Chris Down <chris@chrisdown.name>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sysctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-index 34ce06441d1b..137d7c8645da 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-@@ -1601,6 +1601,8 @@ static bool usb_cmd_send_packet(struct ieee80211_hw *hw, struct sk_buff *skb)
-    * This is maybe necessary:
-    * rtlpriv->cfg->ops->fill_tx_cmddesc(hw, buffer, 1, 1, skb);
-    */
-+	dev_kfree_skb(skb);
-+
- 	return true;
- }
- 
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index b6f2f35d0bcf..70665934d53e 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1466,7 +1466,7 @@ static struct ctl_table vm_table[] = {
+ 		.procname	= "drop_caches",
+ 		.data		= &sysctl_drop_caches,
+ 		.maxlen		= sizeof(int),
+-		.mode		= 0644,
++		.mode		= 0200,
+ 		.proc_handler	= drop_caches_sysctl_handler,
+ 		.extra1		= SYSCTL_ONE,
+ 		.extra2		= &four,
 -- 
 2.20.1
 
