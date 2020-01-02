@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5F912EF3A
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 549CE12EE5B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729862AbgABWbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:31:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37316 "EHLO mail.kernel.org"
+        id S1731113AbgABWhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:37:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730325AbgABWbr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:31:47 -0500
+        id S1731103AbgABWhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:37:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F226D21D7D;
-        Thu,  2 Jan 2020 22:31:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93B4020863;
+        Thu,  2 Jan 2020 22:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004306;
-        bh=GPaWdBquP7lqPDeAbE7TakV5GZ9kyvRxN5I/6f0ImS8=;
+        s=default; t=1578004660;
+        bh=eRSMkoQmHJfQsGIgeNGeeDD/XC6HM12laJvD/wmZqF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=niGdwKBfzlt2v90xozIvv4dY9TpBdK9jYshtUeN00KAk0mAbnJiE2kSE4ltcOeJhS
-         a5xHHVbIoHt8TPvYQQcFnhmFsSG+5035sMIHg3j0FVvsh3sq0Mj44Ia2BmYJvIJrk0
-         yK85sUhRNEZSHj/nRSt7ijEEJNzsqtpsFkvSfGeE=
+        b=HAJkaeu7PxcI6jKGPU38LxTtwMUqTvCsbT5fYUqGkZaqb0RYCnJhD8TvKVnPfT6ue
+         xza148T2eedL0pxkY9SiiKwZOySV3sMgDEqYIkmyBs/44/UjQr8fIAeLyhKMLUhISx
+         WswpVGLrVwRKdkxCiRKxpwN8vndwhciiNf7qYyuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 123/171] powerpc/book3s64/hash: Add cond_resched to avoid soft lockup warning
-Date:   Thu,  2 Jan 2020 23:07:34 +0100
-Message-Id: <20200102220604.101673134@linuxfoundation.org>
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Suwan Kim <suwan.kim027@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 4.4 082/137] usbip: Fix error path of vhci_recv_ret_submit()
+Date:   Thu,  2 Jan 2020 23:07:35 +0100
+Message-Id: <20200102220557.745590718@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Suwan Kim <suwan.kim027@gmail.com>
 
-[ Upstream commit 16f6b67cf03cb43db7104acb2ca877bdc2606c92 ]
+commit aabb5b833872524eaf28f52187e5987984982264 upstream.
 
-With large memory (8TB and more) hotplug, we can get soft lockup
-warnings as below. These were caused by a long loop without any
-explicit cond_resched which is a problem for !PREEMPT kernels.
+If a transaction error happens in vhci_recv_ret_submit(), event
+handler closes connection and changes port status to kick hub_event.
+Then hub tries to flush the endpoint URBs, but that causes infinite
+loop between usb_hub_flush_endpoint() and vhci_urb_dequeue() because
+"vhci_priv" in vhci_urb_dequeue() was already released by
+vhci_recv_ret_submit() before a transmission error occurred. Thus,
+vhci_urb_dequeue() terminates early and usb_hub_flush_endpoint()
+continuously calls vhci_urb_dequeue().
 
-Avoid this using cond_resched() while inserting hash page table
-entries. We already do similar cond_resched() in __add_pages(), see
-commit f64ac5e6e306 ("mm, memory_hotplug: add scheduling point to
-__add_pages").
+The root cause of this issue is that vhci_recv_ret_submit()
+terminates early without giving back URB when transaction error
+occurs in vhci_recv_ret_submit(). That causes the error URB to still
+be linked at endpoint list without “vhci_priv".
 
-  rcu:     3-....: (24002 ticks this GP) idle=13e/1/0x4000000000000002 softirq=722/722 fqs=12001
-   (t=24003 jiffies g=4285 q=2002)
-  NMI backtrace for cpu 3
-  CPU: 3 PID: 3870 Comm: ndctl Not tainted 5.3.0-197.18-default+ #2
-  Call Trace:
-    dump_stack+0xb0/0xf4 (unreliable)
-    nmi_cpu_backtrace+0x124/0x130
-    nmi_trigger_cpumask_backtrace+0x1ac/0x1f0
-    arch_trigger_cpumask_backtrace+0x28/0x3c
-    rcu_dump_cpu_stacks+0xf8/0x154
-    rcu_sched_clock_irq+0x878/0xb40
-    update_process_times+0x48/0x90
-    tick_sched_handle.isra.16+0x4c/0x80
-    tick_sched_timer+0x68/0xe0
-    __hrtimer_run_queues+0x180/0x430
-    hrtimer_interrupt+0x110/0x300
-    timer_interrupt+0x108/0x2f0
-    decrementer_common+0x114/0x120
-  --- interrupt: 901 at arch_add_memory+0xc0/0x130
-      LR = arch_add_memory+0x74/0x130
-    memremap_pages+0x494/0x650
-    devm_memremap_pages+0x3c/0xa0
-    pmem_attach_disk+0x188/0x750
-    nvdimm_bus_probe+0xac/0x2c0
-    really_probe+0x148/0x570
-    driver_probe_device+0x19c/0x1d0
-    device_driver_attach+0xcc/0x100
-    bind_store+0x134/0x1c0
-    drv_attr_store+0x44/0x60
-    sysfs_kf_write+0x64/0x90
-    kernfs_fop_write+0x1a0/0x270
-    __vfs_write+0x3c/0x70
-    vfs_write+0xd0/0x260
-    ksys_write+0xdc/0x130
-    system_call+0x5c/0x68
+So, in the case of transaction error in vhci_recv_ret_submit(),
+unlink URB from the endpoint, insert proper error code in
+urb->status and give back URB.
 
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191001084656.31277-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20191213023055.19933-3-suwan.kim027@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/mm/hash_utils_64.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/usbip/vhci_rx.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/mm/hash_utils_64.c b/arch/powerpc/mm/hash_utils_64.c
-index de1d8cdd2991..2dc1fc445f35 100644
---- a/arch/powerpc/mm/hash_utils_64.c
-+++ b/arch/powerpc/mm/hash_utils_64.c
-@@ -300,6 +300,7 @@ int htab_bolt_mapping(unsigned long vstart, unsigned long vend,
- 		if (ret < 0)
- 			break;
+--- a/drivers/usb/usbip/vhci_rx.c
++++ b/drivers/usb/usbip/vhci_rx.c
+@@ -89,16 +89,21 @@ static void vhci_recv_ret_submit(struct
+ 	usbip_pack_pdu(pdu, urb, USBIP_RET_SUBMIT, 0);
  
-+		cond_resched();
- #ifdef CONFIG_DEBUG_PAGEALLOC
- 		if (debug_pagealloc_enabled() &&
- 			(paddr >> PAGE_SHIFT) < linear_map_hash_count)
--- 
-2.20.1
-
+ 	/* recv transfer buffer */
+-	if (usbip_recv_xbuff(ud, urb) < 0)
+-		return;
++	if (usbip_recv_xbuff(ud, urb) < 0) {
++		urb->status = -EPROTO;
++		goto error;
++	}
+ 
+ 	/* recv iso_packet_descriptor */
+-	if (usbip_recv_iso(ud, urb) < 0)
+-		return;
++	if (usbip_recv_iso(ud, urb) < 0) {
++		urb->status = -EPROTO;
++		goto error;
++	}
+ 
+ 	/* restore the padding in iso packets */
+ 	usbip_pad_iso(ud, urb);
+ 
++error:
+ 	if (usbip_dbg_flag_vhci_rx)
+ 		usbip_dump_urb(urb);
+ 
 
 
