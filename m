@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 903B312EFA1
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:47:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FC2112F0A2
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729841AbgABW3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:29:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60342 "EHLO mail.kernel.org"
+        id S1728568AbgABWUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:20:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730020AbgABW3W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:29:22 -0500
+        id S1728609AbgABWUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:20:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E22A620866;
-        Thu,  2 Jan 2020 22:29:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DF4C24653;
+        Thu,  2 Jan 2020 22:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004162;
-        bh=TgdWmQUysGVNSA1T+dSHQ4fElPOLvT415pV5yyln5QQ=;
+        s=default; t=1578003630;
+        bh=pd/wt+YcBDprBLzmbtoE6qnAlsY3BlzyUlRVgKeZAZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ute1wTi40mTh/7V1S/0zwG2n2lK+3q3D7KM1A8wEKEln7q9fl98rOQsKt/VNptOea
-         Q/1hEoBJRrG0YOO2PrEKbmCKjSC7hh9bh3rGB0Mnm7VupMhCRMuui10vB7hp3TQI48
-         7YqTInutlgApW0/kv+NGAV88R2YoW3hB+z5g6o8M=
+        b=YrBFqGCrzXVnE9SUxMLFGVPuzL7bNS+izcJBWpe8C5EMuXo8S234ciThkAweXmKXW
+         MtnQbUH9RVFDm6L+UOgFLABEvilhnpQ8cTYZI9L+4WD1nDAc12pOGKUFC1xFAAqeUn
+         JflJd2PR1XQRx/S1cqOnGA8eZ5vO8XoRbquV6UZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Isely <isely@pobox.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 063/171] media: pvrusb2: Fix oops on tear-down when radio support is not present
+        stable@vger.kernel.org,
+        Matthew Bobrowski <mbobrowski@mbobrowski.org>,
+        Jan Kara <jack@suse.cz>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 022/114] ext4: update direct I/O read lock pattern for IOCB_NOWAIT
 Date:   Thu,  2 Jan 2020 23:06:34 +0100
-Message-Id: <20200102220555.616782506@linuxfoundation.org>
+Message-Id: <20200102220031.395561173@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Isely <isely@pobox.com>
+From: Matthew Bobrowski <mbobrowski@mbobrowski.org>
 
-[ Upstream commit 7f404ae9cf2a285f73b3c18ab9303d54b7a3d8e1 ]
+[ Upstream commit 548feebec7e93e58b647dba70b3303dcb569c914 ]
 
-In some device configurations there's no radio or radio support in the
-driver.  That's OK, as the driver sets itself up accordingly.  However
-on tear-down in these caes it's still trying to tear down radio
-related context when there isn't anything there, leading to
-dereferences through a null pointer and chaos follows.
+This patch updates the lock pattern in ext4_direct_IO_read() to not
+block on inode lock in cases of IOCB_NOWAIT direct I/O reads. The
+locking condition implemented here is similar to that of 942491c9e6d6
+("xfs: fix AIM7 regression").
 
-How this bug survived unfixed for 11 years in the pvrusb2 driver is a
-mystery to me.
-
-[hverkuil: fix two checkpatch warnings]
-
-Signed-off-by: Mike Isely <isely@pobox.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 16c54688592c ("ext4: Allow parallel DIO reads")
+Signed-off-by: Matthew Bobrowski <mbobrowski@mbobrowski.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/c5d5e759f91747359fbd2c6f9a36240cf75ad79f.1572949325.git.mbobrowski@mbobrowski.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-v4l2.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/ext4/inode.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/pvrusb2/pvrusb2-v4l2.c b/drivers/media/usb/pvrusb2/pvrusb2-v4l2.c
-index 2cc4d2b6f810..d18ced28797d 100644
---- a/drivers/media/usb/pvrusb2/pvrusb2-v4l2.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-v4l2.c
-@@ -919,8 +919,12 @@ static void pvr2_v4l2_internal_check(struct pvr2_channel *chp)
- 	pvr2_v4l2_dev_disassociate_parent(vp->dev_video);
- 	pvr2_v4l2_dev_disassociate_parent(vp->dev_radio);
- 	if (!list_empty(&vp->dev_video->devbase.fh_list) ||
--	    !list_empty(&vp->dev_radio->devbase.fh_list))
-+	    (vp->dev_radio &&
-+	     !list_empty(&vp->dev_radio->devbase.fh_list))) {
-+		pvr2_trace(PVR2_TRACE_STRUCT,
-+			   "pvr2_v4l2 internal_check exit-empty id=%p", vp);
- 		return;
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 215802cbc42b..00d0c4b8fa30 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3848,7 +3848,13 @@ static ssize_t ext4_direct_IO_read(struct kiocb *iocb, struct iov_iter *iter)
+ 	 * writes & truncates and since we take care of writing back page cache,
+ 	 * we are protected against page writeback as well.
+ 	 */
+-	inode_lock_shared(inode);
++	if (iocb->ki_flags & IOCB_NOWAIT) {
++		if (!inode_trylock_shared(inode))
++			return -EAGAIN;
++	} else {
++		inode_lock_shared(inode);
 +	}
- 	pvr2_v4l2_destroy_no_lock(vp);
- }
- 
-@@ -994,7 +998,8 @@ static int pvr2_v4l2_release(struct file *file)
- 	kfree(fhp);
- 	if (vp->channel.mc_head->disconnect_flag &&
- 	    list_empty(&vp->dev_video->devbase.fh_list) &&
--	    list_empty(&vp->dev_radio->devbase.fh_list)) {
-+	    (!vp->dev_radio ||
-+	     list_empty(&vp->dev_radio->devbase.fh_list))) {
- 		pvr2_v4l2_destroy_no_lock(vp);
- 	}
- 	return 0;
++
+ 	ret = filemap_write_and_wait_range(mapping, iocb->ki_pos,
+ 					   iocb->ki_pos + count - 1);
+ 	if (ret)
 -- 
 2.20.1
 
