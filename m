@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC04D12EE20
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B7F12EE29
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:35:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730702AbgABWfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:35:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45092 "EHLO mail.kernel.org"
+        id S1730719AbgABWfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:35:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730697AbgABWfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:35:24 -0500
+        id S1730870AbgABWfq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:35:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 329C620866;
-        Thu,  2 Jan 2020 22:35:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A01CB22B48;
+        Thu,  2 Jan 2020 22:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004523;
-        bh=7+JSJnLaWm9rB9v4jCs3lqAMZplg4udQOpIcjK9RwUE=;
+        s=default; t=1578004545;
+        bh=xPyoKREL88dZ0KX450JGuDPqnP9nnuh89cMFe65bG78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d3NdsKIo/2HPgS1cGYlHsJW2xVT3KcQonpg0E96C2YGa22H4U1SdCd4CHG/v4ry9y
-         iq42Rp2D85pQc/G3ya8tM0CovybnqwMQFulWY0F43uvcXIrFgoYviorjh5GPYzWsfT
-         3HiOIpSpBlQazgUNEiX2A0Om/ZnIqxCOTJsNT95U=
+        b=cp+TZiLc8rdFcD2EqitJ5svvzF7lWQOzQLqZD9n5rbdQ5ZoH1bFt/dpIuQbkkPfqU
+         KISm88HOUuZZprxQbOqdQpmbQlg2N5JK2/sayM5XEih0iEBhAPLaFx9rJqv19OvcLb
+         65Oe+fxNOvGxht8898dsPp8wHm7mGa53cqLLFAIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 025/137] extcon: sm5502: Reset registers during initialization
-Date:   Thu,  2 Jan 2020 23:06:38 +0100
-Message-Id: <20200102220549.980968649@linuxfoundation.org>
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 026/137] x86/mm: Use the correct function type for native_set_fixmap()
+Date:   Thu,  2 Jan 2020 23:06:39 +0100
+Message-Id: <20200102220550.106586526@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
 References: <20200102220546.618583146@linuxfoundation.org>
@@ -44,61 +52,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 6942635032cfd3e003e980d2dfa4e6323a3ce145 ]
+[ Upstream commit f53e2cd0b8ab7d9e390414470bdbd830f660133f ]
 
-On some devices (e.g. Samsung Galaxy A5 (2015)), the bootloader
-seems to keep interrupts enabled for SM5502 when booting Linux.
-Changing the cable state (i.e. plugging in a cable) - until the driver
-is loaded - will therefore produce an interrupt that is never read.
+We call native_set_fixmap indirectly through the function pointer
+struct pv_mmu_ops::set_fixmap, which expects the first parameter to be
+'unsigned' instead of 'enum fixed_addresses'. This patch changes the
+function type for native_set_fixmap to match the pointer, which fixes
+indirect call mismatches with Control-Flow Integrity (CFI) checking.
 
-In this situation, the cable state will be stuck forever on the
-initial state because SM5502 stops sending interrupts.
-This can be avoided by clearing those pending interrupts after
-the driver has been loaded.
-
-One way to do this is to reset all registers to default state
-by writing to SM5502_REG_RESET. This ensures that we start from
-a clean state, with all interrupts disabled.
-
-Suggested-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: H . Peter Anvin <hpa@zytor.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190913211402.193018-1-samitolvanen@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-sm5502.c | 4 ++++
- drivers/extcon/extcon-sm5502.h | 2 ++
- 2 files changed, 6 insertions(+)
+ arch/x86/include/asm/fixmap.h | 2 +-
+ arch/x86/mm/pgtable.c         | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/extcon/extcon-sm5502.c b/drivers/extcon/extcon-sm5502.c
-index 7aac3cc7efd7..f63f9961ac12 100644
---- a/drivers/extcon/extcon-sm5502.c
-+++ b/drivers/extcon/extcon-sm5502.c
-@@ -69,6 +69,10 @@ struct sm5502_muic_info {
- /* Default value of SM5502 register to bring up MUIC device. */
- static struct reg_data sm5502_reg_data[] = {
- 	{
-+		.reg = SM5502_REG_RESET,
-+		.val = SM5502_REG_RESET_MASK,
-+		.invert = true,
-+	}, {
- 		.reg = SM5502_REG_CONTROL,
- 		.val = SM5502_REG_CONTROL_MASK_INT_MASK,
- 		.invert = false,
-diff --git a/drivers/extcon/extcon-sm5502.h b/drivers/extcon/extcon-sm5502.h
-index 974b53222f56..12f8b01e5753 100644
---- a/drivers/extcon/extcon-sm5502.h
-+++ b/drivers/extcon/extcon-sm5502.h
-@@ -241,6 +241,8 @@ enum sm5502_reg {
- #define DM_DP_SWITCH_UART			((DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DP_SHIFT) \
- 						| (DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DM_SHIFT))
+diff --git a/arch/x86/include/asm/fixmap.h b/arch/x86/include/asm/fixmap.h
+index f80d70009ff8..d0e39f54feee 100644
+--- a/arch/x86/include/asm/fixmap.h
++++ b/arch/x86/include/asm/fixmap.h
+@@ -147,7 +147,7 @@ extern pgprot_t kmap_prot;
+ extern pte_t *pkmap_page_table;
  
-+#define SM5502_REG_RESET_MASK			(0x1)
-+
- /* SM5502 Interrupts */
- enum sm5502_irq {
- 	/* INT1 */
+ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte);
+-void native_set_fixmap(enum fixed_addresses idx,
++void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
+ 		       phys_addr_t phys, pgprot_t flags);
+ 
+ #ifndef CONFIG_PARAVIRT
+diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
+index 50f75768aadd..3ed4753280aa 100644
+--- a/arch/x86/mm/pgtable.c
++++ b/arch/x86/mm/pgtable.c
+@@ -567,8 +567,8 @@ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte)
+ 	fixmaps_set++;
+ }
+ 
+-void native_set_fixmap(enum fixed_addresses idx, phys_addr_t phys,
+-		       pgprot_t flags)
++void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
++		       phys_addr_t phys, pgprot_t flags)
+ {
+ 	__native_set_fixmap(idx, pfn_pte(phys >> PAGE_SHIFT, flags));
+ }
 -- 
 2.20.1
 
