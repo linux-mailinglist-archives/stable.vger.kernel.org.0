@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E67F712EC96
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:20:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3262112EC99
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:20:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727973AbgABWUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:20:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36778 "EHLO mail.kernel.org"
+        id S1728388AbgABWUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:20:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728507AbgABWT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:19:59 -0500
+        id S1728465AbgABWUD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:20:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 371CC22314;
-        Thu,  2 Jan 2020 22:19:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 059D321582;
+        Thu,  2 Jan 2020 22:20:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003598;
-        bh=gkNryoQdQeCUL1UzSkod7HxNfAsDk2MseLcigk/kfgc=;
+        s=default; t=1578003603;
+        bh=3QqmxzjRnnfI5UcPweVfpNf6bneZPfb32al9pMhaHGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ad1184IXXl7pSBA1zAkq8280Ajf/Lz5ifR/sgvsYD1k0Z/wT0ULvJrOrGvV22+FUI
-         +oGCGmNtrE5PW7qWYetSz8sHmb/u4e8dA9IsSRzlsMIljFzaA+rJ3RoiJVZQQM01Y6
-         VE7dRySokusgOG+xurTlJ6Dbt8NEy8s7h4OWuTdI=
+        b=PiwR7xqKaTc2dG+e2ReMYYunG5RvLgkGi1CTUeiVQZxeY6gYK+3iSbucJtSYwMJrx
+         K+AIuJHbIjygybavdglIO3OmyGm6e0dyCof6v/0zHhfgvCNj1BwCAPPecDbiK/VBWi
+         qdFym7UKrw4e4yf8OxGnFUE3Vrnxn5t0EWFoYjP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Bean Huo <beanhuo@micron.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 036/114] scsi: ufs: fix potential bug which ends in system hang
-Date:   Thu,  2 Jan 2020 23:06:48 +0100
-Message-Id: <20200102220032.725515295@linuxfoundation.org>
+Subject: [PATCH 4.19 037/114] powerpc/pseries/cmm: Implement release() function for sysfs device
+Date:   Thu,  2 Jan 2020 23:06:49 +0100
+Message-Id: <20200102220032.836037148@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
 References: <20200102220029.183913184@linuxfoundation.org>
@@ -46,80 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bean Huo <beanhuo@micron.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit cfcbae3895b86c390ede57b2a8f601dd5972b47b ]
+[ Upstream commit 7d8212747435c534c8d564fbef4541a463c976ff ]
 
-In function __ufshcd_query_descriptor(), in the event of an error
-happening, we directly goto out_unlock and forget to invaliate
-hba->dev_cmd.query.descriptor pointer. This results in this pointer still
-valid in ufshcd_copy_query_response() for other query requests which go
-through ufshcd_exec_raw_upiu_cmd(). This will cause __memcpy() crash and
-system hangs. Log as shown below:
+When unloading the module, one gets
+  ------------[ cut here ]------------
+  Device 'cmm0' does not have a release() function, it is broken and must be fixed. See Documentation/kobject.txt.
+  WARNING: CPU: 0 PID: 19308 at drivers/base/core.c:1244 .device_release+0xcc/0xf0
+  ...
 
-Unable to handle kernel paging request at virtual address
-ffff000012233c40
-Mem abort info:
-   ESR = 0x96000047
-   Exception class = DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
-Data abort info:
-   ISV = 0, ISS = 0x00000047
-   CM = 0, WnR = 1
-swapper pgtable: 4k pages, 48-bit VAs, pgdp = 0000000028cc735c
-[ffff000012233c40] pgd=00000000bffff003, pud=00000000bfffe003,
-pmd=00000000ba8b8003, pte=0000000000000000
- Internal error: Oops: 96000047 [#2] PREEMPT SMP
- ...
- Call trace:
-  __memcpy+0x74/0x180
-  ufshcd_issue_devman_upiu_cmd+0x250/0x3c0
-  ufshcd_exec_raw_upiu_cmd+0xfc/0x1a8
-  ufs_bsg_request+0x178/0x3b0
-  bsg_queue_rq+0xc0/0x118
-  blk_mq_dispatch_rq_list+0xb0/0x538
-  blk_mq_sched_dispatch_requests+0x18c/0x1d8
-  __blk_mq_run_hw_queue+0xb4/0x118
-  blk_mq_run_work_fn+0x28/0x38
-  process_one_work+0x1ec/0x470
-  worker_thread+0x48/0x458
-  kthread+0x130/0x138
-  ret_from_fork+0x10/0x1c
- Code: 540000ab a8c12027 a88120c7 a8c12027 (a88120c7)
- ---[ end trace 793e1eb5dff69f2d ]---
- note: kworker/0:2H[2054] exited with preempt_count 1
+We only have one static fake device. There is nothing to do when
+releasing the device (via cmm_exit()).
 
-This patch is to move "descriptor = NULL" down to below the label
-"out_unlock".
-
-Fixes: d44a5f98bb49b2(ufs: query descriptor API)
-Link: https://lore.kernel.org/r/20191112223436.27449-3-huobean@gmail.com
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191031142933.10779-2-david@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/cmm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 8bce755e0f5b..7510d8328d4d 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -3011,10 +3011,10 @@ static int __ufshcd_query_descriptor(struct ufs_hba *hba,
- 		goto out_unlock;
- 	}
+diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
+index 25427a48feae..502ebcc6c3cb 100644
+--- a/arch/powerpc/platforms/pseries/cmm.c
++++ b/arch/powerpc/platforms/pseries/cmm.c
+@@ -425,6 +425,10 @@ static struct bus_type cmm_subsys = {
+ 	.dev_name = "cmm",
+ };
  
--	hba->dev_cmd.query.descriptor = NULL;
- 	*buf_len = be16_to_cpu(response->upiu_res.length);
++static void cmm_release_device(struct device *dev)
++{
++}
++
+ /**
+  * cmm_sysfs_register - Register with sysfs
+  *
+@@ -440,6 +444,7 @@ static int cmm_sysfs_register(struct device *dev)
  
- out_unlock:
-+	hba->dev_cmd.query.descriptor = NULL;
- 	mutex_unlock(&hba->dev_cmd.lock);
- out:
- 	ufshcd_release(hba);
+ 	dev->id = 0;
+ 	dev->bus = &cmm_subsys;
++	dev->release = cmm_release_device;
+ 
+ 	if ((rc = device_register(dev)))
+ 		goto subsys_unregister;
 -- 
 2.20.1
 
