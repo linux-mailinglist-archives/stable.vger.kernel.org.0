@@ -2,65 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F28FB12E441
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 10:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0ECC12E48F
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 10:47:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727842AbgABJLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 04:11:45 -0500
-Received: from mx2.suse.de ([195.135.220.15]:46736 "EHLO mx2.suse.de"
+        id S1727936AbgABJri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 04:47:38 -0500
+Received: from mga09.intel.com ([134.134.136.24]:28471 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727801AbgABJLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 04:11:45 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 22AA0B1DB;
-        Thu,  2 Jan 2020 09:11:43 +0000 (UTC)
-Date:   Thu, 2 Jan 2020 10:11:34 +0100
-From:   Borislav Petkov <bp@suse.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     gregkh@linuxfoundation.org, jschoenh@amazon.de,
-        Yazen.Ghannam@amd.com, hpa@zytor.com, linux-edac@vger.kernel.org,
-        mingo@kernel.org, stable@vger.kernel.org, tglx@linutronix.de,
-        tony.luck@intel.com, x86@kernel.org
-Subject: Re: FAILED: patch "[PATCH] x86/mce: Fix possibly incorrect severity
- calculation on AMD" failed to apply to 4.19-stable tree
-Message-ID: <20200102091133.GA22772@zn.tnic>
-References: <157763491612458@kroah.com>
- <20191230155621.GA30811@zn.tnic>
- <20200102011411.GF16372@sasha-vm>
+        id S1727924AbgABJrh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 04:47:37 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Jan 2020 01:47:37 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,386,1571727600"; 
+   d="scan'208";a="224734068"
+Received: from lahna.fi.intel.com (HELO lahna) ([10.237.72.163])
+  by fmsmga001.fm.intel.com with SMTP; 02 Jan 2020 01:47:34 -0800
+Received: by lahna (sSMTP sendmail emulation); Thu, 02 Jan 2020 11:47:34 +0200
+Date:   Thu, 2 Jan 2020 11:47:34 +0200
+From:   Mika Westerberg <mika.westerberg@linux.intel.com>
+To:     Boyan Ding <boyan.j.ding@gmail.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-gpio@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] pinctrl: sunrisepoint: Add missing Interrupt Status
+ register offset
+Message-ID: <20200102094734.GD465886@lahna.fi.intel.com>
+References: <20200101204120.5873-1-boyan.j.ding@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200102011411.GF16372@sasha-vm>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200101204120.5873-1-boyan.j.ding@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 01, 2020 at 08:14:11PM -0500, Sasha Levin wrote:
-> On Mon, Dec 30, 2019 at 04:56:21PM +0100, Borislav Petkov wrote:
-> > On Sun, Dec 29, 2019 at 04:55:16PM +0100, gregkh@linuxfoundation.org wrote:
-> > > The patch below does not apply to the 4.19-stable tree.
-> > > If someone wants it applied there, or to any other stable or longterm
-> > > tree, then please email the backport, including the original git commit
-> > > id to <stable@vger.kernel.org>.
-> > 
-> > Here's a backport for all 4.x stable series. It only needed a
-> > file-rename.
+On Wed, Jan 01, 2020 at 12:41:20PM -0800, Boyan Ding wrote:
+> Commit 179e5a6114cc ("pinctrl: intel: Remove default Interrupt Status
+> offset") removes default interrupt status offset of GPIO controllers, 
+> with previous commits explicitly providing the previously default
+> offsets. However, the is_offset value in SPTH_COMMUNITY is missing,
+> preventing related irq from being properly detected and handled.
 > 
-> This ended up getting picked up by AUTOSEL which did the right thing
-> with regards to filename changes as confirmed with the provided
-> backport, thank you :)
+> Fixes: f702e0b93cdb ("pinctrl: sunrisepoint: Provide Interrupt Status register offset")
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=205745
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Boyan Ding <boyan.j.ding@gmail.com>
 
-Can Greg find out whether AUTOSEL did the right thing and then if so, not
-send those mails?
-
-:-)
-
--- 
-Regards/Gruss,
-    Boris.
-
-SUSE Software Solutions Germany GmbH, GF: Felix Imendörffer, HRB 36809, AG Nürnberg
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
