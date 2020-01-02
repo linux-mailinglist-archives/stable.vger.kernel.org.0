@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C080F12F106
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33A0C12EF7E
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728516AbgABW5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:57:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59048 "EHLO mail.kernel.org"
+        id S1730046AbgABWah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:30:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728303AbgABWQw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:16:52 -0500
+        id S1727592AbgABWae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:30:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7B6821582;
-        Thu,  2 Jan 2020 22:16:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1E1420863;
+        Thu,  2 Jan 2020 22:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003411;
-        bh=/Fasbs0VlKabB4MPfOuNtzOBDcH0DoDP+7XE16/9fFg=;
+        s=default; t=1578004234;
+        bh=GfXRBCDfu1vOEhYdNgvQ82YD9QJVVUwKb5OPCzyz5D8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNZ9ZDHst44A/RjuBH3IYugVctIbZrTOMeGSXWwMuGvUVqA3T4FURZR3y4+QOwwr7
-         aM/USSfT2OYqyiUdE9tDxjG0SJfqiOGFaHK/OZStWq86UAC0w6qlunUMn+hcHPx9lW
-         gMCs6rE0asvK9IcS/YuQHvOTH2wK8mbQeE8fBDvA=
+        b=ijqS/+sB7E0RLgG5fEw8biHplsCtoZdZ8pg/5UwM+EABU8SPj3HIaA5kxN6Y/OAK6
+         e7cfR5EfonEz1dcvJGCNXUP7HBX/8JtAbj1lOJ3w1SVQ4TDmhKaj7rMCvbWPSifvrz
+         eGgWps7iYFZ3dN4v+rnzUfB9ZHLNjqVyvNqtcwdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 142/191] hrtimer: Annotate lockless access to timer->state
+        stable@vger.kernel.org, Xiao Jiangfeng <xiaojiangfeng@huawei.com>,
+        Mao Wenan <maowenan@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 093/171] af_packet: set defaule value for tmo
 Date:   Thu,  2 Jan 2020 23:07:04 +0100
-Message-Id: <20200102215844.776889091@linuxfoundation.org>
+Message-Id: <20200102220600.081205580@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,160 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mao Wenan <maowenan@huawei.com>
 
-commit 56144737e67329c9aaed15f942d46a6302e2e3d8 upstream.
+[ Upstream commit b43d1f9f7067c6759b1051e8ecb84e82cef569fe ]
 
-syzbot reported various data-race caused by hrtimer_is_queued() reading
-timer->state. A READ_ONCE() is required there to silence the warning.
+There is softlockup when using TPACKET_V3:
+...
+NMI watchdog: BUG: soft lockup - CPU#2 stuck for 60010ms!
+(__irq_svc) from [<c0558a0c>] (_raw_spin_unlock_irqrestore+0x44/0x54)
+(_raw_spin_unlock_irqrestore) from [<c027b7e8>] (mod_timer+0x210/0x25c)
+(mod_timer) from [<c0549c30>]
+(prb_retire_rx_blk_timer_expired+0x68/0x11c)
+(prb_retire_rx_blk_timer_expired) from [<c027a7ac>]
+(call_timer_fn+0x90/0x17c)
+(call_timer_fn) from [<c027ab6c>] (run_timer_softirq+0x2d4/0x2fc)
+(run_timer_softirq) from [<c021eaf4>] (__do_softirq+0x218/0x318)
+(__do_softirq) from [<c021eea0>] (irq_exit+0x88/0xac)
+(irq_exit) from [<c0240130>] (msa_irq_exit+0x11c/0x1d4)
+(msa_irq_exit) from [<c0209cf0>] (handle_IPI+0x650/0x7f4)
+(handle_IPI) from [<c02015bc>] (gic_handle_irq+0x108/0x118)
+(gic_handle_irq) from [<c0558ee4>] (__irq_usr+0x44/0x5c)
+...
 
-Also add the corresponding WRITE_ONCE() when timer->state is set.
+If __ethtool_get_link_ksettings() is failed in
+prb_calc_retire_blk_tmo(), msec and tmo will be zero, so tov_in_jiffies
+is zero and the timer expire for retire_blk_timer is turn to
+mod_timer(&pkc->retire_blk_timer, jiffies + 0),
+which will trigger cpu usage of softirq is 100%.
 
-In remove_hrtimer() the hrtimer_is_queued() helper is open coded to avoid
-loading timer->state twice.
-
-KCSAN reported these cases:
-
-BUG: KCSAN: data-race in __remove_hrtimer / tcp_pacing_check
-
-write to 0xffff8880b2a7d388 of 1 bytes by interrupt on cpu 0:
- __remove_hrtimer+0x52/0x130 kernel/time/hrtimer.c:991
- __run_hrtimer kernel/time/hrtimer.c:1496 [inline]
- __hrtimer_run_queues+0x250/0x600 kernel/time/hrtimer.c:1576
- hrtimer_run_softirq+0x10e/0x150 kernel/time/hrtimer.c:1593
- __do_softirq+0x115/0x33f kernel/softirq.c:292
- run_ksoftirqd+0x46/0x60 kernel/softirq.c:603
- smpboot_thread_fn+0x37d/0x4a0 kernel/smpboot.c:165
- kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
-
-read to 0xffff8880b2a7d388 of 1 bytes by task 24652 on cpu 1:
- tcp_pacing_check net/ipv4/tcp_output.c:2235 [inline]
- tcp_pacing_check+0xba/0x130 net/ipv4/tcp_output.c:2225
- tcp_xmit_retransmit_queue+0x32c/0x5a0 net/ipv4/tcp_output.c:3044
- tcp_xmit_recovery+0x7c/0x120 net/ipv4/tcp_input.c:3558
- tcp_ack+0x17b6/0x3170 net/ipv4/tcp_input.c:3717
- tcp_rcv_established+0x37e/0xf50 net/ipv4/tcp_input.c:5696
- tcp_v4_do_rcv+0x381/0x4e0 net/ipv4/tcp_ipv4.c:1561
- sk_backlog_rcv include/net/sock.h:945 [inline]
- __release_sock+0x135/0x1e0 net/core/sock.c:2435
- release_sock+0x61/0x160 net/core/sock.c:2951
- sk_stream_wait_memory+0x3d7/0x7c0 net/core/stream.c:145
- tcp_sendmsg_locked+0xb47/0x1f30 net/ipv4/tcp.c:1393
- tcp_sendmsg+0x39/0x60 net/ipv4/tcp.c:1434
- inet_sendmsg+0x6d/0x90 net/ipv4/af_inet.c:807
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg+0x9f/0xc0 net/socket.c:657
-
-BUG: KCSAN: data-race in __remove_hrtimer / __tcp_ack_snd_check
-
-write to 0xffff8880a3a65588 of 1 bytes by interrupt on cpu 0:
- __remove_hrtimer+0x52/0x130 kernel/time/hrtimer.c:991
- __run_hrtimer kernel/time/hrtimer.c:1496 [inline]
- __hrtimer_run_queues+0x250/0x600 kernel/time/hrtimer.c:1576
- hrtimer_run_softirq+0x10e/0x150 kernel/time/hrtimer.c:1593
- __do_softirq+0x115/0x33f kernel/softirq.c:292
- invoke_softirq kernel/softirq.c:373 [inline]
- irq_exit+0xbb/0xe0 kernel/softirq.c:413
- exiting_irq arch/x86/include/asm/apic.h:536 [inline]
- smp_apic_timer_interrupt+0xe6/0x280 arch/x86/kernel/apic/apic.c:1137
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
-
-read to 0xffff8880a3a65588 of 1 bytes by task 22891 on cpu 1:
- __tcp_ack_snd_check+0x415/0x4f0 net/ipv4/tcp_input.c:5265
- tcp_ack_snd_check net/ipv4/tcp_input.c:5287 [inline]
- tcp_rcv_established+0x750/0xf50 net/ipv4/tcp_input.c:5708
- tcp_v4_do_rcv+0x381/0x4e0 net/ipv4/tcp_ipv4.c:1561
- sk_backlog_rcv include/net/sock.h:945 [inline]
- __release_sock+0x135/0x1e0 net/core/sock.c:2435
- release_sock+0x61/0x160 net/core/sock.c:2951
- sk_stream_wait_memory+0x3d7/0x7c0 net/core/stream.c:145
- tcp_sendmsg_locked+0xb47/0x1f30 net/ipv4/tcp.c:1393
- tcp_sendmsg+0x39/0x60 net/ipv4/tcp.c:1434
- inet_sendmsg+0x6d/0x90 net/ipv4/af_inet.c:807
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg+0x9f/0xc0 net/socket.c:657
- __sys_sendto+0x21f/0x320 net/socket.c:1952
- __do_sys_sendto net/socket.c:1964 [inline]
- __se_sys_sendto net/socket.c:1960 [inline]
- __x64_sys_sendto+0x89/0xb0 net/socket.c:1960
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 24652 Comm: syz-executor.3 Not tainted 5.4.0-rc3+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-[ tglx: Added comments ]
-
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191106174804.74723-1-edumazet@google.com
+Fixes: f6fb8f100b80 ("af-packet: TPACKET_V3 flexible buffer implementation.")
+Tested-by: Xiao Jiangfeng <xiaojiangfeng@huawei.com>
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/hrtimer.h |   14 ++++++++++----
- kernel/time/hrtimer.c   |   11 +++++++----
- 2 files changed, 17 insertions(+), 8 deletions(-)
+ net/packet/af_packet.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/hrtimer.h
-+++ b/include/linux/hrtimer.h
-@@ -456,12 +456,18 @@ extern u64 hrtimer_next_event_without(co
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -587,7 +587,8 @@ static int prb_calc_retire_blk_tmo(struc
+ 			msec = 1;
+ 			div = ecmd.base.speed / 1000;
+ 		}
+-	}
++	} else
++		return DEFAULT_PRB_RETIRE_TOV;
  
- extern bool hrtimer_active(const struct hrtimer *timer);
+ 	mbits = (blk_size_in_bytes * 8) / (1024 * 1024);
  
--/*
-- * Helper function to check, whether the timer is on one of the queues
-+/**
-+ * hrtimer_is_queued = check, whether the timer is on one of the queues
-+ * @timer:	Timer to check
-+ *
-+ * Returns: True if the timer is queued, false otherwise
-+ *
-+ * The function can be used lockless, but it gives only a current snapshot.
-  */
--static inline int hrtimer_is_queued(struct hrtimer *timer)
-+static inline bool hrtimer_is_queued(struct hrtimer *timer)
- {
--	return timer->state & HRTIMER_STATE_ENQUEUED;
-+	/* The READ_ONCE pairs with the update functions of timer->state */
-+	return !!(READ_ONCE(timer->state) & HRTIMER_STATE_ENQUEUED);
- }
- 
- /*
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -966,7 +966,8 @@ static int enqueue_hrtimer(struct hrtime
- 
- 	base->cpu_base->active_bases |= 1 << base->index;
- 
--	timer->state = HRTIMER_STATE_ENQUEUED;
-+	/* Pairs with the lockless read in hrtimer_is_queued() */
-+	WRITE_ONCE(timer->state, HRTIMER_STATE_ENQUEUED);
- 
- 	return timerqueue_add(&base->active, &timer->node);
- }
-@@ -988,7 +989,8 @@ static void __remove_hrtimer(struct hrti
- 	struct hrtimer_cpu_base *cpu_base = base->cpu_base;
- 	u8 state = timer->state;
- 
--	timer->state = newstate;
-+	/* Pairs with the lockless read in hrtimer_is_queued() */
-+	WRITE_ONCE(timer->state, newstate);
- 	if (!(state & HRTIMER_STATE_ENQUEUED))
- 		return;
- 
-@@ -1013,8 +1015,9 @@ static void __remove_hrtimer(struct hrti
- static inline int
- remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, bool restart)
- {
--	if (hrtimer_is_queued(timer)) {
--		u8 state = timer->state;
-+	u8 state = timer->state;
-+
-+	if (state & HRTIMER_STATE_ENQUEUED) {
- 		int reprogram;
- 
- 		/*
 
 
