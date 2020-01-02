@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7319412EEFA
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:42:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5025F12F03B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:52:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730658AbgABWmp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:42:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
+        id S1729201AbgABWvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:51:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730835AbgABWfe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:35:34 -0500
+        id S1729074AbgABWXt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:23:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D063920863;
-        Thu,  2 Jan 2020 22:35:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCCB0222C3;
+        Thu,  2 Jan 2020 22:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004533;
-        bh=Lu/ZTgUSr4vXlL6FAJcrMZtok1ksT4m1zI6WN6EUk/g=;
+        s=default; t=1578003829;
+        bh=SRw83uJ4+3JRA4I99HLao4ZorzfbTvQ0yCMarohdFR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g51SyVrkXdW93sHHO6vliqqrDeN08IFDedIVZJ6N8M8IzyNzXQgJqNHPjJUAH33ew
-         wZF8UCpGfrykGmI6gpVMrWTpGQmLB+B6e/CM6R4mToPiNV+sH3l21WBX0sTW248qym
-         gC7yRFD1n1iZbntkkQq26JqnJBR4PYaMB9wzb+tI=
+        b=E6Q8ecVaApPqY18R4urGfaNnfotpwAWk0Mw/gZerivFhMzK5tAV1/91NKP5+TCQo8
+         vDc1g47Kq5GsG2+vaV7dmKkCebQSh7Xjb1E93SfTpK4Jzy1m1JFD0F/8WYpUIIYGcH
+         BkwPvJBtrW/s0+J8ltt0snF78OTLCu97XVklpT2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 046/137] perf probe: Fix to show calling lines of inlined functions
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 17/91] jbd2: Fix statistics for the number of logged blocks
 Date:   Thu,  2 Jan 2020 23:06:59 +0100
-Message-Id: <20200102220552.778892681@linuxfoundation.org>
+Message-Id: <20200102220416.130348835@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,120 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 86c0bf8539e7f46d91bd105e55eda96e0064caef ]
+[ Upstream commit 015c6033068208d6227612c878877919f3fcf6b6 ]
 
-Fix to show calling lines of inlined functions (where an inline function
-is called).
+jbd2 statistics counting number of blocks logged in a transaction was
+wrong. It didn't count the commit block and more importantly it didn't
+count revoke descriptor blocks. Make sure these get properly counted.
 
-die_walk_lines() filtered out the lines inside inlined functions based
-on the address. However this also filtered out the lines which call
-those inlined functions from the target function.
-
-To solve this issue, check the call_file and call_line attributes and do
-not filter out if it matches to the line information.
-
-Without this fix, perf probe -L doesn't show some lines correctly.
-(don't see the lines after 17)
-
-  # perf probe -L vfs_read
-  <vfs_read@/home/mhiramat/ksrc/linux/fs/read_write.c:0>
-        0  ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
-        1  {
-        2         ssize_t ret;
-
-        4         if (!(file->f_mode & FMODE_READ))
-                          return -EBADF;
-        6         if (!(file->f_mode & FMODE_CAN_READ))
-                          return -EINVAL;
-        8         if (unlikely(!access_ok(buf, count)))
-                          return -EFAULT;
-
-       11         ret = rw_verify_area(READ, file, pos, count);
-       12         if (!ret) {
-       13                 if (count > MAX_RW_COUNT)
-                                  count =  MAX_RW_COUNT;
-       15                 ret = __vfs_read(file, buf, count, pos);
-       16                 if (ret > 0) {
-                                  fsnotify_access(file);
-                                  add_rchar(current, ret);
-                          }
-
-With this fix:
-
-  # perf probe -L vfs_read
-  <vfs_read@/home/mhiramat/ksrc/linux/fs/read_write.c:0>
-        0  ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
-        1  {
-        2         ssize_t ret;
-
-        4         if (!(file->f_mode & FMODE_READ))
-                          return -EBADF;
-        6         if (!(file->f_mode & FMODE_CAN_READ))
-                          return -EINVAL;
-        8         if (unlikely(!access_ok(buf, count)))
-                          return -EFAULT;
-
-       11         ret = rw_verify_area(READ, file, pos, count);
-       12         if (!ret) {
-       13                 if (count > MAX_RW_COUNT)
-                                  count =  MAX_RW_COUNT;
-       15                 ret = __vfs_read(file, buf, count, pos);
-       16                 if (ret > 0) {
-       17                         fsnotify_access(file);
-       18                         add_rchar(current, ret);
-                          }
-       20                 inc_syscr(current);
-                  }
-
-Fixes: 4cc9cec636e7 ("perf probe: Introduce lines walker interface")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157241937995.32002.17899884017011512577.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191105164437.32602-13-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ fs/jbd2/commit.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index 5f32fed5eeb3..6851f1d0e253 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -741,7 +741,7 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
- 	Dwarf_Lines *lines;
- 	Dwarf_Line *line;
- 	Dwarf_Addr addr;
--	const char *fname, *decf = NULL;
-+	const char *fname, *decf = NULL, *inf = NULL;
- 	int lineno, ret = 0;
- 	int decl = 0, inl;
- 	Dwarf_Die die_mem, *cu_die;
-@@ -785,13 +785,21 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
- 			 */
- 			if (!dwarf_haspc(rt_die, addr))
- 				continue;
-+
- 			if (die_find_inlinefunc(rt_die, addr, &die_mem)) {
-+				/* Call-site check */
-+				inf = die_get_call_file(&die_mem);
-+				if ((inf && !strcmp(inf, decf)) &&
-+				    die_get_call_lineno(&die_mem) == lineno)
-+					goto found;
-+
- 				dwarf_decl_line(&die_mem, &inl);
- 				if (inl != decl ||
- 				    decf != dwarf_decl_file(&die_mem))
- 					continue;
+diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
+index 0567b17a970c..7dd613392592 100644
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -726,7 +726,6 @@ start_journal_io:
+ 				submit_bh(REQ_OP_WRITE, REQ_SYNC, bh);
  			}
- 		}
-+found:
- 		/* Get source line */
- 		fname = dwarf_linesrc(line, NULL, NULL);
+ 			cond_resched();
+-			stats.run.rs_blocks_logged += bufs;
  
+ 			/* Force a new descriptor to be generated next
+                            time round the loop. */
+@@ -813,6 +812,7 @@ start_journal_io:
+ 		if (unlikely(!buffer_uptodate(bh)))
+ 			err = -EIO;
+ 		jbd2_unfile_log_bh(bh);
++		stats.run.rs_blocks_logged++;
+ 
+ 		/*
+ 		 * The list contains temporary buffer heads created by
+@@ -858,6 +858,7 @@ start_journal_io:
+ 		BUFFER_TRACE(bh, "ph5: control buffer writeout done: unfile");
+ 		clear_buffer_jwrite(bh);
+ 		jbd2_unfile_log_bh(bh);
++		stats.run.rs_blocks_logged++;
+ 		__brelse(bh);		/* One for getblk */
+ 		/* AKPM: bforget here */
+ 	}
+@@ -879,6 +880,7 @@ start_journal_io:
+ 	}
+ 	if (cbh)
+ 		err = journal_wait_on_commit_record(journal, cbh);
++	stats.run.rs_blocks_logged++;
+ 	if (jbd2_has_feature_async_commit(journal) &&
+ 	    journal->j_flags & JBD2_BARRIER) {
+ 		blkdev_issue_flush(journal->j_dev, GFP_NOFS, NULL);
 -- 
 2.20.1
 
