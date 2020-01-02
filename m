@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD46112F102
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C15BE12F0A1
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728297AbgABWQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:16:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58970 "EHLO mail.kernel.org"
+        id S1728291AbgABWUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:20:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727855AbgABWQt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:16:49 -0500
+        id S1728609AbgABWUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:20:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6085121582;
-        Thu,  2 Jan 2020 22:16:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC72421D7D;
+        Thu,  2 Jan 2020 22:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003408;
-        bh=MNcuXEyCbjztZ2qWkMTmKBA0rIqCPpkE3egEzRxg+qg=;
+        s=default; t=1578003632;
+        bh=zOMB2vb0NBpO4gPvywUOIcaE5uvtxmH8H97oowLidJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y24eNYt/4z3e7EMpUGmLPWD8hOjw2L79tES5wyQcKjC8OEtey34qV1HTq1k2L4fqX
-         Cnk80PIwcblA6rtK9wKrzvxtXZNEDRVVRLBxx+xom9xoJPKkjvyVVU3FUPZVG09CWs
-         WE005wOib51XhKiIlqS23WlnoC1afWCdLkymP1Uc=
+        b=NpYkW6GtjLwEYaAMVcNfQLdfjfcucCX/OdD3Ncgyaitabf7s6uMjBlqBnGkmIVDyH
+         wzIdIK9J9T7d/rROB2QjC1Hc3SAn1PwROX7yAgWSHtFs004sUbKZJHMeA6H5pPkBOt
+         YMM/q1trt2HpLDMqPEExlmuYpr9DjJIyCQ/hGhNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-scsi@vger.kernel.org,
-        =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 113/191] cdrom: respect device capabilities during opening action
+        stable@vger.kernel.org,
+        Matthew Bobrowski <mbobrowski@mbobrowski.org>,
+        Jan Kara <jack@suse.cz>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 023/114] ext4: iomap that extends beyond EOF should be marked dirty
 Date:   Thu,  2 Jan 2020 23:06:35 +0100
-Message-Id: <20200102215841.968726810@linuxfoundation.org>
+Message-Id: <20200102220031.481358640@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Diego Elio Pettenò <flameeyes@flameeyes.com>
+From: Matthew Bobrowski <mbobrowski@mbobrowski.org>
 
-[ Upstream commit 366ba7c71ef77c08d06b18ad61b26e2df7352338 ]
+[ Upstream commit 2e9b51d78229d5145725a481bb5464ebc0a3f9b2 ]
 
-Reading the TOC only works if the device can play audio, otherwise
-these commands fail (and possibly bring the device to an unhealthy
-state.)
+This patch addresses what Dave Chinner had discovered and fixed within
+commit: 7684e2c4384d. This changes does not have any user visible
+impact for ext4 as none of the current users of ext4_iomap_begin()
+that extend files depend on IOMAP_F_DIRTY.
 
-Similarly, cdrom_mmc3_profile() should only be called if the device
-supports generic packet commands.
+When doing a direct IO that spans the current EOF, and there are
+written blocks beyond EOF that extend beyond the current write, the
+only metadata update that needs to be done is a file size extension.
 
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Signed-off-by: Diego Elio Pettenò <flameeyes@flameeyes.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+However, we don't mark such iomaps as IOMAP_F_DIRTY to indicate that
+there is IO completion metadata updates required, and hence we may
+fail to correctly sync file size extensions made in IO completion when
+O_DSYNC writes are being used and the hardware supports FUA.
+
+Hence when setting IOMAP_F_DIRTY, we need to also take into account
+whether the iomap spans the current EOF. If it does, then we need to
+mark it dirty so that IO completion will call generic_write_sync() to
+flush the inode size update to stable storage correctly.
+
+Signed-off-by: Matthew Bobrowski <mbobrowski@mbobrowski.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/8b43ee9ee94bee5328da56ba0909b7d2229ef150.1572949325.git.mbobrowski@mbobrowski.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cdrom/cdrom.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/ext4/inode.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-index ac42ae4651ce..eebdcbef0578 100644
---- a/drivers/cdrom/cdrom.c
-+++ b/drivers/cdrom/cdrom.c
-@@ -996,6 +996,12 @@ static void cdrom_count_tracks(struct cdrom_device_info *cdi, tracktype *tracks)
- 	tracks->xa = 0;
- 	tracks->error = 0;
- 	cd_dbg(CD_COUNT_TRACKS, "entering cdrom_count_tracks\n");
-+
-+	if (!CDROM_CAN(CDC_PLAY_AUDIO)) {
-+		tracks->error = CDS_NO_INFO;
-+		return;
-+	}
-+
- 	/* Grab the TOC header so we can see how many tracks there are */
- 	ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCHDR, &header);
- 	if (ret) {
-@@ -1162,7 +1168,8 @@ int cdrom_open(struct cdrom_device_info *cdi, struct block_device *bdev,
- 		ret = open_for_data(cdi);
- 		if (ret)
- 			goto err;
--		cdrom_mmc3_profile(cdi);
-+		if (CDROM_CAN(CDC_GENERIC_PACKET))
-+			cdrom_mmc3_profile(cdi);
- 		if (mode & FMODE_WRITE) {
- 			ret = -EROFS;
- 			if (cdrom_open_write(cdi))
-@@ -2882,6 +2889,9 @@ int cdrom_get_last_written(struct cdrom_device_info *cdi, long *last_written)
- 	   it doesn't give enough information or fails. then we return
- 	   the toc contents. */
- use_toc:
-+	if (!CDROM_CAN(CDC_PLAY_AUDIO))
-+		return -ENOSYS;
-+
- 	toc.cdte_format = CDROM_MSF;
- 	toc.cdte_track = CDROM_LEADOUT;
- 	if ((ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCENTRY, &toc)))
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 00d0c4b8fa30..950e3dcff7b0 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3544,8 +3544,14 @@ retry:
+ 			return ret;
+ 	}
+ 
++	/*
++	 * Writes that span EOF might trigger an I/O size update on completion,
++	 * so consider them to be dirty for the purposes of O_DSYNC, even if
++	 * there is no other metadata changes being made or are pending here.
++	 */
+ 	iomap->flags = 0;
+-	if (ext4_inode_datasync_dirty(inode))
++	if (ext4_inode_datasync_dirty(inode) ||
++	    offset + length > i_size_read(inode))
+ 		iomap->flags |= IOMAP_F_DIRTY;
+ 	iomap->bdev = inode->i_sb->s_bdev;
+ 	iomap->dax_dev = sbi->s_daxdev;
 -- 
 2.20.1
 
