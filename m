@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E878712EF68
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9A4112F0F4
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729896AbgABWp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:45:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36464 "EHLO mail.kernel.org"
+        id S1727690AbgABWR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:17:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730276AbgABWbW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:31:22 -0500
+        id S1728350AbgABWR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:17:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2D13222C3;
-        Thu,  2 Jan 2020 22:31:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D76C21582;
+        Thu,  2 Jan 2020 22:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004282;
-        bh=aynnZg1Zp9sJfa60R+Dxa0s0biQO2MN521u2guWaLWY=;
+        s=default; t=1578003445;
+        bh=TUF6l8qqFHFTpbCmAeUfedIvNbaM8HwzC82v6RJxrsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=elPd0c7Y1C42A2BxAIJTIhAuTGWmeWFqy5qG/9PAmor7yt0phheWfS9jwre0T1Q3M
-         0S35nGtu0fhAnYaH/Al0wNjURu8YU4jHxpwD5ccOLLMdgHMBmrivutFL3tsDa2cOdS
-         X9p5nrgKFAeDbIW97zxoWg/fa01xNOAa7Tj6Y8Cs=
+        b=Oh8GEUcrWfYnZPNWCVWRiHyugSxk2I56/jXZ2/R9J6Go+7dy9zS4OfbEHbhxmxNeN
+         5LVyh/p2GqdBVdkdlYE68Cxysnb1taayhsAk0x3cAlLddju8NS0yuTGuX/7lKjUJ3l
+         iTHY8HyY9PI+I7PBhwt9X2HfxRv9pHM6v7QKsUQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 114/171] iommu/tegra-smmu: Fix page tables in > 4 GiB memory
+        stable@vger.kernel.org,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 163/191] bnxt_en: Fix the logic that creates the health reporters.
 Date:   Thu,  2 Jan 2020 23:07:25 +0100
-Message-Id: <20200102220602.935641330@linuxfoundation.org>
+Message-Id: <20200102215846.854474500@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +45,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit 96d3ab802e4930a29a33934373157d6dff1b2c7e ]
+[ Upstream commit 937f188c1f4f89b3fa93ba31fc8587dc1fb14a22 ]
 
-Page tables that reside in physical memory beyond the 4 GiB boundary are
-currently not working properly. The reason is that when the physical
-address for page directory entries is read, it gets truncated at 32 bits
-and can cause crashes when passing that address to the DMA API.
+Fix the logic to properly check the fw capabilities and create the
+devlink health reporters only when needed.  The current code creates
+the reporters unconditionally as long as bp->fw_health is valid, and
+that's not correct.
 
-Fix this by first casting the PDE value to a dma_addr_t and then using
-the page frame number mask for the SMMU instance to mask out the invalid
-bits, which are typically used for mapping attributes, etc.
+Call bnxt_dl_fw_reporters_create() directly from the init and reset
+code path instead of from bnxt_dl_register().  This allows the
+reporters to be adjusted when capabilities change.  The same
+applies to bnxt_dl_fw_reporters_destroy().
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6763c779c2d8 ("bnxt_en: Add new FW devlink_health_reporter")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/tegra-smmu.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c         |   11 +++
+ drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c |   64 +++++++++++++++-------
+ drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h |    2 
+ 3 files changed, 56 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
-index c4eb293b1524..04cec050e42b 100644
---- a/drivers/iommu/tegra-smmu.c
-+++ b/drivers/iommu/tegra-smmu.c
-@@ -153,9 +153,9 @@ static bool smmu_dma_addr_valid(struct tegra_smmu *smmu, dma_addr_t addr)
- 	return (addr & smmu->pfn_mask) == addr;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -10563,6 +10563,12 @@ static int bnxt_fw_init_one(struct bnxt
+ 	rc = bnxt_approve_mac(bp, bp->dev->dev_addr, false);
+ 	if (rc)
+ 		return rc;
++
++	/* In case fw capabilities have changed, destroy the unneeded
++	 * reporters and create newly capable ones.
++	 */
++	bnxt_dl_fw_reporters_destroy(bp, false);
++	bnxt_dl_fw_reporters_create(bp);
+ 	bnxt_fw_init_one_p3(bp);
+ 	return 0;
  }
+@@ -11339,6 +11345,7 @@ static void bnxt_remove_one(struct pci_d
  
--static dma_addr_t smmu_pde_to_dma(u32 pde)
-+static dma_addr_t smmu_pde_to_dma(struct tegra_smmu *smmu, u32 pde)
- {
--	return pde << 12;
-+	return (dma_addr_t)(pde & smmu->pfn_mask) << 12;
- }
- 
- static void smmu_flush_ptc_all(struct tegra_smmu *smmu)
-@@ -540,6 +540,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
- 				  dma_addr_t *dmap)
- {
- 	unsigned int pd_index = iova_pd_index(iova);
-+	struct tegra_smmu *smmu = as->smmu;
- 	struct page *pt_page;
- 	u32 *pd;
- 
-@@ -548,7 +549,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
- 		return NULL;
- 
- 	pd = page_address(as->pd);
--	*dmap = smmu_pde_to_dma(pd[pd_index]);
-+	*dmap = smmu_pde_to_dma(smmu, pd[pd_index]);
- 
- 	return tegra_smmu_pte_offset(pt_page, iova);
- }
-@@ -590,7 +591,7 @@ static u32 *as_get_pte(struct tegra_smmu_as *as, dma_addr_t iova,
- 	} else {
- 		u32 *pd = page_address(as->pd);
- 
--		*dmap = smmu_pde_to_dma(pd[pde]);
-+		*dmap = smmu_pde_to_dma(smmu, pd[pde]);
+ 	if (BNXT_PF(bp)) {
+ 		bnxt_sriov_disable(bp);
++		bnxt_dl_fw_reporters_destroy(bp, true);
+ 		bnxt_dl_unregister(bp);
  	}
  
- 	return tegra_smmu_pte_offset(as->pts[pde], iova);
-@@ -615,7 +616,7 @@ static void tegra_smmu_pte_put_use(struct tegra_smmu_as *as, unsigned long iova)
- 	if (--as->count[pde] == 0) {
- 		struct tegra_smmu *smmu = as->smmu;
- 		u32 *pd = page_address(as->pd);
--		dma_addr_t pte_dma = smmu_pde_to_dma(pd[pde]);
-+		dma_addr_t pte_dma = smmu_pde_to_dma(smmu, pd[pde]);
+@@ -11837,8 +11844,10 @@ static int bnxt_init_one(struct pci_dev
+ 	if (rc)
+ 		goto init_err_cleanup_tc;
  
- 		tegra_smmu_set_pde(as, iova, 0);
+-	if (BNXT_PF(bp))
++	if (BNXT_PF(bp)) {
+ 		bnxt_dl_register(bp);
++		bnxt_dl_fw_reporters_create(bp);
++	}
  
--- 
-2.20.1
-
+ 	netdev_info(dev, "%s found at mem %lx, node addr %pM\n",
+ 		    board_info[ent->driver_data].name,
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
+@@ -102,21 +102,15 @@ struct devlink_health_reporter_ops bnxt_
+ 	.recover = bnxt_fw_fatal_recover,
+ };
+ 
+-static void bnxt_dl_fw_reporters_create(struct bnxt *bp)
++void bnxt_dl_fw_reporters_create(struct bnxt *bp)
+ {
+ 	struct bnxt_fw_health *health = bp->fw_health;
+ 
+-	if (!health)
++	if (!bp->dl || !health)
+ 		return;
+ 
+-	health->fw_reporter =
+-		devlink_health_reporter_create(bp->dl, &bnxt_dl_fw_reporter_ops,
+-					       0, false, bp);
+-	if (IS_ERR(health->fw_reporter)) {
+-		netdev_warn(bp->dev, "Failed to create FW health reporter, rc = %ld\n",
+-			    PTR_ERR(health->fw_reporter));
+-		health->fw_reporter = NULL;
+-	}
++	if (!(bp->fw_cap & BNXT_FW_CAP_HOT_RESET) || health->fw_reset_reporter)
++		goto err_recovery;
+ 
+ 	health->fw_reset_reporter =
+ 		devlink_health_reporter_create(bp->dl,
+@@ -126,8 +120,30 @@ static void bnxt_dl_fw_reporters_create(
+ 		netdev_warn(bp->dev, "Failed to create FW fatal health reporter, rc = %ld\n",
+ 			    PTR_ERR(health->fw_reset_reporter));
+ 		health->fw_reset_reporter = NULL;
++		bp->fw_cap &= ~BNXT_FW_CAP_HOT_RESET;
+ 	}
+ 
++err_recovery:
++	if (!(bp->fw_cap & BNXT_FW_CAP_ERROR_RECOVERY))
++		return;
++
++	if (!health->fw_reporter) {
++		health->fw_reporter =
++			devlink_health_reporter_create(bp->dl,
++						       &bnxt_dl_fw_reporter_ops,
++						       0, false, bp);
++		if (IS_ERR(health->fw_reporter)) {
++			netdev_warn(bp->dev, "Failed to create FW health reporter, rc = %ld\n",
++				    PTR_ERR(health->fw_reporter));
++			health->fw_reporter = NULL;
++			bp->fw_cap &= ~BNXT_FW_CAP_ERROR_RECOVERY;
++			return;
++		}
++	}
++
++	if (health->fw_fatal_reporter)
++		return;
++
+ 	health->fw_fatal_reporter =
+ 		devlink_health_reporter_create(bp->dl,
+ 					       &bnxt_dl_fw_fatal_reporter_ops,
+@@ -136,24 +152,35 @@ static void bnxt_dl_fw_reporters_create(
+ 		netdev_warn(bp->dev, "Failed to create FW fatal health reporter, rc = %ld\n",
+ 			    PTR_ERR(health->fw_fatal_reporter));
+ 		health->fw_fatal_reporter = NULL;
++		bp->fw_cap &= ~BNXT_FW_CAP_ERROR_RECOVERY;
+ 	}
+ }
+ 
+-static void bnxt_dl_fw_reporters_destroy(struct bnxt *bp)
++void bnxt_dl_fw_reporters_destroy(struct bnxt *bp, bool all)
+ {
+ 	struct bnxt_fw_health *health = bp->fw_health;
+ 
+-	if (!health)
++	if (!bp->dl || !health)
+ 		return;
+ 
+-	if (health->fw_reporter)
+-		devlink_health_reporter_destroy(health->fw_reporter);
+-
+-	if (health->fw_reset_reporter)
++	if ((all || !(bp->fw_cap & BNXT_FW_CAP_HOT_RESET)) &&
++	    health->fw_reset_reporter) {
+ 		devlink_health_reporter_destroy(health->fw_reset_reporter);
++		health->fw_reset_reporter = NULL;
++	}
+ 
+-	if (health->fw_fatal_reporter)
++	if ((bp->fw_cap & BNXT_FW_CAP_ERROR_RECOVERY) && !all)
++		return;
++
++	if (health->fw_reporter) {
++		devlink_health_reporter_destroy(health->fw_reporter);
++		health->fw_reporter = NULL;
++	}
++
++	if (health->fw_fatal_reporter) {
+ 		devlink_health_reporter_destroy(health->fw_fatal_reporter);
++		health->fw_fatal_reporter = NULL;
++	}
+ }
+ 
+ void bnxt_devlink_health_report(struct bnxt *bp, unsigned long event)
+@@ -458,8 +485,6 @@ int bnxt_dl_register(struct bnxt *bp)
+ 
+ 	devlink_params_publish(dl);
+ 
+-	bnxt_dl_fw_reporters_create(bp);
+-
+ 	return 0;
+ 
+ err_dl_port_unreg:
+@@ -482,7 +507,6 @@ void bnxt_dl_unregister(struct bnxt *bp)
+ 	if (!dl)
+ 		return;
+ 
+-	bnxt_dl_fw_reporters_destroy(bp);
+ 	devlink_port_params_unregister(&bp->dl_port, bnxt_dl_port_params,
+ 				       ARRAY_SIZE(bnxt_dl_port_params));
+ 	devlink_port_unregister(&bp->dl_port);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
+@@ -57,6 +57,8 @@ struct bnxt_dl_nvm_param {
+ };
+ 
+ void bnxt_devlink_health_report(struct bnxt *bp, unsigned long event);
++void bnxt_dl_fw_reporters_create(struct bnxt *bp);
++void bnxt_dl_fw_reporters_destroy(struct bnxt *bp, bool all);
+ int bnxt_dl_register(struct bnxt *bp);
+ void bnxt_dl_unregister(struct bnxt *bp);
+ 
 
 
