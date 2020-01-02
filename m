@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FCE712F01B
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8780312F07B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729502AbgABWZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:25:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50612 "EHLO mail.kernel.org"
+        id S1728902AbgABWU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:20:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729489AbgABWZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:25:21 -0500
+        id S1727657AbgABWU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:20:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CC1522B48;
-        Thu,  2 Jan 2020 22:25:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA46821582;
+        Thu,  2 Jan 2020 22:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003920;
-        bh=BchiV5Joz7jQ6Dsi93I6E9W9qyu9w853MdoklAKconY=;
+        s=default; t=1578003656;
+        bh=l0lnWMKFbSvkJ0RjmrMFRUbEtOFifJZOAfuYohiIE8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbLWpXzCYHUTr1Iiom2bM5GV3BloodRnqDIuuvD1K9xOxj/J+5zKxhO+i34qv8enm
-         Nu1Kw+bftGNY//qnCDPuUSjXhCsFtv3I/SohIntBml0OzZsw2MgmcvWJTerlrS5QmB
-         q+71dknHV9pc+VjHu0z947Jw2cGz8VTe5dXrWhc8=
+        b=TcC2GfEtHCFzsVqrGfVHXlASJ8XrodkjkGTwLvrTjxjTL9CTx4sac1YdNULce1sF3
+         YsWMZV4+yKuTYp2eIG1PoSWqlX5ZHNmpRg0s0r6dawRwkoBPWp+znexSgu3PpqoNI9
+         7SJQsSYYp3UY51SkLAgnzWRhfQ/8z25X42473RxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo L. F. Walbon" <gwalbon@linux.ibm.com>,
-        "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/91] powerpc/security: Fix wrong message when RFI Flush is disable
-Date:   Thu,  2 Jan 2020 23:07:11 +0100
-Message-Id: <20200102220430.192984292@linuxfoundation.org>
+Subject: [PATCH 4.19 060/114] scripts/kallsyms: fix definitely-lost memory leak
+Date:   Thu,  2 Jan 2020 23:07:12 +0100
+Message-Id: <20200102220035.073333687@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,93 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo L. F. Walbon <gwalbon@linux.ibm.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 4e706af3cd8e1d0503c25332b30cad33c97ed442 ]
+[ Upstream commit 21915eca088dc271c970e8351290e83d938114ac ]
 
-The issue was showing "Mitigation" message via sysfs whatever the
-state of "RFI Flush", but it should show "Vulnerable" when it is
-disabled.
+build_initial_tok_table() overwrites unused sym_entry to shrink the
+table size. Before the entry is overwritten, table[i].sym must be freed
+since it is malloc'ed data.
 
-If you have "L1D private" feature enabled and not "RFI Flush" you are
-vulnerable to meltdown attacks.
+This fixes the 'definitely lost' report from valgrind. I ran valgrind
+against x86_64_defconfig of v5.4-rc8 kernel, and here is the summary:
 
-"RFI Flush" is the key feature to mitigate the meltdown whatever the
-"L1D private" state.
+[Before the fix]
 
-SEC_FTR_L1D_THREAD_PRIV is a feature for Power9 only.
+  LEAK SUMMARY:
+     definitely lost: 53,184 bytes in 2,874 blocks
 
-So the message should be as the truth table shows:
+[After the fix]
 
-  CPU | L1D private | RFI Flush |                sysfs
-  ----|-------------|-----------|-------------------------------------
-   P9 |    False    |   False   | Vulnerable
-   P9 |    False    |   True    | Mitigation: RFI Flush
-   P9 |    True     |   False   | Vulnerable: L1D private per thread
-   P9 |    True     |   True    | Mitigation: RFI Flush, L1D private per thread
-   P8 |    False    |   False   | Vulnerable
-   P8 |    False    |   True    | Mitigation: RFI Flush
+  LEAK SUMMARY:
+     definitely lost: 0 bytes in 0 blocks
 
-Output before this fix:
-  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
-  Mitigation: RFI Flush, L1D private per thread
-  # echo 0 > /sys/kernel/debug/powerpc/rfi_flush
-  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
-  Mitigation: L1D private per thread
-
-Output after fix:
-  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
-  Mitigation: RFI Flush, L1D private per thread
-  # echo 0 > /sys/kernel/debug/powerpc/rfi_flush
-  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
-  Vulnerable: L1D private per thread
-
-Signed-off-by: Gustavo L. F. Walbon <gwalbon@linux.ibm.com>
-Signed-off-by: Mauro S. M. Rodrigues <maurosr@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190502210907.42375-1-gwalbon@linux.ibm.com
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/security.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ scripts/kallsyms.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/security.c b/arch/powerpc/kernel/security.c
-index fef3f09fc238..b3f540c9f410 100644
---- a/arch/powerpc/kernel/security.c
-+++ b/arch/powerpc/kernel/security.c
-@@ -134,26 +134,22 @@ ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr, cha
- 
- 	thread_priv = security_ftr_enabled(SEC_FTR_L1D_THREAD_PRIV);
- 
--	if (rfi_flush || thread_priv) {
-+	if (rfi_flush) {
- 		struct seq_buf s;
- 		seq_buf_init(&s, buf, PAGE_SIZE - 1);
- 
--		seq_buf_printf(&s, "Mitigation: ");
--
--		if (rfi_flush)
--			seq_buf_printf(&s, "RFI Flush");
--
--		if (rfi_flush && thread_priv)
--			seq_buf_printf(&s, ", ");
--
-+		seq_buf_printf(&s, "Mitigation: RFI Flush");
- 		if (thread_priv)
--			seq_buf_printf(&s, "L1D private per thread");
-+			seq_buf_printf(&s, ", L1D private per thread");
- 
- 		seq_buf_printf(&s, "\n");
- 
- 		return s.len;
+diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
+index 31ed7f3f0e15..4b2711c23f4e 100644
+--- a/scripts/kallsyms.c
++++ b/scripts/kallsyms.c
+@@ -491,6 +491,8 @@ static void build_initial_tok_table(void)
+ 				table[pos] = table[i];
+ 			learn_symbol(table[pos].sym, table[pos].len);
+ 			pos++;
++		} else {
++			free(table[i].sym);
+ 		}
  	}
- 
-+	if (thread_priv)
-+		return sprintf(buf, "Vulnerable: L1D private per thread\n");
-+
- 	if (!security_ftr_enabled(SEC_FTR_L1D_FLUSH_HV) &&
- 	    !security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR))
- 		return sprintf(buf, "Not affected\n");
+ 	table_cnt = pos;
 -- 
 2.20.1
 
