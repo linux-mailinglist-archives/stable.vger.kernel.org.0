@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7441312EDE0
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:33:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 017B612EF23
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730203AbgABWcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:32:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39766 "EHLO mail.kernel.org"
+        id S1729981AbgABWeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:34:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730472AbgABWcy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:32:54 -0500
+        id S1730434AbgABWeB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:34:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEB0520863;
-        Thu,  2 Jan 2020 22:32:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3011E20863;
+        Thu,  2 Jan 2020 22:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004373;
-        bh=EDC6HNLqHPCnjOFjZoxgAGbhLmHBfVy9HFBenvThPWQ=;
+        s=default; t=1578004440;
+        bh=fW9Gz4rN4vuGWaB4xKKJYFcn8j7Hz++IV5tpiplwfIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S43E+lwxdfm3EgD/owNYwdSnJyjNq4cB22XOZHbNG7VoZ+ieBn6gVPAYR+Z3OV9GR
-         QTyW233loCPwvpja9muXhw4AsHSF17F1yb4Q52qWqGu5oSMAyVQWV5/UZjWnY9fFUW
-         uZeFfdUxjiuKzRb+q0amqt6J5iyo29/8fwacgkXU=
+        b=LNgvP6wwQjaNJ+4hf1vh+qrGgSLn2THms5pT8RDhNrj09GTwvX8m+n0H6anxfHw/7
+         7EbajV4egoaFNz2nJd5XSww4ndDt7mrpwdOMkPUNp/F9COb01gQG+f9u0TDTELItjJ
+         Gx5666Y+SJ89O1hcctf/0VAyDvJy1eg0StBA4Qt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>,
-        Chris Down <chris@chrisdown.name>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Hildenbrand <david@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        "=?UTF-8?q?Jan=20H . =20Sch=C3=B6nherr?=" <jschoenh@amazon.de>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
+        linux-edac <linux-edac@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Yazen Ghannam <Yazen.Ghannam@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 151/171] kernel: sysctl: make drop_caches write-only
-Date:   Thu,  2 Jan 2020 23:08:02 +0100
-Message-Id: <20200102220607.897153673@linuxfoundation.org>
+Subject: [PATCH 4.9 152/171] x86/mce: Fix possibly incorrect severity calculation on AMD
+Date:   Thu,  2 Jan 2020 23:08:03 +0100
+Message-Id: <20200102220607.986637001@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
 References: <20200102220546.960200039@linuxfoundation.org>
@@ -50,51 +49,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Weiner <hannes@cmpxchg.org>
+From: Jan H. Schönherr <jschoenh@amazon.de>
 
-[ Upstream commit 204cb79ad42f015312a5bbd7012d09c93d9b46fb ]
+[ Upstream commit a3a57ddad061acc90bef39635caf2b2330ce8f21 ]
 
-Currently, the drop_caches proc file and sysctl read back the last value
-written, suggesting this is somehow a stateful setting instead of a
-one-time command.  Make it write-only, like e.g.  compact_memory.
+The function mce_severity_amd_smca() requires m->bank to be initialized
+for correct operation. Fix the one case, where mce_severity() is called
+without doing so.
 
-While mitigating a VM problem at scale in our fleet, there was confusion
-about whether writing to this file will permanently switch the kernel into
-a non-caching mode.  This influences the decision making in a tense
-situation, where tens of people are trying to fix tens of thousands of
-affected machines: Do we need a rollback strategy?  What are the
-performance implications of operating in a non-caching state for several
-days?  It also caused confusion when the kernel team said we may need to
-write the file several times to make sure it's effective ("But it already
-reads back 3?").
-
-Link: http://lkml.kernel.org/r/20191031221602.9375-1-hannes@cmpxchg.org
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Chris Down <chris@chrisdown.name>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 6bda529ec42e ("x86/mce: Grade uncorrected errors for SMCA-enabled systems")
+Fixes: d28af26faa0b ("x86/MCE: Initialize mce.bank in the case of a fatal error in mce_no_way_out()")
+Signed-off-by: Jan H. Schönherr <jschoenh@amazon.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yazen Ghannam <Yazen.Ghannam@amd.com>
+Link: https://lkml.kernel.org/r/20191210000733.17979-4-jschoenh@amazon.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sysctl.c | 2 +-
+ arch/x86/kernel/cpu/mcheck/mce.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 6af1ac551ea3..34449ec0689d 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1398,7 +1398,7 @@ static struct ctl_table vm_table[] = {
- 		.procname	= "drop_caches",
- 		.data		= &sysctl_drop_caches,
- 		.maxlen		= sizeof(int),
--		.mode		= 0644,
-+		.mode		= 0200,
- 		.proc_handler	= drop_caches_sysctl_handler,
- 		.extra1		= &one,
- 		.extra2		= &four,
+diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
+index d3b2c5b25c9c..07188a012492 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce.c
++++ b/arch/x86/kernel/cpu/mcheck/mce.c
+@@ -782,8 +782,8 @@ static int mce_no_way_out(struct mce *m, char **msg, unsigned long *validp,
+ 		if (quirk_no_way_out)
+ 			quirk_no_way_out(i, m, regs);
+ 
++		m->bank = i;
+ 		if (mce_severity(m, mca_cfg.tolerant, &tmp, true) >= MCE_PANIC_SEVERITY) {
+-			m->bank = i;
+ 			mce_read_aux(m, i);
+ 			*msg = tmp;
+ 			return 1;
 -- 
 2.20.1
 
