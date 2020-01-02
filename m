@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE98612EC62
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:19:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18F6A12ECB2
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:21:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728278AbgABWR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:17:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60926 "EHLO mail.kernel.org"
+        id S1728915AbgABWVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:21:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727670AbgABWR4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:17:56 -0500
+        id S1728048AbgABWU7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:20:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB53122314;
-        Thu,  2 Jan 2020 22:17:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3199021582;
+        Thu,  2 Jan 2020 22:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003476;
-        bh=A3XE+puTXjA9ypSDzn1jexAtI7UUySgWIBLw+o3TCgc=;
+        s=default; t=1578003658;
+        bh=d8OYjwglSwSZ+zYIi3BgcyA/ugNN0+pst0NzjE764HM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkyAdRHPRJ5yN6gcOyrMHpq37KKdRNJI3Uwf9gu4+vC1wV3+egJuFnCu4vgG+zIie
-         VuOPa15sTrNESPogiFwSaiGnmrA+hhQhyA96Gj1Gas5nNywQoGYa4d2xk4U0XOWWJp
-         vnwaMYXWj/CbfAwwhqSRAmQzAd9Ba0pp8KLL3pMc=
+        b=Ps1dkUPy8v3AZAvxVQH/sWXAGGq9VCWookRVWGToP6evkSE07wKag1oRiJvtpuHrc
+         XtoXX1Zb8vFKTIsNMfKAst8QNRyXUL+HR7EbHDjmolo0CyvZwykAEPkwfpjRqxxPN8
+         GXtLgiZT3HmCWsh0CDFJTIkmCo5ycetlOkpxXPr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@oss.nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 150/191] net: phy: aquantia: add suspend / resume ops for AQR105
-Date:   Thu,  2 Jan 2020 23:07:12 +0100
-Message-Id: <20200102215845.564560391@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 061/114] powerpc: Dont add -mabi= flags when building with Clang
+Date:   Thu,  2 Jan 2020 23:07:13 +0100
+Message-Id: <20200102220035.195017102@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madalin Bucur <madalin.bucur@oss.nxp.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 1c93fb45761e79b3c00080e71523886cefaf351c ]
+[ Upstream commit 465bfd9c44dea6b55962b5788a23ac87a467c923 ]
 
-The suspend/resume code for AQR107 works on AQR105 too.
-This patch fixes issues with the partner not seeing the link down
-when the interface using AQR105 is brought down.
+When building pseries_defconfig, building vdso32 errors out:
 
-Fixes: bee8259dd31f ("net: phy: add driver for aquantia phy")
-Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  error: unknown target ABI 'elfv1'
+
+This happens because -m32 in clang changes the target to 32-bit,
+which does not allow the ABI to be changed.
+
+Commit 4dc831aa8813 ("powerpc: Fix compiling a BE kernel with a
+powerpc64le toolchain") added these flags to fix building big endian
+kernels with a little endian GCC.
+
+Clang doesn't need -mabi because the target triple controls the
+default value. -mlittle-endian and -mbig-endian manipulate the triple
+into either powerpc64-* or powerpc64le-*, which properly sets the
+default ABI.
+
+Adding a debug print out in the PPC64TargetInfo constructor after line
+383 above shows this:
+
+  $ echo | ./clang -E --target=powerpc64-linux -mbig-endian -o /dev/null -
+  Default ABI: elfv1
+
+  $ echo | ./clang -E --target=powerpc64-linux -mlittle-endian -o /dev/null -
+  Default ABI: elfv2
+
+  $ echo | ./clang -E --target=powerpc64le-linux -mbig-endian -o /dev/null -
+  Default ABI: elfv1
+
+  $ echo | ./clang -E --target=powerpc64le-linux -mlittle-endian -o /dev/null -
+  Default ABI: elfv2
+
+Don't specify -mabi when building with clang to avoid the build error
+with -m32 and not change any code generation.
+
+-mcall-aixdesc is not an implemented flag in clang so it can be safely
+excluded as well, see commit 238abecde8ad ("powerpc: Don't use gcc
+specific options on clang").
+
+pseries_defconfig successfully builds after this patch and
+powernv_defconfig and ppc44x_defconfig don't regress.
+
+Reviewed-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+[mpe: Trim clang links in change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191119045712.39633-2-natechancellor@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/aquantia_main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/phy/aquantia_main.c
-+++ b/drivers/net/phy/aquantia_main.c
-@@ -627,6 +627,8 @@ static struct phy_driver aqr_driver[] =
- 	.config_intr	= aqr_config_intr,
- 	.ack_interrupt	= aqr_ack_interrupt,
- 	.read_status	= aqr_read_status,
-+	.suspend	= aqr107_suspend,
-+	.resume		= aqr107_resume,
- },
- {
- 	PHY_ID_MATCH_MODEL(PHY_ID_AQR106),
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index dfcb698ec8f3..e43321f46a3b 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -90,11 +90,13 @@ MULTIPLEWORD	:= -mmultiple
+ endif
+ 
+ ifdef CONFIG_PPC64
++ifndef CONFIG_CC_IS_CLANG
+ cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
+ cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mcall-aixdesc)
+ aflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
+ aflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mabi=elfv2
+ endif
++endif
+ 
+ ifneq ($(cc-name),clang)
+   cflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mno-strict-align
+@@ -134,6 +136,7 @@ endif
+ endif
+ 
+ CFLAGS-$(CONFIG_PPC64)	:= $(call cc-option,-mtraceback=no)
++ifndef CONFIG_CC_IS_CLANG
+ ifdef CONFIG_CPU_LITTLE_ENDIAN
+ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2,$(call cc-option,-mcall-aixdesc))
+ AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2)
+@@ -142,6 +145,7 @@ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
+ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcall-aixdesc)
+ AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
+ endif
++endif
+ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcmodel=medium,$(call cc-option,-mminimal-toc))
+ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mno-pointers-to-nested-functions)
+ 
+-- 
+2.20.1
+
 
 
