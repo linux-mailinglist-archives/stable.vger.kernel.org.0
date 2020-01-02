@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D961B12EED5
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A64312F04B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:52:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730994AbgABWgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:36:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48486 "EHLO mail.kernel.org"
+        id S1727432AbgABWWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:22:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730998AbgABWgv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:36:51 -0500
+        id S1728966AbgABWWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:22:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61CDC20863;
-        Thu,  2 Jan 2020 22:36:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F322222C3;
+        Thu,  2 Jan 2020 22:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004609;
-        bh=vApgtmOsQVMPYg5aH4YmE1Ihj8QEHEKdTfmokdJklfs=;
+        s=default; t=1578003766;
+        bh=Yb86dZj1zmqQt6V3G33LYnP/wlfh0kQGGKcZlNl/Qlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dQItHsPrbxxIzre/UHwnZEtp5VrKmRTaGLpjIlo9uy7rs+JKtuN3Uwb4Bjt/LbG1w
-         S9E7af6bqi6d/qgBornt4kmCLJthJYktSd0aA1GgfJZTKxSziLZSineey/qExhAM9P
-         1DV9xyST1NDPbG+ux83bHWWPOZrxZumogmklOZDE=
+        b=05QjX7kKOt+H19WxBw1Q0hNiZaepLCPuxB+E3G7ASZArOHM5PeqwU5WSGdjFhj9lr
+         +cQrw4yPK3jxwetSYKHJEU55amuBMXe4UyrM/1EYwkmDPHJOTh15CxNZ3sawTrTjQR
+         m01t1kP4MBY+qHoqFVugaW3zILSeihmLmiTQpFKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 078/137] net: qlogic: Fix error paths in ql_alloc_large_buffers()
+        stable@vger.kernel.org, Mattias Jacobsson <2pi@mok.nu>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sanskriti Sharma <sansharm@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.19 079/114] perf strbuf: Remove redundant va_end() in strbuf_addv()
 Date:   Thu,  2 Jan 2020 23:07:31 +0100
-Message-Id: <20200102220557.200215811@linuxfoundation.org>
+Message-Id: <20200102220037.065790380@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,76 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Mattias Jacobsson <2pi@mok.nu>
 
-[ Upstream commit cad46039e4c99812db067c8ac22a864960e7acc4 ]
+commit 099be748865eece21362aee416c350c0b1ae34df upstream.
 
-ql_alloc_large_buffers() has the usual RX buffer allocation
-loop where it allocates skbs and maps them for DMA.  It also
-treats failure as a fatal error.
+Each call to va_copy() should have one, and only one, corresponding call
+to va_end(). In strbuf_addv() some code paths result in va_end() getting
+called multiple times. Remove the superfluous va_end().
 
-There are (at least) three bugs in the error paths:
-
-1. ql_free_large_buffers() assumes that the lrg_buf[] entry for the
-first buffer that couldn't be allocated will have .skb == NULL.
-But the qla_buf[] array is not zero-initialised.
-
-2. ql_free_large_buffers() DMA-unmaps all skbs in lrg_buf[].  This is
-incorrect for the last allocated skb, if DMA mapping failed.
-
-3. Commit 1acb8f2a7a9f ("net: qlogic: Fix memory leak in
-ql_alloc_large_buffers") added a direct call to dev_kfree_skb_any()
-after the skb is recorded in lrg_buf[], so ql_free_large_buffers()
-will double-free it.
-
-The bugs are somewhat inter-twined, so fix them all at once:
-
-* Clear each entry in qla_buf[] before attempting to allocate
-  an skb for it.  This goes half-way to fixing bug 1.
-* Set the .skb field only after the skb is DMA-mapped.  This
-  fixes the rest.
-
-Fixes: 1357bfcf7106 ("qla3xxx: Dynamically size the rx buffer queue ...")
-Fixes: 0f8ab89e825f ("qla3xxx: Check return code from pci_map_single() ...")
-Fixes: 1acb8f2a7a9f ("net: qlogic: Fix memory leak in ql_alloc_large_buffers")
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mattias Jacobsson <2pi@mok.nu>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sanskriti Sharma <sansharm@redhat.com>
+Link: http://lkml.kernel.org/r/20181229141750.16945-1-2pi@mok.nu
+Fixes: ce49d8436cff ("perf strbuf: Match va_{add,copy} with va_end")
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/qlogic/qla3xxx.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -2752,6 +2752,9 @@ static int ql_alloc_large_buffers(struct
- 	int err;
- 
- 	for (i = 0; i < qdev->num_large_buffers; i++) {
-+		lrg_buf_cb = &qdev->lrg_buf[i];
-+		memset(lrg_buf_cb, 0, sizeof(struct ql_rcv_buf_cb));
-+
- 		skb = netdev_alloc_skb(qdev->ndev,
- 				       qdev->lrg_buffer_len);
- 		if (unlikely(!skb)) {
-@@ -2762,11 +2765,7 @@ static int ql_alloc_large_buffers(struct
- 			ql_free_large_buffers(qdev);
- 			return -ENOMEM;
- 		} else {
--
--			lrg_buf_cb = &qdev->lrg_buf[i];
--			memset(lrg_buf_cb, 0, sizeof(struct ql_rcv_buf_cb));
- 			lrg_buf_cb->index = i;
--			lrg_buf_cb->skb = skb;
- 			/*
- 			 * We save some space to copy the ethhdr from first
- 			 * buffer
-@@ -2788,6 +2787,7 @@ static int ql_alloc_large_buffers(struct
- 				return -ENOMEM;
- 			}
- 
-+			lrg_buf_cb->skb = skb;
- 			dma_unmap_addr_set(lrg_buf_cb, mapaddr, map);
- 			dma_unmap_len_set(lrg_buf_cb, maplen,
- 					  qdev->lrg_buffer_len -
+---
+ tools/perf/util/strbuf.c |    1 -
+ 1 file changed, 1 deletion(-)
+
+--- a/tools/perf/util/strbuf.c
++++ b/tools/perf/util/strbuf.c
+@@ -109,7 +109,6 @@ static int strbuf_addv(struct strbuf *sb
+ 			return ret;
+ 		}
+ 		len = vsnprintf(sb->buf + sb->len, sb->alloc - sb->len, fmt, ap_saved);
+-		va_end(ap_saved);
+ 		if (len > strbuf_avail(sb)) {
+ 			pr_debug("this should not happen, your vsnprintf is broken");
+ 			va_end(ap_saved);
 
 
