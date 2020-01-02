@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF6D12F0B0
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A58FD12EE14
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:35:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728685AbgABWTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:19:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36570 "EHLO mail.kernel.org"
+        id S1730659AbgABWfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:35:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728382AbgABWTz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:19:55 -0500
+        id S1730314AbgABWfA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:35:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EC6A21D7D;
-        Thu,  2 Jan 2020 22:19:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB44421835;
+        Thu,  2 Jan 2020 22:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003593;
-        bh=7nozndicwzu6wWckXf4Hecr8ErNysisPu4jA4safFwM=;
+        s=default; t=1578004499;
+        bh=UFVz64uh2lUuB3uEQ3v7ZEdeVfbYQUHHdz7SF4UbtXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKjcKFIse87VUHJlKSXr/ZtmjSgDWxEIMADCuCWHDPXi4e4ae5cFmeG5H/0BSoZv8
-         mJv6aYJnXTVH3XBEikE6ymTYl/br2jgyz4sxfFchoh7SrTOP9kw4CV9jv2CHtgh0fh
-         arNulqLm3iK9arBBPrRBxx2gefFh3kM4K1oUvLio=
+        b=uTE9jaKJJqZmIGz6WwZCzLlGpyIHKPq7xb7KvntA0dImQRqemk3CpKTzjNRSqEozU
+         bjRXatt1ixSP2nvjhhRfLz5Ju/9Y++q1DVawux44idruzZNlQkfsJ8TfYnDfcz//Qe
+         g6yIhd9IS4GZua3z7S1s6apDGFH1+b6Bp2bjf0UE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        coverity-bot <keescook+coverity-bot@chromium.org>,
-        James Bottomley <James.Bottomley@SteelEye.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        linux-next@vger.kernel.org, "Ewan D . Milne" <emilne@redhat.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 034/114] scsi: lpfc: fix: Coverity: lpfc_cmpl_els_rsp(): Null pointer dereferences
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 033/137] libata: Ensure ata_port probe has completed before detach
 Date:   Thu,  2 Jan 2020 23:06:46 +0100
-Message-Id: <20200102220032.519539423@linuxfoundation.org>
+Message-Id: <20200102220551.115986332@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,64 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 6c6d59e0fe5b86cf273d6d744a6a9768c4ecc756 ]
+[ Upstream commit 130f4caf145c3562108b245a576db30b916199d2 ]
 
-Coverity reported the following:
+With CONFIG_DEBUG_TEST_DRIVER_REMOVE set, we may find the following WARN:
 
-*** CID 101747:  Null pointer dereferences  (FORWARD_NULL)
-/drivers/scsi/lpfc/lpfc_els.c: 4439 in lpfc_cmpl_els_rsp()
-4433     			kfree(mp);
-4434     		}
-4435     		mempool_free(mbox, phba->mbox_mem_pool);
-4436     	}
-4437     out:
-4438     	if (ndlp && NLP_CHK_NODE_ACT(ndlp)) {
-vvv     CID 101747:  Null pointer dereferences  (FORWARD_NULL)
-vvv     Dereferencing null pointer "shost".
-4439     		spin_lock_irq(shost->host_lock);
-4440     		ndlp->nlp_flag &= ~(NLP_ACC_REGLOGIN | NLP_RM_DFLT_RPI);
-4441     		spin_unlock_irq(shost->host_lock);
-4442
-4443     		/* If the node is not being used by another discovery thread,
-4444     		 * and we are sending a reject, we are done with it.
+[   23.452574] ------------[ cut here ]------------
+[   23.457190] WARNING: CPU: 59 PID: 1 at drivers/ata/libata-core.c:6676 ata_host_detach+0x15c/0x168
+[   23.466047] Modules linked in:
+[   23.469092] CPU: 59 PID: 1 Comm: swapper/0 Not tainted 5.4.0-rc1-00010-g5b83fd27752b-dirty #296
+[   23.477776] Hardware name: Huawei D06 /D06, BIOS Hisilicon D06 UEFI RC0 - V1.16.01 03/15/2019
+[   23.486286] pstate: a0c00009 (NzCv daif +PAN +UAO)
+[   23.491065] pc : ata_host_detach+0x15c/0x168
+[   23.495322] lr : ata_host_detach+0x88/0x168
+[   23.499491] sp : ffff800011cabb50
+[   23.502792] x29: ffff800011cabb50 x28: 0000000000000007
+[   23.508091] x27: ffff80001137f068 x26: ffff8000112c0c28
+[   23.513390] x25: 0000000000003848 x24: ffff0023ea185300
+[   23.518689] x23: 0000000000000001 x22: 00000000000014c0
+[   23.523987] x21: 0000000000013740 x20: ffff0023bdc20000
+[   23.529286] x19: 0000000000000000 x18: 0000000000000004
+[   23.534584] x17: 0000000000000001 x16: 00000000000000f0
+[   23.539883] x15: ffff0023eac13790 x14: ffff0023eb76c408
+[   23.545181] x13: 0000000000000000 x12: ffff0023eac13790
+[   23.550480] x11: ffff0023eb76c228 x10: 0000000000000000
+[   23.555779] x9 : ffff0023eac13798 x8 : 0000000040000000
+[   23.561077] x7 : 0000000000000002 x6 : 0000000000000001
+[   23.566376] x5 : 0000000000000002 x4 : 0000000000000000
+[   23.571674] x3 : ffff0023bf08a0bc x2 : 0000000000000000
+[   23.576972] x1 : 3099674201f72700 x0 : 0000000000400284
+[   23.582272] Call trace:
+[   23.584706]  ata_host_detach+0x15c/0x168
+[   23.588616]  ata_pci_remove_one+0x10/0x18
+[   23.592615]  ahci_remove_one+0x20/0x40
+[   23.596356]  pci_device_remove+0x3c/0xe0
+[   23.600267]  really_probe+0xdc/0x3e0
+[   23.603830]  driver_probe_device+0x58/0x100
+[   23.608000]  device_driver_attach+0x6c/0x90
+[   23.612169]  __driver_attach+0x84/0xc8
+[   23.615908]  bus_for_each_dev+0x74/0xc8
+[   23.619730]  driver_attach+0x20/0x28
+[   23.623292]  bus_add_driver+0x148/0x1f0
+[   23.627115]  driver_register+0x60/0x110
+[   23.630938]  __pci_register_driver+0x40/0x48
+[   23.635199]  ahci_pci_driver_init+0x20/0x28
+[   23.639372]  do_one_initcall+0x5c/0x1b0
+[   23.643199]  kernel_init_freeable+0x1a4/0x24c
+[   23.647546]  kernel_init+0x10/0x108
+[   23.651023]  ret_from_fork+0x10/0x18
+[   23.654590] ---[ end trace 634a14b675b71c13 ]---
 
-Fix by adding a check for non-null shost in line 4438.
-The scenario when shost is set to null is when ndlp is null.
-As such, the ndlp check present was sufficient. But better safe
-than sorry so add the shost check.
+With KASAN also enabled, we may also get many use-after-free reports.
 
-Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
-Addresses-Coverity-ID: 101747 ("Null pointer dereferences")
-Fixes: 2e0fef85e098 ("[SCSI] lpfc: NPIV: split ports")
+The issue is that when CONFIG_DEBUG_TEST_DRIVER_REMOVE is set, we may
+attempt to detach the ata_port before it has been probed.
 
-CC: James Bottomley <James.Bottomley@SteelEye.com>
-CC: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-CC: linux-next@vger.kernel.org
-Link: https://lore.kernel.org/r/20191111230401.12958-3-jsmart2021@gmail.com
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This is because the ata_ports are async probed, meaning that there is no
+guarantee that the ata_port has probed prior to detach. When the ata_port
+does probe in this scenario, we get all sorts of issues as the detach may
+have already happened.
+
+Fix by ensuring synchronisation with async_synchronize_full(). We could
+alternatively use the cookie returned from the ata_port probe
+async_schedule() call, but that means managing the cookie, so more
+complicated.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/libata-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 4f4d1b3b3bbc..7398350b08b4 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -4110,7 +4110,7 @@ lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 		mempool_free(mbox, phba->mbox_mem_pool);
- 	}
- out:
--	if (ndlp && NLP_CHK_NODE_ACT(ndlp)) {
-+	if (ndlp && NLP_CHK_NODE_ACT(ndlp) && shost) {
- 		spin_lock_irq(shost->host_lock);
- 		ndlp->nlp_flag &= ~(NLP_ACC_REGLOGIN | NLP_RM_DFLT_RPI);
- 		spin_unlock_irq(shost->host_lock);
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index a352f09baef6..fc4bf8ff40ea 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -6355,6 +6355,9 @@ void ata_host_detach(struct ata_host *host)
+ {
+ 	int i;
+ 
++	/* Ensure ata_port probe has completed */
++	async_synchronize_full();
++
+ 	for (i = 0; i < host->n_ports; i++)
+ 		ata_port_detach(host->ports[i]);
+ 
 -- 
 2.20.1
 
