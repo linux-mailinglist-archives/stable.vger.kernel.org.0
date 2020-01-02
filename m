@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4DC12F0CF
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:56:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F92B12EF48
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728212AbgABWSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:18:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34010 "EHLO mail.kernel.org"
+        id S1730438AbgABWcl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:32:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728474AbgABWSh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:18:37 -0500
+        id S1730428AbgABWce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:32:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D13E2253D;
-        Thu,  2 Jan 2020 22:18:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1173D222C3;
+        Thu,  2 Jan 2020 22:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003517;
-        bh=NS5YAvQuPF8LGqne4QikjhrH8sI3xfzOa4RMFogxKnM=;
+        s=default; t=1578004354;
+        bh=FfchGuimbTQU3HAsMiYwQJjdzpWMrqD+SzjysSfU/ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KU6o1NTIUac5QlhrqGhgLvvs500dnq3+rcXJiSNHunzqPtn0mTiU/LMLpVQByxoxP
-         Dms2krH7a/Nn415CYf4TAte8n4+kjlTUeSW1M/Ym3jteZWOF1gRKYjmDCsjmZvviYL
-         hDHJ0ePpc8xZ4N8Th/1Us5XSxrr3vl4ZwE01LX/g=
+        b=a7fV4jm0JnV8yEIf16O8qw0FznwCSSSXSgYCMt9K7DNGFYVMPnGxhJ0pCun12pbBH
+         19DQB1sspEeuj/JkCYQFWVC2ner84xyVSAJ0rUDWgOeQZX7WDabvUZyLN1y931f1c7
+         9d2JedQZrKjm2M3xIqYcOU1mk03xVa/hcE4jAglk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        David Ahern <dsahern@gmail.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 174/191] net/dst: do not confirm neighbor for vxlan and geneve pmtu update
-Date:   Thu,  2 Jan 2020 23:07:36 +0100
-Message-Id: <20200102215847.955146723@linuxfoundation.org>
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 126/171] scsi: lpfc: Fix duplicate unreg_rpi error in port offline flow
+Date:   Thu,  2 Jan 2020 23:07:37 +0100
+Message-Id: <20200102220604.545631189@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit f081042d128a0c7acbd67611def62e1b52e2d294 ]
+[ Upstream commit 7cfd5639d99bec0d27af089d0c8c114330e43a72 ]
 
-When do IPv6 tunnel PMTU update and calls __ip6_rt_update_pmtu() in the end,
-we should not call dst_confirm_neigh() as there is no two-way communication.
+If the driver receives a login that is later then LOGO'd by the remote port
+(aka ndlp), the driver, upon the completion of the LOGO ACC transmission,
+will logout the node and unregister the rpi that is being used for the
+node.  As part of the unreg, the node's rpi value is replaced by the
+LPFC_RPI_ALLOC_ERROR value.  If the port is subsequently offlined, the
+offline walks the nodes and ensures they are logged out, which possibly
+entails unreg'ing their rpi values.  This path does not validate the node's
+rpi value, thus doesn't detect that it has been unreg'd already.  The
+replaced rpi value is then used when accessing the rpi bitmask array which
+tracks active rpi values.  As the LPFC_RPI_ALLOC_ERROR value is not a valid
+index for the bitmask, it may fault the system.
 
-So disable the neigh confirm for vxlan and geneve pmtu update.
+Revise the rpi release code to detect when the rpi value is the replaced
+RPI_ALLOC_ERROR value and ignore further release steps.
 
-v5: No change.
-v4: No change.
-v3: Do not remove dst_confirm_neigh, but add a new bool parameter in
-    dst_ops.update_pmtu to control whether we should do neighbor confirm.
-    Also split the big patch to small ones for each area.
-v2: Remove dst_confirm_neigh in __ip6_rt_update_pmtu.
-
-Fixes: a93bf0ff4490 ("vxlan: update skb dst pmtu on tx path")
-Fixes: 52a589d51f10 ("geneve: update skb dst pmtu on tx path")
-Reviewed-by: Guillaume Nault <gnault@redhat.com>
-Tested-by: Guillaume Nault <gnault@redhat.com>
-Acked-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20191105005708.7399-2-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/dst.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/include/net/dst.h
-+++ b/include/net/dst.h
-@@ -535,7 +535,7 @@ static inline void skb_tunnel_check_pmtu
- 	u32 encap_mtu = dst_mtu(encap_dst);
- 
- 	if (skb->len > encap_mtu - headroom)
--		skb_dst_update_pmtu(skb, encap_mtu - headroom);
-+		skb_dst_update_pmtu_no_confirm(skb, encap_mtu - headroom);
- }
- 
- #endif /* _NET_DST_H */
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 1eb9d5f6cea0..cbe808e83f47 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -15995,6 +15995,13 @@ lpfc_sli4_alloc_rpi(struct lpfc_hba *phba)
+ static void
+ __lpfc_sli4_free_rpi(struct lpfc_hba *phba, int rpi)
+ {
++	/*
++	 * if the rpi value indicates a prior unreg has already
++	 * been done, skip the unreg.
++	 */
++	if (rpi == LPFC_RPI_ALLOC_ERROR)
++		return;
++
+ 	if (test_and_clear_bit(rpi, phba->sli4_hba.rpi_bmask)) {
+ 		phba->sli4_hba.rpi_count--;
+ 		phba->sli4_hba.max_cfg_param.rpi_used--;
+-- 
+2.20.1
+
 
 
