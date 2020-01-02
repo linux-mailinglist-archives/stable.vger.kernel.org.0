@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4232412EC69
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:19:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EE612ECD1
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:22:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728043AbgABWSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:18:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33122 "EHLO mail.kernel.org"
+        id S1729117AbgABWWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:22:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728276AbgABWSI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:18:08 -0500
+        id S1727532AbgABWWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:22:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C43A522314;
-        Thu,  2 Jan 2020 22:18:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE48C21D7D;
+        Thu,  2 Jan 2020 22:22:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003488;
-        bh=hn6SkEALJClizTIH2eCblKoETrLMCQSOAV0rawGf+38=;
+        s=default; t=1578003735;
+        bh=9N5Do3eHMPg3N2LbGNZ8XxcUabmcnKwWjINHbtRGIks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZrJUWkpWoUMaCw7CstoGFO0QOYXuLGbwIIMpVuUn/deDLjBC4PtIf4C1ieiXcjVU1
-         eQVffI8XjDpBuKFuLPPfN6NWSHWZxmBghUB32xRqCsyDd+OWyYY6n8FcOU5cGLqymP
-         FhiAN30wn8qz0KdLlq6XKR+MQwl9SDFVA/jAvj8g=
+        b=losBAUmAa45ehbKG0PGIm2M501Yfm+a4Cnu9XHkaMZ935ZVEmojbw2fbqqw9Y5Hvm
+         dB1DoklQ+ulgqewouNbFcPJWdHZWv+9scdbJmlldv7yy+4ECdQ8WXnIJN9ljmvCu6d
+         4oU2qVAdaUS4c+E01Z5qE8iecGLCLKD/4MTvT0P8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 5.4 182/191] hv_netvsc: Fix tx_table init in rndis_set_subchannel()
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 092/114] net: stmmac: dwmac-meson8b: Fix the RGMII TX delay on Meson8b/8m2 SoCs
 Date:   Thu,  2 Jan 2020 23:07:44 +0100
-Message-Id: <20200102215848.858098357@linuxfoundation.org>
+Message-Id: <20200102220038.435278242@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit c39ea5cba5a2e97fc01b78c85208bf31383b399c ]
+[ Upstream commit bd6f48546b9cb7a785344fc78058c420923d7ed8 ]
 
-Host can provide send indirection table messages anytime after RSS is
-enabled by calling rndis_filter_set_rss_param(). So the host provided
-table values may be overwritten by the initialization in
-rndis_set_subchannel().
+GXBB and newer SoCs use the fixed FCLK_DIV2 (1GHz) clock as input for
+the m250_sel clock. Meson8b and Meson8m2 use MPLL2 instead, whose rate
+can be adjusted at runtime.
 
-To prevent this problem, move the tx_table initialization before calling
-rndis_filter_set_rss_param().
+So far we have been running MPLL2 with ~250MHz (and the internal
+m250_div with value 1), which worked enough that we could transfer data
+with an TX delay of 4ns. Unfortunately there is high packet loss with
+an RGMII PHY when transferring data (receiving data works fine though).
+Odroid-C1's u-boot is running with a TX delay of only 2ns as well as
+the internal m250_div set to 2 - no lost (TX) packets can be observed
+with that setting in u-boot.
 
-Fixes: a6fb6aa3cfa9 ("hv_netvsc: Set tx_table to equal weight after subchannels open")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Manual testing has shown that the TX packet loss goes away when using
+the following settings in Linux (the vendor kernel uses the same
+settings):
+- MPLL2 clock set to ~500MHz
+- m250_div set to 2
+- TX delay set to 2ns on the MAC side
+
+Update the m250_div divider settings to only accept dividers greater or
+equal 2 to fix the TX delay generated by the MAC.
+
+iperf3 results before the change:
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-10.00  sec   182 MBytes   153 Mbits/sec  514      sender
+[  5]   0.00-10.00  sec   182 MBytes   152 Mbits/sec           receiver
+
+iperf3 results after the change (including an updated TX delay of 2ns):
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-10.00  sec   927 MBytes   778 Mbits/sec    0      sender
+[  5]   0.00-10.01  sec   927 MBytes   777 Mbits/sec           receiver
+
+Fixes: 4f6a71b84e1afd ("net: stmmac: dwmac-meson8b: fix internal RGMII clock configuration")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hyperv/rndis_filter.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/net/hyperv/rndis_filter.c
-+++ b/drivers/net/hyperv/rndis_filter.c
-@@ -1165,6 +1165,9 @@ int rndis_set_subchannel(struct net_devi
- 	wait_event(nvdev->subchan_open,
- 		   atomic_read(&nvdev->open_chn) == nvdev->num_chn);
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
+@@ -118,6 +118,14 @@ static int meson8b_init_rgmii_tx_clk(str
+ 	struct device *dev = dwmac->dev;
+ 	const char *parent_name, *mux_parent_names[MUX_CLK_NUM_PARENTS];
+ 	struct meson8b_dwmac_clk_configs *clk_configs;
++	static const struct clk_div_table div_table[] = {
++		{ .div = 2, .val = 2, },
++		{ .div = 3, .val = 3, },
++		{ .div = 4, .val = 4, },
++		{ .div = 5, .val = 5, },
++		{ .div = 6, .val = 6, },
++		{ .div = 7, .val = 7, },
++	};
  
-+	for (i = 0; i < VRSS_SEND_TAB_SIZE; i++)
-+		ndev_ctx->tx_table[i] = i % nvdev->num_chn;
-+
- 	/* ignore failures from setting rss parameters, still have channels */
- 	if (dev_info)
- 		rndis_filter_set_rss_param(rdev, dev_info->rss_key);
-@@ -1174,9 +1177,6 @@ int rndis_set_subchannel(struct net_devi
- 	netif_set_real_num_tx_queues(ndev, nvdev->num_chn);
- 	netif_set_real_num_rx_queues(ndev, nvdev->num_chn);
- 
--	for (i = 0; i < VRSS_SEND_TAB_SIZE; i++)
--		ndev_ctx->tx_table[i] = i % nvdev->num_chn;
--
- 	return 0;
- }
- 
+ 	clk_configs = devm_kzalloc(dev, sizeof(*clk_configs), GFP_KERNEL);
+ 	if (!clk_configs)
+@@ -152,9 +160,9 @@ static int meson8b_init_rgmii_tx_clk(str
+ 	clk_configs->m250_div.reg = dwmac->regs + PRG_ETH0;
+ 	clk_configs->m250_div.shift = PRG_ETH0_CLK_M250_DIV_SHIFT;
+ 	clk_configs->m250_div.width = PRG_ETH0_CLK_M250_DIV_WIDTH;
+-	clk_configs->m250_div.flags = CLK_DIVIDER_ONE_BASED |
+-				CLK_DIVIDER_ALLOW_ZERO |
+-				CLK_DIVIDER_ROUND_CLOSEST;
++	clk_configs->m250_div.table = div_table;
++	clk_configs->m250_div.flags = CLK_DIVIDER_ALLOW_ZERO |
++				      CLK_DIVIDER_ROUND_CLOSEST;
+ 	clk = meson8b_dwmac_register_clk(dwmac, "m250_div", &parent_name, 1,
+ 					 &clk_divider_ops,
+ 					 &clk_configs->m250_div.hw);
 
 
