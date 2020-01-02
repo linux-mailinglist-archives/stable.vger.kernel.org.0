@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6335D12EC80
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:19:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0762F12ED81
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:29:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728543AbgABWTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:19:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35024 "EHLO mail.kernel.org"
+        id S1729989AbgABW3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:29:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728547AbgABWTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:19:08 -0500
+        id S1729825AbgABW3E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:29:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C385321582;
-        Thu,  2 Jan 2020 22:19:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE1C920863;
+        Thu,  2 Jan 2020 22:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003548;
-        bh=8IWJOi6KRoy257bmHLGoFSeIOMVROHSJj/ROJ37nNPM=;
+        s=default; t=1578004143;
+        bh=u7o2lvfqaHuw8UnRD3nluPvVco34XB/WAfOwsSkrP0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tpz0HgDZwiQjSd5kcqVkj1thYnlQpvMU1sIouC0l8fKcy+WS+Zu6YvO2/f5RxLlW+
-         YXAU5EaLOlOSmwdTYIRX+hQYhwwfRjXbUakKz7O9B4S8TTnosGKUVr/eJni+nLHwy1
-         UWcEn9A5b7Q4l3/i9o1rJkwvTBy0KZthKafRtFwA=
+        b=ydcLv6Yw+rirkbcloNJTwS4IDtwb5mzserCPR/c9UWyJYcasxgPAD6mjc7n4Rcagi
+         pHMngOf539DuM0ap2yhq83O+Hn5DQyf0fCq74IdSVmrioNjBIKRfIsf3514DQC8NZ+
+         /jOdUbsStzInV7rAmQzPixiYG3bi8Quvu5LupC5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 015/114] powerpc/tools: Dont quote $objdump in scripts
+Subject: [PATCH 4.9 056/171] perf probe: Fix to probe a function which has no entry pc
 Date:   Thu,  2 Jan 2020 23:06:27 +0100
-Message-Id: <20200102220030.654375518@linuxfoundation.org>
+Message-Id: <20200102220554.716543606@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +47,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit e44ff9ea8f4c8a90c82f7b85bd4f5e497c841960 ]
+[ Upstream commit 5d16dbcc311d91267ddb45c6da4f187be320ecee ]
 
-Some of our scripts are passed $objdump and then call it as
-"$objdump". This doesn't work if it contains spaces because we're
-using ccache, for example you get errors such as:
+Fix 'perf probe' to probe a function which has no entry pc or low pc but
+only has ranges attribute.
 
-  ./arch/powerpc/tools/relocs_check.sh: line 48: ccache ppc64le-objdump: No such file or directory
-  ./arch/powerpc/tools/unrel_branch_check.sh: line 26: ccache ppc64le-objdump: No such file or directory
+probe_point_search_cb() uses dwarf_entrypc() to get the probe address,
+but that doesn't work for the function DIE which has only ranges
+attribute. Use die_entrypc() instead.
 
-Fix it by not quoting the string when we expand it, allowing the shell
-to do the right thing for us.
+Without this fix:
 
-Fixes: a71aa05e1416 ("powerpc: Convert relocs_check to a shell script using grep")
-Fixes: 4ea80652dc75 ("powerpc/64s: Tool to flag direct branches from unrelocated interrupt vectors")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191024004730.32135-1-mpe@ellerman.id.au
+  # perf probe -k ../build-x86_64/vmlinux -D clear_tasks_mm_cpumask:0
+  Probe point 'clear_tasks_mm_cpumask' not found.
+    Error: Failed to add events.
+
+With this:
+
+  # perf probe -k ../build-x86_64/vmlinux -D clear_tasks_mm_cpumask:0
+  p:probe/clear_tasks_mm_cpumask clear_tasks_mm_cpumask+0
+
+Committer testing:
+
+Before:
+
+  [root@quaco ~]# perf probe clear_tasks_mm_cpumask:0
+  Probe point 'clear_tasks_mm_cpumask' not found.
+    Error: Failed to add events.
+  [root@quaco ~]#
+
+After:
+
+  [root@quaco ~]# perf probe clear_tasks_mm_cpumask:0
+  Added new event:
+    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask)
+
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe:clear_tasks_mm_cpumask -aR sleep 1
+
+  [root@quaco ~]#
+
+Using it with 'perf trace':
+
+  [root@quaco ~]# perf trace -e probe:clear_tasks_mm_cpumask
+
+Doesn't seem to be used in x86_64:
+
+  $ find . -name "*.c" | xargs grep clear_tasks_mm_cpumask
+  ./kernel/cpu.c: * clear_tasks_mm_cpumask - Safely clear tasks' mm_cpumask for a CPU
+  ./kernel/cpu.c:void clear_tasks_mm_cpumask(int cpu)
+  ./arch/xtensa/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
+  ./arch/csky/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
+  ./arch/sh/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
+  ./arch/arm/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
+  ./arch/powerpc/mm/nohash/mmu_context.c:	clear_tasks_mm_cpumask(cpu);
+  $ find . -name "*.h" | xargs grep clear_tasks_mm_cpumask
+  ./include/linux/cpu.h:void clear_tasks_mm_cpumask(int cpu);
+  $ find . -name "*.S" | xargs grep clear_tasks_mm_cpumask
+  $
+
+Fixes: e1ecbbc3fa83 ("perf probe: Fix to handle optimized not-inlined functions")
+Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/157199319438.8075.4695576954550638618.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/tools/relocs_check.sh       | 2 +-
- arch/powerpc/tools/unrel_branch_check.sh | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/util/probe-finder.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/tools/relocs_check.sh b/arch/powerpc/tools/relocs_check.sh
-index ec2d5c835170..d6c16e7faa38 100755
---- a/arch/powerpc/tools/relocs_check.sh
-+++ b/arch/powerpc/tools/relocs_check.sh
-@@ -23,7 +23,7 @@ objdump="$1"
- vmlinux="$2"
- 
- bad_relocs=$(
--"$objdump" -R "$vmlinux" |
-+$objdump -R "$vmlinux" |
- 	# Only look at relocation lines.
- 	grep -E '\<R_' |
- 	# These relocations are okay
-diff --git a/arch/powerpc/tools/unrel_branch_check.sh b/arch/powerpc/tools/unrel_branch_check.sh
-index 1e972df3107e..77114755dc6f 100755
---- a/arch/powerpc/tools/unrel_branch_check.sh
-+++ b/arch/powerpc/tools/unrel_branch_check.sh
-@@ -18,14 +18,14 @@ vmlinux="$2"
- #__end_interrupts should be located within the first 64K
- 
- end_intr=0x$(
--"$objdump" -R "$vmlinux" -d --start-address=0xc000000000000000		\
-+$objdump -R "$vmlinux" -d --start-address=0xc000000000000000           \
- 		 --stop-address=0xc000000000010000 |
- grep '\<__end_interrupts>:' |
- awk '{print $1}'
- )
- 
- BRANCHES=$(
--"$objdump" -R "$vmlinux" -D --start-address=0xc000000000000000		\
-+$objdump -R "$vmlinux" -D --start-address=0xc000000000000000           \
- 		--stop-address=${end_intr} |
- grep -e "^c[0-9a-f]*:[[:space:]]*\([0-9a-f][0-9a-f][[:space:]]\)\{4\}[[:space:]]*b" |
- grep -v '\<__start_initialization_multiplatform>' |
+diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
+index 9fc6fedcfa1a..cfc2e1e7cca4 100644
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -1002,7 +1002,7 @@ static int probe_point_search_cb(Dwarf_Die *sp_die, void *data)
+ 		param->retval = find_probe_point_by_line(pf);
+ 	} else if (die_is_func_instance(sp_die)) {
+ 		/* Instances always have the entry address */
+-		dwarf_entrypc(sp_die, &pf->addr);
++		die_entrypc(sp_die, &pf->addr);
+ 		/* But in some case the entry address is 0 */
+ 		if (pf->addr == 0) {
+ 			pr_debug("%s has no entry PC. Skipped\n",
 -- 
 2.20.1
 
