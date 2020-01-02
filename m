@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A162112EE80
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0742712EE83
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731163AbgABWjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:39:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54262 "EHLO mail.kernel.org"
+        id S1731405AbgABWjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:39:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731390AbgABWjE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:39:04 -0500
+        id S1731396AbgABWjH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:39:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F26822525;
-        Thu,  2 Jan 2020 22:39:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72544217F4;
+        Thu,  2 Jan 2020 22:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004743;
-        bh=wHnw8R9D/vIZJMcB9KbBnwqbOybaDX89LuAdC0wee5o=;
+        s=default; t=1578004745;
+        bh=tfMfKm18pz50KFEDBtUwDNHwvLlw3QMjqXbJ5CMcbg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1bczK+pzIrGRRiOam4XJmvZeASkcSJaVxLEy199pHY3qbHrK2bEvP7ZLkcxdgAlz
-         z7s8KgA1govH/KzF0NxbpG1NxfARN99B6cDSsBcQKSBm3onJfhjBDqUtEeAApRWUFp
-         gY5X1pp86x1+7GWwzvkvQX8TFcB76FW14uYqbdCQ=
+        b=Z9mlBRNx6Qjd30zQy/FppXalQUC2fttawCNrgOyt6sladQNrZjcsTODHSQ0vQRo2n
+         +qdLK6Ahp5a+MNOGxkVHJ7r3RuAdb0GCOgXs8ERQOrC7mOJzJKGGZkrj/WhrVHZ53e
+         Ln6KT5EEAagQJkbXZ6kHDqpPySvBs3HXxIegySNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 134/137] net: icmp: fix data-race in cmp_global_allow()
-Date:   Thu,  2 Jan 2020 23:08:27 +0100
-Message-Id: <20200102220605.253146827@linuxfoundation.org>
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.4 135/137] hrtimer: Annotate lockless access to timer->state
+Date:   Thu,  2 Jan 2020 23:08:28 +0100
+Message-Id: <20200102220605.386390552@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
 References: <20200102220546.618583146@linuxfoundation.org>
@@ -46,114 +46,158 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit bbab7ef235031f6733b5429ae7877bfa22339712 upstream.
+commit 56144737e67329c9aaed15f942d46a6302e2e3d8 upstream.
 
-This code reads two global variables without protection
-of a lock. We need READ_ONCE()/WRITE_ONCE() pairs to
-avoid load/store-tearing and better document the intent.
+syzbot reported various data-race caused by hrtimer_is_queued() reading
+timer->state. A READ_ONCE() is required there to silence the warning.
 
-KCSAN reported :
-BUG: KCSAN: data-race in icmp_global_allow / icmp_global_allow
+Also add the corresponding WRITE_ONCE() when timer->state is set.
 
-read to 0xffffffff861a8014 of 4 bytes by task 11201 on cpu 0:
- icmp_global_allow+0x36/0x1b0 net/ipv4/icmp.c:254
- icmpv6_global_allow net/ipv6/icmp.c:184 [inline]
- icmpv6_global_allow net/ipv6/icmp.c:179 [inline]
- icmp6_send+0x493/0x1140 net/ipv6/icmp.c:514
- icmpv6_send+0x71/0xb0 net/ipv6/ip6_icmp.c:43
- ip6_link_failure+0x43/0x180 net/ipv6/route.c:2640
- dst_link_failure include/net/dst.h:419 [inline]
- vti_xmit net/ipv4/ip_vti.c:243 [inline]
- vti_tunnel_xmit+0x27f/0xa50 net/ipv4/ip_vti.c:279
- __netdev_start_xmit include/linux/netdevice.h:4420 [inline]
- netdev_start_xmit include/linux/netdevice.h:4434 [inline]
- xmit_one net/core/dev.c:3280 [inline]
- dev_hard_start_xmit+0xef/0x430 net/core/dev.c:3296
- __dev_queue_xmit+0x14c9/0x1b60 net/core/dev.c:3873
- dev_queue_xmit+0x21/0x30 net/core/dev.c:3906
- neigh_direct_output+0x1f/0x30 net/core/neighbour.c:1530
- neigh_output include/net/neighbour.h:511 [inline]
- ip6_finish_output2+0x7a6/0xec0 net/ipv6/ip6_output.c:116
- __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
- __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
- ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
- NF_HOOK_COND include/linux/netfilter.h:294 [inline]
- ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
- dst_output include/net/dst.h:436 [inline]
- ip6_local_out+0x74/0x90 net/ipv6/output_core.c:179
+In remove_hrtimer() the hrtimer_is_queued() helper is open coded to avoid
+loading timer->state twice.
 
-write to 0xffffffff861a8014 of 4 bytes by task 11183 on cpu 1:
- icmp_global_allow+0x174/0x1b0 net/ipv4/icmp.c:272
- icmpv6_global_allow net/ipv6/icmp.c:184 [inline]
- icmpv6_global_allow net/ipv6/icmp.c:179 [inline]
- icmp6_send+0x493/0x1140 net/ipv6/icmp.c:514
- icmpv6_send+0x71/0xb0 net/ipv6/ip6_icmp.c:43
- ip6_link_failure+0x43/0x180 net/ipv6/route.c:2640
- dst_link_failure include/net/dst.h:419 [inline]
- vti_xmit net/ipv4/ip_vti.c:243 [inline]
- vti_tunnel_xmit+0x27f/0xa50 net/ipv4/ip_vti.c:279
- __netdev_start_xmit include/linux/netdevice.h:4420 [inline]
- netdev_start_xmit include/linux/netdevice.h:4434 [inline]
- xmit_one net/core/dev.c:3280 [inline]
- dev_hard_start_xmit+0xef/0x430 net/core/dev.c:3296
- __dev_queue_xmit+0x14c9/0x1b60 net/core/dev.c:3873
- dev_queue_xmit+0x21/0x30 net/core/dev.c:3906
- neigh_direct_output+0x1f/0x30 net/core/neighbour.c:1530
- neigh_output include/net/neighbour.h:511 [inline]
- ip6_finish_output2+0x7a6/0xec0 net/ipv6/ip6_output.c:116
- __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
- __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
- ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
- NF_HOOK_COND include/linux/netfilter.h:294 [inline]
- ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
+KCSAN reported these cases:
+
+BUG: KCSAN: data-race in __remove_hrtimer / tcp_pacing_check
+
+write to 0xffff8880b2a7d388 of 1 bytes by interrupt on cpu 0:
+ __remove_hrtimer+0x52/0x130 kernel/time/hrtimer.c:991
+ __run_hrtimer kernel/time/hrtimer.c:1496 [inline]
+ __hrtimer_run_queues+0x250/0x600 kernel/time/hrtimer.c:1576
+ hrtimer_run_softirq+0x10e/0x150 kernel/time/hrtimer.c:1593
+ __do_softirq+0x115/0x33f kernel/softirq.c:292
+ run_ksoftirqd+0x46/0x60 kernel/softirq.c:603
+ smpboot_thread_fn+0x37d/0x4a0 kernel/smpboot.c:165
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+read to 0xffff8880b2a7d388 of 1 bytes by task 24652 on cpu 1:
+ tcp_pacing_check net/ipv4/tcp_output.c:2235 [inline]
+ tcp_pacing_check+0xba/0x130 net/ipv4/tcp_output.c:2225
+ tcp_xmit_retransmit_queue+0x32c/0x5a0 net/ipv4/tcp_output.c:3044
+ tcp_xmit_recovery+0x7c/0x120 net/ipv4/tcp_input.c:3558
+ tcp_ack+0x17b6/0x3170 net/ipv4/tcp_input.c:3717
+ tcp_rcv_established+0x37e/0xf50 net/ipv4/tcp_input.c:5696
+ tcp_v4_do_rcv+0x381/0x4e0 net/ipv4/tcp_ipv4.c:1561
+ sk_backlog_rcv include/net/sock.h:945 [inline]
+ __release_sock+0x135/0x1e0 net/core/sock.c:2435
+ release_sock+0x61/0x160 net/core/sock.c:2951
+ sk_stream_wait_memory+0x3d7/0x7c0 net/core/stream.c:145
+ tcp_sendmsg_locked+0xb47/0x1f30 net/ipv4/tcp.c:1393
+ tcp_sendmsg+0x39/0x60 net/ipv4/tcp.c:1434
+ inet_sendmsg+0x6d/0x90 net/ipv4/af_inet.c:807
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0x9f/0xc0 net/socket.c:657
+
+BUG: KCSAN: data-race in __remove_hrtimer / __tcp_ack_snd_check
+
+write to 0xffff8880a3a65588 of 1 bytes by interrupt on cpu 0:
+ __remove_hrtimer+0x52/0x130 kernel/time/hrtimer.c:991
+ __run_hrtimer kernel/time/hrtimer.c:1496 [inline]
+ __hrtimer_run_queues+0x250/0x600 kernel/time/hrtimer.c:1576
+ hrtimer_run_softirq+0x10e/0x150 kernel/time/hrtimer.c:1593
+ __do_softirq+0x115/0x33f kernel/softirq.c:292
+ invoke_softirq kernel/softirq.c:373 [inline]
+ irq_exit+0xbb/0xe0 kernel/softirq.c:413
+ exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+ smp_apic_timer_interrupt+0xe6/0x280 arch/x86/kernel/apic/apic.c:1137
+ apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
+
+read to 0xffff8880a3a65588 of 1 bytes by task 22891 on cpu 1:
+ __tcp_ack_snd_check+0x415/0x4f0 net/ipv4/tcp_input.c:5265
+ tcp_ack_snd_check net/ipv4/tcp_input.c:5287 [inline]
+ tcp_rcv_established+0x750/0xf50 net/ipv4/tcp_input.c:5708
+ tcp_v4_do_rcv+0x381/0x4e0 net/ipv4/tcp_ipv4.c:1561
+ sk_backlog_rcv include/net/sock.h:945 [inline]
+ __release_sock+0x135/0x1e0 net/core/sock.c:2435
+ release_sock+0x61/0x160 net/core/sock.c:2951
+ sk_stream_wait_memory+0x3d7/0x7c0 net/core/stream.c:145
+ tcp_sendmsg_locked+0xb47/0x1f30 net/ipv4/tcp.c:1393
+ tcp_sendmsg+0x39/0x60 net/ipv4/tcp.c:1434
+ inet_sendmsg+0x6d/0x90 net/ipv4/af_inet.c:807
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0x9f/0xc0 net/socket.c:657
+ __sys_sendto+0x21f/0x320 net/socket.c:1952
+ __do_sys_sendto net/socket.c:1964 [inline]
+ __se_sys_sendto net/socket.c:1960 [inline]
+ __x64_sys_sendto+0x89/0xb0 net/socket.c:1960
+ do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
 
 Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 11183 Comm: syz-executor.2 Not tainted 5.4.0-rc3+ #0
+CPU: 1 PID: 24652 Comm: syz-executor.3 Not tainted 5.4.0-rc3+ #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 
-Fixes: 4cdf507d5452 ("icmp: add a global rate limitation")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+[ tglx: Added comments ]
+
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20191106174804.74723-1-edumazet@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/icmp.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ include/linux/hrtimer.h |   14 ++++++++++----
+ kernel/time/hrtimer.c   |   11 +++++++----
+ 2 files changed, 17 insertions(+), 8 deletions(-)
 
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -256,10 +256,11 @@ bool icmp_global_allow(void)
- 	bool rc = false;
+--- a/include/linux/hrtimer.h
++++ b/include/linux/hrtimer.h
+@@ -424,12 +424,18 @@ extern u64 hrtimer_get_next_event(void);
  
- 	/* Check if token bucket is empty and cannot be refilled
--	 * without taking the spinlock.
-+	 * without taking the spinlock. The READ_ONCE() are paired
-+	 * with the following WRITE_ONCE() in this same function.
- 	 */
--	if (!icmp_global.credit) {
--		delta = min_t(u32, now - icmp_global.stamp, HZ);
-+	if (!READ_ONCE(icmp_global.credit)) {
-+		delta = min_t(u32, now - READ_ONCE(icmp_global.stamp), HZ);
- 		if (delta < HZ / 50)
- 			return false;
- 	}
-@@ -269,14 +270,14 @@ bool icmp_global_allow(void)
- 	if (delta >= HZ / 50) {
- 		incr = sysctl_icmp_msgs_per_sec * delta / HZ ;
- 		if (incr)
--			icmp_global.stamp = now;
-+			WRITE_ONCE(icmp_global.stamp, now);
- 	}
- 	credit = min_t(u32, icmp_global.credit + incr, sysctl_icmp_msgs_burst);
- 	if (credit) {
- 		credit--;
- 		rc = true;
- 	}
--	icmp_global.credit = credit;
-+	WRITE_ONCE(icmp_global.credit, credit);
- 	spin_unlock(&icmp_global.lock);
- 	return rc;
+ extern bool hrtimer_active(const struct hrtimer *timer);
+ 
+-/*
+- * Helper function to check, whether the timer is on one of the queues
++/**
++ * hrtimer_is_queued = check, whether the timer is on one of the queues
++ * @timer:	Timer to check
++ *
++ * Returns: True if the timer is queued, false otherwise
++ *
++ * The function can be used lockless, but it gives only a current snapshot.
+  */
+-static inline int hrtimer_is_queued(struct hrtimer *timer)
++static inline bool hrtimer_is_queued(struct hrtimer *timer)
+ {
+-	return timer->state & HRTIMER_STATE_ENQUEUED;
++	/* The READ_ONCE pairs with the update functions of timer->state */
++	return !!(READ_ONCE(timer->state) & HRTIMER_STATE_ENQUEUED);
  }
+ 
+ /*
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -887,7 +887,8 @@ static int enqueue_hrtimer(struct hrtime
+ 
+ 	base->cpu_base->active_bases |= 1 << base->index;
+ 
+-	timer->state = HRTIMER_STATE_ENQUEUED;
++	/* Pairs with the lockless read in hrtimer_is_queued() */
++	WRITE_ONCE(timer->state, HRTIMER_STATE_ENQUEUED);
+ 
+ 	return timerqueue_add(&base->active, &timer->node);
+ }
+@@ -909,7 +910,8 @@ static void __remove_hrtimer(struct hrti
+ 	struct hrtimer_cpu_base *cpu_base = base->cpu_base;
+ 	u8 state = timer->state;
+ 
+-	timer->state = newstate;
++	/* Pairs with the lockless read in hrtimer_is_queued() */
++	WRITE_ONCE(timer->state, newstate);
+ 	if (!(state & HRTIMER_STATE_ENQUEUED))
+ 		return;
+ 
+@@ -936,8 +938,9 @@ static void __remove_hrtimer(struct hrti
+ static inline int
+ remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, bool restart)
+ {
+-	if (hrtimer_is_queued(timer)) {
+-		u8 state = timer->state;
++	u8 state = timer->state;
++
++	if (state & HRTIMER_STATE_ENQUEUED) {
+ 		int reprogram;
+ 
+ 		/*
 
 
