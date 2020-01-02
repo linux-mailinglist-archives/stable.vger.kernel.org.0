@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FED012F10B
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6B0012F088
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726528AbgABW5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:57:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58456 "EHLO mail.kernel.org"
+        id S1728996AbgABWVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:21:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728251AbgABWQa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:16:30 -0500
+        id S1728612AbgABWVa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:21:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 415EB2253D;
-        Thu,  2 Jan 2020 22:16:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3676124125;
+        Thu,  2 Jan 2020 22:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003389;
-        bh=Xk40KDWVWsPOKOokp67z71ab0hlRYtFhXoaXhmZD3qk=;
+        s=default; t=1578003689;
+        bh=m8NzCf4h3abOp3hDf9o8iWYgiZUZgDJEXB9aJ8CE73k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJZDE+6FzapLEeYJmxINdocROjhYw4vn0V6zlSzUz7he8LakTGmG9sZd43r5MXF1c
-         9+IuNY01pHWXr9Y5BK0U16djTY8I07foa+aXKdef/20in+hh71xAjtsik6OxYabJ6I
-         q0DlZnAdyL/MyVQV57/47qcWR8FXd3VEW4Kr5o8w=
+        b=oXDCeyyfP4sunWqxOVSo8UVt1u7vJRmb2vWHwqpyT5Av4KBH2zdfRsoZkzot1Zn3w
+         M/XEfyR1PX7p3FOPOPqOjRtNpk3TSVityU1MEFaQ1dwmwv0nzaE9sFuesioP6pA3ZR
+         gwZGbMpDJbzhJzZpz9d/8F6wl+D6q7SHinAmo4cU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 140/191] net: add a READ_ONCE() in skb_peek_tail()
+        stable@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>,
+        Federico Cerutti <federico@ceres-c.it>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 050/114] HID: rmi: Check that the RMI_STARTED bit is set before unregistering the RMI transport device
 Date:   Thu,  2 Jan 2020 23:07:02 +0100
-Message-Id: <20200102215844.576028808@linuxfoundation.org>
+Message-Id: <20200102220034.117368636@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Andrew Duggan <aduggan@synaptics.com>
 
-commit f8cc62ca3e660ae3fdaee533b1d554297cd2ae82 upstream.
+[ Upstream commit 8725aa4fa7ded30211ebd28bb1c9bae806eb3841 ]
 
-skb_peek_tail() can be used without protection of a lock,
-as spotted by KCSAN [1]
+In the event that the RMI device is unreachable, the calls to rmi_set_mode() or
+rmi_set_page() will fail before registering the RMI transport device. When the
+device is removed, rmi_remove() will call rmi_unregister_transport_device()
+which will attempt to access the rmi_dev pointer which was not set.
+This patch adds a check of the RMI_STARTED bit before calling
+rmi_unregister_transport_device().  The RMI_STARTED bit is only set
+after rmi_register_transport_device() completes successfully.
 
-In order to avoid load-stearing, add a READ_ONCE()
+The kernel oops was reported in this message:
+https://www.spinics.net/lists/linux-input/msg58433.html
 
-Note that the corresponding WRITE_ONCE() are already there.
-
-[1]
-BUG: KCSAN: data-race in sk_wait_data / skb_queue_tail
-
-read to 0xffff8880b36a4118 of 8 bytes by task 20426 on cpu 1:
- skb_peek_tail include/linux/skbuff.h:1784 [inline]
- sk_wait_data+0x15b/0x250 net/core/sock.c:2477
- kcm_wait_data+0x112/0x1f0 net/kcm/kcmsock.c:1103
- kcm_recvmsg+0xac/0x320 net/kcm/kcmsock.c:1130
- sock_recvmsg_nosec net/socket.c:871 [inline]
- sock_recvmsg net/socket.c:889 [inline]
- sock_recvmsg+0x92/0xb0 net/socket.c:885
- ___sys_recvmsg+0x1a0/0x3e0 net/socket.c:2480
- do_recvmmsg+0x19a/0x5c0 net/socket.c:2601
- __sys_recvmmsg+0x1ef/0x200 net/socket.c:2680
- __do_sys_recvmmsg net/socket.c:2703 [inline]
- __se_sys_recvmmsg net/socket.c:2696 [inline]
- __x64_sys_recvmmsg+0x89/0xb0 net/socket.c:2696
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-write to 0xffff8880b36a4118 of 8 bytes by task 451 on cpu 0:
- __skb_insert include/linux/skbuff.h:1852 [inline]
- __skb_queue_before include/linux/skbuff.h:1958 [inline]
- __skb_queue_tail include/linux/skbuff.h:1991 [inline]
- skb_queue_tail+0x7e/0xc0 net/core/skbuff.c:3145
- kcm_queue_rcv_skb+0x202/0x310 net/kcm/kcmsock.c:206
- kcm_rcv_strparser+0x74/0x4b0 net/kcm/kcmsock.c:370
- __strp_recv+0x348/0xf50 net/strparser/strparser.c:309
- strp_recv+0x84/0xa0 net/strparser/strparser.c:343
- tcp_read_sock+0x174/0x5c0 net/ipv4/tcp.c:1639
- strp_read_sock+0xd4/0x140 net/strparser/strparser.c:366
- do_strp_work net/strparser/strparser.c:414 [inline]
- strp_work+0x9a/0xe0 net/strparser/strparser.c:423
- process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
- worker_thread+0xa0/0x800 kernel/workqueue.c:2415
- kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 451 Comm: kworker/u4:3 Not tainted 5.4.0-rc3+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: kstrp strp_work
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+[jkosina@suse.cz: reworded changelog as agreed with Andrew]
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Reported-by: Federico Cerutti <federico@ceres-c.it>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/hid/hid-rmi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1795,7 +1795,7 @@ static inline struct sk_buff *skb_peek_n
-  */
- static inline struct sk_buff *skb_peek_tail(const struct sk_buff_head *list_)
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 9e33165250a3..a5b6b2be9cda 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -737,7 +737,8 @@ static void rmi_remove(struct hid_device *hdev)
  {
--	struct sk_buff *skb = list_->prev;
-+	struct sk_buff *skb = READ_ONCE(list_->prev);
+ 	struct rmi_data *hdata = hid_get_drvdata(hdev);
  
- 	if (skb == (struct sk_buff *)list_)
- 		skb = NULL;
-@@ -1861,7 +1861,9 @@ static inline void __skb_insert(struct s
- 				struct sk_buff *prev, struct sk_buff *next,
- 				struct sk_buff_head *list)
- {
--	/* see skb_queue_empty_lockless() for the opposite READ_ONCE() */
-+	/* See skb_queue_empty_lockless() and skb_peek_tail()
-+	 * for the opposite READ_ONCE()
-+	 */
- 	WRITE_ONCE(newsk->next, next);
- 	WRITE_ONCE(newsk->prev, prev);
- 	WRITE_ONCE(next->prev, newsk);
+-	if (hdata->device_flags & RMI_DEVICE) {
++	if ((hdata->device_flags & RMI_DEVICE)
++	    && test_bit(RMI_STARTED, &hdata->flags)) {
+ 		clear_bit(RMI_STARTED, &hdata->flags);
+ 		cancel_work_sync(&hdata->reset_work);
+ 		rmi_unregister_transport_device(&hdata->xport);
+-- 
+2.20.1
+
 
 
