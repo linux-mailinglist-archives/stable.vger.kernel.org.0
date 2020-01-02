@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0038E12F095
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E6212EF6E
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729252AbgABWxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:53:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40278 "EHLO mail.kernel.org"
+        id S1730004AbgABWbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:31:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728432AbgABWVU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:21:20 -0500
+        id S1730120AbgABWbO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:31:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C27C222C3;
-        Thu,  2 Jan 2020 22:21:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ACEE20866;
+        Thu,  2 Jan 2020 22:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003680;
-        bh=d18jTLWfApfwUh6KARUD1FZQRxSZd5VOJTbozrBOtrQ=;
+        s=default; t=1578004272;
+        bh=DF/zNNSmy9moWJcGF6ffgJY4tdKF7S2cTuVnmuVeuDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VI/btbdtiEbY12kOBu0xixGh45DssxNPWmJ6hoNRrDKGJ/FHVmgfpUlWBrRc02CvV
-         odfvr4yVVkgiAPSOrd0AnIBQBe+svvnoaMykrv/R0oM1TgAFRpy6K4XBgYC76hBqv/
-         +9Ajdvt5KH8+mR8Anlc0+oPG0l5Ck7SsrIuY8Qus=
+        b=j1vjZYyca/6V7yIX9zRMnXtPQyzATLYCW2bwj0D02dthUE5q2uDQ46sOhiRzYewXF
+         1sFSGJw/odXx9yPg/jpAKeVKoyVz5DO3m5oyqDpv+KoG2aXYvGnduzKA1nb3zwdGNn
+         QwcElm/IUwki2DpZFupAuo5n2uMuU5GsqLcim3Dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ding Xiang <dingxiang@cmss.chinamobile.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 069/114] ocfs2: fix passing zero to PTR_ERR warning
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Thomas Backlund <tmb@mageia.org>
+Subject: [PATCH 4.9 110/171] perf probe: Fix to show function entry line as probe-able
 Date:   Thu,  2 Jan 2020 23:07:21 +0100
-Message-Id: <20200102220036.033585825@linuxfoundation.org>
+Message-Id: <20200102220602.398963748@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Xiang <dingxiang@cmss.chinamobile.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 188c523e1c271d537f3c9f55b6b65bf4476de32f ]
+commit 91e2f539eeda26ab00bd03fae8dc434c128c85ed upstream.
 
-Fix a static code checker warning:
-fs/ocfs2/acl.c:331
-	ocfs2_acl_chmod() warn: passing zero to 'PTR_ERR'
+Fix die_walk_lines() to list the function entry line correctly.  Since
+the dwarf_entrypc() does not return the entry pc if the DIE has only
+range attribute, __die_walk_funclines() fails to list the declaration
+line (entry line) in that case.
 
-Link: http://lkml.kernel.org/r/1dee278b-6c96-eec2-ce76-fe6e07c6e20f@linux.alibaba.com
-Fixes: 5ee0fbd50fd ("ocfs2: revert using ocfs2_acl_chmod to avoid inode cluster lock hang")
-Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To solve this issue, this introduces die_entrypc() which correctly
+returns the entry PC (the first address range) even if the DIE has only
+range attribute. With this fix die_walk_lines() shows the function entry
+line is able to probe correctly.
+
+Fixes: 4cc9cec636e7 ("perf probe: Introduce lines walker interface")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/157190837419.1859.4619125803596816752.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Thomas Backlund <tmb@mageia.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ocfs2/acl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/perf/util/dwarf-aux.c |   24 +++++++++++++++++++++++-
+ tools/perf/util/dwarf-aux.h |    3 +++
+ 2 files changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/acl.c b/fs/ocfs2/acl.c
-index 917fadca8a7b..b73b78771915 100644
---- a/fs/ocfs2/acl.c
-+++ b/fs/ocfs2/acl.c
-@@ -335,8 +335,8 @@ int ocfs2_acl_chmod(struct inode *inode, struct buffer_head *bh)
- 	down_read(&OCFS2_I(inode)->ip_xattr_sem);
- 	acl = ocfs2_get_acl_nolock(inode, ACL_TYPE_ACCESS, bh);
- 	up_read(&OCFS2_I(inode)->ip_xattr_sem);
--	if (IS_ERR(acl) || !acl)
--		return PTR_ERR(acl);
-+	if (IS_ERR_OR_NULL(acl))
-+		return PTR_ERR_OR_ZERO(acl);
- 	ret = __posix_acl_chmod(&acl, GFP_KERNEL, inode->i_mode);
- 	if (ret)
- 		return ret;
--- 
-2.20.1
-
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -318,6 +318,28 @@ bool die_is_func_def(Dwarf_Die *dw_die)
+ }
+ 
+ /**
++ * die_entrypc - Returns entry PC (the lowest address) of a DIE
++ * @dw_die: a DIE
++ * @addr: where to store entry PC
++ *
++ * Since dwarf_entrypc() does not return entry PC if the DIE has only address
++ * range, we have to use this to retrieve the lowest address from the address
++ * range attribute.
++ */
++int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
++{
++	Dwarf_Addr base, end;
++
++	if (!addr)
++		return -EINVAL;
++
++	if (dwarf_entrypc(dw_die, addr) == 0)
++		return 0;
++
++	return dwarf_ranges(dw_die, 0, &base, addr, &end) < 0 ? -ENOENT : 0;
++}
++
++/**
+  * die_is_func_instance - Ensure that this DIE is an instance of a subprogram
+  * @dw_die: a DIE
+  *
+@@ -730,7 +752,7 @@ static int __die_walk_funclines(Dwarf_Di
+ 	/* Handle function declaration line */
+ 	fname = dwarf_decl_file(sp_die);
+ 	if (fname && dwarf_decl_line(sp_die, &lineno) == 0 &&
+-	    dwarf_entrypc(sp_die, &addr) == 0) {
++	    die_entrypc(sp_die, &addr) == 0) {
+ 		lw.retval = callback(fname, lineno, addr, data);
+ 		if (lw.retval != 0)
+ 			goto done;
+--- a/tools/perf/util/dwarf-aux.h
++++ b/tools/perf/util/dwarf-aux.h
+@@ -41,6 +41,9 @@ int cu_walk_functions_at(Dwarf_Die *cu_d
+ /* Get DW_AT_linkage_name (should be NULL for C binary) */
+ const char *die_get_linkage_name(Dwarf_Die *dw_die);
+ 
++/* Get the lowest PC in DIE (including range list) */
++int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr);
++
+ /* Ensure that this DIE is a subprogram and definition (not declaration) */
+ bool die_is_func_def(Dwarf_Die *dw_die);
+ 
 
 
