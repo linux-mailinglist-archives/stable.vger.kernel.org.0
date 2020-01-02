@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 349EC12EE5D
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75A9512EF46
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730361AbgABWhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:37:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50758 "EHLO mail.kernel.org"
+        id S1730295AbgABWck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:32:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731132AbgABWhr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:37:47 -0500
+        id S1729907AbgABWch (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:32:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3DF721835;
-        Thu,  2 Jan 2020 22:37:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7291D22314;
+        Thu,  2 Jan 2020 22:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004667;
-        bh=7okkSXIfIf9KjaBim2ENH6q5FnVJlRWFF/g9iz6puYw=;
+        s=default; t=1578004356;
+        bh=zmhLVLYo7AmsgDCb5HUMzyyEhu2cun8hHrTua1I/Ek0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wAeYzDJvT0hIFQVReBzuYzabSZP6eJVJL0HX97Qgmv2psxXhsVxEtbLpohLAI7A1K
-         K1B9s1DYjYmIGbGhT29D0T24GsiogNoLnRpSKsPlVzEtf2qk0O4cWTkD2aOfTyOj5P
-         p+9Ar5x/Q1q0wZ/uMsWD4rvsil3AZ+mLpHidVykA=
+        b=Sl7dGwuLLVM6Yg/cehXJDaRIp4HtDCp6i2XWJFK95t4sw2FwP6BXb9v2pLidl0k2z
+         FJzcMLj2tgNT7WWA8+pGazPTBNuyG4ciCCLoMoujg4n0bKtwlKBSl4JbT+OTjweYfq
+         VAimulfdmksnGlJPhzVO7t0WhlynngdV0skP7Bac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Michael Walle <michael@walle.cc>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 102/137] scsi: tracing: Fix handling of TRANSFER LENGTH == 0 for READ(6) and WRITE(6)
+Subject: [PATCH 4.9 144/171] gpio: mpc8xxx: Dont overwrite default irq_set_type callback
 Date:   Thu,  2 Jan 2020 23:07:55 +0100
-Message-Id: <20200102220600.735565732@linuxfoundation.org>
+Message-Id: <20200102220607.157038496@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,52 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit f6b8540f40201bff91062dd64db8e29e4ddaaa9d ]
+[ Upstream commit 4e50573f39229d5e9c985fa3b4923a8b29619ade ]
 
-According to SBC-2 a TRANSFER LENGTH field of zero means that 256 logical
-blocks must be transferred. Make the SCSI tracing code follow SBC-2.
+The per-SoC devtype structures can contain their own callbacks that
+overwrite mpc8xxx_gpio_devtype_default.
 
-Fixes: bf8162354233 ("[SCSI] add scsi trace core functions and put trace points")
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Douglas Gilbert <dgilbert@interlog.com>
-Link: https://lore.kernel.org/r/20191105215553.185018-1-bvanassche@acm.org
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The clear intention is that mpc8xxx_irq_set_type is used in case the SoC
+does not specify a more specific callback. But what happens is that if
+the SoC doesn't specify one, its .irq_set_type is de-facto NULL, and
+this overwrites mpc8xxx_irq_set_type to a no-op. This means that the
+following SoCs are affected:
+
+- fsl,mpc8572-gpio
+- fsl,ls1028a-gpio
+- fsl,ls1088a-gpio
+
+On these boards, the irq_set_type does exactly nothing, and the GPIO
+controller keeps its GPICR register in the hardware-default state. On
+the LS1028A, that is ACTIVE_BOTH, which means 2 interrupts are raised
+even if the IRQ client requests LEVEL_HIGH. Another implication is that
+the IRQs are not checked (e.g. level-triggered interrupts are not
+rejected, although they are not supported).
+
+Fixes: 82e39b0d8566 ("gpio: mpc8xxx: handle differences between incarnations at a single place")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20191115125551.31061-1-olteanv@gmail.com
+Tested-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_trace.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/gpio/gpio-mpc8xxx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_trace.c b/drivers/scsi/scsi_trace.c
-index 08bb47b53bc3..551fd0329bca 100644
---- a/drivers/scsi/scsi_trace.c
-+++ b/drivers/scsi/scsi_trace.c
-@@ -29,15 +29,18 @@ static const char *
- scsi_trace_rw6(struct trace_seq *p, unsigned char *cdb, int len)
- {
- 	const char *ret = trace_seq_buffer_ptr(p);
--	sector_t lba = 0, txlen = 0;
-+	u32 lba = 0, txlen;
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index 793518a30afe..bd777687233b 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -337,7 +337,8 @@ static int mpc8xxx_probe(struct platform_device *pdev)
+ 	 * It's assumed that only a single type of gpio controller is available
+ 	 * on the current machine, so overwriting global data is fine.
+ 	 */
+-	mpc8xxx_irq_chip.irq_set_type = devtype->irq_set_type;
++	if (devtype->irq_set_type)
++		mpc8xxx_irq_chip.irq_set_type = devtype->irq_set_type;
  
- 	lba |= ((cdb[1] & 0x1F) << 16);
- 	lba |=  (cdb[2] << 8);
- 	lba |=   cdb[3];
--	txlen = cdb[4];
-+	/*
-+	 * From SBC-2: a TRANSFER LENGTH field set to zero specifies that 256
-+	 * logical blocks shall be read (READ(6)) or written (WRITE(6)).
-+	 */
-+	txlen = cdb[4] ? cdb[4] : 256;
- 
--	trace_seq_printf(p, "lba=%llu txlen=%llu",
--			 (unsigned long long)lba, (unsigned long long)txlen);
-+	trace_seq_printf(p, "lba=%u txlen=%u", lba, txlen);
- 	trace_seq_putc(p, 0);
- 
- 	return ret;
+ 	if (devtype->gpio_dir_out)
+ 		gc->direction_output = devtype->gpio_dir_out;
 -- 
 2.20.1
 
