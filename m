@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F4412EE2F
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:36:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3551C12F032
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730652AbgABWgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:36:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46326 "EHLO mail.kernel.org"
+        id S1729145AbgABWvW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:51:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730886AbgABWf7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:35:59 -0500
+        id S1729374AbgABWYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:24:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13E1F21835;
-        Thu,  2 Jan 2020 22:35:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0FB920866;
+        Thu,  2 Jan 2020 22:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004559;
-        bh=U1Ajd+eXPu3f5Nu/n1OGGKF0w8LPmhLxyAHrWiOXMEU=;
+        s=default; t=1578003853;
+        bh=A0Ew0/2MWKBIOfu4CAM6BIGzsGfEG7tcpiHrHTTGHdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yAQIT3m/TbcqaBXx+ri17fqpFxyXmqmCVYMIgiRyI3ltDjaEUh3fo8hndBC8a1ps2
-         2kYnrGmtU/Ybloi/FT0OxPdaKTg+WGUiXwsTxCuz/eVfUp4ieVL0kaFMnQZGda9Qn/
-         8JpmKL3FFZZq1pb93UdsNh7A6sJrCaFsg3EBLEd8=
+        b=GIt5wDj16fDisvKpXPV1K+5MnQPmapck3ebWXJpyL9k890JznxhizzNvMpNCH/2Ne
+         2/QdUdhq/5NEbvjdED8VDtraO1OTy41p9iRy/xd8kuqS7Rb1DWTAi43qR+OyMkXkGr
+         p/U/MVxCzeMSZo4oqeibGkUxKknYMRz1w9MtPTY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 032/137] arm64: psci: Reduce the waiting time for cpu_psci_cpu_kill()
+Subject: [PATCH 4.14 03/91] scsi: lpfc: Fix locking on mailbox command completion
 Date:   Thu,  2 Jan 2020 23:06:45 +0100
-Message-Id: <20200102220551.008506651@linuxfoundation.org>
+Message-Id: <20200102220402.226244961@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit bfcef4ab1d7ee8921bc322109b1692036cc6cbe0 ]
+[ Upstream commit 07b8582430370097238b589f4e24da7613ca6dd3 ]
 
-In cases like suspend-to-disk and suspend-to-ram, a large number of CPU
-cores need to be shut down. At present, the CPU hotplug operation is
-serialised, and the CPU cores can only be shut down one by one. In this
-process, if PSCI affinity_info() does not return LEVEL_OFF quickly,
-cpu_psci_cpu_kill() needs to wait for 10ms. If hundreds of CPU cores
-need to be shut down, it will take a long time.
+Symptoms were seen of the driver not having valid data for mailbox
+commands. After debugging, the following sequence was found:
 
-Normally, there is no need to wait 10ms in cpu_psci_cpu_kill(). So
-change the wait interval from 10 ms to max 1 ms and use usleep_range()
-instead of msleep() for more accurate timer.
+The driver maintains a port-wide pointer of the mailbox command that is
+currently in execution. Once finished, the port-wide pointer is cleared
+(done in lpfc_sli4_mq_release()). The next mailbox command issued will set
+the next pointer and so on.
 
-In addition, reducing the time interval will increase the messages
-output, so remove the "Retry ..." message, instead, track time and
-output to the the sucessful message.
+The mailbox response data is only copied if there is a valid port-wide
+pointer.
 
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+In the failing case, it was seen that a new mailbox command was being
+attempted in parallel with the completion.  The parallel path was seeing
+the mailbox no long in use (flag check under lock) and thus set the port
+pointer.  The completion path had cleared the active flag under lock, but
+had not touched the port pointer.  The port pointer is cleared after the
+lock is released. In this case, the completion path cleared the just-set
+value by the parallel path.
+
+Fix by making the calls that clear mbox state/port pointer while under
+lock.  Also slightly cleaned up the error path.
+
+Link: https://lore.kernel.org/r/20190922035906.10977-8-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/psci.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
-index f67f35b6edb1..e6ad81556575 100644
---- a/arch/arm64/kernel/psci.c
-+++ b/arch/arm64/kernel/psci.c
-@@ -151,7 +151,8 @@ static void cpu_psci_cpu_die(unsigned int cpu)
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index d3bad0dbfaf7..7920b8c72caf 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -12689,13 +12689,19 @@ send_current_mbox:
+ 	phba->sli.sli_flag &= ~LPFC_SLI_MBOX_ACTIVE;
+ 	/* Setting active mailbox pointer need to be in sync to flag clear */
+ 	phba->sli.mbox_active = NULL;
++	if (bf_get(lpfc_trailer_consumed, mcqe))
++		lpfc_sli4_mq_release(phba->sli4_hba.mbx_wq);
+ 	spin_unlock_irqrestore(&phba->hbalock, iflags);
+ 	/* Wake up worker thread to post the next pending mailbox command */
+ 	lpfc_worker_wake_up(phba);
++	return workposted;
++
+ out_no_mqe_complete:
++	spin_lock_irqsave(&phba->hbalock, iflags);
+ 	if (bf_get(lpfc_trailer_consumed, mcqe))
+ 		lpfc_sli4_mq_release(phba->sli4_hba.mbx_wq);
+-	return workposted;
++	spin_unlock_irqrestore(&phba->hbalock, iflags);
++	return false;
+ }
  
- static int cpu_psci_cpu_kill(unsigned int cpu)
- {
--	int err, i;
-+	int err;
-+	unsigned long start, end;
- 
- 	if (!psci_ops.affinity_info)
- 		return 0;
-@@ -161,16 +162,18 @@ static int cpu_psci_cpu_kill(unsigned int cpu)
- 	 * while it is dying. So, try again a few times.
- 	 */
- 
--	for (i = 0; i < 10; i++) {
-+	start = jiffies;
-+	end = start + msecs_to_jiffies(100);
-+	do {
- 		err = psci_ops.affinity_info(cpu_logical_map(cpu), 0);
- 		if (err == PSCI_0_2_AFFINITY_LEVEL_OFF) {
--			pr_info("CPU%d killed.\n", cpu);
-+			pr_info("CPU%d killed (polled %d ms)\n", cpu,
-+				jiffies_to_msecs(jiffies - start));
- 			return 0;
- 		}
- 
--		msleep(10);
--		pr_info("Retrying again to check for CPU kill\n");
--	}
-+		usleep_range(100, 1000);
-+	} while (time_before(jiffies, end));
- 
- 	pr_warn("CPU%d may not have shut down cleanly (AFFINITY_INFO reports %d)\n",
- 			cpu, err);
+ /**
 -- 
 2.20.1
 
