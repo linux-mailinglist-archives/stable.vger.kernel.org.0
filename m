@@ -2,92 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52E8612F48E
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 07:27:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 795F812F4CB
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 08:00:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727206AbgACG1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 01:27:05 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:55284 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725928AbgACG1F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 01:27:05 -0500
-Received: by mail-wm1-f67.google.com with SMTP id b19so7454081wmj.4
-        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 22:27:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/10iQ/Q6ZdW/dh3o01ZVtjpI7hyZRKn6kNPKYA0QSIM=;
-        b=NKK3+v79CNFlC6ifHs/D5YINVjOiEbdgxw738fsS9OHdfOVBlslgacX4nLMr3+auuH
-         nzO97kxCVOVIhTFGbJRVFsjLrnnKmD5+9B3BvnQCng19VQSleNbuAXGaL0VyKTR6erQy
-         uilPY/UYKqWwk4VX5sa5yxs/x1eNZFDDuMbTqPRjwbXX+iVbwoui8wPTFxHLmZDxaiqP
-         ZVw2tWi+G+9ZgvngViknjHWWxOLkXUHa5a+wakRm7+uhJ0TBbuzVB9Lx4j1awWpb0AS7
-         UQL1p41LXXVSXCerrfGLXmzXF/z7d7fUsTHbpsTcq7R7t9nuMBqWr5gAcy3ft43D+/6t
-         CyCQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/10iQ/Q6ZdW/dh3o01ZVtjpI7hyZRKn6kNPKYA0QSIM=;
-        b=W2itL4ijljqpnR9+er8w0QlBhi39fjTJdCchooyXwituxrzpDz+85mgwrBc9deCThf
-         0iL4q8/z/NjiWZ4Waf0qJ6ljhXW0pk6TVZLgEMezyQ9jYN0QHzI4qs7G+GCVlfhUWags
-         7D2QCYOD2TWNfdO10MiBZd4HSRacwfTiWO4mC9XWwVkOZxi/ZvkK1KeUgVqxNben76K+
-         ySNqO4GqpA4LT/jp5bmi8538D2S6oNmIOKPjPB+PP3eg5TgGJ0S01GFvCIWMFPkM4gXQ
-         MBHhK2T9/s9602mkqV5dldWrppZXl9YhV3lRYP8fZxINbyX4HRVbJRSzsA81wTzeCqDu
-         hmLg==
-X-Gm-Message-State: APjAAAXz0ZSFJzKPtBnG3uHTqOQS7XoZLYgT7hbQtxUFD/+vGoZECjZm
-        OnhwpL9YB2SKnAw+zWhsqvNB2iNDUKaplg==
-X-Google-Smtp-Source: APXvYqyHpeftaF3cHsCF/ajfUe4xVn1W+GdWaUrWFkp/ciwBXK1MbYzc3bouQCvxzpq7klKbsTSN9A==
-X-Received: by 2002:a05:600c:409:: with SMTP id q9mr17732592wmb.19.1578032823776;
-        Thu, 02 Jan 2020 22:27:03 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id 2sm60794875wrq.31.2020.01.02.22.27.03
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Jan 2020 22:27:03 -0800 (PST)
-Message-ID: <5e0edeb7.1c69fb81.1ac75.5d04@mx.google.com>
-Date:   Thu, 02 Jan 2020 22:27:03 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726054AbgACHAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 02:00:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46492 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725972AbgACHAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jan 2020 02:00:19 -0500
+Received: from localhost (unknown [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DF6D22B48;
+        Fri,  3 Jan 2020 07:00:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578034818;
+        bh=qt3MmdnkqKeQMrpXmbRQhZYlRKX5+Zjxr54wDqeU5B4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cUlYV32sBjS/cCjVzoPlpR2vD/NmN9HK3R/hhRiIdm9mNSPy6BgYtOQeRX6ilc0xN
+         5KLSIw4wlBk/zT/acCcxr718snojToNUG6bjojR9yd4OgUsyehqcdzQjgEUyo11ssR
+         Qw0LY7ZmwzsfuXJBywTufOopWM/cn47wf2gUUxW4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 017/171] media: i2c: ov2659: fix s_stream return value
+Date:   Thu,  2 Jan 2020 23:05:48 +0100
+Message-Id: <20200102220549.401929354@linuxfoundation.org>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.92-115-g0ff4783e70ef
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 63 boots: 0 failed,
- 62 passed with 1 untried/unknown (v4.19.92-115-g0ff4783e70ef)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 63 boots: 0 failed, 62 passed with 1 untried/u=
-nknown (v4.19.92-115-g0ff4783e70ef)
+From: Benoit Parrot <bparrot@ti.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.92-115-g0ff4783e70ef/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.92-115-g0ff4783e70ef/
+[ Upstream commit 85c4043f1d403c222d481dfc91846227d66663fb ]
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.92-115-g0ff4783e70ef
-Git Commit: 0ff4783e70efb1b60f2baf2d9d4fd55d2e678c36
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 41 unique boards, 15 SoC families, 14 builds out of 206
+In ov2659_s_stream() return value for invoked function should be checked
+and propagated.
 
-Boot Regressions Detected:
-
-arm:
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.19.92-115-g2c7ea655=
-7e21)
-
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/media/i2c/ov2659.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
+index 3554eea77e04..49196afd15a8 100644
+--- a/drivers/media/i2c/ov2659.c
++++ b/drivers/media/i2c/ov2659.c
+@@ -1204,11 +1204,15 @@ static int ov2659_s_stream(struct v4l2_subdev *sd, int on)
+ 		goto unlock;
+ 	}
+ 
+-	ov2659_set_pixel_clock(ov2659);
+-	ov2659_set_frame_size(ov2659);
+-	ov2659_set_format(ov2659);
+-	ov2659_set_streaming(ov2659, 1);
+-	ov2659->streaming = on;
++	ret = ov2659_set_pixel_clock(ov2659);
++	if (!ret)
++		ret = ov2659_set_frame_size(ov2659);
++	if (!ret)
++		ret = ov2659_set_format(ov2659);
++	if (!ret) {
++		ov2659_set_streaming(ov2659, 1);
++		ov2659->streaming = on;
++	}
+ 
+ unlock:
+ 	mutex_unlock(&ov2659->lock);
+-- 
+2.20.1
+
+
+
