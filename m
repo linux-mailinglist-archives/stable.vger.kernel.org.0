@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3CC12F130
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31C5612EFAD
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:48:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727566AbgABWPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:15:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55846 "EHLO mail.kernel.org"
+        id S1729915AbgABWrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:47:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727186AbgABWPJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:15:09 -0500
+        id S1729829AbgABW3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:29:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4ECA024649;
-        Thu,  2 Jan 2020 22:15:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24ED620866;
+        Thu,  2 Jan 2020 22:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003308;
-        bh=yxRUl5bDgmXnUkV1HL7CmWXoxyfxMH8YtZWC+Kj8990=;
+        s=default; t=1578004145;
+        bh=WZjRBfiiNxuoLWB6inZzUgFhAkHPpl2Cb6dhL6UEsuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGn9DkS/CEyiiJRW+2B+O86Dmf5+tPBra9b8B05Fk21wG5I6g8qUu/7gVZH+kfL8b
-         g5xgOrHX/doO89rSpQ3eWfuxgdTMEhSAFT0Re3ZA7SkxpBWp1y/z4hRAIAiSTxqd+Z
-         wqJYqYIbKBur0eDGNAbeg4hTQdpE+uofeVn+a8g8=
+        b=iCmDoQ36MoNPsUUq25gVzQP3fyXN9CAsx5WB6Idx/K6QnX0SHRw3fQKbUvxSuZQwg
+         Vn64NrvypJOKU9nd06l5E484pn5RCL3aAuRun4OwjKdg5KLS10TQ0Moi4peGLd8gYu
+         EyvdFfWO1VPAQSTtYCsXBnsNDSKBzXx3izcdNzSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/191] scripts/kallsyms: fix definitely-lost memory leak
+Subject: [PATCH 4.9 057/171] perf probe: Skip overlapped location on searching variables
 Date:   Thu,  2 Jan 2020 23:06:28 +0100
-Message-Id: <20200102215841.293332499@linuxfoundation.org>
+Message-Id: <20200102220554.832386573@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +46,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 21915eca088dc271c970e8351290e83d938114ac ]
+[ Upstream commit dee36a2abb67c175265d49b9a8c7dfa564463d9a ]
 
-build_initial_tok_table() overwrites unused sym_entry to shrink the
-table size. Before the entry is overwritten, table[i].sym must be freed
-since it is malloc'ed data.
+Since debuginfo__find_probes() callback function can be called with  the
+location which already passed, the callback function must filter out
+such overlapped locations.
 
-This fixes the 'definitely lost' report from valgrind. I ran valgrind
-against x86_64_defconfig of v5.4-rc8 kernel, and here is the summary:
+add_probe_trace_event() has already done it by commit 1a375ae7659a
+("perf probe: Skip same probe address for a given line"), but
+add_available_vars() doesn't. Thus perf probe -v shows same address
+repeatedly as below:
 
-[Before the fix]
+  # perf probe -V vfs_read:18
+  Available variables at vfs_read:18
+          @<vfs_read+217>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
+          @<vfs_read+217>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
+          @<vfs_read+226>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
 
-  LEAK SUMMARY:
-     definitely lost: 53,184 bytes in 2,874 blocks
+With this fix, perf probe -V shows it correctly:
 
-[After the fix]
+  # perf probe -V vfs_read:18
+  Available variables at vfs_read:18
+          @<vfs_read+217>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
+          @<vfs_read+226>
+                  char*   buf
+                  loff_t* pos
+                  ssize_t ret
+                  struct file*    file
 
-  LEAK SUMMARY:
-     definitely lost: 0 bytes in 0 blocks
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Fixes: cf6eb489e5c0 ("perf probe: Show accessible local variables")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/157241938927.32002.4026859017790562751.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/kallsyms.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/util/probe-finder.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
-index ae6504d07fd6..fb15f09e0e38 100644
---- a/scripts/kallsyms.c
-+++ b/scripts/kallsyms.c
-@@ -489,6 +489,8 @@ static void build_initial_tok_table(void)
- 				table[pos] = table[i];
- 			learn_symbol(table[pos].sym, table[pos].len);
- 			pos++;
-+		} else {
-+			free(table[i].sym);
- 		}
- 	}
- 	table_cnt = pos;
+diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
+index cfc2e1e7cca4..440f0a92ade6 100644
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -1414,6 +1414,18 @@ error:
+ 	return DIE_FIND_CB_END;
+ }
+ 
++static bool available_var_finder_overlap(struct available_var_finder *af)
++{
++	int i;
++
++	for (i = 0; i < af->nvls; i++) {
++		if (af->pf.addr == af->vls[i].point.address)
++			return true;
++	}
++	return false;
++
++}
++
+ /* Add a found vars into available variables list */
+ static int add_available_vars(Dwarf_Die *sc_die, struct probe_finder *pf)
+ {
+@@ -1424,6 +1436,14 @@ static int add_available_vars(Dwarf_Die *sc_die, struct probe_finder *pf)
+ 	Dwarf_Die die_mem;
+ 	int ret;
+ 
++	/*
++	 * For some reason (e.g. different column assigned to same address),
++	 * this callback can be called with the address which already passed.
++	 * Ignore it first.
++	 */
++	if (available_var_finder_overlap(af))
++		return 0;
++
+ 	/* Check number of tevs */
+ 	if (af->nvls == af->max_vls) {
+ 		pr_warning("Too many( > %d) probe point found.\n", af->max_vls);
 -- 
 2.20.1
 
