@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4DB12EFF4
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:50:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C9812EE96
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728966AbgABWto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:49:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53698 "EHLO mail.kernel.org"
+        id S1731470AbgABWja (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:39:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729638AbgABW00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:26:26 -0500
+        id S1730922AbgABWja (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:39:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 529F921835;
-        Thu,  2 Jan 2020 22:26:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6258F20866;
+        Thu,  2 Jan 2020 22:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003985;
-        bh=x2lcTiBhOXdAVjBY0Kp+9U/6tGlDXi5779Q2NKQrz2M=;
+        s=default; t=1578004769;
+        bh=ekqCwYEYGEF20WFESDIo3WgiPNVLmqvdubZPncIpGAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dQG/7kESuXlDG8nY3nMkfu/iApOebxuqwbPp4TAQy0T6lATN7wXZMk72tOmE85OYP
-         qdeVizQ0RfxvjoOk8/S/YsKcmnM/ini6oA+Whzzc15H3XFtsr6EfaZ+ywcqwxezmG4
-         wWefUhhHZSqXr96m3q7RDYopbBDAwDa0VCh4g9uk=
+        b=x5sbzKdTzGa+EX+X381SCxnrFVwSFXEOaSVLlhdfHv7UZ7YOZAVVgEHtFTp5WNS9c
+         c4M73zrNVuhxLDOU3Ysbtqsp6QtRoKmlGS5lb+0dA7VJTGgWdRMzgyPzMLoka/Pt0j
+         gCKdjt7GtHw9z5wbE7NoJPJ9wDsWgE4uLPJzyF70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        David Ahern <dsahern@gmail.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 81/91] gtp: do not confirm neighbor when do pmtu update
+        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 110/137] scsi: ufs: fix potential bug which ends in system hang
 Date:   Thu,  2 Jan 2020 23:08:03 +0100
-Message-Id: <20200102220450.102582634@linuxfoundation.org>
+Message-Id: <20200102220601.952122769@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Bean Huo <beanhuo@micron.com>
 
-[ Upstream commit 6e9105c73f8d2163d12d5dfd762fd75483ed30f5 ]
+[ Upstream commit cfcbae3895b86c390ede57b2a8f601dd5972b47b ]
 
-When do IPv6 tunnel PMTU update and calls __ip6_rt_update_pmtu() in the end,
-we should not call dst_confirm_neigh() as there is no two-way communication.
+In function __ufshcd_query_descriptor(), in the event of an error
+happening, we directly goto out_unlock and forget to invaliate
+hba->dev_cmd.query.descriptor pointer. This results in this pointer still
+valid in ufshcd_copy_query_response() for other query requests which go
+through ufshcd_exec_raw_upiu_cmd(). This will cause __memcpy() crash and
+system hangs. Log as shown below:
 
-Although GTP only support ipv4 right now, and __ip_rt_update_pmtu() does not
-call dst_confirm_neigh(), we still set it to false to keep consistency with
-IPv6 code.
+Unable to handle kernel paging request at virtual address
+ffff000012233c40
+Mem abort info:
+   ESR = 0x96000047
+   Exception class = DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+Data abort info:
+   ISV = 0, ISS = 0x00000047
+   CM = 0, WnR = 1
+swapper pgtable: 4k pages, 48-bit VAs, pgdp = 0000000028cc735c
+[ffff000012233c40] pgd=00000000bffff003, pud=00000000bfffe003,
+pmd=00000000ba8b8003, pte=0000000000000000
+ Internal error: Oops: 96000047 [#2] PREEMPT SMP
+ ...
+ Call trace:
+  __memcpy+0x74/0x180
+  ufshcd_issue_devman_upiu_cmd+0x250/0x3c0
+  ufshcd_exec_raw_upiu_cmd+0xfc/0x1a8
+  ufs_bsg_request+0x178/0x3b0
+  bsg_queue_rq+0xc0/0x118
+  blk_mq_dispatch_rq_list+0xb0/0x538
+  blk_mq_sched_dispatch_requests+0x18c/0x1d8
+  __blk_mq_run_hw_queue+0xb4/0x118
+  blk_mq_run_work_fn+0x28/0x38
+  process_one_work+0x1ec/0x470
+  worker_thread+0x48/0x458
+  kthread+0x130/0x138
+  ret_from_fork+0x10/0x1c
+ Code: 540000ab a8c12027 a88120c7 a8c12027 (a88120c7)
+ ---[ end trace 793e1eb5dff69f2d ]---
+ note: kworker/0:2H[2054] exited with preempt_count 1
 
-v5: No change.
-v4: No change.
-v3: Do not remove dst_confirm_neigh, but add a new bool parameter in
-    dst_ops.update_pmtu to control whether we should do neighbor confirm.
-    Also split the big patch to small ones for each area.
-v2: Remove dst_confirm_neigh in __ip6_rt_update_pmtu.
+This patch is to move "descriptor = NULL" down to below the label
+"out_unlock".
 
-Reviewed-by: Guillaume Nault <gnault@redhat.com>
-Acked-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d44a5f98bb49b2(ufs: query descriptor API)
+Link: https://lore.kernel.org/r/20191112223436.27449-3-huobean@gmail.com
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/gtp.c | 2 +-
+ drivers/scsi/ufs/ufshcd.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index 9e3963f46458..d957ffdfec0f 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -545,7 +545,7 @@ static int gtp_build_skb_ip4(struct sk_buff *skb, struct net_device *dev,
- 		mtu = dst_mtu(&rt->dst);
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 504d36796152..fcf5141bf950 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1809,10 +1809,10 @@ static int ufshcd_query_descriptor(struct ufs_hba *hba,
+ 		goto out_unlock;
  	}
  
--	rt->dst.ops->update_pmtu(&rt->dst, NULL, skb, mtu, true);
-+	rt->dst.ops->update_pmtu(&rt->dst, NULL, skb, mtu, false);
+-	hba->dev_cmd.query.descriptor = NULL;
+ 	*buf_len = be16_to_cpu(response->upiu_res.length);
  
- 	if (!skb_is_gso(skb) && (iph->frag_off & htons(IP_DF)) &&
- 	    mtu < ntohs(iph->tot_len)) {
+ out_unlock:
++	hba->dev_cmd.query.descriptor = NULL;
+ 	mutex_unlock(&hba->dev_cmd.lock);
+ out:
+ 	ufshcd_release(hba);
 -- 
 2.20.1
 
