@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A1E12F11D
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F4412EE2F
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:36:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727611AbgABWPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:15:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57124 "EHLO mail.kernel.org"
+        id S1730652AbgABWgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:36:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728123AbgABWPr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:15:47 -0500
+        id S1730886AbgABWf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:35:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F8EB2464B;
-        Thu,  2 Jan 2020 22:15:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13E1F21835;
+        Thu,  2 Jan 2020 22:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003347;
-        bh=YW/kPlNUfm5ZT6K+q3qC8W58EQzYgyv6Hq4L+QNcLpY=;
+        s=default; t=1578004559;
+        bh=U1Ajd+eXPu3f5Nu/n1OGGKF0w8LPmhLxyAHrWiOXMEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V616QZ3zZomI/WErRm9czQXh5NixJDmR/4/XWKx70IgXH4qHZl+1pSosdChob7WEH
-         2qzTDZuJ4qYQiiJg0us+SsAugVsRiDtYGlMAEW6HnDm2W6fbIm+MYrR5xzgMyKnY/M
-         xo4nfLtGerS+5HfzsOKA0pioq2SNEVSUY6RlzyHU=
+        b=yAQIT3m/TbcqaBXx+ri17fqpFxyXmqmCVYMIgiRyI3ltDjaEUh3fo8hndBC8a1ps2
+         2kYnrGmtU/Ybloi/FT0OxPdaKTg+WGUiXwsTxCuz/eVfUp4ieVL0kaFMnQZGda9Qn/
+         8JpmKL3FFZZq1pb93UdsNh7A6sJrCaFsg3EBLEd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ding Xiang <dingxiang@cmss.chinamobile.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 123/191] ocfs2: fix passing zero to PTR_ERR warning
+Subject: [PATCH 4.4 032/137] arm64: psci: Reduce the waiting time for cpu_psci_cpu_kill()
 Date:   Thu,  2 Jan 2020 23:06:45 +0100
-Message-Id: <20200102215842.970966983@linuxfoundation.org>
+Message-Id: <20200102220551.008506651@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,46 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Xiang <dingxiang@cmss.chinamobile.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit 188c523e1c271d537f3c9f55b6b65bf4476de32f ]
+[ Upstream commit bfcef4ab1d7ee8921bc322109b1692036cc6cbe0 ]
 
-Fix a static code checker warning:
-fs/ocfs2/acl.c:331
-	ocfs2_acl_chmod() warn: passing zero to 'PTR_ERR'
+In cases like suspend-to-disk and suspend-to-ram, a large number of CPU
+cores need to be shut down. At present, the CPU hotplug operation is
+serialised, and the CPU cores can only be shut down one by one. In this
+process, if PSCI affinity_info() does not return LEVEL_OFF quickly,
+cpu_psci_cpu_kill() needs to wait for 10ms. If hundreds of CPU cores
+need to be shut down, it will take a long time.
 
-Link: http://lkml.kernel.org/r/1dee278b-6c96-eec2-ce76-fe6e07c6e20f@linux.alibaba.com
-Fixes: 5ee0fbd50fd ("ocfs2: revert using ocfs2_acl_chmod to avoid inode cluster lock hang")
-Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Normally, there is no need to wait 10ms in cpu_psci_cpu_kill(). So
+change the wait interval from 10 ms to max 1 ms and use usleep_range()
+instead of msleep() for more accurate timer.
+
+In addition, reducing the time interval will increase the messages
+output, so remove the "Retry ..." message, instead, track time and
+output to the the sucessful message.
+
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/acl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/psci.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/fs/ocfs2/acl.c b/fs/ocfs2/acl.c
-index 3e7da392aa6f..bb981ec76456 100644
---- a/fs/ocfs2/acl.c
-+++ b/fs/ocfs2/acl.c
-@@ -327,8 +327,8 @@ int ocfs2_acl_chmod(struct inode *inode, struct buffer_head *bh)
- 	down_read(&OCFS2_I(inode)->ip_xattr_sem);
- 	acl = ocfs2_get_acl_nolock(inode, ACL_TYPE_ACCESS, bh);
- 	up_read(&OCFS2_I(inode)->ip_xattr_sem);
--	if (IS_ERR(acl) || !acl)
--		return PTR_ERR(acl);
-+	if (IS_ERR_OR_NULL(acl))
-+		return PTR_ERR_OR_ZERO(acl);
- 	ret = __posix_acl_chmod(&acl, GFP_KERNEL, inode->i_mode);
- 	if (ret)
- 		return ret;
+diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
+index f67f35b6edb1..e6ad81556575 100644
+--- a/arch/arm64/kernel/psci.c
++++ b/arch/arm64/kernel/psci.c
+@@ -151,7 +151,8 @@ static void cpu_psci_cpu_die(unsigned int cpu)
+ 
+ static int cpu_psci_cpu_kill(unsigned int cpu)
+ {
+-	int err, i;
++	int err;
++	unsigned long start, end;
+ 
+ 	if (!psci_ops.affinity_info)
+ 		return 0;
+@@ -161,16 +162,18 @@ static int cpu_psci_cpu_kill(unsigned int cpu)
+ 	 * while it is dying. So, try again a few times.
+ 	 */
+ 
+-	for (i = 0; i < 10; i++) {
++	start = jiffies;
++	end = start + msecs_to_jiffies(100);
++	do {
+ 		err = psci_ops.affinity_info(cpu_logical_map(cpu), 0);
+ 		if (err == PSCI_0_2_AFFINITY_LEVEL_OFF) {
+-			pr_info("CPU%d killed.\n", cpu);
++			pr_info("CPU%d killed (polled %d ms)\n", cpu,
++				jiffies_to_msecs(jiffies - start));
+ 			return 0;
+ 		}
+ 
+-		msleep(10);
+-		pr_info("Retrying again to check for CPU kill\n");
+-	}
++		usleep_range(100, 1000);
++	} while (time_before(jiffies, end));
+ 
+ 	pr_warn("CPU%d may not have shut down cleanly (AFFINITY_INFO reports %d)\n",
+ 			cpu, err);
 -- 
 2.20.1
 
