@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF6A212ED40
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:26:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D7612ECEE
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:23:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729379AbgABW0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:26:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53524 "EHLO mail.kernel.org"
+        id S1728431AbgABWXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:23:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729632AbgABW0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:26:22 -0500
+        id S1729239AbgABWXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:23:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 571DD21835;
-        Thu,  2 Jan 2020 22:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 331B921835;
+        Thu,  2 Jan 2020 22:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003980;
-        bh=KjTkHqck65CBDUDMf5Fc1stYTyBUcy5VJh2MB7MB0VU=;
+        s=default; t=1578003802;
+        bh=TCNtj8JLZts8V49Z1W+5EOba1+rRErBBd94PFw8z4Rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SxyYkzmDiRqfLRdpROqdjMe9G4QGHaUwmApmDzWs5DVaJsOoodUzdCcO+8gSNgctz
-         Bm3LYDX4YO1bxIzR8e9XiR3mXLkCxazDtZRjDCHX8FubxA4+LwtEhIP1RGro3DJug6
-         IR4D5wATrvugxoJmCI2TPciX9wEHrH15ZKNN0zj0=
+        b=tKyIIeMBH9v8A6K83Fp6kRc+4EpNeW/Lv1Xtd3HBTvC5rrGXVpXQmbgNrY4/GuQNq
+         1ZeRqZpLeXvDMzwVpHIdUxkcac6Mnk/ymcBxnApSPsRjPWTSfJzE3pRAP6REcFUjo5
+         MJBpznBVlvcLoveZpzED7eVP4C5vopQNNWfuec94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Miller <davem@davemloft.net>,
-        Guillaume Nault <gnault@redhat.com>,
-        David Ahern <dsahern@gmail.com>,
-        Hangbin Liu <liuhangbin@gmail.com>
-Subject: [PATCH 4.14 79/91] net: add bool confirm_neigh parameter for dst_ops.update_pmtu
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 4.19 109/114] gtp: fix wrong condition in gtp_genl_dump_pdp()
 Date:   Thu,  2 Jan 2020 23:08:01 +0100
-Message-Id: <20200102220449.178997330@linuxfoundation.org>
+Message-Id: <20200102220040.127179483@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,325 +43,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit bd085ef678b2cc8c38c105673dfe8ff8f5ec0c57 ]
+[ Upstream commit 94a6d9fb88df43f92d943c32b84ce398d50bf49f ]
 
-The MTU update code is supposed to be invoked in response to real
-networking events that update the PMTU. In IPv6 PMTU update function
-__ip6_rt_update_pmtu() we called dst_confirm_neigh() to update neighbor
-confirmed time.
+gtp_genl_dump_pdp() is ->dumpit() callback of GTP module and it is used
+to dump pdp contexts. it would be re-executed because of dump packet size.
 
-But for tunnel code, it will call pmtu before xmit, like:
-  - tnl_update_pmtu()
-    - skb_dst_update_pmtu()
-      - ip6_rt_update_pmtu()
-        - __ip6_rt_update_pmtu()
-          - dst_confirm_neigh()
+If dump packet size is too big, it saves current dump pointer
+(gtp interface pointer, bucket, TID value) then it restarts dump from
+last pointer.
+Current GTP code allows adding zero TID pdp context but dump code
+ignores zero TID value. So, last dump pointer will not be found.
 
-If the tunnel remote dst mac address changed and we still do the neigh
-confirm, we will not be able to update neigh cache and ping6 remote
-will failed.
+In addition, this patch adds missing rcu_read_lock() in
+gtp_genl_dump_pdp().
 
-So for this ip_tunnel_xmit() case, _EVEN_ if the MTU is changed, we
-should not be invoking dst_confirm_neigh() as we have no evidence
-of successful two-way communication at this point.
-
-On the other hand it is also important to keep the neigh reachability fresh
-for TCP flows, so we cannot remove this dst_confirm_neigh() call.
-
-To fix the issue, we have to add a new bool parameter for dst_ops.update_pmtu
-to choose whether we should do neigh update or not. I will add the parameter
-in this patch and set all the callers to true to comply with the previous
-way, and fix the tunnel code one by one on later patches.
-
-v5: No change.
-v4: No change.
-v3: Do not remove dst_confirm_neigh, but add a new bool parameter in
-    dst_ops.update_pmtu to control whether we should do neighbor confirm.
-    Also split the big patch to small ones for each area.
-v2: Remove dst_confirm_neigh in __ip6_rt_update_pmtu.
-
-Suggested-by: David Miller <davem@davemloft.net>
-Reviewed-by: Guillaume Nault <gnault@redhat.com>
-Acked-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/gtp.c                |    2 +-
- include/net/dst.h                |    2 +-
- include/net/dst_ops.h            |    3 ++-
- net/bridge/br_nf_core.c          |    3 ++-
- net/decnet/dn_route.c            |    6 ++++--
- net/ipv4/inet_connection_sock.c  |    2 +-
- net/ipv4/route.c                 |    9 ++++++---
- net/ipv4/xfrm4_policy.c          |    5 +++--
- net/ipv6/inet6_connection_sock.c |    2 +-
- net/ipv6/ip6_gre.c               |    2 +-
- net/ipv6/route.c                 |   22 +++++++++++++++-------
- net/ipv6/xfrm6_policy.c          |    5 +++--
- net/netfilter/ipvs/ip_vs_xmit.c  |    2 +-
- net/sctp/transport.c             |    2 +-
- 14 files changed, 42 insertions(+), 25 deletions(-)
+ drivers/net/gtp.c |   36 +++++++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 17 deletions(-)
 
 --- a/drivers/net/gtp.c
 +++ b/drivers/net/gtp.c
-@@ -545,7 +545,7 @@ static int gtp_build_skb_ip4(struct sk_b
- 		mtu = dst_mtu(&rt->dst);
- 	}
+@@ -42,7 +42,6 @@ struct pdp_ctx {
+ 	struct hlist_node	hlist_addr;
  
--	rt->dst.ops->update_pmtu(&rt->dst, NULL, skb, mtu);
-+	rt->dst.ops->update_pmtu(&rt->dst, NULL, skb, mtu, true);
- 
- 	if (!skb_is_gso(skb) && (iph->frag_off & htons(IP_DF)) &&
- 	    mtu < ntohs(iph->tot_len)) {
---- a/include/net/dst.h
-+++ b/include/net/dst.h
-@@ -528,7 +528,7 @@ static inline void skb_dst_update_pmtu(s
- 	struct dst_entry *dst = skb_dst(skb);
- 
- 	if (dst && dst->ops->update_pmtu)
--		dst->ops->update_pmtu(dst, NULL, skb, mtu);
-+		dst->ops->update_pmtu(dst, NULL, skb, mtu, true);
- }
- 
- #endif /* _NET_DST_H */
---- a/include/net/dst_ops.h
-+++ b/include/net/dst_ops.h
-@@ -27,7 +27,8 @@ struct dst_ops {
- 	struct dst_entry *	(*negative_advice)(struct dst_entry *);
- 	void			(*link_failure)(struct sk_buff *);
- 	void			(*update_pmtu)(struct dst_entry *dst, struct sock *sk,
--					       struct sk_buff *skb, u32 mtu);
-+					       struct sk_buff *skb, u32 mtu,
-+					       bool confirm_neigh);
- 	void			(*redirect)(struct dst_entry *dst, struct sock *sk,
- 					    struct sk_buff *skb);
- 	int			(*local_out)(struct net *net, struct sock *sk, struct sk_buff *skb);
---- a/net/bridge/br_nf_core.c
-+++ b/net/bridge/br_nf_core.c
-@@ -26,7 +26,8 @@
- #endif
- 
- static void fake_update_pmtu(struct dst_entry *dst, struct sock *sk,
--			     struct sk_buff *skb, u32 mtu)
-+			     struct sk_buff *skb, u32 mtu,
-+			     bool confirm_neigh)
+ 	union {
+-		u64		tid;
+ 		struct {
+ 			u64	tid;
+ 			u16	flow;
+@@ -1249,43 +1248,46 @@ static int gtp_genl_dump_pdp(struct sk_b
+ 				struct netlink_callback *cb)
  {
- }
- 
---- a/net/decnet/dn_route.c
-+++ b/net/decnet/dn_route.c
-@@ -118,7 +118,8 @@ static void dn_dst_ifdown(struct dst_ent
- static struct dst_entry *dn_dst_negative_advice(struct dst_entry *);
- static void dn_dst_link_failure(struct sk_buff *);
- static void dn_dst_update_pmtu(struct dst_entry *dst, struct sock *sk,
--			       struct sk_buff *skb , u32 mtu);
-+			       struct sk_buff *skb , u32 mtu,
-+			       bool confirm_neigh);
- static void dn_dst_redirect(struct dst_entry *dst, struct sock *sk,
- 			    struct sk_buff *skb);
- static struct neighbour *dn_dst_neigh_lookup(const struct dst_entry *dst,
-@@ -259,7 +260,8 @@ static int dn_dst_gc(struct dst_ops *ops
-  * advertise to the other end).
-  */
- static void dn_dst_update_pmtu(struct dst_entry *dst, struct sock *sk,
--			       struct sk_buff *skb, u32 mtu)
-+			       struct sk_buff *skb, u32 mtu,
-+			       bool confirm_neigh)
- {
- 	struct dn_route *rt = (struct dn_route *) dst;
- 	struct neighbour *n = rt->n;
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -1088,7 +1088,7 @@ struct dst_entry *inet_csk_update_pmtu(s
- 		if (!dst)
- 			goto out;
- 	}
--	dst->ops->update_pmtu(dst, sk, NULL, mtu);
-+	dst->ops->update_pmtu(dst, sk, NULL, mtu, true);
- 
- 	dst = __sk_dst_check(sk, 0);
- 	if (!dst)
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -145,7 +145,8 @@ static unsigned int	 ipv4_mtu(const stru
- static struct dst_entry *ipv4_negative_advice(struct dst_entry *dst);
- static void		 ipv4_link_failure(struct sk_buff *skb);
- static void		 ip_rt_update_pmtu(struct dst_entry *dst, struct sock *sk,
--					   struct sk_buff *skb, u32 mtu);
-+					   struct sk_buff *skb, u32 mtu,
-+					   bool confirm_neigh);
- static void		 ip_do_redirect(struct dst_entry *dst, struct sock *sk,
- 					struct sk_buff *skb);
- static void		ipv4_dst_destroy(struct dst_entry *dst);
-@@ -1042,7 +1043,8 @@ static void __ip_rt_update_pmtu(struct r
- }
- 
- static void ip_rt_update_pmtu(struct dst_entry *dst, struct sock *sk,
--			      struct sk_buff *skb, u32 mtu)
-+			      struct sk_buff *skb, u32 mtu,
-+			      bool confirm_neigh)
- {
- 	struct rtable *rt = (struct rtable *) dst;
- 	struct flowi4 fl4;
-@@ -2529,7 +2531,8 @@ static unsigned int ipv4_blackhole_mtu(c
- }
- 
- static void ipv4_rt_blackhole_update_pmtu(struct dst_entry *dst, struct sock *sk,
--					  struct sk_buff *skb, u32 mtu)
-+					  struct sk_buff *skb, u32 mtu,
-+					  bool confirm_neigh)
- {
- }
- 
---- a/net/ipv4/xfrm4_policy.c
-+++ b/net/ipv4/xfrm4_policy.c
-@@ -222,12 +222,13 @@ _decode_session4(struct sk_buff *skb, st
- }
- 
- static void xfrm4_update_pmtu(struct dst_entry *dst, struct sock *sk,
--			      struct sk_buff *skb, u32 mtu)
-+			      struct sk_buff *skb, u32 mtu,
-+			      bool confirm_neigh)
- {
- 	struct xfrm_dst *xdst = (struct xfrm_dst *)dst;
- 	struct dst_entry *path = xdst->route;
- 
--	path->ops->update_pmtu(path, sk, skb, mtu);
-+	path->ops->update_pmtu(path, sk, skb, mtu, confirm_neigh);
- }
- 
- static void xfrm4_redirect(struct dst_entry *dst, struct sock *sk,
---- a/net/ipv6/inet6_connection_sock.c
-+++ b/net/ipv6/inet6_connection_sock.c
-@@ -150,7 +150,7 @@ struct dst_entry *inet6_csk_update_pmtu(
- 
- 	if (IS_ERR(dst))
- 		return NULL;
--	dst->ops->update_pmtu(dst, sk, NULL, mtu);
-+	dst->ops->update_pmtu(dst, sk, NULL, mtu, true);
- 
- 	dst = inet6_csk_route_socket(sk, &fl6);
- 	return IS_ERR(dst) ? NULL : dst;
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -527,7 +527,7 @@ static netdev_tx_t __gre6_xmit(struct sk
- 
- 	/* TooBig packet may have updated dst->dev's mtu */
- 	if (dst && dst_mtu(dst) > dst->dev->mtu)
--		dst->ops->update_pmtu(dst, NULL, skb, dst->dev->mtu);
-+		dst->ops->update_pmtu(dst, NULL, skb, dst->dev->mtu, true);
- 
- 	return ip6_tnl_xmit(skb, dev, dsfield, fl6, encap_limit, pmtu,
- 			    NEXTHDR_GRE);
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -93,7 +93,8 @@ static int		ip6_pkt_prohibit(struct sk_b
- static int		ip6_pkt_prohibit_out(struct net *net, struct sock *sk, struct sk_buff *skb);
- static void		ip6_link_failure(struct sk_buff *skb);
- static void		ip6_rt_update_pmtu(struct dst_entry *dst, struct sock *sk,
--					   struct sk_buff *skb, u32 mtu);
-+					   struct sk_buff *skb, u32 mtu,
-+					   bool confirm_neigh);
- static void		rt6_do_redirect(struct dst_entry *dst, struct sock *sk,
- 					struct sk_buff *skb);
- static void		rt6_dst_from_metrics_check(struct rt6_info *rt);
-@@ -264,7 +265,8 @@ static unsigned int ip6_blackhole_mtu(co
- }
- 
- static void ip6_rt_blackhole_update_pmtu(struct dst_entry *dst, struct sock *sk,
--					 struct sk_buff *skb, u32 mtu)
-+					 struct sk_buff *skb, u32 mtu,
-+					 bool confirm_neigh)
- {
- }
- 
-@@ -1471,7 +1473,8 @@ static bool rt6_cache_allowed_for_pmtu(c
- }
- 
- static void __ip6_rt_update_pmtu(struct dst_entry *dst, const struct sock *sk,
--				 const struct ipv6hdr *iph, u32 mtu)
-+				 const struct ipv6hdr *iph, u32 mtu,
-+				 bool confirm_neigh)
- {
- 	const struct in6_addr *daddr, *saddr;
- 	struct rt6_info *rt6 = (struct rt6_info *)dst;
-@@ -1489,7 +1492,10 @@ static void __ip6_rt_update_pmtu(struct
- 		daddr = NULL;
- 		saddr = NULL;
- 	}
--	dst_confirm_neigh(dst, daddr);
+ 	struct gtp_dev *last_gtp = (struct gtp_dev *)cb->args[2], *gtp;
++	int i, j, bucket = cb->args[0], skip = cb->args[1];
+ 	struct net *net = sock_net(skb->sk);
+-	struct gtp_net *gn = net_generic(net, gtp_net_id);
+-	unsigned long tid = cb->args[1];
+-	int i, k = cb->args[0], ret;
+ 	struct pdp_ctx *pctx;
++	struct gtp_net *gn;
 +
-+	if (confirm_neigh)
-+		dst_confirm_neigh(dst, daddr);
-+
- 	mtu = max_t(u32, mtu, IPV6_MIN_MTU);
- 	if (mtu >= dst_mtu(dst))
- 		return;
-@@ -1518,9 +1524,11 @@ static void __ip6_rt_update_pmtu(struct
++	gn = net_generic(net, gtp_net_id);
+ 
+ 	if (cb->args[4])
+ 		return 0;
+ 
++	rcu_read_lock();
+ 	list_for_each_entry_rcu(gtp, &gn->gtp_dev_list, list) {
+ 		if (last_gtp && last_gtp != gtp)
+ 			continue;
+ 		else
+ 			last_gtp = NULL;
+ 
+-		for (i = k; i < gtp->hash_size; i++) {
+-			hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i], hlist_tid) {
+-				if (tid && tid != pctx->u.tid)
+-					continue;
+-				else
+-					tid = 0;
+-
+-				ret = gtp_genl_fill_info(skb,
+-							 NETLINK_CB(cb->skb).portid,
+-							 cb->nlh->nlmsg_seq,
+-							 cb->nlh->nlmsg_type, pctx);
+-				if (ret < 0) {
++		for (i = bucket; i < gtp->hash_size; i++) {
++			j = 0;
++			hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i],
++						 hlist_tid) {
++				if (j >= skip &&
++				    gtp_genl_fill_info(skb,
++					    NETLINK_CB(cb->skb).portid,
++					    cb->nlh->nlmsg_seq,
++					    cb->nlh->nlmsg_type, pctx)) {
+ 					cb->args[0] = i;
+-					cb->args[1] = pctx->u.tid;
++					cb->args[1] = j;
+ 					cb->args[2] = (unsigned long)gtp;
+ 					goto out;
+ 				}
++				j++;
+ 			}
++			skip = 0;
+ 		}
++		bucket = 0;
+ 	}
+ 	cb->args[4] = 1;
+ out:
++	rcu_read_unlock();
+ 	return skb->len;
  }
  
- static void ip6_rt_update_pmtu(struct dst_entry *dst, struct sock *sk,
--			       struct sk_buff *skb, u32 mtu)
-+			       struct sk_buff *skb, u32 mtu,
-+			       bool confirm_neigh)
- {
--	__ip6_rt_update_pmtu(dst, sk, skb ? ipv6_hdr(skb) : NULL, mtu);
-+	__ip6_rt_update_pmtu(dst, sk, skb ? ipv6_hdr(skb) : NULL, mtu,
-+			     confirm_neigh);
- }
- 
- void ip6_update_pmtu(struct sk_buff *skb, struct net *net, __be32 mtu,
-@@ -1540,7 +1548,7 @@ void ip6_update_pmtu(struct sk_buff *skb
- 
- 	dst = ip6_route_output(net, NULL, &fl6);
- 	if (!dst->error)
--		__ip6_rt_update_pmtu(dst, NULL, iph, ntohl(mtu));
-+		__ip6_rt_update_pmtu(dst, NULL, iph, ntohl(mtu), true);
- 	dst_release(dst);
- }
- EXPORT_SYMBOL_GPL(ip6_update_pmtu);
---- a/net/ipv6/xfrm6_policy.c
-+++ b/net/ipv6/xfrm6_policy.c
-@@ -219,12 +219,13 @@ _decode_session6(struct sk_buff *skb, st
- }
- 
- static void xfrm6_update_pmtu(struct dst_entry *dst, struct sock *sk,
--			      struct sk_buff *skb, u32 mtu)
-+			      struct sk_buff *skb, u32 mtu,
-+			      bool confirm_neigh)
- {
- 	struct xfrm_dst *xdst = (struct xfrm_dst *)dst;
- 	struct dst_entry *path = xdst->route;
- 
--	path->ops->update_pmtu(path, sk, skb, mtu);
-+	path->ops->update_pmtu(path, sk, skb, mtu, confirm_neigh);
- }
- 
- static void xfrm6_redirect(struct dst_entry *dst, struct sock *sk,
---- a/net/netfilter/ipvs/ip_vs_xmit.c
-+++ b/net/netfilter/ipvs/ip_vs_xmit.c
-@@ -209,7 +209,7 @@ static inline void maybe_update_pmtu(int
- 	struct rtable *ort = skb_rtable(skb);
- 
- 	if (!skb->dev && sk && sk_fullsock(sk))
--		ort->dst.ops->update_pmtu(&ort->dst, sk, NULL, mtu);
-+		ort->dst.ops->update_pmtu(&ort->dst, sk, NULL, mtu, true);
- }
- 
- static inline bool ensure_mtu_is_adequate(struct netns_ipvs *ipvs, int skb_af,
---- a/net/sctp/transport.c
-+++ b/net/sctp/transport.c
-@@ -272,7 +272,7 @@ bool sctp_transport_update_pmtu(struct s
- 
- 		pf->af->from_sk(&addr, sk);
- 		pf->to_sk_daddr(&t->ipaddr, sk);
--		dst->ops->update_pmtu(dst, sk, NULL, pmtu);
-+		dst->ops->update_pmtu(dst, sk, NULL, pmtu, true);
- 		pf->to_sk_daddr(&addr, sk);
- 
- 		dst = sctp_transport_dst_check(t);
 
 
