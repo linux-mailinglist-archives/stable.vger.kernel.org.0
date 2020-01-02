@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D58F612EE56
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:37:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4458212F0E5
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728228AbgABWhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:37:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50094 "EHLO mail.kernel.org"
+        id S1728514AbgABW40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:56:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731094AbgABWhb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:37:31 -0500
+        id S1728416AbgABWSU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:18:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E41C420863;
-        Thu,  2 Jan 2020 22:37:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE2B722B48;
+        Thu,  2 Jan 2020 22:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004650;
-        bh=K7Da7CfJG3el96WvT6CvaZfsTE8nEfsPdfq4Qrvr6vU=;
+        s=default; t=1578003500;
+        bh=JS4nCumSHXOPnUPaodSkpRD8uMS2vX+hdTN30K62b4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z32qUxjVvQn3/DFpOHqk2NiVrcgBJ8lFBPTE5AC9DMsBbXdKlR6w9juU8LV8zyRux
-         3/6e7+EbP7+OIbkG17nO1TkCFQLCH7fLffzCT4KggDUfypgQRd5GqrmXLbYC7+ouv9
-         N6AwsbhMjkEU8WSRPPuKcPRpoSsm2alOV8s50kMY=
+        b=HfXNHHhPhdhr+/g2XDIljxJTg7avrW0vG72NZtz1Gnmffm3iAxcagvM2wNjLR7a+S
+         /qBn4xpZR2w2Mxq1psKkuxwDqxGeyt33Ow9tAzJM+k2TJ7v/tmO6eX2IkgIlrGze8S
+         XArgYdNjOJmT4VM98GhHDrJYg5bSk3d93MQc0HcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 096/137] scsi: csiostor: Dont enable IRQs too early
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 5.4 187/191] net: phylink: fix interface passed to mac_link_up
 Date:   Thu,  2 Jan 2020 23:07:49 +0100
-Message-Id: <20200102220559.922043209@linuxfoundation.org>
+Message-Id: <20200102215849.625414474@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit d6c9b31ac3064fbedf8961f120a4c117daa59932 ]
+[ Upstream commit 9b2079c046a9d6c9c73a4ec33816678565ee01f3 ]
 
-These are called with IRQs disabled from csio_mgmt_tmo_handler() so we
-can't call spin_unlock_irq() or it will enable IRQs prematurely.
+A mismerge between the following two commits:
 
-Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
-Link: https://lore.kernel.org/r/20191019085913.GA14245@mwanda
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+c678726305b9 ("net: phylink: ensure consistent phy interface mode")
+27755ff88c0e ("net: phylink: Add phylink_mac_link_{up, down} wrapper functions")
+
+resulted in the wrong interface being passed to the mac_link_up()
+function. Fix this up.
+
+Fixes: b4b12b0d2f02 ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/csiostor/csio_lnode.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/net/phy/phylink.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/csiostor/csio_lnode.c b/drivers/scsi/csiostor/csio_lnode.c
-index be5ee2d37815..957767d38361 100644
---- a/drivers/scsi/csiostor/csio_lnode.c
-+++ b/drivers/scsi/csiostor/csio_lnode.c
-@@ -301,6 +301,7 @@ csio_ln_fdmi_rhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	struct fc_fdmi_port_name *port_name;
- 	uint8_t buf[64];
- 	uint8_t *fc4_type;
-+	unsigned long flags;
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -444,8 +444,7 @@ static void phylink_mac_link_up(struct p
  
- 	if (fdmi_req->wr_status != FW_SUCCESS) {
- 		csio_ln_dbg(ln, "WR error:%x in processing fdmi rhba cmd\n",
-@@ -377,13 +378,13 @@ csio_ln_fdmi_rhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	len = (uint32_t)(pld - (uint8_t *)cmd);
+ 	pl->cur_interface = link_state.interface;
+ 	pl->ops->mac_link_up(pl->config, pl->link_an_mode,
+-			     pl->phy_state.interface,
+-			     pl->phydev);
++			     pl->cur_interface, pl->phydev);
  
- 	/* Submit FDMI RPA request */
--	spin_lock_irq(&hw->lock);
-+	spin_lock_irqsave(&hw->lock, flags);
- 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_done,
- 				FCOE_CT, &fdmi_req->dma_buf, len)) {
- 		CSIO_INC_STATS(ln, n_fdmi_err);
- 		csio_ln_dbg(ln, "Failed to issue fdmi rpa req\n");
- 	}
--	spin_unlock_irq(&hw->lock);
-+	spin_unlock_irqrestore(&hw->lock, flags);
- }
- 
- /*
-@@ -404,6 +405,7 @@ csio_ln_fdmi_dprt_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	struct fc_fdmi_rpl *reg_pl;
- 	struct fs_fdmi_attrs *attrib_blk;
- 	uint8_t buf[64];
-+	unsigned long flags;
- 
- 	if (fdmi_req->wr_status != FW_SUCCESS) {
- 		csio_ln_dbg(ln, "WR error:%x in processing fdmi dprt cmd\n",
-@@ -483,13 +485,13 @@ csio_ln_fdmi_dprt_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	attrib_blk->numattrs = htonl(numattrs);
- 
- 	/* Submit FDMI RHBA request */
--	spin_lock_irq(&hw->lock);
-+	spin_lock_irqsave(&hw->lock, flags);
- 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_rhba_cbfn,
- 				FCOE_CT, &fdmi_req->dma_buf, len)) {
- 		CSIO_INC_STATS(ln, n_fdmi_err);
- 		csio_ln_dbg(ln, "Failed to issue fdmi rhba req\n");
- 	}
--	spin_unlock_irq(&hw->lock);
-+	spin_unlock_irqrestore(&hw->lock, flags);
- }
- 
- /*
-@@ -504,6 +506,7 @@ csio_ln_fdmi_dhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	void *cmd;
- 	struct fc_fdmi_port_name *port_name;
- 	uint32_t len;
-+	unsigned long flags;
- 
- 	if (fdmi_req->wr_status != FW_SUCCESS) {
- 		csio_ln_dbg(ln, "WR error:%x in processing fdmi dhba cmd\n",
-@@ -534,13 +537,13 @@ csio_ln_fdmi_dhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
- 	len += sizeof(*port_name);
- 
- 	/* Submit FDMI request */
--	spin_lock_irq(&hw->lock);
-+	spin_lock_irqsave(&hw->lock, flags);
- 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_dprt_cbfn,
- 				FCOE_CT, &fdmi_req->dma_buf, len)) {
- 		CSIO_INC_STATS(ln, n_fdmi_err);
- 		csio_ln_dbg(ln, "Failed to issue fdmi dprt req\n");
- 	}
--	spin_unlock_irq(&hw->lock);
-+	spin_unlock_irqrestore(&hw->lock, flags);
- }
- 
- /**
--- 
-2.20.1
-
+ 	if (ndev)
+ 		netif_carrier_on(ndev);
 
 
