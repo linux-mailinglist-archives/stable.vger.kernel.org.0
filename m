@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13E1312EBC0
+	by mail.lfdr.de (Postfix) with ESMTP id D166012EBC1
 	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:11:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727299AbgABWLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:11:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50442 "EHLO mail.kernel.org"
+        id S1727321AbgABWL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:11:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727264AbgABWLu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:11:50 -0500
+        id S1727304AbgABWLw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:11:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7587B222C3;
-        Thu,  2 Jan 2020 22:11:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D149F21D7D;
+        Thu,  2 Jan 2020 22:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003109;
-        bh=P/0TEYIsc/mAFLoitRlrODTkg60QhxkoxOSox9ThY2E=;
+        s=default; t=1578003112;
+        bh=/+Z1rY2uHzFKiy1RITFdLrA1sEw2jtbce0wauhrJJPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfCZEKeDZhdDkcE5JlxxFJmo3Zdp8+9iqLh8H6Yg0OUisfpRjwmLDWXocwvXW1ZLN
-         cUG9xUujP+i7wtGQdKqMDTjYeHpwiBg9NQ30npSnVb9TbtYf2xLa6Dw9vJF9MHIDfa
-         rYVSR1kFdWR7jJLgEunWQePXo2PADRtPO8mk2glg=
+        b=sh0S7Ar2VtH7cTFlkVuDk6wZ6kFBy/xwcExfl5Yw5sdy3zeYCDwC3Qm8rdps5HeKo
+         +Bea2JejGiQVt9e2u/5S8pZTkg5d/tVrbqhBihDoT4cKXbEIIB3nMqqOg5QPQPG0ZN
+         uQgeXCPJXF9BfEJUuWTZhrfAtf9x1kmeNwzI8bgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luo Jiaxing <luojiaxing@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 023/191] scsi: hisi_sas: Delete the debugfs folder of hisi_sas when the probe fails
-Date:   Thu,  2 Jan 2020 23:05:05 +0100
-Message-Id: <20200102215832.429052690@linuxfoundation.org>
+Subject: [PATCH 5.4 024/191] powerpc/pseries: Mark accumulate_stolen_time() as notrace
+Date:   Thu,  2 Jan 2020 23:05:06 +0100
+Message-Id: <20200102215832.532953721@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
 References: <20200102215829.911231638@linuxfoundation.org>
@@ -45,51 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Jiaxing <luojiaxing@huawei.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit cabe7c10c97a0857a9fb14b6c772ab784947995d ]
+[ Upstream commit eb8e20f89093b64f48975c74ccb114e6775cee22 ]
 
-Although if the debugfs initialization fails, we will delete the debugfs
-folder of hisi_sas, but we did not consider the scenario where debugfs was
-successfully initialized, but the probe failed for other reasons. We found
-out that hisi_sas folder is still remain after the probe failed.
+accumulate_stolen_time() is called prior to interrupt state being
+reconciled, which can trip the warning in arch_local_irq_restore():
 
-When probe fail, we should delete debugfs folder to avoid the above issue.
+  WARNING: CPU: 5 PID: 1017 at arch/powerpc/kernel/irq.c:258 .arch_local_irq_restore+0x9c/0x130
+  ...
+  NIP .arch_local_irq_restore+0x9c/0x130
+  LR  .rb_start_commit+0x38/0x80
+  Call Trace:
+    .ring_buffer_lock_reserve+0xe4/0x620
+    .trace_function+0x44/0x210
+    .function_trace_call+0x148/0x170
+    .ftrace_ops_no_ops+0x180/0x1d0
+    ftrace_call+0x4/0x8
+    .accumulate_stolen_time+0x1c/0xb0
+    decrementer_common+0x124/0x160
 
-Link: https://lore.kernel.org/r/1571926105-74636-18-git-send-email-john.garry@huawei.com
-Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+For now just mark it as notrace. We may change the ordering to call it
+after interrupt state has been reconciled, but that is a larger
+change.
+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191024055932.27940-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_main.c  | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 +
- 2 files changed, 2 insertions(+)
+ arch/powerpc/kernel/time.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index 20f0cb4698b7..633effb09c9c 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -2682,6 +2682,7 @@ int hisi_sas_probe(struct platform_device *pdev,
- err_out_register_ha:
- 	scsi_remove_host(shost);
- err_out_ha:
-+	hisi_sas_debugfs_exit(hisi_hba);
- 	hisi_sas_free(hisi_hba);
- 	scsi_host_put(shost);
- 	return rc;
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index cb8d087762db..ef32ee12f606 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -3259,6 +3259,7 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- err_out_register_ha:
- 	scsi_remove_host(shost);
- err_out_ha:
-+	hisi_sas_debugfs_exit(hisi_hba);
- 	scsi_host_put(shost);
- err_out_regions:
- 	pci_release_regions(pdev);
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 619447b1b797..11301a1187f3 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -232,7 +232,7 @@ static u64 scan_dispatch_log(u64 stop_tb)
+  * Accumulate stolen time by scanning the dispatch trace log.
+  * Called on entry from user mode.
+  */
+-void accumulate_stolen_time(void)
++void notrace accumulate_stolen_time(void)
+ {
+ 	u64 sst, ust;
+ 	unsigned long save_irq_soft_mask = irq_soft_mask_return();
 -- 
 2.20.1
 
