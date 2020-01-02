@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CD3F12EDB9
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:32:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D4D612EEE3
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728347AbgABWbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:31:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36256 "EHLO mail.kernel.org"
+        id S1730550AbgABWgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:36:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730121AbgABWbP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:31:15 -0500
+        id S1730622AbgABWg0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:36:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93A2B222C3;
-        Thu,  2 Jan 2020 22:31:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C524222C3;
+        Thu,  2 Jan 2020 22:36:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004275;
-        bh=kzDo2z7beFrQFLo/liUOLxvp8tl7uEIv4st3J/7mIkE=;
+        s=default; t=1578004586;
+        bh=QtvsXyVT+bhWq34joYsYBfXNCtlQBD6/ze4JqmkUxdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T03Wqxkk0kDPHXOI3WtEABSZ9p0AJ7wfoedRutdJ/yS1cpEoilM4MbVp4NtOFpcIk
-         90pTkeC5P0LYiUbX5JHYzJeeVmD4zmIQ4TkcEv/AbQSIqJF8prjrVRA1WuOgtXn9P2
-         lg18JRPNzK9fZm0StAhOitX60SSNKOlcIH2ponHs=
+        b=e2rB1B7BZAu434I3WLa5qljyCBlpcWPtF4OTP5KnZQYddyKrT7PbmBib+Wm6D0zqQ
+         rEHquzoVgpf5l6qJE07M74Bi4qHYsyhCcpJ8sgRB086c3sfbcnUbbto+U75RN0D2D+
+         Up/jQzQkEMTIH8nap4R0A0LmDDDlZi6Db7DTGNGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 111/171] scsi: mpt3sas: Fix clear pending bit in ioctl status
+Subject: [PATCH 4.4 069/137] btrfs: return error pointer from alloc_test_extent_buffer
 Date:   Thu,  2 Jan 2020 23:07:22 +0100
-Message-Id: <20200102220602.515181343@linuxfoundation.org>
+Message-Id: <20200102220555.852300521@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 782b281883caf70289ba6a186af29441a117d23e ]
+[ Upstream commit b6293c821ea8fa2a631a2112cd86cd435effeb8b ]
 
-When user issues diag register command from application with required size,
-and if driver unable to allocate the memory, then it will fail the register
-command. While failing the register command, driver is not currently
-clearing MPT3_CMD_PENDING bit in ctl_cmds.status variable which was set
-before trying to allocate the memory. As this bit is set, subsequent
-register command will be failed with BUSY status even when user wants to
-register the trace buffer will less memory.
+Callers of alloc_test_extent_buffer have not correctly interpreted the
+return value as error pointer, as alloc_test_extent_buffer should behave
+as alloc_extent_buffer. The self-tests were unaffected but
+btrfs_find_create_tree_block could call both functions and that would
+cause problems up in the call chain.
 
-Clear MPT3_CMD_PENDING bit in ctl_cmds.status before returning the diag
-register command with no memory status.
-
-Link: https://lore.kernel.org/r/1568379890-18347-4-git-send-email-sreekanth.reddy@broadcom.com
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: faa2dbf004e8 ("Btrfs: add sanity tests for new qgroup accounting code")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_ctl.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/extent_io.c          | 6 ++++--
+ fs/btrfs/tests/qgroup-tests.c | 4 ++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_ctl.c b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-index 26cdc127ac89..90a87e59ff60 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-@@ -1465,7 +1465,8 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
- 			    " for diag buffers, requested size(%d)\n",
- 			    ioc->name, __func__, request_data_sz);
- 			mpt3sas_base_free_smid(ioc, smid);
--			return -ENOMEM;
-+			rc = -ENOMEM;
-+			goto out;
- 		}
- 		ioc->diag_buffer[buffer_type] = request_data;
- 		ioc->diag_buffer_sz[buffer_type] = request_data_sz;
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index a18f558b4477..6f5563ca70c1 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -4948,12 +4948,14 @@ struct extent_buffer *alloc_test_extent_buffer(struct btrfs_fs_info *fs_info,
+ 		return eb;
+ 	eb = alloc_dummy_extent_buffer(fs_info, start);
+ 	if (!eb)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 	eb->fs_info = fs_info;
+ again:
+ 	ret = radix_tree_preload(GFP_NOFS & ~__GFP_HIGHMEM);
+-	if (ret)
++	if (ret) {
++		exists = ERR_PTR(ret);
+ 		goto free_eb;
++	}
+ 	spin_lock(&fs_info->buffer_lock);
+ 	ret = radix_tree_insert(&fs_info->buffer_radix,
+ 				start >> PAGE_CACHE_SHIFT, eb);
+diff --git a/fs/btrfs/tests/qgroup-tests.c b/fs/btrfs/tests/qgroup-tests.c
+index 2b2978c04e80..1efec40455f8 100644
+--- a/fs/btrfs/tests/qgroup-tests.c
++++ b/fs/btrfs/tests/qgroup-tests.c
+@@ -477,9 +477,9 @@ int btrfs_test_qgroups(void)
+ 	 * *cough*backref walking code*cough*
+ 	 */
+ 	root->node = alloc_test_extent_buffer(root->fs_info, 4096);
+-	if (!root->node) {
++	if (IS_ERR(root->node)) {
+ 		test_msg("Couldn't allocate dummy buffer\n");
+-		ret = -ENOMEM;
++		ret = PTR_ERR(root->node);
+ 		goto out;
+ 	}
+ 	btrfs_set_header_level(root->node, 0);
 -- 
 2.20.1
 
