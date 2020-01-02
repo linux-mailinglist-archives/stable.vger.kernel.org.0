@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E14012EE10
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:35:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67E1012F0BF
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:55:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730592AbgABWeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:34:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43838 "EHLO mail.kernel.org"
+        id S1728598AbgABWT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:19:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730507AbgABWes (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:34:48 -0500
+        id S1728592AbgABWT2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:19:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F357320863;
-        Thu,  2 Jan 2020 22:34:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E959521582;
+        Thu,  2 Jan 2020 22:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004487;
-        bh=De4uJhC6i2INSoXv3P3kQHEpFN2Uywk+3NT+AykBCuc=;
+        s=default; t=1578003567;
+        bh=JlXcXAcgmYzpaZaE0mqcEpfOfq6hIPvFGBzG45yTSFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLRjjPFjsh/v5wvolO+Wky6/QnCFyRIYq1RVkSQstw1qQzCqYJ92340tGzTdQwTns
-         iKWGMvkJ0ugYv6XIDm+3JXQAE8jjtvCA9A7Qm917vLfKg4uULHuaQYx2Kdw0Y7hIGl
-         pmGl2e+9uKK9XyrbKUrRBzucmfr7v0+d/0eLobjQ=
+        b=EQEvr+YaHLSwwMwOSBjvX07+mTfdGq+Jbs9Ush4x5bWbbt3cWq6fkHa5jrZa4HBo5
+         BHyeAqqj0wGjHptsqFR1p6Cv6rjK0F/P87i299mthhs8WIJtJH9jT7Yqvo4opI2LyO
+         qsu2h5xfb3D+5bh+j2lmHFMCU0iXkfgcz9jv7KQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Majewski <lukma@denx.de>,
-        Mark Brown <broonie@kernel.org>,
-        kbuild test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 007/137] spi: Add call to spi_slave_abort() function when spidev driver is released
+        stable@vger.kernel.org,
+        Nicholas Graumann <nick.graumann@gmail.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 008/114] dmaengine: xilinx_dma: Clear desc_pendingcount in xilinx_dma_reset
 Date:   Thu,  2 Jan 2020 23:06:20 +0100
-Message-Id: <20200102220547.639847436@linuxfoundation.org>
+Message-Id: <20200102220029.999421401@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Majewski <lukma@denx.de>
+From: Nicholas Graumann <nick.graumann@gmail.com>
 
-[ Upstream commit 9f918a728cf86b2757b6a7025e1f46824bfe3155 ]
+[ Upstream commit 8a631a5a0f7d4a4a24dba8587d5d9152be0871cc ]
 
-This change is necessary for spidev devices (e.g. /dev/spidev3.0) working
-in the slave mode (like NXP's dspi driver for Vybrid SoC).
+Whenever we reset the channel, we need to clear desc_pendingcount
+along with desc_submitcount. Otherwise when a new transaction is
+submitted, the irq coalesce level could be programmed to an incorrect
+value in the axidma case.
 
-When SPI HW works in this mode - the master is responsible for providing
-CS and CLK signals. However, when some fault happens - like for example
-distortion on SPI lines - the SPI Linux driver needs a chance to recover
-from this abnormal situation and prepare itself for next (correct)
-transmission.
+This behavior can be observed when terminating pending transactions
+with xilinx_dma_terminate_all() and then submitting new transactions
+without releasing and requesting the channel.
 
-This change doesn't pose any threat on drivers working in master mode as
-spi_slave_abort() function checks if SPI slave mode is supported.
-
-Signed-off-by: Lukasz Majewski <lukma@denx.de>
-Link: https://lore.kernel.org/r/20190924110547.14770-2-lukma@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20190925091143.15468-2-lukma@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Nicholas Graumann <nick.graumann@gmail.com>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1571150904-3988-8-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/dma/xilinx/xilinx_dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index c5f1045561ac..3709088d4d24 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -662,6 +662,9 @@ static int spidev_release(struct inode *inode, struct file *filp)
- 		if (dofree)
- 			kfree(spidev);
- 	}
-+#ifdef CONFIG_SPI_SLAVE
-+	spi_slave_abort(spidev->spi);
-+#endif
- 	mutex_unlock(&device_list_lock);
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 8aec137b4fca..d56b6b0e22a8 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -1427,6 +1427,7 @@ static int xilinx_dma_reset(struct xilinx_dma_chan *chan)
  
- 	return 0;
+ 	chan->err = false;
+ 	chan->idle = true;
++	chan->desc_pendingcount = 0;
+ 	chan->desc_submitcount = 0;
+ 
+ 	return err;
 -- 
 2.20.1
 
