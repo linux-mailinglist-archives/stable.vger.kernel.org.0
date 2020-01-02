@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D1F612EE71
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:38:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75D0612EE77
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731343AbgABWir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:38:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53460 "EHLO mail.kernel.org"
+        id S1730869AbgABWiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:38:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731354AbgABWir (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:38:47 -0500
+        id S1731360AbgABWit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:38:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29FBB21835;
-        Thu,  2 Jan 2020 22:38:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DEB524650;
+        Thu,  2 Jan 2020 22:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004726;
-        bh=AsgN12WOBTB9X5A+bu6+gH2DzaMQ1n3a6A3Pg8Z64Vw=;
+        s=default; t=1578004729;
+        bh=OtxbCXFjP2oaiM7NLaEynn8akiAk4XtBtfpzFMuzhDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehH69hVVDgJyC1Xf51EkPU9zGhEXzhZH0jwVF5baUXDFLeKyTvK1zy4ot9PblvffS
-         oOINPZtOsqnagppylvLBXKB/yX6yTgRlfyo5jgAJmLu2AiVjDq7g6baqzhqTcBEfnb
-         Hc/EWr4vHVIYC8j5HUoulNhpqbzo/u/5W5f3IQuo=
+        b=RvNF3X2E/YCdkLQx5fX3nnK7UxYMoiKL6ZqMb/aIe/4GuyDMncDxOQtTkK7Y/qV+o
+         A5C4kyvQo1/C4uKzQGli/H6IZW/N1u7Jpca35T2TQ3t+uvShnLOUIv9XaFfFW3ftUV
+         TAumWf4sLa3RTq2X/Wr5+jVNWnc0kdlcr+wEQLXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jann Horn <jannh@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org,
+        syzbot+3031f712c7ad5dd4d926@syzkaller.appspotmail.com,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Siddharth Chandrasekaran <csiddharth@vmware.com>
-Subject: [PATCH 4.4 128/137] Make filldir[64]() verify the directory entry filename is valid
-Date:   Thu,  2 Jan 2020 23:08:21 +0100
-Message-Id: <20200102220604.355269800@linuxfoundation.org>
+Subject: [PATCH 4.4 129/137] filldir[64]: remove WARN_ON_ONCE() for bad directory entries
+Date:   Thu,  2 Jan 2020 23:08:22 +0100
+Message-Id: <20200102220604.479039672@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
 References: <20200102220546.618583146@linuxfoundation.org>
@@ -48,140 +47,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 8a23eb804ca4f2be909e372cf5a9e7b30ae476cd upstream.
+commit b9959c7a347d6adbb558fba7e36e9fef3cba3b07 upstream.
 
-This has been discussed several times, and now filesystem people are
-talking about doing it individually at the filesystem layer, so head
-that off at the pass and just do it in getdents{64}().
+This was always meant to be a temporary thing, just for testing and to
+see if it actually ever triggered.
 
-This is partially based on a patch by Jann Horn, but checks for NUL
-bytes as well, and somewhat simplified.
+The only thing that reported it was syzbot doing disk image fuzzing, and
+then that warning is expected.  So let's just remove it before -rc4,
+because the extra sanity testing should probably go to -stable, but we
+don't want the warning to do so.
 
-There's also commentary about how it might be better if invalid names
-due to filesystem corruption don't cause an immediate failure, but only
-an error at the end of the readdir(), so that people can still see the
-filenames that are ok.
-
-There's also been discussion about just how much POSIX strictly speaking
-requires this since it's about filesystem corruption.  It's really more
-"protect user space from bad behavior" as pointed out by Jann.  But
-since Eric Biederman looked up the POSIX wording, here it is for context:
-
- "From readdir:
-
-   The readdir() function shall return a pointer to a structure
-   representing the directory entry at the current position in the
-   directory stream specified by the argument dirp, and position the
-   directory stream at the next entry. It shall return a null pointer
-   upon reaching the end of the directory stream. The structure dirent
-   defined in the <dirent.h> header describes a directory entry.
-
-  From definitions:
-
-   3.129 Directory Entry (or Link)
-
-   An object that associates a filename with a file. Several directory
-   entries can associate names with the same file.
-
-  ...
-
-   3.169 Filename
-
-   A name consisting of 1 to {NAME_MAX} bytes used to name a file. The
-   characters composing the name may be selected from the set of all
-   character values excluding the slash character and the null byte. The
-   filenames dot and dot-dot have special meaning. A filename is
-   sometimes referred to as a 'pathname component'."
-
-Note that I didn't bother adding the checks to any legacy interfaces
-that nobody uses.
-
-Also note that if this ends up being noticeable as a performance
-regression, we can fix that to do a much more optimized model that
-checks for both NUL and '/' at the same time one word at a time.
-
-We haven't really tended to optimize 'memchr()', and it only checks for
-one pattern at a time anyway, and we really _should_ check for NUL too
-(but see the comment about "soft errors" in the code about why it
-currently only checks for '/')
-
-See the CONFIG_DCACHE_WORD_ACCESS case of hash_name() for how the name
-lookup code looks for pathname terminating characters in parallel.
-
-Link: https://lore.kernel.org/lkml/20190118161440.220134-2-jannh@google.com/
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Jann Horn <jannh@google.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
+Reported-by: syzbot+3031f712c7ad5dd4d926@syzkaller.appspotmail.com
+Fixes: 8a23eb804ca4 ("Make filldir[64]() verify the directory entry filename is valid")
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Siddharth Chandrasekaran <csiddharth@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/readdir.c |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ fs/readdir.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/fs/readdir.c
 +++ b/fs/readdir.c
-@@ -51,6 +51,40 @@ out:
- EXPORT_SYMBOL(iterate_dir);
- 
- /*
-+ * POSIX says that a dirent name cannot contain NULL or a '/'.
-+ *
-+ * It's not 100% clear what we should really do in this case.
-+ * The filesystem is clearly corrupted, but returning a hard
-+ * error means that you now don't see any of the other names
-+ * either, so that isn't a perfect alternative.
-+ *
-+ * And if you return an error, what error do you use? Several
-+ * filesystems seem to have decided on EUCLEAN being the error
-+ * code for EFSCORRUPTED, and that may be the error to use. Or
-+ * just EIO, which is perhaps more obvious to users.
-+ *
-+ * In order to see the other file names in the directory, the
-+ * caller might want to make this a "soft" error: skip the
-+ * entry, and return the error at the end instead.
-+ *
-+ * Note that this should likely do a "memchr(name, 0, len)"
-+ * check too, since that would be filesystem corruption as
-+ * well. However, that case can't actually confuse user space,
-+ * which has to do a strlen() on the name anyway to find the
-+ * filename length, and the above "soft error" worry means
-+ * that it's probably better left alone until we have that
-+ * issue clarified.
-+ */
-+static int verify_dirent_name(const char *name, int len)
-+{
-+	if (WARN_ON_ONCE(!len))
-+		return -EIO;
-+	if (WARN_ON_ONCE(memchr(name, '/', len)))
-+		return -EIO;
-+	return 0;
-+}
-+
-+/*
-  * Traditional linux readdir() handling..
-  *
-  * "count=1" is a special case, meaning that the buffer is one
-@@ -159,6 +193,9 @@ static int filldir(struct dir_context *c
- 	int reclen = ALIGN(offsetof(struct linux_dirent, d_name) + namlen + 2,
- 		sizeof(long));
- 
-+	buf->error = verify_dirent_name(name, namlen);
-+	if (unlikely(buf->error))
-+		return buf->error;
- 	buf->error = -EINVAL;	/* only used if we fail.. */
- 	if (reclen > buf->count)
- 		return -EINVAL;
-@@ -243,6 +280,9 @@ static int filldir64(struct dir_context
- 	int reclen = ALIGN(offsetof(struct linux_dirent64, d_name) + namlen + 1,
- 		sizeof(u64));
- 
-+	buf->error = verify_dirent_name(name, namlen);
-+	if (unlikely(buf->error))
-+		return buf->error;
- 	buf->error = -EINVAL;	/* only used if we fail.. */
- 	if (reclen > buf->count)
- 		return -EINVAL;
+@@ -77,9 +77,9 @@ EXPORT_SYMBOL(iterate_dir);
+  */
+ static int verify_dirent_name(const char *name, int len)
+ {
+-	if (WARN_ON_ONCE(!len))
++	if (!len)
+ 		return -EIO;
+-	if (WARN_ON_ONCE(memchr(name, '/', len)))
++	if (memchr(name, '/', len))
+ 		return -EIO;
+ 	return 0;
+ }
 
 
