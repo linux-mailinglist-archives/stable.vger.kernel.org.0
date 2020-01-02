@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C06D12EEA4
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A667E12EF1C
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730928AbgABWi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:38:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52384 "EHLO mail.kernel.org"
+        id S1730049AbgABWdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:33:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731295AbgABWi0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:38:26 -0500
+        id S1730571AbgABWdm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:33:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01EB621D7D;
-        Thu,  2 Jan 2020 22:38:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0717820863;
+        Thu,  2 Jan 2020 22:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004705;
-        bh=Hck+kzrpDFMdZXKRk2YWpAyA1rBxxHJBk5eU4kirlrk=;
+        s=default; t=1578004421;
+        bh=qmmnHUe5+pnegRU3TsxrWEtEKlgPYo5jMYTKL5BZvn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qCh7Mr8vfwhZpnfoolCih9fmam77HdGIKKUE8ZbB/K+ogULz5gI9yrdrPTPsxQ5EN
-         yaZ/966ATyghDx88MaFXfQa3FxGX089bcXevbJu21l2kZf7/r1lHaqWcDz3qkAbUsE
-         t0iA9zDfY00XFTengaPlxcLq25omMth0T8oZuyVY=
+        b=iMhc5oYw2mEeUoend/g520aenC1pwPeOsEgw++0aifNUZAutHNujaWzdnUJLGuSwQ
+         nZmq4LE34ov+Mq83/cTLZnXcIBdkFmsk2olgsxzSlpO32N/sK9Y68MMmMDUhL1lndP
+         pqktSDrnqFzPt033jl/GSnvPJqfms0WeZVPxb258=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 111/137] powerpc/pseries/cmm: Implement release() function for sysfs device
-Date:   Thu,  2 Jan 2020 23:08:04 +0100
-Message-Id: <20200102220602.111487492@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+b3028ac3933f5c466389@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 154/171] ALSA: hda - Downgrade error message for single-cmd fallback
+Date:   Thu,  2 Jan 2020 23:08:05 +0100
+Message-Id: <20200102220608.198290743@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 7d8212747435c534c8d564fbef4541a463c976ff ]
+[ Upstream commit 475feec0c41ad71cb7d02f0310e56256606b57c5 ]
 
-When unloading the module, one gets
-  ------------[ cut here ]------------
-  Device 'cmm0' does not have a release() function, it is broken and must be fixed. See Documentation/kobject.txt.
-  WARNING: CPU: 0 PID: 19308 at drivers/base/core.c:1244 .device_release+0xcc/0xf0
-  ...
+We made the error message for the CORB/RIRB communication clearer by
+upgrading to dev_WARN() so that user can notice better.  But this
+struck us like a boomerang: now it caught syzbot and reported back as
+a fatal issue although it's not really any too serious bug that worth
+for stopping the whole system.
 
-We only have one static fake device. There is nothing to do when
-releasing the device (via cmm_exit()).
+OK, OK, let's be softy, downgrade it to the standard dev_err() again.
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191031142933.10779-2-david@redhat.com
+Fixes: dd65f7e19c69 ("ALSA: hda - Show the fatal CORB/RIRB error more clearly")
+Reported-by: syzbot+b3028ac3933f5c466389@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20191216151224.30013-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/cmm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/hda/hda_controller.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
-index fc44ad0475f8..b126ce49ae7b 100644
---- a/arch/powerpc/platforms/pseries/cmm.c
-+++ b/arch/powerpc/platforms/pseries/cmm.c
-@@ -391,6 +391,10 @@ static struct bus_type cmm_subsys = {
- 	.dev_name = "cmm",
- };
+diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
+index c5e82329348b..bd0e4710d15d 100644
+--- a/sound/pci/hda/hda_controller.c
++++ b/sound/pci/hda/hda_controller.c
+@@ -872,7 +872,7 @@ static int azx_rirb_get_response(struct hdac_bus *bus, unsigned int addr,
+ 		return -EAGAIN; /* give a chance to retry */
+ 	}
  
-+static void cmm_release_device(struct device *dev)
-+{
-+}
-+
- /**
-  * cmm_sysfs_register - Register with sysfs
-  *
-@@ -406,6 +410,7 @@ static int cmm_sysfs_register(struct device *dev)
- 
- 	dev->id = 0;
- 	dev->bus = &cmm_subsys;
-+	dev->release = cmm_release_device;
- 
- 	if ((rc = device_register(dev)))
- 		goto subsys_unregister;
+-	dev_WARN(chip->card->dev,
++	dev_err(chip->card->dev,
+ 		"azx_get_response timeout, switching to single_cmd mode: last cmd=0x%08x\n",
+ 		bus->last_cmd[addr]);
+ 	chip->single_cmd = 1;
 -- 
 2.20.1
 
