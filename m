@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A0F12F005
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A67CD12EF83
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729359AbgABWYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:24:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47564 "EHLO mail.kernel.org"
+        id S1727382AbgABWqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:46:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729355AbgABWYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:24:06 -0500
+        id S1730184AbgABWaj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:30:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5A1A20863;
-        Thu,  2 Jan 2020 22:24:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93DC620863;
+        Thu,  2 Jan 2020 22:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003846;
-        bh=zl+jMEazS06IPnXQz5OhOUWOzZlmwFDhJDIcf0gR+Mc=;
+        s=default; t=1578004239;
+        bh=RqPbXn9WCFczp8Txz+bqmcTAIDrgHDVNoUmCRT01amE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWxQTy+0gf8AYgwnTtKGJAI1pxUBHCChReNLL1Ft6Jrl+sGrDvFuBaPCyXRdlvGaf
-         9BkV8NuWP9QI1D7TguSvY25hlqq9s2Og4N9MN9fghz7VGc+t4tES9FVDD+VT9q+J4J
-         3L8nSgmW53oHW8aSFuHzCh84AnrBjwATFiPd6Hi0=
+        b=rn11TSlknAOU3VoCHJiNUg1aY4wkhkFdVMUQfyBwl5CkHCCr8QfVnAR1GLrjmhYUf
+         c+KgiEzHR7t2huDamoMe+QQk0dN4+bCQbBN9kIOPVochAoT0S3jGBmqWNavirZ/8v4
+         Jdt2aocd/ltKQ5u9w2ceypKmfFcEw6+YfKADuUo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/91] irqchip: ingenic: Error out if IRQ domain creation failed
-Date:   Thu,  2 Jan 2020 23:07:05 +0100
-Message-Id: <20200102220423.870611413@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 095/171] mod_devicetable: fix PHY module format
+Date:   Thu,  2 Jan 2020 23:07:06 +0100
+Message-Id: <20200102220600.388131080@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 52ecc87642f273a599c9913b29fd179c13de457b ]
+[ Upstream commit d2ed49cf6c13e379c5819aa5ac20e1f9674ebc89 ]
 
-If we cannot create the IRQ domain, the driver should fail to probe
-instead of succeeding with just a warning message.
+When a PHY is probed, if the top bit is set, we end up requesting a
+module with the string "mdio:-10101110000000100101000101010001" -
+the top bit is printed to a signed -1 value. This leads to the module
+not being loaded.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/1570015525-27018-3-git-send-email-zhouyanjie@zoho.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix the module format string and the macro generating the values for
+it to ensure that we only print unsigned types and the top bit is
+always 0/1. We correctly end up with
+"mdio:10101110000000100101000101010001".
+
+Fixes: 8626d3b43280 ("phylib: Support phy module autoloading")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-ingenic.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ include/linux/mod_devicetable.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
-index fc5953dea509..b2e16dca76a6 100644
---- a/drivers/irqchip/irq-ingenic.c
-+++ b/drivers/irqchip/irq-ingenic.c
-@@ -117,6 +117,14 @@ static int __init ingenic_intc_of_init(struct device_node *node,
- 		goto out_unmap_irq;
- 	}
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -502,9 +502,9 @@ struct platform_device_id {
  
-+	domain = irq_domain_add_legacy(node, num_chips * 32,
-+				       JZ4740_IRQ_BASE, 0,
-+				       &irq_domain_simple_ops, NULL);
-+	if (!domain) {
-+		err = -ENOMEM;
-+		goto out_unmap_base;
-+	}
-+
- 	for (i = 0; i < num_chips; i++) {
- 		/* Mask all irqs */
- 		writel(0xffffffff, intc->base + (i * CHIP_SIZE) +
-@@ -143,14 +151,11 @@ static int __init ingenic_intc_of_init(struct device_node *node,
- 				       IRQ_NOPROBE | IRQ_LEVEL);
- 	}
+ #define MDIO_MODULE_PREFIX	"mdio:"
  
--	domain = irq_domain_add_legacy(node, num_chips * 32, JZ4740_IRQ_BASE, 0,
--				       &irq_domain_simple_ops, NULL);
--	if (!domain)
--		pr_warn("unable to register IRQ domain\n");
--
- 	setup_irq(parent_irq, &intc_cascade_action);
- 	return 0;
- 
-+out_unmap_base:
-+	iounmap(intc->base);
- out_unmap_irq:
- 	irq_dispose_mapping(parent_irq);
- out_free:
--- 
-2.20.1
-
+-#define MDIO_ID_FMT "%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d"
++#define MDIO_ID_FMT "%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u"
+ #define MDIO_ID_ARGS(_id) \
+-	(_id)>>31, ((_id)>>30) & 1, ((_id)>>29) & 1, ((_id)>>28) & 1,	\
++	((_id)>>31) & 1, ((_id)>>30) & 1, ((_id)>>29) & 1, ((_id)>>28) & 1, \
+ 	((_id)>>27) & 1, ((_id)>>26) & 1, ((_id)>>25) & 1, ((_id)>>24) & 1, \
+ 	((_id)>>23) & 1, ((_id)>>22) & 1, ((_id)>>21) & 1, ((_id)>>20) & 1, \
+ 	((_id)>>19) & 1, ((_id)>>18) & 1, ((_id)>>17) & 1, ((_id)>>16) & 1, \
 
 
