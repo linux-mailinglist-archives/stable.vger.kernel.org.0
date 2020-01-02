@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD9712EE0D
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 928FC12EF98
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:47:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730547AbgABWem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:34:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43538 "EHLO mail.kernel.org"
+        id S1729670AbgABW3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:29:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730247AbgABWek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:34:40 -0500
+        id S1729763AbgABW3j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:29:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E37FD222C3;
-        Thu,  2 Jan 2020 22:34:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F51C21835;
+        Thu,  2 Jan 2020 22:29:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004480;
-        bh=iPj0zluIWzyqWRoO57oi2l4TB1Hqdaa8CAffhmRVyYI=;
+        s=default; t=1578004179;
+        bh=MvCa2z4IbcYYzFMqERVrXJWC8cppStZn4lCDgcHEnIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1LsM/EpNxU6oLoddAAYHEzBfAHf4QbGhz7XJCD4yRWji8phJnZrE364WLqQxKLULk
-         Rqqe3iJJEbwFZ0OSQHFv5qaXL+lwryyHu50TDY+JMVhh609EfmgNimImurK3xDIOZ2
-         LTCAgWMlaYgFvOrZ8zxv29INUtf25fJION0WW3ls=
+        b=lYp9poZWCto7FfunQr8qdfxP7UDm63qiYDKup4alF6Nzb9jPrPYYFBIQ5OnIIY39f
+         NAenziga1SLkOZ72F6ZtQ0uQNqiYkRtM+PWyBtK4h5kZBm8GCnbbAkD64Sv9nZGej6
+         9SEKgNPpl1Wpd9flGAOe9fDZYd8G5mTABgtx3yes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 004/137] ALSA: hda/ca0132 - Avoid endless loop
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 046/171] bnx2x: Fix PF-VF communication over multi-cos queues.
 Date:   Thu,  2 Jan 2020 23:06:17 +0100
-Message-Id: <20200102220547.179018042@linuxfoundation.org>
+Message-Id: <20200102220553.349350125@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Manish Chopra <manishc@marvell.com>
 
-commit cb04fc3b6b076f67d228a0b7d096c69ad486c09c upstream.
+[ Upstream commit dc5a3d79c345871439ffe72550b604fcde9770e1 ]
 
-Introduce a timeout to dspio_clear_response_queue() so that it won't
-be caught in an endless loop even if the hardware doesn't respond
-properly.
+PF driver doesn't enable tx-switching for all cos queues/clients,
+which causes packets drop from PF to VF. Fix this by enabling
+tx-switching on all cos queues/clients.
 
-Fixes: a73d511c4867 ("ALSA: hda/ca0132: Add unsol handler for DSP and jack detection")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191213085111.22855-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ .../net/ethernet/broadcom/bnx2x/bnx2x_sriov.c    | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -1300,13 +1300,14 @@ struct scp_msg {
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
+index c6e059119b22..e8a09d0afe1c 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
+@@ -2376,15 +2376,21 @@ static int bnx2x_set_pf_tx_switching(struct bnx2x *bp, bool enable)
+ 	/* send the ramrod on all the queues of the PF */
+ 	for_each_eth_queue(bp, i) {
+ 		struct bnx2x_fastpath *fp = &bp->fp[i];
++		int tx_idx;
  
- static void dspio_clear_response_queue(struct hda_codec *codec)
- {
-+	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
- 	unsigned int dummy = 0;
--	int status = -1;
-+	int status;
+ 		/* Set the appropriate Queue object */
+ 		q_params.q_obj = &bnx2x_sp_obj(bp, fp).q_obj;
  
- 	/* clear all from the response queue */
- 	do {
- 		status = dspio_read(codec, &dummy);
--	} while (status == 0);
-+	} while (status == 0 && time_before(jiffies, timeout));
- }
+-		/* Update the Queue state */
+-		rc = bnx2x_queue_state_change(bp, &q_params);
+-		if (rc) {
+-			BNX2X_ERR("Failed to configure Tx switching\n");
+-			return rc;
++		for (tx_idx = FIRST_TX_COS_INDEX;
++		     tx_idx < fp->max_cos; tx_idx++) {
++			q_params.params.update.cid_index = tx_idx;
++
++			/* Update the Queue state */
++			rc = bnx2x_queue_state_change(bp, &q_params);
++			if (rc) {
++				BNX2X_ERR("Failed to configure Tx switching\n");
++				return rc;
++			}
+ 		}
+ 	}
  
- static int dspio_get_response_data(struct hda_codec *codec)
+-- 
+2.20.1
+
 
 
