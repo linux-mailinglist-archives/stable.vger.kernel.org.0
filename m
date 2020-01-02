@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B52D12EF1D
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A67812EE88
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727340AbgABWds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:33:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
+        id S1731408AbgABWjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:39:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729853AbgABWdo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:33:44 -0500
+        id S1731426AbgABWjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:39:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63C4A20863;
-        Thu,  2 Jan 2020 22:33:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D23921D7D;
+        Thu,  2 Jan 2020 22:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004423;
-        bh=lZnjv60PyzNBbdHUduFUobSQtOVpevO4SmCxef2y/fc=;
+        s=default; t=1578004753;
+        bh=TibN/pcS0cJvQMq+vtAWj+LJC3fl3uv6/IGCKXgwJng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ipcnKHplQ7GVE+peYkyoP8mkJEBDDTn34mtnh29dnarEb9ClyaKsTByeXxUT3jmQ
-         EuXHvx27HQ0zuWLodpH9ytpTGNzX9rgfcwY2u/oXL8uRxbH40EQkI3g5snuI80NILn
-         u06lb687HjPlrLD5Tm2QByKr9yoH+JU8yt51sM8s=
+        b=cqak8oHi0lgedhEuPp/uX9k7/fKK1qMyI38ecJnmscaLxOf+28gMWzIZgPqcl1HMl
+         CFeDHj/7DaPG4VQf7T2kHA75rNWKcRVHc3b34/JTymGt7um11nz6bPZf4/U51w4RIJ
+         NiGCxhhc1UGkqT81HvmcLcQeReMIY+B8Yq/8IdNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mattias Jacobsson <2pi@mok.nu>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sanskriti Sharma <sansharm@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.9 155/171] perf strbuf: Remove redundant va_end() in strbuf_addv()
+        stable@vger.kernel.org, Robert Jarzmik <robert.jarzmik@free.fr>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 113/137] clk: pxa: fix one of the pxa RTC clocks
 Date:   Thu,  2 Jan 2020 23:08:06 +0100
-Message-Id: <20200102220608.303265673@linuxfoundation.org>
+Message-Id: <20200102220602.363667040@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,37 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mattias Jacobsson <2pi@mok.nu>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
 
-commit 099be748865eece21362aee416c350c0b1ae34df upstream.
+[ Upstream commit 46acbcb4849b2ca2e6e975e7c8130c1d61c8fd0c ]
 
-Each call to va_copy() should have one, and only one, corresponding call
-to va_end(). In strbuf_addv() some code paths result in va_end() getting
-called multiple times. Remove the superfluous va_end().
+The pxa27x platforms have a single IP with 2 drivers, sa1100-rtc and
+rtc-pxa drivers.
 
-Signed-off-by: Mattias Jacobsson <2pi@mok.nu>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sanskriti Sharma <sansharm@redhat.com>
-Link: http://lkml.kernel.org/r/20181229141750.16945-1-2pi@mok.nu
-Fixes: ce49d8436cff ("perf strbuf: Match va_{add,copy} with va_end")
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+A previous patch fixed the sa1100-rtc case, but the pxa-rtc wasn't
+fixed. This patch completes the previous one.
 
+Fixes: 8b6d10345e16 ("clk: pxa: add missing pxa27x clocks for Irda and sa1100-rtc")
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Link: https://lkml.kernel.org/r/20191026194420.11918-1-robert.jarzmik@free.fr
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/strbuf.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/clk/pxa/clk-pxa27x.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/perf/util/strbuf.c
-+++ b/tools/perf/util/strbuf.c
-@@ -116,7 +116,6 @@ static int strbuf_addv(struct strbuf *sb
- 			return ret;
- 		}
- 		len = vsnprintf(sb->buf + sb->len, sb->alloc - sb->len, fmt, ap_saved);
--		va_end(ap_saved);
- 		if (len > strbuf_avail(sb)) {
- 			pr_debug("this should not happen, your vsnprintf is broken");
- 			va_end(ap_saved);
+diff --git a/drivers/clk/pxa/clk-pxa27x.c b/drivers/clk/pxa/clk-pxa27x.c
+index 5b82d30baf9f..bf47737b6672 100644
+--- a/drivers/clk/pxa/clk-pxa27x.c
++++ b/drivers/clk/pxa/clk-pxa27x.c
+@@ -362,6 +362,7 @@ struct dummy_clk {
+ };
+ static struct dummy_clk dummy_clks[] __initdata = {
+ 	DUMMY_CLK(NULL, "pxa27x-gpio", "osc_32_768khz"),
++	DUMMY_CLK(NULL, "pxa-rtc", "osc_32_768khz"),
+ 	DUMMY_CLK(NULL, "sa1100-rtc", "osc_32_768khz"),
+ 	DUMMY_CLK("UARTCLK", "pxa2xx-ir", "STUART"),
+ };
+-- 
+2.20.1
+
 
 
