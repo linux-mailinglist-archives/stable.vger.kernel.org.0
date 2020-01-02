@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C6A812F125
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2177712EF2C
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728036AbgABW62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:58:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56678 "EHLO mail.kernel.org"
+        id S1728085AbgABWny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:43:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728079AbgABWPg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:15:36 -0500
+        id S1730667AbgABWeD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:34:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EB9522314;
-        Thu,  2 Jan 2020 22:15:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D5E721835;
+        Thu,  2 Jan 2020 22:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003335;
-        bh=cugt3nrPnzCLUq7Te4RVjmhxVogJnL4KQ6oRYI5BSZI=;
+        s=default; t=1578004443;
+        bh=nQT92VES4cV9D+HrZBfDmZA5vdKgHGuMiMjlgpw1iqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8WSi/rlX2BtIdgx6kSJOUnujx0aATnUFMnTe7zQb5BTNE3tUSnZ25faKm4giflwd
-         vYrLJenJ82iX+d9PpwZkRAxuF8DLSslIO9zdX8WTBW4vLeqEqud1m54spVzhcmDD7m
-         o0rJV4kZHhuScgqT3nL8pQpJTk5Ay+G+VtxuhQsw=
+        b=HOYf2dkM9tK8dUzs52JWNtj0cU9H7HIFuhbKLEnTfXo14/wvhzmg/9mMXJqGfnSLm
+         cek/rAtvlpuLg/co8hLOXrUC+tt74WCCcImRV8HemNXOMU8Xr3mtwbJQbRPfUIh8l9
+         YsW9tix81byUhTX/5j8sSWSsGHOD2VarH36GDGWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/191] scsi: ufs: Fix up auto hibern8 enablement
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.4 001/137] btrfs: do not leak reloc root if we fail to read the fs root
 Date:   Thu,  2 Jan 2020 23:06:14 +0100
-Message-Id: <20200102215839.783129982@linuxfoundation.org>
+Message-Id: <20200102220546.831163853@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,116 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 71d848b8d97ec0f8e993d63cf9de6ac8b3f7c43d ]
+commit ca1aa2818a53875cfdd175fb5e9a2984e997cce9 upstream.
 
-Fix up possible unclocked register access to auto hibern8 register in
-resume path and through sysfs entry. Meanwhile, enable auto hibern8 only
-after device is fully initialized in probe path.
+If we fail to read the fs root corresponding with a reloc root we'll
+just break out and free the reloc roots.  But we remove our current
+reloc_root from this list higher up, which means we'll leak this
+reloc_root.  Fix this by adding ourselves back to the reloc_roots list
+so we are properly cleaned up.
 
-Link: https://lore.kernel.org/r/1573798172-20534-4-git-send-email-cang@codeaurora.org
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/ufs/ufs-sysfs.c | 15 +++++++++------
- drivers/scsi/ufs/ufshcd.c    | 14 +++++++-------
- drivers/scsi/ufs/ufshcd.h    |  2 ++
- 3 files changed, 18 insertions(+), 13 deletions(-)
+ fs/btrfs/relocation.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/ufs/ufs-sysfs.c b/drivers/scsi/ufs/ufs-sysfs.c
-index 969a36b15897..ad2abc96c0f1 100644
---- a/drivers/scsi/ufs/ufs-sysfs.c
-+++ b/drivers/scsi/ufs/ufs-sysfs.c
-@@ -126,13 +126,16 @@ static void ufshcd_auto_hibern8_update(struct ufs_hba *hba, u32 ahit)
- 		return;
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -4454,6 +4454,7 @@ int btrfs_recover_relocation(struct btrf
+ 				       reloc_root->root_key.offset);
+ 		if (IS_ERR(fs_root)) {
+ 			err = PTR_ERR(fs_root);
++			list_add_tail(&reloc_root->root_list, &reloc_roots);
+ 			goto out_free;
+ 		}
  
- 	spin_lock_irqsave(hba->host->host_lock, flags);
--	if (hba->ahit == ahit)
--		goto out_unlock;
--	hba->ahit = ahit;
--	if (!pm_runtime_suspended(hba->dev))
--		ufshcd_writel(hba, hba->ahit, REG_AUTO_HIBERNATE_IDLE_TIMER);
--out_unlock:
-+	if (hba->ahit != ahit)
-+		hba->ahit = ahit;
- 	spin_unlock_irqrestore(hba->host->host_lock, flags);
-+	if (!pm_runtime_suspended(hba->dev)) {
-+		pm_runtime_get_sync(hba->dev);
-+		ufshcd_hold(hba, false);
-+		ufshcd_auto_hibern8_enable(hba);
-+		ufshcd_release(hba);
-+		pm_runtime_put(hba->dev);
-+	}
- }
- 
- /* Convert Auto-Hibernate Idle Timer register value to microseconds */
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 0036dcffc4a9..25a6a25b17a2 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -3950,7 +3950,7 @@ static int ufshcd_uic_hibern8_exit(struct ufs_hba *hba)
- 	return ret;
- }
- 
--static void ufshcd_auto_hibern8_enable(struct ufs_hba *hba)
-+void ufshcd_auto_hibern8_enable(struct ufs_hba *hba)
- {
- 	unsigned long flags;
- 
-@@ -6890,9 +6890,6 @@ static int ufshcd_probe_hba(struct ufs_hba *hba)
- 	/* UniPro link is active now */
- 	ufshcd_set_link_active(hba);
- 
--	/* Enable Auto-Hibernate if configured */
--	ufshcd_auto_hibern8_enable(hba);
--
- 	ret = ufshcd_verify_dev_init(hba);
- 	if (ret)
- 		goto out;
-@@ -6943,6 +6940,9 @@ static int ufshcd_probe_hba(struct ufs_hba *hba)
- 	/* set the state as operational after switching to desired gear */
- 	hba->ufshcd_state = UFSHCD_STATE_OPERATIONAL;
- 
-+	/* Enable Auto-Hibernate if configured */
-+	ufshcd_auto_hibern8_enable(hba);
-+
- 	/*
- 	 * If we are in error handling context or in power management callbacks
- 	 * context, no need to scan the host
-@@ -7959,12 +7959,12 @@ static int ufshcd_resume(struct ufs_hba *hba, enum ufs_pm_op pm_op)
- 	if (hba->clk_scaling.is_allowed)
- 		ufshcd_resume_clkscaling(hba);
- 
--	/* Schedule clock gating in case of no access to UFS device yet */
--	ufshcd_release(hba);
--
- 	/* Enable Auto-Hibernate if configured */
- 	ufshcd_auto_hibern8_enable(hba);
- 
-+	/* Schedule clock gating in case of no access to UFS device yet */
-+	ufshcd_release(hba);
-+
- 	goto out;
- 
- set_old_link_state:
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index c94cfda52829..52c9676a1242 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -916,6 +916,8 @@ int ufshcd_query_attr(struct ufs_hba *hba, enum query_opcode opcode,
- int ufshcd_query_flag(struct ufs_hba *hba, enum query_opcode opcode,
- 	enum flag_idn idn, bool *flag_res);
- 
-+void ufshcd_auto_hibern8_enable(struct ufs_hba *hba);
-+
- #define SD_ASCII_STD true
- #define SD_RAW false
- int ufshcd_read_string_desc(struct ufs_hba *hba, u8 desc_index,
--- 
-2.20.1
-
 
 
