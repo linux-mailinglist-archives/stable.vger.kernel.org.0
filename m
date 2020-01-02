@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D141A12F132
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:58:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D374312EF27
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727180AbgABWPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:15:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55882 "EHLO mail.kernel.org"
+        id S1730700AbgABWeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:34:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727156AbgABWPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:15:12 -0500
+        id S1728341AbgABWeT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:34:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9A7A21582;
-        Thu,  2 Jan 2020 22:15:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55D6120866;
+        Thu,  2 Jan 2020 22:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003311;
-        bh=Ntjc8Wl3a9ScWfKbBQt5/x2fazMxvzR850E7vCqoHKQ=;
+        s=default; t=1578004458;
+        bh=T+yUVLgQDEFXXYVqX5ZeCHnAaMi38HK7sMZXJxhKtBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6Ek2+yuMSwCBhnF1fr5Cvq8dJqpVseNyGS9RVzakPbm+gVJm7Mnbl14DlGnSh5d1
-         JxdDToZa2Tqx04mgWixwt0hYUz2vBaWYR0Wc9AXfbnWG++VBIK4pDCBYXj6cuCxn3l
-         iVKV7+WCYvtT3+6aBER1bOHLIycExPebxF52GdZ4=
+        b=mPAYnQOwHSN3AX5HubjOM0BHy+3qeBVnsZyiXih+oTMowanN2xC+e2+jsHFyEeJa9
+         TZayoI5cCW2FscqwITNI6lamVvrzZJGmrFqvk53KZcjF/jgeqvgJD8Jb4HD9Kt0uvy
+         /ymme1hY0wJ0moahjtTOyEszZVDckuxfFgcaPoJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 107/191] powerpc: Dont add -mabi= flags when building with Clang
+Subject: [PATCH 4.4 016/137] usb: renesas_usbhs: add suspend event support in gadget mode
 Date:   Thu,  2 Jan 2020 23:06:29 +0100
-Message-Id: <20200102215841.382299263@linuxfoundation.org>
+Message-Id: <20200102220548.877616676@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>
 
-[ Upstream commit 465bfd9c44dea6b55962b5788a23ac87a467c923 ]
+[ Upstream commit 39abcc84846bbc0538f13c190b6a9c7e36890cd2 ]
 
-When building pseries_defconfig, building vdso32 errors out:
+When R-Car Gen3 USB 2.0 is in Gadget mode, if host is detached an interrupt
+will be generated and Suspended state bit is set in interrupt status
+register. Interrupt handler will call driver->suspend(composite_suspend)
+if suspended state bit is set. composite_suspend will call
+ffs_func_suspend which will post FUNCTIONFS_SUSPEND and will be consumed
+by user space application via /dev/ep0.
 
-  error: unknown target ABI 'elfv1'
+To be able to detect host detach, extend the DVSQ_MASK to cover the
+Suspended bit of the DVSQ[2:0] bitfield from the Interrupt Status
+Register 0 (INTSTS0) register and perform appropriate action in the
+DVST interrupt handler (usbhsg_irq_dev_state).
 
-This happens because -m32 in clang changes the target to 32-bit,
-which does not allow the ABI to be changed.
+Without this commit, disconnection of the phone from R-Car-H3 ES2.0
+Salvator-X CN9 port is not recognized and reverse role switch does
+not happen. If phone is connected again it does not enumerate.
 
-Commit 4dc831aa8813 ("powerpc: Fix compiling a BE kernel with a
-powerpc64le toolchain") added these flags to fix building big endian
-kernels with a little endian GCC.
+With this commit, disconnection will be recognized and reverse role
+switch will happen by a user space application. If phone is connected
+again it will enumerate properly and will become visible in the output
+of 'lsusb'.
 
-Clang doesn't need -mabi because the target triple controls the
-default value. -mlittle-endian and -mbig-endian manipulate the triple
-into either powerpc64-* or powerpc64le-*, which properly sets the
-default ABI.
-
-Adding a debug print out in the PPC64TargetInfo constructor after line
-383 above shows this:
-
-  $ echo | ./clang -E --target=powerpc64-linux -mbig-endian -o /dev/null -
-  Default ABI: elfv1
-
-  $ echo | ./clang -E --target=powerpc64-linux -mlittle-endian -o /dev/null -
-  Default ABI: elfv2
-
-  $ echo | ./clang -E --target=powerpc64le-linux -mbig-endian -o /dev/null -
-  Default ABI: elfv1
-
-  $ echo | ./clang -E --target=powerpc64le-linux -mlittle-endian -o /dev/null -
-  Default ABI: elfv2
-
-Don't specify -mabi when building with clang to avoid the build error
-with -m32 and not change any code generation.
-
--mcall-aixdesc is not an implemented flag in clang so it can be safely
-excluded as well, see commit 238abecde8ad ("powerpc: Don't use gcc
-specific options on clang").
-
-pseries_defconfig successfully builds after this patch and
-powernv_defconfig and ppc44x_defconfig don't regress.
-
-Reviewed-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-[mpe: Trim clang links in change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191119045712.39633-2-natechancellor@gmail.com
+Signed-off-by: Veeraiyan Chidambaram <veeraiyan.chidambaram@in.bosch.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1568207756-22325-3-git-send-email-external.veeraiyan.c@de.adit-jv.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/renesas_usbhs/common.h     |  3 ++-
+ drivers/usb/renesas_usbhs/mod_gadget.c | 12 +++++++++---
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index 83522c9fc7b6..37ac731a556b 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -91,11 +91,13 @@ MULTIPLEWORD	:= -mmultiple
- endif
+diff --git a/drivers/usb/renesas_usbhs/common.h b/drivers/usb/renesas_usbhs/common.h
+index b8620aa6b72e..8424c165f732 100644
+--- a/drivers/usb/renesas_usbhs/common.h
++++ b/drivers/usb/renesas_usbhs/common.h
+@@ -163,11 +163,12 @@ struct usbhs_priv;
+ #define VBSTS	(1 << 7)	/* VBUS_0 and VBUSIN_0 Input Status */
+ #define VALID	(1 << 3)	/* USB Request Receive */
  
- ifdef CONFIG_PPC64
-+ifndef CONFIG_CC_IS_CLANG
- cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
- cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mcall-aixdesc)
- aflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
- aflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mabi=elfv2
- endif
-+endif
+-#define DVSQ_MASK		(0x3 << 4)	/* Device State */
++#define DVSQ_MASK		(0x7 << 4)	/* Device State */
+ #define  POWER_STATE		(0 << 4)
+ #define  DEFAULT_STATE		(1 << 4)
+ #define  ADDRESS_STATE		(2 << 4)
+ #define  CONFIGURATION_STATE	(3 << 4)
++#define  SUSPENDED_STATE	(4 << 4)
  
- ifndef CONFIG_CC_IS_CLANG
-   cflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mno-strict-align
-@@ -141,6 +143,7 @@ endif
- endif
+ #define CTSQ_MASK		(0x7)	/* Control Transfer Stage */
+ #define  IDLE_SETUP_STAGE	0	/* Idle stage or setup stage */
+diff --git a/drivers/usb/renesas_usbhs/mod_gadget.c b/drivers/usb/renesas_usbhs/mod_gadget.c
+index efe8d815cf2c..5731621984c6 100644
+--- a/drivers/usb/renesas_usbhs/mod_gadget.c
++++ b/drivers/usb/renesas_usbhs/mod_gadget.c
+@@ -467,12 +467,18 @@ static int usbhsg_irq_dev_state(struct usbhs_priv *priv,
+ {
+ 	struct usbhsg_gpriv *gpriv = usbhsg_priv_to_gpriv(priv);
+ 	struct device *dev = usbhsg_gpriv_to_dev(gpriv);
++	int state = usbhs_status_get_device_state(irq_state);
  
- CFLAGS-$(CONFIG_PPC64)	:= $(call cc-option,-mtraceback=no)
-+ifndef CONFIG_CC_IS_CLANG
- ifdef CONFIG_CPU_LITTLE_ENDIAN
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2,$(call cc-option,-mcall-aixdesc))
- AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2)
-@@ -149,6 +152,7 @@ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcall-aixdesc)
- AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
- endif
-+endif
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcmodel=medium,$(call cc-option,-mminimal-toc))
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mno-pointers-to-nested-functions)
+ 	gpriv->gadget.speed = usbhs_bus_get_speed(priv);
  
+-	dev_dbg(dev, "state = %x : speed : %d\n",
+-		usbhs_status_get_device_state(irq_state),
+-		gpriv->gadget.speed);
++	dev_dbg(dev, "state = %x : speed : %d\n", state, gpriv->gadget.speed);
++
++	if (gpriv->gadget.speed != USB_SPEED_UNKNOWN &&
++	    (state & SUSPENDED_STATE)) {
++		if (gpriv->driver && gpriv->driver->suspend)
++			gpriv->driver->suspend(&gpriv->gadget);
++		usb_gadget_set_state(&gpriv->gadget, USB_STATE_SUSPENDED);
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
