@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2FAD12EF3C
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D19312F105
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730090AbgABWb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:31:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37630 "EHLO mail.kernel.org"
+        id S1728091AbgABW53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:57:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728579AbgABWb4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:31:56 -0500
+        id S1727228AbgABWQy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:16:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97A1520866;
-        Thu,  2 Jan 2020 22:31:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35D6522314;
+        Thu,  2 Jan 2020 22:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004316;
-        bh=ZqH9QjOCHAhTEwl38Wj/iaO4Yw1aJbs3ttVWRw9aiX0=;
+        s=default; t=1578003413;
+        bh=BqX7q04+FN+mZ1t824BNPAXjx17/+bgB/b3nPi663bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IqBnGd3uRCXjfqd/C8Xwuwosj25WaFpDAJrV41k0spNU3qFFE/+eX/3pqVeDqOm5R
-         D/ikwlSpg5m6txm6oUlGPr2i+YLnP0Q9aot8D7xfoBK+7xwsb1XKuzLeeIvrm6Axzx
-         vZ/7kdbdij4/0A31GuEgIuLYTNh+QVGvVKsfvyr0=
+        b=YcJVoj2+7xSCN3KiBomGdMq+t9bXPsQJPRgygLSLHQeofYAdXypToMUb0gp9FB/YW
+         4wFILAfLJe8/XGUfznAPMhEsqYQu758LVXPd3AE+h5b+nDcCDtLtWvNo/IKxjf1tWA
+         URTaKe0AJecvNAURXFyRVDVAZLEV0YRXSQNAIEZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Suwan Kim <suwan.kim027@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.9 102/171] usbip: Fix error path of vhci_recv_ret_submit()
+        stable@vger.kernel.org, Shmulik Ladkani <sladkani@proofpoint.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 151/191] net/sched: act_mirred: Pull mac prior redir to non mac_header_xmit device
 Date:   Thu,  2 Jan 2020 23:07:13 +0100
-Message-Id: <20200102220601.334855271@linuxfoundation.org>
+Message-Id: <20200102215845.650407157@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suwan Kim <suwan.kim027@gmail.com>
+From: Shmulik Ladkani <sladkani@proofpoint.com>
 
-commit aabb5b833872524eaf28f52187e5987984982264 upstream.
+[ Upstream commit 70cf3dc7313207816255b9acb0dffb19dae78144 ]
 
-If a transaction error happens in vhci_recv_ret_submit(), event
-handler closes connection and changes port status to kick hub_event.
-Then hub tries to flush the endpoint URBs, but that causes infinite
-loop between usb_hub_flush_endpoint() and vhci_urb_dequeue() because
-"vhci_priv" in vhci_urb_dequeue() was already released by
-vhci_recv_ret_submit() before a transmission error occurred. Thus,
-vhci_urb_dequeue() terminates early and usb_hub_flush_endpoint()
-continuously calls vhci_urb_dequeue().
+There's no skb_pull performed when a mirred action is set at egress of a
+mac device, with a target device/action that expects skb->data to point
+at the network header.
 
-The root cause of this issue is that vhci_recv_ret_submit()
-terminates early without giving back URB when transaction error
-occurs in vhci_recv_ret_submit(). That causes the error URB to still
-be linked at endpoint list without “vhci_priv".
+As a result, either the target device is errornously given an skb with
+data pointing to the mac (egress case), or the net stack receives the
+skb with data pointing to the mac (ingress case).
 
-So, in the case of transaction error in vhci_recv_ret_submit(),
-unlink URB from the endpoint, insert proper error code in
-urb->status and give back URB.
+E.g:
+ # tc qdisc add dev eth9 root handle 1: prio
+ # tc filter add dev eth9 parent 1: prio 9 protocol ip handle 9 basic \
+   action mirred egress redirect dev tun0
 
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20191213023055.19933-3-suwan.kim027@gmail.com
+ (tun0 is a tun device. result: tun0 errornously gets the eth header
+  instead of the iph)
+
+Revise the push/pull logic of tcf_mirred_act() to not rely on the
+skb_at_tc_ingress() vs tcf_mirred_act_wants_ingress() comparison, as it
+does not cover all "pull" cases.
+
+Instead, calculate whether the required action on the target device
+requires the data to point at the network header, and compare this to
+whether skb->data points to network header - and make the push/pull
+adjustments as necessary.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Shmulik Ladkani <sladkani@proofpoint.com>
+Tested-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/usbip/vhci_rx.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/sched/act_mirred.c |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
---- a/drivers/usb/usbip/vhci_rx.c
-+++ b/drivers/usb/usbip/vhci_rx.c
-@@ -90,16 +90,21 @@ static void vhci_recv_ret_submit(struct
- 	usbip_pack_pdu(pdu, urb, USBIP_RET_SUBMIT, 0);
+--- a/net/sched/act_mirred.c
++++ b/net/sched/act_mirred.c
+@@ -219,8 +219,10 @@ static int tcf_mirred_act(struct sk_buff
+ 	bool use_reinsert;
+ 	bool want_ingress;
+ 	bool is_redirect;
++	bool expects_nh;
+ 	int m_eaction;
+ 	int mac_len;
++	bool at_nh;
  
- 	/* recv transfer buffer */
--	if (usbip_recv_xbuff(ud, urb) < 0)
--		return;
-+	if (usbip_recv_xbuff(ud, urb) < 0) {
-+		urb->status = -EPROTO;
-+		goto error;
-+	}
+ 	rec_level = __this_cpu_inc_return(mirred_rec_level);
+ 	if (unlikely(rec_level > MIRRED_RECURSION_LIMIT)) {
+@@ -261,19 +263,19 @@ static int tcf_mirred_act(struct sk_buff
+ 			goto out;
+ 	}
  
- 	/* recv iso_packet_descriptor */
--	if (usbip_recv_iso(ud, urb) < 0)
--		return;
-+	if (usbip_recv_iso(ud, urb) < 0) {
-+		urb->status = -EPROTO;
-+		goto error;
-+	}
- 
- 	/* restore the padding in iso packets */
- 	usbip_pad_iso(ud, urb);
- 
-+error:
- 	if (usbip_dbg_flag_vhci_rx)
- 		usbip_dump_urb(urb);
+-	/* If action's target direction differs than filter's direction,
+-	 * and devices expect a mac header on xmit, then mac push/pull is
+-	 * needed.
+-	 */
+ 	want_ingress = tcf_mirred_act_wants_ingress(m_eaction);
+-	if (skb_at_tc_ingress(skb) != want_ingress && m_mac_header_xmit) {
+-		if (!skb_at_tc_ingress(skb)) {
+-			/* caught at egress, act ingress: pull mac */
+-			mac_len = skb_network_header(skb) - skb_mac_header(skb);
++
++	expects_nh = want_ingress || !m_mac_header_xmit;
++	at_nh = skb->data == skb_network_header(skb);
++	if (at_nh != expects_nh) {
++		mac_len = skb_at_tc_ingress(skb) ? skb->mac_len :
++			  skb_network_header(skb) - skb_mac_header(skb);
++		if (expects_nh) {
++			/* target device/action expect data at nh */
+ 			skb_pull_rcsum(skb2, mac_len);
+ 		} else {
+-			/* caught at ingress, act egress: push mac */
+-			skb_push_rcsum(skb2, skb->mac_len);
++			/* target device/action expect data at mac */
++			skb_push_rcsum(skb2, mac_len);
+ 		}
+ 	}
  
 
 
