@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EFCF12ECFA
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:23:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B847D12EC36
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:16:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729324AbgABWXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:23:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46668 "EHLO mail.kernel.org"
+        id S1727213AbgABWQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:16:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729321AbgABWXr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:23:47 -0500
+        id S1727664AbgABWQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:16:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 593B220863;
-        Thu,  2 Jan 2020 22:23:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B89222314;
+        Thu,  2 Jan 2020 22:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003826;
-        bh=bM3yZUBVUr9Q9zX5/Cv/jK9Pdngg3VbaUWLDtozTXk4=;
+        s=default; t=1578003382;
+        bh=k8aAuVRJ683WK/6R3uVaMaBtRvEM6na8sRTDflgRO4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5l8JgiDD2SNNgkjUJZ9yZv8/N4NvV9Enz0qxW+Fvzs3dCmgpsFvzx6rL5L7PnWfD
-         Nrinj6f4Xmc+IEC+EpoXmeF8Vpm/8OxQm6vwpUlKM4+koZ0JPJgWCelkyAJlZRPbyo
-         5ZlQ3zzzWIw9lIE6Kk98jGZRaLr4cLbxL+JSH+HA=
+        b=2tulz9kuJJYJ0fDGf+rcpLZ+5OFcTIQThvY1TxkLTlUyCEJMqHZF0iP2yj1wXW1FZ
+         kcN7PoN0yWV1rYJxOxM/HgaRvOZyKyD1l8jjZI+U1AUSSdmI1tIZL4aeg8mBoKTNpH
+         SgcsOaKi2kml0+CdgcFrz9ftEG8LilGhxNXfP5qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Matthew Bobrowski <mbobrowski@mbobrowski.org>,
-        Jan Kara <jack@suse.cz>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/91] ext4: update direct I/O read lock pattern for IOCB_NOWAIT
-Date:   Thu,  2 Jan 2020 23:06:58 +0100
-Message-Id: <20200102220414.036786948@linuxfoundation.org>
+        syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com,
+        Ursula Braun <ubraun@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 5.4 137/191] net/smc: add fallback check to connect()
+Date:   Thu,  2 Jan 2020 23:06:59 +0100
+Message-Id: <20200102215844.299599211@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +46,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Bobrowski <mbobrowski@mbobrowski.org>
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-[ Upstream commit 548feebec7e93e58b647dba70b3303dcb569c914 ]
+commit 86434744fedf0cfe07a9eee3f4632c0e25c1d136 upstream.
 
-This patch updates the lock pattern in ext4_direct_IO_read() to not
-block on inode lock in cases of IOCB_NOWAIT direct I/O reads. The
-locking condition implemented here is similar to that of 942491c9e6d6
-("xfs: fix AIM7 regression").
+FASTOPEN setsockopt() or sendmsg() may switch the SMC socket to fallback
+mode. Once fallback mode is active, the native TCP socket functions are
+called. Nevertheless there is a small race window, when FASTOPEN
+setsockopt/sendmsg runs in parallel to a connect(), and switch the
+socket into fallback mode before connect() takes the sock lock.
+Make sure the SMC-specific connect setup is omitted in this case.
 
-Fixes: 16c54688592c ("ext4: Allow parallel DIO reads")
-Signed-off-by: Matthew Bobrowski <mbobrowski@mbobrowski.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/c5d5e759f91747359fbd2c6f9a36240cf75ad79f.1572949325.git.mbobrowski@mbobrowski.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This way a syzbot-reported refcount problem is fixed, triggered by
+different threads running non-blocking connect() and FASTOPEN_KEY
+setsockopt.
+
+Reported-by: syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com
+Fixes: 6d6dd528d5af ("net/smc: fix refcount non-blocking connect() -part 2")
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ext4/inode.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/smc/af_smc.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index c2920cbfa3bf..a91b8404d3dc 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3796,7 +3796,13 @@ static ssize_t ext4_direct_IO_read(struct kiocb *iocb, struct iov_iter *iter)
- 	 * writes & truncates and since we take care of writing back page cache,
- 	 * we are protected against page writeback as well.
- 	 */
--	inode_lock_shared(inode);
-+	if (iocb->ki_flags & IOCB_NOWAIT) {
-+		if (!inode_trylock_shared(inode))
-+			return -EAGAIN;
-+	} else {
-+		inode_lock_shared(inode);
-+	}
-+
- 	ret = filemap_write_and_wait_range(mapping, iocb->ki_pos,
- 					   iocb->ki_pos + count - 1);
- 	if (ret)
--- 
-2.20.1
-
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -854,6 +854,8 @@ static int smc_connect(struct socket *so
+ 		goto out;
+ 
+ 	sock_hold(&smc->sk); /* sock put in passive closing */
++	if (smc->use_fallback)
++		goto out;
+ 	if (flags & O_NONBLOCK) {
+ 		if (schedule_work(&smc->connect_work))
+ 			smc->connect_nonblock = 1;
+@@ -1716,8 +1718,6 @@ static int smc_setsockopt(struct socket
+ 		sk->sk_err = smc->clcsock->sk->sk_err;
+ 		sk->sk_error_report(sk);
+ 	}
+-	if (rc)
+-		return rc;
+ 
+ 	if (optlen < sizeof(int))
+ 		return -EINVAL;
+@@ -1725,6 +1725,8 @@ static int smc_setsockopt(struct socket
+ 		return -EFAULT;
+ 
+ 	lock_sock(sk);
++	if (rc || smc->use_fallback)
++		goto out;
+ 	switch (optname) {
+ 	case TCP_ULP:
+ 	case TCP_FASTOPEN:
+@@ -1736,15 +1738,14 @@ static int smc_setsockopt(struct socket
+ 			smc_switch_to_fallback(smc);
+ 			smc->fallback_rsn = SMC_CLC_DECL_OPTUNSUPP;
+ 		} else {
+-			if (!smc->use_fallback)
+-				rc = -EINVAL;
++			rc = -EINVAL;
+ 		}
+ 		break;
+ 	case TCP_NODELAY:
+ 		if (sk->sk_state != SMC_INIT &&
+ 		    sk->sk_state != SMC_LISTEN &&
+ 		    sk->sk_state != SMC_CLOSED) {
+-			if (val && !smc->use_fallback)
++			if (val)
+ 				mod_delayed_work(system_wq, &smc->conn.tx_work,
+ 						 0);
+ 		}
+@@ -1753,7 +1754,7 @@ static int smc_setsockopt(struct socket
+ 		if (sk->sk_state != SMC_INIT &&
+ 		    sk->sk_state != SMC_LISTEN &&
+ 		    sk->sk_state != SMC_CLOSED) {
+-			if (!val && !smc->use_fallback)
++			if (!val)
+ 				mod_delayed_work(system_wq, &smc->conn.tx_work,
+ 						 0);
+ 		}
+@@ -1764,6 +1765,7 @@ static int smc_setsockopt(struct socket
+ 	default:
+ 		break;
+ 	}
++out:
+ 	release_sock(sk);
+ 
+ 	return rc;
 
 
