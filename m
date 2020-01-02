@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F2C12F187
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:02:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B41112F189
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:02:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726654AbgABWL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:11:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49496 "EHLO mail.kernel.org"
+        id S1726820AbgABWLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:11:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726477AbgABWL0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:11:26 -0500
+        id S1726702AbgABWL2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:11:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F9CA21835;
-        Thu,  2 Jan 2020 22:11:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B279721D7D;
+        Thu,  2 Jan 2020 22:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003085;
-        bh=yMahMulFgQ6WtFTm+jLd4UQx43/b4oX/EyX46Ne8n/4=;
+        s=default; t=1578003088;
+        bh=0hcivgfnIPv5RFLLByzSdVuZjO4Jod2h9/haKpKzhhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUPyAaDRY8H5GWNCsBSZXtnKRkKr4gYGyBC1GoLtXZhhWWnVrhHI7iuMh85mMUEz+
-         K8PNb9plLtllfRVCkz/fvTW6LJR87GpI1GoaZ2iAz13YpUdyMZZ1nA4s5+25V5SJyA
-         no03tnB1/6d6eVoQNv4kSWKtkyNimX9sL3XhLYyk=
+        b=fYxp7PwOH58ffwkpX0nP9OvjU0yE5ZY0lD8NG0pm6DktjEo96AtVQ71lRZljrMkKi
+         s+r3/so4nrtOT8VtgVs19C28yealB/DIhOcxKHRg8A3nRqV8+cjcGxLXW2pzGSETf5
+         /Jo1dl9SJFIgDgl7OYxTbHZpP5Nlk/3uWBSl4a/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 014/191] platform/x86: peaq-wmi: switch to using polled mode of input devices
-Date:   Thu,  2 Jan 2020 23:04:56 +0100
-Message-Id: <20200102215831.258686995@linuxfoundation.org>
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 015/191] iommu: rockchip: Free domain on .domain_free
+Date:   Thu,  2 Jan 2020 23:04:57 +0100
+Message-Id: <20200102215831.389395073@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
 References: <20200102215829.911231638@linuxfoundation.org>
@@ -46,171 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit 60d15095336cfb56dce5c7767ed3b8c6c1cf79a3 ]
+[ Upstream commit 42bb97b80f2e3bf592e3e99d109b67309aa1b30e ]
 
-We have added polled mode to the normal input devices with the intent of
-retiring input_polled_dev. This converts peaq-wmi driver to use the
-polling mode of standard input devices and removes dependency on
-INPUT_POLLDEV.
+IOMMU domain resource life is well-defined, managed
+by .domain_alloc and .domain_free.
 
-Because the new polling coded does not allow peeking inside the poller
-structure to get the poll interval, we change the "debounce" process to
-operate on the time basis, instead of counting events.
+Therefore, domain-specific resources shouldn't be tied to
+the device life, but instead to its domain.
 
-We also fix error handling during initialization, as previously we leaked
-input device structure when we failed to register it.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Acked-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/Kconfig    |  1 -
- drivers/platform/x86/peaq-wmi.c | 66 +++++++++++++++++++++------------
- 2 files changed, 42 insertions(+), 25 deletions(-)
+ drivers/iommu/rockchip-iommu.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index ae21d08c65e8..1cab99320514 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -806,7 +806,6 @@ config PEAQ_WMI
- 	tristate "PEAQ 2-in-1 WMI hotkey driver"
- 	depends on ACPI_WMI
- 	depends on INPUT
--	select INPUT_POLLDEV
- 	help
- 	 Say Y here if you want to support WMI-based hotkeys on PEAQ 2-in-1s.
+diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
+index 4dcbf68dfda4..0df091934361 100644
+--- a/drivers/iommu/rockchip-iommu.c
++++ b/drivers/iommu/rockchip-iommu.c
+@@ -980,13 +980,13 @@ static struct iommu_domain *rk_iommu_domain_alloc(unsigned type)
+ 	if (!dma_dev)
+ 		return NULL;
  
-diff --git a/drivers/platform/x86/peaq-wmi.c b/drivers/platform/x86/peaq-wmi.c
-index fdeb3624c529..cf9c44c20a82 100644
---- a/drivers/platform/x86/peaq-wmi.c
-+++ b/drivers/platform/x86/peaq-wmi.c
-@@ -6,7 +6,7 @@
+-	rk_domain = devm_kzalloc(dma_dev, sizeof(*rk_domain), GFP_KERNEL);
++	rk_domain = kzalloc(sizeof(*rk_domain), GFP_KERNEL);
+ 	if (!rk_domain)
+ 		return NULL;
  
- #include <linux/acpi.h>
- #include <linux/dmi.h>
--#include <linux/input-polldev.h>
-+#include <linux/input.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
+ 	if (type == IOMMU_DOMAIN_DMA &&
+ 	    iommu_get_dma_cookie(&rk_domain->domain))
+-		return NULL;
++		goto err_free_domain;
  
-@@ -18,8 +18,7 @@
+ 	/*
+ 	 * rk32xx iommus use a 2 level pagetable.
+@@ -1021,6 +1021,8 @@ err_free_dt:
+ err_put_cookie:
+ 	if (type == IOMMU_DOMAIN_DMA)
+ 		iommu_put_dma_cookie(&rk_domain->domain);
++err_free_domain:
++	kfree(rk_domain);
  
- MODULE_ALIAS("wmi:"PEAQ_DOLBY_BUTTON_GUID);
+ 	return NULL;
+ }
+@@ -1049,6 +1051,7 @@ static void rk_iommu_domain_free(struct iommu_domain *domain)
  
--static unsigned int peaq_ignore_events_counter;
--static struct input_polled_dev *peaq_poll_dev;
-+static struct input_dev *peaq_poll_dev;
- 
- /*
-  * The Dolby button (yes really a Dolby button) causes an ACPI variable to get
-@@ -28,8 +27,10 @@ static struct input_polled_dev *peaq_poll_dev;
-  * (if polling after the release) or twice (polling between press and release).
-  * We ignore events for 0.5s after the first event to avoid reporting 2 presses.
-  */
--static void peaq_wmi_poll(struct input_polled_dev *dev)
-+static void peaq_wmi_poll(struct input_dev *input_dev)
- {
-+	static unsigned long last_event_time;
-+	static bool had_events;
- 	union acpi_object obj;
- 	acpi_status status;
- 	u32 dummy = 0;
-@@ -44,22 +45,25 @@ static void peaq_wmi_poll(struct input_polled_dev *dev)
- 		return;
- 
- 	if (obj.type != ACPI_TYPE_INTEGER) {
--		dev_err(&peaq_poll_dev->input->dev,
-+		dev_err(&input_dev->dev,
- 			"Error WMBC did not return an integer\n");
- 		return;
- 	}
- 
--	if (peaq_ignore_events_counter && peaq_ignore_events_counter--)
-+	if (!obj.integer.value)
- 		return;
- 
--	if (obj.integer.value) {
--		input_event(peaq_poll_dev->input, EV_KEY, KEY_SOUND, 1);
--		input_sync(peaq_poll_dev->input);
--		input_event(peaq_poll_dev->input, EV_KEY, KEY_SOUND, 0);
--		input_sync(peaq_poll_dev->input);
--		peaq_ignore_events_counter = max(1u,
--			PEAQ_POLL_IGNORE_MS / peaq_poll_dev->poll_interval);
--	}
-+	if (had_events && time_before(jiffies, last_event_time +
-+					msecs_to_jiffies(PEAQ_POLL_IGNORE_MS)))
-+		return;
-+
-+	input_event(input_dev, EV_KEY, KEY_SOUND, 1);
-+	input_sync(input_dev);
-+	input_event(input_dev, EV_KEY, KEY_SOUND, 0);
-+	input_sync(input_dev);
-+
-+	last_event_time = jiffies;
-+	had_events = true;
+ 	if (domain->type == IOMMU_DOMAIN_DMA)
+ 		iommu_put_dma_cookie(&rk_domain->domain);
++	kfree(rk_domain);
  }
  
- /* Some other devices (Shuttle XS35) use the same WMI GUID for other purposes */
-@@ -75,6 +79,8 @@ static const struct dmi_system_id peaq_dmi_table[] __initconst = {
- 
- static int __init peaq_wmi_init(void)
- {
-+	int err;
-+
- 	/* WMI GUID is not unique, also check for a DMI match */
- 	if (!dmi_check_system(peaq_dmi_table))
- 		return -ENODEV;
-@@ -82,24 +88,36 @@ static int __init peaq_wmi_init(void)
- 	if (!wmi_has_guid(PEAQ_DOLBY_BUTTON_GUID))
- 		return -ENODEV;
- 
--	peaq_poll_dev = input_allocate_polled_device();
-+	peaq_poll_dev = input_allocate_device();
- 	if (!peaq_poll_dev)
- 		return -ENOMEM;
- 
--	peaq_poll_dev->poll = peaq_wmi_poll;
--	peaq_poll_dev->poll_interval = PEAQ_POLL_INTERVAL_MS;
--	peaq_poll_dev->poll_interval_max = PEAQ_POLL_MAX_MS;
--	peaq_poll_dev->input->name = "PEAQ WMI hotkeys";
--	peaq_poll_dev->input->phys = "wmi/input0";
--	peaq_poll_dev->input->id.bustype = BUS_HOST;
--	input_set_capability(peaq_poll_dev->input, EV_KEY, KEY_SOUND);
-+	peaq_poll_dev->name = "PEAQ WMI hotkeys";
-+	peaq_poll_dev->phys = "wmi/input0";
-+	peaq_poll_dev->id.bustype = BUS_HOST;
-+	input_set_capability(peaq_poll_dev, EV_KEY, KEY_SOUND);
-+
-+	err = input_setup_polling(peaq_poll_dev, peaq_wmi_poll);
-+	if (err)
-+		goto err_out;
-+
-+	input_set_poll_interval(peaq_poll_dev, PEAQ_POLL_INTERVAL_MS);
-+	input_set_max_poll_interval(peaq_poll_dev, PEAQ_POLL_MAX_MS);
-+
-+	err = input_register_device(peaq_poll_dev);
-+	if (err)
-+		goto err_out;
-+
-+	return 0;
- 
--	return input_register_polled_device(peaq_poll_dev);
-+err_out:
-+	input_free_device(peaq_poll_dev);
-+	return err;
- }
- 
- static void __exit peaq_wmi_exit(void)
- {
--	input_unregister_polled_device(peaq_poll_dev);
-+	input_unregister_device(peaq_poll_dev);
- }
- 
- module_init(peaq_wmi_init);
+ static int rk_iommu_add_device(struct device *dev)
 -- 
 2.20.1
 
