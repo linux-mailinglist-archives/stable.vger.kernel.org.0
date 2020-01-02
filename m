@@ -2,292 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E18CF12E34F
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 08:31:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7752712E39B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 09:01:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726148AbgABHbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 02:31:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44240 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726078AbgABHbA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 02:31:00 -0500
-Received: from kernel.org (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 662A9215A4;
-        Thu,  2 Jan 2020 07:30:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1577950258;
-        bh=g6j8DBVZCvHpQ2FoBh/9GmIWHgCmjJEnIdPIYM78lfo=;
-        h=In-Reply-To:References:From:To:Cc:Subject:Date:From;
-        b=JyssFy1FSXMzrw+H7jVeMFTDM36G5iL2KnF+8nYYQdH3qSkxm3TYgjFd0fElLpVvg
-         SiiYdOeD4XTYK3w3utgIEd9Gwql+NeipbFXgChAP0afc9PxKFGq9uH17fpj4egYMAL
-         /qshGfFmb+4AeD59pfTeFd32VAnq2SOu+FKWALqA=
-Content-Type: text/plain; charset="utf-8"
+        id S1727802AbgABIBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 03:01:36 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:40291 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727734AbgABIBg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 03:01:36 -0500
+Received: by mail-lf1-f65.google.com with SMTP id i23so29382752lfo.7
+        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 00:01:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KZVD4XTvk8hUywk2rq/rEDhQGGI1qjC8hLEo/JFqrgE=;
+        b=IRsFmNeJ6r038hmWP126y+ByPUQXxGSg4sva9L9jQWwQAsnswnrk4dTCjkNduWN55W
+         iyNGAvOyz4u41sMBMX732yIu+9sy668xuDp7bKx/MOaRwfeRlsiRY00MqzblnKBBSV5M
+         F6J52AtCmCz1kl/PT89cIcbtxASndfszYl1dKdewxSG99v/dQ/UaclZH4alcDc8J64gg
+         XJ87/VbYiEuY6ubJWsM7JdyRm/gc1/Z9ad/Ay9IT7BXDHMOXIwmT5BNpAA5NsjLUph6u
+         sOSMNe2n6Sn2AdkRDcC5ncMLeN+hCsKo65dByRKr1+Nk3lrXsPF5P2UDap8UuBfcJ0ri
+         LkJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KZVD4XTvk8hUywk2rq/rEDhQGGI1qjC8hLEo/JFqrgE=;
+        b=Ap7o3L3KH784UqM9RsT2cYlHT/NF/YVRVbyrHW6sjAwjt3P9R2GoM8bDY86R+tmTPb
+         OLbtWfwvbW3qSjLbct3RSaJSZoXIqTVxC0BFiChUmekivDI8fWpJo1sy85HG8SJyHk9E
+         gnm+i/Fa7kVxZAMEQ20CwWz1FpsbU0gJroEmcOftCZ6VS6xaK7w+UaSiG+vG8hQL3MMZ
+         GQKdjX+myRZhh7qWQmdLsrW/DhQrAY2beqlm2JC0dFaTjk7MGZirmrDfZW2y/qwUro5S
+         ylz0tsR5guA3NxIk0HJjXxoRX7fsnrb6QGu7c4kdGnG0UzvHrqvJZNJdCs+MxDTvLKmD
+         EeVQ==
+X-Gm-Message-State: APjAAAWqUbczlPSTMU7N/ZjyTIiSAd1wgo54lOYbWnFQj4fIddhunGfM
+        hHml7TJBY0F0aDUsQy2J5OJFs2lUFvxs9CIG0uki6w==
+X-Google-Smtp-Source: APXvYqzmfXVyOgMi5fTQS4rIdkcNMxxD/ULGI37Lnmu3Ql3ARJFb9tw0465ocTwa3I9KidpQZTbQG6tHxWLsTxTdvI8=
+X-Received: by 2002:a05:6512:41b:: with SMTP id u27mr47805010lfk.164.1577952093183;
+ Thu, 02 Jan 2020 00:01:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <5869f050-7b3f-b950-bfb6-5601d2b30fbd@roeck-us.net>
-References: <029dab5a-22f5-c4e9-0797-54cdba0f3539@roeck-us.net> <5869f050-7b3f-b950-bfb6-5601d2b30fbd@roeck-us.net>
-From:   Stephen Boyd <sboyd@kernel.org>
+References: <20191227174352.6264-1-sashal@kernel.org> <20191227174352.6264-46-sashal@kernel.org>
+In-Reply-To: <20191227174352.6264-46-sashal@kernel.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 2 Jan 2020 13:31:22 +0530
+Message-ID: <CA+G9fYv8o4he83kqpxB9asT7eUMAeODyX3MBbmwsCdgqLcXPWw@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.19 46/84] tcp/dccp: fix possible race __inet_lookup_established()
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        stable <stable@vger.kernel.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Cc:     <linux-clk@vger.kernel.org>
-Subject: Re: Clock related crashes in v5.4.y-queue
-User-Agent: alot/0.8.1
-Date:   Wed, 01 Jan 2020 23:30:57 -0800
-Message-Id: <20200102073058.662A9215A4@mail.kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Michal Kubecek <mkubecek@suse.cz>,
+        Firo Yang <firo.yang@suse.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        rcu@vger.kernel.org, Netdev <netdev@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-(Happy New Year!)
+On Fri, 27 Dec 2019 at 23:17, Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Eric Dumazet <edumazet@google.com>
+>
+> [ Upstream commit 8dbd76e79a16b45b2ccb01d2f2e08dbf64e71e40 ]
+>
+> Michal Kubecek and Firo Yang did a very nice analysis of crashes
+> happening in __inet_lookup_established().
+>
+> Since a TCP socket can go from TCP_ESTABLISH to TCP_LISTEN
+> (via a close()/socket()/listen() cycle) without a RCU grace period,
+> I should not have changed listeners linkage in their hash table.
+>
+> They must use the nulls protocol (Documentation/RCU/rculist_nulls.txt),
+> so that a lookup can detect a socket in a hash list was moved in
+> another one.
+>
+> Since we added code in commit d296ba60d8e2 ("soreuseport: Resolve
+> merge conflict for v4/v6 ordering fix"), we have to add
+> hlist_nulls_add_tail_rcu() helper.
 
-Quoting Guenter Roeck (2020-01-01 19:41:40)
-> On 1/1/20 6:44 PM, Guenter Roeck wrote:
-> > Hi,
-> >=20
-> > I see a number of crashes in the latest v5.4.y-queue; please see below
-> > for details. The problem bisects to commit 54a311c5d3988d ("clk: Fix me=
-mory
-> > leak in clk_unregister()").
-> >=20
-> > The context suggests recovery from a failed driver probe, and it appears
-> > that the memory is released twice. Interestingly, I don't see the probl=
-em
-> > in mainline.
-> >=20
->=20
-> The reason for not seeing the crash in mainline is that macb_probe()
-> doesn't fail there due to unrelated changes in the driver. If I force
-> macb_probe() to fail in mainline, I see exactly the same crash.
->=20
-> Effectively this means that upstream commit 8247470772be is broken;
-> it may fix a memory leak in some situations, but it results in UAF
-> and crashes otherwise.
->=20
-> Stephen, any comments ? I must admit that I don't understand the clock
-> code nor the commit in question; I would have assumed that the call
-> to __clk_put() would release the clk data structure, not an explicit
-> call to kfree().
+The kernel panic reported on all devices,
+While running LTP syscalls accept* test cases on stable-rc-4.19 branch kernel.
+This report log extracted from qemu_x86_64.
 
-The clk that the commit from Kishon is freeing is the first "consumer
-handle" that we make when a clk is registered. That is returned to
-anyone that calls clk_register(), or if the provider decides to access
-clk_hw::clk directly, which is not desired but still exists for
-historical reasons. It is also used when drivers call clk_get_parent()
-and that API currently fails to reference count or even create a
-per-call clk pointer.
+Reverting this patch re-solved kernel crash.
 
-The general idea is that each user of clk_get() should get a different
-struct clk pointer to use. The problem is we have this semi-internal
-struct clk pointer that leaks out of clk_get_parent(), __clk_lookup()
-and clk_register().
+metadata:
+  git branch: linux-4.19.y
+  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+  git commit: 4e040169e8b7f4e1c50ceb0f6596015ecc67a052
+  git describe: v4.19.92-112-g4e040169e8b7
+  make_kernelversion: 4.19.93-rc1
+  kernel-config:
+http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/intel-corei7-64/lkft/linux-stable-rc-4.19/396/config
 
-Maybe someone is calling clk_unregister() twice with the same pointer
-they got through different ways? The macb driver does some questionable
-things, like calling clk_register() and then putting the returned
-pointer into *tx_clk, but only for the sifive implementation. After that
-it does even odder things, like calling clk_unregister() on a clk that
-probably shouldn't be unregistered, except for on the sifive platforms
-that register it. Pretty horrifying that clk_unregister() gives any
-consumer the power to destroy a clk from the system!
+Crash log,
 
-Can you try this patch? I think by fixing the leak we've discovered more
-problems.
-
-----8<----
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/etherne=
-t/cadence/macb_main.c
-index 9c767ee252ac..7dce403fd27c 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -4069,7 +4069,7 @@ static int fu540_c000_clk_init(struct platform_device=
- *pdev, struct clk **pclk,
- 	mgmt->rate =3D 0;
- 	mgmt->hw.init =3D &init;
-=20
--	*tx_clk =3D clk_register(NULL, &mgmt->hw);
-+	*tx_clk =3D devm_clk_register(&pdev->dev, &mgmt->hw);
- 	if (IS_ERR(*tx_clk))
- 		return PTR_ERR(*tx_clk);
-=20
-@@ -4397,7 +4397,6 @@ static int macb_probe(struct platform_device *pdev)
-=20
- err_disable_clocks:
- 	clk_disable_unprepare(tx_clk);
--	clk_unregister(tx_clk);
- 	clk_disable_unprepare(hclk);
- 	clk_disable_unprepare(pclk);
- 	clk_disable_unprepare(rx_clk);
-@@ -4427,7 +4426,6 @@ static int macb_remove(struct platform_device *pdev)
- 		pm_runtime_dont_use_autosuspend(&pdev->dev);
- 		if (!pm_runtime_suspended(&pdev->dev)) {
- 			clk_disable_unprepare(bp->tx_clk);
--			clk_unregister(bp->tx_clk);
- 			clk_disable_unprepare(bp->hclk);
- 			clk_disable_unprepare(bp->pclk);
- 			clk_disable_unprepare(bp->rx_clk);
-
->=20
-> Guenter
->=20
-> > I would suggest to drop that patch from the stable queue.
-> >=20
-> > Guenter
-> >=20
-> > ---
-> > First traceback is:
-> >=20
-> > [=C2=A0=C2=A0 19.203547] ------------[ cut here ]------------
-> > [=C2=A0=C2=A0 19.204107] WARNING: CPU: 0 PID: 1 at drivers/clk/clk.c:40=
-34 __clk_put+0xfc/0x128
-
-Presumably this is the=20
-
-	WARN_ON_ONCE(IS_ERR(clk))
-
-in __clk_put()? Or is it the exclusive count check that is getting
-tricked out because of page poisoning?
-
-I guess we should put that in some sort of text form of warning instead
-of a not so helpful line number.
-
-> > [=C2=A0=C2=A0 19.204275] Modules linked in:
-> > [=C2=A0=C2=A0 19.204634] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.=
-8-rc1-00191-gaf408bc6c96e #1
-> > [=C2=A0=C2=A0 19.204790] Hardware name: Xilinx Zynq Platform
-> > [=C2=A0=C2=A0 19.204994] [<c0313658>] (unwind_backtrace) from [<c030d69=
-8>] (show_stack+0x10/0x14)
-> > [=C2=A0=C2=A0 19.205150] [<c030d698>] (show_stack) from [<c1139bdc>] (d=
-ump_stack+0xe0/0x10c)
-> > [=C2=A0=C2=A0 19.205278] [<c1139bdc>] (dump_stack) from [<c0349098>] (_=
-_warn+0xf4/0x10c)
-> > [=C2=A0=C2=A0 19.205399] [<c0349098>] (__warn) from [<c0349164>] (warn_=
-slowpath_fmt+0xb4/0xbc)
-> > [=C2=A0=C2=A0 19.205522] [<c0349164>] (warn_slowpath_fmt) from [<c0956d=
-14>] (__clk_put+0xfc/0x128)
-> > [=C2=A0=C2=A0 19.205654] [<c0956d14>] (__clk_put) from [<c0b1ea10>] (re=
-lease_nodes+0x1c4/0x278)
-> > [=C2=A0=C2=A0 19.205780] [<c0b1ea10>] (release_nodes) from [<c0b1a220>]=
- (really_probe+0x108/0x34c)
-> > [=C2=A0=C2=A0 19.205908] [<c0b1a220>] (really_probe) from [<c0b1a5dc>] =
-(driver_probe_device+0x60/0x174)
-> > [=C2=A0=C2=A0 19.206042] [<c0b1a5dc>] (driver_probe_device) from [<c0b1=
-a898>] (device_driver_attach+0x58/0x60)
-> > [=C2=A0=C2=A0 19.206179] [<c0b1a898>] (device_driver_attach) from [<c0b=
-1a924>] (__driver_attach+0x84/0xc0)
-> > [=C2=A0=C2=A0 19.206313] [<c0b1a924>] (__driver_attach) from [<c0b18400=
->] (bus_for_each_dev+0x78/0xb8)
-> > [=C2=A0=C2=A0 19.206463] [<c0b18400>] (bus_for_each_dev) from [<c0b195e=
-8>] (bus_add_driver+0x164/0x1e8)
-> > [=C2=A0=C2=A0 19.206590] [<c0b195e8>] (bus_add_driver) from [<c0b1b6fc>=
-] (driver_register+0x74/0x108)
-> > [=C2=A0=C2=A0 19.206723] [<c0b1b6fc>] (driver_register) from [<c030315c=
->] (do_one_initcall+0x8c/0x3bc)
-> > [=C2=A0=C2=A0 19.206857] [<c030315c>] (do_one_initcall) from [<c1a01080=
->] (kernel_init_freeable+0x14c/0x1e8)
-> > [=C2=A0=C2=A0 19.206992] [<c1a01080>] (kernel_init_freeable) from [<c11=
-547a4>] (kernel_init+0x8/0x118)
-> > [=C2=A0=C2=A0 19.207116] [<c11547a4>] (kernel_init) from [<c03010b4>] (=
-ret_from_fork+0x14/0x20)
-> >=20
-> > followed by:
-> >=20
-> > [=C2=A0=C2=A0 19.209792] 8<--- cut here ---
-> > [=C2=A0=C2=A0 19.209926] Unable to handle kernel paging request at virt=
-ual address 6b6b6bb3
-> > [=C2=A0=C2=A0 19.210117] pgd =3D (ptrval)
-> > [=C2=A0=C2=A0 19.210207] [6b6b6bb3] *pgd=3D00000000
-> > [=C2=A0=C2=A0 19.210626] Internal error: Oops: 5 [#1] SMP ARM
-> > [=C2=A0=C2=A0 19.210807] Modules linked in:
-> > [=C2=A0=C2=A0 19.210956] CPU: 0 PID: 1 Comm: swapper/0 Tainted: G=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 W=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 5.4.8-rc1-00191-gaf408bc6c96e #1
-> > [=C2=A0=C2=A0 19.211090] Hardware name: Xilinx Zynq Platform
-> > [=C2=A0=C2=A0 19.211200] PC is at __clk_put+0x104/0x128
-> > [=C2=A0=C2=A0 19.211274] LR is at __clk_put+0xfc/0x128
-> > [=C2=A0=C2=A0 19.211349] pc : [<c0956d1c>]=C2=A0=C2=A0=C2=A0 lr : [<c09=
-56d14>]=C2=A0=C2=A0=C2=A0 psr: 60000053
-> > [=C2=A0=C2=A0 19.211446] sp : c7129dd8=C2=A0 ip : 00000000=C2=A0 fp : c=
-59f1680
-> > [=C2=A0=C2=A0 19.211534] r10: c72fb6ac=C2=A0 r9 : c0b1dbd0=C2=A0 r8 : 0=
-0000008
-> > [=C2=A0=C2=A0 19.211626] r7 : c7129e04=C2=A0 r6 : c72fb410=C2=A0 r5 : c=
-59f0880=C2=A0 r4 : c59f3180
-> > [=C2=A0=C2=A0 19.211727] r3 : 7a538c1d=C2=A0 r2 : 6b6b6b6b=C2=A0 r1 : 6=
-b6b6b6b=C2=A0 r0 : 00000000
-> > [=C2=A0=C2=A0 19.211885] Flags: nZCv=C2=A0 IRQs on=C2=A0 FIQs off=C2=A0=
- Mode SVC_32=C2=A0 ISA ARM=C2=A0 Segment none
-> > [=C2=A0=C2=A0 19.212022] Control: 10c5387d=C2=A0 Table: 00204059=C2=A0 =
-DAC: 00000051
-> > [=C2=A0=C2=A0 19.212152] Process swapper/0 (pid: 1, stack limit =3D 0x(=
-ptrval))
-> > [=C2=A0=C2=A0 19.212270] Stack: (0xc7129dd8 to 0xc712a000)
-> > [=C2=A0=C2=A0 19.212391] 9dc0:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 c59f1680 c59f0=
-880
-> > [=C2=A0=C2=A0 19.212608] 9de0: c72fb410 c0b1ea10 ffffffed 00000000 c0b1=
-e404 c7128000 c72fb410 a0000053
-> > [=C2=A0=C2=A0 19.212822] 9e00: c72fb68c c59f1c80 c59f1480 7a538c1d 0000=
-0001 c241e19c c72fb410 c241e1a0
-> > [=C2=A0=C2=A0 19.213029] 9e20: 00000000 c1d8a1ac 00000000 ffffffed c1b8=
-124c c0b1a220 c72fb410 c1d8a1ac
-> > [=C2=A0=C2=A0 19.213240] 9e40: c1d8a1ac c7128000 c1dc347c 00000007 0000=
-01f6 c0b1a5dc c1d8a1ac c1d8a1ac
-> > [=C2=A0=C2=A0 19.213462] 9e60: c7128000 c72fb410 00000000 c1d8a1ac c712=
-8000 c1dc347c 00000007 000001f6
-> > [=C2=A0=C2=A0 19.213683] 9e80: c1b8124c c0b1a898 00000000 c1d8a1ac c72f=
-b410 c0b1a924 00000000 c1d8a1ac
-> > [=C2=A0=C2=A0 19.213899] 9ea0: c0b1a8a0 c0b18400 c70b50d4 c70b50a4 c725=
-d210 7a538c1d c70b50d4 c1d8a1ac
-> > [=C2=A0=C2=A0 19.214115] 9ec0: c59f0280 c1d6dd50 00000000 c0b195e8 c185=
-eb44 c1aab944 00000000 c1d8a1ac
-> > [=C2=A0=C2=A0 19.214343] 9ee0: c1aab944 00000000 c1c08468 c0b1b6fc c1dc=
-46c0 c1aab944 00000000 c030315c
-> > [=C2=A0=C2=A0 19.214555] 9f00: c1959bf0 000001f6 000001f6 c0372600 0000=
-0000 c19574b8 c1883c18 00000000
-> > [=C2=A0=C2=A0 19.214783] 9f20: c7128000 c03b3f70 c7128000 c1dd1f00 c1c0=
-8468 c1ae7870 c1a00590 00000007
-> > [=C2=A0=C2=A0 19.215001] 9f40: 000001f6 c03d39b8 00000000 7a538c1d c1dc=
-347c c1dd1f00 c1dd1f00 c1ae7850
-> > [=C2=A0=C2=A0 19.215214] 9f60: c1ae7870 c1a00590 00000007 c1a01080 0000=
-0006 00000006 00000000 c1a00590
-> > [=C2=A0=C2=A0 19.215429] 9f80: 00000000 00000000 c115479c 00000000 0000=
-0000 00000000 00000000 00000000
-> > [=C2=A0=C2=A0 19.215636] 9fa0: 00000000 c11547a4 00000000 c03010b4 0000=
-0000 00000000 00000000 00000000
-> > [=C2=A0=C2=A0 19.215843] 9fc0: 00000000 00000000 00000000 00000000 0000=
-0000 00000000 00000000 00000000
-> > [=C2=A0=C2=A0 19.216068] 9fe0: 00000000 00000000 00000000 00000000 0000=
-0013 00000000 00000000 00000000
-> > [=C2=A0=C2=A0 19.216255] [<c0956d1c>] (__clk_put) from [<c0b1ea10>] (re=
-lease_nodes+0x1c4/0x278)
-> > [=C2=A0=C2=A0 19.216376] [<c0b1ea10>] (release_nodes) from [<c0b1a220>]=
- (really_probe+0x108/0x34c)
-> > [=C2=A0=C2=A0 19.216494] [<c0b1a220>] (really_probe) from [<c0b1a5dc>] =
-(driver_probe_device+0x60/0x174)
-> > [=C2=A0=C2=A0 19.216617] [<c0b1a5dc>] (driver_probe_device) from [<c0b1=
-a898>] (device_driver_attach+0x58/0x60)
-> > [=C2=A0=C2=A0 19.216745] [<c0b1a898>] (device_driver_attach) from [<c0b=
-1a924>] (__driver_attach+0x84/0xc0)
-> > [=C2=A0=C2=A0 19.216867] [<c0b1a924>] (__driver_attach) from [<c0b18400=
->] (bus_for_each_dev+0x78/0xb8)
-> > [=C2=A0=C2=A0 19.216993] [<c0b18400>] (bus_for_each_dev) from [<c0b195e=
-8>] (bus_add_driver+0x164/0x1e8)
-> > [=C2=A0=C2=A0 19.217112] [<c0b195e8>] (bus_add_driver) from [<c0b1b6fc>=
-] (driver_register+0x74/0x108)
-> > [=C2=A0=C2=A0 19.217233] [<c0b1b6fc>] (driver_register) from [<c030315c=
->] (do_one_initcall+0x8c/0x3bc)
-> > [=C2=A0=C2=A0 19.217358] [<c030315c>] (do_one_initcall) from [<c1a01080=
->] (kernel_init_freeable+0x14c/0x1e8)
-> > [=C2=A0=C2=A0 19.217500] [<c1a01080>] (kernel_init_freeable) from [<c11=
-547a4>] (kernel_init+0x8/0x118)
-> > [=C2=A0=C2=A0 19.217624] [<c11547a4>] (kernel_init) from [<c03010b4>] (=
-ret_from_fork+0x14/0x20)
->=20
+BUG: unable to handle kernel paging request at 0000000040000001
+[   23.578222] PGD 138f25067 P4D 138f25067 PUD 0
+er run is 0h 15m[   23.578222] Oops: 0000 [#1] SMP NOPTI
+[   23.578222] CPU: 1 PID: 2216 Comm: accept02 Not tainted 4.19.93-rc1 #1
+[   23.578222] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+BIOS 1.12.0-1 04/01/2014
+[   23.578222] RIP: 0010:__inet_lookup_listener+0x12d/0x300
+ 00s
+[ts t_buffe r 23.578222] Code: 18 48 85 db 0f 84 fe 00 00 00 48 83 eb
+68 0f 84 f4 00 00 00 0f b7 75 d0 44 8b 55 10 45 89 f1 45 31 ff 31 c0
+45 89 de 89 75 b0 <4c> 3b 63 30 75 43 66 44 3b 6b 0e 75 3c 0f b6 73 13
+40 f6 c6 20 75
+[   23.578222] RSP: 0018:ffff9e0dbba83c38 EFLAGS: 00010206
+[   23.578222] RAX: ffff9e0db6ff8a80 RBX: 000000003fffffd1 RCX: 0000000000000000
+[   23.578222] RDX: 0000000000000006 RSI: 0000000000000000 RDI: 00000000ffffffff
+[   23.578222] RBP: ffff9e0dbba83c88 R08: 000000000100007f R09: 0000000000000000
+[   23.578222] R10: 000000000100007f R11: 0000000000000000 R12: ffffffffbeb2fe40
+[   23.578222] R13: 000000000000d59f R14: 0000000000000000 R15: 0000000000000006
+[   23.578222] FS:  00007fbb30e57700(0000) GS:ffff9e0dbba80000(0000)
+knlGS:0000000000000000
+[   23.578222] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   23.578222] CR2: 0000000040000001 CR3: 000000013276c000 CR4: 00000000003406e0
+[   23.578222] Call Trace:
+[   23.578222]  <IRQ>
+[   23.578222]  tcp_v4_rcv+0x4fe/0xc80
+[   23.578222]  ip_local_deliver_finish+0xaf/0x390
+[   23.578222]  ip_local_deliver+0x1a1/0x200
+[   23.578222]  ? ip_sublist_rcv+0x420/0x420
+[   23.578222]  ip_rcv_finish+0x88/0xd0
+s.c:55: INFO: Te[   23.578222]  ip_rcv+0x142/0x200
+[   23.578222]  ? ip_rcv_finish_core.isra.18+0x4e0/0x4e0
+st is[ us ing guar  23.578222]  ? process_backlog+0x6d/0x230
+[   23.578222]  __netif_receive_skb_one_core+0x57/0x80
+ded [bu ffe rs
+ ac2c3.578222]  __netif_receive_skb+0x18/0x60
+[   23.578222]  process_backlog+0xd4/0x230
+[   23.578222]  net_rx_action+0x13e/0x420
+[   23.578222]  ? __do_softirq+0x9b/0x426
+[   23.578222]  __do_softirq+0xc7/0x426
+[   23.578222]  ? ip_finish_output2+0x255/0x660
+[   23.578222]  do_softirq_own_stack+0x2a/0x40
+[   23.578222]  </IRQ>
+[   23.578222]  do_softirq.part.19+0x4d/0x60
+[   23.578222]  __local_bh_enable_ip+0xd9/0xf0
+[   23.578222]  ip_finish_output2+0x27e/0x660
+[   23.578222]  ip_finish_output+0x235/0x370
+[   23.578222]  ? ip_finish_output+0x235/0x370
+[   23.578222]  ip_output+0x76/0x250
+[   23.578222]  ? ip_fragment.constprop.50+0x80/0x80
+[   23.578222]  ip_local_out+0x3f/0x70
+[   23.578222]  __ip_queue_xmit+0x1ea/0x5f0
+[   23.578222]  ? __lock_is_held+0x5a/0xa0
+[   23.578222]  ip_queue_xmit+0x10/0x20
+[   23.578222]  __tcp_transmit_skb+0x57c/0xb60
+[   23.578222]  tcp_connect+0xccd/0x1030
+[   23.578222]  tcp_v4_connect+0x515/0x550
+[   23.578222]  __inet_stream_connect+0x249/0x390
+[   23.578222]  ? __local_bh_enable_ip+0x7f/0xf0
+[   23.578222]  inet_stream_connect+0x3b/0x60
+[   23.578222]  __sys_connect+0xa3/0x120
+[   23.578222]  ? kfree+0x203/0x240
+[   23.578222]  ? syscall_trace_enter+0x1e3/0x350
+[   23.578222]  ? trace_hardirqs_off_caller+0x22/0xf0
+[   23.578222]  ? do_syscall_64+0x17/0x1a0
+[   23.578222]  ? lockdep_hardirqs_on+0xef/0x180
+[   23.578222]  ? do_syscall_64+0x17/0x1a0
+[   23.578222]  __x64_sys_connect+0x1a/0x20
+[   23.578222]  do_syscall_64+0x55/0x1a0
+[   23.578222]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[   23.578222] RIP: 0033:0x7fbb31a1c927
+[   23.578222] Code: 44 00 00 41 54 41 89 d4 55 48 89 f5 53 89 fb 48
+83 ec 10 e8 0b f9 ff ff 44 89 e2 48 89 ee 89 df 41 89 c0 b8 2a 00 00
+00 0f 05 <48> 3d 00 f0 ff ff 77 33 44 89 c7 89 44 24 0c e8 45 f9 ff ff
+8b 44
+[   23.578222] RSP: 002b:00007fbb30e56e00 EFLAGS: 00000293 ORIG_RAX:
+000000000000002a
+[   23.578222] RAX: ffffffffffffffda RBX: 0000000000000008 RCX: 00007fbb31a1c927
+[   23.578222] RDX: 0000000000000010 RSI: 00007fbb31e4bff0 RDI: 0000000000000008
+[   23.578222] RBP: 00007fbb31e4bff0 R08: 0000000000000000 R09: 0000000000000010
+[   23.578222] R10: 000000000000010b R11: 0000000000000293 R12: 0000000000000010
+[   23.578222] R13: 0000000000412b64 R14: 0000000000000054 R15: 0000000000000000
+[   23.578222] Modules linked in: fuse
+[   23.578222] CR2: 0000000040000001
+[   23.578222] ---[ end trace f7e2316fdadfb18a ]---
+[   23.578222] RIP: 0010:__inet_lookup_listener+0x12d/0x300
+[   23.578222] Code: 18 48 85 db 0f 84 fe 00 00 00 48 83 eb 68 0f 84
+f4 00 00 00 0f b7 75 d0 44 8b 55 10 45 89 f1 45 31 ff 31 c0 45 89 de
+89 75 b0 <4c> 3b 63 30 75 43 66 44 3b 6b 0e 75 3c 0f b6 73 13 40 f6 c6
+20 75
+[   23.578222] RSP: 0018:ffff9e0dbba83c38 EFLAGS: 00010206
+[   23.578222] RAX: ffff9e0db6ff8a80 RBX: 000000003fffffd1 RCX: 0000000000000000
+[   23.578222] RDX: 0000000000000006 RSI: 0000000000000000 RDI: 00000000ffffffff
+[   23.578222] RBP: ffff9e0dbba83c88 R08: 000000000100007f R09: 0000000000000000
+[   23.578222] R10: 000000000100007f R11: 0000000000000000 R12: ffffffffbeb2fe40
+[   23.578222] R13: 000000000000d59f R14: 0000000000000000 R15: 0000000000000006
+[   23.578222] FS:  00007fbb30e57700(0000) GS:ffff9e0dbba80000(0000)
+knlGS:0000000000000000
+[   23.578222] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   23.578222] CR2: 0000000040000001 CR3: 000000013276c000 CR4: 00000000003406e0
+[   23.578222] Kernel panic - not syncing: Fatal exception in interrupt
+ept02.c:127: INFO: Starting listener on port: 54687
+[   23.578222] Kernel Offset: 0x3c200000 from 0xffffffff81000000
+(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+[   23.578222] ---[ end Kernel panic - not syncing: Fatal exception in
+interrupt ]---
