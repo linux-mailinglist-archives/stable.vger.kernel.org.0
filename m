@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB99E12EDC3
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:32:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06D3512F02A
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:51:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730304AbgABWbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:31:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36968 "EHLO mail.kernel.org"
+        id S1729768AbgABWur (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:50:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730301AbgABWbh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:31:37 -0500
+        id S1729085AbgABWZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:25:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67E7C22525;
-        Thu,  2 Jan 2020 22:31:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D60C521835;
+        Thu,  2 Jan 2020 22:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004296;
-        bh=6sjVKtc0kCiTiKhyKbAVxJ2gWded0kH98fqjv3yB+zQ=;
+        s=default; t=1578003906;
+        bh=miIK85yk0a1NO2PCsbAMRy5Kn05eMMdekSaRaXVId84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YuaTbVsjXX9lQPq5RDEV9KeYacHOCmTVAeGiOOF2xWrAdmx1LvW6Y7OJ/9Gh48euS
-         bzclT4bExozu7aMsTuKjOkgEj1+W18MEmGbvqCDgHJQAyTbfxiwWhrM9RX9khf4hza
-         sxivDzuIry8Nm3AU2eQaKwGOt8EbUG9GoxioRQz4=
+        b=ULoPfYJFF1pwiSZbjml66zEX+7R/tpKzbFeul2OYZyJqc/yqfipKHjad1hCay2QB4
+         Ohst8GHvyWZwcArPIt+ROpopk26fDBnC2jTg7pIwgNk9JjWPmlWySvSQ9CjRDajkTP
+         rRKMubIWfcS0Yc1AOfQu3QeQWhmRdhjNbQYwI0Rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 119/171] powerpc/pseries: Dont fail hash page table insert for bolted mapping
+Subject: [PATCH 4.14 48/91] perf regs: Make perf_reg_name() return "unknown" instead of NULL
 Date:   Thu,  2 Jan 2020 23:07:30 +0100
-Message-Id: <20200102220603.584558473@linuxfoundation.org>
+Message-Id: <20200102220436.551724548@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 75838a3290cd4ebbd1f567f310ba04b6ef017ce4 ]
+[ Upstream commit 5b596e0ff0e1852197d4c82d3314db5e43126bf7 ]
 
-If the hypervisor returned H_PTEG_FULL for H_ENTER hcall, retry a hash page table
-insert by removing a random entry from the group.
+To avoid breaking the build on arches where this is not wired up, at
+least all the other features should be made available and when using
+this specific routine, the "unknown" should point the user/developer to
+the need to wire this up on this particular hardware architecture.
 
-After some runtime, it is very well possible to find all the 8 hash page table
-entry slot in the hpte group used for mapping. Don't fail a bolted entry insert
-in that case. With Storage class memory a user can find this error easily since
-a namespace enable/disable is equivalent to memory add/remove.
+Detected in a container mipsel debian cross build environment, where it
+shows up as:
 
-This results in failures as reported below:
+  In file included from /usr/mipsel-linux-gnu/include/stdio.h:867,
+                   from /git/linux/tools/perf/lib/include/perf/cpumap.h:6,
+                   from util/session.c:13:
+  In function 'printf',
+      inlined from 'regs_dump__printf' at util/session.c:1103:3,
+      inlined from 'regs__printf' at util/session.c:1131:2:
+  /usr/mipsel-linux-gnu/include/bits/stdio2.h:107:10: error: '%-5s' directive argument is null [-Werror=format-overflow=]
+    107 |   return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-$ ndctl create-namespace -r region1 -t pmem -m devdax -a 65536 -s 100M
-libndctl: ndctl_dax_enable: dax1.3: failed to enable
-  Error: namespace1.2: failed to enable
+cross compiler details:
 
-failed to create namespace: No such device or address
+  mipsel-linux-gnu-gcc (Debian 9.2.1-8) 9.2.1 20190909
 
-In kernel log we find the details as below:
+Also on mips64:
 
-Unable to create mapping for hot added memory 0xc000042006000000..0xc00004200d000000: -1
-dax_pmem: probe of dax1.3 failed with error -14
+  In file included from /usr/mips64-linux-gnuabi64/include/stdio.h:867,
+                   from /git/linux/tools/perf/lib/include/perf/cpumap.h:6,
+                   from util/session.c:13:
+  In function 'printf',
+      inlined from 'regs_dump__printf' at util/session.c:1103:3,
+      inlined from 'regs__printf' at util/session.c:1131:2,
+      inlined from 'regs_user__printf' at util/session.c:1139:3,
+      inlined from 'dump_sample' at util/session.c:1246:3,
+      inlined from 'machines__deliver_event' at util/session.c:1421:3:
+  /usr/mips64-linux-gnuabi64/include/bits/stdio2.h:107:10: error: '%-5s' directive argument is null [-Werror=format-overflow=]
+    107 |   return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  In function 'printf',
+      inlined from 'regs_dump__printf' at util/session.c:1103:3,
+      inlined from 'regs__printf' at util/session.c:1131:2,
+      inlined from 'regs_intr__printf' at util/session.c:1147:3,
+      inlined from 'dump_sample' at util/session.c:1249:3,
+      inlined from 'machines__deliver_event' at util/session.c:1421:3:
+  /usr/mips64-linux-gnuabi64/include/bits/stdio2.h:107:10: error: '%-5s' directive argument is null [-Werror=format-overflow=]
+    107 |   return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This indicates that we failed to create a bolted hash table entry for direct-map
-address backing the namespace.
+cross compiler details:
 
-We also observe failures such that not all namespaces will be enabled with
-ndctl enable-namespace all command.
+  mips64-linux-gnuabi64-gcc (Debian 9.2.1-8) 9.2.1 20190909
 
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191024093542.29777-2-aneesh.kumar@linux.ibm.com
+Fixes: 2bcd355b71da ("perf tools: Add interface to arch registers sets")
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/n/tip-95wjyv4o65nuaeweq31t7l1s@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/hash_utils_64.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ tools/perf/util/perf_regs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/hash_utils_64.c b/arch/powerpc/mm/hash_utils_64.c
-index bd666287c5ed..de1d8cdd2991 100644
---- a/arch/powerpc/mm/hash_utils_64.c
-+++ b/arch/powerpc/mm/hash_utils_64.c
-@@ -289,7 +289,14 @@ int htab_bolt_mapping(unsigned long vstart, unsigned long vend,
- 		ret = mmu_hash_ops.hpte_insert(hpteg, vpn, paddr, tprot,
- 					       HPTE_V_BOLTED, psize, psize,
- 					       ssize);
--
-+		if (ret == -1) {
-+			/* Try to remove a non bolted entry */
-+			ret = mmu_hash_ops.hpte_remove(hpteg);
-+			if (ret != -1)
-+				ret = mmu_hash_ops.hpte_insert(hpteg, vpn, paddr, tprot,
-+							       HPTE_V_BOLTED, psize, psize,
-+							       ssize);
-+		}
- 		if (ret < 0)
- 			break;
+diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
+index c9319f8d17a6..f732e3af2bd4 100644
+--- a/tools/perf/util/perf_regs.h
++++ b/tools/perf/util/perf_regs.h
+@@ -34,7 +34,7 @@ int perf_reg_value(u64 *valp, struct regs_dump *regs, int id);
  
+ static inline const char *perf_reg_name(int id __maybe_unused)
+ {
+-	return NULL;
++	return "unknown";
+ }
+ 
+ static inline int perf_reg_value(u64 *valp __maybe_unused,
 -- 
 2.20.1
 
