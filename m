@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3D9B12ED83
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E69012ECAC
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:20:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729825AbgABW3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:29:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59788 "EHLO mail.kernel.org"
+        id S1727315AbgABWUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:20:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729998AbgABW3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:29:09 -0500
+        id S1728852AbgABWUm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:20:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85A59222C3;
-        Thu,  2 Jan 2020 22:29:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C92A2253D;
+        Thu,  2 Jan 2020 22:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004148;
-        bh=z6WFD0WMIResXl7oTN1KLXrpZ05xZGgbg35GLx1c91k=;
+        s=default; t=1578003641;
+        bh=8VqzkoxjJLB3l5GP5JBQCAJeVpBqdl9yDEo2CnjKTCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLJ2R4UTbWtozjqK1yxd4VqB1WOgOEPIYxwpW6IX0Am69xGabbuz9Qhy9+LPqeBqX
-         Mt5dN9Zb7LGQl0sSQGfFdIXEQUK2udiqU5Lzk77zELL2rIhLSCCk/NkeDjETQ351X9
-         /wVNtIwNzEKgROrOyLW4GKQ3WRierQ5l3RprmK/w=
+        b=T0SgWwUP2QDCCq+VF9+XwvkOFAuLy6trnoTXmXm82OqAcSdZo/OF+cAP1wtE5SlRd
+         TH09pPgYGH6foHCs+HtsuzPWPlN/QUA7nnG81zDldfLHBDfTEpfTKNCThjPbutOY0S
+         XiAJBd9BUzSHfJEKrEKCDoNq2CecrYvMUAuzbc5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Tom Zanussi <tom.zanussi@linux.intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
+        Pavel Machek <pavel@ucw.cz>, Dan Murphy <dmurphy@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 058/171] perf probe: Return a better scope DIE if there is no best scope
+Subject: [PATCH 4.19 017/114] leds: lm3692x: Handle failure to probe the regulator
 Date:   Thu,  2 Jan 2020 23:06:29 +0100
-Message-Id: <20200102220554.960823161@linuxfoundation.org>
+Message-Id: <20200102220030.874892409@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,82 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Guido Günther <agx@sigxcpu.org>
 
-[ Upstream commit c701636aeec4c173208697d68da6e4271125564b ]
+[ Upstream commit 396128d2ffcba6e1954cfdc9a89293ff79cbfd7c ]
 
-Make find_best_scope() returns innermost DIE at given address if there
-is no best matched scope DIE. Since Gcc sometimes generates intuitively
-strange line info which is out of inlined function address range, we
-need this fixup.
+Instead use devm_regulator_get_optional since the regulator
+is optional and check for errors.
 
-Without this, sometimes perf probe failed to probe on a line inside an
-inlined function:
-
-  # perf probe -D ksys_open:3
-  Failed to find scope of probe point.
-    Error: Failed to add events.
-
-With this fix, 'perf probe' can probe it:
-
-  # perf probe -D ksys_open:3
-  p:probe/ksys_open _text+25707308
-  p:probe/ksys_open_1 _text+25710596
-  p:probe/ksys_open_2 _text+25711114
-  p:probe/ksys_open_3 _text+25711343
-  p:probe/ksys_open_4 _text+25714058
-  p:probe/ksys_open_5 _text+2819653
-  p:probe/ksys_open_6 _text+2819701
-
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Tom Zanussi <tom.zanussi@linux.intel.com>
-Link: http://lore.kernel.org/lkml/157291300887.19771.14936015360963292236.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Guido Günther <agx@sigxcpu.org>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Reviewed-by: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/leds/leds-lm3692x.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index 440f0a92ade6..6ca804a01cf9 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -764,6 +764,16 @@ static int find_best_scope_cb(Dwarf_Die *fn_die, void *data)
- 	return 0;
- }
+diff --git a/drivers/leds/leds-lm3692x.c b/drivers/leds/leds-lm3692x.c
+index 4f413a7c5f05..d79a66a73169 100644
+--- a/drivers/leds/leds-lm3692x.c
++++ b/drivers/leds/leds-lm3692x.c
+@@ -337,9 +337,18 @@ static int lm3692x_probe_dt(struct lm3692x_led *led)
+ 		return ret;
+ 	}
  
-+/* Return innermost DIE */
-+static int find_inner_scope_cb(Dwarf_Die *fn_die, void *data)
-+{
-+	struct find_scope_param *fsp = data;
-+
-+	memcpy(fsp->die_mem, fn_die, sizeof(Dwarf_Die));
-+	fsp->found = true;
-+	return 1;
-+}
-+
- /* Find an appropriate scope fits to given conditions */
- static Dwarf_Die *find_best_scope(struct probe_finder *pf, Dwarf_Die *die_mem)
- {
-@@ -775,8 +785,13 @@ static Dwarf_Die *find_best_scope(struct probe_finder *pf, Dwarf_Die *die_mem)
- 		.die_mem = die_mem,
- 		.found = false,
- 	};
-+	int ret;
+-	led->regulator = devm_regulator_get(&led->client->dev, "vled");
+-	if (IS_ERR(led->regulator))
++	led->regulator = devm_regulator_get_optional(&led->client->dev, "vled");
++	if (IS_ERR(led->regulator)) {
++		ret = PTR_ERR(led->regulator);
++		if (ret != -ENODEV) {
++			if (ret != -EPROBE_DEFER)
++				dev_err(&led->client->dev,
++					"Failed to get vled regulator: %d\n",
++					ret);
++			return ret;
++		}
+ 		led->regulator = NULL;
++	}
  
--	cu_walk_functions_at(&pf->cu_die, pf->addr, find_best_scope_cb, &fsp);
-+	ret = cu_walk_functions_at(&pf->cu_die, pf->addr, find_best_scope_cb,
-+				   &fsp);
-+	if (!ret && !fsp.found)
-+		cu_walk_functions_at(&pf->cu_die, pf->addr,
-+				     find_inner_scope_cb, &fsp);
- 
- 	return fsp.found ? die_mem : NULL;
- }
+ 	child = device_get_next_child_node(&led->client->dev, child);
+ 	if (!child) {
 -- 
 2.20.1
 
