@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A8BA12ED00
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:24:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A6512EC43
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:16:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729339AbgABWX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:23:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47140 "EHLO mail.kernel.org"
+        id S1728054AbgABWQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:16:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729337AbgABWX5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:23:57 -0500
+        id S1728295AbgABWQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:16:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2073220863;
-        Thu,  2 Jan 2020 22:23:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 066C821582;
+        Thu,  2 Jan 2020 22:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003836;
-        bh=pdekizaXvzqvsk7vgKpBNrciJBJfRkGBtpH/Pk0IYOo=;
+        s=default; t=1578003406;
+        bh=Birul+HGvSsfkaIIXrZqrmLjg6SzRxqyua3TaeNW7JA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZABXVWc1tTfugeJULsQySfQGDof+ztc7mA0zl4c23aQ1G7UheQcBLFGx1m120gi+R
-         TPhfQsC4FcuqKcM45lyiNSFT58Wc7BdVxvmJ7hh29OJ3G7mj4OA78EZlt3fF8djBOT
-         oI1vq3AxTVtImk5dcbXa7YeaEFV1hHD4UtJJeUog=
+        b=gz/5AuY8wHxvtHs5s5C2qj96K1k1UWFnum25kcZxplk2u4F6/hojinNrtCdUwHLBy
+         6UQHUzMqmPOrWbJjLkRjbNZJoa+zB5p9elcF4YG+6nArjno+RCyjRE41S7HxltngSp
+         OYxWQ/V56yiZjJyK/1aCoBg+FGtfqptt/yvw6YO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 02/91] scsi: mpt3sas: Fix clear pending bit in ioctl status
+Subject: [PATCH 5.4 122/191] s390/cpum_sf: Check for SDBT and SDB consistency
 Date:   Thu,  2 Jan 2020 23:06:44 +0100
-Message-Id: <20200102220359.894313369@linuxfoundation.org>
+Message-Id: <20200102215842.877737784@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 782b281883caf70289ba6a186af29441a117d23e ]
+[ Upstream commit 247f265fa502e7b17a0cb0cc330e055a36aafce4 ]
 
-When user issues diag register command from application with required size,
-and if driver unable to allocate the memory, then it will fail the register
-command. While failing the register command, driver is not currently
-clearing MPT3_CMD_PENDING bit in ctl_cmds.status variable which was set
-before trying to allocate the memory. As this bit is set, subsequent
-register command will be failed with BUSY status even when user wants to
-register the trace buffer will less memory.
+Each SBDT is located at a 4KB page and contains 512 entries.
+Each entry of a SDBT points to a SDB, a 4KB page containing
+sampled data. The last entry is a link to another SDBT page.
 
-Clear MPT3_CMD_PENDING bit in ctl_cmds.status before returning the diag
-register command with no memory status.
+When an event is created the function sequence executed is:
 
-Link: https://lore.kernel.org/r/1568379890-18347-4-git-send-email-sreekanth.reddy@broadcom.com
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  __hw_perf_event_init()
+  +--> allocate_buffers()
+       +--> realloc_sampling_buffers()
+	    +---> alloc_sample_data_block()
+
+Both functions realloc_sampling_buffers() and
+alloc_sample_data_block() allocate pages and the allocation
+can fail. This is handled correctly and all allocated
+pages are freed and error -ENOMEM is returned to the
+top calling function. Finally the event is not created.
+
+Once the event has been created, the amount of initially
+allocated SDBT and SDB can be too low. This is detected
+during measurement interrupt handling, where the amount
+of lost samples is calculated. If the number of lost samples
+is too high considering sampling frequency and already allocated
+SBDs, the number of SDBs is enlarged during the next execution
+of cpumsf_pmu_enable().
+
+If more SBDs need to be allocated, functions
+
+       realloc_sampling_buffers()
+       +---> alloc-sample_data_block()
+
+are called to allocate more pages. Page allocation may fail
+and the returned error is ignored. A SDBT and SDB setup
+already exists.
+
+However the modified SDBTs and SDBs might end up in a situation
+where the first entry of an SDBT does not point to an SDB,
+but another SDBT, basicly an SBDT without payload.
+This can not be handled by the interrupt handler, where an SDBT
+must have at least one entry pointing to an SBD.
+
+Add a check to avoid SDBTs with out payload (SDBs) when enlarging
+the buffer setup.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_ctl.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/kernel/perf_cpum_sf.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_ctl.c b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-index bdffb692bded..622dcf2984a9 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-@@ -1502,7 +1502,8 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
- 			    " for diag buffers, requested size(%d)\n",
- 			    ioc->name, __func__, request_data_sz);
- 			mpt3sas_base_free_smid(ioc, smid);
--			return -ENOMEM;
-+			rc = -ENOMEM;
-+			goto out;
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 3d8b12a9a6ff..7511b71d2931 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -193,7 +193,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 				   unsigned long num_sdb, gfp_t gfp_flags)
+ {
+ 	int i, rc;
+-	unsigned long *new, *tail;
++	unsigned long *new, *tail, *tail_prev = NULL;
+ 
+ 	if (!sfb->sdbt || !sfb->tail)
+ 		return -EINVAL;
+@@ -232,6 +232,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 			sfb->num_sdbt++;
+ 			/* Link current page to tail of chain */
+ 			*tail = (unsigned long)(void *) new + 1;
++			tail_prev = tail;
+ 			tail = new;
  		}
- 		ioc->diag_buffer[buffer_type] = request_data;
- 		ioc->diag_buffer_sz[buffer_type] = request_data_sz;
+ 
+@@ -241,10 +242,22 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 		 * issue, a new realloc call (if required) might succeed.
+ 		 */
+ 		rc = alloc_sample_data_block(tail, gfp_flags);
+-		if (rc)
++		if (rc) {
++			/* Undo last SDBT. An SDBT with no SDB at its first
++			 * entry but with an SDBT entry instead can not be
++			 * handled by the interrupt handler code.
++			 * Avoid this situation.
++			 */
++			if (tail_prev) {
++				sfb->num_sdbt--;
++				free_page((unsigned long) new);
++				tail = tail_prev;
++			}
+ 			break;
++		}
+ 		sfb->num_sdb++;
+ 		tail++;
++		tail_prev = new = NULL;	/* Allocated at least one SBD */
+ 	}
+ 
+ 	/* Link sampling buffer to its origin */
 -- 
 2.20.1
 
