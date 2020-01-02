@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FBE12F0C8
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:55:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D10312EE00
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:34:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728259AbgABWTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:19:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34796 "EHLO mail.kernel.org"
+        id S1730668AbgABWeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:34:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728497AbgABWTC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:19:02 -0500
+        id S1730676AbgABWeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:34:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98F2821582;
-        Thu,  2 Jan 2020 22:19:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6716522525;
+        Thu,  2 Jan 2020 22:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003541;
-        bh=6v7SqYOffrsxvnPYUOOCvnJoyLw2eZJ622LJOKWVnSc=;
+        s=default; t=1578004447;
+        bh=WuOTrhe1MT5gXBM21AyMAoDkO+ydPyhQwQulNz828aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrHNAEGljCxW9U5vAzVG7ppx6aaWsJzzgN4/oyqm8dhT5VdrUTDIVFzNC/zTGct1x
-         GPMWXnDI4fmsXalIVGDxPX4Oky7SaV9Hsm/EKeDSWQrTxEQVS9epSdzgZoh+cCqPeF
-         vnf7zfIjx4TwQ14P6DraacfvGHSJ90FWGwlxfz7k=
+        b=oYO6DMnsrRZ17sYXYVydWbycEyPxQgQexROdr2PpMxW8RlaiOKbzoLP6AsI67Z7K/
+         unnMdYl4fRatVD8A4fBngamGjrOFnUfaoZ/hSEFE/7HxZ3K396uAQ4nqrhKqc0Zbho
+         W9HfbHJ5zX+Sa2SMF4v5f7iea6sDg5wzE5hQTJu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        Lad Prabhakar <prabhakar.csengg@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 012/114] scsi: hisi_sas: Replace in_softirq() check in hisi_sas_task_exec()
+Subject: [PATCH 4.4 011/137] media: am437x-vpfe: Setting STD to current value is not an error
 Date:   Thu,  2 Jan 2020 23:06:24 +0100
-Message-Id: <20200102220030.364541809@linuxfoundation.org>
+Message-Id: <20200102220548.272324246@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
-References: <20200102220029.183913184@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,83 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit 550c0d89d52d3bec5c299f69b4ed5d2ee6b8a9a6 ]
+[ Upstream commit 13aa21cfe92ce9ebb51824029d89f19c33f81419 ]
 
-For IOs from upper layer, preemption may be disabled as it may be called by
-function __blk_mq_delay_run_hw_queue which will call get_cpu() (it disables
-preemption). So if flags HISI_SAS_REJECT_CMD_BIT is set in function
-hisi_sas_task_exec(), it may disable preempt twice after down() and up()
-which will cause following call trace:
+VIDIOC_S_STD should not return an error if the value is identical
+to the current one.
+This error was highlighted by the v4l2-compliance test.
 
-BUG: scheduling while atomic: fio/60373/0x00000002
-Call trace:
-dump_backtrace+0x0/0x150
-show_stack+0x24/0x30
-dump_stack+0xa0/0xc4
-__schedule_bug+0x68/0x88
-__schedule+0x4b8/0x548
-schedule+0x40/0xd0
-schedule_timeout+0x200/0x378
-__down+0x78/0xc8
-down+0x54/0x70
-hisi_sas_task_exec.isra.10+0x598/0x8d8 [hisi_sas_main]
-hisi_sas_queue_command+0x28/0x38 [hisi_sas_main]
-sas_queuecommand+0x168/0x1b0 [libsas]
-scsi_queue_rq+0x2ac/0x980
-blk_mq_dispatch_rq_list+0xb0/0x550
-blk_mq_do_dispatch_sched+0x6c/0x110
-blk_mq_sched_dispatch_requests+0x114/0x1d8
-__blk_mq_run_hw_queue+0xb8/0x130
-__blk_mq_delay_run_hw_queue+0x1c0/0x220
-blk_mq_run_hw_queue+0xb0/0x128
-blk_mq_sched_insert_requests+0xdc/0x208
-blk_mq_flush_plug_list+0x1b4/0x3a0
-blk_flush_plug_list+0xdc/0x110
-blk_finish_plug+0x3c/0x50
-blkdev_direct_IO+0x404/0x550
-generic_file_read_iter+0x9c/0x848
-blkdev_read_iter+0x50/0x78
-aio_read+0xc8/0x170
-io_submit_one+0x1fc/0x8d8
-__arm64_sys_io_submit+0xdc/0x280
-el0_svc_common.constprop.0+0xe0/0x1e0
-el0_svc_handler+0x34/0x90
-el0_svc+0x10/0x14
-...
-
-To solve the issue, check preemptible() to avoid disabling preempt multiple
-when flag HISI_SAS_REJECT_CMD_BIT is set.
-
-Link: https://lore.kernel.org/r/1571926105-74636-5-git-send-email-john.garry@huawei.com
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Acked-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_main.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/media/platform/am437x/am437x-vpfe.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index f35c56217694..33191673249c 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -485,7 +485,13 @@ static int hisi_sas_task_exec(struct sas_task *task, gfp_t gfp_flags,
- 	struct hisi_sas_dq *dq = NULL;
+diff --git a/drivers/media/platform/am437x/am437x-vpfe.c b/drivers/media/platform/am437x/am437x-vpfe.c
+index 572bc043b62d..36add3c463f7 100644
+--- a/drivers/media/platform/am437x/am437x-vpfe.c
++++ b/drivers/media/platform/am437x/am437x-vpfe.c
+@@ -1847,6 +1847,10 @@ static int vpfe_s_std(struct file *file, void *priv, v4l2_std_id std_id)
+ 	if (!(sdinfo->inputs[0].capabilities & V4L2_IN_CAP_STD))
+ 		return -ENODATA;
  
- 	if (unlikely(test_bit(HISI_SAS_REJECT_CMD_BIT, &hisi_hba->flags))) {
--		if (in_softirq())
-+		/*
-+		 * For IOs from upper layer, it may already disable preempt
-+		 * in the IO path, if disable preempt again in down(),
-+		 * function schedule() will report schedule_bug(), so check
-+		 * preemptible() before goto down().
-+		 */
-+		if (!preemptible())
- 			return -EINVAL;
- 
- 		down(&hisi_hba->sem);
++	/* if trying to set the same std then nothing to do */
++	if (vpfe_standards[vpfe->std_index].std_id == std_id)
++		return 0;
++
+ 	/* If streaming is started, return error */
+ 	if (vb2_is_busy(&vpfe->buffer_queue)) {
+ 		vpfe_err(vpfe, "%s device busy\n", __func__);
 -- 
 2.20.1
 
