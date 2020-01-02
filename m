@@ -2,98 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76B4012EE84
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:40:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D091812F09F
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:54:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731410AbgABWjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:39:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54620 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731408AbgABWjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:39:11 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33D1E21835;
-        Thu,  2 Jan 2020 22:39:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004750;
-        bh=DIyWtAQ7QSGL6ztK8yUbiunjL1bhrGVP3ckBM3rg+PU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UayEiFilIm2Zrh/FLvvF6oqsgqfRpkSr4g6ERvMMpR8x4l7DNSxwYGF8fwkau+iib
-         U5deCQl8DFPyTA55MH6Kb7e3yAOXmGN51UcjxqFecvDkm8gZwQtf2df572wrpoy6xH
-         uA/qCyMJLD5Hx4HLyBYy9iyyj0CGLyNWllqFocn4=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Christoph Paasch <cpaasch@apple.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Jason Baron <jbaron@akamai.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.4 137/137] tcp: do not send empty skb from tcp_write_xmit()
-Date:   Thu,  2 Jan 2020 23:08:30 +0100
-Message-Id: <20200102220605.660213239@linuxfoundation.org>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727834AbgABWy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:54:26 -0500
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:42766 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729173AbgABWyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 17:54:24 -0500
+Received: by mail-wr1-f52.google.com with SMTP id q6so40733972wro.9
+        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 14:54:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=s6u6sQjCfZodfEfDdfG0U4qg+3YB8Xz74pcoqW6AlzE=;
+        b=jj1JAGAMYJnGdEHr8dN9e5xGq3HwVEqU8cbXoH4kkPhqXNT/8ad9C/kmypwvXt/XvU
+         2HDUUHm9mxOe2wtFTT8fSnexGssq7O4Wyq5RZcVZbcpGqhlijZ0bfW1djc5ZdaEFHl1V
+         GG4HJChOe5yYcK/3moppgpDWd02i4r/q+aw6uYtL7Up0Jfi2x735tmojSIFFBaoypgfW
+         N0Hp0Wq2qZz9n2W2LOSC2bA3hn0rUGDrmkygb3EDQO3i2Ylb+JL9csSq3bMNZKoaNdDk
+         h4xoYFYeFLovPobIj09ZsbaRtij4imErQnSyUcz/Ev7YAos2pNbrVbLl9rCrsYv7DaeL
+         SOXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=s6u6sQjCfZodfEfDdfG0U4qg+3YB8Xz74pcoqW6AlzE=;
+        b=RM2ZjB+hgoj37DfIPvvO9uf4pmllZXbPaiVPOCqWuukMQ6aisC5fvV5PoSoKFG4d2Y
+         K5JzddUGUO0+1L4Yr93HXKSOvOlUUO04SKJxmduv4KrUmmqkdmufQicdQshEtQ+cnx6s
+         fZtyZKj709nli3qiZkGRtmDK9vTuZpjS7NbCdfcLyb6qy0KDdVlUd9nUiymp44F+WEog
+         jK4OJIavDn+1W0AXxPBDA5gsMzbYunCCIK/z7euDEHig9+FByynfnKBsNmbI1IA7VWiR
+         u+7co5b+xLnfIW1ltnZMuvtA9xkfgvsgGlHh/xK0cspB7MY43IxOOjy1BCu3NCwGA0GH
+         aGQQ==
+X-Gm-Message-State: APjAAAWUwrDxb7JseAMSTL2GxnYJ4xN1HJe6vX/yozzv7t8se+1iKWUB
+        JOcMiTTMwJfxuvn2QzbQKroPikXGTXyBiQ==
+X-Google-Smtp-Source: APXvYqwAAj/S+qbGeVz9RpU7W6KbsKzUnIsu2/Hm8EBy1t7DK8VlNTG8VRH9YLEun6RyPJ3GZB8bog==
+X-Received: by 2002:a5d:4692:: with SMTP id u18mr83037652wrq.206.1578005662185;
+        Thu, 02 Jan 2020 14:54:22 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id b137sm10269640wme.26.2020.01.02.14.54.21
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Jan 2020 14:54:21 -0800 (PST)
+Message-ID: <5e0e749d.1c69fb81.fb472.ef33@mx.google.com>
+Date:   Thu, 02 Jan 2020 14:54:21 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.92-115-g0ca4b109a55f
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 63 boots: 0 failed,
+ 62 passed with 1 untried/unknown (v4.19.92-115-g0ca4b109a55f)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+stable-rc/linux-4.19.y boot: 63 boots: 0 failed, 62 passed with 1 untried/u=
+nknown (v4.19.92-115-g0ca4b109a55f)
 
-[ Upstream commit 1f85e6267caca44b30c54711652b0726fadbb131 ]
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.92-115-g0ca4b109a55f/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.92-115-g0ca4b109a55f/
 
-Backport of commit fdfc5c8594c2 ("tcp: remove empty skb from
-write queue in error cases") in linux-4.14 stable triggered
-various bugs. One of them has been fixed in commit ba2ddb43f270
-("tcp: Don't dequeue SYN/FIN-segments from write-queue"), but
-we still have crashes in some occasions.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.92-115-g0ca4b109a55f
+Git Commit: 0ca4b109a55ff684a5725923fbc132b0653c3983
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 41 unique boards, 15 SoC families, 14 builds out of 206
 
-Root-cause is that when tcp_sendmsg() has allocated a fresh
-skb and could not append a fragment before being blocked
-in sk_stream_wait_memory(), tcp_write_xmit() might be called
-and decide to send this fresh and empty skb.
-
-Sending an empty packet is not only silly, it might have caused
-many issues we had in the past with tp->packets_out being
-out of sync.
-
-Fixes: c65f7f00c587 ("[TCP]: Simplify SKB data portion allocation with NETIF_F_SG.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Christoph Paasch <cpaasch@apple.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Cc: Jason Baron <jbaron@akamai.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_output.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -2148,6 +2148,14 @@ static bool tcp_write_xmit(struct sock *
- 				break;
- 		}
- 
-+		/* Argh, we hit an empty skb(), presumably a thread
-+		 * is sleeping in sendmsg()/sk_stream_wait_memory().
-+		 * We do not want to send a pure-ack packet and have
-+		 * a strange looking rtx queue with empty packet(s).
-+		 */
-+		if (TCP_SKB_CB(skb)->end_seq == TCP_SKB_CB(skb)->seq)
-+			break;
-+
- 		if (unlikely(tcp_transmit_skb(sk, skb, 1, gfp)))
- 			break;
- 
-
-
+For more info write to <info@kernelci.org>
