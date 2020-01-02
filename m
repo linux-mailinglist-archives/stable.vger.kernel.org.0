@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A803212EC87
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:19:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C33B12EC89
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:19:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728561AbgABWTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:19:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35442 "EHLO mail.kernel.org"
+        id S1728581AbgABWTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:19:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728574AbgABWTV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:19:21 -0500
+        id S1728579AbgABWTX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:19:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6AB721582;
-        Thu,  2 Jan 2020 22:19:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3181D2253D;
+        Thu,  2 Jan 2020 22:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003560;
-        bh=l4Rh4lLq40MIpr85MoMhUIi1rERQOkwAm72pRm+hrCI=;
+        s=default; t=1578003562;
+        bh=kBs+PGhfDJoXp+X0PDY6anu/CdS5IPxlDl/7I/nC9Gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dXqfFoydh4nSjVQW7Pg8p2UMM5k7giB0DhC1HcvZ8lFgaxr8gWpIXOKsqW170YtKU
-         0YBu0oHN8R8OAQVLBQoHzBTNs+OPBi2drVNF1sJ+tTeXZo+TISS503PrfayDXXXZgI
-         cuMHy4g5anuXx5PQdi2/T8w9L/+bP2/50zHS96TU=
+        b=JJ4zJKISzQXgq/c4ezEoYfIY6MN41Y85gmYSrakBvjbrbpUB1p4ENku4WbMbRAvqh
+         XUzPCwijd0VLk8CV8WRFzWR4Un4PVmzvKps1bKK18thcAYVp2f2p0Q4hb6P96HQJr+
+         ilPYOJfflNxCDREiW1w0fwONj3CE/xfqqd33X8sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 005/114] f2fs: fix to update time in lazytime mode
-Date:   Thu,  2 Jan 2020 23:06:17 +0100
-Message-Id: <20200102220029.687778806@linuxfoundation.org>
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 006/114] iommu: rockchip: Free domain on .domain_free
+Date:   Thu,  2 Jan 2020 23:06:18 +0100
+Message-Id: <20200102220029.805232190@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
 References: <20200102220029.183913184@linuxfoundation.org>
@@ -44,102 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit fe1897eaa6646f5a64a4cee0e6473ed9887d324b ]
+[ Upstream commit 42bb97b80f2e3bf592e3e99d109b67309aa1b30e ]
 
-generic/018 reports an inconsistent status of atime, the
-testcase is as below:
-- open file with O_SYNC
-- write file to construct fraged space
-- calc md5 of file
-- record {a,c,m}time
-- defrag file --- do nothing
-- umount & mount
-- check {a,c,m}time
+IOMMU domain resource life is well-defined, managed
+by .domain_alloc and .domain_free.
 
-The root cause is, as f2fs enables lazytime by default, atime
-update will dirty vfs inode, rather than dirtying f2fs inode (by set
-with FI_DIRTY_INODE), so later f2fs_write_inode() called from VFS will
-fail to update inode page due to our skip:
+Therefore, domain-specific resources shouldn't be tied to
+the device life, but instead to its domain.
 
-f2fs_write_inode()
-	if (is_inode_flag_set(inode, FI_DIRTY_INODE))
-		return 0;
-
-So eventually, after evict(), we lose last atime for ever.
-
-To fix this issue, we need to check whether {a,c,m,cr}time is
-consistent in between inode cache and inode page, and only skip
-f2fs_update_inode() if f2fs inode is not dirty and time is
-consistent as well.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Acked-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h  | 23 +++++++++++++++--------
- fs/f2fs/inode.c |  6 +++++-
- 2 files changed, 20 insertions(+), 9 deletions(-)
+ drivers/iommu/rockchip-iommu.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 34e48bcf5087..72d154e71bb5 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -2578,6 +2578,20 @@ static inline void clear_file(struct inode *inode, int type)
- 	f2fs_mark_inode_dirty_sync(inode, true);
- }
+diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
+index ad3e2b97469e..140b287e886c 100644
+--- a/drivers/iommu/rockchip-iommu.c
++++ b/drivers/iommu/rockchip-iommu.c
+@@ -977,13 +977,13 @@ static struct iommu_domain *rk_iommu_domain_alloc(unsigned type)
+ 	if (!dma_dev)
+ 		return NULL;
  
-+static inline bool f2fs_is_time_consistent(struct inode *inode)
-+{
-+	if (!timespec64_equal(F2FS_I(inode)->i_disk_time, &inode->i_atime))
-+		return false;
-+	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 1, &inode->i_ctime))
-+		return false;
-+	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 2, &inode->i_mtime))
-+		return false;
-+	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 3,
-+						&F2FS_I(inode)->i_crtime))
-+		return false;
-+	return true;
-+}
-+
- static inline bool f2fs_skip_inode_update(struct inode *inode, int dsync)
- {
- 	bool ret;
-@@ -2595,14 +2609,7 @@ static inline bool f2fs_skip_inode_update(struct inode *inode, int dsync)
- 			i_size_read(inode) & ~PAGE_MASK)
- 		return false;
+-	rk_domain = devm_kzalloc(dma_dev, sizeof(*rk_domain), GFP_KERNEL);
++	rk_domain = kzalloc(sizeof(*rk_domain), GFP_KERNEL);
+ 	if (!rk_domain)
+ 		return NULL;
  
--	if (!timespec64_equal(F2FS_I(inode)->i_disk_time, &inode->i_atime))
--		return false;
--	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 1, &inode->i_ctime))
--		return false;
--	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 2, &inode->i_mtime))
--		return false;
--	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 3,
--						&F2FS_I(inode)->i_crtime))
-+	if (!f2fs_is_time_consistent(inode))
- 		return false;
- 
- 	down_read(&F2FS_I(inode)->i_sem);
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index 540d45759621..a01be7d8db86 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -614,7 +614,11 @@ int f2fs_write_inode(struct inode *inode, struct writeback_control *wbc)
- 			inode->i_ino == F2FS_META_INO(sbi))
- 		return 0;
- 
--	if (!is_inode_flag_set(inode, FI_DIRTY_INODE))
-+	/*
-+	 * atime could be updated without dirtying f2fs inode in lazytime mode
-+	 */
-+	if (f2fs_is_time_consistent(inode) &&
-+		!is_inode_flag_set(inode, FI_DIRTY_INODE))
- 		return 0;
+ 	if (type == IOMMU_DOMAIN_DMA &&
+ 	    iommu_get_dma_cookie(&rk_domain->domain))
+-		return NULL;
++		goto err_free_domain;
  
  	/*
+ 	 * rk32xx iommus use a 2 level pagetable.
+@@ -1018,6 +1018,8 @@ err_free_dt:
+ err_put_cookie:
+ 	if (type == IOMMU_DOMAIN_DMA)
+ 		iommu_put_dma_cookie(&rk_domain->domain);
++err_free_domain:
++	kfree(rk_domain);
+ 
+ 	return NULL;
+ }
+@@ -1046,6 +1048,7 @@ static void rk_iommu_domain_free(struct iommu_domain *domain)
+ 
+ 	if (domain->type == IOMMU_DOMAIN_DMA)
+ 		iommu_put_dma_cookie(&rk_domain->domain);
++	kfree(rk_domain);
+ }
+ 
+ static int rk_iommu_add_device(struct device *dev)
 -- 
 2.20.1
 
