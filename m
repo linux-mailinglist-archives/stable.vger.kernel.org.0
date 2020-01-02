@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C01D612EEB6
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:41:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7441312EDE0
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730766AbgABWiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:38:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51492 "EHLO mail.kernel.org"
+        id S1730203AbgABWcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:32:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731192AbgABWiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:38:05 -0500
+        id S1730472AbgABWcy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:32:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B5D220866;
-        Thu,  2 Jan 2020 22:38:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB0520863;
+        Thu,  2 Jan 2020 22:32:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004684;
-        bh=HUfSgEkG8t+m0fwL7Dux3zhDIhdJ6z0Kgv7mMuzGckA=;
+        s=default; t=1578004373;
+        bh=EDC6HNLqHPCnjOFjZoxgAGbhLmHBfVy9HFBenvThPWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/TWJy873VKP3lnzLhYXHBJv04P7dJ7Hk3dfxds80oUsKB3VDUEnYwiHIz1wgGBvz
-         Pf6XxLxOgHKlX/nfuKP1LTJdZMpjBTIiSfGQ9tcPWln9BAJn+DkDgr7caaAtRKD4Yy
-         EysIoySvDw+3aY3yKaNYQx7o1ZmwYs1yYBwvNQp8=
+        b=S43E+lwxdfm3EgD/owNYwdSnJyjNq4cB22XOZHbNG7VoZ+ieBn6gVPAYR+Z3OV9GR
+         QTyW233loCPwvpja9muXhw4AsHSF17F1yb4Q52qWqGu5oSMAyVQWV5/UZjWnY9fFUW
+         uZeFfdUxjiuKzRb+q0amqt6J5iyo29/8fwacgkXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        coverity-bot <keescook+coverity-bot@chromium.org>,
-        James Bottomley <James.Bottomley@SteelEye.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        linux-next@vger.kernel.org, "Ewan D . Milne" <emilne@redhat.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>,
+        Chris Down <chris@chrisdown.name>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 109/137] scsi: lpfc: fix: Coverity: lpfc_cmpl_els_rsp(): Null pointer dereferences
+Subject: [PATCH 4.9 151/171] kernel: sysctl: make drop_caches write-only
 Date:   Thu,  2 Jan 2020 23:08:02 +0100
-Message-Id: <20200102220601.821035436@linuxfoundation.org>
+Message-Id: <20200102220607.897153673@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
+In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
+References: <20200102220546.960200039@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,64 +50,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-[ Upstream commit 6c6d59e0fe5b86cf273d6d744a6a9768c4ecc756 ]
+[ Upstream commit 204cb79ad42f015312a5bbd7012d09c93d9b46fb ]
 
-Coverity reported the following:
+Currently, the drop_caches proc file and sysctl read back the last value
+written, suggesting this is somehow a stateful setting instead of a
+one-time command.  Make it write-only, like e.g.  compact_memory.
 
-*** CID 101747:  Null pointer dereferences  (FORWARD_NULL)
-/drivers/scsi/lpfc/lpfc_els.c: 4439 in lpfc_cmpl_els_rsp()
-4433     			kfree(mp);
-4434     		}
-4435     		mempool_free(mbox, phba->mbox_mem_pool);
-4436     	}
-4437     out:
-4438     	if (ndlp && NLP_CHK_NODE_ACT(ndlp)) {
-vvv     CID 101747:  Null pointer dereferences  (FORWARD_NULL)
-vvv     Dereferencing null pointer "shost".
-4439     		spin_lock_irq(shost->host_lock);
-4440     		ndlp->nlp_flag &= ~(NLP_ACC_REGLOGIN | NLP_RM_DFLT_RPI);
-4441     		spin_unlock_irq(shost->host_lock);
-4442
-4443     		/* If the node is not being used by another discovery thread,
-4444     		 * and we are sending a reject, we are done with it.
+While mitigating a VM problem at scale in our fleet, there was confusion
+about whether writing to this file will permanently switch the kernel into
+a non-caching mode.  This influences the decision making in a tense
+situation, where tens of people are trying to fix tens of thousands of
+affected machines: Do we need a rollback strategy?  What are the
+performance implications of operating in a non-caching state for several
+days?  It also caused confusion when the kernel team said we may need to
+write the file several times to make sure it's effective ("But it already
+reads back 3?").
 
-Fix by adding a check for non-null shost in line 4438.
-The scenario when shost is set to null is when ndlp is null.
-As such, the ndlp check present was sufficient. But better safe
-than sorry so add the shost check.
-
-Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
-Addresses-Coverity-ID: 101747 ("Null pointer dereferences")
-Fixes: 2e0fef85e098 ("[SCSI] lpfc: NPIV: split ports")
-
-CC: James Bottomley <James.Bottomley@SteelEye.com>
-CC: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-CC: linux-next@vger.kernel.org
-Link: https://lore.kernel.org/r/20191111230401.12958-3-jsmart2021@gmail.com
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: http://lkml.kernel.org/r/20191031221602.9375-1-hannes@cmpxchg.org
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Chris Down <chris@chrisdown.name>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 2 +-
+ kernel/sysctl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 7ca8c2522c92..530b7df21322 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -3839,7 +3839,7 @@ lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 		mempool_free(mbox, phba->mbox_mem_pool);
- 	}
- out:
--	if (ndlp && NLP_CHK_NODE_ACT(ndlp)) {
-+	if (ndlp && NLP_CHK_NODE_ACT(ndlp) && shost) {
- 		spin_lock_irq(shost->host_lock);
- 		ndlp->nlp_flag &= ~(NLP_ACC_REGLOGIN | NLP_RM_DFLT_RPI);
- 		spin_unlock_irq(shost->host_lock);
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 6af1ac551ea3..34449ec0689d 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1398,7 +1398,7 @@ static struct ctl_table vm_table[] = {
+ 		.procname	= "drop_caches",
+ 		.data		= &sysctl_drop_caches,
+ 		.maxlen		= sizeof(int),
+-		.mode		= 0644,
++		.mode		= 0200,
+ 		.proc_handler	= drop_caches_sysctl_handler,
+ 		.extra1		= &one,
+ 		.extra2		= &four,
 -- 
 2.20.1
 
