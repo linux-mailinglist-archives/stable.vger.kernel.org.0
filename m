@@ -2,85 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4320512F19A
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:05:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C0C112F1BF
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:17:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725900AbgABXFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 18:05:20 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:38644 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725890AbgABXFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 18:05:20 -0500
-Received: by mail-pf1-f193.google.com with SMTP id x185so22717752pfc.5;
-        Thu, 02 Jan 2020 15:05:20 -0800 (PST)
+        id S1725945AbgABXRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 18:17:13 -0500
+Received: from mail-wr1-f48.google.com ([209.85.221.48]:40285 "EHLO
+        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725943AbgABXRN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 18:17:13 -0500
+Received: by mail-wr1-f48.google.com with SMTP id c14so40845884wrn.7
+        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 15:17:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=ryxK0mpRSxESJVWZudLQb/s67AYldpkB0jSH1Eh1Afw=;
-        b=aLeDg29p2KmC/fcmH39b5xWwftAl2vmN2tDI78IvgZ6okRJ5LBdipUUBwbatq4qlgJ
-         1aNDo7E/8HYOiiwV6+iY3XlcZ4+tTrQPKH8kXppZaAs3ViSizlVTHQn32A7F8pYo+yxP
-         7A9EUxHltGR3cLoMw0+gZWuVT8IuAQRyLXPVAI68sXpVdu+2Vu+mhE03ChwzjPXC7+na
-         MEXkHYURiJrTFz6joKR56JNB71mt0ISgWE+/4JTflb7xdoPcHHxPz8HZlnkmsLBKhftm
-         F7hlGnTQ90SgE6yzVUUsjaSHYcqHCccfHHNZH2Sc+18odqiYAX2nq3ilFvlob1N+JY8V
-         W3/Q==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=noZNbpiIRr2TlAW1MR9hU5J+AQIBw2OSa5XsIh8KHMs=;
+        b=gBSoruWdJ7wtUvYp1mGrxhz6j3R9pEX9nTDYEvrt+KFDxiKv2I7/xv8o//O7eisTS7
+         LQ20Mzq7DAQLbPFsLr1Cb0vBY5pcNmOu8wC4TEMXqufhotYARyIPK+nuWkD1XsRJaThk
+         Klijtm79uXvyhx+67B3R80poPi0VahBwrFp6uGDaobemAyv4PeId+jjDW2JmH/4+4wcI
+         rEdSpmGDhiFGDBJfJjT9C5JH0jocu4bHSvebSZ7DF0ZKxLGmK7SCvLZKcxmRMqyIP+DR
+         d4tWt7u3ejX42iteQtq+OnI37eLaq8efML4kX0H0ntpvCoT0BL9ZA+lBbcfMusiK+F6e
+         iUAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ryxK0mpRSxESJVWZudLQb/s67AYldpkB0jSH1Eh1Afw=;
-        b=bPzJwnVa0lSw92x1NdO+RLDoesLU5auKqwh5/YB5XZmDJPZ/6tgRKIg6tTYx0Am73v
-         LaRBdS4OOCZiK7YWpeTCRg5WrHRMOd6YJiioCst3sAsidY2cIHCAvGlJCYBL/fKWvdtZ
-         N6kCN6eHEyX5z3G8Kh/1kVfLdAbXW524HkxkaUf7nEWHX5h6J7gsaURKTPFlXw29Msa0
-         w2xF3CJR+dSQMNF4Ju1MJn2ZNvIyEZv2CxGDjdIsCLp60x48V3l+JiS08dBTUirgwwyy
-         XbDc9nO1+eoLiLPADQLg2WbGUaoW0HvxepJfC6lSKqWXdyBwFtGpM6UiIyJPSvRbEG1i
-         VoFw==
-X-Gm-Message-State: APjAAAVL22iarJ8n2E78YyFhAWg308560eXQ05Rot9cSTbemJLmlm2bP
-        OERM1h+yjhaDYIDOS8GgObM=
-X-Google-Smtp-Source: APXvYqzRWoUbS3Y9gTmH/CRnK1CzA1PLL56ZbDydCwBi6vJWZQmBQydnOJ6BNg36lSEJWkP6r4NRZw==
-X-Received: by 2002:aa7:968d:: with SMTP id f13mr88709714pfk.67.1578006319882;
-        Thu, 02 Jan 2020 15:05:19 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id q15sm60886561pgi.55.2020.01.02.15.05.18
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 02 Jan 2020 15:05:19 -0800 (PST)
-Date:   Thu, 2 Jan 2020 15:05:18 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.14 00/91] 4.14.162-stable review
-Message-ID: <20200102230518.GA1087@roeck-us.net>
-References: <20200102220356.856162165@linuxfoundation.org>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=noZNbpiIRr2TlAW1MR9hU5J+AQIBw2OSa5XsIh8KHMs=;
+        b=NJDkZZO+2s+PZ9hKQTi8wmPPEJshBCfRH92fH2JrErR1Hki6pKHMax64jdt6KDUWOP
+         25ZFQlHE00DGa2i9gLC0aQvJVxMNMuo3cCXS2oGOn0dDVmuyoqPmNvzs9iGGFLEgRP1x
+         +3vvoqua3Zkp7zoX86OXwDznQF9+M5C7wUFiJDnFPtN1Cd5yoZDDCIg79Ami6ZEFTlfo
+         C5LORpIgef2LDdbiROtGQzMEgCNRoWurMh9NMzbq9TO9UkncsSh6OUaSmwMtsPzcsIc+
+         FcMGC6GxZLIvRS6qrF/HhDNcy9th9eupjW4Q4f5JqmIORs18a4QtgyiMIqADH23wKn5o
+         tw9w==
+X-Gm-Message-State: APjAAAULr0uZ1m4BUPkh2jZU87gankil0IwC6u3WyhprivBHJiKB+UC+
+        3tzP7EK9Mpg2zUlff0UzmR9s1xUXZG943A==
+X-Google-Smtp-Source: APXvYqzr+CKgfWKW5jvfNzArS5rf9eHPHlA9LszGn/UJvxCQFD9HuzhE+jLxqSu6qWjlKAW9oWuY/Q==
+X-Received: by 2002:adf:e3d0:: with SMTP id k16mr86225724wrm.241.1578007031190;
+        Thu, 02 Jan 2020 15:17:11 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w8sm8843506wmd.2.2020.01.02.15.17.10
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Jan 2020 15:17:10 -0800 (PST)
+Message-ID: <5e0e79f6.1c69fb81.7992c.9591@mx.google.com>
+Date:   Thu, 02 Jan 2020 15:17:10 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.207-172-g65d549b9533d
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 39 boots: 0 failed,
+ 38 passed with 1 untried/unknown (v4.9.207-172-g65d549b9533d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 02, 2020 at 11:06:42PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.162 release.
-> There are 91 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 04 Jan 2020 22:01:54 +0000.
-> Anything received after that time might be too late.
-> 
+stable-rc/linux-4.9.y boot: 39 boots: 0 failed, 38 passed with 1 untried/un=
+known (v4.9.207-172-g65d549b9533d)
 
-drivers/pci/switch/switchtec.c: In function 'ioctl_event_summary':
-drivers/pci/switch/switchtec.c:901:18: error: implicit declaration of function 'readq'; did you mean 'readl'?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.207-172-g65d549b9533d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.207-172-g65d549b9533d/
 
-The problem also affects v4.19.y. Seen with various 32-bit builds,
-including i386:allmodconfig and arm:allmodconfig.
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.207-172-g65d549b9533d
+Git Commit: 65d549b9533d801010dd2ec911310eaf0ef400ff
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 23 unique boards, 12 SoC families, 12 builds out of 197
 
-The backport replaces ioread64 with readq, which may not have been
-such a good idea.
-
-Guenter
+---
+For more info write to <info@kernelci.org>
