@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8963312F0C7
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:55:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22CEE12F0C6
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:55:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728397AbgABWTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:19:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34850 "EHLO mail.kernel.org"
+        id S1728497AbgABWTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:19:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728528AbgABWTE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:19:04 -0500
+        id S1728534AbgABWTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:19:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 002A422314;
-        Thu,  2 Jan 2020 22:19:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E38221582;
+        Thu,  2 Jan 2020 22:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003543;
-        bh=NiX2E+uuYpM05Vh12ekbO1YgiJ2RdkCs0o05eOn7N4E=;
+        s=default; t=1578003545;
+        bh=dyDUn9B9Bca4O9azJBCRLDGWzqsKF0eIBKTh0se1o2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tc/y034uDxzMNzKUXNgwVDYlNKnUdgVbNpTvTTy3yY7yLKBiXiA9MDibG3BxyBdhF
-         bhhKqFSG4pnDZSuzWlrEaag3RyfDlxi3Jp2SEgt6Ki1G4dd1QiNzYcYiVngzOjBCLR
-         X6hfk3XjYLp1LLo8gcupkQKgMwijT5pZdvbDKiFw=
+        b=RhC2TxdwUpeNPunYZTTOP8hoOBq7CkPMKNGKZXy1G1HBNlXWBs4H7a2SsSHi5g5sd
+         5GqPIuplqPK0XuostYyNHODuaTrdKeYJ9Ep5J7qdmPpzj8TH0yu2j8dx4evb+tVOX9
+         gef2Vkv5yCws8KIorfnJMZgP1H1pdZBxI/9Dka20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 013/114] powerpc/pseries: Mark accumulate_stolen_time() as notrace
-Date:   Thu,  2 Jan 2020 23:06:25 +0100
-Message-Id: <20200102220030.448526596@linuxfoundation.org>
+Subject: [PATCH 4.19 014/114] powerpc/pseries: Dont fail hash page table insert for bolted mapping
+Date:   Thu,  2 Jan 2020 23:06:26 +0100
+Message-Id: <20200102220030.553775859@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
 References: <20200102220029.183913184@linuxfoundation.org>
@@ -43,50 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit eb8e20f89093b64f48975c74ccb114e6775cee22 ]
+[ Upstream commit 75838a3290cd4ebbd1f567f310ba04b6ef017ce4 ]
 
-accumulate_stolen_time() is called prior to interrupt state being
-reconciled, which can trip the warning in arch_local_irq_restore():
+If the hypervisor returned H_PTEG_FULL for H_ENTER hcall, retry a hash page table
+insert by removing a random entry from the group.
 
-  WARNING: CPU: 5 PID: 1017 at arch/powerpc/kernel/irq.c:258 .arch_local_irq_restore+0x9c/0x130
-  ...
-  NIP .arch_local_irq_restore+0x9c/0x130
-  LR  .rb_start_commit+0x38/0x80
-  Call Trace:
-    .ring_buffer_lock_reserve+0xe4/0x620
-    .trace_function+0x44/0x210
-    .function_trace_call+0x148/0x170
-    .ftrace_ops_no_ops+0x180/0x1d0
-    ftrace_call+0x4/0x8
-    .accumulate_stolen_time+0x1c/0xb0
-    decrementer_common+0x124/0x160
+After some runtime, it is very well possible to find all the 8 hash page table
+entry slot in the hpte group used for mapping. Don't fail a bolted entry insert
+in that case. With Storage class memory a user can find this error easily since
+a namespace enable/disable is equivalent to memory add/remove.
 
-For now just mark it as notrace. We may change the ordering to call it
-after interrupt state has been reconciled, but that is a larger
-change.
+This results in failures as reported below:
 
+$ ndctl create-namespace -r region1 -t pmem -m devdax -a 65536 -s 100M
+libndctl: ndctl_dax_enable: dax1.3: failed to enable
+  Error: namespace1.2: failed to enable
+
+failed to create namespace: No such device or address
+
+In kernel log we find the details as below:
+
+Unable to create mapping for hot added memory 0xc000042006000000..0xc00004200d000000: -1
+dax_pmem: probe of dax1.3 failed with error -14
+
+This indicates that we failed to create a bolted hash table entry for direct-map
+address backing the namespace.
+
+We also observe failures such that not all namespaces will be enabled with
+ndctl enable-namespace all command.
+
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191024055932.27940-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20191024093542.29777-2-aneesh.kumar@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/mm/hash_utils_64.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 8487ad686462..5449e76cf2df 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -235,7 +235,7 @@ static u64 scan_dispatch_log(u64 stop_tb)
-  * Accumulate stolen time by scanning the dispatch trace log.
-  * Called on entry from user mode.
-  */
--void accumulate_stolen_time(void)
-+void notrace accumulate_stolen_time(void)
- {
- 	u64 sst, ust;
- 	unsigned long save_irq_soft_mask = irq_soft_mask_return();
+diff --git a/arch/powerpc/mm/hash_utils_64.c b/arch/powerpc/mm/hash_utils_64.c
+index b1007e9a31ba..11b41383e167 100644
+--- a/arch/powerpc/mm/hash_utils_64.c
++++ b/arch/powerpc/mm/hash_utils_64.c
+@@ -296,7 +296,14 @@ int htab_bolt_mapping(unsigned long vstart, unsigned long vend,
+ 		ret = mmu_hash_ops.hpte_insert(hpteg, vpn, paddr, tprot,
+ 					       HPTE_V_BOLTED, psize, psize,
+ 					       ssize);
+-
++		if (ret == -1) {
++			/* Try to remove a non bolted entry */
++			ret = mmu_hash_ops.hpte_remove(hpteg);
++			if (ret != -1)
++				ret = mmu_hash_ops.hpte_insert(hpteg, vpn, paddr, tprot,
++							       HPTE_V_BOLTED, psize, psize,
++							       ssize);
++		}
+ 		if (ret < 0)
+ 			break;
+ 
 -- 
 2.20.1
 
