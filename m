@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B46EB12EFC0
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:48:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 023B912F14B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:59:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729822AbgABW2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:28:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57426 "EHLO mail.kernel.org"
+        id S1727841AbgABWOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:14:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729695AbgABW2H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:28:07 -0500
+        id S1727825AbgABWOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:14:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 502FA20863;
-        Thu,  2 Jan 2020 22:28:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 539DB2464E;
+        Thu,  2 Jan 2020 22:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004086;
-        bh=Mn1stkTUadTf5t6OBvjLLCSukrrImTF7x1U8LI0v+4A=;
+        s=default; t=1578003246;
+        bh=0C9It06bdDevtst3v5TQ4lt7SqVv3bBSLAsECQ6Yk1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yaGNTJK1o59AvoG6Jw5ZvJhn0XhhXxfHhH8yReuYOAoIWVB4TEwXokRqbixk6LSmx
-         C2AcZt/PAGxxcOLwtNyltbP+UZKYHzai/SaSSepubq5WFX1qy3ob6qy4VwHU973j0e
-         AuZHB1g1ZDDB4KGbbbxTGyLf3SKBoqW5bTjE6ik4=
+        b=h1GVOftkNyQ7T535J69f9NNerfwzzMezOBm5bnWZ5Jrj1o/gtDqC+xnl3pQJlJwdf
+         y63aRgnm3L3+Kgi+X0RxkuZ8hiNuVyl4VB52XoQ1b7iqMKXAdEwWQWZtlfzMIyB9eK
+         kHrySddjExJL/MO1ZiyTawkIBVE3C7mEY/3wFHQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 031/171] extcon: sm5502: Reset registers during initialization
+Subject: [PATCH 5.4 080/191] libnvdimm/btt: fix variable rc set but not used
 Date:   Thu,  2 Jan 2020 23:06:02 +0100
-Message-Id: <20200102220551.356605930@linuxfoundation.org>
+Message-Id: <20200102215838.478051812@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 6942635032cfd3e003e980d2dfa4e6323a3ce145 ]
+[ Upstream commit 4e24e37d5313edca8b4ab86f240c046c731e28d6 ]
 
-On some devices (e.g. Samsung Galaxy A5 (2015)), the bootloader
-seems to keep interrupts enabled for SM5502 when booting Linux.
-Changing the cable state (i.e. plugging in a cable) - until the driver
-is loaded - will therefore produce an interrupt that is never read.
+drivers/nvdimm/btt.c: In function 'btt_read_pg':
+drivers/nvdimm/btt.c:1264:8: warning: variable 'rc' set but not used
+[-Wunused-but-set-variable]
+    int rc;
+        ^~
 
-In this situation, the cable state will be stuck forever on the
-initial state because SM5502 stops sending interrupts.
-This can be avoided by clearing those pending interrupts after
-the driver has been loaded.
+Add a ratelimited message in case a storm of errors is encountered.
 
-One way to do this is to reset all registers to default state
-by writing to SM5502_REG_RESET. This ensures that we start from
-a clean state, with all interrupts disabled.
-
-Suggested-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: d9b83c756953 ("libnvdimm, btt: rework error clearing")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/1572530719-32161-1-git-send-email-cai@lca.pw
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-sm5502.c | 4 ++++
- drivers/extcon/extcon-sm5502.h | 2 ++
- 2 files changed, 6 insertions(+)
+ drivers/nvdimm/btt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/extcon/extcon-sm5502.c b/drivers/extcon/extcon-sm5502.c
-index b22325688503..9d2d8a6673c8 100644
---- a/drivers/extcon/extcon-sm5502.c
-+++ b/drivers/extcon/extcon-sm5502.c
-@@ -69,6 +69,10 @@ struct sm5502_muic_info {
- /* Default value of SM5502 register to bring up MUIC device. */
- static struct reg_data sm5502_reg_data[] = {
- 	{
-+		.reg = SM5502_REG_RESET,
-+		.val = SM5502_REG_RESET_MASK,
-+		.invert = true,
-+	}, {
- 		.reg = SM5502_REG_CONTROL,
- 		.val = SM5502_REG_CONTROL_MASK_INT_MASK,
- 		.invert = false,
-diff --git a/drivers/extcon/extcon-sm5502.h b/drivers/extcon/extcon-sm5502.h
-index 974b53222f56..12f8b01e5753 100644
---- a/drivers/extcon/extcon-sm5502.h
-+++ b/drivers/extcon/extcon-sm5502.h
-@@ -241,6 +241,8 @@ enum sm5502_reg {
- #define DM_DP_SWITCH_UART			((DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DP_SHIFT) \
- 						| (DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DM_SHIFT))
+diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
+index 3e9f45aec8d1..5129543a0473 100644
+--- a/drivers/nvdimm/btt.c
++++ b/drivers/nvdimm/btt.c
+@@ -1261,11 +1261,11 @@ static int btt_read_pg(struct btt *btt, struct bio_integrity_payload *bip,
  
-+#define SM5502_REG_RESET_MASK			(0x1)
-+
- /* SM5502 Interrupts */
- enum sm5502_irq {
- 	/* INT1 */
+ 		ret = btt_data_read(arena, page, off, postmap, cur_len);
+ 		if (ret) {
+-			int rc;
+-
+ 			/* Media error - set the e_flag */
+-			rc = btt_map_write(arena, premap, postmap, 0, 1,
+-				NVDIMM_IO_ATOMIC);
++			if (btt_map_write(arena, premap, postmap, 0, 1, NVDIMM_IO_ATOMIC))
++				dev_warn_ratelimited(to_dev(arena),
++					"Error persistently tracking bad blocks at %#x\n",
++					premap);
+ 			goto out_rtt;
+ 		}
+ 
 -- 
 2.20.1
 
