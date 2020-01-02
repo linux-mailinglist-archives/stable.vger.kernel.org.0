@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACCCF12ED1A
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:24:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F7712ECC9
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:21:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729422AbgABWYy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:24:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49418 "EHLO mail.kernel.org"
+        id S1729050AbgABWVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:21:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729313AbgABWYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:24:52 -0500
+        id S1729047AbgABWVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:21:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B7B920866;
-        Thu,  2 Jan 2020 22:24:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E58AF21835;
+        Thu,  2 Jan 2020 22:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003891;
-        bh=NitZFmkUU14PrjVIlTGxXu1q1LKT2NOe/iiTj0wOUEs=;
+        s=default; t=1578003706;
+        bh=U5GgqEyn+KoZCexv7j0LgkAynPcyqk8Rd4HfTxE53UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=prtbVK3sLyNp2RdsvULJ8oJljQqlgACIJ9JLh4YndTt6REyDcyTP5PsWPdB+2KYA0
-         ZCu8Ai32HaeWJ3IMydW5cLzliI76pLjZ7QxQSxyLm0qQRJIHmGrHbwOE0XfxEP+Nil
-         XAZ3jBNKaxkUQ+D58MvrQDmecCIseSkN9iNfhy0M=
+        b=IIMQM9w+BoqzxYMrMUqhNCe8D+9Anzr5CglvIlJ2keV1Ek+coj3nibCBqRI/yBLWo
+         OdzAYreOjfIz3rGRT8viq/X0Y0ZpWEwuZfnksJ/U544DVTYK7LTEX2TQUsrA3hSIJS
+         35SeIpToutTwd3HEU+MVuOeid4mSXiVmrUUC60gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 43/91] apparmor: fix unsigned len comparison with less than zero
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Parth Shah <parth@linux.ibm.com>,
+        Ihor Pasichnyk <Ihor.Pasichnyk@ibm.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Waiman Long <longman@redhat.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Phil Auld <pauld@redhat.com>,
+        Vaidyanathan Srinivasan <svaidy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 073/114] Revert "powerpc/vcpu: Assume dedicated processors as non-preempt"
 Date:   Thu,  2 Jan 2020 23:07:25 +0100
-Message-Id: <20200102220434.364866728@linuxfoundation.org>
+Message-Id: <20200102220036.470720283@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +51,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 00e0590dbaec6f1bcaa36a85467d7e3497ced522 ]
+This reverts commit 4ba32bdbd8c66d9c7822aea8dcf4e51410df84a8 which is
+commit 14c73bd344da60abaf7da3ea2e7733ddda35bbac upstream.
 
-The sanity check in macro update_for_len checks to see if len
-is less than zero, however, len is a size_t so it can never be
-less than zero, so this sanity check is a no-op.  Fix this by
-making len a ssize_t so the comparison will work and add ulen
-that is a size_t copy of len so that the min() macro won't
-throw warnings about comparing different types.
+It breaks the build.
 
-Addresses-Coverity: ("Macro compares unsigned to 0")
-Fixes: f1bd904175e8 ("apparmor: add the base fns() for domain labels")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Parth Shah <parth@linux.ibm.com>
+Cc: Ihor Pasichnyk <Ihor.Pasichnyk@ibm.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Waiman Long <longman@redhat.com>
+Cc: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: Phil Auld <pauld@redhat.com>
+Cc: Vaidyanathan Srinivasan <svaidy@linux.ibm.com>
+Cc: Parth Shah <parth@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/apparmor/label.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/powerpc/include/asm/spinlock.h    |    4 +---
+ arch/powerpc/platforms/pseries/setup.c |    7 -------
+ 2 files changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/security/apparmor/label.c b/security/apparmor/label.c
-index c5b99b954580..ea63710442ae 100644
---- a/security/apparmor/label.c
-+++ b/security/apparmor/label.c
-@@ -1463,11 +1463,13 @@ static inline bool use_label_hname(struct aa_ns *ns, struct aa_label *label,
- /* helper macro for snprint routines */
- #define update_for_len(total, len, size, str)	\
- do {					\
-+	size_t ulen = len;		\
-+					\
- 	AA_BUG(len < 0);		\
--	total += len;			\
--	len = min(len, size);		\
--	size -= len;			\
--	str += len;			\
-+	total += ulen;			\
-+	ulen = min(ulen, size);		\
-+	size -= ulen;			\
-+	str += ulen;			\
- } while (0)
+--- a/arch/powerpc/include/asm/spinlock.h
++++ b/arch/powerpc/include/asm/spinlock.h
+@@ -53,12 +53,10 @@
+ #endif
  
- /**
-@@ -1602,7 +1604,7 @@ int aa_label_snxprint(char *str, size_t size, struct aa_ns *ns,
- 	struct aa_ns *prev_ns = NULL;
- 	struct label_it i;
- 	int count = 0, total = 0;
--	size_t len;
-+	ssize_t len;
+ #ifdef CONFIG_PPC_PSERIES
+-DECLARE_STATIC_KEY_FALSE(shared_processor);
+-
+ #define vcpu_is_preempted vcpu_is_preempted
+ static inline bool vcpu_is_preempted(int cpu)
+ {
+-	if (!static_branch_unlikely(&shared_processor))
++	if (!firmware_has_feature(FW_FEATURE_SPLPAR))
+ 		return false;
+ 	return !!(be32_to_cpu(lppaca_of(cpu).yield_count) & 1);
+ }
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -75,9 +75,6 @@
+ #include "pseries.h"
+ #include "../../../../drivers/pci/pci.h"
  
- 	AA_BUG(!str && size != 0);
- 	AA_BUG(!label);
--- 
-2.20.1
-
+-DEFINE_STATIC_KEY_FALSE(shared_processor);
+-EXPORT_SYMBOL_GPL(shared_processor);
+-
+ int CMO_PrPSP = -1;
+ int CMO_SecPSP = -1;
+ unsigned long CMO_PageSize = (ASM_CONST(1) << IOMMU_PAGE_SHIFT_4K);
+@@ -764,10 +761,6 @@ static void __init pSeries_setup_arch(vo
+ 
+ 	if (firmware_has_feature(FW_FEATURE_LPAR)) {
+ 		vpa_init(boot_cpuid);
+-
+-		if (lppaca_shared_proc(get_lppaca()))
+-			static_branch_enable(&shared_processor);
+-
+ 		ppc_md.power_save = pseries_lpar_idle;
+ 		ppc_md.enable_pmcs = pseries_lpar_enable_pmcs;
+ #ifdef CONFIG_PCI_IOV
 
 
