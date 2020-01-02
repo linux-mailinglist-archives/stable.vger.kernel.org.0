@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5EBB12F0F2
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:57:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D961B12EED5
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728147AbgABW45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:56:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60330 "EHLO mail.kernel.org"
+        id S1730994AbgABWgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:36:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727289AbgABWRj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:17:39 -0500
+        id S1730998AbgABWgv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:36:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD23621582;
-        Thu,  2 Jan 2020 22:17:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61CDC20863;
+        Thu,  2 Jan 2020 22:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003459;
-        bh=DADd7VxCsHmE1ITmHPK5pCjtOI+okysdYWCx24Rx+T4=;
+        s=default; t=1578004609;
+        bh=vApgtmOsQVMPYg5aH4YmE1Ihj8QEHEKdTfmokdJklfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4tLTuwy2sFGvPcteFPHhxTBNRQTQI9lAhfpYgi7q9V4N10HK5A5c0xOJDNONmXAz
-         A5juigEWRtXLY0qHyyB8E9FPtYXcG+o44TksEtHLytJOJ+Hm3crA9FOVOUok4N+2TI
-         lIJK5SY+zenIPaiGMbtaWWq7YxNFcyfy7y78oQtU=
+        b=dQItHsPrbxxIzre/UHwnZEtp5VrKmRTaGLpjIlo9uy7rs+JKtuN3Uwb4Bjt/LbG1w
+         S9E7af6bqi6d/qgBornt4kmCLJthJYktSd0aA1GgfJZTKxSziLZSineey/qExhAM9P
+         1DV9xyST1NDPbG+ux83bHWWPOZrxZumogmklOZDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        David Ahern <dsahern@gmail.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 169/191] gtp: do not confirm neighbor when do pmtu update
+Subject: [PATCH 4.4 078/137] net: qlogic: Fix error paths in ql_alloc_large_buffers()
 Date:   Thu,  2 Jan 2020 23:07:31 +0100
-Message-Id: <20200102215847.401426421@linuxfoundation.org>
+Message-Id: <20200102220557.200215811@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-[ Upstream commit 6e9105c73f8d2163d12d5dfd762fd75483ed30f5 ]
+[ Upstream commit cad46039e4c99812db067c8ac22a864960e7acc4 ]
 
-When do IPv6 tunnel PMTU update and calls __ip6_rt_update_pmtu() in the end,
-we should not call dst_confirm_neigh() as there is no two-way communication.
+ql_alloc_large_buffers() has the usual RX buffer allocation
+loop where it allocates skbs and maps them for DMA.  It also
+treats failure as a fatal error.
 
-Although GTP only support ipv4 right now, and __ip_rt_update_pmtu() does not
-call dst_confirm_neigh(), we still set it to false to keep consistency with
-IPv6 code.
+There are (at least) three bugs in the error paths:
 
-v5: No change.
-v4: No change.
-v3: Do not remove dst_confirm_neigh, but add a new bool parameter in
-    dst_ops.update_pmtu to control whether we should do neighbor confirm.
-    Also split the big patch to small ones for each area.
-v2: Remove dst_confirm_neigh in __ip6_rt_update_pmtu.
+1. ql_free_large_buffers() assumes that the lrg_buf[] entry for the
+first buffer that couldn't be allocated will have .skb == NULL.
+But the qla_buf[] array is not zero-initialised.
 
-Reviewed-by: Guillaume Nault <gnault@redhat.com>
-Acked-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+2. ql_free_large_buffers() DMA-unmaps all skbs in lrg_buf[].  This is
+incorrect for the last allocated skb, if DMA mapping failed.
+
+3. Commit 1acb8f2a7a9f ("net: qlogic: Fix memory leak in
+ql_alloc_large_buffers") added a direct call to dev_kfree_skb_any()
+after the skb is recorded in lrg_buf[], so ql_free_large_buffers()
+will double-free it.
+
+The bugs are somewhat inter-twined, so fix them all at once:
+
+* Clear each entry in qla_buf[] before attempting to allocate
+  an skb for it.  This goes half-way to fixing bug 1.
+* Set the .skb field only after the skb is DMA-mapped.  This
+  fixes the rest.
+
+Fixes: 1357bfcf7106 ("qla3xxx: Dynamically size the rx buffer queue ...")
+Fixes: 0f8ab89e825f ("qla3xxx: Check return code from pci_map_single() ...")
+Fixes: 1acb8f2a7a9f ("net: qlogic: Fix memory leak in ql_alloc_large_buffers")
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/gtp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qla3xxx.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -541,7 +541,7 @@ static int gtp_build_skb_ip4(struct sk_b
- 		mtu = dst_mtu(&rt->dst);
- 	}
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -2752,6 +2752,9 @@ static int ql_alloc_large_buffers(struct
+ 	int err;
  
--	rt->dst.ops->update_pmtu(&rt->dst, NULL, skb, mtu, true);
-+	rt->dst.ops->update_pmtu(&rt->dst, NULL, skb, mtu, false);
+ 	for (i = 0; i < qdev->num_large_buffers; i++) {
++		lrg_buf_cb = &qdev->lrg_buf[i];
++		memset(lrg_buf_cb, 0, sizeof(struct ql_rcv_buf_cb));
++
+ 		skb = netdev_alloc_skb(qdev->ndev,
+ 				       qdev->lrg_buffer_len);
+ 		if (unlikely(!skb)) {
+@@ -2762,11 +2765,7 @@ static int ql_alloc_large_buffers(struct
+ 			ql_free_large_buffers(qdev);
+ 			return -ENOMEM;
+ 		} else {
+-
+-			lrg_buf_cb = &qdev->lrg_buf[i];
+-			memset(lrg_buf_cb, 0, sizeof(struct ql_rcv_buf_cb));
+ 			lrg_buf_cb->index = i;
+-			lrg_buf_cb->skb = skb;
+ 			/*
+ 			 * We save some space to copy the ethhdr from first
+ 			 * buffer
+@@ -2788,6 +2787,7 @@ static int ql_alloc_large_buffers(struct
+ 				return -ENOMEM;
+ 			}
  
- 	if (!skb_is_gso(skb) && (iph->frag_off & htons(IP_DF)) &&
- 	    mtu < ntohs(iph->tot_len)) {
++			lrg_buf_cb->skb = skb;
+ 			dma_unmap_addr_set(lrg_buf_cb, mapaddr, map);
+ 			dma_unmap_len_set(lrg_buf_cb, maplen,
+ 					  qdev->lrg_buffer_len -
 
 
