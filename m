@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 375CE12ED8C
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:29:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E2312ECA9
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:20:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729749AbgABW33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:29:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60504 "EHLO mail.kernel.org"
+        id S1728839AbgABWUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:20:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730048AbgABW31 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:29:27 -0500
+        id S1726099AbgABWUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:20:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADD0F20866;
-        Thu,  2 Jan 2020 22:29:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97EE622B48;
+        Thu,  2 Jan 2020 22:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004167;
-        bh=Cx/xZ2CdBultJ1QQYrebdLtgIDl5PklKrm8PpPvqR0s=;
+        s=default; t=1578003637;
+        bh=yzxD6HKKw68W+50LlaU+rd6VsjAH0kcFO5/v4j3i8bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3H8pw/JyDAJ/SKVbJOCQMj6y74xb8dwAOza2SY/4VbsCZplymYMvFZ1c8kCd0Uhf
-         a5MytjlElslrx6/InlWL7mbIzNxoZJSUczhoWSkeEUiLVDlR+ANofNv0NYlFAkF0IH
-         3gJ9WPkh+P/qn0AVY6YQXMer01ISAPNVPrIVzFFw=
+        b=MtWhK34IDp8agKkForSeC9hqVI7zQhGHrRaHwL/chowjns5HpRHVw3utEtT1AcpHl
+         aL6QhvWC1H2GpLy/+B8bZ5wl+Qj4VpbTjedv3AhlJgzG5eQSmFQPx66wVOd6ZKnaWn
+         QTbG1+R8UqY4zhLoRb/T4t9Qdrr2Y2xex1UNTpIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Robert Richter <rrichter@marvell.com>,
-        Borislav Petkov <bp@suse.de>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 065/171] EDAC/ghes: Fix grain calculation
-Date:   Thu,  2 Jan 2020 23:06:36 +0100
-Message-Id: <20200102220555.906743841@linuxfoundation.org>
+Subject: [PATCH 4.19 025/114] scsi: tracing: Fix handling of TRANSFER LENGTH == 0 for READ(6) and WRITE(6)
+Date:   Thu,  2 Jan 2020 23:06:37 +0100
+Message-Id: <20200102220031.656066896@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,93 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Richter <rrichter@marvell.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 7088e29e0423d3195e09079b4f849ec4837e5a75 ]
+[ Upstream commit f6b8540f40201bff91062dd64db8e29e4ddaaa9d ]
 
-The current code to convert a physical address mask to a grain
-(defined as granularity in bytes) is:
+According to SBC-2 a TRANSFER LENGTH field of zero means that 256 logical
+blocks must be transferred. Make the SCSI tracing code follow SBC-2.
 
-	e->grain = ~(mem_err->physical_addr_mask & ~PAGE_MASK);
-
-This is broken in several ways:
-
-1) It calculates to wrong grain values. E.g., a physical address mask
-of ~0xfff should give a grain of 0x1000. Without considering
-PAGE_MASK, there is an off-by-one. Things are worse when also
-filtering it with ~PAGE_MASK. This will calculate to a grain with the
-upper bits set. In the example it even calculates to ~0.
-
-2) The grain does not depend on and is unrelated to the kernel's
-page-size. The page-size only matters when unmapping memory in
-memory_failure(). Smaller grains are wrongly rounded up to the
-page-size, on architectures with a configurable page-size (e.g. arm64)
-this could round up to the even bigger page-size of the hypervisor.
-
-Fix this with:
-
-	e->grain = ~mem_err->physical_addr_mask + 1;
-
-The grain_bits are defined as:
-
-	grain = 1 << grain_bits;
-
-Change also the grain_bits calculation accordingly, it is the same
-formula as in edac_mc.c now and the code can be unified.
-
-The value in ->physical_addr_mask coming from firmware is assumed to
-be contiguous, but this is not sanity-checked. However, in case the
-mask is non-contiguous, a conversion to grain_bits effectively
-converts the grain bit mask to a power of 2 by rounding it up.
-
-Suggested-by: James Morse <james.morse@arm.com>
-Signed-off-by: Robert Richter <rrichter@marvell.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/20191106093239.25517-11-rrichter@marvell.com
+Fixes: bf8162354233 ("[SCSI] add scsi trace core functions and put trace points")
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Douglas Gilbert <dgilbert@interlog.com>
+Link: https://lore.kernel.org/r/20191105215553.185018-1-bvanassche@acm.org
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ghes_edac.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_trace.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/edac/ghes_edac.c b/drivers/edac/ghes_edac.c
-index e3fa4390f846..4ddbf6604e2a 100644
---- a/drivers/edac/ghes_edac.c
-+++ b/drivers/edac/ghes_edac.c
-@@ -189,6 +189,7 @@ void ghes_edac_report_mem_error(struct ghes *ghes, int sev,
- 	/* Cleans the error report buffer */
- 	memset(e, 0, sizeof (*e));
- 	e->error_count = 1;
-+	e->grain = 1;
- 	strcpy(e->label, "unknown label");
- 	e->msg = pvt->msg;
- 	e->other_detail = pvt->other_detail;
-@@ -284,7 +285,7 @@ void ghes_edac_report_mem_error(struct ghes *ghes, int sev,
+diff --git a/drivers/scsi/scsi_trace.c b/drivers/scsi/scsi_trace.c
+index 0ff083bbf5b1..617a60737590 100644
+--- a/drivers/scsi/scsi_trace.c
++++ b/drivers/scsi/scsi_trace.c
+@@ -30,15 +30,18 @@ static const char *
+ scsi_trace_rw6(struct trace_seq *p, unsigned char *cdb, int len)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p);
+-	sector_t lba = 0, txlen = 0;
++	u32 lba = 0, txlen;
  
- 	/* Error grain */
- 	if (mem_err->validation_bits & CPER_MEM_VALID_PA_MASK)
--		e->grain = ~(mem_err->physical_addr_mask & ~PAGE_MASK);
-+		e->grain = ~mem_err->physical_addr_mask + 1;
+ 	lba |= ((cdb[1] & 0x1F) << 16);
+ 	lba |=  (cdb[2] << 8);
+ 	lba |=   cdb[3];
+-	txlen = cdb[4];
++	/*
++	 * From SBC-2: a TRANSFER LENGTH field set to zero specifies that 256
++	 * logical blocks shall be read (READ(6)) or written (WRITE(6)).
++	 */
++	txlen = cdb[4] ? cdb[4] : 256;
  
- 	/* Memory error location, mapped on e->location */
- 	p = e->location;
-@@ -391,8 +392,13 @@ void ghes_edac_report_mem_error(struct ghes *ghes, int sev,
- 	if (p > pvt->other_detail)
- 		*(p - 1) = '\0';
+-	trace_seq_printf(p, "lba=%llu txlen=%llu",
+-			 (unsigned long long)lba, (unsigned long long)txlen);
++	trace_seq_printf(p, "lba=%u txlen=%u", lba, txlen);
+ 	trace_seq_putc(p, 0);
  
-+	/* Sanity-check driver-supplied grain value. */
-+	if (WARN_ON_ONCE(!e->grain))
-+		e->grain = 1;
-+
-+	grain_bits = fls_long(e->grain - 1);
-+
- 	/* Generate the trace event */
--	grain_bits = fls_long(e->grain);
- 	snprintf(pvt->detail_location, sizeof(pvt->detail_location),
- 		 "APEI location: %s %s", e->location, e->other_detail);
- 	trace_mc_event(type, e->msg, e->label, e->error_count,
+ 	return ret;
 -- 
 2.20.1
 
