@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB0612ECC5
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:21:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 272A712ECC7
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:21:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728826AbgABWVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:21:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
+        id S1729041AbgABWVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:21:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729032AbgABWVj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:21:39 -0500
+        id S1729037AbgABWVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:21:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D29C324649;
-        Thu,  2 Jan 2020 22:21:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41C4420863;
+        Thu,  2 Jan 2020 22:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003699;
-        bh=X0HoWFRX0aHvr5DB4mtrAuXGQysX0wHdE3DBP5LEEOk=;
+        s=default; t=1578003701;
+        bh=M5uc/v81DuSZATN2cUl2Qdb7TKwsn7SAGqthCt4e2JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9x7kpkR8GE9wjrBGmksq9ydGkkJTpbhkybiwujruu6igaFIZCuJbqLDnNvXFvsXC
-         OPallHBnxb42HxVHZKam6uKrJ+7C2ZVivYc1yp6CQN0FFci0NzQnpQnnWAVoJPy3mg
-         0HBJk2tsO0UW6QWrD9YgvRLawWeDe1OSuLsXXNQQ=
+        b=jdh/BiVgWZrJp9oMUOBjyp82EpkZ69qAzOQH2qdLBBzApRhH9o3NNgg5Wx5PjYdZ3
+         Gi0MwJA+k2BYd7TGWhUbXmruO8KfcksbpKYnZSCFQjj1jBD61A0+NbTQSgD++XhUAh
+         N1+NA1Bq73//lGlZo61ow+tCzvHqm0SaUtdQcizA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
+        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/114] scsi: scsi_debug: num_tgts must be >= 0
-Date:   Thu,  2 Jan 2020 23:07:06 +0100
-Message-Id: <20200102220034.493876476@linuxfoundation.org>
+Subject: [PATCH 4.19 055/114] scsi: NCR5380: Add disconnect_mask module parameter
+Date:   Thu,  2 Jan 2020 23:07:07 +0100
+Message-Id: <20200102220034.604993039@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
 References: <20200102220029.183913184@linuxfoundation.org>
@@ -45,38 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit aa5334c4f3014940f11bf876e919c956abef4089 ]
+[ Upstream commit 0b7a223552d455bcfba6fb9cfc5eef2b5fce1491 ]
 
-Passing the parameter "num_tgts=-1" will start an infinite loop that
-exhausts the system memory
+Add a module parameter to inhibit disconnect/reselect for individual
+targets. This gains compatibility with Aztec PowerMonster SCSI/SATA
+adapters with buggy firmware. (No fix is available from the vendor.)
 
-Link: https://lore.kernel.org/r/20191115163727.24626-1-mlombard@redhat.com
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Apparently these adapters pass-through the product/vendor of the attached
+SATA device. Since they can't be identified from the response to an INQUIRY
+command, a device blacklist flag won't work.
+
+Cc: Michael Schmitz <schmitzmic@gmail.com>
+Link: https://lore.kernel.org/r/993b17545990f31f9fa5a98202b51102a68e7594.1573875417.git.fthain@telegraphics.com.au
+Reviewed-and-tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/scsi/NCR5380.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 65305b3848bc..a1dbae806fde 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -5351,6 +5351,11 @@ static int __init scsi_debug_init(void)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/scsi/NCR5380.c b/drivers/scsi/NCR5380.c
+index 8ec68dcc0cc4..95a3e3bf2b43 100644
+--- a/drivers/scsi/NCR5380.c
++++ b/drivers/scsi/NCR5380.c
+@@ -129,6 +129,9 @@
+ #define NCR5380_release_dma_irq(x)
+ #endif
  
-+	if (sdebug_num_tgts < 0) {
-+		pr_err("num_tgts must be >= 0\n");
-+		return -EINVAL;
-+	}
++static unsigned int disconnect_mask = ~0;
++module_param(disconnect_mask, int, 0444);
 +
- 	if (sdebug_guard > 1) {
- 		pr_err("guard must be 0 or 1\n");
- 		return -EINVAL;
+ static int do_abort(struct Scsi_Host *);
+ static void do_reset(struct Scsi_Host *);
+ static void bus_reset_cleanup(struct Scsi_Host *);
+@@ -946,7 +949,8 @@ static bool NCR5380_select(struct Scsi_Host *instance, struct scsi_cmnd *cmd)
+ 	int err;
+ 	bool ret = true;
+ 	bool can_disconnect = instance->irq != NO_IRQ &&
+-			      cmd->cmnd[0] != REQUEST_SENSE;
++			      cmd->cmnd[0] != REQUEST_SENSE &&
++			      (disconnect_mask & BIT(scmd_id(cmd)));
+ 
+ 	NCR5380_dprint(NDEBUG_ARBITRATION, instance);
+ 	dsprintk(NDEBUG_ARBITRATION, instance, "starting arbitration, id = %d\n",
 -- 
 2.20.1
 
