@@ -2,129 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5DB12ED4F
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 280C912ECEA
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:23:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729671AbgABW0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:26:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54734 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729680AbgABW0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:26:55 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E3DD21835;
-        Thu,  2 Jan 2020 22:26:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004014;
-        bh=1NEu7Yh/AB2e8ihR5dZl/HrmOElxNkdZTdVug8DSseU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oemDwsdVhOR/QsQi7bNBFIlp0iiFNseDMEDTioy5aS5plardBuVnYc8tFiLXAmbXd
-         RJW1Gr1INQgn66EkBU61rfYMNE2n9PrvD232xNjSjeLyu4tKaOG9PFjzgsUEcdTw6/
-         KF/T6cMGT+IxZO+oPjs2n+yqY7i13rEDKiINcIDE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.14 86/91] gtp: do not allow adding duplicate tid and ms_addr pdp context
-Date:   Thu,  2 Jan 2020 23:08:08 +0100
-Message-Id: <20200102220451.840898460@linuxfoundation.org>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-References: <20200102220356.856162165@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727295AbgABWXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:23:16 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:39470 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729239AbgABWXO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 17:23:14 -0500
+Received: by mail-wr1-f67.google.com with SMTP id y11so40739235wrt.6
+        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 14:23:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=c9ZbD+8JbfneqRyteMAdsnK/8qoYSrJRtttLqwB1UfY=;
+        b=1+k8A2xyDHObG4W7eiFaoMOt1Zo/BD+qf6HhX3mWmdOwziLSW4bMppXoAW+/PbUcnW
+         zLZyd93qsSdjAziuBHcCJgtjitlTVGSQeKYH2zIqGiQvMBYVev+Z7uf+ruNd7V1lenn1
+         qABrDn6FVxy3+jjZ4F5QSYvqOphT8sY2yvUwe1GGBqD0kSCHd+SC08a2wunQPny7WLn+
+         E2ddFCnAFoXoR+YhKT1lJLku94JFAzQhozcNilFDXWoZmx08w/b1q+Amf5DeMD8/oQNm
+         vRzn4KMo56hYciX3YCql63Qfx7/b9kXs6MISJg7oPoQHgH8vttV5Kxb2GGfDfZvC+rhH
+         /Ebw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=c9ZbD+8JbfneqRyteMAdsnK/8qoYSrJRtttLqwB1UfY=;
+        b=IB5mxNXDp0T/kUOqpQRFCp2G1mrTEoVicv9oGgb65fNTVoblkTPAICTBXBf39UnYsQ
+         QF5bM4YSET7lZabjz076cH467K6bNmUTM47zoDEIxT29ECWWLlYjWTD9wO2xp9M7rGFe
+         vpUHnl7Pc1TxJHGIMtboBHw/aWnJHHgOgrVewMIgRtp2TU1W5WXnh3bOkIfHAO07BHsg
+         yZIn4ERRvf/sV8X34a4/OzDK5Io8DU5FtSAYLao/+MoOscTiwd/puNE1r2lTLAmy+zzl
+         8WCbteA0DM4CrgZ6Gc4YhWZELOofi4AmfAUHW++TEPnXGMab9AP/FqGPSdRt5kEJiGsJ
+         eSUg==
+X-Gm-Message-State: APjAAAVO2ng0BwJ7mIKo0PSP9EODUoT5XXxiXIdBuep+5p337s14F7F6
+        NR13+g4OQDNOjf2Ks9BL3CmurH1IrIQIiQ==
+X-Google-Smtp-Source: APXvYqykiIGfqJW744zoNv3xtAA75JfAUEE8A7w1InFOHn5e5uD9Q/hUKkBSX0ToLimDAIVnwDGfjg==
+X-Received: by 2002:adf:df03:: with SMTP id y3mr90774075wrl.260.1578003791837;
+        Thu, 02 Jan 2020 14:23:11 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s128sm9993045wme.39.2020.01.02.14.23.11
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Jan 2020 14:23:11 -0800 (PST)
+Message-ID: <5e0e6d4f.1c69fb81.8748c.e3a3@mx.google.com>
+Date:   Thu, 02 Jan 2020 14:23:11 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.161-92-g10c651e610f7
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 52 boots: 1 failed,
+ 50 passed with 1 untried/unknown (v4.14.161-92-g10c651e610f7)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+stable-rc/linux-4.14.y boot: 52 boots: 1 failed, 50 passed with 1 untried/u=
+nknown (v4.14.161-92-g10c651e610f7)
 
-[ Upstream commit 6b01b1d9b2d38dc84ac398bfe9f00baff06a31e5 ]
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.161-92-g10c651e610f7/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.161-92-g10c651e610f7/
 
-GTP RX packet path lookups pdp context with TID. If duplicate TID pdp
-contexts are existing in the list, it couldn't select correct pdp context.
-So, TID value  should be unique.
-GTP TX packet path lookups pdp context with ms_addr. If duplicate ms_addr pdp
-contexts are existing in the list, it couldn't select correct pdp context.
-So, ms_addr value should be unique.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.161-92-g10c651e610f7
+Git Commit: 10c651e610f7d6e560ba67a77cc51d560bb1a188
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 33 unique boards, 13 SoC families, 12 builds out of 201
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
 ---
- drivers/net/gtp.c |   32 ++++++++++++++++++++++----------
- 1 file changed, 22 insertions(+), 10 deletions(-)
-
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -929,24 +929,31 @@ static void ipv4_pdp_fill(struct pdp_ctx
- 	}
- }
- 
--static int ipv4_pdp_add(struct gtp_dev *gtp, struct sock *sk,
--			struct genl_info *info)
-+static int gtp_pdp_add(struct gtp_dev *gtp, struct sock *sk,
-+		       struct genl_info *info)
- {
-+	struct pdp_ctx *pctx, *pctx_tid = NULL;
- 	struct net_device *dev = gtp->dev;
- 	u32 hash_ms, hash_tid = 0;
--	struct pdp_ctx *pctx;
-+	unsigned int version;
- 	bool found = false;
- 	__be32 ms_addr;
- 
- 	ms_addr = nla_get_be32(info->attrs[GTPA_MS_ADDRESS]);
- 	hash_ms = ipv4_hashfn(ms_addr) % gtp->hash_size;
-+	version = nla_get_u32(info->attrs[GTPA_VERSION]);
- 
--	hlist_for_each_entry_rcu(pctx, &gtp->addr_hash[hash_ms], hlist_addr) {
--		if (pctx->ms_addr_ip4.s_addr == ms_addr) {
--			found = true;
--			break;
--		}
--	}
-+	pctx = ipv4_pdp_find(gtp, ms_addr);
-+	if (pctx)
-+		found = true;
-+	if (version == GTP_V0)
-+		pctx_tid = gtp0_pdp_find(gtp,
-+					 nla_get_u64(info->attrs[GTPA_TID]));
-+	else if (version == GTP_V1)
-+		pctx_tid = gtp1_pdp_find(gtp,
-+					 nla_get_u32(info->attrs[GTPA_I_TEI]));
-+	if (pctx_tid)
-+		found = true;
- 
- 	if (found) {
- 		if (info->nlhdr->nlmsg_flags & NLM_F_EXCL)
-@@ -954,6 +961,11 @@ static int ipv4_pdp_add(struct gtp_dev *
- 		if (info->nlhdr->nlmsg_flags & NLM_F_REPLACE)
- 			return -EOPNOTSUPP;
- 
-+		if (pctx && pctx_tid)
-+			return -EEXIST;
-+		if (!pctx)
-+			pctx = pctx_tid;
-+
- 		ipv4_pdp_fill(pctx, info);
- 
- 		if (pctx->gtp_version == GTP_V0)
-@@ -1077,7 +1089,7 @@ static int gtp_genl_new_pdp(struct sk_bu
- 		goto out_unlock;
- 	}
- 
--	err = ipv4_pdp_add(gtp, sk, info);
-+	err = gtp_pdp_add(gtp, sk, info);
- 
- out_unlock:
- 	rcu_read_unlock();
-
-
+For more info write to <info@kernelci.org>
