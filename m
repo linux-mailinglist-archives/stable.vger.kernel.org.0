@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B55E712EBD6
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:12:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 342C012EBD7
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727536AbgABWMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:12:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52024 "EHLO mail.kernel.org"
+        id S1727541AbgABWMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:12:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726667AbgABWMn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:12:43 -0500
+        id S1727535AbgABWMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:12:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86F9521D7D;
-        Thu,  2 Jan 2020 22:12:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2BEC22314;
+        Thu,  2 Jan 2020 22:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003163;
-        bh=zbbxOC3U+xaCh2dQifsmwgKsgtAVBpm/EUuz1h7kG/M=;
+        s=default; t=1578003165;
+        bh=r8HOrpNAVto9yK9VmPgX9dGvmY6Z5l7uhKkZaPzar7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WhfVoDBcJ8QTLyRo2Pe0LFz01554CEEuPPW/DHoCx2aXB3T3nU7qlgvPOVXQLnpzC
-         Nr8y/Np7QTcvGSI/q9jqI8n9qGd3Z2RDigbr7jfMg57JF0jt+jE7T11ggBhNjRsksj
-         RmfP/zr82qq8YEyewISbyCbHGru6A4zpYjRQEwtA=
+        b=PeckJHlXyVVqMkRiZh8Vledd0EJrYM/L0dFki8cnWGTmuPFAVctCWemcZBxPM//1b
+         ajQTV/Lfbn4cLMD7ky4XT6F7EbTxezxQlJM0wExGwwBQkgalVg37/ztxH1ziUv24jj
+         4rnDFVv23dp0GjkxKHD0Sq/EYhUWRPYd9luz9+nI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/191] scsi: lpfc: Fix unexpected error messages during RSCN handling
-Date:   Thu,  2 Jan 2020 23:05:28 +0100
-Message-Id: <20200102215834.851129628@linuxfoundation.org>
+Subject: [PATCH 5.4 047/191] scsi: lpfc: Fix duplicate unreg_rpi error in port offline flow
+Date:   Thu,  2 Jan 2020 23:05:29 +0100
+Message-Id: <20200102215834.942431570@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
 References: <20200102215829.911231638@linuxfoundation.org>
@@ -47,87 +47,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 2332e6e475b016e2026763f51333f84e2e6c57a3 ]
+[ Upstream commit 7cfd5639d99bec0d27af089d0c8c114330e43a72 ]
 
-During heavy RCN activity and log_verbose = 0 we see these messages:
+If the driver receives a login that is later then LOGO'd by the remote port
+(aka ndlp), the driver, upon the completion of the LOGO ACC transmission,
+will logout the node and unregister the rpi that is being used for the
+node.  As part of the unreg, the node's rpi value is replaced by the
+LPFC_RPI_ALLOC_ERROR value.  If the port is subsequently offlined, the
+offline walks the nodes and ensures they are logged out, which possibly
+entails unreg'ing their rpi values.  This path does not validate the node's
+rpi value, thus doesn't detect that it has been unreg'd already.  The
+replaced rpi value is then used when accessing the rpi bitmask array which
+tracks active rpi values.  As the LPFC_RPI_ALLOC_ERROR value is not a valid
+index for the bitmask, it may fault the system.
 
-  2754 PRLI failure DID:521245 Status:x9/xb2c00, data: x0
-  0231 RSCN timeout Data: x0 x3
-  0230 Unexpected timeout, hba link state x5
+Revise the rpi release code to detect when the rpi value is the replaced
+RPI_ALLOC_ERROR value and ignore further release steps.
 
-This is due to delayed RSCN activity.
-
-Correct by avoiding the timeout thus the messages by restarting the
-discovery timeout whenever an rscn is received.
-
-Filter PRLI responses such that severity depends on whether expected for
-the configuration or not. For example, PRLI errors on a fabric will be
-informational (they are expected), but Point-to-Point errors are not
-necessarily expected so they are raised to an error level.
-
-Link: https://lore.kernel.org/r/20191105005708.7399-5-jsmart2021@gmail.com
+Link: https://lore.kernel.org/r/20191105005708.7399-2-jsmart2021@gmail.com
 Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index f293b48616ae..4794a58deaf3 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -2236,6 +2236,7 @@ lpfc_cmpl_els_prli(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 	struct Scsi_Host  *shost = lpfc_shost_from_vport(vport);
- 	IOCB_t *irsp;
- 	struct lpfc_nodelist *ndlp;
-+	char *mode;
- 
- 	/* we pass cmdiocb to state machine which needs rspiocb as well */
- 	cmdiocb->context_un.rsp_iocb = rspiocb;
-@@ -2273,8 +2274,17 @@ lpfc_cmpl_els_prli(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 			goto out;
- 		}
- 
-+		/* If we don't send GFT_ID to Fabric, a PRLI error
-+		 * could be expected.
-+		 */
-+		if ((vport->fc_flag & FC_FABRIC) ||
-+		    (vport->cfg_enable_fc4_type != LPFC_ENABLE_BOTH))
-+			mode = KERN_ERR;
-+		else
-+			mode = KERN_INFO;
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 9c5b1d138eb1..2b0e7b32c2df 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -18187,6 +18187,13 @@ lpfc_sli4_alloc_rpi(struct lpfc_hba *phba)
+ static void
+ __lpfc_sli4_free_rpi(struct lpfc_hba *phba, int rpi)
+ {
++	/*
++	 * if the rpi value indicates a prior unreg has already
++	 * been done, skip the unreg.
++	 */
++	if (rpi == LPFC_RPI_ALLOC_ERROR)
++		return;
 +
- 		/* PRLI failed */
--		lpfc_printf_vlog(vport, KERN_ERR, LOG_ELS,
-+		lpfc_printf_vlog(vport, mode, LOG_ELS,
- 				 "2754 PRLI failure DID:%06X Status:x%x/x%x, "
- 				 "data: x%x\n",
- 				 ndlp->nlp_DID, irsp->ulpStatus,
-@@ -6455,7 +6465,7 @@ lpfc_els_rcv_rscn(struct lpfc_vport *vport, struct lpfc_iocbq *cmdiocb,
- 	uint32_t payload_len, length, nportid, *cmd;
- 	int rscn_cnt;
- 	int rscn_id = 0, hba_id = 0;
--	int i;
-+	int i, tmo;
- 
- 	pcmd = (struct lpfc_dmabuf *) cmdiocb->context2;
- 	lp = (uint32_t *) pcmd->virt;
-@@ -6561,6 +6571,13 @@ lpfc_els_rcv_rscn(struct lpfc_vport *vport, struct lpfc_iocbq *cmdiocb,
- 
- 		spin_lock_irq(shost->host_lock);
- 		vport->fc_flag |= FC_RSCN_DEFERRED;
-+
-+		/* Restart disctmo if its already running */
-+		if (vport->fc_flag & FC_DISC_TMO) {
-+			tmo = ((phba->fc_ratov * 3) + 3);
-+			mod_timer(&vport->fc_disctmo,
-+				  jiffies + msecs_to_jiffies(1000 * tmo));
-+		}
- 		if ((rscn_cnt < FC_MAX_HOLD_RSCN) &&
- 		    !(vport->fc_flag & FC_RSCN_DISCOVERY)) {
- 			vport->fc_flag |= FC_RSCN_MODE;
+ 	if (test_and_clear_bit(rpi, phba->sli4_hba.rpi_bmask)) {
+ 		phba->sli4_hba.rpi_count--;
+ 		phba->sli4_hba.max_cfg_param.rpi_used--;
 -- 
 2.20.1
 
