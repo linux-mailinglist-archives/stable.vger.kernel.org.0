@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9505612ED9E
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47BC312EC31
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:16:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730132AbgABWaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:30:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
+        id S1727745AbgABWQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:16:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729980AbgABWaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:30:08 -0500
+        id S1728203AbgABWQN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:16:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A8D720863;
-        Thu,  2 Jan 2020 22:30:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7777821582;
+        Thu,  2 Jan 2020 22:16:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004207;
-        bh=vorHKAAlo2Q/D/7oNeovywhUHPTU36ycKOYuHV/ww9s=;
+        s=default; t=1578003372;
+        bh=BnANX2H2bx29XOoQujs2DDUAJ+FIpRaK3fhFyXIVyA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fyaT7/0xbB20FG1UOJpwStTTbNIPLgnsuWopyOsYctakXF0rtXU+m5WSRvkRScVvV
-         Lfc5K4I58L/cRRR6VbxVp7F5wzEyupvht52mvgTdWRLqqtlc8buG40DmL8Lyi3pf70
-         pn+Ksrzdwhvos7rHS/gYCexzcwXWW3utcjXFYGJU=
+        b=dWCKOar+r+tqnxyqDeJVYnoPG9KShgmNEzNoz3QwZ30qG5FohLpee2b15Ys2/FBIJ
+         uaEpRWDmbFJv0hYqv+fxgJTlt/x+HXwOU/NvhpJC9FoC7UFZvfWpCurmLLkRUfbh3l
+         24GyAMYzlVjnuPLncno14sZj1q1E7SuuiZ5D9D9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hewenliang <hewenliang4@huawei.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 083/171] libtraceevent: Fix memory leakage in copy_filter_type
-Date:   Thu,  2 Jan 2020 23:06:54 +0100
-Message-Id: <20200102220558.483963336@linuxfoundation.org>
+        stable@vger.kernel.org, Anders Kaseorg <andersk@mit.edu>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 133/191] Revert "iwlwifi: assign directly to iwl_trans->cfg in QuZ detection"
+Date:   Thu,  2 Jan 2020 23:06:55 +0100
+Message-Id: <20200102215843.940860373@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102215829.911231638@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hewenliang <hewenliang4@huawei.com>
+From: Anders Kaseorg <andersk@mit.edu>
 
-[ Upstream commit 10992af6bf46a2048ad964985a5b77464e5563b1 ]
+commit db5cce1afc8d2475d2c1c37c2a8267dd0e151526 upstream.
 
-It is necessary to free the memory that we have allocated when error occurs.
+This reverts commit 968dcfb4905245dc64d65312c0d17692fa087b99.
 
-Fixes: ef3072cd1d5c ("tools lib traceevent: Get rid of die in add_filter_type()")
-Signed-off-by: Hewenliang <hewenliang4@huawei.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Tzvetomir Stoyanov <tstoyanov@vmware.com>
-Link: http://lore.kernel.org/lkml/20191119014415.57210-1-hewenliang4@huawei.com
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Both that commit and commit 809805a820c6445f7a701ded24fdc6bbc841d1e4
+attempted to fix the same bug (dead assignments to the local variable
+cfg), but they did so in incompatible ways. When they were both merged,
+independently of each other, the combination actually caused the bug to
+reappear, leading to a firmware crash on boot for some cards.
+
+https://bugzilla.kernel.org/show_bug.cgi?id=205719
+
+Signed-off-by: Anders Kaseorg <andersk@mit.edu>
+Acked-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/lib/traceevent/parse-filter.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/drv.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/tools/lib/traceevent/parse-filter.c b/tools/lib/traceevent/parse-filter.c
-index 5e10ba796a6f..569bceff5f51 100644
---- a/tools/lib/traceevent/parse-filter.c
-+++ b/tools/lib/traceevent/parse-filter.c
-@@ -1492,8 +1492,10 @@ static int copy_filter_type(struct event_filter *filter,
- 	if (strcmp(str, "TRUE") == 0 || strcmp(str, "FALSE") == 0) {
- 		/* Add trivial event */
- 		arg = allocate_arg();
--		if (arg == NULL)
-+		if (arg == NULL) {
-+			free(str);
- 			return -1;
-+		}
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+@@ -1111,18 +1111,18 @@ static int iwl_pci_probe(struct pci_dev
  
- 		arg->type = FILTER_ARG_BOOLEAN;
- 		if (strcmp(str, "TRUE") == 0)
-@@ -1502,8 +1504,11 @@ static int copy_filter_type(struct event_filter *filter,
- 			arg->boolean.value = 0;
+ 	/* same thing for QuZ... */
+ 	if (iwl_trans->hw_rev == CSR_HW_REV_TYPE_QUZ) {
+-		if (iwl_trans->cfg == &iwl_ax101_cfg_qu_hr)
+-			iwl_trans->cfg = &iwl_ax101_cfg_quz_hr;
+-		else if (iwl_trans->cfg == &iwl_ax201_cfg_qu_hr)
+-			iwl_trans->cfg = &iwl_ax201_cfg_quz_hr;
+-		else if (iwl_trans->cfg == &iwl9461_2ac_cfg_qu_b0_jf_b0)
+-			iwl_trans->cfg = &iwl9461_2ac_cfg_quz_a0_jf_b0_soc;
+-		else if (iwl_trans->cfg == &iwl9462_2ac_cfg_qu_b0_jf_b0)
+-			iwl_trans->cfg = &iwl9462_2ac_cfg_quz_a0_jf_b0_soc;
+-		else if (iwl_trans->cfg == &iwl9560_2ac_cfg_qu_b0_jf_b0)
+-			iwl_trans->cfg = &iwl9560_2ac_cfg_quz_a0_jf_b0_soc;
+-		else if (iwl_trans->cfg == &iwl9560_2ac_160_cfg_qu_b0_jf_b0)
+-			iwl_trans->cfg = &iwl9560_2ac_160_cfg_quz_a0_jf_b0_soc;
++		if (cfg == &iwl_ax101_cfg_qu_hr)
++			cfg = &iwl_ax101_cfg_quz_hr;
++		else if (cfg == &iwl_ax201_cfg_qu_hr)
++			cfg = &iwl_ax201_cfg_quz_hr;
++		else if (cfg == &iwl9461_2ac_cfg_qu_b0_jf_b0)
++			cfg = &iwl9461_2ac_cfg_quz_a0_jf_b0_soc;
++		else if (cfg == &iwl9462_2ac_cfg_qu_b0_jf_b0)
++			cfg = &iwl9462_2ac_cfg_quz_a0_jf_b0_soc;
++		else if (cfg == &iwl9560_2ac_cfg_qu_b0_jf_b0)
++			cfg = &iwl9560_2ac_cfg_quz_a0_jf_b0_soc;
++		else if (cfg == &iwl9560_2ac_160_cfg_qu_b0_jf_b0)
++			cfg = &iwl9560_2ac_160_cfg_quz_a0_jf_b0_soc;
+ 	}
  
- 		filter_type = add_filter_type(filter, event->id);
--		if (filter_type == NULL)
-+		if (filter_type == NULL) {
-+			free(str);
-+			free_arg(arg);
- 			return -1;
-+		}
- 
- 		filter_type->filter = arg;
- 
--- 
-2.20.1
-
+ #endif
 
 
