@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0762F12ED81
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:29:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D569812EC81
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:19:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729989AbgABW3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:29:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59590 "EHLO mail.kernel.org"
+        id S1728312AbgABWTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:19:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729825AbgABW3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:29:04 -0500
+        id S1727984AbgABWTL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:19:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE1C920863;
-        Thu,  2 Jan 2020 22:29:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ABA12253D;
+        Thu,  2 Jan 2020 22:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004143;
-        bh=u7o2lvfqaHuw8UnRD3nluPvVco34XB/WAfOwsSkrP0I=;
+        s=default; t=1578003550;
+        bh=KcelGyWJAYZ6r/myYq/loWbcnlucF4JKI0LqQ0izcgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydcLv6Yw+rirkbcloNJTwS4IDtwb5mzserCPR/c9UWyJYcasxgPAD6mjc7n4Rcagi
-         pHMngOf539DuM0ap2yhq83O+Hn5DQyf0fCq74IdSVmrioNjBIKRfIsf3514DQC8NZ+
-         /jOdUbsStzInV7rAmQzPixiYG3bi8Quvu5LupC5A=
+        b=NDpwJCma5+6TJYgpokpAeUC5SKj3XiGW2wMRwSrtVpra7NJ7GPXZfs/HhNzHCY/R+
+         oA9juyCqI5oinOQR8bg6r0vym5/snWSvEa0Dbcw8b7VSMeQ4YZDbVhIvEAddBtKjLX
+         M0/UxE87VKeyh+MbO5QyOcl1OlBCGJHfFblUAvsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 056/171] perf probe: Fix to probe a function which has no entry pc
-Date:   Thu,  2 Jan 2020 23:06:27 +0100
-Message-Id: <20200102220554.716543606@linuxfoundation.org>
+Subject: [PATCH 4.19 016/114] dma-debug: add a schedule point in debug_dma_dump_mappings()
+Date:   Thu,  2 Jan 2020 23:06:28 +0100
+Message-Id: <20200102220030.772529004@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220029.183913184@linuxfoundation.org>
+References: <20200102220029.183913184@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,94 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5d16dbcc311d91267ddb45c6da4f187be320ecee ]
+[ Upstream commit 9ff6aa027dbb98755f0265695354f2dd07c0d1ce ]
 
-Fix 'perf probe' to probe a function which has no entry pc or low pc but
-only has ranges attribute.
+debug_dma_dump_mappings() can take a lot of cpu cycles :
 
-probe_point_search_cb() uses dwarf_entrypc() to get the probe address,
-but that doesn't work for the function DIE which has only ranges
-attribute. Use die_entrypc() instead.
+lpk43:/# time wc -l /sys/kernel/debug/dma-api/dump
+163435 /sys/kernel/debug/dma-api/dump
 
-Without this fix:
+real	0m0.463s
+user	0m0.003s
+sys	0m0.459s
 
-  # perf probe -k ../build-x86_64/vmlinux -D clear_tasks_mm_cpumask:0
-  Probe point 'clear_tasks_mm_cpumask' not found.
-    Error: Failed to add events.
+Let's add a cond_resched() to avoid holding cpu for too long.
 
-With this:
-
-  # perf probe -k ../build-x86_64/vmlinux -D clear_tasks_mm_cpumask:0
-  p:probe/clear_tasks_mm_cpumask clear_tasks_mm_cpumask+0
-
-Committer testing:
-
-Before:
-
-  [root@quaco ~]# perf probe clear_tasks_mm_cpumask:0
-  Probe point 'clear_tasks_mm_cpumask' not found.
-    Error: Failed to add events.
-  [root@quaco ~]#
-
-After:
-
-  [root@quaco ~]# perf probe clear_tasks_mm_cpumask:0
-  Added new event:
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask)
-
-  You can now use it in all perf tools, such as:
-
-  	perf record -e probe:clear_tasks_mm_cpumask -aR sleep 1
-
-  [root@quaco ~]#
-
-Using it with 'perf trace':
-
-  [root@quaco ~]# perf trace -e probe:clear_tasks_mm_cpumask
-
-Doesn't seem to be used in x86_64:
-
-  $ find . -name "*.c" | xargs grep clear_tasks_mm_cpumask
-  ./kernel/cpu.c: * clear_tasks_mm_cpumask - Safely clear tasks' mm_cpumask for a CPU
-  ./kernel/cpu.c:void clear_tasks_mm_cpumask(int cpu)
-  ./arch/xtensa/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
-  ./arch/csky/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
-  ./arch/sh/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
-  ./arch/arm/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
-  ./arch/powerpc/mm/nohash/mmu_context.c:	clear_tasks_mm_cpumask(cpu);
-  $ find . -name "*.h" | xargs grep clear_tasks_mm_cpumask
-  ./include/linux/cpu.h:void clear_tasks_mm_cpumask(int cpu);
-  $ find . -name "*.S" | xargs grep clear_tasks_mm_cpumask
-  $
-
-Fixes: e1ecbbc3fa83 ("perf probe: Fix to handle optimized not-inlined functions")
-Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157199319438.8075.4695576954550638618.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Corentin Labbe <clabbe@baylibre.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/dma/debug.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index 9fc6fedcfa1a..cfc2e1e7cca4 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -1002,7 +1002,7 @@ static int probe_point_search_cb(Dwarf_Die *sp_die, void *data)
- 		param->retval = find_probe_point_by_line(pf);
- 	} else if (die_is_func_instance(sp_die)) {
- 		/* Instances always have the entry address */
--		dwarf_entrypc(sp_die, &pf->addr);
-+		die_entrypc(sp_die, &pf->addr);
- 		/* But in some case the entry address is 0 */
- 		if (pf->addr == 0) {
- 			pr_debug("%s has no entry PC. Skipped\n",
+diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
+index c007d25bee09..3a2397444076 100644
+--- a/kernel/dma/debug.c
++++ b/kernel/dma/debug.c
+@@ -442,6 +442,7 @@ void debug_dma_dump_mappings(struct device *dev)
+ 		}
+ 
+ 		spin_unlock_irqrestore(&bucket->lock, flags);
++		cond_resched();
+ 	}
+ }
+ 
 -- 
 2.20.1
 
