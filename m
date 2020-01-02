@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E2C112EC2C
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 251C812ED0B
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:24:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727609AbgABWP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:15:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57464 "EHLO mail.kernel.org"
+        id S1729251AbgABWY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:24:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728167AbgABWP5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:15:57 -0500
+        id S1728909AbgABWY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:24:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4015222314;
-        Thu,  2 Jan 2020 22:15:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0F7D20866;
+        Thu,  2 Jan 2020 22:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003356;
-        bh=XZ1U8JnRfsOdge9C/Nkv34u0lxhGTLvWnD34+oshmKE=;
+        s=default; t=1578003865;
+        bh=K7Da7CfJG3el96WvT6CvaZfsTE8nEfsPdfq4Qrvr6vU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TVk4Zdk9OylCB9BbYjLIMwFbgCkdH+5uz4lSC8Y/b/r1beS8WD9hG8uH5YpWMsiYI
-         pZwxsNnycnpAKEqO4Px79T7/RfSNCJjfRBE9OCyOav2+PDosnkY1fTZ9Fzjd271g4s
-         tz7ppgenYsV3B/hvXu8EyXpCLQY8NOu94NBo9mjo=
+        b=j7R2K13xeiGPMusotecmi4dFUop1hZjdm3PIaPHjrEfcn+my9toXrAYZLXNRiF3gv
+         nFQsyNSAlwbjK1pFfCNp3XpAdAerr+kCX/PzgwxXeHE9M7tNpJTwXX5/wmCSiImazp
+         1eHZ79+b9b4+L6z6ES5N1o6vJ4tgrHw2axo5d8ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 127/191] mm/hugetlbfs: fix error handling when setting up mounts
-Date:   Thu,  2 Jan 2020 23:06:49 +0100
-Message-Id: <20200102215843.357330718@linuxfoundation.org>
+Subject: [PATCH 4.14 08/91] scsi: csiostor: Dont enable IRQs too early
+Date:   Thu,  2 Jan 2020 23:06:50 +0100
+Message-Id: <20200102220406.922826555@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
-References: <20200102215829.911231638@linuxfoundation.org>
+In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,90 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 8fc312b32b25c6b0a8b46fab4df8c68df5af1223 ]
+[ Upstream commit d6c9b31ac3064fbedf8961f120a4c117daa59932 ]
 
-It is assumed that the hugetlbfs_vfsmount[] array will contain either a
-valid vfsmount pointer or NULL for each hstate after initialization.
-Changes made while converting to use fs_context broke this assumption.
+These are called with IRQs disabled from csio_mgmt_tmo_handler() so we
+can't call spin_unlock_irq() or it will enable IRQs prematurely.
 
-While fixing the hugetlbfs_vfsmount issue, it was discovered that
-init_hugetlbfs_fs never did correctly clean up when encountering a vfs
-mount error.
-
-It was found during code inspection.  A small memory allocation failure
-would be the most likely cause of taking a error path with the bug.
-This is unlikely to happen as this is early init code.
-
-Link: http://lkml.kernel.org/r/94b6244d-2c24-e269-b12c-e3ba694b242d@oracle.com
-Reported-by: Chengguang Xu <cgxu519@mykernel.net>
-Fixes: 32021982a324 ("hugetlbfs: Convert to fs_context")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
+Link: https://lore.kernel.org/r/20191019085913.GA14245@mwanda
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ drivers/scsi/csiostor/csio_lnode.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index a478df035651..26e3906c18fe 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -1461,28 +1461,41 @@ static int __init init_hugetlbfs_fs(void)
- 					sizeof(struct hugetlbfs_inode_info),
- 					0, SLAB_ACCOUNT, init_once);
- 	if (hugetlbfs_inode_cachep == NULL)
--		goto out2;
-+		goto out;
+diff --git a/drivers/scsi/csiostor/csio_lnode.c b/drivers/scsi/csiostor/csio_lnode.c
+index be5ee2d37815..957767d38361 100644
+--- a/drivers/scsi/csiostor/csio_lnode.c
++++ b/drivers/scsi/csiostor/csio_lnode.c
+@@ -301,6 +301,7 @@ csio_ln_fdmi_rhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	struct fc_fdmi_port_name *port_name;
+ 	uint8_t buf[64];
+ 	uint8_t *fc4_type;
++	unsigned long flags;
  
- 	error = register_filesystem(&hugetlbfs_fs_type);
- 	if (error)
--		goto out;
-+		goto out_free;
+ 	if (fdmi_req->wr_status != FW_SUCCESS) {
+ 		csio_ln_dbg(ln, "WR error:%x in processing fdmi rhba cmd\n",
+@@ -377,13 +378,13 @@ csio_ln_fdmi_rhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	len = (uint32_t)(pld - (uint8_t *)cmd);
  
-+	/* default hstate mount is required */
-+	mnt = mount_one_hugetlbfs(&hstates[default_hstate_idx]);
-+	if (IS_ERR(mnt)) {
-+		error = PTR_ERR(mnt);
-+		goto out_unreg;
-+	}
-+	hugetlbfs_vfsmount[default_hstate_idx] = mnt;
-+
-+	/* other hstates are optional */
- 	i = 0;
- 	for_each_hstate(h) {
-+		if (i == default_hstate_idx)
-+			continue;
-+
- 		mnt = mount_one_hugetlbfs(h);
--		if (IS_ERR(mnt) && i == 0) {
--			error = PTR_ERR(mnt);
--			goto out;
--		}
--		hugetlbfs_vfsmount[i] = mnt;
-+		if (IS_ERR(mnt))
-+			hugetlbfs_vfsmount[i] = NULL;
-+		else
-+			hugetlbfs_vfsmount[i] = mnt;
- 		i++;
+ 	/* Submit FDMI RPA request */
+-	spin_lock_irq(&hw->lock);
++	spin_lock_irqsave(&hw->lock, flags);
+ 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_done,
+ 				FCOE_CT, &fdmi_req->dma_buf, len)) {
+ 		CSIO_INC_STATS(ln, n_fdmi_err);
+ 		csio_ln_dbg(ln, "Failed to issue fdmi rpa req\n");
  	}
- 
- 	return 0;
- 
-- out:
-+ out_unreg:
-+	(void)unregister_filesystem(&hugetlbfs_fs_type);
-+ out_free:
- 	kmem_cache_destroy(hugetlbfs_inode_cachep);
-- out2:
-+ out:
- 	return error;
+-	spin_unlock_irq(&hw->lock);
++	spin_unlock_irqrestore(&hw->lock, flags);
  }
- fs_initcall(init_hugetlbfs_fs)
+ 
+ /*
+@@ -404,6 +405,7 @@ csio_ln_fdmi_dprt_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	struct fc_fdmi_rpl *reg_pl;
+ 	struct fs_fdmi_attrs *attrib_blk;
+ 	uint8_t buf[64];
++	unsigned long flags;
+ 
+ 	if (fdmi_req->wr_status != FW_SUCCESS) {
+ 		csio_ln_dbg(ln, "WR error:%x in processing fdmi dprt cmd\n",
+@@ -483,13 +485,13 @@ csio_ln_fdmi_dprt_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	attrib_blk->numattrs = htonl(numattrs);
+ 
+ 	/* Submit FDMI RHBA request */
+-	spin_lock_irq(&hw->lock);
++	spin_lock_irqsave(&hw->lock, flags);
+ 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_rhba_cbfn,
+ 				FCOE_CT, &fdmi_req->dma_buf, len)) {
+ 		CSIO_INC_STATS(ln, n_fdmi_err);
+ 		csio_ln_dbg(ln, "Failed to issue fdmi rhba req\n");
+ 	}
+-	spin_unlock_irq(&hw->lock);
++	spin_unlock_irqrestore(&hw->lock, flags);
+ }
+ 
+ /*
+@@ -504,6 +506,7 @@ csio_ln_fdmi_dhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	void *cmd;
+ 	struct fc_fdmi_port_name *port_name;
+ 	uint32_t len;
++	unsigned long flags;
+ 
+ 	if (fdmi_req->wr_status != FW_SUCCESS) {
+ 		csio_ln_dbg(ln, "WR error:%x in processing fdmi dhba cmd\n",
+@@ -534,13 +537,13 @@ csio_ln_fdmi_dhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	len += sizeof(*port_name);
+ 
+ 	/* Submit FDMI request */
+-	spin_lock_irq(&hw->lock);
++	spin_lock_irqsave(&hw->lock, flags);
+ 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_dprt_cbfn,
+ 				FCOE_CT, &fdmi_req->dma_buf, len)) {
+ 		CSIO_INC_STATS(ln, n_fdmi_err);
+ 		csio_ln_dbg(ln, "Failed to issue fdmi dprt req\n");
+ 	}
+-	spin_unlock_irq(&hw->lock);
++	spin_unlock_irqrestore(&hw->lock, flags);
+ }
+ 
+ /**
 -- 
 2.20.1
 
