@@ -2,83 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5283712EB83
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 22:48:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA2012EB87
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 22:52:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725883AbgABVsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 16:48:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58760 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725837AbgABVsW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 16:48:22 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17DDD20863;
-        Thu,  2 Jan 2020 21:48:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578001701;
-        bh=2WXjLqQbps2a6F38F9m9ASGc4E7E4qO9KBQB0pZiS/s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ChnEJTAvI7DSzADhF4xt8jED3CPXr3vS4YW3KPb+PiK/qm9oKKW7Rer8Cq/42UYwo
-         XnuAhVqELmoj3plWmKpRtqMrzCQWsLyvDmUcw4repVTJU+4yncndX/v4YWVLYRFa5v
-         8EqDycQLYCLokgf9eMd7Bzpt2ELML+SwC5TEpI5s=
-Date:   Thu, 2 Jan 2020 22:48:19 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Michal Kubecek <mkubecek@suse.cz>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Eric Dumazet <edumazet@google.com>,
-        Firo Yang <firo.yang@suse.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        rcu@vger.kernel.org, netdev@vger.kernel.org,
-        lkft-triage@lists.linaro.org,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: Re: [PATCH stable-4.19] tcp/dccp: fix possible race
- __inet_lookup_established()
-Message-ID: <20200102214819.GA745235@kroah.com>
-References: <CA+G9fYv3=oJSFodFp4wwF7G7_g5FWYRYbc4F0AMU6jyfLT689A@mail.gmail.com>
- <20200102212844.0D734E0095@unicorn.suse.cz>
+        id S1725851AbgABVwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 16:52:13 -0500
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:44327 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725837AbgABVwN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 16:52:13 -0500
+Received: by mail-wr1-f52.google.com with SMTP id q10so1723486wrm.11
+        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 13:52:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=U+pqTgcE04tvRfjYMCYTR1NajPLJqXoVhGB79EoGsgM=;
+        b=NGg8Hc4xOH2vNew5DlLA0Dtu5lYwg1EDfPEsdNE/GL1rmc0LnmsWxHy8g/VrQFA0GW
+         1Aoj7+fyload4FMIVFWeEXK+bvhU0kX2ocey/HoJdlFQajWoTBixwL0oIjdqOhs4V6LB
+         +aK/w/ejd1gLg//IFfTLr04DvGf0x1YdO3ABVi4v2WDXHFTCkVtjup8FZwo6zon4qVFh
+         41Fi0mjpa2jyCeGjd6c1Q2o0yCd5Mxqn6n+gM3h/8//ipy/QGLMOpQ9YFgw7z/ThzvWz
+         FrlCVm4BHazjjWGYCus+mjUXOWJYt9HtzhDlDRaeozWHnOD56SKiN2IGaIazq47rRa6w
+         ThhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=U+pqTgcE04tvRfjYMCYTR1NajPLJqXoVhGB79EoGsgM=;
+        b=fsfsowk3NIF7+2XA1IaqRK4gxcAOUliHKQJJzcmH0SfP7RMuCWLsltr1XudVROisId
+         ToWcgrU7ynWpacoLopqne4T6rhDbGA63pR5H9VA3OfUXuObySgrEm/shoxJmbSnn+s7P
+         dU3P89HrVLdYENgR2M+dFrGMhl/p7Rjy25wW6izIMTAcIOBWEC/05Pee4YZxzjufI9AK
+         /NM+3voDaPDpv+ThdIZCK+/t+blGujufb8LshB8iosgd3eBsKwqtIW+FDSdQqQMyPvrw
+         f5pLLT4DXqNF7Q5fbi/U8GaqnoguYvHf6VB8RogvREEgdM+TBeCH6uFKPe6rE7e6VTD7
+         dJoA==
+X-Gm-Message-State: APjAAAUAGKZHT5agacFNWIYsGfUZ5zIGAgGm+EGS8uDBsZIf5TzNmobK
+        GRg3gux5FKkQwZdqeXxt/xilWykGJiq60g==
+X-Google-Smtp-Source: APXvYqzvxgicEqKgUjTQk8CXsANgwzhRKv2GOjepY+jq7okItmf81OK/nAxunxejNYEyTmiI0d0sUA==
+X-Received: by 2002:adf:e58d:: with SMTP id l13mr81209070wrm.135.1578001929692;
+        Thu, 02 Jan 2020 13:52:09 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id p15sm9698117wma.40.2020.01.02.13.52.09
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Jan 2020 13:52:09 -0800 (PST)
+Message-ID: <5e0e6609.1c69fb81.41bc8.c83b@mx.google.com>
+Date:   Thu, 02 Jan 2020 13:52:09 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200102212844.0D734E0095@unicorn.suse.cz>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.207-138-g666c46c319d9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 32 boots: 0 failed,
+ 32 passed (v4.4.207-138-g666c46c319d9)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 02, 2020 at 10:28:44PM +0100, Michal Kubecek wrote:
-> From: Eric Dumazet <edumazet@google.com>
-> 
-> [ Upstream commit 8dbd76e79a16b45b2ccb01d2f2e08dbf64e71e40 ]
-> 
-> Michal Kubecek and Firo Yang did a very nice analysis of crashes
-> happening in __inet_lookup_established().
-> 
-> Since a TCP socket can go from TCP_ESTABLISH to TCP_LISTEN
-> (via a close()/socket()/listen() cycle) without a RCU grace period,
-> I should not have changed listeners linkage in their hash table.
-> 
-> They must use the nulls protocol (Documentation/RCU/rculist_nulls.txt),
-> so that a lookup can detect a socket in a hash list was moved in
-> another one.
-> 
-> Since we added code in commit d296ba60d8e2 ("soreuseport: Resolve
-> merge conflict for v4/v6 ordering fix"), we have to add
-> hlist_nulls_add_tail_rcu() helper.
-> 
-> stable-4.19: we also need to update code in __inet_lookup_listener() and
-> inet6_lookup_listener() which has been removed in 5.0-rc1.
-> 
-> Fixes: 3b24d854cb35 ("tcp/dccp: do not touch listener sk_refcnt under synflood")
-> Signed-off-by: Eric Dumazet <edumazet@google.com>
-> Reported-by: Michal Kubecek <mkubecek@suse.cz>
-> Reported-by: Firo Yang <firo.yang@suse.com>
-> Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
-> Link: https://lore.kernel.org/netdev/20191120083919.GH27852@unicorn.suse.cz/
-> Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-> Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+stable-rc/linux-4.4.y boot: 32 boots: 0 failed, 32 passed (v4.4.207-138-g66=
+6c46c319d9)
 
-Thanks for the updated patches, all now queued up.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.207-138-g666c46c319d9/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.207-138-g666c46c319d9/
 
-greg k-h
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.207-138-g666c46c319d9
+Git Commit: 666c46c319d9851d8c0cfe5843cc962da28aeba3
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 18 unique boards, 9 SoC families, 9 builds out of 190
+
+---
+For more info write to <info@kernelci.org>
