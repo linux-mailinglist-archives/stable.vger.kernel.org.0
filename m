@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3788E12EF1B
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:44:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D1F612EE71
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:38:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728842AbgABWdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:33:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41252 "EHLO mail.kernel.org"
+        id S1731343AbgABWir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:38:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730530AbgABWdh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:33:37 -0500
+        id S1731354AbgABWir (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:38:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F75521D7D;
-        Thu,  2 Jan 2020 22:33:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29FBB21835;
+        Thu,  2 Jan 2020 22:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004416;
-        bh=ljE6LJalJQ4T2iuSgGcVOWSJgzZoXUCBg5/49+IIkrM=;
+        s=default; t=1578004726;
+        bh=AsgN12WOBTB9X5A+bu6+gH2DzaMQ1n3a6A3Pg8Z64Vw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e1CIe/h0DpYduba/V/BS3M1xG/9P2L64e+ejoExeLYLXSQFtljONdypTtWSCF0wM2
-         yWL0vz3ESP/YbPgBHHppl7Bu2eQS5KQJsF3lAwypqGTwP/vntict8KuwNwc4c5K/zC
-         sCjZ3BBhZgnehROaL0e5rKVpv0dRD2RkTss+gVKA=
+        b=ehH69hVVDgJyC1Xf51EkPU9zGhEXzhZH0jwVF5baUXDFLeKyTvK1zy4ot9PblvffS
+         oOINPZtOsqnagppylvLBXKB/yX6yTgRlfyo5jgAJmLu2AiVjDq7g6baqzhqTcBEfnb
+         Hc/EWr4vHVIYC8j5HUoulNhpqbzo/u/5W5f3IQuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.9 170/171] gtp: fix wrong condition in gtp_genl_dump_pdp()
+        stable@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jann Horn <jannh@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Siddharth Chandrasekaran <csiddharth@vmware.com>
+Subject: [PATCH 4.4 128/137] Make filldir[64]() verify the directory entry filename is valid
 Date:   Thu,  2 Jan 2020 23:08:21 +0100
-Message-Id: <20200102220610.205742114@linuxfoundation.org>
+Message-Id: <20200102220604.355269800@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +46,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 94a6d9fb88df43f92d943c32b84ce398d50bf49f ]
+commit 8a23eb804ca4f2be909e372cf5a9e7b30ae476cd upstream.
 
-gtp_genl_dump_pdp() is ->dumpit() callback of GTP module and it is used
-to dump pdp contexts. it would be re-executed because of dump packet size.
+This has been discussed several times, and now filesystem people are
+talking about doing it individually at the filesystem layer, so head
+that off at the pass and just do it in getdents{64}().
 
-If dump packet size is too big, it saves current dump pointer
-(gtp interface pointer, bucket, TID value) then it restarts dump from
-last pointer.
-Current GTP code allows adding zero TID pdp context but dump code
-ignores zero TID value. So, last dump pointer will not be found.
+This is partially based on a patch by Jann Horn, but checks for NUL
+bytes as well, and somewhat simplified.
 
-In addition, this patch adds missing rcu_read_lock() in
-gtp_genl_dump_pdp().
+There's also commentary about how it might be better if invalid names
+due to filesystem corruption don't cause an immediate failure, but only
+an error at the end of the readdir(), so that people can still see the
+filenames that are ok.
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+There's also been discussion about just how much POSIX strictly speaking
+requires this since it's about filesystem corruption.  It's really more
+"protect user space from bad behavior" as pointed out by Jann.  But
+since Eric Biederman looked up the POSIX wording, here it is for context:
+
+ "From readdir:
+
+   The readdir() function shall return a pointer to a structure
+   representing the directory entry at the current position in the
+   directory stream specified by the argument dirp, and position the
+   directory stream at the next entry. It shall return a null pointer
+   upon reaching the end of the directory stream. The structure dirent
+   defined in the <dirent.h> header describes a directory entry.
+
+  From definitions:
+
+   3.129 Directory Entry (or Link)
+
+   An object that associates a filename with a file. Several directory
+   entries can associate names with the same file.
+
+  ...
+
+   3.169 Filename
+
+   A name consisting of 1 to {NAME_MAX} bytes used to name a file. The
+   characters composing the name may be selected from the set of all
+   character values excluding the slash character and the null byte. The
+   filenames dot and dot-dot have special meaning. A filename is
+   sometimes referred to as a 'pathname component'."
+
+Note that I didn't bother adding the checks to any legacy interfaces
+that nobody uses.
+
+Also note that if this ends up being noticeable as a performance
+regression, we can fix that to do a much more optimized model that
+checks for both NUL and '/' at the same time one word at a time.
+
+We haven't really tended to optimize 'memchr()', and it only checks for
+one pattern at a time anyway, and we really _should_ check for NUL too
+(but see the comment about "soft errors" in the code about why it
+currently only checks for '/')
+
+See the CONFIG_DCACHE_WORD_ACCESS case of hash_name() for how the name
+lookup code looks for pathname terminating characters in parallel.
+
+Link: https://lore.kernel.org/lkml/20190118161440.220134-2-jannh@google.com/
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Jann Horn <jannh@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Siddharth Chandrasekaran <csiddharth@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/gtp.c |   36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -42,7 +42,6 @@ struct pdp_ctx {
- 	struct hlist_node	hlist_addr;
+---
+ fs/readdir.c |   40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+--- a/fs/readdir.c
++++ b/fs/readdir.c
+@@ -51,6 +51,40 @@ out:
+ EXPORT_SYMBOL(iterate_dir);
  
- 	union {
--		u64		tid;
- 		struct {
- 			u64	tid;
- 			u16	flow;
-@@ -1221,43 +1220,46 @@ static int gtp_genl_dump_pdp(struct sk_b
- 				struct netlink_callback *cb)
- {
- 	struct gtp_dev *last_gtp = (struct gtp_dev *)cb->args[2], *gtp;
-+	int i, j, bucket = cb->args[0], skip = cb->args[1];
- 	struct net *net = sock_net(skb->sk);
--	struct gtp_net *gn = net_generic(net, gtp_net_id);
--	unsigned long tid = cb->args[1];
--	int i, k = cb->args[0], ret;
- 	struct pdp_ctx *pctx;
-+	struct gtp_net *gn;
+ /*
++ * POSIX says that a dirent name cannot contain NULL or a '/'.
++ *
++ * It's not 100% clear what we should really do in this case.
++ * The filesystem is clearly corrupted, but returning a hard
++ * error means that you now don't see any of the other names
++ * either, so that isn't a perfect alternative.
++ *
++ * And if you return an error, what error do you use? Several
++ * filesystems seem to have decided on EUCLEAN being the error
++ * code for EFSCORRUPTED, and that may be the error to use. Or
++ * just EIO, which is perhaps more obvious to users.
++ *
++ * In order to see the other file names in the directory, the
++ * caller might want to make this a "soft" error: skip the
++ * entry, and return the error at the end instead.
++ *
++ * Note that this should likely do a "memchr(name, 0, len)"
++ * check too, since that would be filesystem corruption as
++ * well. However, that case can't actually confuse user space,
++ * which has to do a strlen() on the name anyway to find the
++ * filename length, and the above "soft error" worry means
++ * that it's probably better left alone until we have that
++ * issue clarified.
++ */
++static int verify_dirent_name(const char *name, int len)
++{
++	if (WARN_ON_ONCE(!len))
++		return -EIO;
++	if (WARN_ON_ONCE(memchr(name, '/', len)))
++		return -EIO;
++	return 0;
++}
 +
-+	gn = net_generic(net, gtp_net_id);
++/*
+  * Traditional linux readdir() handling..
+  *
+  * "count=1" is a special case, meaning that the buffer is one
+@@ -159,6 +193,9 @@ static int filldir(struct dir_context *c
+ 	int reclen = ALIGN(offsetof(struct linux_dirent, d_name) + namlen + 2,
+ 		sizeof(long));
  
- 	if (cb->args[4])
- 		return 0;
++	buf->error = verify_dirent_name(name, namlen);
++	if (unlikely(buf->error))
++		return buf->error;
+ 	buf->error = -EINVAL;	/* only used if we fail.. */
+ 	if (reclen > buf->count)
+ 		return -EINVAL;
+@@ -243,6 +280,9 @@ static int filldir64(struct dir_context
+ 	int reclen = ALIGN(offsetof(struct linux_dirent64, d_name) + namlen + 1,
+ 		sizeof(u64));
  
-+	rcu_read_lock();
- 	list_for_each_entry_rcu(gtp, &gn->gtp_dev_list, list) {
- 		if (last_gtp && last_gtp != gtp)
- 			continue;
- 		else
- 			last_gtp = NULL;
- 
--		for (i = k; i < gtp->hash_size; i++) {
--			hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i], hlist_tid) {
--				if (tid && tid != pctx->u.tid)
--					continue;
--				else
--					tid = 0;
--
--				ret = gtp_genl_fill_info(skb,
--							 NETLINK_CB(cb->skb).portid,
--							 cb->nlh->nlmsg_seq,
--							 cb->nlh->nlmsg_type, pctx);
--				if (ret < 0) {
-+		for (i = bucket; i < gtp->hash_size; i++) {
-+			j = 0;
-+			hlist_for_each_entry_rcu(pctx, &gtp->tid_hash[i],
-+						 hlist_tid) {
-+				if (j >= skip &&
-+				    gtp_genl_fill_info(skb,
-+					    NETLINK_CB(cb->skb).portid,
-+					    cb->nlh->nlmsg_seq,
-+					    cb->nlh->nlmsg_type, pctx)) {
- 					cb->args[0] = i;
--					cb->args[1] = pctx->u.tid;
-+					cb->args[1] = j;
- 					cb->args[2] = (unsigned long)gtp;
- 					goto out;
- 				}
-+				j++;
- 			}
-+			skip = 0;
- 		}
-+		bucket = 0;
- 	}
- 	cb->args[4] = 1;
- out:
-+	rcu_read_unlock();
- 	return skb->len;
- }
- 
++	buf->error = verify_dirent_name(name, namlen);
++	if (unlikely(buf->error))
++		return buf->error;
+ 	buf->error = -EINVAL;	/* only used if we fail.. */
+ 	if (reclen > buf->count)
+ 		return -EINVAL;
 
 
