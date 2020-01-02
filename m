@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA89A12EF7D
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:46:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 552CF12EEEF
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 23:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729641AbgABWah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:30:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
+        id S1731042AbgABWmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:42:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729864AbgABWag (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:30:36 -0500
+        id S1730472AbgABWgF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:36:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1324F21D7D;
-        Thu,  2 Jan 2020 22:30:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA7E121835;
+        Thu,  2 Jan 2020 22:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578004236;
-        bh=UlIrjS1VdleJiidbkoDs/wX9bcdlxfb/lXPxLMDuuM4=;
+        s=default; t=1578004564;
+        bh=Cx/xZ2CdBultJ1QQYrebdLtgIDl5PklKrm8PpPvqR0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xnJn1kGfDWDl/9PsW6a9BiIHO+5p6doVMKJLYMa5OFgpcb5SJ0YRaYNbZHgL610np
-         JB5A/gCE2BhnnXZlpVpowQBlGmhn3vTw9MwXxA3NBTaD3EQHQD+oav6arpzqDtbc+F
-         Ql0dT5JGlnct6BxqgxHgqM0coJfvOwN0ydgM1RFw=
+        b=s+N0ym+xhbEvBu3sz9EYWSDe4RK/CiSSrnVIKWphbjCEfItnglWaGyfO1NoWl1Z/j
+         Yyhhuq79PZDhznsU2gJEiXOh2Axp4wSAygRW2H79OrTZkJDS3Elmxxna69FR4CKmG5
+         EwZyE9b+6QyWnOJe8bSQmYJJmo+dvKBIlE8i5lfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 094/171] fjes: fix missed check in fjes_acpi_add
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Robert Richter <rrichter@marvell.com>,
+        Borislav Petkov <bp@suse.de>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 052/137] EDAC/ghes: Fix grain calculation
 Date:   Thu,  2 Jan 2020 23:07:05 +0100
-Message-Id: <20200102220600.231348306@linuxfoundation.org>
+Message-Id: <20200102220553.544836208@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-References: <20200102220546.960200039@linuxfoundation.org>
+In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
+References: <20200102220546.618583146@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +48,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Robert Richter <rrichter@marvell.com>
 
-[ Upstream commit a288f105a03a7e0e629a8da2b31f34ebf0343ee2 ]
+[ Upstream commit 7088e29e0423d3195e09079b4f849ec4837e5a75 ]
 
-fjes_acpi_add() misses a check for platform_device_register_simple().
-Add a check to fix it.
+The current code to convert a physical address mask to a grain
+(defined as granularity in bytes) is:
 
-Fixes: 658d439b2292 ("fjes: Introduce FUJITSU Extended Socket Network Device driver")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	e->grain = ~(mem_err->physical_addr_mask & ~PAGE_MASK);
+
+This is broken in several ways:
+
+1) It calculates to wrong grain values. E.g., a physical address mask
+of ~0xfff should give a grain of 0x1000. Without considering
+PAGE_MASK, there is an off-by-one. Things are worse when also
+filtering it with ~PAGE_MASK. This will calculate to a grain with the
+upper bits set. In the example it even calculates to ~0.
+
+2) The grain does not depend on and is unrelated to the kernel's
+page-size. The page-size only matters when unmapping memory in
+memory_failure(). Smaller grains are wrongly rounded up to the
+page-size, on architectures with a configurable page-size (e.g. arm64)
+this could round up to the even bigger page-size of the hypervisor.
+
+Fix this with:
+
+	e->grain = ~mem_err->physical_addr_mask + 1;
+
+The grain_bits are defined as:
+
+	grain = 1 << grain_bits;
+
+Change also the grain_bits calculation accordingly, it is the same
+formula as in edac_mc.c now and the code can be unified.
+
+The value in ->physical_addr_mask coming from firmware is assumed to
+be contiguous, but this is not sanity-checked. However, in case the
+mask is non-contiguous, a conversion to grain_bits effectively
+converts the grain bit mask to a power of 2 by rounding it up.
+
+Suggested-by: James Morse <james.morse@arm.com>
+Signed-off-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20191106093239.25517-11-rrichter@marvell.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/fjes/fjes_main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/edac/ghes_edac.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/net/fjes/fjes_main.c
-+++ b/drivers/net/fjes/fjes_main.c
-@@ -148,6 +148,9 @@ static int fjes_acpi_add(struct acpi_dev
- 	/* create platform_device */
- 	plat_dev = platform_device_register_simple(DRV_NAME, 0, fjes_resource,
- 						   ARRAY_SIZE(fjes_resource));
-+	if (IS_ERR(plat_dev))
-+		return PTR_ERR(plat_dev);
-+
- 	device->driver_data = plat_dev;
+diff --git a/drivers/edac/ghes_edac.c b/drivers/edac/ghes_edac.c
+index e3fa4390f846..4ddbf6604e2a 100644
+--- a/drivers/edac/ghes_edac.c
++++ b/drivers/edac/ghes_edac.c
+@@ -189,6 +189,7 @@ void ghes_edac_report_mem_error(struct ghes *ghes, int sev,
+ 	/* Cleans the error report buffer */
+ 	memset(e, 0, sizeof (*e));
+ 	e->error_count = 1;
++	e->grain = 1;
+ 	strcpy(e->label, "unknown label");
+ 	e->msg = pvt->msg;
+ 	e->other_detail = pvt->other_detail;
+@@ -284,7 +285,7 @@ void ghes_edac_report_mem_error(struct ghes *ghes, int sev,
  
- 	return 0;
+ 	/* Error grain */
+ 	if (mem_err->validation_bits & CPER_MEM_VALID_PA_MASK)
+-		e->grain = ~(mem_err->physical_addr_mask & ~PAGE_MASK);
++		e->grain = ~mem_err->physical_addr_mask + 1;
+ 
+ 	/* Memory error location, mapped on e->location */
+ 	p = e->location;
+@@ -391,8 +392,13 @@ void ghes_edac_report_mem_error(struct ghes *ghes, int sev,
+ 	if (p > pvt->other_detail)
+ 		*(p - 1) = '\0';
+ 
++	/* Sanity-check driver-supplied grain value. */
++	if (WARN_ON_ONCE(!e->grain))
++		e->grain = 1;
++
++	grain_bits = fls_long(e->grain - 1);
++
+ 	/* Generate the trace event */
+-	grain_bits = fls_long(e->grain);
+ 	snprintf(pvt->detail_location, sizeof(pvt->detail_location),
+ 		 "APEI location: %s %s", e->location, e->other_detail);
+ 	trace_mc_event(type, e->msg, e->label, e->error_count,
+-- 
+2.20.1
+
 
 
