@@ -2,74 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEED912E86E
-	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 17:09:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B4D12E87F
+	for <lists+stable@lfdr.de>; Thu,  2 Jan 2020 17:10:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728761AbgABQJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 11:09:35 -0500
-Received: from first.geanix.com ([116.203.34.67]:51890 "EHLO first.geanix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728678AbgABQJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 11:09:35 -0500
-Received: from [192.168.100.95] (unknown [95.138.208.137])
-        by first.geanix.com (Postfix) with ESMTPSA id 04A04753;
-        Thu,  2 Jan 2020 16:09:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1577981363; bh=m8fuwRp3fKASi2WchSnLIZHMD40mpj8Tf45qZtKc6hE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=Han7x36upLq/kkyUcQI7VxVCG70bcnnWwFdxxiuc6jEWYhmjIHkY3rBG8Srsqqgxd
-         ug+uzbdcGULpvfJOh8mP0wOQ8UURnvwyLFM87/fd/t1QtHPe6IHL5WxplCifIZ9zIg
-         4Jbwb9K1Ya/TtgBLHfXtGkvwxOPUAjZhnyAjtm1KMI0PJ7HTh/6W6xoFgn3ePOTwSR
-         WbLHT2ksj0SNkrqFg3dsNXb15cVnAwZJUjmbMyKR+bfsawVLmfDjtGFTnCk3HPic5A
-         QYglAF7xAtBzJOtoOVI29l36G37NUQ6M5pkdj+39J07XuO7C0YJc6HqrInzYMkV+dt
-         /HwJSKlAi/4DQ==
-Subject: Re: [PATCH v2 1/2] can: m_can: tcan4x5x: put the device out of
- standby before register access
-To:     Marc Kleine-Budde <mkl@pengutronix.de>, linux-can@vger.kernel.org
-Cc:     dmurphy@ti.com, martin@geanix.com, stable@vger.kernel.org
-References: <20191209192440.998659-1-sean@geanix.com>
- <d58b9d08-dbd8-b73e-dae1-286c1a3ce8f2@pengutronix.de>
-From:   Sean Nyekjaer <sean@geanix.com>
-Message-ID: <973df29f-c930-c6b2-17c4-3e3b468f3bf0@geanix.com>
-Date:   Thu, 2 Jan 2020 17:09:31 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.1
+        id S1728813AbgABQJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 11:09:47 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:51819 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728835AbgABQJq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 11:09:46 -0500
+Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1in32Z-0000mM-Tw; Thu, 02 Jan 2020 17:09:40 +0100
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Oliver Hartkopp <socketcan@hartkopp.net>,
+        syzbot+b02ff0707a97e4e79ebb@syzkaller.appspotmail.com,
+        linux-stable <stable@vger.kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 6/9] can: can_dropped_invalid_skb(): ensure an initialized headroom in outgoing CAN sk_buffs
+Date:   Thu,  2 Jan 2020 17:09:31 +0100
+Message-Id: <20200102160934.1524-7-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200102160934.1524-1-mkl@pengutronix.de>
+References: <20200102160934.1524-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <d58b9d08-dbd8-b73e-dae1-286c1a3ce8f2@pengutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US-large
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.7 required=4.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_INVALID,DKIM_SIGNED,URIBL_BLOCKED autolearn=disabled version=3.4.3
-X-Spam-Checker-Version: SpamAssassin 3.4.3 (2019-12-06) on ea2d15de10a4
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:205:1d::14
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
+KMSAN sysbot detected a read access to an untinitialized value in the
+headroom of an outgoing CAN related sk_buff. When using CAN sockets this
+area is filled appropriately - but when using a packet socket this
+initialization is missing.
 
-On 02/01/2020 16.46, Marc Kleine-Budde wrote:
-> On 12/9/19 8:24 PM, Sean Nyekjaer wrote:
->> The m_can tries to detect of niso (canfd) is available while in standby,
->> this function results in the following error:
->>
->> tcan4x5x spi2.0 (unnamed net_device) (uninitialized): Failed to init module
->> tcan4x5x spi2.0: m_can device registered (irq=84, version=32)
->> tcan4x5x spi2.0 can2: TCAN4X5X successfully initialized.
-> 
-> Can you add the missing error handling to m_can_config_endisable(), and
-> handle this error correctly in all its callers?
-> 
-> Marc
-> 
+The problematic read access occurs in the CAN receive path which can
+only be triggered when the sk_buff is sent through a (virtual) CAN
+interface. So we check in the sending path whether we need to perform
+the missing initializations.
 
-Hi Marc
+Fixes: d3b58c47d330d ("can: replace timestamp as unique skb attribute")
+Reported-by: syzbot+b02ff0707a97e4e79ebb@syzkaller.appspotmail.com
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Cc: linux-stable <stable@vger.kernel.org> # >= v4.1
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ include/linux/can/dev.h | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-Sorry if this was a bit of mess :)
-Version 6 of this patch is already applied....
-https://www.spinics.net/lists/linux-can/msg03186.html
+diff --git a/include/linux/can/dev.h b/include/linux/can/dev.h
+index 9b3c720a31b1..5e3d45525bd3 100644
+--- a/include/linux/can/dev.h
++++ b/include/linux/can/dev.h
+@@ -18,6 +18,7 @@
+ #include <linux/can/error.h>
+ #include <linux/can/led.h>
+ #include <linux/can/netlink.h>
++#include <linux/can/skb.h>
+ #include <linux/netdevice.h>
+ 
+ /*
+@@ -91,6 +92,36 @@ struct can_priv {
+ #define get_can_dlc(i)		(min_t(__u8, (i), CAN_MAX_DLC))
+ #define get_canfd_dlc(i)	(min_t(__u8, (i), CANFD_MAX_DLC))
+ 
++/* Check for outgoing skbs that have not been created by the CAN subsystem */
++static inline bool can_skb_headroom_valid(struct net_device *dev,
++					  struct sk_buff *skb)
++{
++	/* af_packet creates a headroom of HH_DATA_MOD bytes which is fine */
++	if (WARN_ON_ONCE(skb_headroom(skb) < sizeof(struct can_skb_priv)))
++		return false;
++
++	/* af_packet does not apply CAN skb specific settings */
++	if (skb->ip_summed == CHECKSUM_NONE) {
++		/* init headroom */
++		can_skb_prv(skb)->ifindex = dev->ifindex;
++		can_skb_prv(skb)->skbcnt = 0;
++
++		skb->ip_summed = CHECKSUM_UNNECESSARY;
++
++		/* preform proper loopback on capable devices */
++		if (dev->flags & IFF_ECHO)
++			skb->pkt_type = PACKET_LOOPBACK;
++		else
++			skb->pkt_type = PACKET_HOST;
++
++		skb_reset_mac_header(skb);
++		skb_reset_network_header(skb);
++		skb_reset_transport_header(skb);
++	}
++
++	return true;
++}
++
+ /* Drop a given socketbuffer if it does not contain a valid CAN frame. */
+ static inline bool can_dropped_invalid_skb(struct net_device *dev,
+ 					  struct sk_buff *skb)
+@@ -108,6 +139,9 @@ static inline bool can_dropped_invalid_skb(struct net_device *dev,
+ 	} else
+ 		goto inval_skb;
+ 
++	if (!can_skb_headroom_valid(dev, skb))
++		goto inval_skb;
++
+ 	return false;
+ 
+ inval_skb:
+-- 
+2.24.1
 
-Do you want me to add more error handling than this?
-
-/Sean
