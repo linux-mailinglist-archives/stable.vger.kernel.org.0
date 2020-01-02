@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B41112F189
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:02:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 605C012F18B
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 00:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726820AbgABWLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 17:11:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49582 "EHLO mail.kernel.org"
+        id S1727145AbgABWLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 17:11:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726702AbgABWL2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 17:11:28 -0500
+        id S1726823AbgABWLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 17:11:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B279721D7D;
-        Thu,  2 Jan 2020 22:11:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE1E521582;
+        Thu,  2 Jan 2020 22:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578003088;
-        bh=0hcivgfnIPv5RFLLByzSdVuZjO4Jod2h9/haKpKzhhc=;
+        s=default; t=1578003095;
+        bh=b44j38iHZ3ItcTR0oJTXn1vJs/HMycr3LGK/7wKou9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fYxp7PwOH58ffwkpX0nP9OvjU0yE5ZY0lD8NG0pm6DktjEo96AtVQ71lRZljrMkKi
-         s+r3/so4nrtOT8VtgVs19C28yealB/DIhOcxKHRg8A3nRqV8+cjcGxLXW2pzGSETf5
-         /Jo1dl9SJFIgDgl7OYxTbHZpP5Nlk/3uWBSl4a/E=
+        b=rAawphMYSuqGLu6cJQ6D907qIoxrwdPrbWg3XtN2HdadczOl8gzqnD1JMUkLAIsV/
+         oDCQgTAxPYd/bVvJ39NjsPr/5QPMfcqbPl+3fCEXZId/8ESSHjwy9ulgekeXSkM+RY
+         XUNRPxcY8EIXNqySF+bttolRTRk8qgE3VBodW2EY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 015/191] iommu: rockchip: Free domain on .domain_free
-Date:   Thu,  2 Jan 2020 23:04:57 +0100
-Message-Id: <20200102215831.389395073@linuxfoundation.org>
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <mchristi@redhat.com>,
+        David Disseldorp <ddiss@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 018/191] scsi: target: compare full CHAP_A Algorithm strings
+Date:   Thu,  2 Jan 2020 23:05:00 +0100
+Message-Id: <20200102215831.806883884@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
 References: <20200102215829.911231638@linuxfoundation.org>
@@ -45,62 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit 42bb97b80f2e3bf592e3e99d109b67309aa1b30e ]
+[ Upstream commit 9cef2a7955f2754257a7cddedec16edae7b587d0 ]
 
-IOMMU domain resource life is well-defined, managed
-by .domain_alloc and .domain_free.
+RFC 2307 states:
 
-Therefore, domain-specific resources shouldn't be tied to
-the device life, but instead to its domain.
+  For CHAP [RFC1994], in the first step, the initiator MUST send:
 
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Acked-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+      CHAP_A=<A1,A2...>
+
+   Where A1,A2... are proposed algorithms, in order of preference.
+...
+   For the Algorithm, as stated in [RFC1994], one value is required to
+   be implemented:
+
+       5     (CHAP with MD5)
+
+LIO currently checks for this value by only comparing a single byte in
+the tokenized Algorithm string, which means that any value starting with
+a '5' (e.g. "55") is interpreted as "CHAP with MD5". Fix this by
+comparing the entire tokenized string.
+
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Link: https://lore.kernel.org/r/20190912095547.22427-2-ddiss@suse.de
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/rockchip-iommu.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/target/iscsi/iscsi_target_auth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
-index 4dcbf68dfda4..0df091934361 100644
---- a/drivers/iommu/rockchip-iommu.c
-+++ b/drivers/iommu/rockchip-iommu.c
-@@ -980,13 +980,13 @@ static struct iommu_domain *rk_iommu_domain_alloc(unsigned type)
- 	if (!dma_dev)
- 		return NULL;
+diff --git a/drivers/target/iscsi/iscsi_target_auth.c b/drivers/target/iscsi/iscsi_target_auth.c
+index 51ddca2033e0..8fe9b12a07a4 100644
+--- a/drivers/target/iscsi/iscsi_target_auth.c
++++ b/drivers/target/iscsi/iscsi_target_auth.c
+@@ -70,7 +70,7 @@ static int chap_check_algorithm(const char *a_str)
+ 		if (!token)
+ 			goto out;
  
--	rk_domain = devm_kzalloc(dma_dev, sizeof(*rk_domain), GFP_KERNEL);
-+	rk_domain = kzalloc(sizeof(*rk_domain), GFP_KERNEL);
- 	if (!rk_domain)
- 		return NULL;
- 
- 	if (type == IOMMU_DOMAIN_DMA &&
- 	    iommu_get_dma_cookie(&rk_domain->domain))
--		return NULL;
-+		goto err_free_domain;
- 
- 	/*
- 	 * rk32xx iommus use a 2 level pagetable.
-@@ -1021,6 +1021,8 @@ err_free_dt:
- err_put_cookie:
- 	if (type == IOMMU_DOMAIN_DMA)
- 		iommu_put_dma_cookie(&rk_domain->domain);
-+err_free_domain:
-+	kfree(rk_domain);
- 
- 	return NULL;
- }
-@@ -1049,6 +1051,7 @@ static void rk_iommu_domain_free(struct iommu_domain *domain)
- 
- 	if (domain->type == IOMMU_DOMAIN_DMA)
- 		iommu_put_dma_cookie(&rk_domain->domain);
-+	kfree(rk_domain);
- }
- 
- static int rk_iommu_add_device(struct device *dev)
+-		if (!strncmp(token, "5", 1)) {
++		if (!strcmp(token, "5")) {
+ 			pr_debug("Selected MD5 Algorithm\n");
+ 			kfree(orig);
+ 			return CHAP_DIGEST_MD5;
 -- 
 2.20.1
 
