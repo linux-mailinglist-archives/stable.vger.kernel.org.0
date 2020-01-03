@@ -2,71 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2428912FE76
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 22:51:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 680FE12FE78
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 22:52:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728687AbgACVv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 16:51:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35980 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728679AbgACVv6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 16:51:58 -0500
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69DAE206DB;
-        Fri,  3 Jan 2020 21:51:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578088317;
-        bh=lkVZIrOcBIm2xz+5QypPOZ7AEtMcbg9KTsvtVzBMejI=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=Tdf45k3TI8PoEoopB2puxXk9u7GKq2tQ0Jw4XC8E4n2+pBUxNnOukHpylD68/1Rho
-         zWQsgoxZukTlzwh0dCn3bU2u3DUK1lYcRGDO4fFymurcexwmF/M9LAzs12fNsAsT5J
-         pZcE2fjbIx5D5ujHSERa+z3TQBFM1yznw7kEHjFw=
-Subject: Re: [PATCH 4.9 000/171] 4.9.208-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20200102220546.960200039@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <81d2b642-589c-00e8-903f-f37f62df5413@kernel.org>
-Date:   Fri, 3 Jan 2020 14:51:56 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1728679AbgACVwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 16:52:00 -0500
+Received: from mail-wm1-f44.google.com ([209.85.128.44]:52218 "EHLO
+        mail-wm1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728657AbgACVv7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 16:51:59 -0500
+Received: by mail-wm1-f44.google.com with SMTP id d73so9530264wmd.1
+        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 13:51:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=mr4+DOUwC8DUO7IcQYsbUU1xjTMNqMLTGshmaLeouFk=;
+        b=VwqfXkjmA54d8wNZJyJctJPGMTSmQZ6suT9DzzkzVWfO8FNJH+yX05uYRPHn636awW
+         N70Il4tmu3epZYUe+6dkJWaOOupCzEncd0/l5hpSPG70hi23UBp6vZc5tbYOCGbjEYib
+         hYWTMmGEhuz9G0xfI0TUtB7bJ+x+mS2TSu3QkO5kbV5HnW6/8xqbFt99nd8TkPrt0pLZ
+         3Cvua7J0VVQM+LKVf+93w02Pwpym7v1pVjGxF5BdsBm7YPpa3vj2ssCoQJ2GwgYnrluY
+         EEwgOa0e0dLAph+RlOk4m27pMNQbFzpBV5TzvpAZjbJ23uMrjGlrs+f3qaPBZ1uQRh69
+         1Duw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=mr4+DOUwC8DUO7IcQYsbUU1xjTMNqMLTGshmaLeouFk=;
+        b=BJYVIt6EzpR9tli8XaJc5SJyp8zwc+4y4XCNIHBP09YCaK6uTVqs3SUnBiBZ5uTQdX
+         1MXXwDpo0mDLnW4BKNStcbVtj8np7m+lBDh11GOgwvVsE99gosb+Ov1XaPWrF0r92Mqn
+         xwdwRXkFNe0ijReBcjTfELWa5DufvH4mM2fC8TK8Rodvt5qvcZ92laTQq+QVaWw7fe7s
+         zoSgTvoHOgEnuK4hqRF2syMj9KIABgS4y7WtkjN4Udgq84hag7qdVHdnrQVefsxYz4Ja
+         neb5xIK3NA3k6GoJcEe7wreuXH4yiZL2rGxnLkMJVgfK8GbdnVRsd3JXZeNQVW+7kwPb
+         vGMg==
+X-Gm-Message-State: APjAAAXk3taFsDoQ8Vw/QKNi54b7Iy5i2C0gfk5DiWGwzSpt7djOFY6a
+        x9rXzQ/tzqrGQxLJd8EWkOnOs98tf5OTig==
+X-Google-Smtp-Source: APXvYqzBLSZb3W87ZPqfcR1mD5Hn/fyCQIEbMpiWyLZTWtp2uOIpDyBCKSoUO5uFjW49K5T/sW/0DQ==
+X-Received: by 2002:a1c:e108:: with SMTP id y8mr21000960wmg.147.1578088316688;
+        Fri, 03 Jan 2020 13:51:56 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id e18sm62300571wrw.70.2020.01.03.13.51.55
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Jan 2020 13:51:56 -0800 (PST)
+Message-ID: <5e0fb77c.1c69fb81.825df.e334@mx.google.com>
+Date:   Fri, 03 Jan 2020 13:51:56 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200102220546.960200039@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.161-92-g6ddc8c5d33cc
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 41 boots: 0 failed,
+ 40 passed with 1 untried/unknown (v4.14.161-92-g6ddc8c5d33cc)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/2/20 3:05 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.208 release.
-> There are 171 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 04 Jan 2020 22:02:15 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.208-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+stable-rc/linux-4.14.y boot: 41 boots: 0 failed, 40 passed with 1 untried/u=
+nknown (v4.14.161-92-g6ddc8c5d33cc)
 
-Compiled and booted on my test system. No dmesg regressions.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.161-92-g6ddc8c5d33cc/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.161-92-g6ddc8c5d33cc/
 
-thanks,
--- Shuah
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.161-92-g6ddc8c5d33cc
+Git Commit: 6ddc8c5d33cc1db17feb9d06adfbb798df284641
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 26 unique boards, 11 SoC families, 10 builds out of 201
+
+---
+For more info write to <info@kernelci.org>
