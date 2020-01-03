@@ -2,100 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A78F12FCAF
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 19:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCDEB12FCB7
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 19:46:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728372AbgACSlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 13:41:12 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:39715 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728279AbgACSlM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 13:41:12 -0500
-Received: by mail-pl1-f193.google.com with SMTP id g6so16385341plp.6
-        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 10:41:12 -0800 (PST)
+        id S1728390AbgACSqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 13:46:44 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:46849 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728279AbgACSqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 13:46:44 -0500
+Received: by mail-ot1-f67.google.com with SMTP id k8so45054716otl.13
+        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 10:46:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=9D9VKvlmP4xcm6mxezMI2I1JZqbgHJUV5TDzvPDXAZc=;
-        b=mOCzmArRiEdKbKLIV75kzBRFbotMbnbRqZiB6g3ozt1sF661siuhpBbbkMMLCGIMqA
-         OcKQE0HBEVM6djbylxYWhWqetE46pLwjmu2ta0zO9/PFtu2DOz22Eh1JuZ5tghmTo22H
-         YxxYXHdxS3dOxuIcSXUMFgDm15nC0XuwPylLY=
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=zMQWoMlbtRckJcAFhKudH6hAdOl11JUXh6khJneQffs=;
+        b=G5KRDsO4qDJM0jKRniURhFi7nkWzCdDds+z5uUd6q3n16CudeLFAisrnhw5oeh4hhK
+         L8DgpT1F37dfQvBaJxe9kEwp9w+LltkghA7Q2gln4CfWV6kWYNX5prK72d/eRbgkpDgA
+         /6X9UbQ9zChedD8aBWQViHVc70wA+7IaNVBlFMAAP1cMI6JNpET6XcjTaPRZhJFG980V
+         bAIf9/ErcO8+/J5C74j6fKNBpFynuE3MxaLeqNuJkSW8dmoRhD4y6P1BwZu6Px6fRaC/
+         /vDN1JPMeoz5Iu0Z3eE8NzMYpk4iwwtKqPVr1uivS1i02vRmf50Wr/xUSLMUQGlyOwAM
+         IfjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=9D9VKvlmP4xcm6mxezMI2I1JZqbgHJUV5TDzvPDXAZc=;
-        b=NG6tT0LxjimZ2rUEvAJYZkD82lmSkcrDIEs6S+78aS+c3zHIX28M97mbW2MZ2Da1eK
-         6wx2K2HKJLQ9z8tCq6xdSkcRz5gvtICDscDDWodn31RYActYCBK0kRgTHYpH9M2MSgXP
-         ZQt46VgO82SDWwjFlrUGA/AOnHnpU6pNazSVJ2tvsC68PABsshkYJ4X/OQLGy0jNASNz
-         Qg92wtrmXsTbpLiuuI80uch54Iv7Vdh2J6ARSLDZ6zyba0J/c7jCw6uYmaKQSD5o1Rj9
-         2N532jCxCRHGxMbrQNa5+XOE3SYAy+Dg9ghqBWlM5CR/c/PmXbXYrimHcd9iXEWE2Ch6
-         YESQ==
-X-Gm-Message-State: APjAAAVzavhw6GiCmkDH9FAK3h64SzcKKjt56lVYTDxcm4ZaLb5GFAYV
-        zHaJMyAJd9F5HIJe9WuQb2Ul3g==
-X-Google-Smtp-Source: APXvYqwfOLQ/OQ5FETpgrQxvjhXZ82bQ04yNryRwdwQ2sYGhyU7RRcf9EXByhH4WUopQW4J4aVz8Ig==
-X-Received: by 2002:a17:902:fe8b:: with SMTP id x11mr85211967plm.83.1578076871842;
-        Fri, 03 Jan 2020 10:41:11 -0800 (PST)
-Received: from localhost ([2620:15c:202:201:bfdf:e7dd:b034:6ac7])
-        by smtp.gmail.com with ESMTPSA id q63sm45907923pfb.149.2020.01.03.10.41.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Jan 2020 10:41:11 -0800 (PST)
-From:   Daniel Verkamp <dverkamp@chromium.org>
-To:     virtualization@lists.linux-foundation.org
-Cc:     Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Wei Wang <wei.w.wang@intel.com>,
-        Daniel Verkamp <dverkamp@chromium.org>, stable@vger.kernel.org,
-        Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH v2 2/2] virtio-pci: check name when counting MSI-X vectors
-Date:   Fri,  3 Jan 2020 10:40:45 -0800
-Message-Id: <20200103184044.73568-2-dverkamp@chromium.org>
-X-Mailer: git-send-email 2.24.1.735.g03f4e72817-goog
-In-Reply-To: <20200103184044.73568-1-dverkamp@chromium.org>
-References: <20200103184044.73568-1-dverkamp@chromium.org>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=zMQWoMlbtRckJcAFhKudH6hAdOl11JUXh6khJneQffs=;
+        b=txa6uiV3LX1SwpKrsWxNEMyk5LTHwZhNk+wPwfiVAiXTYHU+mx8dsFhPAlnxIse08t
+         4lRrlzu5ajaPrcTB1i1H/XOdxRHZMaY33uw/z9IeKqQyJWt5WRSc1BxbRWJI/F82u2MC
+         3IOwHevM6kVCoak0nnPtsLkR20zA076GAlMhqi0FSN0S8StwFK4+5+3xqu4q/JNvM9Xu
+         a8K0OGky/PM+AVggC3g9qBZi+T/qI46o1fnqkhaXLK6kQnkXKYABlLxU/Dsb2Y0BO+Y9
+         WBXiM/bHZElSKMi0+YKLJA0yNcSJ7fWcUueYdq6MZsh0jfOcSrqZKr2o8H63Skz+YyJ0
+         hDTQ==
+X-Gm-Message-State: APjAAAVzw4UubAxFy5lQ1t1ZjcP+4u1ms5fpvT+aJaraTxFEtAqI0I+L
+        HIxl2Ex9x/d/fAxnMLi+vgjBMoLL7JBRMgDMtIc=
+X-Google-Smtp-Source: APXvYqy8yla+hQ2Ru6PFb5BbP9v4P+0SU7Q+pv0spcFklIpYzU/0ByLCYFFetC16UG2LbV5gDDR8QQ7nF4fa2xdQutE=
+X-Received: by 2002:a9d:6251:: with SMTP id i17mr27313063otk.14.1578077203799;
+ Fri, 03 Jan 2020 10:46:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:aca:ad06:0:0:0:0:0 with HTTP; Fri, 3 Jan 2020 10:46:43 -0800 (PST)
+Reply-To: agaddafi077@gmail.com
+From:   Mrs A Gaddafi <gaddafiais12@gmail.com>
+Date:   Fri, 3 Jan 2020 10:46:43 -0800
+Message-ID: <CANjK7yOxGOgbi4cNZDnv47h1gD9c-Agyj700HYDm+kRDUKfh-w@mail.gmail.com>
+Subject: HAPPY NEW YEAR,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-VQs without a name specified are not valid; they are skipped in the
-later loop that assigns MSI-X vectors to queues, but the per_vq_vectors
-loop above that counts the required number of vectors previously still
-counted any queue with a non-NULL callback as needing a vector.
+Dear Friend,
 
-Add a check to the per_vq_vectors loop so that vectors with no name are
-not counted to make the two loops consistent.  This prevents
-over-counting unnecessary vectors (e.g. for features which were not
-negotiated with the device).
+I came across your e-mail contact prior a private search whilst in
+need of your partnership for investment assistance in your country. I
+am opportune to use this medium to exhibit my legal intentions towards
+investing to your country under your management. I am fully convinced
+that you will really be of help as a business partner.
 
-Cc: stable@vger.kernel.org
-Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
----
+My name is Aisha  Gaddafi a single Mother and a Widow and i have three
+Children. I am the only biological Daughter of late Libyan President
+(Late Colonel Muammar Gaddafi).
 
-v1:
-https://lists.linuxfoundation.org/pipermail/virtualization/2019-December/044828.html
+I have investment funds worth Twenty Seven Million Five Hundred
+Thousand United State Dollar ($27.500.000.00 ) and i need a trusted
+investment Manager/Partner.  I am planning to go into investment
+projects in your country of origin or present country of Location to
+assist me establish the investments project.
 
- drivers/virtio/virtio_pci_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ I am willing to negotiate investment/business profit sharing ratio
+with you base on the future investment earning profits.
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index f2862f66c2ac..222d630c41fc 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -294,7 +294,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 		/* Best option: one for change interrupt, one per vq. */
- 		nvectors = 1;
- 		for (i = 0; i < nvqs; ++i)
--			if (callbacks[i])
-+			if (names[i] && callbacks[i])
- 				++nvectors;
- 	} else {
- 		/* Second best: one for change, shared for all vqs. */
--- 
-2.24.1.735.g03f4e72817-goog
+If you are willing to handle this project on my behalf kindly reply
+urgent to enable me provide you more details about myself and more
+information about the release of the investment funds.
 
+I appreciate Your Urgent Reply to my email address:
+
+Best Regards
+Mrs Aisha Gaddafi
