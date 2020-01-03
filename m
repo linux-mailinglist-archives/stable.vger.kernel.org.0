@@ -2,97 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FB3C12FBB8
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 18:46:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C1C12FBBC
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 18:47:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726077AbgACRq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 12:46:27 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:42973 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728111AbgACRq1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 12:46:27 -0500
-Received: by mail-pf1-f193.google.com with SMTP id 4so23827086pfz.9;
-        Fri, 03 Jan 2020 09:46:27 -0800 (PST)
+        id S1728225AbgACRrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 12:47:16 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:33647 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728110AbgACRrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 12:47:16 -0500
+Received: by mail-lj1-f193.google.com with SMTP id y6so36600343lji.0;
+        Fri, 03 Jan 2020 09:47:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=+IK4qZf1elM4GUwKbJjSh6z+cMyka7NKu36GNcjku/k=;
-        b=Fio6UIQb2MMmaTOh9mYh5p/VpbOx5m81p3m0cK+rQw/aVCpCpjjwNaR1Glr3LucWTP
-         1QKsmZ9Ayu5KlW16Qp54GMLVgYxVTN4cZsNtyLhSK15qxV4JRYyVpL8cM93VZ9yryQMu
-         dcz6aOVAG1x0M9n5LjXbq52q5lnoM+RCEK0W/s4CbRjxUDoQT4YtopczJhD+9GZPEgOa
-         M2dNkkgUqs+GqitsmnpzFAxRBXtt5hHTb9Wp5YrKYAQi7ZjlYb7CeqNCzygk4ZLhce9G
-         pObynjIR0mQrtx+0N6MzOx3GADtCeSbODeIATPwidn25ujFPY9tSCizdZVM1wNuXYox4
-         YlIw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=L0RSeiMU8QPdyOoG9B7y/fvlmT9zXEcFUjZ8OB6A7lk=;
+        b=KqwmgltChF4dNJvggsEgsGSiEsBSUXu+bcHz6HLV8dVvSnyVFmshCVm7mtsBYqtA+e
+         09lS+yhsyGC2JGAGM58yWnZ1eW9V1k6RRebEHZkpy5XkUp5aRONRu0Ih4g9LPfG2iOxE
+         LWBHodFYN1sKKWJEyHuRIPy0YrV39XFdFJ4OgW9ukiK4uRAj3b/nTbLtRtEsC0/YXxGv
+         TsZRgehd1v6WYfO/WFHID9jwuzpblaSKNiLsNtRiGjRl82h8bWpJdTDKpXFLddz049nG
+         eJIxEHqhzRJoNM9NVrJKRGknHmgSeCKXEQ6Ms4gaXH1Jw1WrBOe64KcDWSGVy1Saf/y6
+         +69g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=+IK4qZf1elM4GUwKbJjSh6z+cMyka7NKu36GNcjku/k=;
-        b=GyY0uz5805qhgSJs+nE+h3wpcwL/0kv9jMsdMcLND6qQZDY4HGXXhCYqJu4loFXvND
-         leBlhZKOJtn5fqpxfeHbRKCF+Gx2BmBk6d5Tjcd2VWPkrZgiMhkEr1gQw2u5tn5I5yuR
-         wwjGZFbLWnWFa52APt47SSj1ElVLSEQ933AzknsQpAdY+U4Iy3haz9dwSOhnrs4H1U7N
-         vXsbLJkY/s1hMC3rUskGIzLU/9jsupPssNkyGt2xErJLgwWvU3dscQCYnB1Qx4hsY75e
-         0LmJoOoeKEa15y0pU47ClGnWF9jSAaiB4qoET9ymRJgA+/wPI2l2AtK/gVPVUKZmOXBx
-         tPYQ==
-X-Gm-Message-State: APjAAAUWUf5uvTB7/WVHKyWjc8QoffLS5aIIKbukfK3McFQ9KBY+lQVb
-        8pCIm2Pz/aqVBNsVHb4Itq4=
-X-Google-Smtp-Source: APXvYqy3LCa3jYiWtyUW1H8gt/TIzC9zhm49qHavyCy9nxOGgHSt4Ig6dTqOC4d1t7/ZuCFrssH/QQ==
-X-Received: by 2002:a63:954f:: with SMTP id t15mr95940699pgn.137.1578073586726;
-        Fri, 03 Jan 2020 09:46:26 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 73sm64484349pgc.13.2020.01.03.09.46.25
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 03 Jan 2020 09:46:25 -0800 (PST)
-Date:   Fri, 3 Jan 2020 09:46:24 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 000/114] 4.19.93-stable review
-Message-ID: <20200103174624.GA27087@roeck-us.net>
-References: <20200102220029.183913184@linuxfoundation.org>
- <72f41f89-bf68-d275-2f1e-d33a91b5e6cd@roeck-us.net>
- <20200103154156.GA1064304@kroah.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=L0RSeiMU8QPdyOoG9B7y/fvlmT9zXEcFUjZ8OB6A7lk=;
+        b=ejQ5MRBfASwIEnCTFqMN49bvA78nP+p/M1MJnUwDWbkAHjRTmATirxyV55TrHGHfn1
+         fwwwIZtJRLkMiVsr8te2uJngRl8vMYpBof/aoF4Cv9CeubrL19LYUVkeXQXFaXJ23e/l
+         ppoT/RtTSMTHkuawMzyN0hoApC6tErMQ+1DTAKTugUi1YOaO30At3diaMgAf44DYhzFh
+         +vBQzPGzw1vW2/hsXFzVeX7sy7Hky12jfHQ6MlkvT4GpEl7T93txmJJvmkZ1VncrpsMd
+         vPOw292SxbXgtYD63c8i/7epNVf8QH1dKUCXNEWmS6/qE9puA2PG0IZG4Ymxj9kuChic
+         OzvA==
+X-Gm-Message-State: APjAAAVdB0KxAILsQepRrmW4vU+WQ4cuLgKw9Fi8S78R2J0OdgfzUU4U
+        GAwz7sqpXo9FG2W7lbHoLddV8fkWj0vaAfOo2fawZlz9
+X-Google-Smtp-Source: APXvYqzVneOWPg55BXdA3ZDaSFLNRTK6aUClojuZRBSWrtYXVqP/JPBgHG7a/2h8VK53E45cVQy+QGViybaJibiKk9g=
+X-Received: by 2002:a2e:b4cb:: with SMTP id r11mr53035655ljm.68.1578073633455;
+ Fri, 03 Jan 2020 09:47:13 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200103154156.GA1064304@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20191227215034.3169624-1-guro@fb.com>
+In-Reply-To: <20191227215034.3169624-1-guro@fb.com>
+From:   Song Liu <liu.song.a23@gmail.com>
+Date:   Fri, 3 Jan 2020 09:47:01 -0800
+Message-ID: <CAPhsuW7SKrS9WOVZXXoXjeGaFugUZmwip-m44gWAWyCbEkhBvA@mail.gmail.com>
+Subject: Re: [PATCH bpf] bpf: cgroup: prevent out-of-order release of cgroup bpf
+To:     Roman Gushchin <guro@fb.com>
+Cc:     bpf <bpf@vger.kernel.org>, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        open list <linux-kernel@vger.kernel.org>,
+        Kernel Team <kernel-team@fb.com>,
+        Networking <netdev@vger.kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 03, 2020 at 04:41:56PM +0100, Greg Kroah-Hartman wrote:
-> On Fri, Jan 03, 2020 at 06:27:53AM -0800, Guenter Roeck wrote:
-> > On 1/2/20 2:06 PM, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 4.19.93 release.
-> > > There are 114 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > > 
-> > > Responses should be made by Sat, 04 Jan 2020 21:58:48 +0000.
-> > > Anything received after that time might be too late.
-> > > 
-> > 
-> > Build results:
-> > 	total: 156 pass: 155 fail: 1
-> > Failed builds:
-> > 	sparc64:allmodconfig
-> > Qemu test results:
-> > 	total: 381 pass: 381 fail: 0
-> > 
-> > ERROR: "of_irq_to_resource" [drivers/spi/spi-fsl-spi.ko] undefined!
-> > 
-> > Caused by 3194d2533eff ("spi: fsl: don't map irq during probe")
-> > which is missing its fix, 63aa6a692595 ("spi: fsl: use platform_get_irq()
-> > instead of of_irq_to_resource()")
-> 
-> Now added to 4.14 and 4.19 queues, thanks!
-> 
-sparc64:allmodconfig builds now pass in both v4.14.y and v4.19.y queues.
+On Fri, Dec 27, 2019 at 1:50 PM Roman Gushchin <guro@fb.com> wrote:
+>
+> Before commit 4bfc0bb2c60e ("bpf: decouple the lifetime of cgroup_bpf
+> from cgroup itself") cgroup bpf structures were released with
+> corresponding cgroup structures. It guaranteed the hierarchical order
+> of destruction: children were always first. It preserved attached
+> programs from being released before their propagated copies.
+>
+> But with cgroup auto-detachment there are no such guarantees anymore:
+> cgroup bpf is released as soon as the cgroup is offline and there are
+> no live associated sockets. It means that an attached program can be
+> detached and released, while its propagated copy is still living
+> in the cgroup subtree. This will obviously lead to an use-after-free
+> bug.
+>
+[...]
+>
+> Thanks to Josef Bacik for the debugging and the initial analysis of
+> the problem.
+>
+> Fixes: 4bfc0bb2c60e ("bpf: decouple the lifetime of cgroup_bpf from cgroup itself")
+> Reported-by: Josef Bacik <josef@toxicpanda.com>
+> Signed-off-by: Roman Gushchin <guro@fb.com>
+> Cc: Alexei Starovoitov <ast@kernel.org>
+> Cc: stable@vger.kernel.org
 
-Guenter
+LGTM. Thanks for the fix!
+
+Acked-by: Song Liu <songliubraving@fb.com>
