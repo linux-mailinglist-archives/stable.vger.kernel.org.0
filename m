@@ -2,88 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36E7F12F8C5
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 14:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BCD012F8E0
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 14:43:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727523AbgACN3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 08:29:19 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:36965 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727494AbgACN3T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 08:29:19 -0500
-Received: by mail-pf1-f193.google.com with SMTP id p14so23565017pfn.4
-        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 05:29:18 -0800 (PST)
+        id S1727543AbgACNnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 08:43:25 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:39037 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727494AbgACNnZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 08:43:25 -0500
+Received: by mail-lj1-f196.google.com with SMTP id l2so43908574lja.6
+        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 05:43:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=9PDoDHTv+akQfxBnieWWtMmxOAv8OLNpwPLZ2uZv8S8=;
-        b=hgeeX6Dp4+3iH//Ux/hUj/VZVth6IxQ6WgawPMCE2hJGon1hfy+luMyIROkqDbMJVA
-         bVCB6Jhsj/EpEuTaIMDVN3DyQiz7vDttLW8xxkIgDHACeWUtO8zRML3DBsJnB4Wn2HZQ
-         3HJlRyFjYNCNIAKJAxwvOlTKuJ0L8u8jzfomOwiMGVFOdxueTS8E5JYSIXO0dnbfbWHC
-         enhI4D4Cm0pv3NlLv1u5hiNQ7KKjXyuRnTdvW+UiFs9svIcqE02H90aYvVnv1/jA5VL0
-         Vr4OSAfaeezX+rW/rAMqdA/C1pLgJRaOOvHnJnF6TyaTP67yheT4ce9pdl4AiuL3Q1f5
-         SXjQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=zMerWaeEb4CP775YC6/wAxbdCZHMzy1EkcII8sLrY0A=;
+        b=G967Z0wTZu5dz/vv0AWfZCV5mVfdDYg/F6RZPQCLE7djNuINhXXPQcsDpDSKj+P0LG
+         nVeW9Ab6Nr4SrlNdPNy/TSLkGjEH8T9ebmqlRS3EYDYgAuOGGNKMnWISB+oRuTsxLx20
+         4n6ZDrMah9lD/14jY+CczPuZHOhgKvoTjJr2gTI/lxz+iYqX1KFoacR/yodeWnHW7lZq
+         bb/vyjtMJtd9UOTSf1WrXKni4zt0IlhGGUdBa9upQEpVQ5IEJG8qh2XjdNuGHojRceMf
+         6YknA+ERjznlM25n7j+08p4skm1gYsI5oWmYZniZgPfEHfJyVQofspnJmrdtKLiFXAJm
+         hAkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=9PDoDHTv+akQfxBnieWWtMmxOAv8OLNpwPLZ2uZv8S8=;
-        b=A+fjBY7j678n2db6Av51MIJ9n9ggIRtiMpszLCzAQgFrwCLP2XRJ7OoavdFlpeproj
-         07oIwbYvmT86C9ckogzqa+mPdZ8m7TpploMcekx9JCNAS8sAmldfVeO3Iy6D92R9PJuJ
-         2+h7nhcl2YaAF7enXOu+v0Dm7XfWjdJ/LFwlraQIxh+kRvZmrvsIBEhhLR+/LJ3RzL/d
-         9NmrEG/IlaOJgeQNBx1/jpwKMIWuMa1wmRNDaEP5+z3XBEL0nDY9R3M+Bz+MZjTp1w+4
-         3C1zW8i8SPK268BYL+PtHCVjZCEB4ngyABeqwKfv8OcXfBLhQQa+H/FKd1T5YmwPHT3y
-         vNrg==
-X-Gm-Message-State: APjAAAXk5j0v9wL3PQvcG3qmp4mrMaWXhE7NL03oBKgWeL0rLoTUjEc8
-        33TWTo5tPjJGCSHmLrXPP6bzmQ==
-X-Google-Smtp-Source: APXvYqzloO6lU1/X64uJ/4dfnoD/ocWE+7Rv18qaZfW6WHZn15AboeSrG1wkxTVNoHW7zJnY0XhW8A==
-X-Received: by 2002:a65:55cd:: with SMTP id k13mr92550692pgs.197.1578058158331;
-        Fri, 03 Jan 2020 05:29:18 -0800 (PST)
-Received: from debian ([122.178.22.49])
-        by smtp.gmail.com with ESMTPSA id w131sm69647124pfc.16.2020.01.03.05.29.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jan 2020 05:29:17 -0800 (PST)
-Date:   Fri, 3 Jan 2020 18:59:10 +0530
-From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        jeffrin@rajagiritech.edu.in
-Subject: Re: [PATCH 5.4 000/191] 5.4.8-stable review
-Message-ID: <20200103132910.GA6212@debian>
-References: <20200102215829.911231638@linuxfoundation.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zMerWaeEb4CP775YC6/wAxbdCZHMzy1EkcII8sLrY0A=;
+        b=GfN4WPK1ie0eimrKXq7Q2DcjWYVIHRRAM11lrhkyxbeFJhx/FyyCQfBks9cvBMjwts
+         dExs2JPyX6Nl8x5Sor7P/jGSK2yWxsLCU92JIjYiSi+bMRTFspDxFYfNDDNUAQF/j54x
+         bHT3Zlz9/IkXXTvVMzhKOWJIhbIofI05peI+pZAmpNt7WSOWr/BUqalzHLVNS7MZsWdV
+         aofneoiVXSA1yWyuig+rBvT0gLwfUxZ1WHHI6Hi63zmbwYB2j45Bq5UDeXngCrHojoCU
+         1OeQ/iyE88bxlXG8DqKnFcy/7DkXMEMZb6goEsWdZsRoVvZSclojZOkEFVEXXM11i18t
+         PsOA==
+X-Gm-Message-State: APjAAAU+/9T8nLAHFNWEXj7HC3Xw/rfC7tq2ILKPHmMEVU8EsatIX6iy
+        jg0N5VVc3fVqFUNGsgnfbCJOiJphGfZHmmt19eH5InvU9i8=
+X-Google-Smtp-Source: APXvYqxDIZ6anbPeXlV6jrCtn2c9dGb/nyHg65sPM0A8dJyOwmsnf7+8UF77dIIWJ0ucZUC6Cl6BibRlZDxZz7mepJE=
+X-Received: by 2002:a2e:8316:: with SMTP id a22mr1375788ljh.141.1578059003263;
+ Fri, 03 Jan 2020 05:43:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200102215829.911231638@linuxfoundation.org>
+References: <20200102220356.856162165@linuxfoundation.org> <20200102230518.GA1087@roeck-us.net>
+ <20200103001639.GK16372@sasha-vm> <20200103083819.GC831558@kroah.com>
+In-Reply-To: <20200103083819.GC831558@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 3 Jan 2020 19:13:11 +0530
+Message-ID: <CA+G9fYu4doGffbPfdeemO9HHnxko860E_EeWBvmiyREb0zWgKA@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/91] 4.14.162-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 02, 2020 at 11:04:42PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.8 release.
-> There are 191 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 04 Jan 2020 21:55:35 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.8-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
+> I've pushed out -rc2 versions with this patch removed now.
 
-hello ,
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-compiled and booted 5.4.8-rc1+ on my laptop. No Regressions according to "sudo dmesg -l err".
+Summary
+------------------------------------------------------------------------
 
---
-software engineer
-rajagiri school of engineering and technology
+kernel: 4.14.162-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: 0e6f77cf689c028a3c0927237bac986deca2c3fd
+git describe: v4.14.161-91-g0e6f77cf689c
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.161-91-g0e6f77cf689c
+
+No regressions (compared to build v4.14.161)
+
+No fixes (compared to build v4.14.161)
+
+Ran 22654 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-containers-tests
+* ltp-fs-tests
+* ltp-cve-tests
+* spectre-meltdown-checker-test
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* perf
+* v4l2-compliance
+* kvm-unit-tests
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
