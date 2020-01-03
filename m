@@ -2,107 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C3312F2C1
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 02:49:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3521B12F2C6
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 02:52:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726148AbgACBtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 20:49:17 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:48834 "EHLO
-        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726039AbgACBtR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 20:49:17 -0500
-Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1inC5F-000pFy-EG; Fri, 03 Jan 2020 01:49:01 +0000
-Date:   Fri, 3 Jan 2020 01:49:01 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Aleksa Sarai <cyphar@cyphar.com>
-Cc:     David Howells <dhowells@redhat.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
-        containers@lists.linux-foundation.org, linux-api@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ian Kent <raven@themaw.net>
-Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
- symlinks
-Message-ID: <20200103014901.GC8904@ZenIV.linux.org.uk>
-References: <20191230052036.8765-1-cyphar@cyphar.com>
- <20191230054413.GX4203@ZenIV.linux.org.uk>
- <20191230054913.c5avdjqbygtur2l7@yavin.dot.cyphar.com>
- <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com>
- <20200101004324.GA11269@ZenIV.linux.org.uk>
- <20200101005446.GH4203@ZenIV.linux.org.uk>
- <20200101030815.GA17593@ZenIV.linux.org.uk>
- <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
- <20200101234009.GB8904@ZenIV.linux.org.uk>
- <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
+        id S1726219AbgACBwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 20:52:08 -0500
+Received: from mail26.static.mailgun.info ([104.130.122.26]:39835 "EHLO
+        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726199AbgACBwH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 20:52:07 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1578016326; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=iBGH70qouVE4uKPgzHJQRb9IHWifgoN13TEvuu1+Ybs=;
+ b=Y03M3PXdQl+PkvGwHQW2huTZLiAD33KEZJfcXVDkejZReOy6MPupr8zQ/QeII4UCWz/DaVi6
+ cWSbd2ezJqIPvBxYx0kDvaeM0GNSoyebmZgBWFrV5coiIBHRARjbQ58qEVabRBsYpwA0GZNQ
+ MxCaT6TGggfZsZuAm4M54Amh9zU=
+X-Mailgun-Sending-Ip: 104.130.122.26
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e0e9e43.7f9f6c76ec70-smtp-out-n03;
+ Fri, 03 Jan 2020 01:52:03 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 0D6CAC447A5; Fri,  3 Jan 2020 01:52:00 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: cang)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id E401FC43383;
+        Fri,  3 Jan 2020 01:51:59 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Fri, 03 Jan 2020 09:51:59 +0800
+From:   Can Guo <cang@codeaurora.org>
+To:     Stanley Chu <stanley.chu@mediatek.com>
+Cc:     martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
+        andy.teng@mediatek.com, jejb@linux.ibm.com,
+        chun-hung.wu@mediatek.com, kuohong.wang@mediatek.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        asutoshd@codeaurora.org, avri.altman@wdc.com,
+        linux-mediatek@lists.infradead.org, peter.wang@mediatek.com,
+        linux-scsi-owner@vger.kernel.org, subhashj@codeaurora.org,
+        alim.akhtar@samsung.com, beanhuo@micron.com,
+        pedrom.sousa@synopsys.com, bvanassche@acm.org,
+        linux-arm-kernel@lists.infradead.org, matthias.bgg@gmail.com,
+        ron.hsu@mediatek.com, cc.chou@mediatek.com
+Subject: Re: [PATCH v1 1/2] scsi: ufs: set device as default active power mode
+ during initialization only
+In-Reply-To: <1577947124.13164.75.camel@mtkswgap22>
+References: <1577693546-7598-1-git-send-email-stanley.chu@mediatek.com>
+ <1577693546-7598-2-git-send-email-stanley.chu@mediatek.com>
+ <fd129b859c013852bd80f60a36425757@codeaurora.org>
+ <1577754469.13164.5.camel@mtkswgap22>
+ <836772092daffd8283a97d633e59fc34@codeaurora.org>
+ <1577766179.13164.24.camel@mtkswgap22>
+ <1577778290.13164.45.camel@mtkswgap22>
+ <44393ed9ff3ba9878bae838307e7eec0@codeaurora.org>
+ <1577947124.13164.75.camel@mtkswgap22>
+Message-ID: <4888afd46a9065b7f298a5de039426c9@codeaurora.org>
+X-Sender: cang@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 02, 2020 at 02:59:20PM +1100, Aleksa Sarai wrote:
-> On 2020-01-01, Al Viro <viro@zeniv.linux.org.uk> wrote:
-> > On Thu, Jan 02, 2020 at 01:44:07AM +1100, Aleksa Sarai wrote:
-> > 
-> > > Thanks, this fixes the issue for me (and also fixes another reproducer I
-> > > found -- mounting a symlink on top of itself then trying to umount it).
-> > > 
-> > > Reported-by: Aleksa Sarai <cyphar@cyphar.com>
-> > > Tested-by: Aleksa Sarai <cyphar@cyphar.com>
-> > 
-> > Pushed into #fixes.
+On 2020-01-02 14:38, Stanley Chu wrote:
+> Hi Can,
 > 
-> Thanks. One other thing I noticed is that umount applies to the
-> underlying symlink rather than the mountpoint on top. So, for example
-> (using the same scripts I posted in the thread):
+> On Tue, 2019-12-31 at 16:35 +0800, Can Guo wrote:
 > 
->   # ln -s /tmp/foo link
->   # ./mount_to_symlink /etc/passwd link
->   # umount -l link # will attempt to unmount "/tmp/foo"
+>> Hi Stanley,
+>> 
+>> I missed this mail before I hit send. In current code, as per my
+>> understanding,
+>> UFS device's power state should be Active after ufshcd_link_startup()
+>> returns.
+>> If I am wrong, please feel free to correct me.
+>> 
 > 
-> Is that intentional?
+> Yes, this assumption of ufshcd_probe_hba() is true so I will drop this
+> patch.
+> Thanks for remind.
+> 
+>> Due to you are almost trying to revert commit 7caf489b99a42a, I am 
+>> just
+>> wondering
+>> if you encounter failure/error caused by it.
+> 
+> Yes, we actually have some doubts from the commit message of "scsi: 
+> ufs:
+> issue link startup 2 times if device isn't active"
+> 
+> If we configured system suspend as device=PowerDown/Link=LinkDown mode,
+> during resume, the 1st link startup will be successful, and after that
+> device could be accessed normally so it shall be already in Active 
+> power
+> mode. We did not find devices which need twice linkup for normal work.
+> 
+> And because the 1st linkup is OK, the forced 2nd linkup by commit 
+> "scsi:
+> ufs: issue link startup 2 times if device isn't active" leads to link
+> lost and finally the 3rd linkup is made again by retry mechanism in
+> ufshcd_link_startup() and be successful. So a linkup performance issue
+> is introduced here: We actually need one-time linkup only but finally
+> got 3 linkup operations.
+> 
+> According to the UFS spec, all reset types (including POR and Host
+> UniPro Warm Reset which both may happen in above configurations) other
+> than LU reset, UFS device power mode shall return to Sleep mode or
+> Active mode depending on bInitPowerMode, by default, it's Active mode.
+> 
+> So we are curious that why enforcing twice linkup is necessary here?
+> Could you kindly help us clarify this?
+> 
+> If anything wrong in above description, please feel free to correct me.
+> 
 
-It's a mess, again in mountpoint_last().  FWIW, at some point I proposed
-to have nd_jump_link() to fail with -ELOOP if the target was a symlink;
-Linus asked for reasons deeper than my dislike of the semantics, I looked
-around and hadn't spotted anything.  And there hadn't been at the time,
-but when four months later umount_lookup_last() went in I failed to look
-for that source of potential problems in it ;-/
+Hi Stanley,
 
-I've looked at that area again now.  Aside of usual cursing at do_last()
-horrors (yes, its control flow is a horror; yes, it needs serious massage;
-no, it's not a good idea to get sidetracked into that right now), there
-are several fun questions:
-	* d_manage() and d_automount().  We almost certainly don't
-want those for autofs on the final component of pathname in umount,
-including the trailing symlinks.  But do we want those on usual access
-via /proc/*/fd/*?  I.e. suppose somebody does open() (O_PATH or not)
-in autofs; do we want ->d_manage()/->d_automount() called when
-resolving /proc/self/fd/<whatever>/foo/bar?  We do not; is that
-correct from autofs point of view?  I suspect that refusing to
-do ->d_automount() is correct, but I don't understand ->d_manage()
-purpose well enough to tell.
-	* I really hope that the weird "trailing / forces automount
-even in cases when we normally wouldn't trigger it" (stat /mnt/foo
-vs. stat /mnt/foo/) is not meant to extend to umount.  I'd like
-Ian's confirmation, though.
-	* do we want ->d_manage() on following .. into overmounted
-directory?  Again, autofs question...
+Above description is correct. The reason why the UFS device becomes
+Active after the 1st link startup in your experiment is due to you
+set spm_lvl to 5, during system suspend, UFS device is powered down.
+When resume kicks start, the UFS device is power cycled once.
 
-	The minimal fix to mountpoint_last() would be to have
-follow_mount() done in LAST_NORM case.  However, I'd like to understand
-(and hopefully regularize) the rules for follow_mount()/follow_managed().
-Additional scary question is nfsd iterplay with automount.  For nfs4
-exports it's potentially interesting...
+Moreover, if you set rpm_lvl to 5, during runtime suspend, if bkops is
+enabled, the UFS device will not be powered off, meaning when runtime
+resume kicks start, the UFS device is not power cycled, in this case,
+we need 3 times of link startup.
 
-	Ian, could you comment on the autofs questions above?
-I'd rather avoid doing changes in that area without your input -
-it's subtle and breakage in automount-related behaviour can be
-mysterious as hell.
+Does above explain?
+
+Thanks,
+
+Can Guo.
+
+>> 
+>> Happy new year to you too!
+>> 
+>> Thanks,
+>> 
+>> Can Guo
+> 
+> Thanks,
+> 
+> Stanley
+> 
+>> 
+>> _______________________________________________
+>> Linux-mediatek mailing list
+>> Linux-mediatek@lists.infradead.org
+>> http://lists.infradead.org/mailman/listinfo/linux-mediatek
