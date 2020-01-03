@@ -2,92 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E6E12F4D1
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 08:00:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E84C12F4D5
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 08:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727377AbgACHAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 02:00:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47002 "EHLO mail.kernel.org"
+        id S1725972AbgACHEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 02:04:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725972AbgACHAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 02:00:42 -0500
+        id S1725890AbgACHEj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jan 2020 02:04:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADFE62464E;
-        Fri,  3 Jan 2020 07:00:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDDDE206F0;
+        Fri,  3 Jan 2020 07:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578034842;
-        bh=we7pKnlhkto10e/KX0lmPcqpyOhRRQPuUUaKyEjfmD0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zdcaZLsMEgkBS2zxyaU39JEf20w66MI6AjBLdLztuJa28i5IUrXCuXH+/Cga1gOed
-         RCQ6JeJGNc+n4KbxgLJlB3Z9xggRW3mGMmbEdr858fnzD4MMuwkIPXavACWhCoYQ/9
-         2DDsgJcH2KIH6aq0pKlZwtmfNQK+4StxIXnCm/lo=
+        s=default; t=1578035078;
+        bh=vpAef196tnwnAsimgB93NyM1W+fbvDFIMxw70khW8yE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1E3rSsC6mHOKyuZDd+Qt5F05YWfl3oc9UBmwUvo73fCmpE6PQrjKjXelSEHdc98ec
+         jFjLCtdDsfdsgnELUt43Iwf8YqjEIUIF19F8jFntZo/P6cXp9hbbmen1+ykcarZkAF
+         iAdT9e84bG0aiIwn/+AR50l2f2fm5dlMyyB56uLU=
+Date:   Fri, 3 Jan 2020 08:04:36 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 013/137] media: i2c: ov2659: Fix missing 720p register config
-Date:   Thu,  2 Jan 2020 23:06:26 +0100
-Message-Id: <20200102220548.514572546@linuxfoundation.org>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200102220546.618583146@linuxfoundation.org>
-References: <20200102220546.618583146@linuxfoundation.org>
-User-Agent: quilt/0.66
+To:     Logan Gunthorpe <logang@deltatee.com>
+Cc:     Sasha Levin <sashal@kernel.org>, Doug Meyer <dmeyer@gigaio.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
+        Kelvin Cao <Kelvin.Cao@microchip.com>
+Subject: Re: [PATCH] PCI/switchtec: Read all 64 bits of part_event_bitmap
+Message-ID: <20200103070436.GA828482@kroah.com>
+References: <20191219182747.28917-1-logang@deltatee.com>
+ <20200101170406.GE2712976@kroah.com>
+ <20200103001812.GL16372@sasha-vm>
+ <cf1a1886-6073-e136-ac36-0abba954556e@deltatee.com>
+ <20200103033136.GN16372@sasha-vm>
+ <074aab60-69d6-058b-14af-d197c042df42@deltatee.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <074aab60-69d6-058b-14af-d197c042df42@deltatee.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoit Parrot <bparrot@ti.com>
+On Thu, Jan 02, 2020 at 10:43:22PM -0700, Logan Gunthorpe wrote:
+> 
+> 
+> On 2020-01-02 8:31 p.m., Sasha Levin wrote:
+> > On Thu, Jan 02, 2020 at 05:46:58PM -0700, Logan Gunthorpe wrote:
+> >>
+> >>
+> >> On 2020-01-02 5:18 p.m., Sasha Levin wrote:
+> >>> On Wed, Jan 01, 2020 at 06:04:06PM +0100, Greg Kroah-Hartman wrote:
+> >>>> On Thu, Dec 19, 2019 at 11:27:47AM -0700, Logan Gunthorpe wrote:
+> >>>>> commit 6acdf7e19b37cb3a9258603d0eab315079c19c5e upstream.
+> >>>>>
+> >>>>> The part_event_bitmap register is 64 bits wide, so read it with
+> >>>>> ioread64()
+> >>>>> instead of the 32-bit ioread32().
+> >>>>>
+> >>>>> Fixes: 52eabba5bcdb ("switchtec: Add IOCTLs to the Switchtec driver")
+> >>>>> Link:
+> >>>>> https://lore.kernel.org/r/20190910195833.3891-1-logang@deltatee.com
+> >>>>> Reported-by: Doug Meyer <dmeyer@gigaio.com>
+> >>>>> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+> >>>>> Cc: Bjorn Helgaas <bhelgaas@google.com>
+> >>>>> Cc: stable@vger.kernel.org    # v4.12+
+> >>>>> Cc: Kelvin Cao <Kelvin.Cao@microchip.com>
+> >>>>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> >>>>> ---
+> >>>>>
+> >>>>> ioread64() was introduced in v5.1 so the upstream patch won't
+> >>>>> compile on
+> >>>>> stable versions 4.14 or 4.19. This is the same patch but uses readq()
+> >>>>> which should be equivalent.
+> >>>>
+> >>>> Now queued up, thanks.
+> >>>
+> >>> Hey Logan,
+> >>>
+> >>> As Guenter has pointed out, readq() is only defined for 64 bits, so this
+> >>> breaks compilation in i386. I've dropped this backport for now, if you
+> >>> could fix it up we could queue it up again.
+> >>
+> >> Not quiet true. It is in fact defined for 32-bit architectures as two
+> >> readl() calls in "linux/io-64-nonatomic-lo-hi.h".
+> >>
+> >> So, unless I'm missing something the patch should be fine.
+> > 
+> > This is an actual error we're seeing:
+> > 
+> > drivers/pci/switch/switchtec.c: In function ‘ioctl_event_summary’:
+> > drivers/pci/switch/switchtec.c:636:18: error: implicit declaration of
+> > function ‘readq’; did you mean ‘readl’?
+> > [-Werror=implicit-function-declaration]
+> >  636 |  s.part_bitmap = readq(&stdev->mmio_sw_event->part_event_bitmap);
+> >      |                  ^~~~~
+> >      |                  readl
+> > cc1: some warnings being treated as errors
+> > make[1]: *** [scripts/Makefile.build:310:
+> > drivers/pci/switch/switchtec.o] Error 1
+> > make: *** [Makefile:1695: drivers/pci/switch/] Error 2
+> > 
+> > So the patch isn't fine :)
+> > 
+> > You're correct about linux/io-64-nonatomic-lo-hi.h, but sadly it isn't
+> > included in drivers/pci/switch/switchtec.c so it's not getting used.
+> > Something like the following has fixed compilation for me:
+> 
+> Oh, hmm, yes looks like we added that include in v5.0 so earlier
+> versions need it for that patch to be correct on non-64bit arches. Sigh.
+> 
+> Can you just add the include line to the patch or do you need me to send
+> a new one fixed up?
 
-[ Upstream commit 9d669fbfca20e6035ead814e55d9ef1a6b500540 ]
+A new one fixed up would be great, thanks.
 
-The initial registers sequence is only loaded at probe
-time. Afterward only the resolution and format specific
-register are modified. Care must be taken to make sure
-registers modified by one resolution setting are reverted
-back when another resolution is programmed.
-
-This was not done properly for the 720p case.
-
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/media/i2c/ov2659.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
-index 4f43e8c43950..6eefb8bbb5b5 100644
---- a/drivers/media/i2c/ov2659.c
-+++ b/drivers/media/i2c/ov2659.c
-@@ -419,10 +419,14 @@ static struct sensor_register ov2659_720p[] = {
- 	{ REG_TIMING_YINC, 0x11 },
- 	{ REG_TIMING_VERT_FORMAT, 0x80 },
- 	{ REG_TIMING_HORIZ_FORMAT, 0x00 },
-+	{ 0x370a, 0x12 },
- 	{ 0x3a03, 0xe8 },
- 	{ 0x3a09, 0x6f },
- 	{ 0x3a0b, 0x5d },
- 	{ 0x3a15, 0x9a },
-+	{ REG_VFIFO_READ_START_H, 0x00 },
-+	{ REG_VFIFO_READ_START_L, 0x80 },
-+	{ REG_ISP_CTRL02, 0x00 },
- 	{ REG_NULL, 0x00 },
- };
- 
--- 
-2.20.1
-
-
-
+greg k-h
