@@ -2,125 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 563BD12F756
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 12:35:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4719112F79B
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 12:42:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727588AbgACLfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 06:35:18 -0500
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:41995 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727456AbgACLfS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 06:35:18 -0500
-Received: by mail-pl1-f195.google.com with SMTP id p9so18973647plk.9
-        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 03:35:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=9bxekxxmVEWH+n0Pf9RmdTLqWDxkj4tNTKvqGNTMKug=;
-        b=UxiOBejyG9k+ofEygWYV3Xl/WmINb1uaMm5Dfcn5I6NWv7u8TKIbeu2XrmvMXCsfuc
-         25FtCdayhX4ULJSB49tuhtgtMEfW/kZeAqbWtDoLIHpaW10LJ8DyH0iXMK6zliy2/kKA
-         sgnBq56H6u/qW9rLG7Dv9AYCp1/sfRyBsgx/U=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=9bxekxxmVEWH+n0Pf9RmdTLqWDxkj4tNTKvqGNTMKug=;
-        b=Sx2Jm7bnVyq4ueudbyoMde0sOI3x1ixO2j+MkI/CNCO8dg/w1TDTVWNFwtQGFAdZSL
-         ttcHDeG3n+VdKg60fnU/8/nLNfW+OR6dtwSIh1acLHV3IINjbJGSPydzB9taQMn8mmPg
-         FVmJyO3lSdM62K2RwrFARuue3NKiwymoFlg21xsWj8vrvDwbUxJQqAdonmtyuM1NEfXq
-         NoUq0JHbGJ012d1DUrwbqD2cSbSfXqDyjf9Nsi9lE4kwSupqtQPmvzqBOlEUnh20U8Ad
-         9cGNy7sVRJGFbLHaZoKvBTYJdLBoO/NcXRRCnENZiPwwMHesh3niPHKQOvaeqaqYmJaM
-         +6Bg==
-X-Gm-Message-State: APjAAAX0GKlcdEANTbox/sHZJI9FbMv9q7PUadPmbzwqDvtdOBUkFI+t
-        Tt6KiEh461QCA3E7mb/ryPVdaA==
-X-Google-Smtp-Source: APXvYqz27IvEY/WIIBZHUJf9K5RDrG+2LVoAkWJKDE04UgyoIkvpFV6xjuIIHtylL2gturWIoJ4tCA==
-X-Received: by 2002:a17:90a:2a06:: with SMTP id i6mr26525546pjd.97.1578051318158;
-        Fri, 03 Jan 2020 03:35:18 -0800 (PST)
-Received: from dhcp-10-123-20-32.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id h128sm70302144pfe.172.2020.01.03.03.35.15
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 Jan 2020 03:35:17 -0800 (PST)
-From:   Anand Lodnoor <anand.lodnoor@broadcom.com>
-To:     linux-scsi@vger.kernel.org
-Cc:     kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
-        kiran-kumar.kasturi@broadcom.com,
-        Anand Lodnoor <anand.lodnoor@broadcom.com>,
-        stable@vger.kernel.org,
-        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
-Subject: [PATCH 08/11] megaraid_sas: Do not initiate OCR if controller is not in ready state
-Date:   Fri,  3 Jan 2020 17:02:32 +0530
-Message-Id: <1578051155-14716-9-git-send-email-anand.lodnoor@broadcom.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1578051155-14716-1-git-send-email-anand.lodnoor@broadcom.com>
-References: <1578051155-14716-1-git-send-email-anand.lodnoor@broadcom.com>
+        id S1727560AbgACLmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 06:42:38 -0500
+Received: from sonic307-29.consmr.mail.bf2.yahoo.com ([74.6.134.228]:37410
+        "EHLO sonic307-29.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727507AbgACLmi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 06:42:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1578051756; bh=MJdpASvZnpj3gXKZxrNskiGAl+hYYwdjGUMDZ9fMpsI=; h=Date:From:Reply-To:Subject:References:From:Subject; b=QLQZpaSd1S2+G+qROuf+203AjHmHN7jLGP+oTiOqoucNA18mg4qNxKJPYYuIh9t/3TH3FinRucHfQ1WH/VMb8wh+kEEnW4O/q2MiY1QnSCPPwW7mSOHWYiRtH4y4JOpdn6EH8SHb97eEuvPC49ILBBvP50Cj4iaX/NiWO8dIlpaLGQvW6AP4ZOsKRS3ADCnVdk5BTTyh4+4wPOON0/H+o79/BKlU6FBjifJaVH8GJ1QSCEeI2ctvRPrRH2IwSeYGBYB+sVMYrMEpTx2hCy43xgmFQGWQJJOEdPdO8/7MpQG4XOM/p+YBR2SYA1VGU7CTxqM5zCWPIFQb4Hc0JwczAQ==
+X-YMail-OSG: XKzOFK4VM1ngtHVHdcRGsscRes6gEfJuQ_3wS3mjhIPZ6s13U_dbpPpStFxcG3n
+ q30A8TxNR66d4RrlZBBUHqlgHk1WEOYpZSYAQOxT1c4ClsGtAlKBE60OT3aQMZKFULmHcqTtV_kR
+ W1.8.JgUGMVZd7nL_qMHnXKfrrt.AAZACBvmM7KsxoUp__KZH2BheoIuzptQS67qIvysM6VsV6eC
+ sT8EXXDYlXfyBRldoh19lmW130aG.nTfCagYTipEqLwn0G0UxvQp_UdWfG6q.YMHuwGH9q09GODG
+ CkVTmajSXRbyYxOtqdLleRyRNog6DetBT3d.qxW5Dg.rCG4p2nCsUczGYeTDDdbtjKfTpyg0_L3w
+ miZ0x4AtA66efI3N.6qyGcJa9ea8AcEUWk3xGgL0a.utCB.DMR9X2iNTuiDtddi11s3Xf15WWxm2
+ 1nNmsYwOerwFfYSeonUt01Vuxdl2hsy9bhlqSB1st5Z8DT0jEblbQf1U5F2mShkb09hgoViplQHv
+ cprfLAp35wzcbPq3I4XUPgcwzt8WCGnht5tfYMyImvH3J.twOJrPqONSIJ1QOuo3XnO2xWhNbG0k
+ XufiPxJfevPDMtWcNJgCNQBtzerC4h7T9jbYkgoPVZ4zFyyZkqKyb7QNlMPjFuzeghfxdLrpoPbd
+ ttwca9wv1sc2nfHbYByanxWuO7ZCpI.V75l8zLb.SGCyXjrniENrQrCBiGXx9anITNujcLJS7JCh
+ 26OkKcci1wNF.NrMro3nRPhI.5DNYFntU0K60NBfn_hjOP05XJ4XhW6CxBCOLMEH6b4lmq.DoCOW
+ Wvq.XqK35uweQhs5xwVgmU4LpYniYcjh7RBoo6033_pjN.pARwESY0F9BOS.VdKxI_QOZ39kpsvf
+ wgTm4Lj5my1oRIKtV6gq.afk1qsGI58dxB3K8oMX3LelWbdEERuAcQjcrgyl8hyPcc0Sfx0_i8aj
+ p2jCIPhuSNW0HoeMbjVsV6DthnZ90Ai7wLwGxXALa8UVorj4dKWPN7tmnIpVuBUJuoaNQcw3PAu0
+ UacZTVzYvwZVrYolLywyl7MhsvtSloEtgVRav.EJDGrL6dRc3NIPbaqCS5HROpch7QwLyQAen7WQ
+ Zh9FofD6c9l_ZhGXCXtx9I5._uvyBxWm_70IapFx3iEJ7YzUv4NAA1tyc7GPKT166P8oojZO48NI
+ _254P4yXbyCLgMrTTDCv4nvjpYF3a7AULt41lBFA1UnWyEi1LqnnycgVYHdKNH2x_hhNfpmk9UWo
+ XrJsObiYG4bU1ZHIlcGFX37iDmjdziCmcpCj5rMrJRIFwy4fcVCzP.Nt8tgqU0C7hqobvK29HibZ
+ yzKGJXFjQ4uRkBbAbVdODE3fv.xRD7GY0RFZcHHw-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.bf2.yahoo.com with HTTP; Fri, 3 Jan 2020 11:42:36 +0000
+Date:   Fri, 3 Jan 2020 11:40:36 +0000 (UTC)
+From:   Brian Gilvary <1brian.gilvary@gmail.com>
+Reply-To: gilvarybrian@aol.com
+Message-ID: <366851621.4061922.1578051636621@mail.yahoo.com>
+Subject: Happy New Year For Our Mutual Benefits
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <366851621.4061922.1578051636621.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.14873 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Driver can initiate OCR if DCMD command is timeout, but there is a
-deadlock if the driver attempts to invoke another OCR  before the
-mutex lock is released from the previous session of OCR.
+Hi
 
-This patch takes care of the above scenario using new flag
-MEGASAS_FUSION_OCR_NOT_POSSIBLE to indicate if OCR is possible or not.
+As the Chief Financial Officer, British Petroleum Company plc (BP), I am in=
+ a position to facilitate immediate transfer of =C2=A3 48,000,000.00 (Forty=
+ Eight Million British Pounds Sterling), to any of your nominated Bank Acco=
+unt.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
-Signed-off-by: Anand Lodnoor <anand.lodnoor@broadcom.com>
----
- drivers/scsi/megaraid/megaraid_sas_base.c   | 3 ++-
- drivers/scsi/megaraid/megaraid_sas_fusion.c | 3 ++-
- drivers/scsi/megaraid/megaraid_sas_fusion.h | 1 +
- 3 files changed, 5 insertions(+), 2 deletions(-)
+Source of Funds: An over-invoiced payment from a past project executed in m=
+y department. I cannot successfully achieve this transaction without presen=
+ting you as foreign contractor who will provide the bank account to receive=
+ the funds. Every documentation for the claim of the funds will be legally =
+processed and documented, so I will need your full co-operation for our mut=
+ual benefits.
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index 8bc4076..da47c8b 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -4404,7 +4404,8 @@ int megasas_alloc_cmds(struct megasas_instance *instance)
- 	if (instance->adapter_type == MFI_SERIES)
- 		return KILL_ADAPTER;
- 	else if (instance->unload ||
--			test_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags))
-+			test_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE,
-+				 &instance->reset_flags))
- 		return IGNORE_TIMEOUT;
- 	else
- 		return INITIATE_OCR;
-diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-index 6860fd2..8b6cc1b 100644
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -4851,6 +4851,7 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
- 	if (instance->requestorId && !instance->skip_heartbeat_timer_del)
- 		del_timer_sync(&instance->sriov_heartbeat_timer);
- 	set_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
-+	set_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
- 	atomic_set(&instance->adprecovery, MEGASAS_ADPRESET_SM_POLLING);
- 	instance->instancet->disable_intr(instance);
- 	megasas_sync_irqs((unsigned long)instance);
-@@ -5059,7 +5060,7 @@ int megasas_reset_fusion(struct Scsi_Host *shost, int reason)
- 	instance->skip_heartbeat_timer_del = 1;
- 	retval = FAILED;
- out:
--	clear_bit(MEGASAS_FUSION_IN_RESET, &instance->reset_flags);
-+	clear_bit(MEGASAS_FUSION_OCR_NOT_POSSIBLE, &instance->reset_flags);
- 	mutex_unlock(&instance->reset_mutex);
- 	return retval;
- }
-diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.h b/drivers/scsi/megaraid/megaraid_sas_fusion.h
-index 8358b68..d57ecc7 100644
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.h
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.h
-@@ -89,6 +89,7 @@ enum MR_RAID_FLAGS_IO_SUB_TYPE {
- 
- #define MEGASAS_FP_CMD_LEN	16
- #define MEGASAS_FUSION_IN_RESET 0
-+#define MEGASAS_FUSION_OCR_NOT_POSSIBLE 1
- #define RAID_1_PEER_CMDS 2
- #define JBOD_MAPS_COUNT	2
- #define MEGASAS_REDUCE_QD_COUNT 64
--- 
-1.8.3.1
+We will discuss details if you are interested to work with me to secure thi=
+s funds, as I said for our mutual benefits. I will be looking forward to yo=
+ur prompt response.
 
+Best regards
+Brian Gilvary
+Chief financial officer
+BP, Plc.
