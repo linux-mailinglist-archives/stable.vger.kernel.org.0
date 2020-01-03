@@ -2,83 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDEB12FCB7
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 19:46:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B30F12FCD9
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 20:07:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728390AbgACSqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 13:46:44 -0500
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:46849 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728279AbgACSqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 13:46:44 -0500
-Received: by mail-ot1-f67.google.com with SMTP id k8so45054716otl.13
-        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 10:46:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=zMQWoMlbtRckJcAFhKudH6hAdOl11JUXh6khJneQffs=;
-        b=G5KRDsO4qDJM0jKRniURhFi7nkWzCdDds+z5uUd6q3n16CudeLFAisrnhw5oeh4hhK
-         L8DgpT1F37dfQvBaJxe9kEwp9w+LltkghA7Q2gln4CfWV6kWYNX5prK72d/eRbgkpDgA
-         /6X9UbQ9zChedD8aBWQViHVc70wA+7IaNVBlFMAAP1cMI6JNpET6XcjTaPRZhJFG980V
-         bAIf9/ErcO8+/J5C74j6fKNBpFynuE3MxaLeqNuJkSW8dmoRhD4y6P1BwZu6Px6fRaC/
-         /vDN1JPMeoz5Iu0Z3eE8NzMYpk4iwwtKqPVr1uivS1i02vRmf50Wr/xUSLMUQGlyOwAM
-         IfjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=zMQWoMlbtRckJcAFhKudH6hAdOl11JUXh6khJneQffs=;
-        b=txa6uiV3LX1SwpKrsWxNEMyk5LTHwZhNk+wPwfiVAiXTYHU+mx8dsFhPAlnxIse08t
-         4lRrlzu5ajaPrcTB1i1H/XOdxRHZMaY33uw/z9IeKqQyJWt5WRSc1BxbRWJI/F82u2MC
-         3IOwHevM6kVCoak0nnPtsLkR20zA076GAlMhqi0FSN0S8StwFK4+5+3xqu4q/JNvM9Xu
-         a8K0OGky/PM+AVggC3g9qBZi+T/qI46o1fnqkhaXLK6kQnkXKYABlLxU/Dsb2Y0BO+Y9
-         WBXiM/bHZElSKMi0+YKLJA0yNcSJ7fWcUueYdq6MZsh0jfOcSrqZKr2o8H63Skz+YyJ0
-         hDTQ==
-X-Gm-Message-State: APjAAAVzw4UubAxFy5lQ1t1ZjcP+4u1ms5fpvT+aJaraTxFEtAqI0I+L
-        HIxl2Ex9x/d/fAxnMLi+vgjBMoLL7JBRMgDMtIc=
-X-Google-Smtp-Source: APXvYqy8yla+hQ2Ru6PFb5BbP9v4P+0SU7Q+pv0spcFklIpYzU/0ByLCYFFetC16UG2LbV5gDDR8QQ7nF4fa2xdQutE=
-X-Received: by 2002:a9d:6251:: with SMTP id i17mr27313063otk.14.1578077203799;
- Fri, 03 Jan 2020 10:46:43 -0800 (PST)
+        id S1728427AbgACTHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 14:07:14 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:45188 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728373AbgACTHO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 14:07:14 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 25F3B1C2228; Fri,  3 Jan 2020 20:07:12 +0100 (CET)
+Date:   Fri, 3 Jan 2020 20:07:11 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 4.19 089/114] hrtimer: Annotate lockless access to
+ timer->state
+Message-ID: <20200103190711.GF14328@amd>
+References: <20200102220029.183913184@linuxfoundation.org>
+ <20200102220038.167049649@linuxfoundation.org>
 MIME-Version: 1.0
-Received: by 2002:aca:ad06:0:0:0:0:0 with HTTP; Fri, 3 Jan 2020 10:46:43 -0800 (PST)
-Reply-To: agaddafi077@gmail.com
-From:   Mrs A Gaddafi <gaddafiais12@gmail.com>
-Date:   Fri, 3 Jan 2020 10:46:43 -0800
-Message-ID: <CANjK7yOxGOgbi4cNZDnv47h1gD9c-Agyj700HYDm+kRDUKfh-w@mail.gmail.com>
-Subject: HAPPY NEW YEAR,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="FoLtEtfbNGMjfgrs"
+Content-Disposition: inline
+In-Reply-To: <20200102220038.167049649@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
 
-I came across your e-mail contact prior a private search whilst in
-need of your partnership for investment assistance in your country. I
-am opportune to use this medium to exhibit my legal intentions towards
-investing to your country under your management. I am fully convinced
-that you will really be of help as a business partner.
+--FoLtEtfbNGMjfgrs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-My name is Aisha  Gaddafi a single Mother and a Widow and i have three
-Children. I am the only biological Daughter of late Libyan President
-(Late Colonel Muammar Gaddafi).
+Hi!
 
-I have investment funds worth Twenty Seven Million Five Hundred
-Thousand United State Dollar ($27.500.000.00 ) and i need a trusted
-investment Manager/Partner.  I am planning to go into investment
-projects in your country of origin or present country of Location to
-assist me establish the investments project.
+> From: Eric Dumazet <edumazet@google.com>
+>=20
+> commit 56144737e67329c9aaed15f942d46a6302e2e3d8 upstream.
+>=20
+> syzbot reported various data-race caused by hrtimer_is_queued() reading
+> timer->state. A READ_ONCE() is required there to silence the warning.
+>=20
+> Also add the corresponding WRITE_ONCE() when timer->state is set.
+>=20
+> In remove_hrtimer() the hrtimer_is_queued() helper is open coded to avoid
+> loading timer->state twice.
 
- I am willing to negotiate investment/business profit sharing ratio
-with you base on the future investment earning profits.
+Is there a reason why READ_ONCE is not neccessary in remove_hrtimer?
 
-If you are willing to handle this project on my behalf kindly reply
-urgent to enable me provide you more details about myself and more
-information about the release of the investment funds.
+Should there be comment there explaining it?
 
-I appreciate Your Urgent Reply to my email address:
+Best regards,
+								Pavel
 
-Best Regards
-Mrs Aisha Gaddafi
+> @@ -1002,8 +1004,9 @@ static void __remove_hrtimer(struct hrti
+>  static inline int
+>  remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, b=
+ool restart)
+>  {
+> -	if (hrtimer_is_queued(timer)) {
+> -		u8 state =3D timer->state;
+> +	u8 state =3D timer->state;
+> +
+> +	if (state & HRTIMER_STATE_ENQUEUED) {
+>  		int reprogram;
+> =20
+>  		/*
+>=20
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--FoLtEtfbNGMjfgrs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl4PkN8ACgkQMOfwapXb+vIXSgCeLWRt9/Au7H2W6ury0qy8+LDc
+5WEAn140rt5mS/Pw4LJL/cm+8edXvfPz
+=8tqD
+-----END PGP SIGNATURE-----
+
+--FoLtEtfbNGMjfgrs--
