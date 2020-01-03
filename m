@@ -2,89 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 070AB12F289
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 02:05:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C3312F2C1
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 02:49:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725972AbgACBFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 20:05:05 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:51921 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725943AbgACBFF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 20:05:05 -0500
-Received: by mail-wm1-f66.google.com with SMTP id d73so7129021wmd.1
-        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 17:05:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=HQA7OXUw1BHoLY2vz9YnNyPlJl50CwewTquyYR4IWXU=;
-        b=Z07sDoBwtdofzpMZVTzNPE9ay6MMkoLu0ulXUmQ//6tDo6laQx58mJfOU2pvW6G0wk
-         9MdwSuHSEBEj8lAxq3NNMDg3vVh3DnpjiCtkLc+jfju0rME2EGoAKGwS4DClNIQaLKO0
-         vUVQHtNMqsNfIENoAG+Y6tCBux5UD2FvLu4vVT1Y7Vgm4sriwB8Pl7VRXQxsmCYl+e+F
-         H+ARZVpVsQPjQOyOQ5Pf64MtpKqgijw3gG/w85PetYSGeRilBurwQ8mAbDxwSEbz6hSL
-         Ln+eujfTR4/fDhLTzfjc2Nl04Z7lc6t1lratbKd2x9KTQMOTevL5GcLf67wM4Nw5klJR
-         bmRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=HQA7OXUw1BHoLY2vz9YnNyPlJl50CwewTquyYR4IWXU=;
-        b=uCCQNBOj/ujHSAK1ByFO6uj72GBSMp0lVCOcuhSEYr3A13mKW9e1JmSde0qZcbIWp8
-         QM5h49/o6VEXFEQFAHQK5JfwVPV7nH9tIuRudnsQ6yg4nQsiU8jd6bi/vqTWyHSUy72F
-         LoO0irda+iIzNPBL2bFS9SdDDvnt1U504x/b1a/XtfG6+zNQjzd2NNP1jOinPTVxkTUa
-         ujxmdC85MjuZ5O328ZA9dW75aTmfvOoqer4YGtZB6q64hVVw4G1CYvd3GeQ/ns3+HW2P
-         mA6Eh5sZZMJDyKSym4DyX7sceLgysLiDHXmRKpqmN180c60F9aanyWyw47AWk/fWeWqu
-         uAtA==
-X-Gm-Message-State: APjAAAXIE9LSfrXRZunozgRCMJE4OJkMGJsNl7hh9DcTa6+b5M4XhOjN
-        bQY9Tk3WekXqAOH9lYeJHImF12Sgrwqe6g==
-X-Google-Smtp-Source: APXvYqyLIOCQvfN1z+xWKQAdqj/+gt1N7lqfGw5IjcJ5AycmBEWomaxge3E+CbmR25ZwPbfbGTpyoQ==
-X-Received: by 2002:a1c:5419:: with SMTP id i25mr16730988wmb.150.1578013503241;
-        Thu, 02 Jan 2020 17:05:03 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c68sm10047759wme.13.2020.01.02.17.05.02
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Jan 2020 17:05:02 -0800 (PST)
-Message-ID: <5e0e933e.1c69fb81.8f71a.ddd2@mx.google.com>
-Date:   Thu, 02 Jan 2020 17:05:02 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726148AbgACBtR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 20:49:17 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:48834 "EHLO
+        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726039AbgACBtR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 20:49:17 -0500
+Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1inC5F-000pFy-EG; Fri, 03 Jan 2020 01:49:01 +0000
+Date:   Fri, 3 Jan 2020 01:49:01 +0000
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Aleksa Sarai <cyphar@cyphar.com>
+Cc:     David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
+        containers@lists.linux-foundation.org, linux-api@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+Message-ID: <20200103014901.GC8904@ZenIV.linux.org.uk>
+References: <20191230052036.8765-1-cyphar@cyphar.com>
+ <20191230054413.GX4203@ZenIV.linux.org.uk>
+ <20191230054913.c5avdjqbygtur2l7@yavin.dot.cyphar.com>
+ <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com>
+ <20200101004324.GA11269@ZenIV.linux.org.uk>
+ <20200101005446.GH4203@ZenIV.linux.org.uk>
+ <20200101030815.GA17593@ZenIV.linux.org.uk>
+ <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
+ <20200101234009.GB8904@ZenIV.linux.org.uk>
+ <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.161-92-ge09672e5ab69
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 52 boots: 1 failed,
- 50 passed with 1 untried/unknown (v4.14.161-92-ge09672e5ab69)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 52 boots: 1 failed, 50 passed with 1 untried/u=
-nknown (v4.14.161-92-ge09672e5ab69)
+On Thu, Jan 02, 2020 at 02:59:20PM +1100, Aleksa Sarai wrote:
+> On 2020-01-01, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> > On Thu, Jan 02, 2020 at 01:44:07AM +1100, Aleksa Sarai wrote:
+> > 
+> > > Thanks, this fixes the issue for me (and also fixes another reproducer I
+> > > found -- mounting a symlink on top of itself then trying to umount it).
+> > > 
+> > > Reported-by: Aleksa Sarai <cyphar@cyphar.com>
+> > > Tested-by: Aleksa Sarai <cyphar@cyphar.com>
+> > 
+> > Pushed into #fixes.
+> 
+> Thanks. One other thing I noticed is that umount applies to the
+> underlying symlink rather than the mountpoint on top. So, for example
+> (using the same scripts I posted in the thread):
+> 
+>   # ln -s /tmp/foo link
+>   # ./mount_to_symlink /etc/passwd link
+>   # umount -l link # will attempt to unmount "/tmp/foo"
+> 
+> Is that intentional?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.161-92-ge09672e5ab69/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.161-92-ge09672e5ab69/
+It's a mess, again in mountpoint_last().  FWIW, at some point I proposed
+to have nd_jump_link() to fail with -ELOOP if the target was a symlink;
+Linus asked for reasons deeper than my dislike of the semantics, I looked
+around and hadn't spotted anything.  And there hadn't been at the time,
+but when four months later umount_lookup_last() went in I failed to look
+for that source of potential problems in it ;-/
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.161-92-ge09672e5ab69
-Git Commit: e09672e5ab693decf3286999c35a7c7b5b7e4a2c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 33 unique boards, 13 SoC families, 12 builds out of 201
+I've looked at that area again now.  Aside of usual cursing at do_last()
+horrors (yes, its control flow is a horror; yes, it needs serious massage;
+no, it's not a good idea to get sidetracked into that right now), there
+are several fun questions:
+	* d_manage() and d_automount().  We almost certainly don't
+want those for autofs on the final component of pathname in umount,
+including the trailing symlinks.  But do we want those on usual access
+via /proc/*/fd/*?  I.e. suppose somebody does open() (O_PATH or not)
+in autofs; do we want ->d_manage()/->d_automount() called when
+resolving /proc/self/fd/<whatever>/foo/bar?  We do not; is that
+correct from autofs point of view?  I suspect that refusing to
+do ->d_automount() is correct, but I don't understand ->d_manage()
+purpose well enough to tell.
+	* I really hope that the weird "trailing / forces automount
+even in cases when we normally wouldn't trigger it" (stat /mnt/foo
+vs. stat /mnt/foo/) is not meant to extend to umount.  I'd like
+Ian's confirmation, though.
+	* do we want ->d_manage() on following .. into overmounted
+directory?  Again, autofs question...
 
-Boot Failure Detected:
+	The minimal fix to mountpoint_last() would be to have
+follow_mount() done in LAST_NORM case.  However, I'd like to understand
+(and hopefully regularize) the rules for follow_mount()/follow_managed().
+Additional scary question is nfsd iterplay with automount.  For nfs4
+exports it's potentially interesting...
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+	Ian, could you comment on the autofs questions above?
+I'd rather avoid doing changes in that area without your input -
+it's subtle and breakage in automount-related behaviour can be
+mysterious as hell.
