@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65BC112FA9A
+	by mail.lfdr.de (Postfix) with ESMTP id DFC5512FA9B
 	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 17:36:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727966AbgACQfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 11:35:55 -0500
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:46601 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728037AbgACQfg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 11:35:36 -0500
-Received: by mail-lj1-f195.google.com with SMTP id m26so41970604ljc.13;
+        id S1728176AbgACQgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 11:36:02 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:37003 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728040AbgACQff (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 11:35:35 -0500
+Received: by mail-lj1-f196.google.com with SMTP id o13so33001084ljg.4;
         Fri, 03 Jan 2020 08:35:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=wOGJDK9VxSi0BWGjIljSq4Feb+Qmi92twu6Ha+tsjbE=;
-        b=cnVUvsvXf783t5+2W62Fg2E7o4YGU3E0lvBkN+xPaXe2wPLCzyi01iygyLxI9N0Y5p
-         CiKREjOEAY9hRPGYxvF9ihI9y3vtSKhXqr16B00Lpv4U+N8hTH94K7X4hDDTs4zlzlAy
-         aEVhNYjqya7kBwy8MhFKmO+G+UFmF9GaX44ogVtqri8JkoGWZkXNdirrhcEFP/su9Eol
-         NDdLeieM33Iez2bg/FRRM9xt5axFHEummOmIhhH1Wg53NAdjXFO8pFZirpWkk2nDgAdO
-         u6FMmnPDer2tOxHZLTidLo+2ecNncyRblcowiFKrCwb8P0OLbHDU+3Mu1g90SDYU+a40
-         xytw==
-X-Gm-Message-State: APjAAAXnXhEzANHbeXpfFCX8MzuxA9FRmF4gelMGpKUmT6XGtxNWzGen
-        xh5pG6ctF+PXap8oGbKeLE8=
-X-Google-Smtp-Source: APXvYqyatX6mOcKLHVud6xipKNRdmBsg36UpiSC6YsOJEh3KwyNzesOFwI+O4Bmvtdt2PcidB4wVmg==
-X-Received: by 2002:a2e:7816:: with SMTP id t22mr53001895ljc.161.1578069333139;
+        bh=+tlqOZeymQPSzMRwJcWO6YbRSpeG6g0qeksDnmBdU10=;
+        b=BazQZLFwOzVOPB0VwBVnhNRyeWeWGjqREEXs3llMKwYOeEXpkM3tVqZyT0/uoRPAXZ
+         AMKQAoSCJaN5P7pF+VaGE5PA/tWv4ANx04bkrQpYbF1c6aTzKZlsLxrgzJEfQKOg/F0H
+         eavjvabmBdBXR9fltugjvoGyBbeMLFcsbTxcxQJaTvot5eVWGlrme8gjLbUNfOqTGBCl
+         adtFem8UAThZY+omHYBSNzO8PIYYegf16Ql35sHIRKoGU7oUHIP2rYskl0y2zgKJO5Wu
+         THVkyagqzSeeeu2b9vXJMKK3D9RMigj61CUMNgh3X9gtryIFQXwb7rTnxvafTVMjgWWJ
+         PyJw==
+X-Gm-Message-State: APjAAAVI9PuztnpjnsrbfR24A4Y3/oJIVvAps4dxNRKoAuU0yy4Lszqu
+        Q+oVPYti98UzCGkzfwD6HWg=
+X-Google-Smtp-Source: APXvYqwYSsLJyZGoPLjR6puxlsXnmFozkkoUW6uBboL+dGzIHZp3/IWNSbX0v5RXpEQ36TA9fZ4bOg==
+X-Received: by 2002:a2e:8603:: with SMTP id a3mr43840365lji.210.1578069333597;
         Fri, 03 Jan 2020 08:35:33 -0800 (PST)
 Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id u17sm15855057ljk.62.2020.01.03.08.35.30
+        by smtp.gmail.com with ESMTPSA id l5sm23959515lje.1.2020.01.03.08.35.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 03 Jan 2020 08:35:32 -0800 (PST)
 Received: from johan by xi.terra with local (Exim 4.92.3)
         (envelope-from <johan@xi.terra>)
-        id 1inPvB-0000Kz-D3; Fri, 03 Jan 2020 17:35:33 +0100
+        id 1inPvB-0000L3-FV; Fri, 03 Jan 2020 17:35:33 +0100
 From:   Johan Hovold <johan@kernel.org>
 To:     Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     Sean Young <sean@mess.org>, Hans Verkuil <hverkuil@xs4all.nl>,
         linux-media@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4/6] media: xirlink_cit: add missing descriptor sanity checks
-Date:   Fri,  3 Jan 2020 17:35:11 +0100
-Message-Id: <20200103163513.1229-5-johan@kernel.org>
+        stable <stable@vger.kernel.org>
+Subject: [PATCH 5/6] media: dib0700: fix rc endpoint lookup
+Date:   Fri,  3 Jan 2020 17:35:12 +0100
+Message-Id: <20200103163513.1229-6-johan@kernel.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200103163513.1229-1-johan@kernel.org>
 References: <20200103163513.1229-1-johan@kernel.org>
@@ -56,77 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Make sure to check that we have two alternate settings and at least one
-endpoint before accessing the second altsetting structure and
-dereferencing the endpoint arrays.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid submitting an URB to an invalid endpoint.
 
-This specifically avoids dereferencing NULL-pointers or corrupting
-memory when a device does not have the expected descriptors.
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
 
-Note that the sanity check in cit_get_packet_size() is not redundant as
-the driver is mixing looking up altsettings by index and by number,
-which may not coincide.
-
-Fixes: 659fefa0eb17 ("V4L/DVB: gspca_xirlink_cit: Add support for camera with a bcd version of 0.01")
-Fixes: 59f8b0bf3c12 ("V4L/DVB: gspca_xirlink_cit: support bandwidth changing for devices with 1 alt setting")
-Cc: stable <stable@vger.kernel.org>     # 2.6.37
-Cc: Hans de Goede <hdegoede@redhat.com>
+Fixes: c4018fa2e4c0 ("[media] dib0700: fix RC support on Hauppauge Nova-TD")
+Cc: stable <stable@vger.kernel.org>     # 3.16
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/media/usb/gspca/xirlink_cit.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/dib0700_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/xirlink_cit.c b/drivers/media/usb/gspca/xirlink_cit.c
-index 934a90bd78c2..c579b100f066 100644
---- a/drivers/media/usb/gspca/xirlink_cit.c
-+++ b/drivers/media/usb/gspca/xirlink_cit.c
-@@ -1442,6 +1442,9 @@ static int cit_get_packet_size(struct gspca_dev *gspca_dev)
- 		return -EIO;
- 	}
+diff --git a/drivers/media/usb/dvb-usb/dib0700_core.c b/drivers/media/usb/dvb-usb/dib0700_core.c
+index e53c58ab6488..ef62dd6c5ae4 100644
+--- a/drivers/media/usb/dvb-usb/dib0700_core.c
++++ b/drivers/media/usb/dvb-usb/dib0700_core.c
+@@ -818,7 +818,7 @@ int dib0700_rc_setup(struct dvb_usb_device *d, struct usb_interface *intf)
  
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	return le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- }
+ 	/* Starting in firmware 1.20, the RC info is provided on a bulk pipe */
  
-@@ -2626,6 +2629,7 @@ static int sd_start(struct gspca_dev *gspca_dev)
+-	if (intf->altsetting[0].desc.bNumEndpoints < rc_ep + 1)
++	if (intf->cur_altsetting->desc.bNumEndpoints < rc_ep + 1)
+ 		return -ENODEV;
  
- static int sd_isoc_init(struct gspca_dev *gspca_dev)
- {
-+	struct usb_interface_cache *intfc;
- 	struct usb_host_interface *alt;
- 	int max_packet_size;
- 
-@@ -2641,8 +2645,17 @@ static int sd_isoc_init(struct gspca_dev *gspca_dev)
- 		break;
- 	}
- 
-+	intfc = gspca_dev->dev->actconfig->intf_cache[0];
-+
-+	if (intfc->num_altsetting < 2)
-+		return -ENODEV;
-+
-+	alt = &intfc->altsetting[1];
-+
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	/* Start isoc bandwidth "negotiation" at max isoc bandwidth */
--	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
- 	alt->endpoint[0].desc.wMaxPacketSize = cpu_to_le16(max_packet_size);
- 
- 	return 0;
-@@ -2665,6 +2678,9 @@ static int sd_isoc_nego(struct gspca_dev *gspca_dev)
- 		break;
- 	}
- 
-+	/*
-+	 * Existence of altsetting and endpoint was verified in sd_isoc_init()
-+	 */
- 	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	if (packet_size <= min_packet_size)
+ 	purb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -838,7 +838,7 @@ int dib0700_rc_setup(struct dvb_usb_device *d, struct usb_interface *intf)
+ 	 * Some devices like the Hauppauge NovaTD model 52009 use an interrupt
+ 	 * endpoint, while others use a bulk one.
+ 	 */
+-	e = &intf->altsetting[0].endpoint[rc_ep].desc;
++	e = &intf->cur_altsetting->endpoint[rc_ep].desc;
+ 	if (usb_endpoint_dir_in(e)) {
+ 		if (usb_endpoint_xfer_bulk(e)) {
+ 			pipe = usb_rcvbulkpipe(d->udev, rc_ep);
 -- 
 2.24.1
 
