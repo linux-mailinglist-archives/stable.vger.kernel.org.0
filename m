@@ -2,71 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E42A612FE89
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 23:01:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF2312FE8B
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 23:02:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728721AbgACWB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 17:01:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58586 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728657AbgACWB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 17:01:56 -0500
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38144206DB;
-        Fri,  3 Jan 2020 22:01:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578088915;
-        bh=9+eJqxZTWrHj1YKwG+bK9Q1jlHHSSYrl5YzXYFmRmq4=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=kplFe31bkeWISEZVPbwzxZk3RGoIWxhrGWuu1DLXh+bEbwAY5Utl2mkKt6cjpAZVt
-         8LjnT0Oe6nvpzLeXuL/+ZxZjAD8/VOSaVoGYFpIPVOcS0PmyoAK4XKP5wWeGQrkbKc
-         s8J/vJvAN7l8W8hETSkwswUa3Su6m1zs0RhjbU9c=
-Subject: Re: [PATCH 4.14 00/91] 4.14.162-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20200102220356.856162165@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <20b4f395-56e1-dba6-7a2f-5bf91f18b149@kernel.org>
-Date:   Fri, 3 Jan 2020 15:01:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1728781AbgACWCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 17:02:05 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:26340 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728657AbgACWCF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 17:02:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578088923;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=NbgRWeKkmMRYJFDge4YC+wmlH5ur2rHgXJlYcu20mgI=;
+        b=HvuNYN9/mQb+X2KSyLYS5PvjsUIkcwySM18CAJDyCZxYZMM/JGdWL4xGAotvQ07A2JRmMK
+        SQOHbL+ctTc3zhtXYk750sLHKoPuX1KCcdDCX71m1EvREgCc5No7TsP4kXiViwTKtqHr+c
+        B4/NswLiNDz7qyplegD5OKsqvukHkmM=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-389-oY4lfmiuMs2NhudrWjZwlA-1; Fri, 03 Jan 2020 17:02:02 -0500
+X-MC-Unique: oY4lfmiuMs2NhudrWjZwlA-1
+Received: by mail-qt1-f200.google.com with SMTP id m18so15191418qtq.8
+        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 14:02:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=NbgRWeKkmMRYJFDge4YC+wmlH5ur2rHgXJlYcu20mgI=;
+        b=CP7EdSDijgpWYY3TrYW8s321C5NBRpMh/qUUTsZfCKtd8M6qiZoNGrZgwrBROHNudX
+         aHESbBNOE/GMR5qx7QK/qJHCTX10PDP0LXBH0XZN/PKlsqvvGubzZ2pW+M54OFNx6SdU
+         DIR36/rEr/CqFQey0SZEUr+5ixavP97pS2auc2BlNnXj3O1cOTKcI9qLI75pmK4zh74Q
+         +Clm2ELyLTuCbVAFSxhcf8RxyDD1fX04kAoHeTpRLYJjxsS7dM56lVBHeLzooR6tzROH
+         MdBQlJ2kuzeIXyZa01rqcIEKAdevHsxR93hOYEN/3b7PSZ2oULUFwhw4bHVzxzFAAWIP
+         SnFA==
+X-Gm-Message-State: APjAAAWfuUiTV7UGXlB1botK7miAxQE6syHnkRioJfcOnwOAfwipBCLF
+        4x4yDXx5ECjy+WUbU0WQOV9P3TsMmevFwo5DMDWBce4rOdjhcKgq8UEmiuFuA4ic01EzHq/+aaE
+        dPJTgmjY8zE/rypa4
+X-Received: by 2002:a05:620a:149b:: with SMTP id w27mr75833053qkj.229.1578088921521;
+        Fri, 03 Jan 2020 14:02:01 -0800 (PST)
+X-Google-Smtp-Source: APXvYqwUfluq+PONcyFVBW01zMor1T71CL92M508ZrAS/HbYc2deWYqv4kGb1B3Nm/MuWgb9dmHJIw==
+X-Received: by 2002:a05:620a:149b:: with SMTP id w27mr75833026qkj.229.1578088921277;
+        Fri, 03 Jan 2020 14:02:01 -0800 (PST)
+Received: from dhcp-10-20-1-90.bss.redhat.com ([144.121.20.162])
+        by smtp.gmail.com with ESMTPSA id n129sm17234952qkf.64.2020.01.03.14.02.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Jan 2020 14:02:00 -0800 (PST)
+Message-ID: <246412a450f123e0bbc29c6feb68513cdce2c576.camel@redhat.com>
+Subject: Re: [PATCH v2] drm/dp_mst: correct the shifting in
+ DP_REMOTE_I2C_READ
+From:   Lyude Paul <lyude@redhat.com>
+To:     Wayne Lin <Wayne.Lin@amd.com>, dri-devel@lists.freedesktop.org,
+        amd-gfx@lists.freedesktop.org
+Cc:     Nicholas.Kazlauskas@amd.com, harry.wentland@amd.com,
+        jerry.zuo@amd.com, stable@vger.kernel.org
+Date:   Fri, 03 Jan 2020 17:01:59 -0500
+In-Reply-To: <20200103055001.10287-1-Wayne.Lin@amd.com>
+References: <20200103055001.10287-1-Wayne.Lin@amd.com>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.2 (3.34.2-1.fc31) 
 MIME-Version: 1.0
-In-Reply-To: <20200102220356.856162165@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/2/20 3:06 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.162 release.
-> There are 91 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 04 Jan 2020 22:01:54 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.162-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Oh! Just a friendly tip, I fixed this before pushing your patch:
 
-Compiled and booted on my test system. No dmesg regressions.
+➜  drm-maint git:(drm-misc-fixes) dim push
+dim: 0b1d54cedbb4 ("drm/dp_mst: correct the shifting in DP_REMOTE_I2C_READ"): Fixes: SHA1 needs at least 12 digits:
+dim:     ad7f8a1f9ce (drm/helper: add Displayport multi-stream helper (v0.6))
+dim: ERROR: issues in commits detected, aborting
 
-thanks,
--- Shuah
+For the future, we have a set of DRM maintainer tools (they're quite useful
+for people who aren't maintainers though!) that you can use to make sure your
+patch is formatted correctly ahead of time:
+
+https://drm.pages.freedesktop.org/maintainer-tools/dim.html
+
+Particularly useful commands:
+ * dim sparse # Checks for trivial code issues, like set but unused variables
+ * dim checkpatch # Checks for code style issues
+ * dim fixes $COMMIT_ID # Adds an appropriately formatted Fixes: tag
+ * dim cite $COMMIT_ID # Adds an appropriately formatted Reference: tag
+
+On Fri, 2020-01-03 at 13:50 +0800, Wayne Lin wrote:
+> [Why]
+> According to DP spec, it should shift left 4 digits for NO_STOP_BIT
+> in REMOTE_I2C_READ message. Not 5 digits.
+> 
+> In current code, NO_STOP_BIT is always set to zero which means I2C
+> master is always generating a I2C stop at the end of each I2C write
+> transaction while handling REMOTE_I2C_READ sideband message. This issue
+> might have the generated I2C signal not meeting the requirement. Take
+> random read in I2C for instance, I2C master should generate a repeat
+> start to start to read data after writing the read address. This issue
+> will cause the I2C master to generate a stop-start rather than a
+> re-start which is not expected in I2C random read.
+> 
+> [How]
+> Correct the shifting value of NO_STOP_BIT for DP_REMOTE_I2C_READ case in
+> drm_dp_encode_sideband_req().
+> 
+> Changes since v1:(https://patchwork.kernel.org/patch/11312667/)
+> * Add more descriptions in commit and cc to stable
+> 
+> Fixes: ad7f8a1f9ce (drm/helper: add Displayport multi-stream helper (v0.6))
+> Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+> Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/gpu/drm/drm_dp_mst_topology.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c
+> b/drivers/gpu/drm/drm_dp_mst_topology.c
+> index 1cf5f8b8bbb8..9d24c98bece1 100644
+> --- a/drivers/gpu/drm/drm_dp_mst_topology.c
+> +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+> @@ -393,7 +393,7 @@ drm_dp_encode_sideband_req(const struct
+> drm_dp_sideband_msg_req_body *req,
+>  			memcpy(&buf[idx], req-
+> >u.i2c_read.transactions[i].bytes, req-
+> >u.i2c_read.transactions[i].num_bytes);
+>  			idx += req->u.i2c_read.transactions[i].num_bytes;
+>  
+> -			buf[idx] = (req-
+> >u.i2c_read.transactions[i].no_stop_bit & 0x1) << 5;
+> +			buf[idx] = (req-
+> >u.i2c_read.transactions[i].no_stop_bit & 0x1) << 4;
+>  			buf[idx] |= (req-
+> >u.i2c_read.transactions[i].i2c_transaction_delay & 0xf);
+>  			idx++;
+>  		}
+-- 
+Cheers,
+	Lyude Paul
+
