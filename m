@@ -2,77 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C683A12F211
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 01:18:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 964E212F23D
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 01:36:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725916AbgACASN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 19:18:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57232 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725872AbgACASN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 19:18:13 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2239D217F4;
-        Fri,  3 Jan 2020 00:18:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578010693;
-        bh=MVUP7UxzNWYsV7E1huzXJAYU5eEDVn8gQTkQQUPC8yU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=H0E9WMnDjNdfuDv7Q7BF96Ub0avyKCgqAe2XwKqMV3uAAZj0DZMi/14U2bqKh27/A
-         oW/aThn8RVn9quC1sECATfc051UBY63WwC2sZTkvXmcBruoLQc9MwIRjEetQ30ZQRP
-         SjheTd3rZ8mp2zz03Dwrv6oLQsMS6zHUbyKvkjj4=
-Date:   Thu, 2 Jan 2020 19:18:12 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Logan Gunthorpe <logang@deltatee.com>,
-        Doug Meyer <dmeyer@gigaio.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
-        Kelvin Cao <Kelvin.Cao@microchip.com>
-Subject: Re: [PATCH] PCI/switchtec: Read all 64 bits of part_event_bitmap
-Message-ID: <20200103001812.GL16372@sasha-vm>
-References: <20191219182747.28917-1-logang@deltatee.com>
- <20200101170406.GE2712976@kroah.com>
+        id S1725916AbgACAgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 19:36:04 -0500
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:43522 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725872AbgACAgD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 19:36:03 -0500
+Received: by mail-wr1-f52.google.com with SMTP id d16so40961882wre.10
+        for <stable@vger.kernel.org>; Thu, 02 Jan 2020 16:36:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=QxgNCNsq3PiHSXOv16Fe18c8U7CsWX8yFPC7nGWLDY0=;
+        b=uF36u7N1p+sToHBa45xYOVYrQses0ErUjDqeq+belxbwMngRKuUN91uNXAU9vz64bz
+         P/8UHr/ZxQPA2Jk+l3bRklxyYUKMtGxfus+t+n5HuIG7XYtcnB61H4EwiTYHXn0SXU2l
+         IjvAuyZiy99pstORw7VU1MSqo9Tt7jUkTTkr+AC3XOHwNFKiOJULB8NDkFZ7a5x+p0Y8
+         NxKpNLI0MbqBNnwMvdIJTX8jxOOKhW5xLizULU0RNdNAeCx8eyW+OIG4T1B1WMJp3d+4
+         krmquv45+Q2UF+tVU7UjLQv/2KgiPP6B0DyClZsulHbo/MJ6kTrbCJ/BFZdW+2v2x+jP
+         zYuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=QxgNCNsq3PiHSXOv16Fe18c8U7CsWX8yFPC7nGWLDY0=;
+        b=GkMIiNyUsh+U+gnS0LhT5t5TO2RC0tBb3b05QS7JKaUaFsQfjeO2t7rxad3fohT04u
+         jbxn/XTaRaqy/+Nwy0vSUQYJ/gIceC23+u9bL9mwce8JBabpx17vBxZND92lB+73USxc
+         EAjinovJ9UtrP4cIhH/xbuvAZuFblUW26zIIHP2+Gf+29O+aJAv6mHJ+tA12FBcKBnQP
+         j6LAWzTWfTokj7QA/vZ3ykfrsJnlnwOJb78U4MHHFVmZkxGggYnIe6D+I75Xgj5tHLae
+         Ds5SLvzavteqFkIcw/tC5+ZXoqP71b0FTt1KQlLgD2ZTL64P0hQ0JotpvUFz8ojoMjsj
+         sh8w==
+X-Gm-Message-State: APjAAAU1CS+1Th+UIx0gCjH4kjp7yS8gocZLLYTNr04NW7MySVymsPII
+        kYWaAZNbOPlK4OOJ0yPqmAuUtScRZBl5SQ==
+X-Google-Smtp-Source: APXvYqz/7CkhIT7nuRa2o5V00EfQbkSSJWMh/Fl2UlptDcL8ic8WdRtzbF78rHbRjlxgpEA7XJOvyQ==
+X-Received: by 2002:a5d:4752:: with SMTP id o18mr81715943wrs.330.1578011761909;
+        Thu, 02 Jan 2020 16:36:01 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g21sm62482145wrb.48.2020.01.02.16.36.01
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Jan 2020 16:36:01 -0800 (PST)
+Message-ID: <5e0e8c71.1c69fb81.9e051.eddf@mx.google.com>
+Date:   Thu, 02 Jan 2020 16:36:01 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200101170406.GE2712976@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.207-172-g68e2c317fb2d
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 39 boots: 0 failed,
+ 38 passed with 1 untried/unknown (v4.9.207-172-g68e2c317fb2d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 01, 2020 at 06:04:06PM +0100, Greg Kroah-Hartman wrote:
->On Thu, Dec 19, 2019 at 11:27:47AM -0700, Logan Gunthorpe wrote:
->> commit 6acdf7e19b37cb3a9258603d0eab315079c19c5e upstream.
->>
->> The part_event_bitmap register is 64 bits wide, so read it with ioread64()
->> instead of the 32-bit ioread32().
->>
->> Fixes: 52eabba5bcdb ("switchtec: Add IOCTLs to the Switchtec driver")
->> Link: https://lore.kernel.org/r/20190910195833.3891-1-logang@deltatee.com
->> Reported-by: Doug Meyer <dmeyer@gigaio.com>
->> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
->> Cc: Bjorn Helgaas <bhelgaas@google.com>
->> Cc: stable@vger.kernel.org	# v4.12+
->> Cc: Kelvin Cao <Kelvin.Cao@microchip.com>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> ---
->>
->> ioread64() was introduced in v5.1 so the upstream patch won't compile on
->> stable versions 4.14 or 4.19. This is the same patch but uses readq()
->> which should be equivalent.
->
->Now queued up, thanks.
+stable-rc/linux-4.9.y boot: 39 boots: 0 failed, 38 passed with 1 untried/un=
+known (v4.9.207-172-g68e2c317fb2d)
 
-Hey Logan,
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.207-172-g68e2c317fb2d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.207-172-g68e2c317fb2d/
 
-As Guenter has pointed out, readq() is only defined for 64 bits, so this
-breaks compilation in i386. I've dropped this backport for now, if you
-could fix it up we could queue it up again.
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.207-172-g68e2c317fb2d
+Git Commit: 68e2c317fb2d72a73e3326783de446632df0498c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 23 unique boards, 12 SoC families, 12 builds out of 197
 
--- 
-Thanks,
-Sasha
+---
+For more info write to <info@kernelci.org>
