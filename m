@@ -2,71 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD0EB12F9E4
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 16:42:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0A912F9EE
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 16:45:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727686AbgACPmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 10:42:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60730 "EHLO mail.kernel.org"
+        id S1727646AbgACPpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 10:45:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727539AbgACPmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 10:42:00 -0500
+        id S1727539AbgACPpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jan 2020 10:45:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2F3B222C3;
-        Fri,  3 Jan 2020 15:41:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 255AC21734;
+        Fri,  3 Jan 2020 15:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578066120;
-        bh=E6bkP2iLtXcpJMcX8Se1oy9jd3znrWQRpOblbHywcP4=;
+        s=default; t=1578066320;
+        bh=iq1Twbqj7FIJKJlRQnhfVitva3hiAIvKZgahrbTOPeY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XrC3JbJ2Ab1dRvJXkRDe2XDLuLr892OkN4/27W0uZs/3So2/oxxlXcQUoqZlOfndz
-         qRH6eO/P4AoBRkMacSg5D0cHtjkxgjgBAA1kznAIS1s95h6lXRh8xjKPTo0mQ43xii
-         MqWxHSPKRcLnHYLg+BCilQ47VuukIk6b+FVyOyjw=
-Date:   Fri, 3 Jan 2020 16:41:56 +0100
+        b=DUXQWZE0hh32tb6Qnaqv50moEJfXYD2EUDfklpYH2wiiP/FOWq2s3UtkOCJfHl7ad
+         GLGYcuLyLMaNyDiBnBhE2FD1DDy8VdRBPJJEPI8NiFML6E30M140sC5jcW7ASm/7af
+         K3q7vy9b7oBqtOKWAlmjVeodC0axBXP3FQl+Gbmc=
+Date:   Fri, 3 Jan 2020 16:45:18 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 000/114] 4.19.93-stable review
-Message-ID: <20200103154156.GA1064304@kroah.com>
-References: <20200102220029.183913184@linuxfoundation.org>
- <72f41f89-bf68-d275-2f1e-d33a91b5e6cd@roeck-us.net>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        Chengguang Xu <cgxu519@mykernel.net>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, LTP List <ltp@lists.linux.it>,
+        Jan Stancek <jstancek@redhat.com>,
+        John Stultz <john.stultz@linaro.org>
+Subject: Re: [PATCH 5.4 000/191] 5.4.8-stable review
+Message-ID: <20200103154518.GB1064304@kroah.com>
+References: <20200102215829.911231638@linuxfoundation.org>
+ <CA+G9fYuPkOGKbeQ0FKKx4H0Bs-nRHALsFtwyRw0Rt5DoOCvRHg@mail.gmail.com>
+ <CAK8P3a1+Srey_7cUd0xfaO8HdMv5tkUcs6DeDXzcUKkUD-DnGQ@mail.gmail.com>
+ <CAK8P3a24EkUXTu-K2c-5B3w-LZwY7zNcX0dZixb3gd59vRw_Kw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <72f41f89-bf68-d275-2f1e-d33a91b5e6cd@roeck-us.net>
+In-Reply-To: <CAK8P3a24EkUXTu-K2c-5B3w-LZwY7zNcX0dZixb3gd59vRw_Kw@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 03, 2020 at 06:27:53AM -0800, Guenter Roeck wrote:
-> On 1/2/20 2:06 PM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.19.93 release.
-> > There are 114 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sat, 04 Jan 2020 21:58:48 +0000.
-> > Anything received after that time might be too late.
-> > 
+On Fri, Jan 03, 2020 at 04:29:56PM +0100, Arnd Bergmann wrote:
+> On Fri, Jan 3, 2020 at 4:25 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> >
+> > On Fri, Jan 3, 2020 at 4:03 PM Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> > >
+> > > On Fri, 3 Jan 2020 at 03:42, Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> >
+> > -ENOENT is what you get when hugetlbfs is not mounted, so this hints to
+> >
+> > 8fc312b32b2  mm/hugetlbfs: fix error handling when setting up mounts
+> >
+> > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.4.y&id=3f549fb42a39bea3b29c0fc12afee53c4a01bec9
 > 
-> Build results:
-> 	total: 156 pass: 155 fail: 1
-> Failed builds:
-> 	sparc64:allmodconfig
-> Qemu test results:
-> 	total: 381 pass: 381 fail: 0
+> I see that Mike Kravetz suggested not putting this patch into stable in
 > 
-> ERROR: "of_irq_to_resource" [drivers/spi/spi-fsl-spi.ko] undefined!
+> https://lore.kernel.org/lkml/befca227-cb8a-8f47-617d-e3bf9972bfec@oracle.com/
 > 
-> Caused by 3194d2533eff ("spi: fsl: don't map irq during probe")
-> which is missing its fix, 63aa6a692595 ("spi: fsl: use platform_get_irq()
-> instead of of_irq_to_resource()")
+> but it was picked through the autosel mechanism later.
 
-Now added to 4.14 and 4.19 queues, thanks!
+So does that mean that Linus's tree shows this LTP failure as well?
+
+This does seem to fix a real issue, as shown by the LTP test noticing
+it, so should the error code value be fixed in Linus's tree?
+
+thanks,
 
 greg k-h
