@@ -2,91 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F87A12FB24
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 18:10:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A7A12FB45
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 18:12:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727988AbgACRKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 12:10:37 -0500
-Received: from ale.deltatee.com ([207.54.116.67]:49104 "EHLO ale.deltatee.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727952AbgACRKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 12:10:37 -0500
-Received: from cgy1-donard.priv.deltatee.com ([172.16.1.31])
-        by ale.deltatee.com with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <gunthorp@deltatee.com>)
-        id 1inQT3-0000cz-S1; Fri, 03 Jan 2020 10:10:34 -0700
-Received: from gunthorp by cgy1-donard.priv.deltatee.com with local (Exim 4.92)
-        (envelope-from <gunthorp@deltatee.com>)
-        id 1inQT2-0006ii-5T; Fri, 03 Jan 2020 10:10:32 -0700
-From:   Logan Gunthorpe <logang@deltatee.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S1728191AbgACRMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 12:12:16 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:52412 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728207AbgACRMP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 12:12:15 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id D641E1C2461; Fri,  3 Jan 2020 18:12:13 +0100 (CET)
+Date:   Fri, 3 Jan 2020 18:12:13 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Chengguang Xu <cgxu519@mykernel.net>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Cc:     Logan Gunthorpe <logang@deltatee.com>,
-        Doug Meyer <dmeyer@gigaio.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
-        Kelvin Cao <Kelvin.Cao@microchip.com>
-Date:   Fri,  3 Jan 2020 10:10:29 -0700
-Message-Id: <20200103171029.25790-1-logang@deltatee.com>
-X-Mailer: git-send-email 2.20.1
+Subject: Re: [PATCH 4.19 062/114] f2fs: choose hardlimit when softlimit is
+ larger than hardlimit in f2fs_statfs_project()
+Message-ID: <20200103171213.GC14328@amd>
+References: <20200102220029.183913184@linuxfoundation.org>
+ <20200102220035.294585461@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 172.16.1.31
-X-SA-Exim-Rcpt-To: gregkh@linuxfoundation.org, sashal@kernel.org, logang@deltatee.com, dmeyer@gigaio.com, bhelgaas@google.com, stable@vger.kernel.org, Kelvin.Cao@microchip.com
-X-SA-Exim-Mail-From: gunthorp@deltatee.com
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on ale.deltatee.com
-X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=5.0 tests=ALL_TRUSTED,BAYES_00,
-        MYRULES_NO_TEXT autolearn=no autolearn_force=no version=3.4.2
-Subject: [PATCH v2] PCI/switchtec: Read all 64 bits of part_event_bitmap
-X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
-X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="TiqCXmo5T1hvSQQg"
+Content-Disposition: inline
+In-Reply-To: <20200102220035.294585461@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6acdf7e19b37cb3a9258603d0eab315079c19c5e upstream.
 
-The part_event_bitmap register is 64 bits wide, so read it with ioread64()
-instead of the 32-bit ioread32().
+--TiqCXmo5T1hvSQQg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fixes: 52eabba5bcdb ("switchtec: Add IOCTLs to the Switchtec driver")
-Link: https://lore.kernel.org/r/20190910195833.3891-1-logang@deltatee.com
-Reported-by: Doug Meyer <dmeyer@gigaio.com>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org	# v4.12+
-Cc: Kelvin Cao <Kelvin.Cao@microchip.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/pci/switch/switchtec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Hi!
 
-v2 of this patch adds the missing header that provides readq() on
-non-64bit architectures.
+> From: Chengguang Xu <cgxu519@mykernel.net>
+>=20
+> [ Upstream commit 909110c060f22e65756659ec6fa957ae75777e00 ]
+>=20
+> Setting softlimit larger than hardlimit seems meaningless
+> for disk quota but currently it is allowed. In this case,
+> there may be a bit of comfusion for users when they run
+> df comamnd to directory which has project quota.
+>=20
+> For example, we set 20M softlimit and 10M hardlimit of
+> block usage limit for project quota of test_dir(project id 123).
 
-diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
-index e3aefdafae89..0941555b84a5 100644
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -23,7 +23,7 @@
- #include <linux/pci.h>
- #include <linux/cdev.h>
- #include <linux/wait.h>
--
-+#include <linux/io-64-nonatomic-lo-hi.h>
- #include <linux/nospec.h>
+> Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+> Reviewed-by: Chao Yu <yuchao0@huawei.com>
+> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  fs/f2fs/super.c | 20 ++++++++++++++------
+>  1 file changed, 14 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+> index 7a9cc64f5ca3..662c7de58b99 100644
+> --- a/fs/f2fs/super.c
+> +++ b/fs/f2fs/super.c
+> @@ -1148,9 +1148,13 @@ static int f2fs_statfs_project(struct super_block =
+*sb,
+>  		return PTR_ERR(dquot);
+>  	spin_lock(&dquot->dq_dqb_lock);
+> =20
+> -	limit =3D (dquot->dq_dqb.dqb_bsoftlimit ?
+> -		 dquot->dq_dqb.dqb_bsoftlimit :
+> -		 dquot->dq_dqb.dqb_bhardlimit) >> sb->s_blocksize_bits;
+> +	limit =3D 0;
+> +	if (dquot->dq_dqb.dqb_bsoftlimit)
+> +		limit =3D dquot->dq_dqb.dqb_bsoftlimit;
+> +	if (dquot->dq_dqb.dqb_bhardlimit &&
+> +			(!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
+> +		limit =3D dquot->dq_dqb.dqb_bhardlimit;
+> +
+>  	if (limit && buf->f_blocks > limit) {
 
- MODULE_DESCRIPTION("Microsemi Switchtec(tm) PCIe Management Driver");
-@@ -898,7 +898,7 @@ static int ioctl_event_summary(struct switchtec_dev *stdev,
- 	u32 reg;
+>> blocksize disappeared here. That can't be right.
 
- 	s.global = ioread32(&stdev->mmio_sw_event->global_summary);
--	s.part_bitmap = ioread32(&stdev->mmio_sw_event->part_event_bitmap);
-+	s.part_bitmap = readq(&stdev->mmio_sw_event->part_event_bitmap);
- 	s.local_part = ioread32(&stdev->mmio_part_cfg->part_event_summary);
+Plus, is this just obfuscated way of saying
 
- 	for (i = 0; i < stdev->partition_count; i++) {
---
-2.20.1
+limit =3D min_not_zero(dquot->dq_dqb.dqb_bsoftlimit, dquot->dq_dqb.dqb_bhar=
+dlimit)?
+
+Best regards,
+								Pavel
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--TiqCXmo5T1hvSQQg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl4Pde0ACgkQMOfwapXb+vLqwgCfQB23lTPPylgzByCY4o28WHli
+ZSEAmwVz9M718u4eqzta/6qKREiJLCk4
+=iDPi
+-----END PGP SIGNATURE-----
+
+--TiqCXmo5T1hvSQQg--
