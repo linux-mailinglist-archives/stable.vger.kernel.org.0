@@ -2,95 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 838EC12FCF2
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 20:24:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B8212FDFB
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 21:35:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728485AbgACTYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 14:24:04 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:41687 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728438AbgACTYE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 14:24:04 -0500
-Received: by mail-lj1-f193.google.com with SMTP id h23so44864243ljc.8
-        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 11:24:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OFXcXk/rWc+vZDd2lXOSRdfqK7Rx+9AcujMvsOnCZcQ=;
-        b=H1MIzm6Oi4jSBscmLV49r9Nd5HT6nc6bvrco9VvwbKlzMSopWLEIAGe6hSQb7cvv9P
-         cip/Cxk8S5U7lhfpRoBFf8HeyyrOu6N9/Nrl1mnD3DgILx8h5/RFBbeGmAVeWDKR8rbY
-         hm/i7+uHQDHv5J8iclqo1WiLmqKxGLcnr6544=
+        id S1727820AbgACUfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 15:35:19 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:24281 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727400AbgACUfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 15:35:19 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578083718;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5P6pC9bB+XM8/Xw1EneHQrwc3b3SXf3nT5GAbtbko10=;
+        b=TGifn/lOWLXWsBZCUYxHMMHc4AsElZ2SBJZP5/85loVvVRuaoufwczIv2SHHwVpnaTt1Gb
+        1huFdbnQ3NtiMwsNaqpEGRk0ZQyawDRjGt2OImJ+KVxmB6IMNSahwblDC4gexJw4v+/UJu
+        jGdAUaUqSpNPzcPl7EQpukQhoKymIWQ=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-265-sA7sExubNwCa2Fjn0ugKcg-1; Fri, 03 Jan 2020 15:35:15 -0500
+X-MC-Unique: sA7sExubNwCa2Fjn0ugKcg-1
+Received: by mail-qt1-f198.google.com with SMTP id l1so29921396qtp.21
+        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 12:35:15 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OFXcXk/rWc+vZDd2lXOSRdfqK7Rx+9AcujMvsOnCZcQ=;
-        b=uWULyyR9ZIve1Yf0YuZ4n0uLuryi+69tzy7XJLb8WamIp8Tfo4Ru7J2o4L8pwkIR/8
-         j+WvIzm8b2AIQ/JHjX9OCPSuLGcw5PDvZZx77V2PrUTHd0r8fRULP4GhHx6SMLFcdPdA
-         FVv1DM3H6PhZCICfoo4gKbanT95ldWdaSmBTzzxF1Em5oij/Vr4TkewPlcbWaGOrnokO
-         OgA38abXVGAiLD3nRxsfDiaqfzKJdVl1CXhVbPgvVot5p3fIYHwY6wjFPJKDna7GaX/P
-         C8U3M//0IrOvuPHx1nq8j16VBuU94nvj35jvQkxyYbl5YY8QBNS3MXjdmJpBtW9Fq+m9
-         XSvQ==
-X-Gm-Message-State: APjAAAW1PdUTUeSk3OllvV0nPiV2mn1m+iq0rU8Hop3avIDMJbyKETrk
-        6WfWG5ZerxXoTWs1TRjUMinciEQsmhA=
-X-Google-Smtp-Source: APXvYqy0tzHF1B9s+WTQkeku1/gqLGYsWh4FeTLN9V+zd1wD4CixGtA5vJ6dQY5THwNe0/zcBHmoDg==
-X-Received: by 2002:a2e:7405:: with SMTP id p5mr53837298ljc.34.1578079441960;
-        Fri, 03 Jan 2020 11:24:01 -0800 (PST)
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com. [209.85.167.42])
-        by smtp.gmail.com with ESMTPSA id d1sm23529204ljl.18.2020.01.03.11.24.00
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Jan 2020 11:24:01 -0800 (PST)
-Received: by mail-lf1-f42.google.com with SMTP id l18so24342344lfc.1
-        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 11:24:00 -0800 (PST)
-X-Received: by 2002:ac2:465e:: with SMTP id s30mr51941142lfo.134.1578079440587;
- Fri, 03 Jan 2020 11:24:00 -0800 (PST)
-MIME-Version: 1.0
-References: <20200102215829.911231638@linuxfoundation.org> <CA+G9fYuPkOGKbeQ0FKKx4H0Bs-nRHALsFtwyRw0Rt5DoOCvRHg@mail.gmail.com>
- <CAK8P3a1+Srey_7cUd0xfaO8HdMv5tkUcs6DeDXzcUKkUD-DnGQ@mail.gmail.com>
- <CAK8P3a24EkUXTu-K2c-5B3w-LZwY7zNcX0dZixb3gd59vRw_Kw@mail.gmail.com>
- <20200103154518.GB1064304@kroah.com> <CAK8P3a00SpVfSE5oL8_F_8jHdg_8A5fyEKH_DWNyPToxack=zA@mail.gmail.com>
- <a2fc8b36-c512-b6dd-7349-dfb551e348b6@oracle.com> <8283b231-f6e8-876f-7094-d3265096ab9a@oracle.com>
- <CAHk-=wjvWTFn=C3mT5wA=mtOwXw44U+OHLVxk5DCe4v+7nOvKg@mail.gmail.com> <c5c3b8c8-1dfe-2433-630c-06dbfb3d318b@mageia.org>
-In-Reply-To: <c5c3b8c8-1dfe-2433-630c-06dbfb3d318b@mageia.org>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Fri, 3 Jan 2020 11:23:44 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wgV_YN9az2XBX=xr_DGQiUEqwjtMXkmj-w12j58NQxneQ@mail.gmail.com>
-Message-ID: <CAHk-=wgV_YN9az2XBX=xr_DGQiUEqwjtMXkmj-w12j58NQxneQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/191] 5.4.8-stable review
-To:     Thomas Backlund <tmb@mageia.org>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Chengguang Xu <cgxu519@mykernel.net>,
-        David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, LTP List <ltp@lists.linux.it>,
-        Jan Stancek <jstancek@redhat.com>,
-        John Stultz <john.stultz@linaro.org>
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=5P6pC9bB+XM8/Xw1EneHQrwc3b3SXf3nT5GAbtbko10=;
+        b=r0eHihr1dEAIkpTJQUbMJIKDBi3wUkL/aigmJRg5sLOwQfZZtPMAAGDJ5cpSpaDpWj
+         fyqwBqeai3ScFpVAPGAiGxgcPUq0i+ZOonQqEiceArB5CuBGquruDFj268jMrriS8XMS
+         myOG9N+p4NmIT4TinEDsr++umDRWzj/UNYO2LL5SLB4kgOZPK+W8gFvd2VwKO/QI4js9
+         IsRqfYgGRTzbpDXHpUdFJ9Q0guJZ2Kw2hjLOU/13DLfooE9Ihypda3m87llv8pnA+fEr
+         stZ9zDUucvGnCpLUs7YfcoG73pAZUoc6+/WCToyAENq2hVsXS+v+jZaib+GT4m6CaL//
+         IjPg==
+X-Gm-Message-State: APjAAAUTxlqyto6vp0jz0V7mmdZ/sn9lWb5hslLPFPwR1rfEpDtj+jwz
+        L9X8278nEZ5jubLXeCoFJyRhaGWhTX36BpTep2BW/4xjM9i7qGiYgA5tRKv5+YuDGA3ihdultNP
+        lPCd3hhE8dh4ujCh4
+X-Received: by 2002:ad4:5421:: with SMTP id g1mr68023149qvt.57.1578083714758;
+        Fri, 03 Jan 2020 12:35:14 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzgi68keBLcjfBEz4zN/KMDnPfwz3LFg1QJoD7HQRJG4uxuW/u3P8yGx/4EeO57ZnsZsWnpOw==
+X-Received: by 2002:ad4:5421:: with SMTP id g1mr68023134qvt.57.1578083714480;
+        Fri, 03 Jan 2020 12:35:14 -0800 (PST)
+Received: from dhcp-10-20-1-90.bss.redhat.com ([144.121.20.162])
+        by smtp.gmail.com with ESMTPSA id h28sm16911014qkk.48.2020.01.03.12.35.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Jan 2020 12:35:13 -0800 (PST)
+Message-ID: <cfb5d28df84df7d3ce20656ca40be65713d5bdb0.camel@redhat.com>
+Subject: Re: [PATCH] drm/dp_mst: Avoid NULL pointer dereference
+From:   Lyude Paul <lyude@redhat.com>
+To:     Wayne Lin <Wayne.Lin@amd.com>, dri-devel@lists.freedesktop.org,
+        amd-gfx@lists.freedesktop.org
+Cc:     Nicholas.Kazlauskas@amd.com, harry.wentland@amd.com,
+        mikita.lipski@amd.com, jerry.zuo@amd.com, stable@vger.kernel.org
+Date:   Fri, 03 Jan 2020 15:35:12 -0500
+In-Reply-To: <20191226023151.5448-1-Wayne.Lin@amd.com>
+References: <20191226023151.5448-1-Wayne.Lin@amd.com>
+Organization: Red Hat
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.2 (3.34.2-1.fc31) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 3, 2020 at 11:11 AM Thomas Backlund <tmb@mageia.org> wrote:
->
-> Does not seem to exist in public git yet, maybe you forgot to push ?
+Back from the holidays!
 
-Not "forgot", but I've pulled a couple of other things, and done my
-usual build tests etc. I tend batch up the pulls and pushes a bit,
-sorry for not making that clear.
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 
-But I've pushed it all out now.
+Do you need me to push this to drm-misc?
 
-           Linus
+On Thu, 2019-12-26 at 10:31 +0800, Wayne Lin wrote:
+> [Why]
+> Found kernel NULL pointer dereference under the below situation:
+> 
+> 	src — HDMI_Monitor   src — HDMI_Monitor
+> e.g.:	    \            =>
+> 	     MSTB — MSTB     (unplug) MSTB — MSTB
+> 
+> When display 1 HDMI and 2 DP daisy chain monitors, unplugging the dp
+> cable connected to source causes kernel NULL pointer dereference at
+> drm_dp_mst_atomic_check_bw_limit(). When calculating pbn_limit, if
+> branch is null, accessing "&branch->ports" causes the problem.
+> 
+> [How]
+> Judge branch is null or not at the beginning. If it is null, return 0.
+> 
+> Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/gpu/drm/drm_dp_mst_topology.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c
+> b/drivers/gpu/drm/drm_dp_mst_topology.c
+> index 7d2d31eaf003..a6473e3ab448 100644
+> --- a/drivers/gpu/drm/drm_dp_mst_topology.c
+> +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+> @@ -4707,6 +4707,9 @@ int drm_dp_mst_atomic_check_bw_limit(struct
+> drm_dp_mst_branch *branch,
+>  	struct drm_dp_vcpi_allocation *vcpi;
+>  	int pbn_limit = 0, pbn_used = 0;
+>  
+> +	if (!branch)
+> +		return 0;
+> +
+>  	list_for_each_entry(port, &branch->ports, next) {
+>  		if (port->mstb)
+>  			if (drm_dp_mst_atomic_check_bw_limit(port->mstb,
+> mst_state))
+-- 
+Cheers,
+	Lyude Paul
+
