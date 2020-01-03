@@ -2,114 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2EF612F24F
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 01:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 891F112F25A
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 01:47:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726667AbgACAmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 19:42:40 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:45198 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725872AbgACAmk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jan 2020 19:42:40 -0500
-Received: by mail-pg1-f194.google.com with SMTP id b9so22658581pgk.12;
-        Thu, 02 Jan 2020 16:42:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:to:cc:cc:cc:subject
-         :references:in-reply-to;
-        bh=HyioXBGMqcLyFY2JDZv6ThS3RXGTigbfy51ANMut3ps=;
-        b=Sc3CyVcU6/AGm54p0XXNxboyeI6gizD/2cRP+H0OctZ/NtP17WDNxbVqFG4tl45MNk
-         C9rPUP81qBw1t3zhuXE9HjE8W9EBZGHvqQJtthdYxoBdUZ91CYE8krJDmXRsbjOy0omK
-         btZq3HLPFK6MLzhvWqOFP8UnjCHCE+8H7y4khnx8Cn+MRdnd2ayfmFAyjPU+tPFChkp6
-         ZgyQIUvevUn9tDMKPtI3KlHsBVl9r8yHXcZ8SwucGD6w9tR6USmGseakzToYwk0e7PDR
-         /h/eiV/ZEPqqVMuDtM8o6eggrVRvz7eqVDUx01Mtvj9v1nGZ1/Tahjr9q404qPVmPIHP
-         BsDQ==
-X-Gm-Message-State: APjAAAU6cN+hhad1hytKACqFsEYEI91/+oe3E8pqbkHND4khySAxwg4p
-        rdfw259IEelYGG86LJnbA6Q=
-X-Google-Smtp-Source: APXvYqyQ01PVHaEoHE1LVHKgmLKjo0PVf9o02f/5W8ZOiX0AXapPjCsNxxSOPSv2GtC8UFVjo0n2zg==
-X-Received: by 2002:a65:56c9:: with SMTP id w9mr89389023pgs.296.1578012159672;
-        Thu, 02 Jan 2020 16:42:39 -0800 (PST)
-Received: from localhost ([73.93.152.206])
-        by smtp.gmail.com with ESMTPSA id o7sm68110625pfg.138.2020.01.02.16.42.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Jan 2020 16:42:39 -0800 (PST)
-Message-ID: <5e0e8dff.1c69fb81.86508.5dbe@mx.google.com>
-Date:   Thu, 02 Jan 2020 16:42:38 -0800
-From:   Paul Burton <paulburton@kernel.org>
-To:     Paul Burton <paulburton@kernel.org>
-CC:     linux-mips@vger.kernel.org
-CC:     linux-kernel@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christian Brauner <christian.brauner@canonical.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        stable@vger.kernel.org
-CC:     linux-mips@vger.kernel.org
-Subject: Re: [PATCH v2] MIPS: Avoid VDSO ABI breakage due to global register  variable
-References:  <20200102045038.102772-1-paulburton@kernel.org>
-In-Reply-To:  <20200102045038.102772-1-paulburton@kernel.org>
+        id S1726121AbgACArC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jan 2020 19:47:02 -0500
+Received: from ale.deltatee.com ([207.54.116.67]:33988 "EHLO ale.deltatee.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725872AbgACArC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jan 2020 19:47:02 -0500
+Received: from s0106ac1f6bb1ecac.cg.shawcable.net ([70.73.163.230] helo=[192.168.11.155])
+        by ale.deltatee.com with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <logang@deltatee.com>)
+        id 1inB7E-0006Jy-Bv; Thu, 02 Jan 2020 17:47:01 -0700
+To:     Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Doug Meyer <dmeyer@gigaio.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
+        Kelvin Cao <Kelvin.Cao@microchip.com>
+References: <20191219182747.28917-1-logang@deltatee.com>
+ <20200101170406.GE2712976@kroah.com> <20200103001812.GL16372@sasha-vm>
+From:   Logan Gunthorpe <logang@deltatee.com>
+Message-ID: <cf1a1886-6073-e136-ac36-0abba954556e@deltatee.com>
+Date:   Thu, 2 Jan 2020 17:46:58 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
+MIME-Version: 1.0
+In-Reply-To: <20200103001812.GL16372@sasha-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 70.73.163.230
+X-SA-Exim-Rcpt-To: Kelvin.Cao@microchip.com, stable@vger.kernel.org, bhelgaas@google.com, dmeyer@gigaio.com, gregkh@linuxfoundation.org, sashal@kernel.org
+X-SA-Exim-Mail-From: logang@deltatee.com
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on ale.deltatee.com
+X-Spam-Level: 
+X-Spam-Status: No, score=-6.9 required=5.0 tests=ALL_TRUSTED,BAYES_00
+        autolearn=ham autolearn_force=no version=3.4.2
+Subject: Re: [PATCH] PCI/switchtec: Read all 64 bits of part_event_bitmap
+X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
+X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-Paul Burton wrote:
-> Declaring __current_thread_info as a global register variable has the
-> effect of preventing GCC from saving & restoring its value in cases
-> where the ABI would typically do so.
-> 
-> To quote GCC documentation:
-> 
-> > If the register is a call-saved register, call ABI is affected: the
-> > register will not be restored in function epilogue sequences after the
-> > variable has been assigned. Therefore, functions cannot safely return
-> > to callers that assume standard ABI.
-> 
-> When our position independent VDSO is built for the n32 or n64 ABIs all
-> functions it exposes should be preserving the value of $gp/$28 for their
-> caller, but in the presence of the __current_thread_info global register
-> variable GCC stops doing so & simply clobbers $gp/$28 when calculating
-> the address of the GOT.
-> 
-> In cases where the VDSO returns success this problem will typically be
-> masked by the caller in libc returning & restoring $gp/$28 itself, but
-> that is by no means guaranteed. In cases where the VDSO returns an error
-> libc will typically contain a fallback path which will now fail
-> (typically with a bad memory access) if it attempts anything which
-> relies upon the value of $gp/$28 - eg. accessing anything via the GOT.
-> 
-> One fix for this would be to move the declaration of
-> __current_thread_info inside the current_thread_info() function,
-> demoting it from global register variable to local register variable &
-> avoiding inadvertently creating a non-standard calling ABI for the VDSO.
-> Unfortunately this causes issues for clang, which doesn't support local
-> register variables as pointed out by commit fe92da0f355e ("MIPS: Changed
-> current_thread_info() to an equivalent supported by both clang and GCC")
-> which introduced the global register variable before we had a VDSO to
-> worry about.
-> 
-> Instead, fix this by continuing to use the global register variable for
-> the kernel proper but declare __current_thread_info as a simple extern
-> variable when building the VDSO. It should never be referenced, and will
-> cause a link error if it is. This resolves the calling convention issue
-> for the VDSO without having any impact upon the build of the kernel
-> itself for either clang or gcc.
 
-Applied to mips-fixes.
-
-> commit bbcc5672b006
-> https://git.kernel.org/mips/c/bbcc5672b006
+On 2020-01-02 5:18 p.m., Sasha Levin wrote:
+> On Wed, Jan 01, 2020 at 06:04:06PM +0100, Greg Kroah-Hartman wrote:
+>> On Thu, Dec 19, 2019 at 11:27:47AM -0700, Logan Gunthorpe wrote:
+>>> commit 6acdf7e19b37cb3a9258603d0eab315079c19c5e upstream.
+>>>
+>>> The part_event_bitmap register is 64 bits wide, so read it with
+>>> ioread64()
+>>> instead of the 32-bit ioread32().
+>>>
+>>> Fixes: 52eabba5bcdb ("switchtec: Add IOCTLs to the Switchtec driver")
+>>> Link:
+>>> https://lore.kernel.org/r/20190910195833.3891-1-logang@deltatee.com
+>>> Reported-by: Doug Meyer <dmeyer@gigaio.com>
+>>> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+>>> Cc: Bjorn Helgaas <bhelgaas@google.com>
+>>> Cc: stable@vger.kernel.org    # v4.12+
+>>> Cc: Kelvin Cao <Kelvin.Cao@microchip.com>
+>>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>> ---
+>>>
+>>> ioread64() was introduced in v5.1 so the upstream patch won't compile on
+>>> stable versions 4.14 or 4.19. This is the same patch but uses readq()
+>>> which should be equivalent.
+>>
+>> Now queued up, thanks.
 > 
-> Signed-off-by: Paul Burton <paulburton@kernel.org>
-> Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
-> Reported-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> Hey Logan,
+> 
+> As Guenter has pointed out, readq() is only defined for 64 bits, so this
+> breaks compilation in i386. I've dropped this backport for now, if you
+> could fix it up we could queue it up again.
 
-Thanks,
-    Paul
+Not quiet true. It is in fact defined for 32-bit architectures as two
+readl() calls in "linux/io-64-nonatomic-lo-hi.h".
 
-[ This message was auto-generated; if you believe anything is incorrect
-  then please email paulburton@kernel.org to report it. ]
+So, unless I'm missing something the patch should be fine.
+
+Logan
+
+
+
