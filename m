@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D0D712F9B4
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 16:26:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5734A12F9C7
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 16:30:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727701AbgACP0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 10:26:04 -0500
-Received: from mout.kundenserver.de ([212.227.126.134]:36503 "EHLO
+        id S1727621AbgACPaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 10:30:17 -0500
+Received: from mout.kundenserver.de ([212.227.17.24]:38923 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727621AbgACP0E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 10:26:04 -0500
-Received: from mail-qk1-f182.google.com ([209.85.222.182]) by
- mrelayeu.kundenserver.de (mreue010 [212.227.15.129]) with ESMTPSA (Nemesis)
- id 1MOi1H-1j5AyU32MR-00Q8m0; Fri, 03 Jan 2020 16:26:01 +0100
-Received: by mail-qk1-f182.google.com with SMTP id t129so33995430qke.10;
-        Fri, 03 Jan 2020 07:26:01 -0800 (PST)
-X-Gm-Message-State: APjAAAXJfxpEdBkB7XzGhdg5oWkIQBoqxo3I3NogxtBuOQTN5O2fHkfS
-        vHkKZABL7H1+jYzjVexsSM8bzwi1G65HaugVt1k=
-X-Google-Smtp-Source: APXvYqw5wnevAuaN2LN4c1YLinEZyD+hKfKYUMCcrCgzN//nGAYKw5prrzNRF6UgFsNumMjF27D+d3bIomT5Tv6ETuE=
-X-Received: by 2002:a37:84a:: with SMTP id 71mr69963622qki.138.1578065160510;
- Fri, 03 Jan 2020 07:26:00 -0800 (PST)
+        with ESMTP id S1727539AbgACPaR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 10:30:17 -0500
+Received: from mail-qk1-f181.google.com ([209.85.222.181]) by
+ mrelayeu.kundenserver.de (mreue108 [212.227.15.145]) with ESMTPSA (Nemesis)
+ id 1Ma1sQ-1jH2kT3xhs-00W0sf; Fri, 03 Jan 2020 16:30:14 +0100
+Received: by mail-qk1-f181.google.com with SMTP id k6so34033646qki.5;
+        Fri, 03 Jan 2020 07:30:13 -0800 (PST)
+X-Gm-Message-State: APjAAAWmrT8fMg5+YbZrbE46EVZN96KN5hGJ6LdOhZLFFce8pwc7OCRC
+        IilP0tSIYUG6U/+bYIo7b2benpdhUW2SOFr4kEQ=
+X-Google-Smtp-Source: APXvYqwHUYXqxj/j23T+ikUyIYNwMZifF+nmQ9YLHsVb0EE95ucvNJpStysB4sIHolKlqgQ3wE0r3lfmMIjKWFkIpZ0=
+X-Received: by 2002:a05:620a:a5b:: with SMTP id j27mr71961132qka.286.1578065412765;
+ Fri, 03 Jan 2020 07:30:12 -0800 (PST)
 MIME-Version: 1.0
 References: <20200102215829.911231638@linuxfoundation.org> <CA+G9fYuPkOGKbeQ0FKKx4H0Bs-nRHALsFtwyRw0Rt5DoOCvRHg@mail.gmail.com>
-In-Reply-To: <CA+G9fYuPkOGKbeQ0FKKx4H0Bs-nRHALsFtwyRw0Rt5DoOCvRHg@mail.gmail.com>
+ <CAK8P3a1+Srey_7cUd0xfaO8HdMv5tkUcs6DeDXzcUKkUD-DnGQ@mail.gmail.com>
+In-Reply-To: <CAK8P3a1+Srey_7cUd0xfaO8HdMv5tkUcs6DeDXzcUKkUD-DnGQ@mail.gmail.com>
 From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Fri, 3 Jan 2020 16:25:44 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a1+Srey_7cUd0xfaO8HdMv5tkUcs6DeDXzcUKkUD-DnGQ@mail.gmail.com>
-Message-ID: <CAK8P3a1+Srey_7cUd0xfaO8HdMv5tkUcs6DeDXzcUKkUD-DnGQ@mail.gmail.com>
+Date:   Fri, 3 Jan 2020 16:29:56 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a24EkUXTu-K2c-5B3w-LZwY7zNcX0dZixb3gd59vRw_Kw@mail.gmail.com>
+Message-ID: <CAK8P3a24EkUXTu-K2c-5B3w-LZwY7zNcX0dZixb3gd59vRw_Kw@mail.gmail.com>
 Subject: Re: [PATCH 5.4 000/191] 5.4.8-stable review
 To:     Naresh Kamboju <naresh.kamboju@linaro.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -47,119 +48,47 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jan Stancek <jstancek@redhat.com>,
         John Stultz <john.stultz@linaro.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:hqMeP7ozgQ1GRuFUP4PE7yu5gsGaJ6QwpQvx1dlfeKmwkrIUdJx
- 4wl2VH2R4EqFrTzFQ4wnSBrlNDsUDZoFwcn5deej38TmJ6SCb8MfyH4Z2dOPXWSucmSc+eL
- 1aQazJ5H8HizyzWLxqqKypAE/kxqtbDgm7FL0jpjqeY4CBOBLciNu7qdODiwnfjjM3xg3qE
- uKuOOAxGb34IuRMvXXaSQ==
+X-Provags-ID: V03:K1:0iu6L/RKqxi7vTMjJBy+yXMU9VNmrlt1TIpgdtuo8lYHq/vLKVZ
+ Jor/f50JDK/X8PpTx3tQsnOZ0foYvp8V+c6Yztz5tCcNoGxQkz4c3tGnzOsDbYqCAfQcNdy
+ JdyTyGprmQ7sOxX5fbLSl+3xn8tOjQGgqluKPtsCaYVDC235+h4axSBijyTzxXtM1mSqlN6
+ 4IIpzsg74q+hg8anoKvLA==
 X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:QGQfKnCVuTs=:ipRWGtEHWvqj0m4fDulArB
- Sl+kMcaH3Xn4ikQZa9ASS1Rg29JZY1yyXM++IheHObO4+LoaJqr4NPQm6ykIvK3dXGJ1p0Got
- jKucISL0W/kySRFqzSlat9rTQ85ia9Ieb+yD79IuQVjXTYtYDht9t5OM6b8x4jWkos9RjGA2o
- mlPS5zP1+PlHqkDYeYCnEpcR/NXShoeupysb/vrecxvvjfA0oN7N3YEGVAsj3lizExgeAvtfK
- PTEiyq12kAPatpge5uBc97uasEDu8fiOdNIHbYa4ey24lBUPATJrxpZED5l4vUF7VpAFrqD/c
- 4fgQKyot4FKzUQ/MJJt1BEZSnQuVXzORSczFdFMaWldQY89AJNs/92Ocx7rfNuXwassMat8jy
- j9EoDAubgJFJLUc+RhzTifdH2CfU/+BogcHVBZTlcA/ljZd4Lhs1s8tsUldFCo+msyKgsTVBV
- /5SFcRH79EhROSYoqmseKM2sqHYMQ6Lh48hrz3050N93DBCxLYMcNq/j513l+stkXi7W3pxDN
- 1CL1rb5pgShaZSLuOZyIV9QI6GBWjmjdO4hNMCseBPqVfcmkBgLsnYYQ7R3dyA9gEt+XApmgC
- oUYI8uSvFZbzVESBv2/r/NqmJqyzow1V1eCLXuqnJQ+kkyIElNKZijlUy7s6bt9zo1CsfHMfn
- xWT0ZKgsHuSuvsK+ZJpVVWFISbyXhvt4XNgmO5t5h4h7xGqvTOj7xRsKwPM1V4OodtcUOsO01
- HgJ+qN6O6wzCcDItWeiJV68Qidg82nIQHJku7AbbdxNZNuKwVvPhrxpR9CF6EhDuBiUSX5Ytb
- 9GQaZKPOmHyEkhktHu+GfKe9cksLKqurJp5MBS+PJKpOvG+A98P7o6vtFoW3sTdDJHvIPr6bh
- DviKhRroBzUMgY2bzKow==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:6ywwfmZGiv8=:M8u1KtULF6YaJu7Rbo9Y9V
+ D7ah+Meeam9Io88ABfblXp9RAihjSgh2Cpza8/p6zaaVxphlR0c6MFd6ObMY+1lWPfqhj1FoT
+ yS/k40cpFgABzDLcKA+PNTwJv7qjneppJiWekgZ3jh+yuf18r6KpChxVStzu+ffLKkvfjnWi4
+ 6YgVEkuCGB/bCP0qi39iPVZcbsaVYj0haVVQdhXHxXx9/aPP9DRbeF+XNo2Nuz0G7q+cCUnQ6
+ HP4rC71wHokslBQqhcsEtRJ8oDZA1JgjyqLX9KfiYPlxAbKKX77iEBxYP+JxaWlXyP4+oxh+N
+ uXheDSsv+Y5pssVUkXP2HESgjgWQjMzqGanjXRex42zkrL2cSgMWhf2e2kgAn7S1dR59DBxyL
+ PdYmdbW4K8pu4hznWcZwrrsTBCET0mGuQN+wp7e1BIBn17RmbRxKAtFNeggti99IzI/bc96c6
+ +d9U/ZYjyvXtQkjo5wGRaaT/TLiQKija3DQf8pbUeIkzbnIPzfutF0Gkb8szj2zbwZjR+lgdc
+ MWclC8WOzAGXWP2SmqlpJLTJK9UCoqMB/D1c7/LFQxqCTrUqBvEtMl4cCzPAEnh507BQOMNO2
+ OruFxBc+9Imm5zHf1GmqA6JiZ4cCYCssN5x2VluKrq9vW/OnhKX9U5ormH45Rkw/9if920PA8
+ jy53VTsGRFVhIzacV9H9whfC6Cr2oR0fEtlV/O4QjENV6EFtNPK6cO4Ffd0hNZPHPJfWh+YyK
+ rIxQKyaf6JBphFCPYIP2jrb8hY7yJm0RjTH1L6aO1qSefmiB+jf+mAPGnwPwZBZoG+OIn3KjL
+ kH8xmUbbVPIe2pxsFc8dxxDznJmjbLHh6opyc8lItmIPNUbIT/ce3FVH39wHf3OBctwm6s+hW
+ yHg7FDOYeS7zOHm1nzIQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 3, 2020 at 4:03 PM Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+On Fri, Jan 3, 2020 at 4:25 PM Arnd Bergmann <arnd@arndb.de> wrote:
 >
-> On Fri, 3 Jan 2020 at 03:42, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
+> On Fri, Jan 3, 2020 at 4:03 PM Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
 > >
-> > This is the start of the stable review cycle for the 5.4.8 release.
-> > There are 191 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Sat, 04 Jan 2020 21:55:35 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.8-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+> > On Fri, 3 Jan 2020 at 03:42, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
 >
-> LTP syscalls memfd_create04 failed on arm64 devices.
-> Test PASS on arm, i386 and x86_64.
+> -ENOENT is what you get when hugetlbfs is not mounted, so this hints to
 >
-> We are bisecting this failure on arm64.
+> 8fc312b32b2  mm/hugetlbfs: fix error handling when setting up mounts
 >
-> Test case failed log,
-> memfd_create04.c:68: INFO: Attempt to create file using 64kB huge page size
-> memfd_create04.c:76: FAIL: memfd_create() failed unexpectedly: ENOENT (2)
->
-> Strace output:
-> memfd_create(\"tfile\", MFD_HUGETLB|0x40000000) = -1 ENOENT (No such
-> file or directory)
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.4.y&id=3f549fb42a39bea3b29c0fc12afee53c4a01bec9
 
--ENOENT is what you get when hugetlbfs is not mounted, so this hints to
+I see that Mike Kravetz suggested not putting this patch into stable in
 
-8fc312b32b2  mm/hugetlbfs: fix error handling when setting up mounts
+https://lore.kernel.org/lkml/befca227-cb8a-8f47-617d-e3bf9972bfec@oracle.com/
 
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.4.y&id=3f549fb42a39bea3b29c0fc12afee53c4a01bec9
+but it was picked through the autosel mechanism later.
 
-
-> Test case Description,
->
-> /*
-> * Test: Validating memfd_create() with MFD_HUGETLB and MFD_HUGE_x flags.
-> *
-> * Test cases: Attempt to create files in the hugetlbfs filesystem using
-> * different huge page sizes.
-> *
-> * Test logic: memfd_create() should return non-negative value (fd)
-> * if the system supports that particular huge page size.
-> * On success, fd is returned.
-> * On failure, -1 is returned with ENODEV error.
-> */
->
-> Test code snippet:
-> <>
-> check_hugepage_support(&tflag);
-> tst_res(TINFO,
-> "Attempt to create file using %s huge page size",
-> tflag.h_size);
->
-> fd = sys_memfd_create("tfile", MFD_HUGETLB | tflag.flag);
-> if (fd < 0) {
-> if (errno == tflag.exp_err)
-> tst_res(TPASS, "Test failed as expected\n");
-> else
-> tst_brk(TFAIL | TERRNO,
-> "memfd_create() failed unexpectedly");
-> return;
-> }
->
-> <>
->
-> Steps to reproduce:
->           - cd /opt/ltp/testcases/bin/
->           - ./memfd_create04
->
-> https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/syscalls/memfd_create/memfd_create04.c#L75
->
-> Test output log,
-> https://lkft.validation.linaro.org/scheduler/job/1081716
->
-> Test results comparison,
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/tests/ltp-syscalls-tests/memfd_create04
->
->
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
+      Arnd
