@@ -2,82 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B120212FCDC
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 20:09:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F366012FCDE
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 20:11:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbgACTJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 14:09:42 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:23302 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728373AbgACTJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 14:09:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578078581;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:in-reply-to:in-reply-to:  references:references;
-        bh=Mi+p+XgkDLMfGQNM+tJDQI6d+aqqQMXlBNSJj/pQl2Y=;
-        b=LW4IuqCKfOiImsQi14LJ1/d4aqqUmFonxvROYLQNYPvrxfavbROlPqgnJkimKCIlEvwuF1
-        KpXLOUZWLGQtcK4BKKEfO2LbkVFdacHwjNvtNZ2XGDKWGQPedDhvGXNkjrGdoZSP7aLgks
-        5UiDsL7IlYUoVrgAm4Iyq6EcgoHtVjw=
-Received: from mail-yw1-f69.google.com (mail-yw1-f69.google.com
- [209.85.161.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-101-IHw8zGeZN6uVjofoXjWDhQ-1; Fri, 03 Jan 2020 14:09:38 -0500
-X-MC-Unique: IHw8zGeZN6uVjofoXjWDhQ-1
-Received: by mail-yw1-f69.google.com with SMTP id u199so27830954ywc.10
-        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 11:09:38 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=Mi+p+XgkDLMfGQNM+tJDQI6d+aqqQMXlBNSJj/pQl2Y=;
-        b=QHbejnAt08Y+LFZbGG+m1HgioYq8xZpnZsod2+Nh7LzoB0vviw7GSVyk47+Qzq56Bd
-         acOmYSz9Y8sVJcmbQ4ajpI9/QEDRRyLBvC/x86etPYhm/CJESbDVvBVmtumPV/DyL+BS
-         lD6StKwKBP18JREw1UemzBc/Z1+mlnjL2fYzjEa8N3X0D+oNOZ+qTxZ1EP/v0mQk5eTV
-         3W7Cn6bs2xPvLJHpBJD96V/G8g7hPs/edVs0H8eCrdH8ZH5AqwklutYpxkwzslGYyRjP
-         YD5y1jGeGCkFth6/k4g+PIABYA6IrjtgzkxFF4uni4JLxAXb9A5strcmVm23CwPRyTXy
-         CQCQ==
-X-Gm-Message-State: APjAAAVOfqmXt3GDiu5x0uUfcPeN5XbQsslevpe8qRbqOt5BK+vqdUUP
-        k0IAi3Fs7EJr8V/2r+RzzZmHr9JHcLDekhrQyo3hjMD8s8qexmUCn89np9gkPrpTTU2qGOLmo6I
-        nd9ExV2xNktx+eVBI
-X-Received: by 2002:a25:508:: with SMTP id 8mr54774795ybf.18.1578078578493;
-        Fri, 03 Jan 2020 11:09:38 -0800 (PST)
-X-Google-Smtp-Source: APXvYqzcgl0UlQ1U9iM6U8Ycl3qLNG3u1tlA+J3sW0sRGH+D5J4oCWZdJYeIQK8iYwS+cMT5CuQOTA==
-X-Received: by 2002:a25:508:: with SMTP id 8mr54774780ybf.18.1578078578212;
-        Fri, 03 Jan 2020 11:09:38 -0800 (PST)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id p1sm25467653ywh.74.2020.01.03.11.09.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Jan 2020 11:09:37 -0800 (PST)
-Date:   Fri, 3 Jan 2020 12:09:35 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Matthew Garrett <matthewgarrett@google.com>
-Cc:     linux-integrity@vger.kernel.org,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Matthew Garrett <mjg59@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH V2] tpm: Don't make log failures fatal
-Message-ID: <20200103190935.yol52xqjg7f6js7k@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-References: <20200102215518.148051-1-matthewgarrett@google.com>
+        id S1728380AbgACTLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 14:11:45 -0500
+Received: from mx2.yrkesakademin.fi ([85.134.45.195]:35203 "EHLO
+        mx2.yrkesakademin.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728373AbgACTLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 14:11:45 -0500
+Subject: Re: [PATCH 5.4 000/191] 5.4.8-stable review
+To:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>
+CC:     Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, <patches@kernelci.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        <lkft-triage@lists.linaro.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Chengguang Xu <cgxu519@mykernel.net>,
+        David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, LTP List <ltp@lists.linux.it>,
+        Jan Stancek <jstancek@redhat.com>,
+        John Stultz <john.stultz@linaro.org>
+References: <20200102215829.911231638@linuxfoundation.org>
+ <CA+G9fYuPkOGKbeQ0FKKx4H0Bs-nRHALsFtwyRw0Rt5DoOCvRHg@mail.gmail.com>
+ <CAK8P3a1+Srey_7cUd0xfaO8HdMv5tkUcs6DeDXzcUKkUD-DnGQ@mail.gmail.com>
+ <CAK8P3a24EkUXTu-K2c-5B3w-LZwY7zNcX0dZixb3gd59vRw_Kw@mail.gmail.com>
+ <20200103154518.GB1064304@kroah.com>
+ <CAK8P3a00SpVfSE5oL8_F_8jHdg_8A5fyEKH_DWNyPToxack=zA@mail.gmail.com>
+ <a2fc8b36-c512-b6dd-7349-dfb551e348b6@oracle.com>
+ <8283b231-f6e8-876f-7094-d3265096ab9a@oracle.com>
+ <CAHk-=wjvWTFn=C3mT5wA=mtOwXw44U+OHLVxk5DCe4v+7nOvKg@mail.gmail.com>
+From:   Thomas Backlund <tmb@mageia.org>
+Message-ID: <c5c3b8c8-1dfe-2433-630c-06dbfb3d318b@mageia.org>
+Date:   Fri, 3 Jan 2020 21:11:41 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200102215518.148051-1-matthewgarrett@google.com>
+In-Reply-To: <CAHk-=wjvWTFn=C3mT5wA=mtOwXw44U+OHLVxk5DCe4v+7nOvKg@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-WatchGuard-Spam-ID: str=0001.0A0C0209.5E0F91F1.000E,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
+X-WatchGuard-Spam-Score: 0, clean; 0, virus threat unknown
+X-WatchGuard-Mail-Client-IP: 85.134.45.195
+X-WatchGuard-Mail-From: tmb@mageia.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu Jan 02 20, Matthew Garrett wrote:
->If a TPM is in disabled state, it's reasonable for it to have an empty
->log. Bailing out of probe in this case means that the PPI interface
->isn't available, so there's no way to then enable the TPM from the OS.
->In general it seems reasonable to ignore log errors - they shouldn't
->interfere with any other TPM functionality.
->
->Signed-off-by: Matthew Garrett <mjg59@google.com>
->Cc: stable@vger.kernel.org
->---
+Den 03-01-2020 kl. 20:40, skrev Linus Torvalds:
+> On Fri, Jan 3, 2020 at 9:59 AM Mike Kravetz <mike.kravetz@oracle.com> wrote:
+>>
+>> Before I started investigating, Jan Stancek found and fixed the issue.
+>>
+>> http://lkml.kernel.org/r/a14b944b6e5e207d2f84f43227c98ed1f68290a2.1578072927.git.jstancek@redhat.com
+> 
+> Applied upstream as commit 15f0ec941f4f ("mm/hugetlbfs: fix
+> for_each_hstate() loop in init_hugetlbfs_fs()").
+> 
+> I didn't add a cc: stable, because the original didn't have one, and
+> the "Fixes:" tag should make it happen.
+> 
+>                 Linus
+> 
 
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Does not seem to exist in public git yet, maybe you forgot to push ?
+
+--
+Thomas
 
