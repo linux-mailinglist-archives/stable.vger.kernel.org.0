@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F3C12F6DD
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 11:48:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EEED12F6DC
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 11:48:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727488AbgACKsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 05:48:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60948 "EHLO mail.kernel.org"
+        id S1727470AbgACKsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 05:48:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727220AbgACKsz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 05:48:55 -0500
+        id S1727220AbgACKsw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jan 2020 05:48:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CB4721835;
-        Fri,  3 Jan 2020 10:48:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A2DD24649;
+        Fri,  3 Jan 2020 10:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578048534;
-        bh=8D+S+5EE0z72/uJ9sG0tM6f1G4C55FArbuYksVsmfUg=;
+        s=default; t=1578048532;
+        bh=5JU9Pu08IH+Q3Wk9frn3aCNMmaWfFvt0dtoeOdCFf2Q=;
         h=Subject:To:From:Date:From;
-        b=zED0/JyK3wauyPBEO3+vDqSPGlDDlgR0nMAkaI43eUXWwwGXJ4SexKoIocidyajCJ
-         3d7msXOf9KwTutGZUU+EBTRALK4V+XcVEXfCte/s6LEg4OqtMJ0VyxybZ+gVEfEgis
-         iUlE2ow3BS24hj7fV2+K0adlg+0nue4vG/ORZNUw=
-Subject: patch "staging: comedi: adv_pci1710: fix AI channels 16-31 for PCI-1713" added to staging-linus
-To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org, monkdaf@gmail.com,
+        b=OIsB5frXqwCPuySIy4EkQEK1zlZ5C0SQ4QpP/0Bxe9+UpJTiz1pBBP5E6bhfLPD7C
+         wLfCWDH+h/GmK6JYV4Kkbzre7XBX64eCRg6NRnnrVsjuwW7mB86pYlNiiaQDxFlkp+
+         JRA5xR0IwuDZ2U/cI0plW5kjwYqdt0Njo69Pvr3w=
+Subject: patch "staging: vt6656: set usb_set_intfdata on driver fail." added to staging-linus
+To:     tvboxspy@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 03 Jan 2020 11:48:38 +0100
-Message-ID: <15780485188596@kroah.com>
+Message-ID: <15780485185370@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: comedi: adv_pci1710: fix AI channels 16-31 for PCI-1713
+    staging: vt6656: set usb_set_intfdata on driver fail.
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,43 +55,62 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From a9d3a9cedc1330c720e0ddde1978a8e7771da5ab Mon Sep 17 00:00:00 2001
-From: Ian Abbott <abbotti@mev.co.uk>
-Date: Fri, 27 Dec 2019 17:00:54 +0000
-Subject: staging: comedi: adv_pci1710: fix AI channels 16-31 for PCI-1713
+From c0bcf9f3f5b661d4ace2a64a79ef661edd2a4dc8 Mon Sep 17 00:00:00 2001
+From: Malcolm Priestley <tvboxspy@gmail.com>
+Date: Fri, 20 Dec 2019 21:15:59 +0000
+Subject: staging: vt6656: set usb_set_intfdata on driver fail.
 
-The Advantech PCI-1713 has 32 analog input channels, but an incorrect
-bit-mask in the definition of the `PCI171X_MUX_CHANH(x)` and
-PCI171X_MUX_CHANL(x)` macros is causing channels 16 to 31 to be aliases
-of channels 0 to 15.  Change the bit-mask value from 0xf to 0xff to fix
-it.  Note that the channel numbers will have been range checked already,
-so the bit-mask isn't really needed.
+intfdata will contain stale pointer when the device is detached after
+failed initialization when referenced in vt6656_disconnect
 
-Fixes: 92c65e5553ed ("staging: comedi: adv_pci1710: define the mux control register bits")
-Reported-by: Dmytro Fil <monkdaf@gmail.com>
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20191227170054.32051-1-abbotti@mev.co.uk
+Provide driver access to it here and NULL it.
+
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/6de448d7-d833-ef2e-dd7b-3ef9992fee0e@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/adv_pci1710.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/vt6656/device.h   | 1 +
+ drivers/staging/vt6656/main_usb.c | 1 +
+ drivers/staging/vt6656/wcmd.c     | 1 +
+ 3 files changed, 3 insertions(+)
 
-diff --git a/drivers/staging/comedi/drivers/adv_pci1710.c b/drivers/staging/comedi/drivers/adv_pci1710.c
-index dbff0f7e7cf5..ddc0dc93d08b 100644
---- a/drivers/staging/comedi/drivers/adv_pci1710.c
-+++ b/drivers/staging/comedi/drivers/adv_pci1710.c
-@@ -46,8 +46,8 @@
- #define PCI171X_RANGE_UNI	BIT(4)
- #define PCI171X_RANGE_GAIN(x)	(((x) & 0x7) << 0)
- #define PCI171X_MUX_REG		0x04	/* W:   A/D multiplexor control */
--#define PCI171X_MUX_CHANH(x)	(((x) & 0xf) << 8)
--#define PCI171X_MUX_CHANL(x)	(((x) & 0xf) << 0)
-+#define PCI171X_MUX_CHANH(x)	(((x) & 0xff) << 8)
-+#define PCI171X_MUX_CHANL(x)	(((x) & 0xff) << 0)
- #define PCI171X_MUX_CHAN(x)	(PCI171X_MUX_CHANH(x) | PCI171X_MUX_CHANL(x))
- #define PCI171X_STATUS_REG	0x06	/* R:   status register */
- #define PCI171X_STATUS_IRQ	BIT(11)	/* 1=IRQ occurred */
+diff --git a/drivers/staging/vt6656/device.h b/drivers/staging/vt6656/device.h
+index 6074ceda78bf..50e1c8918040 100644
+--- a/drivers/staging/vt6656/device.h
++++ b/drivers/staging/vt6656/device.h
+@@ -259,6 +259,7 @@ struct vnt_private {
+ 	u8 mac_hw;
+ 	/* netdev */
+ 	struct usb_device *usb;
++	struct usb_interface *intf;
+ 
+ 	u64 tsf_time;
+ 	u8 rx_rate;
+diff --git a/drivers/staging/vt6656/main_usb.c b/drivers/staging/vt6656/main_usb.c
+index 4a5d741f94f5..9cb924c54571 100644
+--- a/drivers/staging/vt6656/main_usb.c
++++ b/drivers/staging/vt6656/main_usb.c
+@@ -992,6 +992,7 @@ vt6656_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	priv = hw->priv;
+ 	priv->hw = hw;
+ 	priv->usb = udev;
++	priv->intf = intf;
+ 
+ 	vnt_set_options(priv);
+ 
+diff --git a/drivers/staging/vt6656/wcmd.c b/drivers/staging/vt6656/wcmd.c
+index 3eb2f11a5de1..2c5250ca2801 100644
+--- a/drivers/staging/vt6656/wcmd.c
++++ b/drivers/staging/vt6656/wcmd.c
+@@ -99,6 +99,7 @@ void vnt_run_command(struct work_struct *work)
+ 		if (vnt_init(priv)) {
+ 			/* If fail all ends TODO retry */
+ 			dev_err(&priv->usb->dev, "failed to start\n");
++			usb_set_intfdata(priv->intf, NULL);
+ 			ieee80211_free_hw(priv->hw);
+ 			return;
+ 		}
 -- 
 2.24.1
 
