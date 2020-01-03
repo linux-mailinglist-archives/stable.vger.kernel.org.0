@@ -2,95 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F3F12FCAD
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 19:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C90C12FCAC
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 19:41:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728331AbgACSlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 13:41:02 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:44287 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728279AbgACSlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 13:41:02 -0500
-Received: by mail-lf1-f65.google.com with SMTP id v201so32399877lfa.11
-        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 10:41:00 -0800 (PST)
+        id S1728355AbgACSlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 13:41:00 -0500
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:34888 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728279AbgACSk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 13:40:59 -0500
+Received: by mail-pg1-f194.google.com with SMTP id l24so23795343pgk.2
+        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 10:40:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=09Fhb5KJtdVXpuTOxj9n6AxgCLlTa7iHkIeQIqz8ZXQ=;
-        b=gQn987UynqGEaSDi7PzqcZnNE24GYhuSwEuB8jnz/K2ht/y/6Y4Eaq+5ZrqWLDJKFm
-         DLfYiRceU9rAJ/iKZ+Kcq3FhJfAejLiEOsXP6+apzeqFfjISklQkC5r1Z/2//zpdza/L
-         28M2GzAciQMj90SjWNUCeoNq+D6s1/JuCsIig=
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3yKojHRAj36mCSvlGfKC/lxiFlQ2VNMN7NXDBZFEcT0=;
+        b=Z8pdKwxYhL1cfFkp/upyWXYolcbCknhGm5k9RGLodaksgPBJ7Vcaln7swMkMIqELN2
+         orOxT2gVdRZmy70mlrXiez7WWXjpQyjg2pIEh6DeXiTIQxdD9YJwsNbR1QitCGlAOTGV
+         z5bOmITbvPOzUoE2aX6hV0/+8QxkC6k+EcVGQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=09Fhb5KJtdVXpuTOxj9n6AxgCLlTa7iHkIeQIqz8ZXQ=;
-        b=PZJdXy94u1WA3XcD0N+iPHwV6r3IsbpaQwCUYH0YuTIzwrn2rfhhcmvZUQQF0dMkiX
-         KnMAmqwBrGqQgXem6WZuZnzUsDgK3hBziim/NGvAytNCbOB2w8VA0s0OAbyhy7IehlII
-         DQUDw6WlOYANnlB1P0SLsZZSXKpLxbY0/dEgpisAjDt4CAADPcIQZqaZUaOEKL2zLaaT
-         aiCJnOH8xu12SsZOZiZj+67pNnitKZW1qezJx0FTO3XrVVpcav7qmyexUR362ax4kJA5
-         oeQLRHpBkyWj52TsgYtMoIHMisGHT3R0/1h0FsdBT/40ZB5cXYyjsvpFztOXkRsQDMPd
-         cDXA==
-X-Gm-Message-State: APjAAAXMrtQm/S2EasO1/VLt4ln5zn0eTojvU0p4eFehj7ld42KTwtjT
-        aXVUmGI/0DlWrfC0yc+NOBkdojoPy70=
-X-Google-Smtp-Source: APXvYqyVHj+pf8aff10AXnigBmpbAyZsq2DK2rMvfgyxmyO8h+u6gLjZxmbvWzwMzVlTqPOpHcbDBw==
-X-Received: by 2002:ac2:5088:: with SMTP id f8mr50754686lfm.163.1578076858460;
-        Fri, 03 Jan 2020 10:40:58 -0800 (PST)
-Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com. [209.85.208.182])
-        by smtp.gmail.com with ESMTPSA id t10sm22981664lji.61.2020.01.03.10.40.56
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3yKojHRAj36mCSvlGfKC/lxiFlQ2VNMN7NXDBZFEcT0=;
+        b=h4Nv9HJiJh+OHoP+Ak3NjA3qroHvIYO662Hk7bBS2H4SxA4KxdOTMCCTHxJd5+6DxU
+         CPOeKG36703wHFJJcjGSjLWb0aHErqusxQF6WhwviJzqRJASU+J1OZh9MXq92Rkj06yO
+         G6lFRGfHlkWLa6fGkqL2Bilcln8anwe2BTEk0p+ifA17XZQp+AXructr2o6FpL45O/f9
+         1p9mcGx+8MQ1veRMlC966HAAu7mC0htkkyLLoYuP78JRTm1SLSMNimWzFNUn6qKWBiaB
+         NZBjBYntSYX4DRBIi0zwZQ0ngrH+38iY5hNVfWVAon4hm3N9jpd4NSuvBtV9o7Ptudga
+         eaLw==
+X-Gm-Message-State: APjAAAWWFaleletMiaeAxBVTBSB3AYmwxb3ONEfQH9UDcq/pjs7Ng1IM
+        1MsB2Lg2cdBQO7axQ7Njyi2RNQ==
+X-Google-Smtp-Source: APXvYqxVrwljxI2HL4rX6u24eEYQxy1UkCjmds5LXYbgMUrQNwd631RCc++jZ5SN+KXZIn30/Ya4Ww==
+X-Received: by 2002:aa7:8b5a:: with SMTP id i26mr43991113pfd.214.1578076859098;
+        Fri, 03 Jan 2020 10:40:59 -0800 (PST)
+Received: from localhost ([2620:15c:202:201:bfdf:e7dd:b034:6ac7])
+        by smtp.gmail.com with ESMTPSA id w38sm66207847pgk.45.2020.01.03.10.40.58
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Jan 2020 10:40:57 -0800 (PST)
-Received: by mail-lj1-f182.google.com with SMTP id m26so42297511ljc.13
-        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 10:40:56 -0800 (PST)
-X-Received: by 2002:a2e:9ad8:: with SMTP id p24mr53118229ljj.148.1578076856282;
- Fri, 03 Jan 2020 10:40:56 -0800 (PST)
+        Fri, 03 Jan 2020 10:40:58 -0800 (PST)
+From:   Daniel Verkamp <dverkamp@chromium.org>
+To:     virtualization@lists.linux-foundation.org
+Cc:     Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Wei Wang <wei.w.wang@intel.com>,
+        Daniel Verkamp <dverkamp@chromium.org>, stable@vger.kernel.org,
+        Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH v2 1/2] virtio-balloon: initialize all vq callbacks
+Date:   Fri,  3 Jan 2020 10:40:43 -0800
+Message-Id: <20200103184044.73568-1-dverkamp@chromium.org>
+X-Mailer: git-send-email 2.24.1.735.g03f4e72817-goog
 MIME-Version: 1.0
-References: <20200102215829.911231638@linuxfoundation.org> <CA+G9fYuPkOGKbeQ0FKKx4H0Bs-nRHALsFtwyRw0Rt5DoOCvRHg@mail.gmail.com>
- <CAK8P3a1+Srey_7cUd0xfaO8HdMv5tkUcs6DeDXzcUKkUD-DnGQ@mail.gmail.com>
- <CAK8P3a24EkUXTu-K2c-5B3w-LZwY7zNcX0dZixb3gd59vRw_Kw@mail.gmail.com>
- <20200103154518.GB1064304@kroah.com> <CAK8P3a00SpVfSE5oL8_F_8jHdg_8A5fyEKH_DWNyPToxack=zA@mail.gmail.com>
- <a2fc8b36-c512-b6dd-7349-dfb551e348b6@oracle.com> <8283b231-f6e8-876f-7094-d3265096ab9a@oracle.com>
-In-Reply-To: <8283b231-f6e8-876f-7094-d3265096ab9a@oracle.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Fri, 3 Jan 2020 10:40:40 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wjvWTFn=C3mT5wA=mtOwXw44U+OHLVxk5DCe4v+7nOvKg@mail.gmail.com>
-Message-ID: <CAHk-=wjvWTFn=C3mT5wA=mtOwXw44U+OHLVxk5DCe4v+7nOvKg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/191] 5.4.8-stable review
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Chengguang Xu <cgxu519@mykernel.net>,
-        David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, LTP List <ltp@lists.linux.it>,
-        Jan Stancek <jstancek@redhat.com>,
-        John Stultz <john.stultz@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 3, 2020 at 9:59 AM Mike Kravetz <mike.kravetz@oracle.com> wrote:
->
-> Before I started investigating, Jan Stancek found and fixed the issue.
->
-> http://lkml.kernel.org/r/a14b944b6e5e207d2f84f43227c98ed1f68290a2.1578072927.git.jstancek@redhat.com
+Ensure that elements of the callbacks array that correspond to
+unavailable features are set to NULL; previously, they would be left
+uninitialized.
 
-Applied upstream as commit 15f0ec941f4f ("mm/hugetlbfs: fix
-for_each_hstate() loop in init_hugetlbfs_fs()").
+Since the corresponding names array elements were explicitly set to
+NULL, the uninitialized callback pointers would not actually be
+dereferenced; however, the uninitialized callbacks elements would still
+be read in vp_find_vqs_msix() and used to calculate the number of MSI-X
+vectors required.
 
-I didn't add a cc: stable, because the original didn't have one, and
-the "Fixes:" tag should make it happen.
+Cc: stable@vger.kernel.org
+Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+---
 
-               Linus
+v1:
+https://lists.linuxfoundation.org/pipermail/virtualization/2019-December/044829.html
+
+Changes from v1:
+- Clarified "array" in commit message to "callbacks array"
+
+ drivers/virtio/virtio_balloon.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 93f995f6cf36..8e400ece9273 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -475,7 +475,9 @@ static int init_vqs(struct virtio_balloon *vb)
+ 	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
+ 	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
+ 	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
++	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
+ 	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
++	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+ 	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+ 
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+-- 
+2.24.1.735.g03f4e72817-goog
+
