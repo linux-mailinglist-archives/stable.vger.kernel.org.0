@@ -2,122 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9260312F38E
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 04:31:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87AE912F43E
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 06:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726481AbgACDbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jan 2020 22:31:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58314 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726282AbgACDbi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jan 2020 22:31:38 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725916AbgACF3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 00:29:02 -0500
+Received: from mail25.static.mailgun.info ([104.130.122.25]:43155 "EHLO
+        mail25.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725928AbgACF3C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 00:29:02 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1578029341; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=QGQ3D1GyNhd0LAoBVLxbTbXL6/9pOn4Pwzlj2/BukcY=;
+ b=oxebzTLgZP9G6nl8Dx2hE0b3ch/Lh5ga69ChYyRMvNIPEl17ALMdC5cvWgFwqGhuO8F2sFTV
+ VrW23NQxQW2sc0lx64efwnXq8lhslIKN8C7IuM3sOCjVWkBk9Q7rlu9R1BOveozZllvqBE1P
+ 7/ZExnRqa5+lTZmYvV+0TAecRHY=
+X-Mailgun-Sending-Ip: 104.130.122.25
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e0ed11b.7fbab6fd77a0-smtp-out-n01;
+ Fri, 03 Jan 2020 05:28:59 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id C551EC447A5; Fri,  3 Jan 2020 05:28:59 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30D00222C3;
-        Fri,  3 Jan 2020 03:31:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578022297;
-        bh=Hoxz1RSrdZfuqw22MIYYc3rp6ahs0DFIzN8Dwk9BWvg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VNVWDC9wyiHtGQVSUmaHU7R50x+AP5pwKuf37YxxTQ7o+2MIAVaz+t3nYR+dtGJv3
-         7dPW1jRuQx42OrcmuRUn2kGuAUzEu2VYa/XQp+aMVsDFVx71UEk8rkATqUVozTiMnA
-         gwAf3a805FrlNf2MSlTa6Wb0WxnCQ4i6adSe7yUM=
-Date:   Thu, 2 Jan 2020 22:31:36 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Logan Gunthorpe <logang@deltatee.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Doug Meyer <dmeyer@gigaio.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
-        Kelvin Cao <Kelvin.Cao@microchip.com>
-Subject: Re: [PATCH] PCI/switchtec: Read all 64 bits of part_event_bitmap
-Message-ID: <20200103033136.GN16372@sasha-vm>
-References: <20191219182747.28917-1-logang@deltatee.com>
- <20200101170406.GE2712976@kroah.com>
- <20200103001812.GL16372@sasha-vm>
- <cf1a1886-6073-e136-ac36-0abba954556e@deltatee.com>
+        (Authenticated sender: cang)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 7B4A2C433CB;
+        Fri,  3 Jan 2020 05:28:58 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cf1a1886-6073-e136-ac36-0abba954556e@deltatee.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Fri, 03 Jan 2020 13:28:58 +0800
+From:   Can Guo <cang@codeaurora.org>
+To:     Stanley Chu <stanley.chu@mediatek.com>
+Cc:     martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
+        andy.teng@mediatek.com, jejb@linux.ibm.com,
+        chun-hung.wu@mediatek.com, kuohong.wang@mediatek.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        asutoshd@codeaurora.org, avri.altman@wdc.com,
+        linux-mediatek@lists.infradead.org, peter.wang@mediatek.com,
+        linux-scsi-owner@vger.kernel.org, subhashj@codeaurora.org,
+        alim.akhtar@samsung.com, beanhuo@micron.com,
+        pedrom.sousa@synopsys.com, bvanassche@acm.org,
+        linux-arm-kernel@lists.infradead.org, matthias.bgg@gmail.com,
+        ron.hsu@mediatek.com, cc.chou@mediatek.com
+Subject: Re: [PATCH v1 1/2] scsi: ufs: set device as default active power mode
+ during initialization only
+In-Reply-To: <4888afd46a9065b7f298a5de039426c9@codeaurora.org>
+References: <1577693546-7598-1-git-send-email-stanley.chu@mediatek.com>
+ <1577693546-7598-2-git-send-email-stanley.chu@mediatek.com>
+ <fd129b859c013852bd80f60a36425757@codeaurora.org>
+ <1577754469.13164.5.camel@mtkswgap22>
+ <836772092daffd8283a97d633e59fc34@codeaurora.org>
+ <1577766179.13164.24.camel@mtkswgap22>
+ <1577778290.13164.45.camel@mtkswgap22>
+ <44393ed9ff3ba9878bae838307e7eec0@codeaurora.org>
+ <1577947124.13164.75.camel@mtkswgap22>
+ <4888afd46a9065b7f298a5de039426c9@codeaurora.org>
+Message-ID: <e13011fd858cf3ec0258c4b7ac914973@codeaurora.org>
+X-Sender: cang@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 02, 2020 at 05:46:58PM -0700, Logan Gunthorpe wrote:
->
->
->On 2020-01-02 5:18 p.m., Sasha Levin wrote:
->> On Wed, Jan 01, 2020 at 06:04:06PM +0100, Greg Kroah-Hartman wrote:
->>> On Thu, Dec 19, 2019 at 11:27:47AM -0700, Logan Gunthorpe wrote:
->>>> commit 6acdf7e19b37cb3a9258603d0eab315079c19c5e upstream.
->>>>
->>>> The part_event_bitmap register is 64 bits wide, so read it with
->>>> ioread64()
->>>> instead of the 32-bit ioread32().
->>>>
->>>> Fixes: 52eabba5bcdb ("switchtec: Add IOCTLs to the Switchtec driver")
->>>> Link:
->>>> https://lore.kernel.org/r/20190910195833.3891-1-logang@deltatee.com
->>>> Reported-by: Doug Meyer <dmeyer@gigaio.com>
->>>> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
->>>> Cc: Bjorn Helgaas <bhelgaas@google.com>
->>>> Cc: stable@vger.kernel.org    # v4.12+
->>>> Cc: Kelvin Cao <Kelvin.Cao@microchip.com>
->>>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>>> ---
->>>>
->>>> ioread64() was introduced in v5.1 so the upstream patch won't compile on
->>>> stable versions 4.14 or 4.19. This is the same patch but uses readq()
->>>> which should be equivalent.
->>>
->>> Now queued up, thanks.
->>
->> Hey Logan,
->>
->> As Guenter has pointed out, readq() is only defined for 64 bits, so this
->> breaks compilation in i386. I've dropped this backport for now, if you
->> could fix it up we could queue it up again.
->
->Not quiet true. It is in fact defined for 32-bit architectures as two
->readl() calls in "linux/io-64-nonatomic-lo-hi.h".
->
->So, unless I'm missing something the patch should be fine.
+On 2020-01-03 09:51, Can Guo wrote:
+> On 2020-01-02 14:38, Stanley Chu wrote:
+>> Hi Can,
+>> 
+>> On Tue, 2019-12-31 at 16:35 +0800, Can Guo wrote:
+>> 
+>>> Hi Stanley,
+>>> 
+>>> I missed this mail before I hit send. In current code, as per my
+>>> understanding,
+>>> UFS device's power state should be Active after ufshcd_link_startup()
+>>> returns.
+>>> If I am wrong, please feel free to correct me.
+>>> 
+>> 
+>> Yes, this assumption of ufshcd_probe_hba() is true so I will drop this
+>> patch.
+>> Thanks for remind.
+>> 
+>>> Due to you are almost trying to revert commit 7caf489b99a42a, I am 
+>>> just
+>>> wondering
+>>> if you encounter failure/error caused by it.
+>> 
+>> Yes, we actually have some doubts from the commit message of "scsi: 
+>> ufs:
+>> issue link startup 2 times if device isn't active"
+>> 
+>> If we configured system suspend as device=PowerDown/Link=LinkDown 
+>> mode,
+>> during resume, the 1st link startup will be successful, and after that
+>> device could be accessed normally so it shall be already in Active 
+>> power
+>> mode. We did not find devices which need twice linkup for normal work.
+>> 
+>> And because the 1st linkup is OK, the forced 2nd linkup by commit 
+>> "scsi:
+>> ufs: issue link startup 2 times if device isn't active" leads to link
+>> lost and finally the 3rd linkup is made again by retry mechanism in
+>> ufshcd_link_startup() and be successful. So a linkup performance issue
+>> is introduced here: We actually need one-time linkup only but finally
+>> got 3 linkup operations.
+>> 
+>> According to the UFS spec, all reset types (including POR and Host
+>> UniPro Warm Reset which both may happen in above configurations) other
+>> than LU reset, UFS device power mode shall return to Sleep mode or
+>> Active mode depending on bInitPowerMode, by default, it's Active mode.
+>> 
+>> So we are curious that why enforcing twice linkup is necessary here?
+>> Could you kindly help us clarify this?
+>> 
+>> If anything wrong in above description, please feel free to correct 
+>> me.
+>> 
+> 
+> Hi Stanley,
+> 
+> Above description is correct. The reason why the UFS device becomes
+> Active after the 1st link startup in your experiment is due to you
+> set spm_lvl to 5, during system suspend, UFS device is powered down.
+> When resume kicks start, the UFS device is power cycled once.
+> 
+> Moreover, if you set rpm_lvl to 5, during runtime suspend, if bkops is
+> enabled, the UFS device will not be powered off, meaning when runtime
+> resume kicks start, the UFS device is not power cycled, in this case,
+> we need 3 times of link startup.
+> 
+> Does above explain?
+> 
+> Thanks,
+> 
+> Can Guo.
+> 
 
-This is an actual error we're seeing:
+Hi Stanley,
 
-drivers/pci/switch/switchtec.c: In function ‘ioctl_event_summary’:
-drivers/pci/switch/switchtec.c:636:18: error: implicit declaration of function ‘readq’; did you mean ‘readl’? [-Werror=implicit-function-declaration]
-  636 |  s.part_bitmap = readq(&stdev->mmio_sw_event->part_event_bitmap);
-      |                  ^~~~~
-      |                  readl
-cc1: some warnings being treated as errors
-make[1]: *** [scripts/Makefile.build:310: drivers/pci/switch/switchtec.o] Error 1
-make: *** [Makefile:1695: drivers/pci/switch/] Error 2
+Sorry, typo before. I meant if set rpm_lvl/spm_lvl to 5, during suspend,
+if is_lu_power_on_wp is set, the UFS device will not be fully powered 
+off
+(only VCC is down), meaning when resume kicks start, the UFS device is 
+not
+power cycled, in this case, we need 3 times of link startup.
 
-So the patch isn't fine :)
+Regards,
 
-You're correct about linux/io-64-nonatomic-lo-hi.h, but sadly it isn't
-included in drivers/pci/switch/switchtec.c so it's not getting used.
-Something like the following has fixed compilation for me:
+Can Guo.
 
-diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
-index 4042fe1e7361..5035b17fe399 100644
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -16,6 +16,8 @@
-
- #include <linux/nospec.h>
-
-+#include <linux/io-64-nonatomic-lo-hi.h>
-+
- MODULE_DESCRIPTION("Microsemi Switchtec(tm) PCIe Management Driver");
- MODULE_VERSION("0.1");
- MODULE_LICENSE("GPL");
-
--- 
-Thanks,
-Sasha
+>>> 
+>>> Happy new year to you too!
+>>> 
+>>> Thanks,
+>>> 
+>>> Can Guo
+>> 
+>> Thanks,
+>> 
+>> Stanley
+>> 
+>>> 
+>>> _______________________________________________
+>>> Linux-mediatek mailing list
+>>> Linux-mediatek@lists.infradead.org
+>>> http://lists.infradead.org/mailman/listinfo/linux-mediatek
