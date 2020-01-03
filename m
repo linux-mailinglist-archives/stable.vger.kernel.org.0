@@ -2,357 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1DA812F961
-	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 15:56:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 923E712F956
+	for <lists+stable@lfdr.de>; Fri,  3 Jan 2020 15:50:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727797AbgACO4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 09:56:03 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:43946 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725890AbgACO4D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 09:56:03 -0500
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1inOM8-00AN5x-01; Fri, 03 Jan 2020 14:55:16 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Fri, 03 Jan 2020 14:45:02 +0000
-Subject: [git:media_tree/master] media: v4l2-core: compat: ignore native command codes
-To:     linuxtv-commits@linuxtv.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>, stable@vger.kernel.org
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1inOM8-00AN5x-01@www.linuxtv.org>
+        id S1727539AbgACOur (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 09:50:47 -0500
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:39426 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725890AbgACOur (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jan 2020 09:50:47 -0500
+Received: by mail-pg1-f196.google.com with SMTP id b137so23536414pga.6
+        for <stable@vger.kernel.org>; Fri, 03 Jan 2020 06:50:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=KeBErDxCFP50D3bEt9lREg3Hyksc/0x+hEjtuNqb8Cs=;
+        b=fQqf0B9EqcY+Q6vSCDjueO+Tn7PzONhPyiZowkQJ+DcEqzZ3BAGwwI7sjdFQM2P6Tm
+         cu49nVoV2AjTTHerJexFbrg1vMChixx4AwVXrymvz6Dwfedo94usFZJnVTXn0Un+enF1
+         2rdiT8dEUwcotRzYbb2MLTT+7rcE25nKY3J4aE4d/TvzjZi5VnL1fTOBbe/eRlJjPEQN
+         8keEL3zAzwQNXN0xLResla1SR6DBk07qkM6kAz0YfFgOq7bpKUnY1nMeDz+ZC3J5RPvb
+         dsBYvkhIR7SKvm9zm9twO4fd3qFMGrZ0kNhwVjx/MTYy0A2KD63cLakq/KOIx8MfGEKh
+         W8Tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=KeBErDxCFP50D3bEt9lREg3Hyksc/0x+hEjtuNqb8Cs=;
+        b=UiWkfNwZ13ypecl5OEK62wmk5DGUalVnfySRCQVKxEwgcnzyTju7gjc0gzDDnOx+nH
+         iosAwrEs8Az/1WiCdhqL1Ethqc+zKBHCn6otp7dpdXYGnLG1R55GfwtaK8JasNV33JbT
+         ZefLZVaLZrCd/1LeGv8arj2O6DWlCgZcxWIlpYviiScGVIYFPPiqi76YGBGOlyeoTyx5
+         3M7c6Yh34LX4L/28KoAIGCuIiK35Ci0YC4tHFO/h5VHYFiOq69fppdVEQYFiTVQKJmG6
+         +tX4rz72yL5vvU6ldA5zqfVX/NuE0ccizlRfoBu0FpIqS2R6CMdIiPEtyi1pOU0tv+S9
+         WA2Q==
+X-Gm-Message-State: APjAAAUF6FBohn4OFzLYfR5ShtwnXUskCrfh46kXoEBLkTplMfHQAgqV
+        NOjCvMvlUnOSw/xz7N+FdiY=
+X-Google-Smtp-Source: APXvYqyD+WTzQs7B599oDdt/G4dl5mzEvhgn00flC7Qn75czz3RpQaG3ok3TPeZ1O424H3j5HYKL4Q==
+X-Received: by 2002:a63:483:: with SMTP id 125mr95394624pge.217.1578063046811;
+        Fri, 03 Jan 2020 06:50:46 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id u10sm63591394pgg.41.2020.01.03.06.50.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 03 Jan 2020 06:50:46 -0800 (PST)
+Subject: Re: Clock related crashes in v5.4.y-queue
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>, Stephen Boyd <sboyd@kernel.org>
+References: <029dab5a-22f5-c4e9-0797-54cdba0f3539@roeck-us.net>
+ <20200102210119.GA250861@kroah.com> <20200102212837.GA9400@roeck-us.net>
+ <20200103004024.GM16372@sasha-vm>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <83b51540-f635-19c7-1621-3241315cc62c@roeck-us.net>
+Date:   Fri, 3 Jan 2020 06:50:45 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
+MIME-Version: 1.0
+In-Reply-To: <20200103004024.GM16372@sasha-vm>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+On 1/2/20 4:40 PM, Sasha Levin wrote:
+> On Thu, Jan 02, 2020 at 01:28:37PM -0800, Guenter Roeck wrote:
+>> On Thu, Jan 02, 2020 at 10:01:19PM +0100, Greg Kroah-Hartman wrote:
+>>> On Wed, Jan 01, 2020 at 06:44:08PM -0800, Guenter Roeck wrote:
+>>> > Hi,
+>>> >
+>>> > I see a number of crashes in the latest v5.4.y-queue; please see below
+>>> > for details. The problem bisects to commit 54a311c5d3988d ("clk: Fix memory
+>>> > leak in clk_unregister()").
+>>> >
+>>> > The context suggests recovery from a failed driver probe, and it appears
+>>> > that the memory is released twice. Interestingly, I don't see the problem
+>>> > in mainline.
+>>> >
+>>> > I would suggest to drop that patch from the stable queue.
+>>>
+>>> That does not look right, as you point out, so I will go drop it now.
+>>>
+>>> The logic of the clk structure lifetimes seems crazy, messing with krefs
+>>> and just "knowing" the lifecycle of the other structures seems like a
+>>> problem just waiting to happen...
+>>>
+>>
+>> I agree. While the patch itself seems to be ok per Stephen's feedback,
+>> we have to assume that there will be more secondary failures in addition
+>> to the one I have discovered. Given that clocks are not normally
+>> unregistered, I don't think fixing the memory leak is important enough
+>> to risk the stability of stable releases.
+>>
+>> With all that in mind, I'd rather have this in mainline for a prolonged
+>> period of time before considering it for stable release (if at all).
+> 
+> I would very much like to circle back and add both this patch and it's
+> fix to the stable trees at some point in the future.
+> 
+> If the code is good enough for mainline it should be good enough for
+> stable as well. If it's broken - let's fix it now instead of deferring
+> this to when people try to upgrade their major kernel versions.
+> 
 
-Subject: media: v4l2-core: compat: ignore native command codes
-Author:  Arnd Bergmann <arnd@arndb.de>
-Date:    Mon Dec 16 15:15:01 2019 +0100
+This is where we differ strongly, and where I think the Linux community will
+have to make a decision sometime soon. If "good enough for mainline" is a
+relevant criteria for inclusion of a patch into stable releases, we don't
+need stable releases anymore (we are backporting all bugs into those anyway).
+Just use mainline.
 
-The do_video_ioctl() compat handler converts the compat command
-codes into the native ones before processing further, but this
-causes problems for 32-bit user applications that pass a command
-code that matches a 64-bit native number, which will then be
-handled the same way.
+Really, stable releases should be limited to fixing severe bugs. This is not
+a fix for a severe bug, and on top of that it has side effects. True, those
+side effects are that it uncovers other bugs, but that just makes it worse.
+If we assume that my marginal testing covers, optimistically, 1% of the kernel,
+and it discovers one bug, we have the potential of many more bugs littered
+throughout the kernel which are now exposed. I really don't want to export
+that risk into stable releases.
 
-Specifically, this breaks VIDIOC_DQEVENT_TIME from user space
-applications with 64-bit time_t, as the structure layout is
-the same as the native 64-bit layout on many architectures
-(x86 being the notable exception).
-
-Change the handler to use the converted command code only for
-passing into the native ioctl handler, not for deciding on the
-conversion, in order to make the compat behavior match the
-native behavior.
-
-Actual support for the 64-bit time_t version of VIDIOC_DQEVENT_TIME
-and other commands still needs to be added in a separate patch.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/media/v4l2-core/v4l2-compat-ioctl32.c | 148 +++++++++++++-------------
- 1 file changed, 75 insertions(+), 73 deletions(-)
-
----
-
-diff --git a/drivers/media/v4l2-core/v4l2-compat-ioctl32.c b/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-index e1eaf1135c7f..7ad6db8dd9f6 100644
---- a/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-+++ b/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-@@ -1183,36 +1183,38 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	u32 aux_space;
- 	int compatible_arg = 1;
- 	long err = 0;
-+	unsigned int ncmd;
- 
- 	/*
- 	 * 1. When struct size is different, converts the command.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_G_FMT32: cmd = VIDIOC_G_FMT; break;
--	case VIDIOC_S_FMT32: cmd = VIDIOC_S_FMT; break;
--	case VIDIOC_QUERYBUF32: cmd = VIDIOC_QUERYBUF; break;
--	case VIDIOC_G_FBUF32: cmd = VIDIOC_G_FBUF; break;
--	case VIDIOC_S_FBUF32: cmd = VIDIOC_S_FBUF; break;
--	case VIDIOC_QBUF32: cmd = VIDIOC_QBUF; break;
--	case VIDIOC_DQBUF32: cmd = VIDIOC_DQBUF; break;
--	case VIDIOC_ENUMSTD32: cmd = VIDIOC_ENUMSTD; break;
--	case VIDIOC_ENUMINPUT32: cmd = VIDIOC_ENUMINPUT; break;
--	case VIDIOC_TRY_FMT32: cmd = VIDIOC_TRY_FMT; break;
--	case VIDIOC_G_EXT_CTRLS32: cmd = VIDIOC_G_EXT_CTRLS; break;
--	case VIDIOC_S_EXT_CTRLS32: cmd = VIDIOC_S_EXT_CTRLS; break;
--	case VIDIOC_TRY_EXT_CTRLS32: cmd = VIDIOC_TRY_EXT_CTRLS; break;
--	case VIDIOC_DQEVENT32: cmd = VIDIOC_DQEVENT; break;
--	case VIDIOC_OVERLAY32: cmd = VIDIOC_OVERLAY; break;
--	case VIDIOC_STREAMON32: cmd = VIDIOC_STREAMON; break;
--	case VIDIOC_STREAMOFF32: cmd = VIDIOC_STREAMOFF; break;
--	case VIDIOC_G_INPUT32: cmd = VIDIOC_G_INPUT; break;
--	case VIDIOC_S_INPUT32: cmd = VIDIOC_S_INPUT; break;
--	case VIDIOC_G_OUTPUT32: cmd = VIDIOC_G_OUTPUT; break;
--	case VIDIOC_S_OUTPUT32: cmd = VIDIOC_S_OUTPUT; break;
--	case VIDIOC_CREATE_BUFS32: cmd = VIDIOC_CREATE_BUFS; break;
--	case VIDIOC_PREPARE_BUF32: cmd = VIDIOC_PREPARE_BUF; break;
--	case VIDIOC_G_EDID32: cmd = VIDIOC_G_EDID; break;
--	case VIDIOC_S_EDID32: cmd = VIDIOC_S_EDID; break;
-+	case VIDIOC_G_FMT32: ncmd = VIDIOC_G_FMT; break;
-+	case VIDIOC_S_FMT32: ncmd = VIDIOC_S_FMT; break;
-+	case VIDIOC_QUERYBUF32: ncmd = VIDIOC_QUERYBUF; break;
-+	case VIDIOC_G_FBUF32: ncmd = VIDIOC_G_FBUF; break;
-+	case VIDIOC_S_FBUF32: ncmd = VIDIOC_S_FBUF; break;
-+	case VIDIOC_QBUF32: ncmd = VIDIOC_QBUF; break;
-+	case VIDIOC_DQBUF32: ncmd = VIDIOC_DQBUF; break;
-+	case VIDIOC_ENUMSTD32: ncmd = VIDIOC_ENUMSTD; break;
-+	case VIDIOC_ENUMINPUT32: ncmd = VIDIOC_ENUMINPUT; break;
-+	case VIDIOC_TRY_FMT32: ncmd = VIDIOC_TRY_FMT; break;
-+	case VIDIOC_G_EXT_CTRLS32: ncmd = VIDIOC_G_EXT_CTRLS; break;
-+	case VIDIOC_S_EXT_CTRLS32: ncmd = VIDIOC_S_EXT_CTRLS; break;
-+	case VIDIOC_TRY_EXT_CTRLS32: ncmd = VIDIOC_TRY_EXT_CTRLS; break;
-+	case VIDIOC_DQEVENT32: ncmd = VIDIOC_DQEVENT; break;
-+	case VIDIOC_OVERLAY32: ncmd = VIDIOC_OVERLAY; break;
-+	case VIDIOC_STREAMON32: ncmd = VIDIOC_STREAMON; break;
-+	case VIDIOC_STREAMOFF32: ncmd = VIDIOC_STREAMOFF; break;
-+	case VIDIOC_G_INPUT32: ncmd = VIDIOC_G_INPUT; break;
-+	case VIDIOC_S_INPUT32: ncmd = VIDIOC_S_INPUT; break;
-+	case VIDIOC_G_OUTPUT32: ncmd = VIDIOC_G_OUTPUT; break;
-+	case VIDIOC_S_OUTPUT32: ncmd = VIDIOC_S_OUTPUT; break;
-+	case VIDIOC_CREATE_BUFS32: ncmd = VIDIOC_CREATE_BUFS; break;
-+	case VIDIOC_PREPARE_BUF32: ncmd = VIDIOC_PREPARE_BUF; break;
-+	case VIDIOC_G_EDID32: ncmd = VIDIOC_G_EDID; break;
-+	case VIDIOC_S_EDID32: ncmd = VIDIOC_S_EDID; break;
-+	default: ncmd = cmd; break;
- 	}
- 
- 	/*
-@@ -1221,11 +1223,11 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	 * argument into it.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_OVERLAY:
--	case VIDIOC_STREAMON:
--	case VIDIOC_STREAMOFF:
--	case VIDIOC_S_INPUT:
--	case VIDIOC_S_OUTPUT:
-+	case VIDIOC_OVERLAY32:
-+	case VIDIOC_STREAMON32:
-+	case VIDIOC_STREAMOFF32:
-+	case VIDIOC_S_INPUT32:
-+	case VIDIOC_S_OUTPUT32:
- 		err = alloc_userspace(sizeof(unsigned int), 0, &new_p64);
- 		if (!err && assign_in_user((unsigned int __user *)new_p64,
- 					   (compat_uint_t __user *)p32))
-@@ -1233,23 +1235,23 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_INPUT:
--	case VIDIOC_G_OUTPUT:
-+	case VIDIOC_G_INPUT32:
-+	case VIDIOC_G_OUTPUT32:
- 		err = alloc_userspace(sizeof(unsigned int), 0, &new_p64);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_EDID:
--	case VIDIOC_S_EDID:
-+	case VIDIOC_G_EDID32:
-+	case VIDIOC_S_EDID32:
- 		err = alloc_userspace(sizeof(struct v4l2_edid), 0, &new_p64);
- 		if (!err)
- 			err = get_v4l2_edid32(new_p64, p32);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_FMT:
--	case VIDIOC_S_FMT:
--	case VIDIOC_TRY_FMT:
-+	case VIDIOC_G_FMT32:
-+	case VIDIOC_S_FMT32:
-+	case VIDIOC_TRY_FMT32:
- 		err = bufsize_v4l2_format(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_format),
-@@ -1262,7 +1264,7 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_CREATE_BUFS:
-+	case VIDIOC_CREATE_BUFS32:
- 		err = bufsize_v4l2_create(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_create_buffers),
-@@ -1275,10 +1277,10 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_PREPARE_BUF:
--	case VIDIOC_QUERYBUF:
--	case VIDIOC_QBUF:
--	case VIDIOC_DQBUF:
-+	case VIDIOC_PREPARE_BUF32:
-+	case VIDIOC_QUERYBUF32:
-+	case VIDIOC_QBUF32:
-+	case VIDIOC_DQBUF32:
- 		err = bufsize_v4l2_buffer(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_buffer),
-@@ -1291,7 +1293,7 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_S_FBUF:
-+	case VIDIOC_S_FBUF32:
- 		err = alloc_userspace(sizeof(struct v4l2_framebuffer), 0,
- 				      &new_p64);
- 		if (!err)
-@@ -1299,13 +1301,13 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_FBUF:
-+	case VIDIOC_G_FBUF32:
- 		err = alloc_userspace(sizeof(struct v4l2_framebuffer), 0,
- 				      &new_p64);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_ENUMSTD:
-+	case VIDIOC_ENUMSTD32:
- 		err = alloc_userspace(sizeof(struct v4l2_standard), 0,
- 				      &new_p64);
- 		if (!err)
-@@ -1313,16 +1315,16 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_ENUMINPUT:
-+	case VIDIOC_ENUMINPUT32:
- 		err = alloc_userspace(sizeof(struct v4l2_input), 0, &new_p64);
- 		if (!err)
- 			err = get_v4l2_input32(new_p64, p32);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_EXT_CTRLS:
--	case VIDIOC_S_EXT_CTRLS:
--	case VIDIOC_TRY_EXT_CTRLS:
-+	case VIDIOC_G_EXT_CTRLS32:
-+	case VIDIOC_S_EXT_CTRLS32:
-+	case VIDIOC_TRY_EXT_CTRLS32:
- 		err = bufsize_v4l2_ext_controls(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_ext_controls),
-@@ -1334,7 +1336,7 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		}
- 		compatible_arg = 0;
- 		break;
--	case VIDIOC_DQEVENT:
-+	case VIDIOC_DQEVENT32:
- 		err = alloc_userspace(sizeof(struct v4l2_event), 0, &new_p64);
- 		compatible_arg = 0;
- 		break;
-@@ -1352,9 +1354,9 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	 * Otherwise, it will pass the newly allocated @new_p64 argument.
- 	 */
- 	if (compatible_arg)
--		err = native_ioctl(file, cmd, (unsigned long)p32);
-+		err = native_ioctl(file, ncmd, (unsigned long)p32);
- 	else
--		err = native_ioctl(file, cmd, (unsigned long)new_p64);
-+		err = native_ioctl(file, ncmd, (unsigned long)new_p64);
- 
- 	if (err == -ENOTTY)
- 		return err;
-@@ -1370,13 +1372,13 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	 * the blocks to maximum allowed value.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_G_EXT_CTRLS:
--	case VIDIOC_S_EXT_CTRLS:
--	case VIDIOC_TRY_EXT_CTRLS:
-+	case VIDIOC_G_EXT_CTRLS32:
-+	case VIDIOC_S_EXT_CTRLS32:
-+	case VIDIOC_TRY_EXT_CTRLS32:
- 		if (put_v4l2_ext_controls32(file, new_p64, p32))
- 			err = -EFAULT;
- 		break;
--	case VIDIOC_S_EDID:
-+	case VIDIOC_S_EDID32:
- 		if (put_v4l2_edid32(new_p64, p32))
- 			err = -EFAULT;
- 		break;
-@@ -1389,49 +1391,49 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	 * the original 32 bits structure.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_S_INPUT:
--	case VIDIOC_S_OUTPUT:
--	case VIDIOC_G_INPUT:
--	case VIDIOC_G_OUTPUT:
-+	case VIDIOC_S_INPUT32:
-+	case VIDIOC_S_OUTPUT32:
-+	case VIDIOC_G_INPUT32:
-+	case VIDIOC_G_OUTPUT32:
- 		if (assign_in_user((compat_uint_t __user *)p32,
- 				   ((unsigned int __user *)new_p64)))
- 			err = -EFAULT;
- 		break;
- 
--	case VIDIOC_G_FBUF:
-+	case VIDIOC_G_FBUF32:
- 		err = put_v4l2_framebuffer32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_DQEVENT:
-+	case VIDIOC_DQEVENT32:
- 		err = put_v4l2_event32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_G_EDID:
-+	case VIDIOC_G_EDID32:
- 		err = put_v4l2_edid32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_G_FMT:
--	case VIDIOC_S_FMT:
--	case VIDIOC_TRY_FMT:
-+	case VIDIOC_G_FMT32:
-+	case VIDIOC_S_FMT32:
-+	case VIDIOC_TRY_FMT32:
- 		err = put_v4l2_format32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_CREATE_BUFS:
-+	case VIDIOC_CREATE_BUFS32:
- 		err = put_v4l2_create32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_PREPARE_BUF:
--	case VIDIOC_QUERYBUF:
--	case VIDIOC_QBUF:
--	case VIDIOC_DQBUF:
-+	case VIDIOC_PREPARE_BUF32:
-+	case VIDIOC_QUERYBUF32:
-+	case VIDIOC_QBUF32:
-+	case VIDIOC_DQBUF32:
- 		err = put_v4l2_buffer32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_ENUMSTD:
-+	case VIDIOC_ENUMSTD32:
- 		err = put_v4l2_standard32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_ENUMINPUT:
-+	case VIDIOC_ENUMINPUT32:
- 		err = put_v4l2_input32(new_p64, p32);
- 		break;
- 	}
+Guenter
