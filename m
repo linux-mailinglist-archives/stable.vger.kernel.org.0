@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E351300A5
-	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 04:38:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65CCB1300A7
+	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 04:38:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727876AbgADDhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 22:37:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38818 "EHLO mail.kernel.org"
+        id S1727903AbgADDhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 22:37:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727855AbgADDhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 22:37:13 -0500
+        id S1727889AbgADDhO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jan 2020 22:37:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3A8524655;
-        Sat,  4 Jan 2020 03:37:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C81152464B;
+        Sat,  4 Jan 2020 03:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578109032;
-        bh=NGR0rdHcrQn1mRFecawLlQNux8N3nPz8FGmoTw8cIJY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=eB0iGXd3YfCGVtzNYjif1zEeUgZ4kbd+dqwkNL4h22nq5wW6T8tq+Dh06Xo4d7NH2
-         KiGqUS6la6nzbyd4v1V8sDvUku0jYc9j4nj58ZG3t/kJDOGR3FWQULwWH1Crd0kzt9
-         ZXj5dVQEJk27/pFGKkb/i8nXwyDoT7vIbREUxDkA=
+        s=default; t=1578109034;
+        bh=p9B0uT2oHpZTVWWgC2Fc08MdyScnRBmnaT96Qf13I7I=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=bAYdyXFG3nv6NrLRCLcjFxI1pdIBeLQfvtSZr1AFvwbT3UdzpMc8zLaQeRHM/Eqfe
+         UdDsJbPxEprODVBqMTvc7UkGziXQDa4wIW37K7s9Pxl/Jkif5n0H7XiqfxfmTyt9nF
+         2u2lFNhCmRE1xZsz7quZu43HUobZXCZioV4nqlKY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 1/2] gpio: Fix error message on out-of-range GPIO in lookup table
-Date:   Fri,  3 Jan 2020 22:37:09 -0500
-Message-Id: <20200104033710.11393-1-sashal@kernel.org>
+Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 2/2] rseq/selftests: Turn off timeout setting
+Date:   Fri,  3 Jan 2020 22:37:10 -0500
+Message-Id: <20200104033710.11393-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200104033710.11393-1-sashal@kernel.org>
+References: <20200104033710.11393-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,48 +50,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-[ Upstream commit d935bd50dd14a7714cbdba9a76435dbb56edb1ae ]
+[ Upstream commit af9cb29c5488381083b0b5ccdfb3cd931063384a ]
 
-When a GPIO offset in a lookup table is out-of-range, the printed error
-message (1) does not include the actual out-of-range value, and (2)
-contains an off-by-one error in the upper bound.
+As the rseq selftests can run for a long period of time, disable the
+timeout that the general selftests have.
 
-Avoid user confusion by also printing the actual GPIO offset, and
-correcting the upper bound of the range.
-While at it, use "%u" for unsigned int.
-
-Sample impact:
-
-    -requested GPIO 0 is out of range [0..32] for chip e6052000.gpio
-    +requested GPIO 0 (45) is out of range [0..31] for chip e6052000.gpio
-
-Fixes: 2a3cf6a3599e9015 ("gpiolib: return -ENOENT if no GPIO mapping exists")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191127095919.4214-1-geert+renesas@glider.be
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: "H . Peter Anvin" <hpa@zytor.com>
+Cc: Paul Turner <pjt@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/testing/selftests/rseq/settings | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 tools/testing/selftests/rseq/settings
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index fe89fd56eabf..351023325671 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1941,8 +1941,9 @@ static struct gpio_desc *gpiod_find(struct device *dev, const char *con_id,
- 
- 		if (chip->ngpio <= p->chip_hwnum) {
- 			dev_err(dev,
--				"requested GPIO %d is out of range [0..%d] for chip %s\n",
--				idx, chip->ngpio, chip->label);
-+				"requested GPIO %u (%u) is out of range [0..%u] for chip %s\n",
-+				idx, p->chip_hwnum, chip->ngpio - 1,
-+				chip->label);
- 			return ERR_PTR(-EINVAL);
- 		}
- 
+diff --git a/tools/testing/selftests/rseq/settings b/tools/testing/selftests/rseq/settings
+new file mode 100644
+index 000000000000..e7b9417537fb
+--- /dev/null
++++ b/tools/testing/selftests/rseq/settings
+@@ -0,0 +1 @@
++timeout=0
 -- 
 2.20.1
 
