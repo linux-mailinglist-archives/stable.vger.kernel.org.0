@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E98513006D
-	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 04:37:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF5F13006F
+	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 04:37:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727503AbgADDga (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 22:36:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37138 "EHLO mail.kernel.org"
+        id S1727525AbgADDgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 22:36:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727481AbgADDga (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 22:36:30 -0500
+        id S1727514AbgADDgb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jan 2020 22:36:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B45E221D7D;
-        Sat,  4 Jan 2020 03:36:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 138E821734;
+        Sat,  4 Jan 2020 03:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578108989;
-        bh=Iqlz+iKxY3zlUcIPQj4U95OV05qdZTm+7hovQRC5Z/4=;
+        s=default; t=1578108990;
+        bh=CasMzY3yE/z02l19UuHHZrfvowP4z2p5CrjSbNYM8L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bftARHLSRgkNOleN01R+iVEizRwLEWEMwdrXG8mBPijBb+9Rj2Z3Su7t0ZDlJqwS0
-         vwqoSzDXgTd/W+rEbHTq1TdiWMI6E+5Y3rZlxRLDXkWuyDdiJ+R0+TEiR0ZZYRN2Mp
-         XJR6jYfqWWn0aqTgJEN51rdifhZ6dW/4yWDXKY4g=
+        b=SWL4IK58XeyujlNTgVLkEb/OfKoyGWJ7zaAaUTZXRJKK/iJcbHgSqSoYsgq4y652/
+         nkM99wIsQPtjyiZPme+U5C7IXjdC/guPImZHvTqrktDGhyMYLWErq56Fe75Ynl/Qls
+         so/0GxFNEb0SiLpBMQVC/9oIyDCYO072kJZ36RuM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 07/10] cifs: Adjust indentation in smb2_open_file
-Date:   Fri,  3 Jan 2020 22:36:16 -0500
-Message-Id: <20200104033620.10977-7-sashal@kernel.org>
+Cc:     Shuah Khan <skhan@linuxfoundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 08/10] selftests: firmware: Fix it to do root uid check and skip
+Date:   Fri,  3 Jan 2020 22:36:17 -0500
+Message-Id: <20200104033620.10977-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200104033620.10977-1-sashal@kernel.org>
 References: <20200104033620.10977-1-sashal@kernel.org>
@@ -44,47 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 7935799e041ae10d380d04ea23868240f082bd11 ]
+[ Upstream commit c65e41538b04e0d64a673828745a00cb68a24371 ]
 
-Clang warns:
+firmware attempts to load test modules that require root access
+and fail. Fix it to check for root uid and exit with skip code
+instead.
 
-../fs/cifs/smb2file.c:70:3: warning: misleading indentation; statement
-is not part of the previous 'if' [-Wmisleading-indentation]
-         if (oparms->tcon->use_resilient) {
-         ^
-../fs/cifs/smb2file.c:66:2: note: previous statement is here
-        if (rc)
-        ^
-1 warning generated.
+Before this fix:
 
-This warning occurs because there is a space after the tab on this line.
-Remove it so that the indentation is consistent with the Linux kernel
-coding style and clang no longer warns.
+selftests: firmware: fw_run_tests.sh
+modprobe: ERROR: could not insert 'test_firmware': Operation not permitted
+You must have the following enabled in your kernel:
+CONFIG_TEST_FIRMWARE=y
+CONFIG_FW_LOADER=y
+CONFIG_FW_LOADER_USER_HELPER=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+not ok 1 selftests: firmware: fw_run_tests.sh # SKIP
 
-Fixes: 592fafe644bf ("Add resilienthandles mount parm")
-Link: https://github.com/ClangBuiltLinux/linux/issues/826
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+With this fix:
+
+selftests: firmware: fw_run_tests.sh
+skip all tests: must be run as root
+not ok 1 selftests: firmware: fw_run_tests.sh # SKIP
+
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Reviwed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/firmware/fw_lib.sh | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/cifs/smb2file.c b/fs/cifs/smb2file.c
-index 8b0b512c5792..afe1f03aabe3 100644
---- a/fs/cifs/smb2file.c
-+++ b/fs/cifs/smb2file.c
-@@ -67,7 +67,7 @@ smb2_open_file(const unsigned int xid, struct cifs_open_parms *oparms,
- 		goto out;
+diff --git a/tools/testing/selftests/firmware/fw_lib.sh b/tools/testing/selftests/firmware/fw_lib.sh
+index b879305a766d..5b8c0fedee76 100755
+--- a/tools/testing/selftests/firmware/fw_lib.sh
++++ b/tools/testing/selftests/firmware/fw_lib.sh
+@@ -34,6 +34,12 @@ test_modprobe()
  
- 
--	 if (oparms->tcon->use_resilient) {
-+	if (oparms->tcon->use_resilient) {
- 		/* default timeout is 0, servers pick default (120 seconds) */
- 		nr_ioctl_req.Timeout =
- 			cpu_to_le32(oparms->tcon->handle_timeout);
+ check_mods()
+ {
++	local uid=$(id -u)
++	if [ $uid -ne 0 ]; then
++		echo "skip all tests: must be run as root" >&2
++		exit $ksft_skip
++	fi
++
+ 	trap "test_modprobe" EXIT
+ 	if [ ! -d $DIR ]; then
+ 		modprobe test_firmware
 -- 
 2.20.1
 
