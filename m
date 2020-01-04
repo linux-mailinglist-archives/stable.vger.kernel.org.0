@@ -2,60 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DD01302C4
-	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 16:02:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6F031302EB
+	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 16:08:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725928AbgADPCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jan 2020 10:02:05 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:39415 "EHLO
+        id S1725946AbgADPIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Jan 2020 10:08:54 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:44868 "EHLO
         mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725924AbgADPCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Jan 2020 10:02:04 -0500
-Received: by mail-wr1-f65.google.com with SMTP id y11so44996447wrt.6
-        for <stable@vger.kernel.org>; Sat, 04 Jan 2020 07:01:59 -0800 (PST)
+        with ESMTP id S1725924AbgADPIy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Jan 2020 10:08:54 -0500
+Received: by mail-wr1-f65.google.com with SMTP id q10so6060578wrm.11
+        for <stable@vger.kernel.org>; Sat, 04 Jan 2020 07:08:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=+lQWnH1KpWxb1yo6/rPAy4wr1vrooL6VpJin+V3s7zY=;
-        b=05vEKt/FfjYX7hwE/ZqoxpZ6H3SygNKhHUmauwVlvf+1cllGvS5mRA43XRGRa/Jc4R
-         TCjjCvXBB3qsy4ZKAitaHFWrGEHBv9R6cUjBla9/rMwOE1PAnf83gVJWBWIjnZN+lj3S
-         s9jvMlg/3eNW/MZ4boBX7tZvk5vYoElzleW6wchBanJFVCLvhRUn1vEbXek7AiDRhsvY
-         73pXH0YhIQNKQjwa4lyQJGJqeX4jR/i04vi0Q0KE+UzMKfqu92yGhJp7mXw90KsISyMg
-         J1BR5AHiEJ2Dn+d+BubjAGFjSJnKtxdrKnB6Yo7pdPybfYPTCKOk/Jr/ZG6Bb39TOe2S
-         IDhA==
+        bh=OBXLFbEPU/FRVY4SHNiuj6JZkvByAWMnlEsqRZTbdbo=;
+        b=Fdxq0J8Uv8ARSkwi0rYQqxC/OWc2Xvwo4EjNlWzc7cF+BVt/kb9igRhgykae/A/SEf
+         6y9k6MFR41zSuLKKP4rREfDyJlQvOB00ehApo+0zs/tVxUzIKyan03XvTEmBzvrY3ayo
+         yuS5ccNOFB7B69BYEOjNiGyzRb6gOc/5vqg3B1HK7jHZsPbXX2iYBzFMF62JqyvFfjoS
+         NawgfAbinDLDqnxqR7u+DovaZXWBsJ0/KkcHBw7Lx5QNzzrpbNoLCGAvorGaKcKBYlvK
+         alipUt3OcN386gR7eC3VF1xqmt60rZNAPdllgV9xUkgK4myQxBlOYj5A7Of3/gHYmFY3
+         RnjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=+lQWnH1KpWxb1yo6/rPAy4wr1vrooL6VpJin+V3s7zY=;
-        b=ZmbnQidgmm1Sp7xFy9gJ4vk+ntFB/DL/UlE5CEj5Utxqa6RRsYII6b5VhNUhcicb/t
-         zv1JUE4B0LwQav4azjbfsXWSlSxByLkCrI45kZN0XfwTjlal0zhBHeYhOMWJWxCx37me
-         pwlzmIjRqXs1oCwAjXW7DAiFdgNBpYz3y4Y0FQE09pt/kne5kHwCbRTZK8rD/L2bi5Es
-         MZ0dk8mcvYKXMxXyBhirg7QBTtw2gNoi5H+nuE2DCBwJ7I/72BNUHLMBB4r2e9WGLKYm
-         d840DASeGc3PkHlXgx94O1S2Xfdc4EZbYnnal4dT4MG1KW+0RZCVEzLhaY+jaWyr5MC3
-         +ZZA==
-X-Gm-Message-State: APjAAAV5G3YhgfVUGg5Qq/bJVf+zzh+Vfyr5UX7otUiLyuq8Qu5aZohD
-        X26X5HVI1agfoNsWgHW15VlsP9X0H4w=
-X-Google-Smtp-Source: APXvYqz2QyrPQkZ5WEcnt7vm0eC1oFo7GnQe8hNwiLFtoL4AMTm22bzAjDuYlASFzXnSCdCcxLuD1A==
-X-Received: by 2002:a5d:630c:: with SMTP id i12mr92365518wru.350.1578150118572;
-        Sat, 04 Jan 2020 07:01:58 -0800 (PST)
+        bh=OBXLFbEPU/FRVY4SHNiuj6JZkvByAWMnlEsqRZTbdbo=;
+        b=ZjQ+HbAxGULj2L+yQCsmwe/u1D2jeecNYlT18KFZN6K4d9qyZeoQby46Rkf4uvLZV/
+         Q6G+2s6OqXFX2eiO6CEUY+xKmNml3dKl6aqbwt+hrDa5ImrMLwTYGfVqpD3e1GVQHdWA
+         mziMNZkGwgwJXmtmPMfJ+cFblOTN6ys4Tly/N6o/c+R3VRx1wm6lQ6rWQDvVksWkGHIw
+         Hdd+MzoMleRPpx8ylVk62yZ6bvzZ/VIgPf7l7uW0VZ7d135b1zwmIJwYgETFes8dz9hf
+         SoaTJNBAaTu6DFKe19YSIQ2521+Pq5VVKdDBOiuZbf4aQtu+SrRCp7/jqbn+FgUGKg/g
+         cyng==
+X-Gm-Message-State: APjAAAWuiXDBiSamD8pSjXsDeRQzDWMgLKlO9nW6BQEuiG85z7euXuuN
+        B8CcsHh/ehtXBFo6oMKhhMTfX+C6f2k=
+X-Google-Smtp-Source: APXvYqwnUF0+2g81nbkC7cNmcZc4ZhpJNXnyX1R4PPo5OrhX2WB0v8CUTLW4ohQ6zbGF2mG38AOxAA==
+X-Received: by 2002:adf:e5cb:: with SMTP id a11mr89944053wrn.28.1578150529245;
+        Sat, 04 Jan 2020 07:08:49 -0800 (PST)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id w13sm65211273wru.38.2020.01.04.07.01.57
+        by smtp.gmail.com with ESMTPSA id q11sm63547842wrp.24.2020.01.04.07.08.48
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Jan 2020 07:01:58 -0800 (PST)
-Message-ID: <5e10a8e6.1c69fb81.45f7e.9784@mx.google.com>
-Date:   Sat, 04 Jan 2020 07:01:58 -0800 (PST)
+        Sat, 04 Jan 2020 07:08:48 -0800 (PST)
+Message-ID: <5e10aa80.1c69fb81.be8f9.1bb9@mx.google.com>
+Date:   Sat, 04 Jan 2020 07:08:48 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.92-113-g2686842f2160
-X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.208
+X-Kernelci-Tree: stable
 X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed,
- 6 warnings (v4.19.92-113-g2686842f2160)
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable/linux-4.9.y build: 197 builds: 1 failed, 196 passed (v4.9.208)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,51 +62,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed, 6 warnings =
-(v4.19.92-113-g2686842f2160)
+stable/linux-4.9.y build: 197 builds: 1 failed, 196 passed (v4.9.208)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.92-113-g2686842f2160/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.208/
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.92-113-g2686842f2160
-Git Commit: 2686842f216037f0c0e44457fecc4dbf7f1a26d1
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.208
+Git Commit: e77ff35fa79353a8bd85a33b83609bd3add65e4b
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
+e.git
+Built: 6 unique architectures
 
-Warnings Detected:
-
-arc:
-
-arm64:
-
-arm:
-
-i386:
+Build Failure Detected:
 
 mips:
-    lemote2f_defconfig (gcc-8): 1 warning
-    loongson3_defconfig (gcc-8): 2 warnings
-    malta_qemu_32r6_defconfig (gcc-8): 1 warning
-    nlm_xlp_defconfig (gcc-8): 1 warning
-
-riscv:
-
-x86_64:
-    tinyconfig (gcc-8): 1 warning
-
-
-Warnings summary:
-
-    3    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    {standard input}:131: Warning: macro instruction expanded into mul=
-tiple instructions
-    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
- invalid for HOTPLUG_PCI_SHPC
-    1    .config:1009:warning: override: UNWINDER_GUESS changes choice state
+    32r2el_defconfig: (gcc-8) FAIL
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -118,7 +89,7 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+32r2el_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -133,27 +104,12 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
 
 ---------------------------------------------------------------------------=
 -----
 allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
 
 ---------------------------------------------------------------------------=
@@ -165,6 +121,16 @@ allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 -----
 allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -343,11 +309,6 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
 dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
@@ -403,16 +364,6 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
 gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
@@ -433,22 +384,7 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 ---------------------------------------------------------------------------=
@@ -553,12 +489,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -572,14 +504,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Warnings:
-    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
-lid for HOTPLUG_PCI_SHPC
-    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -628,12 +554,8 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    {standard input}:131: Warning: macro instruction expanded into multiple=
- instructions
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -762,12 +684,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -821,18 +739,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
 orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1016,11 +924,6 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
 tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -1046,24 +949,6 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    .config:1009:warning: override: UNWINDER_GUESS changes choice state
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
 tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
 matches
 
@@ -1079,8 +964,18 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1129,11 +1024,6 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
 vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
@@ -1154,8 +1044,23 @@ xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
+xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
