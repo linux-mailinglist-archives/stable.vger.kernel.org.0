@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A1B3130073
-	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 04:37:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE7A8130091
+	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 04:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727569AbgADDgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 22:36:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37272 "EHLO mail.kernel.org"
+        id S1727514AbgADDgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 22:36:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727530AbgADDgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 22:36:33 -0500
+        id S1727533AbgADDge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jan 2020 22:36:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BEB224649;
-        Sat,  4 Jan 2020 03:36:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01DAC24653;
+        Sat,  4 Jan 2020 03:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578108992;
-        bh=p9B0uT2oHpZTVWWgC2Fc08MdyScnRBmnaT96Qf13I7I=;
+        s=default; t=1578108993;
+        bh=IBG7E2GJGbsNjViu333rtmT2J38bDQmsbxsfWNMJyGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n4N+1I5VpZJ5/yUdFVNChMYv3KcOWdxhGCmmXWvwd6rQczDTk2vNDhJyQj2GkRNB1
-         xPa8bbM14Rjn8u/SbcoPY26zM5oU2jTSqHYhfwv9Cdk6irbbyza45jQ6yKSCsHdB8v
-         qxExDv2wkk9JZmh5eXkQGDrZfzUSmhkIFL5YjnJw=
+        b=vhFWat4ziehRmr8odw2hF0ahqRy8BfBYig6Au7c3abyAUq+737zA558P9uhdRNE2i
+         JUtGL5jzJ5Kc/pZyn3PbZxOO2Et2Pc2dPvIwtNJgumJNQtFbGd8/SMNfJnqw3/Q0HN
+         eT4viA6OdLVvTCCzIUC9UEtQuznicH48qCWYCtvw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
+Cc:     Olof Johansson <olof@lixom.net>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/10] rseq/selftests: Turn off timeout setting
-Date:   Fri,  3 Jan 2020 22:36:18 -0500
-Message-Id: <20200104033620.10977-9-sashal@kernel.org>
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 10/10] riscv: export flush_icache_all to modules
+Date:   Fri,  3 Jan 2020 22:36:19 -0500
+Message-Id: <20200104033620.10977-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200104033620.10977-1-sashal@kernel.org>
 References: <20200104033620.10977-1-sashal@kernel.org>
@@ -50,36 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Olof Johansson <olof@lixom.net>
 
-[ Upstream commit af9cb29c5488381083b0b5ccdfb3cd931063384a ]
+[ Upstream commit 1833e327a5ea1d1f356fbf6ded0760c9ff4b0594 ]
 
-As the rseq selftests can run for a long period of time, disable the
-timeout that the general selftests have.
+This is needed by LKDTM (crash dump test module), it calls
+flush_icache_range(), which on RISC-V turns into flush_icache_all(). On
+other architectures, the actual implementation is exported, so follow
+that precedence and export it here too.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: "H . Peter Anvin" <hpa@zytor.com>
-Cc: Paul Turner <pjt@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes build of CONFIG_LKDTM that fails with:
+ERROR: "flush_icache_all" [drivers/misc/lkdtm/lkdtm.ko] undefined!
+
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/rseq/settings | 1 +
+ arch/riscv/mm/cacheflush.c | 1 +
  1 file changed, 1 insertion(+)
- create mode 100644 tools/testing/selftests/rseq/settings
 
-diff --git a/tools/testing/selftests/rseq/settings b/tools/testing/selftests/rseq/settings
-new file mode 100644
-index 000000000000..e7b9417537fb
---- /dev/null
-+++ b/tools/testing/selftests/rseq/settings
-@@ -0,0 +1 @@
-+timeout=0
+diff --git a/arch/riscv/mm/cacheflush.c b/arch/riscv/mm/cacheflush.c
+index 3f15938dec89..c54bd3c79955 100644
+--- a/arch/riscv/mm/cacheflush.c
++++ b/arch/riscv/mm/cacheflush.c
+@@ -14,6 +14,7 @@ void flush_icache_all(void)
+ {
+ 	sbi_remote_fence_i(NULL);
+ }
++EXPORT_SYMBOL(flush_icache_all);
+ 
+ /*
+  * Performs an icache flush for the given MM context.  RISC-V has no direct
 -- 
 2.20.1
 
