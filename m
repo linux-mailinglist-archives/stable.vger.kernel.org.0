@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38BFA130082
-	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 04:37:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22618130084
+	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 04:37:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727821AbgADDhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jan 2020 22:37:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38624 "EHLO mail.kernel.org"
+        id S1727846AbgADDhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jan 2020 22:37:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727278AbgADDhH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jan 2020 22:37:07 -0500
+        id S1727835AbgADDhJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jan 2020 22:37:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E22B72464B;
-        Sat,  4 Jan 2020 03:37:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1168F2465D;
+        Sat,  4 Jan 2020 03:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578109026;
-        bh=ZmS3ecpNKbKpZ80YMGwX6STvyWgGYbJUG1w6hAEWutk=;
+        s=default; t=1578109028;
+        bh=p9B0uT2oHpZTVWWgC2Fc08MdyScnRBmnaT96Qf13I7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqD6bcmsAZi/9Mu0QxtgBJ0szrLJfUrATGRaOYFu3V4vtT1j0bx+E182zojWz9EzU
-         7ICaSGouiy1Fv6GWIXD4PMIHXECDEorRHVq2tM4ocFpc//PyX4o/Loa7veUV6Tye2T
-         TrX8trX5y0Zxdt8vHA2BdP0GCuEibRNDYb0Afe64=
+        b=iYcDRncJMFdX0INstuD6zjhDugKVZTmQcxaWpdSdcP7ridBID0JYqNkBaBN96IIbu
+         QLMAoc8y4LcuyEPzMziTCnnSE2E1cSN+S0rcBdTCUfZ3AURcJFeosXDWHJjVyn+V2P
+         p+vpWibTSVlUp/oeGijLoUo2oBdyR4melIo20hxg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Varun Prakash <varun@chelsio.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/4] scsi: libcxgbi: fix NULL pointer dereference in cxgbi_device_destroy()
-Date:   Fri,  3 Jan 2020 22:37:01 -0500
-Message-Id: <20200104033702.11304-3-sashal@kernel.org>
+Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 4/4] rseq/selftests: Turn off timeout setting
+Date:   Fri,  3 Jan 2020 22:37:02 -0500
+Message-Id: <20200104033702.11304-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200104033702.11304-1-sashal@kernel.org>
 References: <20200104033702.11304-1-sashal@kernel.org>
@@ -43,35 +50,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-[ Upstream commit 71482fde704efdd8c3abe0faf34d922c61e8d76b ]
+[ Upstream commit af9cb29c5488381083b0b5ccdfb3cd931063384a ]
 
-If cxgb4i_ddp_init() fails then cdev->cdev2ppm will be NULL, so add a check
-for NULL pointer before dereferencing it.
+As the rseq selftests can run for a long period of time, disable the
+timeout that the general selftests have.
 
-Link: https://lore.kernel.org/r/1576676731-3068-1-git-send-email-varun@chelsio.com
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: "H . Peter Anvin" <hpa@zytor.com>
+Cc: Paul Turner <pjt@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/cxgbi/libcxgbi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/rseq/settings | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 tools/testing/selftests/rseq/settings
 
-diff --git a/drivers/scsi/cxgbi/libcxgbi.c b/drivers/scsi/cxgbi/libcxgbi.c
-index e974106f2bb5..3d6e653f5147 100644
---- a/drivers/scsi/cxgbi/libcxgbi.c
-+++ b/drivers/scsi/cxgbi/libcxgbi.c
-@@ -121,7 +121,8 @@ static inline void cxgbi_device_destroy(struct cxgbi_device *cdev)
- 		"cdev 0x%p, p# %u.\n", cdev, cdev->nports);
- 	cxgbi_hbas_remove(cdev);
- 	cxgbi_device_portmap_cleanup(cdev);
--	cxgbi_ppm_release(cdev->cdev2ppm(cdev));
-+	if (cdev->cdev2ppm)
-+		cxgbi_ppm_release(cdev->cdev2ppm(cdev));
- 	if (cdev->pmap.max_connect)
- 		cxgbi_free_big_mem(cdev->pmap.port_csk);
- 	kfree(cdev);
+diff --git a/tools/testing/selftests/rseq/settings b/tools/testing/selftests/rseq/settings
+new file mode 100644
+index 000000000000..e7b9417537fb
+--- /dev/null
++++ b/tools/testing/selftests/rseq/settings
+@@ -0,0 +1 @@
++timeout=0
 -- 
 2.20.1
 
