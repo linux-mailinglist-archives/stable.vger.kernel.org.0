@@ -2,92 +2,366 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7406B130403
-	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 20:30:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE8C130471
+	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 21:59:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726135AbgADTaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jan 2020 14:30:20 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:39585 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726118AbgADTaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Jan 2020 14:30:20 -0500
-Received: by mail-wm1-f68.google.com with SMTP id 20so11357916wmj.4
-        for <stable@vger.kernel.org>; Sat, 04 Jan 2020 11:30:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8d3sOS13yO+0v1f+6+6/80iuKqVWi2EgUS05bPTsm4E=;
-        b=vu2uFokD7vwtgdbUscd2huzsh4pjAeQJf0O+rksgMBTFpuQR9egzTlMlGrt8oMgDZG
-         Pq3IqI7Is2wwij0dExzypWw2HK9PwQivCh/TJMRkBQ1RiR2aAwM42WtDZX0kIu+qtNqP
-         ihw6PzMOgcMzMArrwaHMrMS4PiNVPSJx8TRI8OPi/aWOLSHZkveLxuPRGgNPqK/pBOkK
-         qOnbCcrIOLrtM8oPeVih0MZpf5KXqCug0fVkNrDSa5r1raIgl1fI6RuUB7/28wxKEPAN
-         lqezlVZ8K4ilYE8gy1sovQWJDwjm3X7PYcHRs7loQWZtnuXXnpk6AbcMiB0dC9JEKFV/
-         nubw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8d3sOS13yO+0v1f+6+6/80iuKqVWi2EgUS05bPTsm4E=;
-        b=Aip6T7iGVzSsXepR6BLR+vMnplpMavRL3n+af521J7vy/EduGJb/haalUdIyfm45vC
-         b0QNF96ei7pe5BQCw3znnk4kMalANzviQfsMxIa19tsHos88YMqIDyLwHtHzjp4mzWSd
-         ufOm0h9OYkMn1MPBkgWwQ7XiLOUWqkbka2H3uR7GMR/hjTbCqsv2yHdZEE92IIB3N1LN
-         7dVNePzmuM41v5S+QHY3YbVJyIRHv53P/jR1AJBkb3RbesccyQavNssL0DTkziW4Ewcq
-         nUaaLLDC2qvfrgyhgcZTAvU9neu50n9qvAnWtVFgjj7+DBxagjfRkIL907WZY/xaiNXv
-         f2Dg==
-X-Gm-Message-State: APjAAAWVoPkEfUcH6B9kRL3t9YhgQ2ozQVrCoG5ogPw+fcSlO7Iky2/n
-        119HpXbYptQ5KkaKmBU0MpnRNkOcSDc=
-X-Google-Smtp-Source: APXvYqxwXPnt7qmO6dkQNCVyPUVCH80gk+atf00n9H+l95GH5scqCswtYwDrhV9H5I4/u+jpKxCl3g==
-X-Received: by 2002:a1c:770e:: with SMTP id t14mr27822634wmi.101.1578166217943;
-        Sat, 04 Jan 2020 11:30:17 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id y139sm17672619wmd.24.2020.01.04.11.30.17
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Jan 2020 11:30:17 -0800 (PST)
-Message-ID: <5e10e7c9.1c69fb81.bcd11.ef55@mx.google.com>
-Date:   Sat, 04 Jan 2020 11:30:17 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.207-171-g9142f346a4e1
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 24 boots: 0 failed,
- 23 passed with 1 untried/unknown (v4.9.207-171-g9142f346a4e1)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726207AbgADU7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Jan 2020 15:59:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36224 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726135AbgADU7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 Jan 2020 15:59:36 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA9F622B48;
+        Sat,  4 Jan 2020 20:59:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578171574;
+        bh=8tr4aJiggGWO7tNoAIFtySus8G4EP7MpZXjSWOhe6XI=;
+        h=Date:From:To:Subject:From;
+        b=QkTl5nh35np/OwCMUWpTWNmk6n8AIbmCT2pEMBpZHvPht93QIx9u8wiC537nI3Vxy
+         F0Ev/uUVfJrOv9xj1cgW90mltAu1hVlxlup0vULLxdGMKXfxnmzIzYvngY1g/0A6d3
+         UNF7eB8z7x0o2ZIvVuxuQpubGrnQD8t+9GCnbLUk=
+Date:   Sat, 04 Jan 2020 12:59:33 -0800
+From:   akpm@linux-foundation.org
+To:     akpm@linux-foundation.org, aneesh.kumar@linux.ibm.com,
+        dan.j.williams@intel.com, david@redhat.com,
+        gregkh@linuxfoundation.org, linux-mm@kvack.org,
+        logang@deltatee.com, mhocko@suse.com, mm-commits@vger.kernel.org,
+        osalvador@suse.de, pasha.tatashin@soleen.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        willy@infradead.org
+Subject:  [patch 01/17] mm/memory_hotplug: shrink zones when
+ offlining memory
+Message-ID: <20200104205933.nny2ILNmF%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 24 boots: 0 failed, 23 passed with 1 untried/un=
-known (v4.9.207-171-g9142f346a4e1)
+From: David Hildenbrand <david@redhat.com>
+Subject: mm/memory_hotplug: shrink zones when offlining memory
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.207-171-g9142f346a4e1/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.207-171-g9142f346a4e1/
+We currently try to shrink a single zone when removing memory.  We use the
+zone of the first page of the memory we are removing.  If that memmap was
+never initialized (e.g., memory was never onlined), we will read garbage
+and can trigger kernel BUGs (due to a stale pointer):
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.207-171-g9142f346a4e1
-Git Commit: 9142f346a4e1b69329e76f42c265f7ccee35e5f9
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 19 unique boards, 7 SoC families, 9 builds out of 197
+:/# [   23.912993] BUG: unable to handle page fault for address: 000000000000353d
+[   23.914219] #PF: supervisor write access in kernel mode
+[   23.915199] #PF: error_code(0x0002) - not-present page
+[   23.916160] PGD 0 P4D 0
+[   23.916627] Oops: 0002 [#1] SMP PTI
+[   23.917256] CPU: 1 PID: 7 Comm: kworker/u8:0 Not tainted 5.3.0-rc5-next-20190820+ #317
+[   23.918900] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.4
+[   23.921194] Workqueue: kacpi_hotplug acpi_hotplug_work_fn
+[   23.922249] RIP: 0010:clear_zone_contiguous+0x5/0x10
+[   23.923173] Code: 48 89 c6 48 89 c3 e8 2a fe ff ff 48 85 c0 75 cf 5b 5d c3 c6 85 fd 05 00 00 01 5b 5d c3 0f 1f 840
+[   23.926876] RSP: 0018:ffffad2400043c98 EFLAGS: 00010246
+[   23.927928] RAX: 0000000000000000 RBX: 0000000200000000 RCX: 0000000000000000
+[   23.929458] RDX: 0000000000200000 RSI: 0000000000140000 RDI: 0000000000002f40
+[   23.930899] RBP: 0000000140000000 R08: 0000000000000000 R09: 0000000000000001
+[   23.932362] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000140000
+[   23.933603] R13: 0000000000140000 R14: 0000000000002f40 R15: ffff9e3e7aff3680
+[   23.934913] FS:  0000000000000000(0000) GS:ffff9e3e7bb00000(0000) knlGS:0000000000000000
+[   23.936294] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   23.937481] CR2: 000000000000353d CR3: 0000000058610000 CR4: 00000000000006e0
+[   23.938687] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   23.939889] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   23.941168] Call Trace:
+[   23.941580]  __remove_pages+0x4b/0x640
+[   23.942303]  ? mark_held_locks+0x49/0x70
+[   23.943149]  arch_remove_memory+0x63/0x8d
+[   23.943921]  try_remove_memory+0xdb/0x130
+[   23.944766]  ? walk_memory_blocks+0x7f/0x9e
+[   23.945616]  __remove_memory+0xa/0x11
+[   23.946274]  acpi_memory_device_remove+0x70/0x100
+[   23.947308]  acpi_bus_trim+0x55/0x90
+[   23.947914]  acpi_device_hotplug+0x227/0x3a0
+[   23.948714]  acpi_hotplug_work_fn+0x1a/0x30
+[   23.949433]  process_one_work+0x221/0x550
+[   23.950190]  worker_thread+0x50/0x3b0
+[   23.950993]  kthread+0x105/0x140
+[   23.951644]  ? process_one_work+0x550/0x550
+[   23.952508]  ? kthread_park+0x80/0x80
+[   23.953367]  ret_from_fork+0x3a/0x50
+[   23.954025] Modules linked in:
+[   23.954613] CR2: 000000000000353d
+[   23.955248] ---[ end trace 93d982b1fb3e1a69 ]---
 
-Boot Regressions Detected:
+Instead, shrink the zones when offlining memory or when onlining failed.
+Introduce and use remove_pfn_range_from_zone(() for that. We now properly
+shrink the zones, even if we have DIMMs whereby
+- Some memory blocks fall into no zone (never onlined)
+- Some memory blocks fall into multiple zones (offlined+re-onlined)
+- Multiple memory blocks that fall into different zones
 
-arm:
+Drop the zone parameter (with a potential dubious value) from
+__remove_pages() and __remove_section().
 
-    sunxi_defconfig:
-        gcc-8:
-          sun7i-a20-olinuxino-lime2:
-              lab-baylibre: new failure (last pass: v4.9.207-172-gea0b96c29=
-17e)
-
+Link: http://lkml.kernel.org/r/20191006085646.5768-6-david@redhat.com
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[visible after d0dc12e86b319]
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: <stable@vger.kernel.org>	[5.0+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ arch/arm64/mm/mmu.c            |    4 +---
+ arch/ia64/mm/init.c            |    4 +---
+ arch/powerpc/mm/mem.c          |    3 +--
+ arch/s390/mm/init.c            |    4 +---
+ arch/sh/mm/init.c              |    4 +---
+ arch/x86/mm/init_32.c          |    4 +---
+ arch/x86/mm/init_64.c          |    4 +---
+ include/linux/memory_hotplug.h |    7 +++++--
+ mm/memory_hotplug.c            |   31 ++++++++++++++++---------------
+ mm/memremap.c                  |    2 +-
+ 10 files changed, 29 insertions(+), 38 deletions(-)
+
+--- a/arch/arm64/mm/mmu.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/arch/arm64/mm/mmu.c
+@@ -1070,7 +1070,6 @@ void arch_remove_memory(int nid, u64 sta
+ {
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+-	struct zone *zone;
+ 
+ 	/*
+ 	 * FIXME: Cleanup page tables (also in arch_add_memory() in case
+@@ -1079,7 +1078,6 @@ void arch_remove_memory(int nid, u64 sta
+ 	 * unplug. ARCH_ENABLE_MEMORY_HOTREMOVE must not be
+ 	 * unlocked yet.
+ 	 */
+-	zone = page_zone(pfn_to_page(start_pfn));
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ }
+ #endif
+--- a/arch/ia64/mm/init.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/arch/ia64/mm/init.c
+@@ -689,9 +689,7 @@ void arch_remove_memory(int nid, u64 sta
+ {
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+-	struct zone *zone;
+ 
+-	zone = page_zone(pfn_to_page(start_pfn));
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ }
+ #endif
+--- a/arch/powerpc/mm/mem.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/arch/powerpc/mm/mem.c
+@@ -151,10 +151,9 @@ void __ref arch_remove_memory(int nid, u
+ {
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+-	struct page *page = pfn_to_page(start_pfn) + vmem_altmap_offset(altmap);
+ 	int ret;
+ 
+-	__remove_pages(page_zone(page), start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ 
+ 	/* Remove htab bolted mappings for this section of memory */
+ 	start = (unsigned long)__va(start);
+--- a/arch/s390/mm/init.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/arch/s390/mm/init.c
+@@ -292,10 +292,8 @@ void arch_remove_memory(int nid, u64 sta
+ {
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+-	struct zone *zone;
+ 
+-	zone = page_zone(pfn_to_page(start_pfn));
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ 	vmem_remove_mapping(start, size);
+ }
+ #endif /* CONFIG_MEMORY_HOTPLUG */
+--- a/arch/sh/mm/init.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/arch/sh/mm/init.c
+@@ -434,9 +434,7 @@ void arch_remove_memory(int nid, u64 sta
+ {
+ 	unsigned long start_pfn = PFN_DOWN(start);
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+-	struct zone *zone;
+ 
+-	zone = page_zone(pfn_to_page(start_pfn));
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ }
+ #endif /* CONFIG_MEMORY_HOTPLUG */
+--- a/arch/x86/mm/init_32.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/arch/x86/mm/init_32.c
+@@ -865,10 +865,8 @@ void arch_remove_memory(int nid, u64 sta
+ {
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+-	struct zone *zone;
+ 
+-	zone = page_zone(pfn_to_page(start_pfn));
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ }
+ #endif
+ 
+--- a/arch/x86/mm/init_64.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/arch/x86/mm/init_64.c
+@@ -1212,10 +1212,8 @@ void __ref arch_remove_memory(int nid, u
+ {
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+-	struct page *page = pfn_to_page(start_pfn) + vmem_altmap_offset(altmap);
+-	struct zone *zone = page_zone(page);
+ 
+-	__remove_pages(zone, start_pfn, nr_pages, altmap);
++	__remove_pages(start_pfn, nr_pages, altmap);
+ 	kernel_physical_mapping_remove(start, start + size);
+ }
+ #endif /* CONFIG_MEMORY_HOTPLUG */
+--- a/include/linux/memory_hotplug.h~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/include/linux/memory_hotplug.h
+@@ -122,8 +122,8 @@ static inline bool movable_node_is_enabl
+ 
+ extern void arch_remove_memory(int nid, u64 start, u64 size,
+ 			       struct vmem_altmap *altmap);
+-extern void __remove_pages(struct zone *zone, unsigned long start_pfn,
+-			   unsigned long nr_pages, struct vmem_altmap *altmap);
++extern void __remove_pages(unsigned long start_pfn, unsigned long nr_pages,
++			   struct vmem_altmap *altmap);
+ 
+ /* reasonably generic interface to expand the physical pages */
+ extern int __add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
+@@ -342,6 +342,9 @@ extern int add_memory(int nid, u64 start
+ extern int add_memory_resource(int nid, struct resource *resource);
+ extern void move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
+ 		unsigned long nr_pages, struct vmem_altmap *altmap);
++extern void remove_pfn_range_from_zone(struct zone *zone,
++				       unsigned long start_pfn,
++				       unsigned long nr_pages);
+ extern bool is_memblock_offlined(struct memory_block *mem);
+ extern int sparse_add_section(int nid, unsigned long pfn,
+ 		unsigned long nr_pages, struct vmem_altmap *altmap);
+--- a/mm/memory_hotplug.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/mm/memory_hotplug.c
+@@ -483,8 +483,9 @@ static void update_pgdat_span(struct pgl
+ 	pgdat->node_spanned_pages = node_end_pfn - node_start_pfn;
+ }
+ 
+-static void __remove_zone(struct zone *zone, unsigned long start_pfn,
+-		unsigned long nr_pages)
++void __ref remove_pfn_range_from_zone(struct zone *zone,
++				      unsigned long start_pfn,
++				      unsigned long nr_pages)
+ {
+ 	struct pglist_data *pgdat = zone->zone_pgdat;
+ 	unsigned long flags;
+@@ -499,28 +500,30 @@ static void __remove_zone(struct zone *z
+ 		return;
+ #endif
+ 
++	clear_zone_contiguous(zone);
++
+ 	pgdat_resize_lock(zone->zone_pgdat, &flags);
+ 	shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
+ 	update_pgdat_span(pgdat);
+ 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
++
++	set_zone_contiguous(zone);
+ }
+ 
+-static void __remove_section(struct zone *zone, unsigned long pfn,
+-		unsigned long nr_pages, unsigned long map_offset,
+-		struct vmem_altmap *altmap)
++static void __remove_section(unsigned long pfn, unsigned long nr_pages,
++			     unsigned long map_offset,
++			     struct vmem_altmap *altmap)
+ {
+ 	struct mem_section *ms = __nr_to_section(pfn_to_section_nr(pfn));
+ 
+ 	if (WARN_ON_ONCE(!valid_section(ms)))
+ 		return;
+ 
+-	__remove_zone(zone, pfn, nr_pages);
+ 	sparse_remove_section(ms, pfn, nr_pages, map_offset, altmap);
+ }
+ 
+ /**
+- * __remove_pages() - remove sections of pages from a zone
+- * @zone: zone from which pages need to be removed
++ * __remove_pages() - remove sections of pages
+  * @pfn: starting pageframe (must be aligned to start of a section)
+  * @nr_pages: number of pages to remove (must be multiple of section size)
+  * @altmap: alternative device page map or %NULL if default memmap is used
+@@ -530,16 +533,14 @@ static void __remove_section(struct zone
+  * sure that pages are marked reserved and zones are adjust properly by
+  * calling offline_pages().
+  */
+-void __remove_pages(struct zone *zone, unsigned long pfn,
+-		    unsigned long nr_pages, struct vmem_altmap *altmap)
++void __remove_pages(unsigned long pfn, unsigned long nr_pages,
++		    struct vmem_altmap *altmap)
+ {
+ 	unsigned long map_offset = 0;
+ 	unsigned long nr, start_sec, end_sec;
+ 
+ 	map_offset = vmem_altmap_offset(altmap);
+ 
+-	clear_zone_contiguous(zone);
+-
+ 	if (check_pfn_span(pfn, nr_pages, "remove"))
+ 		return;
+ 
+@@ -551,13 +552,11 @@ void __remove_pages(struct zone *zone, u
+ 		cond_resched();
+ 		pfns = min(nr_pages, PAGES_PER_SECTION
+ 				- (pfn & ~PAGE_SECTION_MASK));
+-		__remove_section(zone, pfn, pfns, map_offset, altmap);
++		__remove_section(pfn, pfns, map_offset, altmap);
+ 		pfn += pfns;
+ 		nr_pages -= pfns;
+ 		map_offset = 0;
+ 	}
+-
+-	set_zone_contiguous(zone);
+ }
+ 
+ int set_online_page_callback(online_page_callback_t callback)
+@@ -869,6 +868,7 @@ failed_addition:
+ 		 (unsigned long long) pfn << PAGE_SHIFT,
+ 		 (((unsigned long long) pfn + nr_pages) << PAGE_SHIFT) - 1);
+ 	memory_notify(MEM_CANCEL_ONLINE, &arg);
++	remove_pfn_range_from_zone(zone, pfn, nr_pages);
+ 	mem_hotplug_done();
+ 	return ret;
+ }
+@@ -1628,6 +1628,7 @@ static int __ref __offline_pages(unsigne
+ 	writeback_set_ratelimit();
+ 
+ 	memory_notify(MEM_OFFLINE, &arg);
++	remove_pfn_range_from_zone(zone, start_pfn, nr_pages);
+ 	mem_hotplug_done();
+ 	return 0;
+ 
+--- a/mm/memremap.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
++++ a/mm/memremap.c
+@@ -120,7 +120,7 @@ void memunmap_pages(struct dev_pagemap *
+ 
+ 	mem_hotplug_begin();
+ 	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
+-		__remove_pages(page_zone(first_page), PHYS_PFN(res->start),
++		__remove_pages(PHYS_PFN(res->start),
+ 			       PHYS_PFN(resource_size(res)), NULL);
+ 	} else {
+ 		arch_remove_memory(nid, res->start, resource_size(res),
+_
