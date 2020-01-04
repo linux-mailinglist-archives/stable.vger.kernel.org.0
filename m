@@ -2,89 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3F621304EA
-	for <lists+stable@lfdr.de>; Sat,  4 Jan 2020 23:23:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 877F013050C
+	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 00:28:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726170AbgADWXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jan 2020 17:23:10 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:43382 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726135AbgADWXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Jan 2020 17:23:10 -0500
-Received: by mail-wr1-f67.google.com with SMTP id d16so45676233wre.10
-        for <stable@vger.kernel.org>; Sat, 04 Jan 2020 14:23:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=cLIWQnZvHYzyOvdC/CwU9DX2PZeFV3hpYWbWaEe0I8c=;
-        b=uUgJ/Y91EY65iP7DZ1aV35owmzAWKNYA8h4zf9o2ZhnAUoL/1oq+TaEAV/rIXimKU+
-         maKHTKVEeHwvre5Qfs9Ez7v1xiNhsO8iCFmQKhOeNsnu5dOQdgB20qGaDejXfFmFnNrl
-         P1JZTrQH4NXzvWuaNboUWDcJkoMLqS/mZz0V/NTvSqDsoiiqhPlqboHzrLd0tdcxSiTV
-         JuiHSLHdVIQBRKbhjTAfBynFEMcjB6Y31hK5iV2W4e+Q6yuBQSSdMc+GLn2/y3cHdjzv
-         pGQEpYl/7O92LLcwy+2VayCxcrtQ7gN/szoOaFzIfgCCZ+Zp2kCIir4i5Fip2jZm5w/k
-         XwMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=cLIWQnZvHYzyOvdC/CwU9DX2PZeFV3hpYWbWaEe0I8c=;
-        b=LM7omestZE5Zp+5N+JbVKY6PhV0a/V8RjmZE00uzlsniakQgBkrV0SCBhMFlxJH0Di
-         3SpCdpJ7lsQ+F/NMkzgtnuEaNaz1JTTKFc8MAQsbJe9KlwbzgNikFgoH8EOJkzYHMYmI
-         Cz0wLFAgJN05k9PpdkCqDC/60JC/yBNpJUQdZTQqtr1sTgibS2YB4+cq809BnhffvL//
-         aOpWF1bUz0O4Ik4H4rv+LMGKOZaX3IWRHqNUl8t/u+qFpItE8Ol4njkUAR3HCEoRCONM
-         esRRsdhauI3rcl0xVWDuz35agAuBT/3uzEsPMWmyuorcAH9pLLBNyAhw4sP9MF0bK1SD
-         tP0g==
-X-Gm-Message-State: APjAAAVCYbDnKH+4LYSL938DImfDEE5FSKtJnnVZBiD+bz2dJxTQ1NOc
-        0n/m8kTephJ8HS8SPIpmrojXzCoFmGE=
-X-Google-Smtp-Source: APXvYqxO2IqdZBnmLUYb9it+XE3leiUg5EkPT5/tjyjXZLE0lQ1JYyDEJtSI/UhC04r8eTYaJvD/LA==
-X-Received: by 2002:adf:dfc9:: with SMTP id q9mr101781972wrn.219.1578176588799;
-        Sat, 04 Jan 2020 14:23:08 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id g23sm16875862wmk.14.2020.01.04.14.23.07
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Jan 2020 14:23:08 -0800 (PST)
-Message-ID: <5e11104c.1c69fb81.9ec1f.b7d9@mx.google.com>
-Date:   Sat, 04 Jan 2020 14:23:08 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726205AbgADX2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Jan 2020 18:28:51 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:44764 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726191AbgADX2v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Jan 2020 18:28:51 -0500
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1insqd-00087D-MC; Sat, 04 Jan 2020 23:28:47 +0000
+Received: from ben by deadeye with local (Exim 4.93)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1insqd-001suy-7u; Sat, 04 Jan 2020 23:28:47 +0000
+Message-ID: <8e0a66fdcb3ad12bc8987ee92a041a38c8ff708a.camel@decadent.org.uk>
+Subject: Re: [PATCH v3.16] sched/fair: Scale bandwidth quota and period
+ without losing quota/period ratio precision
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Xuewei Zhang <xueweiz@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Phil Auld <pauld@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Anton Blanchard <anton@ozlabs.org>,
+        Ben Segall <bsegall@google.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Ingo Molnar <mingo@kernel.org>
+Date:   Sat, 04 Jan 2020 23:28:41 +0000
+In-Reply-To: <20191207011321.123774-1-xueweiz@google.com>
+References: <20191207011321.123774-1-xueweiz@google.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-DWAqPBvmCsZleW3o64A6"
+User-Agent: Evolution 3.34.1-2+b1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.162
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable/linux-4.14.y boot: 66 boots: 1 failed,
- 64 passed with 1 untried/unknown (v4.14.162)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 66 boots: 1 failed, 64 passed with 1 untried/unkn=
-own (v4.14.162)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.162/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.162/
+--=-DWAqPBvmCsZleW3o64A6
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.162
-Git Commit: 84f5ad468100f86d70096799e4ee716a17c2962f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 40 unique boards, 14 SoC families, 12 builds out of 201
+On Fri, 2019-12-06 at 17:13 -0800, Xuewei Zhang wrote:
+> commit 4929a4e6faa0f13289a67cae98139e727f0d4a97 upstream.
+[...]
 
-Boot Failure Detected:
+I included this in 3.16.80, thanks.
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
+Ben.
 
----
-For more info write to <info@kernelci.org>
+--=20
+Ben Hutchings
+For every complex problem
+there is a solution that is simple, neat, and wrong.
+
+
+
+--=-DWAqPBvmCsZleW3o64A6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl4RH6kACgkQ57/I7JWG
+EQnmsBAAxBXZiwGn2ck2bKKD6MhJ6rpW4dWS6PBAQ428BwN8/h3ro6OFCb0avOE1
+LQJwu1c+/UBC4XsgkuiwK/Ayhfkj2KVwFy0WEc9iBiNaG8Tt8Dcm8faqQQSh4p+K
+FQxNYHtnUfROME0hPV0E4FXmFPudpIhl7KYOCzg9+FEHSirzjkK37Ev21GqGr51Y
+meBRBaGKoyZrSPp59DvgXDByQ8C2OBkQ6UV0U/miz17CzI0kdF8kcjHN2rRB5H4m
+k7MMepaI8l7hzNhDBuaOGRQUJMZZkY41mfylypVFubRPGmdMRhAy1owyDqB4qFFh
+paDuwFbwK47zmqUhJoCp5gdMNb4A4t7jmfwWYMri28mCV/OroTYufi4qlLvEy0tq
+d8GU0RhNpaFV3okijtvuH3vvp/lmZXjBUuWdCIqf9rFfyVAzc2u1Yyr/styNLa4i
+xF1Cgs3Qhne20QhF4Ju0S+SMRqeqOavjqFvKefJzlLHApUe63iq3UaRqUTpUuMad
+m6NpCZYNjEyuoU8u3ncyq8Ly5kz5LGhwUa0hDTgOp4t3ZFmC8fBE4Igcw/MTpIFF
+hyG+5YIaoZ9hHoAe0I+woxq7EmuU8AziI+xsnb6Hjw2Y+BLe8SVgW8RxGCmgUplt
+CGyGPsV0mrKPYfokU+GHE9l/VJgcEchb9h3ugd5CgoYD7xl08HE=
+=Wo9w
+-----END PGP SIGNATURE-----
+
+--=-DWAqPBvmCsZleW3o64A6--
