@@ -2,112 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7D951307F7
-	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 13:27:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73E48130814
+	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 14:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725938AbgAEM1X convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 5 Jan 2020 07:27:23 -0500
-Received: from mga02.intel.com ([134.134.136.20]:1226 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725897AbgAEM1X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Jan 2020 07:27:23 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Jan 2020 04:27:22 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,398,1571727600"; 
-   d="scan'208";a="420449179"
-Received: from fmsmsx105.amr.corp.intel.com ([10.18.124.203])
-  by fmsmga005.fm.intel.com with ESMTP; 05 Jan 2020 04:27:22 -0800
-Received: from FMSMSX110.amr.corp.intel.com (10.18.116.10) by
- FMSMSX105.amr.corp.intel.com (10.18.124.203) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Sun, 5 Jan 2020 04:27:22 -0800
-Received: from shsmsx154.ccr.corp.intel.com (10.239.6.54) by
- fmsmsx110.amr.corp.intel.com (10.18.116.10) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Sun, 5 Jan 2020 04:27:21 -0800
-Received: from shsmsx102.ccr.corp.intel.com ([169.254.2.202]) by
- SHSMSX154.ccr.corp.intel.com ([169.254.7.132]) with mapi id 14.03.0439.000;
- Sun, 5 Jan 2020 20:27:20 +0800
-From:   "Wang, Wei W" <wei.w.wang@intel.com>
-To:     Daniel Verkamp <dverkamp@chromium.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>
-CC:     Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Cornelia Huck <cohuck@redhat.com>
-Subject: RE: [PATCH v2 2/2] virtio-pci: check name when counting MSI-X
- vectors
-Thread-Topic: [PATCH v2 2/2] virtio-pci: check name when counting MSI-X
- vectors
-Thread-Index: AQHVwmWt1eYUSe070EWbJPmgPgfCyafcAanA
-Date:   Sun, 5 Jan 2020 12:27:19 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F73E39206A@shsmsx102.ccr.corp.intel.com>
-References: <20200103184044.73568-1-dverkamp@chromium.org>
- <20200103184044.73568-2-dverkamp@chromium.org>
-In-Reply-To: <20200103184044.73568-2-dverkamp@chromium.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.2.0.6
-dlp-reaction: no-action
-x-originating-ip: [10.239.127.40]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S1726192AbgAENAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jan 2020 08:00:46 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:46143 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726029AbgAENAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jan 2020 08:00:46 -0500
+Received: by mail-lj1-f194.google.com with SMTP id m26so45769600ljc.13;
+        Sun, 05 Jan 2020 05:00:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wtj4ycfHH4tNcald6Hu3wfTW6bDI5OTHJjc7dzUfoq0=;
+        b=meOv6NbxWkh2QWiN19ICU9RrFOj8sUAIx0weTKNSjxrNhTKdZhtHhN4TVLEDBDqAs3
+         7KzeubXZ4ueV9A0YSa0gdaBYC7IlB6YgaiYbfwr9IUL3GobCmcnLZHBy8PTUHsDp4B3G
+         ELln8M4CfcVt70mY8YO+yYVtYVsgCDFxJOxSo3ljD15KNsjvdrnrQol7BtXVi8bDJ9F1
+         ub8M2R0ZQ82ESmbQWq+fw9lH1SL/dV1M1l0yU59c/xT2APU49eZnEru0hMqmxwuH2m2Y
+         23c25jZB3BiBuxHDk+u1R8ZQrz3ZK2FmEiM6aDsXYWDJTzBAa0Cut7J7bRVqY1HU3G2g
+         AokQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wtj4ycfHH4tNcald6Hu3wfTW6bDI5OTHJjc7dzUfoq0=;
+        b=HGRELdr1HqkM4zO5zCnstcj0VYAy0V2dkLXYgwFj95MWxD5kTeVUmjju62zPemIMBC
+         mjNlKPF2vnItVHl0Gd+NvIdribi13fFs0P8sulyO194dFbjXzwMYXEu+QiJcbZPLRv8t
+         xhQDEkFCVBXLA3YDaScuswaxLMNXw0vk0iaGzm2PscjWF7jIXIUO36zmibjKZBnTbNYu
+         hHETX6Dl+xHVr283kLW5Nr2GS+8NVjFJ6C6fam3LFGqzSv/Qh6LIc/Zj6tQZ97iMgORq
+         VWQ/dOYO59f+b0e7fvW8IOJRmIGgvAqYBYdUUD0NUeDvTNI67Z+pH5WiWciYhFMjNFmk
+         di9A==
+X-Gm-Message-State: APjAAAUfOi9/XUJjU34DAA5DTDRyrWhyab9tj0ZSLJ+oMwshmraPhqCm
+        aPpBBXTY2OQdkoJbEXhLss5pFOgnCWZ3xHqCu0g=
+X-Google-Smtp-Source: APXvYqxLzGCvQ7IBDoin+iaNIeacu1bK/X/6zdfCpgWpTUtPRqxu/mEv7lEFYRmG+unV4mfFAHxTXgC1OAZQvXNIC8Y=
+X-Received: by 2002:a2e:8544:: with SMTP id u4mr54341659ljj.70.1578229243841;
+ Sun, 05 Jan 2020 05:00:43 -0800 (PST)
 MIME-Version: 1.0
+References: <20200105012416.23296-1-samuel@sholland.org> <20200105012416.23296-3-samuel@sholland.org>
+In-Reply-To: <20200105012416.23296-3-samuel@sholland.org>
+From:   Julian Calaby <julian.calaby@gmail.com>
+Date:   Mon, 6 Jan 2020 00:00:32 +1100
+Message-ID: <CAGRGNgXeenNYMNXY0dewQaeG2QecUPgE_MOofURg7HzcND782w@mail.gmail.com>
+Subject: Re: [linux-sunxi] [PATCH v2 2/9] power: supply: axp20x_ac_power: Fix
+ reporting online status
+To:     samuel@sholland.org
+Cc:     Chen-Yu Tsai <wens@csie.org>, Sebastian Reichel <sre@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Oskari Lemmela <oskari@lemmela.net>,
+        Quentin Schulz <quentin.schulz@bootlin.com>,
+        linux-pm@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        linux-sunxi <linux-sunxi@googlegroups.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Saturday, January 4, 2020 2:41 AM, Daniel Verkamp wrote:
-> Subject: [PATCH v2 2/2] virtio-pci: check name when counting MSI-X vectors
-> 
-> VQs without a name specified are not valid; they are skipped in the later loop
-> that assigns MSI-X vectors to queues, but the per_vq_vectors loop above that
-> counts the required number of vectors previously still counted any queue with a
-> non-NULL callback as needing a vector.
-> 
-> Add a check to the per_vq_vectors loop so that vectors with no name are not
-> counted to make the two loops consistent.  This prevents over-counting
-> unnecessary vectors (e.g. for features which were not negotiated with the
-> device).
-> 
+Hi Samuel,
+
+On Sun, Jan 5, 2020 at 12:24 PM Samuel Holland <samuel@sholland.org> wrote:
+>
+> AXP803/AXP813 have a flag that enables/disables the AC power supply
+> input. This flag does not affect the status bits in PWR_INPUT_STATUS.
+> Its effect can be verified by checking the battery charge/discharge
+> state (bit 2 of PWR_INPUT_STATUS), or by examining the current draw on
+> the AC input.
+>
+> Take this flag into account when getting the ONLINE property of the AC
+> input, on PMICs where this flag is present.
+>
+> Fixes: 7693b5643fd2 ("power: supply: add AC power supply driver for AXP813")
 > Cc: stable@vger.kernel.org
-> Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+> Signed-off-by: Samuel Holland <samuel@sholland.org>
 > ---
-> 
-> v1:
-> https://lists.linuxfoundation.org/pipermail/virtualization/2019-December/0448
-> 28.html
-> 
->  drivers/virtio/virtio_pci_common.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci_common.c
-> b/drivers/virtio/virtio_pci_common.c
-> index f2862f66c2ac..222d630c41fc 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -294,7 +294,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev,
-> unsigned nvqs,
->  		/* Best option: one for change interrupt, one per vq. */
->  		nvectors = 1;
->  		for (i = 0; i < nvqs; ++i)
-> -			if (callbacks[i])
-> +			if (names[i] && callbacks[i])
->  				++nvectors;
->  	} else {
->  		/* Second best: one for change, shared for all vqs. */
-> --
-> 2.24.1.735.g03f4e72817-goog
+>  drivers/power/supply/axp20x_ac_power.c | 31 +++++++++++++++++++++-----
+>  1 file changed, 25 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/power/supply/axp20x_ac_power.c b/drivers/power/supply/axp20x_ac_power.c
+> index 0d34a932b6d5..ca0a28f72a27 100644
+> --- a/drivers/power/supply/axp20x_ac_power.c
+> +++ b/drivers/power/supply/axp20x_ac_power.c
+> @@ -23,6 +23,8 @@
+>  #define AXP20X_PWR_STATUS_ACIN_PRESENT BIT(7)
+>  #define AXP20X_PWR_STATUS_ACIN_AVAIL   BIT(6)
+>
+> +#define AXP813_ACIN_PATH_SEL           BIT(7)
+> +
+>  #define AXP813_VHOLD_MASK              GENMASK(5, 3)
+>  #define AXP813_VHOLD_UV_TO_BIT(x)      ((((x) / 100000) - 40) << 3)
+>  #define AXP813_VHOLD_REG_TO_UV(x)      \
+> @@ -40,6 +42,7 @@ struct axp20x_ac_power {
+>         struct power_supply *supply;
+>         struct iio_channel *acin_v;
+>         struct iio_channel *acin_i;
+> +       bool has_acin_path_sel;
+>  };
+>
+>  static irqreturn_t axp20x_ac_power_irq(int irq, void *devid)
+> @@ -86,6 +89,17 @@ static int axp20x_ac_power_get_property(struct power_supply *psy,
+>                         return ret;
+>
+>                 val->intval = !!(reg & AXP20X_PWR_STATUS_ACIN_AVAIL);
+> +
+> +               /* ACIN_PATH_SEL disables ACIN even if ACIN_AVAIL is set. */
+> +               if (power->has_acin_path_sel) {
 
-Reviewed-by: Wang, Wei W <wei.w.wang@intel.com>
+Do we need to check this bit if ACIN_AVAIL is not set?
 
-Best,
-Wei
+> +                       ret = regmap_read(power->regmap, AXP813_ACIN_PATH_CTRL,
+> +                                         &reg);
+> +                       if (ret)
+> +                               return ret;
+> +
+> +                       val->intval &= !!(reg & AXP813_ACIN_PATH_SEL);
+
+If we only check this bit if ACIN_AVAIL is set, then we don't need the
+"&" in the "&=". (I'm assuming that val->intval is an int, not a bool,
+otherwise this is the wrong operator)
+
+Thanks,
+
+-- 
+Julian Calaby
+
+Email: julian.calaby@gmail.com
+Profile: http://www.google.com/profiles/julian.calaby/
