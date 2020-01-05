@@ -2,127 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F83A130846
-	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 14:25:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F1331308A6
+	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 16:19:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726188AbgAENZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jan 2020 08:25:29 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:22233 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726143AbgAENZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jan 2020 08:25:29 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578230727;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=IUzornvqkmVq3TU6TUpDqp8GmeEXj2T7/4D1zEB7uv4=;
-        b=i/3Fd6PE5WNf7GzqxDaxnDBjzfPXx7GRAyU6RvUj0/dxjrqe/JGjsr6U57S9A7UTG3FWP/
-        j2Mwzonm+xNHaSRWyxBrEWNa1AxJ5KHT1lFemhoL881lyMRMqllUgyb3ocq9B59kIlf1u5
-        gGHjSaCaXY6cgR80S7CBWa8l2/bXPz8=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-100-hK1ZDZO8Nt-A9_JgL9dU2w-1; Sun, 05 Jan 2020 08:25:22 -0500
-X-MC-Unique: hK1ZDZO8Nt-A9_JgL9dU2w-1
-Received: by mail-qk1-f198.google.com with SMTP id 65so4108911qkl.23
-        for <stable@vger.kernel.org>; Sun, 05 Jan 2020 05:25:22 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=IUzornvqkmVq3TU6TUpDqp8GmeEXj2T7/4D1zEB7uv4=;
-        b=CdD/+ZD6tSF3qnxfunMi5MW9e5PTZU5HNqebqVQhQLyuqy5G/W5JBq5zb5YFBIIa5I
-         shV4dkor0muEdZeax0r5yuGejLfrn992bbe7qdeMtBnHq0pjDFCna/nbnbSEPBxEyqKt
-         2NZMJhoDBec65gbFfo7kxvoI/O1SoJJTXiI49GsO5aVvz9+/s5bPVxVthTnYiOd8hA1l
-         34Dknv06lmXCPICLbNi1Orjm/AuD/mNwSdrDpTmM0ohSBqq0o93UIbuaU5zZrXUPTAIX
-         DYVSYVMKF005ZWZO1+bopoMlWifpwuezJhWpPb9UGmbXNidorOBpweW20NZXTrbYGTAt
-         O9AQ==
-X-Gm-Message-State: APjAAAUDNMMSCkpjHHLvjV7E9BrrelGa88dvRjD78IB6haWl9cigHnXM
-        YRZwVdir0mHZxat/tMmKOBhHGoavIJtRuJCozZbKvkS90YKg/e+RabXIZrVBLe/xh5bFyXMJjjH
-        qmgefQCsl4NDjB+89
-X-Received: by 2002:aed:3eee:: with SMTP id o43mr72578152qtf.33.1578230721717;
-        Sun, 05 Jan 2020 05:25:21 -0800 (PST)
-X-Google-Smtp-Source: APXvYqz7Lmxx2CQn5FOma0XrsHfKFcPO4ESb1prSTfS3DioXdE7Wrzk7bagWu6gnry8JVIqyRY75VA==
-X-Received: by 2002:aed:3eee:: with SMTP id o43mr72578138qtf.33.1578230721437;
-        Sun, 05 Jan 2020 05:25:21 -0800 (PST)
-Received: from redhat.com (bzq-79-183-34-164.red.bezeqint.net. [79.183.34.164])
-        by smtp.gmail.com with ESMTPSA id o9sm19304486qko.16.2020.01.05.05.25.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Jan 2020 05:25:20 -0800 (PST)
-Date:   Sun, 5 Jan 2020 08:25:16 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     "Wang, Wei W" <wei.w.wang@intel.com>
-Cc:     Daniel Verkamp <dverkamp@chromium.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        Jason Wang <jasowang@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 1/2] virtio-balloon: initialize all vq callbacks
-Message-ID: <20200105082433-mutt-send-email-mst@kernel.org>
-References: <20200103184044.73568-1-dverkamp@chromium.org>
- <286AC319A985734F985F78AFA26841F73E39205A@shsmsx102.ccr.corp.intel.com>
+        id S1726293AbgAEPTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jan 2020 10:19:43 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:48434 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726212AbgAEPTm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jan 2020 10:19:42 -0500
+Received: from [172.58.27.182] (helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1io7gm-0007Dg-Hn; Sun, 05 Jan 2020 15:19:37 +0000
+Date:   Sun, 5 Jan 2020 16:19:30 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Amanieu d'Antras <amanieu@gmail.com>,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Christian Brauner <christian@brauner.io>,
+        linux-um@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH] um: Implement copy_thread_tls
+Message-ID: <20200105151928.qrmhnwer3r5ffc77@wittgenstein>
+References: <20200102172413.654385-1-amanieu@gmail.com>
+ <20200104123928.1048822-1-amanieu@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <286AC319A985734F985F78AFA26841F73E39205A@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <20200104123928.1048822-1-amanieu@gmail.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 05, 2020 at 12:24:11PM +0000, Wang, Wei W wrote:
-> On Saturday, January 4, 2020 2:41 AM, Daniel Verkamp wrote:
-> > Subject: [PATCH v2 1/2] virtio-balloon: initialize all vq callbacks
-> > 
-> > Ensure that elements of the callbacks array that correspond to unavailable
-> > features are set to NULL; previously, they would be left uninitialized.
-> > 
-> > Since the corresponding names array elements were explicitly set to NULL,
-> > the uninitialized callback pointers would not actually be dereferenced;
-> > however, the uninitialized callbacks elements would still be read in 
-> > vp_find_vqs_msix() and used to calculate the number of MSI-X vectors
-> > required.
+On Sat, Jan 04, 2020 at 01:39:30PM +0100, Amanieu d'Antras wrote:
+> This is required for clone3 which passes the TLS value through a
+> struct rather than a register.
 > 
-> The above description doesn't seem true after your second patch gets applied.
+> Signed-off-by: Amanieu d'Antras <amanieu@gmail.com>
+> Cc: linux-um@lists.infradead.org
+> Cc: <stable@vger.kernel.org> # 5.3.x
+
+Thanks. I'm picking this up as part of the copy_thread_tls() series.
+(Leaving the patch in tact so people can Ack right here if they want to.)
+If I could get an Ack from one of the maintainers that would be great;
+see
+https://lore.kernel.org/lkml/20200102172413.654385-1-amanieu@gmail.com
+for more context.
+
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+
+> ---
+>  arch/um/Kconfig                      | 1 +
+>  arch/um/include/asm/ptrace-generic.h | 2 +-
+>  arch/um/kernel/process.c             | 6 +++---
+>  arch/x86/um/tls_32.c                 | 6 ++----
+>  arch/x86/um/tls_64.c                 | 7 +++----
+>  5 files changed, 10 insertions(+), 12 deletions(-)
+> 
+> diff --git a/arch/um/Kconfig b/arch/um/Kconfig
+> index 2a6d04fcb3e9..6f0edd0c0220 100644
+> --- a/arch/um/Kconfig
+> +++ b/arch/um/Kconfig
+> @@ -14,6 +14,7 @@ config UML
+>  	select HAVE_FUTEX_CMPXCHG if FUTEX
+>  	select HAVE_DEBUG_KMEMLEAK
+>  	select HAVE_DEBUG_BUGVERBOSE
+> +	select HAVE_COPY_THREAD_TLS
+>  	select GENERIC_IRQ_SHOW
+>  	select GENERIC_CPU_DEVICES
+>  	select GENERIC_CLOCKEVENTS
+> diff --git a/arch/um/include/asm/ptrace-generic.h b/arch/um/include/asm/ptrace-generic.h
+> index 81c647ef9c6c..adf91ef553ae 100644
+> --- a/arch/um/include/asm/ptrace-generic.h
+> +++ b/arch/um/include/asm/ptrace-generic.h
+> @@ -36,7 +36,7 @@ extern long subarch_ptrace(struct task_struct *child, long request,
+>  extern unsigned long getreg(struct task_struct *child, int regno);
+>  extern int putreg(struct task_struct *child, int regno, unsigned long value);
 >  
-> > Cc: stable@vger.kernel.org
-> > Fixes: 86a559787e6f ("virtio-balloon:
-> > VIRTIO_BALLOON_F_FREE_PAGE_HINT")
-> > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> > Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
-> > ---
-> > 
-> > v1:
-> > https://lists.linuxfoundation.org/pipermail/virtualization/2019-December/04
-> > 4829.html
-> > 
-> > Changes from v1:
-> > - Clarified "array" in commit message to "callbacks array"
-> > 
-> >  drivers/virtio/virtio_balloon.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > index 93f995f6cf36..8e400ece9273 100644
-> > --- a/drivers/virtio/virtio_balloon.c
-> > +++ b/drivers/virtio/virtio_balloon.c
-> > @@ -475,7 +475,9 @@ static int init_vqs(struct virtio_balloon *vb)
-> >  	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
-> >  	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
-> >  	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
-> > +	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> >  	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> > +	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+> -extern int arch_copy_tls(struct task_struct *new);
+> +extern int arch_set_tls(struct task_struct *new, unsigned long tls);
+>  extern void clear_flushed_tls(struct task_struct *task);
+>  extern int syscall_trace_enter(struct pt_regs *regs);
+>  extern void syscall_trace_leave(struct pt_regs *regs);
+> diff --git a/arch/um/kernel/process.c b/arch/um/kernel/process.c
+> index 263a8f069133..17045e7211bf 100644
+> --- a/arch/um/kernel/process.c
+> +++ b/arch/um/kernel/process.c
+> @@ -153,8 +153,8 @@ void fork_handler(void)
+>  	userspace(&current->thread.regs.regs, current_thread_info()->aux_fp_regs);
+>  }
+>  
+> -int copy_thread(unsigned long clone_flags, unsigned long sp,
+> -		unsigned long arg, struct task_struct * p)
+> +int copy_thread_tls(unsigned long clone_flags, unsigned long sp,
+> +		unsigned long arg, struct task_struct * p, unsigned long tls)
+>  {
+>  	void (*handler)(void);
+>  	int kthread = current->flags & PF_KTHREAD;
+> @@ -188,7 +188,7 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
+>  		 * Set a new TLS for the child thread?
+>  		 */
+>  		if (clone_flags & CLONE_SETTLS)
+> -			ret = arch_copy_tls(p);
+> +			ret = arch_set_tls(p, tls);
+>  	}
+>  
+>  	return ret;
+> diff --git a/arch/x86/um/tls_32.c b/arch/x86/um/tls_32.c
+> index 5bd949da7a4a..ac8eee093f9c 100644
+> --- a/arch/x86/um/tls_32.c
+> +++ b/arch/x86/um/tls_32.c
+> @@ -215,14 +215,12 @@ static int set_tls_entry(struct task_struct* task, struct user_desc *info,
+>  	return 0;
+>  }
+>  
+> -int arch_copy_tls(struct task_struct *new)
+> +int arch_set_tls(struct task_struct *new, unsigned long tls)
+>  {
+>  	struct user_desc info;
+>  	int idx, ret = -EFAULT;
+>  
+> -	if (copy_from_user(&info,
+> -			   (void __user *) UPT_SI(&new->thread.regs.regs),
+> -			   sizeof(info)))
+> +	if (copy_from_user(&info, (void __user *) tls, sizeof(info)))
+>  		goto out;
+>  
+>  	ret = -EINVAL;
+> diff --git a/arch/x86/um/tls_64.c b/arch/x86/um/tls_64.c
+> index 3a621e0d3925..ebd3855d9b13 100644
+> --- a/arch/x86/um/tls_64.c
+> +++ b/arch/x86/um/tls_64.c
+> @@ -6,14 +6,13 @@ void clear_flushed_tls(struct task_struct *task)
+>  {
+>  }
+>  
+> -int arch_copy_tls(struct task_struct *t)
+> +int arch_set_tls(struct task_struct *t, unsigned long tls)
+>  {
+>  	/*
+>  	 * If CLONE_SETTLS is set, we need to save the thread id
+> -	 * (which is argument 5, child_tid, of clone) so it can be set
+> -	 * during context switches.
+> +	 * so it can be set during context switches.
+>  	 */
+> -	t->thread.arch.fs = t->thread.regs.regs.gp[R8 / sizeof(long)];
+> +	t->thread.arch.fs = tls;
+>  
+>  	return 0;
+>  }
+> -- 
+> 2.24.1
 > 
-> Could you remove other redundant NULL initialization well?
-> https://lists.linuxfoundation.org/pipermail/virtualization/2019-December/044837.html
-> 
-> Best,
-> Wei
-
-I queued as is, can be tweaked by a patch on top.
-
--- 
-MST
-
