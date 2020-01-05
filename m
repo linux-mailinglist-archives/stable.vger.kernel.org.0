@@ -2,122 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E041308EA
-	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 17:02:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B9DF1308F0
+	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 17:04:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726293AbgAEQCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jan 2020 11:02:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55228 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726212AbgAEQCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Jan 2020 11:02:08 -0500
-Received: from localhost (unknown [73.61.17.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726351AbgAEQEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jan 2020 11:04:06 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:38847 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726368AbgAEQEG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jan 2020 11:04:06 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578240245;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=A/33Bm+13CRC3/45n5naRZGL+ZJZLmQDLr9YNBU43Z0=;
+        b=jUVuLhCGQja2JIrphQpBbJHAeh6CPy9drnrTM+J5Y0l8/Kp0daf/0+EzywLlpqcL1nwuih
+        L7HSZ11dUqKKtn+YK/Enc40qk2/Cu6ANo7SUEBNY2bLD1EnZVdzIWllfgoLRPDxQRb8Yk0
+        4edcHZXUDWwYXwxDiN4UOJ2Ko63bVaE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-213-p2CHF7ToMSOCDQ4oXvMuzA-1; Sun, 05 Jan 2020 11:04:04 -0500
+X-MC-Unique: p2CHF7ToMSOCDQ4oXvMuzA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81C402077B;
-        Sun,  5 Jan 2020 16:02:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578240126;
-        bh=SQuaTM/11clie5KRfL19/pPLweekYMQGSmVekjV1jv8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=agqbGEu9Yz47PMHx9c7YzLSPbf3LkTRoPouSU28YnODKrTZkEiWWUSCqjb4pCrFLG
-         8b7ym4Yxn1YjVcHxqwEhKP01QKHWG8lTqKwzmJ2Od2nFlfisS5XDd1lhmQ6x8K9fya
-         y7ZczmWMEh7bBZL2ahEHYZgYEVeffHsEBpeEbniY=
-Date:   Sun, 5 Jan 2020 11:02:04 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>, Stephen Boyd <sboyd@kernel.org>
-Subject: Re: Clock related crashes in v5.4.y-queue
-Message-ID: <20200105160204.GR16372@sasha-vm>
-References: <029dab5a-22f5-c4e9-0797-54cdba0f3539@roeck-us.net>
- <20200102210119.GA250861@kroah.com>
- <20200102212837.GA9400@roeck-us.net>
- <20200103004024.GM16372@sasha-vm>
- <83b51540-f635-19c7-1621-3241315cc62c@roeck-us.net>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1E8CA800D48;
+        Sun,  5 Jan 2020 16:04:02 +0000 (UTC)
+Received: from shalem.localdomain.com (ovpn-116-82.ams2.redhat.com [10.36.116.82])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 80D8760C87;
+        Sun,  5 Jan 2020 16:04:00 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-gpio@vger.kernel.org,
+        linux-acpi@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH resend v2 1/2] gpiolib: acpi: Turn dmi_system_id table into a generic quirk table
+Date:   Sun,  5 Jan 2020 17:03:56 +0100
+Message-Id: <20200105160357.97154-2-hdegoede@redhat.com>
+In-Reply-To: <20200105160357.97154-1-hdegoede@redhat.com>
+References: <20200105160357.97154-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <83b51540-f635-19c7-1621-3241315cc62c@roeck-us.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 03, 2020 at 06:50:45AM -0800, Guenter Roeck wrote:
->On 1/2/20 4:40 PM, Sasha Levin wrote:
->>On Thu, Jan 02, 2020 at 01:28:37PM -0800, Guenter Roeck wrote:
->>>On Thu, Jan 02, 2020 at 10:01:19PM +0100, Greg Kroah-Hartman wrote:
->>>>On Wed, Jan 01, 2020 at 06:44:08PM -0800, Guenter Roeck wrote:
->>>>> Hi,
->>>>>
->>>>> I see a number of crashes in the latest v5.4.y-queue; please see below
->>>>> for details. The problem bisects to commit 54a311c5d3988d ("clk: Fix memory
->>>>> leak in clk_unregister()").
->>>>>
->>>>> The context suggests recovery from a failed driver probe, and it appears
->>>>> that the memory is released twice. Interestingly, I don't see the problem
->>>>> in mainline.
->>>>>
->>>>> I would suggest to drop that patch from the stable queue.
->>>>
->>>>That does not look right, as you point out, so I will go drop it now.
->>>>
->>>>The logic of the clk structure lifetimes seems crazy, messing with krefs
->>>>and just "knowing" the lifecycle of the other structures seems like a
->>>>problem just waiting to happen...
->>>>
->>>
->>>I agree. While the patch itself seems to be ok per Stephen's feedback,
->>>we have to assume that there will be more secondary failures in addition
->>>to the one I have discovered. Given that clocks are not normally
->>>unregistered, I don't think fixing the memory leak is important enough
->>>to risk the stability of stable releases.
->>>
->>>With all that in mind, I'd rather have this in mainline for a prolonged
->>>period of time before considering it for stable release (if at all).
->>
->>I would very much like to circle back and add both this patch and it's
->>fix to the stable trees at some point in the future.
->>
->>If the code is good enough for mainline it should be good enough for
->>stable as well. If it's broken - let's fix it now instead of deferring
->>this to when people try to upgrade their major kernel versions.
->>
->
->This is where we differ strongly, and where I think the Linux community will
->have to make a decision sometime soon. If "good enough for mainline" is a
->relevant criteria for inclusion of a patch into stable releases, we don't
->need stable releases anymore (we are backporting all bugs into those anyway).
->Just use mainline.
->
->Really, stable releases should be limited to fixing severe bugs. This is not
->a fix for a severe bug, and on top of that it has side effects. True, those
->side effects are that it uncovers other bugs, but that just makes it worse.
->If we assume that my marginal testing covers, optimistically, 1% of the kernel,
->and it discovers one bug, we have the potential of many more bugs littered
->throughout the kernel which are now exposed. I really don't want to export
->that risk into stable releases.
+Turn the existing run_edge_events_on_boot_blacklist dmi_system_id table
+into a generic quirk table, storing the quirks in the driver_data ptr.
 
-The assumption here is that fixes introduce less bugs than newly
-introduced features, so I'd like to think that we're not backporting
-*all* bugs :)
+This is a preparation patch for adding other types of (DMI based) quirks.
 
-It's hard to define "severe" given how widely the kernel is used and all
-the weird usecases it has. Something that doesn't look severe might be
-very critical in a specific usecase. I fear that if we have a strict
-definition of "severe", our users will end up carrying more patches
-out-of-tree to fix their "less severe" issue, causing fragmantation
-which we really want to avoid.
+Cc: stable@vger.kernel.org
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/gpio/gpiolib-acpi.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-I actually belive very much in the suggestion you've made in your first
-paragraph: I'd love to see LTS and later on -stable kernels go away and
-users just use mainline releases. Yes, it's unrealistic now, but I'd
-like to think that we're working towards it, thus I want to keep picking
-up more patches and develop our (as well as our user's) testing muscle
-to be able to catch regressions.
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index d30e57dc755c..2b47d906d536 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -21,6 +21,8 @@
+ #include "gpiolib.h"
+ #include "gpiolib-acpi.h"
+=20
++#define QUIRK_NO_EDGE_EVENTS_ON_BOOT		0x01l
++
+ static int run_edge_events_on_boot =3D -1;
+ module_param(run_edge_events_on_boot, int, 0444);
+ MODULE_PARM_DESC(run_edge_events_on_boot,
+@@ -1309,7 +1311,7 @@ static int acpi_gpio_handle_deferred_request_irqs(v=
+oid)
+ /* We must use _sync so that this runs after the first deferred_probe ru=
+n */
+ late_initcall_sync(acpi_gpio_handle_deferred_request_irqs);
+=20
+-static const struct dmi_system_id run_edge_events_on_boot_blacklist[] =3D=
+ {
++static const struct dmi_system_id gpiolib_acpi_quirks[] =3D {
+ 	{
+ 		/*
+ 		 * The Minix Neo Z83-4 has a micro-USB-B id-pin handler for
+@@ -1319,7 +1321,8 @@ static const struct dmi_system_id run_edge_events_o=
+n_boot_blacklist[] =3D {
+ 		.matches =3D {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "MINIX"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
+-		}
++		},
++		.driver_data =3D (void *)QUIRK_NO_EDGE_EVENTS_ON_BOOT,
+ 	},
+ 	{
+ 		/*
+@@ -1331,15 +1334,23 @@ static const struct dmi_system_id run_edge_events=
+_on_boot_blacklist[] =3D {
+ 		.matches =3D {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Wortmann_AG"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "TERRA_PAD_1061"),
+-		}
++		},
++		.driver_data =3D (void *)QUIRK_NO_EDGE_EVENTS_ON_BOOT,
+ 	},
+ 	{} /* Terminating entry */
+ };
+=20
+ static int acpi_gpio_setup_params(void)
+ {
++	const struct dmi_system_id *id;
++	long quirks =3D 0;
++
++	id =3D dmi_first_match(gpiolib_acpi_quirks);
++	if (id)
++		quirks =3D (long)id->driver_data;
++
+ 	if (run_edge_events_on_boot < 0) {
+-		if (dmi_check_system(run_edge_events_on_boot_blacklist))
++		if (quirks & QUIRK_NO_EDGE_EVENTS_ON_BOOT)
+ 			run_edge_events_on_boot =3D 0;
+ 		else
+ 			run_edge_events_on_boot =3D 1;
+--=20
+2.24.1
 
--- 
-Thanks,
-Sasha
