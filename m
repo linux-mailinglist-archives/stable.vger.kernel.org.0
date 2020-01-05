@@ -2,172 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC1213056A
-	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 02:24:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03785130573
+	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 02:39:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726467AbgAEBYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jan 2020 20:24:19 -0500
-Received: from new2-smtp.messagingengine.com ([66.111.4.224]:57263 "EHLO
-        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726281AbgAEBYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Jan 2020 20:24:18 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.nyi.internal (Postfix) with ESMTP id A4FFF6BA3;
-        Sat,  4 Jan 2020 20:24:17 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Sat, 04 Jan 2020 20:24:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm1; bh=i9U9QABLYUJVc
-        RUEMaC1sX18u3bMrWhbzdwLPT/XxuQ=; b=cCm48MGnRDJGDgnBFe+6YfL49S2ES
-        PDNt4lS6MAUOAIkHj0H75nxOxqQUQnrK3l5g8WXjpJaQTlRXaRkt0LUnlmxrFNAI
-        EDsVCM64h7Ah859EE1uMaIvU4M7CSzME0gD26PI6ba0+ee5j0//eb9+LJgOwq3uR
-        KW+VPEygn4b8PTxYMnY65KkpbJKPe9H2q3ssAbx4QOLgUVei51/il9c3QQy/9We7
-        V63lDd03wtt9fQS/KAuwVCAt6ZBq1n+Z+svyrqgssFvMJ1p6mPRSWvs+p49oe+aM
-        VZh2kswgIjrXgsVm81lZs7hRwiMjftIy1QiJ1W0HxaKHixj8/6Ka7vYyA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; bh=i9U9QABLYUJVcRUEMaC1sX18u3bMrWhbzdwLPT/XxuQ=; b=xvwRI77p
-        m0tSOjEby4PXvJOeAdnCPexlXOyxq3DqqKAHLAdprilfKfl/nwAYLhEAqWfu9TVK
-        FpYlTCY44aBSl4j6sMOWEEOdpidBecLPGryvxbCPOuyyrQbIIl9q43UoLa9AdEPM
-        yzZ6CTeqdi6CUJMOgpX66FBg18A8IQlrUIRAjAzN4wHrnJqYHI977bDjX/+0wCo1
-        KuoB1L75KCZzxJd4p2xqztNtU18YPXoEv47aoXAOtKHYFayziHeEhsL89yjmN2K2
-        PkYmoPIcU3Kq/6lL5SS69qvLi65vFLu2cD1GfpSOzj2zZSzI8Amteg4fi3W257Hb
-        oNLNIapANrLk3Q==
-X-ME-Sender: <xms:wToRXjCAq0SiFq3yYTVqOKtmKhMnF1_degg_UcviID60Bumkx4FtNw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdegiedgfeegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgv
-    lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucfkph
-    epjedtrddufeehrddugeekrdduhedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghm
-    uhgvlhesshhhohhllhgrnhgurdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:wToRXiepIgRSyjigoolgyclaVvXDSlhZ7lnmly2oRALn3CR1Ol8QYQ>
-    <xmx:wToRXnU1Kw9Mba0NoEvrtQMvp0HNN2JaHaNb-1uQ78I15XkHUUjq-w>
-    <xmx:wToRXo770i-vkqvWDSEM2kwAJsg4SFb3AlFLOmetFZi8CIAereM-Tg>
-    <xmx:wToRXlAh1OzjURRKZTEq-MYHnyMBQsboN3XWEsxVDN75RCrQUtOFdQ>
-Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E9B778005A;
-        Sat,  4 Jan 2020 20:24:16 -0500 (EST)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Chen-Yu Tsai <wens@csie.org>, Sebastian Reichel <sre@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Oskari Lemmela <oskari@lemmela.net>,
-        Quentin Schulz <quentin.schulz@bootlin.com>
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-sunxi@googlegroups.com, Samuel Holland <samuel@sholland.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v2 2/9] power: supply: axp20x_ac_power: Fix reporting online status
-Date:   Sat,  4 Jan 2020 19:24:09 -0600
-Message-Id: <20200105012416.23296-3-samuel@sholland.org>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20200105012416.23296-1-samuel@sholland.org>
-References: <20200105012416.23296-1-samuel@sholland.org>
+        id S1726281AbgAEBjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Jan 2020 20:39:37 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:45052 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726205AbgAEBjg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Jan 2020 20:39:36 -0500
+Received: by mail-wr1-f65.google.com with SMTP id q10so6981478wrm.11
+        for <stable@vger.kernel.org>; Sat, 04 Jan 2020 17:39:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=SYN6XEWWuZfA2mQZNtKCFMW5oW0g456+H1WTTvUimiE=;
+        b=oBJ3oUMWJwdbx7OHAAXe7IHib3lH7pWywA6l7rT86USmxZnKu1PXrFw9uYOvxo0Qj1
+         sh/T5Yui5OyYn8j6G9qAwS6h6nbnuW8XynjMLpdMPm1+pK+a0KaX+JZ7FZX/cNP1I3NH
+         6C3MeuIDBoHq5AsO2LY5tGGi3KLrEaZ9qrIM4I7FWFLJMYiZgh5lA8rG9h1Mw/LXDzKt
+         77hi8JRW9tk4lMAFZOg24G0bQRq4dSB0kX3PTT4t3cl35On6fcIgQTGO16CLFcFt+RQ1
+         wvKURCoAXj5BFt7GBbhNdNFhwZZXoG1YFMN4PmhO69d12GcsGGbPSSt4sndUvEu5pglH
+         BqHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=SYN6XEWWuZfA2mQZNtKCFMW5oW0g456+H1WTTvUimiE=;
+        b=ntSo7RyqZLZmFTUTf5nTm2ohqStedbD8+m0b1bjK6C+o4/ef4Xu/QyRCDRby1KHWAl
+         xNU68ujPO//ZbIhy+1lmHFKDStFc+3isyPW96lrLDJOZs0gFjXzXWo7i2nqo/XYMA/I0
+         au55ewerYbC0xTwmcJV2RY5M1KOMQ8RyVuxvd/32AcZODQUmsayKFsAfT2lzrao420AV
+         P9skqdtJoyMnqQtdyUHGBq9/1D+GHN1nwW0OMY3Y7Da71f1hh8hyK6Y2BX5DwbDouQiF
+         r1CY1k8rvYtT83jMjUESpPgLasZyxS1R2xs8ddv17OyYHp/Jj1dMN3AqAGJm8ZKfzEM4
+         6elg==
+X-Gm-Message-State: APjAAAXPMqVHXyscC4HgclPreyt43w8B6oRwxGuHDeEs9+frsK249abJ
+        QjUUKYqY7ys7ffl/AMUmxYWWbrr+mf8=
+X-Google-Smtp-Source: APXvYqwDFZSLWh6YzAmj0b49mRS+mRW4P8DCaQNiOR0lnEESAHGPesNxq6p2j4j38CYMoqOUH1iPEQ==
+X-Received: by 2002:adf:f78e:: with SMTP id q14mr94995190wrp.186.1578188373678;
+        Sat, 04 Jan 2020 17:39:33 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id k13sm66201832wrx.59.2020.01.04.17.39.32
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Jan 2020 17:39:33 -0800 (PST)
+Message-ID: <5e113e55.1c69fb81.9d345.d665@mx.google.com>
+Date:   Sat, 04 Jan 2020 17:39:33 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.93
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable/linux-4.19.y boot: 78 boots: 0 failed,
+ 74 passed with 4 untried/unknown (v4.19.93)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-AXP803/AXP813 have a flag that enables/disables the AC power supply
-input. This flag does not affect the status bits in PWR_INPUT_STATUS.
-Its effect can be verified by checking the battery charge/discharge
-state (bit 2 of PWR_INPUT_STATUS), or by examining the current draw on
-the AC input.
+stable/linux-4.19.y boot: 78 boots: 0 failed, 74 passed with 4 untried/unkn=
+own (v4.19.93)
 
-Take this flag into account when getting the ONLINE property of the AC
-input, on PMICs where this flag is present.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+19.y/kernel/v4.19.93/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
+ernel/v4.19.93/
 
-Fixes: 7693b5643fd2 ("power: supply: add AC power supply driver for AXP813")
-Cc: stable@vger.kernel.org
-Signed-off-by: Samuel Holland <samuel@sholland.org>
+Tree: stable
+Branch: linux-4.19.y
+Git Describe: v4.19.93
+Git Commit: 3d40d7117e353b84627c1e8c5ed9ae0b1237ef5c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 49 unique boards, 16 SoC families, 15 builds out of 206
+
+Boot Regressions Detected:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          sun8i-h2-plus-orangepi-r1:
+              lab-baylibre: new failure (last pass: v4.19.92)
+
 ---
- drivers/power/supply/axp20x_ac_power.c | 31 +++++++++++++++++++++-----
- 1 file changed, 25 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/power/supply/axp20x_ac_power.c b/drivers/power/supply/axp20x_ac_power.c
-index 0d34a932b6d5..ca0a28f72a27 100644
---- a/drivers/power/supply/axp20x_ac_power.c
-+++ b/drivers/power/supply/axp20x_ac_power.c
-@@ -23,6 +23,8 @@
- #define AXP20X_PWR_STATUS_ACIN_PRESENT	BIT(7)
- #define AXP20X_PWR_STATUS_ACIN_AVAIL	BIT(6)
- 
-+#define AXP813_ACIN_PATH_SEL		BIT(7)
-+
- #define AXP813_VHOLD_MASK		GENMASK(5, 3)
- #define AXP813_VHOLD_UV_TO_BIT(x)	((((x) / 100000) - 40) << 3)
- #define AXP813_VHOLD_REG_TO_UV(x)	\
-@@ -40,6 +42,7 @@ struct axp20x_ac_power {
- 	struct power_supply *supply;
- 	struct iio_channel *acin_v;
- 	struct iio_channel *acin_i;
-+	bool has_acin_path_sel;
- };
- 
- static irqreturn_t axp20x_ac_power_irq(int irq, void *devid)
-@@ -86,6 +89,17 @@ static int axp20x_ac_power_get_property(struct power_supply *psy,
- 			return ret;
- 
- 		val->intval = !!(reg & AXP20X_PWR_STATUS_ACIN_AVAIL);
-+
-+		/* ACIN_PATH_SEL disables ACIN even if ACIN_AVAIL is set. */
-+		if (power->has_acin_path_sel) {
-+			ret = regmap_read(power->regmap, AXP813_ACIN_PATH_CTRL,
-+					  &reg);
-+			if (ret)
-+				return ret;
-+
-+			val->intval &= !!(reg & AXP813_ACIN_PATH_SEL);
-+		}
-+
- 		return 0;
- 
- 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-@@ -224,21 +238,25 @@ static const struct power_supply_desc axp813_ac_power_desc = {
- struct axp_data {
- 	const struct power_supply_desc	*power_desc;
- 	bool				acin_adc;
-+	bool				acin_path_sel;
- };
- 
- static const struct axp_data axp20x_data = {
--	.power_desc = &axp20x_ac_power_desc,
--	.acin_adc = true,
-+	.power_desc	= &axp20x_ac_power_desc,
-+	.acin_adc	= true,
-+	.acin_path_sel	= false,
- };
- 
- static const struct axp_data axp22x_data = {
--	.power_desc = &axp22x_ac_power_desc,
--	.acin_adc = false,
-+	.power_desc	= &axp22x_ac_power_desc,
-+	.acin_adc	= false,
-+	.acin_path_sel	= false,
- };
- 
- static const struct axp_data axp813_data = {
--	.power_desc = &axp813_ac_power_desc,
--	.acin_adc = false,
-+	.power_desc	= &axp813_ac_power_desc,
-+	.acin_adc	= false,
-+	.acin_path_sel	= true,
- };
- 
- static int axp20x_ac_power_probe(struct platform_device *pdev)
-@@ -282,6 +300,7 @@ static int axp20x_ac_power_probe(struct platform_device *pdev)
- 	}
- 
- 	power->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	power->has_acin_path_sel = axp_data->acin_path_sel;
- 
- 	platform_set_drvdata(pdev, power);
- 
--- 
-2.23.0
-
+For more info write to <info@kernelci.org>
