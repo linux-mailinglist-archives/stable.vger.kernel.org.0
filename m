@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F76130556
-	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 02:24:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC1213056A
+	for <lists+stable@lfdr.de>; Sun,  5 Jan 2020 02:24:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726351AbgAEBYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jan 2020 20:24:18 -0500
-Received: from new2-smtp.messagingengine.com ([66.111.4.224]:39455 "EHLO
+        id S1726467AbgAEBYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Jan 2020 20:24:19 -0500
+Received: from new2-smtp.messagingengine.com ([66.111.4.224]:57263 "EHLO
         new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726264AbgAEBYS (ORCPT
+        by vger.kernel.org with ESMTP id S1726281AbgAEBYS (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 4 Jan 2020 20:24:18 -0500
 Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 4AF99680A;
+        by mailnew.nyi.internal (Postfix) with ESMTP id A4FFF6BA3;
         Sat,  4 Jan 2020 20:24:17 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
   by compute5.internal (MEProxy); Sat, 04 Jan 2020 20:24:17 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
         from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm1; bh=Dy/48p0+s/ET+
-        odKrtmc7mwr7XKM2LA6Yht3eu1MaYw=; b=QpxIgctnPZ3mHAnssfna7Js1Rr7DD
-        UaQ8O6wSZcj840SbVEGu2CyHLfvnmpPqgJva4qDcrcFbCEG84NeOCLSCCuhmufo6
-        rujogvd3Ln/JDbe8tHo+cSBi5lf/jQXVBI+G0dTTo5cHNCab/V/TSmy/bIhg1lUC
-        LrPeJIlKLGn7iHz+razqXb+AEq52XC29CLKMO/6gNSDqrG5PJNDceUA+IvIwDxJr
-        OFTZXnllTcwjSmFxb6QNmIn+IcJ2bBSf9lkK/kzDjIpcnzolq1OhCgfNPQ8OHQpX
-        t+osBJlBj3TphvJlPJUmnW7eb9RQxYXSHlb/vdpqdswdkhRplxnoH3ptQ==
+        :mime-version:content-transfer-encoding; s=fm1; bh=i9U9QABLYUJVc
+        RUEMaC1sX18u3bMrWhbzdwLPT/XxuQ=; b=cCm48MGnRDJGDgnBFe+6YfL49S2ES
+        PDNt4lS6MAUOAIkHj0H75nxOxqQUQnrK3l5g8WXjpJaQTlRXaRkt0LUnlmxrFNAI
+        EDsVCM64h7Ah859EE1uMaIvU4M7CSzME0gD26PI6ba0+ee5j0//eb9+LJgOwq3uR
+        KW+VPEygn4b8PTxYMnY65KkpbJKPe9H2q3ssAbx4QOLgUVei51/il9c3QQy/9We7
+        V63lDd03wtt9fQS/KAuwVCAt6ZBq1n+Z+svyrqgssFvMJ1p6mPRSWvs+p49oe+aM
+        VZh2kswgIjrXgsVm81lZs7hRwiMjftIy1QiJ1W0HxaKHixj8/6Ka7vYyA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
         :in-reply-to:message-id:mime-version:references:subject:to
         :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; bh=Dy/48p0+s/ET+odKrtmc7mwr7XKM2LA6Yht3eu1MaYw=; b=We0UrstP
-        9RSLZMwzNQ3GPWwdRcK+ZsyRJn7TH4hmnMsY2IfLjA0yh+ydXqse/zC+UGWcRTaA
-        vYyPcla2157BdGD5+8sYhGM5gIE4SpHZrIa8W1287KtlJ4bqHtRN8fzrBUathnNy
-        gGBcAmas+tx0oLAL6GqKljCd1gdht04cJtHtpdmcXT6nJ7sp8aWBT3tqYOhNuqu2
-        BBqAKKUjRNxPlTxBN45Gp2cFNagXW53gjBoeGrL3mM2zxBX65see6yjWiP4p5A79
-        UIDAxQqQOnBjvozfH6TYpIAHy37GJNBdo+ewtfhd+GjSFMf0i7WaWyKOZEF3tmVD
-        in55fiszPhJ/Gw==
-X-ME-Sender: <xms:wToRXuVB0CQQ7RKmAH6IQSR3LWraGPU9GbCYPBtLRi_xK21kwKL1ow>
+        fm1; bh=i9U9QABLYUJVcRUEMaC1sX18u3bMrWhbzdwLPT/XxuQ=; b=xvwRI77p
+        m0tSOjEby4PXvJOeAdnCPexlXOyxq3DqqKAHLAdprilfKfl/nwAYLhEAqWfu9TVK
+        FpYlTCY44aBSl4j6sMOWEEOdpidBecLPGryvxbCPOuyyrQbIIl9q43UoLa9AdEPM
+        yzZ6CTeqdi6CUJMOgpX66FBg18A8IQlrUIRAjAzN4wHrnJqYHI977bDjX/+0wCo1
+        KuoB1L75KCZzxJd4p2xqztNtU18YPXoEv47aoXAOtKHYFayziHeEhsL89yjmN2K2
+        PkYmoPIcU3Kq/6lL5SS69qvLi65vFLu2cD1GfpSOzj2zZSzI8Amteg4fi3W257Hb
+        oNLNIapANrLk3Q==
+X-ME-Sender: <xms:wToRXjCAq0SiFq3yYTVqOKtmKhMnF1_degg_UcviID60Bumkx4FtNw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdegiedgfeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
@@ -44,12 +44,12 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdegiedgfeegucetufdoteggod
     lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucfkph
     epjedtrddufeehrddugeekrdduhedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghm
     uhgvlhesshhhohhllhgrnhgurdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:wToRXlwK--yvya4Ajp_ACqEm5d8aO_uV-Z2hS6K-TU4rhrS0DNALOA>
-    <xmx:wToRXmOPOgMaZCfszGAPsmn5xfG7nemDZISJcSq01lmT8tPoBk0qlA>
-    <xmx:wToRXvoEs-TBCmVYue37oRYkrtKIyBgqs5j8FRMQq72qd5ghDeIC1g>
-    <xmx:wToRXvrzSl-CIxZlW76y3_CyZU3LO6OEXttpY0eK5wvedo8Q_LTQ8w>
+X-ME-Proxy: <xmx:wToRXiepIgRSyjigoolgyclaVvXDSlhZ7lnmly2oRALn3CR1Ol8QYQ>
+    <xmx:wToRXnU1Kw9Mba0NoEvrtQMvp0HNN2JaHaNb-1uQ78I15XkHUUjq-w>
+    <xmx:wToRXo770i-vkqvWDSEM2kwAJsg4SFb3AlFLOmetFZi8CIAereM-Tg>
+    <xmx:wToRXlAh1OzjURRKZTEq-MYHnyMBQsboN3XWEsxVDN75RCrQUtOFdQ>
 Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6D58A80059;
+        by mail.messagingengine.com (Postfix) with ESMTPA id E9B778005A;
         Sat,  4 Jan 2020 20:24:16 -0500 (EST)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Chen-Yu Tsai <wens@csie.org>, Sebastian Reichel <sre@kernel.org>,
@@ -60,9 +60,9 @@ To:     Chen-Yu Tsai <wens@csie.org>, Sebastian Reichel <sre@kernel.org>,
 Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-sunxi@googlegroups.com, Samuel Holland <samuel@sholland.org>,
         stable@vger.kernel.org
-Subject: [PATCH v2 1/9] mfd: axp20x: Mark AXP20X_VBUS_IPSOUT_MGMT as volatile
-Date:   Sat,  4 Jan 2020 19:24:08 -0600
-Message-Id: <20200105012416.23296-2-samuel@sholland.org>
+Subject: [PATCH v2 2/9] power: supply: axp20x_ac_power: Fix reporting online status
+Date:   Sat,  4 Jan 2020 19:24:09 -0600
+Message-Id: <20200105012416.23296-3-samuel@sholland.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20200105012416.23296-1-samuel@sholland.org>
 References: <20200105012416.23296-1-samuel@sholland.org>
@@ -73,34 +73,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On AXP288 and newer PMICs, bit 7 of AXP20X_VBUS_IPSOUT_MGMT can be set
-to prevent using the VBUS input. However, when the VBUS unplugged and
-plugged back in, the bit automatically resets to zero.
+AXP803/AXP813 have a flag that enables/disables the AC power supply
+input. This flag does not affect the status bits in PWR_INPUT_STATUS.
+Its effect can be verified by checking the battery charge/discharge
+state (bit 2 of PWR_INPUT_STATUS), or by examining the current draw on
+the AC input.
 
-We need to set the register as volatile to prevent regmap from caching
-that bit. Otherwise, regcache will think the bit is already set and not
-write the register.
+Take this flag into account when getting the ONLINE property of the AC
+input, on PMICs where this flag is present.
 
-Fixes: cd53216625a0 ("mfd: axp20x: Fix axp288 volatile ranges")
+Fixes: 7693b5643fd2 ("power: supply: add AC power supply driver for AXP813")
 Cc: stable@vger.kernel.org
 Signed-off-by: Samuel Holland <samuel@sholland.org>
 ---
- drivers/mfd/axp20x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/power/supply/axp20x_ac_power.c | 31 +++++++++++++++++++++-----
+ 1 file changed, 25 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
-index a4aaadaa0cb0..aa59496e4376 100644
---- a/drivers/mfd/axp20x.c
-+++ b/drivers/mfd/axp20x.c
-@@ -126,7 +126,7 @@ static const struct regmap_range axp288_writeable_ranges[] = {
- static const struct regmap_range axp288_volatile_ranges[] = {
- 	regmap_reg_range(AXP20X_PWR_INPUT_STATUS, AXP288_POWER_REASON),
- 	regmap_reg_range(AXP288_BC_GLOBAL, AXP288_BC_GLOBAL),
--	regmap_reg_range(AXP288_BC_DET_STAT, AXP288_BC_DET_STAT),
-+	regmap_reg_range(AXP288_BC_DET_STAT, AXP20X_VBUS_IPSOUT_MGMT),
- 	regmap_reg_range(AXP20X_CHRG_BAK_CTRL, AXP20X_CHRG_BAK_CTRL),
- 	regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IPSOUT_V_HIGH_L),
- 	regmap_reg_range(AXP20X_TIMER_CTRL, AXP20X_TIMER_CTRL),
+diff --git a/drivers/power/supply/axp20x_ac_power.c b/drivers/power/supply/axp20x_ac_power.c
+index 0d34a932b6d5..ca0a28f72a27 100644
+--- a/drivers/power/supply/axp20x_ac_power.c
++++ b/drivers/power/supply/axp20x_ac_power.c
+@@ -23,6 +23,8 @@
+ #define AXP20X_PWR_STATUS_ACIN_PRESENT	BIT(7)
+ #define AXP20X_PWR_STATUS_ACIN_AVAIL	BIT(6)
+ 
++#define AXP813_ACIN_PATH_SEL		BIT(7)
++
+ #define AXP813_VHOLD_MASK		GENMASK(5, 3)
+ #define AXP813_VHOLD_UV_TO_BIT(x)	((((x) / 100000) - 40) << 3)
+ #define AXP813_VHOLD_REG_TO_UV(x)	\
+@@ -40,6 +42,7 @@ struct axp20x_ac_power {
+ 	struct power_supply *supply;
+ 	struct iio_channel *acin_v;
+ 	struct iio_channel *acin_i;
++	bool has_acin_path_sel;
+ };
+ 
+ static irqreturn_t axp20x_ac_power_irq(int irq, void *devid)
+@@ -86,6 +89,17 @@ static int axp20x_ac_power_get_property(struct power_supply *psy,
+ 			return ret;
+ 
+ 		val->intval = !!(reg & AXP20X_PWR_STATUS_ACIN_AVAIL);
++
++		/* ACIN_PATH_SEL disables ACIN even if ACIN_AVAIL is set. */
++		if (power->has_acin_path_sel) {
++			ret = regmap_read(power->regmap, AXP813_ACIN_PATH_CTRL,
++					  &reg);
++			if (ret)
++				return ret;
++
++			val->intval &= !!(reg & AXP813_ACIN_PATH_SEL);
++		}
++
+ 		return 0;
+ 
+ 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
+@@ -224,21 +238,25 @@ static const struct power_supply_desc axp813_ac_power_desc = {
+ struct axp_data {
+ 	const struct power_supply_desc	*power_desc;
+ 	bool				acin_adc;
++	bool				acin_path_sel;
+ };
+ 
+ static const struct axp_data axp20x_data = {
+-	.power_desc = &axp20x_ac_power_desc,
+-	.acin_adc = true,
++	.power_desc	= &axp20x_ac_power_desc,
++	.acin_adc	= true,
++	.acin_path_sel	= false,
+ };
+ 
+ static const struct axp_data axp22x_data = {
+-	.power_desc = &axp22x_ac_power_desc,
+-	.acin_adc = false,
++	.power_desc	= &axp22x_ac_power_desc,
++	.acin_adc	= false,
++	.acin_path_sel	= false,
+ };
+ 
+ static const struct axp_data axp813_data = {
+-	.power_desc = &axp813_ac_power_desc,
+-	.acin_adc = false,
++	.power_desc	= &axp813_ac_power_desc,
++	.acin_adc	= false,
++	.acin_path_sel	= true,
+ };
+ 
+ static int axp20x_ac_power_probe(struct platform_device *pdev)
+@@ -282,6 +300,7 @@ static int axp20x_ac_power_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	power->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	power->has_acin_path_sel = axp_data->acin_path_sel;
+ 
+ 	platform_set_drvdata(pdev, power);
+ 
 -- 
 2.23.0
 
