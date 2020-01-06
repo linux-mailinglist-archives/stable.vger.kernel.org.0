@@ -2,96 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D326130F20
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 10:03:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2059A130F41
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 10:12:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725908AbgAFJDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 04:03:17 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:47101 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725887AbgAFJDR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 04:03:17 -0500
-Received: by mail-lj1-f194.google.com with SMTP id m26so47716680ljc.13
-        for <stable@vger.kernel.org>; Mon, 06 Jan 2020 01:03:15 -0800 (PST)
+        id S1725996AbgAFJL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 04:11:59 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:38929 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725887AbgAFJL7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 04:11:59 -0500
+Received: by mail-wm1-f67.google.com with SMTP id 20so14483212wmj.4
+        for <stable@vger.kernel.org>; Mon, 06 Jan 2020 01:11:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=CeH+kQ0Qe8jVFl0FEZFj+JiqWbIaJiNDGyhGbyxRwj4=;
-        b=XA+w1MAQwy4oE7FoGRn4Ac2fYBZydctJDh5Jb7kz7jErQaINP0+KvyQ50gqNwiZyCS
-         4YWjZcvg4tZpWZSwHneQMGnBfazen79DSAkgN8eyiVAY1xjN/hjh4bFDoEpLfHO+gOGz
-         quWftU/KkRI78okF7/BNkniOzH0hjILfz5N6n1REhnkiI5Z7wygjilreH3MnhSZ7UIbo
-         Sgdh+tmW1HQ+8KHtC7At5UNSnfI6RJgid3CQK8W4VdCWnulJMI8QdwTgaf8JnWZGls3z
-         HiY0N45FGP3rvfektTexAH91mLX6eOivmLwuMjVfBEXsoV9eZfhkqWQEhhmamw/VwonI
-         uY/A==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JM1VzsIoBWrlvP2NSpmP8Omm91/74PDolu8QUxa7RBY=;
+        b=PHfUFuWs3i3ma1mpjEb9qrtnLVC9kW21KHrzzxDvU+rdesx+MQRLbBvDHY9Vswfaim
+         9+7DQ4VeAw+qDgJ1F+Wpen9QipqAQpgUN0eepmSnIUrxm7Ne/QC7fXwWRxut7oKiqjnk
+         VUEGxp+Ppdl4sQ1+WPj5Y0mYQGALbYDuDUwV9W6zvpgnQ46myTbh8adSbjvrbfl8mWiV
+         1tnxApjulQRjDIteU9WSlGx7hp6rpVH3CtGsJ8QxB5CM8jvwxlM7riL5ZpL/zbOf0Q2b
+         MVTqMZpdSN9Vyygw+1bIxjRE9nsAHdLcNfKk/Ep62I7bjD17uZWyd2z1uJimiaH/cTeQ
+         A2HQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=CeH+kQ0Qe8jVFl0FEZFj+JiqWbIaJiNDGyhGbyxRwj4=;
-        b=KuPOYow/I+d1nzEBoAkN33axPQBA4PS6XWnjMje9g/+mcHnbNqEqYlyOwhH3KVyq41
-         dsLDNm3h6stFaXu3xU91OSsnJwCKToGjtn8AjdedJYe60PiqO2AdyUZvgvpFe/z/acDD
-         ccSlxLHhZPsvhhV+qbnhTIuncy9ZY4+4je3TIsXT15ub1MBSQQQGTo4nDMezJQWe0K2u
-         0M894eCyFBYGeh2wy/WTc+VqEg4Rbxj0/o5FWKGQx9OAvQb9N4cMjUst2kpYyKU0hxKC
-         i603Ibzarlh1AQ3+cXPE8umFyzFWCCpOmRrrDbEvREGGQOho7Xl+zLOF6eOwfHI9a03I
-         c+JA==
-X-Gm-Message-State: APjAAAUD7Zt1j/1VHas5vbTcRk4p5wgYQVvF8v3JLhlO18RjfbNsjWtF
-        BXil496lG1mAGVVZ5+yahgoVuxspaGGhAd0UA6327A==
-X-Google-Smtp-Source: APXvYqyyYyXfN4bIo8fVghXO5BARXcu9jDvUQwl48nA0BGLXNo7fhOgd419s0X2DFiqJLbTMsn07A84oMJZGJ0aGPVk=
-X-Received: by 2002:a2e:5357:: with SMTP id t23mr60119946ljd.227.1578301394444;
- Mon, 06 Jan 2020 01:03:14 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JM1VzsIoBWrlvP2NSpmP8Omm91/74PDolu8QUxa7RBY=;
+        b=QfarjXvHiGC97ge1ZVt7qIE+ef24+OL5BvpB1Q+EtlM6HBrMNCWrEskPTNWS8nH3kM
+         2KJQDyphtgPSjGLvx5QMzI5BLDzLsnzxQ9t5ALQrT0Nnc6Pr9DCxUl+ExJTs79Gve18V
+         6n1hyN081ocMhSU9SYKKnQ86z7lmNX4m4f4jEU1JWTRujpPNrvwbLkOqIn0PWxAt6geB
+         +D15F7IItiDLAJ+YgVeHvieZlKAsYJRqlv4s7rLwjvNXYivXlrx9bOwGxOI4uZEBjogL
+         GSzE0Jstdv7rmk4dGiUT0ube7+nTmUOu4TTkYCwhDIEhCDbQdCIu4TLDGthXv94pCiQI
+         k9Cw==
+X-Gm-Message-State: APjAAAVkYJeZiQW49DoIAxH0i+LOuGFIuXR+9whKmJiht2/ka/nUoXtb
+        IqGD6OvbaJkgF7KIG21Yujg=
+X-Google-Smtp-Source: APXvYqw3A8GGKWLMALEJJehnapKa5swreJ+fkS5eACW8yvmxGfiCdW8Bpfd9U8fVifLNTEUEYy3R4g==
+X-Received: by 2002:a05:600c:2c50:: with SMTP id r16mr32074397wmg.74.1578301917037;
+        Mon, 06 Jan 2020 01:11:57 -0800 (PST)
+Received: from merlot.mazyland.net (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.googlemail.com with ESMTPSA id a14sm76348433wrx.81.2020.01.06.01.11.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jan 2020 01:11:56 -0800 (PST)
+From:   Milan Broz <gmazyland@gmail.com>
+To:     dm-devel@redhat.com
+Cc:     Milan Broz <gmazyland@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] dm-crypt: Fix benbi IV constructor if used in authenticated mode
+Date:   Mon,  6 Jan 2020 10:11:47 +0100
+Message-Id: <20200106091147.1485292-1-gmazyland@gmail.com>
+X-Mailer: git-send-email 2.25.0.rc1
 MIME-Version: 1.0
-References: <20200102215829.911231638@linuxfoundation.org> <CA+G9fYuPkOGKbeQ0FKKx4H0Bs-nRHALsFtwyRw0Rt5DoOCvRHg@mail.gmail.com>
- <CAK8P3a1+Srey_7cUd0xfaO8HdMv5tkUcs6DeDXzcUKkUD-DnGQ@mail.gmail.com>
- <CAK8P3a24EkUXTu-K2c-5B3w-LZwY7zNcX0dZixb3gd59vRw_Kw@mail.gmail.com>
- <20200103154518.GB1064304@kroah.com> <CAK8P3a00SpVfSE5oL8_F_8jHdg_8A5fyEKH_DWNyPToxack=zA@mail.gmail.com>
- <a2fc8b36-c512-b6dd-7349-dfb551e348b6@oracle.com> <8283b231-f6e8-876f-7094-d3265096ab9a@oracle.com>
- <CAHk-=wjvWTFn=C3mT5wA=mtOwXw44U+OHLVxk5DCe4v+7nOvKg@mail.gmail.com>
-In-Reply-To: <CAHk-=wjvWTFn=C3mT5wA=mtOwXw44U+OHLVxk5DCe4v+7nOvKg@mail.gmail.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 6 Jan 2020 14:33:02 +0530
-Message-ID: <CA+G9fYvzkPz6Ewm00ie+HqBpfQHFuRGn694Av-gj8Pt8iKrDQg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/191] 5.4.8-stable review
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Chengguang Xu <cgxu519@mykernel.net>,
-        David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, LTP List <ltp@lists.linux.it>,
-        Jan Stancek <jstancek@redhat.com>,
-        John Stultz <john.stultz@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 4 Jan 2020 at 00:10, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Fri, Jan 3, 2020 at 9:59 AM Mike Kravetz <mike.kravetz@oracle.com> wrote:
-> >
-> > Before I started investigating, Jan Stancek found and fixed the issue.
-> >
-> > http://lkml.kernel.org/r/a14b944b6e5e207d2f84f43227c98ed1f68290a2.1578072927.git.jstancek@redhat.com
->
-> Applied upstream as commit 15f0ec941f4f ("mm/hugetlbfs: fix
-> for_each_hstate() loop in init_hugetlbfs_fs()").
+If benbi IV is used in AEAD constructionm for example
+  cryptsetup luksFormat <device> --cipher twofish-xts-benbi --key-size 512 --integrity=hmac-sha256
+the constructor ues wrong skcipher function and crashes.
 
-After applying above patch.
-LTP test case memfd_create04 getting PASS on mainline Linus's tree
-from Jan 3rd onwards.
+ BUG: kernel NULL pointer dereference, address: 00000014
+ ...
+ EIP: crypt_iv_benbi_ctr+0x15/0x70 [dm_crypt]
+ Call Trace:
+  ? crypt_subkey_size+0x20/0x20 [dm_crypt]
+  crypt_ctr+0x567/0xfc0 [dm_crypt]
+  dm_table_add_target+0x15f/0x340 [dm_mod]
 
-ref link,
-https://qa-reports.linaro.org/lkft/linux-mainline-oe/tests/ltp-syscalls-tests/memfd_create04
+This patch fixes the problem with properly using crypt_aead_blocksize() in this case.
 
-- Naresh Kamboju
+Reported in https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=941051
+
+Signed-off-by: Milan Broz <gmazyland@gmail.com>
+Cc: <stable@vger.kernel.org> # v4.12+
+---
+ drivers/md/dm-crypt.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
+index f9370a1a574b..fd30143dca91 100644
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -343,8 +343,14 @@ static int crypt_iv_essiv_gen(struct crypt_config *cc, u8 *iv,
+ static int crypt_iv_benbi_ctr(struct crypt_config *cc, struct dm_target *ti,
+ 			      const char *opts)
+ {
+-	unsigned bs = crypto_skcipher_blocksize(any_tfm(cc));
+-	int log = ilog2(bs);
++	unsigned bs;
++	int log;
++
++	if (test_bit(CRYPT_MODE_INTEGRITY_AEAD, &cc->cipher_flags))
++		bs = crypto_aead_blocksize(any_tfm_aead(cc));
++	else
++		bs = crypto_skcipher_blocksize(any_tfm(cc));
++	log = ilog2(bs);
+ 
+ 	/* we need to calculate how far we must shift the sector count
+ 	 * to get the cipher block count, we use this shift in _gen */
+-- 
+2.25.0.rc1
+
