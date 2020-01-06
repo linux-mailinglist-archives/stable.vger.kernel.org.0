@@ -2,80 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE906131A4B
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 22:20:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91EAA131AEE
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 23:01:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726774AbgAFVUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 16:20:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56390 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726713AbgAFVUA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Jan 2020 16:20:00 -0500
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726739AbgAFWBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 17:01:39 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:33249 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726713AbgAFWBj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 17:01:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578348098;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=KFTZUEOpMofr3BSdyrQCr+64xrakrWkVSbyTJ0XeW+A=;
+        b=R5EsiXHcE2LqKtfBZ5jBZAlvH0ayDtbk2HGLxKGMe0r38c9KTgQGS0r8m8FfRt4/jbtfZw
+        pmN+IYpqOKjhkCZfucOor/mHAfeXF17Nnyhi7JLCu1dm1//oLaIkjOiJPb/37ihaKQ0Trk
+        tPRQV/7fbnm6C9U6eamcWuzNeGt/MhA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-258-vit5IhfUNzC76YA62FjYPQ-1; Mon, 06 Jan 2020 17:01:34 -0500
+X-MC-Unique: vit5IhfUNzC76YA62FjYPQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BD3F24672;
-        Mon,  6 Jan 2020 21:19:59 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.92.3)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1ioZn4-000MXS-Mt; Mon, 06 Jan 2020 16:19:58 -0500
-Message-Id: <20200106211958.579504490@goodmis.org>
-User-Agent: quilt/0.65
-Date:   Mon, 06 Jan 2020 16:19:07 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Kaitao Cheng <pilgrimtao@gmail.com>
-Subject: [for-linus][PATCH 6/7] kernel/trace: Fix do not unregister tracepoints when register
- sched_migrate_task fail
-References: <20200106211901.293910946@goodmis.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A21B91800D4A;
+        Mon,  6 Jan 2020 22:01:33 +0000 (UTC)
+Received: from localhost (ovpn-112-4.rdu2.redhat.com [10.10.112.4])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E1ADC7C01C;
+        Mon,  6 Jan 2020 22:01:31 +0000 (UTC)
+Date:   Mon, 06 Jan 2020 14:01:30 -0800 (PST)
+Message-Id: <20200106.140130.1426441348209333206.davem@redhat.com>
+To:     linus.walleij@linaro.org
+Cc:     netdev@vger.kernel.org, arnd@arndb.de,
+        jakub.kicinski@netronome.com, stable@vger.kernel.org
+Subject: Re: [PATCH net-next 9/9 v3] net: ethernet: ixp4xx: Use parent dev
+ for DMA pool
+From:   David Miller <davem@redhat.com>
+In-Reply-To: <20200106074647.23771-10-linus.walleij@linaro.org>
+References: <20200106074647.23771-1-linus.walleij@linaro.org>
+        <20200106074647.23771-10-linus.walleij@linaro.org>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaitao Cheng <pilgrimtao@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Mon,  6 Jan 2020 08:46:47 +0100
 
-In the function, if register_trace_sched_migrate_task() returns error,
-sched_switch/sched_wakeup_new/sched_wakeup won't unregister. That is
-why fail_deprobe_sched_switch was added.
+> Use the netdevice struct device .parent field when calling
+> dma_pool_create(): the .dma_coherent_mask and .dma_mask
+> pertains to the bus device on the hardware (platform)
+> bus in this case, not the struct device inside the network
+> device. This makes the pool allocation work.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
-Link: http://lkml.kernel.org/r/20191231133530.2794-1-pilgrimtao@gmail.com
+Networking changes don't use CC:'ing stable, please see the netdev
+FAQ under Documentation/
 
-Cc: stable@vger.kernel.org
-Fixes: 478142c39c8c2 ("tracing: do not grab lock in wakeup latency function tracing")
-Signed-off-by: Kaitao Cheng <pilgrimtao@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- kernel/trace/trace_sched_wakeup.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+And net-next changes don't go to stable.
 
-diff --git a/kernel/trace/trace_sched_wakeup.c b/kernel/trace/trace_sched_wakeup.c
-index 5e43b9664eca..617e297f46dc 100644
---- a/kernel/trace/trace_sched_wakeup.c
-+++ b/kernel/trace/trace_sched_wakeup.c
-@@ -630,7 +630,7 @@ static void start_wakeup_tracer(struct trace_array *tr)
- 	if (ret) {
- 		pr_info("wakeup trace: Couldn't activate tracepoint"
- 			" probe to kernel_sched_migrate_task\n");
--		return;
-+		goto fail_deprobe_sched_switch;
- 	}
- 
- 	wakeup_reset(tr);
-@@ -648,6 +648,8 @@ static void start_wakeup_tracer(struct trace_array *tr)
- 		printk(KERN_ERR "failed to start wakeup tracer\n");
- 
- 	return;
-+fail_deprobe_sched_switch:
-+	unregister_trace_sched_switch(probe_wakeup_sched_switch, NULL);
- fail_deprobe_wake_new:
- 	unregister_trace_sched_wakeup_new(probe_wakeup, NULL);
- fail_deprobe:
--- 
-2.24.0
+If you want to submit this bug fix, submit to 'net' and provide an
+appropriate Fixes: tag.
 
+Thank you.
 
