@@ -2,192 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1F4F1310BA
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 11:43:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE1C313117A
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 12:39:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726080AbgAFKno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 05:43:44 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:40319 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725787AbgAFKno (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 05:43:44 -0500
-Received: by mail-wr1-f65.google.com with SMTP id c14so49066571wrn.7;
-        Mon, 06 Jan 2020 02:43:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=bt4iLSsaVU4TRitOeaJ5RT9zwbVmXACqxBToaITFncc=;
-        b=fPDyAAhQEuL6y9QUdvXHkdRPpFudVO7CV8w0HtxlhKhTxksP69AOSM+TtlwVfOyfrs
-         VN/OXPwmTnTcXQCl2ffNArHe8W1eSkm7O0saAAXRLi9cVnzQ0faEzLwUpqcFU5WdFxkl
-         g+7gpzFa0KL3yt8rusv12pPGcfQY9tdkISOYKNGUct73AiIHgcQOK2XXtAJk0V3B/jh0
-         8/ftL55sfEx56wf80qgy9hLzCeCDTNbqxeR5pBwPa7pwsFgg0D2K6jvxoZ9iDYhHR+Zk
-         NNGaIBy1YEpMgWTObGlU9p/G+ZrFASZAFTlxeIA5CfRTkFCEHsIy7XVcwpQYh0Luprrq
-         F3Lg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=bt4iLSsaVU4TRitOeaJ5RT9zwbVmXACqxBToaITFncc=;
-        b=iFmAabbTwTe5MJQ6IVtBHYGuqpBmnrR7Ske0CUqt0EERqBMhDm5uTPuSHpEeKRFdNd
-         Wz1xqhioFVcFGlIfBV0lfF+9batmSoHnqf1RmSVW5XeliLKk1m6Nl3T8Q5CfB+eRpr0Q
-         Ut5p8XCVCfawmepu6gNjITpiMN22Lmb49pkKmFKZkxGDAdUDDDXANj/BLz6jlFsaN2JQ
-         nLg+L7UO18mQetTl/eWFhcoUFzPm/FFxNYALyIdFjeMVfAKKi0iNZNy388lGUPPy/rh/
-         Yt+xo54Fn+qBOfWASuOEak4V7z9tEuddnPPJOWrFqOCDR7Gw83h4IrRvo0BVUMoQ3X+G
-         8VOg==
-X-Gm-Message-State: APjAAAXp8V0bVdn9Nib+6PaRisRTVKbdQIh5y0bwSIMOXrtPUqEfMP19
-        k2D28W9XpdGubcKxTg7hYWr4rC7Ev5X4dg==
-X-Google-Smtp-Source: APXvYqz2ar7hWu8+Or3z6UDvr30I/9eI76qO8YYBwNQwKNh8wiZhQu+kOGqke2xanfu3YYR/vsUK8A==
-X-Received: by 2002:a5d:5381:: with SMTP id d1mr43080644wrv.259.1578307422666;
-        Mon, 06 Jan 2020 02:43:42 -0800 (PST)
-Received: from localhost.localdomain ([62.178.82.229])
-        by smtp.gmail.com with ESMTPSA id r62sm23513239wma.32.2020.01.06.02.43.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jan 2020 02:43:41 -0800 (PST)
-From:   Christian Gmeiner <christian.gmeiner@gmail.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Christian Gmeiner <christian.gmeiner@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Russell King <linux+etnaviv@armlinux.org.uk>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, etnaviv@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH] drm/etnaviv: rework perfmon query infrastructure
-Date:   Mon,  6 Jan 2020 11:43:36 +0100
-Message-Id: <20200106104339.215511-1-christian.gmeiner@gmail.com>
-X-Mailer: git-send-email 2.24.1
+        id S1726173AbgAFLjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 06:39:12 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:48126 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725787AbgAFLjL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 06:39:11 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578310750;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=7QnDS0wMpWsHdmbYrxKZ8IKh1lRAwVHzJpC+uPoDwz8=;
+        b=bc1KlNxwgH/Shjx6yuTcI++NAnmbkvrJHGyyPzpD2T+s8FY5diupzmMGNHBXRcyESfa9Ej
+        OlfmDVPlXIZNGBfnLjVwYRXuQV7RUJRIK3Qn8lmxQuRm16kV3y2ex+kShgQPTNxzh2VtKv
+        2MtNn4ZJcffdtcLtN2odno6I4VdMoGk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-153-Z24N8wNUPDiyB4Y_xwyr8w-1; Mon, 06 Jan 2020 06:39:09 -0500
+X-MC-Unique: Z24N8wNUPDiyB4Y_xwyr8w-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 35429DB65;
+        Mon,  6 Jan 2020 11:39:07 +0000 (UTC)
+Received: from shalem.localdomain.com (ovpn-116-130.ams2.redhat.com [10.36.116.130])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C463F271BA;
+        Mon,  6 Jan 2020 11:39:04 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+        Jie Yang <yang.jie@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, alsa-devel@alsa-project.org,
+        stable@vger.kernel.org, russianneuromancer@ya.ru
+Subject: [PATCH] ASoC: Intel: bytcht_es8316: Fix Irbis NB41 netbook quirk
+Date:   Mon,  6 Jan 2020 12:39:03 +0100
+Message-Id: <20200106113903.279394-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Report the correct perfmon domains and signals depending
-on the supported feature flags.
+When a quirk for the Irbis NB41 netbook was added, to override the defaul=
+ts
+for this device, I forgot to add/keep the BYT_CHT_ES8316_SSP0 part of the
+defaults, completely breaking audio on this netbook.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 9e2c2e273012 ("drm/etnaviv: add infrastructure to query perf counter")
+This commit adds the BYT_CHT_ES8316_SSP0 flag to the Irbis NB41 netbook
+quirk, making audio work again.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: russianneuromancer@ya.ru
+Fixes: aa2ba991c420 ("ASoC: Intel: bytcht_es8316: Add quirk for Irbis NB4=
+1 netbook")
+Reported-and-tested-by: russianneuromancer@ya.ru
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_perfmon.c | 57 ++++++++++++++++++++---
- 1 file changed, 50 insertions(+), 7 deletions(-)
+ sound/soc/intel/boards/bytcht_es8316.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-index 8adbf2861bff..7ae8f347ca06 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-@@ -32,6 +32,7 @@ struct etnaviv_pm_domain {
- };
- 
- struct etnaviv_pm_domain_meta {
-+	unsigned int feature;
- 	const struct etnaviv_pm_domain *domains;
- 	u32 nr_domains;
- };
-@@ -410,36 +411,78 @@ static const struct etnaviv_pm_domain doms_vg[] = {
- 
- static const struct etnaviv_pm_domain_meta doms_meta[] = {
- 	{
-+		.feature = chipFeatures_PIPE_3D,
- 		.nr_domains = ARRAY_SIZE(doms_3d),
- 		.domains = &doms_3d[0]
+diff --git a/sound/soc/intel/boards/bytcht_es8316.c b/sound/soc/intel/boa=
+rds/bytcht_es8316.c
+index 46612331f5ea..54e97455d7f6 100644
+--- a/sound/soc/intel/boards/bytcht_es8316.c
++++ b/sound/soc/intel/boards/bytcht_es8316.c
+@@ -442,7 +442,8 @@ static const struct dmi_system_id byt_cht_es8316_quir=
+k_table[] =3D {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "IRBIS"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "NB41"),
+ 		},
+-		.driver_data =3D (void *)(BYT_CHT_ES8316_INTMIC_IN2_MAP
++		.driver_data =3D (void *)(BYT_CHT_ES8316_SSP0
++					| BYT_CHT_ES8316_INTMIC_IN2_MAP
+ 					| BYT_CHT_ES8316_JD_INVERTED),
  	},
- 	{
-+		.feature = chipFeatures_PIPE_2D,
- 		.nr_domains = ARRAY_SIZE(doms_2d),
- 		.domains = &doms_2d[0]
- 	},
- 	{
-+		.feature = chipFeatures_PIPE_VG,
- 		.nr_domains = ARRAY_SIZE(doms_vg),
- 		.domains = &doms_vg[0]
- 	}
- };
- 
-+static unsigned int num_pm_domains(const struct etnaviv_gpu *gpu)
-+{
-+	unsigned int num = 0, i;
-+
-+	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
-+		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
-+
-+		if (gpu->identity.features & meta->feature)
-+			num += meta->nr_domains;
-+	}
-+
-+	return num;
-+}
-+
-+static const struct etnaviv_pm_domain *pm_domain(const struct etnaviv_gpu *gpu,
-+	unsigned int index)
-+{
-+	const struct etnaviv_pm_domain *domain = NULL;
-+	unsigned int offset = 0, i;
-+
-+	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
-+		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
-+
-+		if (!(gpu->identity.features & meta->feature))
-+			continue;
-+
-+		if (meta->nr_domains < (index - offset)) {
-+			offset += meta->nr_domains;
-+			continue;
-+		}
-+
-+		domain = meta->domains + (index - offset);
-+	}
-+
-+	BUG_ON(!domain);
-+
-+	return domain;
-+}
-+
- int etnaviv_pm_query_dom(struct etnaviv_gpu *gpu,
- 	struct drm_etnaviv_pm_domain *domain)
- {
--	const struct etnaviv_pm_domain_meta *meta = &doms_meta[domain->pipe];
-+	const unsigned int nr_domains = num_pm_domains(gpu);
- 	const struct etnaviv_pm_domain *dom;
- 
--	if (domain->iter >= meta->nr_domains)
-+	if (domain->iter >= nr_domains)
- 		return -EINVAL;
- 
--	dom = meta->domains + domain->iter;
-+	dom = pm_domain(gpu, domain->iter);
- 
- 	domain->id = domain->iter;
- 	domain->nr_signals = dom->nr_signals;
- 	strncpy(domain->name, dom->name, sizeof(domain->name));
- 
- 	domain->iter++;
--	if (domain->iter == meta->nr_domains)
-+	if (domain->iter == nr_domains)
- 		domain->iter = 0xff;
- 
- 	return 0;
-@@ -448,14 +491,14 @@ int etnaviv_pm_query_dom(struct etnaviv_gpu *gpu,
- int etnaviv_pm_query_sig(struct etnaviv_gpu *gpu,
- 	struct drm_etnaviv_pm_signal *signal)
- {
--	const struct etnaviv_pm_domain_meta *meta = &doms_meta[signal->pipe];
-+	const unsigned int nr_domains = num_pm_domains(gpu);
- 	const struct etnaviv_pm_domain *dom;
- 	const struct etnaviv_pm_signal *sig;
- 
--	if (signal->domain >= meta->nr_domains)
-+	if (signal->domain >= nr_domains)
- 		return -EINVAL;
- 
--	dom = meta->domains + signal->domain;
-+	dom = pm_domain(gpu, signal->domain);
- 
- 	if (signal->iter >= dom->nr_signals)
- 		return -EINVAL;
--- 
+ 	{	/* Teclast X98 Plus II */
+--=20
 2.24.1
 
