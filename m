@@ -2,32 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D93FC131A44
+	by mail.lfdr.de (Postfix) with ESMTP id 5BB1E131A43
 	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 22:20:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727025AbgAFVUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727069AbgAFVUA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 6 Jan 2020 16:20:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56338 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726902AbgAFVT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Jan 2020 16:19:59 -0500
+        id S1726967AbgAFVUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Jan 2020 16:20:00 -0500
 Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E589207FF;
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DF2D24676;
         Mon,  6 Jan 2020 21:19:59 +0000 (UTC)
 Received: from rostedt by gandalf.local.home with local (Exim 4.92.3)
         (envelope-from <rostedt@goodmis.org>)
-        id 1ioZn4-000MWU-CE; Mon, 06 Jan 2020 16:19:58 -0500
-Message-Id: <20200106211958.244239950@goodmis.org>
+        id 1ioZn4-000MWy-HX; Mon, 06 Jan 2020 16:19:58 -0500
+Message-Id: <20200106211958.412341162@goodmis.org>
 User-Agent: quilt/0.65
-Date:   Mon, 06 Jan 2020 16:19:05 -0500
+Date:   Mon, 06 Jan 2020 16:19:06 -0500
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>
-Subject: [for-linus][PATCH 4/7] ftrace: Avoid potential division by zero in function profiler
+        Bjorn Helgaas <bhelgaas@google.com>,
+        David Sterba <dsterba@suse.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Antonio Borneo <antonio.borneo@st.com>, stable@vger.kernel.org,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Subject: [for-linus][PATCH 5/7] tracing: Change offset type to s32 in preempt/irq tracepoints
 References: <20200106211901.293910946@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
@@ -36,48 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: "Joel Fernandes (Google)" <joel@joelfernandes.org>
 
-The ftrace_profile->counter is unsigned long and
-do_div truncates it to 32 bits, which means it can test
-non-zero and be truncated to zero for division.
-Fix this issue by using div64_ul() instead.
+Discussion in the below link reported that symbols in modules can appear
+to be before _stext on ARM architecture, causing wrapping with the
+offsets of this tracepoint. Change the offset type to s32 to fix this.
 
-Link: http://lkml.kernel.org/r/20200103030248.14516-1-wenyang@linux.alibaba.com
+Link: http://lore.kernel.org/r/20191127154428.191095-1-antonio.borneo@st.com
+Link: http://lkml.kernel.org/r/20200102194625.226436-1-joel@joelfernandes.org
 
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: David Sterba <dsterba@suse.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc: Antonio Borneo <antonio.borneo@st.com>
 Cc: stable@vger.kernel.org
-Fixes: e330b3bcd8319 ("tracing: Show sample std dev in function profiling")
-Fixes: 34886c8bc590f ("tracing: add average time in function to function profiler")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Fixes: d59158162e032 ("tracing: Add support for preempt and irq enable/disable events")
+Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- kernel/trace/ftrace.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/trace/events/preemptirq.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index ac99a3500076..9bf1f2cd515e 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -526,8 +526,7 @@ static int function_stat_show(struct seq_file *m, void *v)
- 	}
+diff --git a/include/trace/events/preemptirq.h b/include/trace/events/preemptirq.h
+index 95fba0471e5b..3f249e150c0c 100644
+--- a/include/trace/events/preemptirq.h
++++ b/include/trace/events/preemptirq.h
+@@ -18,13 +18,13 @@ DECLARE_EVENT_CLASS(preemptirq_template,
+ 	TP_ARGS(ip, parent_ip),
  
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
--	avg = rec->time;
--	do_div(avg, rec->counter);
-+	avg = div64_ul(rec->time, rec->counter);
- 	if (tracing_thresh && (avg < tracing_thresh))
- 		goto out;
- #endif
-@@ -553,7 +552,8 @@ static int function_stat_show(struct seq_file *m, void *v)
- 		 * Divide only 1000 for ns^2 -> us^2 conversion.
- 		 * trace_print_graph_duration will divide 1000 again.
- 		 */
--		do_div(stddev, rec->counter * (rec->counter - 1) * 1000);
-+		stddev = div64_ul(stddev,
-+				  rec->counter * (rec->counter - 1) * 1000);
- 	}
+ 	TP_STRUCT__entry(
+-		__field(u32, caller_offs)
+-		__field(u32, parent_offs)
++		__field(s32, caller_offs)
++		__field(s32, parent_offs)
+ 	),
  
- 	trace_seq_init(&s);
+ 	TP_fast_assign(
+-		__entry->caller_offs = (u32)(ip - (unsigned long)_stext);
+-		__entry->parent_offs = (u32)(parent_ip - (unsigned long)_stext);
++		__entry->caller_offs = (s32)(ip - (unsigned long)_stext);
++		__entry->parent_offs = (s32)(parent_ip - (unsigned long)_stext);
+ 	),
+ 
+ 	TP_printk("caller=%pS parent=%pS",
 -- 
 2.24.0
 
