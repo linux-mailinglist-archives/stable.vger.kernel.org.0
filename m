@@ -2,73 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E720713139D
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 15:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E961313E6
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 15:42:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726437AbgAFOa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 09:30:57 -0500
-Received: from sonic302-2.consmr.mail.bf2.yahoo.com ([74.6.135.41]:35774 "EHLO
-        sonic302-2.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726307AbgAFOa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 09:30:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1578321055; bh=E+ks7AydzaUb4ISZTuxin7s0E6gVmk5020fTLYVYB5E=; h=Date:From:Reply-To:Subject:References:From:Subject; b=nyjENOhi8UxyK2iUwuqlEF6LtAUM5An2m/wgNi8F5Utdphgdv9RD3PzxbswPixsg0uFWlZlpr87RijiaaVQbz/VEt/pXb9pLu+xKPCLhWQGaBQeSf7K6+0vlg+mjZwWuXROSZK+L2ygrtl8ZxvdT6xL19Pial0RQ0w4vuL96M4rAU47QvS2I89R2toSUlIFW4rmNHkWBSGKTpP86pdFCYoddsC+N3BFzeklP6ru+2iLOdHBgmdrPST2jyVEVSkYYBHPZJxwgZjYJSCE0jGa0JpuSyvU25lvdwjJAcDSt81Y9MfLLCkgj5BkQTeZ//H56ds3kj3kLUxKUlUljVznZBA==
-X-YMail-OSG: P7sK0XQVM1mIGG_1pTO8voo00VnqlzzBlkwzCAJgj1Sq.U.txdpKyhzQJPNMqN7
- GXrPwlE4Hviyq4dDZjmISkaz_J0g_Jhtd54WVWWL5zklKRNdUqKBI72ZzAUzlstd5yPAbwkxbDww
- Igo6O3AOE9uZ4TxTFBQ3r.t32g_ydOBAdgTBh5mgSINEWdZkSNckTWLcKyECf1pa0HJnSrV.YZMH
- AA.9_SlmGSZpI98Ob5TVv8RSJfqXxJPM_YQuP.4PWR5UTWVgu9rEmwD1lPBa16h9XEC_9aDCMVeQ
- XZAxO.CwgeV5rBXZuesMkMZt0A5GXmPZnOEGgEu5PF2k2oH_kVoz4_812jagKZtmS_nZS8i01POA
- e5kGBZfGEjooR5PrZ.XFEKEDk.W8kULzXV8yR8rXo2tRBCoYD6_Zn7nOnUXmgLY5Ik8ht290d4mO
- 6P2XyO8CZB9Ttf9kqGaCtIEC_rHclKrx0HIm.r8ZkVcyjaeaql0rR53cl.loW6TKfLBICiIy3KBD
- Sb8yEjV2avRHeve4YSNi072A1rMJOFQqnEZejj4LQlS46tULdWijhCau58ULnW9lcdak19mFe6Sa
- zJ9sS107qyOt6Kl9ZFv03tVIRIL0DttlxvpMR6oBZUkh9hqR3w8.v57c4mu5uM2cBgzjafLuRluQ
- ctPcrxalDcEzaq93Mjr5XeLVcd2DnQaeXcmHu4lCqausys6vDGLqJhELkpX530tTc4j5kcXNeHTz
- ApDdtgJDBX94hmR7jMd13wdweeIKu_UIDev4.PSY6zwpPfWdRigBgk_at.Ka3QQMA_aMCK10g4dm
- LEp.QhtYxVFCHYpmLjhPQHoYEYIMSWpfiq.qjxbhgXTflWDxHb_ZM3hfYt7nvXfg_XZyq5kb6HyJ
- r7vrkPvXCzFZ9wq8q_1kJNipKCLT6hdktnVyv8DQRUSdJb7jzJc5Vy5F08C4o_CUe7OXGiB8Q7UL
- eJBClFsvVrefogpzuEr8Zx0TmTxqYSdquzlkEOIeDhXNJ2w1U6fuNAV5QL_nWMf8IWKLmPQgzke3
- mYovTHefu33jP6xSUTwkPwLZFhCKyMQBPThvuw2wsaJw_Rk8r6yJyMEqVDxFOkXJae_dUpAUlgkW
- AkZ93yf.XwwRfQnRwHZEFMyS9UR3oUHStaLTAc4UTKooWrb8wIZXDoQRLxo1hHzqDIzKB1.rdET8
- bdgmToCbbhl96KxmxdB3IofI4zPK0UrXWMZrraiUh3QtRXWOQsvxAGrwLRYzzq_t_zo6uGsy_VX7
- CY622UMSYnjHlsk1_Fy6maEE5BHzDsE9IivQieNqqj5FPZEoCvqIw6MpuBJFPG6F9p.GtJFIUjfZ
- 1fDJ9m_gHIofI6SJaZQ8akJCK7NSr
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.bf2.yahoo.com with HTTP; Mon, 6 Jan 2020 14:30:55 +0000
-Date:   Mon, 6 Jan 2020 14:30:52 +0000 (UTC)
-From:   Aisha Gaddafi <gaisha983@gmail.com>
-Reply-To: gaddafia504@gmail.com
-Message-ID: <1969962164.4791923.1578321052845@mail.yahoo.com>
-Subject: Dear Friend,
+        id S1726524AbgAFOmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 09:42:11 -0500
+Received: from mga03.intel.com ([134.134.136.65]:51113 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726515AbgAFOmL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Jan 2020 09:42:11 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 Jan 2020 06:42:11 -0800
+X-IronPort-AV: E=Sophos;i="5.69,402,1571727600"; 
+   d="scan'208";a="222266635"
+Received: from kumarjai-mobl1.ger.corp.intel.com (HELO [10.251.83.12]) ([10.251.83.12])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/AES256-SHA; 06 Jan 2020 06:42:10 -0800
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/gt: Mark up virtual engine
+ uabi_instance
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20200106123921.2543886-1-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <7af25d92-8320-88d5-d705-b42347e8204f@linux.intel.com>
+Date:   Mon, 6 Jan 2020 14:42:08 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20200106123921.2543886-1-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-References: <1969962164.4791923.1578321052845.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.14873 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:71.0) Gecko/20100101 Firefox/71.0
-To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
 
-I came across your e-mail contact prior a private search while in need of 
-your assistance. My name is Aisha  Gaddafi a single Mother and a Widow with 
-three Children. I am the only biological Daughter of late Libyan President 
-(Late Colonel Muammar Gaddafi).
+On 06/01/2020 12:39, Chris Wilson wrote:
+> Be sure to initialise the uabi_instance on the virtual engine to the
+> special invalid value, just in case we ever peek at it from the uAPI.
+> 
+> Reported-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Fixes: 750e76b4f9f6 ("drm/i915/gt: Move the [class][inst] lookup for engines onto the GT")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.4+
+> ---
+>   drivers/gpu/drm/i915/gt/intel_lrc.c | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> index 170b5a0139a3..f07d93514a7c 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> @@ -4601,9 +4601,11 @@ intel_execlists_create_virtual(struct intel_engine_cs **siblings,
+>   	ve->base.gt = siblings[0]->gt;
+>   	ve->base.uncore = siblings[0]->uncore;
+>   	ve->base.id = -1;
+> +
+>   	ve->base.class = OTHER_CLASS;
+>   	ve->base.uabi_class = I915_ENGINE_CLASS_INVALID;
+>   	ve->base.instance = I915_ENGINE_CLASS_INVALID_VIRTUAL;
+> +	ve->base.uabi_instance = I915_ENGINE_CLASS_INVALID_VIRTUAL;
+>   
+>   	/*
+>   	 * The decision on whether to submit a request using semaphores
+> 
 
-I have investment funds worth Twenty Seven Million Five Hundred Thousand 
-United State Dollar ($27.500.000.00 ) and i need a trusted investment 
-Manager/Partner because of my current refugee status, however, I am 
-interested in you for investment project assistance in your country, may be 
-from there, we can build business relationship in the nearest future.
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-I am willing to negotiate investment/business profit sharing ratio with you 
-base on the future investment earning profits.
+Regards,
 
-If you are willing to handle this project on my behalf kindly reply urgent 
-to enable me provide you more information about the investment funds.
-
-Your Urgent Reply Will Be Appreciated.
-
-Best Regards
-Mrs Aisha Gaddafi
-(gaddafia504@gmail.com)
+Tvrtko
