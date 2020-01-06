@@ -2,89 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE1C313117A
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 12:39:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D883B1311D4
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 13:10:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbgAFLjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 06:39:12 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:48126 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725787AbgAFLjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 06:39:11 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578310750;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=7QnDS0wMpWsHdmbYrxKZ8IKh1lRAwVHzJpC+uPoDwz8=;
-        b=bc1KlNxwgH/Shjx6yuTcI++NAnmbkvrJHGyyPzpD2T+s8FY5diupzmMGNHBXRcyESfa9Ej
-        OlfmDVPlXIZNGBfnLjVwYRXuQV7RUJRIK3Qn8lmxQuRm16kV3y2ex+kShgQPTNxzh2VtKv
-        2MtNn4ZJcffdtcLtN2odno6I4VdMoGk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-153-Z24N8wNUPDiyB4Y_xwyr8w-1; Mon, 06 Jan 2020 06:39:09 -0500
-X-MC-Unique: Z24N8wNUPDiyB4Y_xwyr8w-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 35429DB65;
-        Mon,  6 Jan 2020 11:39:07 +0000 (UTC)
-Received: from shalem.localdomain.com (ovpn-116-130.ams2.redhat.com [10.36.116.130])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C463F271BA;
-        Mon,  6 Jan 2020 11:39:04 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Cezary Rojewski <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
-        Jie Yang <yang.jie@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>, alsa-devel@alsa-project.org,
-        stable@vger.kernel.org, russianneuromancer@ya.ru
-Subject: [PATCH] ASoC: Intel: bytcht_es8316: Fix Irbis NB41 netbook quirk
-Date:   Mon,  6 Jan 2020 12:39:03 +0100
-Message-Id: <20200106113903.279394-1-hdegoede@redhat.com>
+        id S1726173AbgAFMKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 07:10:36 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:59881 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725787AbgAFMKf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 07:10:35 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id A8FD16C7;
+        Mon,  6 Jan 2020 07:10:34 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 06 Jan 2020 07:10:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=vBn3BQ
+        /MGw4txtfiw/Itn/ncutAQqwdX9Q98MGVSgcE=; b=opOKMAGl7lYbzO0PvYRpms
+        dZzs2gV7ATWRBvb4qYwH8CE9dQGTHMt6S2Q0FQIOh6RRNXOa5CHPcAWrRlzfWFIy
+        67b4l4bBXl0wYGw8YEeR/bHS/2u8OV18nY6WURqtI4ry28KitdtjImpJmA8bp8le
+        tX68JEuNIriBXHwtzqi+af20Wf+R2WWA3d7gheYXI2rlymOjnoIJ1Bdi2W8l52gr
+        lrQuExSp2ddmEnlxNmKO0mIWw3Y93gtmiIp8n9umt5ek6RUf9aiVQK3TxN0O+ecY
+        6tPgcqUz1rHXKH4sWuFSbsXe+n6l2NjByd/04VmJXGMsBCck1TaZSC75rwR51GHg
+        ==
+X-ME-Sender: <xms:uSMTXg2XDbCUZ4F5xVbe62o1SfUm9bk5fumYhhmNIDh7e4Amj98PhQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdehtddgfeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:uSMTXsavTE-DQeKYeRTfbFk45XrUATMDr7A4Mdknjdm2l_R5233gOA>
+    <xmx:uSMTXti_SQPZ9s_wi8_TUUOUeqAnrF__wdHGP0zKqVCQti07C_iP5g>
+    <xmx:uSMTXshmnn545RX2yU66EHu0OWU_iOldsWwI1yaHVVvhu80Mkt9eqg>
+    <xmx:uiMTXh_DKJQJ2XL2j_8XvoBr20KctoUHT1WuhWHpv9tnCpLwig3jMg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 58B658005B;
+        Mon,  6 Jan 2020 07:10:33 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Add Bass Speaker and fixed dac for bass" failed to apply to 5.4-stable tree
+To:     kailang@realtek.com, stable@vger.kernel.org, tiwai@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 06 Jan 2020 13:10:30 +0100
+Message-ID: <1578312630193177@kroah.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When a quirk for the Irbis NB41 netbook was added, to override the defaul=
-ts
-for this device, I forgot to add/keep the BYT_CHT_ES8316_SSP0 part of the
-defaults, completely breaking audio on this netbook.
 
-This commit adds the BYT_CHT_ES8316_SSP0 flag to the Irbis NB41 netbook
-quirk, making audio work again.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Cc: stable@vger.kernel.org
-Cc: russianneuromancer@ya.ru
-Fixes: aa2ba991c420 ("ASoC: Intel: bytcht_es8316: Add quirk for Irbis NB4=
-1 netbook")
-Reported-and-tested-by: russianneuromancer@ya.ru
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- sound/soc/intel/boards/bytcht_es8316.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+thanks,
 
-diff --git a/sound/soc/intel/boards/bytcht_es8316.c b/sound/soc/intel/boa=
-rds/bytcht_es8316.c
-index 46612331f5ea..54e97455d7f6 100644
---- a/sound/soc/intel/boards/bytcht_es8316.c
-+++ b/sound/soc/intel/boards/bytcht_es8316.c
-@@ -442,7 +442,8 @@ static const struct dmi_system_id byt_cht_es8316_quir=
-k_table[] =3D {
- 			DMI_MATCH(DMI_SYS_VENDOR, "IRBIS"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "NB41"),
- 		},
--		.driver_data =3D (void *)(BYT_CHT_ES8316_INTMIC_IN2_MAP
-+		.driver_data =3D (void *)(BYT_CHT_ES8316_SSP0
-+					| BYT_CHT_ES8316_INTMIC_IN2_MAP
- 					| BYT_CHT_ES8316_JD_INVERTED),
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e79c22695abd3b75a6aecf4ea4b9607e8d82c49c Mon Sep 17 00:00:00 2001
+From: Kailang Yang <kailang@realtek.com>
+Date: Thu, 19 Dec 2019 14:12:15 +0800
+Subject: [PATCH] ALSA: hda/realtek - Add Bass Speaker and fixed dac for bass
+ speaker
+
+Dell has new platform which has dual speaker connecting.
+They want dual speaker which use same dac for output.
+
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/229c7efa2b474a16b7d8a916cd096b68@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 5bc1a6d24333..2ee703c2da78 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5908,6 +5908,8 @@ enum {
+ 	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
+ 	ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE,
+ 	ALC294_FIXUP_ASUS_INTSPK_GPIO,
++	ALC289_FIXUP_DELL_SPK2,
++	ALC289_FIXUP_DUAL_SPK,
+ };
+ 
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7009,6 +7011,21 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC
  	},
- 	{	/* Teclast X98 Plus II */
---=20
-2.24.1
++	[ALC289_FIXUP_DELL_SPK2] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x17, 0x90170130 }, /* bass spk */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_DELL4_MIC_NO_PRESENCE
++	},
++	[ALC289_FIXUP_DUAL_SPK] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_speaker2_to_dac1,
++		.chained = true,
++		.chain_id = ALC289_FIXUP_DELL_SPK2
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7081,6 +7098,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1028, 0x08ad, "Dell WYSE AIO", ALC225_FIXUP_DELL_WYSE_AIO_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x08ae, "Dell WYSE NB", ALC225_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0935, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
++	SND_PCI_QUIRK(0x1028, 0x097e, "Dell Precision", ALC289_FIXUP_DUAL_SPK),
++	SND_PCI_QUIRK(0x1028, 0x097d, "Dell Precision", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
 
