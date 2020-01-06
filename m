@@ -2,138 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA71A1313EA
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 15:42:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3A81314CF
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 16:29:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbgAFOma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 09:42:30 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:36038 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726303AbgAFOma (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 09:42:30 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578321748;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=sPkr4dJTffQCcP7/2lEKFJe2jd0IKHJATWdG20Se/rI=;
-        b=Z9vXcZn+OiwpBtMpMyhAHYWOjDuu1LJPr+0GQmagWCPA0xrDV2mwszCNw/mg6oglnKfKaR
-        Ny9PZCn5zDltxUzUUNkyEdPQsMzbKJSsnAWhdHgA6tyKV/K9qDNjE/Z4NyPEXWzu6qkU3O
-        yEGb60g/6ScRE4prKg9UHU9jBPrvgok=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-285-X2skCLxwMBiUcqY87ONxhw-1; Mon, 06 Jan 2020 09:42:25 -0500
-X-MC-Unique: X2skCLxwMBiUcqY87ONxhw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C982E800D5C;
-        Mon,  6 Jan 2020 14:42:23 +0000 (UTC)
-Received: from shalem.localdomain.com (ovpn-116-130.ams2.redhat.com [10.36.116.130])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 762EA17109;
-        Mon,  6 Jan 2020 14:42:20 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Jason Anderson <jasona.594@gmail.com>
-Subject: [PATCH 1/2] platform/x86: GPD pocket fan: Use default values when wrong modparams are given
-Date:   Mon,  6 Jan 2020 15:42:18 +0100
-Message-Id: <20200106144219.525215-1-hdegoede@redhat.com>
+        id S1726437AbgAFP3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 10:29:55 -0500
+Received: from mail-yw1-f67.google.com ([209.85.161.67]:35364 "EHLO
+        mail-yw1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726296AbgAFP3y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 10:29:54 -0500
+Received: by mail-yw1-f67.google.com with SMTP id i190so22006595ywc.2
+        for <stable@vger.kernel.org>; Mon, 06 Jan 2020 07:29:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=iWBJ9etiBm/hh818InyCY7sxm3rRSJTmMlNUHIhyA9c=;
+        b=TvSHbxUuAHs3muZSrjvu9zViJm8kqYZPxeAIcVw9cq28X1m4qvLFkU2w83cQMqcBln
+         OgZ5ACMI+rD/ZTVfKg9MyQWRCs54KsMRdN7ELQL2rGHHDGVZsE+86frWR8NDnFjUMVzS
+         vtiATJuNLKY2CHfjJQhi9glWedS47ukrpK9YMly52ZwkT5eBxTMbipdCTdNlyFRRNC8j
+         rfvt6sJb1A5WNZnQ7DTuK1oloeinWb2k40p8gO7hzsUwV/8Ln5h/MclUo2FyKSkYavXG
+         uxi9RPsIUwhBAex4DQxTO5aZ72cWPYMkj6bvSe/LYbc3k7MaEFSdvJaS1WlLvvgkHmzf
+         cCUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=iWBJ9etiBm/hh818InyCY7sxm3rRSJTmMlNUHIhyA9c=;
+        b=kwljfT6XjCJzlH4R4ZY3m5C99j3j4aee1jhkFPlEqDwtRXQgMtST8DhVidWxDNLm1j
+         HvF2ovFTQuD05nZ3/MeEp/bSIEWZ+8Y3xyUQpnRTcVeWp5ZXGUqWvUwwHQbfSXmWPT80
+         Wis+J9OyokGiwLEDPRZK9xHB8l22aRjV4E4M0gfhCR5cqCHmi9TG6ptuNN4km09IOhu5
+         jsJffunlz5xmxfcX+U8Zpj5ag63iEkdCXom415q64nQFLVji9Q1WZ/Iq1PEEwu6mQHPM
+         +BO8IfaqYMFqSiedn8cFR1jGRp0Z3luZlJXeYDJWWed4JNWnqQyH1i+4vRuHQPPb+XK+
+         tq7Q==
+X-Gm-Message-State: APjAAAVvBwdoUp+OIrymFDSLmi7jTkqn7LQkQhr7fVWg5K9jetoZyHA0
+        w/IJr9niHPLuL9lbR1hjX4ML3ax/28x6BhnQhVQ=
+X-Google-Smtp-Source: APXvYqwTkB82hq5tMeD6q3zTC8f4QFh66SWQ1Xy5rnYCTHAM5ZPxazPZvilDiJrv28fj1lQTlQKP1Z1xdnAkmt/zBXE=
+X-Received: by 2002:a81:52d8:: with SMTP id g207mr39595699ywb.458.1578324593841;
+ Mon, 06 Jan 2020 07:29:53 -0800 (PST)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-Content-Transfer-Encoding: quoted-printable
+Received: by 2002:a25:da4c:0:0:0:0:0 with HTTP; Mon, 6 Jan 2020 07:29:53 -0800 (PST)
+Reply-To: cfffdfd8brahim4@yandex.com
+From:   Salah Ibrahim <victorenyinnaya3@gmail.com>
+Date:   Mon, 6 Jan 2020 07:29:53 -0800
+Message-ID: <CANwE8PSfgPeyb1HDpxWOcZZJzzYkYmQyT8J96btZ9pHwb+t0Lg@mail.gmail.com>
+Subject: Greetings
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Use our default values when wrong module-parameters are given, instead of
-refusing to load. Refusing to load leaves the fan at the BIOS default
-setting, which is "Off". The CPU's thermal throttling should protect the
-system from damage, but not-loading is really not the best fallback in th=
-is
-case.
-
-This commit fixes this by re-setting module-parameter values to their
-defaults if they are out of range, instead of failing the probe with
--EINVAL.
-
-Cc: stable@vger.kernel.org
-Cc: Jason Anderson <jasona.594@gmail.com>
-Reported-by: Jason Anderson <jasona.594@gmail.com>
-Fixes: 594ce6db326e ("platform/x86: GPD pocket fan: Use a min-speed of 2 =
-while charging")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/platform/x86/gpd-pocket-fan.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/platform/x86/gpd-pocket-fan.c b/drivers/platform/x86=
-/gpd-pocket-fan.c
-index be85ed966bf3..1e6a42f2ea8a 100644
---- a/drivers/platform/x86/gpd-pocket-fan.c
-+++ b/drivers/platform/x86/gpd-pocket-fan.c
-@@ -16,17 +16,26 @@
-=20
- #define MAX_SPEED 3
-=20
--static int temp_limits[3] =3D { 55000, 60000, 65000 };
-+#define TEMP_LIMIT0_DEFAULT	55000
-+#define TEMP_LIMIT1_DEFAULT	60000
-+#define TEMP_LIMIT2_DEFAULT	65000
-+
-+#define HYSTERESIS_DEFAULT	3000
-+
-+#define SPEED_ON_AC_DEFAULT	2
-+
-+static int temp_limits[3] =3D {
-+	TEMP_LIMIT0_DEFAULT, TEMP_LIMIT1_DEFAULT, TEMP_LIMIT2_DEFAULT };
- module_param_array(temp_limits, int, NULL, 0444);
- MODULE_PARM_DESC(temp_limits,
- 		 "Millicelsius values above which the fan speed increases");
-=20
--static int hysteresis =3D 3000;
-+static int hysteresis =3D HYSTERESIS_DEFAULT;
- module_param(hysteresis, int, 0444);
- MODULE_PARM_DESC(hysteresis,
- 		 "Hysteresis in millicelsius before lowering the fan speed");
-=20
--static int speed_on_ac =3D 2;
-+static int speed_on_ac =3D SPEED_ON_AC_DEFAULT;
- module_param(speed_on_ac, int, 0444);
- MODULE_PARM_DESC(speed_on_ac,
- 		 "minimum fan speed to allow when system is powered by AC");
-@@ -120,18 +129,21 @@ static int gpd_pocket_fan_probe(struct platform_dev=
-ice *pdev)
- 		if (temp_limits[i] < 40000 || temp_limits[i] > 70000) {
- 			dev_err(&pdev->dev, "Invalid temp-limit %d (must be between 40000 and=
- 70000)\n",
- 				temp_limits[i]);
--			return -EINVAL;
-+			temp_limits[0] =3D TEMP_LIMIT0_DEFAULT;
-+			temp_limits[1] =3D TEMP_LIMIT1_DEFAULT;
-+			temp_limits[2] =3D TEMP_LIMIT2_DEFAULT;
-+			break;
- 		}
- 	}
- 	if (hysteresis < 1000 || hysteresis > 10000) {
- 		dev_err(&pdev->dev, "Invalid hysteresis %d (must be between 1000 and 1=
-0000)\n",
- 			hysteresis);
--		return -EINVAL;
-+		hysteresis =3D HYSTERESIS_DEFAULT;
- 	}
- 	if (speed_on_ac < 0 || speed_on_ac > MAX_SPEED) {
- 		dev_err(&pdev->dev, "Invalid speed_on_ac %d (must be between 0 and 3)\=
-n",
- 			speed_on_ac);
--		return -EINVAL;
-+		speed_on_ac =3D SPEED_ON_AC_DEFAULT;
- 	}
-=20
- 	fan =3D devm_kzalloc(&pdev->dev, sizeof(*fan), GFP_KERNEL);
---=20
-2.24.1
-
+Dear Friend. I have a business proposal of  $35 Million USD which i want to
+transact with you  get back for more details.Best Regards From Salah Ibrahim
