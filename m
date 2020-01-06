@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4811B131922
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 21:17:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F90131925
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 21:17:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726760AbgAFURc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 15:17:32 -0500
-Received: from mail-il1-f196.google.com ([209.85.166.196]:38182 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726734AbgAFURc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 15:17:32 -0500
-Received: by mail-il1-f196.google.com with SMTP id f5so43631191ilq.5
-        for <stable@vger.kernel.org>; Mon, 06 Jan 2020 12:17:31 -0800 (PST)
+        id S1726931AbgAFURt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 15:17:49 -0500
+Received: from mail-io1-f65.google.com ([209.85.166.65]:43390 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726722AbgAFURt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 15:17:49 -0500
+Received: by mail-io1-f65.google.com with SMTP id n21so48389484ioo.10
+        for <stable@vger.kernel.org>; Mon, 06 Jan 2020 12:17:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=2CX2u59yxqQEiQeQX3TdwASVbTfuTtyRiCwtCS2hV9M=;
-        b=r8n4416RC0OjW2zQZKUoUGwBPq+fLIjkEFiWRwI2k9OC6xfH8LexxBEoS0JBAKL4ep
-         glcWvgtALerSfVE7MX3hVQsEzoDEMEvdBi2XV5OuFjQ/+rHFaGLv0Y6TVIKJeGE2K4xr
-         hPGAu2ZsOO47P84w3U2lb5Pq6FkNZ97fG315dOqz+ZHZ92dKtbrauczGHZ4UiFER5Qzw
-         tvRcP0oEPyL8O/VjBoyZq1h3n8jcz936VNWZIW7jJO35SZiO6p4mFIjXs27PSe3mz4hr
-         vLfja4o0UrgiZvGv7Wem6QD7qJ7tYB3zq9tgK/CX8e77skiBewq9ETOr5AZrOs8zMWm2
-         1CWQ==
+        bh=ns8GnqwvJg6p4W/syDLUnvePjgs3xerHY20r9Gnc+74=;
+        b=clap+ZSlRXw7zp6m90XHVxIDTEjjE9mcltqn7nwhdOy1qAuizA7p54MDYDj3llqhCi
+         nJzjNDYwgjjHbTHFIIjbXd9dbOFEWGnu0h83h98/mByZ9oQizwnh0Y5O0zE4RXdBf2E+
+         8YrSYyt7ItVEBkpoa5mDBPnC50hGe0Gus6v0OSA9Va1MDXhWqTJxCeN7Cz8XtS890KKT
+         NmByMQvlHmLA6ZVfU3rg/ij2JzS7BlH9Exko0AolIcxWcx521GuR3QaU+OCjwIjF9lx9
+         /OYjh5668bwPU952Ni87MV/24z2NHt8c/rW0AQ06SmzZtKB/BqiJWof+ycJDMSFnQVrW
+         pq6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=2CX2u59yxqQEiQeQX3TdwASVbTfuTtyRiCwtCS2hV9M=;
-        b=CghVGMEZ8/9C/IaZq0AK6C5SMaCId4N+Z5jy2MKt2A08ekL3hmt/5Cfp/BDtaRDJ5C
-         Vj25MZ9HP9uXXv+XKtzaOyYVncCUSxXMppT138Wtaydpz1GLwjyX+s3eSZXRMZ0spm9Q
-         DQUQ7Ce1BlMf5mJxvd2c8cU6Uay2PGbB8GxRHz1pABOVrrrPk7xmSx0KO96r5vCqzQZO
-         tuzabrrCmq1hdSFeqUNHniln1+qjOU4aL7P9SzeIPY7hhUS5rQwvyqrc/GoVT5aBUbQQ
-         95i3hM1ndnPh845ZrXYJXMimkD4JKNqsbpBGBsvsBoZ2CSXsccylBYPtVbcg0bKEzycB
-         iLHg==
-X-Gm-Message-State: APjAAAWYVeDjFbiRCxhoMQASsPojSx4Baa/Q7ktcLlEBB+klRtDiYTjk
-        r8q1T8eivd4eCMMqfKhpIdG92FqRJZfErOok3Hn+jA==
-X-Google-Smtp-Source: APXvYqyReQmw36zPln5QfGWBGVhIpVbv13BJN1T5wbGPlk3lk3Azd0+w4PYXRQmNj1E1SHsoTt2laBhaYWd3jSRwsW4=
-X-Received: by 2002:a92:8458:: with SMTP id l85mr88666783ild.296.1578341851389;
- Mon, 06 Jan 2020 12:17:31 -0800 (PST)
+        bh=ns8GnqwvJg6p4W/syDLUnvePjgs3xerHY20r9Gnc+74=;
+        b=C0YFUhgybTjfdchECCjPZ3eUyeeEyPVrsR6vEAYe6jegaQZFc+2yVXZPBKtjxG13Oe
+         OGzGMXw8PIHsGmSeSWpCG/vbIeB7n2qpexMtHsInureNl8s1Ni3PTwgc9i0a37W3lCuR
+         cedqYs/X3j2ioihdkuoBHkKj23b9CrxhJCzJgwjS6nvbUzgp+4ftlzgb8Tv4f86YiBFK
+         RDdtD/Grr0AaBqgrRltR/x2Iv5vgLFfP7LQLM10tKO5FHGLMIomN+Y4YrAimm2mgvH2R
+         m/k96MawLneVTOe+2c1CxsK5EYXT9fOZDtMA3NuR/JaPxcVabAy9tuEFahjktkhktLba
+         Y04Q==
+X-Gm-Message-State: APjAAAVfeZZkcIxzez7Nvw20aJa5bcGa6f3RlsyKFeUk3+4LGyBu1ems
+        xyBNSJTPFwcPfyHqcPwzi0KHOjFDIPCwUU7N8GAypw==
+X-Google-Smtp-Source: APXvYqxoZQ+6xjPL1kVSOGms8Zqaps/r0K/FNO33q2IPJVDh7QsN/goJF73XELIobJtwflx3BGbam+GNuwZyL1L5h7E=
+X-Received: by 2002:a5e:924c:: with SMTP id z12mr69658990iop.296.1578341868753;
+ Mon, 06 Jan 2020 12:17:48 -0800 (PST)
 MIME-Version: 1.0
-References: <20191211204753.242298-1-pomonis@google.com> <20191211204753.242298-5-pomonis@google.com>
-In-Reply-To: <20191211204753.242298-5-pomonis@google.com>
+References: <20191211204753.242298-1-pomonis@google.com> <20191211204753.242298-6-pomonis@google.com>
+In-Reply-To: <20191211204753.242298-6-pomonis@google.com>
 From:   Jim Mattson <jmattson@google.com>
-Date:   Mon, 6 Jan 2020 12:17:20 -0800
-Message-ID: <CALMp9eTCTj-V0ihi0sQAkjOpKA2HzNY85WiX9LxRQODGvGN1aw@mail.gmail.com>
-Subject: Re: [PATCH v2 04/13] KVM: x86: Protect ioapic_read_indirect() from
+Date:   Mon, 6 Jan 2020 12:17:37 -0800
+Message-ID: <CALMp9eTrGnn7NmBS_-Zpxk0LP4b-NKCEYu46AoEGjH=k_=Hoxw@mail.gmail.com>
+Subject: Re: [PATCH v2 05/13] KVM: x86: Protect ioapic_write_indirect() from
  Spectre-v1/L1TF attacks
 To:     Marios Pomonis <pomonis@google.com>
 Cc:     Paolo Bonzini <pbonzini@redhat.com>,
@@ -71,11 +71,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 On Wed, Dec 11, 2019 at 12:48 PM Marios Pomonis <pomonis@google.com> wrote:
 >
-> This fixes a Spectre-v1/L1TF vulnerability in ioapic_read_indirect().
+> This fixes a Spectre-v1/L1TF vulnerability in ioapic_write_indirect().
 > This function contains index computations based on the
 > (attacker-controlled) IOREGSEL register.
 >
-> Fixes: commit a2c118bfab8b ("KVM: Fix bounds checking in ioapic indirect register reads (CVE-2013-1798)")
+> This patch depends on patch
+> "KVM: x86: Protect ioapic_read_indirect() from Spectre-v1/L1TF attacks".
+>
+> Fixes: commit 70f93dae32ac ("KVM: Use temporary variable to shorten lines.")
 >
 > Signed-off-by: Nick Finco <nifi@google.com>
 > Signed-off-by: Marios Pomonis <pomonis@google.com>
