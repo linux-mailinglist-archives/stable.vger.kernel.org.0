@@ -2,111 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D18871312BD
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 14:20:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E720713139D
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 15:30:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbgAFNU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 08:20:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56154 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725821AbgAFNUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Jan 2020 08:20:55 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB8412071A;
-        Mon,  6 Jan 2020 13:20:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578316855;
-        bh=mM+iD0kGEEU1a0nAuY0M/dAz86bzvbki6bF1CZGUYYA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=edOx1dqKP7AlG+c8eYfgLWXGwJkBa+G0Z8qVljVFaep0mslAGsLO+nV/LXp3yiLFX
-         7nfkksV5w+/lA1au/6/sl1e0+gADROe4/9ewPtZk3phGkYFowmAvk1Sf+qgzR08Xen
-         fhNSIoep7TbXr12thR+gKQ9IMAqFqwl8ab4IHyRA=
-Date:   Mon, 6 Jan 2020 08:20:53 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>, Stephen Boyd <sboyd@kernel.org>
-Subject: Re: Clock related crashes in v5.4.y-queue
-Message-ID: <20200106132053.GA1706@sasha-vm>
-References: <029dab5a-22f5-c4e9-0797-54cdba0f3539@roeck-us.net>
- <20200102210119.GA250861@kroah.com>
- <20200102212837.GA9400@roeck-us.net>
- <20200103004024.GM16372@sasha-vm>
- <83b51540-f635-19c7-1621-3241315cc62c@roeck-us.net>
- <20200105160204.GR16372@sasha-vm>
- <9c295487-5e28-0fa7-7892-59e61cd7d07e@roeck-us.net>
+        id S1726437AbgAFOa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 09:30:57 -0500
+Received: from sonic302-2.consmr.mail.bf2.yahoo.com ([74.6.135.41]:35774 "EHLO
+        sonic302-2.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726307AbgAFOa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 09:30:56 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1578321055; bh=E+ks7AydzaUb4ISZTuxin7s0E6gVmk5020fTLYVYB5E=; h=Date:From:Reply-To:Subject:References:From:Subject; b=nyjENOhi8UxyK2iUwuqlEF6LtAUM5An2m/wgNi8F5Utdphgdv9RD3PzxbswPixsg0uFWlZlpr87RijiaaVQbz/VEt/pXb9pLu+xKPCLhWQGaBQeSf7K6+0vlg+mjZwWuXROSZK+L2ygrtl8ZxvdT6xL19Pial0RQ0w4vuL96M4rAU47QvS2I89R2toSUlIFW4rmNHkWBSGKTpP86pdFCYoddsC+N3BFzeklP6ru+2iLOdHBgmdrPST2jyVEVSkYYBHPZJxwgZjYJSCE0jGa0JpuSyvU25lvdwjJAcDSt81Y9MfLLCkgj5BkQTeZ//H56ds3kj3kLUxKUlUljVznZBA==
+X-YMail-OSG: P7sK0XQVM1mIGG_1pTO8voo00VnqlzzBlkwzCAJgj1Sq.U.txdpKyhzQJPNMqN7
+ GXrPwlE4Hviyq4dDZjmISkaz_J0g_Jhtd54WVWWL5zklKRNdUqKBI72ZzAUzlstd5yPAbwkxbDww
+ Igo6O3AOE9uZ4TxTFBQ3r.t32g_ydOBAdgTBh5mgSINEWdZkSNckTWLcKyECf1pa0HJnSrV.YZMH
+ AA.9_SlmGSZpI98Ob5TVv8RSJfqXxJPM_YQuP.4PWR5UTWVgu9rEmwD1lPBa16h9XEC_9aDCMVeQ
+ XZAxO.CwgeV5rBXZuesMkMZt0A5GXmPZnOEGgEu5PF2k2oH_kVoz4_812jagKZtmS_nZS8i01POA
+ e5kGBZfGEjooR5PrZ.XFEKEDk.W8kULzXV8yR8rXo2tRBCoYD6_Zn7nOnUXmgLY5Ik8ht290d4mO
+ 6P2XyO8CZB9Ttf9kqGaCtIEC_rHclKrx0HIm.r8ZkVcyjaeaql0rR53cl.loW6TKfLBICiIy3KBD
+ Sb8yEjV2avRHeve4YSNi072A1rMJOFQqnEZejj4LQlS46tULdWijhCau58ULnW9lcdak19mFe6Sa
+ zJ9sS107qyOt6Kl9ZFv03tVIRIL0DttlxvpMR6oBZUkh9hqR3w8.v57c4mu5uM2cBgzjafLuRluQ
+ ctPcrxalDcEzaq93Mjr5XeLVcd2DnQaeXcmHu4lCqausys6vDGLqJhELkpX530tTc4j5kcXNeHTz
+ ApDdtgJDBX94hmR7jMd13wdweeIKu_UIDev4.PSY6zwpPfWdRigBgk_at.Ka3QQMA_aMCK10g4dm
+ LEp.QhtYxVFCHYpmLjhPQHoYEYIMSWpfiq.qjxbhgXTflWDxHb_ZM3hfYt7nvXfg_XZyq5kb6HyJ
+ r7vrkPvXCzFZ9wq8q_1kJNipKCLT6hdktnVyv8DQRUSdJb7jzJc5Vy5F08C4o_CUe7OXGiB8Q7UL
+ eJBClFsvVrefogpzuEr8Zx0TmTxqYSdquzlkEOIeDhXNJ2w1U6fuNAV5QL_nWMf8IWKLmPQgzke3
+ mYovTHefu33jP6xSUTwkPwLZFhCKyMQBPThvuw2wsaJw_Rk8r6yJyMEqVDxFOkXJae_dUpAUlgkW
+ AkZ93yf.XwwRfQnRwHZEFMyS9UR3oUHStaLTAc4UTKooWrb8wIZXDoQRLxo1hHzqDIzKB1.rdET8
+ bdgmToCbbhl96KxmxdB3IofI4zPK0UrXWMZrraiUh3QtRXWOQsvxAGrwLRYzzq_t_zo6uGsy_VX7
+ CY622UMSYnjHlsk1_Fy6maEE5BHzDsE9IivQieNqqj5FPZEoCvqIw6MpuBJFPG6F9p.GtJFIUjfZ
+ 1fDJ9m_gHIofI6SJaZQ8akJCK7NSr
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.bf2.yahoo.com with HTTP; Mon, 6 Jan 2020 14:30:55 +0000
+Date:   Mon, 6 Jan 2020 14:30:52 +0000 (UTC)
+From:   Aisha Gaddafi <gaisha983@gmail.com>
+Reply-To: gaddafia504@gmail.com
+Message-ID: <1969962164.4791923.1578321052845@mail.yahoo.com>
+Subject: Dear Friend,
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <9c295487-5e28-0fa7-7892-59e61cd7d07e@roeck-us.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <1969962164.4791923.1578321052845.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.14873 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:71.0) Gecko/20100101 Firefox/71.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 05, 2020 at 08:34:59AM -0800, Guenter Roeck wrote:
->I think we are going into the absolutely wrong direction. Expecting that
->everyone would use mainline is absolutely unrealistic, and backporting
->more and more patches to stable branches can only result in destabilizing
->stable branches, which in turn will drive people away from it (and _not_
->to use mainline). The only reason it wasn't a disaster yet is that we have
->better testing now. But we offset that better testing with backporting
->more patches, which has the opposite effect. One stabilizes, the other
->destabilizes. The end result is the same. Actually, it is worse - the
->indiscriminate backporting not only causes unnecessary regressions,
->it (again) gives people an argument against merging stable releases.
->And, this time I have to admit they are right.
+Dear Friend,
 
-Just to get an idea of how the AUTOSEL commits affect the kernel tree I
-tried the following:
+I came across your e-mail contact prior a private search while in need of 
+your assistance. My name is Aisha  Gaddafi a single Mother and a Widow with 
+three Children. I am the only biological Daughter of late Libyan President 
+(Late Colonel Muammar Gaddafi).
 
-We have 10648 commits on top of 4.19 in the 4.19 LTS tree:
+I have investment funds worth Twenty Seven Million Five Hundred Thousand 
+United State Dollar ($27.500.000.00 ) and i need a trusted investment 
+Manager/Partner because of my current refugee status, however, I am 
+interested in you for investment project assistance in your country, may be 
+from there, we can build business relationship in the nearest future.
 
-$ git log --oneline v4.19..stable/linux-4.19.y | wc -l
-10468
+I am willing to negotiate investment/business profit sharing ratio with you 
+base on the future investment earning profits.
 
-I've tried to identify how many of them have a "Fixes:" tag pointing to
-them, and how many were reverted (using it to identify buggy commits in
-the stable tree), ending up with:
+If you are willing to handle this project on my behalf kindly reply urgent 
+to enable me provide you more information about the investment funds.
 
-$ wc -l fixes
-637 fixes
+Your Urgent Reply Will Be Appreciated.
 
-So about 6% of the commits that go in the stable tree have a follow up
-fix or revert. Now, let's see where commits in the 4.19 LTS tree come
-from:
-
-$ git log --oneline --grep "Signed-off-by: Sasha Levin <sashal@kernel.org>" v4.19..stable/linux-4.19.y | wc -l
-5475
-$ git log --invert-grep --oneline --grep "Signed-off-by: Sasha Levin <sashal@kernel.org>" v4.19..stable/linux-4.19.y | wc -l
-4993
-
-In general, Greg is the one who picks up commits that are tagged for
-stable, security issues, and patches requested by folks on the mailing
-list. I'm mostly doing AUTOSEL, other distro trees, and mailing list
-(but Greg still does the most of the mailing list work).
-
-Anyway, looks like mostly an equal split between stable tagged commits
-and AUTOSEL ones.
-
-Now, looking at the buggy commits again, I check whether the commit came
-via Greg or myself (just using it as a way to differentiate between
-stable tagged commits/commits requested by users/etc and commits that
-came in using AUTOSEL), and I get:
-
-$ for i in $(cat fixes | awk {'print $2'}); do if [ $(git show $i | grep 'Signed-off-by: Sasha Levin <sashal@kernel.org>' | wc -l) -gt 0 ]; then echo "Sasha"; else echo "Greg"; fi; done | sort | uniq -c
-    367 Greg
-    270 Sasha
-
-Which seems to show that AUTOSEL commits are actually less buggy than
-stable tagged commits. Sure, this analysis isn't perfect, but if we
-treat it purely as ballpark figures I think that it's enough to show
-that picking up more fixes doesn't contribute to "destabilizing" the
-stable trees.
-
--- 
-Thanks,
-Sasha
+Best Regards
+Mrs Aisha Gaddafi
+(gaddafia504@gmail.com)
