@@ -2,228 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC442130AA6
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 00:05:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB498130AF4
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 01:43:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726823AbgAEXF2 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 5 Jan 2020 18:05:28 -0500
-Received: from gloria.sntech.de ([185.11.138.130]:42466 "EHLO gloria.sntech.de"
+        id S1726731AbgAFAnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jan 2020 19:43:01 -0500
+Received: from mga11.intel.com ([192.55.52.93]:51826 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726494AbgAEXF2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Jan 2020 18:05:28 -0500
-Received: from ip5f5a5f74.dynamic.kabel-deutschland.de ([95.90.95.116] helo=diego.localnet)
-        by gloria.sntech.de with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <heiko@sntech.de>)
-        id 1ioExK-0001Ic-2U; Mon, 06 Jan 2020 00:05:10 +0100
-From:   Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        David Miller <davem@davemloft.net>, sriram.dash@samsung.com,
-        p.rajanbabu@samsung.com, pankaj.dubey@samsung.com,
-        Jose.Abreu@synopsys.com, jayati.sahu@samsung.com,
-        alexandre.torgue@st.com, rcsekar@samsung.com,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, peppe.cavallaro@st.com,
-        linux-stm32@st-md-mailman.stormreply.com
-Subject: Re: [PATCH] net: stmmac: platform: Fix MDIO init for platforms without PHY
-Date:   Mon, 06 Jan 2020 00:05:09 +0100
-Message-ID: <1599392.7x4dJXGyiB@diego>
-In-Reply-To: <c25fbdb3-0e60-6e54-d58a-b05e8b805a58@gmail.com>
-References: <CGME20191219102407epcas5p103b26e6fb191f7135d870a3449115c89@epcas5p1.samsung.com> <1700835.tBzmY8zkgn@diego> <c25fbdb3-0e60-6e54-d58a-b05e8b805a58@gmail.com>
+        id S1726496AbgAFAnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Jan 2020 19:43:01 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Jan 2020 16:43:00 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,400,1571727600"; 
+   d="scan'208";a="394866806"
+Received: from unknown (HELO [10.239.196.123]) ([10.239.196.123])
+  by orsmga005.jf.intel.com with ESMTP; 05 Jan 2020 16:42:58 -0800
+Subject: Re: 4.9.208 regression in perf building
+To:     Jiri Olsa <jolsa@redhat.com>, Akemi Yagi <toracat@elrepo.org>
+Cc:     Gordan Bobic <gordan@redsleeve.org>, stable@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ElRepo <contact@elrepo.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>
+References: <CAMx4oe38RytiyqWfYb=So8iC6N=8nebqy3DsekiT7A5DGjpe+w@mail.gmail.com>
+ <CAMx4oe2JKTsOKg3P324PYRH=0ajOVDaXTLa7p=16Fo9fGiQSpQ@mail.gmail.com>
+ <CABA31DrtCwUj-wzPP+dwUP+=jTOHnt8eoS+d+N2yfAn22W19vA@mail.gmail.com>
+ <20200105193550.GA177781@krava>
+ <CABA31DoxzzoOgQXfLmaF2+msqi9F_sFRBN2thxe7W6+1QmWWgA@mail.gmail.com>
+ <20200105222502.GA207350@krava>
+From:   "Jin, Yao" <yao.jin@linux.intel.com>
+Message-ID: <47d14944-e93f-e392-7d03-acf09bc1a414@linux.intel.com>
+Date:   Mon, 6 Jan 2020 08:42:58 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="iso-8859-1"
+In-Reply-To: <20200105222502.GA207350@krava>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Florian,
-
-Am Sonntag, 5. Januar 2020, 23:22:00 CET schrieb Florian Fainelli:
-> On 1/5/2020 12:43 PM, Heiko St�bner wrote:
-> > Am Samstag, 21. Dezember 2019, 06:29:18 CET schrieb David Miller:
-> >> From: Padmanabhan Rajanbabu <p.rajanbabu@samsung.com>
-> >> Date: Thu, 19 Dec 2019 15:47:01 +0530
-> >>
-> >>> The current implementation of "stmmac_dt_phy" function initializes
-> >>> the MDIO platform bus data, even in the absence of PHY. This fix
-> >>> will skip MDIO initialization if there is no PHY present.
-> >>>
-> >>> Fixes: 7437127 ("net: stmmac: Convert to phylink and remove phylib logic")
-> >>> Acked-by: Jayati Sahu <jayati.sahu@samsung.com>
-> >>> Signed-off-by: Sriram Dash <sriram.dash@samsung.com>
-> >>> Signed-off-by: Padmanabhan Rajanbabu <p.rajanbabu@samsung.com>
-> >>
-> >> Applied and queued up for -stable, thanks.
-> > 
-> > with this patch applied I now run into issues on multiple rockchip
-> > platforms using a gmac interface.
-> 
-> Do you have a list of DTS files that are affected by any chance? For the
-> 32-bit platforms that I looked it, it seems like:
->
-> arch/arm/boot/dts/rk3228-evb.dts is OK because it has a MDIO bus node
-> arch/arm/boot/dts/rk3229-xms6.dts is also OK
-> 
-> arch/arm/boot/dts/rk3229-evb.dts is probably broken, there is no
-> phy-handle property or MDIO bus node, so it must be relying on
-> auto-scanning of the bus somehow that this patch broke.
-> 
-> And likewise for most 64-bit platforms except a1 and nanopi4.
-
-I primarily noticed that on the px30-evb.dts and the internal board I'm
-working on right now. Both don't have that mdio bus node right now.
 
 
-> > When probing the driver and trying to establish a connection for a nfsroot
-> > it always runs into a null pointer in mdiobus_get_phy():
-> > 
-> > [   26.878839] rk_gmac-dwmac ff360000.ethernet: IRQ eth_wake_irq not found
-> > [   26.886322] rk_gmac-dwmac ff360000.ethernet: IRQ eth_lpi not found
-> > [   26.894505] rk_gmac-dwmac ff360000.ethernet: PTP uses main clock
-> > [   26.908209] rk_gmac-dwmac ff360000.ethernet: clock input or output? (output).
-> > [   26.916269] rk_gmac-dwmac ff360000.ethernet: Can not read property: tx_delay.
-> > [   26.924297] rk_gmac-dwmac ff360000.ethernet: set tx_delay to 0x30
-> > [   26.931150] rk_gmac-dwmac ff360000.ethernet: Can not read property: rx_delay.
-> > [   26.939166] rk_gmac-dwmac ff360000.ethernet: set rx_delay to 0x10
-> > [   26.946021] rk_gmac-dwmac ff360000.ethernet: integrated PHY? (no).
-> > [   26.953032] rk_gmac-dwmac ff360000.ethernet: cannot get clock clk_mac_refout
-> > [   26.966161] rk_gmac-dwmac ff360000.ethernet: init for RMII
-> > [   26.972633] rk_gmac-dwmac ff360000.ethernet: User ID: 0x10, Synopsys ID: 0x35
-> > [   26.980830] rk_gmac-dwmac ff360000.ethernet:         DWMAC1000
-> > [   26.986735] rk_gmac-dwmac ff360000.ethernet: DMA HW capability register supported
-> > [   26.995145] rk_gmac-dwmac ff360000.ethernet: RX Checksum Offload Engine supported
-> > [   27.003540] rk_gmac-dwmac ff360000.ethernet: COE Type 2
-> > [   27.009408] rk_gmac-dwmac ff360000.ethernet: TX Checksum insertion supported
-> > [   27.017320] rk_gmac-dwmac ff360000.ethernet: Wake-Up On Lan supported
-> > [   27.024577] rk_gmac-dwmac ff360000.ethernet: Normal descriptors
-> > [   27.031211] rk_gmac-dwmac ff360000.ethernet: Ring mode enabled
-> > [   27.037743] rk_gmac-dwmac ff360000.ethernet: Enable RX Mitigation via HW Watchdog Timer
-> > [   27.209823] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000398
-> >  2IP-Config: eth0 hardware address  66:e4:9b:b1:30:c3 mtu 1500 DHCP
-> > 7.219681] Mem abort info:
-> > [   27.229322]   ESR = 0x96000006
-> > [   27.229328]   EC = 0x25: DABT (current EL), IL = 32 bits
-> > [   27.229330]   SET = 0, FnV = 0
-> > [   27.229332]   EA = 0, S1PTW = 0
-> > [   27.229334] Data abort info:
-> > [   27.229336]   ISV = 0, ISS = 0x00000006
-> > [   27.229338]   CM = 0, WnR = 0
-> > [   27.229342] user pgtable: 4k pages, 48-bit VAs, pgdp=000000003e7d4000
-> > [   27.229345] [0000000000000398] pgd=0000000036739003, pud=0000000035894003, pmd=0000000000000000
-> > [   27.273398] Internal error: Oops: 96000006 [#1] SMP
-> > [   27.273403] Modules linked in: smsc95xx smsc75xx ax88179_178a asix usbnet panel_leadtek_ltk500hd1829 dwmac_rk stmmac_platform stmmac rockchipdrm phy_rockchip_inno_dsidphy analogix_dp dw_hdmi cec r
-> > c_core dw_mipi_dsi drm_kms_helper rtc_rk808 drm drm_panel_orientation_quirks
-> > [   27.305785] CPU: 3 PID: 1388 Comm: ipconfig Not tainted 5.5.0-rc4-00934-gd57e566e6874 #1463
-> > [   27.305790] Hardware name: Theobroma Systems Cobra with Leadtek Display (DT)
-> > [   27.323006] pstate: 40000005 (nZcv daif -PAN -UAO)
-> > [   27.323020] pc : mdiobus_get_phy+0x4/0x20
-> > [   27.332867] lr : stmmac_open+0x780/0xa78 [stmmac]
-> > [   27.332872] sp : ffff80001113b9a0
-> > [   27.341823] x29: ffff80001113b9a0 x28: 0000000000401003
-> > [   27.347761] x27: ffff00003d5cf200 x26: 0000000000000000
-> > [   27.353699] x25: 0000000000000001 x24: 0000000000000000
-> > [   27.359636] x23: 0000000000001002 x22: ffff800008b790a0
-> > [   27.365575] x21: ffff000035f84000 x20: 00000000ffffffff
-> > [   27.371513] x19: ffff000035f84800 x18: 0000000000000000
-> > [   27.377451] x17: 0000000000000000 x16: 0000000000000000
-> > [   27.383389] x15: 0000000000000000 x14: ffffffffffffffff
-> > [   27.389328] x13: 0000000000000020 x12: 0101010101010101
-> > [   27.395266] x11: 0000000000000003 x10: 0101010101010101
-> > [   27.401203] x9 : fffffffffffffffd x8 : 7f7f7f7f7f7f7f7f
-> > [   27.407143] x7 : fefefeff646c606d x6 : 1e091448e4e5f6e9
-> > [   27.413074] x5 : 697665644814091e x4 : 8080808000000000
-> > [   27.419013] x3 : 8343c96b232bb348 x2 : ffff00003d63f880
-> > [   27.424953] x1 : fffffffffffffff8 x0 : 0000000000000000
-> > [   27.430882] Call trace:
-> > [   27.433620]  mdiobus_get_phy+0x4/0x20
-> > [   27.437715]  __dev_open+0xe4/0x160
-> > [   27.441515]  __dev_change_flags+0x160/0x1b8
-> > [   27.446191]  dev_change_flags+0x20/0x60
-> > [   27.450478]  devinet_ioctl+0x66c/0x738
-> > [   27.454666]  inet_ioctl+0x2f4/0x360
-> > [   27.458565]  sock_do_ioctl+0x44/0x2b0
-> > [   27.462657]  sock_ioctl+0x1c8/0x508
-> > [   27.466556]  do_vfs_ioctl+0x604/0xbd0
-> > [   27.470646]  ksys_ioctl+0x78/0xa8
-> > [   27.474351]  __arm64_sys_ioctl+0x1c/0x28
-> > [   27.478737]  el0_svc_common.constprop.0+0x68/0x160
-> > [   27.484083]  el0_svc_handler+0x20/0x80
-> > [   27.488273]  el0_sync_handler+0x10c/0x180
-> > [   27.492753]  el0_sync+0x140/0x180
-> > [   27.496462] Code: 97ffffb0 a8c17bfd d65f03c0 8b21cc01 (f941d020)
-> > [   27.503275] ---[ end trace 6f6ca54e66af6d48 ]---
-> > 
-> > With the expected output being normally at this point:
-> > [   18.575321] rk_gmac-dwmac ff360000.ethernet eth0: PHY [stmmac-0:00] driver [RTL8201F Fast Ethernet]
-> > [   18.602975] rk_gmac-dwmac ff360000.ethernet eth0: No Safety Features support found
-> > [   18.611505] rk_gmac-dwmac ff360000.ethernet eth0: PTP not supported by HW
-> > [   18.619117] rk_gmac-dwmac ff360000.ethernet eth0: configuring for phy/rmii link mode
-> > [   22.719478] rk_gmac-dwmac ff360000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
-> > 
-> > or
-> > 
-> > [   27.326984] rk_gmac-dwmac ff360000.ethernet eth0: PHY [stmmac-0:00] driver [Generic PHY]
-> > [   27.353543] rk_gmac-dwmac ff360000.ethernet eth0: No Safety Features support found
-> > [   27.362055] rk_gmac-dwmac ff360000.ethernet eth0: PTP not supported by HW
-> > [   27.369663] rk_gmac-dwmac ff360000.ethernet eth0: configuring for phy/rmii link mode
-> > [   29.406784] rk_gmac-dwmac ff360000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
-> > 
-> > 
-> > This is torvalds git head and it was still working at -rc1 and all kernels
-> > before that. When I just revert this commit, things also start working
-> > again, so I guess something must be wrong here?
+On 1/6/2020 6:25 AM, Jiri Olsa wrote:
+> On Sun, Jan 05, 2020 at 12:06:07PM -0800, Akemi Yagi wrote:
+>> On Sun, Jan 5, 2020 at 11:36 AM Jiri Olsa <jolsa@redhat.com> wrote:
+>>>
+>>> On Sun, Jan 05, 2020 at 10:21:25AM -0800, Akemi Yagi wrote:
+>>>> Adding Arnaldo and Jiri to the CC list.
+>>>>
+>>>> On Sun, Jan 5, 2020 at 9:01 AM Gordan Bobic <gordan@redsleeve.org> wrote:
+>>>>>
+>>>>> It looks like 4.9.208 introduces a build regression for perf:
+>>>>>
+>>>>> make -f /builddir/build/BUILD/kernel-4.9.208/linux-4.9.208-1.el7.x86_64/tools/build/Makefile.build
+>>>>> dir=. obj=perf
+>>>>
+>>>>>   -c -o builtin-report.o builtin-report.c
+>>>>> builtin-report.c: In function ‘report__setup_sample_type’:
+>>>>> builtin-report.c:296:6: error: ‘dwarf_callchain_users’ undeclared
+>>>>> (first use in this function)
+>>>>>    if (dwarf_callchain_users) {
+>>>>>        ^
+>>>>> builtin-report.c:296:6: note: each undeclared identifier is reported
+>>>>> only once for each function it appears in
+>>>>> mv: cannot stat ‘./.builtin-report.o.tmp’: No such file or directory
+>>>>> make[3]: *** [builtin-report.o] Error 1
+>>>>> make[2]: *** [perf-in.o] Error 2
+>>>>> make[1]: *** [sub-make] Error 2
+>>>>> make: *** [all] Error 2
+>>>>>
+>>>>> 4,9.207 works fine.
+>>>>
+>>>> The regression was caused by the following patch:
+>>>>
+>>>> https://lore.kernel.org/lkml/20191021133834.25998-7-acme@kernel.org/
+>>>>
+>>>> To fix this, 'dwarf_callchain_users' needs to be declared.
+>>>
+>>> hum, I see it's declared in callchain.h which is included in builtin-report.c
+>>> also I can't see that same stuff like you have on line 296.. what sources are you on?
+>>>
+>>> could you please check with latest Arnaldo's perf/core?
+>>>    git://git.kernel.org/pub/scm/linux/kernel/git/acme/linux.git
+>>>
+>>> thanks,
+>>> jirka
+>>
+>> This is kernel 4.4.208 that was released today.
+>> 'dwarf_callchain_users' is not declared in this kernel. I'm afraid it
+>> was missed when the aforementioned patch was backported.
 > 
-> Yes, this was also identified to be problematic by the kernelci boot
-> farms on another platform, see [1].
+> so 'dwarf_callchain_users' was introduced with:
+>    eabad8c6856f perf unwind: Do not look just at the global callchain_param.record_mode
 > 
-> [1]:
-> https://lore.kernel.org/linux-arm-kernel/5e0314da.1c69fb81.a7d63.29c1@mx.google.com/
+> which wasn't backported to 4.4.y and it seems it will need more
+> dependencies to be applied properly
 > 
-> Do you mind trying this patch and letting me know if it works for you.
-> Sriram, please also try it on your platforms and let me know if solves
-> the problem you were after. Thanks
+> however if I revert aforementioned patch:
+>    faece3af8072 perf report: Add warning when libunwind not compiled in
+> 
+> it compiles for me.. actualy I'm not sure why it went to stable,
+> it's just user info/warning
+> 
+> jirka
+> 
 
-Works on both boards I had that were affected, so
-Tested-by: Heiko Stuebner <heiko@sntech.de>
-
+Yes, agree with Jiri, this patch is only warning for user, but not for 
+fixing some issues.
 
 Thanks
-Heiko
-
-> 
-> diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-> b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-> index cc8d7e7bf9ac..e192b8e0809e 100644
-> --- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-> +++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-> @@ -320,7 +320,7 @@ static int stmmac_mtl_setup(struct platform_device
-> *pdev,
->  static int stmmac_dt_phy(struct plat_stmmacenet_data *plat,
->                          struct device_node *np, struct device *dev)
->  {
-> -       bool mdio = false;
-> +       bool mdio = true;
->         static const struct of_device_id need_mdio_ids[] = {
->                 { .compatible = "snps,dwc-qos-ethernet-4.10" },
->                 {},
-> @@ -341,8 +341,9 @@ static int stmmac_dt_phy(struct plat_stmmacenet_data
-> *plat,
->         }
-> 
->         if (plat->mdio_node) {
-> -               dev_dbg(dev, "Found MDIO subnode\n");
-> -               mdio = true;
-> +               mdio = of_device_is_available(plat->mdio_node);
-> +               dev_dbg(dev, "Found MDIO subnode, status: %sabled\n",
-> +                       mdio ? "en" : "dis");
->         }
-> 
->         if (mdio) {
-> 
-
-
-
-
+Jin Yao
