@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0A5F1311D7
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 13:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7B5413122D
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 13:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725821AbgAFMMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 07:12:39 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:41683 "EHLO
+        id S1725821AbgAFMdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 07:33:25 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:54797 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725787AbgAFMMj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 07:12:39 -0500
+        by vger.kernel.org with ESMTP id S1725787AbgAFMdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 07:33:25 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id B79825BC;
-        Mon,  6 Jan 2020 07:12:37 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 557815A4;
+        Mon,  6 Jan 2020 07:33:24 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 06 Jan 2020 07:12:38 -0500
+  by compute6.internal (MEProxy); Mon, 06 Jan 2020 07:33:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=8PJnlI
-        wxKHc05pck40wsezQmKB2OZpF9V9Dp+XUo3kc=; b=JmXANfWIutkGgEpr5khSQW
-        caFbjZC8I/2eixP6k2bpH7HmaWLDTfsgsP0vtz5LaBFS1i2OTVEHG6V5a/8DKTBd
-        zqvPtW8GifJpGKqtOYWvf1Fmn2/BYjiERY6m5XXM7cDSfpXz3iMhMyaToOxoIEqG
-        XtzVipD46pGpvM/FKlcB/shvQCMQRFAqxmSc4wtjF/fB43InD5/tjgIQPGHPiWBW
-        zNig6cDzW7OgGtecE4MjmvrOeDyMQMihDFKmmcZiRyicPvDNxTuP4JBfNV2Dw3kU
-        lqDIFQMDoK3D5EYCN1/L6qGtJPZ20xd0vdJ902gD2ZOlqKcEa94y/ptrW4qwNclQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=rLZ9qK
+        Zrb1DHtbt7YSbHccHDiXX58eiqjFdoBb6baps=; b=ORwkoH8bKqbLcL0SQLROQ+
+        Y/Rt/90ktmaU7Aru5/yV4bgoo2WfYpFU9nQMXS78HzMA3vqIoUyCm3KZlXhsAwsR
+        +Ll5n81dk0BUDrxtaeteja49DWEXM4SCZ21RHpN28z4L2ZbcO1TzVj5En/Z8pMcU
+        4j806kPrP1myyMmMZ+2ppDhBd2d5vtroAieCngZoQNcsfLenGLJqjWP6QX++YFVm
+        Z7o/NzilPd7WnygFkStIfGKUGxWa4x+uux3FFCI8XIQbVmH0+vhAu8gqWXMjVd2U
+        Hagz9P0TpwKSBPkj3UQwx7ll50EopLY7a+YzHw7vEiB5wujbVaxpmxBWTkwoJaHg
         ==
-X-ME-Sender: <xms:NCQTXpjUfYGipJb_blDYaaBt8rnPXsFxjxp8s-70qsGvvW4mkOvnDw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdehtddgfeelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:EykTXqIYAouD_LgxeKlxtEh1OK-5sGRIM7WvNilYwtDWYNDEqriQjA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdehtddggeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:NCQTXqHFsvh_teQLRhOEVjf3Y-gh7sUldgMwVHPvKpIDBGgHzQIxVA>
-    <xmx:NCQTXkbBh6kVXj96rY2n09hR1kPpQ_tvJTKjLXFsmp4sq0sLC0G1YA>
-    <xmx:NCQTXtOLZgukkICPe3ltItUYvZcx1-sDNLbkgRzHNASwH9PxEJrjlg>
-    <xmx:NSQTXoOsPR4j7r_X4it9S3cZMb3NtlvK5wyQ3zAt5FitILqkV788NQ>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:EykTXqljIYwxD4KBj6JXOj5O5M29D9KezGW2bzEO0i-q5XCklHJZLg>
+    <xmx:EykTXrK0evv9cHKvHwn4l2baUa6VbX9XwTS0mNOg6MP7MlFlMFlWNw>
+    <xmx:EykTXv6qJKj_Y4qDp9XZW5ZG1Rie4apcj4BjVxIEORzzKQ9at6lc5A>
+    <xmx:EykTXn8mKhTMPyudepqdu9yHslAVZsJgqsvxc-ZIGKuk-s6FzsoIWw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8BF2C80059;
-        Mon,  6 Jan 2020 07:12:36 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amdgpu: correct RLC firmwares loading sequence" failed to apply to 5.4-stable tree
-To:     evan.quan@amd.com, Hawking.Zhang@amd.com, alexander.deucher@amd.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5E10E8005B;
+        Mon,  6 Jan 2020 07:33:23 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pstore/ram: Write new dumps to start of recycled zones" failed to apply to 4.4-stable tree
+To:     a.yashkin@inango-systems.com, a.gilman@inango-systems.com,
+        keescook@chromium.org, n.merinov@inango-systems.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jan 2020 13:12:34 +0100
-Message-ID: <1578312754165159@kroah.com>
+Date:   Mon, 06 Jan 2020 13:33:17 +0100
+Message-ID: <157831399721246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,53 +69,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 969e11529221a6a2a787cb3b63ccf9402f8d2e37 Mon Sep 17 00:00:00 2001
-From: Evan Quan <evan.quan@amd.com>
-Date: Mon, 23 Dec 2019 16:13:48 +0800
-Subject: [PATCH] drm/amdgpu: correct RLC firmwares loading sequence
+From 9e5f1c19800b808a37fb9815a26d382132c26c3d Mon Sep 17 00:00:00 2001
+From: Aleksandr Yashkin <a.yashkin@inango-systems.com>
+Date: Mon, 23 Dec 2019 18:38:16 +0500
+Subject: [PATCH] pstore/ram: Write new dumps to start of recycled zones
 
-Per confirmation with RLC firmware team, the RLC should
-be unhalted after all RLC related firmwares uploaded.
-However, in fact the RLC is unhalted immediately after
-RLCG firmware uploaded. And that may causes unexpected
-PSP hang on loading the succeeding RLC save restore
-list related firmwares.
-So, we correct the firmware loading sequence to load
-RLC save restore list related firmwares before RLCG
-ucode. That will help to get around this issue.
+The ram_core.c routines treat przs as circular buffers. When writing a
+new crash dump, the old buffer needs to be cleared so that the new dump
+doesn't end up in the wrong place (i.e. at the end).
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The solution to this problem is to reset the circular buffer state before
+writing a new Oops dump.
+
+Signed-off-by: Aleksandr Yashkin <a.yashkin@inango-systems.com>
+Signed-off-by: Nikolay Merinov <n.merinov@inango-systems.com>
+Signed-off-by: Ariel Gilman <a.gilman@inango-systems.com>
+Link: https://lore.kernel.org/r/20191223133816.28155-1-n.merinov@inango-systems.com
+Fixes: 896fc1f0c4c6 ("pstore/ram: Switch to persistent_ram routines")
 Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index 44be3a45b25e..e1b8d8daeafc 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -1488,7 +1488,7 @@ out:
+diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
+index f753f3b6f88d..487ee39b438a 100644
+--- a/fs/pstore/ram.c
++++ b/fs/pstore/ram.c
+@@ -407,6 +407,17 @@ static int notrace ramoops_pstore_write(struct pstore_record *record)
  
- 		/* Start rlc autoload after psp recieved all the gfx firmware */
- 		if (psp->autoload_supported && ucode->ucode_id == (amdgpu_sriov_vf(adev) ?
--		    AMDGPU_UCODE_ID_CP_MEC2 : AMDGPU_UCODE_ID_RLC_RESTORE_LIST_SRM_MEM)) {
-+		    AMDGPU_UCODE_ID_CP_MEC2 : AMDGPU_UCODE_ID_RLC_G)) {
- 			ret = psp_rlc_autoload(psp);
- 			if (ret) {
- 				DRM_ERROR("Failed to start rlc autoload\n");
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h
-index 410587b950f3..914acecda5cf 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h
-@@ -292,10 +292,10 @@ enum AMDGPU_UCODE_ID {
- 	AMDGPU_UCODE_ID_CP_MEC2_JT,
- 	AMDGPU_UCODE_ID_CP_MES,
- 	AMDGPU_UCODE_ID_CP_MES_DATA,
--	AMDGPU_UCODE_ID_RLC_G,
- 	AMDGPU_UCODE_ID_RLC_RESTORE_LIST_CNTL,
- 	AMDGPU_UCODE_ID_RLC_RESTORE_LIST_GPM_MEM,
- 	AMDGPU_UCODE_ID_RLC_RESTORE_LIST_SRM_MEM,
-+	AMDGPU_UCODE_ID_RLC_G,
- 	AMDGPU_UCODE_ID_STORAGE,
- 	AMDGPU_UCODE_ID_SMC,
- 	AMDGPU_UCODE_ID_UVD,
+ 	prz = cxt->dprzs[cxt->dump_write_cnt];
+ 
++	/*
++	 * Since this is a new crash dump, we need to reset the buffer in
++	 * case it still has an old dump present. Without this, the new dump
++	 * will get appended, which would seriously confuse anything trying
++	 * to check dump file contents. Specifically, ramoops_read_kmsg_hdr()
++	 * expects to find a dump header in the beginning of buffer data, so
++	 * we must to reset the buffer values, in order to ensure that the
++	 * header will be written to the beginning of the buffer.
++	 */
++	persistent_ram_zap(prz);
++
+ 	/* Build header and append record contents. */
+ 	hlen = ramoops_write_kmsg_hdr(prz, record);
+ 	if (!hlen)
 
