@@ -2,154 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82A24131864
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 20:12:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6351131870
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 20:14:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726569AbgAFTMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 14:12:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54300 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726683AbgAFTMO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Jan 2020 14:12:14 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B21FB2072E;
-        Mon,  6 Jan 2020 19:12:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578337933;
-        bh=lcCSiAaLdI9jLlG04oeqvvZAhqW6Q4TTSz7s5r1Gn0s=;
-        h=Subject:To:From:Date:From;
-        b=QOTfHaqDo6RZ1bN2jTOZrSZ7BUKwrvxpmESyt8o8iRjGrBee5FsVIcKAL9iFTq+EP
-         GW/xHKTnTIvaCJQUCAZdnIsecZFwefWAPptQ96BmzotLDhC+awjzlFgxK0OISmlOgS
-         D1TGi7GLngfeDO2ap4JKrG705KMW0tZRpVMszLSQ=
-Subject: patch "chardev: Avoid potential use-after-free in 'chrdev_open()'" added to char-misc-testing
-To:     will@kernel.org, akpm@linux-foundation.org,
-        gregkh@linuxfoundation.org, hdanton@sina.com,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jan 2020 20:12:10 +0100
-Message-ID: <1578337930232123@kroah.com>
+        id S1726699AbgAFTOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 14:14:50 -0500
+Received: from mail.efficios.com ([167.114.142.138]:39458 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726612AbgAFTOu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 14:14:50 -0500
+Received: from localhost (ip6-localhost [IPv6:::1])
+        by mail.efficios.com (Postfix) with ESMTP id AF423694663;
+        Mon,  6 Jan 2020 14:14:48 -0500 (EST)
+Received: from mail.efficios.com ([IPv6:::1])
+        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10032)
+        with ESMTP id y5UfXTZOn8ja; Mon,  6 Jan 2020 14:14:48 -0500 (EST)
+Received: from localhost (ip6-localhost [IPv6:::1])
+        by mail.efficios.com (Postfix) with ESMTP id 18393694660;
+        Mon,  6 Jan 2020 14:14:48 -0500 (EST)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 18393694660
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1578338088;
+        bh=K3pne9AU9Zzqsb9l2TuNdNRJkqv0aH5vxyEQ5Haccnk=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=IUEcCq/brI8TE7E0DMhYPZgI5GekB4eVe8vaNGkrPeIlhuXWVV28HarV5vLIouREp
+         gBYukY4vAAr6LLafGjNQ1okwb0bG82t/6Btl5GSSS2GHHLbzzP4pLFUHn3GMtKrsTu
+         YSaFUP0MmRANWxXOsLvjKmN9jskh4xBXm1DCwOm0lznl5CFUjO5oCBezy33d6Aqi4h
+         dTXwDttX0sT9Bj9ijw47eIUZUx007AY68TuLVNsuL98wvRNyIrbqPh1POwVT7kIzxC
+         1o/X4SJnaiNbtqToDausna9jgoFFFh/rguUCA8CRY2/PK/N3v+8n6bfaGKFlxKf2l1
+         GcdMQhtTrFYLw==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([IPv6:::1])
+        by localhost (mail02.efficios.com [IPv6:::1]) (amavisd-new, port 10026)
+        with ESMTP id mcgmQ7JAuRAw; Mon,  6 Jan 2020 14:14:48 -0500 (EST)
+Received: from mail02.efficios.com (mail02.efficios.com [167.114.142.138])
+        by mail.efficios.com (Postfix) with ESMTP id F1D5C694655;
+        Mon,  6 Jan 2020 14:14:47 -0500 (EST)
+Date:   Mon, 6 Jan 2020 14:14:47 -0500 (EST)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-tip-commits <linux-tip-commits@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>,
+        stable <stable@vger.kernel.org>
+Message-ID: <1732849021.873.1578338087928.JavaMail.zimbra@efficios.com>
+In-Reply-To: <1460494267.15769.1577399533860.JavaMail.zimbra@efficios.com>
+References: <20191211161713.4490-2-mathieu.desnoyers@efficios.com> <157727033331.30329.17206832903007175600.tip-bot2@tip-bot2> <20191225113932.GD18098@zn.tnic> <1460494267.15769.1577399533860.JavaMail.zimbra@efficios.com>
+Subject: Re: [tip: core/urgent] rseq: Reject unknown flags on rseq
+ unregister
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.142.138]
+X-Mailer: Zimbra 8.8.15_GA_3894 (ZimbraWebClient - FF71 (Linux)/8.8.15_GA_3890)
+Thread-Topic: core/urgent] rseq: Reject unknown flags on rseq unregister
+Thread-Index: BWaWCVXVOJYWOEoxqutpfh8/ngqLyH0/K6rf
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+----- On Dec 26, 2019, at 5:32 PM, Mathieu Desnoyers mathieu.desnoyers@efficios.com wrote:
 
-This is a note to let you know that I've just added the patch titled
+> ----- On Dec 25, 2019, at 6:39 AM, Borislav Petkov bp@alien8.de wrote:
+> 
+>> On Wed, Dec 25, 2019 at 10:38:53AM -0000, tip-bot2 for Mathieu Desnoyers wrote:
+>>> The following commit has been merged into the core/urgent branch of tip:
+>>> 
+>>> Commit-ID:     66528a4575eee9f5a5270219894ab6178f146e84
+>>> Gitweb:
+>>> https://git.kernel.org/tip/66528a4575eee9f5a5270219894ab6178f146e84
+>>> Author:        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+>>> AuthorDate:    Wed, 11 Dec 2019 11:17:11 -05:00
+>>> Committer:     Ingo Molnar <mingo@kernel.org>
+>>> CommitterDate: Wed, 25 Dec 2019 10:41:20 +01:00
+>>> 
+>>> rseq: Reject unknown flags on rseq unregister
+>>> 
+>>> It is preferrable to reject unknown flags within rseq unregistration
+>>> rather than to ignore them. It is an oversight caused by the fact that
+>>> the check for unknown flags is after the rseq unregister flag check.
+>>> 
+>>> Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+>>> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+>>> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+>>> Cc: Peter Zijlstra <peterz@infradead.org>
+>>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>>> Link:
+>>> https://lkml.kernel.org/r/20191211161713.4490-2-mathieu.desnoyers@efficios.com
+>>> Signed-off-by: Ingo Molnar <mingo@kernel.org>
+>>> ---
+>>>  kernel/rseq.c | 2 ++
+>>>  1 file changed, 2 insertions(+)
+>>> 
+>>> diff --git a/kernel/rseq.c b/kernel/rseq.c
+>>> index 27c48eb..a4f86a9 100644
+>>> --- a/kernel/rseq.c
+>>> +++ b/kernel/rseq.c
+>>> @@ -310,6 +310,8 @@ SYSCALL_DEFINE4(rseq, struct rseq __user *, rseq, u32,
+>>> rseq_len,
+>>>  	int ret;
+>>>  
+>>>  	if (flags & RSEQ_FLAG_UNREGISTER) {
+>>> +		if (flags & ~RSEQ_FLAG_UNREGISTER)
+>>> +			return -EINVAL;
+>>>  		/* Unregister rseq for current thread. */
+>>>  		if (current->rseq != rseq || !current->rseq)
+>>>  			return -EINVAL;
+>> 
+>> Cc: stable perhaps?
+> 
+> This could indeed be a candidate for stable, even though it's just a stricter
+> checking of unknown flags (returning an error rather than ignoring them).
+> 
+> Adding stable in CC here.
 
-    chardev: Avoid potential use-after-free in 'chrdev_open()'
+For the records, I had stable in CC in my original patch submission. The stable CC has
+been stripped when it was merged into the tip tree.
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
+Thanks,
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Mathieu
 
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
+> 
+> Thanks,
+> 
+> Mathieu
+> 
+> 
+> --
+> Mathieu Desnoyers
+> EfficiOS Inc.
+> http://www.efficios.com
 
-If you have any questions about this process, please let me know.
-
-
-From 68faa679b8be1a74e6663c21c3a9d25d32f1c079 Mon Sep 17 00:00:00 2001
-From: Will Deacon <will@kernel.org>
-Date: Thu, 19 Dec 2019 12:02:03 +0000
-Subject: chardev: Avoid potential use-after-free in 'chrdev_open()'
-
-'chrdev_open()' calls 'cdev_get()' to obtain a reference to the
-'struct cdev *' stashed in the 'i_cdev' field of the target inode
-structure. If the pointer is NULL, then it is initialised lazily by
-looking up the kobject in the 'cdev_map' and so the whole procedure is
-protected by the 'cdev_lock' spinlock to serialise initialisation of
-the shared pointer.
-
-Unfortunately, it is possible for the initialising thread to fail *after*
-installing the new pointer, for example if the subsequent '->open()' call
-on the file fails. In this case, 'cdev_put()' is called, the reference
-count on the kobject is dropped and, if nobody else has taken a reference,
-the release function is called which finally clears 'inode->i_cdev' from
-'cdev_purge()' before potentially freeing the object. The problem here
-is that a racing thread can happily take the 'cdev_lock' and see the
-non-NULL pointer in the inode, which can result in a refcount increment
-from zero and a warning:
-
-  |  ------------[ cut here ]------------
-  |  refcount_t: addition on 0; use-after-free.
-  |  WARNING: CPU: 2 PID: 6385 at lib/refcount.c:25 refcount_warn_saturate+0x6d/0xf0
-  |  Modules linked in:
-  |  CPU: 2 PID: 6385 Comm: repro Not tainted 5.5.0-rc2+ #22
-  |  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-  |  RIP: 0010:refcount_warn_saturate+0x6d/0xf0
-  |  Code: 05 55 9a 15 01 01 e8 9d aa c8 ff 0f 0b c3 80 3d 45 9a 15 01 00 75 ce 48 c7 c7 00 9c 62 b3 c6 08
-  |  RSP: 0018:ffffb524c1b9bc70 EFLAGS: 00010282
-  |  RAX: 0000000000000000 RBX: ffff9e9da1f71390 RCX: 0000000000000000
-  |  RDX: ffff9e9dbbd27618 RSI: ffff9e9dbbd18798 RDI: ffff9e9dbbd18798
-  |  RBP: 0000000000000000 R08: 000000000000095f R09: 0000000000000039
-  |  R10: 0000000000000000 R11: ffffb524c1b9bb20 R12: ffff9e9da1e8c700
-  |  R13: ffffffffb25ee8b0 R14: 0000000000000000 R15: ffff9e9da1e8c700
-  |  FS:  00007f3b87d26700(0000) GS:ffff9e9dbbd00000(0000) knlGS:0000000000000000
-  |  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  |  CR2: 00007fc16909c000 CR3: 000000012df9c000 CR4: 00000000000006e0
-  |  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  |  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  |  Call Trace:
-  |   kobject_get+0x5c/0x60
-  |   cdev_get+0x2b/0x60
-  |   chrdev_open+0x55/0x220
-  |   ? cdev_put.part.3+0x20/0x20
-  |   do_dentry_open+0x13a/0x390
-  |   path_openat+0x2c8/0x1470
-  |   do_filp_open+0x93/0x100
-  |   ? selinux_file_ioctl+0x17f/0x220
-  |   do_sys_open+0x186/0x220
-  |   do_syscall_64+0x48/0x150
-  |   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  |  RIP: 0033:0x7f3b87efcd0e
-  |  Code: 89 54 24 08 e8 a3 f4 ff ff 8b 74 24 0c 48 8b 3c 24 41 89 c0 44 8b 54 24 08 b8 01 01 00 00 89 f4
-  |  RSP: 002b:00007f3b87d259f0 EFLAGS: 00000293 ORIG_RAX: 0000000000000101
-  |  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3b87efcd0e
-  |  RDX: 0000000000000000 RSI: 00007f3b87d25a80 RDI: 00000000ffffff9c
-  |  RBP: 00007f3b87d25e90 R08: 0000000000000000 R09: 0000000000000000
-  |  R10: 0000000000000000 R11: 0000000000000293 R12: 00007ffe188f504e
-  |  R13: 00007ffe188f504f R14: 00007f3b87d26700 R15: 0000000000000000
-  |  ---[ end trace 24f53ca58db8180a ]---
-
-Since 'cdev_get()' can already fail to obtain a reference, simply move
-it over to use 'kobject_get_unless_zero()' instead of 'kobject_get()',
-which will cause the racing thread to return -ENXIO if the initialising
-thread fails unexpectedly.
-
-Cc: Hillf Danton <hdanton@sina.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Reported-by: syzbot+82defefbbd8527e1c2cb@syzkaller.appspotmail.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191219120203.32691-1-will@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/char_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/char_dev.c b/fs/char_dev.c
-index 00dfe17871ac..c5e6eff5a381 100644
---- a/fs/char_dev.c
-+++ b/fs/char_dev.c
-@@ -352,7 +352,7 @@ static struct kobject *cdev_get(struct cdev *p)
- 
- 	if (owner && !try_module_get(owner))
- 		return NULL;
--	kobj = kobject_get(&p->kobj);
-+	kobj = kobject_get_unless_zero(&p->kobj);
- 	if (!kobj)
- 		module_put(owner);
- 	return kobj;
 -- 
-2.24.1
-
-
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
