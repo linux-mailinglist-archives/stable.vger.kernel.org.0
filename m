@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7802A1311D5
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 13:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96CBC1311D6
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 13:11:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726281AbgAFMKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 07:10:41 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:53389 "EHLO
+        id S1726292AbgAFMLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 07:11:14 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:41659 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725787AbgAFMKk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 07:10:40 -0500
+        by vger.kernel.org with ESMTP id S1725787AbgAFMLN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 07:11:13 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id AD3EE4CF;
-        Mon,  6 Jan 2020 07:10:39 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 06 Jan 2020 07:10:39 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 5B9046C7;
+        Mon,  6 Jan 2020 07:11:12 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 06 Jan 2020 07:11:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=SFOlJn
-        WcCj6TtRFatadjg7GIokN5sp3Y8EtPec3M4vU=; b=gtn7AZXMb/Fj96ugRC5mA7
-        Q4YwASbDBWnuIR6fh7mKyNolq8oVLYiQ95bWLzYt5fco0c0c+/lcOOruKvCGIRus
-        AuOYvymV9yXxyygW4axEMHYaQ55/ywWH9ar71ZMuXTQfz3hrZLl2Dk1JJkAT+SIy
-        BEYaiCQaG/UISUCH/0hzARm/J+5I3rOHsyfBCCyMUGW7p9lbhMN2tX7h7jsr7tu3
-        SZFD/QOuf5Q9I0Pans5CI2wuhlV3aplHqzWYZokjOxD2hsPWxwlMJyd9msSL23mn
-        YXg8tt5MXD69gkdoL8piWOEUDqDyRZGmE+JXvDh9rROuKV5DY9D2wQ3J4NwDSVEg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=EdPBMo
+        XiB6ELNYkuHOEF6RoS2+6Ojta0SPA4ClC5c4w=; b=nfmDGsk3tqrwrSSAUEZS7H
+        BaUjbo2nyvip7V/uuWCuLmnaZKIsdJ1IIPKYfII1zgH6mR6VIsf2B3eQJgWX2bT6
+        L2azigvc2QVKoZCEfmnfRRpc9l2plfMSmnXLL8O6xWXUlc1h9zEP69DpxI6I1UO+
+        VZgve4OPc94PSe45Rp5okDIi9dSzWazzjMYgfPnp7uR1q1A678xHpASzdtESedgP
+        v38nnTNtvV9d2HWSg9jDjOqFa0OWM9KziuJ/HkKqcJJNWCVbBqN/QNuMBzNVhUyQ
+        NGgGYkRxdnKRkVLNkj5CdooTkeRF0RWefGpH7n871NkAxLs53g5YMaMMi6J6g/hQ
         ==
-X-ME-Sender: <xms:vyMTXkFgLT0_j6F6vON2KaaCdpwtxMRj4ELTC4vUUvkpNy5SLMdVIA>
+X-ME-Sender: <xms:3yMTXjqd_Zzj-vibP3bWYHZouhnSYv9r9vTueiUnjYZKfpQ7SJQmJw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdehtddgfeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:vyMTXhlX3YvijgzghWcKYE-mmtQ0382gTvEmo4MbkvwYVZjMT-soDA>
-    <xmx:vyMTXpJ4NSQhAzGQ3w5kIu3Mj7f1OsnFe-zcSbjtXXZTPVPHMmEUJg>
-    <xmx:vyMTXqaLrkZH_ruJ6UrepDKu1JWUsUg4Ot4ljzON1f96-jFwozHrTg>
-    <xmx:vyMTXo1qiYMdUvpBlLePuzZAO2GIcCQvi6IjaciSFEJMeUBlisDs8Q>
+    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
+    eirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:3yMTXjOndFBJIuCModYYCC-qf1Na0qv6k69nmhEPWj0Jppy9yu_zCw>
+    <xmx:3yMTXkH_h9S2WkU4-3fyGdeYbDVmKMr3fT78Zx_WhRFsSdJefiIPrA>
+    <xmx:3yMTXu7oj1OA5dh6yA-eyF6qpxXOb8YogEvxgI7uipe1AGWVt6phtA>
+    <xmx:4CMTXp6z-IC2FmDa-h3mm0fYZZcsIe2SHhJWSj-CJaYCbf09PYejFA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CE8208005A;
-        Mon,  6 Jan 2020 07:10:38 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Enable the bass speaker of ASUS UX431FLC" failed to apply to 5.4-stable tree
-To:     chiu@endlessm.com, jian-hong@endlessm.com, stable@vger.kernel.org,
-        tiwai@suse.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3B27D30607B0;
+        Mon,  6 Jan 2020 07:11:11 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: Hold reference to intel_frontbuffer as we track" failed to apply to 5.4-stable tree
+To:     chris@chris-wilson.co.uk, jani.nikula@intel.com,
+        joonas.lahtinen@linux.intel.com, matthew.auld@intel.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jan 2020 13:10:37 +0100
-Message-ID: <157831263714182@kroah.com>
+Date:   Mon, 06 Jan 2020 13:11:09 +0100
+Message-ID: <15783126692333@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,103 +70,394 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 48e01504cf5315cbe6de9b7412e792bfcc3dd9e1 Mon Sep 17 00:00:00 2001
-From: Chris Chiu <chiu@endlessm.com>
-Date: Mon, 30 Dec 2019 11:11:18 +0800
-Subject: [PATCH] ALSA: hda/realtek - Enable the bass speaker of ASUS UX431FLC
+From e85ade1f50aae464ce196672faa7a099fd1721ed Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Wed, 18 Dec 2019 10:40:43 +0000
+Subject: [PATCH] drm/i915: Hold reference to intel_frontbuffer as we track
+ activity
 
-ASUS reported that there's an bass speaker in addition to internal
-speaker and it uses DAC 0x02. It was not enabled in the commit
-436e25505f34 ("ALSA: hda/realtek - Enable internal speaker of ASUS
-UX431FLC") which only enables the amplifier and the front speaker.
-This commit enables the bass speaker on top of the aforementioned
-work to improve the acoustic experience.
+Since obj->frontbuffer is no longer protected by the struct_mutex, as we
+are processing the execbuf, it may be removed. Mark the
+intel_frontbuffer as rcu protected, and so acquire a reference to
+the struct as we track activity upon it.
 
-Fixes: 436e25505f34 ("ALSA: hda/realtek - Enable internal speaker of ASUS UX431FLC")
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191230031118.95076-1-chiu@endlessm.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/827
+Fixes: 8e7cb1799b4f ("drm/i915: Extract intel_frontbuffer active tracking")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+Reviewed-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191218104043.3539458-1-chris@chris-wilson.co.uk
+(cherry picked from commit da42104f589d979bbe402703fd836cec60befae1)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 2ee703c2da78..1cd4906a67e1 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5905,11 +5905,12 @@ enum {
- 	ALC256_FIXUP_ASUS_HEADSET_MIC,
- 	ALC256_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC299_FIXUP_PREDATOR_SPK,
--	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
- 	ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE,
--	ALC294_FIXUP_ASUS_INTSPK_GPIO,
- 	ALC289_FIXUP_DELL_SPK2,
- 	ALC289_FIXUP_DUAL_SPK,
-+	ALC294_FIXUP_SPK2_TO_DAC1,
-+	ALC294_FIXUP_ASUS_DUAL_SPK,
-+
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index 6f5e3bd13ad1..effc4250b230 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -15112,7 +15112,7 @@ intel_prepare_plane_fb(struct drm_plane *plane,
+ 		return ret;
+ 
+ 	fb_obj_bump_render_priority(obj);
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_DIRTYFB);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_DIRTYFB);
+ 
+ 	if (!new_plane_state->base.fence) { /* implicit fencing */
+ 		struct dma_fence *fence;
+diff --git a/drivers/gpu/drm/i915/display/intel_frontbuffer.c b/drivers/gpu/drm/i915/display/intel_frontbuffer.c
+index 84b164f31895..6cb02c912acc 100644
+--- a/drivers/gpu/drm/i915/display/intel_frontbuffer.c
++++ b/drivers/gpu/drm/i915/display/intel_frontbuffer.c
+@@ -229,11 +229,11 @@ static void frontbuffer_release(struct kref *ref)
+ 		vma->display_alignment = I915_GTT_MIN_ALIGNMENT;
+ 	spin_unlock(&obj->vma.lock);
+ 
+-	obj->frontbuffer = NULL;
++	RCU_INIT_POINTER(obj->frontbuffer, NULL);
+ 	spin_unlock(&to_i915(obj->base.dev)->fb_tracking.lock);
+ 
+ 	i915_gem_object_put(obj);
+-	kfree(front);
++	kfree_rcu(front, rcu);
+ }
+ 
+ struct intel_frontbuffer *
+@@ -242,11 +242,7 @@ intel_frontbuffer_get(struct drm_i915_gem_object *obj)
+ 	struct drm_i915_private *i915 = to_i915(obj->base.dev);
+ 	struct intel_frontbuffer *front;
+ 
+-	spin_lock(&i915->fb_tracking.lock);
+-	front = obj->frontbuffer;
+-	if (front)
+-		kref_get(&front->ref);
+-	spin_unlock(&i915->fb_tracking.lock);
++	front = __intel_frontbuffer_get(obj);
+ 	if (front)
+ 		return front;
+ 
+@@ -262,13 +258,13 @@ intel_frontbuffer_get(struct drm_i915_gem_object *obj)
+ 			 i915_active_may_sleep(frontbuffer_retire));
+ 
+ 	spin_lock(&i915->fb_tracking.lock);
+-	if (obj->frontbuffer) {
++	if (rcu_access_pointer(obj->frontbuffer)) {
+ 		kfree(front);
+-		front = obj->frontbuffer;
++		front = rcu_dereference_protected(obj->frontbuffer, true);
+ 		kref_get(&front->ref);
+ 	} else {
+ 		i915_gem_object_get(obj);
+-		obj->frontbuffer = front;
++		rcu_assign_pointer(obj->frontbuffer, front);
+ 	}
+ 	spin_unlock(&i915->fb_tracking.lock);
+ 
+diff --git a/drivers/gpu/drm/i915/display/intel_frontbuffer.h b/drivers/gpu/drm/i915/display/intel_frontbuffer.h
+index adc64d61a4a5..6d41f5394425 100644
+--- a/drivers/gpu/drm/i915/display/intel_frontbuffer.h
++++ b/drivers/gpu/drm/i915/display/intel_frontbuffer.h
+@@ -27,10 +27,10 @@
+ #include <linux/atomic.h>
+ #include <linux/kref.h>
+ 
++#include "gem/i915_gem_object_types.h"
+ #include "i915_active.h"
+ 
+ struct drm_i915_private;
+-struct drm_i915_gem_object;
+ 
+ enum fb_op_origin {
+ 	ORIGIN_GTT,
+@@ -45,6 +45,7 @@ struct intel_frontbuffer {
+ 	atomic_t bits;
+ 	struct i915_active write;
+ 	struct drm_i915_gem_object *obj;
++	struct rcu_head rcu;
  };
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -6984,16 +6985,6 @@ static const struct hda_fixup alc269_fixups[] = {
- 			{ }
- 		}
- 	},
--	[ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC] = {
--		.type = HDA_FIXUP_PINS,
--		.v.pins = (const struct hda_pintbl[]) {
--			{ 0x14, 0x411111f0 }, /* disable confusing internal speaker */
--			{ 0x19, 0x04a11150 }, /* use as headset mic, without its own jack detect */
--			{ }
--		},
--		.chained = true,
--		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
--	},
- 	[ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -7004,13 +6995,6 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
- 	},
--	[ALC294_FIXUP_ASUS_INTSPK_GPIO] = {
--		.type = HDA_FIXUP_FUNC,
--		/* The GPIO must be pulled to initialize the AMP */
--		.v.func = alc_fixup_gpio4,
--		.chained = true,
--		.chain_id = ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC
--	},
- 	[ALC289_FIXUP_DELL_SPK2] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -7026,6 +7010,20 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC289_FIXUP_DELL_SPK2
- 	},
-+	[ALC294_FIXUP_SPK2_TO_DAC1] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc285_fixup_speaker2_to_dac1,
-+		.chained = true,
-+		.chain_id = ALC294_FIXUP_ASUS_HEADSET_MIC
-+	},
-+	[ALC294_FIXUP_ASUS_DUAL_SPK] = {
-+		.type = HDA_FIXUP_FUNC,
-+		/* The GPIO must be pulled to initialize the AMP */
-+		.v.func = alc_fixup_gpio4,
-+		.chained = true,
-+		.chain_id = ALC294_FIXUP_SPK2_TO_DAC1
-+	},
-+
- };
+ void intel_frontbuffer_flip_prepare(struct drm_i915_private *i915,
+@@ -54,6 +55,35 @@ void intel_frontbuffer_flip_complete(struct drm_i915_private *i915,
+ void intel_frontbuffer_flip(struct drm_i915_private *i915,
+ 			    unsigned frontbuffer_bits);
  
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7187,7 +7185,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1043, 0x1427, "Asus Zenbook UX31E", ALC269VB_FIXUP_ASUS_ZENBOOK),
- 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
- 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
--	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_INTSPK_GPIO),
-+	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
- 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
++void intel_frontbuffer_put(struct intel_frontbuffer *front);
++
++static inline struct intel_frontbuffer *
++__intel_frontbuffer_get(const struct drm_i915_gem_object *obj)
++{
++	struct intel_frontbuffer *front;
++
++	if (likely(!rcu_access_pointer(obj->frontbuffer)))
++		return NULL;
++
++	rcu_read_lock();
++	do {
++		front = rcu_dereference(obj->frontbuffer);
++		if (!front)
++			break;
++
++		if (unlikely(!kref_get_unless_zero(&front->ref)))
++			continue;
++
++		if (likely(front == rcu_access_pointer(obj->frontbuffer)))
++			break;
++
++		intel_frontbuffer_put(front);
++	} while (1);
++	rcu_read_unlock();
++
++	return front;
++}
++
+ struct intel_frontbuffer *
+ intel_frontbuffer_get(struct drm_i915_gem_object *obj);
+ 
+@@ -119,6 +149,4 @@ void intel_frontbuffer_track(struct intel_frontbuffer *old,
+ 			     struct intel_frontbuffer *new,
+ 			     unsigned int frontbuffer_bits);
+ 
+-void intel_frontbuffer_put(struct intel_frontbuffer *front);
+-
+ #endif /* __INTEL_FRONTBUFFER_H__ */
+diff --git a/drivers/gpu/drm/i915/display/intel_overlay.c b/drivers/gpu/drm/i915/display/intel_overlay.c
+index 848ce07a8ec2..8a98a1aa7adc 100644
+--- a/drivers/gpu/drm/i915/display/intel_overlay.c
++++ b/drivers/gpu/drm/i915/display/intel_overlay.c
+@@ -279,12 +279,21 @@ static void intel_overlay_flip_prepare(struct intel_overlay *overlay,
+ 				       struct i915_vma *vma)
+ {
+ 	enum pipe pipe = overlay->crtc->pipe;
++	struct intel_frontbuffer *from = NULL, *to = NULL;
+ 
+ 	WARN_ON(overlay->old_vma);
+ 
+-	intel_frontbuffer_track(overlay->vma ? overlay->vma->obj->frontbuffer : NULL,
+-				vma ? vma->obj->frontbuffer : NULL,
+-				INTEL_FRONTBUFFER_OVERLAY(pipe));
++	if (overlay->vma)
++		from = intel_frontbuffer_get(overlay->vma->obj);
++	if (vma)
++		to = intel_frontbuffer_get(vma->obj);
++
++	intel_frontbuffer_track(from, to, INTEL_FRONTBUFFER_OVERLAY(pipe));
++
++	if (to)
++		intel_frontbuffer_put(to);
++	if (from)
++		intel_frontbuffer_put(from);
+ 
+ 	intel_frontbuffer_flip_prepare(overlay->i915,
+ 				       INTEL_FRONTBUFFER_OVERLAY(pipe));
+@@ -766,7 +775,7 @@ static int intel_overlay_do_put_image(struct intel_overlay *overlay,
+ 		ret = PTR_ERR(vma);
+ 		goto out_pin_section;
+ 	}
+-	intel_frontbuffer_flush(new_bo->frontbuffer, ORIGIN_DIRTYFB);
++	i915_gem_object_flush_frontbuffer(new_bo, ORIGIN_DIRTYFB);
+ 
+ 	if (!overlay->active) {
+ 		u32 oconfig;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_clflush.c b/drivers/gpu/drm/i915/gem/i915_gem_clflush.c
+index b9f504ba3b32..18ee708585a9 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_clflush.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_clflush.c
+@@ -20,7 +20,8 @@ static void __do_clflush(struct drm_i915_gem_object *obj)
+ {
+ 	GEM_BUG_ON(!i915_gem_object_has_pages(obj));
+ 	drm_clflush_sg(obj->mm.pages);
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ }
+ 
+ static int clflush_work(struct dma_fence_work *base)
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+index 9937b4c341f1..f86400a191b0 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+@@ -664,7 +664,7 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
+ 	i915_gem_object_unlock(obj);
+ 
+ 	if (write_domain)
+-		intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++		i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 
+ out_unpin:
+ 	i915_gem_object_unpin_pages(obj);
+@@ -784,7 +784,7 @@ int i915_gem_object_prepare_write(struct drm_i915_gem_object *obj,
+ 	}
+ 
+ out:
+-	intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 	obj->mm.dirty = true;
+ 	/* return with the pages pinned */
+ 	return 0;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.c b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+index a50296cce0d8..a596548c07bf 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+@@ -280,7 +280,7 @@ i915_gem_object_flush_write_domain(struct drm_i915_gem_object *obj,
+ 		for_each_ggtt_vma(vma, obj)
+ 			intel_gt_flush_ggtt_writes(vma->vm->gt);
+ 
+-		intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++		i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 		for_each_ggtt_vma(vma, obj) {
+ 			if (vma->iomap)
+@@ -308,6 +308,30 @@ i915_gem_object_flush_write_domain(struct drm_i915_gem_object *obj,
+ 	obj->write_domain = 0;
+ }
+ 
++void __i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
++					 enum fb_op_origin origin)
++{
++	struct intel_frontbuffer *front;
++
++	front = __intel_frontbuffer_get(obj);
++	if (front) {
++		intel_frontbuffer_flush(front, origin);
++		intel_frontbuffer_put(front);
++	}
++}
++
++void __i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
++					      enum fb_op_origin origin)
++{
++	struct intel_frontbuffer *front;
++
++	front = __intel_frontbuffer_get(obj);
++	if (front) {
++		intel_frontbuffer_invalidate(front, origin);
++		intel_frontbuffer_put(front);
++	}
++}
++
+ void i915_gem_init__objects(struct drm_i915_private *i915)
+ {
+ 	INIT_WORK(&i915->mm.free_work, __i915_gem_free_work);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.h b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+index 458cd51331f1..4b93591fd5c7 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+@@ -13,8 +13,8 @@
+ 
+ #include <drm/i915_drm.h>
+ 
++#include "display/intel_frontbuffer.h"
+ #include "i915_gem_object_types.h"
+-
+ #include "i915_gem_gtt.h"
+ 
+ void i915_gem_init__objects(struct drm_i915_private *i915);
+@@ -463,4 +463,25 @@ int i915_gem_object_wait_priority(struct drm_i915_gem_object *obj,
+ 				  unsigned int flags,
+ 				  const struct i915_sched_attr *attr);
+ 
++void __i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
++					 enum fb_op_origin origin);
++void __i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
++					      enum fb_op_origin origin);
++
++static inline void
++i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
++				  enum fb_op_origin origin)
++{
++	if (unlikely(rcu_access_pointer(obj->frontbuffer)))
++		__i915_gem_object_flush_frontbuffer(obj, origin);
++}
++
++static inline void
++i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
++				       enum fb_op_origin origin)
++{
++	if (unlikely(rcu_access_pointer(obj->frontbuffer)))
++		__i915_gem_object_invalidate_frontbuffer(obj, origin);
++}
++
+ #endif
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+index 96008374a412..e3f3944fbd90 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+@@ -150,7 +150,7 @@ struct drm_i915_gem_object {
+ 	 */
+ 	u16 write_domain;
+ 
+-	struct intel_frontbuffer *frontbuffer;
++	struct intel_frontbuffer __rcu *frontbuffer;
+ 
+ 	/** Current tiling stride for the object, if it's tiled. */
+ 	unsigned int tiling_and_stride;
+diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
+index d034fa413164..905890e3ac24 100644
+--- a/drivers/gpu/drm/i915/i915_gem.c
++++ b/drivers/gpu/drm/i915/i915_gem.c
+@@ -161,7 +161,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem_object *obj,
+ 	 * We manually control the domain here and pretend that it
+ 	 * remains coherent i.e. in the GTT domain, like shmem_pwrite.
+ 	 */
+-	intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 	if (copy_from_user(vaddr, user_data, args->size))
+ 		return -EFAULT;
+@@ -169,7 +169,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem_object *obj,
+ 	drm_clflush_virt_range(vaddr, args->size);
+ 	intel_gt_chipset_flush(&to_i915(obj->base.dev)->gt);
+ 
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 	return 0;
+ }
+ 
+@@ -589,7 +589,7 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
+ 		goto out_unpin;
+ 	}
+ 
+-	intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 	user_data = u64_to_user_ptr(args->data_ptr);
+ 	offset = args->offset;
+@@ -631,7 +631,7 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
+ 		user_data += page_length;
+ 		offset += page_length;
+ 	}
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 	i915_gem_object_unlock_fence(obj, fence);
+ out_unpin:
+@@ -721,7 +721,7 @@ i915_gem_shmem_pwrite(struct drm_i915_gem_object *obj,
+ 		offset = 0;
+ 	}
+ 
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 	i915_gem_object_unlock_fence(obj, fence);
+ 
+ 	return ret;
+diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
+index e5512f26e20a..01c822256b39 100644
+--- a/drivers/gpu/drm/i915/i915_vma.c
++++ b/drivers/gpu/drm/i915/i915_vma.c
+@@ -1104,8 +1104,14 @@ int i915_vma_move_to_active(struct i915_vma *vma,
+ 		return err;
+ 
+ 	if (flags & EXEC_OBJECT_WRITE) {
+-		if (intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CS))
+-			i915_active_add_request(&obj->frontbuffer->write, rq);
++		struct intel_frontbuffer *front;
++
++		front = __intel_frontbuffer_get(obj);
++		if (unlikely(front)) {
++			if (intel_frontbuffer_invalidate(front, ORIGIN_CS))
++				i915_active_add_request(&front->write, rq);
++			intel_frontbuffer_put(front);
++		}
+ 
+ 		dma_resv_add_excl_fence(vma->resv, &rq->fence);
+ 		obj->write_domain = I915_GEM_DOMAIN_RENDER;
 
