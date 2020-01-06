@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B5413122D
-	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 13:33:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 558A813122E
+	for <lists+stable@lfdr.de>; Mon,  6 Jan 2020 13:33:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725821AbgAFMdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jan 2020 07:33:25 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:54797 "EHLO
+        id S1726173AbgAFMdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jan 2020 07:33:32 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:43209 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725787AbgAFMdZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 07:33:25 -0500
+        by vger.kernel.org with ESMTP id S1726080AbgAFMdc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jan 2020 07:33:32 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 557815A4;
-        Mon,  6 Jan 2020 07:33:24 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 76B32692;
+        Mon,  6 Jan 2020 07:33:31 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 06 Jan 2020 07:33:24 -0500
+  by compute6.internal (MEProxy); Mon, 06 Jan 2020 07:33:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=rLZ9qK
-        Zrb1DHtbt7YSbHccHDiXX58eiqjFdoBb6baps=; b=ORwkoH8bKqbLcL0SQLROQ+
-        Y/Rt/90ktmaU7Aru5/yV4bgoo2WfYpFU9nQMXS78HzMA3vqIoUyCm3KZlXhsAwsR
-        +Ll5n81dk0BUDrxtaeteja49DWEXM4SCZ21RHpN28z4L2ZbcO1TzVj5En/Z8pMcU
-        4j806kPrP1myyMmMZ+2ppDhBd2d5vtroAieCngZoQNcsfLenGLJqjWP6QX++YFVm
-        Z7o/NzilPd7WnygFkStIfGKUGxWa4x+uux3FFCI8XIQbVmH0+vhAu8gqWXMjVd2U
-        Hagz9P0TpwKSBPkj3UQwx7ll50EopLY7a+YzHw7vEiB5wujbVaxpmxBWTkwoJaHg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=RC9gly
+        G7Y6bK93QDo82UKvIHE3cxIapaEfNRibOq6M4=; b=gJgPv7dHu2Q6i2nuKavqdW
+        R89Z9S1AWJz7ZcIFyf6l4fSguhG/x9GYkWaNjqslVB4FLdbXEnqGa+x66/T0feAu
+        AoLjVIoKX7teiOMwX2icEBwSycdtATR9BHjeqBdZSdPFv8SgpTTNiYUbOgfshYzM
+        P6OJMZxl0c0JvIqqdjtkKo4r6isoj/x1GXh6yQ1f0qSXSFCcoXUr8Wp6UDLRUtoY
+        osbyEwN+lOImijLGSYpb42WgNj6/0Gmw3yHIA+cwF8mwsqEZw0+X0FfeGFbyWnXj
+        pfQpfKed7cV2TOg+lG9me07q4sAIGUnSZEAdiCWE69P/9qorYCR9ju+GRpYyLAZA
         ==
-X-ME-Sender: <xms:EykTXqIYAouD_LgxeKlxtEh1OK-5sGRIM7WvNilYwtDWYNDEqriQjA>
+X-ME-Sender: <xms:GikTXvg63vU_xLy8NJhgkRiSAcAc5ebLLrE6IEfm2KaIrvV0eqSD1g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdehtddggeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:EykTXqljIYwxD4KBj6JXOj5O5M29D9KezGW2bzEO0i-q5XCklHJZLg>
-    <xmx:EykTXrK0evv9cHKvHwn4l2baUa6VbX9XwTS0mNOg6MP7MlFlMFlWNw>
-    <xmx:EykTXv6qJKj_Y4qDp9XZW5ZG1Rie4apcj4BjVxIEORzzKQ9at6lc5A>
-    <xmx:EykTXn8mKhTMPyudepqdu9yHslAVZsJgqsvxc-ZIGKuk-s6FzsoIWw>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:GykTXkZraMXKomCgJAEoSY4HN4uv3k84e9CSi3gejR1F3_PkqUkIzA>
+    <xmx:GykTXrLG7HId3sLgIMfwFGikSBfqnLxfDM9IuXnkXKE7jvqvK5YFzw>
+    <xmx:GykTXhtX2tAHmrCdoi3HChs8ylYxe3ZvgJNopJuCuUGsbEeWdQPNtw>
+    <xmx:GykTXnHj1mReiql85qBRZ-Pfm2F5xFuMjMAwRZb2bs8Jth7QYtBi4w>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5E10E8005B;
-        Mon,  6 Jan 2020 07:33:23 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pstore/ram: Write new dumps to start of recycled zones" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id ABADB8005A;
+        Mon,  6 Jan 2020 07:33:30 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pstore/ram: Write new dumps to start of recycled zones" failed to apply to 4.9-stable tree
 To:     a.yashkin@inango-systems.com, a.gilman@inango-systems.com,
         keescook@chromium.org, n.merinov@inango-systems.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Jan 2020 13:33:17 +0100
-Message-ID: <157831399721246@kroah.com>
+Date:   Mon, 06 Jan 2020 13:33:18 +0100
+Message-ID: <157831399811194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
