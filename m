@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53ADE1332CE
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B904133210
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:07:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727362AbgAGVJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:09:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34366 "EHLO mail.kernel.org"
+        id S1729285AbgAGVGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:06:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729336AbgAGVJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:09:13 -0500
+        id S1729391AbgAGVGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:06:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAD9D2072A;
-        Tue,  7 Jan 2020 21:09:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04D5120678;
+        Tue,  7 Jan 2020 21:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431352;
-        bh=VUtMeQKWQSIxCGS9aZYwceQXOd91vXhSxdYmNnp6R9Q=;
+        s=default; t=1578431209;
+        bh=PTs5QMs0572kcdLCWpDmAD7aVu0QZWYGL1aqF7MPrUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSEfMWt5eFjbmM02IEvDXLebzWxjEg+En+YjlnSqr6ybd8otf8Kx82fgvo87urXJQ
-         kju9zhkoi6pFHL2T3IH6Zk7H4WwFQKghPwYtArk11mWbm7DgpWd3Asyog0slbwrz9v
-         szGjoERGUhr61NlsvByA84WjhCXZIVtzum0fd1YE=
+        b=Ta13xoE/UzYQWGO//TMLj2RAz62VZsvL/cieooD+nU8jQCeGQnDwQU3jOiHc5dnaG
+         taQ+E9J6w1YKggBea+77GSvxPtOchRc5s1GVdIYUGyMBiJJWIW8n7s8WaL2i0JF9cw
+         lhTMQ+CnwtmGO68rMeGaIB03QuZKhTrPa6jzVriM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Marco Elver <elver@google.com>, Will Deacon <will@kernel.org>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/74] taskstats: fix data-race
-Date:   Tue,  7 Jan 2020 21:54:46 +0100
-Message-Id: <20200107205150.297768462@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 077/115] arm64: Revert support for execute-only user mappings
+Date:   Tue,  7 Jan 2020 21:54:47 +0100
+Message-Id: <20200107205304.355803475@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,105 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-[ Upstream commit 0b8d616fb5a8ffa307b1d3af37f55c15dae14f28 ]
+commit 24cecc37746393432d994c0dbc251fb9ac7c5d72 upstream.
 
-When assiging and testing taskstats in taskstats_exit() there's a race
-when setting up and reading sig->stats when a thread-group with more
-than one thread exits:
+The ARMv8 64-bit architecture supports execute-only user permissions by
+clearing the PTE_USER and PTE_UXN bits, practically making it a mostly
+privileged mapping but from which user running at EL0 can still execute.
 
-write to 0xffff8881157bbe10 of 8 bytes by task 7951 on cpu 0:
- taskstats_tgid_alloc kernel/taskstats.c:567 [inline]
- taskstats_exit+0x6b7/0x717 kernel/taskstats.c:596
- do_exit+0x2c2/0x18e0 kernel/exit.c:864
- do_group_exit+0xb4/0x1c0 kernel/exit.c:983
- get_signal+0x2a2/0x1320 kernel/signal.c:2734
- do_signal+0x3b/0xc00 arch/x86/kernel/signal.c:815
- exit_to_usermode_loop+0x250/0x2c0 arch/x86/entry/common.c:159
- prepare_exit_to_usermode arch/x86/entry/common.c:194 [inline]
- syscall_return_slowpath arch/x86/entry/common.c:274 [inline]
- do_syscall_64+0x2d7/0x2f0 arch/x86/entry/common.c:299
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+The downside, however, is that the kernel at EL1 inadvertently reading
+such mapping would not trip over the PAN (privileged access never)
+protection.
 
-read to 0xffff8881157bbe10 of 8 bytes by task 7949 on cpu 1:
- taskstats_tgid_alloc kernel/taskstats.c:559 [inline]
- taskstats_exit+0xb2/0x717 kernel/taskstats.c:596
- do_exit+0x2c2/0x18e0 kernel/exit.c:864
- do_group_exit+0xb4/0x1c0 kernel/exit.c:983
- __do_sys_exit_group kernel/exit.c:994 [inline]
- __se_sys_exit_group kernel/exit.c:992 [inline]
- __x64_sys_exit_group+0x2e/0x30 kernel/exit.c:992
- do_syscall_64+0xcf/0x2f0 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Revert the relevant bits from commit cab15ce604e5 ("arm64: Introduce
+execute-only page access permissions") so that PROT_EXEC implies
+PROT_READ (and therefore PTE_USER) until the architecture gains proper
+support for execute-only user mappings.
 
-Fix this by using smp_load_acquire() and smp_store_release().
+Fixes: cab15ce604e5 ("arm64: Introduce execute-only page access permissions")
+Cc: <stable@vger.kernel.org> # 4.9.x-
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-by: syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com
-Fixes: 34ec12349c8a ("taskstats: cleanup ->signal->stats allocation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Marco Elver <elver@google.com>
-Reviewed-by: Will Deacon <will@kernel.org>
-Reviewed-by: Andrea Parri <parri.andrea@gmail.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Link: https://lore.kernel.org/r/20191009114809.8643-1-christian.brauner@ubuntu.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/taskstats.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ arch/arm64/include/asm/pgtable-prot.h |    5 ++---
+ arch/arm64/include/asm/pgtable.h      |   10 +++-------
+ arch/arm64/mm/fault.c                 |    2 +-
+ mm/mmap.c                             |    6 ------
+ 4 files changed, 6 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/taskstats.c b/kernel/taskstats.c
-index 4559e914452b..390c76d4503c 100644
---- a/kernel/taskstats.c
-+++ b/kernel/taskstats.c
-@@ -568,25 +568,33 @@ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
- static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
- {
- 	struct signal_struct *sig = tsk->signal;
--	struct taskstats *stats;
-+	struct taskstats *stats_new, *stats;
+--- a/arch/arm64/include/asm/pgtable-prot.h
++++ b/arch/arm64/include/asm/pgtable-prot.h
+@@ -96,13 +96,12 @@
+ #define PAGE_SHARED_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_WRITE)
+ #define PAGE_READONLY		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_UXN)
+ #define PAGE_READONLY_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN)
+-#define PAGE_EXECONLY		__pgprot(_PAGE_DEFAULT | PTE_RDONLY | PTE_NG | PTE_PXN)
  
--	if (sig->stats || thread_group_empty(tsk))
--		goto ret;
-+	/* Pairs with smp_store_release() below. */
-+	stats = smp_load_acquire(&sig->stats);
-+	if (stats || thread_group_empty(tsk))
-+		return stats;
+ #define __P000  PAGE_NONE
+ #define __P001  PAGE_READONLY
+ #define __P010  PAGE_READONLY
+ #define __P011  PAGE_READONLY
+-#define __P100  PAGE_EXECONLY
++#define __P100  PAGE_READONLY_EXEC
+ #define __P101  PAGE_READONLY_EXEC
+ #define __P110  PAGE_READONLY_EXEC
+ #define __P111  PAGE_READONLY_EXEC
+@@ -111,7 +110,7 @@
+ #define __S001  PAGE_READONLY
+ #define __S010  PAGE_SHARED
+ #define __S011  PAGE_SHARED
+-#define __S100  PAGE_EXECONLY
++#define __S100  PAGE_READONLY_EXEC
+ #define __S101  PAGE_READONLY_EXEC
+ #define __S110  PAGE_SHARED_EXEC
+ #define __S111  PAGE_SHARED_EXEC
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -105,12 +105,8 @@ extern unsigned long empty_zero_page[PAG
+ #define pte_dirty(pte)		(pte_sw_dirty(pte) || pte_hw_dirty(pte))
  
- 	/* No problem if kmem_cache_zalloc() fails */
--	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
-+	stats_new = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+ #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
+-/*
+- * Execute-only user mappings do not have the PTE_USER bit set. All valid
+- * kernel mappings have the PTE_UXN bit set.
+- */
+ #define pte_valid_not_user(pte) \
+-	((pte_val(pte) & (PTE_VALID | PTE_USER | PTE_UXN)) == (PTE_VALID | PTE_UXN))
++	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
+ #define pte_valid_young(pte) \
+ 	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
+ #define pte_valid_user(pte) \
+@@ -126,8 +122,8 @@ extern unsigned long empty_zero_page[PAG
  
- 	spin_lock_irq(&tsk->sighand->siglock);
--	if (!sig->stats) {
--		sig->stats = stats;
--		stats = NULL;
-+	stats = sig->stats;
-+	if (!stats) {
-+		/*
-+		 * Pairs with smp_store_release() above and order the
-+		 * kmem_cache_zalloc().
-+		 */
-+		smp_store_release(&sig->stats, stats_new);
-+		stats = stats_new;
-+		stats_new = NULL;
- 	}
- 	spin_unlock_irq(&tsk->sighand->siglock);
+ /*
+  * p??_access_permitted() is true for valid user mappings (subject to the
+- * write permission check) other than user execute-only which do not have the
+- * PTE_USER bit set. PROT_NONE mappings do not have the PTE_VALID bit set.
++ * write permission check). PROT_NONE mappings do not have the PTE_VALID bit
++ * set.
+  */
+ #define pte_access_permitted(pte, write) \
+ 	(pte_valid_user(pte) && (!(write) || pte_write(pte)))
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -428,7 +428,7 @@ static int __kprobes do_page_fault(unsig
+ 	struct mm_struct *mm;
+ 	struct siginfo si;
+ 	vm_fault_t fault, major = 0;
+-	unsigned long vm_flags = VM_READ | VM_WRITE;
++	unsigned long vm_flags = VM_READ | VM_WRITE | VM_EXEC;
+ 	unsigned int mm_flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
  
--	if (stats)
--		kmem_cache_free(taskstats_cache, stats);
--ret:
--	return sig->stats;
-+	if (stats_new)
-+		kmem_cache_free(taskstats_cache, stats_new);
-+
-+	return stats;
- }
- 
- /* Send pid data out on exit */
--- 
-2.20.1
-
+ 	if (notify_page_fault(regs, esr))
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -89,12 +89,6 @@ static void unmap_region(struct mm_struc
+  * MAP_PRIVATE	r: (no) no	r: (yes) yes	r: (no) yes	r: (no) yes
+  *		w: (no) no	w: (no) no	w: (copy) copy	w: (no) no
+  *		x: (no) no	x: (no) yes	x: (no) yes	x: (yes) yes
+- *
+- * On arm64, PROT_EXEC has the following behaviour for both MAP_SHARED and
+- * MAP_PRIVATE:
+- *								r: (no) no
+- *								w: (no) no
+- *								x: (yes) yes
+  */
+ pgprot_t protection_map[16] __ro_after_init = {
+ 	__P000, __P001, __P010, __P011, __P100, __P101, __P110, __P111,
 
 
