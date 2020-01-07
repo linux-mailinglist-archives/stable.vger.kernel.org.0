@@ -2,146 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE9F1324BC
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 12:22:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29CF91324C7
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 12:27:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727923AbgAGLWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 06:22:16 -0500
-Received: from foss.arm.com ([217.140.110.172]:56208 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726937AbgAGLWQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 06:22:16 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A15BC328;
-        Tue,  7 Jan 2020 03:22:15 -0800 (PST)
-Received: from arrakis.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 162BD3F534;
-        Tue,  7 Jan 2020 03:22:14 -0800 (PST)
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     <stable@vger.kernel.org>
-Cc:     Will Deacon <will@kernel.org>
-Subject: [PATCH 4.9] arm64: Revert support for execute-only user mappings
-Date:   Tue,  7 Jan 2020 11:22:10 +0000
-Message-Id: <20200107112210.4362-1-catalin.marinas@arm.com>
-X-Mailer: git-send-email 2.23.0
+        id S1727787AbgAGL07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 06:26:59 -0500
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:43998 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726937AbgAGL07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 06:26:59 -0500
+Received: by mail-ot1-f65.google.com with SMTP id p8so39585360oth.10;
+        Tue, 07 Jan 2020 03:26:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=cAUfx1aIe7RBiFOSHapSzF1uJyIPOjyTww0Bo3Kja2A=;
+        b=Dzn8kRWi+QCwAGZmH/a12zusfnG1WrbLKdjnmvsURBUSsOpJyWmA1/Olzfhhdi0Tkl
+         T7URqc9FYpN9QIa4P3EWaIJlJ/x7hqeX0t7ee71usEJTD04Rg3o6OihEWGNcPPw5IyID
+         2u3JhUR5jKSJRyG5eKxBoFYHZ0E6uK6aaGTmuygG/4LmsEJhWKRkX9mSkOF0z8HV0s7p
+         nGPKJTqKplHw6Ra5vDE0ZQ7ZAO2ioJhlpUt8Ll6AuD+D/rK5ex4s03y891Z4gPTdk4Xd
+         73hTkj4IH+i77MC5D4OQN4tFWwv2tqJUIclNGrtl5fQpyhGLBcCtawk0G2kMnin1mO8g
+         xK2A==
+X-Gm-Message-State: APjAAAXKsH9FUEhaOae6WzGf7vgVVshg8z1c6byyLDDM/1ov3O0/k0Ko
+        lBBIyDV2NYG/yl11ELgPQgnY7dKf16a+YCtWLBrtmw+u
+X-Google-Smtp-Source: APXvYqwJPQ2cz2D0sSUp6x7JKo3CcWa0Xq6ze3e+llEbh893asmCDMik+vyO7p3DkSbtzw4GddrWgTAagpmZmTM5hIo=
+X-Received: by 2002:a05:6830:4b9:: with SMTP id l25mr123636942otd.266.1578396418166;
+ Tue, 07 Jan 2020 03:26:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191230223645.1.I79ea8bb1c5a70c04c810d8305f5f7dee4ebed577@changeid>
+In-Reply-To: <20191230223645.1.I79ea8bb1c5a70c04c810d8305f5f7dee4ebed577@changeid>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 7 Jan 2020 12:26:47 +0100
+Message-ID: <CAJZ5v0h+i0xXPnkbu4NPwxMAZVO9S3exF66+J6SFEb-M6y=0FA@mail.gmail.com>
+Subject: Re: [PATCH] powercap/intel_rapl: refine RAPL error handling to
+ respect initial CPU matching
+To:     Harry Pan <harry.pan@intel.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, Harry Pan <gs0622@gmail.com>,
+        Stable <stable@vger.kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        "Zhang, Rui" <rui.zhang@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 24cecc37746393432d994c0dbc251fb9ac7c5d72 upstream.
+On Mon, Dec 30, 2019 at 3:37 PM Harry Pan <harry.pan@intel.com> wrote:
+>
+> RAPL MMIO support depends on RAPL common driver, in case a new generation
+> of CPU is booting but not in the RAPL support list, the processor_thermal
+> driver invokes CPU hotplug API to enforce RAPL common driver adding new
+> RAPL domain which would cause kernel crash by null pointer dereference
+> because the internal RAPL domain resource mapping is not initialized after
+> the common init.
+>
+> Add error handling to detect non initialized RAPL domain resource mapping
+> and return error code to the caller; such that, it avoids early crash for
+> new CPU and leave error messages through processor_thermal driver.
+>
+> Before:
+> [    4.188566] BUG: kernel NULL pointer dereference, address: 0000000000000020
+> ...snip...
+> [    4.189555] RIP: 0010:rapl_add_package+0x223/0x574
+> [    4.189555] Code: b5 a0 31 c0 49 8b 4d 78 48 01 d9 48 8b 0c c1 49 89 4c c6 10 48 ff c0 48 83 f8 05 75 e7 49 83 ff 03 75 15 48 8b 05 09 bc 18 01 <8b> 70 20 41 89 b6 0c 05 00 00 85 f6 75 1a 49 81 c6 18 9
+> [    4.189555] RSP: 0000:ffffb3adc00b3d90 EFLAGS: 00010246
+> [    4.189555] RAX: 0000000000000000 RBX: 0000000000000098 RCX: 0000000000000000
+> [    4.267161] usb 1-1: New USB device found, idVendor=2109, idProduct=2812, bcdDevice= b.e0
+> [    4.189555] RDX: 0000000000001000 RSI: 0000000000000000 RDI: ffff9340caafd000
+> [    4.189555] RBP: ffffb3adc00b3df8 R08: ffffffffa0246e28 R09: ffff9340caafc000
+> [    4.189555] R10: 000000000000024a R11: ffffffff9ff1f6f2 R12: 00000000ffffffed
+> [    4.189555] R13: ffff9340caa94800 R14: ffff9340caafc518 R15: 0000000000000003
+> [    4.189555] FS:  0000000000000000(0000) GS:ffff9340ce200000(0000) knlGS:0000000000000000
+> [    4.189555] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    4.189555] CR2: 0000000000000020 CR3: 0000000302c14001 CR4: 00000000003606f0
+> [    4.189555] Call Trace:
+> [    4.189555]  ? __switch_to_asm+0x40/0x70
+> [    4.189555]  rapl_mmio_cpu_online+0x47/0x64
+> [    4.189555]  ? rapl_mmio_write_raw+0x33/0x33
+> [    4.281059] usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+> [    4.189555]  cpuhp_invoke_callback+0x29f/0x66f
+> [    4.189555]  ? __schedule+0x46d/0x6a0
+> [    4.189555]  cpuhp_thread_fun+0xb9/0x11c
+> [    4.189555]  smpboot_thread_fn+0x17d/0x22f
+> [    4.297006] usb 1-1: Product: USB2.0 Hub
+> [    4.189555]  ? cpu_report_death+0x43/0x43
+> [    4.189555]  kthread+0x137/0x13f
+> [    4.189555]  ? cpu_report_death+0x43/0x43
+> [    4.189555]  ? kthread_blkcg+0x2e/0x2e
+> [    4.312951] usb 1-1: Manufacturer: VIA Labs, Inc.
+> [    4.189555]  ret_from_fork+0x1f/0x40
+> [    4.189555] Modules linked in:
+> [    4.189555] CR2: 0000000000000020
+> [    4.189555] ---[ end trace 01bb812aabc791f4 ]---
+>
+> After:
+> [    0.787125] intel_rapl_common: driver does not support CPU family 6 model 166
+> ...snip...
+> [    4.245273] proc_thermal 0000:00:04.0: failed to add RAPL MMIO interface
+>
+> Note:
+> This example above is on a v5.4 branch without below two CML commits yet:
+> commit f84fdcbc8ec0 ("powercap/intel_rapl: add support for Cometlake desktop")
+> commit cae478114fbe ("powercap/intel_rapl: add support for CometLake Mobile")
+>
+> Fixes: 555c45fe0d04 ("int340X/processor_thermal_device: add support for MMIO RAPL")
+>
+> Cc: <stable@vger.kernel.org> # v5.3+
+> Signed-off-by: Harry Pan <harry.pan@intel.com>
 
-The ARMv8 64-bit architecture supports execute-only user permissions by
-clearing the PTE_USER and PTE_UXN bits, practically making it a mostly
-privileged mapping but from which user running at EL0 can still execute.
+Applied as a fix for 5.5-rc with rewritten subject and changelog (new
+subject: "powercap: intel_rapl: add NULL pointer check to
+rapl_mmio_cpu_online()").
 
-The downside, however, is that the kernel at EL1 inadvertently reading
-such mapping would not trip over the PAN (privileged access never)
-protection.
-
-Revert the relevant bits from commit cab15ce604e5 ("arm64: Introduce
-execute-only page access permissions") so that PROT_EXEC implies
-PROT_READ (and therefore PTE_USER) until the architecture gains proper
-support for execute-only user mappings.
-
-Fixes: cab15ce604e5 ("arm64: Introduce execute-only page access permissions")
-Cc: <stable@vger.kernel.org> # 4.9.x-
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
----
- arch/arm64/include/asm/pgtable-prot.h |  5 ++---
- arch/arm64/include/asm/pgtable.h      | 10 +++-------
- arch/arm64/mm/fault.c                 |  2 +-
- mm/mmap.c                             |  6 ------
- 4 files changed, 6 insertions(+), 17 deletions(-)
-
-diff --git a/arch/arm64/include/asm/pgtable-prot.h b/arch/arm64/include/asm/pgtable-prot.h
-index f705d96a76f2..5bc3de78306a 100644
---- a/arch/arm64/include/asm/pgtable-prot.h
-+++ b/arch/arm64/include/asm/pgtable-prot.h
-@@ -77,13 +77,12 @@
- #define PAGE_COPY_EXEC		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN)
- #define PAGE_READONLY		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN | PTE_UXN)
- #define PAGE_READONLY_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN)
--#define PAGE_EXECONLY		__pgprot(_PAGE_DEFAULT | PTE_NG | PTE_PXN)
- 
- #define __P000  PAGE_NONE
- #define __P001  PAGE_READONLY
- #define __P010  PAGE_COPY
- #define __P011  PAGE_COPY
--#define __P100  PAGE_EXECONLY
-+#define __P100  PAGE_READONLY_EXEC
- #define __P101  PAGE_READONLY_EXEC
- #define __P110  PAGE_COPY_EXEC
- #define __P111  PAGE_COPY_EXEC
-@@ -92,7 +91,7 @@
- #define __S001  PAGE_READONLY
- #define __S010  PAGE_SHARED
- #define __S011  PAGE_SHARED
--#define __S100  PAGE_EXECONLY
-+#define __S100  PAGE_READONLY_EXEC
- #define __S101  PAGE_READONLY_EXEC
- #define __S110  PAGE_SHARED_EXEC
- #define __S111  PAGE_SHARED_EXEC
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index edb2c359480d..56ba1389a95a 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -83,12 +83,8 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
- #define pte_dirty(pte)		(pte_sw_dirty(pte) || pte_hw_dirty(pte))
- 
- #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
--/*
-- * Execute-only user mappings do not have the PTE_USER bit set. All valid
-- * kernel mappings have the PTE_UXN bit set.
-- */
- #define pte_valid_not_user(pte) \
--	((pte_val(pte) & (PTE_VALID | PTE_USER | PTE_UXN)) == (PTE_VALID | PTE_UXN))
-+	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
- #define pte_valid_young(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
- #define pte_valid_user(pte) \
-@@ -104,8 +100,8 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
- 
- /*
-  * p??_access_permitted() is true for valid user mappings (subject to the
-- * write permission check) other than user execute-only which do not have the
-- * PTE_USER bit set. PROT_NONE mappings do not have the PTE_VALID bit set.
-+ * write permission check). PROT_NONE mappings do not have the PTE_VALID bit
-+ * set.
-  */
- #define pte_access_permitted(pte, write) \
- 	(pte_valid_user(pte) && (!(write) || pte_write(pte)))
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index 575c11a6f9b6..f3d3f2e97add 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -319,7 +319,7 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
- 	struct task_struct *tsk;
- 	struct mm_struct *mm;
- 	int fault, sig, code;
--	unsigned long vm_flags = VM_READ | VM_WRITE;
-+	unsigned long vm_flags = VM_READ | VM_WRITE | VM_EXEC;
- 	unsigned int mm_flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
- 
- 	if (notify_page_fault(regs, esr))
-diff --git a/mm/mmap.c b/mm/mmap.c
-index 19368fbba42a..d221266d100f 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -87,12 +87,6 @@ static void unmap_region(struct mm_struct *mm,
-  * MAP_PRIVATE	r: (no) no	r: (yes) yes	r: (no) yes	r: (no) yes
-  *		w: (no) no	w: (no) no	w: (copy) copy	w: (no) no
-  *		x: (no) no	x: (no) yes	x: (no) yes	x: (yes) yes
-- *
-- * On arm64, PROT_EXEC has the following behaviour for both MAP_SHARED and
-- * MAP_PRIVATE:
-- *								r: (no) no
-- *								w: (no) no
-- *								x: (yes) yes
-  */
- pgprot_t protection_map[16] = {
- 	__P000, __P001, __P010, __P011, __P100, __P101, __P110, __P111,
+> ---
+>
+>  drivers/powercap/intel_rapl_common.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/powercap/intel_rapl_common.c b/drivers/powercap/intel_rapl_common.c
+> index 318d023a6a11..aa0a8de413b1 100644
+> --- a/drivers/powercap/intel_rapl_common.c
+> +++ b/drivers/powercap/intel_rapl_common.c
+> @@ -1294,6 +1294,9 @@ struct rapl_package *rapl_add_package(int cpu, struct rapl_if_priv *priv)
+>         struct cpuinfo_x86 *c = &cpu_data(cpu);
+>         int ret;
+>
+> +       if (!rapl_defaults)
+> +               return ERR_PTR(-ENODEV);
+> +
+>         rp = kzalloc(sizeof(struct rapl_package), GFP_KERNEL);
+>         if (!rp)
+>                 return ERR_PTR(-ENOMEM);
+> --
+> 2.24.1
+>
