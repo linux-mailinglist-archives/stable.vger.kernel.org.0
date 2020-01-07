@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C72FD1333C9
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:22:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BED751331E8
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:05:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727311AbgAGVCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:02:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42992 "EHLO mail.kernel.org"
+        id S1728228AbgAGVFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:05:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728772AbgAGVCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:02:42 -0500
+        id S1728530AbgAGVFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:05:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0DB72077B;
-        Tue,  7 Jan 2020 21:02:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A3A620678;
+        Tue,  7 Jan 2020 21:05:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430962;
-        bh=082g/+E/r/Uzy/BpXGTHlxw9TEPrw/aq7wuayti0Uhk=;
+        s=default; t=1578431121;
+        bh=X/6xvICbw8hI0o2RYXjRcQM+iteqfLO9+pizoBcrLNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1M6+GcOKkGOqOCD+LdffhY3ixJkI9X1BabwU8EJdFlvOPLVMgbcHKTttGg3yOisB
-         HYJp9jdfvDWhDwrDsuoYMs65qAzV/dh8DQsTf4o1ismAYQ7fRxpwS/oI3UZ8tS8tU0
-         V5RAlY7XPqeQvYrGQw+fvGmOEXhm4g0FhBacDrrU=
+        b=nemj3vooMIMPc6gVkWJBurGwAg8sHzbyPxHAVRx8hilTotuss1FWOzuD55d1I0lVJ
+         ubPBJG4WiPssHKaWP4zKvJk9arUVD3apkSDumlCK3pcnwLN4nTDhD7oeyS+6y0IpLn
+         t4OYja0T/QJzDqXPMIiMBBX2o/FSmRkRdyLE28l0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 131/191] ftrace: Avoid potential division by zero in function profiler
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Florian Westphal <fw@strlen.de>,
+        =?UTF-8?q?M=C3=A1t=C3=A9=20Eckl?= <ecklm94@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 041/115] netfilter: nft_tproxy: Fix port selector on Big Endian
 Date:   Tue,  7 Jan 2020 21:54:11 +0100
-Message-Id: <20200107205339.982782846@linuxfoundation.org>
+Message-Id: <20200107205301.834289203@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Phil Sutter <phil@nwl.cc>
 
-commit e31f7939c1c27faa5d0e3f14519eaf7c89e8a69d upstream.
+[ Upstream commit 8cb4ec44de42b99b92399b4d1daf3dc430ed0186 ]
 
-The ftrace_profile->counter is unsigned long and
-do_div truncates it to 32 bits, which means it can test
-non-zero and be truncated to zero for division.
-Fix this issue by using div64_ul() instead.
+On Big Endian architectures, u16 port value was extracted from the wrong
+parts of u32 sreg_port, just like commit 10596608c4d62 ("netfilter:
+nf_tables: fix mismatch in big-endian system") describes.
 
-Link: http://lkml.kernel.org/r/20200103030248.14516-1-wenyang@linux.alibaba.com
-
-Cc: stable@vger.kernel.org
-Fixes: e330b3bcd8319 ("tracing: Show sample std dev in function profiling")
-Fixes: 34886c8bc590f ("tracing: add average time in function to function profiler")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4ed8eb6570a49 ("netfilter: nf_tables: Add native tproxy support")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Acked-by: Florian Westphal <fw@strlen.de>
+Acked-by: Máté Eckl <ecklm94@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/netfilter/nft_tproxy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -524,8 +524,7 @@ static int function_stat_show(struct seq
- 	}
+diff --git a/net/netfilter/nft_tproxy.c b/net/netfilter/nft_tproxy.c
+index f92a82c73880..95980154ef02 100644
+--- a/net/netfilter/nft_tproxy.c
++++ b/net/netfilter/nft_tproxy.c
+@@ -50,7 +50,7 @@ static void nft_tproxy_eval_v4(const struct nft_expr *expr,
+ 	taddr = nf_tproxy_laddr4(skb, taddr, iph->daddr);
  
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
--	avg = rec->time;
--	do_div(avg, rec->counter);
-+	avg = div64_ul(rec->time, rec->counter);
- 	if (tracing_thresh && (avg < tracing_thresh))
- 		goto out;
- #endif
-@@ -551,7 +550,8 @@ static int function_stat_show(struct seq
- 		 * Divide only 1000 for ns^2 -> us^2 conversion.
- 		 * trace_print_graph_duration will divide 1000 again.
- 		 */
--		do_div(stddev, rec->counter * (rec->counter - 1) * 1000);
-+		stddev = div64_ul(stddev,
-+				  rec->counter * (rec->counter - 1) * 1000);
- 	}
+ 	if (priv->sreg_port)
+-		tport = regs->data[priv->sreg_port];
++		tport = nft_reg_load16(&regs->data[priv->sreg_port]);
+ 	if (!tport)
+ 		tport = hp->dest;
  
- 	trace_seq_init(&s);
+@@ -117,7 +117,7 @@ static void nft_tproxy_eval_v6(const struct nft_expr *expr,
+ 	taddr = *nf_tproxy_laddr6(skb, &taddr, &iph->daddr);
+ 
+ 	if (priv->sreg_port)
+-		tport = regs->data[priv->sreg_port];
++		tport = nft_reg_load16(&regs->data[priv->sreg_port]);
+ 	if (!tport)
+ 		tport = hp->dest;
+ 
+-- 
+2.20.1
+
 
 
