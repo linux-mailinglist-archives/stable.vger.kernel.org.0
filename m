@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 041C0133261
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C21A61332FE
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:16:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728308AbgAGVKL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:10:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36422 "EHLO mail.kernel.org"
+        id S1729574AbgAGVHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:07:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729117AbgAGVKK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:10:10 -0500
+        id S1729572AbgAGVHp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:07:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D79692077B;
-        Tue,  7 Jan 2020 21:10:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C27462077B;
+        Tue,  7 Jan 2020 21:07:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431410;
-        bh=1nKEAaBi8pZNLkSuNqq0l9/zFqnHH0tPPKb9SW6018c=;
+        s=default; t=1578431265;
+        bh=MM79NCL25bbH0nHMP9HiLQXuyGVNFpLsvMEYvLn9qm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojpoOGziGIwUxclikfGnegyNQUyrkMR/vvMdifXXU29N6qxGdCXXMnsdSBXTXCD6o
-         v/29M1QHUzLtoAc7quGgATQCugyZRISds0gTRh/z9YFE7LLPB6cVDoPxGAG2T8Vr4t
-         sXpxBYspdsbckM/vEmWLAcHX9H3nyH+RneSs9oZE=
+        b=Bm+NgRDDRj4IGBFqIkAbe4ua6MHJF5YJHa9AwmqAy0RVB2aTzPoimsKQJ1K4+vocz
+         +AeNRimWgxDH0yn+Vyrp3OTYe8cJFPGA7+jys9aCyUUmYZd0QgD15JUB4lrdm3tMOx
+         LCUQda2img5Q655uMI47RAGhxNVV3Rbv2VnRnhgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 45/74] ftrace: Avoid potential division by zero in function profiler
-Date:   Tue,  7 Jan 2020 21:55:10 +0100
-Message-Id: <20200107205211.118899064@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 101/115] selftests: rtnetlink: add addresses with fixed life time
+Date:   Tue,  7 Jan 2020 21:55:11 +0100
+Message-Id: <20200107205308.139779209@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit e31f7939c1c27faa5d0e3f14519eaf7c89e8a69d upstream.
+[ Upstream commit 3cfa148826e3c666da1cc2a43fbe8689e2650636 ]
 
-The ftrace_profile->counter is unsigned long and
-do_div truncates it to 32 bits, which means it can test
-non-zero and be truncated to zero for division.
-Fix this issue by using div64_ul() instead.
+This exercises kernel code path that deal with addresses that have
+a limited lifetime.
 
-Link: http://lkml.kernel.org/r/20200103030248.14516-1-wenyang@linux.alibaba.com
+Without previous fix, this triggers following crash on net-next:
+ BUG: KASAN: null-ptr-deref in check_lifetime+0x403/0x670
+ Read of size 8 at addr 0000000000000010 by task kworker [..]
 
-Cc: stable@vger.kernel.org
-Fixes: e330b3bcd8319 ("tracing: Show sample std dev in function profiling")
-Fixes: 34886c8bc590f ("tracing: add average time in function to function profiler")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/net/rtnetlink.sh | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -622,8 +622,7 @@ static int function_stat_show(struct seq
- 	}
+diff --git a/tools/testing/selftests/net/rtnetlink.sh b/tools/testing/selftests/net/rtnetlink.sh
+index e101af52d1d6..ff665de788ef 100755
+--- a/tools/testing/selftests/net/rtnetlink.sh
++++ b/tools/testing/selftests/net/rtnetlink.sh
+@@ -234,6 +234,26 @@ kci_test_route_get()
+ 	echo "PASS: route get"
+ }
  
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
--	avg = rec->time;
--	do_div(avg, rec->counter);
-+	avg = div64_ul(rec->time, rec->counter);
- 	if (tracing_thresh && (avg < tracing_thresh))
- 		goto out;
- #endif
-@@ -649,7 +648,8 @@ static int function_stat_show(struct seq
- 		 * Divide only 1000 for ns^2 -> us^2 conversion.
- 		 * trace_print_graph_duration will divide 1000 again.
- 		 */
--		do_div(stddev, rec->counter * (rec->counter - 1) * 1000);
-+		stddev = div64_ul(stddev,
-+				  rec->counter * (rec->counter - 1) * 1000);
- 	}
++kci_test_addrlft()
++{
++	for i in $(seq 10 100) ;do
++		lft=$(((RANDOM%3) + 1))
++		ip addr add 10.23.11.$i/32 dev "$devdummy" preferred_lft $lft valid_lft $((lft+1))
++		check_err $?
++	done
++
++	sleep 5
++
++	ip addr show dev "$devdummy" | grep "10.23.11."
++	if [ $? -eq 0 ]; then
++		echo "FAIL: preferred_lft addresses remaining"
++		check_err 1
++		return
++	fi
++
++	echo "PASS: preferred_lft addresses have expired"
++}
++
+ kci_test_addrlabel()
+ {
+ 	ret=0
+@@ -965,6 +985,7 @@ kci_test_rtnl()
  
- 	trace_seq_init(&s);
+ 	kci_test_polrouting
+ 	kci_test_route_get
++	kci_test_addrlft
+ 	kci_test_tc
+ 	kci_test_gre
+ 	kci_test_gretap
+-- 
+2.20.1
+
 
 
