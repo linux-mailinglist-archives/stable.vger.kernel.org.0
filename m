@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0AF91332A6
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 391851333CE
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729975AbgAGVMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:12:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38692 "EHLO mail.kernel.org"
+        id S1728843AbgAGVC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:02:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730056AbgAGVLE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:11:04 -0500
+        id S1728839AbgAGVC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:02:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 846E62080A;
-        Tue,  7 Jan 2020 21:11:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A98220678;
+        Tue,  7 Jan 2020 21:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431464;
-        bh=RHOGp9HQeQyoK17jjlwbXxaBDWuYVfp1PcCIQL9KW2g=;
+        s=default; t=1578430976;
+        bh=mqpU8JT3smNn9fDlIOPfcrdFwTi5L4D/Db3iUIcyXuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3AvVLPs9XxWGE2kdLkKF/LuojzyYN0HjzgeTB56wuCdxbFGBgYHZVtv1LKpR1HvX
-         sJeITLjfNRXouD/94WN2nv12Vg9jBjz8Bo6rb+9RD0TqzrMes4/pA1xoAcPjJLU1P+
-         d1Exdlsc9di5D9BS1KM7QoMtMR1rsNrTJY7JUwps=
+        b=CngEy072WpQIcj9L007f13Yn0/+dRgoMCr3vLwVczvEzT8CriBTQcsfkMNElJLBPC
+         KhEPNssvTPb2dIFNrXsTRvgSghYi85Se55YUQHv5sn1dhm28yPc+oOYqFIWfq93EMj
+         ozm5P4AZvIAPgjYdLZqSySmOO2pQSvNRveFG8cUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        Chris Down <chris@chrisdown.name>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 30/74] memcg: account security cred as well to kmemcg
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 175/191] drm/i915/execlists: Fix annotation for decoupling virtual request
 Date:   Tue,  7 Jan 2020 21:54:55 +0100
-Message-Id: <20200107205200.946162981@linuxfoundation.org>
+Message-Id: <20200107205342.362904324@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,66 +44,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 84029fd04c201a4c7e0b07ba262664900f47c6f5 upstream.
+[ Upstream commit 08ad9a3846fc72b047b110b36d162ffbcf298fa2 ]
 
-The cred_jar kmem_cache is already memcg accounted in the current kernel
-but cred->security is not.  Account cred->security to kmemcg.
+As we may signal a request and take the engine->active.lock within the
+signaler, the engine submission paths have to use a nested annotation on
+their requests -- but we guarantee that we can never submit on the same
+engine as the signaling fence.
 
-Recently we saw high root slab usage on our production and on further
-inspection, we found a buggy application leaking processes.  Though that
-buggy application was contained within its memcg but we observe much
-more system memory overhead, couple of GiBs, during that period.  This
-overhead can adversely impact the isolation on the system.
+<4>[  723.763281] WARNING: possible circular locking dependency detected
+<4>[  723.763285] 5.3.0-g80fa0e042cdb-drmtip_379+ #1 Tainted: G     U
+<4>[  723.763288] ------------------------------------------------------
+<4>[  723.763291] gem_exec_await/1388 is trying to acquire lock:
+<4>[  723.763294] ffff93a7b53221d8 (&engine->active.lock){..-.}, at: execlists_submit_request+0x2b/0x1e0 [i915]
+<4>[  723.763378]
+                  but task is already holding lock:
+<4>[  723.763381] ffff93a7c25f6d20 (&i915_request_get(rq)->submit/1){-.-.}, at: __i915_sw_fence_complete+0x1b2/0x250 [i915]
+<4>[  723.763420]
+                  which lock already depends on the new lock.
 
-One source of high overhead we found was cred->security objects, which
-have a lifetime of at least the life of the process which allocated
-them.
+<4>[  723.763423]
+                  the existing dependency chain (in reverse order) is:
+<4>[  723.763427]
+                  -> #2 (&i915_request_get(rq)->submit/1){-.-.}:
+<4>[  723.763434]        _raw_spin_lock_irqsave_nested+0x39/0x50
+<4>[  723.763478]        __i915_sw_fence_complete+0x1b2/0x250 [i915]
+<4>[  723.763513]        intel_engine_breadcrumbs_irq+0x3aa/0x5e0 [i915]
+<4>[  723.763600]        cs_irq_handler+0x49/0x50 [i915]
+<4>[  723.763659]        gen11_gt_irq_handler+0x17b/0x280 [i915]
+<4>[  723.763690]        gen11_irq_handler+0x54/0xf0 [i915]
+<4>[  723.763695]        __handle_irq_event_percpu+0x41/0x2d0
+<4>[  723.763699]        handle_irq_event_percpu+0x2b/0x70
+<4>[  723.763702]        handle_irq_event+0x2f/0x50
+<4>[  723.763706]        handle_edge_irq+0xee/0x1a0
+<4>[  723.763709]        do_IRQ+0x7e/0x160
+<4>[  723.763712]        ret_from_intr+0x0/0x1d
+<4>[  723.763717]        __slab_alloc.isra.28.constprop.33+0x4f/0x70
+<4>[  723.763720]        kmem_cache_alloc+0x28d/0x2f0
+<4>[  723.763724]        vm_area_dup+0x15/0x40
+<4>[  723.763727]        dup_mm+0x2dd/0x550
+<4>[  723.763730]        copy_process+0xf21/0x1ef0
+<4>[  723.763734]        _do_fork+0x71/0x670
+<4>[  723.763737]        __se_sys_clone+0x6e/0xa0
+<4>[  723.763741]        do_syscall_64+0x4f/0x210
+<4>[  723.763744]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+<4>[  723.763747]
+                  -> #1 (&(&rq->lock)->rlock#2){-.-.}:
+<4>[  723.763752]        _raw_spin_lock+0x2a/0x40
+<4>[  723.763789]        __unwind_incomplete_requests+0x3eb/0x450 [i915]
+<4>[  723.763825]        __execlists_submission_tasklet+0x9ec/0x1d60 [i915]
+<4>[  723.763864]        execlists_submission_tasklet+0x34/0x50 [i915]
+<4>[  723.763874]        tasklet_action_common.isra.5+0x47/0xb0
+<4>[  723.763878]        __do_softirq+0xd8/0x4ae
+<4>[  723.763881]        irq_exit+0xa9/0xc0
+<4>[  723.763883]        smp_apic_timer_interrupt+0xb7/0x280
+<4>[  723.763887]        apic_timer_interrupt+0xf/0x20
+<4>[  723.763892]        cpuidle_enter_state+0xae/0x450
+<4>[  723.763895]        cpuidle_enter+0x24/0x40
+<4>[  723.763899]        do_idle+0x1e7/0x250
+<4>[  723.763902]        cpu_startup_entry+0x14/0x20
+<4>[  723.763905]        start_secondary+0x15f/0x1b0
+<4>[  723.763908]        secondary_startup_64+0xa4/0xb0
+<4>[  723.763911]
+                  -> #0 (&engine->active.lock){..-.}:
+<4>[  723.763916]        __lock_acquire+0x15d8/0x1ea0
+<4>[  723.763919]        lock_acquire+0xa6/0x1c0
+<4>[  723.763922]        _raw_spin_lock_irqsave+0x33/0x50
+<4>[  723.763956]        execlists_submit_request+0x2b/0x1e0 [i915]
+<4>[  723.764002]        submit_notify+0xa8/0x13c [i915]
+<4>[  723.764035]        __i915_sw_fence_complete+0x81/0x250 [i915]
+<4>[  723.764054]        i915_sw_fence_wake+0x51/0x64 [i915]
+<4>[  723.764054]        __i915_sw_fence_complete+0x1ee/0x250 [i915]
+<4>[  723.764054]        dma_i915_sw_fence_wake_timer+0x14/0x20 [i915]
+<4>[  723.764054]        dma_fence_signal_locked+0x9e/0x1c0
+<4>[  723.764054]        dma_fence_signal+0x1f/0x40
+<4>[  723.764054]        vgem_fence_signal_ioctl+0x67/0xc0 [vgem]
+<4>[  723.764054]        drm_ioctl_kernel+0x83/0xf0
+<4>[  723.764054]        drm_ioctl+0x2f3/0x3b0
+<4>[  723.764054]        do_vfs_ioctl+0xa0/0x6f0
+<4>[  723.764054]        ksys_ioctl+0x35/0x60
+<4>[  723.764054]        __x64_sys_ioctl+0x11/0x20
+<4>[  723.764054]        do_syscall_64+0x4f/0x210
+<4>[  723.764054]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+<4>[  723.764054]
+                  other info that might help us debug this:
 
-Link: http://lkml.kernel.org/r/20191205223721.40034-1-shakeelb@google.com
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Chris Down <chris@chrisdown.name>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+<4>[  723.764054] Chain exists of:
+                    &engine->active.lock --> &(&rq->lock)->rlock#2 --> &i915_request_get(rq)->submit/1
 
+<4>[  723.764054]  Possible unsafe locking scenario:
+
+<4>[  723.764054]        CPU0                    CPU1
+<4>[  723.764054]        ----                    ----
+<4>[  723.764054]   lock(&i915_request_get(rq)->submit/1);
+<4>[  723.764054]                                lock(&(&rq->lock)->rlock#2);
+<4>[  723.764054]                                lock(&i915_request_get(rq)->submit/1);
+<4>[  723.764054]   lock(&engine->active.lock);
+<4>[  723.764054]
+                   *** DEADLOCK ***
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111862
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191004194758.19679-1-chris@chris-wilson.co.uk
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cred.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_lrc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -220,7 +220,7 @@ struct cred *cred_alloc_blank(void)
- 	new->magic = CRED_MAGIC;
- #endif
- 
--	if (security_cred_alloc_blank(new, GFP_KERNEL) < 0)
-+	if (security_cred_alloc_blank(new, GFP_KERNEL_ACCOUNT) < 0)
- 		goto error;
- 
- 	return new;
-@@ -279,7 +279,7 @@ struct cred *prepare_creds(void)
- 	new->security = NULL;
- #endif
- 
--	if (security_prepare_creds(new, old, GFP_KERNEL) < 0)
-+	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
- 		goto error;
- 	validate_creds(new);
- 	return new;
-@@ -654,7 +654,7 @@ struct cred *prepare_kernel_cred(struct
- #ifdef CONFIG_SECURITY
- 	new->security = NULL;
- #endif
--	if (security_prepare_creds(new, old, GFP_KERNEL) < 0)
-+	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
- 		goto error;
- 
- 	put_cred(old);
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 06a506c29463..d564bfcab6a3 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -525,7 +525,8 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
+ 			 */
+ 			if (test_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
+ 				     &rq->fence.flags)) {
+-				spin_lock(&rq->lock);
++				spin_lock_nested(&rq->lock,
++						 SINGLE_DEPTH_NESTING);
+ 				i915_request_cancel_breadcrumb(rq);
+ 				spin_unlock(&rq->lock);
+ 			}
+-- 
+2.20.1
+
 
 
