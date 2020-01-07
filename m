@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03213133126
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:58:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3EA013312C
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:58:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727770AbgAGU6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:58:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56532 "EHLO mail.kernel.org"
+        id S1727328AbgAGU6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:58:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727752AbgAGU6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:58:04 -0500
+        id S1727822AbgAGU6T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:58:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 987C62187F;
-        Tue,  7 Jan 2020 20:58:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB59221744;
+        Tue,  7 Jan 2020 20:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430684;
-        bh=05YWyL5Q0ok9u+jLeXPtnubZc02gcD0Qx6Yr/YHUuRw=;
+        s=default; t=1578430698;
+        bh=bXA2aXAoMwRwk9E7vq7jPFZdaJyFMqRgbUf+s41nX+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUnBImKamlOAJuYf4ZRZ74k/XEjb+1iYo3JGRCVQBvtH8T1g9txwscE6Tn3ePMd42
-         aRIFCi/erC4ztpKhojzd5H+xxxkN8KnbZFdQhAA28x7nZ6d8PCaa2d7fckUrNot447
-         TPTkVOWZqXgLHZlulYLJbDf5utNitF3JHos78qS4=
+        b=cXIXT2kc5lct4qw+7KvFhl0GVtvik+B5LZ4nqwEP3WAqHXPW6RXS8iK7S0H4JH/RD
+         3cnDRmC9gMD2mouBDN0UNsPmtGKHbYMVjmQ1f65TGvr18T7VWojVtgJPhJMsaZmDvw
+         jzNm516xkFWN29zbcTWSLxDVQsLcq1YLUtazc6b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
-        Jian-Hong Pan <jian-hong@endlessm.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/191] ALSA: hda/realtek - Enable the bass speaker of ASUS UX431FLC
-Date:   Tue,  7 Jan 2020 21:52:54 +0100
-Message-Id: <20200107205335.890950041@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        syzbot+03ee87124ee05af991bd@syzkaller.appspotmail.com,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Hillf Danton <hdanton@sina.com>,
+        Hugh Dickins <hughd@google.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 060/191] shmem: pin the file in shmem_fault() if mmap_sem is dropped
+Date:   Tue,  7 Jan 2020 21:53:00 +0100
+Message-Id: <20200107205336.207883389@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -44,108 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessm.com>
+From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 
-[ Upstream commit 48e01504cf5315cbe6de9b7412e792bfcc3dd9e1 ]
+[ Upstream commit 8897c1b1a1795cab23d5ac13e4e23bf0b5f4e0c6 ]
 
-ASUS reported that there's an bass speaker in addition to internal
-speaker and it uses DAC 0x02. It was not enabled in the commit
-436e25505f34 ("ALSA: hda/realtek - Enable internal speaker of ASUS
-UX431FLC") which only enables the amplifier and the front speaker.
-This commit enables the bass speaker on top of the aforementioned
-work to improve the acoustic experience.
+syzbot found the following crash:
 
-Fixes: 436e25505f34 ("ALSA: hda/realtek - Enable internal speaker of ASUS UX431FLC")
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191230031118.95076-1-chiu@endlessm.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  BUG: KASAN: use-after-free in perf_trace_lock_acquire+0x401/0x530 include/trace/events/lock.h:13
+  Read of size 8 at addr ffff8880a5cf2c50 by task syz-executor.0/26173
+
+  CPU: 0 PID: 26173 Comm: syz-executor.0 Not tainted 5.3.0-rc6 #146
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+     perf_trace_lock_acquire+0x401/0x530 include/trace/events/lock.h:13
+     trace_lock_acquire include/trace/events/lock.h:13 [inline]
+     lock_acquire+0x2de/0x410 kernel/locking/lockdep.c:4411
+     __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+     _raw_spin_lock+0x2f/0x40 kernel/locking/spinlock.c:151
+     spin_lock include/linux/spinlock.h:338 [inline]
+     shmem_fault+0x5ec/0x7b0 mm/shmem.c:2034
+     __do_fault+0x111/0x540 mm/memory.c:3083
+     do_shared_fault mm/memory.c:3535 [inline]
+     do_fault mm/memory.c:3613 [inline]
+     handle_pte_fault mm/memory.c:3840 [inline]
+     __handle_mm_fault+0x2adf/0x3f20 mm/memory.c:3964
+     handle_mm_fault+0x1b5/0x6b0 mm/memory.c:4001
+     do_user_addr_fault arch/x86/mm/fault.c:1441 [inline]
+     __do_page_fault+0x536/0xdd0 arch/x86/mm/fault.c:1506
+     do_page_fault+0x38/0x590 arch/x86/mm/fault.c:1530
+     page_fault+0x39/0x40 arch/x86/entry/entry_64.S:1202
+
+It happens if the VMA got unmapped under us while we dropped mmap_sem
+and inode got freed.
+
+Pinning the file if we drop mmap_sem fixes the issue.
+
+Link: http://lkml.kernel.org/r/20190927083908.rhifa4mmaxefc24r@box
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reported-by: syzbot+03ee87124ee05af991bd@syzkaller.appspotmail.com
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 38 +++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 20 deletions(-)
+ mm/shmem.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index dfcd0e611068..e849cf681e23 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5893,11 +5893,12 @@ enum {
- 	ALC256_FIXUP_ASUS_HEADSET_MIC,
- 	ALC256_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC299_FIXUP_PREDATOR_SPK,
--	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
- 	ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE,
--	ALC294_FIXUP_ASUS_INTSPK_GPIO,
- 	ALC289_FIXUP_DELL_SPK2,
- 	ALC289_FIXUP_DUAL_SPK,
-+	ALC294_FIXUP_SPK2_TO_DAC1,
-+	ALC294_FIXUP_ASUS_DUAL_SPK,
-+
- };
+diff --git a/mm/shmem.c b/mm/shmem.c
+index 7a22e3e03d11..6074714fdbd4 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2022,16 +2022,14 @@ static vm_fault_t shmem_fault(struct vm_fault *vmf)
+ 		    shmem_falloc->waitq &&
+ 		    vmf->pgoff >= shmem_falloc->start &&
+ 		    vmf->pgoff < shmem_falloc->next) {
++			struct file *fpin;
+ 			wait_queue_head_t *shmem_falloc_waitq;
+ 			DEFINE_WAIT_FUNC(shmem_fault_wait, synchronous_wake_function);
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -6968,16 +6969,6 @@ static const struct hda_fixup alc269_fixups[] = {
- 			{ }
+ 			ret = VM_FAULT_NOPAGE;
+-			if ((vmf->flags & FAULT_FLAG_ALLOW_RETRY) &&
+-			   !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT)) {
+-				/* It's polite to up mmap_sem if we can */
+-				up_read(&vma->vm_mm->mmap_sem);
++			fpin = maybe_unlock_mmap_for_io(vmf, NULL);
++			if (fpin)
+ 				ret = VM_FAULT_RETRY;
+-			}
+ 
+ 			shmem_falloc_waitq = shmem_falloc->waitq;
+ 			prepare_to_wait(shmem_falloc_waitq, &shmem_fault_wait,
+@@ -2049,6 +2047,9 @@ static vm_fault_t shmem_fault(struct vm_fault *vmf)
+ 			spin_lock(&inode->i_lock);
+ 			finish_wait(shmem_falloc_waitq, &shmem_fault_wait);
+ 			spin_unlock(&inode->i_lock);
++
++			if (fpin)
++				fput(fpin);
+ 			return ret;
  		}
- 	},
--	[ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC] = {
--		.type = HDA_FIXUP_PINS,
--		.v.pins = (const struct hda_pintbl[]) {
--			{ 0x14, 0x411111f0 }, /* disable confusing internal speaker */
--			{ 0x19, 0x04a11150 }, /* use as headset mic, without its own jack detect */
--			{ }
--		},
--		.chained = true,
--		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
--	},
- 	[ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -6988,13 +6979,6 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
- 	},
--	[ALC294_FIXUP_ASUS_INTSPK_GPIO] = {
--		.type = HDA_FIXUP_FUNC,
--		/* The GPIO must be pulled to initialize the AMP */
--		.v.func = alc_fixup_gpio4,
--		.chained = true,
--		.chain_id = ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC
--	},
- 	[ALC289_FIXUP_DELL_SPK2] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -7010,6 +6994,20 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC289_FIXUP_DELL_SPK2
- 	},
-+	[ALC294_FIXUP_SPK2_TO_DAC1] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc285_fixup_speaker2_to_dac1,
-+		.chained = true,
-+		.chain_id = ALC294_FIXUP_ASUS_HEADSET_MIC
-+	},
-+	[ALC294_FIXUP_ASUS_DUAL_SPK] = {
-+		.type = HDA_FIXUP_FUNC,
-+		/* The GPIO must be pulled to initialize the AMP */
-+		.v.func = alc_fixup_gpio4,
-+		.chained = true,
-+		.chain_id = ALC294_FIXUP_SPK2_TO_DAC1
-+	},
-+
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7171,7 +7169,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1043, 0x1427, "Asus Zenbook UX31E", ALC269VB_FIXUP_ASUS_ZENBOOK),
- 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
- 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
--	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_INTSPK_GPIO),
-+	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
- 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
+ 		spin_unlock(&inode->i_lock);
 -- 
 2.20.1
 
