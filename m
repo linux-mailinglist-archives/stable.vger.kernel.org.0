@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BBC5133230
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A34D13329E
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729658AbgAGVIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:08:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60036 "EHLO mail.kernel.org"
+        id S1729834AbgAGVKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:10:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729633AbgAGVII (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:08:08 -0500
+        id S1727923AbgAGVKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:10:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAC302072A;
-        Tue,  7 Jan 2020 21:08:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7AF224656;
+        Tue,  7 Jan 2020 21:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431287;
-        bh=ew4jIEUK7j/B+m1UPNg6uj3DPDsqc4L+nA+pQ/IsTtg=;
+        s=default; t=1578431439;
+        bh=Dbl+ncwhMB3Xk8G2+tbpLHrwmr3/Xrw+XklCgJMWSjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unfo8WQEFKQeBrxo7uIkpi5gkZB65IX8V5gBFXkfeGUpT7km/wThNHDvKAU36EGys
-         0AEBm0Ho81UStp8IYfn4n9NTk7VfIF6O8QOcUmIRVy73YwIePQst5BWlbDOvF2wZmy
-         p+KQqB/9n9/7pUBCiAmPkXu0RG6Ra9VTTH1fftwk=
+        b=0QQ25+fKjT36C6nOJgMyVfthZnk5+MnAb1pPY+BZNA1H+bffB8uUO+L8/W7JN0hN3
+         SE73bWm/ZoIFXYhFJqh9Eq+jpqzYzHlG/xJaGsKvE3AlXx84iFE74xT49woud47ZsW
+         5dZlUxTgep+KBbXFo5QADG7W2+YM7okrYJjoy098=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 110/115] xfs: periodically yield scrub threads to the scheduler
-Date:   Tue,  7 Jan 2020 21:55:20 +0100
-Message-Id: <20200107205309.669826267@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 56/74] regulator: ab8500: Remove AB8505 USB regulator
+Date:   Tue,  7 Jan 2020 21:55:21 +0100
+Message-Id: <20200107205220.933688617@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+References: <20200107205135.369001641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 5d1116d4c6af3e580f1ed0382ca5a94bd65a34cf ]
+commit 99c4f70df3a6446c56ca817c2d0f9c12d85d4e7c upstream.
 
-Christoph Hellwig complained about the following soft lockup warning
-when running scrub after generic/175 when preemption is disabled and
-slub debugging is enabled:
+The USB regulator was removed for AB8500 in
+commit 41a06aa738ad ("regulator: ab8500: Remove USB regulator").
+It was then added for AB8505 in
+commit 547f384f33db ("regulator: ab8500: add support for ab8505").
 
-watchdog: BUG: soft lockup - CPU#3 stuck for 22s! [xfs_scrub:161]
-Modules linked in:
-irq event stamp: 41692326
-hardirqs last  enabled at (41692325): [<ffffffff8232c3b7>] _raw_0
-hardirqs last disabled at (41692326): [<ffffffff81001c5a>] trace0
-softirqs last  enabled at (41684994): [<ffffffff8260031f>] __do_e
-softirqs last disabled at (41684987): [<ffffffff81127d8c>] irq_e0
-CPU: 3 PID: 16189 Comm: xfs_scrub Not tainted 5.4.0-rc3+ #30
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.124
-RIP: 0010:_raw_spin_unlock_irqrestore+0x39/0x40
-Code: 89 f3 be 01 00 00 00 e8 d5 3a e5 fe 48 89 ef e8 ed 87 e5 f2
-RSP: 0018:ffffc9000233f970 EFLAGS: 00000286 ORIG_RAX: ffffffffff3
-RAX: ffff88813b398040 RBX: 0000000000000286 RCX: 0000000000000006
-RDX: 0000000000000006 RSI: ffff88813b3988c0 RDI: ffff88813b398040
-RBP: ffff888137958640 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: ffffea00042b0c00
-R13: 0000000000000001 R14: ffff88810ac32308 R15: ffff8881376fc040
-FS:  00007f6113dea700(0000) GS:ffff88813bb80000(0000) knlGS:00000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f6113de8ff8 CR3: 000000012f290000 CR4: 00000000000006e0
-Call Trace:
- free_debug_processing+0x1dd/0x240
- __slab_free+0x231/0x410
- kmem_cache_free+0x30e/0x360
- xchk_ag_btcur_free+0x76/0xb0
- xchk_ag_free+0x10/0x80
- xchk_bmap_iextent_xref.isra.14+0xd9/0x120
- xchk_bmap_iextent+0x187/0x210
- xchk_bmap+0x2e0/0x3b0
- xfs_scrub_metadata+0x2e7/0x500
- xfs_ioc_scrub_metadata+0x4a/0xa0
- xfs_file_ioctl+0x58a/0xcd0
- do_vfs_ioctl+0xa0/0x6f0
- ksys_ioctl+0x5b/0x90
- __x64_sys_ioctl+0x11/0x20
- do_syscall_64+0x4b/0x1a0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+However, there was never an entry added for it in
+ab8505_regulator_match. This causes all regulators after it
+to be initialized with the wrong device tree data, eventually
+leading to an out-of-bounds array read.
 
-If preemption is disabled, all metadata buffers needed to perform the
-scrub are already in memory, and there are a lot of records to check,
-it's possible that the scrub thread will run for an extended period of
-time without sleeping for IO or any other reason.  Then the watchdog
-timer or the RCU stall timeout can trigger, producing the backtrace
-above.
+Given that it is not used anywhere in the kernel, it seems
+likely that similar arguments against supporting it exist for
+AB8505 (it is controlled by hardware).
 
-To fix this problem, call cond_resched() from the scrub thread so that
-we back out to the scheduler whenever necessary.
+Therefore, simply remove it like for AB8500 instead of adding
+an entry in ab8505_regulator_match.
 
-Reported-by: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 547f384f33db ("regulator: ab8500: add support for ab8505")
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20191106173125.14496-1-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/xfs/scrub/common.h | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/regulator/ab8500.c       |   17 -----------------
+ include/linux/regulator/ab8500.h |    1 -
+ 2 files changed, 18 deletions(-)
 
-diff --git a/fs/xfs/scrub/common.h b/fs/xfs/scrub/common.h
-index 2d4324d12f9a..51ea2ab124b7 100644
---- a/fs/xfs/scrub/common.h
-+++ b/fs/xfs/scrub/common.h
-@@ -14,8 +14,15 @@
- static inline bool
- xchk_should_terminate(
- 	struct xfs_scrub	*sc,
--	int				*error)
-+	int			*error)
- {
-+	/*
-+	 * If preemption is disabled, we need to yield to the scheduler every
-+	 * few seconds so that we don't run afoul of the soft lockup watchdog
-+	 * or RCU stall detector.
-+	 */
-+	cond_resched();
-+
- 	if (fatal_signal_pending(current)) {
- 		if (*error == 0)
- 			*error = -EAGAIN;
--- 
-2.20.1
-
+--- a/drivers/regulator/ab8500.c
++++ b/drivers/regulator/ab8500.c
+@@ -1099,23 +1099,6 @@ static struct ab8500_regulator_info
+ 		.update_val_idle	= 0x82,
+ 		.update_val_normal	= 0x02,
+ 	},
+-	[AB8505_LDO_USB] = {
+-		.desc = {
+-			.name           = "LDO-USB",
+-			.ops            = &ab8500_regulator_mode_ops,
+-			.type           = REGULATOR_VOLTAGE,
+-			.id             = AB8505_LDO_USB,
+-			.owner          = THIS_MODULE,
+-			.n_voltages     = 1,
+-			.volt_table	= fixed_3300000_voltage,
+-		},
+-		.update_bank            = 0x03,
+-		.update_reg             = 0x82,
+-		.update_mask            = 0x03,
+-		.update_val		= 0x01,
+-		.update_val_idle	= 0x03,
+-		.update_val_normal	= 0x01,
+-	},
+ 	[AB8505_LDO_AUDIO] = {
+ 		.desc = {
+ 			.name		= "LDO-AUDIO",
+--- a/include/linux/regulator/ab8500.h
++++ b/include/linux/regulator/ab8500.h
+@@ -38,7 +38,6 @@ enum ab8505_regulator_id {
+ 	AB8505_LDO_AUX6,
+ 	AB8505_LDO_INTCORE,
+ 	AB8505_LDO_ADC,
+-	AB8505_LDO_USB,
+ 	AB8505_LDO_AUDIO,
+ 	AB8505_LDO_ANAMIC1,
+ 	AB8505_LDO_ANAMIC2,
 
 
