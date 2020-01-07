@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69811133390
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:20:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8BBC133432
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728954AbgAGVT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:19:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49746 "EHLO mail.kernel.org"
+        id S1728420AbgAGVAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:00:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728938AbgAGVEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:04:45 -0500
+        id S1727953AbgAGVAm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:00:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEC8B2081E;
-        Tue,  7 Jan 2020 21:04:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B132B20880;
+        Tue,  7 Jan 2020 21:00:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431085;
-        bh=LtnLZqxqa9KVYGO9KsosNrdJ2myMos+6/nDOCSbmJqE=;
+        s=default; t=1578430841;
+        bh=33Bi1yVAAsVNi7Ev68V72KZgAWblLjCh7fQukOoLmBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lr+kKQo7rSpOxQbrT7poe69f9rdvNBWAfhwKm6bCwlNklFT5d4QxzjgER54YgU9CD
-         JBxEZq2XCI89IMsD+UKbdTSsThd1q39fszJusXnp4HUsilGr533uOGELW+ihUfFdF9
-         xjin2aAnAdXtMxsNIzTGk0lHBuaJBBCBa0GUnrwY=
+        b=DoaJIFdJ8VcqQReEhjVO5qofah310mcVUaEmTSuF9wJGqRLG+fL+/UBuV8VG34o+H
+         mNhPgiu6LK140ExA9yd1Kni8fQ5X9zMg0ZWKIpFPvxsT0PNdtaH22CQYSWoPiUny7S
+         pV30zKQ+D7sqc5k+moqpyRUrcViamz7/f2Ijkccg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 027/115] md: raid1: check rdev before reference in raid1_sync_request func
+        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
+        Sven Schnelle <svens@stackframe.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 117/191] tracing: Have the histogram compare functions convert to u64 first
 Date:   Tue,  7 Jan 2020 21:53:57 +0100
-Message-Id: <20200107205300.426308790@linuxfoundation.org>
+Message-Id: <20200107205339.243118226@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 028288df635f5a9addd48ac4677b720192747944 ]
+commit 106f41f5a302cb1f36c7543fae6a05de12e96fa4 upstream.
 
-In raid1_sync_request func, rdev should be checked before reference.
+The compare functions of the histogram code would be specific for the size
+of the value being compared (byte, short, int, long long). It would
+reference the value from the array via the type of the compare, but the
+value was stored in a 64 bit number. This is fine for little endian
+machines, but for big endian machines, it would end up comparing zeros or
+all ones (depending on the sign) for anything but 64 bit numbers.
 
-Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To fix this, first derference the value as a u64 then convert it to the type
+being compared.
+
+Link: http://lkml.kernel.org/r/20191211103557.7bed6928@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Fixes: 08d43a5fa063e ("tracing: Add lock-free tracing_map")
+Acked-by: Tom Zanussi <zanussi@kernel.org>
+Reported-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/raid1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/tracing_map.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 6800dcd50a11..abcb4c3a76c1 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -2756,7 +2756,7 @@ static sector_t raid1_sync_request(struct mddev *mddev, sector_t sector_nr,
- 				write_targets++;
- 			}
- 		}
--		if (bio->bi_end_io) {
-+		if (rdev && bio->bi_end_io) {
- 			atomic_inc(&rdev->nr_pending);
- 			bio->bi_iter.bi_sector = sector_nr + rdev->data_offset;
- 			bio_set_dev(bio, rdev->bdev);
--- 
-2.20.1
-
+--- a/kernel/trace/tracing_map.c
++++ b/kernel/trace/tracing_map.c
+@@ -148,8 +148,8 @@ static int tracing_map_cmp_atomic64(void
+ #define DEFINE_TRACING_MAP_CMP_FN(type)					\
+ static int tracing_map_cmp_##type(void *val_a, void *val_b)		\
+ {									\
+-	type a = *(type *)val_a;					\
+-	type b = *(type *)val_b;					\
++	type a = (type)(*(u64 *)val_a);					\
++	type b = (type)(*(u64 *)val_b);					\
+ 									\
+ 	return (a > b) ? 1 : ((a < b) ? -1 : 0);			\
+ }
 
 
