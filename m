@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D942613312E
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:58:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56309133131
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:58:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727851AbgAGU6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:58:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57512 "EHLO mail.kernel.org"
+        id S1727299AbgAGU63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:58:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727822AbgAGU6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:58:23 -0500
+        id S1727884AbgAGU62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:58:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9E1A208C4;
-        Tue,  7 Jan 2020 20:58:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90E1B208C4;
+        Tue,  7 Jan 2020 20:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430703;
-        bh=Xy+Q4NTl38ETxiR3FdkhofxfGl112xTRklj0RXpSHwk=;
+        s=default; t=1578430708;
+        bh=X/6xvICbw8hI0o2RYXjRcQM+iteqfLO9+pizoBcrLNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMyef+fw7lsXjZbeKBaMCksgYteGeJMz1oZ68qe+c2sdoWQEAVVN3GB5BuTyokwnd
-         TCUJwE9oiZXzbv25EdLf6p2KQy18eK9wJdK5Bd5yXMDpAN3QZ1KmCt7gZmAevSV9GX
-         FaCUt6nDk0SJpBOjeCwOrLYYuFgUbLPNmCh+UDBk=
+        b=c6qF07BYK1UKf5afeqixTZ4eyQ1+CkEHTLH2md63V/eK1piUL/zGoYmhosQka03dx
+         +MmtJ6zxslm5qxeYLiV3di5dTfGMPMYOLlGcS7Gf0C8YB0WwAx3eWYc9EPOhQ6/7U+
+         nFxK6MRjKAONptj45EUWG+K3ukNc5b1axsYyaOQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b3028ac3933f5c466389@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/191] ALSA: hda - Downgrade error message for single-cmd fallback
-Date:   Tue,  7 Jan 2020 21:53:02 +0100
-Message-Id: <20200107205336.312492925@linuxfoundation.org>
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Florian Westphal <fw@strlen.de>,
+        =?UTF-8?q?M=C3=A1t=C3=A9=20Eckl?= <ecklm94@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 063/191] netfilter: nft_tproxy: Fix port selector on Big Endian
+Date:   Tue,  7 Jan 2020 21:53:03 +0100
+Message-Id: <20200107205336.364946007@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -44,40 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Phil Sutter <phil@nwl.cc>
 
-[ Upstream commit 475feec0c41ad71cb7d02f0310e56256606b57c5 ]
+[ Upstream commit 8cb4ec44de42b99b92399b4d1daf3dc430ed0186 ]
 
-We made the error message for the CORB/RIRB communication clearer by
-upgrading to dev_WARN() so that user can notice better.  But this
-struck us like a boomerang: now it caught syzbot and reported back as
-a fatal issue although it's not really any too serious bug that worth
-for stopping the whole system.
+On Big Endian architectures, u16 port value was extracted from the wrong
+parts of u32 sreg_port, just like commit 10596608c4d62 ("netfilter:
+nf_tables: fix mismatch in big-endian system") describes.
 
-OK, OK, let's be softy, downgrade it to the standard dev_err() again.
-
-Fixes: dd65f7e19c69 ("ALSA: hda - Show the fatal CORB/RIRB error more clearly")
-Reported-by: syzbot+b3028ac3933f5c466389@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20191216151224.30013-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 4ed8eb6570a49 ("netfilter: nf_tables: Add native tproxy support")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Acked-by: Florian Westphal <fw@strlen.de>
+Acked-by: Máté Eckl <ecklm94@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_controller.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nft_tproxy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
-index 6387c7e90918..76b507058cb4 100644
---- a/sound/pci/hda/hda_controller.c
-+++ b/sound/pci/hda/hda_controller.c
-@@ -884,7 +884,7 @@ static int azx_rirb_get_response(struct hdac_bus *bus, unsigned int addr,
- 		return -EAGAIN; /* give a chance to retry */
- 	}
+diff --git a/net/netfilter/nft_tproxy.c b/net/netfilter/nft_tproxy.c
+index f92a82c73880..95980154ef02 100644
+--- a/net/netfilter/nft_tproxy.c
++++ b/net/netfilter/nft_tproxy.c
+@@ -50,7 +50,7 @@ static void nft_tproxy_eval_v4(const struct nft_expr *expr,
+ 	taddr = nf_tproxy_laddr4(skb, taddr, iph->daddr);
  
--	dev_WARN(chip->card->dev,
-+	dev_err(chip->card->dev,
- 		"azx_get_response timeout, switching to single_cmd mode: last cmd=0x%08x\n",
- 		bus->last_cmd[addr]);
- 	chip->single_cmd = 1;
+ 	if (priv->sreg_port)
+-		tport = regs->data[priv->sreg_port];
++		tport = nft_reg_load16(&regs->data[priv->sreg_port]);
+ 	if (!tport)
+ 		tport = hp->dest;
+ 
+@@ -117,7 +117,7 @@ static void nft_tproxy_eval_v6(const struct nft_expr *expr,
+ 	taddr = *nf_tproxy_laddr6(skb, &taddr, &iph->daddr);
+ 
+ 	if (priv->sreg_port)
+-		tport = regs->data[priv->sreg_port];
++		tport = nft_reg_load16(&regs->data[priv->sreg_port]);
+ 	if (!tport)
+ 		tport = hp->dest;
+ 
 -- 
 2.20.1
 
