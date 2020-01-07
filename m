@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34411133283
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:11:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B11B133286
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729955AbgAGVLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:11:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
+        id S1729935AbgAGVLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:11:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730100AbgAGVL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:11:29 -0500
+        id S1730117AbgAGVLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:11:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED24F2077B;
-        Tue,  7 Jan 2020 21:11:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 586A12072A;
+        Tue,  7 Jan 2020 21:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431488;
-        bh=6AS0WOoyKC2AFN1ET1DbxoL1BCw6QCRH0QGjzb1u8J4=;
+        s=default; t=1578431490;
+        bh=SP+F8olfD9Zm/hPECI3lp8yQacNKuCewR2BAsUYrdkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7x85VJfBIqfb9y+Mk1r2JIdzOnJlEsfdoNoNLdUN0esFcoL3xpoOwuy3RLkbiU62
-         //wBP74XVV5tLsQFB9LHYlpb+7S/FDU36rfS5q8pYQ6Y4zzt1gyi+LfdBe6s+Yzgbj
-         IVOCkjAwTi/3NJYCdn2xUC+IMrhXPYgCI3x7AWsk=
+        b=CWbPqbTnDiODTEJAeibusr0Luj8grG2TvzxBcIEIE7EW6qp+LAoWLtwVl4e7hEYMP
+         raJ+Vjv5YSFtbvm+7MfUJo2fYo+tMHCC7lPV3eIspwaKJHZGDvHKA9lFeKdE5p0sU1
+         7Mo20/x/eE9m067cbmylTmf1lOUMTZ2fxJahir24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masashi Honma <masashi.honma@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Anand Moon <linux.amoon@gmail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 69/74] ath9k_htc: Discard undersized packets
-Date:   Tue,  7 Jan 2020 21:55:34 +0100
-Message-Id: <20200107205233.738113157@linuxfoundation.org>
+Subject: [PATCH 4.14 70/74] arm64: dts: meson: odroid-c2: Disable usb_otg bus to avoid power failed warning
+Date:   Tue,  7 Jan 2020 21:55:35 +0100
+Message-Id: <20200107205234.826527577@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
 References: <20200107205135.369001641@linuxfoundation.org>
@@ -44,122 +48,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masashi Honma <masashi.honma@gmail.com>
+From: Anand Moon <linux.amoon@gmail.com>
 
-[ Upstream commit cd486e627e67ee9ab66914d36d3127ef057cc010 ]
+[ Upstream commit 72c9b5f6f75fbc6c47e0a2d02bc3838a2a47c90a ]
 
-Sometimes the hardware will push small packets that trigger a WARN_ON
-in mac80211. Discard them early to avoid this issue.
+usb_otg bus needs to get initialize from the u-boot to be configured
+to used as power source to SBC or usb otg port will get configured
+as host device. Right now this support is missing in the u-boot and
+phy driver so to avoid power failed warning, we would disable this
+feature  until proper fix is found.
 
-This patch ports 2 patches from ath9k to ath9k_htc.
-commit 3c0efb745a172bfe96459e20cbd37b0c945d5f8d "ath9k: discard
-undersized packets".
-commit df5c4150501ee7e86383be88f6490d970adcf157 "ath9k: correctly
-handle short radar pulses".
+[    2.716048] phy phy-c0000000.phy.0: USB ID detect failed!
+[    2.720186] phy phy-c0000000.phy.0: phy poweron failed --> -22
+[    2.726001] ------------[ cut here ]------------
+[    2.730583] WARNING: CPU: 0 PID: 12 at drivers/regulator/core.c:2039 _regulator_put+0x3c/0xe8
+[    2.738983] Modules linked in:
+[    2.742005] CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.2.9-1-ARCH #1
+[    2.748643] Hardware name: Hardkernel ODROID-C2 (DT)
+[    2.753566] Workqueue: events deferred_probe_work_func
+[    2.758649] pstate: 60000005 (nZCv daif -PAN -UAO)
+[    2.763394] pc : _regulator_put+0x3c/0xe8
+[    2.767361] lr : _regulator_put+0x3c/0xe8
+[    2.771326] sp : ffff000011aa3a50
+[    2.774604] x29: ffff000011aa3a50 x28: ffff80007ed1b600
+[    2.779865] x27: ffff80007f7036a8 x26: ffff80007f7036a8
+[    2.785126] x25: 0000000000000000 x24: ffff000011a44458
+[    2.790387] x23: ffff000011344218 x22: 0000000000000009
+[    2.795649] x21: ffff000011aa3b68 x20: ffff80007ed1b500
+[    2.800910] x19: ffff80007ed1b500 x18: 0000000000000010
+[    2.806171] x17: 000000005be5943c x16: 00000000f1c73b29
+[    2.811432] x15: ffffffffffffffff x14: ffff0000117396c8
+[    2.816694] x13: ffff000091aa37a7 x12: ffff000011aa37af
+[    2.821955] x11: ffff000011763000 x10: ffff000011aa3730
+[    2.827216] x9 : 00000000ffffffd0 x8 : ffff000010871760
+[    2.832477] x7 : 00000000000000d0 x6 : ffff0000119d151b
+[    2.837739] x5 : 000000000000000f x4 : 0000000000000000
+[    2.843000] x3 : 0000000000000000 x2 : 38104b2678c20100
+[    2.848261] x1 : 0000000000000000 x0 : 0000000000000024
+[    2.853523] Call trace:
+[    2.855940]  _regulator_put+0x3c/0xe8
+[    2.859562]  regulator_put+0x34/0x48
+[    2.863098]  regulator_bulk_free+0x40/0x58
+[    2.867153]  devm_regulator_bulk_release+0x24/0x30
+[    2.871896]  release_nodes+0x1f0/0x2e0
+[    2.875604]  devres_release_all+0x64/0xa4
+[    2.879571]  really_probe+0x1c8/0x3e0
+[    2.883194]  driver_probe_device+0xe4/0x138
+[    2.887334]  __device_attach_driver+0x90/0x110
+[    2.891733]  bus_for_each_drv+0x8c/0xd8
+[    2.895527]  __device_attach+0xdc/0x160
+[    2.899322]  device_initial_probe+0x24/0x30
+[    2.903463]  bus_probe_device+0x9c/0xa8
+[    2.907258]  deferred_probe_work_func+0xa0/0xf0
+[    2.911745]  process_one_work+0x1b4/0x408
+[    2.915711]  worker_thread+0x54/0x4b8
+[    2.919334]  kthread+0x12c/0x130
+[    2.922526]  ret_from_fork+0x10/0x1c
+[    2.926060] ---[ end trace 51a68f4c0035d6c0 ]---
+[    2.930691] ------------[ cut here ]------------
+[    2.935242] WARNING: CPU: 0 PID: 12 at drivers/regulator/core.c:2039 _regulator_put+0x3c/0xe8
+[    2.943653] Modules linked in:
+[    2.946675] CPU: 0 PID: 12 Comm: kworker/0:1 Tainted: G        W         5.2.9-1-ARCH #1
+[    2.954694] Hardware name: Hardkernel ODROID-C2 (DT)
+[    2.959613] Workqueue: events deferred_probe_work_func
+[    2.964700] pstate: 60000005 (nZCv daif -PAN -UAO)
+[    2.969445] pc : _regulator_put+0x3c/0xe8
+[    2.973412] lr : _regulator_put+0x3c/0xe8
+[    2.977377] sp : ffff000011aa3a50
+[    2.980655] x29: ffff000011aa3a50 x28: ffff80007ed1b600
+[    2.985916] x27: ffff80007f7036a8 x26: ffff80007f7036a8
+[    2.991177] x25: 0000000000000000 x24: ffff000011a44458
+[    2.996439] x23: ffff000011344218 x22: 0000000000000009
+[    3.001700] x21: ffff000011aa3b68 x20: ffff80007ed1bd00
+[    3.006961] x19: ffff80007ed1bd00 x18: 0000000000000010
+[    3.012222] x17: 000000005be5943c x16: 00000000f1c73b29
+[    3.017484] x15: ffffffffffffffff x14: ffff0000117396c8
+[    3.022745] x13: ffff000091aa37a7 x12: ffff000011aa37af
+[    3.028006] x11: ffff000011763000 x10: ffff000011aa3730
+[    3.033267] x9 : 00000000ffffffd0 x8 : ffff000010871760
+[    3.038528] x7 : 00000000000000fd x6 : ffff0000119d151b
+[    3.043790] x5 : 000000000000000f x4 : 0000000000000000
+[    3.049051] x3 : 0000000000000000 x2 : 38104b2678c20100
+[    3.054312] x1 : 0000000000000000 x0 : 0000000000000024
+[    3.059574] Call trace:
+[    3.061991]  _regulator_put+0x3c/0xe8
+[    3.065613]  regulator_put+0x34/0x48
+[    3.069149]  regulator_bulk_free+0x40/0x58
+[    3.073203]  devm_regulator_bulk_release+0x24/0x30
+[    3.077947]  release_nodes+0x1f0/0x2e0
+[    3.081655]  devres_release_all+0x64/0xa4
+[    3.085622]  really_probe+0x1c8/0x3e0
+[    3.089245]  driver_probe_device+0xe4/0x138
+[    3.093385]  __device_attach_driver+0x90/0x110
+[    3.097784]  bus_for_each_drv+0x8c/0xd8
+[    3.101578]  __device_attach+0xdc/0x160
+[    3.105373]  device_initial_probe+0x24/0x30
+[    3.109514]  bus_probe_device+0x9c/0xa8
+[    3.113309]  deferred_probe_work_func+0xa0/0xf0
+[    3.117796]  process_one_work+0x1b4/0x408
+[    3.121762]  worker_thread+0x54/0x4b8
+[    3.125384]  kthread+0x12c/0x130
+[    3.128575]  ret_from_fork+0x10/0x1c
+[    3.132110] ---[ end trace 51a68f4c0035d6c1 ]---
+[    3.136753] dwc2: probe of c9000000.usb failed with error -22
 
-[  112.835889] ------------[ cut here ]------------
-[  112.835971] WARNING: CPU: 5 PID: 0 at net/mac80211/rx.c:804 ieee80211_rx_napi+0xaac/0xb40 [mac80211]
-[  112.835973] Modules linked in: ath9k_htc ath9k_common ath9k_hw ath mac80211 cfg80211 libarc4 nouveau snd_hda_codec_hdmi intel_rapl_msr intel_rapl_common x86_pkg_temp_thermal intel_powerclamp coretemp snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio snd_hda_intel snd_hda_codec video snd_hda_core ttm snd_hwdep drm_kms_helper snd_pcm crct10dif_pclmul snd_seq_midi drm snd_seq_midi_event crc32_pclmul snd_rawmidi ghash_clmulni_intel snd_seq aesni_intel aes_x86_64 crypto_simd cryptd snd_seq_device glue_helper snd_timer sch_fq_codel i2c_algo_bit fb_sys_fops snd input_leds syscopyarea sysfillrect sysimgblt intel_cstate mei_me intel_rapl_perf soundcore mxm_wmi lpc_ich mei kvm_intel kvm mac_hid irqbypass parport_pc ppdev lp parport ip_tables x_tables autofs4 hid_generic usbhid hid raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx xor raid6_pq libcrc32c raid1 raid0 multipath linear e1000e ahci libahci wmi
-[  112.836022] CPU: 5 PID: 0 Comm: swapper/5 Not tainted 5.3.0-wt #1
-[  112.836023] Hardware name: MouseComputer Co.,Ltd. X99-S01/X99-S01, BIOS 1.0C-W7 04/01/2015
-[  112.836056] RIP: 0010:ieee80211_rx_napi+0xaac/0xb40 [mac80211]
-[  112.836059] Code: 00 00 66 41 89 86 b0 00 00 00 e9 c8 fa ff ff 4c 89 b5 40 ff ff ff 49 89 c6 e9 c9 fa ff ff 48 c7 c7 e0 a2 a5 c0 e8 47 41 b0 e9 <0f> 0b 48 89 df e8 5a 94 2d ea e9 02 f9 ff ff 41 39 c1 44 89 85 60
-[  112.836060] RSP: 0018:ffffaa6180220da8 EFLAGS: 00010286
-[  112.836062] RAX: 0000000000000024 RBX: ffff909a20eeda00 RCX: 0000000000000000
-[  112.836064] RDX: 0000000000000000 RSI: ffff909a2f957448 RDI: ffff909a2f957448
-[  112.836065] RBP: ffffaa6180220e78 R08: 00000000000006e9 R09: 0000000000000004
-[  112.836066] R10: 000000000000000a R11: 0000000000000001 R12: 0000000000000000
-[  112.836068] R13: ffff909a261a47a0 R14: 0000000000000000 R15: 0000000000000004
-[  112.836070] FS:  0000000000000000(0000) GS:ffff909a2f940000(0000) knlGS:0000000000000000
-[  112.836071] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  112.836073] CR2: 00007f4e3ffffa08 CR3: 00000001afc0a006 CR4: 00000000001606e0
-[  112.836074] Call Trace:
-[  112.836076]  <IRQ>
-[  112.836083]  ? finish_td+0xb3/0xf0
-[  112.836092]  ? ath9k_rx_prepare.isra.11+0x22f/0x2a0 [ath9k_htc]
-[  112.836099]  ath9k_rx_tasklet+0x10b/0x1d0 [ath9k_htc]
-[  112.836105]  tasklet_action_common.isra.22+0x63/0x110
-[  112.836108]  tasklet_action+0x22/0x30
-[  112.836115]  __do_softirq+0xe4/0x2da
-[  112.836118]  irq_exit+0xae/0xb0
-[  112.836121]  do_IRQ+0x86/0xe0
-[  112.836125]  common_interrupt+0xf/0xf
-[  112.836126]  </IRQ>
-[  112.836130] RIP: 0010:cpuidle_enter_state+0xa9/0x440
-[  112.836133] Code: 3d bc 20 38 55 e8 f7 1d 84 ff 49 89 c7 0f 1f 44 00 00 31 ff e8 28 29 84 ff 80 7d d3 00 0f 85 e6 01 00 00 fb 66 0f 1f 44 00 00 <45> 85 ed 0f 89 ff 01 00 00 41 c7 44 24 10 00 00 00 00 48 83 c4 18
-[  112.836134] RSP: 0018:ffffaa61800e3e48 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffde
-[  112.836136] RAX: ffff909a2f96b340 RBX: ffffffffabb58200 RCX: 000000000000001f
-[  112.836137] RDX: 0000001a458adc5d RSI: 0000000026c9b581 RDI: 0000000000000000
-[  112.836139] RBP: ffffaa61800e3e88 R08: 0000000000000002 R09: 000000000002abc0
-[  112.836140] R10: ffffaa61800e3e18 R11: 000000000000002d R12: ffffca617fb40b00
-[  112.836141] R13: 0000000000000002 R14: ffffffffabb582d8 R15: 0000001a458adc5d
-[  112.836145]  ? cpuidle_enter_state+0x98/0x440
-[  112.836149]  ? menu_select+0x370/0x600
-[  112.836151]  cpuidle_enter+0x2e/0x40
-[  112.836154]  call_cpuidle+0x23/0x40
-[  112.836156]  do_idle+0x204/0x280
-[  112.836159]  cpu_startup_entry+0x1d/0x20
-[  112.836164]  start_secondary+0x167/0x1c0
-[  112.836169]  secondary_startup_64+0xa4/0xb0
-[  112.836173] ---[ end trace 9f4cd18479cc5ae5 ]---
-
-Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 5a0803bd5ae2 ("ARM64: dts: meson-gxbb-odroidc2: Enable USB Nodes")
+Cc: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: Jerome Brunet <jbrunet@baylibre.com>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Anand Moon <linux.amoon@gmail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 23 +++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index d913b9e9bd8f..4748f557c753 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -973,6 +973,8 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 	struct ath_htc_rx_status *rxstatus;
- 	struct ath_rx_status rx_stats;
- 	bool decrypt_error = false;
-+	__be16 rs_datalen;
-+	bool is_phyerr;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts b/arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts
+index 4ea23df81f21..5da604e5cf28 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dts
+@@ -295,7 +295,7 @@
+ };
  
- 	if (skb->len < HTC_RX_FRAME_HEADER_SIZE) {
- 		ath_err(common, "Corrupted RX frame, dropping (len: %d)\n",
-@@ -982,11 +984,24 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
+ &usb0_phy {
+-	status = "okay";
++	status = "disabled";
+ 	phy-supply = <&usb_otg_pwr>;
+ };
  
- 	rxstatus = (struct ath_htc_rx_status *)skb->data;
+@@ -305,7 +305,7 @@
+ };
  
--	if (be16_to_cpu(rxstatus->rs_datalen) -
--	    (skb->len - HTC_RX_FRAME_HEADER_SIZE) != 0) {
-+	rs_datalen = be16_to_cpu(rxstatus->rs_datalen);
-+	if (unlikely(rs_datalen -
-+	    (skb->len - HTC_RX_FRAME_HEADER_SIZE) != 0)) {
- 		ath_err(common,
- 			"Corrupted RX data len, dropping (dlen: %d, skblen: %d)\n",
--			be16_to_cpu(rxstatus->rs_datalen), skb->len);
-+			rs_datalen, skb->len);
-+		goto rx_next;
-+	}
-+
-+	is_phyerr = rxstatus->rs_status & ATH9K_RXERR_PHY;
-+	/*
-+	 * Discard zero-length packets and packets smaller than an ACK
-+	 * which are not PHY_ERROR (short radar pulses have a length of 3)
-+	 */
-+	if (unlikely(!rs_datalen || (rs_datalen < 10 && !is_phyerr))) {
-+		ath_warn(common,
-+			 "Short RX data len, dropping (dlen: %d)\n",
-+			 rs_datalen);
- 		goto rx_next;
- 	}
+ &usb0 {
+-	status = "okay";
++	status = "disabled";
+ };
  
-@@ -1011,7 +1026,7 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 	 * Process PHY errors and return so that the packet
- 	 * can be dropped.
- 	 */
--	if (rx_stats.rs_status & ATH9K_RXERR_PHY) {
-+	if (unlikely(is_phyerr)) {
- 		/* TODO: Not using DFS processing now. */
- 		if (ath_cmn_process_fft(&priv->spec_priv, hdr,
- 				    &rx_stats, rx_status->mactime)) {
+ &usb1 {
 -- 
 2.20.1
 
