@@ -2,112 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D02A71330E0
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:48:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD7E41330EC
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:56:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726142AbgAGUsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:48:10 -0500
-Received: from vmicros1.altlinux.org ([194.107.17.57]:59202 "EHLO
-        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726111AbgAGUsJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 15:48:09 -0500
-Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
-        by vmicros1.altlinux.org (Postfix) with ESMTP id 99C1E72CCE9;
-        Tue,  7 Jan 2020 23:48:04 +0300 (MSK)
-Received: from altlinux.org (sole.flsd.net [185.75.180.6])
-        by imap.altlinux.org (Postfix) with ESMTPSA id 69EC64A4AE7;
-        Tue,  7 Jan 2020 23:48:04 +0300 (MSK)
-Date:   Tue, 7 Jan 2020 23:48:04 +0300
-From:   Vitaly Chikunov <vt@altlinux.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Arnaldo Carvalho de Melo' <acme@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Clark Williams <williams@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
-        Dmitry Levin <ldv@altlinux.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        kbuild test robot <lkp@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Vineet Gupta <vineet.gupta1@synopsys.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: Re: [PATCH 20/20] tools lib: Fix builds when glibc contains strlcpy()
-Message-ID: <20200107204803.yuunleopt7pnq5dw@altlinux.org>
-Mail-Followup-To: David Laight <David.Laight@ACULAB.COM>,
-        'Arnaldo Carvalho de Melo' <acme@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Clark Williams <williams@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
-        Dmitry Levin <ldv@altlinux.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        kbuild test robot <lkp@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Vineet Gupta <vineet.gupta1@synopsys.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-References: <20200106160705.10899-1-acme@kernel.org>
- <20200106160705.10899-21-acme@kernel.org>
- <bd755ddc840a485098f9e51d2692f39d@AcuMS.aculab.com>
+        id S1726210AbgAGU4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:56:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51248 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726142AbgAGU4P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:56:15 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3902B2081E;
+        Tue,  7 Jan 2020 20:56:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578430574;
+        bh=hgVZmdjmoaFFQFb3gUYdr4Lz0gk+Zd7/7MRIZfKlTOA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nD+8Cj+mqJo7TX2zjtB0FNVKIhkG/30NlfStQq/zwhjL5F01a/dp5xoJbKU72mYKz
+         z1Ac7mL6RZjFjIouBK9w2xiFovXdHM46vXm1k7UlftnwONVW/A1cgeOo0xqn8m1gWV
+         Xc5+QPPZOWxyFKBJzAwaC5jDnYZ1rI3FaotTGVaQ=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 001/191] drm/mcde: dsi: Fix invalid pointer dereference if panel cannot be found
+Date:   Tue,  7 Jan 2020 21:52:01 +0100
+Message-Id: <20200107205333.084061484@linuxfoundation.org>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <bd755ddc840a485098f9e51d2692f39d@AcuMS.aculab.com>
-User-Agent: NeoMutt/20171215-106-ac61c7
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-David,
+From: Stephan Gerhold <stephan@gerhold.net>
 
-On Mon, Jan 06, 2020 at 05:03:26PM +0000, David Laight wrote:
-> From: Arnaldo Carvalho de Melo
-> > Sent: 06 January 2020 16:07
-> > 
-> > From: Vitaly Chikunov <vt@altlinux.org>
-> > 
-> > Disable a couple of compilation warnings (which are treated as errors)
-> > on strlcpy() definition and declaration, allowing users to compile perf
-> > and kernel (objtool) when:
-> > 
-> > 1. glibc have strlcpy() (such as in ALT Linux since 2004) objtool and
-> >    perf build fails with this (in gcc):
-> > 
-> >   In file included from exec-cmd.c:3:
-> >   tools/include/linux/string.h:20:15: error: redundant redeclaration of ‘strlcpy’ [-Werror=redundant-decls]
-> >      20 | extern size_t strlcpy(char *dest, const char *src, size_t size);
-> > 
-> > 2. clang ignores `-Wredundant-decls', but produces another warning when
-> >    building perf:
-> > 
-> >     CC       util/string.o
-> >   ../lib/string.c:99:8: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
-> >   size_t __weak strlcpy(char *dest, const char *src, size_t size)
-> >   ../../tools/include/linux/compiler.h:66:34: note: expanded from macro '__weak'
-> >   # define __weak                 __attribute__((weak))
-> >   /usr/include/bits/string_fortified.h:151:8: note: previous definition is here
-> >   __NTH (strlcpy (char *__restrict __dest, const char *__restrict __src,
-> 
-> Why not just always use the local version by renaming it?
+[ Upstream commit c131280c03bd1c225c2e64e9ef75873ffca3d96e ]
 
-I believe that was the initial approach, which is changed some time ago
-to using weak linking. Also, Dmitry Levin (as one of glibc maintainers)
-claims that glibc implementation of strlcpy() is more correct and thus
-better.
+The "panel" pointer is not reset to NULL if of_drm_find_panel()
+returns an error. Therefore we later assume that a panel was found,
+and try to dereference the error pointer, resulting in:
 
-Thanks,
+    mcde-dsi a0351000.dsi: failed to find panel try bridge (4294966779)
+    Unable to handle kernel paging request at virtual address fffffe03
+    PC is at drm_panel_bridge_add.part.0+0x10/0x5c
+    LR is at mcde_dsi_bind+0x120/0x464
+    ...
 
-> 
-> 	David
-> 
-> -
-> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-> Registration No: 1397386 (Wales)
+Reset "panel" to NULL to avoid this problem.
+Also change the format string of the error to %ld to print
+the negative errors correctly. The crash above then becomes:
+
+    mcde-dsi a0351000.dsi: failed to find panel try bridge (-517)
+    mcde-dsi a0351000.dsi: no panel or bridge
+    ...
+
+Fixes: 5fc537bfd000 ("drm/mcde: Add new driver for ST-Ericsson MCDE")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191118130252.170324-1-stephan@gerhold.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/mcde/mcde_dsi.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/mcde/mcde_dsi.c b/drivers/gpu/drm/mcde/mcde_dsi.c
+index f9c9e32b299c..35bb825d1918 100644
+--- a/drivers/gpu/drm/mcde/mcde_dsi.c
++++ b/drivers/gpu/drm/mcde/mcde_dsi.c
+@@ -935,11 +935,13 @@ static int mcde_dsi_bind(struct device *dev, struct device *master,
+ 	for_each_available_child_of_node(dev->of_node, child) {
+ 		panel = of_drm_find_panel(child);
+ 		if (IS_ERR(panel)) {
+-			dev_err(dev, "failed to find panel try bridge (%lu)\n",
++			dev_err(dev, "failed to find panel try bridge (%ld)\n",
+ 				PTR_ERR(panel));
++			panel = NULL;
++
+ 			bridge = of_drm_find_bridge(child);
+ 			if (IS_ERR(bridge)) {
+-				dev_err(dev, "failed to find bridge (%lu)\n",
++				dev_err(dev, "failed to find bridge (%ld)\n",
+ 					PTR_ERR(bridge));
+ 				return PTR_ERR(bridge);
+ 			}
+-- 
+2.20.1
+
+
+
