@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 364A21333BE
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:21:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6769D13320E
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728968AbgAGVDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:03:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46300 "EHLO mail.kernel.org"
+        id S1729096AbgAGVGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:06:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728957AbgAGVDn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:03:43 -0500
+        id S1729422AbgAGVGr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:06:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0ABD214D8;
-        Tue,  7 Jan 2020 21:03:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97A4724679;
+        Tue,  7 Jan 2020 21:06:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431022;
-        bh=MuIb+sqGhjVYAmssrn+7TlscdFUuD8dmFEMaZbKcdMU=;
+        s=default; t=1578431207;
+        bh=tGMOlRlyeVwmVbqGsZsbHKXno5yn/Ml/QUpwixU1fHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VO8FFRK1vKkGsUmV7jeJ6pxmgM1GsAxtx9jrp1QsZnE9j4AQtRQJJC59L+6P7Lm5o
-         7Ol6Lh2MfoCUCwLNasCRNGS477vJBCVuCaVS76VtRC0GvRfyABH1yt7OVbr5yiK2Pf
-         2TruW9pXAkduoQiGF7TaGQd3FsQ1eXKarFWByL9w=
+        b=kd3w9XA7CMx3IykY/FCHbCOKMVLG6SRMjgxTJBDq3/Bhd95L9GwUpYoJKWZO+UOcl
+         EE6LCnKO84WWNhxI9mF3em6IzrUziEry/tE3XmqVhBJX7BIMVyKP+ybimEnB2r+ViH
+         a6c7monqkuHdiUWCXIP6OIae+JLnD0yuTCIyngII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.4 166/191] dt-bindings: clock: renesas: rcar-usb2-clock-sel: Fix typo in example
+        stable@vger.kernel.org, chenqiwu <chenqiwu@xiaomi.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Oleg Nesterov <oleg@redhat.com>
+Subject: [PATCH 4.19 076/115] exit: panic before exit_mm() on global init exit
 Date:   Tue,  7 Jan 2020 21:54:46 +0100
-Message-Id: <20200107205341.865549681@linuxfoundation.org>
+Message-Id: <20200107205304.288944581@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: chenqiwu <chenqiwu@xiaomi.com>
 
-commit 830dbce7c76ea529decac7d23b808c1e7da3d891 upstream.
+commit 43cf75d96409a20ef06b756877a2e72b10a026fc upstream.
 
-The documented compatible value for R-Car H3 is
-"renesas,r8a7795-rcar-usb2-clock-sel", not
-"renesas,r8a77950-rcar-usb2-clock-sel".
+Currently, when global init and all threads in its thread-group have exited
+we panic via:
+do_exit()
+-> exit_notify()
+   -> forget_original_parent()
+      -> find_child_reaper()
+This makes it hard to extract a useable coredump for global init from a
+kernel crashdump because by the time we panic exit_mm() will have already
+released global init's mm.
+This patch moves the panic futher up before exit_mm() is called. As was the
+case previously, we only panic when global init and all its threads in the
+thread-group have exited.
 
-Fixes: 311accb64570db45 ("clk: renesas: rcar-usb2-clock-sel: Add R-Car USB 2.0 clock selector PHY")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20191016145650.30003-1-geert+renesas@glider.be
+Signed-off-by: chenqiwu <chenqiwu@xiaomi.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+[christian.brauner@ubuntu.com: fix typo, rewrite commit message]
+Link: https://lore.kernel.org/r/1576736993-10121-1-git-send-email-qiwuchen55@gmail.com
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/devicetree/bindings/clock/renesas,rcar-usb2-clock-sel.txt |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/exit.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/Documentation/devicetree/bindings/clock/renesas,rcar-usb2-clock-sel.txt
-+++ b/Documentation/devicetree/bindings/clock/renesas,rcar-usb2-clock-sel.txt
-@@ -46,7 +46,7 @@ Required properties:
- Example (R-Car H3):
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -578,10 +578,6 @@ static struct task_struct *find_child_re
+ 	}
  
- 	usb2_clksel: clock-controller@e6590630 {
--		compatible = "renesas,r8a77950-rcar-usb2-clock-sel",
-+		compatible = "renesas,r8a7795-rcar-usb2-clock-sel",
- 			     "renesas,rcar-gen3-usb2-clock-sel";
- 		reg = <0 0xe6590630 0 0x02>;
- 		clocks = <&cpg CPG_MOD 703>, <&usb_extal>, <&usb_xtal>;
+ 	write_unlock_irq(&tasklist_lock);
+-	if (unlikely(pid_ns == &init_pid_ns)) {
+-		panic("Attempted to kill init! exitcode=0x%08x\n",
+-			father->signal->group_exit_code ?: father->exit_code);
+-	}
+ 
+ 	list_for_each_entry_safe(p, n, dead, ptrace_entry) {
+ 		list_del_init(&p->ptrace_entry);
+@@ -845,6 +841,14 @@ void __noreturn do_exit(long code)
+ 	acct_update_integrals(tsk);
+ 	group_dead = atomic_dec_and_test(&tsk->signal->live);
+ 	if (group_dead) {
++		/*
++		 * If the last thread of global init has exited, panic
++		 * immediately to get a useable coredump.
++		 */
++		if (unlikely(is_global_init(tsk)))
++			panic("Attempted to kill init! exitcode=0x%08x\n",
++				tsk->signal->group_exit_code ?: (int)code);
++
+ #ifdef CONFIG_POSIX_TIMERS
+ 		hrtimer_cancel(&tsk->signal->real_timer);
+ 		exit_itimers(tsk->signal);
 
 
