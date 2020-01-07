@@ -2,92 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4813133723
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 00:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9A571337B7
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 00:51:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727095AbgAGXPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 18:15:24 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:41829 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727074AbgAGXPY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 18:15:24 -0500
-Received: by mail-wr1-f66.google.com with SMTP id c9so1401404wrw.8
-        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 15:15:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=shJ1g8+UhlVzNXS1CEW4BcaTYz0Y21MywhYArfyxndk=;
-        b=EgfPDpZhGlBUAYEp/PRTpZUo9MjoPZW6ICnRcIGc+m4VoQidfkc1TMrJbUqfqKN7fF
-         EWhrYphWMaEGrvXxPsBMrwbne1SV1Mt45UJE85N1KCre1oJeHlD68Zg1LLSt2MqDCdV9
-         TnKX7mwa2p3tMuTNi+i55vdIJ+jfZZzTgkVZ2epePy6PYPoMvVB0UBrYlweyx655felI
-         3zbTew8D9tJaDJizBD//ZdlrsAvjp0o6uG/QrEXKCpaECBM71aBRJWRK1XYnZsQBSUEq
-         WBys5LqspJ+Qap++hQfS3j1iXDysfqj0wp/KDXfrV3Mi9IW9AjcKoik7IF0rxhM+t0CI
-         CWvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=shJ1g8+UhlVzNXS1CEW4BcaTYz0Y21MywhYArfyxndk=;
-        b=OifeNamvl1bDDoHxcNPSRIRMGUT+vUtlrFjMfjNyLGOsDSEQwWZ2sb/vOSpvN5yJVo
-         p+gLuDHa7XbsgwTgJIa1BwiJNe80ThVA3rldMlraiW+rCDw+gx84658lXyDN0BujyZJQ
-         QVhtUtTROmfpqDDBEtVwjeBkBTEXixILRAPY41CHsudb1X4BwL4zr4Gdqu1qaXRXTsix
-         vs32ARWlBMivXr5UDqlj8TT6S76aZy6Kb6Ho2HDe8Xwfph+9Ygs7CDJVHwh/opA+hlMd
-         P9qZ7mCImg/sdzeTiOvEhmKF7ys8tO628/EntVvMuIK2NlhOwLGJoNm1vUjd25wq4js3
-         TtVg==
-X-Gm-Message-State: APjAAAUBQp94SCSb6zE5wn0bMx7fLrWO3O6BXPlAnp2q8i+7PTcmKyJi
-        AyY1QJjdUatj57wKXK5V+R1snqtwMacrBg==
-X-Google-Smtp-Source: APXvYqwM8J6PK+M+RWJhV1sJz40gBtIW2jzM4uwM6Cv7eSbZayDsOcnaMxczHJoDgH/SqqPvWdGVbw==
-X-Received: by 2002:adf:fe4d:: with SMTP id m13mr1215292wrs.179.1578438922308;
-        Tue, 07 Jan 2020 15:15:22 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id i5sm1796051wrv.34.2020.01.07.15.15.21
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jan 2020 15:15:21 -0800 (PST)
-Message-ID: <5e151109.1c69fb81.db363.9540@mx.google.com>
-Date:   Tue, 07 Jan 2020 15:15:21 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726537AbgAGXvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 18:51:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34010 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726470AbgAGXvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 18:51:01 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A1A8206DB;
+        Tue,  7 Jan 2020 23:50:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578441059;
+        bh=leKpYfQ6lbU6z0tvbRVsMzEMM7yESWQjMIaFK3kDOOw=;
+        h=Date:From:To:Subject:From;
+        b=PX7kTzQoxquEHykRs4bEng5F7A/zY4+XotaSD6BmEHRYElU0Gdisc1rDcFmuHf14t
+         TqKvMClobugrTOVNzx7w/3IeMgGNPho/elcOQ2skkH8jz21lKKkJl5khUKTGZXlBZU
+         eMbsq5PiumWbBM0iAGtWfEu5IyWHWnz9xoEW3t94=
+Date:   Tue, 07 Jan 2020 15:50:58 -0800
+From:   akpm@linux-foundation.org
+To:     ahuang12@lenovo.com, cl@linux.com, hannes@cmpxchg.org,
+        iamjoonsoo.kim@lge.com, jroedel@suse.de, lixc17@lenovo.com,
+        mhocko@kernel.org, mm-commits@vger.kernel.org, penberg@kernel.org,
+        rientjes@google.com, shakeelb@google.com, stable@vger.kernel.org
+Subject:  +
+ =?US-ASCII?Q?mm-memcg-slab-call-flush=5Fmemcg=5Fworkqueue-only-if-memcg-?=
+ =?US-ASCII?Q?workqueue-is-valid.patch?= added to -mm tree
+Message-ID: <20200107235058.RBBuz3DYy%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.207-160-gd71a25a44549
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 46 boots: 0 failed,
- 45 passed with 1 untried/unknown (v4.4.207-160-gd71a25a44549)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 46 boots: 0 failed, 45 passed with 1 untried/un=
-known (v4.4.207-160-gd71a25a44549)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.207-160-gd71a25a44549/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.207-160-gd71a25a44549/
+The patch titled
+     Subject: mm: memcg/slab: call flush_memcg_workqueue() only if memcg workqueue is valid
+has been added to the -mm tree.  Its filename is
+     mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid.patch
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.207-160-gd71a25a44549
-Git Commit: d71a25a4454908ef8d0a2851e003e180ca1cd9e7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 24 unique boards, 9 SoC families, 9 builds out of 190
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid.patch
 
-Boot Regressions Detected:
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-arm:
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-    omap2plus_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-baylibre: new failure (last pass: v4.4.207-138-g8eb04883f=
-217)
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
+------------------------------------------------------
+From: Adrian Huang <ahuang12@lenovo.com>
+Subject: mm: memcg/slab: call flush_memcg_workqueue() only if memcg workqueue is valid
+
+When booting with amd_iommu=off, the following WARNING message
+appears:
+  AMD-Vi: AMD IOMMU disabled on kernel command-line
+  ------------[ cut here ]------------
+  WARNING: CPU: 0 PID: 0 at kernel/workqueue.c:2772 flush_workqueue+0x42e/0x450
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.5.0-rc3-amd-iommu #6
+  Hardware name: Lenovo ThinkSystem SR655-2S/7D2WRCZ000, BIOS D8E101L-1.00 12/05/2019
+  RIP: 0010:flush_workqueue+0x42e/0x450
+  Code: ff 0f 0b e9 7a fd ff ff 4d 89 ef e9 33 fe ff ff 0f 0b e9 7f fd ff ff 0f 0b e9 bc fd ff ff 0f 0b e9 a8 fd ff ff e8 52 2c fe ff <0f> 0b 31 d2 48 c7 c6 e0 88 c5 95 48 c7 c7 d8 ad f0 95 e8 19 f5 04
+  RSP: 0000:ffffffff96203d80 EFLAGS: 00010246
+  RAX: ffffffff96203dc8 RBX: 0000000000000000 RCX: 0000000000000000
+  RDX: ffffffff96a63120 RSI: ffffffff95efcba2 RDI: ffffffff96203dc0
+  RBP: ffffffff96203e08 R08: 0000000000000000 R09: ffffffff962a1828
+  R10: 00000000f0000080 R11: dead000000000100 R12: ffff8d8a87c0a770
+  R13: dead000000000100 R14: 0000000000000456 R15: ffffffff96203da0
+  FS:  0000000000000000(0000) GS:ffff8d8dbd000000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffff8d91cfbff000 CR3: 000000078920a000 CR4: 00000000000406b0
+  Call Trace:
+   ? wait_for_completion+0x51/0x180
+   kmem_cache_destroy+0x69/0x260
+   iommu_go_to_state+0x40c/0x5ab
+   amd_iommu_prepare+0x16/0x2a
+   irq_remapping_prepare+0x36/0x5f
+   enable_IR_x2apic+0x21/0x172
+   default_setup_apic_routing+0x12/0x6f
+   apic_intr_mode_init+0x1a1/0x1f1
+   x86_late_time_init+0x17/0x1c
+   start_kernel+0x480/0x53f
+   secondary_startup_64+0xb6/0xc0
+  ---[ end trace 30894107c3749449 ]---
+  x2apic: IRQ remapping doesn't support X2APIC mode
+  x2apic disabled
+
+The warning is caused by the calling of 'kmem_cache_destroy()'
+in free_iommu_resources(). Here is the call path:
+  free_iommu_resources
+    kmem_cache_destroy
+      flush_memcg_workqueue
+        flush_workqueue
+
+The root cause is that the IOMMU subsystem runs before the workqueue
+subsystem, which the variable 'wq_online' is still 'false'.  This leads to
+the statement 'if (WARN_ON(!wq_online))' in flush_workqueue() is 'true'.
+
+Since the variable 'memcg_kmem_cache_wq' is not allocated during the time,
+it is unnecessary to call flush_memcg_workqueue().  This prevents the
+WARNING message triggered by flush_workqueue().
+
+Link: http://lkml.kernel.org/r/20200103085503.1665-1-ahuang12@lenovo.com
+Fixes: 92ee383f6daab ("mm: fix race between kmem_cache destroy, create and deactivate")
+Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
+Reported-by: Xiaochun Lee <lixc17@lenovo.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ mm/slab_common.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/mm/slab_common.c~mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid
++++ a/mm/slab_common.c
+@@ -903,7 +903,8 @@ static void flush_memcg_workqueue(struct
+ 	 * deactivates the memcg kmem_caches through workqueue. Make sure all
+ 	 * previous workitems on workqueue are processed.
+ 	 */
+-	flush_workqueue(memcg_kmem_cache_wq);
++	if (likely(memcg_kmem_cache_wq))
++		flush_workqueue(memcg_kmem_cache_wq);
+ 
+ 	/*
+ 	 * If we're racing with children kmem_cache deactivation, it might
+_
+
+Patches currently in -mm which might be from ahuang12@lenovo.com are
+
+mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid.patch
+
