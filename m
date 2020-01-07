@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA5E713346F
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:25:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93A9B13346C
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:25:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728188AbgAGU7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:59:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33260 "EHLO mail.kernel.org"
+        id S1728528AbgAGVZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:25:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728174AbgAGU7q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:59:46 -0500
+        id S1728192AbgAGU7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:59:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2193B2087F;
-        Tue,  7 Jan 2020 20:59:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 898552087F;
+        Tue,  7 Jan 2020 20:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430785;
-        bh=44x2w1OX8PyamDGDNVHFPXS7thF5220wNWK62MHi+ps=;
+        s=default; t=1578430788;
+        bh=86fnnZvBJPO9es3sKpAHnW2j3Q2FeWk3S/ePdnzjGS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJGUqJWtwru8WcAiin7QBjFPnR7nuXXXWcnQRUW9isWGrAfN8yWbhdjB7aYWtrAZ9
-         NwwDRnjnjrNt/R9qPjqB5gVz7gVJ6lUrmnzSPGnBP7iJOIXmjPxVwdC1BLG/Kcnmkh
-         SuLfeB0t5nrepz7LbQr4B8GA7mc1jfvlKKaT+wwg=
+        b=KOY/03sSZJaKdXFkJkjQL5LetUCDovXr4WiykYD8MyfRu1AZ9iXKQpKU0V0izGIlC
+         8v8I13loMEkjdb3C4QjhkIo11NKTke9X4OQLDL6+0o684D4CWzv8ecT2oINzDPjSzi
+         +Cgb8v7ayBHbQxK1IMumr7RAJqSmRXrClce3BsWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sargun Dhillon <sargun@sargun.me>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 096/191] selftests/seccomp: Catch garbage on SECCOMP_IOCTL_NOTIF_RECV
-Date:   Tue,  7 Jan 2020 21:53:36 +0100
-Message-Id: <20200107205338.129972282@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Lukas Wunner <lukas@wunner.de>, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 097/191] dmaengine: Fix access to uninitialized dma_slave_caps
+Date:   Tue,  7 Jan 2020 21:53:37 +0100
+Message-Id: <20200107205338.182427130@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -44,48 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sargun Dhillon <sargun@sargun.me>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit e4ab5ccc357b978999328fadae164e098c26fa40 upstream.
+commit 53a256a9b925b47c7e67fc1f16ca41561a7b877c upstream.
 
-This adds logic to the user_notification_basic test to set a member
-of struct seccomp_notif to an invalid value to ensure that the kernel
-returns EINVAL if any of the struct seccomp_notif members are set to
-invalid values.
+dmaengine_desc_set_reuse() allocates a struct dma_slave_caps on the
+stack, populates it using dma_get_slave_caps() and then accesses one
+of its members.
 
-Signed-off-by: Sargun Dhillon <sargun@sargun.me>
-Suggested-by: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/r/20191230203811.4996-1-sargun@sargun.me
-Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+However dma_get_slave_caps() may fail and this isn't accounted for,
+leading to a legitimate warning of gcc-4.9 (but not newer versions):
+
+   In file included from drivers/spi/spi-bcm2835.c:19:0:
+   drivers/spi/spi-bcm2835.c: In function 'dmaengine_desc_set_reuse':
+>> include/linux/dmaengine.h:1370:10: warning: 'caps.descriptor_reuse' is used uninitialized in this function [-Wuninitialized]
+     if (caps.descriptor_reuse) {
+
+Fix it, thereby also silencing the gcc-4.9 warning.
+
+The issue has been present for 4 years but surfaces only now that
+the first caller of dmaengine_desc_set_reuse() has been added in
+spi-bcm2835.c. Another user of reusable DMA descriptors has existed
+for a while in pxa_camera.c, but it sets the DMA_CTRL_REUSE flag
+directly instead of calling dmaengine_desc_set_reuse(). Nevertheless,
+tag this commit for stable in case there are out-of-tree users.
+
+Fixes: 272420214d26 ("dmaengine: Add DMA_CTRL_REUSE")
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v4.3+
+Link: https://lore.kernel.org/r/ca92998ccc054b4f2bfd60ef3adbab2913171eac.1575546234.git.lukas@wunner.de
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/seccomp/seccomp_bpf.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ include/linux/dmaengine.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/seccomp/seccomp_bpf.c
-+++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
-@@ -3147,7 +3147,18 @@ TEST(user_notification_basic)
- 	EXPECT_GT(poll(&pollfd, 1, -1), 0);
- 	EXPECT_EQ(pollfd.revents, POLLIN);
+--- a/include/linux/dmaengine.h
++++ b/include/linux/dmaengine.h
+@@ -1364,8 +1364,11 @@ static inline int dma_get_slave_caps(str
+ static inline int dmaengine_desc_set_reuse(struct dma_async_tx_descriptor *tx)
+ {
+ 	struct dma_slave_caps caps;
++	int ret;
  
--	EXPECT_EQ(ioctl(listener, SECCOMP_IOCTL_NOTIF_RECV, &req), 0);
-+	/* Test that we can't pass garbage to the kernel. */
-+	memset(&req, 0, sizeof(req));
-+	req.pid = -1;
-+	errno = 0;
-+	ret = ioctl(listener, SECCOMP_IOCTL_NOTIF_RECV, &req);
-+	EXPECT_EQ(-1, ret);
-+	EXPECT_EQ(EINVAL, errno);
-+
-+	if (ret) {
-+		req.pid = 0;
-+		EXPECT_EQ(ioctl(listener, SECCOMP_IOCTL_NOTIF_RECV, &req), 0);
-+	}
+-	dma_get_slave_caps(tx->chan, &caps);
++	ret = dma_get_slave_caps(tx->chan, &caps);
++	if (ret)
++		return ret;
  
- 	pollfd.fd = listener;
- 	pollfd.events = POLLIN | POLLOUT;
+ 	if (caps.descriptor_reuse) {
+ 		tx->flags |= DMA_CTRL_REUSE;
 
 
