@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD8921332DC
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:15:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 239A11333C2
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:21:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729876AbgAGVJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:09:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35860 "EHLO mail.kernel.org"
+        id S1727020AbgAGVDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:03:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729871AbgAGVJv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:09:51 -0500
+        id S1727991AbgAGVDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:03:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EAE12087F;
-        Tue,  7 Jan 2020 21:09:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F108520678;
+        Tue,  7 Jan 2020 21:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431390;
-        bh=RvaC7pNhej1oSAJiA9zXX9la2pZ4q0jiBNDMmUppzfQ=;
+        s=default; t=1578430998;
+        bh=FFnxewB0PxNjiHj9jmXU04m/t7uLXJ/DPQUka9Y/FR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKR/jC494OphtlDRXP13TDM8wk1L5denoufprtnUqhiCux7GOUDh9/mfRDMI94CXi
-         cbqGtwmxIYglbKyn58KZGLPnfh+Zs+o7sZGnqzEVXwL6X8LMeIajs+7u7lbaBrwuAk
-         PZhS+iw/d0cFaW0liZNg64bwJBUsDFx0WSLvDWNs=
+        b=As++hsusyxHxXyYEke51G8YxWH0OFY6Ly/M9NGGi3YifGc6SZ9pNUh6D1T+Sbgc9O
+         u2sFGDkEschVAePo5CYo4Ozt1tVMHVvGg37ccNZRkRb853+oMOVXMH4nOGtG6bHt0n
+         NuPIZ6LepoQAVO/cdSj/yheSVvKGvmx1Yrh7W75M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 38/74] ata: ahci_brcm: Fix AHCI resources management
+        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.de>,
+        Maximilian Heyne <mheyne@amazon.de>,
+        Paul Durrant <pdurrant@amazon.co.uk>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        SeongJae Park <sjpark@amazon.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 183/191] xen/blkback: Avoid unmapping unmapped grant pages
 Date:   Tue,  7 Jan 2020 21:55:03 +0100
-Message-Id: <20200107205208.176368966@linuxfoundation.org>
+Message-Id: <20200107205342.786178756@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,224 +47,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: SeongJae Park <sjpark@amazon.de>
 
-commit c0cdf2ac4b5bf3e5ef2451ea29fb4104278cdabc upstream.
+[ Upstream commit f9bd84a8a845d82f9b5a081a7ae68c98a11d2e84 ]
 
-The AHCI resources management within ahci_brcm.c is a little
-convoluted, largely because it historically had a dedicated clock that
-was managed within this file in the downstream tree. Once brough
-upstream though, the clock was left to be managed by libahci_platform.c
-which is entirely appropriate.
+For each I/O request, blkback first maps the foreign pages for the
+request to its local pages.  If an allocation of a local page for the
+mapping fails, it should unmap every mapping already made for the
+request.
 
-This patch series ensures that the AHCI resources are fetched and
-enabled before any register access is done, thus avoiding bus errors on
-platforms which clock gate the controller by default.
+However, blkback's handling mechanism for the allocation failure does
+not mark the remaining foreign pages as unmapped.  Therefore, the unmap
+function merely tries to unmap every valid grant page for the request,
+including the pages not mapped due to the allocation failure.  On a
+system that fails the allocation frequently, this problem leads to
+following kernel crash.
 
-As a result we need to re-arrange the suspend() and resume() functions
-in order to avoid accessing registers after the clocks have been turned
-off respectively before the clocks have been turned on. Finally, we can
-refactor brcm_ahci_get_portmask() in order to fetch the number of ports
-from hpriv->mmio which is now accessible without jumping through hoops
-like we used to do.
+  [  372.012538] BUG: unable to handle kernel NULL pointer dereference at 0000000000000001
+  [  372.012546] IP: [<ffffffff814071ac>] gnttab_unmap_refs.part.7+0x1c/0x40
+  [  372.012557] PGD 16f3e9067 PUD 16426e067 PMD 0
+  [  372.012562] Oops: 0002 [#1] SMP
+  [  372.012566] Modules linked in: act_police sch_ingress cls_u32
+  ...
+  [  372.012746] Call Trace:
+  [  372.012752]  [<ffffffff81407204>] gnttab_unmap_refs+0x34/0x40
+  [  372.012759]  [<ffffffffa0335ae3>] xen_blkbk_unmap+0x83/0x150 [xen_blkback]
+  ...
+  [  372.012802]  [<ffffffffa0336c50>] dispatch_rw_block_io+0x970/0x980 [xen_blkback]
+  ...
+  Decompressing Linux... Parsing ELF... done.
+  Booting the kernel.
+  [    0.000000] Initializing cgroup subsys cpuset
 
-The commit pointed in the Fixes tag is both old and new enough not to
-require major headaches for backporting of this patch.
+This commit fixes this problem by marking the grant pages of the given
+request that didn't mapped due to the allocation failure as invalid.
 
-Fixes: eba68f829794 ("ata: ahci_brcmstb: rename to support across Broadcom SoC's")
-Cc: stable@vger.kernel.org
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: c6cc142dac52 ("xen-blkback: use balloon pages for all mappings")
+
+Reviewed-by: David Woodhouse <dwmw@amazon.de>
+Reviewed-by: Maximilian Heyne <mheyne@amazon.de>
+Reviewed-by: Paul Durrant <pdurrant@amazon.co.uk>
+Reviewed-by: Roger Pau Monné <roger.pau@citrix.com>
+Signed-off-by: SeongJae Park <sjpark@amazon.de>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/ahci_brcm.c |  105 ++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 76 insertions(+), 29 deletions(-)
+ drivers/block/xen-blkback/blkback.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/ata/ahci_brcm.c
-+++ b/drivers/ata/ahci_brcm.c
-@@ -223,19 +223,12 @@ static void brcm_sata_phys_disable(struc
- 			brcm_sata_phy_disable(priv, i);
+diff --git a/drivers/block/xen-blkback/blkback.c b/drivers/block/xen-blkback/blkback.c
+index fd1e19f1a49f..3666afa639d1 100644
+--- a/drivers/block/xen-blkback/blkback.c
++++ b/drivers/block/xen-blkback/blkback.c
+@@ -936,6 +936,8 @@ next:
+ out_of_memory:
+ 	pr_alert("%s: out of memory\n", __func__);
+ 	put_free_pages(ring, pages_to_gnt, segs_to_map);
++	for (i = last_map; i < num; i++)
++		pages[i]->handle = BLKBACK_INVALID_HANDLE;
+ 	return -ENOMEM;
  }
  
--static u32 brcm_ahci_get_portmask(struct platform_device *pdev,
-+static u32 brcm_ahci_get_portmask(struct ahci_host_priv *hpriv,
- 				  struct brcm_ahci_priv *priv)
- {
--	void __iomem *ahci;
--	struct resource *res;
- 	u32 impl;
- 
--	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "ahci");
--	ahci = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(ahci))
--		return 0;
--
--	impl = readl(ahci + HOST_PORTS_IMPL);
-+	impl = readl(hpriv->mmio + HOST_PORTS_IMPL);
- 
- 	if (fls(impl) > SATA_TOP_MAX_PHYS)
- 		dev_warn(priv->dev, "warning: more ports than PHYs (%#x)\n",
-@@ -243,9 +236,6 @@ static u32 brcm_ahci_get_portmask(struct
- 	else if (!impl)
- 		dev_info(priv->dev, "no ports found\n");
- 
--	devm_iounmap(&pdev->dev, ahci);
--	devm_release_mem_region(&pdev->dev, res->start, resource_size(res));
--
- 	return impl;
- }
- 
-@@ -272,11 +262,10 @@ static int brcm_ahci_suspend(struct devi
- 	struct ata_host *host = dev_get_drvdata(dev);
- 	struct ahci_host_priv *hpriv = host->private_data;
- 	struct brcm_ahci_priv *priv = hpriv->plat_data;
--	int ret;
- 
--	ret = ahci_platform_suspend(dev);
- 	brcm_sata_phys_disable(priv);
--	return ret;
-+
-+	return ahci_platform_suspend(dev);
- }
- 
- static int brcm_ahci_resume(struct device *dev)
-@@ -284,11 +273,44 @@ static int brcm_ahci_resume(struct devic
- 	struct ata_host *host = dev_get_drvdata(dev);
- 	struct ahci_host_priv *hpriv = host->private_data;
- 	struct brcm_ahci_priv *priv = hpriv->plat_data;
-+	int ret;
-+
-+	/* Make sure clocks are turned on before re-configuration */
-+	ret = ahci_platform_enable_clks(hpriv);
-+	if (ret)
-+		return ret;
- 
- 	brcm_sata_init(priv);
- 	brcm_sata_phys_enable(priv);
- 	brcm_sata_alpm_init(hpriv);
--	return ahci_platform_resume(dev);
-+
-+	/* Since we had to enable clocks earlier on, we cannot use
-+	 * ahci_platform_resume() as-is since a second call to
-+	 * ahci_platform_enable_resources() would bump up the resources
-+	 * (regulators, clocks, PHYs) count artificially so we copy the part
-+	 * after ahci_platform_enable_resources().
-+	 */
-+	ret = ahci_platform_enable_phys(hpriv);
-+	if (ret)
-+		goto out_disable_phys;
-+
-+	ret = ahci_platform_resume_host(dev);
-+	if (ret)
-+		goto out_disable_platform_phys;
-+
-+	/* We resumed so update PM runtime state */
-+	pm_runtime_disable(dev);
-+	pm_runtime_set_active(dev);
-+	pm_runtime_enable(dev);
-+
-+	return 0;
-+
-+out_disable_platform_phys:
-+	ahci_platform_disable_phys(hpriv);
-+out_disable_phys:
-+	brcm_sata_phys_disable(priv);
-+	ahci_platform_disable_clks(hpriv);
-+	return ret;
- }
- #endif
- 
-@@ -340,38 +362,63 @@ static int brcm_ahci_probe(struct platfo
- 		priv->quirks |= BRCM_AHCI_QUIRK_SKIP_PHY_ENABLE;
- 	}
- 
-+	hpriv = ahci_platform_get_resources(pdev);
-+	if (IS_ERR(hpriv)) {
-+		ret = PTR_ERR(hpriv);
-+		goto out_reset;
-+	}
-+
-+	ret = ahci_platform_enable_clks(hpriv);
-+	if (ret)
-+		goto out_reset;
-+
-+	/* Must be first so as to configure endianness including that
-+	 * of the standard AHCI register space.
-+	 */
- 	brcm_sata_init(priv);
- 
--	priv->port_mask = brcm_ahci_get_portmask(pdev, priv);
--	if (!priv->port_mask)
--		return -ENODEV;
-+	/* Initializes priv->port_mask which is used below */
-+	priv->port_mask = brcm_ahci_get_portmask(hpriv, priv);
-+	if (!priv->port_mask) {
-+		ret = -ENODEV;
-+		goto out_disable_clks;
-+	}
- 
-+	/* Must be done before ahci_platform_enable_phys() */
- 	brcm_sata_phys_enable(priv);
- 
--	hpriv = ahci_platform_get_resources(pdev);
--	if (IS_ERR(hpriv))
--		return PTR_ERR(hpriv);
- 	hpriv->plat_data = priv;
- 	hpriv->flags = AHCI_HFLAG_WAKE_BEFORE_STOP;
- 
- 	brcm_sata_alpm_init(hpriv);
- 
--	ret = ahci_platform_enable_resources(hpriv);
--	if (ret)
--		return ret;
--
- 	if (priv->quirks & BRCM_AHCI_QUIRK_NO_NCQ)
- 		hpriv->flags |= AHCI_HFLAG_NO_NCQ;
- 	hpriv->flags |= AHCI_HFLAG_NO_WRITE_TO_RO;
- 
-+	ret = ahci_platform_enable_phys(hpriv);
-+	if (ret)
-+		goto out_disable_phys;
-+
- 	ret = ahci_platform_init_host(pdev, hpriv, &ahci_brcm_port_info,
- 				      &ahci_platform_sht);
- 	if (ret)
--		return ret;
-+		goto out_disable_platform_phys;
- 
- 	dev_info(dev, "Broadcom AHCI SATA3 registered\n");
- 
- 	return 0;
-+
-+out_disable_platform_phys:
-+	ahci_platform_disable_phys(hpriv);
-+out_disable_phys:
-+	brcm_sata_phys_disable(priv);
-+out_disable_clks:
-+	ahci_platform_disable_clks(hpriv);
-+out_reset:
-+	if (!IS_ERR_OR_NULL(priv->rcdev))
-+		reset_control_assert(priv->rcdev);
-+	return ret;
- }
- 
- static int brcm_ahci_remove(struct platform_device *pdev)
-@@ -381,12 +428,12 @@ static int brcm_ahci_remove(struct platf
- 	struct brcm_ahci_priv *priv = hpriv->plat_data;
- 	int ret;
- 
-+	brcm_sata_phys_disable(priv);
-+
- 	ret = ata_platform_remove_one(pdev);
- 	if (ret)
- 		return ret;
- 
--	brcm_sata_phys_disable(priv);
--
- 	return 0;
- }
- 
+-- 
+2.20.1
+
 
 
