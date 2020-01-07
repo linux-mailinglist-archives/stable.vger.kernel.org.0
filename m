@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D25013332F
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:17:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5015D1332E8
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:15:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729409AbgAGVGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:06:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56356 "EHLO mail.kernel.org"
+        id S1729770AbgAGVOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:14:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728181AbgAGVGm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:06:42 -0500
+        id S1729786AbgAGVJK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:09:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2748222D9;
-        Tue,  7 Jan 2020 21:06:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B6B02077B;
+        Tue,  7 Jan 2020 21:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431202;
-        bh=UhKWdznl3WaIfp7JHn+VhYkc7uxuSFKGbwszSTT+IcI=;
+        s=default; t=1578431350;
+        bh=iBoHMJDZnbO3kqXZFkUczZBgYWQj2tfUMH+07frX/jU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=msIS5wYdemwHou0STDje7o49no20zCv+ik2sySMoNDaEEHD3hjrIcCGT0Loyw4tbE
-         j0PzVw9Btu8nklTgPmwT6ike/fiUowPQP42yeG9KorYr0ncegdIyMcwWfX87V7pFqD
-         VDYwRCva8zmz7XoBAkMh6Atam+4OJ1nAUdSEgqJs=
+        b=SsNqJFwGkWvSiWhXQT5nzyhR+9j22Kma2fb+q5nOq6Fk9j2535hMKCXVfSg8WiFCc
+         rvkJ2WFvdxQo3jO6E9mkUmrvJ006rZLPqzMN+R1/es3TmGcesXRhZlNOh2uC6+D5Jb
+         tmSdQ/vAVbTybZFxDfjMtuFj2gFeHwUFvd/hHnEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 074/115] ALSA: cs4236: fix error return comparison of an unsigned integer
-Date:   Tue,  7 Jan 2020 21:54:44 +0100
-Message-Id: <20200107205304.141981850@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+c732f8644185de340492@syzkaller.appspotmail.com,
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 20/74] xfs: fix mount failure crash on invalid iclog memory access
+Date:   Tue,  7 Jan 2020 21:54:45 +0100
+Message-Id: <20200107205149.039516312@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+References: <20200107205135.369001641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Brian Foster <bfoster@redhat.com>
 
-commit d60229d84846a8399257006af9c5444599f64361 upstream.
+[ Upstream commit 798a9cada4694ca8d970259f216cec47e675bfd5 ]
 
-The return from pnp_irq is an unsigned integer type resource_size_t
-and hence the error check for a positive non-error code is always
-going to be true.  A check for a non-failure return from pnp_irq
-should in fact be for (resource_size_t)-1 rather than >= 0.
+syzbot (via KASAN) reports a use-after-free in the error path of
+xlog_alloc_log(). Specifically, the iclog freeing loop doesn't
+handle the case of a fully initialized ->l_iclog linked list.
+Instead, it assumes that the list is partially constructed and NULL
+terminated.
 
-Addresses-Coverity: ("Unsigned compared against 0")
-Fixes: a9824c868a2c ("[ALSA] Add CS4232 PnP BIOS support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20191122131354.58042-1-colin.king@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This bug manifested because there was no possible error scenario
+after iclog list setup when the original code was added.  Subsequent
+code and associated error conditions were added some time later,
+while the original error handling code was never updated. Fix up the
+error loop to terminate either on a NULL iclog or reaching the end
+of the list.
 
+Reported-by: syzbot+c732f8644185de340492@syzkaller.appspotmail.com
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/cs423x/cs4236.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_log.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/isa/cs423x/cs4236.c
-+++ b/sound/isa/cs423x/cs4236.c
-@@ -293,7 +293,8 @@ static int snd_cs423x_pnp_init_mpu(int d
- 	} else {
- 		mpu_port[dev] = pnp_port_start(pdev, 0);
- 		if (mpu_irq[dev] >= 0 &&
--		    pnp_irq_valid(pdev, 0) && pnp_irq(pdev, 0) >= 0) {
-+		    pnp_irq_valid(pdev, 0) &&
-+		    pnp_irq(pdev, 0) != (resource_size_t)-1) {
- 			mpu_irq[dev] = pnp_irq(pdev, 0);
- 		} else {
- 			mpu_irq[dev] = -1;	/* disable interrupt */
+diff --git a/fs/xfs/xfs_log.c b/fs/xfs/xfs_log.c
+index dc95a49d62e7..4e768e606998 100644
+--- a/fs/xfs/xfs_log.c
++++ b/fs/xfs/xfs_log.c
+@@ -1539,6 +1539,8 @@ xlog_alloc_log(
+ 		if (iclog->ic_bp)
+ 			xfs_buf_free(iclog->ic_bp);
+ 		kmem_free(iclog);
++		if (prev_iclog == log->l_iclog)
++			break;
+ 	}
+ 	spinlock_destroy(&log->l_icloglock);
+ 	xfs_buf_free(log->l_xbuf);
+-- 
+2.20.1
+
 
 
