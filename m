@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F9961332BC
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61A5E1331BE
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:03:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729600AbgAGVNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:13:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36554 "EHLO mail.kernel.org"
+        id S1728939AbgAGVDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:03:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729759AbgAGVKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:10:13 -0500
+        id S1727652AbgAGVDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:03:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4509E20880;
-        Tue,  7 Jan 2020 21:10:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12A522077B;
+        Tue,  7 Jan 2020 21:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431412;
-        bh=n7x/MvwpdjcjOLR9CSEjckCm2Tm6I5jCvc0NOF7xlcY=;
+        s=default; t=1578431017;
+        bh=GRYJdEGuIdd2YyOwLqaW6WZ4KcT616LYXKdXQA3Ua44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjc+EW0CoZd8a2iUz9h66TCDIHkENL2BCz3dHEl4pdwZ34Sw/mLnlyW7Gn/Dczi27
-         WO7OhTPITLYa23JLWYy24JF/S52lODxeHphSHeLS5FK2iqVxINm+iT4V0g7p+lzjoY
-         Wl9F9eHYN/IP1Eej9Rt0nW27OnlDy0m0i6EbY+AQ=
+        b=QuJNm5cVKVjgoKS9ts9BMdq18MImMST03tD+7XVGJxG14oODeaUCdQvKAz7jRps/G
+         3Kxk9Rs356jLJiZrT4NShCruCh14bo/PKN3Ele5jZeuePL5HaGT5tpyKav8iM94eby
+         VbtXkOm3Sfl7DnJIdHluDfcZ0QIKk6NAduWsgCbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 46/74] arm64: Revert support for execute-only user mappings
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 191/191] mm/hugetlb: defer freeing of huge pages if in non-task context
 Date:   Tue,  7 Jan 2020 21:55:11 +0100
-Message-Id: <20200107205211.833006339@linuxfoundation.org>
+Message-Id: <20200107205343.209319955@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,116 +52,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Waiman Long <longman@redhat.com>
 
-commit 24cecc37746393432d994c0dbc251fb9ac7c5d72 upstream.
+[ Upstream commit c77c0a8ac4c522638a8242fcb9de9496e3cdbb2d ]
 
-The ARMv8 64-bit architecture supports execute-only user permissions by
-clearing the PTE_USER and PTE_UXN bits, practically making it a mostly
-privileged mapping but from which user running at EL0 can still execute.
+The following lockdep splat was observed when a certain hugetlbfs test
+was run:
 
-The downside, however, is that the kernel at EL1 inadvertently reading
-such mapping would not trip over the PAN (privileged access never)
-protection.
+  ================================
+  WARNING: inconsistent lock state
+  4.18.0-159.el8.x86_64+debug #1 Tainted: G        W --------- -  -
+  --------------------------------
+  inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+  swapper/30/0 [HC0[0]:SC1[1]:HE1:SE0] takes:
+  ffffffff9acdc038 (hugetlb_lock){+.?.}, at: free_huge_page+0x36f/0xaa0
+  {SOFTIRQ-ON-W} state was registered at:
+    lock_acquire+0x14f/0x3b0
+    _raw_spin_lock+0x30/0x70
+    __nr_hugepages_store_common+0x11b/0xb30
+    hugetlb_sysctl_handler_common+0x209/0x2d0
+    proc_sys_call_handler+0x37f/0x450
+    vfs_write+0x157/0x460
+    ksys_write+0xb8/0x170
+    do_syscall_64+0xa5/0x4d0
+    entry_SYSCALL_64_after_hwframe+0x6a/0xdf
+  irq event stamp: 691296
+  hardirqs last  enabled at (691296): [<ffffffff99bb034b>] _raw_spin_unlock_irqrestore+0x4b/0x60
+  hardirqs last disabled at (691295): [<ffffffff99bb0ad2>] _raw_spin_lock_irqsave+0x22/0x81
+  softirqs last  enabled at (691284): [<ffffffff97ff0c63>] irq_enter+0xc3/0xe0
+  softirqs last disabled at (691285): [<ffffffff97ff0ebe>] irq_exit+0x23e/0x2b0
 
-Revert the relevant bits from commit cab15ce604e5 ("arm64: Introduce
-execute-only page access permissions") so that PROT_EXEC implies
-PROT_READ (and therefore PTE_USER) until the architecture gains proper
-support for execute-only user mappings.
+  other info that might help us debug this:
+   Possible unsafe locking scenario:
 
-Fixes: cab15ce604e5 ("arm64: Introduce execute-only page access permissions")
-Cc: <stable@vger.kernel.org> # 4.9.x-
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+         CPU0
+         ----
+    lock(hugetlb_lock);
+    <Interrupt>
+      lock(hugetlb_lock);
+
+   *** DEADLOCK ***
+      :
+  Call Trace:
+   <IRQ>
+   __lock_acquire+0x146b/0x48c0
+   lock_acquire+0x14f/0x3b0
+   _raw_spin_lock+0x30/0x70
+   free_huge_page+0x36f/0xaa0
+   bio_check_pages_dirty+0x2fc/0x5c0
+   clone_endio+0x17f/0x670 [dm_mod]
+   blk_update_request+0x276/0xe50
+   scsi_end_request+0x7b/0x6a0
+   scsi_io_completion+0x1c6/0x1570
+   blk_done_softirq+0x22e/0x350
+   __do_softirq+0x23d/0xad8
+   irq_exit+0x23e/0x2b0
+   do_IRQ+0x11a/0x200
+   common_interrupt+0xf/0xf
+   </IRQ>
+
+Both the hugetbl_lock and the subpool lock can be acquired in
+free_huge_page().  One way to solve the problem is to make both locks
+irq-safe.  However, Mike Kravetz had learned that the hugetlb_lock is
+held for a linear scan of ALL hugetlb pages during a cgroup reparentling
+operation.  So it is just too long to have irq disabled unless we can
+break hugetbl_lock down into finer-grained locks with shorter lock hold
+times.
+
+Another alternative is to defer the freeing to a workqueue job.  This
+patch implements the deferred freeing by adding a free_hpage_workfn()
+work function to do the actual freeing.  The free_huge_page() call in a
+non-task context saves the page to be freed in the hpage_freelist linked
+list in a lockless manner using the llist APIs.
+
+The generic workqueue is used to process the work, but a dedicated
+workqueue can be used instead if it is desirable to have the huge page
+freed ASAP.
+
+Thanks to Kirill Tkhai <ktkhai@virtuozzo.com> for suggesting the use of
+llist APIs which simplfy the code.
+
+Link: http://lkml.kernel.org/r/20191217170331.30893-1-longman@redhat.com
+Signed-off-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Acked-by: Davidlohr Bueso <dbueso@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable-prot.h |    5 ++---
- arch/arm64/include/asm/pgtable.h      |   10 +++-------
- arch/arm64/mm/fault.c                 |    2 +-
- mm/mmap.c                             |    6 ------
- 4 files changed, 6 insertions(+), 17 deletions(-)
+ mm/hugetlb.c | 51 ++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 50 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/pgtable-prot.h
-+++ b/arch/arm64/include/asm/pgtable-prot.h
-@@ -76,13 +76,12 @@
- #define PAGE_SHARED_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_WRITE)
- #define PAGE_READONLY		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_UXN)
- #define PAGE_READONLY_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN)
--#define PAGE_EXECONLY		__pgprot(_PAGE_DEFAULT | PTE_RDONLY | PTE_NG | PTE_PXN)
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index b45a95363a84..e0afd582ca01 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -27,6 +27,7 @@
+ #include <linux/swapops.h>
+ #include <linux/jhash.h>
+ #include <linux/numa.h>
++#include <linux/llist.h>
  
- #define __P000  PAGE_NONE
- #define __P001  PAGE_READONLY
- #define __P010  PAGE_READONLY
- #define __P011  PAGE_READONLY
--#define __P100  PAGE_EXECONLY
-+#define __P100  PAGE_READONLY_EXEC
- #define __P101  PAGE_READONLY_EXEC
- #define __P110  PAGE_READONLY_EXEC
- #define __P111  PAGE_READONLY_EXEC
-@@ -91,7 +90,7 @@
- #define __S001  PAGE_READONLY
- #define __S010  PAGE_SHARED
- #define __S011  PAGE_SHARED
--#define __S100  PAGE_EXECONLY
-+#define __S100  PAGE_READONLY_EXEC
- #define __S101  PAGE_READONLY_EXEC
- #define __S110  PAGE_SHARED_EXEC
- #define __S111  PAGE_SHARED_EXEC
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -90,12 +90,8 @@ extern unsigned long empty_zero_page[PAG
- #define pte_dirty(pte)		(pte_sw_dirty(pte) || pte_hw_dirty(pte))
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+@@ -1255,7 +1256,7 @@ static inline void ClearPageHugeTemporary(struct page *page)
+ 	page[2].mapping = NULL;
+ }
  
- #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
--/*
-- * Execute-only user mappings do not have the PTE_USER bit set. All valid
-- * kernel mappings have the PTE_UXN bit set.
-- */
- #define pte_valid_not_user(pte) \
--	((pte_val(pte) & (PTE_VALID | PTE_USER | PTE_UXN)) == (PTE_VALID | PTE_UXN))
-+	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
- #define pte_valid_young(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
- #define pte_valid_user(pte) \
-@@ -111,8 +107,8 @@ extern unsigned long empty_zero_page[PAG
+-void free_huge_page(struct page *page)
++static void __free_huge_page(struct page *page)
+ {
+ 	/*
+ 	 * Can't pass hstate in here because it is called from the
+@@ -1318,6 +1319,54 @@ void free_huge_page(struct page *page)
+ 	spin_unlock(&hugetlb_lock);
+ }
  
- /*
-  * p??_access_permitted() is true for valid user mappings (subject to the
-- * write permission check) other than user execute-only which do not have the
-- * PTE_USER bit set. PROT_NONE mappings do not have the PTE_VALID bit set.
-+ * write permission check). PROT_NONE mappings do not have the PTE_VALID bit
-+ * set.
-  */
- #define pte_access_permitted(pte, write) \
- 	(pte_valid_user(pte) && (!(write) || pte_write(pte)))
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -400,7 +400,7 @@ static int __kprobes do_page_fault(unsig
- 	struct task_struct *tsk;
- 	struct mm_struct *mm;
- 	int fault, sig, code, major = 0;
--	unsigned long vm_flags = VM_READ | VM_WRITE;
-+	unsigned long vm_flags = VM_READ | VM_WRITE | VM_EXEC;
- 	unsigned int mm_flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
- 
- 	if (notify_page_fault(regs, esr))
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -89,12 +89,6 @@ static void unmap_region(struct mm_struc
-  * MAP_PRIVATE	r: (no) no	r: (yes) yes	r: (no) yes	r: (no) yes
-  *		w: (no) no	w: (no) no	w: (copy) copy	w: (no) no
-  *		x: (no) no	x: (no) yes	x: (no) yes	x: (yes) yes
-- *
-- * On arm64, PROT_EXEC has the following behaviour for both MAP_SHARED and
-- * MAP_PRIVATE:
-- *								r: (no) no
-- *								w: (no) no
-- *								x: (yes) yes
-  */
- pgprot_t protection_map[16] __ro_after_init = {
- 	__P000, __P001, __P010, __P011, __P100, __P101, __P110, __P111,
++/*
++ * As free_huge_page() can be called from a non-task context, we have
++ * to defer the actual freeing in a workqueue to prevent potential
++ * hugetlb_lock deadlock.
++ *
++ * free_hpage_workfn() locklessly retrieves the linked list of pages to
++ * be freed and frees them one-by-one. As the page->mapping pointer is
++ * going to be cleared in __free_huge_page() anyway, it is reused as the
++ * llist_node structure of a lockless linked list of huge pages to be freed.
++ */
++static LLIST_HEAD(hpage_freelist);
++
++static void free_hpage_workfn(struct work_struct *work)
++{
++	struct llist_node *node;
++	struct page *page;
++
++	node = llist_del_all(&hpage_freelist);
++
++	while (node) {
++		page = container_of((struct address_space **)node,
++				     struct page, mapping);
++		node = node->next;
++		__free_huge_page(page);
++	}
++}
++static DECLARE_WORK(free_hpage_work, free_hpage_workfn);
++
++void free_huge_page(struct page *page)
++{
++	/*
++	 * Defer freeing if in non-task context to avoid hugetlb_lock deadlock.
++	 */
++	if (!in_task()) {
++		/*
++		 * Only call schedule_work() if hpage_freelist is previously
++		 * empty. Otherwise, schedule_work() had been called but the
++		 * workfn hasn't retrieved the list yet.
++		 */
++		if (llist_add((struct llist_node *)&page->mapping,
++			      &hpage_freelist))
++			schedule_work(&free_hpage_work);
++		return;
++	}
++
++	__free_huge_page(page);
++}
++
+ static void prep_new_huge_page(struct hstate *h, struct page *page, int nid)
+ {
+ 	INIT_LIST_HEAD(&page->lru);
+-- 
+2.20.1
+
 
 
