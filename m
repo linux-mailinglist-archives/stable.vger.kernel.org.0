@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F171332B8
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BBC5133230
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:08:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726683AbgAGVM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:12:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37532 "EHLO mail.kernel.org"
+        id S1729658AbgAGVIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:08:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729994AbgAGVKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:10:37 -0500
+        id S1729633AbgAGVII (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:08:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B6ED2072A;
-        Tue,  7 Jan 2020 21:10:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAC302072A;
+        Tue,  7 Jan 2020 21:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431437;
-        bh=hH3BpXvUSthOpywz1EXtWem4Tr0fToBTO+LJZEemSFc=;
+        s=default; t=1578431287;
+        bh=ew4jIEUK7j/B+m1UPNg6uj3DPDsqc4L+nA+pQ/IsTtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1MuTbfyiWBZw4cLoDxoESTO7aVUcBDtAKoutxY8ZyGD/hO1OpclFPSeZHR3uZAQK
-         kOgT37i4GUcqearK9rJ7/2BfQluMGGxUimcQKZLmudfND6O2te4JGDF6hHAaN7CNkT
-         PqeqIrNL6r88Y4qoyY36IKwLOLULDmGxRy2gGYz0=
+        b=unfo8WQEFKQeBrxo7uIkpi5gkZB65IX8V5gBFXkfeGUpT7km/wThNHDvKAU36EGys
+         0AEBm0Ho81UStp8IYfn4n9NTk7VfIF6O8QOcUmIRVy73YwIePQst5BWlbDOvF2wZmy
+         p+KQqB/9n9/7pUBCiAmPkXu0RG6Ra9VTTH1fftwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.14 55/74] media: flexcop-usb: ensure -EIO is returned on error condition
+        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 110/115] xfs: periodically yield scrub threads to the scheduler
 Date:   Tue,  7 Jan 2020 21:55:20 +0100
-Message-Id: <20200107205220.666713677@linuxfoundation.org>
+Message-Id: <20200107205309.669826267@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-commit 74a96b51a36de4d86660fbc56b05d86668162d6b upstream.
+[ Upstream commit 5d1116d4c6af3e580f1ed0382ca5a94bd65a34cf ]
 
-An earlier commit hard coded a return 0 to function flexcop_usb_i2c_req
-even though the an -EIO was intended to be returned in the case where
-ret != buflen.  Fix this by replacing the return 0 with the return of
-ret to return the error return code.
+Christoph Hellwig complained about the following soft lockup warning
+when running scrub after generic/175 when preemption is disabled and
+slub debugging is enabled:
 
-Addresses-Coverity: ("Unused value")
+watchdog: BUG: soft lockup - CPU#3 stuck for 22s! [xfs_scrub:161]
+Modules linked in:
+irq event stamp: 41692326
+hardirqs last  enabled at (41692325): [<ffffffff8232c3b7>] _raw_0
+hardirqs last disabled at (41692326): [<ffffffff81001c5a>] trace0
+softirqs last  enabled at (41684994): [<ffffffff8260031f>] __do_e
+softirqs last disabled at (41684987): [<ffffffff81127d8c>] irq_e0
+CPU: 3 PID: 16189 Comm: xfs_scrub Not tainted 5.4.0-rc3+ #30
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.124
+RIP: 0010:_raw_spin_unlock_irqrestore+0x39/0x40
+Code: 89 f3 be 01 00 00 00 e8 d5 3a e5 fe 48 89 ef e8 ed 87 e5 f2
+RSP: 0018:ffffc9000233f970 EFLAGS: 00000286 ORIG_RAX: ffffffffff3
+RAX: ffff88813b398040 RBX: 0000000000000286 RCX: 0000000000000006
+RDX: 0000000000000006 RSI: ffff88813b3988c0 RDI: ffff88813b398040
+RBP: ffff888137958640 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffffea00042b0c00
+R13: 0000000000000001 R14: ffff88810ac32308 R15: ffff8881376fc040
+FS:  00007f6113dea700(0000) GS:ffff88813bb80000(0000) knlGS:00000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f6113de8ff8 CR3: 000000012f290000 CR4: 00000000000006e0
+Call Trace:
+ free_debug_processing+0x1dd/0x240
+ __slab_free+0x231/0x410
+ kmem_cache_free+0x30e/0x360
+ xchk_ag_btcur_free+0x76/0xb0
+ xchk_ag_free+0x10/0x80
+ xchk_bmap_iextent_xref.isra.14+0xd9/0x120
+ xchk_bmap_iextent+0x187/0x210
+ xchk_bmap+0x2e0/0x3b0
+ xfs_scrub_metadata+0x2e7/0x500
+ xfs_ioc_scrub_metadata+0x4a/0xa0
+ xfs_file_ioctl+0x58a/0xcd0
+ do_vfs_ioctl+0xa0/0x6f0
+ ksys_ioctl+0x5b/0x90
+ __x64_sys_ioctl+0x11/0x20
+ do_syscall_64+0x4b/0x1a0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Fixes: b430eaba0be5 ("[media] flexcop-usb: don't use stack for DMA")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If preemption is disabled, all metadata buffers needed to perform the
+scrub are already in memory, and there are a lot of records to check,
+it's possible that the scrub thread will run for an extended period of
+time without sleeping for IO or any other reason.  Then the watchdog
+timer or the RCU stall timeout can trigger, producing the backtrace
+above.
 
+To fix this problem, call cond_resched() from the scrub thread so that
+we back out to the scheduler whenever necessary.
+
+Reported-by: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/b2c2/flexcop-usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/scrub/common.h | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/media/usb/b2c2/flexcop-usb.c
-+++ b/drivers/media/usb/b2c2/flexcop-usb.c
-@@ -294,7 +294,7 @@ static int flexcop_usb_i2c_req(struct fl
- 
- 	mutex_unlock(&fc_usb->data_mutex);
- 
--	return 0;
-+	return ret;
- }
- 
- /* actual bus specific access functions,
+diff --git a/fs/xfs/scrub/common.h b/fs/xfs/scrub/common.h
+index 2d4324d12f9a..51ea2ab124b7 100644
+--- a/fs/xfs/scrub/common.h
++++ b/fs/xfs/scrub/common.h
+@@ -14,8 +14,15 @@
+ static inline bool
+ xchk_should_terminate(
+ 	struct xfs_scrub	*sc,
+-	int				*error)
++	int			*error)
+ {
++	/*
++	 * If preemption is disabled, we need to yield to the scheduler every
++	 * few seconds so that we don't run afoul of the soft lockup watchdog
++	 * or RCU stall detector.
++	 */
++	cond_resched();
++
+ 	if (fatal_signal_pending(current)) {
+ 		if (*error == 0)
+ 			*error = -EAGAIN;
+-- 
+2.20.1
+
 
 
