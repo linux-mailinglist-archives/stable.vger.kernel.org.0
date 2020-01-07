@@ -2,88 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B86D8132501
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 12:36:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD7813256F
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 12:58:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726937AbgAGLgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 06:36:23 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:37253 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727589AbgAGLgX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 06:36:23 -0500
-Received: by mail-lj1-f196.google.com with SMTP id o13so42934906ljg.4
-        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 03:36:22 -0800 (PST)
+        id S1727834AbgAGL6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 06:58:04 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:41437 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728019AbgAGL6E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 06:58:04 -0500
+Received: by mail-lf1-f68.google.com with SMTP id m30so38659871lfp.8
+        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 03:58:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=xDan+NrzXoxR0IPHrL1TDLZarGAclLuRifX+nstdyLs=;
+        b=ZPMn1nE42pxSFIb1/Jg5EmMBDBWfpJQgc8kIHzd/wnsIg2z055kAeJe7IZ2lGrc4VL
+         5iOir8/YoGZBNkqMWNXaOcbg+N/r6+fBoQT6km2FvUpMk7pcIVvr8jxVeX0JbAzzGCZN
+         iI49xWxMtMPuXPX0jJ2HosEiAOgGCEvLEVp4WJzyqu0yjdtWOLNiu7F8F7TIV++LYAZr
+         uOhFfo5Xoefp+qWIgsAz4DVWy6WFyiBlgFZ5gTi7lZacYbdFEhKD6rb0esbk/bVgt7Kh
+         ds63EIcLrBWwiztHDjS82JL3nJTbkG9Wgjt4BDhKFhlUtUkb1ZapxVFO3gsFt5mE4e6D
+         w8sA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=vnEsV8FzLQSrbuYsfN0kuk83vqSw010xbnvF2/8+3xI=;
-        b=LoTcavv8TuYNox3QdCqYPFzg3h/Q3Ew1NnP3hfOkboM3Y5eIyzazKEoMYJqdedj563
-         CQvpn9hkL0tu1vxZIvUzwXr29o2ThDQ6G/de/Vb4qEab2JNWYOgRlh9ikYF/WX/nPomD
-         H8DNlUvzxyoHnJbJk36XU5CqyACdDGuALj7scVhMFFbBP0EideXOPRG2qub0Y6BOYIdZ
-         gbPu8oxbvj3BB663sxrgya5APjkJ5Krl3WHVEBv2xJw+uifHj+OkIBYknIwLIFf7KZbT
-         NHO183MGqMrO53Kprj1NErNwr00KtqzyNI6XboMC14M7YDy1rIff4mJDo6NsBpGB77Jm
-         WOoA==
-X-Gm-Message-State: APjAAAUH7nm4l47qDAxJi5Dh7NJYRk+rt35RVraOgLjyRmLzUwrPCx2d
-        /ES06sxPnlqsIqdfnfBBekw=
-X-Google-Smtp-Source: APXvYqw8g+CwBlsG2Jt+xXnL+u8qjwAjA0S6BaN9EPxWrG8wADkyt0kjrM9Ieh3oI3YuuPpqNEb01g==
-X-Received: by 2002:a2e:a168:: with SMTP id u8mr55055475ljl.5.1578396981644;
-        Tue, 07 Jan 2020 03:36:21 -0800 (PST)
-Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id q26sm30279323lfb.26.2020.01.07.03.36.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jan 2020 03:36:20 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@kernel.org>)
-        id 1ion9x-0005pT-0O; Tue, 07 Jan 2020 12:36:29 +0100
-Date:   Tue, 7 Jan 2020 12:36:29 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Johan Hovold <johan@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sean Young <sean@mess.org>, Hans Verkuil <hverkuil@xs4all.nl>,
-        Oliver Neukum <oneukum@suse.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 1/6] media: flexcop-usb: fix endpoint sanity check
-Message-ID: <20200107113629.GF30908@localhost>
-References: <20200103163513.1229-2-johan@kernel.org>
- <20200104152131.E34BA21734@mail.kernel.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=xDan+NrzXoxR0IPHrL1TDLZarGAclLuRifX+nstdyLs=;
+        b=IEDWqWiKFYAaSkO1le952OeDUqpGzW2a+ychYCuT1n72GpmILHpU1Aimkdd1dmLTTx
+         Lbr18saE6StyJfUpTgHoWG3/qftyTyTLa6qXkoq3UTgexEJDI+bRLKO1uQYBJ51LqdDd
+         OOiapVba/+OL8Kw+NsIlO9M2TjBxQrNcL/UVHV32tlYCT9OQRxvGU9Y4MG24orhEaeJU
+         UdDsW14lfwW++pUebCzHVRIdT4sfz72Xet/76y3KFvzLca43K4/zNlrHRm1hBjSAlxHz
+         qsPkK2zxkBFLDOGhylNuPhFDl7SOukT3DcxPM0EnASHR7QcmTYz4CrApuLqgWmXYg+bz
+         ks0w==
+X-Gm-Message-State: APjAAAWGEy3455I0IgodRmTCrF9l5yyaf4NwbSradT5fHAM2/ie24sGF
+        gH6AnIt/E6dXf14I9OwjaHalwnUIatJiUozOPmqwYw==
+X-Google-Smtp-Source: APXvYqwBV7Ee1u2/FkNJ0D4MbpRQIHVF3KeTSLqGk3g7UjA/Un7cz14I6dnnOSlGcQuSrKdeuZpBbnhTEHw44fEXAz0=
+X-Received: by 2002:a19:8a41:: with SMTP id m62mr59154614lfd.5.1578398282446;
+ Tue, 07 Jan 2020 03:58:02 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200104152131.E34BA21734@mail.kernel.org>
+References: <20200105160357.97154-1-hdegoede@redhat.com> <20200105160357.97154-2-hdegoede@redhat.com>
+In-Reply-To: <20200105160357.97154-2-hdegoede@redhat.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 7 Jan 2020 12:57:51 +0100
+Message-ID: <CACRpkdYx864UEo9-Bpiian4evJMrrCN-kp61s+Y1gc7BZ88KZA@mail.gmail.com>
+Subject: Re: [PATCH resend v2 1/2] gpiolib: acpi: Turn dmi_system_id table
+ into a generic quirk table
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 04, 2020 at 03:21:31PM +0000, Sasha Levin wrote:
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: 1b976fc6d684 ("media: b2c2-flexcop-usb: add sanity checking").
-> 
-> The bot has tested the following trees: v5.4.7, v5.3.18, v4.19.92, v4.14.161, v4.9.207, v4.4.207.
-> 
-> v5.4.7: Build OK!
-> v5.3.18: Failed to apply! Possible dependencies:
->     649cd16c438f ("media: flexcop-usb: fix NULL-ptr deref in flexcop_usb_transfer_init()")
-> 
-> v4.19.92: Build OK!
-> v4.14.161: Build OK!
-> v4.9.207: Failed to apply! Possible dependencies:
->     649cd16c438f ("media: flexcop-usb: fix NULL-ptr deref in flexcop_usb_transfer_init()")
-> 
-> v4.4.207: Failed to apply! Possible dependencies:
->     649cd16c438f ("media: flexcop-usb: fix NULL-ptr deref in flexcop_usb_transfer_init()")
-> 
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
+On Sun, Jan 5, 2020 at 5:04 PM Hans de Goede <hdegoede@redhat.com> wrote:
 
-Just fix the trivial context change when backporting.
+> Turn the existing run_edge_events_on_boot_blacklist dmi_system_id table
+> into a generic quirk table, storing the quirks in the driver_data ptr.
+>
+> This is a preparation patch for adding other types of (DMI based) quirks.
+>
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Johan
+Patch applied for fixes.
+
+Yours,
+Linus Walleij
