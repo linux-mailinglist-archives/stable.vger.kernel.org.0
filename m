@@ -2,102 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3733B13353A
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:51:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD998133563
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 23:02:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727135AbgAGVvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:51:14 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:40725 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727415AbgAGVvN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 16:51:13 -0500
-Received: by mail-wr1-f66.google.com with SMTP id c14so1218738wrn.7
-        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 13:51:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=OfYj014caVocPHeK5U9gv0YfvDsGnZC8VnQiQ0nJKZw=;
-        b=fpA/5+Bjz5KY9I48upZ6X7JQTHYMW+ZKj96zNE5/rzVWZWcaQnwRwwVy9zfKMe9crl
-         vR4xpDucFc2tW8r1V+xUFIv3HYoLUjtWeJBsgOprmqBpiRAPz7Ke3Pm8MLBD12RrVJPA
-         dLmOvjp1mAMqe2u79mhdGvYOfmw3wGgfVSfojRE+PEQLDFi2FzLi9CqxtqsWkqLiImkG
-         PbFHjG1CewZNaHk5h/+pSIcbTOqsPnBd4A1JoK5IHj5iD+oUBhHi17CkO7D05uLnf+OS
-         ySkfRSCvxGozTa/wwCbSC0uCSVp6/Bqz8xE452lSWNc1KPYwXzGw8OEG5C0ezaoRkwX4
-         IbLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=OfYj014caVocPHeK5U9gv0YfvDsGnZC8VnQiQ0nJKZw=;
-        b=RkrGUfE93Aw5cl/we9QkE/MteWps9Z+m2VvbxIcyBPPz23JV48iFyGTMbZ1LVlixUX
-         cdotdMvjirgIr0Mrd4emM4dReiSma2kdaK/YGTnYCI4Dt2JsfvIASpwbJBu6lMA5YpX3
-         I9grC4QYHgKl1DVz2Fq0kKzxD8+KTP6y843mm/UC6phlWixn37mCRJWoLeWElNQTBUqV
-         Wc46xEgcpQGoQdHlLISaUSPdcx4Mow7DkNyFd6CdGQUwb3PYS4gZdDsvX7cTj0TZ2Bni
-         qe6UM+QWjWho5W/36XT1fuAdZ7HkrUkF+BtLjGkem28wxfeTDmMBAdGeAnsZsX0Wr6cE
-         0HpQ==
-X-Gm-Message-State: APjAAAXZWbHtQw4Awh5rnT+xylhSRUAlxmAeAI+vwcv5F9nZh/a9XAAT
-        Q//irM2v9OiVZuZ3lhDU+ragQXaS6bED9A==
-X-Google-Smtp-Source: APXvYqxipYz1GkhvfGvNl/CAOP2j48HWLUPDHjl6qVStmY5JlZxOTvMDL7aoiNa1K8SZWv7KsxiDFg==
-X-Received: by 2002:adf:e78a:: with SMTP id n10mr1226681wrm.62.1578433872093;
-        Tue, 07 Jan 2020 13:51:12 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n187sm1141591wme.28.2020.01.07.13.51.11
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jan 2020 13:51:11 -0800 (PST)
-Message-ID: <5e14fd4f.1c69fb81.c50cd.62dd@mx.google.com>
-Date:   Tue, 07 Jan 2020 13:51:11 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726916AbgAGWCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 17:02:07 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:49054 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726462AbgAGWCH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 17:02:07 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id C7EC91C259A; Tue,  7 Jan 2020 23:02:05 +0100 (CET)
+Date:   Tue, 7 Jan 2020 23:02:05 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 006/115] iio: adc: max9611: Fix too short conversion
+ time delay
+Message-ID: <20200107220204.GA619@amd>
+References: <20200107205240.283674026@linuxfoundation.org>
+ <20200107205243.776152935@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.161-141-ga62afa8ee549
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 47 boots: 2 failed,
- 43 passed with 2 untried/unknown (v4.14.161-141-ga62afa8ee549)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
+Content-Disposition: inline
+In-Reply-To: <20200107205243.776152935@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 47 boots: 2 failed, 43 passed with 2 untried/u=
-nknown (v4.14.161-141-ga62afa8ee549)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.161-141-ga62afa8ee549/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.161-141-ga62afa8ee549/
+--G4iJoqBmSsgzjUCe
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.161-141-ga62afa8ee549
-Git Commit: a62afa8ee549b0e4824794a5ce23fba7926fb199
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 36 unique boards, 12 SoC families, 11 builds out of 201
+Hi!
 
-Boot Regressions Detected:
+>=20
+> Fix this by increasing the delay from 1000-2000 =B5s to 3000-3300 =B5s.
+>=20
+> Note that this issue has always been present, but it was exposed by the
+> aformentioned commit.
 
-arm64:
+> +++ b/drivers/iio/adc/max9611.c
+> @@ -92,6 +92,12 @@
+>  #define MAX9611_TEMP_SCALE_NUM		1000000
+>  #define MAX9611_TEMP_SCALE_DIV		2083
+> =20
+> +/*
+> + * Conversion time is 2 ms (typically) at Ta=3D25 degreeC
+> + * No maximum value is known, so play it safe.
+> + */
+> +#define MAX9611_CONV_TIME_US_RANGE	3000, 3300
+> +
+>  struct max9611_dev {
+>  	struct device *dev;
+>  	struct i2c_client *i2c_client;
 
-    defconfig:
-        gcc-8:
-          meson-gxbb-p200:
-              lab-baylibre: new failure (last pass: v4.14.161-90-g01b3c9bf3=
-424)
-          sun50i-a64-bananapi-m64:
-              lab-clabbe: new failure (last pass: v4.14.160)
+This is evil. It looks like a constant, but it is two
+constants. Just... don't do this.
 
-Boot Failures Detected:
+What about
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxbb-p200: 1 failed lab
-            meson-gxm-q200: 1 failed lab
+     static inline usleep_conversion(void) { usleep_range(3000, 3300); }
 
----
-For more info write to <info@kernelci.org>
+? (Plus, normally we use bigger ranges to make the job of highres
+infrastructure easier. 3 to 6ms would be typical.)..
+
+Best regards,
+								Pavel
+
+> -	/*
+> -	 * need a delay here to make register configuration
+> -	 * stabilize. 1 msec at least, from empirical testing.
+> -	 */
+> -	usleep_range(1000, 2000);
+> +	/* need a delay here to make register configuration stabilize. */
+> +
+> +	usleep_range(MAX9611_CONV_TIME_US_RANGE);
+> =20
+>  	ret =3D i2c_smbus_read_word_swapped(max9611->i2c_client, reg_addr);
+>  	if (ret < 0) {
+> @@ -510,7 +514,7 @@ static int max9611_init(struct max9611_dev *max9611)
+>  			MAX9611_REG_CTRL2, 0);
+>  		return ret;
+>  	}
+> -	usleep_range(1000, 2000);
+> +	usleep_range(MAX9611_CONV_TIME_US_RANGE);
+> =20
+>  	return 0;
+>  }
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--G4iJoqBmSsgzjUCe
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl4U/9wACgkQMOfwapXb+vKcAACglAXT31mK/lo5WLqTEKvReuTq
+YHkAnRU+WnTCfgTyv5+c05Omvtus0oRk
+=Kz86
+-----END PGP SIGNATURE-----
+
+--G4iJoqBmSsgzjUCe--
