@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8166D133111
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:57:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82890133115
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:57:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727536AbgAGU5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:57:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54092 "EHLO mail.kernel.org"
+        id S1727020AbgAGU5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:57:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727526AbgAGU5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:57:19 -0500
+        id S1727592AbgAGU52 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:57:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 810C020880;
-        Tue,  7 Jan 2020 20:57:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2211E2081E;
+        Tue,  7 Jan 2020 20:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430638;
-        bh=QF+mbxtCzZTOEnlWwSMLV75Ubjlot7rN6MqEVhiZbtM=;
+        s=default; t=1578430647;
+        bh=uqHxD+2OSmIuTXyB391CppfgqjnldoliToKaoB41u3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V67Y8hpDZXuZknaJJ2OsslhEc6f9f4vyzFJwk+PfLZFQdIBISxr9r1VzCA9q+nDya
-         jXNkD6sCuzG4pLgIExSp1IJbRkHk+vpCoC+DYbw/WKfDI4Og3eKx0/oeReAVgwdQbZ
-         AQ6gzfJL2q9BT8r1ZNhbbSo9iPxRk5FrV/6Icp74=
+        b=wph45ApUDKe5JkL2e6Zoo4luShdWeFtCf+/mw5Xu1kZCuPNah0aoKF74ZeQcMXb+B
+         vfOtwScG6ywmwadsYQMn5P8RLkCI/OwerBHgu5ltYD/6E4qHLqr0qn2Cxw0dHi1Q3Y
+         nILsxvFL609XH85ifE4IKWj4T/oOy9NBQLWXxDGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bo Wu <wubo40@huawei.com>,
-        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Lee Duncan <lduncan@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 034/191] scsi: iscsi: Avoid potential deadlock in iscsi_if_rx func
-Date:   Tue,  7 Jan 2020 21:52:34 +0100
-Message-Id: <20200107205334.823722722@linuxfoundation.org>
+Subject: [PATCH 5.4 038/191] drm/nouveau/kms/nv50-: fix panel scaling
+Date:   Tue,  7 Jan 2020 21:52:38 +0100
+Message-Id: <20200107205335.035106704@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -46,111 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bo Wu <wubo40@huawei.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit bba340c79bfe3644829db5c852fdfa9e33837d6d ]
+[ Upstream commit 3d1890ef8023e61934e070021b06cc9f417260c0 ]
 
-In iscsi_if_rx func, after receiving one request through
-iscsi_if_recv_msg func, iscsi_if_send_reply will be called to try to
-reply to the request in a do-while loop.  If the iscsi_if_send_reply
-function keeps returning -EAGAIN, a deadlock will occur.
+Under certain circumstances, encoder atomic_check() can be entered
+without adjusted_mode having been reset to the same as mode, which
+confuses the scaling logic and can lead to a misprogrammed display.
 
-For example, a client only send msg without calling recvmsg func, then
-it will result in the watchdog soft lockup.  The details are given as
-follows:
+Fix this by checking against the user-provided mode directly.
 
-	sock_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ISCSI);
-	retval = bind(sock_fd, (struct sock addr*) & src_addr, sizeof(src_addr);
-	while (1) {
-		state_msg = sendmsg(sock_fd, &msg, 0);
-		//Note: recvmsg(sock_fd, &msg, 0) is not processed here.
-	}
-	close(sock_fd);
-
-watchdog: BUG: soft lockup - CPU#7 stuck for 22s! [netlink_test:253305] Sample time: 4000897528 ns(HZ: 250) Sample stat:
-curr: user: 675503481560, nice: 321724050, sys: 448689506750, idle: 4654054240530, iowait: 40885550700, irq: 14161174020, softirq: 8104324140, st: 0
-deta: user: 0, nice: 0, sys: 3998210100, idle: 0, iowait: 0, irq: 1547170, softirq: 242870, st: 0 Sample softirq:
-         TIMER:        992
-         SCHED:          8
-Sample irqstat:
-         irq    2: delta       1003, curr:    3103802, arch_timer
-CPU: 7 PID: 253305 Comm: netlink_test Kdump: loaded Tainted: G           OE
-Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
-pstate: 40400005 (nZcv daif +PAN -UAO)
-pc : __alloc_skb+0x104/0x1b0
-lr : __alloc_skb+0x9c/0x1b0
-sp : ffff000033603a30
-x29: ffff000033603a30 x28: 00000000000002dd
-x27: ffff800b34ced810 x26: ffff800ba7569f00
-x25: 00000000ffffffff x24: 0000000000000000
-x23: ffff800f7c43f600 x22: 0000000000480020
-x21: ffff0000091d9000 x20: ffff800b34eff200
-x19: ffff800ba7569f00 x18: 0000000000000000
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0000000000000000 x14: 0001000101000100
-x13: 0000000101010000 x12: 0101000001010100
-x11: 0001010101010001 x10: 00000000000002dd
-x9 : ffff000033603d58 x8 : ffff800b34eff400
-x7 : ffff800ba7569200 x6 : ffff800b34eff400
-x5 : 0000000000000000 x4 : 00000000ffffffff
-x3 : 0000000000000000 x2 : 0000000000000001
-x1 : ffff800b34eff2c0 x0 : 0000000000000300 Call trace:
-__alloc_skb+0x104/0x1b0
-iscsi_if_rx+0x144/0x12bc [scsi_transport_iscsi]
-netlink_unicast+0x1e0/0x258
-netlink_sendmsg+0x310/0x378
-sock_sendmsg+0x4c/0x70
-sock_write_iter+0x90/0xf0
-__vfs_write+0x11c/0x190
-vfs_write+0xac/0x1c0
-ksys_write+0x6c/0xd8
-__arm64_sys_write+0x24/0x30
-el0_svc_common+0x78/0x130
-el0_svc_handler+0x38/0x78
-el0_svc+0x8/0xc
-
-Link: https://lore.kernel.org/r/EDBAAA0BBBA2AC4E9C8B6B81DEEE1D6915E3D4D2@dggeml505-mbx.china.huawei.com
-Signed-off-by: Bo Wu <wubo40@huawei.com>
-Reviewed-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://bugs.freedesktop.org/show_bug.cgi?id=108615
+Link: https://gitlab.freedesktop.org/xorg/driver/xf86-video-nouveau/issues/464
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/nouveau/dispnv50/disp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 417b868d8735..ed8d9709b9b9 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -24,6 +24,8 @@
- 
- #define ISCSI_TRANSPORT_VERSION "2.0-870"
- 
-+#define ISCSI_SEND_MAX_ALLOWED  10
-+
- #define CREATE_TRACE_POINTS
- #include <trace/events/iscsi.h>
- 
-@@ -3682,6 +3684,7 @@ iscsi_if_rx(struct sk_buff *skb)
- 		struct nlmsghdr	*nlh;
- 		struct iscsi_uevent *ev;
- 		uint32_t group;
-+		int retries = ISCSI_SEND_MAX_ALLOWED;
- 
- 		nlh = nlmsg_hdr(skb);
- 		if (nlh->nlmsg_len < sizeof(*nlh) + sizeof(*ev) ||
-@@ -3712,6 +3715,10 @@ iscsi_if_rx(struct sk_buff *skb)
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index b5b1a34f896f..d735ea7e2d88 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -326,9 +326,9 @@ nv50_outp_atomic_check_view(struct drm_encoder *encoder,
+ 			 * same size as the native one (e.g. different
+ 			 * refresh rate)
+ 			 */
+-			if (adjusted_mode->hdisplay == native_mode->hdisplay &&
+-			    adjusted_mode->vdisplay == native_mode->vdisplay &&
+-			    adjusted_mode->type & DRM_MODE_TYPE_DRIVER)
++			if (mode->hdisplay == native_mode->hdisplay &&
++			    mode->vdisplay == native_mode->vdisplay &&
++			    mode->type & DRM_MODE_TYPE_DRIVER)
  				break;
- 			err = iscsi_if_send_reply(portid, nlh->nlmsg_type,
- 						  ev, sizeof(*ev));
-+			if (err == -EAGAIN && --retries < 0) {
-+				printk(KERN_WARNING "Send reply failed, error %d\n", err);
-+				break;
-+			}
- 		} while (err < 0 && err != -ECONNREFUSED && err != -ESRCH);
- 		skb_pull(skb, rlen);
- 	}
+ 			mode = native_mode;
+ 			asyc->scaler.full = true;
 -- 
 2.20.1
 
