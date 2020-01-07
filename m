@@ -2,89 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 242701334D6
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:31:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3733B13353A
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:51:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727359AbgAGU5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:57:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53582 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727419AbgAGU5G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:57:06 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65879214D8;
-        Tue,  7 Jan 2020 20:57:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430625;
-        bh=5iePZfUEZunjoNLkBaYgCmYBqwNYY481W0P0hx6+A4k=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ljR5s1GvS/hQADxzCNqX20sdPlGEh5TZ/N+Y6Z9RyOO/nxCtixP6/9tgvdYpmYCAG
-         mLRQOfMs7Du8/hvnUkcC/vLgllU4d/ZD/eWLFu60o81ru2o8B/422JY4UiGsUdsj3p
-         gn+oAAMa64OIXRj4S8KqE3dl5LW/JbU11VLlOtSw=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/191] scsi: qla2xxx: Dont defer relogin unconditonally
-Date:   Tue,  7 Jan 2020 21:52:30 +0100
-Message-Id: <20200107205334.613230532@linuxfoundation.org>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727135AbgAGVvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:51:14 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:40725 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727415AbgAGVvN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 16:51:13 -0500
+Received: by mail-wr1-f66.google.com with SMTP id c14so1218738wrn.7
+        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 13:51:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=OfYj014caVocPHeK5U9gv0YfvDsGnZC8VnQiQ0nJKZw=;
+        b=fpA/5+Bjz5KY9I48upZ6X7JQTHYMW+ZKj96zNE5/rzVWZWcaQnwRwwVy9zfKMe9crl
+         vR4xpDucFc2tW8r1V+xUFIv3HYoLUjtWeJBsgOprmqBpiRAPz7Ke3Pm8MLBD12RrVJPA
+         dLmOvjp1mAMqe2u79mhdGvYOfmw3wGgfVSfojRE+PEQLDFi2FzLi9CqxtqsWkqLiImkG
+         PbFHjG1CewZNaHk5h/+pSIcbTOqsPnBd4A1JoK5IHj5iD+oUBhHi17CkO7D05uLnf+OS
+         ySkfRSCvxGozTa/wwCbSC0uCSVp6/Bqz8xE452lSWNc1KPYwXzGw8OEG5C0ezaoRkwX4
+         IbLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=OfYj014caVocPHeK5U9gv0YfvDsGnZC8VnQiQ0nJKZw=;
+        b=RkrGUfE93Aw5cl/we9QkE/MteWps9Z+m2VvbxIcyBPPz23JV48iFyGTMbZ1LVlixUX
+         cdotdMvjirgIr0Mrd4emM4dReiSma2kdaK/YGTnYCI4Dt2JsfvIASpwbJBu6lMA5YpX3
+         I9grC4QYHgKl1DVz2Fq0kKzxD8+KTP6y843mm/UC6phlWixn37mCRJWoLeWElNQTBUqV
+         Wc46xEgcpQGoQdHlLISaUSPdcx4Mow7DkNyFd6CdGQUwb3PYS4gZdDsvX7cTj0TZ2Bni
+         qe6UM+QWjWho5W/36XT1fuAdZ7HkrUkF+BtLjGkem28wxfeTDmMBAdGeAnsZsX0Wr6cE
+         0HpQ==
+X-Gm-Message-State: APjAAAXZWbHtQw4Awh5rnT+xylhSRUAlxmAeAI+vwcv5F9nZh/a9XAAT
+        Q//irM2v9OiVZuZ3lhDU+ragQXaS6bED9A==
+X-Google-Smtp-Source: APXvYqxipYz1GkhvfGvNl/CAOP2j48HWLUPDHjl6qVStmY5JlZxOTvMDL7aoiNa1K8SZWv7KsxiDFg==
+X-Received: by 2002:adf:e78a:: with SMTP id n10mr1226681wrm.62.1578433872093;
+        Tue, 07 Jan 2020 13:51:12 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id n187sm1141591wme.28.2020.01.07.13.51.11
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jan 2020 13:51:11 -0800 (PST)
+Message-ID: <5e14fd4f.1c69fb81.c50cd.62dd@mx.google.com>
+Date:   Tue, 07 Jan 2020 13:51:11 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.161-141-ga62afa8ee549
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 47 boots: 2 failed,
+ 43 passed with 2 untried/unknown (v4.14.161-141-ga62afa8ee549)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+stable-rc/linux-4.14.y boot: 47 boots: 2 failed, 43 passed with 2 untried/u=
+nknown (v4.14.161-141-ga62afa8ee549)
 
-[ Upstream commit dabc5ec915f3a2c657ecfb529cd3d4ec303a4412 ]
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.161-141-ga62afa8ee549/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.161-141-ga62afa8ee549/
 
-qla2x00_configure_local_loop sets RELOGIN_NEEDED bit and calls
-qla24xx_fcport_handle_login to perform the login. This bit triggers a wake
-up of DPC later after a successful login.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.161-141-ga62afa8ee549
+Git Commit: a62afa8ee549b0e4824794a5ce23fba7926fb199
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 36 unique boards, 12 SoC families, 11 builds out of 201
 
-The deferred call is not needed if login succeeds, and it's set in
-qla24xx_fcport_handle_login in case of errors, hence it should be safe to
-drop.
+Boot Regressions Detected:
 
-Link: https://lore.kernel.org/r/20191125165702.1013-12-r.bolshakov@yadro.com
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Acked-by: Quinn Tran <qutran@marvell.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Tested-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxbb-p200:
+              lab-baylibre: new failure (last pass: v4.14.161-90-g01b3c9bf3=
+424)
+          sun50i-a64-bananapi-m64:
+              lab-clabbe: new failure (last pass: v4.14.160)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
+            meson-gxm-q200: 1 failed lab
+
 ---
- drivers/scsi/qla2xxx/qla_init.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index 4e424f1ce5de..80f276d67c14 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -5045,7 +5045,6 @@ qla2x00_configure_local_loop(scsi_qla_host_t *vha)
- 				memcpy(&ha->plogi_els_payld.data,
- 				    (void *)ha->init_cb,
- 				    sizeof(ha->plogi_els_payld.data));
--				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
- 			} else {
- 				ql_dbg(ql_dbg_init, vha, 0x00d1,
- 				    "PLOGI ELS param read fail.\n");
--- 
-2.20.1
-
-
-
+For more info write to <info@kernelci.org>
