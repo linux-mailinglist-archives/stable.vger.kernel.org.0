@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C9261333F3
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:23:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A8D133201
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:06:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728695AbgAGVCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:02:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41048 "EHLO mail.kernel.org"
+        id S1728869AbgAGVGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:06:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728690AbgAGVCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:02:08 -0500
+        id S1728994AbgAGVGQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:06:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACCE12077B;
-        Tue,  7 Jan 2020 21:02:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF8862077B;
+        Tue,  7 Jan 2020 21:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430928;
-        bh=nxVG0xH/nMQVbovLHgovXOgF85noBi++nkVrBvoedYw=;
+        s=default; t=1578431175;
+        bh=ODaS0pUMvjg30ZrtkNVo/mmVLmEz7wvq9VU7G821wqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SMVH7Ly4FjuE84K+LS5uZ48ii439Wcvw3UG1oCnUUeNbGB3vlNAJbKn1qtRy/b2Rg
-         nzwRS/h5ALXiohgyU0+cE2QfOWYQfvQfBRS2qPOgxXEObY5NoFbobCHBZ5yAxWfFbh
-         MdGSCea7Za89CB4UocatX52jPBC1yuB+QwJCsXi0=
+        b=2g941414OvRQahCw6WghxnZ24eUwJed28fZYboEJl3EehCG+s+A5ktj1SmCKuKitN
+         De7FWJ04XNGCdUaM4oJoog5b7cyAwxlu5lzn9pXvKLDirDQh02OxjVE9wZ8W0s+8rX
+         suHMrEO7/BbcEA1I9JNDXCSpih4Elkh3B8G8ew4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 153/191] regulator: axp20x: Fix axp20x_set_ramp_delay
-Date:   Tue,  7 Jan 2020 21:54:33 +0100
-Message-Id: <20200107205341.155096010@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 064/115] ata: ahci_brcm: BCM7425 AHCI requires AHCI_HFLAG_DELAY_ENGINE
+Date:   Tue,  7 Jan 2020 21:54:34 +0100
+Message-Id: <20200107205303.502134943@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 71dd2fe5dec171b34b71603a81bb46c24c498fde upstream.
+commit 1a3d78cb6e20779a19388315bd8efefbd8d4a656 upstream.
 
-Current code set incorrect bits when set ramp_delay for AXP20X_DCDC2,
-fix it.
+Set AHCI_HFLAG_DELAY_ENGINE for the BCM7425 AHCI controller thus making
+it conforming to the 'strict' AHCI implementation which this controller
+is based on.
 
-Fixes: d29f54df8b16 ("regulator: axp20x: add support for set_ramp_delay for AXP209")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20191221081049.32490-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This solves long link establishment with specific hard drives (e.g.:
+Seagate ST1000VM002-9ZL1 SC12) that would otherwise have to complete the
+error recovery handling before finally establishing a succesful SATA
+link at the desired speed.
+
+We re-order the hpriv->flags assignment to also remove the NONCQ quirk
+since we can set the flag directly.
+
+Fixes: 9586114cf1e9 ("ata: ahci_brcmstb: add support MIPS-based platforms")
+Fixes: 423be77daabe ("ata: ahci_brcmstb: add quirk for broken ncq")
+Cc: stable@vger.kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/axp20x-regulator.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/ata/ahci_brcm.c |   31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
---- a/drivers/regulator/axp20x-regulator.c
-+++ b/drivers/regulator/axp20x-regulator.c
-@@ -413,10 +413,13 @@ static int axp20x_set_ramp_delay(struct
- 		int i;
+--- a/drivers/ata/ahci_brcm.c
++++ b/drivers/ata/ahci_brcm.c
+@@ -85,8 +85,7 @@ enum brcm_ahci_version {
+ };
  
- 		for (i = 0; i < rate_count; i++) {
--			if (ramp <= slew_rates[i])
--				cfg = AXP20X_DCDC2_LDO3_V_RAMP_LDO3_RATE(i);
--			else
-+			if (ramp > slew_rates[i])
- 				break;
+ enum brcm_ahci_quirks {
+-	BRCM_AHCI_QUIRK_NO_NCQ		= BIT(0),
+-	BRCM_AHCI_QUIRK_SKIP_PHY_ENABLE	= BIT(1),
++	BRCM_AHCI_QUIRK_SKIP_PHY_ENABLE	= BIT(0),
+ };
+ 
+ struct brcm_ahci_priv {
+@@ -447,18 +446,27 @@ static int brcm_ahci_probe(struct platfo
+ 	if (!IS_ERR_OR_NULL(priv->rcdev))
+ 		reset_control_deassert(priv->rcdev);
+ 
+-	if ((priv->version == BRCM_SATA_BCM7425) ||
+-		(priv->version == BRCM_SATA_NSP)) {
+-		priv->quirks |= BRCM_AHCI_QUIRK_NO_NCQ;
+-		priv->quirks |= BRCM_AHCI_QUIRK_SKIP_PHY_ENABLE;
+-	}
+-
+ 	hpriv = ahci_platform_get_resources(pdev, 0);
+ 	if (IS_ERR(hpriv)) {
+ 		ret = PTR_ERR(hpriv);
+ 		goto out_reset;
+ 	}
+ 
++	hpriv->plat_data = priv;
++	hpriv->flags = AHCI_HFLAG_WAKE_BEFORE_STOP | AHCI_HFLAG_NO_WRITE_TO_RO;
 +
-+			if (id == AXP20X_DCDC2)
-+				cfg = AXP20X_DCDC2_LDO3_V_RAMP_DCDC2_RATE(i);
-+			else
-+				cfg = AXP20X_DCDC2_LDO3_V_RAMP_LDO3_RATE(i);
- 		}
++	switch (priv->version) {
++	case BRCM_SATA_BCM7425:
++		hpriv->flags |= AHCI_HFLAG_DELAY_ENGINE;
++		/* fall through */
++	case BRCM_SATA_NSP:
++		hpriv->flags |= AHCI_HFLAG_NO_NCQ;
++		priv->quirks |= BRCM_AHCI_QUIRK_SKIP_PHY_ENABLE;
++		break;
++	default:
++		break;
++	}
++
+ 	ret = ahci_platform_enable_clks(hpriv);
+ 	if (ret)
+ 		goto out_reset;
+@@ -478,15 +486,8 @@ static int brcm_ahci_probe(struct platfo
+ 	/* Must be done before ahci_platform_enable_phys() */
+ 	brcm_sata_phys_enable(priv);
  
- 		if (cfg == 0xff) {
+-	hpriv->plat_data = priv;
+-	hpriv->flags = AHCI_HFLAG_WAKE_BEFORE_STOP;
+-
+ 	brcm_sata_alpm_init(hpriv);
+ 
+-	if (priv->quirks & BRCM_AHCI_QUIRK_NO_NCQ)
+-		hpriv->flags |= AHCI_HFLAG_NO_NCQ;
+-	hpriv->flags |= AHCI_HFLAG_NO_WRITE_TO_RO;
+-
+ 	ret = ahci_platform_enable_phys(hpriv);
+ 	if (ret)
+ 		goto out_disable_phys;
 
 
