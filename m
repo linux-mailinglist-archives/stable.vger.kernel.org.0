@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACCD213319F
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:02:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08C4B1333E3
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:22:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727536AbgAGVC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:02:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42052 "EHLO mail.kernel.org"
+        id S1726906AbgAGVWO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:22:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727234AbgAGVC0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:02:26 -0500
+        id S1727335AbgAGVC2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:02:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC94C222D9;
-        Tue,  7 Jan 2020 21:02:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36C182077B;
+        Tue,  7 Jan 2020 21:02:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430945;
-        bh=Pf+OGz+1yK/rXxvQjEg7VSpjfIaC0mFgSTEUWmZv348=;
+        s=default; t=1578430947;
+        bh=cqLQ1sbgU+vrRUMiMJlpuJO9wl/r6iZX6UVS87pB9uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5gttiroUJM9KD/2JNtZFhaY9o+k5o3pjdHKTY9h3mDBpIdpy7YLm7Ylx6XCr+9P1
-         6iSJCZ2lL4UU/Gtb0TlLL3zJ8Tjno7nIdrPBojxZOKU9PqdbiSaWV/lJzA5IkqSYRF
-         hgqT5iL24nKtHfFbWoucR9SkS+lLvTK6yob6xz2o=
+        b=nZ0hZiGEKOXJPcp+n2AROUPCNfcLlIt0smgBXZ36ucaEBSNU210OLzDOlMl+Ut0Gh
+         gzU+yyfdxWSCrocXk+MBmqmIwnb1QVrUwx8uYpPuMY9Nl3dAPw+9QTRnGeRWuuQ3OD
+         88oqTUJv3No6OSmFr8Onkq/JUTIyUQIEgLhQ0uvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.4 160/191] Bluetooth: Fix memory leak in hci_connect_le_scan
-Date:   Tue,  7 Jan 2020 21:54:40 +0100
-Message-Id: <20200107205341.538631171@linuxfoundation.org>
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Kevin Hilman <khilman@baylibre.com>
+Subject: [PATCH 5.4 161/191] arm64: dts: meson-gxl-s905x-khadas-vim: fix uart_A bluetooth node
+Date:   Tue,  7 Jan 2020 21:54:41 +0100
+Message-Id: <20200107205341.602729402@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -44,36 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-commit d088337c38a5cd8f0230fbf2d514ff7672f9d0d3 upstream.
+commit 1c6d575574ec87dbccf7af20ef9dc0df02614069 upstream.
 
-In the implementation of hci_connect_le_scan() when conn is added via
-hci_conn_add(), if hci_explicit_conn_params_set() fails the allocated
-memory for conn is leaked. Use hci_conn_del() to release it.
-
-Fixes: f75113a26008 ("Bluetooth: add hci_connect_le_scan")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: dd5297cc8b8b ("arm64: dts: meson-gxl-s905x-khadas-vim enable Bluetooth")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/hci_conn.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1176,8 +1176,10 @@ struct hci_conn *hci_connect_le_scan(str
- 	if (!conn)
- 		return ERR_PTR(-ENOMEM);
+--- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
+@@ -192,6 +192,9 @@
+ 	bluetooth {
+ 		compatible = "brcm,bcm43438-bt";
+ 		shutdown-gpios = <&gpio GPIOX_17 GPIO_ACTIVE_HIGH>;
++		max-speed = <2000000>;
++		clocks = <&wifi32k>;
++		clock-names = "lpo";
+ 	};
+ };
  
--	if (hci_explicit_conn_params_set(hdev, dst, dst_type) < 0)
-+	if (hci_explicit_conn_params_set(hdev, dst, dst_type) < 0) {
-+		hci_conn_del(conn);
- 		return ERR_PTR(-EBUSY);
-+	}
- 
- 	conn->state = BT_CONNECT;
- 	set_bit(HCI_CONN_SCANNING, &conn->flags);
 
 
