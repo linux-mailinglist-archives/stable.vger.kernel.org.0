@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A04133038
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:02:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D6E13303E
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:04:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728630AbgAGUCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:02:16 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36038 "EHLO
+        id S1728684AbgAGUEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:04:08 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36058 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728358AbgAGUCQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 15:02:16 -0500
+        by vger.kernel.org with ESMTP id S1728358AbgAGUEI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 15:04:08 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iov3O-0002h0-OP; Tue, 07 Jan 2020 20:02:14 +0000
+        id 1iov59-0002jq-C1; Tue, 07 Jan 2020 20:04:03 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iov3O-006wFS-6r; Tue, 07 Jan 2020 20:02:14 +0000
-Message-ID: <1dbd23b3f9d8d9e584f2339e402130b49de44285.camel@decadent.org.uk>
-Subject: Re: [PATCH][STABLE backport 4.4] dmaengine: qcom: bam_dma: Fix
- resource leak
+        id 1iov58-006ywd-Bs; Tue, 07 Jan 2020 20:04:02 +0000
+Message-ID: <bc4aa741a1da2e4929af072c93566c20729eb687.camel@decadent.org.uk>
+Subject: Re: Please backport "mwifiex: Fix NL80211_TX_POWER_LIMITED" to
+ stable branches
 From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>, stable@vger.kernel.org
-Cc:     vkoul@kernel.org
-Date:   Tue, 07 Jan 2020 20:02:09 +0000
-In-Reply-To: <20191105202120.28520-1-jeffrey.l.hugo@gmail.com>
-References: <20191105202120.28520-1-jeffrey.l.hugo@gmail.com>
+To:     Adrian Bunk <bunk@kernel.org>, netdev@vger.kernel.org
+Cc:     Amitkumar Karwar <amitkarwar@gmail.com>,
+        Nishant Sarmukadam <nishants@marvell.com>,
+        Ganapathi Bhat <gbhat@marvell.com>,
+        Xinming Hu <huxinming820@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        linux-wireless@vger.kernel.org, stable@vger.kernel.org
+Date:   Tue, 07 Jan 2020 20:04:01 +0000
+In-Reply-To: <20191122172431.GA24156@localhost>
+References: <20191122172431.GA24156@localhost>
 Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-zXhieadOmE8rRJndeXab"
+        protocol="application/pgp-signature"; boundary="=-74YX61Llp/MokHE9JvDf"
 User-Agent: Evolution 3.34.1-2+b1 
 MIME-Version: 1.0
 X-SA-Exim-Connect-IP: 167.98.27.226
@@ -41,96 +46,49 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---=-zXhieadOmE8rRJndeXab
+--=-74YX61Llp/MokHE9JvDf
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2019-11-05 at 12:21 -0800, Jeffrey Hugo wrote:
-> Commit 7667819385457b4aeb5fac94f67f52ab52cc10d5 upstream.
+On Fri, 2019-11-22 at 19:24 +0200, Adrian Bunk wrote:
+> Please backport commit 65a576e27309120e0621f54d5c81eb9128bd56be
+> "mwifiex: Fix NL80211_TX_POWER_LIMITED" to stable branches.
 >=20
-> bam_dma_terminate_all() will leak resources if any of the transactions ar=
-e
-> committed to the hardware (present in the desc fifo), and not complete.
-> Since bam_dma_terminate_all() does not cause the hardware to be updated,
-> the hardware will still operate on any previously committed transactions.
-> This can cause memory corruption if the memory for the transaction has be=
-en
-> reassigned, and will cause a sync issue between the BAM and its client(s)=
-.
+> It is a non-CVE kind of security issue when a wifi adapter
+> exceeds the configured TX power limit.
 >=20
-> Fix this by properly updating the hardware in bam_dma_terminate_all().
->=20
-> Fixes: e7c0fe2a5c84 ("dmaengine: add Qualcomm BAM dma driver")
-> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/r/20191017152606.34120-1-jeffrey.l.hugo@gma=
-il.com
-> Signed-off-by: Vinod Koul <vkoul@kernel.org>
-> ---
-> Backported to 4.4 which is lacking 6b4faeac05bc
-> ("dmaengine: qcom-bam: Process multiple pending descriptors")
+> The commit applies and builds against all branches from 3.16 to 4.19,=20
+> confirmed working with 4.14. It is already included in kernel 5.3.
 
-This seems to be needed for 3.16 as well, so I've queued it up.  Let me
-know if this is wrong.
+Queued up for 3.16, thanks.
 
 Ben.
 
-> ---
->  drivers/dma/qcom_bam_dma.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
->=20
-> diff --git a/drivers/dma/qcom_bam_dma.c b/drivers/dma/qcom_bam_dma.c
-> index 5a250cdc8376..eca5b106d7d4 100644
-> --- a/drivers/dma/qcom_bam_dma.c
-> +++ b/drivers/dma/qcom_bam_dma.c
-> @@ -671,7 +671,21 @@ static int bam_dma_terminate_all(struct dma_chan *ch=
-an)
-> =20
->  	/* remove all transactions, including active transaction */
->  	spin_lock_irqsave(&bchan->vc.lock, flag);
-> +	/*
-> +	 * If we have transactions queued, then some might be committed to the
-> +	 * hardware in the desc fifo.  The only way to reset the desc fifo is
-> +	 * to do a hardware reset (either by pipe or the entire block).
-> +	 * bam_chan_init_hw() will trigger a pipe reset, and also reinit the
-> +	 * pipe.  If the pipe is left disabled (default state after pipe reset)
-> +	 * and is accessed by a connected hardware engine, a fatal error in
-> +	 * the BAM will occur.  There is a small window where this could happen
-> +	 * with bam_chan_init_hw(), but it is assumed that the caller has
-> +	 * stopped activity on any attached hardware engine.  Make sure to do
-> +	 * this first so that the BAM hardware doesn't cause memory corruption
-> +	 * by accessing freed resources.
-> +	 */
->  	if (bchan->curr_txd) {
-> +		bam_chan_init_hw(bchan, bchan->curr_txd->dir);
->  		list_add(&bchan->curr_txd->vd.node, &bchan->vc.desc_issued);
->  		bchan->curr_txd =3D NULL;
->  	}
 --=20
 Ben Hutchings
 Larkinson's Law: All laws are basically false.
 
 
 
---=-zXhieadOmE8rRJndeXab
+--=-74YX61Llp/MokHE9JvDf
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl4U48EACgkQ57/I7JWG
-EQnYdw//UrYxKOfQU4xwdzMwe3YNLPdl0ZN0MaZ5gL1tgxT1wyoIXVfYahMXqYEM
-RS7lRDFGonn0YO/zVn8ifx4wAu9IH9symhj2R9t0cMlc5OHZnYNPF0p25Q51FxyO
-i59q0mWyMoxA0Bk2kqla7sl1RpGbsowOkL44d1SGA3Xua4Luu37wZ4ABIxLJ1HqP
-ra5WGMoD9V9AaYR8IV5uhsBhezjSOQbNk4Phy/TNkL1MbuGA7dkXf9tHbV3jD8qG
-yNTOjgTGMteisTmxclWjU81Wtfe2ODhK8OMJ9YCwtrHus2449Z3LmtbhveDP940r
-mWVzs3jSKnqeD8rNrUqIEQU26Ln5A0yWuxSYZIB1HmXDtvXR6FfatOnBIYmE2wJY
-PQTrO1x7aN+bpyqRLN5Hewn+FRM78hcHxWOghUGI69e3Ejo+uzNSNeTV3Nyp+x7z
-AEooz5ZijVDN2yQnEuQ868iSVRyLz1SLnXnWXYIe4iS/s9Vut9o+rg/etkIs1Hhl
-TRHaz4pNBAA2m1UhOr3ynh0sDy6a7btuyph0nmADUgHAFC8LshJe8XqGB7elqUdT
-SL4lJFFpOHiRZoxhjRnPVX97FfQg/6BP/J+AkmnCLVXQEu1wxTCGE+W1GkJfi4sa
-WmnKSmyBKLjxWN9wrrvL2UeqThL+fAiEafNv3gtpa9YYJENEpiY=
-=icZ+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl4U5DEACgkQ57/I7JWG
+EQk2dxAAmPYtcxPbw0b9aGdDzzHzY6kP+toPYhl9H01J+fy+0zqENAKzTrSKm0Rp
+JEiLmSF2y/HRCvy1CKAvZjpfa/32yo9HWyeyYemQkLCJChNP8An4CUoQQKaf+EF0
+yIq3ZNDpJLv6fL1EeyWMSmBVRSJmFbDpJt2R6OiO1UlnaCgpGRbyW1GgyRf2Iy0a
+d5NujUUrFU6PNNHaP1aUUvVl7cEPQsxg9glmURz9dGZ6I2vAjZAHksYThJ9Cp/EQ
+5N5QeYaAP+VPFIwrHD8PbBt3QqaB/qN6mKVYJQ0jon5WmN4v+3+Ps9oVy/d3hv0L
+IARiS+Z0G4MzZJzgfebA2HvhCgAcars6iWWdHKd3a+Xa/cr/lscLfSh5LUZWL8Dw
+lNk7jUPjZJMGHKu+e3hX9QxJS7NIik83W2noHHezCwneVpKZrB+1ACqT61AlZ6+c
+Hrs2zAODLqx9Iu2zi8lyRUDVmqBx8rsuVjayGBTd/ulMoOJrA9+t5DyyAPGKOTB8
+e/Z8iP8qBhxMGU/ddLlImeXdOx0nfTpEIuvPMQIbpYYLdxes+Epfr+o3OY+k8R59
+ZMvCvPcXMknXbOajYCWG7I6k0eForw8oI6zjQgQ/PWg9fPfi1lEfgcIG5MjIh/iq
+kJlNb2lpDOcuPM3ULqIEbwCDtI4DnEXGgw7BoA+G5qvvG+ShR74=
+=sTMY
 -----END PGP SIGNATURE-----
 
---=-zXhieadOmE8rRJndeXab--
+--=-74YX61Llp/MokHE9JvDf--
