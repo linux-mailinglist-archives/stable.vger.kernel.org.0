@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E06133476
+	by mail.lfdr.de (Postfix) with ESMTP id B201A133477
 	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:26:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728089AbgAGU7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:59:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59918 "EHLO mail.kernel.org"
+        id S1728100AbgAGU7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:59:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728085AbgAGU7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:59:11 -0500
+        id S1727593AbgAGU7O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:59:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F02DB214D8;
-        Tue,  7 Jan 2020 20:59:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D34921744;
+        Tue,  7 Jan 2020 20:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430751;
-        bh=E30sFues24HlCjY1fOZNux+zdrKpYpbad432urrigyU=;
+        s=default; t=1578430753;
+        bh=+TKr1AGg60wAl/rfC0raSUEYB/My//ET9SMahqLI2Ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0L3LptXFjBlPUvgYtBpMv1LwT+rhA/NrmG0H/ScOx2DXdZKnAyN4JxQx9QOAhDHr
-         zQNlSkfpUrYTyH4mU/WP+L3hhEiZ0R/F9SkuurIRRL3glSW0SBhik2VIiCkUtx4pZ6
-         aZlzxIrj+Fblqtx3L2R0t0YnK0/KvBxw3bxAcsFQ=
+        b=lF06d9ddKCdkUg06EMO2CztvzYYRDn4NpGY+8Lfk6onQ54jX+jAHFAWt39lNeUaha
+         bE8+gDpYcBovwbf8ba+DpFFrQjFFJT2hibeNHQ2V1yCxk3UvjwZesfCcSgb7e8Xs8L
+         /iManxCK8CFqnUyvqmMx6Nm/98I0jN3j5+LAH4Rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 080/191] media: cec: CEC 2.0-only bcast messages were ignored
-Date:   Tue,  7 Jan 2020 21:53:20 +0100
-Message-Id: <20200107205337.264248888@linuxfoundation.org>
+Subject: [PATCH 5.4 081/191] media: cec: avoid decrementing transmit_queue_sz if it is 0
+Date:   Tue,  7 Jan 2020 21:53:21 +0100
+Message-Id: <20200107205337.317281298@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -45,39 +45,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit cec935ce69fc386f13959578deb40963ebbb85c3 upstream.
+commit 95c29d46ab2a517e4c26d0a07300edca6768db17 upstream.
 
-Some messages are allowed to be a broadcast message in CEC 2.0
-only, and should be ignored by CEC 1.4 devices.
+WARN if transmit_queue_sz is 0 but do not decrement it.
+The CEC adapter will become unresponsive if it goes below
+0 since then it thinks there are 4 billion messages in the
+queue.
 
-Unfortunately, the check was wrong, causing such messages to be
-marked as invalid under CEC 2.0.
+Obviously this should not happen, but a driver bug could
+cause this.
 
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: <stable@vger.kernel.org>      # for v4.10 and up
+Cc: <stable@vger.kernel.org>      # for v4.12 and up
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/cec/cec-adap.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/cec/cec-adap.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
 --- a/drivers/media/cec/cec-adap.c
 +++ b/drivers/media/cec/cec-adap.c
-@@ -1083,11 +1083,11 @@ void cec_received_msg_ts(struct cec_adap
- 			valid_la = false;
- 		else if (!cec_msg_is_broadcast(msg) && !(dir_fl & DIRECTED))
- 			valid_la = false;
--		else if (cec_msg_is_broadcast(msg) && !(dir_fl & BCAST1_4))
-+		else if (cec_msg_is_broadcast(msg) && !(dir_fl & BCAST))
- 			valid_la = false;
- 		else if (cec_msg_is_broadcast(msg) &&
--			 adap->log_addrs.cec_version >= CEC_OP_CEC_VERSION_2_0 &&
--			 !(dir_fl & BCAST2_0))
-+			 adap->log_addrs.cec_version < CEC_OP_CEC_VERSION_2_0 &&
-+			 !(dir_fl & BCAST1_4))
- 			valid_la = false;
+@@ -378,7 +378,8 @@ static void cec_data_cancel(struct cec_d
+ 	} else {
+ 		list_del_init(&data->list);
+ 		if (!(data->msg.tx_status & CEC_TX_STATUS_OK))
+-			data->adap->transmit_queue_sz--;
++			if (!WARN_ON(!data->adap->transmit_queue_sz))
++				data->adap->transmit_queue_sz--;
  	}
- 	if (valid_la && min_len) {
+ 
+ 	if (data->msg.tx_status & CEC_TX_STATUS_OK) {
+@@ -430,6 +431,14 @@ static void cec_flush(struct cec_adapter
+ 		 * need to do anything special in that case.
+ 		 */
+ 	}
++	/*
++	 * If something went wrong and this counter isn't what it should
++	 * be, then this will reset it back to 0. Warn if it is not 0,
++	 * since it indicates a bug, either in this framework or in a
++	 * CEC driver.
++	 */
++	if (WARN_ON(adap->transmit_queue_sz))
++		adap->transmit_queue_sz = 0;
+ }
+ 
+ /*
+@@ -520,7 +529,8 @@ int cec_thread_func(void *_adap)
+ 		data = list_first_entry(&adap->transmit_queue,
+ 					struct cec_data, list);
+ 		list_del_init(&data->list);
+-		adap->transmit_queue_sz--;
++		if (!WARN_ON(!data->adap->transmit_queue_sz))
++			adap->transmit_queue_sz--;
+ 
+ 		/* Make this the current transmitting message */
+ 		adap->transmitting = data;
 
 
