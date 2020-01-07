@@ -2,175 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DEB13307B
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:16:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF5B713307C
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728421AbgAGUQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:16:25 -0500
-Received: from mout.kundenserver.de ([217.72.192.73]:55413 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728379AbgAGUQZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 15:16:25 -0500
-Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue108 [212.227.15.145]) with ESMTPA (Nemesis) id
- 1MrQR7-1jS5Fh1b8x-00oVdi; Tue, 07 Jan 2020 21:16:06 +0100
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     Satish Kharat <satishkh@cisco.com>,
-        Sesidhar Baddela <sebaddel@cisco.com>,
-        Karan Tilak Kumar <kartilak@cisco.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     Oleksandr Natalenko <oleksandr@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
-        Joe Eykholt <jeykholt@cisco.com>,
-        Mike Christie <michaelc@cs.wisc.edu>,
-        Abhijeet Joglekar <abjoglek@cisco.com>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fnic: fix invalid stack access
-Date:   Tue,  7 Jan 2020 21:15:49 +0100
-Message-Id: <20200107201602.4096790-1-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
+        id S1728369AbgAGUQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:16:39 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36166 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728379AbgAGUQi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 15:16:38 -0500
+Received: from [167.98.27.226] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iovHI-0003SE-C0; Tue, 07 Jan 2020 20:16:36 +0000
+Received: from ben by deadeye with local (Exim 4.93)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iovHH-0071t8-RM; Tue, 07 Jan 2020 20:16:35 +0000
+Message-ID: <f3b20f7723e06ea23da1edd439dfdc96d8a85373.camel@decadent.org.uk>
+Subject: Re: [PATCH backport 4.9 4.4] xhci: fix USB3 device initiated resume
+ race with roothub autosuspend
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org
+Cc:     Lee Hou-hsun <hou-hsun.lee@intel.com>,
+        Lee Chiasheng <chiasheng.lee@intel.com>
+Date:   Tue, 07 Jan 2020 20:16:26 +0000
+In-Reply-To: <20191219120632.4037-1-mathias.nyman@linux.intel.com>
+References: <20191219120632.4037-1-mathias.nyman@linux.intel.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-cYcriI9ISgGF/jmQ0n5e"
+User-Agent: Evolution 3.34.1-2+b1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:K1KYSV0cJGtVg+TJWCYsRWWJJ9TvxGO00fSnDNoLEwCbAThvW6P
- 0dOMljJLPjjYc+Ef3QERcKvOdSQPtNIYqOzoz0ePAIvHo3LyPF2z9aEDIblaaNo9Q039lxT
- nL84AyTp+yP8K4G7074F7xDIhxZkvKxqWidkBRzl59oZXq4hMKzTx3RiEEc0gTOVCXSnk9Y
- omOZEVzHuiAcso91Xthwg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:Tp6NYtjwL5I=:k5WIeqKeseUq8u9a+e4+A5
- /g1BxYrgwFO6nUsqbTvLYi2uU5w7Gp23F3cSVNxW69ikv6dICD103Q5aDnGXDbHpoOcqJu8yS
- BgGSHmtSdwM99j1grgcJ+XN6UjAo4w8B2BL6it/ulAfdGiD2JBbh3ZjDzc+NL54UITYNMTpSV
- ick6WeAYF15S6FavgY917Z/Z2RREK2QX8cYghH7rLlstxkBZhUsOnurhoRCNXWw8ncPpS9qf1
- hnBIo1o/dxsEOQ6vW4fSoMyYYylRWzYz0jKTMDsdL+1Q/q5JEgBYN66xHQvAz+23utjUB4Uyo
- w0vhX/s307hp5K7SSAniDvWdN0HusAmsQLXMVprpvrzpo+OWzt2DGgH/8y+KTC9HHB8chzxr8
- FOCt8brzZ1tjuvNgz/EXJSRHTBq4dO05u+Ol/a4USuAXUPMVzGB93Rx2sAwIB3Qav06Q/MibK
- 3yxtCltDR34V6M0ekOQualyvnUaxmYqelYT2bpun7z4PA+MbkytweRLIZ+r2lt9os1JBnjS5L
- zM4YeJxSTp40irXhiPmDdEWm/sjmXhz9O9G1eEK32GnRf2h2eK0wQY1lwNlpGXkszzh6IZY2r
- sznsAkG4woV8FqaAe40CIR20zNMUU+7L6HUnbBvrCuLZWUHw1IuYHYLVMaykK7qEenijKoUpA
- klDdpw8t92Psp0Uz+HUphk114qYODoW9UI47ifTkEMf+oK9qDHLg5NbxGb72+rb3rIYDAd6cU
- HHQcRT6zZAu+hXUrjhczbxBTHXZ44VSbP9VdgTeIbNs3CxBpU4JC1Nak1yL3RlghMMEmTXXjV
- /ViHmUngA2ox8gOkCm6BuhTNI3UZXlKlKKmUB7BE8lKD+s3bHxLXJvldXc1hk83tHiUweWdBN
- kAFKkl2SuAkeDoiS/G5Q==
+X-SA-Exim-Connect-IP: 167.98.27.226
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-gcc -O3 warns that some local variables are not properly initialized:
 
-drivers/scsi/fnic/vnic_dev.c: In function 'fnic_dev_hang_notify':
-drivers/scsi/fnic/vnic_dev.c:511:16: error: 'a0' is used uninitialized in this function [-Werror=uninitialized]
-  vdev->args[0] = *a0;
-  ~~~~~~~~~~~~~~^~~~~
-drivers/scsi/fnic/vnic_dev.c:691:6: note: 'a0' was declared here
-  u64 a0, a1;
-      ^~
-drivers/scsi/fnic/vnic_dev.c:512:16: error: 'a1' is used uninitialized in this function [-Werror=uninitialized]
-  vdev->args[1] = *a1;
-  ~~~~~~~~~~~~~~^~~~~
-drivers/scsi/fnic/vnic_dev.c:691:10: note: 'a1' was declared here
-  u64 a0, a1;
-          ^~
-drivers/scsi/fnic/vnic_dev.c: In function 'fnic_dev_mac_addr':
-drivers/scsi/fnic/vnic_dev.c:512:16: error: 'a1' is used uninitialized in this function [-Werror=uninitialized]
-  vdev->args[1] = *a1;
-  ~~~~~~~~~~~~~~^~~~~
-drivers/scsi/fnic/vnic_dev.c:698:10: note: 'a1' was declared here
-  u64 a0, a1;
-          ^~
+--=-cYcriI9ISgGF/jmQ0n5e
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Apparently the code relies on the local variables occupying
-adjacent memory locations in the same order, but this is of
-course not guaranteed.
+On Thu, 2019-12-19 at 14:06 +0200, Mathias Nyman wrote:
+> commit 057d476fff778f1d3b9f861fdb5437ea1a3cfc99 upstream
+>=20
+> Backport for 4.9 and 4.4 stable kernels
 
-Use an array of two u64 variables where needed to make it work
-correctly.
+This seems to be needed for 3.16 as well, so I've added this to the
+queue with a minor adjustment.
 
-I suspect there is also an endianess bug here, but have not
-digged in deep enough to be sure.
+Ben.
 
-Cc: stable@vger.kernel.org
-Fixes: 5df6d737dd4b ("[SCSI] fnic: Add new Cisco PCI-Express FCoE HBA")
-Fixes: mmtom ("init/Kconfig: enable -O3 for all arches")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/scsi/fnic/vnic_dev.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+> A race in xhci USB3 remote wake handling may force device back to suspend
+> after it initiated resume siganaling, causing a missed resume event or wa=
+rm
+> reset of device.
+>=20
+> When a USB3 link completes resume signaling and goes to enabled (UO)
+> state a interrupt is issued and the interrupt handler will clear the
+> bus_state->port_remote_wakeup resume flag, allowing bus suspend.
+>=20
+> If the USB3 roothub thread just finished reading port status before
+> the interrupt, finding ports still in suspended (U3) state, but hasn't
+> yet started suspending the hub, then the xhci interrupt handler will clea=
+r
+> the flag that prevented roothub suspend and allow bus to suspend, forcing
+> all port links back to suspended (U3) state.
+>=20
+> Example case:
+> usb_runtime_suspend() # because all ports still show suspended U3
+>   usb_suspend_both()
+>     hub_suspend();   # successful as hub->wakeup_bits not set yet
+> =3D=3D> INTERRUPT
+> xhci_irq()
+>   handle_port_status()
+>     clear bus_state->port_remote_wakeup
+>     usb_wakeup_notification()
+>       sets hub->wakeup_bits;
+>         kick_hub_wq()
+> <=3D=3D END INTERRUPT
+>       hcd_bus_suspend()
+>         xhci_bus_suspend() # success as port_remote_wakeup bits cleared
+>=20
+> Fix this by increasing roothub usage count during port resume to prevent
+> roothub autosuspend, and by making sure bus_state->port_remote_wakeup
+> flag is only cleared after resume completion is visible, i.e.
+> after xhci roothub returned U0 or other non-U3 link state link on a
+> get port status request.
+>=20
+> Issue rootcaused by Chiasheng Lee
+>=20
+> Cc: Lee Hou-hsun <hou-hsun.lee@intel.com>
+> Cc: Lee Chiasheng <chiasheng.lee@intel.com>
+> Reported-by: Lee Chiasheng <chiasheng.lee@intel.com>
+> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+> ---
+>  drivers/usb/host/xhci-hub.c  | 8 ++++++++
+>  drivers/usb/host/xhci-ring.c | 6 +-----
+>  drivers/usb/host/xhci.h      | 1 +
+>  3 files changed, 10 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+> index 39e2d3271035..1d9cb29400f3 100644
+> --- a/drivers/usb/host/xhci-hub.c
+> +++ b/drivers/usb/host/xhci-hub.c
+> @@ -760,6 +760,14 @@ static u32 xhci_get_port_status(struct usb_hcd *hcd,
+>  			status |=3D USB_PORT_STAT_C_BH_RESET << 16;
+>  		if ((raw_port_status & PORT_CEC))
+>  			status |=3D USB_PORT_STAT_C_CONFIG_ERROR << 16;
+> +
+> +		/* USB3 remote wake resume signaling completed */
+> +		if (bus_state->port_remote_wakeup & (1 << wIndex) &&
+> +		    (raw_port_status & PORT_PLS_MASK) !=3D XDEV_RESUME &&
+> +		    (raw_port_status & PORT_PLS_MASK) !=3D XDEV_RECOVERY) {
+> +			bus_state->port_remote_wakeup &=3D ~(1 << wIndex);
+> +			usb_hcd_end_port_resume(&hcd->self, wIndex);
+> +		}
+>  	}
+> =20
+>  	if (hcd->speed < HCD_USB3) {
+> diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+> index 69ad9817076a..b426c83ecb9b 100644
+> --- a/drivers/usb/host/xhci-ring.c
+> +++ b/drivers/usb/host/xhci-ring.c
+> @@ -1609,9 +1609,6 @@ static void handle_port_status(struct xhci_hcd *xhc=
+i,
+>  		usb_hcd_resume_root_hub(hcd);
+>  	}
+> =20
+> -	if (hcd->speed >=3D HCD_USB3 && (temp & PORT_PLS_MASK) =3D=3D XDEV_INAC=
+TIVE)
+> -		bus_state->port_remote_wakeup &=3D ~(1 << faked_port_index);
+> -
+>  	if ((temp & PORT_PLC) && (temp & PORT_PLS_MASK) =3D=3D XDEV_RESUME) {
+>  		xhci_dbg(xhci, "port resume event for port %d\n", port_id);
+> =20
+> @@ -1630,6 +1627,7 @@ static void handle_port_status(struct xhci_hcd *xhc=
+i,
+>  			bus_state->port_remote_wakeup |=3D 1 << faked_port_index;
+>  			xhci_test_and_clear_bit(xhci, port_array,
+>  					faked_port_index, PORT_PLC);
+> +			usb_hcd_start_port_resume(&hcd->self, faked_port_index);
+>  			xhci_set_link_state(xhci, port_array, faked_port_index,
+>  						XDEV_U0);
+>  			/* Need to wait until the next link state change
+> @@ -1667,8 +1665,6 @@ static void handle_port_status(struct xhci_hcd *xhc=
+i,
+>  		if (slot_id && xhci->devs[slot_id])
+>  			xhci_ring_device(xhci, slot_id);
+>  		if (bus_state->port_remote_wakeup & (1 << faked_port_index)) {
+> -			bus_state->port_remote_wakeup &=3D
+> -				~(1 << faked_port_index);
+>  			xhci_test_and_clear_bit(xhci, port_array,
+>  					faked_port_index, PORT_PLC);
+>  			usb_wakeup_notification(hcd->self.root_hub,
+> diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+> index de4771ce0df6..424c07d1ac0e 100644
+> --- a/drivers/usb/host/xhci.h
+> +++ b/drivers/usb/host/xhci.h
+> @@ -316,6 +316,7 @@ struct xhci_op_regs {
+>  #define XDEV_U3		(0x3 << 5)
+>  #define XDEV_INACTIVE	(0x6 << 5)
+>  #define XDEV_POLLING	(0x7 << 5)
+> +#define XDEV_RECOVERY	(0x8 << 5)
+>  #define XDEV_COMP_MODE  (0xa << 5)
+>  #define XDEV_RESUME	(0xf << 5)
+>  /* true: port has power (see HCC_PPC) */
+--=20
+Ben Hutchings
+Larkinson's Law: All laws are basically false.
 
-diff --git a/drivers/scsi/fnic/vnic_dev.c b/drivers/scsi/fnic/vnic_dev.c
-index 1f55b9e4e74a..1b88a3b53eee 100644
---- a/drivers/scsi/fnic/vnic_dev.c
-+++ b/drivers/scsi/fnic/vnic_dev.c
-@@ -688,26 +688,26 @@ int vnic_dev_soft_reset_done(struct vnic_dev *vdev, int *done)
- 
- int vnic_dev_hang_notify(struct vnic_dev *vdev)
- {
--	u64 a0, a1;
-+	u64 a0 = 0, a1 = 0;
- 	int wait = 1000;
- 	return vnic_dev_cmd(vdev, CMD_HANG_NOTIFY, &a0, &a1, wait);
- }
- 
- int vnic_dev_mac_addr(struct vnic_dev *vdev, u8 *mac_addr)
- {
--	u64 a0, a1;
-+	u64 a[2] = {};
- 	int wait = 1000;
- 	int err, i;
- 
- 	for (i = 0; i < ETH_ALEN; i++)
- 		mac_addr[i] = 0;
- 
--	err = vnic_dev_cmd(vdev, CMD_MAC_ADDR, &a0, &a1, wait);
-+	err = vnic_dev_cmd(vdev, CMD_MAC_ADDR, &a[0], &a[1], wait);
- 	if (err)
- 		return err;
- 
- 	for (i = 0; i < ETH_ALEN; i++)
--		mac_addr[i] = ((u8 *)&a0)[i];
-+		mac_addr[i] = ((u8 *)&a)[i];
- 
- 	return 0;
- }
-@@ -732,30 +732,30 @@ void vnic_dev_packet_filter(struct vnic_dev *vdev, int directed, int multicast,
- 
- void vnic_dev_add_addr(struct vnic_dev *vdev, u8 *addr)
- {
--	u64 a0 = 0, a1 = 0;
-+	u64 a[2] = {};
- 	int wait = 1000;
- 	int err;
- 	int i;
- 
- 	for (i = 0; i < ETH_ALEN; i++)
--		((u8 *)&a0)[i] = addr[i];
-+		((u8 *)&a)[i] = addr[i];
- 
--	err = vnic_dev_cmd(vdev, CMD_ADDR_ADD, &a0, &a1, wait);
-+	err = vnic_dev_cmd(vdev, CMD_ADDR_ADD, &a[0], &a[1], wait);
- 	if (err)
- 		pr_err("Can't add addr [%pM], %d\n", addr, err);
- }
- 
- void vnic_dev_del_addr(struct vnic_dev *vdev, u8 *addr)
- {
--	u64 a0 = 0, a1 = 0;
-+	u64 a[2] = {};
- 	int wait = 1000;
- 	int err;
- 	int i;
- 
- 	for (i = 0; i < ETH_ALEN; i++)
--		((u8 *)&a0)[i] = addr[i];
-+		((u8 *)&a)[i] = addr[i];
- 
--	err = vnic_dev_cmd(vdev, CMD_ADDR_DEL, &a0, &a1, wait);
-+	err = vnic_dev_cmd(vdev, CMD_ADDR_DEL, &a[0], &a[1], wait);
- 	if (err)
- 		pr_err("Can't del addr [%pM], %d\n", addr, err);
- }
--- 
-2.20.0
 
+
+--=-cYcriI9ISgGF/jmQ0n5e
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl4U5xsACgkQ57/I7JWG
+EQnZgQ/9GxLiHJnCuRwpQZDvxqGb/U/N4q6t7cUufuCdbTpEj7Xvo+SQ1jEfZ2U1
+VpnZ3R/xqeGMNsEZwxmQTO+znqXTxKo8JRwuf6fjwaosRN084vXffRDGrYXAaNOx
+8f2S3crSWPdZt+J73BQjMDFSOYOkTf45SaOkCh3WsyQeKSkWEvzvJAVWcfloX6xz
+sJzWa3j23X7Jo6kq/PZjveNR62/VkIwKHIny0RdNDbF0KwFAVClrdVWwVYl+KVy+
+EozCtW2QZqyaw2vvR/fdlquNn64NCHg5G4iabP71MvhifCeuluGxe4m8yZGMDSHC
+qllVLq4HtC77SdFanH9pFfr3DXCHgwLy3zBFLOgsOuvE+fZLqLwBs23/7XPkrhB3
+cm0fddXjAK0/2xjEuFu03UcN+ncHqz5vVXspZB/CHx+7HoTx9Hd2YHIJr9+J5Fp2
+qkveJ6l4t3Qa4zhr74qo5VhZcFEsigkqSb6kjWHEqCK8QomO003ERWEKtBSFPEAM
+M7IwmN1wYggBZ5TNupnxcZsMyFnIqymGK4+X7h+mPiKaObnc16mxTIClV7upMpDE
+Ajx+aIT3VCKQt7X5HvNVpFHS/MBh8Bw40JIBTfJC2Gvy0f366xY/G7ocRr5UonUb
+nMfLsoS4hDpOLUTiEflBRC1Q1T0Z0Fb5dA38dP9eCYCl+ymjbn0=
+=0JMh
+-----END PGP SIGNATURE-----
+
+--=-cYcriI9ISgGF/jmQ0n5e--
