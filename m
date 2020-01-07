@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A199F1331B2
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:03:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 808C61333D9
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:22:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728253AbgAGVDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:03:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44254 "EHLO mail.kernel.org"
+        id S1727139AbgAGVVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:21:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728579AbgAGVDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:03:08 -0500
+        id S1728209AbgAGVDK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:03:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD51720678;
-        Tue,  7 Jan 2020 21:03:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 577F42077B;
+        Tue,  7 Jan 2020 21:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430986;
-        bh=EalipMvaHargs8oiMQRMWjYPuRgauFjP5NRZQ/eBQpU=;
+        s=default; t=1578430988;
+        bh=bdTfHbXrSAgAnMP3Fhjwl4O1KnISGipcmSYtsztw+hU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vv2zd4cD8v87MAj1sJM63rblpZ5lWQA/4lxp6HY3nr3X8+D3xVaTl8wXayycvG9D4
-         BYQ65Dq4OyfJ/TP+BxgD1evRIJ14lzwyV7zA3n7JJnw+UKF6sLsGL87a0Lgl13vPZF
-         excFXE9f7XkIk/gXiKyXlBcL0SC6S49Z83c/dmH8=
+        b=sOXZWnM+VzdihQyTY5+1h/c25fzkc73M1/J63OOQs5/xu0e4/ZO0M9iHg6oSzmbPc
+         tZqGcHBg77WnH2s9Pf577nkGlvpsJ7JjB72/US532hWoI0RkuiEWC/zAgE7w+jBxLv
+         sBLkW+Qu0C7dYLDgTwLStRGeGpqukemWNy031hSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        Omar Sandoval <osandov@fb.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 179/191] btrfs: get rid of unique workqueue helper functions
-Date:   Tue,  7 Jan 2020 21:54:59 +0100
-Message-Id: <20200107205342.575773923@linuxfoundation.org>
+Subject: [PATCH 5.4 180/191] Btrfs: only associate the locked page with one async_chunk struct
+Date:   Tue,  7 Jan 2020 21:55:00 +0100
+Message-Id: <20200107205342.628178029@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -46,515 +44,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Chris Mason <clm@fb.com>
 
-[ Upstream commit a0cac0ec961f0d42828eeef196ac2246a2f07659 ]
+[ Upstream commit 1d53c9e6723022b12e4a5ed4b141f67c834b7f6f ]
 
-Commit 9e0af2376434 ("Btrfs: fix task hang under heavy compressed
-write") worked around the issue that a recycled work item could get a
-false dependency on the original work item due to how the workqueue code
-guarantees non-reentrancy. It did so by giving different work functions
-to different types of work.
+The btrfs writepages function collects a large range of pages flagged
+for delayed allocation, and then sends them down through the COW code
+for processing.  When compression is on, we allocate one async_chunk
+structure for every 512K, and then run those pages through the
+compression code for IO submission.
 
-However, the fixes in the previous few patches are more complete, as
-they prevent a work item from being recycled at all (except for a tiny
-window that the kernel workqueue code handles for us). This obsoletes
-the previous fix, so we don't need the unique helpers for correctness.
-The only other reason to keep them would be so they show up in stack
-traces, but they always seem to be optimized to a tail call, so they
-don't show up anyways. So, let's just get rid of the extra indirection.
+writepages starts all of this off with a single page, locked by the
+original call to extent_write_cache_pages(), and it's important to keep
+track of this page because it has already been through
+clear_page_dirty_for_io().
 
-While we're here, rename normal_work_helper() to the more informative
-btrfs_work_helper().
+The btrfs async_chunk struct has a pointer to the locked_page, and when
+we're redirtying the page because compression had to fallback to
+uncompressed IO, we use page->index to decide if a given async_chunk
+struct really owns that page.
 
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+But, this is racey.  If a given delalloc range is broken up into two
+async_chunks (chunkA and chunkB), we can end up with something like
+this:
+
+ compress_file_range(chunkA)
+ submit_compress_extents(chunkA)
+ submit compressed bios(chunkA)
+ put_page(locked_page)
+
+				 compress_file_range(chunkB)
+				 ...
+
+Or:
+
+ async_cow_submit
+  submit_compressed_extents <--- falls back to buffered writeout
+   cow_file_range
+    extent_clear_unlock_delalloc
+     __process_pages_contig
+       put_page(locked_pages)
+
+					    async_cow_submit
+
+The end result is that chunkA is completed and cleaned up before chunkB
+even starts processing.  This means we can free locked_page() and reuse
+it elsewhere.  If we get really lucky, it'll have the same page->index
+in its new home as it did before.
+
+While we're processing chunkB, we might decide we need to fall back to
+uncompressed IO, and so compress_file_range() will call
+__set_page_dirty_nobufers() on chunkB->locked_page.
+
+Without cgroups in use, this creates as a phantom dirty page, which
+isn't great but isn't the end of the world. What can happen, it can go
+through the fixup worker and the whole COW machinery again:
+
+in submit_compressed_extents():
+  while (async extents) {
+  ...
+    cow_file_range
+    if (!page_started ...)
+      extent_write_locked_range
+    else if (...)
+      unlock_page
+    continue;
+
+This hasn't been observed in practice but is still possible.
+
+With cgroups in use, we might crash in the accounting code because
+page->mapping->i_wb isn't set.
+
+  BUG: unable to handle kernel NULL pointer dereference at 00000000000000d0
+  IP: percpu_counter_add_batch+0x11/0x70
+  PGD 66534e067 P4D 66534e067 PUD 66534f067 PMD 0
+  Oops: 0000 [#1] SMP DEBUG_PAGEALLOC
+  CPU: 16 PID: 2172 Comm: rm Not tainted
+  RIP: 0010:percpu_counter_add_batch+0x11/0x70
+  RSP: 0018:ffffc9000a97bbe0 EFLAGS: 00010286
+  RAX: 0000000000000005 RBX: 0000000000000090 RCX: 0000000000026115
+  RDX: 0000000000000030 RSI: ffffffffffffffff RDI: 0000000000000090
+  RBP: 0000000000000000 R08: fffffffffffffff5 R09: 0000000000000000
+  R10: 00000000000260c0 R11: ffff881037fc26c0 R12: ffffffffffffffff
+  R13: ffff880fe4111548 R14: ffffc9000a97bc90 R15: 0000000000000001
+  FS:  00007f5503ced480(0000) GS:ffff880ff7200000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00000000000000d0 CR3: 00000001e0459005 CR4: 0000000000360ee0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   account_page_cleaned+0x15b/0x1f0
+   __cancel_dirty_page+0x146/0x200
+   truncate_cleanup_page+0x92/0xb0
+   truncate_inode_pages_range+0x202/0x7d0
+   btrfs_evict_inode+0x92/0x5a0
+   evict+0xc1/0x190
+   do_unlinkat+0x176/0x280
+   do_syscall_64+0x63/0x1a0
+   entry_SYSCALL_64_after_hwframe+0x42/0xb7
+
+The fix here is to make asyc_chunk->locked_page NULL everywhere but the
+one async_chunk struct that's allowed to do things to the locked page.
+
+Link: https://lore.kernel.org/linux-btrfs/c2419d01-5c84-3fb4-189e-4db519d08796@suse.com/
+Fixes: 771ed689d2cd ("Btrfs: Optimize compressed writeback and reads")
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Chris Mason <clm@fb.com>
+[ update changelog from mail thread discussion ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/async-thread.c  | 58 +++++++++-------------------------------
- fs/btrfs/async-thread.h  | 33 ++---------------------
- fs/btrfs/block-group.c   |  3 +--
- fs/btrfs/delayed-inode.c |  4 +--
- fs/btrfs/disk-io.c       | 34 ++++++++---------------
- fs/btrfs/inode.c         | 36 ++++++++-----------------
- fs/btrfs/ordered-data.c  |  1 -
- fs/btrfs/qgroup.c        |  1 -
- fs/btrfs/raid56.c        |  5 ++--
- fs/btrfs/reada.c         |  3 +--
- fs/btrfs/scrub.c         | 14 +++++-----
- fs/btrfs/volumes.c       |  3 +--
- 12 files changed, 50 insertions(+), 145 deletions(-)
+ fs/btrfs/extent_io.c |  2 +-
+ fs/btrfs/inode.c     | 25 +++++++++++++++++++++----
+ 2 files changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/async-thread.c b/fs/btrfs/async-thread.c
-index 10a04b99798a..3f3110975f88 100644
---- a/fs/btrfs/async-thread.c
-+++ b/fs/btrfs/async-thread.c
-@@ -53,16 +53,6 @@ struct btrfs_workqueue {
- 	struct __btrfs_workqueue *high;
- };
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index be9dc78aa727..33c6b191ca59 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -1899,7 +1899,7 @@ static int __process_pages_contig(struct address_space *mapping,
+ 			if (page_ops & PAGE_SET_PRIVATE2)
+ 				SetPagePrivate2(pages[i]);
  
--static void normal_work_helper(struct btrfs_work *work);
--
--#define BTRFS_WORK_HELPER(name)					\
--noinline_for_stack void btrfs_##name(struct work_struct *arg)		\
--{									\
--	struct btrfs_work *work = container_of(arg, struct btrfs_work,	\
--					       normal_work);		\
--	normal_work_helper(work);					\
--}
--
- struct btrfs_fs_info *
- btrfs_workqueue_owner(const struct __btrfs_workqueue *wq)
- {
-@@ -89,29 +79,6 @@ bool btrfs_workqueue_normal_congested(const struct btrfs_workqueue *wq)
- 	return atomic_read(&wq->normal->pending) > wq->normal->thresh * 2;
- }
- 
--BTRFS_WORK_HELPER(worker_helper);
--BTRFS_WORK_HELPER(delalloc_helper);
--BTRFS_WORK_HELPER(flush_delalloc_helper);
--BTRFS_WORK_HELPER(cache_helper);
--BTRFS_WORK_HELPER(submit_helper);
--BTRFS_WORK_HELPER(fixup_helper);
--BTRFS_WORK_HELPER(endio_helper);
--BTRFS_WORK_HELPER(endio_meta_helper);
--BTRFS_WORK_HELPER(endio_meta_write_helper);
--BTRFS_WORK_HELPER(endio_raid56_helper);
--BTRFS_WORK_HELPER(endio_repair_helper);
--BTRFS_WORK_HELPER(rmw_helper);
--BTRFS_WORK_HELPER(endio_write_helper);
--BTRFS_WORK_HELPER(freespace_write_helper);
--BTRFS_WORK_HELPER(delayed_meta_helper);
--BTRFS_WORK_HELPER(readahead_helper);
--BTRFS_WORK_HELPER(qgroup_rescan_helper);
--BTRFS_WORK_HELPER(extent_refs_helper);
--BTRFS_WORK_HELPER(scrub_helper);
--BTRFS_WORK_HELPER(scrubwrc_helper);
--BTRFS_WORK_HELPER(scrubnc_helper);
--BTRFS_WORK_HELPER(scrubparity_helper);
--
- static struct __btrfs_workqueue *
- __btrfs_alloc_workqueue(struct btrfs_fs_info *fs_info, const char *name,
- 			unsigned int flags, int limit_active, int thresh)
-@@ -302,12 +269,13 @@ static void run_ordered_work(struct __btrfs_workqueue *wq,
- 			 * original work item cannot depend on the recycled work
- 			 * item in that case (see find_worker_executing_work()).
- 			 *
--			 * Note that the work of one Btrfs filesystem may depend
--			 * on the work of another Btrfs filesystem via, e.g., a
--			 * loop device. Therefore, we must not allow the current
--			 * work item to be recycled until we are really done,
--			 * otherwise we break the above assumption and can
--			 * deadlock.
-+			 * Note that different types of Btrfs work can depend on
-+			 * each other, and one type of work on one Btrfs
-+			 * filesystem may even depend on the same type of work
-+			 * on another Btrfs filesystem via, e.g., a loop device.
-+			 * Therefore, we must not allow the current work item to
-+			 * be recycled until we are really done, otherwise we
-+			 * break the above assumption and can deadlock.
- 			 */
- 			free_self = true;
- 		} else {
-@@ -331,8 +299,10 @@ static void run_ordered_work(struct __btrfs_workqueue *wq,
- 	}
- }
- 
--static void normal_work_helper(struct btrfs_work *work)
-+static void btrfs_work_helper(struct work_struct *normal_work)
- {
-+	struct btrfs_work *work = container_of(normal_work, struct btrfs_work,
-+					       normal_work);
- 	struct __btrfs_workqueue *wq;
- 	void *wtag;
- 	int need_order = 0;
-@@ -362,15 +332,13 @@ static void normal_work_helper(struct btrfs_work *work)
- 		trace_btrfs_all_work_done(wq->fs_info, wtag);
- }
- 
--void btrfs_init_work(struct btrfs_work *work, btrfs_work_func_t uniq_func,
--		     btrfs_func_t func,
--		     btrfs_func_t ordered_func,
--		     btrfs_func_t ordered_free)
-+void btrfs_init_work(struct btrfs_work *work, btrfs_func_t func,
-+		     btrfs_func_t ordered_func, btrfs_func_t ordered_free)
- {
- 	work->func = func;
- 	work->ordered_func = ordered_func;
- 	work->ordered_free = ordered_free;
--	INIT_WORK(&work->normal_work, uniq_func);
-+	INIT_WORK(&work->normal_work, btrfs_work_helper);
- 	INIT_LIST_HEAD(&work->ordered_list);
- 	work->flags = 0;
- }
-diff --git a/fs/btrfs/async-thread.h b/fs/btrfs/async-thread.h
-index 7861c9feba5f..c5bf2b117c05 100644
---- a/fs/btrfs/async-thread.h
-+++ b/fs/btrfs/async-thread.h
-@@ -29,42 +29,13 @@ struct btrfs_work {
- 	unsigned long flags;
- };
- 
--#define BTRFS_WORK_HELPER_PROTO(name)					\
--void btrfs_##name(struct work_struct *arg)
--
--BTRFS_WORK_HELPER_PROTO(worker_helper);
--BTRFS_WORK_HELPER_PROTO(delalloc_helper);
--BTRFS_WORK_HELPER_PROTO(flush_delalloc_helper);
--BTRFS_WORK_HELPER_PROTO(cache_helper);
--BTRFS_WORK_HELPER_PROTO(submit_helper);
--BTRFS_WORK_HELPER_PROTO(fixup_helper);
--BTRFS_WORK_HELPER_PROTO(endio_helper);
--BTRFS_WORK_HELPER_PROTO(endio_meta_helper);
--BTRFS_WORK_HELPER_PROTO(endio_meta_write_helper);
--BTRFS_WORK_HELPER_PROTO(endio_raid56_helper);
--BTRFS_WORK_HELPER_PROTO(endio_repair_helper);
--BTRFS_WORK_HELPER_PROTO(rmw_helper);
--BTRFS_WORK_HELPER_PROTO(endio_write_helper);
--BTRFS_WORK_HELPER_PROTO(freespace_write_helper);
--BTRFS_WORK_HELPER_PROTO(delayed_meta_helper);
--BTRFS_WORK_HELPER_PROTO(readahead_helper);
--BTRFS_WORK_HELPER_PROTO(qgroup_rescan_helper);
--BTRFS_WORK_HELPER_PROTO(extent_refs_helper);
--BTRFS_WORK_HELPER_PROTO(scrub_helper);
--BTRFS_WORK_HELPER_PROTO(scrubwrc_helper);
--BTRFS_WORK_HELPER_PROTO(scrubnc_helper);
--BTRFS_WORK_HELPER_PROTO(scrubparity_helper);
--
--
- struct btrfs_workqueue *btrfs_alloc_workqueue(struct btrfs_fs_info *fs_info,
- 					      const char *name,
- 					      unsigned int flags,
- 					      int limit_active,
- 					      int thresh);
--void btrfs_init_work(struct btrfs_work *work, btrfs_work_func_t helper,
--		     btrfs_func_t func,
--		     btrfs_func_t ordered_func,
--		     btrfs_func_t ordered_free);
-+void btrfs_init_work(struct btrfs_work *work, btrfs_func_t func,
-+		     btrfs_func_t ordered_func, btrfs_func_t ordered_free);
- void btrfs_queue_work(struct btrfs_workqueue *wq,
- 		      struct btrfs_work *work);
- void btrfs_destroy_workqueue(struct btrfs_workqueue *wq);
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index 0d2da2366869..7dcfa7d7632a 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -695,8 +695,7 @@ int btrfs_cache_block_group(struct btrfs_block_group_cache *cache,
- 	caching_ctl->block_group = cache;
- 	caching_ctl->progress = cache->key.objectid;
- 	refcount_set(&caching_ctl->count, 1);
--	btrfs_init_work(&caching_ctl->work, btrfs_cache_helper,
--			caching_thread, NULL, NULL);
-+	btrfs_init_work(&caching_ctl->work, caching_thread, NULL, NULL);
- 
- 	spin_lock(&cache->lock);
- 	/*
-diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
-index 57a9ad3e8c29..c7a53e79c66d 100644
---- a/fs/btrfs/delayed-inode.c
-+++ b/fs/btrfs/delayed-inode.c
-@@ -1367,8 +1367,8 @@ static int btrfs_wq_run_delayed_node(struct btrfs_delayed_root *delayed_root,
- 		return -ENOMEM;
- 
- 	async_work->delayed_root = delayed_root;
--	btrfs_init_work(&async_work->work, btrfs_delayed_meta_helper,
--			btrfs_async_run_delayed_root, NULL, NULL);
-+	btrfs_init_work(&async_work->work, btrfs_async_run_delayed_root, NULL,
-+			NULL);
- 	async_work->nr = nr;
- 
- 	btrfs_queue_work(fs_info->delayed_workers, &async_work->work);
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 3895c21853cc..bae334212ee2 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -706,43 +706,31 @@ static void end_workqueue_bio(struct bio *bio)
- 	struct btrfs_end_io_wq *end_io_wq = bio->bi_private;
- 	struct btrfs_fs_info *fs_info;
- 	struct btrfs_workqueue *wq;
--	btrfs_work_func_t func;
- 
- 	fs_info = end_io_wq->info;
- 	end_io_wq->status = bio->bi_status;
- 
- 	if (bio_op(bio) == REQ_OP_WRITE) {
--		if (end_io_wq->metadata == BTRFS_WQ_ENDIO_METADATA) {
-+		if (end_io_wq->metadata == BTRFS_WQ_ENDIO_METADATA)
- 			wq = fs_info->endio_meta_write_workers;
--			func = btrfs_endio_meta_write_helper;
--		} else if (end_io_wq->metadata == BTRFS_WQ_ENDIO_FREE_SPACE) {
-+		else if (end_io_wq->metadata == BTRFS_WQ_ENDIO_FREE_SPACE)
- 			wq = fs_info->endio_freespace_worker;
--			func = btrfs_freespace_write_helper;
--		} else if (end_io_wq->metadata == BTRFS_WQ_ENDIO_RAID56) {
-+		else if (end_io_wq->metadata == BTRFS_WQ_ENDIO_RAID56)
- 			wq = fs_info->endio_raid56_workers;
--			func = btrfs_endio_raid56_helper;
--		} else {
-+		else
- 			wq = fs_info->endio_write_workers;
--			func = btrfs_endio_write_helper;
--		}
- 	} else {
--		if (unlikely(end_io_wq->metadata ==
--			     BTRFS_WQ_ENDIO_DIO_REPAIR)) {
-+		if (unlikely(end_io_wq->metadata == BTRFS_WQ_ENDIO_DIO_REPAIR))
- 			wq = fs_info->endio_repair_workers;
--			func = btrfs_endio_repair_helper;
--		} else if (end_io_wq->metadata == BTRFS_WQ_ENDIO_RAID56) {
-+		else if (end_io_wq->metadata == BTRFS_WQ_ENDIO_RAID56)
- 			wq = fs_info->endio_raid56_workers;
--			func = btrfs_endio_raid56_helper;
--		} else if (end_io_wq->metadata) {
-+		else if (end_io_wq->metadata)
- 			wq = fs_info->endio_meta_workers;
--			func = btrfs_endio_meta_helper;
--		} else {
-+		else
- 			wq = fs_info->endio_workers;
--			func = btrfs_endio_helper;
--		}
- 	}
- 
--	btrfs_init_work(&end_io_wq->work, func, end_workqueue_fn, NULL, NULL);
-+	btrfs_init_work(&end_io_wq->work, end_workqueue_fn, NULL, NULL);
- 	btrfs_queue_work(wq, &end_io_wq->work);
- }
- 
-@@ -835,8 +823,8 @@ blk_status_t btrfs_wq_submit_bio(struct btrfs_fs_info *fs_info, struct bio *bio,
- 	async->mirror_num = mirror_num;
- 	async->submit_bio_start = submit_bio_start;
- 
--	btrfs_init_work(&async->work, btrfs_worker_helper, run_one_async_start,
--			run_one_async_done, run_one_async_free);
-+	btrfs_init_work(&async->work, run_one_async_start, run_one_async_done,
-+			run_one_async_free);
- 
- 	async->bio_offset = bio_offset;
- 
+-			if (pages[i] == locked_page) {
++			if (locked_page && pages[i] == locked_page) {
+ 				put_page(pages[i]);
+ 				pages_locked++;
+ 				continue;
 diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index bc6e7d15577a..dc14fc2e4206 100644
+index dc14fc2e4206..0b2758961b1c 100644
 --- a/fs/btrfs/inode.c
 +++ b/fs/btrfs/inode.c
-@@ -1268,10 +1268,8 @@ static int cow_file_range_async(struct inode *inode, struct page *locked_page,
+@@ -712,10 +712,12 @@ cleanup_and_bail_uncompressed:
+ 	 * to our extent and set things up for the async work queue to run
+ 	 * cow_file_range to do the normal delalloc dance.
+ 	 */
+-	if (page_offset(async_chunk->locked_page) >= start &&
+-	    page_offset(async_chunk->locked_page) <= end)
++	if (async_chunk->locked_page &&
++	    (page_offset(async_chunk->locked_page) >= start &&
++	     page_offset(async_chunk->locked_page)) <= end) {
+ 		__set_page_dirty_nobuffers(async_chunk->locked_page);
+ 		/* unlocked later on in the async handlers */
++	}
+ 
+ 	if (redirty)
+ 		extent_range_redirty_for_io(inode, start, end);
+@@ -795,7 +797,7 @@ retry:
+ 						  async_extent->start +
+ 						  async_extent->ram_size - 1,
+ 						  WB_SYNC_ALL);
+-			else if (ret)
++			else if (ret && async_chunk->locked_page)
+ 				unlock_page(async_chunk->locked_page);
+ 			kfree(async_extent);
+ 			cond_resched();
+@@ -1264,10 +1266,25 @@ static int cow_file_range_async(struct inode *inode, struct page *locked_page,
+ 		async_chunk[i].inode = inode;
+ 		async_chunk[i].start = start;
+ 		async_chunk[i].end = cur_end;
+-		async_chunk[i].locked_page = locked_page;
  		async_chunk[i].write_flags = write_flags;
  		INIT_LIST_HEAD(&async_chunk[i].extents);
  
--		btrfs_init_work(&async_chunk[i].work,
--				btrfs_delalloc_helper,
--				async_cow_start, async_cow_submit,
--				async_cow_free);
-+		btrfs_init_work(&async_chunk[i].work, async_cow_start,
-+				async_cow_submit, async_cow_free);
++		/*
++		 * The locked_page comes all the way from writepage and its
++		 * the original page we were actually given.  As we spread
++		 * this large delalloc region across multiple async_chunk
++		 * structs, only the first struct needs a pointer to locked_page
++		 *
++		 * This way we don't need racey decisions about who is supposed
++		 * to unlock it.
++		 */
++		if (locked_page) {
++			async_chunk[i].locked_page = locked_page;
++			locked_page = NULL;
++		} else {
++			async_chunk[i].locked_page = NULL;
++		}
++
+ 		btrfs_init_work(&async_chunk[i].work, async_cow_start,
+ 				async_cow_submit, async_cow_free);
  
- 		nr_pages = DIV_ROUND_UP(cur_end - start, PAGE_SIZE);
- 		atomic_add(nr_pages, &fs_info->async_delalloc_pages);
-@@ -2264,8 +2262,7 @@ int btrfs_writepage_cow_fixup(struct page *page, u64 start, u64 end)
- 
- 	SetPageChecked(page);
- 	get_page(page);
--	btrfs_init_work(&fixup->work, btrfs_fixup_helper,
--			btrfs_writepage_fixup_worker, NULL, NULL);
-+	btrfs_init_work(&fixup->work, btrfs_writepage_fixup_worker, NULL, NULL);
- 	fixup->page = page;
- 	btrfs_queue_work(fs_info->fixup_workers, &fixup->work);
- 	return -EBUSY;
-@@ -3258,7 +3255,6 @@ void btrfs_writepage_endio_finish_ordered(struct page *page, u64 start,
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	struct btrfs_ordered_extent *ordered_extent = NULL;
- 	struct btrfs_workqueue *wq;
--	btrfs_work_func_t func;
- 
- 	trace_btrfs_writepage_end_io_hook(page, start, end, uptodate);
- 
-@@ -3267,16 +3263,12 @@ void btrfs_writepage_endio_finish_ordered(struct page *page, u64 start,
- 					    end - start + 1, uptodate))
- 		return;
- 
--	if (btrfs_is_free_space_inode(BTRFS_I(inode))) {
-+	if (btrfs_is_free_space_inode(BTRFS_I(inode)))
- 		wq = fs_info->endio_freespace_worker;
--		func = btrfs_freespace_write_helper;
--	} else {
-+	else
- 		wq = fs_info->endio_write_workers;
--		func = btrfs_endio_write_helper;
--	}
- 
--	btrfs_init_work(&ordered_extent->work, func, finish_ordered_fn, NULL,
--			NULL);
-+	btrfs_init_work(&ordered_extent->work, finish_ordered_fn, NULL, NULL);
- 	btrfs_queue_work(wq, &ordered_extent->work);
- }
- 
-@@ -8213,18 +8205,14 @@ static void __endio_write_update_ordered(struct inode *inode,
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	struct btrfs_ordered_extent *ordered = NULL;
- 	struct btrfs_workqueue *wq;
--	btrfs_work_func_t func;
- 	u64 ordered_offset = offset;
- 	u64 ordered_bytes = bytes;
- 	u64 last_offset;
- 
--	if (btrfs_is_free_space_inode(BTRFS_I(inode))) {
-+	if (btrfs_is_free_space_inode(BTRFS_I(inode)))
- 		wq = fs_info->endio_freespace_worker;
--		func = btrfs_freespace_write_helper;
--	} else {
-+	else
- 		wq = fs_info->endio_write_workers;
--		func = btrfs_endio_write_helper;
--	}
- 
- 	while (ordered_offset < offset + bytes) {
- 		last_offset = ordered_offset;
-@@ -8232,9 +8220,8 @@ static void __endio_write_update_ordered(struct inode *inode,
- 							   &ordered_offset,
- 							   ordered_bytes,
- 							   uptodate)) {
--			btrfs_init_work(&ordered->work, func,
--					finish_ordered_fn,
--					NULL, NULL);
-+			btrfs_init_work(&ordered->work, finish_ordered_fn, NULL,
-+					NULL);
- 			btrfs_queue_work(wq, &ordered->work);
- 		}
- 		/*
-@@ -10119,8 +10106,7 @@ static struct btrfs_delalloc_work *btrfs_alloc_delalloc_work(struct inode *inode
- 	init_completion(&work->completion);
- 	INIT_LIST_HEAD(&work->list);
- 	work->inode = inode;
--	btrfs_init_work(&work->work, btrfs_flush_delalloc_helper,
--			btrfs_run_delalloc_work, NULL, NULL);
-+	btrfs_init_work(&work->work, btrfs_run_delalloc_work, NULL, NULL);
- 
- 	return work;
- }
-diff --git a/fs/btrfs/ordered-data.c b/fs/btrfs/ordered-data.c
-index 24b6c72b9a59..6240a5a1f2c0 100644
---- a/fs/btrfs/ordered-data.c
-+++ b/fs/btrfs/ordered-data.c
-@@ -547,7 +547,6 @@ u64 btrfs_wait_ordered_extents(struct btrfs_root *root, u64 nr,
- 		spin_unlock(&root->ordered_extent_lock);
- 
- 		btrfs_init_work(&ordered->flush_work,
--				btrfs_flush_delalloc_helper,
- 				btrfs_run_ordered_extent_work, NULL, NULL);
- 		list_add_tail(&ordered->work_list, &works);
- 		btrfs_queue_work(fs_info->flush_workers, &ordered->flush_work);
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index 3ad151655eb8..27a903aaf43b 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -3280,7 +3280,6 @@ qgroup_rescan_init(struct btrfs_fs_info *fs_info, u64 progress_objectid,
- 	memset(&fs_info->qgroup_rescan_work, 0,
- 	       sizeof(fs_info->qgroup_rescan_work));
- 	btrfs_init_work(&fs_info->qgroup_rescan_work,
--			btrfs_qgroup_rescan_helper,
- 			btrfs_qgroup_rescan_worker, NULL, NULL);
- 	return 0;
- }
-diff --git a/fs/btrfs/raid56.c b/fs/btrfs/raid56.c
-index 57a2ac721985..8f47a85944eb 100644
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -190,7 +190,7 @@ static void scrub_parity_work(struct btrfs_work *work);
- 
- static void start_async_work(struct btrfs_raid_bio *rbio, btrfs_func_t work_func)
- {
--	btrfs_init_work(&rbio->work, btrfs_rmw_helper, work_func, NULL, NULL);
-+	btrfs_init_work(&rbio->work, work_func, NULL, NULL);
- 	btrfs_queue_work(rbio->fs_info->rmw_workers, &rbio->work);
- }
- 
-@@ -1743,8 +1743,7 @@ static void btrfs_raid_unplug(struct blk_plug_cb *cb, bool from_schedule)
- 	plug = container_of(cb, struct btrfs_plug_cb, cb);
- 
- 	if (from_schedule) {
--		btrfs_init_work(&plug->work, btrfs_rmw_helper,
--				unplug_work, NULL, NULL);
-+		btrfs_init_work(&plug->work, unplug_work, NULL, NULL);
- 		btrfs_queue_work(plug->info->rmw_workers,
- 				 &plug->work);
- 		return;
-diff --git a/fs/btrfs/reada.c b/fs/btrfs/reada.c
-index dd4f9c2b7107..1feaeadc8cf5 100644
---- a/fs/btrfs/reada.c
-+++ b/fs/btrfs/reada.c
-@@ -819,8 +819,7 @@ static void reada_start_machine(struct btrfs_fs_info *fs_info)
- 		/* FIXME we cannot handle this properly right now */
- 		BUG();
- 	}
--	btrfs_init_work(&rmw->work, btrfs_readahead_helper,
--			reada_start_machine_worker, NULL, NULL);
-+	btrfs_init_work(&rmw->work, reada_start_machine_worker, NULL, NULL);
- 	rmw->fs_info = fs_info;
- 
- 	btrfs_queue_work(fs_info->readahead_workers, &rmw->work);
-diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
-index a0770a6aee00..a7b043fd7a57 100644
---- a/fs/btrfs/scrub.c
-+++ b/fs/btrfs/scrub.c
-@@ -598,8 +598,8 @@ static noinline_for_stack struct scrub_ctx *scrub_setup_ctx(
- 		sbio->index = i;
- 		sbio->sctx = sctx;
- 		sbio->page_count = 0;
--		btrfs_init_work(&sbio->work, btrfs_scrub_helper,
--				scrub_bio_end_io_worker, NULL, NULL);
-+		btrfs_init_work(&sbio->work, scrub_bio_end_io_worker, NULL,
-+				NULL);
- 
- 		if (i != SCRUB_BIOS_PER_SCTX - 1)
- 			sctx->bios[i]->next_free = i + 1;
-@@ -1720,8 +1720,7 @@ static void scrub_wr_bio_end_io(struct bio *bio)
- 	sbio->status = bio->bi_status;
- 	sbio->bio = bio;
- 
--	btrfs_init_work(&sbio->work, btrfs_scrubwrc_helper,
--			 scrub_wr_bio_end_io_worker, NULL, NULL);
-+	btrfs_init_work(&sbio->work, scrub_wr_bio_end_io_worker, NULL, NULL);
- 	btrfs_queue_work(fs_info->scrub_wr_completion_workers, &sbio->work);
- }
- 
-@@ -2203,8 +2202,7 @@ static void scrub_missing_raid56_pages(struct scrub_block *sblock)
- 		raid56_add_scrub_pages(rbio, spage->page, spage->logical);
- 	}
- 
--	btrfs_init_work(&sblock->work, btrfs_scrub_helper,
--			scrub_missing_raid56_worker, NULL, NULL);
-+	btrfs_init_work(&sblock->work, scrub_missing_raid56_worker, NULL, NULL);
- 	scrub_block_get(sblock);
- 	scrub_pending_bio_inc(sctx);
- 	raid56_submit_missing_rbio(rbio);
-@@ -2742,8 +2740,8 @@ static void scrub_parity_bio_endio(struct bio *bio)
- 
- 	bio_put(bio);
- 
--	btrfs_init_work(&sparity->work, btrfs_scrubparity_helper,
--			scrub_parity_bio_endio_worker, NULL, NULL);
-+	btrfs_init_work(&sparity->work, scrub_parity_bio_endio_worker, NULL,
-+			NULL);
- 	btrfs_queue_work(fs_info->scrub_parity_workers, &sparity->work);
- }
- 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index e04409f85063..d8d7b1ee83ca 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -6676,8 +6676,7 @@ struct btrfs_device *btrfs_alloc_device(struct btrfs_fs_info *fs_info,
- 	else
- 		generate_random_uuid(dev->uuid);
- 
--	btrfs_init_work(&dev->work, btrfs_submit_helper,
--			pending_bios_fn, NULL, NULL);
-+	btrfs_init_work(&dev->work, pending_bios_fn, NULL, NULL);
- 
- 	return dev;
- }
 -- 
 2.20.1
 
