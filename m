@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 526521331E0
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:04:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 007AE13341F
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729130AbgAGVEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:04:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50116 "EHLO mail.kernel.org"
+        id S1728258AbgAGVYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:24:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729127AbgAGVEx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:04:53 -0500
+        id S1728457AbgAGVAt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:00:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22524214D8;
-        Tue,  7 Jan 2020 21:04:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C9C4222D9;
+        Tue,  7 Jan 2020 21:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431092;
-        bh=lEY/zFf0tyWfGy/nxIHf5jfmXXYqHFoUkKhKAbPKaZs=;
+        s=default; t=1578430848;
+        bh=Oq/IGIoS/9lpokSgXwduhp3ax8b9IJZeMgYsrpXfaKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCVKnuExa+0qclsvjjcPuQHCZYAMbAYch5Ju52+FzNhhyHDfMoo/I9xaHNjAj2yfL
-         aSL86NkrOOspzWQII3cIlniv5HuhshKkGYtHEupVauTImNgFvTTAali7Hrd3ivvEkw
-         2AgAagO1FSHuZBGa9rq1eMFAOuZ9ekonl0Wb9tIA=
+        b=iZjuJH+u+0YfE8X4nU/WhWAYIF42U/LVWUwXuQiVSEQ/4lSHCfLgk/BxnybOsxyVR
+         6ER8iEWcR34Cb1F4Rt+SMLtMhb1fJPtQkGiY7NlqO3Yi+pkr8Wv4WvtCZZD8Y75Rto
+         7uKtz/UDQEcSmtw5m2WDIQ031z3Jzjk5rYVQka+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 030/115] IB/mlx4: Follow mirror sequence of device add during device removal
+        stable@vger.kernel.org,
+        syzbot+5320383e16029ba057ff@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 120/191] io_uring: use current task creds instead of allocating a new one
 Date:   Tue,  7 Jan 2020 21:54:00 +0100
-Message-Id: <20200107205301.127959222@linuxfoundation.org>
+Message-Id: <20200107205339.401944946@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@mellanox.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 89f988d93c62384758b19323c886db917a80c371 ]
+commit 0b8c0ec7eedcd8f9f1a1f238d87f9b512b09e71a upstream.
 
-Current code device add sequence is:
+syzbot reports:
 
-ib_register_device()
-ib_mad_init()
-init_sriov_init()
-register_netdev_notifier()
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 9217 Comm: io_uring-sq Not tainted 5.4.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+RIP: 0010:creds_are_invalid kernel/cred.c:792 [inline]
+RIP: 0010:__validate_creds include/linux/cred.h:187 [inline]
+RIP: 0010:override_creds+0x9f/0x170 kernel/cred.c:550
+Code: ac 25 00 81 fb 64 65 73 43 0f 85 a3 37 00 00 e8 17 ab 25 00 49 8d 7c
+24 10 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84
+c0 74 08 3c 03 0f 8e 96 00 00 00 41 8b 5c 24 10 bf
+RSP: 0018:ffff88809c45fda0 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000043736564 RCX: ffffffff814f3318
+RDX: 0000000000000002 RSI: ffffffff814f3329 RDI: 0000000000000010
+RBP: ffff88809c45fdb8 R08: ffff8880a3aac240 R09: ffffed1014755849
+R10: ffffed1014755848 R11: ffff8880a3aac247 R12: 0000000000000000
+R13: ffff888098ab1600 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffd51c40664 CR3: 0000000092641000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  io_sq_thread+0x1c7/0xa20 fs/io_uring.c:3274
+  kthread+0x361/0x430 kernel/kthread.c:255
+  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+Modules linked in:
+---[ end trace f2e1a4307fbe2245 ]---
+RIP: 0010:creds_are_invalid kernel/cred.c:792 [inline]
+RIP: 0010:__validate_creds include/linux/cred.h:187 [inline]
+RIP: 0010:override_creds+0x9f/0x170 kernel/cred.c:550
+Code: ac 25 00 81 fb 64 65 73 43 0f 85 a3 37 00 00 e8 17 ab 25 00 49 8d 7c
+24 10 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84
+c0 74 08 3c 03 0f 8e 96 00 00 00 41 8b 5c 24 10 bf
+RSP: 0018:ffff88809c45fda0 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000043736564 RCX: ffffffff814f3318
+RDX: 0000000000000002 RSI: ffffffff814f3329 RDI: 0000000000000010
+RBP: ffff88809c45fdb8 R08: ffff8880a3aac240 R09: ffffed1014755849
+R10: ffffed1014755848 R11: ffff8880a3aac247 R12: 0000000000000000
+R13: ffff888098ab1600 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffd51c40664 CR3: 0000000092641000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-Therefore, the remove sequence should be,
+which is caused by slab fault injection triggering a failure in
+prepare_creds(). We don't actually need to create a copy of the creds
+as we're not modifying it, we just need a reference on the current task
+creds. This avoids the failure case as well, and propagates the const
+throughout the stack.
 
-unregister_netdev_notifier()
-close_sriov()
-mad_cleanup()
-ib_unregister_device()
+Fixes: 181e448d8709 ("io_uring: async workers should inherit the user creds")
+Reported-by: syzbot+5320383e16029ba057ff@syzkaller.appspotmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[ only use the io_uring.c portion of the patch - gregkh]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-However it is not above.
-Hence, make do above remove sequence.
-
-Fixes: fa417f7b520ee ("IB/mlx4: Add support for IBoE")
-Signed-off-by: Parav Pandit <parav@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Link: https://lore.kernel.org/r/20191212091214.315005-3-leon@kernel.org
-Signed-off-by: Doug Ledford <dledford@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/main.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/io_uring.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx4/main.c b/drivers/infiniband/hw/mlx4/main.c
-index 0bbeaaae47e0..9386bb57b3d7 100644
---- a/drivers/infiniband/hw/mlx4/main.c
-+++ b/drivers/infiniband/hw/mlx4/main.c
-@@ -3069,16 +3069,17 @@ static void mlx4_ib_remove(struct mlx4_dev *dev, void *ibdev_ptr)
- 	ibdev->ib_active = false;
- 	flush_workqueue(wq);
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -239,7 +239,7 @@ struct io_ring_ctx {
  
--	mlx4_ib_close_sriov(ibdev);
--	mlx4_ib_mad_cleanup(ibdev);
--	ib_unregister_device(&ibdev->ib_dev);
--	mlx4_ib_diag_cleanup(ibdev);
- 	if (ibdev->iboe.nb.notifier_call) {
- 		if (unregister_netdevice_notifier(&ibdev->iboe.nb))
- 			pr_warn("failure unregistering notifier\n");
- 		ibdev->iboe.nb.notifier_call = NULL;
- 	}
+ 	struct user_struct	*user;
  
-+	mlx4_ib_close_sriov(ibdev);
-+	mlx4_ib_mad_cleanup(ibdev);
-+	ib_unregister_device(&ibdev->ib_dev);
-+	mlx4_ib_diag_cleanup(ibdev);
-+
- 	mlx4_qp_release_range(dev, ibdev->steer_qpn_base,
- 			      ibdev->steer_qpn_count);
- 	kfree(ibdev->ib_uc_qpns_bitmap);
--- 
-2.20.1
-
+-	struct cred		*creds;
++	const struct cred	*creds;
+ 
+ 	struct completion	ctx_done;
+ 
+@@ -3876,7 +3876,7 @@ static int io_uring_create(unsigned entr
+ 	ctx->account_mem = account_mem;
+ 	ctx->user = user;
+ 
+-	ctx->creds = prepare_creds();
++	ctx->creds = get_current_cred();
+ 	if (!ctx->creds) {
+ 		ret = -ENOMEM;
+ 		goto err;
 
 
