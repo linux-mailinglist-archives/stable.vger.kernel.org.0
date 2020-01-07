@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CB651333A1
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:20:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E2F13316B
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:00:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728397AbgAGVUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:20:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49304 "EHLO mail.kernel.org"
+        id S1728398AbgAGVAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:00:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728912AbgAGVEi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:04:38 -0500
+        id S1728394AbgAGVAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:00:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86B81208C4;
-        Tue,  7 Jan 2020 21:04:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF347214D8;
+        Tue,  7 Jan 2020 21:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431078;
-        bh=UtDLfCiZ9OSzj/tTpVIGP/rWN4T/vbiXkOGjmBqs1AM=;
+        s=default; t=1578430836;
+        bh=lBf9sA7WTA250z718+ZZzpBOwT83vp1JQTiDek8zm5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qu8Ij76onTex+Tz8BENoija4KG/kdBdcR/U6cR2k+PvI96cRNmZYc96hECDcdsbad
-         +WFuEKpm4UG+dlauhkYbkqlq4z1yVrt+ZXGYmSmhkMsYAqIV/O1Sg1y/IzyQ82nzaz
-         acFZoY7KsAZWeQ2mt0ovx2xcUWtLFOXEAy9//vqA=
+        b=wTCM7HcvxOBLyJY8uto0svBZbqd7dSy97t6IapR0EZLyswc4r/RkNhPajb8q5nS0Y
+         2HcwlQ116nsXxPmnaMKrBw9tLYpZhhtvyRBAwSnmAmTdkXiwWgCH5ejSbJuH1ALrFQ
+         ebWtnnC5Qz7kDa8t6ik1h1LwASxt0zDe5RnJIWOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        EJ Hsu <ejh@nvidia.com>, Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 024/115] usb: gadget: fix wrong endpoint desc
-Date:   Tue,  7 Jan 2020 21:53:54 +0100
-Message-Id: <20200107205257.034992085@linuxfoundation.org>
+        stable@vger.kernel.org, Prateek Sood <prsood@codeaurora.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 115/191] tracing: Fix lock inversion in trace_event_enable_tgid_record()
+Date:   Tue,  7 Jan 2020 21:53:55 +0100
+Message-Id: <20200107205339.137365016@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +43,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: EJ Hsu <ejh@nvidia.com>
+From: Prateek Sood <prsood@codeaurora.org>
 
-[ Upstream commit e5b5da96da50ef30abb39cb9f694e99366404d24 ]
+commit 3a53acf1d9bea11b57c1f6205e3fe73f9d8a3688 upstream.
 
-Gadget driver should always use config_ep_by_speed() to initialize
-usb_ep struct according to usb device's operating speed. Otherwise,
-usb_ep struct may be wrong if usb devcie's operating speed is changed.
+       Task T2                             Task T3
+trace_options_core_write()            subsystem_open()
 
-The key point in this patch is that we want to make sure the desc pointer
-in usb_ep struct will be set to NULL when gadget is disconnected.
-This will force it to call config_ep_by_speed() to correctly initialize
-usb_ep struct based on the new operating speed when gadget is
-re-connected later.
+ mutex_lock(trace_types_lock)           mutex_lock(event_mutex)
 
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: EJ Hsu <ejh@nvidia.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ set_tracer_flag()
+
+   trace_event_enable_tgid_record()       mutex_lock(trace_types_lock)
+
+    mutex_lock(event_mutex)
+
+This gives a circular dependency deadlock between trace_types_lock and
+event_mutex. To fix this invert the usage of trace_types_lock and
+event_mutex in trace_options_core_write(). This keeps the sequence of
+lock usage consistent.
+
+Link: http://lkml.kernel.org/r/0101016eef175e38-8ca71caf-a4eb-480d-a1e6-6f0bbc015495-000000@us-west-2.amazonses.com
+
+Cc: stable@vger.kernel.org
+Fixes: d914ba37d7145 ("tracing: Add support for recording tgid of tasks")
+Signed-off-by: Prateek Sood <prsood@codeaurora.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/gadget/function/f_ecm.c   | 6 +++++-
- drivers/usb/gadget/function/f_rndis.c | 1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ kernel/trace/trace.c        |    8 ++++++++
+ kernel/trace/trace_events.c |    8 ++++----
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_ecm.c b/drivers/usb/gadget/function/f_ecm.c
-index 6ce044008cf6..460d5d7c984f 100644
---- a/drivers/usb/gadget/function/f_ecm.c
-+++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -621,8 +621,12 @@ static void ecm_disable(struct usb_function *f)
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -4590,6 +4590,10 @@ int trace_keep_overwrite(struct tracer *
  
- 	DBG(cdev, "ecm deactivated\n");
+ int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
+ {
++	if ((mask == TRACE_ITER_RECORD_TGID) ||
++	    (mask == TRACE_ITER_RECORD_CMD))
++		lockdep_assert_held(&event_mutex);
++
+ 	/* do nothing if flag is already set */
+ 	if (!!(tr->trace_flags & mask) == !!enabled)
+ 		return 0;
+@@ -4657,6 +4661,7 @@ static int trace_set_options(struct trac
  
--	if (ecm->port.in_ep->enabled)
-+	if (ecm->port.in_ep->enabled) {
- 		gether_disconnect(&ecm->port);
-+	} else {
-+		ecm->port.in_ep->desc = NULL;
-+		ecm->port.out_ep->desc = NULL;
-+	}
+ 	cmp += len;
  
- 	usb_ep_disable(ecm->notify);
- 	ecm->notify->desc = NULL;
-diff --git a/drivers/usb/gadget/function/f_rndis.c b/drivers/usb/gadget/function/f_rndis.c
-index d48df36622b7..0d8e4a364ca6 100644
---- a/drivers/usb/gadget/function/f_rndis.c
-+++ b/drivers/usb/gadget/function/f_rndis.c
-@@ -618,6 +618,7 @@ static void rndis_disable(struct usb_function *f)
- 	gether_disconnect(&rndis->port);
++	mutex_lock(&event_mutex);
+ 	mutex_lock(&trace_types_lock);
  
- 	usb_ep_disable(rndis->notify);
-+	rndis->notify->desc = NULL;
+ 	ret = match_string(trace_options, -1, cmp);
+@@ -4667,6 +4672,7 @@ static int trace_set_options(struct trac
+ 		ret = set_tracer_flag(tr, 1 << ret, !neg);
+ 
+ 	mutex_unlock(&trace_types_lock);
++	mutex_unlock(&event_mutex);
+ 
+ 	/*
+ 	 * If the first trailing whitespace is replaced with '\0' by strstrip,
+@@ -7972,9 +7978,11 @@ trace_options_core_write(struct file *fi
+ 	if (val != 0 && val != 1)
+ 		return -EINVAL;
+ 
++	mutex_lock(&event_mutex);
+ 	mutex_lock(&trace_types_lock);
+ 	ret = set_tracer_flag(tr, 1 << index, val);
+ 	mutex_unlock(&trace_types_lock);
++	mutex_unlock(&event_mutex);
+ 
+ 	if (ret < 0)
+ 		return ret;
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -320,7 +320,8 @@ void trace_event_enable_cmd_record(bool
+ 	struct trace_event_file *file;
+ 	struct trace_array *tr;
+ 
+-	mutex_lock(&event_mutex);
++	lockdep_assert_held(&event_mutex);
++
+ 	do_for_each_event_file(tr, file) {
+ 
+ 		if (!(file->flags & EVENT_FILE_FL_ENABLED))
+@@ -334,7 +335,6 @@ void trace_event_enable_cmd_record(bool
+ 			clear_bit(EVENT_FILE_FL_RECORDED_CMD_BIT, &file->flags);
+ 		}
+ 	} while_for_each_event_file();
+-	mutex_unlock(&event_mutex);
  }
  
- /*-------------------------------------------------------------------------*/
--- 
-2.20.1
-
+ void trace_event_enable_tgid_record(bool enable)
+@@ -342,7 +342,8 @@ void trace_event_enable_tgid_record(bool
+ 	struct trace_event_file *file;
+ 	struct trace_array *tr;
+ 
+-	mutex_lock(&event_mutex);
++	lockdep_assert_held(&event_mutex);
++
+ 	do_for_each_event_file(tr, file) {
+ 		if (!(file->flags & EVENT_FILE_FL_ENABLED))
+ 			continue;
+@@ -356,7 +357,6 @@ void trace_event_enable_tgid_record(bool
+ 				  &file->flags);
+ 		}
+ 	} while_for_each_event_file();
+-	mutex_unlock(&event_mutex);
+ }
+ 
+ static int __ftrace_event_enable_disable(struct trace_event_file *file,
 
 
