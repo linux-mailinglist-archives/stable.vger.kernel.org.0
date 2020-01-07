@@ -2,125 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4117C132D02
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 18:29:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E769132D36
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 18:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728365AbgAGR3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 12:29:35 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:42873 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728325AbgAGR33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 12:29:29 -0500
-Received: by mail-lj1-f193.google.com with SMTP id y4so382740ljj.9
-        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 09:29:28 -0800 (PST)
+        id S1728437AbgAGRin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 12:38:43 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:34244 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728430AbgAGRin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 12:38:43 -0500
+Received: by mail-lf1-f65.google.com with SMTP id l18so355375lfc.1
+        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 09:38:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JgUNxG+Km1+BP8w9TX1X22sqfNmqdVbzivjIJVzsay4=;
-        b=qwQPCEh5sM6BpKHk+6sN0FKBHHUglvqoiC7FA66ZsXfXJ1HceaI9LHqlKEi/ca9RY3
-         +RwQ7928TzgKz+a7Ve38vM7ARzyXCpfPVEud2OgnJNWNyCxPGd0I/kkC9YIOfQOhhG04
-         sCY08N2mkjisP2DpDw046K+C8dDdGqHISrc/MjYC//0BtJmtbkCbH3JWJNFfL0n6b//6
-         Agn19xaLVEYYuo3sRmUwT3zq0fJq++8WWOCVgMkiU1ZXlshzqehAzk/IKwjIPe61eDCl
-         kb3tFR8jF4tBegzU3ZDCVx6S7RUAC5ks60JcvdrmGn45Zj7E9fIvHyBmcalSCxJlJqau
-         jXjw==
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=YShlSsj6Xvg1OPo/28mdVtM8iXSk9E0UBpNiD7d4cxc=;
+        b=YazhU/1g6LwFUIZeow4DmwAk2IRXPDITZkAOr2G/j4sCa4bGbUL7sYUao55R8VZ3ZQ
+         Jv2Ml2OB7SXId3CCh1zEulZ3QjsySlL3rT53Y4ldWMtvsqes3QDo+aeIgRm+/pLEA+Tm
+         5aThR1u/u5iFNvsiBzluecy1q1OyXe9+IJ3tht63Sq7JFgqxTMRn03XZzN0fvRdggLQF
+         p//PkUf6nff51015iEzpZHBUNPubmqTws917O69DZZ+pI/GRjcKWwhKPoFEHYjjXqdnz
+         UekIRCddL2f1Z2MlbWBZJRAs1cl/r2UVmMtlSKhppAdCQdR1Iz9eiypKiHjS68jCEYSU
+         whfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JgUNxG+Km1+BP8w9TX1X22sqfNmqdVbzivjIJVzsay4=;
-        b=nykBXq3Rov9EDpexjeAylP4+yyXOqoJwws2pR1BaqNMNfinnhDHVNjMA8Dftk3d3Ro
-         SvdNnPFpB9HkUw0NQ81VmGnh9Jp3tJk8pbVoES9k2lC6tdxDIF7r3fHDt6dBZ3fANQHp
-         KtHj6FdVNF+19xqVtGmO1ImGJ7ZIlkaclSNXRguGuWvOTlRoBcBHzOwiDTwtL+1ydrVX
-         LQt8zVemc+cr6bPLYfGZXfOOT3rOg22wImvdWzKP9itSYRgB2mPR1j9Al/Qtrvex2Jyd
-         4+EuHqU6n74n6CkJ3bKebZr6Q2lWjFZsZ2Ujp1mzQHw/IvmcDahe/0qBiLc0FKVtIz3U
-         W8ag==
-X-Gm-Message-State: APjAAAWr+I3Jx8kaLuyYe0Be3hLDHlOrYh6TLsNlSOzi0U2rdZQd522+
-        6reduVepu49RbRAleeQpe52l69anc5DjACrFXDz5mQ==
-X-Google-Smtp-Source: APXvYqyeD3Z3ZptIkzBJq5ByN1Cm20iK0EYdKy4UieSVpwDzlUWuSCA0ziNPb2E3L3zab4ZLNvJaxxXUt+9CaOdkztc=
-X-Received: by 2002:a2e:b4ef:: with SMTP id s15mr380590ljm.20.1578418167575;
- Tue, 07 Jan 2020 09:29:27 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=YShlSsj6Xvg1OPo/28mdVtM8iXSk9E0UBpNiD7d4cxc=;
+        b=ArEfESfnVSdB2vYK/Q/jZ98jxmIb7bXALvzSVUVZKePvmDosMZyO+NNd9p6zr8l4vU
+         5bWfnB/B0dxE/EB3yArbA8dMCRT2JJ1fWSiBcgcrwnw02DyDOCik82cH6SLMUCVcqkjW
+         H5ZhkPVnu/4krUUcZROO9Pcm5mjBFIbtqX2+pWQrzdhLlXV5BpsyfFUEkcCYG/L9HUhx
+         QVET4ut1LmSkHx8vRK0kEhgsz/lcmk5KtbB30l9fy4AcEWwSo4anDL85ZF0DRw698Kn5
+         DWqnhYroI0DZYy4FGmgp9LdLR2FtQFKO2piro2CoFgDEx/mWPur1ntCSDhk6j+dUMQhg
+         xpgg==
+X-Gm-Message-State: APjAAAWhn7em4pmHEab8UWGDiiDdoad7V860ytYr0zRy+ZCpAq5UnVkh
+        qPv08yIh/5Rf8xRgFjElDb807lAlGju2sVKn3xN6yQ==
+X-Google-Smtp-Source: APXvYqzQpfWSWht2AsmDB2uHaiszhuxs88LR7mPSu6VSKvyO2MAlyzIQvfINY/+/sMaehSvr/ao1iKhlBnfVVXZebDI=
+X-Received: by 2002:ac2:54b4:: with SMTP id w20mr352825lfk.67.1578418721583;
+ Tue, 07 Jan 2020 09:38:41 -0800 (PST)
 MIME-Version: 1.0
-References: <20191210185351.14825-1-f.fainelli@gmail.com> <CA+G9fYsMyUWGo8Qtd2UCfYDV2aoH71=hCZKaTurq4Aj2eeZczw@mail.gmail.com>
-In-Reply-To: <CA+G9fYsMyUWGo8Qtd2UCfYDV2aoH71=hCZKaTurq4Aj2eeZczw@mail.gmail.com>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 7 Jan 2020 22:59:16 +0530
-Message-ID: <CA+G9fYvmwetcZPraZrHbj=MjgWZik-wFK7nEejs-6TrYyODcSg@mail.gmail.com>
-Subject: Re: [PATCH 0/8] ata: ahci_brcm: Fixes and new device support
-To:     Florian Fainelli <f.fainelli@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Date:   Tue, 7 Jan 2020 23:08:30 +0530
+Message-ID: <CA+G9fYvMX4gMi6hmTmukzgr1xPsoJsj0WTm=AS3hC5Mq-dLvsQ@mail.gmail.com>
+Subject: Re: dma-direct: don't check swiotlb=force in dma_direct_map_resource
+To:     hch@lst.de, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Tejun Heo <tj@kernel.org>, Jaedon Shin <jaedon.shin@gmail.com>,
-        "open list:LIBATA SUBSYSTEM (Serial and Parallel ATA drivers)" 
-        <linux-ide@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
+Cc:     robin.murphy@arm.com, m.szyprowski@samsung.com,
+        linux- stable <stable@vger.kernel.org>,
+        iommu@lists.linux-foundation.org,
+        open list <linux-kernel@vger.kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        lkft-triage@lists.linaro.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 Jan 2020 at 22:17, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
->
-> On Wed, 11 Dec 2019 at 00:25, Florian Fainelli <f.fainelli@gmail.com> wrote:
-> >
-> > Hi Jens,
-> >
-> > The first 4 patches are fixes and should ideally be queued up/picked up
-> > by stable. The last 4 patches add support for BCM7216 which is one of
-> > our latest devices supported by this driver.
-> >
-> > Patch #2 does a few things, but it was pretty badly broken before and it
-> > is hard not to fix all call sites (probe, suspend, resume) in one shot.
-> >
-> > Please let me know if you have any comments.
-> >
-> > Thanks!
-> >
-> > Florian Fainelli (8):
-> >   ata: libahci_platform: Export again ahci_platform_<en/dis>able_phys()
-> >   ata: ahci_brcm: Fix AHCI resources management
->
-> Following error on stable-rc 4.14 and 4.9 branch for arm build.
+Following build error on stable-rc 5.4.9-rc1 for arm architecture.
 
-Following error on stable-rc 4.19, 4.14 and 4.9 branch for arm build.
+dma/direct.c: In function 'dma_direct_possible':
+dma/direct.c:329:3: error: too many arguments to function 'dma_capable'
+   dma_capable(dev, dma_addr, size, true);
+   ^~~~~~~~~~~
+In file included from
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/include/linux/dma-direct.h:12:0,
+                 from
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/kernel/dma/direct.c:10:
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/arch/arm/include/asm/dma-direct.h:17:20:
+note: declared here
+ static inline bool dma_capable(struct device *dev, dma_addr_t addr,
+size_t size)
+                    ^~~~~~~~~~~
+In file included from
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/include/linux/init.h:5:0,
+                 from
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/include/linux/memblock.h:12,
+                 from
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/kernel/dma/direct.c:7:
+dma/direct.c: In function 'dma_direct_map_resource':
+dma/direct.c:378:16: error: too many arguments to function 'dma_capable'
+  if (unlikely(!dma_capable(dev, dma_addr, size, false))) {
+                ^
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/include/linux/compiler.h:78:42:
+note: in definition of macro 'unlikely'
+ # define unlikely(x) __builtin_expect(!!(x), 0)
+                                          ^
+In file included from
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/include/linux/dma-direct.h:12:0,
+                 from
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/kernel/dma/direct.c:10:
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/arch/arm/include/asm/dma-direct.h:17:20:
+note: declared here
+ static inline bool dma_capable(struct device *dev, dma_addr_t addr,
+size_t size)
+                    ^~~~~~~~~~~
+/srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/scripts/Makefile.build:265:
+recipe for target 'kernel/dma/direct.o' failed
 
->
->  drivers/ata/ahci_brcm.c: In function 'brcm_ahci_probe':
->  drivers/ata/ahci_brcm.c:412:28: error: 'struct brcm_ahci_priv' has no
-> member named 'rcdev'; did you mean 'dev'?
->    if (!IS_ERR_OR_NULL(priv->rcdev))
->                              ^~~~~
->                              dev
->    CC      fs/pnode.o
->    CC      block/genhd.o
->  drivers/ata/ahci_brcm.c:413:3: error: implicit declaration of
-> function 'reset_control_assert'; did you mean 'ahci_reset_controller'?
-> [-Werror=implicit-function-declaration]
->     reset_control_assert(priv->rcdev);
->     ^~~~~~~~~~~~~~~~~~~~
->     ahci_reset_controller
->  drivers/ata/ahci_brcm.c:413:30: error: 'struct brcm_ahci_priv' has no
-> member named 'rcdev'; did you mean 'dev'?
->     reset_control_assert(priv->rcdev);
->                                ^~~~~
->                                dev
->  cc1: some warnings being treated as errors
->
-> Full build log links,
-> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.14/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/702/consoleText
-> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.9/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/773/consoleText
-https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.19/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/404/consoleText
->
->
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
+Full build log link,
+https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.4/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/44/consoleText
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
