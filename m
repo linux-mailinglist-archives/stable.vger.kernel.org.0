@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF301330FB
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:56:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 659EE1330FC
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:56:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727231AbgAGU4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:56:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52348 "EHLO mail.kernel.org"
+        id S1727242AbgAGU4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:56:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727225AbgAGU4h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:56:37 -0500
+        id S1727238AbgAGU4j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:56:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21E1124656;
-        Tue,  7 Jan 2020 20:56:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84EF220880;
+        Tue,  7 Jan 2020 20:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430596;
-        bh=UEpYZBGqNQReg916eMUc/K4UbcdQlGQLzBjcf9djdHQ=;
+        s=default; t=1578430599;
+        bh=FeMBBwF0CZhj+G8NDFZ4UpsqfiA3Hos10a4ep0BUI+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1awwPcJNUdBRwCLm0mDuXJihzf8J8Hg3ky7/yyPmBcxc47W66hKHIbJd3paQUJXnE
-         T/Y3xYB/ADMZ+oV6tClyYrwl08UCnC9DXGlVHHQTvXYW4Vr1vDUlROS4BEychJ0x18
-         RzT/OKfJ5R29nc4cKuuzKXHlUNp1YTiRUmP6GlLA=
+        b=VTgZoeSMS58O3+vJlfus1hjoCKPTLb00J04AyvnuzIP5018P9pMfaMIiLlzukzK0P
+         qY2Kj5d5y4JWlPtl54/GaGAYNxDzqwd2iVvBD4YSJ4mlYpTDJ5XZzLjd9cBdjGZLJR
+         MmCxINPd3pMzebVcjTzi2MYOGmM/LDwddwrtM3CE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Galiffi <David.Galiffi@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>, Leo Li <sunpeng.li@amd.com>,
+        stable@vger.kernel.org, "Leo (Hanghong) Ma" <hanghong.ma@amd.com>,
+        Harry Wentland <Harry.Wentland@amd.com>,
+        Nikola Cornij <Nikola.Cornij@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 008/191] drm/amd/display: Fixed kernel panic when booting with DP-to-HDMI dongle
-Date:   Tue,  7 Jan 2020 21:52:08 +0100
-Message-Id: <20200107205333.454512056@linuxfoundation.org>
+Subject: [PATCH 5.4 009/191] drm/amd/display: Change the delay time before enabling FEC
+Date:   Tue,  7 Jan 2020 21:52:09 +0100
+Message-Id: <20200107205333.507167091@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -45,40 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Galiffi <David.Galiffi@amd.com>
+From: Leo (Hanghong) Ma <hanghong.ma@amd.com>
 
-[ Upstream commit a51d9f8fe756beac51ce26ef54195da00a260d13 ]
+[ Upstream commit 28fa24ad14e8f7d23c62283eaf9c79b4fd165c16 ]
 
-[Why]
-In dc_link_is_dp_sink_present, if dal_ddc_open fails, then
-dal_gpio_destroy_ddc is called, destroying pin_data and pin_clock. They
-are created only on dc_construct, and next aux access will cause a panic.
+[why]
+DP spec requires 1000 symbols delay between the end of link training
+and enabling FEC in the stream. Currently we are using 1 miliseconds
+delay which is not accurate.
 
-[How]
-Instead of calling dal_gpio_destroy_ddc, call dal_ddc_close.
+[how]
+One lane RBR should have the maximum time for transmitting 1000 LL
+codes which is 6.173 us. So using 7 microseconds delay instead of
+1 miliseconds.
 
-Signed-off-by: David Galiffi <David.Galiffi@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Signed-off-by: Leo (Hanghong) Ma <hanghong.ma@amd.com>
+Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
+Reviewed-by: Nikola Cornij <Nikola.Cornij@amd.com>
 Acked-by: Leo Li <sunpeng.li@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index 067f5579f452..793aa8e8ec9a 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -373,7 +373,7 @@ bool dc_link_is_dp_sink_present(struct dc_link *link)
- 
- 	if (GPIO_RESULT_OK != dal_ddc_open(
- 		ddc, GPIO_MODE_INPUT, GPIO_DDC_CONFIG_TYPE_MODE_I2C)) {
--		dal_gpio_destroy_ddc(&ddc);
-+		dal_ddc_close(ddc);
- 
- 		return present;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 5a583707d198..0ab890c927ec 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -3492,7 +3492,14 @@ void dp_set_fec_enable(struct dc_link *link, bool enable)
+ 	if (link_enc->funcs->fec_set_enable &&
+ 			link->dpcd_caps.fec_cap.bits.FEC_CAPABLE) {
+ 		if (link->fec_state == dc_link_fec_ready && enable) {
+-			msleep(1);
++			/* Accord to DP spec, FEC enable sequence can first
++			 * be transmitted anytime after 1000 LL codes have
++			 * been transmitted on the link after link training
++			 * completion. Using 1 lane RBR should have the maximum
++			 * time for transmitting 1000 LL codes which is 6.173 us.
++			 * So use 7 microseconds delay instead.
++			 */
++			udelay(7);
+ 			link_enc->funcs->fec_set_enable(link_enc, true);
+ 			link->fec_state = dc_link_fec_enabled;
+ 		} else if (link->fec_state == dc_link_fec_enabled && !enable) {
 -- 
 2.20.1
 
