@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75961133106
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:57:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F22133108
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:57:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727369AbgAGU5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:57:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53256 "EHLO mail.kernel.org"
+        id S1727393AbgAGU5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:57:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727359AbgAGU47 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:56:59 -0500
+        id S1727376AbgAGU5B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:57:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20722214D8;
-        Tue,  7 Jan 2020 20:56:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86B0621744;
+        Tue,  7 Jan 2020 20:57:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430618;
-        bh=aBwBqSzxGxhNrT1YnWU+12cijlj0os4qRgHbt6kJyqg=;
+        s=default; t=1578430621;
+        bh=EEWf92paQeWatAARwqxwbuW4tXFAiCDjh9sBkB1fywg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzlyffdf5f5e4UZccIikFl/UDcNE7swkd9VGpngYffO+oP4PY7XIGZOXfldEmeh+c
-         kOkTnikgXMwBGvDgmbiUXxiKwoXls0r0vFnu95PbrArYyt2GN/oqWNkuo6qXOR3tKP
-         UeFvzbak/WO46wRr46bV1h9rzvNuTpHNHyjxE4YQ=
+        b=0ioMARYD+XbHMiOKXaKBwa0mREHn2pl6yNoWHELM1NHea7NxMv29/iRXw1v6lZpgN
+         w1C93slDf/XbbOUfYpaLKC8Eh9//0mtbdpRh20lLtl538NF4wvoXLd55Em6C8XwBop
+         HAn/WlfSIIEbPzPleIEv762XWFRVdLmyG56ia7Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,9 +32,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Roman Bolshakov <r.bolshakov@yadro.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 027/191] scsi: qla2xxx: Fix PLOGI payload and ELS IOCB dump length
-Date:   Tue,  7 Jan 2020 21:52:27 +0100
-Message-Id: <20200107205334.454832749@linuxfoundation.org>
+Subject: [PATCH 5.4 028/191] scsi: qla2xxx: Configure local loop for N2N target
+Date:   Tue,  7 Jan 2020 21:52:28 +0100
+Message-Id: <20200107205334.507262764@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -49,14 +49,22 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Roman Bolshakov <r.bolshakov@yadro.com>
 
-[ Upstream commit 0334cdea1fba36fad8bdf9516f267ce01de625f7 ]
+[ Upstream commit fd1de5830a5abaf444cc4312871e02c41e24fdc1 ]
 
-The size of the buffer is hardcoded as 0x70 or 112 bytes, while the size of
-ELS IOCB is 0x40 and the size of PLOGI payload returned by Get Parameters
-command is 0x74.
+qla2x00_configure_local_loop initializes PLOGI payload for PLOGI ELS using
+Get Parameters mailbox command.
 
-Cc: Quinn Tran <qutran@marvell.com>
-Link: https://lore.kernel.org/r/20191125165702.1013-9-r.bolshakov@yadro.com
+In the case when the driver is running in target mode, the topology is N2N
+and the target port has higher WWPN, LOCAL_LOOP_UPDATE bit is cleared too
+early and PLOGI payload is not initialized by the Get Parameters
+command. That causes a failure of ELS IOCB carrying the PLOGI with 0x15 aka
+Data Underrun error.
+
+LOCAL_LOOP_UPDATE has to be set to initialize PLOGI payload.
+
+Fixes: 48acad099074 ("scsi: qla2xxx: Fix N2N link re-connect")
+Link: https://lore.kernel.org/r/20191125165702.1013-10-r.bolshakov@yadro.com
+Acked-by: Quinn Tran <qutran@marvell.com>
 Acked-by: Himanshu Madhani <hmadhani@marvell.com>
 Reviewed-by: Hannes Reinecke <hare@suse.de>
 Tested-by: Hannes Reinecke <hare@suse.de>
@@ -64,33 +72,30 @@ Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_iocb.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
-index 44dc97cebb06..bdf1994251b9 100644
---- a/drivers/scsi/qla2xxx/qla_iocb.c
-+++ b/drivers/scsi/qla2xxx/qla_iocb.c
-@@ -2684,7 +2684,8 @@ qla24xx_els_logo_iocb(srb_t *sp, struct els_entry_24xx *els_iocb)
- 		ql_dbg(ql_dbg_io + ql_dbg_buffer, vha, 0x3073,
- 		    "PLOGI ELS IOCB:\n");
- 		ql_dump_buffer(ql_log_info, vha, 0x0109,
--		    (uint8_t *)els_iocb, 0x70);
-+		    (uint8_t *)els_iocb,
-+		    sizeof(*els_iocb));
- 	} else {
- 		els_iocb->control_flags = 1 << 13;
- 		els_iocb->tx_byte_count =
-@@ -2850,7 +2851,8 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index 5d31e3d52b6b..4e424f1ce5de 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -4927,14 +4927,8 @@ qla2x00_configure_loop(scsi_qla_host_t *vha)
+ 		set_bit(RSCN_UPDATE, &flags);
+ 		clear_bit(LOCAL_LOOP_UPDATE, &flags);
  
- 	ql_dbg(ql_dbg_disc + ql_dbg_buffer, vha, 0x3073, "PLOGI buffer:\n");
- 	ql_dump_buffer(ql_dbg_disc + ql_dbg_buffer, vha, 0x0109,
--	    (uint8_t *)elsio->u.els_plogi.els_plogi_pyld, 0x70);
-+	    (uint8_t *)elsio->u.els_plogi.els_plogi_pyld,
-+	    sizeof(*elsio->u.els_plogi.els_plogi_pyld));
- 
- 	rval = qla2x00_start_sp(sp);
- 	if (rval != QLA_SUCCESS) {
+-	} else if (ha->current_topology == ISP_CFG_N) {
+-		clear_bit(RSCN_UPDATE, &flags);
+-		if (qla_tgt_mode_enabled(vha)) {
+-			/* allow the other side to start the login */
+-			clear_bit(LOCAL_LOOP_UPDATE, &flags);
+-			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+-		}
+-	} else if (ha->current_topology == ISP_CFG_NL) {
++	} else if (ha->current_topology == ISP_CFG_NL ||
++		   ha->current_topology == ISP_CFG_N) {
+ 		clear_bit(RSCN_UPDATE, &flags);
+ 		set_bit(LOCAL_LOOP_UPDATE, &flags);
+ 	} else if (!vha->flags.online ||
 -- 
 2.20.1
 
