@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A99411333F4
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:23:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7222D133360
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728634AbgAGVWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:22:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40716 "EHLO mail.kernel.org"
+        id S1728228AbgAGVSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:18:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728671AbgAGVCD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:02:03 -0500
+        id S1728999AbgAGVFH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:05:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDE572077B;
-        Tue,  7 Jan 2020 21:02:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBC8C2081E;
+        Tue,  7 Jan 2020 21:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430923;
-        bh=u1ijtqyYYwOMDo0bCfRl85cXKA5Ng3PJa34eRlUH728=;
+        s=default; t=1578431107;
+        bh=JSQJpSpeWdGOn3za1FT2blqLBIwU4lLAhJ3G6jHouxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lq+xoIG6a/WG2TVxgMRk5MDDQlXPlfYMtnD50dpHmYDtb7FO5xfLctsCdlPOWikyY
-         0kdzJn7AzfwPkg5JX65vRIUQ4vEBL3fttPwQR0FU42zMPUWG2z7BYULUqycjuIJ/4S
-         1+ad0pWj67zL8x4oV/AOuIN4YTMaqa2I3S8opMWs=
+        b=DtBOWMDoi5ovsba8cvby+5RH+ayY2wClTFpSlL+GiYJcmulXNAlZThFBxhtG3aJhW
+         6ewVv2tnOQLD48HE5cHAb3q5tCnZbSXdVNc2gD0duDMBcmcWmb8JscKzzNlmcb9I6U
+         Rc5bmIYXmBZTdJgMkXIjb9Q004QGpa7DtsHUUUww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 125/191] ALSA: cs4236: fix error return comparison of an unsigned integer
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 035/115] ALSA: hda/realtek - Add Bass Speaker and fixed dac for bass speaker
 Date:   Tue,  7 Jan 2020 21:54:05 +0100
-Message-Id: <20200107205339.668661614@linuxfoundation.org>
+Message-Id: <20200107205301.441928404@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit d60229d84846a8399257006af9c5444599f64361 upstream.
+[ Upstream commit e79c22695abd3b75a6aecf4ea4b9607e8d82c49c ]
 
-The return from pnp_irq is an unsigned integer type resource_size_t
-and hence the error check for a positive non-error code is always
-going to be true.  A check for a non-failure return from pnp_irq
-should in fact be for (resource_size_t)-1 rather than >= 0.
+Dell has new platform which has dual speaker connecting.
+They want dual speaker which use same dac for output.
 
-Addresses-Coverity: ("Unsigned compared against 0")
-Fixes: a9824c868a2c ("[ALSA] Add CS4232 PnP BIOS support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20191122131354.58042-1-colin.king@canonical.com
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/229c7efa2b474a16b7d8a916cd096b68@realtek.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/cs423x/cs4236.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/sound/isa/cs423x/cs4236.c
-+++ b/sound/isa/cs423x/cs4236.c
-@@ -278,7 +278,8 @@ static int snd_cs423x_pnp_init_mpu(int d
- 	} else {
- 		mpu_port[dev] = pnp_port_start(pdev, 0);
- 		if (mpu_irq[dev] >= 0 &&
--		    pnp_irq_valid(pdev, 0) && pnp_irq(pdev, 0) >= 0) {
-+		    pnp_irq_valid(pdev, 0) &&
-+		    pnp_irq(pdev, 0) != (resource_size_t)-1) {
- 			mpu_irq[dev] = pnp_irq(pdev, 0);
- 		} else {
- 			mpu_irq[dev] = -1;	/* disable interrupt */
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 019dee96dbaa..9cd0cef9ec27 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5705,6 +5705,8 @@ enum {
+ 	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
+ 	ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE,
+ 	ALC294_FIXUP_ASUS_INTSPK_GPIO,
++	ALC289_FIXUP_DELL_SPK2,
++	ALC289_FIXUP_DUAL_SPK,
+ };
+ 
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -6775,6 +6777,21 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC
+ 	},
++	[ALC289_FIXUP_DELL_SPK2] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x17, 0x90170130 }, /* bass spk */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_DELL4_MIC_NO_PRESENCE
++	},
++	[ALC289_FIXUP_DUAL_SPK] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_speaker2_to_dac1,
++		.chained = true,
++		.chain_id = ALC289_FIXUP_DELL_SPK2
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -6847,6 +6864,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1028, 0x08ad, "Dell WYSE AIO", ALC225_FIXUP_DELL_WYSE_AIO_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x08ae, "Dell WYSE NB", ALC225_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x0935, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
++	SND_PCI_QUIRK(0x1028, 0x097e, "Dell Precision", ALC289_FIXUP_DUAL_SPK),
++	SND_PCI_QUIRK(0x1028, 0x097d, "Dell Precision", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+-- 
+2.20.1
+
 
 
