@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0A35133404
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:23:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 553001333EB
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728799AbgAGVXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:23:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39112 "EHLO mail.kernel.org"
+        id S1728621AbgAGVBk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:01:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728599AbgAGVBe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:01:34 -0500
+        id S1727027AbgAGVBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:01:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B41CD20678;
-        Tue,  7 Jan 2020 21:01:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D13E20678;
+        Tue,  7 Jan 2020 21:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430894;
-        bh=pyPPGbPS6/EVbtjWM4DRd9D9gio7DbqyD2xvnAM4syU=;
+        s=default; t=1578430899;
+        bh=8GcbSDgy6eK9FBFp8P48mgRgmME/4nkm7gYC2ckulrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0I4+JKrgn74KkaF2vc6tmQ6LH6hCuik3iHw4WJLN0w+n6Q7+xzdJyFHMhGL4gWdx
-         0JcwGtgnwc83Rvp9N+TsOhN9BSbwArtB7kqVr914cCeqNjKACmS04C2cp5HXep+5cQ
-         u968fWH3EdvKABhFPaQYVbxpa5zvUafIn/JPEcgw=
+        b=e/cxCn7u5QfzYowdGKP+f2u7J6HKv8EdDzbhW46tBc0IgZAU/cZ4aEyhIo9+ANlnq
+         fMgXck2JePPF2r1aR2cbVQ0Ek3/MjeZFgHmrnFdLV4e3aPqFK2fxaMJwvcQlZtlDhE
+         /ddoXKmFKU1PKJWy7yleyaNw8rhBuGuH50I2ZU9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
-        Konstantin Khorenko <khorenko@virtuozzo.com>,
-        Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 5.4 141/191] kernel/module.c: wakeup processes in module_wq on module unload
-Date:   Tue,  7 Jan 2020 21:54:21 +0100
-Message-Id: <20200107205340.524070101@linuxfoundation.org>
+        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 142/191] ACPI: sysfs: Change ACPI_MASKABLE_GPE_MAX to 0x100
+Date:   Tue,  7 Jan 2020 21:54:22 +0100
+Message-Id: <20200107205340.576727851@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -44,57 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khorenko <khorenko@virtuozzo.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-commit 5d603311615f612320bb77bd2a82553ef1ced5b7 upstream.
+commit a7583e72a5f22470d3e6fd3b6ba912892242339f upstream.
 
-Fix the race between load and unload a kernel module.
+The commit 0f27cff8597d ("ACPI: sysfs: Make ACPI GPE mask kernel
+parameter cover all GPEs") says:
+  "Use a bitmap of size 0xFF instead of a u64 for the GPE mask so 256
+   GPEs can be masked"
 
-sys_delete_module()
- try_stop_module()
-  mod->state = _GOING
-					add_unformed_module()
-					 old = find_module_all()
-					 (old->state == _GOING =>
-					  wait_event_interruptible())
+But the masking of GPE 0xFF it not supported and the check condition
+"gpe > ACPI_MASKABLE_GPE_MAX" is not valid because the type of gpe is
+u8.
 
-					 During pre-condition
-					 finished_loading() rets 0
-					 schedule()
-					 (never gets waken up later)
- free_module()
-  mod->state = _UNFORMED
-   list_del_rcu(&mod->list)
-   (dels mod from "modules" list)
+So modify the macro ACPI_MASKABLE_GPE_MAX to 0x100, and drop the "gpe >
+ACPI_MASKABLE_GPE_MAX" check. In addition, update the docs "Format" for
+acpi_mask_gpe parameter.
 
-return
-
-The race above leads to modprobe hanging forever on loading
-a module.
-
-Error paths on loading module call wake_up_all(&module_wq) after
-freeing module, so let's do the same on straight module unload.
-
-Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
-Reviewed-by: Prarit Bhargava <prarit@redhat.com>
-Signed-off-by: Konstantin Khorenko <khorenko@virtuozzo.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Fixes: 0f27cff8597d ("ACPI: sysfs: Make ACPI GPE mask kernel parameter cover all GPEs")
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+[ rjw: Use u16 as gpe data type in acpi_gpe_apply_masked_gpes() ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/module.c |    2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/admin-guide/kernel-parameters.txt |    2 +-
+ drivers/acpi/sysfs.c                            |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1033,6 +1033,8 @@ SYSCALL_DEFINE2(delete_module, const cha
- 	strlcpy(last_unloaded_module, mod->name, sizeof(last_unloaded_module));
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -113,7 +113,7 @@
+ 			the GPE dispatcher.
+ 			This facility can be used to prevent such uncontrolled
+ 			GPE floodings.
+-			Format: <int>
++			Format: <byte>
  
- 	free_module(mod);
-+	/* someone could wait for the module in add_unformed_module() */
-+	wake_up_all(&module_wq);
- 	return 0;
- out:
- 	mutex_unlock(&module_mutex);
+ 	acpi_no_auto_serialize	[HW,ACPI]
+ 			Disable auto-serialization of AML methods
+--- a/drivers/acpi/sysfs.c
++++ b/drivers/acpi/sysfs.c
+@@ -819,14 +819,14 @@ end:
+  * interface:
+  *   echo unmask > /sys/firmware/acpi/interrupts/gpe00
+  */
+-#define ACPI_MASKABLE_GPE_MAX	0xFF
++#define ACPI_MASKABLE_GPE_MAX	0x100
+ static DECLARE_BITMAP(acpi_masked_gpes_map, ACPI_MASKABLE_GPE_MAX) __initdata;
+ 
+ static int __init acpi_gpe_set_masked_gpes(char *val)
+ {
+ 	u8 gpe;
+ 
+-	if (kstrtou8(val, 0, &gpe) || gpe > ACPI_MASKABLE_GPE_MAX)
++	if (kstrtou8(val, 0, &gpe))
+ 		return -EINVAL;
+ 	set_bit(gpe, acpi_masked_gpes_map);
+ 
+@@ -838,7 +838,7 @@ void __init acpi_gpe_apply_masked_gpes(v
+ {
+ 	acpi_handle handle;
+ 	acpi_status status;
+-	u8 gpe;
++	u16 gpe;
+ 
+ 	for_each_set_bit(gpe, acpi_masked_gpes_map, ACPI_MASKABLE_GPE_MAX) {
+ 		status = acpi_get_gpe_device(gpe, &handle);
 
 
