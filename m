@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9130C1332A1
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82BF51332A3
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730027AbgAGVKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:10:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38170 "EHLO mail.kernel.org"
+        id S1729566AbgAGVK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:10:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729845AbgAGVKy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:10:54 -0500
+        id S1730035AbgAGVK5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:10:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F62924684;
-        Tue,  7 Jan 2020 21:10:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A264208C4;
+        Tue,  7 Jan 2020 21:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431454;
-        bh=QgP+7EODA4++hEzdFE8hqus7Vo27nOQDCeixmhpz9rs=;
+        s=default; t=1578431456;
+        bh=NrTyM3JscxKOqkliLJGsY96VKupid5oZ1E87DHd5r5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIMqdpclxpzJOOULblzMnJPzgUMy51+IfJc4CV4EEDSNq8awUMNh4WVZb3a6jSMQw
-         KAdMgc22Iy5lTL8Kbt+oo5Wuz4t41UjEMmjaljTFPw1s3JL/oJYrQeh0B+w9U/CS0m
-         AvKTMvsGJZXQngdj1qi6K4tXYpZ/Lx6xkUp3qszY=
+        b=miQF0n9p2KZwtzWf0eoklhPSX8HBLhnVYeAxhlBy6mlVHG5lPWfug4aaVmhJhliSq
+         EyruOEvE7fChvKWn7gA6yGlDHjdWeIfeIxU8lV34GHhmEjXxsqCACBbqhBbP+JRwfr
+         Qb/bzmBjOu5x2ydRhucIRRc9bBhCRgPtQbJPgVx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Imre Deak <imre.deak@intel.com>,
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 62/74] drm/mst: Fix MST sideband up-reply failure handling
-Date:   Tue,  7 Jan 2020 21:55:27 +0100
-Message-Id: <20200107205226.017844629@linuxfoundation.org>
+Subject: [PATCH 4.14 63/74] powerpc/pseries/hvconsole: Fix stack overread via udbg
+Date:   Tue,  7 Jan 2020 21:55:28 +0100
+Message-Id: <20200107205226.389662268@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
 References: <20200107205135.369001641@linuxfoundation.org>
@@ -45,81 +44,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: Daniel Axtens <dja@axtens.net>
 
-[ Upstream commit d8fd3722207f154b53c80eee2cf4977c3fc25a92 ]
+[ Upstream commit 934bda59f286d0221f1a3ebab7f5156a996cc37d ]
 
-Fix the breakage resulting in the stacktrace below, due to tx queue
-being full when trying to send an up-reply. txmsg->seqno is -1 in this
-case leading to a corruption of the mstb object by
+While developing KASAN for 64-bit book3s, I hit the following stack
+over-read.
 
-	txmsg->dst->tx_slots[txmsg->seqno] = NULL;
+It occurs because the hypercall to put characters onto the terminal
+takes 2 longs (128 bits/16 bytes) of characters at a time, and so
+hvc_put_chars() would unconditionally copy 16 bytes from the argument
+buffer, regardless of supplied length. However, udbg_hvc_putc() can
+call hvc_put_chars() with a single-byte buffer, leading to the error.
 
-in process_single_up_tx_qlock().
+  ==================================================================
+  BUG: KASAN: stack-out-of-bounds in hvc_put_chars+0xdc/0x110
+  Read of size 8 at addr c0000000023e7a90 by task swapper/0
 
-[  +0,005162] [drm:process_single_tx_qlock [drm_kms_helper]] set_hdr_from_dst_qlock: failed to find slot
-[  +0,000015] [drm:drm_dp_send_up_ack_reply.constprop.19 [drm_kms_helper]] failed to send msg in q -11
-[  +0,000939] BUG: kernel NULL pointer dereference, address: 00000000000005a0
-[  +0,006982] #PF: supervisor write access in kernel mode
-[  +0,005223] #PF: error_code(0x0002) - not-present page
-[  +0,005135] PGD 0 P4D 0
-[  +0,002581] Oops: 0002 [#1] PREEMPT SMP NOPTI
-[  +0,004359] CPU: 1 PID: 1200 Comm: kworker/u16:3 Tainted: G     U            5.2.0-rc1+ #410
-[  +0,008433] Hardware name: Intel Corporation Ice Lake Client Platform/IceLake U DDR4 SODIMM PD RVP, BIOS ICLSFWR1.R00.3175.A00.1904261428 04/26/2019
-[  +0,013323] Workqueue: i915-dp i915_digport_work_func [i915]
-[  +0,005676] RIP: 0010:queue_work_on+0x19/0x70
-[  +0,004372] Code: ff ff ff 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 41 56 49 89 f6 41 55 41 89 fd 41 54 55 53 48 89 d3 9c 5d fa e8 e7 81 0c 00 <f0> 48 0f ba 2b 00 73 31 45 31 e4 f7 c5 00 02 00 00 74 13 e8 cf 7f
-[  +0,018750] RSP: 0018:ffffc900007dfc50 EFLAGS: 00010006
-[  +0,005222] RAX: 0000000000000046 RBX: 00000000000005a0 RCX: 0000000000000001
-[  +0,007133] RDX: 000000000001b608 RSI: 0000000000000000 RDI: ffffffff82121972
-[  +0,007129] RBP: 0000000000000202 R08: 0000000000000000 R09: 0000000000000001
-[  +0,007129] R10: 0000000000000000 R11: 0000000000000000 R12: ffff88847bfa5096
-[  +0,007131] R13: 0000000000000010 R14: ffff88849c08f3f8 R15: 0000000000000000
-[  +0,007128] FS:  0000000000000000(0000) GS:ffff88849dc80000(0000) knlGS:0000000000000000
-[  +0,008083] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  +0,005749] CR2: 00000000000005a0 CR3: 0000000005210006 CR4: 0000000000760ee0
-[  +0,007128] PKRU: 55555554
-[  +0,002722] Call Trace:
-[  +0,002458]  drm_dp_mst_handle_up_req+0x517/0x540 [drm_kms_helper]
-[  +0,006197]  ? drm_dp_mst_hpd_irq+0x5b/0x9c0 [drm_kms_helper]
-[  +0,005764]  drm_dp_mst_hpd_irq+0x5b/0x9c0 [drm_kms_helper]
-[  +0,005623]  ? intel_dp_hpd_pulse+0x205/0x370 [i915]
-[  +0,005018]  intel_dp_hpd_pulse+0x205/0x370 [i915]
-[  +0,004836]  i915_digport_work_func+0xbb/0x140 [i915]
-[  +0,005108]  process_one_work+0x245/0x610
-[  +0,004027]  worker_thread+0x37/0x380
-[  +0,003684]  ? process_one_work+0x610/0x610
-[  +0,004184]  kthread+0x119/0x130
-[  +0,003240]  ? kthread_park+0x80/0x80
-[  +0,003668]  ret_from_fork+0x24/0x50
+  CPU: 0 PID: 0 Comm: swapper Not tainted 5.2.0-rc2-next-20190528-02824-g048a6ab4835b #113
+  Call Trace:
+    dump_stack+0x104/0x154 (unreliable)
+    print_address_description+0xa0/0x30c
+    __kasan_report+0x20c/0x224
+    kasan_report+0x18/0x30
+    __asan_report_load8_noabort+0x24/0x40
+    hvc_put_chars+0xdc/0x110
+    hvterm_raw_put_chars+0x9c/0x110
+    udbg_hvc_putc+0x154/0x200
+    udbg_write+0xf0/0x240
+    console_unlock+0x868/0xd30
+    register_console+0x970/0xe90
+    register_early_udbg_console+0xf8/0x114
+    setup_arch+0x108/0x790
+    start_kernel+0x104/0x784
+    start_here_common+0x1c/0x534
 
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190523212433.9058-1-imre.deak@intel.com
+  Memory state around the buggy address:
+   c0000000023e7980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   c0000000023e7a00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1
+  >c0000000023e7a80: f1 f1 01 f2 f2 f2 00 00 00 00 00 00 00 00 00 00
+                           ^
+   c0000000023e7b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   c0000000023e7b80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ==================================================================
+
+Document that a 16-byte buffer is requred, and provide it in udbg.
+
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/hvconsole.c |  2 +-
+ drivers/tty/hvc/hvc_vio.c                  | 16 +++++++++++++++-
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index bb9a9852ec22..ef86721c06f3 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -1540,7 +1540,11 @@ static void process_single_up_tx_qlock(struct drm_dp_mst_topology_mgr *mgr,
- 	if (ret != 1)
- 		DRM_DEBUG_KMS("failed to send msg in q %d\n", ret);
- 
--	txmsg->dst->tx_slots[txmsg->seqno] = NULL;
-+	if (txmsg->seqno != -1) {
-+		WARN_ON((unsigned int)txmsg->seqno >
-+			ARRAY_SIZE(txmsg->dst->tx_slots));
-+		txmsg->dst->tx_slots[txmsg->seqno] = NULL;
-+	}
+diff --git a/arch/powerpc/platforms/pseries/hvconsole.c b/arch/powerpc/platforms/pseries/hvconsole.c
+index 74da18de853a..73ec15cd2708 100644
+--- a/arch/powerpc/platforms/pseries/hvconsole.c
++++ b/arch/powerpc/platforms/pseries/hvconsole.c
+@@ -62,7 +62,7 @@ EXPORT_SYMBOL(hvc_get_chars);
+  * @vtermno: The vtermno or unit_address of the adapter from which the data
+  *	originated.
+  * @buf: The character buffer that contains the character data to send to
+- *	firmware.
++ *	firmware. Must be at least 16 bytes, even if count is less than 16.
+  * @count: Send this number of characters.
+  */
+ int hvc_put_chars(uint32_t vtermno, const char *buf, int count)
+diff --git a/drivers/tty/hvc/hvc_vio.c b/drivers/tty/hvc/hvc_vio.c
+index a1d272ac82bb..c33150fcd964 100644
+--- a/drivers/tty/hvc/hvc_vio.c
++++ b/drivers/tty/hvc/hvc_vio.c
+@@ -120,6 +120,14 @@ static int hvterm_raw_get_chars(uint32_t vtermno, char *buf, int count)
+ 	return got;
  }
  
- static void drm_dp_queue_down_tx(struct drm_dp_mst_topology_mgr *mgr,
++/**
++ * hvterm_raw_put_chars: send characters to firmware for given vterm adapter
++ * @vtermno: The virtual terminal number.
++ * @buf: The characters to send. Because of the underlying hypercall in
++ *       hvc_put_chars(), this buffer must be at least 16 bytes long, even if
++ *       you are sending fewer chars.
++ * @count: number of chars to send.
++ */
+ static int hvterm_raw_put_chars(uint32_t vtermno, const char *buf, int count)
+ {
+ 	struct hvterm_priv *pv = hvterm_privs[vtermno];
+@@ -232,6 +240,7 @@ static const struct hv_ops hvterm_hvsi_ops = {
+ static void udbg_hvc_putc(char c)
+ {
+ 	int count = -1;
++	unsigned char bounce_buffer[16];
+ 
+ 	if (!hvterm_privs[0])
+ 		return;
+@@ -242,7 +251,12 @@ static void udbg_hvc_putc(char c)
+ 	do {
+ 		switch(hvterm_privs[0]->proto) {
+ 		case HV_PROTOCOL_RAW:
+-			count = hvterm_raw_put_chars(0, &c, 1);
++			/*
++			 * hvterm_raw_put_chars requires at least a 16-byte
++			 * buffer, so go via the bounce buffer
++			 */
++			bounce_buffer[0] = c;
++			count = hvterm_raw_put_chars(0, bounce_buffer, 1);
+ 			break;
+ 		case HV_PROTOCOL_HVSI:
+ 			count = hvterm_hvsi_put_chars(0, &c, 1);
 -- 
 2.20.1
 
