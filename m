@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5390C1332F3
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8F3F13318D
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729727AbgAGVIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:08:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33272 "EHLO mail.kernel.org"
+        id S1728648AbgAGVBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:01:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729725AbgAGVIm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:08:42 -0500
+        id S1728639AbgAGVBv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:01:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D60D2087F;
-        Tue,  7 Jan 2020 21:08:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA015214D8;
+        Tue,  7 Jan 2020 21:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431321;
-        bh=DKpscbCiq/GwzlsP/PY9/JdZmM5Z3Bs9gLbV7+oNNOg=;
+        s=default; t=1578430911;
+        bh=61OKNzx1XwzEIQUxdZ0/+Y5LSE0f+dEE/8TrPh6VX2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klmGtbjnno762V5051ts3V61oELYXVx4li7CKxRSC0V6wnV/BgZCpcHyJRNNHnGFB
-         ASygsAQPyD7FH//m1JRvI3AWHEr7q99lIgiUchltDfrdM+vViDc3G4IOZl9e5D2Tqu
-         fAQqLYB7OfnGS03dJwFDqmeDiK9UNQvhMUQB93dI=
+        b=ZUGTwZbk7lw+jdovCOsHu3FlfzH8N94ehSIpGKwKkqe6tMHxtsBMNKPUQ3/gwByoD
+         dmBjZT7VohpNyDXEznOkHcPvkTgZqa4lSjF1a+oyYo0EJrpTJW1f78h0lBxtrst38T
+         /RL/CCwRXzvYkxHVoj+lkdmjBWGrXWxZpaTrdljk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Christoph Hellwig <hch@lst.de>,
-        James Smart <jsmart2021@gmail.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/74] nvme_fc: add module to ops template to allow module references
-Date:   Tue,  7 Jan 2020 21:54:26 +0100
-Message-Id: <20200107205136.318205539@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 5.4 147/191] firmware: arm_scmi: Avoid double free in error flow
+Date:   Tue,  7 Jan 2020 21:54:27 +0100
+Message-Id: <20200107205340.839413251@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,154 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-[ Upstream commit 863fbae929c7a5b64e96b8a3ffb34a29eefb9f8f ]
+commit 8305e90a894f82c278c17e51a28459deee78b263 upstream.
 
-In nvme-fc: it's possible to have connected active controllers
-and as no references are taken on the LLDD, the LLDD can be
-unloaded.  The controller would enter a reconnect state and as
-long as the LLDD resumed within the reconnect timeout, the
-controller would resume.  But if a namespace on the controller
-is the root device, allowing the driver to unload can be problematic.
-To reload the driver, it may require new io to the boot device,
-and as it's no longer connected we get into a catch-22 that
-eventually fails, and the system locks up.
+If device_register() fails, both put_device() and kfree() are called,
+ending with a double free of the scmi_dev.
 
-Fix this issue by taking a module reference for every connected
-controller (which is what the core layer did to the transport
-module). Reference is cleared when the controller is removed.
+Calling kfree() is needed only when a failure happens between the
+allocation of the scmi_dev and its registration, so move it to there
+and remove it from the error flow.
 
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 46edb8d1322c ("firmware: arm_scmi: provide the mandatory device release callback")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/nvme/host/fc.c          | 14 ++++++++++++--
- drivers/nvme/target/fcloop.c    |  1 +
- drivers/scsi/lpfc/lpfc_nvme.c   |  2 ++
- drivers/scsi/qla2xxx/qla_nvme.c |  1 +
- include/linux/nvme-fc-driver.h  |  4 ++++
- 5 files changed, 20 insertions(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/bus.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 058d542647dd..9e4d2ecf736d 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -337,7 +337,8 @@ nvme_fc_register_localport(struct nvme_fc_port_info *pinfo,
- 	    !template->ls_req || !template->fcp_io ||
- 	    !template->ls_abort || !template->fcp_abort ||
- 	    !template->max_hw_queues || !template->max_sgl_segments ||
--	    !template->max_dif_sgl_segments || !template->dma_boundary) {
-+	    !template->max_dif_sgl_segments || !template->dma_boundary ||
-+	    !template->module) {
- 		ret = -EINVAL;
- 		goto out_reghost_failed;
- 	}
-@@ -1762,6 +1763,7 @@ nvme_fc_ctrl_free(struct kref *ref)
- {
- 	struct nvme_fc_ctrl *ctrl =
- 		container_of(ref, struct nvme_fc_ctrl, ref);
-+	struct nvme_fc_lport *lport = ctrl->lport;
- 	unsigned long flags;
+--- a/drivers/firmware/arm_scmi/bus.c
++++ b/drivers/firmware/arm_scmi/bus.c
+@@ -135,8 +135,10 @@ scmi_device_create(struct device_node *n
+ 		return NULL;
  
- 	if (ctrl->ctrl.tagset) {
-@@ -1787,6 +1789,7 @@ nvme_fc_ctrl_free(struct kref *ref)
- 	if (ctrl->ctrl.opts)
- 		nvmf_free_options(ctrl->ctrl.opts);
- 	kfree(ctrl);
-+	module_put(lport->ops->module);
- }
- 
- static void
-@@ -2765,10 +2768,15 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
- 		goto out_fail;
- 	}
- 
-+	if (!try_module_get(lport->ops->module)) {
-+		ret = -EUNATCH;
-+		goto out_free_ctrl;
+ 	id = ida_simple_get(&scmi_bus_id, 1, 0, GFP_KERNEL);
+-	if (id < 0)
+-		goto free_mem;
++	if (id < 0) {
++		kfree(scmi_dev);
++		return NULL;
 +	}
-+
- 	idx = ida_simple_get(&nvme_fc_ctrl_cnt, 0, 0, GFP_KERNEL);
- 	if (idx < 0) {
- 		ret = -ENOSPC;
--		goto out_free_ctrl;
-+		goto out_mod_put;
- 	}
  
- 	ctrl->ctrl.opts = opts;
-@@ -2915,6 +2923,8 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
- out_free_ida:
- 	put_device(ctrl->dev);
- 	ida_simple_remove(&nvme_fc_ctrl_cnt, ctrl->cnum);
-+out_mod_put:
-+	module_put(lport->ops->module);
- out_free_ctrl:
- 	kfree(ctrl);
- out_fail:
-diff --git a/drivers/nvme/target/fcloop.c b/drivers/nvme/target/fcloop.c
-index 096523d8dd42..b8fe8702065b 100644
---- a/drivers/nvme/target/fcloop.c
-+++ b/drivers/nvme/target/fcloop.c
-@@ -693,6 +693,7 @@ fcloop_targetport_delete(struct nvmet_fc_target_port *targetport)
- #define FCLOOP_DMABOUND_4G		0xFFFFFFFF
- 
- static struct nvme_fc_port_template fctemplate = {
-+	.module			= THIS_MODULE,
- 	.localport_delete	= fcloop_localport_delete,
- 	.remoteport_delete	= fcloop_remoteport_delete,
- 	.create_queue		= fcloop_create_queue,
-diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-index fcf4b4175d77..af937b91765e 100644
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -1591,6 +1591,8 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
- 
- /* Declare and initialization an instance of the FC NVME template. */
- static struct nvme_fc_port_template lpfc_nvme_template = {
-+	.module	= THIS_MODULE,
-+
- 	/* initiator-based functions */
- 	.localport_delete  = lpfc_nvme_localport_delete,
- 	.remoteport_delete = lpfc_nvme_remoteport_delete,
-diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-index 6b33a1f24f56..7dceed021236 100644
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -578,6 +578,7 @@ static void qla_nvme_remoteport_delete(struct nvme_fc_remote_port *rport)
+ 	scmi_dev->id = id;
+ 	scmi_dev->protocol_id = protocol;
+@@ -154,8 +156,6 @@ scmi_device_create(struct device_node *n
+ put_dev:
+ 	put_device(&scmi_dev->dev);
+ 	ida_simple_remove(&scmi_bus_id, id);
+-free_mem:
+-	kfree(scmi_dev);
+ 	return NULL;
  }
  
- static struct nvme_fc_port_template qla_nvme_fc_transport = {
-+	.module	= THIS_MODULE,
- 	.localport_delete = qla_nvme_localport_delete,
- 	.remoteport_delete = qla_nvme_remoteport_delete,
- 	.create_queue   = qla_nvme_alloc_queue,
-diff --git a/include/linux/nvme-fc-driver.h b/include/linux/nvme-fc-driver.h
-index a726f96010d5..e9c3b98df3e2 100644
---- a/include/linux/nvme-fc-driver.h
-+++ b/include/linux/nvme-fc-driver.h
-@@ -279,6 +279,8 @@ struct nvme_fc_remote_port {
-  *
-  * Host/Initiator Transport Entrypoints/Parameters:
-  *
-+ * @module:  The LLDD module using the interface
-+ *
-  * @localport_delete:  The LLDD initiates deletion of a localport via
-  *       nvme_fc_deregister_localport(). However, the teardown is
-  *       asynchronous. This routine is called upon the completion of the
-@@ -392,6 +394,8 @@ struct nvme_fc_remote_port {
-  *       Value is Mandatory. Allowed to be zero.
-  */
- struct nvme_fc_port_template {
-+	struct module	*module;
-+
- 	/* initiator-based functions */
- 	void	(*localport_delete)(struct nvme_fc_local_port *);
- 	void	(*remoteport_delete)(struct nvme_fc_remote_port *);
--- 
-2.20.1
-
 
 
