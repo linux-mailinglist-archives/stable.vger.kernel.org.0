@@ -2,132 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6046132CD3
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 18:17:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4117C132D02
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 18:29:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728344AbgAGRRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 12:17:55 -0500
-Received: from 18.mo3.mail-out.ovh.net ([87.98.172.162]:48770 "EHLO
-        18.mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728262AbgAGRRz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 12:17:55 -0500
-X-Greylist: delayed 7799 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 Jan 2020 12:17:53 EST
-Received: from player791.ha.ovh.net (unknown [10.108.35.215])
-        by mo3.mail-out.ovh.net (Postfix) with ESMTP id E06DD23AEDB
-        for <stable@vger.kernel.org>; Tue,  7 Jan 2020 15:50:46 +0100 (CET)
-Received: from armadeus.com (lfbn-str-1-12-36.w92-140.abo.wanadoo.fr [92.140.139.36])
-        (Authenticated sender: sebastien.szymanski@armadeus.com)
-        by player791.ha.ovh.net (Postfix) with ESMTPSA id 53895DE73092;
-        Tue,  7 Jan 2020 14:50:38 +0000 (UTC)
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>
-References: <20191210213221.11921-1-sashal@kernel.org>
- <20191210213221.11921-102-sashal@kernel.org>
-From:   =?UTF-8?Q?S=c3=a9bastien_Szymanski?= 
-        <sebastien.szymanski@armadeus.com>
-Autocrypt: addr=sebastien.szymanski@armadeus.com; prefer-encrypt=mutual;
- keydata=
- mQENBFNfZLEBCACv1lqSePHJNpRgcnER+3emy+Arjz84zFax3XkogjY/e3ZneihIgWrVKe5M
- ql16pX4KTkzNgMUKz4bG/XwT3kjcrXshxFLlg7KrHMl287C+W+QOUjnjVeRi/su+SPmjz8VD
- yr11h+ZkVLAWhS+uQJ93jy1NwG8M4t1kBLAVHHD5Vw4FJ+3ouaVYIp1X1Cr8bVKQw33Q1aTd
- ro0kMBb96B9vNu7ciJZ3gvlaBzUEKOgNnq9KaywuLnqrqr4HUIn5JuxZjCjJzt9kTAKcTfp2
- cJM8qpp+2FF5qtbkse9fZ6M64qozgOPr9Tk4Amf9fZEUQ6UNw14mmBZuXSzoHe75gI7TABEB
- AAG0N1PDqWJhc3RpZW4gU1pZTUFOU0tJIDxzZWJhc3RpZW4uc3p5bWFuc2tpQGFybWFkZXVz
- LmNvbT6JAVAEEwEIADoCGyMHCwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgBYhBJwGygpYm/1C
- /GCmwbCaKeiBMmTiBQJdhIHLAAoJELCaKeiBMmTixXIH/2W3kbzRG0UF81jtRRnp0H83rjDT
- v0H+8fgFMRL/7HCJ1QPArkfRJlM2wlJkN+ChP09CCarYfUEHfRCHlTb7At6Yyrz1jziD7ZwX
- 8IWHYRXnZkY5eZc5DsiUgq6JH49kt+GPzK8UVP9MTa6zkBpPCUf7LzZ4pD3FihdkT52BU3gI
- d9P49fSI0TYySlb/VKn815aOhvwEr7+Dh3mZUjSh7saofbRmVUOr7p+R3MvvGI19/IJZjeOE
- ZWliODDOt6HnBOtoGSXMcNIFF6snH52D5N5gY88njZjTwhgGGUBix1bsgf/EY0v4R5itZBXB
- B/Ze4Tm++YHaB75hZK6PQu/YRv65AQ0EU19ksQEIALo7jhXddrXBTRu5SAjelV53jyHBJTX/
- vN4nL/VbbW/saca+NJjDSxx5DBmotZbQdWIyZiSIjU/xnTREvtDrl6ZeSsKWd7ZqiuiY4fSR
- zwuQp9rd0yqRuxesrWeyJB1zCSdEvLyKASERt+nxkOA+IzJ4y1qLtvnWr+SL1AXgTMw+Tkyw
- KIDCRWHTIYas11ldGj82gOIpYeXnapeNLHfT4EQwg0NeWYHynJxAQWiX5aPlw0uSpAQSsBXQ
- FIe3fpoveMSnXK+PG2BBOzexYv7r4S70a6sF9sgTTPpfKqUaqqC+u1+bUX6alTAKhGKJywaF
- 6ViqLlgY8PfwohSyAlqlTRMAEQEAAYkBNgQYAQgAIAIbDBYhBJwGygpYm/1C/GCmwbCaKeiB
- MmTiBQJdhIHSAAoJELCaKeiBMmTitU8IAK7NQM3fEwaF5XaKtepYWsVka44CD8A9e4r7NVK9
- ugirKvXirIxBSDmN/Db862NmVpITsZ6ERNSNZLm/7k55N+TexKYiFZeU7G92TEfAM6qPElvx
- DLEcrkNMq9r08YZeUloacsq31AL5fK4LW+xdvXudkdiKRMJsdTpmff3x5kIziGOHjwFP9wve
- ZgEH52gpbRsP8Whx/Z2lNX/BBRmFM8OnEXFsjjqDzYThdxTq85wGPpkgvvUGyPNRD7TpbB1C
- pajOUUkPxgj5LKt77HD1afeZNudWhgcdkbtT5PMQTT0WY6wvMEj9S1+bGPeXRGWLYB7gHQ+L
- JNoSD7Kz6Y9qnKo=
-Subject: Re: [PATCH AUTOSEL 4.19 102/177] nvmem: imx-ocotp: reset error status
- on probe
-Message-ID: <dd048e02-81f7-8aed-34a7-f95a70859391@armadeus.com>
-Date:   Tue, 7 Jan 2020 15:50:59 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.1
+        id S1728365AbgAGR3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 12:29:35 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:42873 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728325AbgAGR33 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 12:29:29 -0500
+Received: by mail-lj1-f193.google.com with SMTP id y4so382740ljj.9
+        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 09:29:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=JgUNxG+Km1+BP8w9TX1X22sqfNmqdVbzivjIJVzsay4=;
+        b=qwQPCEh5sM6BpKHk+6sN0FKBHHUglvqoiC7FA66ZsXfXJ1HceaI9LHqlKEi/ca9RY3
+         +RwQ7928TzgKz+a7Ve38vM7ARzyXCpfPVEud2OgnJNWNyCxPGd0I/kkC9YIOfQOhhG04
+         sCY08N2mkjisP2DpDw046K+C8dDdGqHISrc/MjYC//0BtJmtbkCbH3JWJNFfL0n6b//6
+         Agn19xaLVEYYuo3sRmUwT3zq0fJq++8WWOCVgMkiU1ZXlshzqehAzk/IKwjIPe61eDCl
+         kb3tFR8jF4tBegzU3ZDCVx6S7RUAC5ks60JcvdrmGn45Zj7E9fIvHyBmcalSCxJlJqau
+         jXjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=JgUNxG+Km1+BP8w9TX1X22sqfNmqdVbzivjIJVzsay4=;
+        b=nykBXq3Rov9EDpexjeAylP4+yyXOqoJwws2pR1BaqNMNfinnhDHVNjMA8Dftk3d3Ro
+         SvdNnPFpB9HkUw0NQ81VmGnh9Jp3tJk8pbVoES9k2lC6tdxDIF7r3fHDt6dBZ3fANQHp
+         KtHj6FdVNF+19xqVtGmO1ImGJ7ZIlkaclSNXRguGuWvOTlRoBcBHzOwiDTwtL+1ydrVX
+         LQt8zVemc+cr6bPLYfGZXfOOT3rOg22wImvdWzKP9itSYRgB2mPR1j9Al/Qtrvex2Jyd
+         4+EuHqU6n74n6CkJ3bKebZr6Q2lWjFZsZ2Ujp1mzQHw/IvmcDahe/0qBiLc0FKVtIz3U
+         W8ag==
+X-Gm-Message-State: APjAAAWr+I3Jx8kaLuyYe0Be3hLDHlOrYh6TLsNlSOzi0U2rdZQd522+
+        6reduVepu49RbRAleeQpe52l69anc5DjACrFXDz5mQ==
+X-Google-Smtp-Source: APXvYqyeD3Z3ZptIkzBJq5ByN1Cm20iK0EYdKy4UieSVpwDzlUWuSCA0ziNPb2E3L3zab4ZLNvJaxxXUt+9CaOdkztc=
+X-Received: by 2002:a2e:b4ef:: with SMTP id s15mr380590ljm.20.1578418167575;
+ Tue, 07 Jan 2020 09:29:27 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20191210213221.11921-102-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 11152601528748758226
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrvdehgedgvdefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepvfhfhffukffffgggjggtgfesthekredttdefjeenucfhrhhomhepuforsggrshhtihgvnhgpufiihihmrghnshhkihcuoehsvggsrghsthhivghnrdhsiiihmhgrnhhskhhisegrrhhmrgguvghushdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpphgrshhtvggsihhnrdgtohhmnecukfhppedtrddtrddtrddtpdelvddrudegtddrudefledrfeeinecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejledurdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepshgvsggrshhtihgvnhdrshiihihmrghnshhkihesrghrmhgruggvuhhsrdgtohhmpdhrtghpthhtohepshhtrggslhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
+References: <20191210185351.14825-1-f.fainelli@gmail.com> <CA+G9fYsMyUWGo8Qtd2UCfYDV2aoH71=hCZKaTurq4Aj2eeZczw@mail.gmail.com>
+In-Reply-To: <CA+G9fYsMyUWGo8Qtd2UCfYDV2aoH71=hCZKaTurq4Aj2eeZczw@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 7 Jan 2020 22:59:16 +0530
+Message-ID: <CA+G9fYvmwetcZPraZrHbj=MjgWZik-wFK7nEejs-6TrYyODcSg@mail.gmail.com>
+Subject: Re: [PATCH 0/8] ata: ahci_brcm: Fixes and new device support
+To:     Florian Fainelli <f.fainelli@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Tejun Heo <tj@kernel.org>, Jaedon Shin <jaedon.shin@gmail.com>,
+        "open list:LIBATA SUBSYSTEM (Serial and Parallel ATA drivers)" 
+        <linux-ide@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/10/19 10:31 PM, Sasha Levin wrote:
-> From: Lucas Stach <l.stach@pengutronix.de>
-> 
-> [ Upstream commit c33c585f1b3a99d53920bdac614aca461d8db06f ]
-> 
-> If software running before the OCOTP driver is loaded left the
-> controller with the error status pending, the driver will never
-> be able to complete the read timing setup. Reset the error status
-> on probe to make sure the controller is in usable state.
-> 
-> Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-> Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-> Link: https://lore.kernel.org/r/20191029114240.14905-6-srinivas.kandagatla@linaro.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/nvmem/imx-ocotp.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/nvmem/imx-ocotp.c b/drivers/nvmem/imx-ocotp.c
-> index afb429a417fe0..926d9cc080cf4 100644
-> --- a/drivers/nvmem/imx-ocotp.c
-> +++ b/drivers/nvmem/imx-ocotp.c
-> @@ -466,6 +466,10 @@ static int imx_ocotp_probe(struct platform_device *pdev)
->  	if (IS_ERR(priv->clk))
->  		return PTR_ERR(priv->clk);
->  
-> +	clk_prepare_enable(priv->clk);
-> +	imx_ocotp_clr_err_if_set(priv->base);
-> +	clk_disable_unprepare(priv->clk);
-> +
->  	priv->params = of_device_get_match_data(&pdev->dev);
->  	imx_ocotp_nvmem_config.size = 4 * priv->params->nregs;
->  	imx_ocotp_nvmem_config.dev = dev;
-> 
+On Tue, 7 Jan 2020 at 22:17, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+>
+> On Wed, 11 Dec 2019 at 00:25, Florian Fainelli <f.fainelli@gmail.com> wrote:
+> >
+> > Hi Jens,
+> >
+> > The first 4 patches are fixes and should ideally be queued up/picked up
+> > by stable. The last 4 patches add support for BCM7216 which is one of
+> > our latest devices supported by this driver.
+> >
+> > Patch #2 does a few things, but it was pretty badly broken before and it
+> > is hard not to fix all call sites (probe, suspend, resume) in one shot.
+> >
+> > Please let me know if you have any comments.
+> >
+> > Thanks!
+> >
+> > Florian Fainelli (8):
+> >   ata: libahci_platform: Export again ahci_platform_<en/dis>able_phys()
+> >   ata: ahci_brcm: Fix AHCI resources management
+>
+> Following error on stable-rc 4.14 and 4.9 branch for arm build.
 
-Hi,
+Following error on stable-rc 4.19, 4.14 and 4.9 branch for arm build.
 
-This patch makes kernel 4.19.{92,93} hang at boot on my i.MX6ULL based
-board. It hanks at
-
-[    3.730078] cpu cpu0: Linked as a consumer to regulator.2
-[    3.737760] cpu cpu0: Linked as a consumer to regulator.3
-
-Full boot log is here: https://pastebin.com/TS8EFxkr
-
-The config is imx_v6_v7_defconfig.
-
-Reverting it makes the kernels boot again.
-
-Regards,
-
--- 
-Sébastien Szymanski, Armadeus Systems
-Software engineer
+>
+>  drivers/ata/ahci_brcm.c: In function 'brcm_ahci_probe':
+>  drivers/ata/ahci_brcm.c:412:28: error: 'struct brcm_ahci_priv' has no
+> member named 'rcdev'; did you mean 'dev'?
+>    if (!IS_ERR_OR_NULL(priv->rcdev))
+>                              ^~~~~
+>                              dev
+>    CC      fs/pnode.o
+>    CC      block/genhd.o
+>  drivers/ata/ahci_brcm.c:413:3: error: implicit declaration of
+> function 'reset_control_assert'; did you mean 'ahci_reset_controller'?
+> [-Werror=implicit-function-declaration]
+>     reset_control_assert(priv->rcdev);
+>     ^~~~~~~~~~~~~~~~~~~~
+>     ahci_reset_controller
+>  drivers/ata/ahci_brcm.c:413:30: error: 'struct brcm_ahci_priv' has no
+> member named 'rcdev'; did you mean 'dev'?
+>     reset_control_assert(priv->rcdev);
+>                                ^~~~~
+>                                dev
+>  cc1: some warnings being treated as errors
+>
+> Full build log links,
+> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.14/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/702/consoleText
+> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.9/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/773/consoleText
+https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.19/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/404/consoleText
+>
+>
+> --
+> Linaro LKFT
+> https://lkft.linaro.org
