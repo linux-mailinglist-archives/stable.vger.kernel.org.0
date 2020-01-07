@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7651132FC4
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 20:45:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A860E132FC5
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 20:45:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbgAGTpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 14:45:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58274 "EHLO mail.kernel.org"
+        id S1728384AbgAGTpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 14:45:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728358AbgAGTpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 14:45:02 -0500
+        id S1728358AbgAGTpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 14:45:04 -0500
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15AD1214D8;
-        Tue,  7 Jan 2020 19:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81F272187F;
+        Tue,  7 Jan 2020 19:45:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578426301;
-        bh=wGsOraZa72LcqB3J/aywmVuJXoiOpJgeaTnU03lgTpY=;
+        s=default; t=1578426303;
+        bh=FpRv2zG/ZdnzTOt9JpJJ5h13pS26dnpcp4k0Zucb1mE=;
         h=Date:From:To:Subject:From;
-        b=QQgw18KIULqot13UO9xU0/MKuZObJvsFP2jVh7JsBEb27Muzq9y7l3qgYEu0IYYr7
-         cgnmPHU6XRXrxE4pPzmxyKgn/lwhcuwwGSH7aT4dFnPmKtnE43248MRtsYFqOkQmwE
-         0N3WCvxeM8rS7nYNMQP9v3ttw8YVNYU3pm5VK+0k=
-Date:   Tue, 07 Jan 2020 11:45:00 -0800
+        b=GMwk6K8QKi9tfF7OUOgyTS2JZYmSb4GWedhnQR2LMj61DnX6iDIOeuOgSu0a2S4aH
+         wzem7VTngA0XHCc0OfMoj8UoBZVnBh+Qegngaik5Z5f9T5ghmr69d7ubSWz4ZAdzLB
+         P3sRu2tP2t3LLpo1na8d5MzHE/lQjKvTwsTbR7mI=
+Date:   Tue, 07 Jan 2020 11:45:03 -0800
 From:   akpm@linux-foundation.org
-To:     aneesh.kumar@linux.ibm.com, dan.j.williams@intel.com,
-        david@redhat.com, gregkh@linuxfoundation.org, logang@deltatee.com,
-        mhocko@suse.com, mm-commits@vger.kernel.org, osalvador@suse.de,
-        pasha.tatashin@soleen.com, stable@vger.kernel.org,
-        willy@infradead.org
+To:     chanho.min@lge.com, jjinsuk.choi@lge.com, minchan@kernel.org,
+        mm-commits@vger.kernel.org, sergey.senozhatsky@gmail.com,
+        stable@vger.kernel.org
 Subject:  [merged]
- mm-memory_hotplug-shrink-zones-when-offlining-memory.patch removed from -mm
- tree
-Message-ID: <20200107194500.LB-SnvKo8%akpm@linux-foundation.org>
+ mm-zsmallocc-fix-the-migrated-zspage-statistics.patch removed from -mm tree
+Message-ID: <20200107194503.cQNpnBBKY%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -42,347 +39,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/memory_hotplug: shrink zones when offlining memory
+     Subject: mm/zsmalloc.c: fix the migrated zspage statistics.
 has been removed from the -mm tree.  Its filename was
-     mm-memory_hotplug-shrink-zones-when-offlining-memory.patch
+     mm-zsmallocc-fix-the-migrated-zspage-statistics.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: David Hildenbrand <david@redhat.com>
-Subject: mm/memory_hotplug: shrink zones when offlining memory
+From: Chanho Min <chanho.min@lge.com>
+Subject: mm/zsmalloc.c: fix the migrated zspage statistics.
 
-We currently try to shrink a single zone when removing memory.  We use the
-zone of the first page of the memory we are removing.  If that memmap was
-never initialized (e.g., memory was never onlined), we will read garbage
-and can trigger kernel BUGs (due to a stale pointer):
+When zspage is migrated to the other zone, the zone page state should be
+updated as well, otherwise the NR_ZSPAGE for each zone shows wrong counts
+including proc/zoneinfo in practice.
 
-:/# [   23.912993] BUG: unable to handle page fault for address: 000000000000353d
-[   23.914219] #PF: supervisor write access in kernel mode
-[   23.915199] #PF: error_code(0x0002) - not-present page
-[   23.916160] PGD 0 P4D 0
-[   23.916627] Oops: 0002 [#1] SMP PTI
-[   23.917256] CPU: 1 PID: 7 Comm: kworker/u8:0 Not tainted 5.3.0-rc5-next-20190820+ #317
-[   23.918900] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.4
-[   23.921194] Workqueue: kacpi_hotplug acpi_hotplug_work_fn
-[   23.922249] RIP: 0010:clear_zone_contiguous+0x5/0x10
-[   23.923173] Code: 48 89 c6 48 89 c3 e8 2a fe ff ff 48 85 c0 75 cf 5b 5d c3 c6 85 fd 05 00 00 01 5b 5d c3 0f 1f 840
-[   23.926876] RSP: 0018:ffffad2400043c98 EFLAGS: 00010246
-[   23.927928] RAX: 0000000000000000 RBX: 0000000200000000 RCX: 0000000000000000
-[   23.929458] RDX: 0000000000200000 RSI: 0000000000140000 RDI: 0000000000002f40
-[   23.930899] RBP: 0000000140000000 R08: 0000000000000000 R09: 0000000000000001
-[   23.932362] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000140000
-[   23.933603] R13: 0000000000140000 R14: 0000000000002f40 R15: ffff9e3e7aff3680
-[   23.934913] FS:  0000000000000000(0000) GS:ffff9e3e7bb00000(0000) knlGS:0000000000000000
-[   23.936294] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   23.937481] CR2: 000000000000353d CR3: 0000000058610000 CR4: 00000000000006e0
-[   23.938687] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   23.939889] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   23.941168] Call Trace:
-[   23.941580]  __remove_pages+0x4b/0x640
-[   23.942303]  ? mark_held_locks+0x49/0x70
-[   23.943149]  arch_remove_memory+0x63/0x8d
-[   23.943921]  try_remove_memory+0xdb/0x130
-[   23.944766]  ? walk_memory_blocks+0x7f/0x9e
-[   23.945616]  __remove_memory+0xa/0x11
-[   23.946274]  acpi_memory_device_remove+0x70/0x100
-[   23.947308]  acpi_bus_trim+0x55/0x90
-[   23.947914]  acpi_device_hotplug+0x227/0x3a0
-[   23.948714]  acpi_hotplug_work_fn+0x1a/0x30
-[   23.949433]  process_one_work+0x221/0x550
-[   23.950190]  worker_thread+0x50/0x3b0
-[   23.950993]  kthread+0x105/0x140
-[   23.951644]  ? process_one_work+0x550/0x550
-[   23.952508]  ? kthread_park+0x80/0x80
-[   23.953367]  ret_from_fork+0x3a/0x50
-[   23.954025] Modules linked in:
-[   23.954613] CR2: 000000000000353d
-[   23.955248] ---[ end trace 93d982b1fb3e1a69 ]---
-
-Instead, shrink the zones when offlining memory or when onlining failed.
-Introduce and use remove_pfn_range_from_zone(() for that. We now properly
-shrink the zones, even if we have DIMMs whereby
-- Some memory blocks fall into no zone (never onlined)
-- Some memory blocks fall into multiple zones (offlined+re-onlined)
-- Multiple memory blocks that fall into different zones
-
-Drop the zone parameter (with a potential dubious value) from
-__remove_pages() and __remove_section().
-
-Link: http://lkml.kernel.org/r/20191006085646.5768-6-david@redhat.com
-Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[visible after d0dc12e86b319]
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: <stable@vger.kernel.org>	[5.0+]
+Link: http://lkml.kernel.org/r/1575434841-48009-1-git-send-email-chanho.min@lge.com
+Fixes: 91537fee0013 ("mm: add NR_ZSMALLOC to vmstat")
+Signed-off-by: Chanho Min <chanho.min@lge.com>
+Signed-off-by: Jinsuk Choi <jjinsuk.choi@lge.com>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Cc: <stable@vger.kernel.org>        [4.9+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- arch/arm64/mm/mmu.c            |    4 +---
- arch/ia64/mm/init.c            |    4 +---
- arch/powerpc/mm/mem.c          |    3 +--
- arch/s390/mm/init.c            |    4 +---
- arch/sh/mm/init.c              |    4 +---
- arch/x86/mm/init_32.c          |    4 +---
- arch/x86/mm/init_64.c          |    4 +---
- include/linux/memory_hotplug.h |    7 +++++--
- mm/memory_hotplug.c            |   31 ++++++++++++++++---------------
- mm/memremap.c                  |    2 +-
- 10 files changed, 29 insertions(+), 38 deletions(-)
+ mm/zsmalloc.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/arm64/mm/mmu.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/arch/arm64/mm/mmu.c
-@@ -1070,7 +1070,6 @@ void arch_remove_memory(int nid, u64 sta
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
--	struct zone *zone;
- 
- 	/*
- 	 * FIXME: Cleanup page tables (also in arch_add_memory() in case
-@@ -1079,7 +1078,6 @@ void arch_remove_memory(int nid, u64 sta
- 	 * unplug. ARCH_ENABLE_MEMORY_HOTREMOVE must not be
- 	 * unlocked yet.
- 	 */
--	zone = page_zone(pfn_to_page(start_pfn));
--	__remove_pages(zone, start_pfn, nr_pages, altmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- }
- #endif
---- a/arch/ia64/mm/init.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/arch/ia64/mm/init.c
-@@ -689,9 +689,7 @@ void arch_remove_memory(int nid, u64 sta
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
--	struct zone *zone;
- 
--	zone = page_zone(pfn_to_page(start_pfn));
--	__remove_pages(zone, start_pfn, nr_pages, altmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- }
- #endif
---- a/arch/powerpc/mm/mem.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/arch/powerpc/mm/mem.c
-@@ -151,10 +151,9 @@ void __ref arch_remove_memory(int nid, u
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
--	struct page *page = pfn_to_page(start_pfn) + vmem_altmap_offset(altmap);
- 	int ret;
- 
--	__remove_pages(page_zone(page), start_pfn, nr_pages, altmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- 
- 	/* Remove htab bolted mappings for this section of memory */
- 	start = (unsigned long)__va(start);
---- a/arch/s390/mm/init.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/arch/s390/mm/init.c
-@@ -292,10 +292,8 @@ void arch_remove_memory(int nid, u64 sta
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
--	struct zone *zone;
- 
--	zone = page_zone(pfn_to_page(start_pfn));
--	__remove_pages(zone, start_pfn, nr_pages, altmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- 	vmem_remove_mapping(start, size);
- }
- #endif /* CONFIG_MEMORY_HOTPLUG */
---- a/arch/sh/mm/init.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/arch/sh/mm/init.c
-@@ -434,9 +434,7 @@ void arch_remove_memory(int nid, u64 sta
- {
- 	unsigned long start_pfn = PFN_DOWN(start);
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
--	struct zone *zone;
- 
--	zone = page_zone(pfn_to_page(start_pfn));
--	__remove_pages(zone, start_pfn, nr_pages, altmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- }
- #endif /* CONFIG_MEMORY_HOTPLUG */
---- a/arch/x86/mm/init_32.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/arch/x86/mm/init_32.c
-@@ -865,10 +865,8 @@ void arch_remove_memory(int nid, u64 sta
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
--	struct zone *zone;
- 
--	zone = page_zone(pfn_to_page(start_pfn));
--	__remove_pages(zone, start_pfn, nr_pages, altmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- }
- #endif
- 
---- a/arch/x86/mm/init_64.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/arch/x86/mm/init_64.c
-@@ -1212,10 +1212,8 @@ void __ref arch_remove_memory(int nid, u
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
--	struct page *page = pfn_to_page(start_pfn) + vmem_altmap_offset(altmap);
--	struct zone *zone = page_zone(page);
- 
--	__remove_pages(zone, start_pfn, nr_pages, altmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- 	kernel_physical_mapping_remove(start, start + size);
- }
- #endif /* CONFIG_MEMORY_HOTPLUG */
---- a/include/linux/memory_hotplug.h~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/include/linux/memory_hotplug.h
-@@ -122,8 +122,8 @@ static inline bool movable_node_is_enabl
- 
- extern void arch_remove_memory(int nid, u64 start, u64 size,
- 			       struct vmem_altmap *altmap);
--extern void __remove_pages(struct zone *zone, unsigned long start_pfn,
--			   unsigned long nr_pages, struct vmem_altmap *altmap);
-+extern void __remove_pages(unsigned long start_pfn, unsigned long nr_pages,
-+			   struct vmem_altmap *altmap);
- 
- /* reasonably generic interface to expand the physical pages */
- extern int __add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
-@@ -342,6 +342,9 @@ extern int add_memory(int nid, u64 start
- extern int add_memory_resource(int nid, struct resource *resource);
- extern void move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
- 		unsigned long nr_pages, struct vmem_altmap *altmap);
-+extern void remove_pfn_range_from_zone(struct zone *zone,
-+				       unsigned long start_pfn,
-+				       unsigned long nr_pages);
- extern bool is_memblock_offlined(struct memory_block *mem);
- extern int sparse_add_section(int nid, unsigned long pfn,
- 		unsigned long nr_pages, struct vmem_altmap *altmap);
---- a/mm/memory_hotplug.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/mm/memory_hotplug.c
-@@ -483,8 +483,9 @@ static void update_pgdat_span(struct pgl
- 	pgdat->node_spanned_pages = node_end_pfn - node_start_pfn;
- }
- 
--static void __remove_zone(struct zone *zone, unsigned long start_pfn,
--		unsigned long nr_pages)
-+void __ref remove_pfn_range_from_zone(struct zone *zone,
-+				      unsigned long start_pfn,
-+				      unsigned long nr_pages)
- {
- 	struct pglist_data *pgdat = zone->zone_pgdat;
- 	unsigned long flags;
-@@ -499,28 +500,30 @@ static void __remove_zone(struct zone *z
- 		return;
- #endif
- 
-+	clear_zone_contiguous(zone);
-+
- 	pgdat_resize_lock(zone->zone_pgdat, &flags);
- 	shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
- 	update_pgdat_span(pgdat);
- 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
-+
-+	set_zone_contiguous(zone);
- }
- 
--static void __remove_section(struct zone *zone, unsigned long pfn,
--		unsigned long nr_pages, unsigned long map_offset,
--		struct vmem_altmap *altmap)
-+static void __remove_section(unsigned long pfn, unsigned long nr_pages,
-+			     unsigned long map_offset,
-+			     struct vmem_altmap *altmap)
- {
- 	struct mem_section *ms = __nr_to_section(pfn_to_section_nr(pfn));
- 
- 	if (WARN_ON_ONCE(!valid_section(ms)))
- 		return;
- 
--	__remove_zone(zone, pfn, nr_pages);
- 	sparse_remove_section(ms, pfn, nr_pages, map_offset, altmap);
- }
- 
- /**
-- * __remove_pages() - remove sections of pages from a zone
-- * @zone: zone from which pages need to be removed
-+ * __remove_pages() - remove sections of pages
-  * @pfn: starting pageframe (must be aligned to start of a section)
-  * @nr_pages: number of pages to remove (must be multiple of section size)
-  * @altmap: alternative device page map or %NULL if default memmap is used
-@@ -530,16 +533,14 @@ static void __remove_section(struct zone
-  * sure that pages are marked reserved and zones are adjust properly by
-  * calling offline_pages().
-  */
--void __remove_pages(struct zone *zone, unsigned long pfn,
--		    unsigned long nr_pages, struct vmem_altmap *altmap)
-+void __remove_pages(unsigned long pfn, unsigned long nr_pages,
-+		    struct vmem_altmap *altmap)
- {
- 	unsigned long map_offset = 0;
- 	unsigned long nr, start_sec, end_sec;
- 
- 	map_offset = vmem_altmap_offset(altmap);
- 
--	clear_zone_contiguous(zone);
--
- 	if (check_pfn_span(pfn, nr_pages, "remove"))
- 		return;
- 
-@@ -551,13 +552,11 @@ void __remove_pages(struct zone *zone, u
- 		cond_resched();
- 		pfns = min(nr_pages, PAGES_PER_SECTION
- 				- (pfn & ~PAGE_SECTION_MASK));
--		__remove_section(zone, pfn, pfns, map_offset, altmap);
-+		__remove_section(pfn, pfns, map_offset, altmap);
- 		pfn += pfns;
- 		nr_pages -= pfns;
- 		map_offset = 0;
+--- a/mm/zsmalloc.c~mm-zsmallocc-fix-the-migrated-zspage-statistics
++++ a/mm/zsmalloc.c
+@@ -2069,6 +2069,11 @@ static int zs_page_migrate(struct addres
+ 		zs_pool_dec_isolated(pool);
  	}
--
--	set_zone_contiguous(zone);
- }
  
- int set_online_page_callback(online_page_callback_t callback)
-@@ -869,6 +868,7 @@ failed_addition:
- 		 (unsigned long long) pfn << PAGE_SHIFT,
- 		 (((unsigned long long) pfn + nr_pages) << PAGE_SHIFT) - 1);
- 	memory_notify(MEM_CANCEL_ONLINE, &arg);
-+	remove_pfn_range_from_zone(zone, pfn, nr_pages);
- 	mem_hotplug_done();
- 	return ret;
- }
-@@ -1628,6 +1628,7 @@ static int __ref __offline_pages(unsigne
- 	writeback_set_ratelimit();
- 
- 	memory_notify(MEM_OFFLINE, &arg);
-+	remove_pfn_range_from_zone(zone, start_pfn, nr_pages);
- 	mem_hotplug_done();
- 	return 0;
- 
---- a/mm/memremap.c~mm-memory_hotplug-shrink-zones-when-offlining-memory
-+++ a/mm/memremap.c
-@@ -120,7 +120,7 @@ void memunmap_pages(struct dev_pagemap *
- 
- 	mem_hotplug_begin();
- 	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
--		__remove_pages(page_zone(first_page), PHYS_PFN(res->start),
-+		__remove_pages(PHYS_PFN(res->start),
- 			       PHYS_PFN(resource_size(res)), NULL);
- 	} else {
- 		arch_remove_memory(nid, res->start, resource_size(res),
++	if (page_zone(newpage) != page_zone(page)) {
++		dec_zone_page_state(page, NR_ZSPAGES);
++		inc_zone_page_state(newpage, NR_ZSPAGES);
++	}
++
+ 	reset_page(page);
+ 	put_page(page);
+ 	page = newpage;
 _
 
-Patches currently in -mm which might be from david@redhat.com are
+Patches currently in -mm which might be from chanho.min@lge.com are
 
-mm-fix-uninitialized-memmaps-on-a-partially-populated-last-section.patch
-fs-proc-pagec-allow-inspection-of-last-section-and-fix-end-detection.patch
-mm-initialize-memmap-of-unavailable-memory-directly.patch
-mm-memory_hotplug-dont-free-usage-map-when-removing-a-re-added-early-section.patch
-mm-memory_hotplug-poison-memmap-in-remove_pfn_range_from_zone.patch
-mm-memory_hotplug-we-always-have-a-zone-in-find_smallestbiggest_section_pfn.patch
-mm-memory_hotplug-dont-check-for-all-holes-in-shrink_zone_span.patch
-mm-memory_hotplug-drop-local-variables-in-shrink_zone_span.patch
-mm-memory_hotplug-cleanup-__remove_pages.patch
 
