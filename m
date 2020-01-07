@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2649E132FC6
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 20:45:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA30132FC7
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 20:45:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728660AbgAGTpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 14:45:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58492 "EHLO mail.kernel.org"
+        id S1728703AbgAGTpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 14:45:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728358AbgAGTpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 14:45:09 -0500
+        id S1728358AbgAGTpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 14:45:11 -0500
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6251A214D8;
-        Tue,  7 Jan 2020 19:45:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F1612187F;
+        Tue,  7 Jan 2020 19:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578426308;
-        bh=oXueFBqeroi+XkVqe2naHlaNp9SFB0PrloD8vrzzsww=;
+        s=default; t=1578426310;
+        bh=cZts0Xp68KfpoG5XV6270gnSiihME799h/ncn7eeRr4=;
         h=Date:From:To:Subject:From;
-        b=yVz7vCXezX6zxmL72QsEnimOrdtaHZ8lVIPakGVrA0EXCTUXNSQh7yhBMeQXCjtRP
-         TqaV86A0w2GoB6r6OhnXKu7kYp8SzJqQxWl5xu+EFxl03CtA3FrHMf6ve/4zqZBbGs
-         pZuYFdGkV/aGwuQQX0Rjb20KKX28928rv7UaEeDE=
-Date:   Tue, 07 Jan 2020 11:45:08 -0800
+        b=k9DjfdyKL2BqlH0cIrDE8HZhI+zyoPb6pLZ1oqQXIZ1JrMysd42KZc7wz1wYRA9Rc
+         VYd7Nbb9H/z3GW7D+5iO0+K5M39FL0PmC2/IMORt/VN1hhAKSR/2Go8XcAsSo8+tnO
+         b4K9LX1dlpOWz0dpmuPBQrlyGfISvZsH+gegy8GA=
+Date:   Tue, 07 Jan 2020 11:45:10 -0800
 From:   akpm@linux-foundation.org
-To:     chris@chrisdown.name, guro@fb.com, hannes@cmpxchg.org,
-        mhocko@suse.com, mm-commits@vger.kernel.org, shakeelb@google.com,
-        stable@vger.kernel.org
+To:     cl@linux.com, fabecassis@nvidia.com, jhubbard@nvidia.com,
+        mgorman@techsingularity.net, mhocko@suse.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org, vbabka@suse.cz,
+        yang.shi@linux.alibaba.com
 Subject:  [merged]
- memcg-account-security-cred-as-well-to-kmemcg.patch removed from -mm tree
-Message-ID: <20200107194508.usW6jAonz%akpm@linux-foundation.org>
+ =?US-ASCII?Q?mm-move=5Fpages-return-valid-node-id-in-status-if-the-page?=
+ =?US-ASCII?Q?-is-already-on-the-target-node.patch?= removed from -mm tree
+Message-ID: <20200107194510.CIO_svKyG%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -39,71 +43,155 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: memcg: account security cred as well to kmemcg
+     Subject: mm: move_pages: return valid node id in status if the page is already on the target node
 has been removed from the -mm tree.  Its filename was
-     memcg-account-security-cred-as-well-to-kmemcg.patch
+     mm-move_pages-return-valid-node-id-in-status-if-the-page-is-already-on-the-target-node.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Shakeel Butt <shakeelb@google.com>
-Subject: memcg: account security cred as well to kmemcg
+From: Yang Shi <yang.shi@linux.alibaba.com>
+Subject: mm: move_pages: return valid node id in status if the page is already on the target node
 
-The cred_jar kmem_cache is already memcg accounted in the current kernel
-but cred->security is not.  Account cred->security to kmemcg.
+Felix Abecassis reports move_pages() would return random status if the
+pages are already on the target node by the below test program:
 
-Recently we saw high root slab usage on our production and on further
-inspection, we found a buggy application leaking processes.  Though
-that buggy application was contained within its memcg but we observe
-much more system memory overhead, couple of GiBs, during that period. 
-This overhead can adversely impact the isolation on the system.  One of
-source of high overhead, we found was cred->secuity objects, which have
-a lifetime of at least the life of the process which allocated them.
+---8<---
 
-Link: http://lkml.kernel.org/r/20191205223721.40034-1-shakeelb@google.com
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Chris Down <chris@chrisdown.name>
-Reviewed-by: Roman Gushchin <guro@fb.com>
+int main(void)
+{
+	const long node_id = 1;
+	const long page_size = sysconf(_SC_PAGESIZE);
+	const int64_t num_pages = 8;
+
+	unsigned long nodemask =  1 << node_id;
+	long ret = set_mempolicy(MPOL_BIND, &nodemask, sizeof(nodemask));
+	if (ret < 0)
+		return (EXIT_FAILURE);
+
+	void **pages = malloc(sizeof(void*) * num_pages);
+	for (int i = 0; i < num_pages; ++i) {
+		pages[i] = mmap(NULL, page_size, PROT_WRITE | PROT_READ,
+				MAP_PRIVATE | MAP_POPULATE | MAP_ANONYMOUS,
+				-1, 0);
+		if (pages[i] == MAP_FAILED)
+			return (EXIT_FAILURE);
+	}
+
+	ret = set_mempolicy(MPOL_DEFAULT, NULL, 0);
+	if (ret < 0)
+		return (EXIT_FAILURE);
+
+	int *nodes = malloc(sizeof(int) * num_pages);
+	int *status = malloc(sizeof(int) * num_pages);
+	for (int i = 0; i < num_pages; ++i) {
+		nodes[i] = node_id;
+		status[i] = 0xd0; /* simulate garbage values */
+	}
+
+	ret = move_pages(0, num_pages, pages, nodes, status, MPOL_MF_MOVE);
+	printf("move_pages: %ld
+", ret);
+	for (int i = 0; i < num_pages; ++i)
+		printf("status[%d] = %d
+", i, status[i]);
+}
+---8<---
+
+Then running the program would return nonsense status values:
+$ ./move_pages_bug
+move_pages: 0
+status[0] = 208
+status[1] = 208
+status[2] = 208
+status[3] = 208
+status[4] = 208
+status[5] = 208
+status[6] = 208
+status[7] = 208
+
+This is because the status is not set if the page is already on the target
+node, but move_pages() should return valid status as long as it succeeds. 
+The valid status may be errno or node id.
+
+We can't simply initialize status array to zero since the pages may be not
+on node 0.  Fix it by updating status with node id which the page is
+already on.
+
+Link: http://lkml.kernel.org/r/1575584353-125392-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reported-by: Felix Abecassis <fabecassis@nvidia.com>
+Tested-by: Felix Abecassis <fabecassis@nvidia.com>
+Suggested-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Acked-by: Christoph Lameter <cl@linux.com>
 Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>	[4.17+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- kernel/cred.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/migrate.c |   23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
---- a/kernel/cred.c~memcg-account-security-cred-as-well-to-kmemcg
-+++ a/kernel/cred.c
-@@ -223,7 +223,7 @@ struct cred *cred_alloc_blank(void)
- 	new->magic = CRED_MAGIC;
- #endif
+--- a/mm/migrate.c~mm-move_pages-return-valid-node-id-in-status-if-the-page-is-already-on-the-target-node
++++ a/mm/migrate.c
+@@ -1512,9 +1512,11 @@ static int do_move_pages_to_node(struct
+ /*
+  * Resolves the given address to a struct page, isolates it from the LRU and
+  * puts it to the given pagelist.
+- * Returns -errno if the page cannot be found/isolated or 0 when it has been
+- * queued or the page doesn't need to be migrated because it is already on
+- * the target node
++ * Returns:
++ *     errno - if the page cannot be found/isolated
++ *     0 - when it doesn't have to be migrated because it is already on the
++ *         target node
++ *     1 - when it has been queued
+  */
+ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+ 		int node, struct list_head *pagelist, bool migrate_all)
+@@ -1553,7 +1555,7 @@ static int add_page_for_migration(struct
+ 	if (PageHuge(page)) {
+ 		if (PageHead(page)) {
+ 			isolate_huge_page(page, pagelist);
+-			err = 0;
++			err = 1;
+ 		}
+ 	} else {
+ 		struct page *head;
+@@ -1563,7 +1565,7 @@ static int add_page_for_migration(struct
+ 		if (err)
+ 			goto out_putpage;
  
--	if (security_cred_alloc_blank(new, GFP_KERNEL) < 0)
-+	if (security_cred_alloc_blank(new, GFP_KERNEL_ACCOUNT) < 0)
- 		goto error;
+-		err = 0;
++		err = 1;
+ 		list_add_tail(&head->lru, pagelist);
+ 		mod_node_page_state(page_pgdat(head),
+ 			NR_ISOLATED_ANON + page_is_file_cache(head),
+@@ -1640,8 +1642,17 @@ static int do_pages_move(struct mm_struc
+ 		 */
+ 		err = add_page_for_migration(mm, addr, current_node,
+ 				&pagelist, flags & MPOL_MF_MOVE_ALL);
+-		if (!err)
++
++		if (!err) {
++			/* The page is already on the target node */
++			err = store_status(status, i, current_node, 1);
++			if (err)
++				goto out_flush;
+ 			continue;
++		} else if (err > 0) {
++			/* The page is successfully queued for migration */
++			continue;
++		}
  
- 	return new;
-@@ -282,7 +282,7 @@ struct cred *prepare_creds(void)
- 	new->security = NULL;
- #endif
- 
--	if (security_prepare_creds(new, old, GFP_KERNEL) < 0)
-+	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
- 		goto error;
- 	validate_creds(new);
- 	return new;
-@@ -715,7 +715,7 @@ struct cred *prepare_kernel_cred(struct
- #ifdef CONFIG_SECURITY
- 	new->security = NULL;
- #endif
--	if (security_prepare_creds(new, old, GFP_KERNEL) < 0)
-+	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
- 		goto error;
- 
- 	put_cred(old);
+ 		err = store_status(status, i, err, 1);
+ 		if (err)
 _
 
-Patches currently in -mm which might be from shakeelb@google.com are
+Patches currently in -mm which might be from yang.shi@linux.alibaba.com are
 
 
