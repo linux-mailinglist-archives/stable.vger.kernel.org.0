@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00D7C133325
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:17:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F521333C6
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729180AbgAGVHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:07:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57972 "EHLO mail.kernel.org"
+        id S1726537AbgAGVV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:21:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729517AbgAGVHV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:07:21 -0500
+        id S1728178AbgAGVDQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:03:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D296208C4;
-        Tue,  7 Jan 2020 21:07:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D2822087F;
+        Tue,  7 Jan 2020 21:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431240;
-        bh=MuIb+sqGhjVYAmssrn+7TlscdFUuD8dmFEMaZbKcdMU=;
+        s=default; t=1578430996;
+        bh=BwMZc9l3rW61PTP7woOXDslCuxBTnDgf4z7yxxprXNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toNsWI6bj148UelajbQ/17b9/feUH7Rdjt4u2cLmHzQlK2Hq+ljDri02T92oKXCQu
-         5AwWKEkVWf/WV70lGY8LyUFOjQMQI82aDlpci/tUaVU5Npj17SxtTOC+FIf+rfhMjG
-         QK8qBi/gABQ9+M+Oh0QO2b/1mK86FNAL7q6HZStA=
+        b=X+vHFUmbWPEHMrMGcuq9csmlEZjQPg05Qf4UcnJHGd2NrIYjzPp/07rYOyJVNs2hm
+         d/gsm3W9kfQ10lb8K+/y3AbxPa3AXpS29HDb5fo7HY26JjTzlRkxdmI9hAKI+0YL7X
+         r2HPCBYuhr28b0nkS30BB0z98hV0Q9axIqfAzZco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 4.19 092/115] dt-bindings: clock: renesas: rcar-usb2-clock-sel: Fix typo in example
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Oscar Salvador <OSalvador@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 182/191] mm/sparse.c: mark populate_section_memmap as __meminit
 Date:   Tue,  7 Jan 2020 21:55:02 +0100
-Message-Id: <20200107205306.862249723@linuxfoundation.org>
+Message-Id: <20200107205342.733693882@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +49,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-commit 830dbce7c76ea529decac7d23b808c1e7da3d891 upstream.
+[ Upstream commit 030eab4f9ffb469344c10a46bc02c5149db0a2a9 ]
 
-The documented compatible value for R-Car H3 is
-"renesas,r8a7795-rcar-usb2-clock-sel", not
-"renesas,r8a77950-rcar-usb2-clock-sel".
+Building the kernel on s390 with -Og produces the following warning:
 
-Fixes: 311accb64570db45 ("clk: renesas: rcar-usb2-clock-sel: Add R-Car USB 2.0 clock selector PHY")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20191016145650.30003-1-geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  WARNING: vmlinux.o(.text+0x28dabe): Section mismatch in reference from the function populate_section_memmap() to the function .meminit.text:__populate_section_memmap()
+  The function populate_section_memmap() references
+  the function __meminit __populate_section_memmap().
+  This is often because populate_section_memmap lacks a __meminit
+  annotation or the annotation of __populate_section_memmap is wrong.
 
+While -Og is not supported, in theory this might still happen with
+another compiler or on another architecture.  So fix this by using the
+correct section annotations.
+
+[iii@linux.ibm.com: v2]
+  Link: http://lkml.kernel.org/r/20191030151639.41486-1-iii@linux.ibm.com
+Link: http://lkml.kernel.org/r/20191028165549.14478-1-iii@linux.ibm.com
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Oscar Salvador <OSalvador@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/clock/renesas,rcar-usb2-clock-sel.txt |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/sparse.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/Documentation/devicetree/bindings/clock/renesas,rcar-usb2-clock-sel.txt
-+++ b/Documentation/devicetree/bindings/clock/renesas,rcar-usb2-clock-sel.txt
-@@ -46,7 +46,7 @@ Required properties:
- Example (R-Car H3):
+diff --git a/mm/sparse.c b/mm/sparse.c
+index f6891c1992b1..c2c01b6330af 100644
+--- a/mm/sparse.c
++++ b/mm/sparse.c
+@@ -647,7 +647,7 @@ void offline_mem_sections(unsigned long start_pfn, unsigned long end_pfn)
+ #endif
  
- 	usb2_clksel: clock-controller@e6590630 {
--		compatible = "renesas,r8a77950-rcar-usb2-clock-sel",
-+		compatible = "renesas,r8a7795-rcar-usb2-clock-sel",
- 			     "renesas,rcar-gen3-usb2-clock-sel";
- 		reg = <0 0xe6590630 0 0x02>;
- 		clocks = <&cpg CPG_MOD 703>, <&usb_extal>, <&usb_xtal>;
+ #ifdef CONFIG_SPARSEMEM_VMEMMAP
+-static struct page *populate_section_memmap(unsigned long pfn,
++static struct page * __meminit populate_section_memmap(unsigned long pfn,
+ 		unsigned long nr_pages, int nid, struct vmem_altmap *altmap)
+ {
+ 	return __populate_section_memmap(pfn, nr_pages, nid, altmap);
+@@ -669,7 +669,7 @@ static void free_map_bootmem(struct page *memmap)
+ 	vmemmap_free(start, end, NULL);
+ }
+ #else
+-struct page *populate_section_memmap(unsigned long pfn,
++struct page * __meminit populate_section_memmap(unsigned long pfn,
+ 		unsigned long nr_pages, int nid, struct vmem_altmap *altmap)
+ {
+ 	struct page *page, *ret;
+-- 
+2.20.1
+
 
 
