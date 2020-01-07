@@ -2,142 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4A213327E
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F87A13341D
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:24:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729497AbgAGVLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:11:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39460 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728061AbgAGVLT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:11:19 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03EB92077B;
-        Tue,  7 Jan 2020 21:11:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431478;
-        bh=fEofdPQLdo3o+UTKlPauo6nULx3FWB7k5nBorR9fbVE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNk8p4MaFsyWbwiMXCGy5QV2Gfs+uCtvbEr7RMYsNPah/r/n7iRX3bOxeN+ePwMPr
-         IeUbQOJkYHxj1wmPSWUgjln/FDidjLUQ/8MsCuaok+7lE6exx9tPmLhKAJK/KH+ZKW
-         6lrCgV7cFGt1yjqvMtdFsg6QoRfHYJcczS8We+xo=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 74/74] perf/x86/intel/bts: Fix the use of page_private()
-Date:   Tue,  7 Jan 2020 21:55:39 +0100
-Message-Id: <20200107205237.020338795@linuxfoundation.org>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1728944AbgAGVX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:23:57 -0500
+Received: from mail-io1-f67.google.com ([209.85.166.67]:44250 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728473AbgAGVA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 16:00:58 -0500
+Received: by mail-io1-f67.google.com with SMTP id b10so789274iof.11
+        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 13:00:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=TUCMvAlrozTSswUZRaX/kk/b3mxYfUe4t6CXtrf2o+s=;
+        b=GehBVaBAx2yLw8xmK6L9yXpZmniP/2JyAJ3/e8p9FE6da8ZcO/BGm8rhirJ906imzR
+         MyMS2cxd096Pcka3v1dxK5QOY76n81+jkNNzm92Fu1BLm12o33wIh8PuqUyvqB5JgEAT
+         kg2l9mn1owXVwnaEwiAe9SxaV14zDbe3aXQoIoZMkigADe2qBr1ShfEmJPt4DmnIkFdM
+         Nl7O3XfkSkhCda0b1Hkp1OlbetxllC5f4OMGIaWe96kCUf2NJ3z2UgdQ3Uskep4pyBmT
+         i7Kg9HyftPWed+j0nbeSEVmQxWqgcolE4dTvs6xIG2mvTDxwga0AhX4w/wDYcgT/lrhn
+         TfCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=TUCMvAlrozTSswUZRaX/kk/b3mxYfUe4t6CXtrf2o+s=;
+        b=livFmmfdt/BxljJgVKOtS+UG/NFZEWh1iLzVmL/qOpgji45Pv0pt3lKnD5TfxTHUoq
+         X5IuJGeQ9byMWcBbOZ1dLkedMGEroNcnrBkSOpqg8DJMkw8AKe75ysPUbCj4brdDG23T
+         7Br9BuRN3FRWguZiBAyDEGblnrxd6G3POp9Y/va+6MEOshDYjltPyaLx6DlLB80ePnjC
+         FNfLNd0zYXGYgxZoP8726SxDnL09QAJQPa7mEVGba7j/13on0rQl5PH/wVit25ZTnfAv
+         bOCTxWgYjLiW5C+jZmf5UMW4dJnX4Iop/Pev7yb4UuS4Gako7sA50Z/upye1kHEgB6UL
+         jzLA==
+X-Gm-Message-State: APjAAAXcQCQM0DpIIDopa4/xd8plW1uJyatyuo1ewsaPSWFjVGtrBr2h
+        b9NvLWNGu6/9ydgKL2GExKwRcw==
+X-Google-Smtp-Source: APXvYqzgUwxMWRW1F7AdWKU490fmEMlII4xM/XzIv7jxVALemJiPaRzlelnhtwr2Yi1XbXw+xwNUuw==
+X-Received: by 2002:a6b:7f47:: with SMTP id m7mr789897ioq.82.1578430857516;
+        Tue, 07 Jan 2020 13:00:57 -0800 (PST)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id g62sm230208ile.39.2020.01.07.13.00.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jan 2020 13:00:57 -0800 (PST)
+Subject: Re: [PATCH 5.4 100/191] block: fix splitting segments on boundary
+ masks
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Chris Mason <clm@fb.com>,
+        Ming Lei <ming.lei@redhat.com>
+References: <20200107205332.984228665@linuxfoundation.org>
+ <20200107205338.341621494@linuxfoundation.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <1fc351dd-a213-3310-7611-6b8c60c209cf@kernel.dk>
+Date:   Tue, 7 Jan 2020 14:00:56 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200107205338.341621494@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+On 1/7/20 1:53 PM, Greg Kroah-Hartman wrote:
+> From: Ming Lei <ming.lei@redhat.com>
+> 
+> commit 429120f3df2dba2bf3a4a19f4212a53ecefc7102 upstream.
+> 
+> We ran into a problem with a mpt3sas based controller, where we would
+> see random (and hard to reproduce) file corruption). The issue seemed
+> specific to this controller, but wasn't specific to the file system.
+> After a lot of debugging, we find out that it's caused by segments
+> spanning a 4G memory boundary. This shouldn't happen, as the default
+> setting for segment boundary masks is 4G.
+> 
+> Turns out there are two issues in get_max_segment_size():
+> 
+> 1) The default segment boundary mask is bypassed
+> 
+> 2) The segment start address isn't taken into account when checking
+>    segment boundary limit
+> 
+> Fix these two issues by removing the bypass of the segment boundary
+> check even if the mask is set to the default value, and taking into
+> account the actual start address of the request when checking if a
+> segment needs splitting.
 
-[ Upstream commit ff61541cc6c1962957758ba433c574b76f588d23 ]
+Greg, there's a problem with this one on ARM. Should be resolved
+shortly, but probably best to defer this one until the next 5.4
+stable release.
 
-Commit
+I'll ping you with both patches once the dust has settled.
 
-  8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
-
-brought in a warning with the BTS buffer initialization
-that is easily tripped with (assuming KPTI is disabled):
-
-instantly throwing:
-
-> ------------[ cut here ]------------
-> WARNING: CPU: 2 PID: 326 at arch/x86/events/intel/bts.c:86 bts_buffer_setup_aux+0x117/0x3d0
-> Modules linked in:
-> CPU: 2 PID: 326 Comm: perf Not tainted 5.4.0-rc8-00291-gceb9e77324fa #904
-> RIP: 0010:bts_buffer_setup_aux+0x117/0x3d0
-> Call Trace:
->  rb_alloc_aux+0x339/0x550
->  perf_mmap+0x607/0xc70
->  mmap_region+0x76b/0xbd0
-...
-
-It appears to assume (for lost raisins) that PagePrivate() is set,
-while later it actually tests for PagePrivate() before using
-page_private().
-
-Make it consistent and always check PagePrivate() before using
-page_private().
-
-Fixes: 8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Link: https://lkml.kernel.org/r/20191205142853.28894-2-alexander.shishkin@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/x86/events/intel/bts.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
-
-diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
-index 24ffa1e88cf9..4d3399405d06 100644
---- a/arch/x86/events/intel/bts.c
-+++ b/arch/x86/events/intel/bts.c
-@@ -71,9 +71,17 @@ struct bts_buffer {
- 
- static struct pmu bts_pmu;
- 
-+static int buf_nr_pages(struct page *page)
-+{
-+	if (!PagePrivate(page))
-+		return 1;
-+
-+	return 1 << page_private(page);
-+}
-+
- static size_t buf_size(struct page *page)
- {
--	return 1 << (PAGE_SHIFT + page_private(page));
-+	return buf_nr_pages(page) * PAGE_SIZE;
- }
- 
- static void *
-@@ -89,9 +97,7 @@ bts_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool overwrite)
- 	/* count all the high order buffers */
- 	for (pg = 0, nbuf = 0; pg < nr_pages;) {
- 		page = virt_to_page(pages[pg]);
--		if (WARN_ON_ONCE(!PagePrivate(page) && nr_pages > 1))
--			return NULL;
--		pg += 1 << page_private(page);
-+		pg += buf_nr_pages(page);
- 		nbuf++;
- 	}
- 
-@@ -115,7 +121,7 @@ bts_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool overwrite)
- 		unsigned int __nr_pages;
- 
- 		page = virt_to_page(pages[pg]);
--		__nr_pages = PagePrivate(page) ? 1 << page_private(page) : 1;
-+		__nr_pages = buf_nr_pages(page);
- 		buf->buf[nbuf].page = page;
- 		buf->buf[nbuf].offset = offset;
- 		buf->buf[nbuf].displacement = (pad ? BTS_RECORD_SIZE - pad : 0);
 -- 
-2.20.1
-
-
+Jens Axboe
 
