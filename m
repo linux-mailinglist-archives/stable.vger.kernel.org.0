@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D33C1133332
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:17:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D80C1332EF
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:15:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729059AbgAGVGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:06:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55746 "EHLO mail.kernel.org"
+        id S1729758AbgAGVI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:08:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729391AbgAGVGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:06:30 -0500
+        id S1729754AbgAGVI4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:08:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60816208C4;
-        Tue,  7 Jan 2020 21:06:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1892E2072A;
+        Tue,  7 Jan 2020 21:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431189;
-        bh=d0LqO0vrL2w/6NnlUQCVD3jiBBsm4uHXS+n2zv8EHXc=;
+        s=default; t=1578431335;
+        bh=0qvwg7wr7w/Fkb/s8ijemyHsOCnZ++Y6lwmRapzSbSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2HglTne0C6tNsDPOSMQQpXODSKUbF3DMLJyAGyz8FO1o7swVkZS+jMWQI6Q0/tHBX
-         v7P6o7JQY3A1g7v6ms7Vh6BBNS8mSTSUOkPlx5S9djKsprMBgrPMvHz3/W0HlRzE7K
-         pZvjKQPl9qlIZ7kT/9DxEGUYyOB6SL+v2iyd4DwA=
+        b=2D2BUZhMOhtWQMCJPZPniitkYBlw2AZC0r2OiBR0weVxSZJ45NdNk9v9jtjne6zib
+         fte+O+CmRpkWNp++xjmDyH66HP6BKbRsKffQi7ji7QTjbBlVChLs/mnK+y1/8oCJEm
+         Yf1R7lt/KywB3lSIFPZqi8PKIayqhnrUQWIM2DCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 070/115] tracing: Avoid memory leak in process_system_preds()
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 15/74] s390/cpum_sf: Avoid SBD overflow condition in irq handler
 Date:   Tue,  7 Jan 2020 21:54:40 +0100
-Message-Id: <20200107205303.879912341@linuxfoundation.org>
+Message-Id: <20200107205146.991759745@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+References: <20200107205135.369001641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-commit 79e65c27f09683fbb50c33acab395d0ddf5302d2 upstream.
+[ Upstream commit 0539ad0b22877225095d8adef0c376f52cc23834 ]
 
-When failing in the allocation of filter_item, process_system_preds()
-goes to fail_mem, where the allocated filter is freed.
+The s390 CPU Measurement sampling facility has an overflow condition
+which fires when all entries in a SBD are used.
+The measurement alert interrupt is triggered and reads out all samples
+in this SDB. It then tests the successor SDB, if this SBD is not full,
+the interrupt handler does not read any samples at all from this SDB
+The design waits for the hardware to fill this SBD and then trigger
+another meassurement alert interrupt.
 
-However, this leads to memory leak of filter->filter_string and
-filter->prog, which is allocated before and in process_preds().
-This bug has been detected by kmemleak as well.
+This scheme works nicely until
+an perf_event_overflow() function call discards the sample due to
+a too high sampling rate.
+The interrupt handler has logic to read out a partially filled SDB
+when the perf event overflow condition in linux common code is met.
+This causes the CPUM sampling measurement hardware and the PMU
+device driver to operate on the same SBD's trailer entry.
+This should not happen.
 
-Fix this by changing kfree to __free_fiter.
+This can be seen here using this trace:
+   cpumsf_pmu_add: tear:0xb5286000
+   hw_perf_event_update: sdbt 0xb5286000 full 1 over 0 flush_all:0
+   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
+        above shows 1. interrupt
+   hw_perf_event_update: sdbt 0xb5286008 full 1 over 0 flush_all:0
+   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
+        above shows 2. interrupt
+	... this goes on fine until...
+   hw_perf_event_update: sdbt 0xb5286068 full 1 over 0 flush_all:0
+   perf_push_sample1: overflow
+      one or more samples read from the IRQ handler are rejected by
+      perf_event_overflow() and the IRQ handler advances to the next SDB
+      and modifies the trailer entry of a partially filled SDB.
+   hw_perf_event_update: sdbt 0xb5286070 full 0 over 0 flush_all:1
+      timestamp: 14:32:52.519953
 
-unreferenced object 0xffff8880658007c0 (size 32):
-  comm "bash", pid 579, jiffies 4295096372 (age 17.752s)
-  hex dump (first 32 bytes):
-    63 6f 6d 6d 6f 6e 5f 70 69 64 20 20 3e 20 31 30  common_pid  > 10
-    00 00 00 00 00 00 00 00 65 73 00 00 00 00 00 00  ........es......
-  backtrace:
-    [<0000000067441602>] kstrdup+0x2d/0x60
-    [<00000000141cf7b7>] apply_subsystem_event_filter+0x378/0x932
-    [<000000009ca32334>] subsystem_filter_write+0x5a/0x90
-    [<0000000072da2bee>] vfs_write+0xe1/0x240
-    [<000000004f14f473>] ksys_write+0xb4/0x150
-    [<00000000a968b4a0>] do_syscall_64+0x6d/0x1e0
-    [<000000001a189f40>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-unreferenced object 0xffff888060c22d00 (size 64):
-  comm "bash", pid 579, jiffies 4295096372 (age 17.752s)
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 00 e8 d7 41 80 88 ff ff  ...........A....
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000b8c1b109>] process_preds+0x243/0x1820
-    [<000000003972c7f0>] apply_subsystem_event_filter+0x3be/0x932
-    [<000000009ca32334>] subsystem_filter_write+0x5a/0x90
-    [<0000000072da2bee>] vfs_write+0xe1/0x240
-    [<000000004f14f473>] ksys_write+0xb4/0x150
-    [<00000000a968b4a0>] do_syscall_64+0x6d/0x1e0
-    [<000000001a189f40>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-unreferenced object 0xffff888041d7e800 (size 512):
-  comm "bash", pid 579, jiffies 4295096372 (age 17.752s)
-  hex dump (first 32 bytes):
-    70 bc 85 97 ff ff ff ff 0a 00 00 00 00 00 00 00  p...............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000001e04af34>] process_preds+0x71a/0x1820
-    [<000000003972c7f0>] apply_subsystem_event_filter+0x3be/0x932
-    [<000000009ca32334>] subsystem_filter_write+0x5a/0x90
-    [<0000000072da2bee>] vfs_write+0xe1/0x240
-    [<000000004f14f473>] ksys_write+0xb4/0x150
-    [<00000000a968b4a0>] do_syscall_64+0x6d/0x1e0
-    [<000000001a189f40>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Next time the IRQ handler is called for this SDB the trailer entry shows
+an overflow count of 19 missed entries.
+   hw_perf_event_update: sdbt 0xb5286070 full 1 over 19 flush_all:1
+      timestamp: 14:32:52.970058
 
-Link: http://lkml.kernel.org/r/20191211091258.11310-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+Remove access to a follow on SDB when event overflow happened.
 
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 404a3add43c9c ("tracing: Only add filter list when needed")
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_filter.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/perf_cpum_sf.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/kernel/trace/trace_events_filter.c
-+++ b/kernel/trace/trace_events_filter.c
-@@ -1642,7 +1642,7 @@ static int process_system_preds(struct t
- 	parse_error(pe, FILT_ERR_BAD_SUBSYS_FILTER, 0);
- 	return -EINVAL;
-  fail_mem:
--	kfree(filter);
-+	__free_filter(filter);
- 	/* If any call succeeded, we still need to sync */
- 	if (!fail)
- 		tracepoint_synchronize_unregister();
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 95c047bf4a12..b652593d7de6 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1294,12 +1294,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ 		 */
+ 		if (flush_all && done)
+ 			break;
+-
+-		/* If an event overflow happened, discard samples by
+-		 * processing any remaining sample-data-blocks.
+-		 */
+-		if (event_overflow)
+-			flush_all = 1;
+ 	}
+ 
+ 	/* Account sample overflows in the event hardware structure */
+-- 
+2.20.1
+
 
 
