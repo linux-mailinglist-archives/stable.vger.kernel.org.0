@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE2FD1333EA
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:23:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B42EE133365
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728247AbgAGVBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:01:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39320 "EHLO mail.kernel.org"
+        id S1728591AbgAGVFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:05:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728606AbgAGVBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:01:37 -0500
+        id S1729179AbgAGVFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:05:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26834214D8;
-        Tue,  7 Jan 2020 21:01:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AC5020880;
+        Tue,  7 Jan 2020 21:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430896;
-        bh=VsAKcuwz34bLlP+Y3q+0drDh08CUdjD6iUtyB1R+Apc=;
+        s=default; t=1578431104;
+        bh=AVKSpfvqyb4cVq0WXRc4SdruK0gYvLsJhYeVw4lm340=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ijOWSk6lpN9p3aIuO4kJkv5FuNnaOqQ78POgi1boe3qfmIn+3R3YSMPQf9Fi6LrvW
-         ebMB6aOW9A+t+4U2fK17fJqbgcZe2mVf5QYo/8eDMh5oax8u2u/mDWQE4eFA676Msm
-         V7yByWWi9aP463wu+kZx5UEh2Si9v2+ahQp+b6nE=
+        b=y5y9T3aX0FVM+AUTj6Sj5toV6/qqGs1UHyz8gOzDQwNk3e9vOQYsN7T5FgXwz8YZA
+         KtgcZoDf0X1lDPf6RBCjLTad8VwPtIue9pKSRr189smVZkJz1Y5bgVRVx8uPNYsUgI
+         ZOgzmAMLJBq3cxX6g5I0hxZ6rcbhV5YLqNGP2WqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jory A. Pratt" <anarchy@gentoo.org>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.4 124/191] gen_initramfs_list.sh: fix bad variable name error
+        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
+        Andy Whitcroft <apw@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 034/115] PM / hibernate: memory_bm_find_bit(): Tighten node optimisation
 Date:   Tue,  7 Jan 2020 21:54:04 +0100
-Message-Id: <20200107205339.616130663@linuxfoundation.org>
+Message-Id: <20200107205301.374584557@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Andy Whitcroft <apw@canonical.com>
 
-commit cc976614f59bd8e45de8ce988a6bcb5de711d994 upstream.
+[ Upstream commit da6043fe85eb5ec621e34a92540735dcebbea134 ]
 
-Prior to commit 858805b336be ("kbuild: add $(BASH) to run scripts with
-bash-extension"), this shell script was almost always run by bash since
-bash is usually installed on the system by default.
+When looking for a bit by number we make use of the cached result from the
+preceding lookup to speed up operation.  Firstly we check if the requested
+pfn is within the cached zone and if not lookup the new zone.  We then
+check if the offset for that pfn falls within the existing cached node.
+This happens regardless of whether the node is within the zone we are
+now scanning.  With certain memory layouts it is possible for this to
+false trigger creating a temporary alias for the pfn to a different bit.
+This leads the hibernation code to free memory which it was never allocated
+with the expected fallout.
 
-Now, this script is run by sh, which might be a symlink to dash. On such
-distributions, the following code emits an error:
+Ensure the zone we are scanning matches the cached zone before considering
+the cached node.
 
-  local dev=`LC_ALL=C ls -l "${location}"`
+Deep thanks go to Andrea for many, many, many hours of hacking and testing
+that went into cornering this bug.
 
-You can reproduce the build error, for example by setting
-CONFIG_INITRAMFS_SOURCE="/dev".
-
-    GEN     usr/initramfs_data.cpio.gz
-  ./usr/gen_initramfs_list.sh: 131: local: 1: bad variable name
-  make[1]: *** [usr/Makefile:61: usr/initramfs_data.cpio.gz] Error 2
-
-This is because `LC_ALL=C ls -l "${location}"` contains spaces.
-Surrounding it with double-quotes fixes the error.
-
-Fixes: 858805b336be ("kbuild: add $(BASH) to run scripts with bash-extension")
-Reported-by: Jory A. Pratt <anarchy@gentoo.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Andrea Righi <andrea.righi@canonical.com>
+Tested-by: Andrea Righi <andrea.righi@canonical.com>
+Signed-off-by: Andy Whitcroft <apw@canonical.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- usr/gen_initramfs_list.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/power/snapshot.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/usr/gen_initramfs_list.sh
-+++ b/usr/gen_initramfs_list.sh
-@@ -128,7 +128,7 @@ parse() {
- 			str="${ftype} ${name} ${location} ${str}"
- 			;;
- 		"nod")
--			local dev=`LC_ALL=C ls -l "${location}"`
-+			local dev="`LC_ALL=C ls -l "${location}"`"
- 			local maj=`field 5 ${dev}`
- 			local min=`field 6 ${dev}`
- 			maj=${maj%,}
+diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
+index 3d37c279c090..f2635fc751d9 100644
+--- a/kernel/power/snapshot.c
++++ b/kernel/power/snapshot.c
+@@ -736,8 +736,15 @@ static int memory_bm_find_bit(struct memory_bitmap *bm, unsigned long pfn,
+ 	 * We have found the zone. Now walk the radix tree to find the leaf node
+ 	 * for our PFN.
+ 	 */
++
++	/*
++	 * If the zone we wish to scan is the the current zone and the
++	 * pfn falls into the current node then we do not need to walk
++	 * the tree.
++	 */
+ 	node = bm->cur.node;
+-	if (((pfn - zone->start_pfn) & ~BM_BLOCK_MASK) == bm->cur.node_pfn)
++	if (zone == bm->cur.zone &&
++	    ((pfn - zone->start_pfn) & ~BM_BLOCK_MASK) == bm->cur.node_pfn)
+ 		goto node_found;
+ 
+ 	node      = zone->rtree;
+-- 
+2.20.1
+
 
 
