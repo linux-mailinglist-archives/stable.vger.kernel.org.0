@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9250133271
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:10:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23901133239
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:09:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730019AbgAGVKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:10:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37948 "EHLO mail.kernel.org"
+        id S1729368AbgAGVIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:08:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729845AbgAGVKt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:10:49 -0500
+        id S1729673AbgAGVIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:08:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C05BD20880;
-        Tue,  7 Jan 2020 21:10:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D5FE20880;
+        Tue,  7 Jan 2020 21:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431449;
-        bh=WOF13kCPCcTW6cAaL9ZLhlIwTnYRqtW4gFeYeUxvNqU=;
+        s=default; t=1578431301;
+        bh=scddgpvllI85i/98LWMYBVIE/Q5evmoMzZcNLa0aPZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6brtEN5OVplCkOWZW/X69gOLJpVeqWnudM/0MnshA6hkiczsFZ3T8Ba7f8EfYTwt
-         fCQYef6Nl43l+h6FeCW6UUMk0cODToOWnUHGA7Vx7ETUWu9YdyZUqDx6BzeHyDVIKY
-         oYpLjRpuHfhGEh097BB+C9LqWqGhbp/XgDuLObxc=
+        b=qmelnMm213luoFgx4fBPKu4uQTMsKhVR1HYeVha2pe+sD74mt8HULfm3OT3HOkhJo
+         LECq9Bt9mteLRc8Pkj/FLFGzPsvb8pox3/DwUM/e4bKCt7oiuUJFPozp3yQttRb0N2
+         gwNxkk+ccGYg5vIcDmfm3qS9oQh3opeB53dsQT6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.14 60/74] fix compat handling of FICLONERANGE, FIDEDUPERANGE and FS_IOC_FIEMAP
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 115/115] perf/x86/intel/bts: Fix the use of page_private()
 Date:   Tue,  7 Jan 2020 21:55:25 +0100
-Message-Id: <20200107205224.868091005@linuxfoundation.org>
+Message-Id: <20200107205311.271071706@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +49,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 6b2daec19094a90435abe67d16fb43b1a5527254 upstream.
+[ Upstream commit ff61541cc6c1962957758ba433c574b76f588d23 ]
 
-Unlike FICLONE, all of those take a pointer argument; they do need
-compat_ptr() applied to arg.
+Commit
 
-Fixes: d79bdd52d8be ("vfs: wire up compat ioctl for CLONE/CLONE_RANGE")
-Fixes: 54dbc1517237 ("vfs: hoist the btrfs deduplication ioctl to the vfs")
-Fixes: ceac204e1da9 ("fs: make fiemap work from compat_ioctl")
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
 
+brought in a warning with the BTS buffer initialization
+that is easily tripped with (assuming KPTI is disabled):
+
+instantly throwing:
+
+> ------------[ cut here ]------------
+> WARNING: CPU: 2 PID: 326 at arch/x86/events/intel/bts.c:86 bts_buffer_setup_aux+0x117/0x3d0
+> Modules linked in:
+> CPU: 2 PID: 326 Comm: perf Not tainted 5.4.0-rc8-00291-gceb9e77324fa #904
+> RIP: 0010:bts_buffer_setup_aux+0x117/0x3d0
+> Call Trace:
+>  rb_alloc_aux+0x339/0x550
+>  perf_mmap+0x607/0xc70
+>  mmap_region+0x76b/0xbd0
+...
+
+It appears to assume (for lost raisins) that PagePrivate() is set,
+while later it actually tests for PagePrivate() before using
+page_private().
+
+Make it consistent and always check PagePrivate() before using
+page_private().
+
+Fixes: 8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lkml.kernel.org/r/20191205142853.28894-2-alexander.shishkin@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/compat_ioctl.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/events/intel/bts.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/fs/compat_ioctl.c
-+++ b/fs/compat_ioctl.c
-@@ -1577,9 +1577,10 @@ COMPAT_SYSCALL_DEFINE3(ioctl, unsigned i
- #endif
+diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
+index 7139f6bf27ad..510f9461407e 100644
+--- a/arch/x86/events/intel/bts.c
++++ b/arch/x86/events/intel/bts.c
+@@ -71,9 +71,17 @@ struct bts_buffer {
  
- 	case FICLONE:
-+		goto do_ioctl;
- 	case FICLONERANGE:
- 	case FIDEDUPERANGE:
--		goto do_ioctl;
-+		goto found_handler;
+ static struct pmu bts_pmu;
  
- 	case FIBMAP:
- 	case FIGETBSZ:
++static int buf_nr_pages(struct page *page)
++{
++	if (!PagePrivate(page))
++		return 1;
++
++	return 1 << page_private(page);
++}
++
+ static size_t buf_size(struct page *page)
+ {
+-	return 1 << (PAGE_SHIFT + page_private(page));
++	return buf_nr_pages(page) * PAGE_SIZE;
+ }
+ 
+ static void *
+@@ -91,9 +99,7 @@ bts_buffer_setup_aux(struct perf_event *event, void **pages,
+ 	/* count all the high order buffers */
+ 	for (pg = 0, nbuf = 0; pg < nr_pages;) {
+ 		page = virt_to_page(pages[pg]);
+-		if (WARN_ON_ONCE(!PagePrivate(page) && nr_pages > 1))
+-			return NULL;
+-		pg += 1 << page_private(page);
++		pg += buf_nr_pages(page);
+ 		nbuf++;
+ 	}
+ 
+@@ -117,7 +123,7 @@ bts_buffer_setup_aux(struct perf_event *event, void **pages,
+ 		unsigned int __nr_pages;
+ 
+ 		page = virt_to_page(pages[pg]);
+-		__nr_pages = PagePrivate(page) ? 1 << page_private(page) : 1;
++		__nr_pages = buf_nr_pages(page);
+ 		buf->buf[nbuf].page = page;
+ 		buf->buf[nbuf].offset = offset;
+ 		buf->buf[nbuf].displacement = (pad ? BTS_RECORD_SIZE - pad : 0);
+-- 
+2.20.1
+
 
 
