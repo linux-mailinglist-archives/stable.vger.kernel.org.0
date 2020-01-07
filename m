@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CE021332E4
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:15:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8507F13333F
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:17:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729838AbgAGVOY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:14:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34808 "EHLO mail.kernel.org"
+        id S1728798AbgAGVGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:06:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729812AbgAGVJZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:09:25 -0500
+        id S1729163AbgAGVGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:06:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00B992072A;
-        Tue,  7 Jan 2020 21:09:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99F362077B;
+        Tue,  7 Jan 2020 21:06:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431364;
-        bh=6UY2T6dWzU5eztkg4rE2iFcamizXIGPsVRx6/VMKGK4=;
+        s=default; t=1578431163;
+        bh=3YajkWlGnlVSLlsI8KWCB4f2UnTJCeARHNTYQIc7B3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ao1/5NOqAc7QkhFatHtHG9u3d+vsrNXi6pG+P7torummm4U4dwZMAt9uz1jKVxH1b
-         UULvqVMIwAGqFnhKVNMrON+CJG3nhZK8HSDQCL0CEzanDfpoMUwVRf6CeE0VTXbgA+
-         lfLmhsCzyVTWOZQL/PAkrCwk9LUIYAc2fHDVytW8=
+        b=Va9ksbbgY0PnNbBSNGCcuTIsO3HAOqUiswXW8kn0HcTf4s4D0/rlHgLPm1aee1DQo
+         Nq6Al3g0eEhaHWy5Cj5FB6AdJKoa6fKHJqgXURRXaBB8NVdCxwourAbyDmgqUZ4zy3
+         oik5Xk+aLSj1b9Wbsoh+RgdWLdIMNitM5NfFwkP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Wise <larrystevenwise@gmail.com>,
-        Doug Ledford <dledford@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/74] rxe: correctly calculate iCRC for unaligned payloads
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 060/115] ata: libahci_platform: Export again ahci_platform_<en/dis>able_phys()
 Date:   Tue,  7 Jan 2020 21:54:30 +0100
-Message-Id: <20200107205138.948448570@linuxfoundation.org>
+Message-Id: <20200107205303.221949031@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Wise <larrystevenwise@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 2030abddec6884aaf5892f5724c48fc340e6826f ]
+commit 84b032dbfdf1c139cd2b864e43959510646975f8 upstream.
 
-If RoCE PDUs being sent or received contain pad bytes, then the iCRC
-is miscalculated, resulting in PDUs being emitted by RXE with an incorrect
-iCRC, as well as ingress PDUs being dropped due to erroneously detecting
-a bad iCRC in the PDU.  The fix is to include the pad bytes, if any,
-in iCRC computations.
+This reverts commit 6bb86fefa086faba7b60bb452300b76a47cde1a5
+("libahci_platform: Staticize ahci_platform_<en/dis>able_phys()") we are
+going to need ahci_platform_{enable,disable}_phys() in a subsequent
+commit for ahci_brcm.c in order to properly control the PHY
+initialization order.
 
-Note: This bug has caused broken on-the-wire compatibility with actual
-hardware RoCE devices since the soft-RoCE driver was first put into the
-mainstream kernel.  Fixing it will create an incompatibility with the
-original soft-RoCE devices, but is necessary to be compatible with real
-hardware devices.
+Also make sure the function prototypes are declared in
+include/linux/ahci_platform.h as a result.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Signed-off-by: Steve Wise <larrystevenwise@gmail.com>
-Link: https://lore.kernel.org/r/20191203020319.15036-2-larrystevenwise@gmail.com
-Signed-off-by: Doug Ledford <dledford@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/infiniband/sw/rxe/rxe_recv.c | 2 +-
- drivers/infiniband/sw/rxe/rxe_req.c  | 6 ++++++
- drivers/infiniband/sw/rxe/rxe_resp.c | 7 +++++++
- 3 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/ata/libahci_platform.c |    6 ++++--
+ include/linux/ahci_platform.h  |    2 ++
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_recv.c b/drivers/infiniband/sw/rxe/rxe_recv.c
-index 83412df726a5..b7098f7bb30e 100644
---- a/drivers/infiniband/sw/rxe/rxe_recv.c
-+++ b/drivers/infiniband/sw/rxe/rxe_recv.c
-@@ -393,7 +393,7 @@ int rxe_rcv(struct sk_buff *skb)
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -47,7 +47,7 @@ EXPORT_SYMBOL_GPL(ahci_platform_ops);
+  * RETURNS:
+  * 0 on success otherwise a negative error code
+  */
+-static int ahci_platform_enable_phys(struct ahci_host_priv *hpriv)
++int ahci_platform_enable_phys(struct ahci_host_priv *hpriv)
+ {
+ 	int rc, i;
  
- 	calc_icrc = rxe_icrc_hdr(pkt, skb);
- 	calc_icrc = rxe_crc32(rxe, calc_icrc, (u8 *)payload_addr(pkt),
--			      payload_size(pkt));
-+			      payload_size(pkt) + bth_pad(pkt));
- 	calc_icrc = (__force u32)cpu_to_be32(~calc_icrc);
- 	if (unlikely(calc_icrc != pack_icrc)) {
- 		if (skb->protocol == htons(ETH_P_IPV6))
-diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
-index 9fd4f04df3b3..e6785b1ea85f 100644
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -500,6 +500,12 @@ static int fill_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
- 			if (err)
- 				return err;
- 		}
-+		if (bth_pad(pkt)) {
-+			u8 *pad = payload_addr(pkt) + paylen;
-+
-+			memset(pad, 0, bth_pad(pkt));
-+			crc = rxe_crc32(rxe, crc, pad, bth_pad(pkt));
-+		}
+@@ -72,6 +72,7 @@ disable_phys:
  	}
- 	p = payload_addr(pkt) + paylen + bth_pad(pkt);
+ 	return rc;
+ }
++EXPORT_SYMBOL_GPL(ahci_platform_enable_phys);
  
-diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
-index 9207682b7a2e..a07a29b48863 100644
---- a/drivers/infiniband/sw/rxe/rxe_resp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_resp.c
-@@ -738,6 +738,13 @@ static enum resp_states read_reply(struct rxe_qp *qp,
- 	if (err)
- 		pr_err("Failed copying memory\n");
+ /**
+  * ahci_platform_disable_phys - Disable PHYs
+@@ -79,7 +80,7 @@ disable_phys:
+  *
+  * This function disables all PHYs found in hpriv->phys.
+  */
+-static void ahci_platform_disable_phys(struct ahci_host_priv *hpriv)
++void ahci_platform_disable_phys(struct ahci_host_priv *hpriv)
+ {
+ 	int i;
  
-+	if (bth_pad(&ack_pkt)) {
-+		struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
-+		u8 *pad = payload_addr(&ack_pkt) + payload;
-+
-+		memset(pad, 0, bth_pad(&ack_pkt));
-+		icrc = rxe_crc32(rxe, icrc, pad, bth_pad(&ack_pkt));
-+	}
- 	p = payload_addr(&ack_pkt) + payload + bth_pad(&ack_pkt);
- 	*p = ~icrc;
+@@ -88,6 +89,7 @@ static void ahci_platform_disable_phys(s
+ 		phy_exit(hpriv->phys[i]);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(ahci_platform_disable_phys);
  
--- 
-2.20.1
-
+ /**
+  * ahci_platform_enable_clks - Enable platform clocks
+--- a/include/linux/ahci_platform.h
++++ b/include/linux/ahci_platform.h
+@@ -23,6 +23,8 @@ struct ahci_host_priv;
+ struct platform_device;
+ struct scsi_host_template;
+ 
++int ahci_platform_enable_phys(struct ahci_host_priv *hpriv);
++void ahci_platform_disable_phys(struct ahci_host_priv *hpriv);
+ int ahci_platform_enable_clks(struct ahci_host_priv *hpriv);
+ void ahci_platform_disable_clks(struct ahci_host_priv *hpriv);
+ int ahci_platform_enable_regulators(struct ahci_host_priv *hpriv);
 
 
