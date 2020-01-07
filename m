@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D69C133169
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:00:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4618F1331DA
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:04:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728288AbgAGVAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:00:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
+        id S1729045AbgAGVEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:04:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727719AbgAGVAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:00:30 -0500
+        id S1728793AbgAGVEc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:04:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D006124656;
-        Tue,  7 Jan 2020 21:00:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C24820678;
+        Tue,  7 Jan 2020 21:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430829;
-        bh=L8LUNO8Rt6HHwTg4ZRRXBIGs/4zDe6CvPv46PyE6Fag=;
+        s=default; t=1578431070;
+        bh=9M+BUOHDE3+5qQ16oTrRU3ZUp3Ts5Lz+atjn442wPvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyuDapPOnmwUjBbryi0BMjK9r7FT6ETsrOfMfxqpoNlDXggPMnTI8ODqj6oubLdZD
-         l5jPNLNYiwYpjekbbk4OX7FZhqqfmki1+SaJONrnfseRdgpzMlQLp+ASZGF2pbMt4V
-         ZThiw/0o3H7oZ5ExCYMMoEr0ZFTk+W3O4RsCNsxM=
+        b=tNOrlvqFL22jdZpHDgNSn5X0g4+1nkVecm6I7IsPDSS2MmVkCTQrgARcpOGSQWaSo
+         tz5M9vn6X1lOyOd39F1xszMGgkTjSAxfIV6quFHyb75ouK6pXYmj4q+t8Y24ivtKIi
+         EFJael0+tIV9kdiYD6W9v7T2QjhHBTrQouHmE1L0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zong Li <zong.li@sifive.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>
-Subject: [PATCH 5.4 112/191] clocksource: riscv: add notrace to riscv_sched_clock
+        stable@vger.kernel.org, Gao Chuan <gaochuan4@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 022/115] scsi: libsas: stop discovering if oob mode is disconnected
 Date:   Tue,  7 Jan 2020 21:53:52 +0100
-Message-Id: <20200107205338.978465084@linuxfoundation.org>
+Message-Id: <20200107205255.608817551@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +46,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zong Li <zong.li@sifive.com>
+From: Jason Yan <yanaijie@huawei.com>
 
-commit 9d05c18e8d7de566ff68f221fcae65e78708dd1d upstream.
+[ Upstream commit f70267f379b5e5e11bdc5d72a56bf17e5feed01f ]
 
-When enabling ftrace graph tracer, it gets the tracing clock in
-ftrace_push_return_trace().  Eventually, it invokes riscv_sched_clock()
-to get the clock value.  If riscv_sched_clock() isn't marked with
-'notrace', it will call ftrace_push_return_trace() and cause infinite
-loop.
+The discovering of sas port is driven by workqueue in libsas. When libsas
+is processing port events or phy events in workqueue, new events may rise
+up and change the state of some structures such as asd_sas_phy.  This may
+cause some problems such as follows:
 
-The result of failure as follow:
+==>thread 1                       ==>thread 2
 
-command: echo function_graph >current_tracer
-[   46.176787] Unable to handle kernel paging request at virtual address ffffffe04fb38c48
-[   46.177309] Oops [#1]
-[   46.177478] Modules linked in:
-[   46.177770] CPU: 0 PID: 256 Comm: $d Not tainted 5.5.0-rc1 #47
-[   46.177981] epc: ffffffe00035e59a ra : ffffffe00035e57e sp : ffffffe03a7569b0
-[   46.178216]  gp : ffffffe000d29b90 tp : ffffffe03a756180 t0 : ffffffe03a756968
-[   46.178430]  t1 : ffffffe00087f408 t2 : ffffffe03a7569a0 s0 : ffffffe03a7569f0
-[   46.178643]  s1 : ffffffe00087f408 a0 : 0000000ac054cda4 a1 : 000000000087f411
-[   46.178856]  a2 : 0000000ac054cda4 a3 : 0000000000373ca0 a4 : ffffffe04fb38c48
-[   46.179099]  a5 : 00000000153e22a8 a6 : 00000000005522ff a7 : 0000000000000005
-[   46.179338]  s2 : ffffffe03a756a90 s3 : ffffffe00032811c s4 : ffffffe03a756a58
-[   46.179570]  s5 : ffffffe000d29fe0 s6 : 0000000000000001 s7 : 0000000000000003
-[   46.179809]  s8 : 0000000000000003 s9 : 0000000000000002 s10: 0000000000000004
-[   46.180053]  s11: 0000000000000000 t3 : 0000003fc815749c t4 : 00000000000efc90
-[   46.180293]  t5 : ffffffe000d29658 t6 : 0000000000040000
-[   46.180482] status: 0000000000000100 badaddr: ffffffe04fb38c48 cause: 000000000000000f
+                                  ==>phy up
+                                  ==>phy_up_v3_hw()
+                                    ==>oob_mode = SATA_OOB_MODE;
+                                  ==>phy down quickly
+                                  ==>hisi_sas_phy_down()
+                                    ==>sas_ha->notify_phy_event()
+                                    ==>sas_phy_disconnected()
+                                      ==>oob_mode = OOB_NOT_CONNECTED
+==>workqueue wakeup
+==>sas_form_port()
+  ==>sas_discover_domain()
+    ==>sas_get_port_device()
+      ==>oob_mode is OOB_NOT_CONNECTED and device
+         is wrongly taken as expander
 
-Signed-off-by: Zong Li <zong.li@sifive.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-[paul.walmsley@sifive.com: cleaned up patch description]
-Fixes: 92e0d143fdef ("clocksource/drivers/riscv_timer: Provide the sched_clock")
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This at last lead to the panic when libsas trying to issue a command to
+discover the device.
 
+[183047.614035] Unable to handle kernel NULL pointer dereference at
+virtual address 0000000000000058
+[183047.622896] Mem abort info:
+[183047.625762]   ESR = 0x96000004
+[183047.628893]   Exception class = DABT (current EL), IL = 32 bits
+[183047.634888]   SET = 0, FnV = 0
+[183047.638015]   EA = 0, S1PTW = 0
+[183047.641232] Data abort info:
+[183047.644189]   ISV = 0, ISS = 0x00000004
+[183047.648100]   CM = 0, WnR = 0
+[183047.651145] user pgtable: 4k pages, 48-bit VAs, pgdp =
+00000000b7df67be
+[183047.657834] [0000000000000058] pgd=0000000000000000
+[183047.662789] Internal error: Oops: 96000004 [#1] SMP
+[183047.667740] Process kworker/u16:2 (pid: 31291, stack limit =
+0x00000000417c4974)
+[183047.675208] CPU: 0 PID: 3291 Comm: kworker/u16:2 Tainted: G
+W  OE 4.19.36-vhulk1907.1.0.h410.eulerosv2r8.aarch64 #1
+[183047.687015] Hardware name: N/A N/A/Kunpeng Desktop Board D920S10,
+BIOS 0.15 10/22/2019
+[183047.695007] Workqueue: 0000:74:02.0_disco_q sas_discover_domain
+[183047.700999] pstate: 20c00009 (nzCv daif +PAN +UAO)
+[183047.705864] pc : prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
+[183047.711510] lr : prep_ata_v3_hw+0xb0/0x230 [hisi_sas_v3_hw]
+[183047.717153] sp : ffff00000f28ba60
+[183047.720541] x29: ffff00000f28ba60 x28: ffff8026852d7228
+[183047.725925] x27: ffff8027dba3e0a8 x26: ffff8027c05fc200
+[183047.731310] x25: 0000000000000000 x24: ffff8026bafa8dc0
+[183047.736695] x23: ffff8027c05fc218 x22: ffff8026852d7228
+[183047.742079] x21: ffff80007c2f2940 x20: ffff8027c05fc200
+[183047.747464] x19: 0000000000f80800 x18: 0000000000000010
+[183047.752848] x17: 0000000000000000 x16: 0000000000000000
+[183047.758232] x15: ffff000089a5a4ff x14: 0000000000000005
+[183047.763617] x13: ffff000009a5a50e x12: ffff8026bafa1e20
+[183047.769001] x11: ffff0000087453b8 x10: ffff00000f28b870
+[183047.774385] x9 : 0000000000000000 x8 : ffff80007e58f9b0
+[183047.779770] x7 : 0000000000000000 x6 : 000000000000003f
+[183047.785154] x5 : 0000000000000040 x4 : ffffffffffffffe0
+[183047.790538] x3 : 00000000000000f8 x2 : 0000000002000007
+[183047.795922] x1 : 0000000000000008 x0 : 0000000000000000
+[183047.801307] Call trace:
+[183047.803827]  prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
+[183047.809127]  hisi_sas_task_prep+0x750/0x888 [hisi_sas_main]
+[183047.814773]  hisi_sas_task_exec.isra.7+0x88/0x1f0 [hisi_sas_main]
+[183047.820939]  hisi_sas_queue_command+0x28/0x38 [hisi_sas_main]
+[183047.826757]  smp_execute_task_sg+0xec/0x218
+[183047.831013]  smp_execute_task+0x74/0xa0
+[183047.834921]  sas_discover_expander.part.7+0x9c/0x5f8
+[183047.839959]  sas_discover_root_expander+0x90/0x160
+[183047.844822]  sas_discover_domain+0x1b8/0x1e8
+[183047.849164]  process_one_work+0x1b4/0x3f8
+[183047.853246]  worker_thread+0x54/0x470
+[183047.856981]  kthread+0x134/0x138
+[183047.860283]  ret_from_fork+0x10/0x18
+[183047.863931] Code: f9407a80 528000e2 39409281 72a04002 (b9405800)
+[183047.870097] kernel fault(0x1) notification starting on CPU 0
+[183047.875828] kernel fault(0x1) notification finished on CPU 0
+[183047.881559] Modules linked in: unibsp(OE) hns3(OE) hclge(OE)
+hnae3(OE) mem_drv(OE) hisi_sas_v3_hw(OE) hisi_sas_main(OE)
+[183047.892418] ---[ end trace 4cc26083fc11b783  ]---
+[183047.897107] Kernel panic - not syncing: Fatal exception
+[183047.902403] kernel fault(0x5) notification starting on CPU 0
+[183047.908134] kernel fault(0x5) notification finished on CPU 0
+[183047.913865] SMP: stopping secondary CPUs
+[183047.917861] Kernel Offset: disabled
+[183047.921422] CPU features: 0x2,a2a00a38
+[183047.925243] Memory Limit: none
+[183047.928372] kernel reboot(0x2) notification starting on CPU 0
+[183047.934190] kernel reboot(0x2) notification finished on CPU 0
+[183047.940008] ---[ end Kernel panic - not syncing: Fatal exception
+]---
+
+Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
+Link: https://lore.kernel.org/r/20191206011118.46909-1-yanaijie@huawei.com
+Reported-by: Gao Chuan <gaochuan4@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-riscv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/libsas/sas_discover.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/clocksource/timer-riscv.c
-+++ b/drivers/clocksource/timer-riscv.c
-@@ -41,7 +41,7 @@ static unsigned long long riscv_clocksou
- 	return get_cycles64();
- }
+diff --git a/drivers/scsi/libsas/sas_discover.c b/drivers/scsi/libsas/sas_discover.c
+index 0148ae62a52a..e320534310b1 100644
+--- a/drivers/scsi/libsas/sas_discover.c
++++ b/drivers/scsi/libsas/sas_discover.c
+@@ -97,12 +97,21 @@ static int sas_get_port_device(struct asd_sas_port *port)
+ 		else
+ 			dev->dev_type = SAS_SATA_DEV;
+ 		dev->tproto = SAS_PROTOCOL_SATA;
+-	} else {
++	} else if (port->oob_mode == SAS_OOB_MODE) {
+ 		struct sas_identify_frame *id =
+ 			(struct sas_identify_frame *) dev->frame_rcvd;
+ 		dev->dev_type = id->dev_type;
+ 		dev->iproto = id->initiator_bits;
+ 		dev->tproto = id->target_bits;
++	} else {
++		/* If the oob mode is OOB_NOT_CONNECTED, the port is
++		 * disconnected due to race with PHY down. We cannot
++		 * continue to discover this port
++		 */
++		sas_put_device(dev);
++		pr_warn("Port %016llx is disconnected when discovering\n",
++			SAS_ADDR(port->attached_sas_addr));
++		return -ENODEV;
+ 	}
  
--static u64 riscv_sched_clock(void)
-+static u64 notrace riscv_sched_clock(void)
- {
- 	return get_cycles64();
- }
+ 	sas_init_dev(dev);
+-- 
+2.20.1
+
 
 
