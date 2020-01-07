@@ -2,108 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61ABA132DA1
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 18:53:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CF28132E0E
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 19:12:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728525AbgAGRxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 12:53:38 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:43373 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728266AbgAGRxi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 12:53:38 -0500
-Received: from kresse.hi.pengutronix.de ([2001:67c:670:100:1d::2a])
-        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <l.stach@pengutronix.de>)
-        id 1iot2q-0000OS-Nf; Tue, 07 Jan 2020 18:53:32 +0100
-Message-ID: <2dc7001f362358dfdcbef080118b23cabaa03a40.camel@pengutronix.de>
-Subject: Re: [PATCH AUTOSEL 4.19 102/177] nvmem: imx-ocotp: reset error
- status on probe
-From:   Lucas Stach <l.stach@pengutronix.de>
-To:     =?ISO-8859-1?Q?S=E9bastien?= Szymanski 
-        <sebastien.szymanski@armadeus.com>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Fabio Estevam <festevam@gmail.com>
-Date:   Tue, 07 Jan 2020 18:53:32 +0100
-In-Reply-To: <dd048e02-81f7-8aed-34a7-f95a70859391@armadeus.com>
-References: <20191210213221.11921-1-sashal@kernel.org>
-         <20191210213221.11921-102-sashal@kernel.org>
-         <dd048e02-81f7-8aed-34a7-f95a70859391@armadeus.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1728372AbgAGSMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 13:12:42 -0500
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:38480 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728235AbgAGSMm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 13:12:42 -0500
+Received: by mail-pf1-f195.google.com with SMTP id x185so256643pfc.5
+        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 10:12:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=otNEfPZRhfkH889yZruDaz8ZPdXQW2OeMKDCutsW3ng=;
+        b=EGIHk2y8X43q+dSv8uJDGfXbIXgfrsvaXk3EkCjao8JZyS6xL3yyYa/IPsSxKx7I/8
+         OZLFuBfwTr+9/eEGtHS7pPYUOArjVm9BVeCqWXH460W3KfIdq00ZZnwox4+RJdvlEP5X
+         pUm+kxpQ6C9u3/4s26HyNZoDVnj1J0J8D05Wc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=otNEfPZRhfkH889yZruDaz8ZPdXQW2OeMKDCutsW3ng=;
+        b=hz8BUtgApw3+bX2eCjsulrsKmYss0OVnjGtlNfhX+EBP4T/U9wI1h9AQGSjWQTCQCj
+         yp7Atve4fy0X7nFe9nWeuqGPcJsq5IVxZzvLELNOIxRMW009DuPM3VbAuUVEN5MLKVw+
+         nqdqIoGOr3v4ENbJ+v4RPH046X9PxTZrhod3msx4UWarCC4FqZ99bS3lvcYOcCe34eo4
+         OY9YLznxTWRWlJ0/56htzAjk4+YLjBDZbkEbVEbOewRwFTt8hURbHXCaEdQhqI4N1B44
+         Y8gMy2JXbxhMwHzAxx8tjiNE3LrQGitOaYnoMD7wrFRSBq5eapDbZDO6P7Z7jPz8OJ2A
+         va3g==
+X-Gm-Message-State: APjAAAXyQsQJm/dprXL/WmHJRTIazEFhZUNeNCl/LNzf+vMk+k1nL9WZ
+        xBRyYuGKb0QQ3cvSYOsmwYwx2pC07GM=
+X-Google-Smtp-Source: APXvYqwOo+HzjTqist30x982uq+NRP2n7KSTQc6r6187ME5VXodlSE2JU9i1b2bbt/FBtxQZvAtBqw==
+X-Received: by 2002:a63:184d:: with SMTP id 13mr790298pgy.132.1578420761599;
+        Tue, 07 Jan 2020 10:12:41 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id u7sm200377pfh.128.2020.01.07.10.12.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jan 2020 10:12:40 -0800 (PST)
+Date:   Tue, 7 Jan 2020 10:12:39 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Amanieu d'Antras <amanieu@gmail.com>,
+        Will Deacon <will.deacon@arm.com>,
+        linux-kernel@vger.kernel.org,
+        Christian Brauner <christian@brauner.io>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH 2/7] arm64: Implement copy_thread_tls
+Message-ID: <202001071011.9517D9C0D@keescook>
+References: <20200102172413.654385-1-amanieu@gmail.com>
+ <20200102172413.654385-3-amanieu@gmail.com>
+ <20200102180130.hmpipoiiu3zsl2d6@wittgenstein>
+ <20200106173953.GB9676@willie-the-truck>
+ <CA+y5pbSBYLvZ46nJP0pSYZnRohtPxHitOHPEaLXq23-QrPKk2g@mail.gmail.com>
+ <20200107090219.jl4py4u2zvofwnbh@wittgenstein>
+ <20200107174508.GC32009@willie-the-truck>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::2a
-X-SA-Exim-Mail-From: l.stach@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200107174508.GC32009@willie-the-truck>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sébastien,
+On Tue, Jan 07, 2020 at 05:45:09PM +0000, Will Deacon wrote:
+> On Tue, Jan 07, 2020 at 10:02:27AM +0100, Christian Brauner wrote:
+> > [Cc Kees in case he knows something about where arch specific tests live
+> >  or whether we have a framework for this]
+> > [...]
+> > It feels like we must've run into the "this is architecture
+> > specific"-and-we-want-to-test-this issue before... Do we have a place
+> > where architecture specific selftests live?
+> 
+> For arch-specific selftests there are tools/testing/selftests/$ARCH
+> directories, although in this case maybe it's better to have an #ifdef
+> in a header so that architectures with __builtin_thread_pointer can use
+> that.
 
-On Di, 2020-01-07 at 15:50 +0100, Sébastien Szymanski wrote:
-> On 12/10/19 10:31 PM, Sasha Levin wrote:
-> > From: Lucas Stach <l.stach@pengutronix.de>
-> > 
-> > [ Upstream commit c33c585f1b3a99d53920bdac614aca461d8db06f ]
-> > 
-> > If software running before the OCOTP driver is loaded left the
-> > controller with the error status pending, the driver will never
-> > be able to complete the read timing setup. Reset the error status
-> > on probe to make sure the controller is in usable state.
-> > 
-> > Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-> > Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-> > Link: https://lore.kernel.org/r/20191029114240.14905-6-srinivas.kandagatla@linaro.org
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >  drivers/nvmem/imx-ocotp.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> > 
-> > diff --git a/drivers/nvmem/imx-ocotp.c b/drivers/nvmem/imx-ocotp.c
-> > index afb429a417fe0..926d9cc080cf4 100644
-> > --- a/drivers/nvmem/imx-ocotp.c
-> > +++ b/drivers/nvmem/imx-ocotp.c
-> > @@ -466,6 +466,10 @@ static int imx_ocotp_probe(struct platform_device *pdev)
-> >  	if (IS_ERR(priv->clk))
-> >  		return PTR_ERR(priv->clk);
-> >  
-> > +	clk_prepare_enable(priv->clk);
-> > +	imx_ocotp_clr_err_if_set(priv->base);
-> > +	clk_disable_unprepare(priv->clk);
-> > +
-> >  	priv->params = of_device_get_match_data(&pdev->dev);
-> >  	imx_ocotp_nvmem_config.size = 4 * priv->params->nregs;
-> >  	imx_ocotp_nvmem_config.dev = dev;
-> > 
-> 
-> Hi,
-> 
-> This patch makes kernel 4.19.{92,93} hang at boot on my i.MX6ULL based
-> board. It hanks at
-> 
-> [    3.730078] cpu cpu0: Linked as a consumer to regulator.2
-> [    3.737760] cpu cpu0: Linked as a consumer to regulator.3
-> 
-> Full boot log is here: https://pastebin.com/TS8EFxkr
-> 
-> The config is imx_v6_v7_defconfig.
-> 
-> Reverting it makes the kernels boot again.
+Yup, I agree: that's the current best-practice for arch-specific
+selftests.
 
-Can you check if it actually hangs in imx_ocotp_clr_err_if_set(), or if
-the clk_disable_unprepare() is the culprit?
-
-If the clock disable hangs the system there is a missing clock
-reference somewhere else that we need to track down.
-
-Regards,
-Lucas
-
+-- 
+Kees Cook
