@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 880551330F2
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:56:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 056DE133121
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 21:58:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727063AbgAGU4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:56:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51506 "EHLO mail.kernel.org"
+        id S1727210AbgAGU56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:57:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726142AbgAGU4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:56:20 -0500
+        id S1727199AbgAGU55 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:57:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CF862081E;
-        Tue,  7 Jan 2020 20:56:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CF672187F;
+        Tue,  7 Jan 2020 20:57:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430579;
-        bh=S4qaK4LSPhlFubINRDmXg3oVTW5c2uKHGKu+W2JMl1s=;
+        s=default; t=1578430676;
+        bh=ETqOKsaKnFh8ubRIRwtRQ7OHO76XvlruOB9IQrzWWYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qV1CjR5q2YIB0yA/RaDXL6fFlldGoqfeBf1KYO87Z4rrmUbNZCrjI1do6ItXM3Anc
-         i0ML3J1vNLFfe1DvwAc2sp3SfiO49d/ME0+0ftbRuKGjFwVjNDiX5qIr/Q82kuobTI
-         yJsSQo18FB35VKIH2OXji0SWzdXL93WexnkXlkeE=
+        b=zPtrqoJBm2ccKK0Quey9JR/FaUgA2q6Ls4YTNcuHnhHzpmmuh93qPGKJ1KB3abE7y
+         S0W3NDXuLifQVqkybVxtUP1M+QDrqb3wWmCRX0EekrDTiKGtoaS79HeuUcX030/bm4
+         wDXxcy+k3sPwKKI4+o5YM3ZJhe08imTIhywpJ4HU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Yang <Eric.Yang2@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Keith Busch <kbusch@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/191] drm/amd/display: update dispclk and dppclk vco frequency
-Date:   Tue,  7 Jan 2020 21:52:11 +0100
-Message-Id: <20200107205333.613297948@linuxfoundation.org>
+Subject: [PATCH 5.4 012/191] nvme/pci: Fix write and poll queue types
+Date:   Tue,  7 Jan 2020 21:52:12 +0100
+Message-Id: <20200107205333.665301104@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -45,36 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Yang <Eric.Yang2@amd.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 44ce6c3dc8479bb3ed68df13b502b0901675e7d6 ]
+[ Upstream commit 3f68baf706ec68c4120867c25bc439c845fe3e17 ]
 
-Value obtained from DV is not allowing 8k60 CTA mode with DSC to
-pass, after checking real value being used in hw, find out that
-correct value is 3600, which will allow that mode.
+The number of poll or write queues should never be negative. Use unsigned
+types so that it's not possible to break have the driver not allocate
+any queues.
 
-Signed-off-by: Eric Yang <Eric.Yang2@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/pci.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index de182185fe1f..b0e5e64df212 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -258,7 +258,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
- 	.vmm_page_size_bytes = 4096,
- 	.dram_clock_change_latency_us = 23.84,
- 	.return_bus_width_bytes = 64,
--	.dispclk_dppclk_vco_speed_mhz = 3550,
-+	.dispclk_dppclk_vco_speed_mhz = 3600,
- 	.xfc_bus_transport_time_us = 4,
- 	.xfc_xbuf_latency_tolerance_us = 4,
- 	.use_urgent_burst_bw = 1,
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 869f462e6b6e..29d7427c2b19 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -68,14 +68,14 @@ static int io_queue_depth = 1024;
+ module_param_cb(io_queue_depth, &io_queue_depth_ops, &io_queue_depth, 0644);
+ MODULE_PARM_DESC(io_queue_depth, "set io queue depth, should >= 2");
+ 
+-static int write_queues;
+-module_param(write_queues, int, 0644);
++static unsigned int write_queues;
++module_param(write_queues, uint, 0644);
+ MODULE_PARM_DESC(write_queues,
+ 	"Number of queues to use for writes. If not set, reads and writes "
+ 	"will share a queue set.");
+ 
+-static int poll_queues;
+-module_param(poll_queues, int, 0644);
++static unsigned int poll_queues;
++module_param(poll_queues, uint, 0644);
+ MODULE_PARM_DESC(poll_queues, "Number of queues to use for polled IO.");
+ 
+ struct nvme_dev;
 -- 
 2.20.1
 
