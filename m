@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD6BA1333BD
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:21:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 364A21333BE
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:21:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727652AbgAGVDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:03:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46154 "EHLO mail.kernel.org"
+        id S1728968AbgAGVDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:03:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728223AbgAGVDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:03:40 -0500
+        id S1728957AbgAGVDn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:03:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7962E20880;
-        Tue,  7 Jan 2020 21:03:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0ABD214D8;
+        Tue,  7 Jan 2020 21:03:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431019;
-        bh=/TX7Io1N26F0YAghoqFvXunFWVmzTvMzhqhIisVRMXE=;
+        s=default; t=1578431022;
+        bh=MuIb+sqGhjVYAmssrn+7TlscdFUuD8dmFEMaZbKcdMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Wgcci+WqP67UiJwF6biZ/eqwkLJdMaeOn9x9cMeHEc5I8kM4X87Lpp46JjxpUYzm
-         r6bfepmx7SaPQuPFu1otDhBeWwzomg8FrND0+9vXFXfoV+f6UeRrD0oFtxvOR2FuFj
-         X8bNzzkfT1zxLsGMYUbP/kU1U6TCKIyfYw3T0avg=
+        b=VO8FFRK1vKkGsUmV7jeJ6pxmgM1GsAxtx9jrp1QsZnE9j4AQtRQJJC59L+6P7Lm5o
+         7Ol6Lh2MfoCUCwLNasCRNGS477vJBCVuCaVS76VtRC0GvRfyABH1yt7OVbr5yiK2Pf
+         2TruW9pXAkduoQiGF7TaGQd3FsQ1eXKarFWByL9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.4 165/191] media: usb: fix memory leak in af9005_identify_state
-Date:   Tue,  7 Jan 2020 21:54:45 +0100
-Message-Id: <20200107205341.811781571@linuxfoundation.org>
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.4 166/191] dt-bindings: clock: renesas: rcar-usb2-clock-sel: Fix typo in example
+Date:   Tue,  7 Jan 2020 21:54:46 +0100
+Message-Id: <20200107205341.865549681@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -45,37 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 2289adbfa559050d2a38bcd9caac1c18b800e928 upstream.
+commit 830dbce7c76ea529decac7d23b808c1e7da3d891 upstream.
 
-In af9005_identify_state when returning -EIO the allocated buffer should
-be released. Replace the "return -EIO" with assignment into ret and move
-deb_info() under a check.
+The documented compatible value for R-Car H3 is
+"renesas,r8a7795-rcar-usb2-clock-sel", not
+"renesas,r8a77950-rcar-usb2-clock-sel".
 
-Fixes: af4e067e1dcf ("V4L/DVB (5625): Add support for the AF9005 demodulator from Afatech")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: 311accb64570db45 ("clk: renesas: rcar-usb2-clock-sel: Add R-Car USB 2.0 clock selector PHY")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20191016145650.30003-1-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/dvb-usb/af9005.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/clock/renesas,rcar-usb2-clock-sel.txt |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/dvb-usb/af9005.c
-+++ b/drivers/media/usb/dvb-usb/af9005.c
-@@ -976,8 +976,9 @@ static int af9005_identify_state(struct
- 	else if (reply == 0x02)
- 		*cold = 0;
- 	else
--		return -EIO;
--	deb_info("Identify state cold = %d\n", *cold);
-+		ret = -EIO;
-+	if (!ret)
-+		deb_info("Identify state cold = %d\n", *cold);
+--- a/Documentation/devicetree/bindings/clock/renesas,rcar-usb2-clock-sel.txt
++++ b/Documentation/devicetree/bindings/clock/renesas,rcar-usb2-clock-sel.txt
+@@ -46,7 +46,7 @@ Required properties:
+ Example (R-Car H3):
  
- err:
- 	kfree(buf);
+ 	usb2_clksel: clock-controller@e6590630 {
+-		compatible = "renesas,r8a77950-rcar-usb2-clock-sel",
++		compatible = "renesas,r8a7795-rcar-usb2-clock-sel",
+ 			     "renesas,rcar-gen3-usb2-clock-sel";
+ 		reg = <0 0xe6590630 0 0x02>;
+ 		clocks = <&cpg CPG_MOD 703>, <&usb_extal>, <&usb_xtal>;
 
 
