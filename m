@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 961D113323A
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:09:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0AF91332A6
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729680AbgAGVIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:08:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60702 "EHLO mail.kernel.org"
+        id S1729975AbgAGVMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:12:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728626AbgAGVIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:08:24 -0500
+        id S1730056AbgAGVLE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:11:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A91C24676;
-        Tue,  7 Jan 2020 21:08:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 846E62080A;
+        Tue,  7 Jan 2020 21:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431304;
-        bh=8wMR/L9fnfSwiwGUK6BsNMBdN7+S9sXEEAUFZet5tXs=;
+        s=default; t=1578431464;
+        bh=RHOGp9HQeQyoK17jjlwbXxaBDWuYVfp1PcCIQL9KW2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YXVcUHqcOyzy1dt+JCQt+Ezxo5uI1+5wj1SJVcpLJKmjW/EDQIWv/O26omQyGOVUn
-         L1y4dn3fdk5a/AtTnHjO2lBXREc7hz+sWsXyYH5ojAW8EiXlM5P4YjlfKYECYxRCTs
-         q1mi56VALFqSd5vBITjHoNHZMrn65AyYVOIyr3G4=
+        b=U3AvVLPs9XxWGE2kdLkKF/LuojzyYN0HjzgeTB56wuCdxbFGBgYHZVtv1LKpR1HvX
+         sJeITLjfNRXouD/94WN2nv12Vg9jBjz8Bo6rb+9RD0TqzrMes4/pA1xoAcPjJLU1P+
+         d1Exdlsc9di5D9BS1KM7QoMtMR1rsNrTJY7JUwps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Haener <michael.haener@siemens.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.19 085/115] platform/x86: pmc_atom: Add Siemens CONNECT X300 to critclk_systems DMI table
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Chris Down <chris@chrisdown.name>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 30/74] memcg: account security cred as well to kmemcg
 Date:   Tue,  7 Jan 2020 21:54:55 +0100
-Message-Id: <20200107205305.902992767@linuxfoundation.org>
+Message-Id: <20200107205200.946162981@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+References: <20200107205135.369001641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +47,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Haener <michael.haener@siemens.com>
+From: Shakeel Butt <shakeelb@google.com>
 
-commit e8796c6c69d129420ee94a1906b18d86b84644d4 upstream.
+commit 84029fd04c201a4c7e0b07ba262664900f47c6f5 upstream.
 
-The CONNECT X300 uses the PMC clock for on-board components and gets
-stuck during boot if the clock is disabled. Therefore, add this
-device to the critical systems list.
-Tested on CONNECT X300.
+The cred_jar kmem_cache is already memcg accounted in the current kernel
+but cred->security is not.  Account cred->security to kmemcg.
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Signed-off-by: Michael Haener <michael.haener@siemens.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Recently we saw high root slab usage on our production and on further
+inspection, we found a buggy application leaking processes.  Though that
+buggy application was contained within its memcg but we observe much
+more system memory overhead, couple of GiBs, during that period.  This
+overhead can adversely impact the isolation on the system.
+
+One source of high overhead we found was cred->security objects, which
+have a lifetime of at least the life of the process which allocated
+them.
+
+Link: http://lkml.kernel.org/r/20191205223721.40034-1-shakeelb@google.com
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Chris Down <chris@chrisdown.name>
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/pmc_atom.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ kernel/cred.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -452,6 +452,14 @@ static const struct dmi_system_id critcl
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "6ES7647-8B"),
- 		},
- 	},
-+	{
-+		.ident = "CONNECT X300",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "A5E45074588"),
-+		},
-+	},
-+
- 	{ /*sentinel*/ }
- };
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -220,7 +220,7 @@ struct cred *cred_alloc_blank(void)
+ 	new->magic = CRED_MAGIC;
+ #endif
  
+-	if (security_cred_alloc_blank(new, GFP_KERNEL) < 0)
++	if (security_cred_alloc_blank(new, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+ 
+ 	return new;
+@@ -279,7 +279,7 @@ struct cred *prepare_creds(void)
+ 	new->security = NULL;
+ #endif
+ 
+-	if (security_prepare_creds(new, old, GFP_KERNEL) < 0)
++	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+ 	validate_creds(new);
+ 	return new;
+@@ -654,7 +654,7 @@ struct cred *prepare_kernel_cred(struct
+ #ifdef CONFIG_SECURITY
+ 	new->security = NULL;
+ #endif
+-	if (security_prepare_creds(new, old, GFP_KERNEL) < 0)
++	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+ 
+ 	put_cred(old);
 
 
