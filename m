@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AEF613323F
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:09:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B08D81333D5
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:22:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729719AbgAGVIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:08:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33052 "EHLO mail.kernel.org"
+        id S1728884AbgAGVDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:03:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729715AbgAGVIg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:08:36 -0500
+        id S1728880AbgAGVDM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:03:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAC062077B;
-        Tue,  7 Jan 2020 21:08:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5CF72187F;
+        Tue,  7 Jan 2020 21:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431316;
-        bh=8+CaKwhRUt1xhJwAYRCUH2PySM5nPiC2GuV92tLAg/g=;
+        s=default; t=1578430991;
+        bh=epeORyMiRhWZ17pcB+fnCZ6JJcxseLpsrt5ws4sxbog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gk//+XURxK/a/bVtuZG3u6ZdS/bkLG46eY93O1l7ByqwKO7qL6GVeV+jPQYrHIpBl
-         kKtX/QMOo6pfF9ie1MkbeoctwYF370z81KZ6QT+bptwFE2/cr2+8HLJKa5HBT9KAHz
-         mme8bZdTvR1uTYiuOXyT21HJIpbW5EUaLMwdn3cM=
+        b=A8MN78udyHpOojExmntl3jiBM3DvomaNQJhTTnawvizVzC2z/wsSGBLpjD3UoJgnm
+         s/ZG0k5tppjXh8Bj++0Osgbfucqw/WSjKYa4FunYrgtMCI5CoPRSus7/4EcVSxa8/X
+         QBQlv8oM5nBIlb5V1KAZ/7wTDadjJNIDtu4ziRWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 090/115] regulator: ab8500: Remove AB8505 USB regulator
-Date:   Tue,  7 Jan 2020 21:55:00 +0100
-Message-Id: <20200107205306.737970845@linuxfoundation.org>
+        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 181/191] s390/smp: fix physical to logical CPU map for SMT
+Date:   Tue,  7 Jan 2020 21:55:01 +0100
+Message-Id: <20200107205342.680618787@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +44,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-commit 99c4f70df3a6446c56ca817c2d0f9c12d85d4e7c upstream.
+[ Upstream commit 72a81ad9d6d62dcb79f7e8ad66ffd1c768b72026 ]
 
-The USB regulator was removed for AB8500 in
-commit 41a06aa738ad ("regulator: ab8500: Remove USB regulator").
-It was then added for AB8505 in
-commit 547f384f33db ("regulator: ab8500: add support for ab8505").
+If an SMT capable system is not IPL'ed from the first CPU the setup of
+the physical to logical CPU mapping is broken: the IPL core gets CPU
+number 0, but then the next core gets CPU number 1. Correct would be
+that all SMT threads of CPU 0 get the subsequent logical CPU numbers.
 
-However, there was never an entry added for it in
-ab8505_regulator_match. This causes all regulators after it
-to be initialized with the wrong device tree data, eventually
-leading to an out-of-bounds array read.
+This is important since a lot of code (like e.g. the CPU topology
+code) assumes that CPU maps are setup like this. If the mapping is
+broken the system will not IPL due to broken topology masks:
 
-Given that it is not used anywhere in the kernel, it seems
-likely that similar arguments against supporting it exist for
-AB8505 (it is controlled by hardware).
+[    1.716341] BUG: arch topology broken
+[    1.716342]      the SMT domain not a subset of the MC domain
+[    1.716343] BUG: arch topology broken
+[    1.716344]      the MC domain not a subset of the BOOK domain
 
-Therefore, simply remove it like for AB8500 instead of adding
-an entry in ab8505_regulator_match.
+This scenario can usually not happen since LPARs are always IPL'ed
+from CPU 0 and also re-IPL is intiated from CPU 0. However older
+kernels did initiate re-IPL on an arbitrary CPU. If therefore a re-IPL
+from an old kernel into a new kernel is initiated this may lead to
+crash.
 
-Fixes: 547f384f33db ("regulator: ab8500: add support for ab8505")
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20191106173125.14496-1-stephan@gerhold.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by setting up the physical to logical CPU mapping correctly.
 
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/ab8500.c       |   17 -----------------
- include/linux/regulator/ab8500.h |    1 -
- 2 files changed, 18 deletions(-)
+ arch/s390/kernel/smp.c | 80 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 54 insertions(+), 26 deletions(-)
 
---- a/drivers/regulator/ab8500.c
-+++ b/drivers/regulator/ab8500.c
-@@ -956,23 +956,6 @@ static struct ab8500_regulator_info
- 		.update_val_idle	= 0x82,
- 		.update_val_normal	= 0x02,
- 	},
--	[AB8505_LDO_USB] = {
--		.desc = {
--			.name           = "LDO-USB",
--			.ops            = &ab8500_regulator_mode_ops,
--			.type           = REGULATOR_VOLTAGE,
--			.id             = AB8505_LDO_USB,
--			.owner          = THIS_MODULE,
--			.n_voltages     = 1,
--			.volt_table	= fixed_3300000_voltage,
--		},
--		.update_bank            = 0x03,
--		.update_reg             = 0x82,
--		.update_mask            = 0x03,
--		.update_val		= 0x01,
--		.update_val_idle	= 0x03,
--		.update_val_normal	= 0x01,
--	},
- 	[AB8505_LDO_AUDIO] = {
- 		.desc = {
- 			.name		= "LDO-AUDIO",
---- a/include/linux/regulator/ab8500.h
-+++ b/include/linux/regulator/ab8500.h
-@@ -38,7 +38,6 @@ enum ab8505_regulator_id {
- 	AB8505_LDO_AUX6,
- 	AB8505_LDO_INTCORE,
- 	AB8505_LDO_ADC,
--	AB8505_LDO_USB,
- 	AB8505_LDO_AUDIO,
- 	AB8505_LDO_ANAMIC1,
- 	AB8505_LDO_ANAMIC2,
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index d95c85780e07..06dddd7c4290 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -727,39 +727,67 @@ static void __ref smp_get_core_info(struct sclp_core_info *info, int early)
+ 
+ static int smp_add_present_cpu(int cpu);
+ 
+-static int __smp_rescan_cpus(struct sclp_core_info *info, int sysfs_add)
++static int smp_add_core(struct sclp_core_entry *core, cpumask_t *avail,
++			bool configured, bool early)
+ {
+ 	struct pcpu *pcpu;
+-	cpumask_t avail;
+-	int cpu, nr, i, j;
++	int cpu, nr, i;
+ 	u16 address;
+ 
+ 	nr = 0;
+-	cpumask_xor(&avail, cpu_possible_mask, cpu_present_mask);
+-	cpu = cpumask_first(&avail);
+-	for (i = 0; (i < info->combined) && (cpu < nr_cpu_ids); i++) {
+-		if (sclp.has_core_type && info->core[i].type != boot_core_type)
++	if (sclp.has_core_type && core->type != boot_core_type)
++		return nr;
++	cpu = cpumask_first(avail);
++	address = core->core_id << smp_cpu_mt_shift;
++	for (i = 0; (i <= smp_cpu_mtid) && (cpu < nr_cpu_ids); i++) {
++		if (pcpu_find_address(cpu_present_mask, address + i))
+ 			continue;
+-		address = info->core[i].core_id << smp_cpu_mt_shift;
+-		for (j = 0; j <= smp_cpu_mtid; j++) {
+-			if (pcpu_find_address(cpu_present_mask, address + j))
+-				continue;
+-			pcpu = pcpu_devices + cpu;
+-			pcpu->address = address + j;
+-			pcpu->state =
+-				(cpu >= info->configured*(smp_cpu_mtid + 1)) ?
+-				CPU_STATE_STANDBY : CPU_STATE_CONFIGURED;
+-			smp_cpu_set_polarization(cpu, POLARIZATION_UNKNOWN);
+-			set_cpu_present(cpu, true);
+-			if (sysfs_add && smp_add_present_cpu(cpu) != 0)
+-				set_cpu_present(cpu, false);
+-			else
+-				nr++;
+-			cpu = cpumask_next(cpu, &avail);
+-			if (cpu >= nr_cpu_ids)
++		pcpu = pcpu_devices + cpu;
++		pcpu->address = address + i;
++		if (configured)
++			pcpu->state = CPU_STATE_CONFIGURED;
++		else
++			pcpu->state = CPU_STATE_STANDBY;
++		smp_cpu_set_polarization(cpu, POLARIZATION_UNKNOWN);
++		set_cpu_present(cpu, true);
++		if (!early && smp_add_present_cpu(cpu) != 0)
++			set_cpu_present(cpu, false);
++		else
++			nr++;
++		cpumask_clear_cpu(cpu, avail);
++		cpu = cpumask_next(cpu, avail);
++	}
++	return nr;
++}
++
++static int __smp_rescan_cpus(struct sclp_core_info *info, bool early)
++{
++	struct sclp_core_entry *core;
++	cpumask_t avail;
++	bool configured;
++	u16 core_id;
++	int nr, i;
++
++	nr = 0;
++	cpumask_xor(&avail, cpu_possible_mask, cpu_present_mask);
++	/*
++	 * Add IPL core first (which got logical CPU number 0) to make sure
++	 * that all SMT threads get subsequent logical CPU numbers.
++	 */
++	if (early) {
++		core_id = pcpu_devices[0].address >> smp_cpu_mt_shift;
++		for (i = 0; i < info->configured; i++) {
++			core = &info->core[i];
++			if (core->core_id == core_id) {
++				nr += smp_add_core(core, &avail, true, early);
+ 				break;
++			}
+ 		}
+ 	}
++	for (i = 0; i < info->combined; i++) {
++		configured = i < info->configured;
++		nr += smp_add_core(&info->core[i], &avail, configured, early);
++	}
+ 	return nr;
+ }
+ 
+@@ -808,7 +836,7 @@ void __init smp_detect_cpus(void)
+ 
+ 	/* Add CPUs present at boot */
+ 	get_online_cpus();
+-	__smp_rescan_cpus(info, 0);
++	__smp_rescan_cpus(info, true);
+ 	put_online_cpus();
+ 	memblock_free_early((unsigned long)info, sizeof(*info));
+ }
+@@ -1153,7 +1181,7 @@ int __ref smp_rescan_cpus(void)
+ 	smp_get_core_info(info, 0);
+ 	get_online_cpus();
+ 	mutex_lock(&smp_cpu_state_mutex);
+-	nr = __smp_rescan_cpus(info, 1);
++	nr = __smp_rescan_cpus(info, false);
+ 	mutex_unlock(&smp_cpu_state_mutex);
+ 	put_online_cpus();
+ 	kfree(info);
+-- 
+2.20.1
+
 
 
