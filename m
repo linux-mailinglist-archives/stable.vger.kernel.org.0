@@ -2,69 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBBCA132EC9
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 19:58:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D09FB132EE2
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 19:59:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728659AbgAGS6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 13:58:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58528 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728550AbgAGS6B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 13:58:01 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33D3C2081E;
-        Tue,  7 Jan 2020 18:58:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578423481;
-        bh=0kzkaTId9GUlgG+1rgKgSR1hmuFSu2R8+JP+t3YE+BQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bDoBhbROxQ95wWByF4/C+Yk9t8ShPkCEh4garzTwM5RA+Lk+pujsXZkpFtWR/ORIk
-         zAzamidTq62FT05nMlRbBsB5/vP/Skqb/kGYKIk3NtxURrXXY+/83zYnCAFEzVAA2M
-         AmxTQxQGbLohQViW62AyC6cDES9uvLePm0rQwlz4=
-Date:   Tue, 7 Jan 2020 13:58:00 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        Aleksandr Yashkin <a.yashkin@inango-systems.com>
-Subject: Re: [PATCH v4.9.z] pstore/ram: Write new dumps to start of recycled
- zones
-Message-ID: <20200107185800.GB1706@sasha-vm>
-References: <202001071023.9BFD4C51@keescook>
+        id S1728617AbgAGS7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 13:59:50 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35680 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728358AbgAGS7u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 13:59:50 -0500
+Received: from [167.98.27.226] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iou4y-0007Yc-E1; Tue, 07 Jan 2020 18:59:48 +0000
+Received: from ben by deadeye with local (Exim 4.93)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iou4x-00693y-QG; Tue, 07 Jan 2020 18:59:47 +0000
+Message-ID: <524de39bbeee91d14561e411d55e9f3aa29be96f.camel@decadent.org.uk>
+Subject: Re: [stable] x86/atomic functions missing memory clobber
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Jari Ruusu <jariruusu@users.sourceforge.net>,
+        stable <stable@vger.kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Date:   Tue, 07 Jan 2020 18:59:43 +0000
+In-Reply-To: <20200107181450.GA2014625@kroah.com>
+References: <90b417dcc1db1dfa637d9369af237879dda97e96.camel@decadent.org.uk>
+         <20200107181450.GA2014625@kroah.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-yYD1g1DEQhieM0PjrXjl"
+User-Agent: Evolution 3.34.1-2+b1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <202001071023.9BFD4C51@keescook>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 167.98.27.226
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 07, 2020 at 10:25:16AM -0800, Kees Cook wrote:
->From: Aleksandr Yashkin <a.yashkin@inango-systems.com>
->
->[ Upstream commit 9e5f1c19800b808a37fb9815a26d382132c26c3d ]
->
->The ram_core.c routines treat przs as circular buffers. When writing a
->new crash dump, the old buffer needs to be cleared so that the new dump
->doesn't end up in the wrong place (i.e. at the end).
->
->The solution to this problem is to reset the circular buffer state before
->writing a new Oops dump.
->
->Signed-off-by: Aleksandr Yashkin <a.yashkin@inango-systems.com>
->Signed-off-by: Nikolay Merinov <n.merinov@inango-systems.com>
->Signed-off-by: Ariel Gilman <a.gilman@inango-systems.com>
->Link: https://lore.kernel.org/r/20191223133816.28155-1-n.merinov@inango-systems.com
->Fixes: 896fc1f0c4c6 ("pstore/ram: Switch to persistent_ram routines")
->[kees: backport to v4.9]
->Link: https://lore.kernel.org/stable/157831399811194@kroah.com
->Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Thanks Kees, I've queued both this and the 4.4 patch up.
+--=-yYD1g1DEQhieM0PjrXjl
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Thanks,
-Sasha
+On Tue, 2020-01-07 at 19:14 +0100, Greg Kroah-Hartman wrote:
+> On Tue, Jan 07, 2020 at 05:48:55PM +0000, Ben Hutchings wrote:
+> > I noticed that backports of commit 69d927bba395 "x86/atomic: Fix
+> > smp_mb__{before,after}_atomic()" didn't touch atomic_or_long() (present
+> > in 3.16) or atomic_inc_short() (present in 4.9 and earlier).
+> >=20
+> > These functions were only implemented on x86 and not actually used in-
+> > tree.  But it's possible they are used by some out-of-tree module, and
+> > that commit removed compiler barriers for them.
+> >=20
+> > Would it might make sense to either
+> > 1. Add the memory clobber to these functions, or
+> > 2. Delete them
+> > on the affected stable branches?
+>=20
+> Looks like we can drop atomic_inc_short for 4.9 as there are no users,
+> same for 4.4.  I'll go do that now.  It's not like the "fix" is really
+> needed here because of that :)
+
+Upstream commit for this is:
+
+commit 31b35f6b4d5285a311e10753f4eb17304326b211
+Author: Dmitry Vyukov <dvyukov@google.com>
+Date:   Fri May 26 19:29:00 2017 +0200
+
+    locking/x86: Remove the unused atomic_inc_short() methd
+
+Ben.
+
+--=20
+Ben Hutchings
+Larkinson's Law: All laws are basically false.
+
+
+
+--=-yYD1g1DEQhieM0PjrXjl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl4U1R8ACgkQ57/I7JWG
+EQllhBAAubATrS8jOsxaGZYhdo1XaE7Go98it6FXNh9mjouZ7Nk4lXjTBOtM2XKn
+GcshN7zs/b/D4qWUCTCJMugswlk6okcHsRTeoup2iNSqC58MOhWR/40MrkEicArP
+H4iY03AteckZHX5F3Z4ECvRqo96xrbzRsaNy+Xw+QBMXveWiPc38kRGMAVSAwP+g
+PnedhunKP4q4MfW1gx1GYJeG5apXxc4pDnokDcJtg+/TCiiLBvbYuynoKoWq1VZk
+ndIoCMf63y2601AeU9vpfY5kgbww93E0Azvb4QWgAoCM9/mbenxWyJC+gEDd5ZPT
+CkFmdtqBI9Ka/+hHOKMMUvLCqgPvwKnrqUXjtsYGH2ONiSBIufnMuR6FS6XCtq26
+1Aw9lXDSHbLChxNOnbY866qhip5RIxFY/L29FPy69MvtecSxe/dbwJvEtY43Mn4o
+yeCFHoMQEUFIPAH8qGs6nmf6iJWQyJ9Gw8J6sOCzzUUSoKlIQQHTfxmr4DvnHBj1
+C++1078pMma798RsXG9u2Di6p/gNViYxPi5xijtGxUGAfI1Ovq3eYRaVUw1Eu2tc
+Zc0dD4w0medwL3xEmFNxguk4o7dTejfwGZ7h46l+4lfdkr3fxShWh1Y3Tpl8Tts5
+57AbkLCZnev7NGDYWDZsn6naGSh2wBSxiPRDnnvGDo++Ov03XpU=
+=BGFN
+-----END PGP SIGNATURE-----
+
+--=-yYD1g1DEQhieM0PjrXjl--
