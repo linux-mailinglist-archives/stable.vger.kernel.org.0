@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE2E5133475
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:26:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D1613347E
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:26:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727640AbgAGU7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:59:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59694 "EHLO mail.kernel.org"
+        id S1727855AbgAGV0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:26:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728071AbgAGU7H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:59:07 -0500
+        id S1726530AbgAGU7J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:59:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BEC1214D8;
-        Tue,  7 Jan 2020 20:59:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9411C2187F;
+        Tue,  7 Jan 2020 20:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430746;
-        bh=w7hS21l4Ab8SljiLavSQJM154nNNKvNmXLEasB/FU8A=;
+        s=default; t=1578430749;
+        bh=NVsxMQ3v1I6dMBoAALMMlLOJsLnNwpJXcr0Inp9m5/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3QO+wRPXOoG6dc/y/TXyBt+G1gyyzcjHvuXM1gp780beIDzwvhyAFpK/tD8wRuQJ
-         JcegRWlyj5PPE54O1JZEgRAI2ekYtoPsyaE77iccumG7oPrBep+vBn1oinxKW7ADit
-         UpM15AwTG6H74uNGdoVE167xm89pWDyzyxE5AUzw=
+        b=J+IfHh2GEGHgEGfTcXqvRh9lfvsGaWHnc9CJfuxCEHJkpdZGlSCEEytojoJB/44rY
+         eNtco2aMOsbanxQnBCxukl/LPvup9NuAHD7Xk0pB7gPjMviXIo1jghTr7Mn3Hs5A4Z
+         N9iJhReI1LpdlHSl/jw8NFEKJq/tmsNdgPK7Q0k8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christian Brauner <christian.brauner@canonical.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        linux-mips@vger.kernel.org
-Subject: [PATCH 5.4 078/191] MIPS: Avoid VDSO ABI breakage due to global register variable
-Date:   Tue,  7 Jan 2020 21:53:18 +0100
-Message-Id: <20200107205337.156961744@linuxfoundation.org>
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 079/191] media: pulse8-cec: fix lost cec_transmit_attempt_done() call
+Date:   Tue,  7 Jan 2020 21:53:19 +0100
+Message-Id: <20200107205337.211266540@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -47,97 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@kernel.org>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit bbcc5672b0063b0e9d65dc8787a4f09c3b5bb5cc upstream.
+commit e5a52a1d15c79bb48a430fb263852263ec1d3f11 upstream.
 
-Declaring __current_thread_info as a global register variable has the
-effect of preventing GCC from saving & restoring its value in cases
-where the ABI would typically do so.
+The periodic PING command could interfere with the result of
+a CEC transmit, causing a lost cec_transmit_attempt_done()
+call.
 
-To quote GCC documentation:
-
-> If the register is a call-saved register, call ABI is affected: the
-> register will not be restored in function epilogue sequences after the
-> variable has been assigned. Therefore, functions cannot safely return
-> to callers that assume standard ABI.
-
-When our position independent VDSO is built for the n32 or n64 ABIs all
-functions it exposes should be preserving the value of $gp/$28 for their
-caller, but in the presence of the __current_thread_info global register
-variable GCC stops doing so & simply clobbers $gp/$28 when calculating
-the address of the GOT.
-
-In cases where the VDSO returns success this problem will typically be
-masked by the caller in libc returning & restoring $gp/$28 itself, but
-that is by no means guaranteed. In cases where the VDSO returns an error
-libc will typically contain a fallback path which will now fail
-(typically with a bad memory access) if it attempts anything which
-relies upon the value of $gp/$28 - eg. accessing anything via the GOT.
-
-One fix for this would be to move the declaration of
-__current_thread_info inside the current_thread_info() function,
-demoting it from global register variable to local register variable &
-avoiding inadvertently creating a non-standard calling ABI for the VDSO.
-Unfortunately this causes issues for clang, which doesn't support local
-register variables as pointed out by commit fe92da0f355e ("MIPS: Changed
-current_thread_info() to an equivalent supported by both clang and GCC")
-which introduced the global register variable before we had a VDSO to
-worry about.
-
-Instead, fix this by continuing to use the global register variable for
-the kernel proper but declare __current_thread_info as a simple extern
-variable when building the VDSO. It should never be referenced, and will
-cause a link error if it is. This resolves the calling convention issue
-for the VDSO without having any impact upon the build of the kernel
-itself for either clang or gcc.
-
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
-Reported-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Christian Brauner <christian.brauner@canonical.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: <stable@vger.kernel.org> # v4.4+
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: <stable@vger.kernel.org>      # for v4.10 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/include/asm/thread_info.h |   20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ drivers/media/usb/pulse8-cec/pulse8-cec.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/arch/mips/include/asm/thread_info.h
-+++ b/arch/mips/include/asm/thread_info.h
-@@ -49,8 +49,26 @@ struct thread_info {
- 	.addr_limit	= KERNEL_DS,		\
- }
- 
--/* How to get the thread information struct from C.  */
-+/*
-+ * A pointer to the struct thread_info for the currently executing thread is
-+ * held in register $28/$gp.
-+ *
-+ * We declare __current_thread_info as a global register variable rather than a
-+ * local register variable within current_thread_info() because clang doesn't
-+ * support explicit local register variables.
-+ *
-+ * When building the VDSO we take care not to declare the global register
-+ * variable because this causes GCC to not preserve the value of $28/$gp in
-+ * functions that change its value (which is common in the PIC VDSO when
-+ * accessing the GOT). Since the VDSO shouldn't be accessing
-+ * __current_thread_info anyway we declare it extern in order to cause a link
-+ * failure if it's referenced.
-+ */
-+#ifdef __VDSO__
-+extern struct thread_info *__current_thread_info;
-+#else
- register struct thread_info *__current_thread_info __asm__("$28");
-+#endif
- 
- static inline struct thread_info *current_thread_info(void)
+--- a/drivers/media/usb/pulse8-cec/pulse8-cec.c
++++ b/drivers/media/usb/pulse8-cec/pulse8-cec.c
+@@ -116,6 +116,7 @@ struct pulse8 {
+ 	unsigned int vers;
+ 	struct completion cmd_done;
+ 	struct work_struct work;
++	u8 work_result;
+ 	struct delayed_work ping_eeprom_work;
+ 	struct cec_msg rx_msg;
+ 	u8 data[DATA_SIZE];
+@@ -137,8 +138,10 @@ static void pulse8_irq_work_handler(stru
  {
+ 	struct pulse8 *pulse8 =
+ 		container_of(work, struct pulse8, work);
++	u8 result = pulse8->work_result;
+ 
+-	switch (pulse8->data[0] & 0x3f) {
++	pulse8->work_result = 0;
++	switch (result & 0x3f) {
+ 	case MSGCODE_FRAME_DATA:
+ 		cec_received_msg(pulse8->adap, &pulse8->rx_msg);
+ 		break;
+@@ -172,12 +175,12 @@ static irqreturn_t pulse8_interrupt(stru
+ 		pulse8->escape = false;
+ 	} else if (data == MSGEND) {
+ 		struct cec_msg *msg = &pulse8->rx_msg;
++		u8 msgcode = pulse8->buf[0];
+ 
+ 		if (debug)
+ 			dev_info(pulse8->dev, "received: %*ph\n",
+ 				 pulse8->idx, pulse8->buf);
+-		pulse8->data[0] = pulse8->buf[0];
+-		switch (pulse8->buf[0] & 0x3f) {
++		switch (msgcode & 0x3f) {
+ 		case MSGCODE_FRAME_START:
+ 			msg->len = 1;
+ 			msg->msg[0] = pulse8->buf[1];
+@@ -186,14 +189,20 @@ static irqreturn_t pulse8_interrupt(stru
+ 			if (msg->len == CEC_MAX_MSG_SIZE)
+ 				break;
+ 			msg->msg[msg->len++] = pulse8->buf[1];
+-			if (pulse8->buf[0] & MSGCODE_FRAME_EOM)
++			if (msgcode & MSGCODE_FRAME_EOM) {
++				WARN_ON(pulse8->work_result);
++				pulse8->work_result = msgcode;
+ 				schedule_work(&pulse8->work);
++				break;
++			}
+ 			break;
+ 		case MSGCODE_TRANSMIT_SUCCEEDED:
+ 		case MSGCODE_TRANSMIT_FAILED_LINE:
+ 		case MSGCODE_TRANSMIT_FAILED_ACK:
+ 		case MSGCODE_TRANSMIT_FAILED_TIMEOUT_DATA:
+ 		case MSGCODE_TRANSMIT_FAILED_TIMEOUT_LINE:
++			WARN_ON(pulse8->work_result);
++			pulse8->work_result = msgcode;
+ 			schedule_work(&pulse8->work);
+ 			break;
+ 		case MSGCODE_HIGH_ERROR:
 
 
