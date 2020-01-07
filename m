@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53FB81332FB
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:16:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F351332C8
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729552AbgAGVHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:07:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58440 "EHLO mail.kernel.org"
+        id S1729871AbgAGVJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:09:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729546AbgAGVHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:07:31 -0500
+        id S1729899AbgAGVJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:09:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D68D208C4;
-        Tue,  7 Jan 2020 21:07:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C00F72072A;
+        Tue,  7 Jan 2020 21:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431250;
-        bh=aOZ5Zd1lbSAteEr5LJ2AOgThOLfNS16FyuGXJpkXz6s=;
+        s=default; t=1578431398;
+        bh=lfWjhJOim8/hVj2RmOHfNBLhqUiZM0pgfFhdbKid6Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=md+26HfRvq8CsbtDpz3HbhjlcXho2JxisgRsefTKBMm2GQtugInZkrtjTnvOFF6JJ
-         /8QQrvXLl+6KtmuW81V5QbAxkVn7eFtgfe6s/gE2+YGdbp0DXemuFL0YEqgG6LibSu
-         Od9539C3/4HSf6LQuE8+bHR024SIZPuNlriVbAns=
+        b=QFdXFDQ451mima3swj4jkp+mW2VO5BswS1a5FT7y+VXtSvjAdoI+MMd9EbXTqB9ba
+         Wa5K5gT7JoCflnVBAZnDMcm06gFNyyxezrS9D3WKHCIEByrnW7FLkYl21iQk46Ncmu
+         cqxqC0UxisWYuJSb8UGfNQD6R3n94ftSwsy2yS7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 096/115] bdev: Factor out bdev revalidation into a common helper
+        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
+        Sven Schnelle <svens@stackframe.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 41/74] tracing: Have the histogram compare functions convert to u64 first
 Date:   Tue,  7 Jan 2020 21:55:06 +0100
-Message-Id: <20200107205307.270373105@linuxfoundation.org>
+Message-Id: <20200107205209.661060649@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+References: <20200107205135.369001641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 731dc4868311ee097757b8746eaa1b4f8b2b4f1c upstream.
+commit 106f41f5a302cb1f36c7543fae6a05de12e96fa4 upstream.
 
-Factor out code handling revalidation of bdev on disk change into a
-common helper.
+The compare functions of the histogram code would be specific for the size
+of the value being compared (byte, short, int, long long). It would
+reference the value from the array via the type of the compare, but the
+value was stored in a 64 bit number. This is fine for little endian
+machines, but for big endian machines, it would end up comparing zeros or
+all ones (depending on the sign) for anything but 64 bit numbers.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+To fix this, first derference the value as a u64 then convert it to the type
+being compared.
+
+Link: http://lkml.kernel.org/r/20191211103557.7bed6928@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Fixes: 08d43a5fa063e ("tracing: Add lock-free tracing_map")
+Acked-by: Tom Zanussi <zanussi@kernel.org>
+Reported-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/block_dev.c |   26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ kernel/trace/tracing_map.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -1430,6 +1430,14 @@ EXPORT_SYMBOL(bd_set_size);
- 
- static void __blkdev_put(struct block_device *bdev, fmode_t mode, int for_part);
- 
-+static void bdev_disk_changed(struct block_device *bdev, bool invalidate)
-+{
-+	if (invalidate)
-+		invalidate_partitions(bdev->bd_disk, bdev);
-+	else
-+		rescan_partitions(bdev->bd_disk, bdev);
-+}
-+
- /*
-  * bd_mutex locking:
-  *
-@@ -1512,12 +1520,9 @@ static int __blkdev_get(struct block_dev
- 			 * The latter is necessary to prevent ghost
- 			 * partitions on a removed medium.
- 			 */
--			if (bdev->bd_invalidated) {
--				if (!ret)
--					rescan_partitions(disk, bdev);
--				else if (ret == -ENOMEDIUM)
--					invalidate_partitions(disk, bdev);
--			}
-+			if (bdev->bd_invalidated &&
-+			    (!ret || ret == -ENOMEDIUM))
-+				bdev_disk_changed(bdev, ret == -ENOMEDIUM);
- 
- 			if (ret)
- 				goto out_clear;
-@@ -1550,12 +1555,9 @@ static int __blkdev_get(struct block_dev
- 			if (bdev->bd_disk->fops->open)
- 				ret = bdev->bd_disk->fops->open(bdev, mode);
- 			/* the same as first opener case, read comment there */
--			if (bdev->bd_invalidated) {
--				if (!ret)
--					rescan_partitions(bdev->bd_disk, bdev);
--				else if (ret == -ENOMEDIUM)
--					invalidate_partitions(bdev->bd_disk, bdev);
--			}
-+			if (bdev->bd_invalidated &&
-+			    (!ret || ret == -ENOMEDIUM))
-+				bdev_disk_changed(bdev, ret == -ENOMEDIUM);
- 			if (ret)
- 				goto out_unlock_bdev;
- 		}
+--- a/kernel/trace/tracing_map.c
++++ b/kernel/trace/tracing_map.c
+@@ -90,8 +90,8 @@ static int tracing_map_cmp_atomic64(void
+ #define DEFINE_TRACING_MAP_CMP_FN(type)					\
+ static int tracing_map_cmp_##type(void *val_a, void *val_b)		\
+ {									\
+-	type a = *(type *)val_a;					\
+-	type b = *(type *)val_b;					\
++	type a = (type)(*(u64 *)val_a);					\
++	type b = (type)(*(u64 *)val_b);					\
+ 									\
+ 	return (a > b) ? 1 : ((a < b) ? -1 : 0);			\
+ }
 
 
