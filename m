@@ -2,92 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A913D1336DB
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 23:50:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57820133713
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 00:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727169AbgAGWuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 17:50:54 -0500
-Received: from mail-wr1-f42.google.com ([209.85.221.42]:35235 "EHLO
-        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727077AbgAGWuy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 17:50:54 -0500
-Received: by mail-wr1-f42.google.com with SMTP id g17so1402028wro.2
-        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 14:50:53 -0800 (PST)
+        id S1727095AbgAGXI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 18:08:28 -0500
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:36011 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727074AbgAGXI2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 18:08:28 -0500
+Received: by mail-oi1-f193.google.com with SMTP id c16so1045920oic.3;
+        Tue, 07 Jan 2020 15:08:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=kGdlMxJ7dUlI7MSYVuCRK3DU5uPjNi+s0QHfsmOHgOo=;
-        b=OYpNH65gVqrOe8mwiPhF3nflqv9pL6joB1Bs6HVc/fkpW6F1d+TLD1zgunikGI3SMd
-         w/N0wL2OUM1EBeDwr8hiutOZS2G9itFIy3CNf2bYu7eSCaZi/wJhc3KvY5SrRMrCsiFM
-         rw6ToNAV0rrGBR6LO9jKxUPqpY34Z75DmaoMFhI5S/zyxJHxJlYyJHjQyEX2Au60oTSm
-         5zSobaAqulnYDYW1alsqPlhjmHBkbvNEaYYdeAfOeTh8vc/6zihJCRdrz/8XKD2QXsko
-         oa2X/VzNEH4ThbrE34P7kha/Pxmdph4KtfXA+r4V/AL0stMnIKTV6DCBpguLM8i3zugf
-         Bfig==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=Me8p44OHEqgPZhBG5+FV+ac90SFtMdoqaV35MndRxEM=;
+        b=hijSl3niO27gP0mmOWLLGPyLQ/8rPj0i20vGWj9ly71XDolju6F7wLF7A7Ik+ZC83h
+         swkbBGXVTGn9gohkiEboOfEH020Ec5WdI4pmvCQq6/KxbtL9k43I6iOKdp88GFDWd4FX
+         QhuxWOKC/SPlfIm3xI2cHzUnH9XnPsz0QGbgRtUCSjKdIb08ounyAllVl1fohUuTMMSJ
+         0lhEH4CxBSi55Gw2A4at7k9eWixIHo5IjWtFRMTIgb8bRxW8GMednbYcF4isUZzKSojO
+         j/MB7dluxUvu8kwKmqwfLSdlmDw+D5noZVHBpWR+uUfp+Mp+uKOBPYQPLwn1B4GaT/bv
+         rJ4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=kGdlMxJ7dUlI7MSYVuCRK3DU5uPjNi+s0QHfsmOHgOo=;
-        b=MaH4OP+3jA90FITPuo89OWpMbq4Hp9gfwXYnR+OBm77uAehmMCS/ShSF1EXDHGeRzl
-         V6GVsLW6t2bHaiJlEdfdZotuztJ8S7qxdtwA7XBEh2aAwLpm/53t2rSkAlX7euYV473p
-         B5z9wGEtWqFAHgX+5UxNJQEugls4LTww7ZX5Nse/32EdBeceFBn+zjW85Cj65cVlTlph
-         tO/0AI0c+T2aO+W5XlizFd3e2i7vpx4E91+RdNH0YwDuFE+xEEFJqU5UO0IvgTdVCOAG
-         b7s0m/tJNeFcLD8pfIP7ABqGNNNewCYPZdCfq8VUXV+oVQm2uPhEofGS/zdJJ+3/jQZG
-         Ny/Q==
-X-Gm-Message-State: APjAAAWxte1BdvX0qKQVtLzsOe1nsQe6Tqj9kAP3N/VK2I+H2p8ntD5B
-        floCpk4/bG+42Rac+sS/XgE06xY5oyigLQ==
-X-Google-Smtp-Source: APXvYqy05ytnT7XCZ29SqgqwFzTnUDFDUBjQ5oG+T0B+YciPceoM8EucSI2OR9FFBYrPAFQFA3ZO5A==
-X-Received: by 2002:adf:e5cb:: with SMTP id a11mr1276261wrn.28.1578437452187;
-        Tue, 07 Jan 2020 14:50:52 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id t81sm1385795wmg.6.2020.01.07.14.50.51
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jan 2020 14:50:51 -0800 (PST)
-Message-ID: <5e150b4b.1c69fb81.4a62e.74e7@mx.google.com>
-Date:   Tue, 07 Jan 2020 14:50:51 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Me8p44OHEqgPZhBG5+FV+ac90SFtMdoqaV35MndRxEM=;
+        b=DMV8GCbvYIkg2Feil2hzwmi9yqbRT6pu4KTYxsBOkygRb/ll27A7LTA9yM/5ocESoe
+         lklVhlBftwMSqtJzDImM2HMIGdp+Af5iGeuKjhc2pJH3mx7HF3tyRM7ZrhKI+ul15sf+
+         moUxERa50JBdZE62AoXqg7lfGJ+EvZLnE4ek0t8tmM/6gGBQ0uWNeTNxfryw4IVrNLVp
+         TUp4bEz3ptpYwUMlYMZbLJHm3u0YP0d5w9raXx8cPUBn/BZGCs9trbwEDMUNktQd1mbl
+         ATO6/Oh9lJ1p3E1hoJlWqsZK1rx5GzIg/owo/V5HbuTQBVlG5m19YtxzHX+b8uru4W11
+         BLaQ==
+X-Gm-Message-State: APjAAAWbMB/GBTy6dmy/a9D2p3GfLYj6H134kUw0hBAurkUs5Tu0GRNb
+        4f+MCQlYAMHcTreyDmo3MXc=
+X-Google-Smtp-Source: APXvYqzsCDZaKQuQmzyP3J+5LbIO/RG9HR1AzTfJ4Td96j2kx5cdk1Ti8pUR43TlXjf3SWeN1DPymA==
+X-Received: by 2002:a54:4896:: with SMTP id r22mr760564oic.30.1578438507108;
+        Tue, 07 Jan 2020 15:08:27 -0800 (PST)
+Received: from ubuntu-m2-xlarge-x86 ([2604:1380:4111:8b00::1])
+        by smtp.gmail.com with ESMTPSA id n25sm454794oic.6.2020.01.07.15.08.26
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 07 Jan 2020 15:08:26 -0800 (PST)
+Date:   Tue, 7 Jan 2020 16:08:25 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.14 65/74] coresight: tmc-etf: Do not call
+ smp_processor_id from preemptible
+Message-ID: <20200107230825.GA26430@ubuntu-m2-xlarge-x86>
+References: <20200107205135.369001641@linuxfoundation.org>
+ <20200107205228.054429793@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.207-207-g455c61b76ca6
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 28 boots: 0 failed,
- 27 passed with 1 untried/unknown (v4.9.207-207-g455c61b76ca6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200107205228.054429793@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 28 boots: 0 failed, 27 passed with 1 untried/un=
-known (v4.9.207-207-g455c61b76ca6)
+On Tue, Jan 07, 2020 at 09:55:30PM +0100, Greg Kroah-Hartman wrote:
+> From: Suzuki K Poulose <suzuki.poulose@arm.com>
+> 
+> [ Upstream commit 024c1fd9dbcc1d8a847f1311f999d35783921b7f ]
+> 
+> During a perf session we try to allocate buffers on the "node" associated
+> with the CPU the event is bound to. If it is not bound to a CPU, we
+> use the current CPU node, using smp_processor_id(). However this is unsafe
+> in a pre-emptible context and could generate the splats as below :
+> 
+>  BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
+>  caller is tmc_alloc_etf_buffer+0x5c/0x60
+>  CPU: 2 PID: 2544 Comm: perf Not tainted 5.1.0-rc6-147786-g116841e #344
+>  Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Feb  1 2019
+>  Call trace:
+>   dump_backtrace+0x0/0x150
+>   show_stack+0x14/0x20
+>   dump_stack+0x9c/0xc4
+>   debug_smp_processor_id+0x10c/0x110
+>   tmc_alloc_etf_buffer+0x5c/0x60
+>   etm_setup_aux+0x1c4/0x230
+>   rb_alloc_aux+0x1b8/0x2b8
+>   perf_mmap+0x35c/0x478
+>   mmap_region+0x34c/0x4f0
+>   do_mmap+0x2d8/0x418
+>   vm_mmap_pgoff+0xd0/0xf8
+>   ksys_mmap_pgoff+0x88/0xf8
+>   __arm64_sys_mmap+0x28/0x38
+>   el0_svc_handler+0xd8/0x138
+>   el0_svc+0x8/0xc
+> 
+> Use NUMA_NO_NODE hint instead of using the current node for events
+> not bound to CPUs.
+> 
+> Fixes: 2e499bbc1a929ac ("coresight: tmc: implementing TMC-ETF AUX space API")
+> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+> Cc: stable <stable@vger.kernel.org> # 4.7+
+> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+> Link: https://lore.kernel.org/r/20190620221237.3536-4-mathieu.poirier@linaro.org
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/hwtracing/coresight/coresight-tmc-etf.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+> index 336194d059fe..329a201c0c19 100644
+> --- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
+> +++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+> @@ -308,9 +308,7 @@ static void *tmc_alloc_etf_buffer(struct coresight_device *csdev, int cpu,
+>  	int node;
+>  	struct cs_buffers *buf;
+>  
+> -	if (cpu == -1)
+> -		cpu = smp_processor_id();
+> -	node = cpu_to_node(cpu);
+> +	node = (event->cpu == -1) ? NUMA_NO_NODE : cpu_to_node(event->cpu);
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.207-207-g455c61b76ca6/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.207-207-g455c61b76ca6/
+This breaks the build on 4.14 (and I believe 4.19 from the looks of it)
+because the event variable is not available without
+commit a0f08a6a9fee ("coresight: Communicate perf event to sink buffer
+allocation functions") from upstream. I am not sure how this should be
+fixed (either backporting the above commit or changing this one somehow)
+but it should be dropped in the meantime.
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.207-207-g455c61b76ca6
-Git Commit: 455c61b76ca6a510e7f539a6bf611d20116115bd
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 22 unique boards, 9 SoC families, 9 builds out of 183
-
-Boot Regressions Detected:
-
-arm:
-
-    davinci_all_defconfig:
-        gcc-8:
-          da850-lcdk:
-              lab-baylibre: new failure (last pass: v4.9.207-171-g9142f346a=
-4e1)
-
----
-For more info write to <info@kernelci.org>
+Cheers,
+Nathan
