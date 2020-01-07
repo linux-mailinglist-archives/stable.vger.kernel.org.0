@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E96A133242
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:09:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F283133244
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:09:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729190AbgAGVIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729581AbgAGVIr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Jan 2020 16:08:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33354 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728302AbgAGVIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:08:44 -0500
+        id S1729396AbgAGVIq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:08:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E09E20678;
-        Tue,  7 Jan 2020 21:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79DD42077B;
+        Tue,  7 Jan 2020 21:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431323;
-        bh=KK+5yYKzMqfExUm1Q7OA2DXas8OiqEY0Rb4BgmOYD/w=;
+        s=default; t=1578431325;
+        bh=CRSYanrevbBQa/Zw9QCai8OxZvEjcDAaH1Zxwba6rkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WRVTTXUGSOQeAtdDpXh3fnpOz9P3QrClf1xJ+sb9NOH/78vVwQxQszLX+bVnLtqcA
-         38mWM4mYOJhh+rjpZi2ddRgkRjjFZrpvhs3VNfkm1EGJBfEC1CeSV0zRcqtLDq789Y
-         Fmngf2iCORHYrPD5bpUdrukO7krryYBLNJbLO5tM=
+        b=wrK0r6qa/Uo9+9kv0qfe4gEueHlZt57ALVCArKbYT+qFDseTvpVL1K5JRN2OPDj82
+         cXmctOtcJ8SzgQgAtHnz5P5CbTnl6VfH1Fuj4sTnGvpnGI/+fOc4Lhp4PVEZgLVW5j
+         gSQjRbhfWy/SuPq0pEi9ERCopdEwDJAZUt0WEhqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        EJ Hsu <ejh@nvidia.com>, Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/74] drm/nouveau: Move the declaration of struct nouveau_conn_atom up a bit
-Date:   Tue,  7 Jan 2020 21:54:35 +0100
-Message-Id: <20200107205142.000555527@linuxfoundation.org>
+Subject: [PATCH 4.14 11/74] usb: gadget: fix wrong endpoint desc
+Date:   Tue,  7 Jan 2020 21:54:36 +0100
+Message-Id: <20200107205142.752065134@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
 References: <20200107205135.369001641@linuxfoundation.org>
@@ -44,160 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: EJ Hsu <ejh@nvidia.com>
 
-[ Upstream commit 37a68eab4cd92b507c9e8afd760fdc18e4fecac6 ]
+[ Upstream commit e5b5da96da50ef30abb39cb9f694e99366404d24 ]
 
-Place the declaration of struct nouveau_conn_atom above that of
-struct nouveau_connector. This commit makes no changes to the moved
-block what so ever, it just moves it up a bit.
+Gadget driver should always use config_ep_by_speed() to initialize
+usb_ep struct according to usb device's operating speed. Otherwise,
+usb_ep struct may be wrong if usb devcie's operating speed is changed.
 
-This is a preparation patch to fix some issues with connector handling
-on pre nv50 displays (which do not use atomic modesetting).
+The key point in this patch is that we want to make sure the desc pointer
+in usb_ep struct will be set to NULL when gadget is disconnected.
+This will force it to call config_ep_by_speed() to correctly initialize
+usb_ep struct based on the new operating speed when gadget is
+re-connected later.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: EJ Hsu <ejh@nvidia.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.h | 110 ++++++++++----------
- 1 file changed, 55 insertions(+), 55 deletions(-)
+ drivers/usb/gadget/function/f_ecm.c   | 6 +++++-
+ drivers/usb/gadget/function/f_rndis.c | 1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.h b/drivers/gpu/drm/nouveau/nouveau_connector.h
-index dc7454e7f19a..b46e99f7641e 100644
---- a/drivers/gpu/drm/nouveau/nouveau_connector.h
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.h
-@@ -29,6 +29,7 @@
+diff --git a/drivers/usb/gadget/function/f_ecm.c b/drivers/usb/gadget/function/f_ecm.c
+index 4c488d15b6f6..dc99ed94f03d 100644
+--- a/drivers/usb/gadget/function/f_ecm.c
++++ b/drivers/usb/gadget/function/f_ecm.c
+@@ -625,8 +625,12 @@ static void ecm_disable(struct usb_function *f)
  
- #include <nvif/notify.h>
+ 	DBG(cdev, "ecm deactivated\n");
  
-+#include <drm/drm_crtc.h>
- #include <drm/drm_edid.h>
- #include <drm/drm_encoder.h>
- #include <drm/drm_dp_helper.h>
-@@ -37,6 +38,60 @@
+-	if (ecm->port.in_ep->enabled)
++	if (ecm->port.in_ep->enabled) {
+ 		gether_disconnect(&ecm->port);
++	} else {
++		ecm->port.in_ep->desc = NULL;
++		ecm->port.out_ep->desc = NULL;
++	}
  
- struct nvkm_i2c_port;
+ 	usb_ep_disable(ecm->notify);
+ 	ecm->notify->desc = NULL;
+diff --git a/drivers/usb/gadget/function/f_rndis.c b/drivers/usb/gadget/function/f_rndis.c
+index c7c5b3ce1d98..2bde68f5d246 100644
+--- a/drivers/usb/gadget/function/f_rndis.c
++++ b/drivers/usb/gadget/function/f_rndis.c
+@@ -622,6 +622,7 @@ static void rndis_disable(struct usb_function *f)
+ 	gether_disconnect(&rndis->port);
  
-+#define nouveau_conn_atom(p)                                                   \
-+	container_of((p), struct nouveau_conn_atom, state)
-+
-+struct nouveau_conn_atom {
-+	struct drm_connector_state state;
-+
-+	struct {
-+		/* The enum values specifically defined here match nv50/gf119
-+		 * hw values, and the code relies on this.
-+		 */
-+		enum {
-+			DITHERING_MODE_OFF = 0x00,
-+			DITHERING_MODE_ON = 0x01,
-+			DITHERING_MODE_DYNAMIC2X2 = 0x10 | DITHERING_MODE_ON,
-+			DITHERING_MODE_STATIC2X2 = 0x18 | DITHERING_MODE_ON,
-+			DITHERING_MODE_TEMPORAL = 0x20 | DITHERING_MODE_ON,
-+			DITHERING_MODE_AUTO
-+		} mode;
-+		enum {
-+			DITHERING_DEPTH_6BPC = 0x00,
-+			DITHERING_DEPTH_8BPC = 0x02,
-+			DITHERING_DEPTH_AUTO
-+		} depth;
-+	} dither;
-+
-+	struct {
-+		int mode;	/* DRM_MODE_SCALE_* */
-+		struct {
-+			enum {
-+				UNDERSCAN_OFF,
-+				UNDERSCAN_ON,
-+				UNDERSCAN_AUTO,
-+			} mode;
-+			u32 hborder;
-+			u32 vborder;
-+		} underscan;
-+		bool full;
-+	} scaler;
-+
-+	struct {
-+		int color_vibrance;
-+		int vibrant_hue;
-+	} procamp;
-+
-+	union {
-+		struct {
-+			bool dither:1;
-+			bool scaler:1;
-+			bool procamp:1;
-+		};
-+		u8 mask;
-+	} set;
-+};
-+
- struct nouveau_connector {
- 	struct drm_connector base;
- 	enum dcb_connector_type type;
-@@ -111,61 +166,6 @@ extern int nouveau_ignorelid;
- extern int nouveau_duallink;
- extern int nouveau_hdmimhz;
+ 	usb_ep_disable(rndis->notify);
++	rndis->notify->desc = NULL;
+ }
  
--#include <drm/drm_crtc.h>
--#define nouveau_conn_atom(p)                                                   \
--	container_of((p), struct nouveau_conn_atom, state)
--
--struct nouveau_conn_atom {
--	struct drm_connector_state state;
--
--	struct {
--		/* The enum values specifically defined here match nv50/gf119
--		 * hw values, and the code relies on this.
--		 */
--		enum {
--			DITHERING_MODE_OFF = 0x00,
--			DITHERING_MODE_ON = 0x01,
--			DITHERING_MODE_DYNAMIC2X2 = 0x10 | DITHERING_MODE_ON,
--			DITHERING_MODE_STATIC2X2 = 0x18 | DITHERING_MODE_ON,
--			DITHERING_MODE_TEMPORAL = 0x20 | DITHERING_MODE_ON,
--			DITHERING_MODE_AUTO
--		} mode;
--		enum {
--			DITHERING_DEPTH_6BPC = 0x00,
--			DITHERING_DEPTH_8BPC = 0x02,
--			DITHERING_DEPTH_AUTO
--		} depth;
--	} dither;
--
--	struct {
--		int mode;	/* DRM_MODE_SCALE_* */
--		struct {
--			enum {
--				UNDERSCAN_OFF,
--				UNDERSCAN_ON,
--				UNDERSCAN_AUTO,
--			} mode;
--			u32 hborder;
--			u32 vborder;
--		} underscan;
--		bool full;
--	} scaler;
--
--	struct {
--		int color_vibrance;
--		int vibrant_hue;
--	} procamp;
--
--	union {
--		struct {
--			bool dither:1;
--			bool scaler:1;
--			bool procamp:1;
--		};
--		u8 mask;
--	} set;
--};
--
- void nouveau_conn_attach_properties(struct drm_connector *);
- void nouveau_conn_reset(struct drm_connector *);
- struct drm_connector_state *
+ /*-------------------------------------------------------------------------*/
 -- 
 2.20.1
 
