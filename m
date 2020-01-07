@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 408B81333BA
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:21:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BE0133309
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:16:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728334AbgAGVDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:03:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
+        id S1727105AbgAGVPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:15:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728128AbgAGVDb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:03:31 -0500
+        id S1729556AbgAGVHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:07:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F356A2077B;
-        Tue,  7 Jan 2020 21:03:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92B092087F;
+        Tue,  7 Jan 2020 21:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431010;
-        bh=kVoxcKX+KKMHJvFVq6JCZCQdzgGtjwe3xwvlLF3JUR8=;
+        s=default; t=1578431258;
+        bh=98EdB25M0hd6riywnLvzH6RQU1h/WAEgtkywxfwDrrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KPgi/ExZ6ZpRUPIUuxJE96XpGD/jxfK5k8l1Fj0xGufihR27mqkYAgvhkSmzZi3LY
-         46nV1Oi8s2YY0DDWs+A9a/4PEzH4PcNEIqbW4FYBQhB8nicoqBLsWMRJFXxIHRYNA/
-         cj4HdWFZTiX38OOx0fjvKSIxTyJp7BLnMo4ANKPE=
+        b=PnWtXuaxvfMy7jRljc9ozhgS0S/arRa8gaFJulb4USTd0mpb0u2Xw1ax9EV/5+EUc
+         FMUcvICnd4tW+yFekzKj1K+Q9/EgdHIAj8wYZuxKTY4vkz1Rboh/OxsXQ8yb5ufd9A
+         GDjRpmz+9gjcuCA9QMV4AXNKtzHfFFNREE3HWhiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Imre Deak <imre.deak@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 188/191] hsr: avoid debugfs warning message when module is remove
-Date:   Tue,  7 Jan 2020 21:55:08 +0100
-Message-Id: <20200107205343.049814005@linuxfoundation.org>
+Subject: [PATCH 4.19 099/115] drm/mst: Fix MST sideband up-reply failure handling
+Date:   Tue,  7 Jan 2020 21:55:09 +0100
+Message-Id: <20200107205307.790273708@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,101 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 84bb59d773853bc2dda2ac1ef8474c40eb33a3c6 ]
+[ Upstream commit d8fd3722207f154b53c80eee2cf4977c3fc25a92 ]
 
-When hsr module is being removed, debugfs_remove() is called to remove
-both debugfs directory and file.
+Fix the breakage resulting in the stacktrace below, due to tx queue
+being full when trying to send an up-reply. txmsg->seqno is -1 in this
+case leading to a corruption of the mstb object by
 
-When module is being removed, module state is changed to
-MODULE_STATE_GOING then exit() is called.
-At this moment, module couldn't be held so try_module_get()
-will be failed.
+	txmsg->dst->tx_slots[txmsg->seqno] = NULL;
 
-debugfs's open() callback tries to hold the module if .owner is existing.
-If it fails, warning message is printed.
+in process_single_up_tx_qlock().
 
-CPU0				CPU1
-delete_module()
-    try_stop_module()
-    hsr_exit()			open() <-- WARNING
-        debugfs_remove()
+[  +0,005162] [drm:process_single_tx_qlock [drm_kms_helper]] set_hdr_from_dst_qlock: failed to find slot
+[  +0,000015] [drm:drm_dp_send_up_ack_reply.constprop.19 [drm_kms_helper]] failed to send msg in q -11
+[  +0,000939] BUG: kernel NULL pointer dereference, address: 00000000000005a0
+[  +0,006982] #PF: supervisor write access in kernel mode
+[  +0,005223] #PF: error_code(0x0002) - not-present page
+[  +0,005135] PGD 0 P4D 0
+[  +0,002581] Oops: 0002 [#1] PREEMPT SMP NOPTI
+[  +0,004359] CPU: 1 PID: 1200 Comm: kworker/u16:3 Tainted: G     U            5.2.0-rc1+ #410
+[  +0,008433] Hardware name: Intel Corporation Ice Lake Client Platform/IceLake U DDR4 SODIMM PD RVP, BIOS ICLSFWR1.R00.3175.A00.1904261428 04/26/2019
+[  +0,013323] Workqueue: i915-dp i915_digport_work_func [i915]
+[  +0,005676] RIP: 0010:queue_work_on+0x19/0x70
+[  +0,004372] Code: ff ff ff 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 41 56 49 89 f6 41 55 41 89 fd 41 54 55 53 48 89 d3 9c 5d fa e8 e7 81 0c 00 <f0> 48 0f ba 2b 00 73 31 45 31 e4 f7 c5 00 02 00 00 74 13 e8 cf 7f
+[  +0,018750] RSP: 0018:ffffc900007dfc50 EFLAGS: 00010006
+[  +0,005222] RAX: 0000000000000046 RBX: 00000000000005a0 RCX: 0000000000000001
+[  +0,007133] RDX: 000000000001b608 RSI: 0000000000000000 RDI: ffffffff82121972
+[  +0,007129] RBP: 0000000000000202 R08: 0000000000000000 R09: 0000000000000001
+[  +0,007129] R10: 0000000000000000 R11: 0000000000000000 R12: ffff88847bfa5096
+[  +0,007131] R13: 0000000000000010 R14: ffff88849c08f3f8 R15: 0000000000000000
+[  +0,007128] FS:  0000000000000000(0000) GS:ffff88849dc80000(0000) knlGS:0000000000000000
+[  +0,008083] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  +0,005749] CR2: 00000000000005a0 CR3: 0000000005210006 CR4: 0000000000760ee0
+[  +0,007128] PKRU: 55555554
+[  +0,002722] Call Trace:
+[  +0,002458]  drm_dp_mst_handle_up_req+0x517/0x540 [drm_kms_helper]
+[  +0,006197]  ? drm_dp_mst_hpd_irq+0x5b/0x9c0 [drm_kms_helper]
+[  +0,005764]  drm_dp_mst_hpd_irq+0x5b/0x9c0 [drm_kms_helper]
+[  +0,005623]  ? intel_dp_hpd_pulse+0x205/0x370 [i915]
+[  +0,005018]  intel_dp_hpd_pulse+0x205/0x370 [i915]
+[  +0,004836]  i915_digport_work_func+0xbb/0x140 [i915]
+[  +0,005108]  process_one_work+0x245/0x610
+[  +0,004027]  worker_thread+0x37/0x380
+[  +0,003684]  ? process_one_work+0x610/0x610
+[  +0,004184]  kthread+0x119/0x130
+[  +0,003240]  ? kthread_park+0x80/0x80
+[  +0,003668]  ret_from_fork+0x24/0x50
 
-In order to avoid the warning message, this patch makes hsr module does
-not set .owner. Unsetting .owner is safe because these are protected by
-inode_lock().
-
-Test commands:
-    #SHELL1
-    ip link add dummy0 type dummy
-    ip link add dummy1 type dummy
-    while :
-    do
-        ip link add hsr0 type hsr slave1 dummy0 slave2 dummy1
-	modprobe -rv hsr
-    done
-
-    #SHELL2
-    while :
-    do
-        cat /sys/kernel/debug/hsr0/node_table
-    done
-
-Splat looks like:
-[  101.223783][ T1271] ------------[ cut here ]------------
-[  101.230309][ T1271] debugfs file owner did not clean up at exit: node_table
-[  101.230380][ T1271] WARNING: CPU: 3 PID: 1271 at fs/debugfs/file.c:309 full_proxy_open+0x10f/0x650
-[  101.233153][ T1271] Modules linked in: hsr(-) dummy veth openvswitch nsh nf_conncount nf_nat nf_conntrack nf_d]
-[  101.237112][ T1271] CPU: 3 PID: 1271 Comm: cat Tainted: G        W         5.5.0-rc1+ #204
-[  101.238270][ T1271] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[  101.240379][ T1271] RIP: 0010:full_proxy_open+0x10f/0x650
-[  101.241166][ T1271] Code: 48 c1 ea 03 80 3c 02 00 0f 85 c1 04 00 00 49 8b 3c 24 e8 04 86 7e ff 84 c0 75 2d 4c 8
-[  101.251985][ T1271] RSP: 0018:ffff8880ca22fa38 EFLAGS: 00010286
-[  101.273355][ T1271] RAX: dffffc0000000008 RBX: ffff8880cc6e6200 RCX: 0000000000000000
-[  101.274466][ T1271] RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffff8880c4dd5c14
-[  101.275581][ T1271] RBP: 0000000000000000 R08: fffffbfff2922f5d R09: 0000000000000000
-[  101.276733][ T1271] R10: 0000000000000001 R11: 0000000000000000 R12: ffffffffc0551bc0
-[  101.277853][ T1271] R13: ffff8880c4059a48 R14: ffff8880be50a5e0 R15: ffffffff941adaa0
-[  101.278956][ T1271] FS:  00007f8871cda540(0000) GS:ffff8880da800000(0000) knlGS:0000000000000000
-[  101.280216][ T1271] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  101.282832][ T1271] CR2: 00007f88717cfd10 CR3: 00000000b9440005 CR4: 00000000000606e0
-[  101.283974][ T1271] Call Trace:
-[  101.285328][ T1271]  do_dentry_open+0x63c/0xf50
-[  101.286077][ T1271]  ? open_proxy_open+0x270/0x270
-[  101.288271][ T1271]  ? __x64_sys_fchdir+0x180/0x180
-[  101.288987][ T1271]  ? inode_permission+0x65/0x390
-[  101.289682][ T1271]  path_openat+0x701/0x2810
-[  101.290294][ T1271]  ? path_lookupat+0x880/0x880
-[  101.290957][ T1271]  ? check_chain_key+0x236/0x5d0
-[  101.291676][ T1271]  ? __lock_acquire+0xdfe/0x3de0
-[  101.292358][ T1271]  ? sched_clock+0x5/0x10
-[  101.292962][ T1271]  ? sched_clock_cpu+0x18/0x170
-[  101.293644][ T1271]  ? find_held_lock+0x39/0x1d0
-[  101.305616][ T1271]  do_filp_open+0x17a/0x270
-[  101.306061][ T1271]  ? may_open_dev+0xc0/0xc0
-[ ... ]
-
-Fixes: fc4ecaeebd26 ("net: hsr: add debugfs support for display node list")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190523212433.9058-1-imre.deak@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_debugfs.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/hsr/hsr_debugfs.c b/net/hsr/hsr_debugfs.c
-index 94447974a3c0..6135706f03d5 100644
---- a/net/hsr/hsr_debugfs.c
-+++ b/net/hsr/hsr_debugfs.c
-@@ -64,7 +64,6 @@ hsr_node_table_open(struct inode *inode, struct file *filp)
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index 65f58e23e03d..77347a258f6c 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -1582,7 +1582,11 @@ static void process_single_up_tx_qlock(struct drm_dp_mst_topology_mgr *mgr,
+ 	if (ret != 1)
+ 		DRM_DEBUG_KMS("failed to send msg in q %d\n", ret);
+ 
+-	txmsg->dst->tx_slots[txmsg->seqno] = NULL;
++	if (txmsg->seqno != -1) {
++		WARN_ON((unsigned int)txmsg->seqno >
++			ARRAY_SIZE(txmsg->dst->tx_slots));
++		txmsg->dst->tx_slots[txmsg->seqno] = NULL;
++	}
  }
  
- static const struct file_operations hsr_fops = {
--	.owner	= THIS_MODULE,
- 	.open	= hsr_node_table_open,
- 	.read	= seq_read,
- 	.llseek = seq_lseek,
+ static void drm_dp_queue_down_tx(struct drm_dp_mst_topology_mgr *mgr,
 -- 
 2.20.1
 
