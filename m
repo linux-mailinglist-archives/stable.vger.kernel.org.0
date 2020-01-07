@@ -2,70 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFFC51327BD
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 14:35:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAE4613294A
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 15:49:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727894AbgAGNfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 08:35:23 -0500
-Received: from merlin.infradead.org ([205.233.59.134]:50916 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727559AbgAGNfX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 08:35:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=LNR/sdifkLYBQN1o5vH9UJw/7uhmyLBfESVcRAGK3Sc=; b=Rs2n8vtgDhDr8N3x8HocNbNln
-        MpRWLfHF8kmAhNlkNLXrqJ2lN0vCvCZTCmuVbeeZp6mqqhxyzLedI4rx3hV9fA+7yHgt1vHDPBB/d
-        ewfn/OaAei/LvMStzPsYNrNHquMB95JbAmlymsPZgJR6rHlmEzcGVUBTk0dLCaDxexOm8CJ7SoE7b
-        hgRfUlwQ5oXj2+BlWGW1sRXp+XqZoqiajsEy/OOqyrgWkaBOkxSDGx8KdYcdh0mCw4+6xXtn968ov
-        K6JrfaASHi4CUgNYogNFxFp5E+cGKZpq0+frPSQgC7+Un7QZiztYFzEadakKRalwsfUSQrN9FiBWZ
-        dO1GP4zQg==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iop0r-00076D-VB; Tue, 07 Jan 2020 13:35:14 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 4341730025A;
-        Tue,  7 Jan 2020 14:33:38 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id BDB262B2835F0; Tue,  7 Jan 2020 14:35:10 +0100 (CET)
-Date:   Tue, 7 Jan 2020 14:35:10 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc:     Borislav Petkov <bp@alien8.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-tip-commits <linux-tip-commits@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [tip: core/urgent] rseq: Reject unknown flags on rseq unregister
-Message-ID: <20200107133510.GB2844@hirez.programming.kicks-ass.net>
-References: <20191211161713.4490-2-mathieu.desnoyers@efficios.com>
- <157727033331.30329.17206832903007175600.tip-bot2@tip-bot2>
- <20191225113932.GD18098@zn.tnic>
- <1460494267.15769.1577399533860.JavaMail.zimbra@efficios.com>
- <1732849021.873.1578338087928.JavaMail.zimbra@efficios.com>
+        id S1728060AbgAGOt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 09:49:28 -0500
+Received: from sonic303-2.consmr.mail.bf2.yahoo.com ([74.6.131.41]:44705 "EHLO
+        sonic303-2.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727944AbgAGOt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 09:49:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1578408567; bh=mvJLZk1ixOYoDkz9UebJEERv8fQuudNV0x81teH6uN8=; h=Date:From:Reply-To:Subject:References:From:Subject; b=fO75RL86uyTQPBk/2QWpaKd39fdpf93oHwO2fjSzW43K7HuMCxGz0Gu7yHRxn4r1WHS7f0rzlTbOmpDFSryfNqVYmHB0mNPlrxl8Cgc2ah0GsDsjZBXLFgSP4M76PBg9qSX5Yf2d1Fl3+8feUzKaZLZ4QS3fz9NUMk/G/oLLPq7x7ryeDeNIFDNceszPjV6uvqvVVHIaWz0z8Gg63Jn5cKZCUmWnmzRJ79cHegF0KGMHPWsSC1RxKzYFIXejIzp3l0iOISwY4qZK7HBv+4CaJ1X5PdDGWgXWsCP0kxdbGigJq7rv+CQQc2QhhQg8sZNmF5VGTG2ypH8ouN2dwBuFKg==
+X-YMail-OSG: _iwTQKAVM1kBZ8WYAh0msl2BeY415.e3dB6Ax_WUytc47SDb9DJkUsC3AKgVis2
+ rx4iQvRr1ciGgjSQpkI9MtcVbmSt.4JV06XccS4Zrb00p.Jewc_ZVt98DWoD4EqF3QO6BBCKZPdw
+ D.jgzm6B0mVbKZWUtIPmVfPiQTZTQ1t2wL7unMrto82Tyl8_iJI0JCRKAAHeqX9c2wy69tYiNS94
+ d40ueoF9aYVrkrkf0VFxQ.d2z2iL9qIitBGGw6fNQB_egytkLpXyG1ibQvq8JbTONwsY7G1QVwWS
+ W2XHeiUP3UWLvyMm1F6o4ASpm0WW7Fq4qmZomOHq5xTkdSHypprLrDnbwqpFRaGyoLZewLPNGxrx
+ vn2i6ucRh3YLThqgw.eRZ3R.tgCiKX7ruACLADv1wENnAkJsWpp1S0exRCpVkVbBcneAmTDKg9JE
+ DiS71elqmBUxVPb1KHAcyn7bLUu1V8vk4qJwURhw6TgamM8tIJc32HjrIkkVvBQPc3oJ7rww_tt5
+ _hT8Gsd9PiiT7yyWZOB02fjFNfk7.zeL._qvvKVZGZph_KXZMlCmWBdjH0KYO2DOJleS8_hXFp.9
+ skRTQJBzTOfywEO8cyp37xl84_SMD6z1xJpV3.orLQAIhOUZHoSJeXcydGqGVdzOpKCAvl983lJx
+ pOm6Afl5FeXNQ3AGMgxJ0ZuQno6SulzIBY1uFDydwcVX8CXejA7hJzjRYoNSTRsE.ey7f5zVEQG4
+ gdAQ404_b1e_bFx09mfoubiJKZqLdyE9pgEKO6PHwNf3nGeYEJbiFSIC5QvMntDvD08BI0uoIRbz
+ uXyFJlwkdeG7iSvt0Z5kVRVvI0En0MvOF3YDxUbNQ6JqwHMB8Ef2ygop36ECK1hBQJ4ykW.SmBtZ
+ S5OtmVUMBp04O9H_FAtns2OdRU.BrcWwTCqAg0XxuwB0nf_I3x.40Wmpr2BztV5iAS73J2oiqDRT
+ IjwMuIc8icSRYmaJK6aUCSXbayvR.ysIc0kcziASgBDiPxNpzb.zWzwrTU2GEbKjaxuLg8Qb_Ajv
+ n_znqso5ezwzVQQG8URIrNZq2MM1hXtKefeyr.Pin961zG1TwKKoUloNV72KaboDpdh9eTwv.x9H
+ HKijC_HfYtuQ_d4NEXz4VkMk5f6x5Q94poeM4sjDGS8YPG8elE7SxS1_sWcfImww1uE6_BAd1Q9U
+ zO313FXp_KSavKh_XjkatzdTy4rH0jfD.ps4qe.SYe6JX_9FP_M5bryY0zX0QOe9r1Ejw.fCu3ku
+ 4mXzxFmxkhbzOQmmbISvRKVJmR1S7Op3l.5K2W0GLDfjCXnfl4s32tXRdcW7JoLl8u6rbLW.XMQA
+ k9jtYwiqpt.G5wlPF5nZtQzI-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.bf2.yahoo.com with HTTP; Tue, 7 Jan 2020 14:49:27 +0000
+Date:   Tue, 7 Jan 2020 14:49:26 +0000 (UTC)
+From:   Mr Yaro <yyaro750@gmail.com>
+Reply-To: yyaro750@gmail.com
+Message-ID: <1925243769.5169090.1578408566999@mail.yahoo.com>
+Subject: Dear Friend,
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1732849021.873.1578338087928.JavaMail.zimbra@efficios.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <1925243769.5169090.1578408566999.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.14873 YMailNodin Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 06, 2020 at 02:14:47PM -0500, Mathieu Desnoyers wrote:
+Dear Friend,
 
-> For the records, I had stable in CC in my original patch submission. The stable CC has
-> been stripped when it was merged into the tip tree.
+I am Mr. YaroYaro, I need your urgent assistance in transferring
+the sum of 11.3 million dollars, to your account for investment in your
+country if you are ready get back to me i will give you full details
 
-Argh, lemme go fix my scripts _again_..
+1.) Your full name..............................
+2.) Country.....................................
+3.) Your private number.........................
+4.).Your age:...................................
+5)Your Photo....................................
+6)Your profession...............................
 
-I was recently made aware that we should not have spurious Cc: tags in
-commit messages, but obviously the stable thing is an exception there.
+As soonthe bank ,Do not be angry that I request all that information from
+you, I do not want to fall Victim as this is the only hope I have in
+life to make it.E-mail: yyaro750@gmail.com
+as I receive it from you I will send you information on how to
+contact
+Best Regards
+Mr. YaroYaro
