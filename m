@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A0F1333ED
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5390C1332F3
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728269AbgAGVBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:01:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40002 "EHLO mail.kernel.org"
+        id S1729727AbgAGVIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:08:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728264AbgAGVBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:01:49 -0500
+        id S1729725AbgAGVIm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:08:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5445E20678;
-        Tue,  7 Jan 2020 21:01:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D60D2087F;
+        Tue,  7 Jan 2020 21:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430908;
-        bh=DqfXjYHAgHZqv84WzodfCpB6d+/ao7YuK6XlquCQias=;
+        s=default; t=1578431321;
+        bh=DKpscbCiq/GwzlsP/PY9/JdZmM5Z3Bs9gLbV7+oNNOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Txs4YoKgnb2FziPW0cl88Ubzea1Cs3XqpaZ1GWtZatUCmn8Isk3KzD6o1MSiEUn0G
-         yVVPrnZMIQ9x68em3znVhT/di12OL5jaqEsDH9wBL+iwnWen9gaySMKEVssIF/IAtN
-         pRhFhMPy+g8l5Am4V1zO+b0jxhiUSHfkh1E7lzl8=
+        b=klmGtbjnno762V5051ts3V61oELYXVx4li7CKxRSC0V6wnV/BgZCpcHyJRNNHnGFB
+         ASygsAQPyD7FH//m1JRvI3AWHEr7q99lIgiUchltDfrdM+vViDc3G4IOZl9e5D2Tqu
+         fAQqLYB7OfnGS03dJwFDqmeDiK9UNQvhMUQB93dI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 146/191] cifs: Fix potential softlockups while refreshing DFS cache
+        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
+        Christoph Hellwig <hch@lst.de>,
+        James Smart <jsmart2021@gmail.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 01/74] nvme_fc: add module to ops template to allow module references
 Date:   Tue,  7 Jan 2020 21:54:26 +0100
-Message-Id: <20200107205340.787098324@linuxfoundation.org>
+Message-Id: <20200107205136.318205539@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+References: <20200107205135.369001641@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,102 +48,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara (SUSE) <pc@cjr.nz>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 84a1f5b1cc6fd7f6cd99fc5630c36f631b19fa60 upstream.
+[ Upstream commit 863fbae929c7a5b64e96b8a3ffb34a29eefb9f8f ]
 
-We used to skip reconnects on all SMB2_IOCTL commands due to SMB3+
-FSCTL_VALIDATE_NEGOTIATE_INFO - which made sense since we're still
-establishing a SMB session.
+In nvme-fc: it's possible to have connected active controllers
+and as no references are taken on the LLDD, the LLDD can be
+unloaded.  The controller would enter a reconnect state and as
+long as the LLDD resumed within the reconnect timeout, the
+controller would resume.  But if a namespace on the controller
+is the root device, allowing the driver to unload can be problematic.
+To reload the driver, it may require new io to the boot device,
+and as it's no longer connected we get into a catch-22 that
+eventually fails, and the system locks up.
 
-However, when refresh_cache_worker() calls smb2_get_dfs_refer() and
-we're under reconnect, SMB2_ioctl() will not be able to get a proper
-status error (e.g. -EHOSTDOWN in case we failed to reconnect) but an
--EAGAIN from cifs_send_recv() thus looping forever in
-refresh_cache_worker().
+Fix this issue by taking a module reference for every connected
+controller (which is what the core layer did to the transport
+module). Reference is cleared when the controller is removed.
 
-Fixes: e99c63e4d86d ("SMB3: Fix deadlock in validate negotiate hits reconnect")
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Suggested-by: Aurelien Aptel <aaptel@suse.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c |   41 +++++++++++++++++++++++++++++------------
- 1 file changed, 29 insertions(+), 12 deletions(-)
+ drivers/nvme/host/fc.c          | 14 ++++++++++++--
+ drivers/nvme/target/fcloop.c    |  1 +
+ drivers/scsi/lpfc/lpfc_nvme.c   |  2 ++
+ drivers/scsi/qla2xxx/qla_nvme.c |  1 +
+ include/linux/nvme-fc-driver.h  |  4 ++++
+ 5 files changed, 20 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -252,7 +252,7 @@ smb2_reconnect(__le16 smb2_command, stru
- 	if (tcon == NULL)
- 		return 0;
- 
--	if (smb2_command == SMB2_TREE_CONNECT || smb2_command == SMB2_IOCTL)
-+	if (smb2_command == SMB2_TREE_CONNECT)
- 		return 0;
- 
- 	if (tcon->tidStatus == CifsExiting) {
-@@ -426,16 +426,9 @@ fill_small_buf(__le16 smb2_command, stru
-  * SMB information in the SMB header. If the return code is zero, this
-  * function must have filled in request_buf pointer.
-  */
--static int
--smb2_plain_req_init(__le16 smb2_command, struct cifs_tcon *tcon,
--		    void **request_buf, unsigned int *total_len)
-+static int __smb2_plain_req_init(__le16 smb2_command, struct cifs_tcon *tcon,
-+				  void **request_buf, unsigned int *total_len)
- {
--	int rc;
--
--	rc = smb2_reconnect(smb2_command, tcon);
--	if (rc)
--		return rc;
--
- 	/* BB eventually switch this to SMB2 specific small buf size */
- 	if (smb2_command == SMB2_SET_INFO)
- 		*request_buf = cifs_buf_get();
-@@ -456,7 +449,31 @@ smb2_plain_req_init(__le16 smb2_command,
- 		cifs_stats_inc(&tcon->num_smbs_sent);
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 058d542647dd..9e4d2ecf736d 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -337,7 +337,8 @@ nvme_fc_register_localport(struct nvme_fc_port_info *pinfo,
+ 	    !template->ls_req || !template->fcp_io ||
+ 	    !template->ls_abort || !template->fcp_abort ||
+ 	    !template->max_hw_queues || !template->max_sgl_segments ||
+-	    !template->max_dif_sgl_segments || !template->dma_boundary) {
++	    !template->max_dif_sgl_segments || !template->dma_boundary ||
++	    !template->module) {
+ 		ret = -EINVAL;
+ 		goto out_reghost_failed;
  	}
+@@ -1762,6 +1763,7 @@ nvme_fc_ctrl_free(struct kref *ref)
+ {
+ 	struct nvme_fc_ctrl *ctrl =
+ 		container_of(ref, struct nvme_fc_ctrl, ref);
++	struct nvme_fc_lport *lport = ctrl->lport;
+ 	unsigned long flags;
  
--	return rc;
-+	return 0;
-+}
-+
-+static int smb2_plain_req_init(__le16 smb2_command, struct cifs_tcon *tcon,
-+			       void **request_buf, unsigned int *total_len)
-+{
-+	int rc;
-+
-+	rc = smb2_reconnect(smb2_command, tcon);
-+	if (rc)
-+		return rc;
-+
-+	return __smb2_plain_req_init(smb2_command, tcon, request_buf,
-+				     total_len);
-+}
-+
-+static int smb2_ioctl_req_init(u32 opcode, struct cifs_tcon *tcon,
-+			       void **request_buf, unsigned int *total_len)
-+{
-+	/* Skip reconnect only for FSCTL_VALIDATE_NEGOTIATE_INFO IOCTLs */
-+	if (opcode == FSCTL_VALIDATE_NEGOTIATE_INFO) {
-+		return __smb2_plain_req_init(SMB2_IOCTL, tcon, request_buf,
-+					     total_len);
-+	}
-+	return smb2_plain_req_init(SMB2_IOCTL, tcon, request_buf, total_len);
+ 	if (ctrl->ctrl.tagset) {
+@@ -1787,6 +1789,7 @@ nvme_fc_ctrl_free(struct kref *ref)
+ 	if (ctrl->ctrl.opts)
+ 		nvmf_free_options(ctrl->ctrl.opts);
+ 	kfree(ctrl);
++	module_put(lport->ops->module);
  }
  
- /* For explanation of negotiate contexts see MS-SMB2 section 2.2.3.1 */
-@@ -2661,7 +2678,7 @@ SMB2_ioctl_init(struct cifs_tcon *tcon,
- 	int rc;
- 	char *in_data_buf;
+ static void
+@@ -2765,10 +2768,15 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
+ 		goto out_fail;
+ 	}
  
--	rc = smb2_plain_req_init(SMB2_IOCTL, tcon, (void **) &req, &total_len);
-+	rc = smb2_ioctl_req_init(opcode, tcon, (void **) &req, &total_len);
- 	if (rc)
- 		return rc;
++	if (!try_module_get(lport->ops->module)) {
++		ret = -EUNATCH;
++		goto out_free_ctrl;
++	}
++
+ 	idx = ida_simple_get(&nvme_fc_ctrl_cnt, 0, 0, GFP_KERNEL);
+ 	if (idx < 0) {
+ 		ret = -ENOSPC;
+-		goto out_free_ctrl;
++		goto out_mod_put;
+ 	}
  
+ 	ctrl->ctrl.opts = opts;
+@@ -2915,6 +2923,8 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
+ out_free_ida:
+ 	put_device(ctrl->dev);
+ 	ida_simple_remove(&nvme_fc_ctrl_cnt, ctrl->cnum);
++out_mod_put:
++	module_put(lport->ops->module);
+ out_free_ctrl:
+ 	kfree(ctrl);
+ out_fail:
+diff --git a/drivers/nvme/target/fcloop.c b/drivers/nvme/target/fcloop.c
+index 096523d8dd42..b8fe8702065b 100644
+--- a/drivers/nvme/target/fcloop.c
++++ b/drivers/nvme/target/fcloop.c
+@@ -693,6 +693,7 @@ fcloop_targetport_delete(struct nvmet_fc_target_port *targetport)
+ #define FCLOOP_DMABOUND_4G		0xFFFFFFFF
+ 
+ static struct nvme_fc_port_template fctemplate = {
++	.module			= THIS_MODULE,
+ 	.localport_delete	= fcloop_localport_delete,
+ 	.remoteport_delete	= fcloop_remoteport_delete,
+ 	.create_queue		= fcloop_create_queue,
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index fcf4b4175d77..af937b91765e 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -1591,6 +1591,8 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
+ 
+ /* Declare and initialization an instance of the FC NVME template. */
+ static struct nvme_fc_port_template lpfc_nvme_template = {
++	.module	= THIS_MODULE,
++
+ 	/* initiator-based functions */
+ 	.localport_delete  = lpfc_nvme_localport_delete,
+ 	.remoteport_delete = lpfc_nvme_remoteport_delete,
+diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
+index 6b33a1f24f56..7dceed021236 100644
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -578,6 +578,7 @@ static void qla_nvme_remoteport_delete(struct nvme_fc_remote_port *rport)
+ }
+ 
+ static struct nvme_fc_port_template qla_nvme_fc_transport = {
++	.module	= THIS_MODULE,
+ 	.localport_delete = qla_nvme_localport_delete,
+ 	.remoteport_delete = qla_nvme_remoteport_delete,
+ 	.create_queue   = qla_nvme_alloc_queue,
+diff --git a/include/linux/nvme-fc-driver.h b/include/linux/nvme-fc-driver.h
+index a726f96010d5..e9c3b98df3e2 100644
+--- a/include/linux/nvme-fc-driver.h
++++ b/include/linux/nvme-fc-driver.h
+@@ -279,6 +279,8 @@ struct nvme_fc_remote_port {
+  *
+  * Host/Initiator Transport Entrypoints/Parameters:
+  *
++ * @module:  The LLDD module using the interface
++ *
+  * @localport_delete:  The LLDD initiates deletion of a localport via
+  *       nvme_fc_deregister_localport(). However, the teardown is
+  *       asynchronous. This routine is called upon the completion of the
+@@ -392,6 +394,8 @@ struct nvme_fc_remote_port {
+  *       Value is Mandatory. Allowed to be zero.
+  */
+ struct nvme_fc_port_template {
++	struct module	*module;
++
+ 	/* initiator-based functions */
+ 	void	(*localport_delete)(struct nvme_fc_local_port *);
+ 	void	(*remoteport_delete)(struct nvme_fc_remote_port *);
+-- 
+2.20.1
+
 
 
