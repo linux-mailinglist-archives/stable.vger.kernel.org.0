@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6FFA1333CF
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:22:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 689D81333DB
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:22:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728332AbgAGVDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:03:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43804 "EHLO mail.kernel.org"
+        id S1728287AbgAGVVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:21:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728848AbgAGVC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:02:59 -0500
+        id S1728572AbgAGVDC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:03:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BC1A2077B;
-        Tue,  7 Jan 2020 21:02:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09CFF20678;
+        Tue,  7 Jan 2020 21:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430979;
-        bh=xCyZaWVQZrlbGkrwOH3saOi6HZRKJT6k+mOczyMTkUw=;
+        s=default; t=1578430981;
+        bh=Oony4nhR0CUaLPhPdDdo3DGyFRDYU36KwiIehavZGXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkhPTGhwU8Dy96pd9Z9CyGiT3+/j8rI2bP7nl0pqeyYPDOpBzmmcmH7wWJPRrpfCs
-         ga55bFLKLoobmIR6c0ZO6O0IE01gMZJqXuNoTYdLfEoxN7AWM393VLP4mmGdV4imoM
-         wU3mrWbOry7D9SBUjzt27/LK4dOFE9kLT4/83O1Q=
+        b=ab8w0N1Co1f0/gLCTfluAkkbq6+nwWQtoGoyvQAe92tJ3Yb7KW2G2AHh8QaQZH4Cs
+         GkCsKDCG4KgB5go1Fuwpw1Hfi1g4jxsnt8OeQLayAgJ1HsRU8GI1DP3LmOjMswkpqw
+         47uUSLYToJyVqHjG+g0nkrgDbkun0cOUb/KTzvzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 176/191] xfs: periodically yield scrub threads to the scheduler
-Date:   Tue,  7 Jan 2020 21:54:56 +0100
-Message-Id: <20200107205342.417933094@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 177/191] net: add annotations on hh->hh_len lockless accesses
+Date:   Tue,  7 Jan 2020 21:54:57 +0100
+Message-Id: <20200107205342.470440157@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -44,91 +45,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5d1116d4c6af3e580f1ed0382ca5a94bd65a34cf ]
+[ Upstream commit c305c6ae79e2ce20c22660ceda94f0d86d639a82 ]
 
-Christoph Hellwig complained about the following soft lockup warning
-when running scrub after generic/175 when preemption is disabled and
-slub debugging is enabled:
+KCSAN reported a data-race [1]
 
-watchdog: BUG: soft lockup - CPU#3 stuck for 22s! [xfs_scrub:161]
-Modules linked in:
-irq event stamp: 41692326
-hardirqs last  enabled at (41692325): [<ffffffff8232c3b7>] _raw_0
-hardirqs last disabled at (41692326): [<ffffffff81001c5a>] trace0
-softirqs last  enabled at (41684994): [<ffffffff8260031f>] __do_e
-softirqs last disabled at (41684987): [<ffffffff81127d8c>] irq_e0
-CPU: 3 PID: 16189 Comm: xfs_scrub Not tainted 5.4.0-rc3+ #30
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.124
-RIP: 0010:_raw_spin_unlock_irqrestore+0x39/0x40
-Code: 89 f3 be 01 00 00 00 e8 d5 3a e5 fe 48 89 ef e8 ed 87 e5 f2
-RSP: 0018:ffffc9000233f970 EFLAGS: 00000286 ORIG_RAX: ffffffffff3
-RAX: ffff88813b398040 RBX: 0000000000000286 RCX: 0000000000000006
-RDX: 0000000000000006 RSI: ffff88813b3988c0 RDI: ffff88813b398040
-RBP: ffff888137958640 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: ffffea00042b0c00
-R13: 0000000000000001 R14: ffff88810ac32308 R15: ffff8881376fc040
-FS:  00007f6113dea700(0000) GS:ffff88813bb80000(0000) knlGS:00000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f6113de8ff8 CR3: 000000012f290000 CR4: 00000000000006e0
-Call Trace:
- free_debug_processing+0x1dd/0x240
- __slab_free+0x231/0x410
- kmem_cache_free+0x30e/0x360
- xchk_ag_btcur_free+0x76/0xb0
- xchk_ag_free+0x10/0x80
- xchk_bmap_iextent_xref.isra.14+0xd9/0x120
- xchk_bmap_iextent+0x187/0x210
- xchk_bmap+0x2e0/0x3b0
- xfs_scrub_metadata+0x2e7/0x500
- xfs_ioc_scrub_metadata+0x4a/0xa0
- xfs_file_ioctl+0x58a/0xcd0
- do_vfs_ioctl+0xa0/0x6f0
- ksys_ioctl+0x5b/0x90
- __x64_sys_ioctl+0x11/0x20
- do_syscall_64+0x4b/0x1a0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+While we can use READ_ONCE() on the read sides,
+we need to make sure hh->hh_len is written last.
 
-If preemption is disabled, all metadata buffers needed to perform the
-scrub are already in memory, and there are a lot of records to check,
-it's possible that the scrub thread will run for an extended period of
-time without sleeping for IO or any other reason.  Then the watchdog
-timer or the RCU stall timeout can trigger, producing the backtrace
-above.
+[1]
 
-To fix this problem, call cond_resched() from the scrub thread so that
-we back out to the scheduler whenever necessary.
+BUG: KCSAN: data-race in eth_header_cache / neigh_resolve_output
 
-Reported-by: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+write to 0xffff8880b9dedcb8 of 4 bytes by task 29760 on cpu 0:
+ eth_header_cache+0xa9/0xd0 net/ethernet/eth.c:247
+ neigh_hh_init net/core/neighbour.c:1463 [inline]
+ neigh_resolve_output net/core/neighbour.c:1480 [inline]
+ neigh_resolve_output+0x415/0x470 net/core/neighbour.c:1470
+ neigh_output include/net/neighbour.h:511 [inline]
+ ip6_finish_output2+0x7a2/0xec0 net/ipv6/ip6_output.c:116
+ __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
+ __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
+ ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
+ dst_output include/net/dst.h:436 [inline]
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ ndisc_send_skb+0x459/0x5f0 net/ipv6/ndisc.c:505
+ ndisc_send_ns+0x207/0x430 net/ipv6/ndisc.c:647
+ rt6_probe_deferred+0x98/0xf0 net/ipv6/route.c:615
+ process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
+ worker_thread+0xa0/0x800 kernel/workqueue.c:2415
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+read to 0xffff8880b9dedcb8 of 4 bytes by task 29572 on cpu 1:
+ neigh_resolve_output net/core/neighbour.c:1479 [inline]
+ neigh_resolve_output+0x113/0x470 net/core/neighbour.c:1470
+ neigh_output include/net/neighbour.h:511 [inline]
+ ip6_finish_output2+0x7a2/0xec0 net/ipv6/ip6_output.c:116
+ __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
+ __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
+ ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
+ dst_output include/net/dst.h:436 [inline]
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ ndisc_send_skb+0x459/0x5f0 net/ipv6/ndisc.c:505
+ ndisc_send_ns+0x207/0x430 net/ipv6/ndisc.c:647
+ rt6_probe_deferred+0x98/0xf0 net/ipv6/route.c:615
+ process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
+ worker_thread+0xa0/0x800 kernel/workqueue.c:2415
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 29572 Comm: kworker/1:4 Not tainted 5.4.0-rc6+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: events rt6_probe_deferred
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/scrub/common.h | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/firewire/net.c  | 6 +++++-
+ include/net/neighbour.h | 2 +-
+ net/core/neighbour.c    | 4 ++--
+ net/ethernet/eth.c      | 7 ++++++-
+ 4 files changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/fs/xfs/scrub/common.h b/fs/xfs/scrub/common.h
-index 003a772cd26c..2e50d146105d 100644
---- a/fs/xfs/scrub/common.h
-+++ b/fs/xfs/scrub/common.h
-@@ -14,8 +14,15 @@
- static inline bool
- xchk_should_terminate(
- 	struct xfs_scrub	*sc,
--	int				*error)
-+	int			*error)
- {
-+	/*
-+	 * If preemption is disabled, we need to yield to the scheduler every
-+	 * few seconds so that we don't run afoul of the soft lockup watchdog
-+	 * or RCU stall detector.
-+	 */
-+	cond_resched();
+diff --git a/drivers/firewire/net.c b/drivers/firewire/net.c
+index b132ab9ad607..715e491dfbc3 100644
+--- a/drivers/firewire/net.c
++++ b/drivers/firewire/net.c
+@@ -250,7 +250,11 @@ static int fwnet_header_cache(const struct neighbour *neigh,
+ 	h = (struct fwnet_header *)((u8 *)hh->hh_data + HH_DATA_OFF(sizeof(*h)));
+ 	h->h_proto = type;
+ 	memcpy(h->h_dest, neigh->ha, net->addr_len);
+-	hh->hh_len = FWNET_HLEN;
 +
- 	if (fatal_signal_pending(current)) {
- 		if (*error == 0)
- 			*error = -EAGAIN;
++	/* Pairs with the READ_ONCE() in neigh_resolve_output(),
++	 * neigh_hh_output() and neigh_update_hhs().
++	 */
++	smp_store_release(&hh->hh_len, FWNET_HLEN);
+ 
+ 	return 0;
+ }
+diff --git a/include/net/neighbour.h b/include/net/neighbour.h
+index 5e679c8dae0b..8ec77bfdc1a4 100644
+--- a/include/net/neighbour.h
++++ b/include/net/neighbour.h
+@@ -467,7 +467,7 @@ static inline int neigh_hh_output(const struct hh_cache *hh, struct sk_buff *skb
+ 
+ 	do {
+ 		seq = read_seqbegin(&hh->hh_lock);
+-		hh_len = hh->hh_len;
++		hh_len = READ_ONCE(hh->hh_len);
+ 		if (likely(hh_len <= HH_DATA_MOD)) {
+ 			hh_alen = HH_DATA_MOD;
+ 
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 08ebc3ac5343..f2452496ad9f 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -1194,7 +1194,7 @@ static void neigh_update_hhs(struct neighbour *neigh)
+ 
+ 	if (update) {
+ 		hh = &neigh->hh;
+-		if (hh->hh_len) {
++		if (READ_ONCE(hh->hh_len)) {
+ 			write_seqlock_bh(&hh->hh_lock);
+ 			update(hh, neigh->dev, neigh->ha);
+ 			write_sequnlock_bh(&hh->hh_lock);
+@@ -1473,7 +1473,7 @@ int neigh_resolve_output(struct neighbour *neigh, struct sk_buff *skb)
+ 		struct net_device *dev = neigh->dev;
+ 		unsigned int seq;
+ 
+-		if (dev->header_ops->cache && !neigh->hh.hh_len)
++		if (dev->header_ops->cache && !READ_ONCE(neigh->hh.hh_len))
+ 			neigh_hh_init(neigh);
+ 
+ 		do {
+diff --git a/net/ethernet/eth.c b/net/ethernet/eth.c
+index 17374afee28f..9040fe55e0f5 100644
+--- a/net/ethernet/eth.c
++++ b/net/ethernet/eth.c
+@@ -244,7 +244,12 @@ int eth_header_cache(const struct neighbour *neigh, struct hh_cache *hh, __be16
+ 	eth->h_proto = type;
+ 	memcpy(eth->h_source, dev->dev_addr, ETH_ALEN);
+ 	memcpy(eth->h_dest, neigh->ha, ETH_ALEN);
+-	hh->hh_len = ETH_HLEN;
++
++	/* Pairs with READ_ONCE() in neigh_resolve_output(),
++	 * neigh_hh_output() and neigh_update_hhs().
++	 */
++	smp_store_release(&hh->hh_len, ETH_HLEN);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(eth_header_cache);
 -- 
 2.20.1
 
