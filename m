@@ -2,98 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6D2A133581
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 23:09:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2361335A3
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 23:24:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727174AbgAGWJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 17:09:58 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:37484 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726142AbgAGWJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 17:09:58 -0500
-Received: from [167.98.27.226] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iox2t-0001Hd-VD; Tue, 07 Jan 2020 22:09:52 +0000
-Received: from ben by deadeye with local (Exim 4.93)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iox2t-007a24-Cw; Tue, 07 Jan 2020 22:09:51 +0000
-Message-ID: <cfc2fd04db37009435bbf716f32c0a2ddbf4b5e6.camel@decadent.org.uk>
-Subject: Re: [PATCH 4.4 0/2] Backport readdir sanity checking patches
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Siddharth Chandrasekaran <csiddharth@vmware.com>,
-        torvalds@linux-foundation.org
-Cc:     gregkh@linuxfoundation.org, sashal@kernel.org, jannh@google.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        siddharth@embedjournal.com
-Date:   Tue, 07 Jan 2020 22:09:46 +0000
-In-Reply-To: <cover.1577129050.git.csiddharth@vmware.com>
-References: <cover.1577128778.git.csiddharth@vmware.com>
-         <cover.1577129050.git.csiddharth@vmware.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-53uJTOEUIz6tm6mxxnAt"
-User-Agent: Evolution 3.34.1-2+b1 
+        id S1727154AbgAGWYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 17:24:00 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:51859 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726558AbgAGWYA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 17:24:00 -0500
+Received: by mail-wm1-f66.google.com with SMTP id d73so499510wmd.1
+        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 14:23:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jUf7kZo8IMxwpyLev2Zv/J7+nVXux28o672EY4oPy90=;
+        b=xaMNq0QeSV7Gdg8iWFkePMxdmhTleRizcbvLRSJ9VSaJpXnvDmVLsGfIeDit2Z+w3F
+         3McZkXa2BS6El8PyYXIk7dJeMDfIrL3i5st3nRy6MESlS/Yr+/JWOhIUJ5c3GUCG47PC
+         mPKypfzyBb/k6mz8R3bv1rN3HwdORYRZ1Lb3mvWtOgbhEKS6Msznb4kbviRXR+MNMdA4
+         MfRRum/Tc9J8rBW3m5juUMebMAnEJ79YN9zhxosu9YayQcxvXF1bMbALT/9qNWoRWt6E
+         wBj3X+VVQOwyYGaGmT/SOBxLoCJko8Nm/r1bTDHG7dag63c4IGl/E0BU3rgIrzL3m2Mz
+         VfpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jUf7kZo8IMxwpyLev2Zv/J7+nVXux28o672EY4oPy90=;
+        b=B+imAAzkjLgTEvvsEkAIwRYsXfFsMSovU+n4t7W2kowGvpMQs8fri0ILfjbPKtotCW
+         MTjiNnjuFkPVfrpDJdt+x5ZxDyzy1ngUcOEhZFetANrFlcSxkComDwYPgkTHgUmDK9RM
+         WnENOdZafwYN5LCBMLrHfdzL1zcbaKj2P146Y6kMHhan40Gn+uwQX8NtVboTqTvGRhwR
+         0zYhGe2bx3Iu+apLhvV5xxUJngZ4wfgu6eGilmFUY6OngXywEnat8Tk7gHfK3Z1J7Vqe
+         s9X5Eupr0Mw3PIS9dfyq/900TxXSblT6JXYzp9xYd1+7R1grVEBo0aGxgBPsYU7mUQId
+         WbKw==
+X-Gm-Message-State: APjAAAVO99Is4FrRt7Ta9GW/7fcAC1yr8TISYZAy4eCF0lzaRZ1OQXxE
+        jyfLB9mA7rly9pEdvmbF18ItFpsovjNlvw==
+X-Google-Smtp-Source: APXvYqzUMJ+HqOQ/8MGX6yW1areemc8i6jDl9HFPrVv1IWEJfzgdAIYtOe1sWOjfFiPy7dgnbXwQnw==
+X-Received: by 2002:a05:600c:22d3:: with SMTP id 19mr491489wmg.92.1578435838076;
+        Tue, 07 Jan 2020 14:23:58 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id u16sm1209520wmj.41.2020.01.07.14.23.57
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jan 2020 14:23:57 -0800 (PST)
+Message-ID: <5e1504fd.1c69fb81.84682.6630@mx.google.com>
+Date:   Tue, 07 Jan 2020 14:23:57 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 167.98.27.226
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.92-198-gec409c0577a7
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 54 boots: 2 failed,
+ 50 passed with 2 untried/unknown (v4.19.92-198-gec409c0577a7)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 54 boots: 2 failed, 50 passed with 2 untried/u=
+nknown (v4.19.92-198-gec409c0577a7)
 
---=-53uJTOEUIz6tm6mxxnAt
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.92-198-gec409c0577a7/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.92-198-gec409c0577a7/
 
-On Tue, 2019-12-24 at 01:06 +0530, Siddharth Chandrasekaran wrote:
-> Hello,
->=20
-> This patchset is a backport of upstream commits that makes getdents() and
-> getdents64() do sanity checking on the pathname that it gives to user
-> space.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.92-198-gec409c0577a7
+Git Commit: ec409c0577a786efac650be33aeb59fea89cb950
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 43 unique boards, 13 SoC families, 12 builds out of 202
 
-These seem to be needed for 3.16, as well, so I've added them to my
-queue.
+Boot Regressions Detected:
 
-Ben.
+arm64:
 
-> Sid
->=20
-> Linus Torvalds (2):
->   Make filldir[64]() verify the directory entry filename is valid
->   filldir[64]: remove WARN_ON_ONCE() for bad directory entries
->=20
->  fs/readdir.c | 40 ++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 40 insertions(+)
->=20
---=20
-Ben Hutchings
-Larkinson's Law: All laws are basically false.
+    defconfig:
+        gcc-8:
+          bcm2837-rpi-3-b:
+              lab-baylibre: new failure (last pass: v4.19.92-113-g2686842f2=
+160)
+          meson-gxl-s905d-p230:
+              lab-baylibre: new failure (last pass: v4.19.92-113-g2686842f2=
+160)
+          meson-gxl-s905x-khadas-vim:
+              lab-baylibre: new failure (last pass: v4.19.92-113-g2686842f2=
+160)
 
+Boot Failures Detected:
 
+arm64:
+    defconfig:
+        gcc-8:
+            bcm2837-rpi-3-b: 1 failed lab
+            meson-gxl-s905x-khadas-vim: 1 failed lab
 
---=-53uJTOEUIz6tm6mxxnAt
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl4VAasACgkQ57/I7JWG
-EQmQuhAApLAOPhkwu3c+KZvczKE5+1a4Y90gRMzVkbsa5+oW+GTLM1fWVC3H81Oj
-f4zfTfhmR5QyVONI1ZSAMv6Lu7kP4r7J7xg2UXJd3l5Fdu22BjXxyDeN59q9CqLa
-6XozWsvZ/2T9OOI28ejh7uNoc+v8Yj70cYBc1V6VpXXkvhNV4o02XsRZb2RRy85z
-bX2d0A5UFOiruGjiOYHQshV3gq7PjzlaA3dQ/lXnP43nMbfv4MZKKgPsSGxi4VD/
-SUPkjY4kOU1rgyF+vOFgN1ylPLE2yGxsj4W0mu6/okJFljt74wjA/k5x+zat1xSm
-CoUYODFQtYicvGlEAaBVXk9l7YttmNHdKB5NFTytEq/+KRheoYA9HDWkAYcYa4QN
-2rK+8/TMWsVhVEQArowpnBFqhR6QZbcep6SH4nJ2o5q+KZ5VjmK9K8rLhXCucI+d
-eberXjai0Yaa2lJIIv0ekXosTKZR/35cw0xPpP8JS7N1ipZtcS1IuzJxWBM9ul/K
-BRDkEy991P1RS8YI1kjKF6Wy4RLbnczvvOa3euyVt47oq0ezwun9tehmSoAST4c9
-p+PL5NYDKR1JRsbJTT87Iva8FkSQnX4vpAvVO18lmZkwygpm1zCI/IkhQe7J7W5A
-husApJz3eDzNWbqBGYPYS9DZSOKzqBZ7V4pIgh7bSmTvueFMbwk=
-=6AHG
------END PGP SIGNATURE-----
-
---=-53uJTOEUIz6tm6mxxnAt--
+---
+For more info write to <info@kernelci.org>
