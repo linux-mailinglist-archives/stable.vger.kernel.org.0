@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7EE81334CA
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:28:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 463791334CB
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:28:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727304AbgAGU4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:56:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52760 "EHLO mail.kernel.org"
+        id S1727349AbgAGU45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 15:56:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727287AbgAGU4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:56:47 -0500
+        id S1727340AbgAGU45 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:56:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E318C24672;
-        Tue,  7 Jan 2020 20:56:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B31AA214D8;
+        Tue,  7 Jan 2020 20:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430606;
-        bh=3LQTQLau0COdzUYzcCjCQs+p0oOs4r5SsqHDMBvNqcg=;
+        s=default; t=1578430616;
+        bh=UK7zvFuwT4nHkVVu7h+EziwchvrSTVowkisJx0hoD5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iv/GQuOJgOy5gnl6OyhFmWhvnzBp4F1mUhfytBdWll1nhQtIAvIJrtfHmwx3J/K0U
-         /m5jMJQNALbG34YD5rxVc7cCwRfi9SF0XIR3VckTAoYC2uHjOh5DvT7H0lsqyBcb/1
-         U0V9FzEqYezoppZZfu4ep5JmU6IvabnZLBKA7FdM=
+        b=JBiumg8OrWyi6/Tcmt0AO5FJ4dZ1AftPOCyhS23hLZGG9FnbXiNyjb10UXBpMFYPo
+         quPaWW8IL1DWWJm4TP1DMfB8DthZSbAKK0yhti2uHuj4Jty2/XZAMaU7cFx5y8Y+LR
+         Q81YYcHeEUqLhTIZzk4KS2hxAsOcr0NH6M9hUdUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Wise <larrystevenwise@gmail.com>,
-        Doug Ledford <dledford@redhat.com>,
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvel.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        Roman Bolshakov <r.bolshakov@yadro.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 022/191] rxe: correctly calculate iCRC for unaligned payloads
-Date:   Tue,  7 Jan 2020 21:52:22 +0100
-Message-Id: <20200107205334.190976846@linuxfoundation.org>
+Subject: [PATCH 5.4 026/191] scsi: qla2xxx: Dont call qlt_async_event twice
+Date:   Tue,  7 Jan 2020 21:52:26 +0100
+Message-Id: <20200107205334.400880662@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -44,81 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Wise <larrystevenwise@gmail.com>
+From: Roman Bolshakov <r.bolshakov@yadro.com>
 
-[ Upstream commit 2030abddec6884aaf5892f5724c48fc340e6826f ]
+[ Upstream commit 2c2f4bed9b6299e6430a65a29b5d27b8763fdf25 ]
 
-If RoCE PDUs being sent or received contain pad bytes, then the iCRC
-is miscalculated, resulting in PDUs being emitted by RXE with an incorrect
-iCRC, as well as ingress PDUs being dropped due to erroneously detecting
-a bad iCRC in the PDU.  The fix is to include the pad bytes, if any,
-in iCRC computations.
+MBA_PORT_UPDATE generates duplicate log lines in target mode because
+qlt_async_event is called twice. Drop the calls within the case as the
+function will be called right after the switch statement.
 
-Note: This bug has caused broken on-the-wire compatibility with actual
-hardware RoCE devices since the soft-RoCE driver was first put into the
-mainstream kernel.  Fixing it will create an incompatibility with the
-original soft-RoCE devices, but is necessary to be compatible with real
-hardware devices.
-
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Signed-off-by: Steve Wise <larrystevenwise@gmail.com>
-Link: https://lore.kernel.org/r/20191203020319.15036-2-larrystevenwise@gmail.com
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Cc: Quinn Tran <qutran@marvell.com>
+Link: https://lore.kernel.org/r/20191125165702.1013-8-r.bolshakov@yadro.com
+Acked-by: Himanshu Madhani <hmadhani@marvel.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Tested-by: Hannes Reinecke <hare@suse.de>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_recv.c | 2 +-
- drivers/infiniband/sw/rxe/rxe_req.c  | 6 ++++++
- drivers/infiniband/sw/rxe/rxe_resp.c | 7 +++++++
- 3 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_isr.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_recv.c b/drivers/infiniband/sw/rxe/rxe_recv.c
-index f9a492ed900b..831ad578a7b2 100644
---- a/drivers/infiniband/sw/rxe/rxe_recv.c
-+++ b/drivers/infiniband/sw/rxe/rxe_recv.c
-@@ -389,7 +389,7 @@ void rxe_rcv(struct sk_buff *skb)
- 
- 	calc_icrc = rxe_icrc_hdr(pkt, skb);
- 	calc_icrc = rxe_crc32(rxe, calc_icrc, (u8 *)payload_addr(pkt),
--			      payload_size(pkt));
-+			      payload_size(pkt) + bth_pad(pkt));
- 	calc_icrc = (__force u32)cpu_to_be32(~calc_icrc);
- 	if (unlikely(calc_icrc != pack_icrc)) {
- 		if (skb->protocol == htons(ETH_P_IPV6))
-diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
-index c5d9b558fa90..e5031172c019 100644
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -500,6 +500,12 @@ static int fill_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
- 			if (err)
- 				return err;
+diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
+index 9204e8467a4e..b3766b1879e3 100644
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -1061,8 +1061,6 @@ qla2x00_async_event(scsi_qla_host_t *vha, struct rsp_que *rsp, uint16_t *mb)
+ 			ql_dbg(ql_dbg_async, vha, 0x5011,
+ 			    "Asynchronous PORT UPDATE ignored %04x/%04x/%04x.\n",
+ 			    mb[1], mb[2], mb[3]);
+-
+-			qlt_async_event(mb[0], vha, mb);
+ 			break;
  		}
-+		if (bth_pad(pkt)) {
-+			u8 *pad = payload_addr(pkt) + paylen;
-+
-+			memset(pad, 0, bth_pad(pkt));
-+			crc = rxe_crc32(rxe, crc, pad, bth_pad(pkt));
-+		}
- 	}
- 	p = payload_addr(pkt) + paylen + bth_pad(pkt);
  
-diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
-index 1cbfbd98eb22..c4a8195bf670 100644
---- a/drivers/infiniband/sw/rxe/rxe_resp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_resp.c
-@@ -732,6 +732,13 @@ static enum resp_states read_reply(struct rxe_qp *qp,
- 	if (err)
- 		pr_err("Failed copying memory\n");
+@@ -1079,8 +1077,6 @@ qla2x00_async_event(scsi_qla_host_t *vha, struct rsp_que *rsp, uint16_t *mb)
+ 		set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
+ 		set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
+ 		set_bit(VP_CONFIG_OK, &vha->vp_flags);
+-
+-		qlt_async_event(mb[0], vha, mb);
+ 		break;
  
-+	if (bth_pad(&ack_pkt)) {
-+		struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
-+		u8 *pad = payload_addr(&ack_pkt) + payload;
-+
-+		memset(pad, 0, bth_pad(&ack_pkt));
-+		icrc = rxe_crc32(rxe, icrc, pad, bth_pad(&ack_pkt));
-+	}
- 	p = payload_addr(&ack_pkt) + payload + bth_pad(&ack_pkt);
- 	*p = ~icrc;
- 
+ 	case MBA_RSCN_UPDATE:		/* State Change Registration */
 -- 
 2.20.1
 
