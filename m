@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F4D1333AB
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:20:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BFC0133465
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727709AbgAGVUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:20:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48044 "EHLO mail.kernel.org"
+        id S1727798AbgAGVAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:00:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729030AbgAGVEO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:04:14 -0500
+        id S1728267AbgAGVAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:00:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 613F92187F;
-        Tue,  7 Jan 2020 21:04:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FA532081E;
+        Tue,  7 Jan 2020 21:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431053;
-        bh=4tMV4Id3RxV0FDgukzjlM9Vz9xgkrFl0MLncXahA350=;
+        s=default; t=1578430809;
+        bh=Keft5cNz48ZkxfUyWXWdQD2X5bR09IZdkkQriQJCqzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZE5H35nV8ViYXQ62pJN6OKYcu6NlYwnhlQ2IlMVhjaEloG3qSyUAm9Tnac9uKeB5
-         9ouCT3meiG3QHzFXimwJCf/KHx8KTAKdv/dy/jqoYJplZ0D8/hs0WUVhMfP2n2lJhy
-         pLrpYESN/nl5JRWwpzKACXdI2+G9dnmLTMCYleFw=
+        b=A8iXkoFqePqcJHpO+KJ3yNRmtTQ5F+vNLwjHH8lVKpcp7/dm/t2Osq1CMOfJ8CIW6
+         NLX1hADxpZKL3+pOGzOlHqnwCj96+dWLF0iAJwHdjDAHsnjOKhQpUXm2g3BCef+ihG
+         OzHH+PiohgmGcss/KKjCyCcY3oQrri2/FucKBHzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 015/115] scsi: qla2xxx: Drop superfluous INIT_WORK of del_work
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 105/191] ata: libahci_platform: Export again ahci_platform_<en/dis>able_phys()
 Date:   Tue,  7 Jan 2020 21:53:45 +0100
-Message-Id: <20200107205249.773080125@linuxfoundation.org>
+Message-Id: <20200107205338.610644493@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 600954e6f2df695434887dfc6a99a098859990cf ]
+commit 84b032dbfdf1c139cd2b864e43959510646975f8 upstream.
 
-del_work is already initialized inside qla2x00_alloc_fcport, there's no
-need to overwrite it. Indeed, it might prevent complete traversal of
-workqueue list.
+This reverts commit 6bb86fefa086faba7b60bb452300b76a47cde1a5
+("libahci_platform: Staticize ahci_platform_<en/dis>able_phys()") we are
+going to need ahci_platform_{enable,disable}_phys() in a subsequent
+commit for ahci_brcm.c in order to properly control the PHY
+initialization order.
 
-Fixes: a01c77d2cbc45 ("scsi: qla2xxx: Move session delete to driver work queue")
-Cc: Quinn Tran <qutran@marvell.com>
-Link: https://lore.kernel.org/r/20191125165702.1013-5-r.bolshakov@yadro.com
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Tested-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also make sure the function prototypes are declared in
+include/linux/ahci_platform.h as a result.
+
+Cc: stable@vger.kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qla2xxx/qla_target.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/ata/libahci_platform.c |    6 ++++--
+ include/linux/ahci_platform.h  |    2 ++
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 210ce294038d..8eda55e917e0 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -1261,7 +1261,6 @@ void qlt_schedule_sess_for_deletion(struct fc_port *sess)
- 	    "Scheduling sess %p for deletion %8phC\n",
- 	    sess, sess->port_name);
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -43,7 +43,7 @@ EXPORT_SYMBOL_GPL(ahci_platform_ops);
+  * RETURNS:
+  * 0 on success otherwise a negative error code
+  */
+-static int ahci_platform_enable_phys(struct ahci_host_priv *hpriv)
++int ahci_platform_enable_phys(struct ahci_host_priv *hpriv)
+ {
+ 	int rc, i;
  
--	INIT_WORK(&sess->del_work, qla24xx_delete_sess_fn);
- 	WARN_ON(!queue_work(sess->vha->hw->wq, &sess->del_work));
+@@ -74,6 +74,7 @@ disable_phys:
+ 	}
+ 	return rc;
  }
++EXPORT_SYMBOL_GPL(ahci_platform_enable_phys);
  
--- 
-2.20.1
-
+ /**
+  * ahci_platform_disable_phys - Disable PHYs
+@@ -81,7 +82,7 @@ disable_phys:
+  *
+  * This function disables all PHYs found in hpriv->phys.
+  */
+-static void ahci_platform_disable_phys(struct ahci_host_priv *hpriv)
++void ahci_platform_disable_phys(struct ahci_host_priv *hpriv)
+ {
+ 	int i;
+ 
+@@ -90,6 +91,7 @@ static void ahci_platform_disable_phys(s
+ 		phy_exit(hpriv->phys[i]);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(ahci_platform_disable_phys);
+ 
+ /**
+  * ahci_platform_enable_clks - Enable platform clocks
+--- a/include/linux/ahci_platform.h
++++ b/include/linux/ahci_platform.h
+@@ -19,6 +19,8 @@ struct ahci_host_priv;
+ struct platform_device;
+ struct scsi_host_template;
+ 
++int ahci_platform_enable_phys(struct ahci_host_priv *hpriv);
++void ahci_platform_disable_phys(struct ahci_host_priv *hpriv);
+ int ahci_platform_enable_clks(struct ahci_host_priv *hpriv);
+ void ahci_platform_disable_clks(struct ahci_host_priv *hpriv);
+ int ahci_platform_enable_regulators(struct ahci_host_priv *hpriv);
 
 
