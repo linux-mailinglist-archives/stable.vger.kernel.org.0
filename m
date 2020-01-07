@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7525133273
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:11:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9130C1332A1
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730030AbgAGVKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730027AbgAGVKz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Jan 2020 16:10:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730024AbgAGVKx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:10:53 -0500
+        id S1729845AbgAGVKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:10:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B4372087F;
-        Tue,  7 Jan 2020 21:10:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F62924684;
+        Tue,  7 Jan 2020 21:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431451;
-        bh=P6LYDTtkXalL9drNvN0lZV4uoHAEtXgpD63g5v8Kzng=;
+        s=default; t=1578431454;
+        bh=QgP+7EODA4++hEzdFE8hqus7Vo27nOQDCeixmhpz9rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awEYH+D21dFZVpsAeaeGgZhKfodb3BIR8BXQFvNOdJwSWu0R2U9kosvKyeS8M5n4B
-         0gYui6pHr2WKAt9fbTxGIQzElfGqlrbG52UEqN4p2MCS9KDyZbSY7oAquIq7Um77It
-         0W8RkoAwaWvrjBA9OlfzMpLvM74ihnbHO17NKigg=
+        b=KIMqdpclxpzJOOULblzMnJPzgUMy51+IfJc4CV4EEDSNq8awUMNh4WVZb3a6jSMQw
+         KAdMgc22Iy5lTL8Kbt+oo5Wuz4t41UjEMmjaljTFPw1s3JL/oJYrQeh0B+w9U/CS0m
+         AvKTMvsGJZXQngdj1qi6K4tXYpZ/Lx6xkUp3qszY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chad Dupuis <cdupuis@marvell.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Imre Deak <imre.deak@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 61/74] scsi: qedf: Do not retry ELS request if qedf_alloc_cmd fails
-Date:   Tue,  7 Jan 2020 21:55:26 +0100
-Message-Id: <20200107205225.324511071@linuxfoundation.org>
+Subject: [PATCH 4.14 62/74] drm/mst: Fix MST sideband up-reply failure handling
+Date:   Tue,  7 Jan 2020 21:55:27 +0100
+Message-Id: <20200107205226.017844629@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
 References: <20200107205135.369001641@linuxfoundation.org>
@@ -45,91 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chad Dupuis <cdupuis@marvell.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit f1c43590365bac054d753d808dbbd207d09e088d ]
+[ Upstream commit d8fd3722207f154b53c80eee2cf4977c3fc25a92 ]
 
-If we cannot allocate an ELS middlepath request, simply fail instead of
-trying to delay and then reallocate.  This delay logic is causing soft
-lockup messages:
+Fix the breakage resulting in the stacktrace below, due to tx queue
+being full when trying to send an up-reply. txmsg->seqno is -1 in this
+case leading to a corruption of the mstb object by
 
-NMI watchdog: BUG: soft lockup - CPU#2 stuck for 22s! [kworker/2:1:7639]
-Modules linked in: xt_CHECKSUM ipt_MASQUERADE nf_nat_masquerade_ipv4 tun devlink ip6t_rpfilter ipt_REJECT nf_reject_ipv4 ip6t_REJECT nf_reject_ipv6 xt_conntrack ip_set nfnetlink ebtable_nat ebtable_broute bridge stp llc ip6table_nat nf_conntrack_ipv6 nf_defrag_ipv6 nf_nat_ipv6 ip6table_mangle ip6table_security ip6table_raw iptable_nat nf_conntrack_ipv4 nf_defrag_ipv4 nf_nat_ipv4 nf_nat nf_conntrack iptable_mangle iptable_security iptable_raw ebtable_filter ebtables ip6table_filter ip6_tables iptable_filter dm_service_time vfat fat rpcrdma sunrpc ib_isert iscsi_target_mod ib_iser libiscsi scsi_transport_iscsi ib_srpt target_core_mod ib_srp scsi_transport_srp ib_ipoib rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm sb_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm
-irqbypass crc32_pclmul ghash_clmulni_intel aesni_intel lrw gf128mul glue_helper ablk_helper cryptd iTCO_wdt iTCO_vendor_support qedr(OE) ib_core joydev ipmi_ssif pcspkr hpilo hpwdt sg ipmi_si ipmi_devintf ipmi_msghandler ioatdma shpchp lpc_ich wmi dca acpi_power_meter dm_multipath ip_tables xfs libcrc32c sd_mod crc_t10dif crct10dif_generic qedf(OE) libfcoe mgag200 libfc i2c_algo_bit drm_kms_helper scsi_transport_fc qede(OE) syscopyarea sysfillrect sysimgblt fb_sys_fops ttm qed(OE) drm crct10dif_pclmul e1000e crct10dif_common crc32c_intel scsi_tgt hpsa i2c_core ptp scsi_transport_sas pps_core dm_mirror dm_region_hash dm_log dm_mod
-CPU: 2 PID: 7639 Comm: kworker/2:1 Kdump: loaded Tainted: G           OEL ------------   3.10.0-861.el7.x86_64 #1
-Hardware name: HP ProLiant DL580 Gen9/ProLiant DL580 Gen9, BIOS U17 07/21/2016
-Workqueue: qedf_2_dpc qedf_handle_rrq [qedf]
-task: ffff959edd628fd0 ti: ffff959ed6f08000 task.ti: ffff959ed6f08000
-RIP: 0010:[<ffffffff8355913a>]  [<ffffffff8355913a>] delay_tsc+0x3a/0x60
-RSP: 0018:ffff959ed6f0bd30  EFLAGS: 00000246
-RAX: 000000008ef5f791 RBX: 5f646d635f666465 RCX: 0000025b8ededa2f
-RDX: 000000000000025b RSI: 0000000000000002 RDI: 0000000000217d1e
-RBP: ffff959ed6f0bd30 R08: ffffffffc079aae8 R09: 0000000000000200
-R10: ffffffffc07952c6 R11: 0000000000000000 R12: 6c6c615f66646571
-R13: ffff959ed6f0bcc8 R14: ffff959ed6f0bd08 R15: ffff959e00000028
-FS:  0000000000000000(0000) GS:ffff959eff480000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f4117fa1eb0 CR3: 0000002039e66000 CR4: 00000000003607e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-[<ffffffff8355907d>] __const_udelay+0x2d/0x30
-[<ffffffffc079444a>] qedf_initiate_els+0x13a/0x450 [qedf]
-[<ffffffffc0794210>] ? qedf_srr_compl+0x2a0/0x2a0 [qedf]
-[<ffffffffc0795337>] qedf_send_rrq+0x127/0x230 [qedf]
-[<ffffffffc078ed55>] qedf_handle_rrq+0x15/0x20 [qedf]
-[<ffffffff832b2dff>] process_one_work+0x17f/0x440
-[<ffffffff832b3ac6>] worker_thread+0x126/0x3c0
-[<ffffffff832b39a0>] ? manage_workers.isra.24+0x2a0/0x2a0
-[<ffffffff832bae31>] kthread+0xd1/0xe0
-[<ffffffff832bad60>] ? insert_kthread_work+0x40/0x40
-[<ffffffff8391f637>] ret_from_fork_nospec_begin+0x21/0x21
-[<ffffffff832bad60>] ? insert_kthread_work+0x40/0x40
+	txmsg->dst->tx_slots[txmsg->seqno] = NULL;
 
-Signed-off-by: Chad Dupuis <cdupuis@marvell.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+in process_single_up_tx_qlock().
+
+[  +0,005162] [drm:process_single_tx_qlock [drm_kms_helper]] set_hdr_from_dst_qlock: failed to find slot
+[  +0,000015] [drm:drm_dp_send_up_ack_reply.constprop.19 [drm_kms_helper]] failed to send msg in q -11
+[  +0,000939] BUG: kernel NULL pointer dereference, address: 00000000000005a0
+[  +0,006982] #PF: supervisor write access in kernel mode
+[  +0,005223] #PF: error_code(0x0002) - not-present page
+[  +0,005135] PGD 0 P4D 0
+[  +0,002581] Oops: 0002 [#1] PREEMPT SMP NOPTI
+[  +0,004359] CPU: 1 PID: 1200 Comm: kworker/u16:3 Tainted: G     U            5.2.0-rc1+ #410
+[  +0,008433] Hardware name: Intel Corporation Ice Lake Client Platform/IceLake U DDR4 SODIMM PD RVP, BIOS ICLSFWR1.R00.3175.A00.1904261428 04/26/2019
+[  +0,013323] Workqueue: i915-dp i915_digport_work_func [i915]
+[  +0,005676] RIP: 0010:queue_work_on+0x19/0x70
+[  +0,004372] Code: ff ff ff 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 41 56 49 89 f6 41 55 41 89 fd 41 54 55 53 48 89 d3 9c 5d fa e8 e7 81 0c 00 <f0> 48 0f ba 2b 00 73 31 45 31 e4 f7 c5 00 02 00 00 74 13 e8 cf 7f
+[  +0,018750] RSP: 0018:ffffc900007dfc50 EFLAGS: 00010006
+[  +0,005222] RAX: 0000000000000046 RBX: 00000000000005a0 RCX: 0000000000000001
+[  +0,007133] RDX: 000000000001b608 RSI: 0000000000000000 RDI: ffffffff82121972
+[  +0,007129] RBP: 0000000000000202 R08: 0000000000000000 R09: 0000000000000001
+[  +0,007129] R10: 0000000000000000 R11: 0000000000000000 R12: ffff88847bfa5096
+[  +0,007131] R13: 0000000000000010 R14: ffff88849c08f3f8 R15: 0000000000000000
+[  +0,007128] FS:  0000000000000000(0000) GS:ffff88849dc80000(0000) knlGS:0000000000000000
+[  +0,008083] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  +0,005749] CR2: 00000000000005a0 CR3: 0000000005210006 CR4: 0000000000760ee0
+[  +0,007128] PKRU: 55555554
+[  +0,002722] Call Trace:
+[  +0,002458]  drm_dp_mst_handle_up_req+0x517/0x540 [drm_kms_helper]
+[  +0,006197]  ? drm_dp_mst_hpd_irq+0x5b/0x9c0 [drm_kms_helper]
+[  +0,005764]  drm_dp_mst_hpd_irq+0x5b/0x9c0 [drm_kms_helper]
+[  +0,005623]  ? intel_dp_hpd_pulse+0x205/0x370 [i915]
+[  +0,005018]  intel_dp_hpd_pulse+0x205/0x370 [i915]
+[  +0,004836]  i915_digport_work_func+0xbb/0x140 [i915]
+[  +0,005108]  process_one_work+0x245/0x610
+[  +0,004027]  worker_thread+0x37/0x380
+[  +0,003684]  ? process_one_work+0x610/0x610
+[  +0,004184]  kthread+0x119/0x130
+[  +0,003240]  ? kthread_park+0x80/0x80
+[  +0,003668]  ret_from_fork+0x24/0x50
+
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190523212433.9058-1-imre.deak@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_els.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qedf/qedf_els.c b/drivers/scsi/qedf/qedf_els.c
-index 59c18ca4cda9..e5927a09f7bc 100644
---- a/drivers/scsi/qedf/qedf_els.c
-+++ b/drivers/scsi/qedf/qedf_els.c
-@@ -23,8 +23,6 @@ static int qedf_initiate_els(struct qedf_rport *fcport, unsigned int op,
- 	int rc = 0;
- 	uint32_t did, sid;
- 	uint16_t xid;
--	uint32_t start_time = jiffies / HZ;
--	uint32_t current_time;
- 	struct fcoe_wqe *sqe;
- 	unsigned long flags;
- 	u16 sqe_idx;
-@@ -50,18 +48,12 @@ static int qedf_initiate_els(struct qedf_rport *fcport, unsigned int op,
- 		goto els_err;
- 	}
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index bb9a9852ec22..ef86721c06f3 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -1540,7 +1540,11 @@ static void process_single_up_tx_qlock(struct drm_dp_mst_topology_mgr *mgr,
+ 	if (ret != 1)
+ 		DRM_DEBUG_KMS("failed to send msg in q %d\n", ret);
  
--retry_els:
- 	els_req = qedf_alloc_cmd(fcport, QEDF_ELS);
- 	if (!els_req) {
--		current_time = jiffies / HZ;
--		if ((current_time - start_time) > 10) {
--			QEDF_INFO(&(qedf->dbg_ctx), QEDF_LOG_ELS,
--				   "els: Failed els 0x%x\n", op);
--			rc = -ENOMEM;
--			goto els_err;
--		}
--		mdelay(20 * USEC_PER_MSEC);
--		goto retry_els;
-+		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_ELS,
-+			  "Failed to alloc ELS request 0x%x\n", op);
-+		rc = -ENOMEM;
-+		goto els_err;
- 	}
+-	txmsg->dst->tx_slots[txmsg->seqno] = NULL;
++	if (txmsg->seqno != -1) {
++		WARN_ON((unsigned int)txmsg->seqno >
++			ARRAY_SIZE(txmsg->dst->tx_slots));
++		txmsg->dst->tx_slots[txmsg->seqno] = NULL;
++	}
+ }
  
- 	QEDF_INFO(&(qedf->dbg_ctx), QEDF_LOG_ELS, "initiate_els els_req = "
+ static void drm_dp_queue_down_tx(struct drm_dp_mst_topology_mgr *mgr,
 -- 
 2.20.1
 
