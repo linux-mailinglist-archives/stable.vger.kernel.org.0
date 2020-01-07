@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B7213322A
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:08:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA7781332B2
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:13:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729597AbgAGVH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:07:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59574 "EHLO mail.kernel.org"
+        id S1729958AbgAGVK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:10:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729305AbgAGVHz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:07:55 -0500
+        id S1729949AbgAGVKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:10:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 762482087F;
-        Tue,  7 Jan 2020 21:07:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CF2C2072A;
+        Tue,  7 Jan 2020 21:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431274;
-        bh=ofr8e3gfatCCmd/bki2vXdSQ7vRODtS1BFvDJDueerU=;
+        s=default; t=1578431424;
+        bh=GxdSfhBqdz7SBcFoNt6JEff3WqZ2sYPeWhFqyuzxB4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1IZtWRXqJqgbP56wMzVK9ZGiiD9KPAWJb4Y7MdVxBr6ElUgza/nBeRhMkWSS/AHq
-         MCrZ//UlnKqUCRHudYcO93ZM99EgQdr46N7W7ApG+hLUbm+KRMqPcX5xOpS+b4XIRU
-         X7/l+k7w3yXNU3EOpMNsKLzWW4qFKahcXt8pZ31I=
+        b=O3tmiYL7TcotsAG81zxvJrwycmECdUEqIth2k11swh66mtz/mHBC9rcC4D+N/WyZj
+         /ZnBSHoNHtLJbMV5KiXS2wJwK6Wn9r/m2+/x6jPIUefqwRpklpM+mkDqV2k2jszL+W
+         I28VeZ+XDdJArGQ6BQ2Xi9/lRcBdELny/P3/R5b0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+611164843bd48cc2190c@syzkaller.appspotmail.com,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 105/115] rxrpc: Fix possible NULL pointer access in ICMP handling
-Date:   Tue,  7 Jan 2020 21:55:15 +0100
-Message-Id: <20200107205308.781757705@linuxfoundation.org>
+        Michael Haener <michael.haener@siemens.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.14 51/74] platform/x86: pmc_atom: Add Siemens CONNECT X300 to critclk_systems DMI table
+Date:   Tue,  7 Jan 2020 21:55:16 +0100
+Message-Id: <20200107205217.422380999@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+References: <20200107205135.369001641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Michael Haener <michael.haener@siemens.com>
 
-[ Upstream commit f0308fb0708078d6c1d8a4d533941a7a191af634 ]
+commit e8796c6c69d129420ee94a1906b18d86b84644d4 upstream.
 
-If an ICMP packet comes in on the UDP socket backing an AF_RXRPC socket as
-the UDP socket is being shut down, rxrpc_error_report() may get called to
-deal with it after sk_user_data on the UDP socket has been cleared, leading
-to a NULL pointer access when this local endpoint record gets accessed.
+The CONNECT X300 uses the PMC clock for on-board components and gets
+stuck during boot if the clock is disabled. Therefore, add this
+device to the critical systems list.
+Tested on CONNECT X300.
 
-Fix this by just returning immediately if sk_user_data was NULL.
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Signed-off-by: Michael Haener <michael.haener@siemens.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The oops looks like the following:
-
-#PF: supervisor read access in kernel mode
-#PF: error_code(0x0000) - not-present page
-...
-RIP: 0010:rxrpc_error_report+0x1bd/0x6a9
-...
-Call Trace:
- ? sock_queue_err_skb+0xbd/0xde
- ? __udp4_lib_err+0x313/0x34d
- __udp4_lib_err+0x313/0x34d
- icmp_unreach+0x1ee/0x207
- icmp_rcv+0x25b/0x28f
- ip_protocol_deliver_rcu+0x95/0x10e
- ip_local_deliver+0xe9/0x148
- __netif_receive_skb_one_core+0x52/0x6e
- process_backlog+0xdc/0x177
- net_rx_action+0xf9/0x270
- __do_softirq+0x1b6/0x39a
- ? smpboot_register_percpu_thread+0xce/0xce
- run_ksoftirqd+0x1d/0x42
- smpboot_thread_fn+0x19e/0x1b3
- kthread+0xf1/0xf6
- ? kthread_delayed_work_timer_fn+0x83/0x83
- ret_from_fork+0x24/0x30
-
-Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
-Reported-by: syzbot+611164843bd48cc2190c@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/peer_event.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/x86/pmc_atom.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/rxrpc/peer_event.c b/net/rxrpc/peer_event.c
-index dc7fdaf20445..42582a9ff81d 100644
---- a/net/rxrpc/peer_event.c
-+++ b/net/rxrpc/peer_event.c
-@@ -153,6 +153,9 @@ void rxrpc_error_report(struct sock *sk)
- 	struct rxrpc_peer *peer;
- 	struct sk_buff *skb;
- 
-+	if (unlikely(!local))
-+		return;
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -482,6 +482,14 @@ static const struct dmi_system_id critcl
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "6ES7647-8B"),
+ 		},
+ 	},
++	{
++		.ident = "CONNECT X300",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "A5E45074588"),
++		},
++	},
 +
- 	_enter("%p{%d}", sk, local->debug_id);
+ 	{ /*sentinel*/ }
+ };
  
- 	skb = sock_dequeue_err_skb(sk);
--- 
-2.20.1
-
 
 
