@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23901133239
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:09:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7525133273
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:11:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729368AbgAGVIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:08:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60574 "EHLO mail.kernel.org"
+        id S1730030AbgAGVKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:10:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729673AbgAGVIW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:08:22 -0500
+        id S1730024AbgAGVKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:10:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D5FE20880;
-        Tue,  7 Jan 2020 21:08:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B4372087F;
+        Tue,  7 Jan 2020 21:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431301;
-        bh=scddgpvllI85i/98LWMYBVIE/Q5evmoMzZcNLa0aPZs=;
+        s=default; t=1578431451;
+        bh=P6LYDTtkXalL9drNvN0lZV4uoHAEtXgpD63g5v8Kzng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qmelnMm213luoFgx4fBPKu4uQTMsKhVR1HYeVha2pe+sD74mt8HULfm3OT3HOkhJo
-         LECq9Bt9mteLRc8Pkj/FLFGzPsvb8pox3/DwUM/e4bKCt7oiuUJFPozp3yQttRb0N2
-         gwNxkk+ccGYg5vIcDmfm3qS9oQh3opeB53dsQT6k=
+        b=awEYH+D21dFZVpsAeaeGgZhKfodb3BIR8BXQFvNOdJwSWu0R2U9kosvKyeS8M5n4B
+         0gYui6pHr2WKAt9fbTxGIQzElfGqlrbG52UEqN4p2MCS9KDyZbSY7oAquIq7Um77It
+         0W8RkoAwaWvrjBA9OlfzMpLvM74ihnbHO17NKigg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Chad Dupuis <cdupuis@marvell.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 115/115] perf/x86/intel/bts: Fix the use of page_private()
-Date:   Tue,  7 Jan 2020 21:55:25 +0100
-Message-Id: <20200107205311.271071706@linuxfoundation.org>
+Subject: [PATCH 4.14 61/74] scsi: qedf: Do not retry ELS request if qedf_alloc_cmd fails
+Date:   Tue,  7 Jan 2020 21:55:26 +0100
+Message-Id: <20200107205225.324511071@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+References: <20200107205135.369001641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,93 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Chad Dupuis <cdupuis@marvell.com>
 
-[ Upstream commit ff61541cc6c1962957758ba433c574b76f588d23 ]
+[ Upstream commit f1c43590365bac054d753d808dbbd207d09e088d ]
 
-Commit
+If we cannot allocate an ELS middlepath request, simply fail instead of
+trying to delay and then reallocate.  This delay logic is causing soft
+lockup messages:
 
-  8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
+NMI watchdog: BUG: soft lockup - CPU#2 stuck for 22s! [kworker/2:1:7639]
+Modules linked in: xt_CHECKSUM ipt_MASQUERADE nf_nat_masquerade_ipv4 tun devlink ip6t_rpfilter ipt_REJECT nf_reject_ipv4 ip6t_REJECT nf_reject_ipv6 xt_conntrack ip_set nfnetlink ebtable_nat ebtable_broute bridge stp llc ip6table_nat nf_conntrack_ipv6 nf_defrag_ipv6 nf_nat_ipv6 ip6table_mangle ip6table_security ip6table_raw iptable_nat nf_conntrack_ipv4 nf_defrag_ipv4 nf_nat_ipv4 nf_nat nf_conntrack iptable_mangle iptable_security iptable_raw ebtable_filter ebtables ip6table_filter ip6_tables iptable_filter dm_service_time vfat fat rpcrdma sunrpc ib_isert iscsi_target_mod ib_iser libiscsi scsi_transport_iscsi ib_srpt target_core_mod ib_srp scsi_transport_srp ib_ipoib rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm sb_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm
+irqbypass crc32_pclmul ghash_clmulni_intel aesni_intel lrw gf128mul glue_helper ablk_helper cryptd iTCO_wdt iTCO_vendor_support qedr(OE) ib_core joydev ipmi_ssif pcspkr hpilo hpwdt sg ipmi_si ipmi_devintf ipmi_msghandler ioatdma shpchp lpc_ich wmi dca acpi_power_meter dm_multipath ip_tables xfs libcrc32c sd_mod crc_t10dif crct10dif_generic qedf(OE) libfcoe mgag200 libfc i2c_algo_bit drm_kms_helper scsi_transport_fc qede(OE) syscopyarea sysfillrect sysimgblt fb_sys_fops ttm qed(OE) drm crct10dif_pclmul e1000e crct10dif_common crc32c_intel scsi_tgt hpsa i2c_core ptp scsi_transport_sas pps_core dm_mirror dm_region_hash dm_log dm_mod
+CPU: 2 PID: 7639 Comm: kworker/2:1 Kdump: loaded Tainted: G           OEL ------------   3.10.0-861.el7.x86_64 #1
+Hardware name: HP ProLiant DL580 Gen9/ProLiant DL580 Gen9, BIOS U17 07/21/2016
+Workqueue: qedf_2_dpc qedf_handle_rrq [qedf]
+task: ffff959edd628fd0 ti: ffff959ed6f08000 task.ti: ffff959ed6f08000
+RIP: 0010:[<ffffffff8355913a>]  [<ffffffff8355913a>] delay_tsc+0x3a/0x60
+RSP: 0018:ffff959ed6f0bd30  EFLAGS: 00000246
+RAX: 000000008ef5f791 RBX: 5f646d635f666465 RCX: 0000025b8ededa2f
+RDX: 000000000000025b RSI: 0000000000000002 RDI: 0000000000217d1e
+RBP: ffff959ed6f0bd30 R08: ffffffffc079aae8 R09: 0000000000000200
+R10: ffffffffc07952c6 R11: 0000000000000000 R12: 6c6c615f66646571
+R13: ffff959ed6f0bcc8 R14: ffff959ed6f0bd08 R15: ffff959e00000028
+FS:  0000000000000000(0000) GS:ffff959eff480000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f4117fa1eb0 CR3: 0000002039e66000 CR4: 00000000003607e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+[<ffffffff8355907d>] __const_udelay+0x2d/0x30
+[<ffffffffc079444a>] qedf_initiate_els+0x13a/0x450 [qedf]
+[<ffffffffc0794210>] ? qedf_srr_compl+0x2a0/0x2a0 [qedf]
+[<ffffffffc0795337>] qedf_send_rrq+0x127/0x230 [qedf]
+[<ffffffffc078ed55>] qedf_handle_rrq+0x15/0x20 [qedf]
+[<ffffffff832b2dff>] process_one_work+0x17f/0x440
+[<ffffffff832b3ac6>] worker_thread+0x126/0x3c0
+[<ffffffff832b39a0>] ? manage_workers.isra.24+0x2a0/0x2a0
+[<ffffffff832bae31>] kthread+0xd1/0xe0
+[<ffffffff832bad60>] ? insert_kthread_work+0x40/0x40
+[<ffffffff8391f637>] ret_from_fork_nospec_begin+0x21/0x21
+[<ffffffff832bad60>] ? insert_kthread_work+0x40/0x40
 
-brought in a warning with the BTS buffer initialization
-that is easily tripped with (assuming KPTI is disabled):
-
-instantly throwing:
-
-> ------------[ cut here ]------------
-> WARNING: CPU: 2 PID: 326 at arch/x86/events/intel/bts.c:86 bts_buffer_setup_aux+0x117/0x3d0
-> Modules linked in:
-> CPU: 2 PID: 326 Comm: perf Not tainted 5.4.0-rc8-00291-gceb9e77324fa #904
-> RIP: 0010:bts_buffer_setup_aux+0x117/0x3d0
-> Call Trace:
->  rb_alloc_aux+0x339/0x550
->  perf_mmap+0x607/0xc70
->  mmap_region+0x76b/0xbd0
-...
-
-It appears to assume (for lost raisins) that PagePrivate() is set,
-while later it actually tests for PagePrivate() before using
-page_private().
-
-Make it consistent and always check PagePrivate() before using
-page_private().
-
-Fixes: 8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Link: https://lkml.kernel.org/r/20191205142853.28894-2-alexander.shishkin@linux.intel.com
+Signed-off-by: Chad Dupuis <cdupuis@marvell.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/bts.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/scsi/qedf/qedf_els.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
-index 7139f6bf27ad..510f9461407e 100644
---- a/arch/x86/events/intel/bts.c
-+++ b/arch/x86/events/intel/bts.c
-@@ -71,9 +71,17 @@ struct bts_buffer {
- 
- static struct pmu bts_pmu;
- 
-+static int buf_nr_pages(struct page *page)
-+{
-+	if (!PagePrivate(page))
-+		return 1;
-+
-+	return 1 << page_private(page);
-+}
-+
- static size_t buf_size(struct page *page)
- {
--	return 1 << (PAGE_SHIFT + page_private(page));
-+	return buf_nr_pages(page) * PAGE_SIZE;
- }
- 
- static void *
-@@ -91,9 +99,7 @@ bts_buffer_setup_aux(struct perf_event *event, void **pages,
- 	/* count all the high order buffers */
- 	for (pg = 0, nbuf = 0; pg < nr_pages;) {
- 		page = virt_to_page(pages[pg]);
--		if (WARN_ON_ONCE(!PagePrivate(page) && nr_pages > 1))
--			return NULL;
--		pg += 1 << page_private(page);
-+		pg += buf_nr_pages(page);
- 		nbuf++;
+diff --git a/drivers/scsi/qedf/qedf_els.c b/drivers/scsi/qedf/qedf_els.c
+index 59c18ca4cda9..e5927a09f7bc 100644
+--- a/drivers/scsi/qedf/qedf_els.c
++++ b/drivers/scsi/qedf/qedf_els.c
+@@ -23,8 +23,6 @@ static int qedf_initiate_els(struct qedf_rport *fcport, unsigned int op,
+ 	int rc = 0;
+ 	uint32_t did, sid;
+ 	uint16_t xid;
+-	uint32_t start_time = jiffies / HZ;
+-	uint32_t current_time;
+ 	struct fcoe_wqe *sqe;
+ 	unsigned long flags;
+ 	u16 sqe_idx;
+@@ -50,18 +48,12 @@ static int qedf_initiate_els(struct qedf_rport *fcport, unsigned int op,
+ 		goto els_err;
  	}
  
-@@ -117,7 +123,7 @@ bts_buffer_setup_aux(struct perf_event *event, void **pages,
- 		unsigned int __nr_pages;
+-retry_els:
+ 	els_req = qedf_alloc_cmd(fcport, QEDF_ELS);
+ 	if (!els_req) {
+-		current_time = jiffies / HZ;
+-		if ((current_time - start_time) > 10) {
+-			QEDF_INFO(&(qedf->dbg_ctx), QEDF_LOG_ELS,
+-				   "els: Failed els 0x%x\n", op);
+-			rc = -ENOMEM;
+-			goto els_err;
+-		}
+-		mdelay(20 * USEC_PER_MSEC);
+-		goto retry_els;
++		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_ELS,
++			  "Failed to alloc ELS request 0x%x\n", op);
++		rc = -ENOMEM;
++		goto els_err;
+ 	}
  
- 		page = virt_to_page(pages[pg]);
--		__nr_pages = PagePrivate(page) ? 1 << page_private(page) : 1;
-+		__nr_pages = buf_nr_pages(page);
- 		buf->buf[nbuf].page = page;
- 		buf->buf[nbuf].offset = offset;
- 		buf->buf[nbuf].displacement = (pad ? BTS_RECORD_SIZE - pad : 0);
+ 	QEDF_INFO(&(qedf->dbg_ctx), QEDF_LOG_ELS, "initiate_els els_req = "
 -- 
 2.20.1
 
