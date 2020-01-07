@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D1F313331D
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FB5B133407
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:23:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729391AbgAGVHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:07:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57088 "EHLO mail.kernel.org"
+        id S1727089AbgAGVXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:23:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729462AbgAGVHC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:07:02 -0500
+        id S1728568AbgAGVB1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:01:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3282C20678;
-        Tue,  7 Jan 2020 21:07:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E2202087F;
+        Tue,  7 Jan 2020 21:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431221;
-        bh=FvAHbcoWqATo0vcYGrp4Vf8OlzqnBzekWMoDdjm14cU=;
+        s=default; t=1578430886;
+        bh=AK1AVXO5ClegKvysWc2GyWGCDLaaS1BUynmfwuiEd7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yb9MdwkbExQ6zNde+g/nIbuKczyE7p9NIi3ipz+d2/L/GSBrTH1RSdUNY5XB4p8qI
-         56pGql4VdcxIPSjsJ9k6HTOZZQ2u2BgwT/FetzNi/MUmvTq1Sjl+/Hw/eO/a9VBnzc
-         XKwhYv9dSSdACnohmJlrC9wxLvAVX68EtmvY9gd8=
+        b=pePvFFxhWMhYHSHq6c85p29Mo2rMITnokw9KLIF0BgSYGXlKeotwpM5viHHsTBA4i
+         pGPDwUlUixiPtobvLBnoQBciRpzSFRBiBIrRH14AyE/JF8bO20hJRDWO4hq7K6ERjg
+         LrmItUUygOSuATUVxIegnULZPRV269PMlyAPIIOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 048/115] media: pulse8-cec: fix lost cec_transmit_attempt_done() call
+        stable@vger.kernel.org, Alastair DSilva <alastair@d-silva.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 138/191] powerpc: Chunk calls to flush_dcache_range in arch_*_memory
 Date:   Tue,  7 Jan 2020 21:54:18 +0100
-Message-Id: <20200107205302.324393223@linuxfoundation.org>
+Message-Id: <20200107205340.358424692@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
-References: <20200107205240.283674026@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Alastair D'Silva <alastair@d-silva.org>
 
-commit e5a52a1d15c79bb48a430fb263852263ec1d3f11 upstream.
+commit 076265907cf9633bbef861c7c2a1c26a8209f283 upstream.
 
-The periodic PING command could interfere with the result of
-a CEC transmit, causing a lost cec_transmit_attempt_done()
-call.
+When presented with large amounts of memory being hotplugged
+(in my test case, ~890GB), the call to flush_dcache_range takes
+a while (~50 seconds), triggering RCU stalls.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: <stable@vger.kernel.org>      # for v4.10 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This patch breaks up the call into 1GB chunks, calling
+cond_resched() inbetween to allow the scheduler to run.
+
+Fixes: fb5924fddf9e ("powerpc/mm: Flush cache on memory hot(un)plug")
+Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191104023305.9581-6-alastair@au1.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/pulse8-cec/pulse8-cec.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ arch/powerpc/mm/mem.c |   27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
---- a/drivers/media/usb/pulse8-cec/pulse8-cec.c
-+++ b/drivers/media/usb/pulse8-cec/pulse8-cec.c
-@@ -121,6 +121,7 @@ struct pulse8 {
- 	unsigned int vers;
- 	struct completion cmd_done;
- 	struct work_struct work;
-+	u8 work_result;
- 	struct delayed_work ping_eeprom_work;
- 	struct cec_msg rx_msg;
- 	u8 data[DATA_SIZE];
-@@ -142,8 +143,10 @@ static void pulse8_irq_work_handler(stru
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -104,6 +104,27 @@ int __weak remove_section_mapping(unsign
+ 	return -ENODEV;
+ }
+ 
++#define FLUSH_CHUNK_SIZE SZ_1G
++/**
++ * flush_dcache_range_chunked(): Write any modified data cache blocks out to
++ * memory and invalidate them, in chunks of up to FLUSH_CHUNK_SIZE
++ * Does not invalidate the corresponding instruction cache blocks.
++ *
++ * @start: the start address
++ * @stop: the stop address (exclusive)
++ * @chunk: the max size of the chunks
++ */
++static void flush_dcache_range_chunked(unsigned long start, unsigned long stop,
++				       unsigned long chunk)
++{
++	unsigned long i;
++
++	for (i = start; i < stop; i += chunk) {
++		flush_dcache_range(i, min(stop, start + chunk));
++		cond_resched();
++	}
++}
++
+ int __ref arch_add_memory(int nid, u64 start, u64 size,
+ 			struct mhp_restrictions *restrictions)
  {
- 	struct pulse8 *pulse8 =
- 		container_of(work, struct pulse8, work);
-+	u8 result = pulse8->work_result;
+@@ -120,7 +141,8 @@ int __ref arch_add_memory(int nid, u64 s
+ 			start, start + size, rc);
+ 		return -EFAULT;
+ 	}
+-	flush_dcache_range(start, start + size);
++
++	flush_dcache_range_chunked(start, start + size, FLUSH_CHUNK_SIZE);
  
--	switch (pulse8->data[0] & 0x3f) {
-+	pulse8->work_result = 0;
-+	switch (result & 0x3f) {
- 	case MSGCODE_FRAME_DATA:
- 		cec_received_msg(pulse8->adap, &pulse8->rx_msg);
- 		break;
-@@ -177,12 +180,12 @@ static irqreturn_t pulse8_interrupt(stru
- 		pulse8->escape = false;
- 	} else if (data == MSGEND) {
- 		struct cec_msg *msg = &pulse8->rx_msg;
-+		u8 msgcode = pulse8->buf[0];
+ 	return __add_pages(nid, start_pfn, nr_pages, restrictions);
+ }
+@@ -136,7 +158,8 @@ void __ref arch_remove_memory(int nid, u
  
- 		if (debug)
- 			dev_info(pulse8->dev, "received: %*ph\n",
- 				 pulse8->idx, pulse8->buf);
--		pulse8->data[0] = pulse8->buf[0];
--		switch (pulse8->buf[0] & 0x3f) {
-+		switch (msgcode & 0x3f) {
- 		case MSGCODE_FRAME_START:
- 			msg->len = 1;
- 			msg->msg[0] = pulse8->buf[1];
-@@ -191,14 +194,20 @@ static irqreturn_t pulse8_interrupt(stru
- 			if (msg->len == CEC_MAX_MSG_SIZE)
- 				break;
- 			msg->msg[msg->len++] = pulse8->buf[1];
--			if (pulse8->buf[0] & MSGCODE_FRAME_EOM)
-+			if (msgcode & MSGCODE_FRAME_EOM) {
-+				WARN_ON(pulse8->work_result);
-+				pulse8->work_result = msgcode;
- 				schedule_work(&pulse8->work);
-+				break;
-+			}
- 			break;
- 		case MSGCODE_TRANSMIT_SUCCEEDED:
- 		case MSGCODE_TRANSMIT_FAILED_LINE:
- 		case MSGCODE_TRANSMIT_FAILED_ACK:
- 		case MSGCODE_TRANSMIT_FAILED_TIMEOUT_DATA:
- 		case MSGCODE_TRANSMIT_FAILED_TIMEOUT_LINE:
-+			WARN_ON(pulse8->work_result);
-+			pulse8->work_result = msgcode;
- 			schedule_work(&pulse8->work);
- 			break;
- 		case MSGCODE_HIGH_ERROR:
+ 	/* Remove htab bolted mappings for this section of memory */
+ 	start = (unsigned long)__va(start);
+-	flush_dcache_range(start, start + size);
++	flush_dcache_range_chunked(start, start + size, FLUSH_CHUNK_SIZE);
++
+ 	ret = remove_section_mapping(start, start + size);
+ 	WARN_ON_ONCE(ret);
+ 
 
 
