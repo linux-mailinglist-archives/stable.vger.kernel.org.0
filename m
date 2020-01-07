@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA071333B7
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:21:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53FB81332FB
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:16:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727963AbgAGVD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:03:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45342 "EHLO mail.kernel.org"
+        id S1729552AbgAGVHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:07:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728724AbgAGVD1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:03:27 -0500
+        id S1729546AbgAGVHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:07:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 126C82077B;
-        Tue,  7 Jan 2020 21:03:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D68D208C4;
+        Tue,  7 Jan 2020 21:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431005;
-        bh=BDI6/WTSkk2GpBJxGXBqEQbdfqRIM0rGrvfopXGfmMc=;
+        s=default; t=1578431250;
+        bh=aOZ5Zd1lbSAteEr5LJ2AOgThOLfNS16FyuGXJpkXz6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKStGFheJ//jkRIFQVpX4ISKqIM/UMlKBdnMqnFjbkF7qty8mppt0/2YQFHgYhFtq
-         MNV7E13rOQ181kvnH2rSuW785Rfb2NsyYPP2SHGF4LraHF5QbCv5wJMnytxvGA0/y8
-         gx5l0PX8EbQIR4ZLfa5NqIroqcE+Rcdrfuwg/uP4=
+        b=md+26HfRvq8CsbtDpz3HbhjlcXho2JxisgRsefTKBMm2GQtugInZkrtjTnvOFF6JJ
+         /8QQrvXLl+6KtmuW81V5QbAxkVn7eFtgfe6s/gE2+YGdbp0DXemuFL0YEqgG6LibSu
+         Od9539C3/4HSf6LQuE8+bHR024SIZPuNlriVbAns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 186/191] perf/x86/intel/bts: Fix the use of page_private()
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 096/115] bdev: Factor out bdev revalidation into a common helper
 Date:   Tue,  7 Jan 2020 21:55:06 +0100
-Message-Id: <20200107205342.943849559@linuxfoundation.org>
+Message-Id: <20200107205307.270373105@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,95 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit ff61541cc6c1962957758ba433c574b76f588d23 ]
+commit 731dc4868311ee097757b8746eaa1b4f8b2b4f1c upstream.
 
-Commit
+Factor out code handling revalidation of bdev on disk change into a
+common helper.
 
-  8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-brought in a warning with the BTS buffer initialization
-that is easily tripped with (assuming KPTI is disabled):
-
-instantly throwing:
-
-> ------------[ cut here ]------------
-> WARNING: CPU: 2 PID: 326 at arch/x86/events/intel/bts.c:86 bts_buffer_setup_aux+0x117/0x3d0
-> Modules linked in:
-> CPU: 2 PID: 326 Comm: perf Not tainted 5.4.0-rc8-00291-gceb9e77324fa #904
-> RIP: 0010:bts_buffer_setup_aux+0x117/0x3d0
-> Call Trace:
->  rb_alloc_aux+0x339/0x550
->  perf_mmap+0x607/0xc70
->  mmap_region+0x76b/0xbd0
-...
-
-It appears to assume (for lost raisins) that PagePrivate() is set,
-while later it actually tests for PagePrivate() before using
-page_private().
-
-Make it consistent and always check PagePrivate() before using
-page_private().
-
-Fixes: 8062382c8dbe2 ("perf/x86/intel/bts: Add BTS PMU driver")
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Link: https://lkml.kernel.org/r/20191205142853.28894-2-alexander.shishkin@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/bts.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ fs/block_dev.c |   26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
-index 5ee3fed881d3..741540d849f3 100644
---- a/arch/x86/events/intel/bts.c
-+++ b/arch/x86/events/intel/bts.c
-@@ -63,9 +63,17 @@ struct bts_buffer {
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1430,6 +1430,14 @@ EXPORT_SYMBOL(bd_set_size);
  
- static struct pmu bts_pmu;
+ static void __blkdev_put(struct block_device *bdev, fmode_t mode, int for_part);
  
-+static int buf_nr_pages(struct page *page)
++static void bdev_disk_changed(struct block_device *bdev, bool invalidate)
 +{
-+	if (!PagePrivate(page))
-+		return 1;
-+
-+	return 1 << page_private(page);
++	if (invalidate)
++		invalidate_partitions(bdev->bd_disk, bdev);
++	else
++		rescan_partitions(bdev->bd_disk, bdev);
 +}
 +
- static size_t buf_size(struct page *page)
- {
--	return 1 << (PAGE_SHIFT + page_private(page));
-+	return buf_nr_pages(page) * PAGE_SIZE;
- }
+ /*
+  * bd_mutex locking:
+  *
+@@ -1512,12 +1520,9 @@ static int __blkdev_get(struct block_dev
+ 			 * The latter is necessary to prevent ghost
+ 			 * partitions on a removed medium.
+ 			 */
+-			if (bdev->bd_invalidated) {
+-				if (!ret)
+-					rescan_partitions(disk, bdev);
+-				else if (ret == -ENOMEDIUM)
+-					invalidate_partitions(disk, bdev);
+-			}
++			if (bdev->bd_invalidated &&
++			    (!ret || ret == -ENOMEDIUM))
++				bdev_disk_changed(bdev, ret == -ENOMEDIUM);
  
- static void *
-@@ -83,9 +91,7 @@ bts_buffer_setup_aux(struct perf_event *event, void **pages,
- 	/* count all the high order buffers */
- 	for (pg = 0, nbuf = 0; pg < nr_pages;) {
- 		page = virt_to_page(pages[pg]);
--		if (WARN_ON_ONCE(!PagePrivate(page) && nr_pages > 1))
--			return NULL;
--		pg += 1 << page_private(page);
-+		pg += buf_nr_pages(page);
- 		nbuf++;
- 	}
- 
-@@ -109,7 +115,7 @@ bts_buffer_setup_aux(struct perf_event *event, void **pages,
- 		unsigned int __nr_pages;
- 
- 		page = virt_to_page(pages[pg]);
--		__nr_pages = PagePrivate(page) ? 1 << page_private(page) : 1;
-+		__nr_pages = buf_nr_pages(page);
- 		buf->buf[nbuf].page = page;
- 		buf->buf[nbuf].offset = offset;
- 		buf->buf[nbuf].displacement = (pad ? BTS_RECORD_SIZE - pad : 0);
--- 
-2.20.1
-
+ 			if (ret)
+ 				goto out_clear;
+@@ -1550,12 +1555,9 @@ static int __blkdev_get(struct block_dev
+ 			if (bdev->bd_disk->fops->open)
+ 				ret = bdev->bd_disk->fops->open(bdev, mode);
+ 			/* the same as first opener case, read comment there */
+-			if (bdev->bd_invalidated) {
+-				if (!ret)
+-					rescan_partitions(bdev->bd_disk, bdev);
+-				else if (ret == -ENOMEDIUM)
+-					invalidate_partitions(bdev->bd_disk, bdev);
+-			}
++			if (bdev->bd_invalidated &&
++			    (!ret || ret == -ENOMEDIUM))
++				bdev_disk_changed(bdev, ret == -ENOMEDIUM);
+ 			if (ret)
+ 				goto out_unlock_bdev;
+ 		}
 
 
