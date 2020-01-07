@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC1081331C4
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D6913332D
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:17:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728967AbgAGVDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:03:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46558 "EHLO mail.kernel.org"
+        id S1727981AbgAGVQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:16:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728974AbgAGVDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:03:47 -0500
+        id S1729429AbgAGVGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:06:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5BDB2081E;
-        Tue,  7 Jan 2020 21:03:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 668FB20880;
+        Tue,  7 Jan 2020 21:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431027;
-        bh=/A8G4m5/CbKB3q8Lhatro960Z/QFZjCCGpHHAiIAzfU=;
+        s=default; t=1578431211;
+        bh=oODlMwsWmP0uvjxAg9CsM/Q88SZXX7bpWTVuq85UzJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BGN4sjKO7PFBr17ah4R7ou8QMhPZ5S7WEjcBJ9ClByXBpYNq7w/BWZaAqoAd78gUZ
-         hvIkhiARKLk6eNvj7bK/Dr89sixZPPBmjMZSmgM3Of4yPqwCD03UPT+JxF8gwpIdXl
-         LXzYlMtKW7TBvtOLFalBnmfwx2m+hJLOQy09sV/w=
+        b=1JcwhTLbA8OKec+iIEmYs9dx2GCckkQGE7SjH9Cn9CUH4O2jYPc8IFeWPbWdxq48S
+         7aGshdCT7NO0Q6cgqGmPfEbGStOk9xwfjKhfMAwi/Zjx1we+L7MWNSISHYC2oxbuzy
+         EcsIatVSwQBVdyT5uCmQJIDqYjlBKC2TKRjoFYac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 5.4 168/191] phy: renesas: rcar-gen3-usb2: Use platform_get_irq_optional() for optional irq
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 078/115] ftrace: Avoid potential division by zero in function profiler
 Date:   Tue,  7 Jan 2020 21:54:48 +0100
-Message-Id: <20200107205341.994942891@linuxfoundation.org>
+Message-Id: <20200107205304.479906634@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-commit b049e03ca57f238e74a79e44ffc85904db465e72 upstream.
+commit e31f7939c1c27faa5d0e3f14519eaf7c89e8a69d upstream.
 
-As platform_get_irq() now prints an error when the interrupt does not
-exist, a scary warning may be printed for an optional interrupt:
+The ftrace_profile->counter is unsigned long and
+do_div truncates it to 32 bits, which means it can test
+non-zero and be truncated to zero for division.
+Fix this issue by using div64_ul() instead.
 
-    phy_rcar_gen3_usb2 ee0a0200.usb-phy: IRQ index 0 not found
+Link: http://lkml.kernel.org/r/20200103030248.14516-1-wenyang@linux.alibaba.com
 
-Fix this by calling platform_get_irq_optional() instead.
-
-Fixes: 7723f4c5ecdb8d83 ("driver core: platform: Add an error message to platform_get_irq*()")
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Cc: stable@vger.kernel.org
+Fixes: e330b3bcd8319 ("tracing: Show sample std dev in function profiling")
+Fixes: 34886c8bc590f ("tracing: add average time in function to function profiler")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/phy/renesas/phy-rcar-gen3-usb2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/ftrace.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-+++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-@@ -615,7 +615,7 @@ static int rcar_gen3_phy_usb2_probe(stru
- 		return PTR_ERR(channel->base);
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -554,8 +554,7 @@ static int function_stat_show(struct seq
+ 	}
  
- 	/* call request_irq for OTG */
--	irq = platform_get_irq(pdev, 0);
-+	irq = platform_get_irq_optional(pdev, 0);
- 	if (irq >= 0) {
- 		INIT_WORK(&channel->work, rcar_gen3_phy_usb2_work);
- 		irq = devm_request_irq(dev, irq, rcar_gen3_phy_usb2_irq,
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	avg = rec->time;
+-	do_div(avg, rec->counter);
++	avg = div64_ul(rec->time, rec->counter);
+ 	if (tracing_thresh && (avg < tracing_thresh))
+ 		goto out;
+ #endif
+@@ -581,7 +580,8 @@ static int function_stat_show(struct seq
+ 		 * Divide only 1000 for ns^2 -> us^2 conversion.
+ 		 * trace_print_graph_duration will divide 1000 again.
+ 		 */
+-		do_div(stddev, rec->counter * (rec->counter - 1) * 1000);
++		stddev = div64_ul(stddev,
++				  rec->counter * (rec->counter - 1) * 1000);
+ 	}
+ 
+ 	trace_seq_init(&s);
 
 
