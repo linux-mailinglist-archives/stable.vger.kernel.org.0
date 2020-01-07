@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 051F9133460
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE0901333AD
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:20:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727830AbgAGVAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:00:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34116 "EHLO mail.kernel.org"
+        id S1729181AbgAGVUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:20:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727733AbgAGVAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:00:05 -0500
+        id S1728849AbgAGVEL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:04:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83DB82081E;
-        Tue,  7 Jan 2020 21:00:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03D1D214D8;
+        Tue,  7 Jan 2020 21:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430805;
-        bh=zhn7nBfRDeH8Ol627tHo1Y9YVjTIhuLu8UENFkLNKiI=;
+        s=default; t=1578431051;
+        bh=VymdLctBxtMIyMamh6IpsdRcsK90aID26GoXpPULKL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JpPhP9Vd8sCdHB2rtoB4VkBbT9oCVMXKKz/sE8kI/Cl895Yqww1nnpdLngBxUxo6X
-         s9kJVImvUfRK6GosSeEhRpdVodd0/geea+BzHSuXvyREL9AUciei421QjzwlHVRGis
-         1G5h1kG8nVEf0Kio6aPC06xDWckaDuoQ+QyBrX+A=
+        b=DEuQfwc1YfXIJKL0ePWfQdTwetdFxJeVySZSXJPxRn1ba/+OE/L8uk1Ebx7dVbV4n
+         9G86HggXndY7uQ7Q8cEZ2U314Xfz13FEgWYPnByQV7FJZ5kfBeXS+RMI2z4/u8aYYn
+         pAZai3f72lSPHx9+TjwR6VWIU/M7YLtXJ0rjgAsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 103/191] compat_ioctl: block: handle BLKGETZONESZ/BLKGETNRZONES
-Date:   Tue,  7 Jan 2020 21:53:43 +0100
-Message-Id: <20200107205338.504353839@linuxfoundation.org>
+        stable@vger.kernel.org, Bo Wu <wubo40@huawei.com>,
+        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        James Smart <james.smart@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 014/115] scsi: lpfc: Fix memory leak on lpfc_bsg_write_ebuf_set func
+Date:   Tue,  7 Jan 2020 21:53:44 +0100
+Message-Id: <20200107205249.280460588@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Bo Wu <wubo40@huawei.com>
 
-commit 21d37340912d74b1222d43c11aa9dd0687162573 upstream.
+[ Upstream commit 9a1b0b9a6dab452fb0e39fe96880c4faf3878369 ]
 
-These were added to blkdev_ioctl() in v4.20 but not blkdev_compat_ioctl,
-so add them now.
+When phba->mbox_ext_buf_ctx.seqNum != phba->mbox_ext_buf_ctx.numBuf,
+dd_data should be freed before return SLI_CONFIG_HANDLED.
 
-Cc: <stable@vger.kernel.org> # v4.20+
-Fixes: 72cd87576d1d ("block: Introduce BLKGETZONESZ ioctl")
-Fixes: 65e4e3eee83d ("block: Introduce BLKGETNRZONES ioctl")
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When lpfc_sli_issue_mbox func return fails, pmboxq should be also freed in
+job_error tag.
 
+Link: https://lore.kernel.org/r/EDBAAA0BBBA2AC4E9C8B6B81DEEE1D6915E7A966@DGGEML525-MBS.china.huawei.com
+Signed-off-by: Bo Wu <wubo40@huawei.com>
+Reviewed-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/compat_ioctl.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/lpfc/lpfc_bsg.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/block/compat_ioctl.c
-+++ b/block/compat_ioctl.c
-@@ -357,6 +357,8 @@ long compat_blkdev_ioctl(struct file *fi
- 	case BLKRRPART:
- 	case BLKREPORTZONE:
- 	case BLKRESETZONE:
-+	case BLKGETZONESZ:
-+	case BLKGETNRZONES:
- 		return blkdev_ioctl(bdev, mode, cmd,
- 				(unsigned long)compat_ptr(arg));
- 	case BLKBSZSET_32:
+diff --git a/drivers/scsi/lpfc/lpfc_bsg.c b/drivers/scsi/lpfc/lpfc_bsg.c
+index 99aea52e584b..21f104c5eab6 100644
+--- a/drivers/scsi/lpfc/lpfc_bsg.c
++++ b/drivers/scsi/lpfc/lpfc_bsg.c
+@@ -4419,12 +4419,6 @@ lpfc_bsg_write_ebuf_set(struct lpfc_hba *phba, struct bsg_job *job,
+ 	phba->mbox_ext_buf_ctx.seqNum++;
+ 	nemb_tp = phba->mbox_ext_buf_ctx.nembType;
+ 
+-	dd_data = kmalloc(sizeof(struct bsg_job_data), GFP_KERNEL);
+-	if (!dd_data) {
+-		rc = -ENOMEM;
+-		goto job_error;
+-	}
+-
+ 	pbuf = (uint8_t *)dmabuf->virt;
+ 	size = job->request_payload.payload_len;
+ 	sg_copy_to_buffer(job->request_payload.sg_list,
+@@ -4461,6 +4455,13 @@ lpfc_bsg_write_ebuf_set(struct lpfc_hba *phba, struct bsg_job *job,
+ 				"2968 SLI_CONFIG ext-buffer wr all %d "
+ 				"ebuffers received\n",
+ 				phba->mbox_ext_buf_ctx.numBuf);
++
++		dd_data = kmalloc(sizeof(struct bsg_job_data), GFP_KERNEL);
++		if (!dd_data) {
++			rc = -ENOMEM;
++			goto job_error;
++		}
++
+ 		/* mailbox command structure for base driver */
+ 		pmboxq = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+ 		if (!pmboxq) {
+@@ -4509,6 +4510,8 @@ lpfc_bsg_write_ebuf_set(struct lpfc_hba *phba, struct bsg_job *job,
+ 	return SLI_CONFIG_HANDLED;
+ 
+ job_error:
++	if (pmboxq)
++		mempool_free(pmboxq, phba->mbox_mem_pool);
+ 	lpfc_bsg_dma_page_free(phba, dmabuf);
+ 	kfree(dd_data);
+ 
+-- 
+2.20.1
+
 
 
