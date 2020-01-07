@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA125133466
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:25:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 089081333A9
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:20:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728275AbgAGVAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:00:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34468 "EHLO mail.kernel.org"
+        id S1729007AbgAGVU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:20:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727864AbgAGVAN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:00:13 -0500
+        id S1728579AbgAGVET (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:04:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4DB321744;
-        Tue,  7 Jan 2020 21:00:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37E2320880;
+        Tue,  7 Jan 2020 21:04:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430812;
-        bh=xL/ur03nHOF22lDWxuQ0hELpl+Z554fazbk38WEz4Xc=;
+        s=default; t=1578431058;
+        bh=cGFjV24DcR2yn+uYs+DxSEhJh+q+tRW59ozMyCzG6W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cru1ED8MLo++5fK3EczC4jGLHF9xFFm9EaETc5Etdz6UZHChRfB+L8G12Z9nLdv8N
-         gXFsNw9PqrZr6G5dFr/z1IDvmGZ9R6/Hif0CWbW69jwtDxKb1Mk4PlgbrxGFsnX6eo
-         kMkWcZHg/ZjuCNJM/L/0+HrB6ternCXkWZnfuLmg=
+        b=FFdx/TrklTgxGWEAgNI6c2uuCbSyn+a6kixdkrIzhZUd5nPKhZQbBcUhuPoyB5gsp
+         5gnnKWhUkxE6a2ePH44cCaOzxRoc9UYSRs66s3m97G5WSEPV4T9I/aJqxdaf/76dUn
+         rKHFFda7QuBDGxDfyzONkvNexoVqWgH1tW5g0mlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 106/191] ata: ahci_brcm: Fix AHCI resources management
-Date:   Tue,  7 Jan 2020 21:53:46 +0100
-Message-Id: <20200107205338.663065470@linuxfoundation.org>
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Roman Bolshakov <r.bolshakov@yadro.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 017/115] scsi: qla2xxx: Fix PLOGI payload and ELS IOCB dump length
+Date:   Tue,  7 Jan 2020 21:53:47 +0100
+Message-Id: <20200107205250.739117298@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,224 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Roman Bolshakov <r.bolshakov@yadro.com>
 
-commit c0cdf2ac4b5bf3e5ef2451ea29fb4104278cdabc upstream.
+[ Upstream commit 0334cdea1fba36fad8bdf9516f267ce01de625f7 ]
 
-The AHCI resources management within ahci_brcm.c is a little
-convoluted, largely because it historically had a dedicated clock that
-was managed within this file in the downstream tree. Once brough
-upstream though, the clock was left to be managed by libahci_platform.c
-which is entirely appropriate.
+The size of the buffer is hardcoded as 0x70 or 112 bytes, while the size of
+ELS IOCB is 0x40 and the size of PLOGI payload returned by Get Parameters
+command is 0x74.
 
-This patch series ensures that the AHCI resources are fetched and
-enabled before any register access is done, thus avoiding bus errors on
-platforms which clock gate the controller by default.
-
-As a result we need to re-arrange the suspend() and resume() functions
-in order to avoid accessing registers after the clocks have been turned
-off respectively before the clocks have been turned on. Finally, we can
-refactor brcm_ahci_get_portmask() in order to fetch the number of ports
-from hpriv->mmio which is now accessible without jumping through hoops
-like we used to do.
-
-The commit pointed in the Fixes tag is both old and new enough not to
-require major headaches for backporting of this patch.
-
-Fixes: eba68f829794 ("ata: ahci_brcmstb: rename to support across Broadcom SoC's")
-Cc: stable@vger.kernel.org
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Quinn Tran <qutran@marvell.com>
+Link: https://lore.kernel.org/r/20191125165702.1013-9-r.bolshakov@yadro.com
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Tested-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/ahci_brcm.c |  105 ++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 76 insertions(+), 29 deletions(-)
+ drivers/scsi/qla2xxx/qla_iocb.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/ata/ahci_brcm.c
-+++ b/drivers/ata/ahci_brcm.c
-@@ -213,19 +213,12 @@ static void brcm_sata_phys_disable(struc
- 			brcm_sata_phy_disable(priv, i);
- }
+diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
+index c699bbb8485b..7e47321e003c 100644
+--- a/drivers/scsi/qla2xxx/qla_iocb.c
++++ b/drivers/scsi/qla2xxx/qla_iocb.c
+@@ -2537,7 +2537,8 @@ qla24xx_els_logo_iocb(srb_t *sp, struct els_entry_24xx *els_iocb)
+ 		ql_dbg(ql_dbg_io + ql_dbg_buffer, vha, 0x3073,
+ 		    "PLOGI ELS IOCB:\n");
+ 		ql_dump_buffer(ql_log_info, vha, 0x0109,
+-		    (uint8_t *)els_iocb, 0x70);
++		    (uint8_t *)els_iocb,
++		    sizeof(*els_iocb));
+ 	} else {
+ 		els_iocb->tx_byte_count = sizeof(struct els_logo_payload);
+ 		els_iocb->tx_address[0] =
+@@ -2703,7 +2704,8 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
  
--static u32 brcm_ahci_get_portmask(struct platform_device *pdev,
-+static u32 brcm_ahci_get_portmask(struct ahci_host_priv *hpriv,
- 				  struct brcm_ahci_priv *priv)
- {
--	void __iomem *ahci;
--	struct resource *res;
- 	u32 impl;
+ 	ql_dbg(ql_dbg_disc + ql_dbg_buffer, vha, 0x3073, "PLOGI buffer:\n");
+ 	ql_dump_buffer(ql_dbg_disc + ql_dbg_buffer, vha, 0x0109,
+-	    (uint8_t *)elsio->u.els_plogi.els_plogi_pyld, 0x70);
++	    (uint8_t *)elsio->u.els_plogi.els_plogi_pyld,
++	    sizeof(*elsio->u.els_plogi.els_plogi_pyld));
  
--	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "ahci");
--	ahci = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(ahci))
--		return 0;
--
--	impl = readl(ahci + HOST_PORTS_IMPL);
-+	impl = readl(hpriv->mmio + HOST_PORTS_IMPL);
- 
- 	if (fls(impl) > SATA_TOP_MAX_PHYS)
- 		dev_warn(priv->dev, "warning: more ports than PHYs (%#x)\n",
-@@ -233,9 +226,6 @@ static u32 brcm_ahci_get_portmask(struct
- 	else if (!impl)
- 		dev_info(priv->dev, "no ports found\n");
- 
--	devm_iounmap(&pdev->dev, ahci);
--	devm_release_mem_region(&pdev->dev, res->start, resource_size(res));
--
- 	return impl;
- }
- 
-@@ -347,11 +337,10 @@ static int brcm_ahci_suspend(struct devi
- 	struct ata_host *host = dev_get_drvdata(dev);
- 	struct ahci_host_priv *hpriv = host->private_data;
- 	struct brcm_ahci_priv *priv = hpriv->plat_data;
--	int ret;
- 
--	ret = ahci_platform_suspend(dev);
- 	brcm_sata_phys_disable(priv);
--	return ret;
-+
-+	return ahci_platform_suspend(dev);
- }
- 
- static int brcm_ahci_resume(struct device *dev)
-@@ -359,11 +348,44 @@ static int brcm_ahci_resume(struct devic
- 	struct ata_host *host = dev_get_drvdata(dev);
- 	struct ahci_host_priv *hpriv = host->private_data;
- 	struct brcm_ahci_priv *priv = hpriv->plat_data;
-+	int ret;
-+
-+	/* Make sure clocks are turned on before re-configuration */
-+	ret = ahci_platform_enable_clks(hpriv);
-+	if (ret)
-+		return ret;
- 
- 	brcm_sata_init(priv);
- 	brcm_sata_phys_enable(priv);
- 	brcm_sata_alpm_init(hpriv);
--	return ahci_platform_resume(dev);
-+
-+	/* Since we had to enable clocks earlier on, we cannot use
-+	 * ahci_platform_resume() as-is since a second call to
-+	 * ahci_platform_enable_resources() would bump up the resources
-+	 * (regulators, clocks, PHYs) count artificially so we copy the part
-+	 * after ahci_platform_enable_resources().
-+	 */
-+	ret = ahci_platform_enable_phys(hpriv);
-+	if (ret)
-+		goto out_disable_phys;
-+
-+	ret = ahci_platform_resume_host(dev);
-+	if (ret)
-+		goto out_disable_platform_phys;
-+
-+	/* We resumed so update PM runtime state */
-+	pm_runtime_disable(dev);
-+	pm_runtime_set_active(dev);
-+	pm_runtime_enable(dev);
-+
-+	return 0;
-+
-+out_disable_platform_phys:
-+	ahci_platform_disable_phys(hpriv);
-+out_disable_phys:
-+	brcm_sata_phys_disable(priv);
-+	ahci_platform_disable_clks(hpriv);
-+	return ret;
- }
- #endif
- 
-@@ -416,38 +438,63 @@ static int brcm_ahci_probe(struct platfo
- 		priv->quirks |= BRCM_AHCI_QUIRK_SKIP_PHY_ENABLE;
- 	}
- 
-+	hpriv = ahci_platform_get_resources(pdev, 0);
-+	if (IS_ERR(hpriv)) {
-+		ret = PTR_ERR(hpriv);
-+		goto out_reset;
-+	}
-+
-+	ret = ahci_platform_enable_clks(hpriv);
-+	if (ret)
-+		goto out_reset;
-+
-+	/* Must be first so as to configure endianness including that
-+	 * of the standard AHCI register space.
-+	 */
- 	brcm_sata_init(priv);
- 
--	priv->port_mask = brcm_ahci_get_portmask(pdev, priv);
--	if (!priv->port_mask)
--		return -ENODEV;
-+	/* Initializes priv->port_mask which is used below */
-+	priv->port_mask = brcm_ahci_get_portmask(hpriv, priv);
-+	if (!priv->port_mask) {
-+		ret = -ENODEV;
-+		goto out_disable_clks;
-+	}
- 
-+	/* Must be done before ahci_platform_enable_phys() */
- 	brcm_sata_phys_enable(priv);
- 
--	hpriv = ahci_platform_get_resources(pdev, 0);
--	if (IS_ERR(hpriv))
--		return PTR_ERR(hpriv);
- 	hpriv->plat_data = priv;
- 	hpriv->flags = AHCI_HFLAG_WAKE_BEFORE_STOP;
- 
- 	brcm_sata_alpm_init(hpriv);
- 
--	ret = ahci_platform_enable_resources(hpriv);
--	if (ret)
--		return ret;
--
- 	if (priv->quirks & BRCM_AHCI_QUIRK_NO_NCQ)
- 		hpriv->flags |= AHCI_HFLAG_NO_NCQ;
- 	hpriv->flags |= AHCI_HFLAG_NO_WRITE_TO_RO;
- 
-+	ret = ahci_platform_enable_phys(hpriv);
-+	if (ret)
-+		goto out_disable_phys;
-+
- 	ret = ahci_platform_init_host(pdev, hpriv, &ahci_brcm_port_info,
- 				      &ahci_platform_sht);
- 	if (ret)
--		return ret;
-+		goto out_disable_platform_phys;
- 
- 	dev_info(dev, "Broadcom AHCI SATA3 registered\n");
- 
- 	return 0;
-+
-+out_disable_platform_phys:
-+	ahci_platform_disable_phys(hpriv);
-+out_disable_phys:
-+	brcm_sata_phys_disable(priv);
-+out_disable_clks:
-+	ahci_platform_disable_clks(hpriv);
-+out_reset:
-+	if (!IS_ERR_OR_NULL(priv->rcdev))
-+		reset_control_assert(priv->rcdev);
-+	return ret;
- }
- 
- static int brcm_ahci_remove(struct platform_device *pdev)
-@@ -457,12 +504,12 @@ static int brcm_ahci_remove(struct platf
- 	struct brcm_ahci_priv *priv = hpriv->plat_data;
- 	int ret;
- 
-+	brcm_sata_phys_disable(priv);
-+
- 	ret = ata_platform_remove_one(pdev);
- 	if (ret)
- 		return ret;
- 
--	brcm_sata_phys_disable(priv);
--
- 	return 0;
- }
- 
+ 	rval = qla2x00_start_sp(sp);
+ 	if (rval != QLA_SUCCESS) {
+-- 
+2.20.1
+
 
 
