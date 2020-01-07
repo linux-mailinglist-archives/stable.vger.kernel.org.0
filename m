@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 391851333CE
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:22:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BB6713323C
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:09:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728843AbgAGVC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:02:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43626 "EHLO mail.kernel.org"
+        id S1728626AbgAGVI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:08:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728839AbgAGVC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:02:57 -0500
+        id S1729691AbgAGVI1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:08:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A98220678;
-        Tue,  7 Jan 2020 21:02:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14699222D9;
+        Tue,  7 Jan 2020 21:08:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430976;
-        bh=mqpU8JT3smNn9fDlIOPfcrdFwTi5L4D/Db3iUIcyXuY=;
+        s=default; t=1578431306;
+        bh=0CCvKei3nHFFJwXyo+dF672ro9QzS7d5NDIs9AzPEq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CngEy072WpQIcj9L007f13Yn0/+dRgoMCr3vLwVczvEzT8CriBTQcsfkMNElJLBPC
-         KhEPNssvTPb2dIFNrXsTRvgSghYi85Se55YUQHv5sn1dhm28yPc+oOYqFIWfq93EMj
-         ozm5P4AZvIAPgjYdLZqSySmOO2pQSvNRveFG8cUw=
+        b=LpPF2im5phnlmcuhBKddYQU9eVNIl60ajVSrRuTQi4j/6prTmZvhYKHpcjUv0iS6O
+         eU5meTTmIRtvw5bg62eJutnXKEo0dpfxw4k7WVpiYMxvjrw9n4f3lc4Glu6tuYe37Y
+         +LFvLMD+HtPbELOgBVOoB3flF4iX0LIiJ0iySXgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 175/191] drm/i915/execlists: Fix annotation for decoupling virtual request
-Date:   Tue,  7 Jan 2020 21:54:55 +0100
-Message-Id: <20200107205342.362904324@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.19 086/115] Bluetooth: btusb: fix PM leak in error case of setup
+Date:   Tue,  7 Jan 2020 21:54:56 +0100
+Message-Id: <20200107205306.230937692@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
-References: <20200107205332.984228665@linuxfoundation.org>
+In-Reply-To: <20200107205240.283674026@linuxfoundation.org>
+References: <20200107205240.283674026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,131 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 08ad9a3846fc72b047b110b36d162ffbcf298fa2 ]
+commit 3d44a6fd0775e6215e836423e27f8eedf8c871ea upstream.
 
-As we may signal a request and take the engine->active.lock within the
-signaler, the engine submission paths have to use a nested annotation on
-their requests -- but we guarantee that we can never submit on the same
-engine as the signaling fence.
+If setup() fails a reference for runtime PM has already
+been taken. Proper use of the error handling in btusb_open()is needed.
+You cannot just return.
 
-<4>[  723.763281] WARNING: possible circular locking dependency detected
-<4>[  723.763285] 5.3.0-g80fa0e042cdb-drmtip_379+ #1 Tainted: G     U
-<4>[  723.763288] ------------------------------------------------------
-<4>[  723.763291] gem_exec_await/1388 is trying to acquire lock:
-<4>[  723.763294] ffff93a7b53221d8 (&engine->active.lock){..-.}, at: execlists_submit_request+0x2b/0x1e0 [i915]
-<4>[  723.763378]
-                  but task is already holding lock:
-<4>[  723.763381] ffff93a7c25f6d20 (&i915_request_get(rq)->submit/1){-.-.}, at: __i915_sw_fence_complete+0x1b2/0x250 [i915]
-<4>[  723.763420]
-                  which lock already depends on the new lock.
+Fixes: ace31982585a3 ("Bluetooth: btusb: Add setup callback for chip init on USB")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-<4>[  723.763423]
-                  the existing dependency chain (in reverse order) is:
-<4>[  723.763427]
-                  -> #2 (&i915_request_get(rq)->submit/1){-.-.}:
-<4>[  723.763434]        _raw_spin_lock_irqsave_nested+0x39/0x50
-<4>[  723.763478]        __i915_sw_fence_complete+0x1b2/0x250 [i915]
-<4>[  723.763513]        intel_engine_breadcrumbs_irq+0x3aa/0x5e0 [i915]
-<4>[  723.763600]        cs_irq_handler+0x49/0x50 [i915]
-<4>[  723.763659]        gen11_gt_irq_handler+0x17b/0x280 [i915]
-<4>[  723.763690]        gen11_irq_handler+0x54/0xf0 [i915]
-<4>[  723.763695]        __handle_irq_event_percpu+0x41/0x2d0
-<4>[  723.763699]        handle_irq_event_percpu+0x2b/0x70
-<4>[  723.763702]        handle_irq_event+0x2f/0x50
-<4>[  723.763706]        handle_edge_irq+0xee/0x1a0
-<4>[  723.763709]        do_IRQ+0x7e/0x160
-<4>[  723.763712]        ret_from_intr+0x0/0x1d
-<4>[  723.763717]        __slab_alloc.isra.28.constprop.33+0x4f/0x70
-<4>[  723.763720]        kmem_cache_alloc+0x28d/0x2f0
-<4>[  723.763724]        vm_area_dup+0x15/0x40
-<4>[  723.763727]        dup_mm+0x2dd/0x550
-<4>[  723.763730]        copy_process+0xf21/0x1ef0
-<4>[  723.763734]        _do_fork+0x71/0x670
-<4>[  723.763737]        __se_sys_clone+0x6e/0xa0
-<4>[  723.763741]        do_syscall_64+0x4f/0x210
-<4>[  723.763744]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-<4>[  723.763747]
-                  -> #1 (&(&rq->lock)->rlock#2){-.-.}:
-<4>[  723.763752]        _raw_spin_lock+0x2a/0x40
-<4>[  723.763789]        __unwind_incomplete_requests+0x3eb/0x450 [i915]
-<4>[  723.763825]        __execlists_submission_tasklet+0x9ec/0x1d60 [i915]
-<4>[  723.763864]        execlists_submission_tasklet+0x34/0x50 [i915]
-<4>[  723.763874]        tasklet_action_common.isra.5+0x47/0xb0
-<4>[  723.763878]        __do_softirq+0xd8/0x4ae
-<4>[  723.763881]        irq_exit+0xa9/0xc0
-<4>[  723.763883]        smp_apic_timer_interrupt+0xb7/0x280
-<4>[  723.763887]        apic_timer_interrupt+0xf/0x20
-<4>[  723.763892]        cpuidle_enter_state+0xae/0x450
-<4>[  723.763895]        cpuidle_enter+0x24/0x40
-<4>[  723.763899]        do_idle+0x1e7/0x250
-<4>[  723.763902]        cpu_startup_entry+0x14/0x20
-<4>[  723.763905]        start_secondary+0x15f/0x1b0
-<4>[  723.763908]        secondary_startup_64+0xa4/0xb0
-<4>[  723.763911]
-                  -> #0 (&engine->active.lock){..-.}:
-<4>[  723.763916]        __lock_acquire+0x15d8/0x1ea0
-<4>[  723.763919]        lock_acquire+0xa6/0x1c0
-<4>[  723.763922]        _raw_spin_lock_irqsave+0x33/0x50
-<4>[  723.763956]        execlists_submit_request+0x2b/0x1e0 [i915]
-<4>[  723.764002]        submit_notify+0xa8/0x13c [i915]
-<4>[  723.764035]        __i915_sw_fence_complete+0x81/0x250 [i915]
-<4>[  723.764054]        i915_sw_fence_wake+0x51/0x64 [i915]
-<4>[  723.764054]        __i915_sw_fence_complete+0x1ee/0x250 [i915]
-<4>[  723.764054]        dma_i915_sw_fence_wake_timer+0x14/0x20 [i915]
-<4>[  723.764054]        dma_fence_signal_locked+0x9e/0x1c0
-<4>[  723.764054]        dma_fence_signal+0x1f/0x40
-<4>[  723.764054]        vgem_fence_signal_ioctl+0x67/0xc0 [vgem]
-<4>[  723.764054]        drm_ioctl_kernel+0x83/0xf0
-<4>[  723.764054]        drm_ioctl+0x2f3/0x3b0
-<4>[  723.764054]        do_vfs_ioctl+0xa0/0x6f0
-<4>[  723.764054]        ksys_ioctl+0x35/0x60
-<4>[  723.764054]        __x64_sys_ioctl+0x11/0x20
-<4>[  723.764054]        do_syscall_64+0x4f/0x210
-<4>[  723.764054]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-<4>[  723.764054]
-                  other info that might help us debug this:
-
-<4>[  723.764054] Chain exists of:
-                    &engine->active.lock --> &(&rq->lock)->rlock#2 --> &i915_request_get(rq)->submit/1
-
-<4>[  723.764054]  Possible unsafe locking scenario:
-
-<4>[  723.764054]        CPU0                    CPU1
-<4>[  723.764054]        ----                    ----
-<4>[  723.764054]   lock(&i915_request_get(rq)->submit/1);
-<4>[  723.764054]                                lock(&(&rq->lock)->rlock#2);
-<4>[  723.764054]                                lock(&i915_request_get(rq)->submit/1);
-<4>[  723.764054]   lock(&engine->active.lock);
-<4>[  723.764054]
-                   *** DEADLOCK ***
-
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111862
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191004194758.19679-1-chris@chris-wilson.co.uk
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_lrc.c | 3 ++-
+ drivers/bluetooth/btusb.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index 06a506c29463..d564bfcab6a3 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -525,7 +525,8 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
- 			 */
- 			if (test_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
- 				     &rq->fence.flags)) {
--				spin_lock(&rq->lock);
-+				spin_lock_nested(&rq->lock,
-+						 SINGLE_DEPTH_NESTING);
- 				i915_request_cancel_breadcrumb(rq);
- 				spin_unlock(&rq->lock);
- 			}
--- 
-2.20.1
-
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -1138,7 +1138,7 @@ static int btusb_open(struct hci_dev *hd
+ 	if (data->setup_on_usb) {
+ 		err = data->setup_on_usb(hdev);
+ 		if (err < 0)
+-			return err;
++			goto setup_fail;
+ 	}
+ 
+ 	data->intf->needs_remote_wakeup = 1;
+@@ -1170,6 +1170,7 @@ done:
+ 
+ failed:
+ 	clear_bit(BTUSB_INTR_RUNNING, &data->flags);
++setup_fail:
+ 	usb_autopm_put_interface(data->intf);
+ 	return err;
+ }
 
 
