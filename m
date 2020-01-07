@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 625891334AB
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:27:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56AF11334B5
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:27:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727611AbgAGU5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 15:57:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54688 "EHLO mail.kernel.org"
+        id S1728381AbgAGV1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:27:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726916AbgAGU5a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 15:57:30 -0500
+        id S1727592AbgAGU5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 15:57:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80B4C208C4;
-        Tue,  7 Jan 2020 20:57:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15A482081E;
+        Tue,  7 Jan 2020 20:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578430650;
-        bh=UtDLfCiZ9OSzj/tTpVIGP/rWN4T/vbiXkOGjmBqs1AM=;
+        s=default; t=1578430652;
+        bh=A64t3xi++pgaS/FV2RW0dRsxnqvTG6K3/WIFHAi0uak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M16YBQie5TnV+JFWzJSTdVWDSMeg4PCDNvMstvuGrkutH5MoPI8mXevwez0kpXPCw
-         dzx1dayNwumg3nSMQHkLV9nmmmi9eGo91B2MXeXfziR1c6R/czDXMO6A59m4S/pBjN
-         tVA0X4zezpz41UXgOsDSPGwxxlL1TynkrZCMNjjc=
+        b=SkKkPeDuiujMUoZ9ZxeguIoZGeQvpA3qwQKz3qOE3GNrmAEECTM50HcxZIy9mYJm0
+         DMpc8vAVLIK3ftEPxJJEC4d8OV5B2y9a/94tV9xooUKG81oDx/TlzU+UYvTaqlmWm8
+         Rl67kTSRumzdPhpylj9nLi+ztgQbnvpYCnNING64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        EJ Hsu <ejh@nvidia.com>, Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/191] usb: gadget: fix wrong endpoint desc
-Date:   Tue,  7 Jan 2020 21:52:39 +0100
-Message-Id: <20200107205335.087685984@linuxfoundation.org>
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        David Miller <davem@davemloft.net>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 040/191] net: make socket read/write_iter() honor IOCB_NOWAIT
+Date:   Tue,  7 Jan 2020 21:52:40 +0100
+Message-Id: <20200107205335.139933986@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
 References: <20200107205332.984228665@linuxfoundation.org>
@@ -44,59 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: EJ Hsu <ejh@nvidia.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit e5b5da96da50ef30abb39cb9f694e99366404d24 ]
+[ Upstream commit ebfcd8955c0b52eb793bcbc9e71140e3d0cdb228 ]
 
-Gadget driver should always use config_ep_by_speed() to initialize
-usb_ep struct according to usb device's operating speed. Otherwise,
-usb_ep struct may be wrong if usb devcie's operating speed is changed.
+The socket read/write helpers only look at the file O_NONBLOCK. not
+the iocb IOCB_NOWAIT flag. This breaks users like preadv2/pwritev2
+and io_uring that rely on not having the file itself marked nonblocking,
+but rather the iocb itself.
 
-The key point in this patch is that we want to make sure the desc pointer
-in usb_ep struct will be set to NULL when gadget is disconnected.
-This will force it to call config_ep_by_speed() to correctly initialize
-usb_ep struct based on the new operating speed when gadget is
-re-connected later.
-
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: EJ Hsu <ejh@nvidia.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Cc: netdev@vger.kernel.org
+Acked-by: David Miller <davem@davemloft.net>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_ecm.c   | 6 +++++-
- drivers/usb/gadget/function/f_rndis.c | 1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ net/socket.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_ecm.c b/drivers/usb/gadget/function/f_ecm.c
-index 6ce044008cf6..460d5d7c984f 100644
---- a/drivers/usb/gadget/function/f_ecm.c
-+++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -621,8 +621,12 @@ static void ecm_disable(struct usb_function *f)
+diff --git a/net/socket.c b/net/socket.c
+index d7a106028f0e..ca8de9e1582d 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -955,7 +955,7 @@ static ssize_t sock_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 			     .msg_iocb = iocb};
+ 	ssize_t res;
  
- 	DBG(cdev, "ecm deactivated\n");
+-	if (file->f_flags & O_NONBLOCK)
++	if (file->f_flags & O_NONBLOCK || (iocb->ki_flags & IOCB_NOWAIT))
+ 		msg.msg_flags = MSG_DONTWAIT;
  
--	if (ecm->port.in_ep->enabled)
-+	if (ecm->port.in_ep->enabled) {
- 		gether_disconnect(&ecm->port);
-+	} else {
-+		ecm->port.in_ep->desc = NULL;
-+		ecm->port.out_ep->desc = NULL;
-+	}
+ 	if (iocb->ki_pos != 0)
+@@ -980,7 +980,7 @@ static ssize_t sock_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	if (iocb->ki_pos != 0)
+ 		return -ESPIPE;
  
- 	usb_ep_disable(ecm->notify);
- 	ecm->notify->desc = NULL;
-diff --git a/drivers/usb/gadget/function/f_rndis.c b/drivers/usb/gadget/function/f_rndis.c
-index d48df36622b7..0d8e4a364ca6 100644
---- a/drivers/usb/gadget/function/f_rndis.c
-+++ b/drivers/usb/gadget/function/f_rndis.c
-@@ -618,6 +618,7 @@ static void rndis_disable(struct usb_function *f)
- 	gether_disconnect(&rndis->port);
+-	if (file->f_flags & O_NONBLOCK)
++	if (file->f_flags & O_NONBLOCK || (iocb->ki_flags & IOCB_NOWAIT))
+ 		msg.msg_flags = MSG_DONTWAIT;
  
- 	usb_ep_disable(rndis->notify);
-+	rndis->notify->desc = NULL;
- }
- 
- /*-------------------------------------------------------------------------*/
+ 	if (sock->type == SOCK_SEQPACKET)
 -- 
 2.20.1
 
