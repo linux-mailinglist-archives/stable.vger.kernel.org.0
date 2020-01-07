@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FA30132FC7
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 20:45:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E59C132FC8
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 20:45:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728703AbgAGTpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 14:45:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58548 "EHLO mail.kernel.org"
+        id S1728746AbgAGTp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 14:45:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728358AbgAGTpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 14:45:11 -0500
+        id S1728358AbgAGTp0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 14:45:26 -0500
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F1612187F;
-        Tue,  7 Jan 2020 19:45:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69A6C2187F;
+        Tue,  7 Jan 2020 19:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578426310;
-        bh=cZts0Xp68KfpoG5XV6270gnSiihME799h/ncn7eeRr4=;
+        s=default; t=1578426325;
+        bh=a62yqH6CQ3olTs3Ze32U1Y03qPp2spOZyIVZtyThr/M=;
         h=Date:From:To:Subject:From;
-        b=k9DjfdyKL2BqlH0cIrDE8HZhI+zyoPb6pLZ1oqQXIZ1JrMysd42KZc7wz1wYRA9Rc
-         VYd7Nbb9H/z3GW7D+5iO0+K5M39FL0PmC2/IMORt/VN1hhAKSR/2Go8XcAsSo8+tnO
-         b4K9LX1dlpOWz0dpmuPBQrlyGfISvZsH+gegy8GA=
-Date:   Tue, 07 Jan 2020 11:45:10 -0800
+        b=xop74Njt6Q7/FFOcEkdXNLTX+4OwN4g/FTE1JvyN3gtayBH50AM+CFuICTivfplZV
+         IbxymzSrY3psEIS3g5Cq60GdHiQsapNJLcxAfYvnqG/YiQ8QafLsfXRdxCp+zbGzFH
+         y5E685mGyFxeMq+iehvaOnZ5MSKYS9tUww3DhTmw=
+Date:   Tue, 07 Jan 2020 11:45:25 -0800
 From:   akpm@linux-foundation.org
-To:     cl@linux.com, fabecassis@nvidia.com, jhubbard@nvidia.com,
-        mgorman@techsingularity.net, mhocko@suse.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org, vbabka@suse.cz,
-        yang.shi@linux.alibaba.com
+To:     akpm@linux-foundation.org, echron@arista.com, idryomov@gmail.com,
+        mhocko@suse.com, mm-commits@vger.kernel.org, rientjes@google.com,
+        stable@vger.kernel.org
 Subject:  [merged]
- =?US-ASCII?Q?mm-move=5Fpages-return-valid-node-id-in-status-if-the-page?=
- =?US-ASCII?Q?-is-already-on-the-target-node.patch?= removed from -mm tree
-Message-ID: <20200107194510.CIO_svKyG%akpm@linux-foundation.org>
+ mm-oom-fix-pgtables-units-mismatch-in-killed-process-message.patch removed
+ from -mm tree
+Message-ID: <20200107194525.uXF6D8jlA%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -43,155 +40,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: move_pages: return valid node id in status if the page is already on the target node
+     Subject: mm/oom: fix pgtables units mismatch in Killed process message
 has been removed from the -mm tree.  Its filename was
-     mm-move_pages-return-valid-node-id-in-status-if-the-page-is-already-on-the-target-node.patch
+     mm-oom-fix-pgtables-units-mismatch-in-killed-process-message.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Yang Shi <yang.shi@linux.alibaba.com>
-Subject: mm: move_pages: return valid node id in status if the page is already on the target node
+From: Ilya Dryomov <idryomov@gmail.com>
+Subject: mm/oom: fix pgtables units mismatch in Killed process message
 
-Felix Abecassis reports move_pages() would return random status if the
-pages are already on the target node by the below test program:
+pr_err() expects kB, but mm_pgtables_bytes() returns the number of bytes. 
+As everything else is printed in kB, I chose to fix the value rather than
+the string.
 
----8<---
+Before:
 
-int main(void)
-{
-	const long node_id = 1;
-	const long page_size = sysconf(_SC_PAGESIZE);
-	const int64_t num_pages = 8;
+[  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
+...
+[   1878]  1000  1878   217253   151144  1269760        0             0 python
+...
+Out of memory: Killed process 1878 (python) total-vm:869012kB, anon-rss:604572kB, file-rss:4kB, shmem-rss:0kB, UID:1000 pgtables:1269760kB oom_score_adj:0
 
-	unsigned long nodemask =  1 << node_id;
-	long ret = set_mempolicy(MPOL_BIND, &nodemask, sizeof(nodemask));
-	if (ret < 0)
-		return (EXIT_FAILURE);
+After:
 
-	void **pages = malloc(sizeof(void*) * num_pages);
-	for (int i = 0; i < num_pages; ++i) {
-		pages[i] = mmap(NULL, page_size, PROT_WRITE | PROT_READ,
-				MAP_PRIVATE | MAP_POPULATE | MAP_ANONYMOUS,
-				-1, 0);
-		if (pages[i] == MAP_FAILED)
-			return (EXIT_FAILURE);
-	}
+[  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
+...
+[   1436]  1000  1436   217253   151890  1294336        0             0 python
+...
+Out of memory: Killed process 1436 (python) total-vm:869012kB, anon-rss:607516kB, file-rss:44kB, shmem-rss:0kB, UID:1000 pgtables:1264kB oom_score_adj:0
 
-	ret = set_mempolicy(MPOL_DEFAULT, NULL, 0);
-	if (ret < 0)
-		return (EXIT_FAILURE);
-
-	int *nodes = malloc(sizeof(int) * num_pages);
-	int *status = malloc(sizeof(int) * num_pages);
-	for (int i = 0; i < num_pages; ++i) {
-		nodes[i] = node_id;
-		status[i] = 0xd0; /* simulate garbage values */
-	}
-
-	ret = move_pages(0, num_pages, pages, nodes, status, MPOL_MF_MOVE);
-	printf("move_pages: %ld
-", ret);
-	for (int i = 0; i < num_pages; ++i)
-		printf("status[%d] = %d
-", i, status[i]);
-}
----8<---
-
-Then running the program would return nonsense status values:
-$ ./move_pages_bug
-move_pages: 0
-status[0] = 208
-status[1] = 208
-status[2] = 208
-status[3] = 208
-status[4] = 208
-status[5] = 208
-status[6] = 208
-status[7] = 208
-
-This is because the status is not set if the page is already on the target
-node, but move_pages() should return valid status as long as it succeeds. 
-The valid status may be errno or node id.
-
-We can't simply initialize status array to zero since the pages may be not
-on node 0.  Fix it by updating status with node id which the page is
-already on.
-
-Link: http://lkml.kernel.org/r/1575584353-125392-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reported-by: Felix Abecassis <fabecassis@nvidia.com>
-Tested-by: Felix Abecassis <fabecassis@nvidia.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Acked-by: Christoph Lameter <cl@linux.com>
+Link: http://lkml.kernel.org/r/20191211202830.1600-1-idryomov@gmail.com
+Fixes: 70cb6d267790 ("mm/oom: add oom_score_adj and pgtables to Killed process message")
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: David Rientjes <rientjes@google.com>
 Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>	[4.17+]
+Cc: Edward Chron <echron@arista.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/migrate.c |   23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ mm/oom_kill.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/migrate.c~mm-move_pages-return-valid-node-id-in-status-if-the-page-is-already-on-the-target-node
-+++ a/mm/migrate.c
-@@ -1512,9 +1512,11 @@ static int do_move_pages_to_node(struct
- /*
-  * Resolves the given address to a struct page, isolates it from the LRU and
-  * puts it to the given pagelist.
-- * Returns -errno if the page cannot be found/isolated or 0 when it has been
-- * queued or the page doesn't need to be migrated because it is already on
-- * the target node
-+ * Returns:
-+ *     errno - if the page cannot be found/isolated
-+ *     0 - when it doesn't have to be migrated because it is already on the
-+ *         target node
-+ *     1 - when it has been queued
-  */
- static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
- 		int node, struct list_head *pagelist, bool migrate_all)
-@@ -1553,7 +1555,7 @@ static int add_page_for_migration(struct
- 	if (PageHuge(page)) {
- 		if (PageHead(page)) {
- 			isolate_huge_page(page, pagelist);
--			err = 0;
-+			err = 1;
- 		}
- 	} else {
- 		struct page *head;
-@@ -1563,7 +1565,7 @@ static int add_page_for_migration(struct
- 		if (err)
- 			goto out_putpage;
+--- a/mm/oom_kill.c~mm-oom-fix-pgtables-units-mismatch-in-killed-process-message
++++ a/mm/oom_kill.c
+@@ -890,7 +890,7 @@ static void __oom_kill_process(struct ta
+ 		K(get_mm_counter(mm, MM_FILEPAGES)),
+ 		K(get_mm_counter(mm, MM_SHMEMPAGES)),
+ 		from_kuid(&init_user_ns, task_uid(victim)),
+-		mm_pgtables_bytes(mm), victim->signal->oom_score_adj);
++		mm_pgtables_bytes(mm) >> 10, victim->signal->oom_score_adj);
+ 	task_unlock(victim);
  
--		err = 0;
-+		err = 1;
- 		list_add_tail(&head->lru, pagelist);
- 		mod_node_page_state(page_pgdat(head),
- 			NR_ISOLATED_ANON + page_is_file_cache(head),
-@@ -1640,8 +1642,17 @@ static int do_pages_move(struct mm_struc
- 		 */
- 		err = add_page_for_migration(mm, addr, current_node,
- 				&pagelist, flags & MPOL_MF_MOVE_ALL);
--		if (!err)
-+
-+		if (!err) {
-+			/* The page is already on the target node */
-+			err = store_status(status, i, current_node, 1);
-+			if (err)
-+				goto out_flush;
- 			continue;
-+		} else if (err > 0) {
-+			/* The page is successfully queued for migration */
-+			continue;
-+		}
- 
- 		err = store_status(status, i, err, 1);
- 		if (err)
+ 	/*
 _
 
-Patches currently in -mm which might be from yang.shi@linux.alibaba.com are
+Patches currently in -mm which might be from idryomov@gmail.com are
 
 
