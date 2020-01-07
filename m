@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF0F11332E9
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:15:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 163451333C4
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:21:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729781AbgAGVOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:14:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34012 "EHLO mail.kernel.org"
+        id S1728185AbgAGVDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:03:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729779AbgAGVJD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:09:03 -0500
+        id S1727991AbgAGVDO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:03:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5004E2072A;
-        Tue,  7 Jan 2020 21:09:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B13E20678;
+        Tue,  7 Jan 2020 21:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431342;
-        bh=dMVZ4aWwUeqBhRzVPWyYVadpRe0c+Cpdjjsi9YAos4w=;
+        s=default; t=1578430993;
+        bh=wbwWhzZKRAaXl/rlWL+CNwkNSGBPiJifmzQw8fMhL7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9nhVvwCXiLyxkMUfvqqc11F/PH727wJmteflcPBIg9uVWqwLjOosouwd+Eny0J1Q
-         CAuyAedlcR8XY8CqUDD2UMJXi+JfbQZGZFxbvMwsk9CwtV9LnxMMmeehCKIhYpl0Ud
-         0/DYuKsAG9kjmVImTX/XfBOqqD3M2StH2Iw8Di40=
+        b=XTjNif9C/6n72NsN5kgMUZ8sdm0kHD+YyaZNXS4ecSMhxewBytUJorcfLZwT6vmd8
+         v0fkChCowYiSvAt03VZGR+PD6J0X0sHhjz2183wdpJrUhVI60l5lx15XX8TZUhwaYR
+         ektVMBdjdVjou/ZRGMmbYZJHOMMMeP8Pu9YkewX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Tsirakis <niko.tsirakis@gmail.com>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/74] xen/balloon: fix ballooned page accounting without hotplug enabled
-Date:   Tue,  7 Jan 2020 21:54:43 +0100
-Message-Id: <20200107205148.640690645@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 164/191] regulator: ab8500: Remove AB8505 USB regulator
+Date:   Tue,  7 Jan 2020 21:54:44 +0100
+Message-Id: <20200107205341.759633123@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit c673ec61ade89bf2f417960f986bc25671762efb ]
+commit 99c4f70df3a6446c56ca817c2d0f9c12d85d4e7c upstream.
 
-When CONFIG_XEN_BALLOON_MEMORY_HOTPLUG is not defined
-reserve_additional_memory() will set balloon_stats.target_pages to a
-wrong value in case there are still some ballooned pages allocated via
-alloc_xenballooned_pages().
+The USB regulator was removed for AB8500 in
+commit 41a06aa738ad ("regulator: ab8500: Remove USB regulator").
+It was then added for AB8505 in
+commit 547f384f33db ("regulator: ab8500: add support for ab8505").
 
-This will result in balloon_process() no longer be triggered when
-ballooned pages are freed in batches.
+However, there was never an entry added for it in
+ab8505_regulator_match. This causes all regulators after it
+to be initialized with the wrong device tree data, eventually
+leading to an out-of-bounds array read.
 
-Reported-by: Nicholas Tsirakis <niko.tsirakis@gmail.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Given that it is not used anywhere in the kernel, it seems
+likely that similar arguments against supporting it exist for
+AB8505 (it is controlled by hardware).
+
+Therefore, simply remove it like for AB8500 instead of adding
+an entry in ab8505_regulator_match.
+
+Fixes: 547f384f33db ("regulator: ab8500: add support for ab8505")
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20191106173125.14496-1-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/xen/balloon.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/regulator/ab8500.c       |   17 -----------------
+ include/linux/regulator/ab8500.h |    1 -
+ 2 files changed, 18 deletions(-)
 
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index 71a6deeb4e71..3f9260af701f 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -401,7 +401,8 @@ static struct notifier_block xen_memory_nb = {
- #else
- static enum bp_state reserve_additional_memory(void)
- {
--	balloon_stats.target_pages = balloon_stats.current_pages;
-+	balloon_stats.target_pages = balloon_stats.current_pages +
-+				     balloon_stats.target_unpopulated;
- 	return BP_ECANCELED;
- }
- #endif /* CONFIG_XEN_BALLOON_MEMORY_HOTPLUG */
--- 
-2.20.1
-
+--- a/drivers/regulator/ab8500.c
++++ b/drivers/regulator/ab8500.c
+@@ -953,23 +953,6 @@ static struct ab8500_regulator_info
+ 		.update_val_idle	= 0x82,
+ 		.update_val_normal	= 0x02,
+ 	},
+-	[AB8505_LDO_USB] = {
+-		.desc = {
+-			.name           = "LDO-USB",
+-			.ops            = &ab8500_regulator_mode_ops,
+-			.type           = REGULATOR_VOLTAGE,
+-			.id             = AB8505_LDO_USB,
+-			.owner          = THIS_MODULE,
+-			.n_voltages     = 1,
+-			.volt_table	= fixed_3300000_voltage,
+-		},
+-		.update_bank            = 0x03,
+-		.update_reg             = 0x82,
+-		.update_mask            = 0x03,
+-		.update_val		= 0x01,
+-		.update_val_idle	= 0x03,
+-		.update_val_normal	= 0x01,
+-	},
+ 	[AB8505_LDO_AUDIO] = {
+ 		.desc = {
+ 			.name		= "LDO-AUDIO",
+--- a/include/linux/regulator/ab8500.h
++++ b/include/linux/regulator/ab8500.h
+@@ -37,7 +37,6 @@ enum ab8505_regulator_id {
+ 	AB8505_LDO_AUX6,
+ 	AB8505_LDO_INTCORE,
+ 	AB8505_LDO_ADC,
+-	AB8505_LDO_USB,
+ 	AB8505_LDO_AUDIO,
+ 	AB8505_LDO_ANAMIC1,
+ 	AB8505_LDO_ANAMIC2,
 
 
