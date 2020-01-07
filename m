@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C29DB133247
-	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:09:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0C5B13319D
+	for <lists+stable@lfdr.de>; Tue,  7 Jan 2020 22:02:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729750AbgAGVIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 16:08:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33668 "EHLO mail.kernel.org"
+        id S1728739AbgAGVCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 16:02:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729590AbgAGVIy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:08:54 -0500
+        id S1728414AbgAGVCX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:02:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A72A22077B;
-        Tue,  7 Jan 2020 21:08:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3988F20880;
+        Tue,  7 Jan 2020 21:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578431333;
-        bh=UcHpKJl6PsKK6e+oSbmbpIDx26PxKKmsRzq5pfrhOXI=;
+        s=default; t=1578430942;
+        bh=Ci5sgc3iE/AfrRiDW7MgemDHV0cCMcu9/2DaqSbO1JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boN8Kim9OmoSBRlLAEsc21r4ZaaPf/HwPR68OYt8V2mxB1fuMdL0TE9dtPCSe6MAW
-         uCsnlXaZwI6NcD8ypKUzWBJbK+MnIbJ0khG8sNuEDjRN3LMJVebhU5OaWQFGKiBmRl
-         Rg1v+xSVN9Ceqsj1JqGnaVmWre27OmfjAq1YcYhc=
+        b=CMGdwhR6teQ9M0f77mUxAQyhAlOY1XP2CzlcboPpWwF8rB2W2Kidk5JjNeMaMUV77
+         hUWWDQCFVIFt74DiAWhMilE6hQZkwsDbHlr8Y+LTvYtGRnsekhVMctPMTZL5deBb3z
+         eGcelEiEFa8YUod9FX6RMA2ePzLdVmxSo9o3MoMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/74] s390/cpum_sf: Adjust sampling interval to avoid hitting sample limits
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.4 159/191] Bluetooth: delete a stray unlock
 Date:   Tue,  7 Jan 2020 21:54:39 +0100
-Message-Id: <20200107205145.640285828@linuxfoundation.org>
+Message-Id: <20200107205341.484533562@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
-References: <20200107205135.369001641@linuxfoundation.org>
+In-Reply-To: <20200107205332.984228665@linuxfoundation.org>
+References: <20200107205332.984228665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 39d4a501a9ef55c57b51e3ef07fc2aeed7f30b3b ]
+commit df66499a1fab340c167250a5743931dc50d5f0fa upstream.
 
-Function perf_event_ever_overflow() and perf_event_account_interrupt()
-are called every time samples are processed by the interrupt handler.
-However function perf_event_account_interrupt() has checks to avoid being
-flooded with interrupts (more then 1000 samples are received per
-task_tick).  Samples are then dropped and a PERF_RECORD_THROTTLED is
-added to the perf data. The perf subsystem limit calculation is:
+We used to take a lock in amp_physical_cfm() but then we moved it to
+the caller function.  Unfortunately the unlock on this error path was
+overlooked so it leads to a double unlock.
 
-    maximum sample frequency := 100000 --> 1 samples per 10 us
-    task_tick = 10ms = 10000us --> 1000 samples per task_tick
+Fixes: a514b17fab51 ("Bluetooth: Refactor locking in amp_physical_cfm")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The work flow is
-
-measurement_alert() uses SDBT head and each SBDT points to 511
- SDB pages, each with 126 sample entries. After processing 8 SBDs
- and for each valid sample calling:
-
-     perf_event_overflow()
-       perf_event_account_interrupts()
-
-there is a considerable amount of samples being dropped, especially when
-the sample frequency is very high and near the 100000 limit.
-
-To avoid the high amount of samples being dropped near the end of a
-task_tick time frame, increment the sampling interval in case of
-dropped events. The CPU Measurement sampling facility on the s390
-supports only intervals, specifiing how many CPU cycles have to be
-executed before a sample is generated. Increase the interval when the
-samples being generated hit the task_tick limit.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ net/bluetooth/l2cap_core.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 45304085b6ee..95c047bf4a12 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1306,6 +1306,22 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
- 	if (sampl_overflow)
- 		OVERFLOW_REG(hwc) = DIV_ROUND_UP(OVERFLOW_REG(hwc) +
- 						 sampl_overflow, 1 + num_sdb);
-+
-+	/* Perf_event_overflow() and perf_event_account_interrupt() limit
-+	 * the interrupt rate to an upper limit. Roughly 1000 samples per
-+	 * task tick.
-+	 * Hitting this limit results in a large number
-+	 * of throttled REF_REPORT_THROTTLE entries and the samples
-+	 * are dropped.
-+	 * Slightly increase the interval to avoid hitting this limit.
-+	 */
-+	if (event_overflow) {
-+		SAMPL_RATE(hwc) += DIV_ROUND_UP(SAMPL_RATE(hwc), 10);
-+		debug_sprintf_event(sfdbg, 1, "%s: rate adjustment %ld\n",
-+				    __func__,
-+				    DIV_ROUND_UP(SAMPL_RATE(hwc), 10));
-+	}
-+
- 	if (sampl_overflow || event_overflow)
- 		debug_sprintf_event(sfdbg, 4, "hw_perf_event_update: "
- 				    "overflow stats: sample=%llu event=%llu\n",
--- 
-2.20.1
-
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4936,10 +4936,8 @@ void __l2cap_physical_cfm(struct l2cap_c
+ 	BT_DBG("chan %p, result %d, local_amp_id %d, remote_amp_id %d",
+ 	       chan, result, local_amp_id, remote_amp_id);
+ 
+-	if (chan->state == BT_DISCONN || chan->state == BT_CLOSED) {
+-		l2cap_chan_unlock(chan);
++	if (chan->state == BT_DISCONN || chan->state == BT_CLOSED)
+ 		return;
+-	}
+ 
+ 	if (chan->state != BT_CONNECTED) {
+ 		l2cap_do_create(chan, result, local_amp_id, remote_amp_id);
 
 
