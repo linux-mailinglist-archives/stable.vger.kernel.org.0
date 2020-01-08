@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 725BB134C22
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:53:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBC3E134BD2
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:49:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728991AbgAHTtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 14:49:55 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43434 "EHLO
+        id S1725835AbgAHTq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 14:46:59 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:44148 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730401AbgAHTqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 14:46:01 -0500
+        by vger.kernel.org with ESMTP id S1730526AbgAHTqK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 14:46:10 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHC-0006oR-Ii; Wed, 08 Jan 2020 19:45:58 +0000
+        id 1ipHHC-0006oS-PU; Wed, 08 Jan 2020 19:45:58 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHB-007dmI-QQ; Wed, 08 Jan 2020 19:45:57 +0000
+        id 1ipHHB-007dmN-Rp; Wed, 08 Jan 2020 19:45:57 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,21 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Mathias Nyman" <mathias.nyman@linux.intel.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Wed, 08 Jan 2020 19:43:21 +0000
-Message-ID: <lsq.1578512578.222781441@decadent.org.uk>
+        "Colin Cross" <ccross@android.com>,
+        "Arnd Bergmann" <arnd@arndb.de>,
+        "John Stultz" <john.stultz@linaro.org>,
+        "Ulf Hansson" <ulf.hansson@linaro.org>,
+        "Shawn Lin" <shawn.lin@rock-chips.com>,
+        "Adrian Hunter" <adrian.hunter@intel.com>,
+        linux-mmc@vger.kernel.org,
+        "Android Kernel Team" <kernel-team@android.com>,
+        "Austin S Hemmelgarn" <ahferroin7@gmail.com>,
+        "Chuanxiao Dong" <chuanxiao.dong@intel.com>
+Date:   Wed, 08 Jan 2020 19:43:22 +0000
+Message-ID: <lsq.1578512578.249229927@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 23/63] xhci: Fix port resume done detection for SS
- ports with LPM enabled
+Subject: [PATCH 3.16 24/63] mmc: block: Allow more than 8 partitions per card
 In-Reply-To: <lsq.1578512578.117275639@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,57 +54,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Colin Cross <ccross@android.com>
 
-commit 6cbcf596934c8e16d6288c7cc62dfb7ad8eadf15 upstream.
+commit 382c55f88ffeb218c446bf0c46d0fc25d2795fe2 upstream.
 
-A suspended SS port in U3 link state will go to U0 when resumed, but
-can almost immediately after that enter U1 or U2 link power save
-states before host controller driver reads the port status.
+It is quite common for Android devices to utilize more
+then 8 partitions on internal eMMC storage.
 
-Host controller driver only checks for U0 state, and might miss
-the finished resume, leaving flags unclear and skip notifying usb
-code of the wake.
+The vanilla kernel can support this via
+CONFIG_MMC_BLOCK_MINORS, however that solution caps the
+system to 256 minors total, which limits the number of
+mmc cards the system can support.
 
-Add U1 and U2 to the possible link states when checking for finished
-port resume.
+This patch, which has been carried for quite awhile in
+the AOSP common tree, provides an alternative solution
+that doesn't seem to limit the total card count. So I
+wanted to submit it for consideration upstream.
 
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[Mathias Nyman: backport to 3.18 stable.]
+This patch sets the GENHD_FL_EXT_DEVT flag, which will
+allocate minor number in major 259 for partitions past
+disk->minors.
+
+It also removes the use of disk_devt to determine devidx
+from md->disk. md->disk->first_minor is always initialized
+from devidx and can always be used to recover it.
+
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ben Hutchings <ben@decadent.org.uk>
+Cc: Chuanxiao Dong <chuanxiao.dong@intel.com>
+Cc: Shawn Lin <shawn.lin@rock-chips.com>
+Cc: Austin S Hemmelgarn <ahferroin7@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Android Kernel Team <kernel-team@android.com>
+Cc: linux-mmc@vger.kernel.org
+Signed-off-by: Colin Cross <ccross@android.com>
+[jstultz: Added context to commit message]
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/host/xhci-ring.c | 9 ++++++---
- drivers/usb/host/xhci.h      | 1 +
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/mmc/card/block.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -1645,10 +1645,13 @@ static void handle_port_status(struct xh
- 		}
- 	}
+--- a/drivers/mmc/card/block.c
++++ b/drivers/mmc/card/block.c
+@@ -168,11 +168,7 @@ static struct mmc_blk_data *mmc_blk_get(
  
--	if ((temp & PORT_PLC) && (temp & PORT_PLS_MASK) == XDEV_U0 &&
--			DEV_SUPERSPEED(temp)) {
-+	if ((temp & PORT_PLC) &&
-+	    DEV_SUPERSPEED(temp) &&
-+	    ((temp & PORT_PLS_MASK) == XDEV_U0 ||
-+	     (temp & PORT_PLS_MASK) == XDEV_U1 ||
-+	     (temp & PORT_PLS_MASK) == XDEV_U2)) {
- 		xhci_dbg(xhci, "resume SS port %d finished\n", port_id);
--		/* We've just brought the device into U0 through either the
-+		/* We've just brought the device into U0/1/2 through either the
- 		 * Resume state after a device remote wakeup, or through the
- 		 * U3Exit state after a host-initiated resume.  If it's a device
- 		 * initiated remote wake, don't pass up the link state change,
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -283,6 +283,7 @@ struct xhci_op_regs {
-  */
- #define PORT_PLS_MASK	(0xf << 5)
- #define XDEV_U0		(0x0 << 5)
-+#define XDEV_U1		(0x1 << 5)
- #define XDEV_U2		(0x2 << 5)
- #define XDEV_U3		(0x3 << 5)
- #define XDEV_INACTIVE	(0x6 << 5)
+ static inline int mmc_get_devidx(struct gendisk *disk)
+ {
+-	int devmaj = MAJOR(disk_devt(disk));
+-	int devidx = MINOR(disk_devt(disk)) / perdev_minors;
+-
+-	if (!devmaj)
+-		devidx = disk->first_minor / perdev_minors;
++	int devidx = disk->first_minor / perdev_minors;
+ 	return devidx;
+ }
+ 
+@@ -2169,6 +2165,7 @@ static struct mmc_blk_data *mmc_blk_allo
+ 	md->disk->queue = md->queue.queue;
+ 	md->disk->driverfs_dev = parent;
+ 	set_disk_ro(md->disk, md->read_only || default_ro);
++	md->disk->flags = GENHD_FL_EXT_DEVT;
+ 	if (area_type & MMC_BLK_DATA_AREA_RPMB)
+ 		md->disk->flags |= GENHD_FL_NO_PART_SCAN;
+ 
 
