@@ -2,132 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 411141345B7
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 16:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5C313467C
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 16:43:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727802AbgAHPHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 10:07:43 -0500
-Received: from mail-vi1eur05on2108.outbound.protection.outlook.com ([40.107.21.108]:57568
-        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727541AbgAHPHn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jan 2020 10:07:43 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Hh3kuprxgAhWF6XHwZmqELiUfbcwmz8bn0gg3NrEFi+xlWlzA7fduyOl2OEUxT5Fpp8176j9HC9PG/84KI5AYQjRjYMTHNTxCMPpOHT9bsdD3q7jFqu6YKJ+MvwKgK5P4QVLbDLgz4G20h85uiR9cD3mVUQSxkSRUTw4dx0tX3Kr3gEL7IxfXyjWpwNRevc1WpduS5oF4v9pPwxOk4gN8IZiyffBNzWj1Y+wkdWQTYrAtysXKmokT9i7pkWb/PFyHXbg/FjZVS5tqsGFXBizDYERYi/Kgm6JNufHQQW1ZseVAjbqEzi4Vgis9fiQalmeB6++nDO2WSn1X7ludQo0ng==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=orjRyjcvhJxHCnaz3BPDGgKdjIS1OkrhehrdBUf5UaY=;
- b=KN6HcQ9wjce9lo9ZFHCgT/lr2JSk0CuzdYFaJbtrL0oXYFdZyt6yOspaCMS9aTxiXh7EatOkhjOWvp2mIcwMPJdi1dIbwe3k31PeTPj3QeNBkmJmM9xo5h15e6xDtnDRpHZR66pSQj+YLWJyU/REzxIM4d8bUIOmYXUa0foOUUg+DS8m5gwMR/dCLzG6byrfDcuq4gkqvIbtA/hPVUC7Wvd8hL3mJqOSBMLiuaO1W+HkNGUsuZjGOYamZ3cwpv4exY8J6kFPrJnloeGN1PaQJDKt+JOjr6Yl2dOOW1QLymhQHDW5mh3LirQxnkCNeDvBgd/dHKoXVhNQbBs8nLSgSA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
- dkim=pass header.d=nokia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
- s=selector1-nokia-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=orjRyjcvhJxHCnaz3BPDGgKdjIS1OkrhehrdBUf5UaY=;
- b=OxnNkXsIooVvXkVK29wn68JqdX5DCkxSyRSBYRejFmwCYR1+NpSYHVEny3vEEREVM3dq7hWXUig5gfjKE9COvHFYDAer7sHTZpQqhFltKV9wfV2S6439jYvItgaKyCEO7lXtJUVd/0xc82SZvJSOjVxRSmkWlO3G/wQ44HDV61I=
-Authentication-Results: spf=none (sender IP is )
- smtp.mailfrom=alexander.sverdlin@nokia.com; 
-Received: from VI1PR07MB5040.eurprd07.prod.outlook.com (20.177.203.20) by
- VI1PR07MB6013.eurprd07.prod.outlook.com (20.178.123.155) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2623.6; Wed, 8 Jan 2020 15:07:39 +0000
-Received: from VI1PR07MB5040.eurprd07.prod.outlook.com
- ([fe80::20c4:7ce8:f735:316e]) by VI1PR07MB5040.eurprd07.prod.outlook.com
- ([fe80::20c4:7ce8:f735:316e%2]) with mapi id 15.20.2644.006; Wed, 8 Jan 2020
- 15:07:39 +0000
-Subject: Re: [PATCH 2/3] genirq/irqdomain: Re-check mapping after associate in
- irq_create_mapping()
-To:     Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Grant Likely <grant.likely@secretlab.ca>
-Cc:     Mark Brown <broonie@opensource.wolfsonmicro.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        "Glavinic-Pecotic, Matija (EXT - DE/Ulm)" 
-        <matija.glavinic-pecotic.ext@nokia.com>,
-        "Adamski, Krzysztof (Nokia - PL/Wroclaw)" 
-        <krzysztof.adamski@nokia.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20190912094343.5480-1-alexander.sverdlin@nokia.com>
- <20190912094343.5480-3-alexander.sverdlin@nokia.com>
- <2c02b9d5-2394-7dcb-ee89-9950c6071dd1@kernel.org>
-From:   Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Message-ID: <39bcb24e-9e30-6932-be38-b9f2962734fc@nokia.com>
-Date:   Wed, 8 Jan 2020 16:07:35 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.1
-In-Reply-To: <2c02b9d5-2394-7dcb-ee89-9950c6071dd1@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: HE1PR05CA0247.eurprd05.prod.outlook.com
- (2603:10a6:3:fb::23) To VI1PR07MB5040.eurprd07.prod.outlook.com
- (2603:10a6:803:9c::20)
+        id S1726856AbgAHPnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 10:43:04 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:54638 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726290AbgAHPnE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 10:43:04 -0500
+Received: by mail-pj1-f67.google.com with SMTP id kx11so1231956pjb.4;
+        Wed, 08 Jan 2020 07:43:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=VaYDiyKUVmJvWDMGJuT27lJYQZ/YihlSUlgaX0Q70Po=;
+        b=hJcPu2D7URepxUGAoP5Zwg5Bp6aGXbR+L4yQld2wRWdqm6OE4I3t17DvyFU4ACI0nf
+         g/filK0qQkmI4zqU8WKA7v3VhwnN4Z20WWi26zQX2ZcAToX97CgHZgiZX1ddSS5HVYZ+
+         4q1NHG6qH1ZZB8eAABCB2pCkNuzsfaxOJxyDZ5eaEUbqoH1knVGtZ5h8nJrz2Z2U5AuM
+         gCouVX+Z7lD6hbkHGMZHHSS7MbXJiNGgZ/VrkRY1E6Ylp8D9WwxeyRL5aNcPzsyNzYmt
+         enEh81KZgW7SL/YSkAF9cfVxaC53ZowYJrIeowKNAgKMAJI9JsEEuCuPWJ7VUfP/R5e3
+         GUFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=VaYDiyKUVmJvWDMGJuT27lJYQZ/YihlSUlgaX0Q70Po=;
+        b=pxwZyqp7G4ugSLEDSL5ylbYDTq8P08UV2LNZ/NUPo0USbdE3AgKNqu5q7y9hdLtdAj
+         piTuk8qnDvotkqLIVcirx5Rdw+EELIyLgGmQ9fmKTFpVhx8dK5QvvAR/KXTd4gm1/xe5
+         wlXLtwYE41DWbEJrPU29Dj3FvIIUPV7vuISByrGSbkbFQfuSIN2FHAfdX8LStZK8ZCd8
+         Pb4gphaUgeb9QkIIm+agDRZw/382z/kBT6CyfNTnaxlokdntcscPs1dlSfJLl6XtxR7d
+         nixmfn3F5X9HhQGm0CgvxQWNRhUv/N6exgJkZriLm0DC8ei1cang724bCNexVVoNkTd7
+         A9gQ==
+X-Gm-Message-State: APjAAAV/vVu8mHdm3pTkMu1C/N71zvOjD6cw96ICuSYZ58yAk2mKvDaK
+        74eggW6gkJM8QlKC8YSq0LmiV3ga
+X-Google-Smtp-Source: APXvYqyAhT8tiDk4AYesoJw0msEtDV3fiU7ZCmZlQtqRf0s91c5G+Ekg2BYX5wZ0+lfXG3Y2JUJ0Ow==
+X-Received: by 2002:a17:902:aa8f:: with SMTP id d15mr5505288plr.276.1578498183723;
+        Wed, 08 Jan 2020 07:43:03 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s24sm4266709pfd.161.2020.01.08.07.43.02
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 08 Jan 2020 07:43:02 -0800 (PST)
+Date:   Wed, 8 Jan 2020 07:43:02 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 00/74] 4.14.163-stable review
+Message-ID: <20200108154302.GA28993@roeck-us.net>
+References: <20200107205135.369001641@linuxfoundation.org>
 MIME-Version: 1.0
-Received: from [0.0.0.0] (131.228.32.166) by HE1PR05CA0247.eurprd05.prod.outlook.com (2603:10a6:3:fb::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2623.9 via Frontend Transport; Wed, 8 Jan 2020 15:07:38 +0000
-X-Originating-IP: [131.228.32.166]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: dcf61354-bc75-4e52-1a4a-08d7944c809b
-X-MS-TrafficTypeDiagnostic: VI1PR07MB6013:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <VI1PR07MB6013BADA3AD0E56A9E8EBF1A883E0@VI1PR07MB6013.eurprd07.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
-X-Forefront-PRVS: 02760F0D1C
-X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10019020)(346002)(136003)(396003)(376002)(366004)(39860400002)(199004)(189003)(2906002)(52116002)(26005)(53546011)(186003)(478600001)(16526019)(6666004)(4326008)(44832011)(31686004)(5660300002)(956004)(54906003)(86362001)(6706004)(110136005)(81166006)(81156014)(8936002)(16576012)(316002)(31696002)(36756003)(66946007)(66476007)(8676002)(2616005)(66556008)(6486002)(78286006);DIR:OUT;SFP:1102;SCL:1;SRVR:VI1PR07MB6013;H:VI1PR07MB5040.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-Received-SPF: None (protection.outlook.com: nokia.com does not designate
- permitted sender hosts)
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: nYrLITztDlGEZ9oGH8/nitIzUIYzGdbj0ha6MswgWNdW7QM6NHtVEtBAlWKzzBXLVj/XfvYAiSYd4yJ0NVSOS/ZNTl+nmb+FDqje7M8fjlGmKMYhebgN5VgxyfyYxXJVbXvhjW+V454ssUGp/PAgzcupDi0cUV52YtfnAEhc8hi8aQhzyH+aYn9O6RxhE6nIIEtcq9GVu6dPVI6kZD0JA3olu7QfkLqkEdVeZD1eMl2r8Mxn3Af/Q6J9HGQUdXtlafadmnoku09fTpqFiT/6gFYyjlqSxKrjdC1P0k0+MzjIvO963qSCKtXXJomHPl4NFrKLlDfGsaAqQFeLQdhmxUvcy5aF+huU3co7jRudRePM9bR4Omq+Ga4N2hjgmjchTkrhcKq31nK5XC7778jo2tdA845G7sLwelOipLcoBjXhX6BdMi+EUiCmq9/gf+IJkVWIqjbWBDm9tNTvP6X4aJVPmPHl7qEyAMMf10cnOFW8AEMQyTYZO5rhumlg/im4
-X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dcf61354-bc75-4e52-1a4a-08d7944c809b
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jan 2020 15:07:39.4047
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bOHhTTGpienlHID+XJBYnRRs/H/2141E2gfbzCosn23zub3T2ENAiXj1nwsPH+oxU6js5Fk4VY7wCvQrxVBWYJr6Dxk6Yrif/5SmTbjrM/Y=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR07MB6013
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Marc,
-
-On 20/09/2019 17:52, Marc Zyngier wrote:
-> On 12/09/2019 10:44, Sverdlin, Alexander (Nokia - DE/Ulm) wrote:
->> From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
->>
->> If two irq_create_mapping() calls perform a mapping of the same hwirq on
->> two CPU cores in parallel they both will get 0 from irq_find_mapping(),
->> both will allocate unique virq using irq_domain_alloc_descs() and both
->> will finally irq_domain_associate() it. Giving different virq numbers
->> to their callers.
->>
->> In practice the first caller is usually an interrupt controller driver and
->> the seconds is some device requesting the interrupt providede by the above
->> interrupt controller.
-> I disagree with this "In practice". An irqchip controller should *very
-> rarely* call irq_create_mapping on its own. It usually indicates some
-> level of brokenness, unless the mapped interrupt is exposed by the
-> irqchip itself (the GIC maintenance interrupt, for example).
+On Tue, Jan 07, 2020 at 09:54:25PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.163 release.
+> There are 74 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
->> In this case either the interrupt controller driver configures virq which
->> is not the one being "associated" with hwirq, or the "slave" device
->> requests the virq which is never being triggered.
-> Why should the interrupt controller configure that interrupt? On any
-> sane platform, the mapping should be created by the user of the
-> interrupt, and not by the provider.
+> Responses should be made by Thu, 09 Jan 2020 20:44:51 +0000.
+> Anything received after that time might be too late.
 > 
-> This doesn't mean we shouldn't fix the irqdomain races, but I tend to
-> disagree with the analysis here.
 
-would you have time to review v2 of this series?
+For v4.14.162-73-g404399b2e7db:
 
--- 
-Best regards,
-Alexander Sverdlin.
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 373 pass: 373 fail: 0
+
+Guenter
