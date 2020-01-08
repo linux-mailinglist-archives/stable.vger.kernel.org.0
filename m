@@ -2,66 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D8F15C0CC
-	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 15:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EAE515C124
+	for <lists+stable@lfdr.de>; Thu, 13 Feb 2020 16:14:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726937AbgBMO6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Feb 2020 09:58:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40212 "EHLO mail.kernel.org"
+        id S1726937AbgBMPOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Feb 2020 10:14:23 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:36252 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726300AbgBMO6z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Feb 2020 09:58:55 -0500
-Received: from localhost (unknown [104.132.1.104])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99D8A2073C;
-        Thu, 13 Feb 2020 14:58:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581605934;
-        bh=c/UGbqFFCn/7brybfXlTgXh4VgijZQ9FTc4nctlHysU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0nHe+hXacUneHCPninMbqWjd58mR9VWYTpk1hnENbnk7dYKtVxFroxGxMxsR0sER5
-         c9DxdWaQ8IPHDfOpkWtSy1Fq8B/OfkvVWOmsKJoJX4GNWJMPlFdJ4tXGq3X643UHPF
-         60kzCtcM7TiLr0U9uCX8w01ZtxiKFO4klhgErfGE=
-Date:   Thu, 13 Feb 2020 06:58:54 -0800
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Anand Lodnoor <anand.lodnoor@broadcom.com>
-Cc:     stable@vger.kernel.org, kashyap.desai@broadcom.com,
-        sumit.saxena@broadcom.com, kiran-kumar.kasturi@broadcom.com,
-        sankar.patra@broadcom.com, sasikumar.pc@broadcom.com,
-        shivasharan.srikanteshwara@broadcom.com,
-        chandrakanth.patil@broadcom.com,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH 4.19] scsi: megaraid_sas: Do not initiate OCR if
- controller is not in ready state
-Message-ID: <20200213145854.GB3409676@kroah.com>
-References: <1581590578-19615-1-git-send-email-anand.lodnoor@broadcom.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1581590578-19615-1-git-send-email-anand.lodnoor@broadcom.com>
+        id S1725781AbgBMPOX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Feb 2020 10:14:23 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1j2G08-00DQrH-Tq; Thu, 13 Feb 2020 15:02:00 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Wed, 08 Jan 2020 13:34:14 +0000
+Subject: [git:media_tree/fixes] media: v4l2-rect.h: fix v4l2_rect_map_inside() top/left adjustments
+To:     linuxtv-commits@linuxtv.org
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Helen Koike <helen.koike@collabora.com>, stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1j2G08-00DQrH-Tq@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 13, 2020 at 04:12:58PM +0530, Anand Lodnoor wrote:
-> commit 6d7537270e3283b92f9b327da9d58a4de40fe8d0 upstream.
-> 
-> Driver initiates OCR if a DCMD command times out. But there is a
-> deadlock if the driver attempts to invoke another OCR before the
-> mutex lock (reset_mutex) is released from the previous session of OCR.
-> 
-> This patch takes care of the above scenario using new flag
-> MEGASAS_FUSION_OCR_NOT_POSSIBLE to indicate if OCR is possible.
-> 
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/r/1579000882-20246-9-git-send-email-anand.lodnoor@broadcom.com
-> Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
-> Signed-off-by: Anand Lodnoor <anand.lodnoor@broadcom.com>
-> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is an automatic generated email to let you know that the following patch were queued:
 
-All 3 of these now applied, thanks!
+Subject: media: v4l2-rect.h: fix v4l2_rect_map_inside() top/left adjustments
+Author:  Helen Koike <helen.koike@collabora.com>
+Date:    Tue Dec 17 21:00:22 2019 +0100
 
-greg k-h
+boundary->width and boundary->height are sizes relative to
+boundary->left and boundary->top coordinates, but they were not being
+taken into consideration to adjust r->left and r->top, leading to the
+following error:
+
+Consider the follow as initial values for boundary and r:
+
+struct v4l2_rect boundary = {
+	.left = 100,
+	.top = 100,
+	.width = 800,
+	.height = 600,
+}
+
+struct v4l2_rect r = {
+	.left = 0,
+	.top = 0,
+	.width = 1920,
+	.height = 960,
+}
+
+calling v4l2_rect_map_inside(&r, &boundary) was modifying r to:
+
+r = {
+	.left = 0,
+	.top = 0,
+	.width = 800,
+	.height = 600,
+}
+
+Which is wrongly outside the boundary rectangle, because:
+
+	v4l2_rect_set_max_size(r, boundary); // r->width = 800, r->height = 600
+	...
+	if (r->left + r->width > boundary->width) // true
+		r->left = boundary->width - r->width; // r->left = 800 - 800
+	if (r->top + r->height > boundary->height) // true
+		r->top = boundary->height - r->height; // r->height = 600 - 600
+
+Fix this by considering top/left coordinates from boundary.
+
+Fixes: ac49de8c49d7 ("[media] v4l2-rect.h: new header with struct v4l2_rect helper functions")
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Cc: <stable@vger.kernel.org>      # for v4.7 and up
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ include/media/v4l2-rect.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+---
+
+diff --git a/include/media/v4l2-rect.h b/include/media/v4l2-rect.h
+index c86474dc7b55..8800a640c224 100644
+--- a/include/media/v4l2-rect.h
++++ b/include/media/v4l2-rect.h
+@@ -63,10 +63,10 @@ static inline void v4l2_rect_map_inside(struct v4l2_rect *r,
+ 		r->left = boundary->left;
+ 	if (r->top < boundary->top)
+ 		r->top = boundary->top;
+-	if (r->left + r->width > boundary->width)
+-		r->left = boundary->width - r->width;
+-	if (r->top + r->height > boundary->height)
+-		r->top = boundary->height - r->height;
++	if (r->left + r->width > boundary->left + boundary->width)
++		r->left = boundary->left + boundary->width - r->width;
++	if (r->top + r->height > boundary->top + boundary->height)
++		r->top = boundary->top + boundary->height - r->height;
+ }
+ 
+ /**
