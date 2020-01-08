@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B6C134BAD
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:46:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF869134BB5
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:48:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730492AbgAHTqE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730489AbgAHTqE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 8 Jan 2020 14:46:04 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43672 "EHLO
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43660 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730452AbgAHTqE (ORCPT
+        by vger.kernel.org with ESMTP id S1730450AbgAHTqE (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 14:46:04 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHD-0006on-BH; Wed, 08 Jan 2020 19:45:59 +0000
+        id 1ipHHD-0006oo-Bx; Wed, 08 Jan 2020 19:45:59 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHC-007dn6-Bv; Wed, 08 Jan 2020 19:45:58 +0000
+        id 1ipHHC-007dnA-Cb; Wed, 08 Jan 2020 19:45:58 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Nicolas Pitre" <nico@fluxnic.net>,
-        "Lorenzo Pieralisi" <lorenzo.pieralisi@arm.com>,
-        "Russell King" <rmk+kernel@arm.linux.org.uk>,
-        "Arnd Bergmann" <arnd@arndb.de>
-Date:   Wed, 08 Jan 2020 19:43:31 +0000
-Message-ID: <lsq.1578512578.909514941@decadent.org.uk>
+        "Ard Biesheuvel" <ard.biesheuvel@linaro.org>,
+        "Arnd Bergmann" <arnd@arndb.de>,
+        "Catalin Marinas" <catalin.marinas@arm.com>
+Date:   Wed, 08 Jan 2020 19:43:32 +0000
+Message-ID: <lsq.1578512578.835847224@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 33/63] ARM: 8510/1: rework ARM_CPU_SUSPEND dependencies
+Subject: [PATCH 3.16 34/63] arm64/kernel: fix incorrect EL0 check in
+ inv_entry macro
 In-Reply-To: <lsq.1578512578.117275639@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,49 +48,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-commit 1b9bdf5c1661873a10e193b8cbb803a87fe5c4a1 upstream.
+commit b660950c60a7278f9d8deb7c32a162031207c758 upstream.
 
-The code enabled by the ARM_CPU_SUSPEND config option is used by
-kernel subsystems for purposes that go beyond system suspend so its
-config entry should be augmented to take more default options into
-account and avoid forcing its selection to prevent dependencies
-override.
+The implementation of macro inv_entry refers to its 'el' argument without
+the required leading backslash, which results in an undefined symbol
+'el' to be passed into the kernel_entry macro rather than the index of
+the exception level as intended.
 
-To achieve this goal, this patch reworks the ARM_CPU_SUSPEND config
-entry and updates its default config value (by adding the BL_SWITCHER
-option to it) and its dependencies (ARCH_SUSPEND_POSSIBLE), so that the
-symbol is still selected by default by the subsystems requiring it and
-at the same time enforcing the dependencies correctly.
+This undefined symbol strangely enough does not result in build failures,
+although it is visible in vmlinux:
 
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Nicolas Pitre <nico@fluxnic.net>
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+     $ nm -n vmlinux |head
+                      U el
+     0000000000000000 A _kernel_flags_le_hi32
+     0000000000000000 A _kernel_offset_le_hi32
+     0000000000000000 A _kernel_size_le_hi32
+     000000000000000a A _kernel_flags_le_lo32
+     .....
+
+However, it does result in incorrect code being generated for invalid
+exceptions taken from EL0, since the argument check in kernel_entry
+assumes EL1 if its argument does not equal '0'.
+
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Cc: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/arm/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/entry.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1486,7 +1486,6 @@ config BIG_LITTLE
- config BL_SWITCHER
- 	bool "big.LITTLE switcher support"
- 	depends on BIG_LITTLE && MCPM && HOTPLUG_CPU && ARM_GIC
--	select ARM_CPU_SUSPEND
- 	select CPU_PM
- 	help
- 	  The big.LITTLE "switcher" provides the core functionality to
-@@ -2201,7 +2200,8 @@ config ARCH_SUSPEND_POSSIBLE
- 	def_bool y
- 
- config ARM_CPU_SUSPEND
--	def_bool PM_SLEEP
-+	def_bool PM_SLEEP || BL_SWITCHER
-+	depends on ARCH_SUSPEND_POSSIBLE
- 
- config ARCH_HIBERNATION_POSSIBLE
- 	bool
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -187,7 +187,7 @@ END(vectors)
+  * Invalid mode handlers
+  */
+ 	.macro	inv_entry, el, reason, regsize = 64
+-	kernel_entry el, \regsize
++	kernel_entry \el, \regsize
+ 	mov	x0, sp
+ 	mov	x1, #\reason
+ 	mrs	x2, esr_el1
 
