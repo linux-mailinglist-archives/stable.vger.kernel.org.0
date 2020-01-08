@@ -2,117 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA9B2134570
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 15:55:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 411141345B7
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 16:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727610AbgAHOzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 09:55:46 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:20236 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726556AbgAHOzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 09:55:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578495344;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kB1wibitGvfWmNgFh2wEqHR7clPpUt8eSyk7OyiPJMc=;
-        b=V5om20jJsPYpzj7SeIHkz1VI+FyQfunbUUfbYSMQsR/Z8F8PAZ5cFvqTbCphP//tumu4yg
-        72R1NtinsqnxiC+7X4DaqB2XJgJIbE7Xuo4gW7xC093N5dGHZO7Y961tOHzdbJAHIj2bXP
-        q0ReXvxQzPJMNkbamnIvEiQS6x1Eq1E=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-340-zbvrZkrPMW6ex5LogcNkeQ-1; Wed, 08 Jan 2020 09:55:37 -0500
-X-MC-Unique: zbvrZkrPMW6ex5LogcNkeQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 84990DB62;
-        Wed,  8 Jan 2020 14:55:35 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-117-150.phx2.redhat.com [10.3.117.150])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 79D7519C70;
-        Wed,  8 Jan 2020 14:55:31 +0000 (UTC)
-Subject: Re: [PATCH 4.19 089/219] ipmi: Dont allow device module unload when
- in use
-To:     cminyard@mvista.com, Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-References: <20191229162508.458551679@linuxfoundation.org>
- <20191229162520.260768030@linuxfoundation.org> <20191230103218.GA10304@amd>
- <20191231213255.GC6497@minyard.net>
-From:   Tony Camuso <tcamuso@redhat.com>
-Message-ID: <0494ad8e-0f6b-2db8-7faf-9da89179aa9a@redhat.com>
-Date:   Wed, 8 Jan 2020 09:55:30 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
-MIME-Version: 1.0
-In-Reply-To: <20191231213255.GC6497@minyard.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+        id S1727802AbgAHPHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 10:07:43 -0500
+Received: from mail-vi1eur05on2108.outbound.protection.outlook.com ([40.107.21.108]:57568
+        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727541AbgAHPHn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jan 2020 10:07:43 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Hh3kuprxgAhWF6XHwZmqELiUfbcwmz8bn0gg3NrEFi+xlWlzA7fduyOl2OEUxT5Fpp8176j9HC9PG/84KI5AYQjRjYMTHNTxCMPpOHT9bsdD3q7jFqu6YKJ+MvwKgK5P4QVLbDLgz4G20h85uiR9cD3mVUQSxkSRUTw4dx0tX3Kr3gEL7IxfXyjWpwNRevc1WpduS5oF4v9pPwxOk4gN8IZiyffBNzWj1Y+wkdWQTYrAtysXKmokT9i7pkWb/PFyHXbg/FjZVS5tqsGFXBizDYERYi/Kgm6JNufHQQW1ZseVAjbqEzi4Vgis9fiQalmeB6++nDO2WSn1X7ludQo0ng==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=orjRyjcvhJxHCnaz3BPDGgKdjIS1OkrhehrdBUf5UaY=;
+ b=KN6HcQ9wjce9lo9ZFHCgT/lr2JSk0CuzdYFaJbtrL0oXYFdZyt6yOspaCMS9aTxiXh7EatOkhjOWvp2mIcwMPJdi1dIbwe3k31PeTPj3QeNBkmJmM9xo5h15e6xDtnDRpHZR66pSQj+YLWJyU/REzxIM4d8bUIOmYXUa0foOUUg+DS8m5gwMR/dCLzG6byrfDcuq4gkqvIbtA/hPVUC7Wvd8hL3mJqOSBMLiuaO1W+HkNGUsuZjGOYamZ3cwpv4exY8J6kFPrJnloeGN1PaQJDKt+JOjr6Yl2dOOW1QLymhQHDW5mh3LirQxnkCNeDvBgd/dHKoXVhNQbBs8nLSgSA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
+ dkim=pass header.d=nokia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
+ s=selector1-nokia-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=orjRyjcvhJxHCnaz3BPDGgKdjIS1OkrhehrdBUf5UaY=;
+ b=OxnNkXsIooVvXkVK29wn68JqdX5DCkxSyRSBYRejFmwCYR1+NpSYHVEny3vEEREVM3dq7hWXUig5gfjKE9COvHFYDAer7sHTZpQqhFltKV9wfV2S6439jYvItgaKyCEO7lXtJUVd/0xc82SZvJSOjVxRSmkWlO3G/wQ44HDV61I=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=alexander.sverdlin@nokia.com; 
+Received: from VI1PR07MB5040.eurprd07.prod.outlook.com (20.177.203.20) by
+ VI1PR07MB6013.eurprd07.prod.outlook.com (20.178.123.155) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2623.6; Wed, 8 Jan 2020 15:07:39 +0000
+Received: from VI1PR07MB5040.eurprd07.prod.outlook.com
+ ([fe80::20c4:7ce8:f735:316e]) by VI1PR07MB5040.eurprd07.prod.outlook.com
+ ([fe80::20c4:7ce8:f735:316e%2]) with mapi id 15.20.2644.006; Wed, 8 Jan 2020
+ 15:07:39 +0000
+Subject: Re: [PATCH 2/3] genirq/irqdomain: Re-check mapping after associate in
+ irq_create_mapping()
+To:     Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Grant Likely <grant.likely@secretlab.ca>
+Cc:     Mark Brown <broonie@opensource.wolfsonmicro.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        "Glavinic-Pecotic, Matija (EXT - DE/Ulm)" 
+        <matija.glavinic-pecotic.ext@nokia.com>,
+        "Adamski, Krzysztof (Nokia - PL/Wroclaw)" 
+        <krzysztof.adamski@nokia.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20190912094343.5480-1-alexander.sverdlin@nokia.com>
+ <20190912094343.5480-3-alexander.sverdlin@nokia.com>
+ <2c02b9d5-2394-7dcb-ee89-9950c6071dd1@kernel.org>
+From:   Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Message-ID: <39bcb24e-9e30-6932-be38-b9f2962734fc@nokia.com>
+Date:   Wed, 8 Jan 2020 16:07:35 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
+In-Reply-To: <2c02b9d5-2394-7dcb-ee89-9950c6071dd1@kernel.org>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-ClientProxiedBy: HE1PR05CA0247.eurprd05.prod.outlook.com
+ (2603:10a6:3:fb::23) To VI1PR07MB5040.eurprd07.prod.outlook.com
+ (2603:10a6:803:9c::20)
+MIME-Version: 1.0
+Received: from [0.0.0.0] (131.228.32.166) by HE1PR05CA0247.eurprd05.prod.outlook.com (2603:10a6:3:fb::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2623.9 via Frontend Transport; Wed, 8 Jan 2020 15:07:38 +0000
+X-Originating-IP: [131.228.32.166]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: dcf61354-bc75-4e52-1a4a-08d7944c809b
+X-MS-TrafficTypeDiagnostic: VI1PR07MB6013:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <VI1PR07MB6013BADA3AD0E56A9E8EBF1A883E0@VI1PR07MB6013.eurprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Forefront-PRVS: 02760F0D1C
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10019020)(346002)(136003)(396003)(376002)(366004)(39860400002)(199004)(189003)(2906002)(52116002)(26005)(53546011)(186003)(478600001)(16526019)(6666004)(4326008)(44832011)(31686004)(5660300002)(956004)(54906003)(86362001)(6706004)(110136005)(81166006)(81156014)(8936002)(16576012)(316002)(31696002)(36756003)(66946007)(66476007)(8676002)(2616005)(66556008)(6486002)(78286006);DIR:OUT;SFP:1102;SCL:1;SRVR:VI1PR07MB6013;H:VI1PR07MB5040.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+Received-SPF: None (protection.outlook.com: nokia.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: nYrLITztDlGEZ9oGH8/nitIzUIYzGdbj0ha6MswgWNdW7QM6NHtVEtBAlWKzzBXLVj/XfvYAiSYd4yJ0NVSOS/ZNTl+nmb+FDqje7M8fjlGmKMYhebgN5VgxyfyYxXJVbXvhjW+V454ssUGp/PAgzcupDi0cUV52YtfnAEhc8hi8aQhzyH+aYn9O6RxhE6nIIEtcq9GVu6dPVI6kZD0JA3olu7QfkLqkEdVeZD1eMl2r8Mxn3Af/Q6J9HGQUdXtlafadmnoku09fTpqFiT/6gFYyjlqSxKrjdC1P0k0+MzjIvO963qSCKtXXJomHPl4NFrKLlDfGsaAqQFeLQdhmxUvcy5aF+huU3co7jRudRePM9bR4Omq+Ga4N2hjgmjchTkrhcKq31nK5XC7778jo2tdA845G7sLwelOipLcoBjXhX6BdMi+EUiCmq9/gf+IJkVWIqjbWBDm9tNTvP6X4aJVPmPHl7qEyAMMf10cnOFW8AEMQyTYZO5rhumlg/im4
+X-OriginatorOrg: nokia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: dcf61354-bc75-4e52-1a4a-08d7944c809b
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jan 2020 15:07:39.4047
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: bOHhTTGpienlHID+XJBYnRRs/H/2141E2gfbzCosn23zub3T2ENAiXj1nwsPH+oxU6js5Fk4VY7wCvQrxVBWYJr6Dxk6Yrif/5SmTbjrM/Y=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR07MB6013
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello Marc,
 
-
-On 12/31/19 4:32 PM, Corey Minyard wrote:
-> On Mon, Dec 30, 2019 at 11:32:18AM +0100, Pavel Machek wrote:
->> On Sun 2019-12-29 18:18:11, Greg Kroah-Hartman wrote:
->>> From: Corey Minyard <cminyard@mvista.com>
->>>
->>> [ Upstream commit cbb79863fc3175ed5ac506465948b02a893a8235 ]
->>>
->>> If something has the IPMI driver open, don't allow the device
->>> module to be unloaded.  Before it would unload and the user would
->>> get errors on use.
->>>
->>> This change is made on user request, and it makes it consistent
->>> with the I2C driver, which has the same behavior.
->>>
->>> It does change things a little bit with respect to kernel users.
->>> If the ACPI or IPMI watchdog (or any other kernel user) has
->>> created a user, then the device module cannot be unloaded.  Before
->>> it could be unloaded,
->>>
->>> This does not affect hot-plug.  If the device goes away (it's on
->>> something removable that is removed or is hot-removed via sysfs)
->>> then it still behaves as it did before.
+On 20/09/2019 17:52, Marc Zyngier wrote:
+> On 12/09/2019 10:44, Sverdlin, Alexander (Nokia - DE/Ulm) wrote:
+>> From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 >>
->> I don't think this is good idea for stable. First, it includes
->> unrelated function rename,
-> 
-> Umm, no, that's not unrelated, it was renamed so a defined could be
-> done with the original name so the module could be passed in
-> automatically.
-> 
->> and second, it does not really fix any bug;
->> it just changes behaviour.
-> 
-> This is true.  I assume Tony asked for the backport.  I'm ambivolent
-> on whether this gets backported.  I'll defer to Tony for justification.
-
-I was PTO, and now I'm back, so I'll address this.
-
-The fix returns behavior back to what it was before.
-To at least some of our customers, the change in behavior this patch fixes
-is a bug.
-
-If backporting it causes an issue, then I'm okay with not doing that, since
-we've already backported it into our kernel.
-
-> -corey
-> 
+>> If two irq_create_mapping() calls perform a mapping of the same hwirq on
+>> two CPU cores in parallel they both will get 0 from irq_find_mapping(),
+>> both will allocate unique virq using irq_domain_alloc_descs() and both
+>> will finally irq_domain_associate() it. Giving different virq numbers
+>> to their callers.
 >>
->> Best regards,
->> 									Pavel
->> -- 
->> (english) http://www.livejournal.com/~pavelmachek
->> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+>> In practice the first caller is usually an interrupt controller driver and
+>> the seconds is some device requesting the interrupt providede by the above
+>> interrupt controller.
+> I disagree with this "In practice". An irqchip controller should *very
+> rarely* call irq_create_mapping on its own. It usually indicates some
+> level of brokenness, unless the mapped interrupt is exposed by the
+> irqchip itself (the GIC maintenance interrupt, for example).
 > 
+>> In this case either the interrupt controller driver configures virq which
+>> is not the one being "associated" with hwirq, or the "slave" device
+>> requests the virq which is never being triggered.
+> Why should the interrupt controller configure that interrupt? On any
+> sane platform, the mapping should be created by the user of the
+> interrupt, and not by the provider.
 > 
+> This doesn't mean we shouldn't fix the irqdomain races, but I tend to
+> disagree with the analysis here.
 
+would you have time to review v2 of this series?
+
+-- 
+Best regards,
+Alexander Sverdlin.
