@@ -2,149 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EF7D13480C
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 17:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C42B613480D
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 17:34:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727127AbgAHQei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 11:34:38 -0500
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:43447 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726922AbgAHQeh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 11:34:37 -0500
-Received: by mail-lj1-f195.google.com with SMTP id a13so3950053ljm.10
-        for <stable@vger.kernel.org>; Wed, 08 Jan 2020 08:34:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=WZNI1+DqZ7dhOcGMBf3FOgqzvgP3U/gwSgh20Voslag=;
-        b=IgCye+Rg1Qso0tNKnWBaqrOq/tpUwyMVLrvrGqITdm77sy5HoA41W3TaF7A+qhs73e
-         vtKtEJF3uPLapRgWABQLYVfyFOUtcMTZ6zT32PgK9aCZgpjeElk7wnHq7/dMvk2Zc9eJ
-         K54CVWCUxs7pcnkif/DJAikpCnOhMCPzvpSQ7kOYOQy5Wp2X7tiDNAgBKATzxTzQdxDM
-         aZyJ6oBqnw7s95n/pIHAxqBNPiddN7maU411jZtgTCRyGeEQFUoSwv41ZBZrn/YlP1bc
-         /yD5CM0Pmd9k2ZXLliTPqCiBNYjhfnwCddc3pf/fYIRqS0KEmouqAZgZjjhfZANmEv3L
-         NUVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=WZNI1+DqZ7dhOcGMBf3FOgqzvgP3U/gwSgh20Voslag=;
-        b=srwNE26x7XfkWRYOIb7TjO2y5Ex1tF7e/vKodoDF3iEDo7a8Z5yb1LOa13+o1WWKW8
-         gcQRgByFZiYlk3grsBn5pr5cXoeXvq+JLvX1PXi2Nmy9/X3Z7TQZpYYiTZT1oWI1r2FP
-         Qt3uePG+rqgWADoONXfr5RR7hssWsC+8Uy0eGCWKh3gJmVFTywXPbh0nTYlgrZsS3oZM
-         qyMMLecqaj2S+07L6kHnr2dQikGYbH1prS3Vh8yfpLc0aQTYrg46XA1eRxrDmAvyXIBi
-         XKtBxJO3tUoaw86uGS7v2F2IxB9xr8Q9QIuUvi+ZTTIBbwCy5SKzpkADydXjdulLgzkA
-         jbug==
-X-Gm-Message-State: APjAAAWH0w63KuVCr72Dd+MNmUpOV8yO1cam5Qgi184jyG9b8seTUm7b
-        bFs7xXMW+B0l7ku85DPe5A0JDi9V1XgtMnaSuVQb7A==
-X-Google-Smtp-Source: APXvYqxwB0RrWmAOtoWeUcYHTSMCYJPWSib2Fa+SEwlkoXikltrHGicbKSEc2VBd9hBYyhzHhdoJPLJ9R7MydSJ8lK4=
-X-Received: by 2002:a2e:868c:: with SMTP id l12mr3076780lji.194.1578501275374;
- Wed, 08 Jan 2020 08:34:35 -0800 (PST)
+        id S1727427AbgAHQeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 11:34:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39662 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726922AbgAHQeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jan 2020 11:34:50 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3E842067D;
+        Wed,  8 Jan 2020 16:34:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578501290;
+        bh=/AXSm+sTlh/4dMbcgEVJENCq/ITQ+rDscyu0oF5+3kg=;
+        h=Subject:To:From:Date:From;
+        b=F/b19uUAounA8OHMt/fR79RBJSSF+edIh2Gioy9Z6Jx5M0eGXIoD4v3GB2Qrqs+jr
+         wcoIBPrMBM1Wne1JV/VCShoHYk1XdbAtfyquxJoMsYCwQ11SDEEblnBgTbuRtVMMus
+         yvg181bLxg58/vtUgOVkHrKwniosBREO9kk+E0VY=
+Subject: patch "usb: ohci-da8xx: ensure error return on variable error is set" added to usb-linus
+To:     colin.king@canonical.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, stern@rowland.harvard.edu
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 08 Jan 2020 17:34:36 +0100
+Message-ID: <15785012763191@kroah.com>
 MIME-Version: 1.0
-References: <20200107205332.984228665@linuxfoundation.org> <20200107212436.GA18475@roeck-us.net>
- <20200108064251.GC2278146@kroah.com>
-In-Reply-To: <20200108064251.GC2278146@kroah.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 8 Jan 2020 22:04:23 +0530
-Message-ID: <CA+G9fYt8hN=4NnnAO01JXmEQehcZ-csM5cT5AKa8i_BvzJ6-7A@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/191] 5.4.9-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 8 Jan 2020 at 16:47, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> Thanks for letting me know, Jens also pointed this out and I've now
-> dropped it and will push out a -rc2 in a few minutes with it removed.
->
-> thanks,
->
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This is a note to let you know that I've just added the patch titled
 
-Summary
-------------------------------------------------------------------------
+    usb: ohci-da8xx: ensure error return on variable error is set
 
-kernel: 5.4.9-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: dd269ce619cbf8cc25d38f1872f7c5a29336500e
-git describe: v5.4.7-382-gdd269ce619cb
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
-ld/v5.4.7-382-gdd269ce619cb
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
 
 
-No regressions (compared to build v5.4.6-434-g6d21990a6f6c)
+From ba9b40810bb43e6bf73b395012b98633c03f7f59 Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@canonical.com>
+Date: Tue, 7 Jan 2020 12:39:01 +0000
+Subject: usb: ohci-da8xx: ensure error return on variable error is set
 
-No fixes (compared to build v5.4.6-434-g6d21990a6f6c)
+Currently when an error occurs when calling devm_gpiod_get_optional or
+calling gpiod_to_irq it causes an uninitialized error return in variable
+'error' to be returned.  Fix this by ensuring the error variable is set
+from da8xx_ohci->oc_gpio and oc_irq.
+
+Thanks to Dan Carpenter for spotting the uninitialized error in the
+gpiod_to_irq failure case.
+
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: d193abf1c913 ("usb: ohci-da8xx: add vbus and overcurrent gpios")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20200107123901.101190-1-colin.king@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/ohci-da8xx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/host/ohci-da8xx.c b/drivers/usb/host/ohci-da8xx.c
+index 38183ac438c6..1371b0c249ec 100644
+--- a/drivers/usb/host/ohci-da8xx.c
++++ b/drivers/usb/host/ohci-da8xx.c
+@@ -415,13 +415,17 @@ static int ohci_da8xx_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	da8xx_ohci->oc_gpio = devm_gpiod_get_optional(dev, "oc", GPIOD_IN);
+-	if (IS_ERR(da8xx_ohci->oc_gpio))
++	if (IS_ERR(da8xx_ohci->oc_gpio)) {
++		error = PTR_ERR(da8xx_ohci->oc_gpio);
+ 		goto err;
++	}
+ 
+ 	if (da8xx_ohci->oc_gpio) {
+ 		oc_irq = gpiod_to_irq(da8xx_ohci->oc_gpio);
+-		if (oc_irq < 0)
++		if (oc_irq < 0) {
++			error = oc_irq;
+ 			goto err;
++		}
+ 
+ 		error = devm_request_threaded_irq(dev, oc_irq, NULL,
+ 				ohci_da8xx_oc_thread, IRQF_TRIGGER_RISING |
+-- 
+2.24.1
 
 
-Ran 20015 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* spectre-meltdown-checker-test
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-cpuhotplug-tests
-* ltp-fcntl-locktests-tests
-* ltp-hugetlb-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-sched-tests
-* ltp-fs-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* network-basic-tests
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
