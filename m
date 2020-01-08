@@ -2,172 +2,307 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0E91339D0
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 04:54:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7F8E1339F9
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 05:07:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726263AbgAHDy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 22:54:26 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:36768 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726149AbgAHDyY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 22:54:24 -0500
-Received: by mail-lj1-f196.google.com with SMTP id r19so1855012ljg.3
-        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 19:54:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=q40DWgK8M0OoDe3G8fJtUun454pFc/8k6TQoLjBZYSE=;
-        b=f8EEU0mlDTrnDmO/oZvkaHYgwqetzmMJkLMEkXSz1Dtu/XdjBFpxCQNfx6jLkIcORD
-         SBMC/xmiR45kNQlrj3VE3OodCQ7pLCtyqVB0mi8a3qFl8sRqMkSBt2Z3OSKULIfLKE/8
-         yEAosVbnsvj2vSVqNYp6pjkhfpVEYQPi8ytG8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=q40DWgK8M0OoDe3G8fJtUun454pFc/8k6TQoLjBZYSE=;
-        b=KZQ8sLgcZootfyQdSWFFcZ2iWG0mnDZsH3N6/Ipnoxr1F/RFC/6zn3knLq0HTyVmXo
-         pxUpPNmyEs8IFr8oDLczP3VSbui8qIwAZXFFRnAleguBWldqzPVJcHoM9oI6SRq2Ja4W
-         oYn3r61W7M91/O2LkYA24Qq6kTEUbSGDk0xHzGPv60ia0oEU/aYxDbhN9QrFAK6N69t0
-         YWF7PAtF+bx1ltuThfGghv4IpNNWN0xr7JNJWjpRxYCKYA5GZlQl6lGxint5rK6DTY3p
-         2lAko+/z2hX9oePhIxPt1AL1iyWfX2SLKIBw8z1UId3biK2PW41sGLmxsdQuHLClmHMT
-         kwkA==
-X-Gm-Message-State: APjAAAXmbneuZw27+5EKyBHbLgcryqUaZKDRECp5xN3zP6Sa2lBUlau9
-        zq5UnrtwoCy0Dpqei12PJQ/2jPSUZz4=
-X-Google-Smtp-Source: APXvYqwPcQVxdzla0z2XUCyUwz7GYY6hQorbYq+ysGwnxGYpMNNXHqVpe9YyDxwMkJHydDyEenatlg==
-X-Received: by 2002:a2e:9b05:: with SMTP id u5mr1585948lji.59.1578455660691;
-        Tue, 07 Jan 2020 19:54:20 -0800 (PST)
-Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
-        by smtp.gmail.com with ESMTPSA id s9sm634580ljh.90.2020.01.07.19.54.18
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Jan 2020 19:54:19 -0800 (PST)
-Received: by mail-lj1-f179.google.com with SMTP id w1so1837917ljh.5
-        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 19:54:18 -0800 (PST)
-X-Received: by 2002:a2e:9ad1:: with SMTP id p17mr1648047ljj.26.1578455658530;
- Tue, 07 Jan 2020 19:54:18 -0800 (PST)
+        id S1726210AbgAHEHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 23:07:52 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:23097 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726142AbgAHEHw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 23:07:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578456470;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=6DDvdi1RsH1kLV//cq3BjxYp3ulSciFCg8CWjaGVfEI=;
+        b=ae/0qb7amQ39I9Pcz5BzmFuEF5wWpzRtSPSiiPyxstp4U9a9p7LEmUFsC439zspxZf7Uix
+        QOVlBcegiLtwqxPlWSqctIBxpFEra0U68R4qfCXjYha4GgtuUvA9WBh+yHJdPLPZPZUBSC
+        XZ1oEXFaFArty1PYIBr1+jpUdZYkcX0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-36-1kyHUjqWPJKjk5twzwcMjw-1; Tue, 07 Jan 2020 23:07:46 -0500
+X-MC-Unique: 1kyHUjqWPJKjk5twzwcMjw-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BE9F9477
+        for <stable@vger.kernel.org>; Wed,  8 Jan 2020 04:07:45 +0000 (UTC)
+Received: from [172.54.75.23] (cpt-1027.paas.prod.upshift.rdu2.redhat.com [10.0.19.54])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 03B107BFBB;
+        Wed,  8 Jan 2020 04:07:42 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20191230054413.GX4203@ZenIV.linux.org.uk> <20191230054913.c5avdjqbygtur2l7@yavin.dot.cyphar.com>
- <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com> <20200101004324.GA11269@ZenIV.linux.org.uk>
- <20200101005446.GH4203@ZenIV.linux.org.uk> <20200101030815.GA17593@ZenIV.linux.org.uk>
- <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com> <20200101234009.GB8904@ZenIV.linux.org.uk>
- <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com> <20200103014901.GC8904@ZenIV.linux.org.uk>
- <20200108031314.GE8904@ZenIV.linux.org.uk>
-In-Reply-To: <20200108031314.GE8904@ZenIV.linux.org.uk>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 7 Jan 2020 19:54:02 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
-Message-ID: <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
-Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over symlinks
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Aleksa Sarai <cyphar@cyphar.com>,
-        David Howells <dhowells@redhat.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        stable <stable@vger.kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Ian Kent <raven@themaw.net>
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.9-rc1-d45e4f1.cki
+ (stable)
+Date:   Wed, 08 Jan 2020 04:07:42 -0000
+CC:     Rachel Sibley <rasibley@redhat.com>
+Message-ID: <cki.D9B484F885.6V7F49GYPI@redhat.com>
+X-Gitlab-Pipeline-ID: 371200
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/371200
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 7, 2020 at 7:13 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
->
-> FWIW, I suspect that we want to do something along the following lines:
->
-> 1) make build_open_flags() treat O_CREAT | O_EXCL as if there had been
-> O_NOFOLLOW in the mix.
 
-My reaction to that is "Whee, that's a big change".
+Hello,
 
-But:
+We ran automated tests on a recent commit from this kernel tree:
 
-> Benefit: this fragment in do_last()
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
+x-stable-rc.git
+            Commit: d45e4f11158f - Linux 5.4.9-rc1
 
-you're right.
+The results of these automated tests are provided below.
 
-That's the semantics we have right now (and I think it's the correct
-safe semantics when I think about it). But when I first looked at your
-email I without thinking more about it actually thought we followed
-the symlink, and then did the O_CREAT | O_EXCL on the target (and
-potentially succeeded).
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-So I agree - making O_CREAT | O_EXCL imply O_NOFOLLOW seems to be the
-right thing to do, and not only should simplify our code, it's much
-more descriptive of what the real semantics are.
+All kernel binaries, config files, and logs are available for download here:
 
-Even if my first reaction was that it would act differently.
+  https://artifacts.cki-project.org/pipelines/371200
 
-Slash-and-burn approach to your explanatory subsequent steps:
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-> 2) make follow_managed() take &inode and &seq.
-> 3) have the followup to failing __follow_mount_rcu() taken into it.
-> 4) fold __follow_mount_rcu() into follow_managed(), using the latter both in
-> RCU and non-RCU cases.
-> 5) take the calls of follow_managed() out of lookup_fast() into its callers.
-> 6) after that we have 3 callers of step_into(); [..]
-> So if we manage to convert the damn thing in mountpoint_last() into
-> follow_managed(), we could fold follow_managed() into step_into().
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-I think that all makes sense. I didn't go to look at the source, but
-from the email contents your steps look reasonable to me.
+Compile testing
+---------------
 
-> Another interesting question is whether we want O_PATH open
-> to trigger automounts.
+We compiled the kernel for 3 architectures:
 
-It does sound like they shouldn't, but as you say:
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
->     The thing is, we do *NOT* trigger them
-> (or traverse mountpoints) at the starting point of lookups.
-> I believe it's a mistake (and mine, at that), but I doubt that
-> there's anything that can be done about it at that point.
-> It's a user-visible behaviour [..]
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-Hmm. I wonder how set in stone that is. We may have two decades of
-history of not doing it at start point of lookups, but we do *not*
-have two decades of history of O_PATH.
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-So what I think we agree would be sane behavior would be for O_PATH
-opens to not trigger automounts (unless there's a slash at the end,
-whatever), but _do_ add the mount-point traversal to the beginning of
-lookups.
 
-But only do it for the actual O_PATH fd case, not the cwd/root/non-O_PATH case.
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
 
-That way we maintain original behavior: if somebody overmounts your
-cwd, you still see the pre-mount directory on lookups, because your
-cwd is "under" the mount.
+  aarch64:
+    Host 1:
 
-But if you open a file with O_PATH, and somebody does a mount
-_afterwards_, the openat() will see that later mount and/or do the
-automount.
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
 
-Don't you think that would be the more sane/obvious semantics of how
-O_PATH should work?
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: ext4
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
 
-> I think the easiest way to handle that is to have O_PATH
-> turn LOOKUP_AUTOMOUNT, same as the normal open() does.  That's
-> trivial to do, but that changes user-visible behaviour.  OTOH,
-> with the current behaviour nobody can rely upon automount not
-> getting triggered by somebody else just as they are entering
-> their open(dir, O_PATH), so I think that's not a problem.
->
-> Linus, do you have any objections to such O_PATH semantics
-> change?
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
 
-See above: I think I'd prefer the O_PATH behavior the other way
-around. That seems to be more of a consistent behavior of what
-"O_PATH" means - it means "don't really open, we'll do it only when
-you use it as a directory".
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
-But I don't have any _strong_ opinions. If you have a good reason to
-tell me that I'm being stupid, go ahead and do so and override my
-stupidity.
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
-             Linus
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9D=8C IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - megaraid_sas
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - mpt3sas driver
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernels =
+have
+a Beaker recipe linked to next to each host.
+
