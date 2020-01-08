@@ -2,73 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CD0B134025
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 12:18:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C17CD133FCD
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 12:00:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727675AbgAHLRt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 06:17:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56124 "EHLO mail.kernel.org"
+        id S1726891AbgAHLAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 06:00:39 -0500
+Received: from foss.arm.com ([217.140.110.172]:42304 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728108AbgAHLRs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jan 2020 06:17:48 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58CE92087F;
-        Wed,  8 Jan 2020 11:17:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578482267;
-        bh=hgXupPARz/+WnBXYCcpMWO+F+6Ku0DuxSLKFEnmHNJY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qWRpWd7p9wbwOeGEwLV3cKQmbG2hxEowBBRoJCSu91ZMbE60iXSaDwmlbE7qy4lG6
-         gPeobkVj+FS2z1tr8idDKrkRGran/PY2Vz3FHoDM2Gq8n6KvvuUDakGrGxxplUyXx/
-         GZLz9orm/rmULaz8Gj8rxOoh6bg9YrJQAJhYk7N0=
-Date:   Wed, 8 Jan 2020 11:47:55 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        syzbot+fb77e97ebf0612ee6914@syzkaller.appspotmail.com,
-        Kees Cook <keescook@chromium.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        id S1726290AbgAHLAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jan 2020 06:00:39 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2868030E;
+        Wed,  8 Jan 2020 03:00:39 -0800 (PST)
+Received: from [10.1.197.1] (ewhatever.cambridge.arm.com [10.1.197.1])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 76E0C3F703;
+        Wed,  8 Jan 2020 03:00:38 -0800 (PST)
+Subject: Re: [PATCH 4.19 102/115] coresight: tmc-etf: Do not call
+ smp_processor_id from preemptible
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 040/115] drm: limit to INT_MAX in create_blob ioctl
-Message-ID: <20200108104755.GA2338370@kroah.com>
 References: <20200107205240.283674026@linuxfoundation.org>
- <20200107205301.771918206@linuxfoundation.org>
- <20200108081148.GC619@amd>
+ <20200107205308.269793829@linuxfoundation.org>
+From:   Suzuki Kuruppassery Poulose <suzuki.poulose@arm.com>
+Message-ID: <a4c7d0ef-41c5-4c77-6f45-1cc5d153a5c9@arm.com>
+Date:   Wed, 8 Jan 2020 11:00:37 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200108081148.GC619@amd>
+In-Reply-To: <20200107205308.269793829@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 08, 2020 at 09:11:48AM +0100, Pavel Machek wrote:
-> On Tue 2020-01-07 21:54:10, Greg Kroah-Hartman wrote:
-> > From: Daniel Vetter <daniel.vetter@ffwll.ch>
-> > 
-> > [ Upstream commit 5bf8bec3f4ce044a223c40cbce92590d938f0e9c ]
-> > 
-> > The hardened usercpy code is too paranoid ever since commit 6a30afa8c1fb
-> > ("uaccess: disallow > INT_MAX copy sizes")
-> 
-> > Code itself should have been fine as-is.
-> > 
-> > Link: http://lkml.kernel.org/r/20191106164755.31478-1-daniel.vetter@ffwll.ch
-> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> > Reported-by: syzbot+fb77e97ebf0612ee6914@syzkaller.appspotmail.com
-> > Fixes: 6a30afa8c1fb ("uaccess: disallow > INT_MAX copy sizes")
-> 
-> There is no such thing as commit 6a30afa8c1fb. Apparently this is
-> talking about commit "6d13de1489b6bf539695f96d945de3860e6d5e17", but
-> that one is not in 4.19-stable.
-> 
-> Do we need this in 4.19-stable?
+Hi Greg,
 
-Yes.
+On 07/01/2020 20:55, Greg Kroah-Hartman wrote:
+> From: Suzuki K Poulose <suzuki.poulose@arm.com>
+> 
+> [ Upstream commit 024c1fd9dbcc1d8a847f1311f999d35783921b7f ]
+> 
+> During a perf session we try to allocate buffers on the "node" associated
+> with the CPU the event is bound to. If it is not bound to a CPU, we
+> use the current CPU node, using smp_processor_id(). However this is unsafe
+> in a pre-emptible context and could generate the splats as below :
+> 
+>   BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
+>   caller is tmc_alloc_etf_buffer+0x5c/0x60
+
+> Fixes: 2e499bbc1a929ac ("coresight: tmc: implementing TMC-ETF AUX space API")
+> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+> Cc: stable <stable@vger.kernel.org> # 4.7+
+> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+> Link: https://lore.kernel.org/r/20190620221237.3536-4-mathieu.poirier@linaro.org
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>   drivers/hwtracing/coresight/coresight-tmc-etf.c | 4 +---
+>   1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+> index e31061308e19..4644ac5582cf 100644
+> --- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
+> +++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+> @@ -304,9 +304,7 @@ static void *tmc_alloc_etf_buffer(struct coresight_device *csdev, int cpu,
+>   	int node;
+>   	struct cs_buffers *buf;
+>   
+> -	if (cpu == -1)
+> -		cpu = smp_processor_id();
+> -	node = cpu_to_node(cpu);
+> +	node = (event->cpu == -1) ? NUMA_NO_NODE : cpu_to_node(event->cpu);
+
+This will break the build on v4.19 to v4.9 as event was not available to
+the routine. So please drop this one for now. I will post a backport
+separately.
+
+Suzuki
