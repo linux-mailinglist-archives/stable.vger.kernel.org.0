@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5FB0134BE9
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:49:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D19134BED
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:49:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728582AbgAHTsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 14:48:03 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43708 "EHLO
+        id S1727436AbgAHTsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 14:48:13 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43718 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730462AbgAHTqE (ORCPT
+        by vger.kernel.org with ESMTP id S1730464AbgAHTqE (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 14:46:04 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHD-0006oj-RA; Wed, 08 Jan 2020 19:45:59 +0000
+        id 1ipHHE-0006om-2S; Wed, 08 Jan 2020 19:46:00 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHD-007dp2-D8; Wed, 08 Jan 2020 19:45:59 +0000
+        id 1ipHHD-007dp6-Dx; Wed, 08 Jan 2020 19:45:59 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        syzbot+33d7ea72e47de3bdf4e1@syzkaller.appspotmail.com,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        syzbot+f8d6f8386ceacdbfff57@syzkaller.appspotmail.com,
-        syzbot+44b6763edfc17144296f@syzkaller.appspotmail.com
-Date:   Wed, 08 Jan 2020 19:43:55 +0000
-Message-ID: <lsq.1578512578.53067570@decadent.org.uk>
+CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>
+Date:   Wed, 08 Jan 2020 19:43:56 +0000
+Message-ID: <lsq.1578512578.981696343@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 57/63] ext4: add more paranoia checking in
- ext4_expand_extra_isize handling
+Subject: [PATCH 3.16 58/63] Revert "sched/fair: Fix bandwidth timer clock
+ drift condition"
 In-Reply-To: <lsq.1578512578.117275639@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,90 +45,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-commit 4ea99936a1630f51fc3a2d61a58ec4a1c4b7d55a upstream.
+This reverts commit eb29ee5a3873134917a760bf9c416da0a089a0be, which
+was commit 512ac999d2755d2b7109e996a76b6fb8b888631d upstream.  This
+introduced a regression and doesn't seem to have been suitable for
+older stable branches.  (It has been fixed differently upstream.)
 
-It's possible to specify a non-zero s_want_extra_isize via debugging
-option, and this can cause bad things(tm) to happen when using a file
-system with an inode size of 128 bytes.
-
-Add better checking when the file system is mounted, as well as when
-we are actually doing the trying to do the inode expansion.
-
-Link: https://lore.kernel.org/r/20191110121510.GH23325@mit.edu
-Reported-by: syzbot+f8d6f8386ceacdbfff57@syzkaller.appspotmail.com
-Reported-by: syzbot+33d7ea72e47de3bdf4e1@syzkaller.appspotmail.com
-Reported-by: syzbot+44b6763edfc17144296f@syzkaller.appspotmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-[bwh: Backported to 3.16:
- - Use EIO instead of EFSCORRUPTED
- - Adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5094,10 +5094,25 @@ static int ext4_expand_extra_isize(struc
- {
- 	struct ext4_inode *raw_inode;
- 	struct ext4_xattr_ibody_header *header;
-+	unsigned int inode_size = EXT4_INODE_SIZE(inode->i_sb);
-+	struct ext4_inode_info *ei = EXT4_I(inode);
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3163,7 +3163,6 @@ void __refill_cfs_bandwidth_runtime(stru
+ 	now = sched_clock_cpu(smp_processor_id());
+ 	cfs_b->runtime = cfs_b->quota;
+ 	cfs_b->runtime_expires = now + ktime_to_ns(cfs_b->period);
+-	cfs_b->expires_seq++;
+ }
  
- 	if (EXT4_I(inode)->i_extra_isize >= new_extra_isize)
- 		return 0;
+ static inline struct cfs_bandwidth *tg_cfs_bandwidth(struct task_group *tg)
+@@ -3186,7 +3185,6 @@ static int assign_cfs_rq_runtime(struct
+ 	struct task_group *tg = cfs_rq->tg;
+ 	struct cfs_bandwidth *cfs_b = tg_cfs_bandwidth(tg);
+ 	u64 amount = 0, min_amount, expires;
+-	int expires_seq;
  
-+	/* this was checked at iget time, but double check for good measure */
-+	if ((EXT4_GOOD_OLD_INODE_SIZE + ei->i_extra_isize > inode_size) ||
-+	    (ei->i_extra_isize & 3)) {
-+		EXT4_ERROR_INODE(inode, "bad extra_isize %u (inode size %u)",
-+				 ei->i_extra_isize,
-+				 EXT4_INODE_SIZE(inode->i_sb));
-+		return -EIO;
-+	}
-+	if ((new_extra_isize < ei->i_extra_isize) ||
-+	    (new_extra_isize < 4) ||
-+	    (new_extra_isize > inode_size - EXT4_GOOD_OLD_INODE_SIZE))
-+		return -EINVAL;	/* Should never happen */
-+
- 	raw_inode = ext4_raw_inode(&iloc);
- 
- 	header = IHDR(inode, raw_inode);
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3427,11 +3427,15 @@ static void ext4_clamp_want_extra_isize(
- {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_super_block *es = sbi->s_es;
-+	unsigned def_extra_isize = sizeof(struct ext4_inode) -
-+						EXT4_GOOD_OLD_INODE_SIZE;
- 
--	/* determine the minimum size of new large inodes, if present */
--	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						     EXT4_GOOD_OLD_INODE_SIZE;
-+	if (sbi->s_inode_size == EXT4_GOOD_OLD_INODE_SIZE) {
-+		sbi->s_want_extra_isize = 0;
-+		return;
-+	}
-+	if (sbi->s_want_extra_isize < 4) {
-+		sbi->s_want_extra_isize = def_extra_isize;
- 		if (EXT4_HAS_RO_COMPAT_FEATURE(sb,
- 				       EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE)) {
- 			if (sbi->s_want_extra_isize <
-@@ -3445,10 +3449,10 @@ static void ext4_clamp_want_extra_isize(
+ 	/* note: this is a positive sum as runtime_remaining <= 0 */
+ 	min_amount = sched_cfs_bandwidth_slice() - cfs_rq->runtime_remaining;
+@@ -3212,7 +3210,6 @@ static int assign_cfs_rq_runtime(struct
+ 			cfs_b->idle = 0;
  		}
  	}
- 	/* Check if enough inode space is available */
--	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
--							sbi->s_inode_size) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						       EXT4_GOOD_OLD_INODE_SIZE;
-+	if ((sbi->s_want_extra_isize > sbi->s_inode_size) ||
-+	    (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
-+							sbi->s_inode_size)) {
-+		sbi->s_want_extra_isize = def_extra_isize;
- 		ext4_msg(sb, KERN_INFO,
- 			 "required extra inode space not available");
- 	}
+-	expires_seq = cfs_b->expires_seq;
+ 	expires = cfs_b->runtime_expires;
+ 	raw_spin_unlock(&cfs_b->lock);
+ 
+@@ -3222,10 +3219,8 @@ static int assign_cfs_rq_runtime(struct
+ 	 * spread between our sched_clock and the one on which runtime was
+ 	 * issued.
+ 	 */
+-	if (cfs_rq->expires_seq != expires_seq) {
+-		cfs_rq->expires_seq = expires_seq;
++	if ((s64)(expires - cfs_rq->runtime_expires) > 0)
+ 		cfs_rq->runtime_expires = expires;
+-	}
+ 
+ 	return cfs_rq->runtime_remaining > 0;
+ }
+@@ -3251,9 +3246,12 @@ static void expire_cfs_rq_runtime(struct
+ 	 * has not truly expired.
+ 	 *
+ 	 * Fortunately we can check determine whether this the case by checking
+-	 * whether the global deadline(cfs_b->expires_seq) has advanced.
++	 * whether the global deadline has advanced. It is valid to compare
++	 * cfs_b->runtime_expires without any locks since we only care about
++	 * exact equality, so a partial write will still work.
+ 	 */
+-	if (cfs_rq->expires_seq == cfs_b->expires_seq) {
++
++	if (cfs_rq->runtime_expires != cfs_b->runtime_expires) {
+ 		/* extend local deadline, drift is bounded above by 2 ticks */
+ 		cfs_rq->runtime_expires += TICK_NSEC;
+ 	} else {
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -187,7 +187,6 @@ struct cfs_bandwidth {
+ 	u64 quota, runtime;
+ 	s64 hierarchal_quota;
+ 	u64 runtime_expires;
+-	int expires_seq;
+ 
+ 	int idle, timer_active;
+ 	struct hrtimer period_timer, slack_timer;
+@@ -377,7 +376,6 @@ struct cfs_rq {
+ 
+ #ifdef CONFIG_CFS_BANDWIDTH
+ 	int runtime_enabled;
+-	int expires_seq;
+ 	u64 runtime_expires;
+ 	s64 runtime_remaining;
+ 
 
