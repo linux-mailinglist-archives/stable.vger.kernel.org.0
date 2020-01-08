@@ -2,388 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43D71133976
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 04:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0E91339D0
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 04:54:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726149AbgAHDNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 22:13:35 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:45740 "EHLO
-        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725908AbgAHDNe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 22:13:34 -0500
-Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1ip1mU-003zkK-H9; Wed, 08 Jan 2020 03:13:14 +0000
-Date:   Wed, 8 Jan 2020 03:13:14 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Aleksa Sarai <cyphar@cyphar.com>
-Cc:     David Howells <dhowells@redhat.com>,
+        id S1726263AbgAHDy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 22:54:26 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:36768 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726149AbgAHDyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 22:54:24 -0500
+Received: by mail-lj1-f196.google.com with SMTP id r19so1855012ljg.3
+        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 19:54:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=q40DWgK8M0OoDe3G8fJtUun454pFc/8k6TQoLjBZYSE=;
+        b=f8EEU0mlDTrnDmO/oZvkaHYgwqetzmMJkLMEkXSz1Dtu/XdjBFpxCQNfx6jLkIcORD
+         SBMC/xmiR45kNQlrj3VE3OodCQ7pLCtyqVB0mi8a3qFl8sRqMkSBt2Z3OSKULIfLKE/8
+         yEAosVbnsvj2vSVqNYp6pjkhfpVEYQPi8ytG8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=q40DWgK8M0OoDe3G8fJtUun454pFc/8k6TQoLjBZYSE=;
+        b=KZQ8sLgcZootfyQdSWFFcZ2iWG0mnDZsH3N6/Ipnoxr1F/RFC/6zn3knLq0HTyVmXo
+         pxUpPNmyEs8IFr8oDLczP3VSbui8qIwAZXFFRnAleguBWldqzPVJcHoM9oI6SRq2Ja4W
+         oYn3r61W7M91/O2LkYA24Qq6kTEUbSGDk0xHzGPv60ia0oEU/aYxDbhN9QrFAK6N69t0
+         YWF7PAtF+bx1ltuThfGghv4IpNNWN0xr7JNJWjpRxYCKYA5GZlQl6lGxint5rK6DTY3p
+         2lAko+/z2hX9oePhIxPt1AL1iyWfX2SLKIBw8z1UId3biK2PW41sGLmxsdQuHLClmHMT
+         kwkA==
+X-Gm-Message-State: APjAAAXmbneuZw27+5EKyBHbLgcryqUaZKDRECp5xN3zP6Sa2lBUlau9
+        zq5UnrtwoCy0Dpqei12PJQ/2jPSUZz4=
+X-Google-Smtp-Source: APXvYqwPcQVxdzla0z2XUCyUwz7GYY6hQorbYq+ysGwnxGYpMNNXHqVpe9YyDxwMkJHydDyEenatlg==
+X-Received: by 2002:a2e:9b05:: with SMTP id u5mr1585948lji.59.1578455660691;
+        Tue, 07 Jan 2020 19:54:20 -0800 (PST)
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
+        by smtp.gmail.com with ESMTPSA id s9sm634580ljh.90.2020.01.07.19.54.18
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jan 2020 19:54:19 -0800 (PST)
+Received: by mail-lj1-f179.google.com with SMTP id w1so1837917ljh.5
+        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 19:54:18 -0800 (PST)
+X-Received: by 2002:a2e:9ad1:: with SMTP id p17mr1648047ljj.26.1578455658530;
+ Tue, 07 Jan 2020 19:54:18 -0800 (PST)
+MIME-Version: 1.0
+References: <20191230054413.GX4203@ZenIV.linux.org.uk> <20191230054913.c5avdjqbygtur2l7@yavin.dot.cyphar.com>
+ <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com> <20200101004324.GA11269@ZenIV.linux.org.uk>
+ <20200101005446.GH4203@ZenIV.linux.org.uk> <20200101030815.GA17593@ZenIV.linux.org.uk>
+ <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com> <20200101234009.GB8904@ZenIV.linux.org.uk>
+ <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com> <20200103014901.GC8904@ZenIV.linux.org.uk>
+ <20200108031314.GE8904@ZenIV.linux.org.uk>
+In-Reply-To: <20200108031314.GE8904@ZenIV.linux.org.uk>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 7 Jan 2020 19:54:02 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
+Message-ID: <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over symlinks
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Aleksa Sarai <cyphar@cyphar.com>,
+        David Howells <dhowells@redhat.com>,
         Eric Biederman <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        stable@vger.kernel.org,
+        stable <stable@vger.kernel.org>,
         Christian Brauner <christian.brauner@ubuntu.com>,
         Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
-        containers@lists.linux-foundation.org, linux-api@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Ian Kent <raven@themaw.net>
-Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
- symlinks
-Message-ID: <20200108031314.GE8904@ZenIV.linux.org.uk>
-References: <20191230054413.GX4203@ZenIV.linux.org.uk>
- <20191230054913.c5avdjqbygtur2l7@yavin.dot.cyphar.com>
- <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com>
- <20200101004324.GA11269@ZenIV.linux.org.uk>
- <20200101005446.GH4203@ZenIV.linux.org.uk>
- <20200101030815.GA17593@ZenIV.linux.org.uk>
- <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
- <20200101234009.GB8904@ZenIV.linux.org.uk>
- <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
- <20200103014901.GC8904@ZenIV.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200103014901.GC8904@ZenIV.linux.org.uk>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 03, 2020 at 01:49:01AM +0000, Al Viro wrote:
+On Tue, Jan 7, 2020 at 7:13 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+>
+> FWIW, I suspect that we want to do something along the following lines:
+>
+> 1) make build_open_flags() treat O_CREAT | O_EXCL as if there had been
+> O_NOFOLLOW in the mix.
 
-> It's a mess, again in mountpoint_last().  FWIW, at some point I proposed
-> to have nd_jump_link() to fail with -ELOOP if the target was a symlink;
-> Linus asked for reasons deeper than my dislike of the semantics, I looked
-> around and hadn't spotted anything.  And there hadn't been at the time,
-> but when four months later umount_lookup_last() went in I failed to look
-> for that source of potential problems in it ;-/
-> 
-> I've looked at that area again now.  Aside of usual cursing at do_last()
-> horrors (yes, its control flow is a horror; yes, it needs serious massage;
-> no, it's not a good idea to get sidetracked into that right now), there
-> are several fun questions:
-> 	* d_manage() and d_automount().  We almost certainly don't
-> want those for autofs on the final component of pathname in umount,
-> including the trailing symlinks.  But do we want those on usual access
-> via /proc/*/fd/*?  I.e. suppose somebody does open() (O_PATH or not)
-> in autofs; do we want ->d_manage()/->d_automount() called when
-> resolving /proc/self/fd/<whatever>/foo/bar?  We do not; is that
-> correct from autofs point of view?  I suspect that refusing to
-> do ->d_automount() is correct, but I don't understand ->d_manage()
-> purpose well enough to tell.
-> 	* I really hope that the weird "trailing / forces automount
-> even in cases when we normally wouldn't trigger it" (stat /mnt/foo
-> vs. stat /mnt/foo/) is not meant to extend to umount.  I'd like
-> Ian's confirmation, though.
-> 	* do we want ->d_manage() on following .. into overmounted
-> directory?  Again, autofs question...
+My reaction to that is "Whee, that's a big change".
 
-FWIW, I suspect that we want to do something along the following lines:
+But:
 
-1) make build_open_flags() treat O_CREAT | O_EXCL as if there had been
-O_NOFOLLOW in the mix.  Reason: if there is a trailing symlink, we want
-to fail with EEXIST anyway.  Benefit: this fragment in do_last()
-        error = follow_managed(&path, nd);
-        if (unlikely(error < 0))
-                return error;
+> Benefit: this fragment in do_last()
 
-        /*
-         * create/update audit record if it already exists.
-         */
-        audit_inode(nd->name, path.dentry, 0);
+you're right.
 
-        if (unlikely((open_flag & (O_EXCL | O_CREAT)) == (O_EXCL | O_CREAT))) {
-                path_to_nameidata(&path, nd);
-                return -EEXIST;
-        }
+That's the semantics we have right now (and I think it's the correct
+safe semantics when I think about it). But when I first looked at your
+email I without thinking more about it actually thought we followed
+the symlink, and then did the O_CREAT | O_EXCL on the target (and
+potentially succeeded).
 
-        seq = 0;        /* out of RCU mode, so the value doesn't matter */
-        inode = d_backing_inode(path.dentry);
-finish_lookup:  
-        error = step_into(nd, &path, 0, inode, seq);
-        if (unlikely(error))
-                return error;
-can become
-        error = follow_managed(&path, nd);
-        if (unlikely(error < 0))
-                return error;
+So I agree - making O_CREAT | O_EXCL imply O_NOFOLLOW seems to be the
+right thing to do, and not only should simplify our code, it's much
+more descriptive of what the real semantics are.
 
-        seq = 0;        /* out of RCU mode, so the value doesn't matter */
-        inode = d_backing_inode(path.dentry);
-finish_lookup:  
-        error = step_into(nd, &path, 0, inode, seq);
-        if (unlikely(error))
-                return error;
+Even if my first reaction was that it would act differently.
 
-        if (unlikely((open_flag & (O_EXCL | O_CREAT)) == (O_EXCL | O_CREAT))) {
-		audit_inode(nd->name, nd->path.dentry, 0);
-                return -EEXIST;
-        }
-Equivalent transformation, since the the only goto finish_lookup; is under
-if (!(open_flag & O_CREAT)).  What it buys us is more regular structure
-of follow_managed() callers.
+Slash-and-burn approach to your explanatory subsequent steps:
 
-2) make follow_managed() take &inode and &seq.  Look: follow_managed() never
-returns 0 (we have
-        if (ret == -EISDIR || !ret)
-                ret = 1;
-on the way to the only return in it) and the callers are
-        err = follow_managed(path, nd);
-        if (likely(err > 0))
-                *inode = d_backing_inode(path->dentry);
-        return err;
-in lookup_fast(),
-                err = follow_managed(&path, nd);
-                if (unlikely(err < 0))
-                        return err;
+> 2) make follow_managed() take &inode and &seq.
+> 3) have the followup to failing __follow_mount_rcu() taken into it.
+> 4) fold __follow_mount_rcu() into follow_managed(), using the latter both in
+> RCU and non-RCU cases.
+> 5) take the calls of follow_managed() out of lookup_fast() into its callers.
+> 6) after that we have 3 callers of step_into(); [..]
+> So if we manage to convert the damn thing in mountpoint_last() into
+> follow_managed(), we could fold follow_managed() into step_into().
 
-                seq = 0;        /* we are already out of RCU mode */
-                inode = d_backing_inode(path.dentry);
-in walk_component(),
-                err = follow_managed(&path, nd);
-                if (unlikely(err < 0))
-                        return err;
-                inode = d_backing_inode(path.dentry);
-                seq = 0;
-in handle_lookup_down() and (after the previous change)
-        error = follow_managed(&path, nd);
-        if (unlikely(error < 0))
-                return error;
+I think that all makes sense. I didn't go to look at the source, but
+from the email contents your steps look reasonable to me.
 
-        seq = 0;        /* out of RCU mode, so the value doesn't matter */
-        inode = d_backing_inode(path.dentry);
-in do_last().  That's begging to fold those followups into follow_managed()
-itself, doesn't it?  And having *seqp = 0; equivalent added in lookup_fast()
-is not going to hurt the performance - in all callers it's an address of
-local variable, right next to the one whose address is passed as inodep.
-Which we'd just dirtied, and the cacheline is not going to have been shared
-anyway.
+> Another interesting question is whether we want O_PATH open
+> to trigger automounts.
 
-Note that after that the arguments for follow_managed() become identical
-to those for __follow_mount_rcu().  Which makes a lot of sense, since
-the latter is RCU-mode counterpart of the former.
+It does sound like they shouldn't, but as you say:
 
-3) have the followup to failing __follow_mount_rcu() taken into it.
-After (2) we have this in lookup_fast():
+>     The thing is, we do *NOT* trigger them
+> (or traverse mountpoints) at the starting point of lookups.
+> I believe it's a mistake (and mine, at that), but I doubt that
+> there's anything that can be done about it at that point.
+> It's a user-visible behaviour [..]
 
-                *seqp = seq;
-                status = d_revalidate(dentry, nd->flags);
-                if (likely(status > 0)) {
-                        /*
-                         * Note: do negative dentry check after revalidation in
-                         * case that drops it.
-                         */
-                        if (unlikely(negative))
-                                return -ENOENT;
-                        path->mnt = mnt;
-                        path->dentry = dentry;
-                        if (likely(__follow_mount_rcu(nd, path, inode, seqp)))
-                                return 1;
-                }
-                if (unlazy_child(nd, dentry, seq))
-                        return -ECHILD;
-                if (unlikely(status == -ECHILD))
-                        /* we'd been told to redo it in non-rcu mode */
-                        status = d_revalidate(dentry, nd->flags);
-        } else {   
-		...
-	}
-        if (unlikely(status <= 0)) {
-                if (!status)
-                        d_invalidate(dentry);
-                dput(dentry);
-                return status;
-        }
+Hmm. I wonder how set in stone that is. We may have two decades of
+history of not doing it at start point of lookups, but we do *not*
+have two decades of history of O_PATH.
 
-        path->mnt = mnt;
-        path->dentry = dentry;
-        return follow_managed(path, nd, inode, seqp);
+So what I think we agree would be sane behavior would be for O_PATH
+opens to not trigger automounts (unless there's a slash at the end,
+whatever), but _do_ add the mount-point traversal to the beginning of
+lookups.
 
-Suppose __follow_mount_rcu() returns false; what follows is
-                if (unlazy_child(nd, dentry, seq))
-                        return -ECHILD;
-seq here is equal to *seqp here, dentry - the value of path->dentry at the
-time of __follow_mount_rcu() call.
-                if (unlikely(status == -ECHILD))
-			....
-not taken - we know that status must have been positive
-        if (unlikely(status <= 0)) {
-		...
-	}
-ditto
-        path->mnt = mnt;
-        path->dentry = dentry;
-        return follow_managed(path, nd, inode, seqp);
-we return *path to original and call follow_managed().  IOW, we could bloody
-well do all of that in the __follow_mount_rcu() itself, having it return 1
-when the original would've returned true and doing that "revert *path,
-call unlazy_child() and fall back to follow_mount_rcu() in case of success"
-in cases when the original would've returned false.  The caller turns into
-                        /*
-                         * Note: do negative dentry check after revalidation in
-                         * case that drops it.
-                         */
-                        if (unlikely(negative))
-                                return -ENOENT;
-                        path->mnt = mnt;
-                        path->dentry = dentry;
-                        return __follow_mount_rcu(nd, path, inode, seqp);
+But only do it for the actual O_PATH fd case, not the cwd/root/non-O_PATH case.
 
-4) fold __follow_mount_rcu() into follow_managed(), using the latter both in
-RCU and non-RCU cases.
+That way we maintain original behavior: if somebody overmounts your
+cwd, you still see the pre-mount directory on lookups, because your
+cwd is "under" the mount.
 
-5) take the calls of follow_managed() out of lookup_fast() into its callers.
-That would be
-        err = lookup_fast(nd, &path, &inode, &seq);
-        if (unlikely(err <= 0)) {
-                if (err < 0)
-                        return err;
-                path.dentry = lookup_slow(&nd->last, nd->path.dentry,
-                                          nd->flags);
-                if (IS_ERR(path.dentry))
-                        return PTR_ERR(path.dentry);
+But if you open a file with O_PATH, and somebody does a mount
+_afterwards_, the openat() will see that later mount and/or do the
+automount.
 
-                path.mnt = nd->path.mnt;
-                err = follow_managed(&path, nd, &inode, &seq);
-                if (unlikely(err < 0))
-                        return err;
-        }
-turning into
-        err = lookup_fast(nd, &path, &inode, &seq);
-        if (unlikely(err <= 0)) {
-                if (err < 0)
-                        return err;
-                path.dentry = lookup_slow(&nd->last, nd->path.dentry,
-                                          nd->flags);
-                if (IS_ERR(path.dentry))
-                        return PTR_ERR(path.dentry);
+Don't you think that would be the more sane/obvious semantics of how
+O_PATH should work?
 
-                path.mnt = nd->path.mnt;
-	}
-	err = follow_managed(&path, nd, &inode, &seq);
-        if (unlikely(err < 0))
-		return err;
-in walk_component() and
-                error = lookup_fast(nd, &path, &inode, &seq);
-                if (likely(error > 0))
-                        goto finish_lookup;
-...
-        error = follow_managed(&path, nd, &inode, &seq);
-        if (unlikely(error < 0))
-                return error;
-finish_lookup:  
-turning into
-                error = lookup_fast(nd, &path, &inode, &seq);
-                if (likely(error > 0))
-                        goto finish_lookup;
-...
-finish_lookup:
-        error = follow_managed(&path, nd, &inode, &seq);
-        if (unlikely(error < 0))
-                return error;
-in do_last().
+> I think the easiest way to handle that is to have O_PATH
+> turn LOOKUP_AUTOMOUNT, same as the normal open() does.  That's
+> trivial to do, but that changes user-visible behaviour.  OTOH,
+> with the current behaviour nobody can rely upon automount not
+> getting triggered by somebody else just as they are entering
+> their open(dir, O_PATH), so I think that's not a problem.
+>
+> Linus, do you have any objections to such O_PATH semantics
+> change?
 
-6) after that we have 3 callers of step_into(); the ones in
-walk_component() and in do_last() would be immediately preceded
-by the calls of follow_managed().  The last one is in
-mountpoint_last().  That's
-        if (d_flags_negative(smp_load_acquire(&path.dentry->d_flags))) {
-                dput(path.dentry);
-                return -ENOENT;
-        }
-        path.mnt = nd->path.mnt;
-        return step_into(nd, &path, 0, d_backing_inode(path.dentry), 0);
-And that's where we are missing the mountpoint traversal in symlink case -
-sure, the caller does follow_mount(), but it doesn't catch the case when
-we have a symlink overmounted - we run into step_into() before that.
-Note that smp_load_acquire + d_flags_negative is what we would've done
-in follow_managed(), as well as getting d_backing_inode().  So here
-we also have an open-coded bastardized variant of follow_managed().
-The difference is, we don't want to trigger ->d_automount() and ->d_manage()
-in that one.
+See above: I think I'd prefer the O_PATH behavior the other way
+around. That seems to be more of a consistent behavior of what
+"O_PATH" means - it means "don't really open, we'll do it only when
+you use it as a directory".
 
-And at that point the only call of follow_managed() *NOT* followed by
-step_into() is in handle_lookup_down().  What it is followed by is
-        path_to_nameidata(&path, nd);
-        nd->inode = inode;
-        nd->seq = seq;
-And that's a piece of step_into():
-        if (likely(!d_is_symlink(path->dentry)) ||
-           !(flags & WALK_FOLLOW || nd->flags & LOOKUP_FOLLOW)) {
-                /* not a symlink or should not follow */
-                path_to_nameidata(path, nd);
-                nd->inode = inode;
-                nd->seq = seq;
-                return 0;
-        }
-is the normal path through that sucker.  What's more, we are guaranteed
-that this will _not_ be a symlink (it's the starting point of pathwalk,
-and path_init() would've told us to sod off were it not a directory).
+But I don't have any _strong_ opinions. If you have a good reason to
+tell me that I'm being stupid, go ahead and do so and override my
+stupidity.
 
-So if we manage to convert the damn thing in mountpoint_last() into
-follow_managed(), we could fold follow_managed() into step_into().
-Which suggests the way to do that - not that step_into() takes an
-argument containing ORed WALK_... constants.  So we can simply add
-WALK_NOAUTOMOUNT and put a check for it into
-                if (flags & DCACHE_MANAGE_TRANSIT) {
-and
-                if (flags & DCACHE_NEED_AUTOMOUNT) {
-bodies, so that they would be ignored if that's passed to
-follow_mount()/step_into() hybrid.
-
-At that point we have one primitive for moving into child, handling
-both the mountpoint traversals and keeping track of symlinks.  Moreover,
-there's a fairly strong argument for using it in case of .. as well.
-As it is, if the parent is overmounted, we cross into whatever is
-mounted on top of it.  And we ignore ->d_manage/->d_automount on
-the damn thing.  Which is not an issue for anything other than
-autofs (nobody else has ->d_manage() and nfs/afs/cifs automount
-points don't have children) and for autofs we *want* those called;
-that's not something likely to be encountered, but it's an impossible
-setup (autofs direct mount set on an ancestor of somebody's current
-directory) and autofs does count upon not walking into something
-being set up by the daemon.
-
-I'll put together such series and see how well does it work; it would
-fix the idiocies in user_path_mountpoint_at() and make the pathwalk
-machinery easier to follow - the boilerplate around mountpoint
-crossing and symlink handling is demonstrably easy to get wrong.
-If that works and doesn't cause observable slowdown, I'll put it
-into -next, either stepping around the changes done by openat2()
-series, or rebasing it on top of that.
-
-Another interesting question is whether we want O_PATH open
-to trigger automounts.  The thing is, we do *NOT* trigger them
-(or traverse mountpoints) at the starting point of lookups.
-I believe it's a mistake (and mine, at that), but I doubt that
-there's anything that can be done about it at that point.
-It's a user-visible behaviour and I can easily imagine
-a custom /init that ends up relying upon it ;-/  mkdir /root,
-mount the final root there, chdir /root, mount --move . /,
-remove everything on initramfs using absolute pathnames
-and chroot to "." to finish...  Traversing mounts at the
-beginning of pathwalk would break the hell out of that,
-potentially with root filesystem contents wiped out... ;-/
-
-I wish we could change that, but I'm afraid that's cast
-in stone by now (and had been for 20 years or so).  As it is,
-we have an unpleasant side effect - O_PATH open does *NOT*
-trigger automounts.  So if you do that to e.g. referral point
-and try to do ...at() syscalls with that as the origin, you'll
-get an unpleasant surprise - automount won't trigger at all.
-
-I think the easiest way to handle that is to have O_PATH
-turn LOOKUP_AUTOMOUNT, same as the normal open() does.  That's
-trivial to do, but that changes user-visible behaviour.  OTOH,
-with the current behaviour nobody can rely upon automount not
-getting triggered by somebody else just as they are entering
-their open(dir, O_PATH), so I think that's not a problem.
-
-Linus, do you have any objections to such O_PATH semantics
-change?
-
-PS: I think I see how to untangle the control flow horrors
-in do_last() with this massage done, but I'm not going there
-until this is sorted out - by previous experience touching
-the damn thing can easily turn into several weeks of digging
-through the nfs/gfs2/etc. guts trying to verify something,
-with a couple of detours into fixing something in there
-found in process... ;-/
+             Linus
