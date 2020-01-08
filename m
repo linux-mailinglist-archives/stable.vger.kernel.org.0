@@ -2,155 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9A571337B7
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 00:51:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DF1F133858
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 02:17:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726537AbgAGXvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 18:51:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34010 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726470AbgAGXvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jan 2020 18:51:01 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725601AbgAHBRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 20:17:13 -0500
+Received: from avon.wwwdotorg.org ([104.237.132.123]:36496 "EHLO
+        avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726142AbgAHBRN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 20:17:13 -0500
+X-Greylist: delayed 463 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 Jan 2020 20:17:12 EST
+Received: from [10.20.204.51] (unknown [216.228.112.24])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A1A8206DB;
-        Tue,  7 Jan 2020 23:50:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578441059;
-        bh=leKpYfQ6lbU6z0tvbRVsMzEMM7yESWQjMIaFK3kDOOw=;
-        h=Date:From:To:Subject:From;
-        b=PX7kTzQoxquEHykRs4bEng5F7A/zY4+XotaSD6BmEHRYElU0Gdisc1rDcFmuHf14t
-         TqKvMClobugrTOVNzx7w/3IeMgGNPho/elcOQ2skkH8jz21lKKkJl5khUKTGZXlBZU
-         eMbsq5PiumWbBM0iAGtWfEu5IyWHWnz9xoEW3t94=
-Date:   Tue, 07 Jan 2020 15:50:58 -0800
-From:   akpm@linux-foundation.org
-To:     ahuang12@lenovo.com, cl@linux.com, hannes@cmpxchg.org,
-        iamjoonsoo.kim@lge.com, jroedel@suse.de, lixc17@lenovo.com,
-        mhocko@kernel.org, mm-commits@vger.kernel.org, penberg@kernel.org,
-        rientjes@google.com, shakeelb@google.com, stable@vger.kernel.org
-Subject:  +
- =?US-ASCII?Q?mm-memcg-slab-call-flush=5Fmemcg=5Fworkqueue-only-if-memcg-?=
- =?US-ASCII?Q?workqueue-is-valid.patch?= added to -mm tree
-Message-ID: <20200107235058.RBBuz3DYy%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by avon.wwwdotorg.org (Postfix) with ESMTPSA id 1AF191C0917;
+        Tue,  7 Jan 2020 18:09:29 -0700 (MST)
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.101.4 at avon.wwwdotorg.org
+To:     James Morse <james.morse@arm.com>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        ARM kernel mailing list 
+        <linux-arm-kernel@lists.infradead.org>,
+        stable <stable@vger.kernel.org>
+From:   Stephen Warren <swarren@wwwdotorg.org>
+Subject: "arm64: alternatives: use tpidr_el2 on VHE hosts" v4.9 backport
+ missing edits to proc.S
+Message-ID: <a1cb6ca5-4806-0813-3aad-1246e65162a6@wwwdotorg.org>
+Date:   Tue, 7 Jan 2020 18:09:27 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+James,
 
-The patch titled
-     Subject: mm: memcg/slab: call flush_memcg_workqueue() only if memcg workqueue is valid
-has been added to the -mm tree.  Its filename is
-     mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid.patch
+I'm looking at commit 6d99b68933fbcf51f84fcbba49246ce1209ec193 ("arm64: 
+alternatives: use tpidr_el2 on VHE hosts"). When it was back-ported to 
+v4.9.x as eea59020a7f2993018ccde317387031c04c62036, the changes to 
+arch/arm64/mm/proc.S weren't included. I assume this was just an 
+accident, or was there some specific reason for this? Either way, I do 
+find that I need those changes for system suspend/resume to work in my 
+downstream vendor fork of v4.9 if I enable KVM support in .config. I'm 
+happy to send a patch for v4.9.x to add those changes back if that's the 
+way to go. v4.14.x and later don't have this issue.
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Adrian Huang <ahuang12@lenovo.com>
-Subject: mm: memcg/slab: call flush_memcg_workqueue() only if memcg workqueue is valid
-
-When booting with amd_iommu=off, the following WARNING message
-appears:
-  AMD-Vi: AMD IOMMU disabled on kernel command-line
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 0 at kernel/workqueue.c:2772 flush_workqueue+0x42e/0x450
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.5.0-rc3-amd-iommu #6
-  Hardware name: Lenovo ThinkSystem SR655-2S/7D2WRCZ000, BIOS D8E101L-1.00 12/05/2019
-  RIP: 0010:flush_workqueue+0x42e/0x450
-  Code: ff 0f 0b e9 7a fd ff ff 4d 89 ef e9 33 fe ff ff 0f 0b e9 7f fd ff ff 0f 0b e9 bc fd ff ff 0f 0b e9 a8 fd ff ff e8 52 2c fe ff <0f> 0b 31 d2 48 c7 c6 e0 88 c5 95 48 c7 c7 d8 ad f0 95 e8 19 f5 04
-  RSP: 0000:ffffffff96203d80 EFLAGS: 00010246
-  RAX: ffffffff96203dc8 RBX: 0000000000000000 RCX: 0000000000000000
-  RDX: ffffffff96a63120 RSI: ffffffff95efcba2 RDI: ffffffff96203dc0
-  RBP: ffffffff96203e08 R08: 0000000000000000 R09: ffffffff962a1828
-  R10: 00000000f0000080 R11: dead000000000100 R12: ffff8d8a87c0a770
-  R13: dead000000000100 R14: 0000000000000456 R15: ffffffff96203da0
-  FS:  0000000000000000(0000) GS:ffff8d8dbd000000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffff8d91cfbff000 CR3: 000000078920a000 CR4: 00000000000406b0
-  Call Trace:
-   ? wait_for_completion+0x51/0x180
-   kmem_cache_destroy+0x69/0x260
-   iommu_go_to_state+0x40c/0x5ab
-   amd_iommu_prepare+0x16/0x2a
-   irq_remapping_prepare+0x36/0x5f
-   enable_IR_x2apic+0x21/0x172
-   default_setup_apic_routing+0x12/0x6f
-   apic_intr_mode_init+0x1a1/0x1f1
-   x86_late_time_init+0x17/0x1c
-   start_kernel+0x480/0x53f
-   secondary_startup_64+0xb6/0xc0
-  ---[ end trace 30894107c3749449 ]---
-  x2apic: IRQ remapping doesn't support X2APIC mode
-  x2apic disabled
-
-The warning is caused by the calling of 'kmem_cache_destroy()'
-in free_iommu_resources(). Here is the call path:
-  free_iommu_resources
-    kmem_cache_destroy
-      flush_memcg_workqueue
-        flush_workqueue
-
-The root cause is that the IOMMU subsystem runs before the workqueue
-subsystem, which the variable 'wq_online' is still 'false'.  This leads to
-the statement 'if (WARN_ON(!wq_online))' in flush_workqueue() is 'true'.
-
-Since the variable 'memcg_kmem_cache_wq' is not allocated during the time,
-it is unnecessary to call flush_memcg_workqueue().  This prevents the
-WARNING message triggered by flush_workqueue().
-
-Link: http://lkml.kernel.org/r/20200103085503.1665-1-ahuang12@lenovo.com
-Fixes: 92ee383f6daab ("mm: fix race between kmem_cache destroy, create and deactivate")
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
-Reported-by: Xiaochun Lee <lixc17@lenovo.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/slab_common.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- a/mm/slab_common.c~mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid
-+++ a/mm/slab_common.c
-@@ -903,7 +903,8 @@ static void flush_memcg_workqueue(struct
- 	 * deactivates the memcg kmem_caches through workqueue. Make sure all
- 	 * previous workitems on workqueue are processed.
- 	 */
--	flush_workqueue(memcg_kmem_cache_wq);
-+	if (likely(memcg_kmem_cache_wq))
-+		flush_workqueue(memcg_kmem_cache_wq);
- 
- 	/*
- 	 * If we're racing with children kmem_cache deactivation, it might
-_
-
-Patches currently in -mm which might be from ahuang12@lenovo.com are
-
-mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid.patch
-
+Thanks.
