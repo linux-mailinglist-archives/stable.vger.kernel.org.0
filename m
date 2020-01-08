@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41A05134BF8
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:49:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71B41134BB4
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:48:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728625AbgAHTsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 14:48:38 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43646 "EHLO
+        id S1730460AbgAHTqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 14:46:03 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43558 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730446AbgAHTqE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 14:46:04 -0500
+        by vger.kernel.org with ESMTP id S1730430AbgAHTqD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 14:46:03 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHD-0006oa-00; Wed, 08 Jan 2020 19:45:59 +0000
+        id 1ipHHD-0006oc-1l; Wed, 08 Jan 2020 19:45:59 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHC-007dmX-07; Wed, 08 Jan 2020 19:45:58 +0000
+        id 1ipHHC-007dmc-1Z; Wed, 08 Jan 2020 19:45:58 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Arnd Bergmann" <arnd@arndb.de>,
-        "Russell King" <rmk+kernel@arm.linux.org.uk>,
-        "Nicolas Pitre" <nico@linaro.org>
-Date:   Wed, 08 Jan 2020 19:43:24 +0000
-Message-ID: <lsq.1578512578.238449191@decadent.org.uk>
+        "David S. Miller" <davem@davemloft.net>,
+        "Lorenzo Colitti" <lorenzo@google.com>,
+        "Eric Dumazet" <edumazet@google.com>,
+        "Arnd Bergmann" <arnd@arndb.de>
+Date:   Wed, 08 Jan 2020 19:43:25 +0000
+Message-ID: <lsq.1578512578.936131181@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 26/63] ARM: 8458/1: bL_switcher: add GIC dependency
+Subject: [PATCH 3.16 27/63] net: diag: support v4mapped sockets in
+ inet_diag_find_one_icsk()
 In-Reply-To: <lsq.1578512578.117275639@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,46 +49,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 6c044fecdf78be3fda159a5036bb33700cdd5e59 upstream.
+commit 7c1306723ee916ea9f1fa7d9e4c7a6d029ca7aaf upstream.
 
-It is not possible to build the bL_switcher code if the GIC
-driver is disabled, because it relies on calling into some
-gic specific interfaces, and that would result in this build
-error:
+Lorenzo reported that we could not properly find v4mapped sockets
+in inet_diag_find_one_icsk(). This patch fixes the issue.
 
-arch/arm/common/built-in.o: In function `bL_switch_to':
-:(.text+0x1230): undefined reference to `gic_get_sgir_physaddr'
-:(.text+0x1244): undefined reference to `gic_send_sgi'
-:(.text+0x1268): undefined reference to `gic_migrate_target'
-arch/arm/common/built-in.o: In function `bL_switcher_enable.part.4':
-:(.text.unlikely+0x2f8): undefined reference to `gic_get_cpu_id'
-
-This adds a Kconfig dependency to ensure we only build the big-little
-switcher if the GIC driver is present as well.
-
-Almost all ARMv7 platforms come with a GIC anyway, but it is possible
-to build a kernel that disables all platforms.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Reported-by: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Cc: Arnd Bergmann <arnd@arndb.de>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/arm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1485,7 +1485,7 @@ config BIG_LITTLE
- 
- config BL_SWITCHER
- 	bool "big.LITTLE switcher support"
--	depends on BIG_LITTLE && MCPM && HOTPLUG_CPU
-+	depends on BIG_LITTLE && MCPM && HOTPLUG_CPU && ARM_GIC
- 	select ARM_CPU_SUSPEND
- 	select CPU_PM
- 	help
+--- a/net/ipv4/inet_diag.c
++++ b/net/ipv4/inet_diag.c
+@@ -318,12 +318,18 @@ int inet_diag_dump_one_icsk(struct inet_
+ 	}
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	else if (req->sdiag_family == AF_INET6) {
+-		sk = inet6_lookup(net, hashinfo,
+-				  (struct in6_addr *)req->id.idiag_dst,
+-				  req->id.idiag_dport,
+-				  (struct in6_addr *)req->id.idiag_src,
+-				  req->id.idiag_sport,
+-				  req->id.idiag_if);
++		if (ipv6_addr_v4mapped((struct in6_addr *)req->id.idiag_dst) &&
++		    ipv6_addr_v4mapped((struct in6_addr *)req->id.idiag_src))
++			sk = inet_lookup(net, hashinfo, req->id.idiag_dst[3],
++					 req->id.idiag_dport, req->id.idiag_src[3],
++					 req->id.idiag_sport, req->id.idiag_if);
++		else
++			sk = inet6_lookup(net, hashinfo,
++					  (struct in6_addr *)req->id.idiag_dst,
++					  req->id.idiag_dport,
++					  (struct in6_addr *)req->id.idiag_src,
++					  req->id.idiag_sport,
++					  req->id.idiag_if);
+ 	}
+ #endif
+ 	else {
 
