@@ -2,1163 +2,388 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86AFE133943
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 03:49:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D71133976
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 04:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726210AbgAHCtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jan 2020 21:49:00 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:51369 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725812AbgAHCtA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 21:49:00 -0500
-Received: by mail-wm1-f66.google.com with SMTP id d73so910950wmd.1
-        for <stable@vger.kernel.org>; Tue, 07 Jan 2020 18:48:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=2JpFXN9MueDL/4UNIMDc15PbUjgrttpCdt02d6VLXho=;
-        b=kSFz4hGC8Z1W8BZ1w46apnbKp9yi3LUUfAgz01ya/Whmio6JdhfjdTITh/QAdykQEv
-         LrPhKF/K8xMho8UsaDVMSrTB4BSC14gud/qCJwcYRa3tF8Xqnx5E8PGV39u5uDc5EUvD
-         Ls485qhHUTOUsNoHnaRwrN0O3BcCfBzFWbYMQ7eHl638Zq1s+MpzCwAmjsVGa/A5+RG3
-         3gGgyFGbG84SuQvE+/Hee3csYyVyaZgzz/k9bHwQu2JOstmqJj57iS9UCDSj/0SC3GXM
-         J6CuLsX4LuRwP7JVkjUe2IMHvS8qkvkAgmtz1Dpn0OCPD0ezCYPjqLzEW0XDJRqa2kR/
-         jZiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=2JpFXN9MueDL/4UNIMDc15PbUjgrttpCdt02d6VLXho=;
-        b=QFZ5mW4NTgH8+RTEMcjYZ2CRGm2zc2NzlWWpSwaRMpslPJfWuPTlK0IdsZTsmcwYw3
-         djRVUm0YtruCS0VCwVOXZBW3py7XT1CA3YPPByrT+H68M+BAaLFgKwQuklE7VBlA6abA
-         QE4Fz3BqJ6a3CbnyF52CNNtm3qgWVcffjEVytcbEw4GhxLaaNVtxtYpeJRNKNFtb5jsH
-         HsCPiGdH/LCa+1wpCirga3l/PUtUwh6WuBMHH28GaNqOCwvG5Zq8/rSt2Oz4alU3VbGP
-         ZL8Efp7eoG4Hb9r6XBjbqmPW4D3emYa9yWRslBw38Sy/3EB668C9L1iALFAcDsQNGEhr
-         3WRA==
-X-Gm-Message-State: APjAAAUebggTqy9jgapwm0L2Vp30NWnFxNBMZGodGpN70GJ9ZaDhD1M8
-        HAqVNRUsDvbVJTsBmJbI78kMlaPxuDRrpg==
-X-Google-Smtp-Source: APXvYqxtAbBXqvrkOWKeuX/fpx5SGoM68iTyb6YgM4NVBSULujz4km4hLY5rB8hyjlw9zXIWWF7vwQ==
-X-Received: by 2002:a7b:c450:: with SMTP id l16mr1109319wmi.166.1578451735016;
-        Tue, 07 Jan 2020 18:48:55 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id h8sm2391922wrx.63.2020.01.07.18.48.54
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jan 2020 18:48:54 -0800 (PST)
-Message-ID: <5e154316.1c69fb81.c2713.b5f2@mx.google.com>
-Date:   Tue, 07 Jan 2020 18:48:54 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726149AbgAHDNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jan 2020 22:13:35 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:45740 "EHLO
+        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725908AbgAHDNe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jan 2020 22:13:34 -0500
+Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1ip1mU-003zkK-H9; Wed, 08 Jan 2020 03:13:14 +0000
+Date:   Wed, 8 Jan 2020 03:13:14 +0000
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Aleksa Sarai <cyphar@cyphar.com>
+Cc:     David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
+        containers@lists.linux-foundation.org, linux-api@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+Message-ID: <20200108031314.GE8904@ZenIV.linux.org.uk>
+References: <20191230054413.GX4203@ZenIV.linux.org.uk>
+ <20191230054913.c5avdjqbygtur2l7@yavin.dot.cyphar.com>
+ <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com>
+ <20200101004324.GA11269@ZenIV.linux.org.uk>
+ <20200101005446.GH4203@ZenIV.linux.org.uk>
+ <20200101030815.GA17593@ZenIV.linux.org.uk>
+ <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
+ <20200101234009.GB8904@ZenIV.linux.org.uk>
+ <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
+ <20200103014901.GC8904@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.207-172-g500b760fc4db
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y build: 190 builds: 3 failed, 187 passed,
- 6 errors, 13 warnings (v4.4.207-172-g500b760fc4db)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200103014901.GC8904@ZenIV.linux.org.uk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y build: 190 builds: 3 failed, 187 passed, 6 errors, 13=
- warnings (v4.4.207-172-g500b760fc4db)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.207-172-g500b760fc4db/
-
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.207-172-g500b760fc4db
-Git Commit: 500b760fc4db3e3b15d24918889271efbb147686
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
-
-Build Failures Detected:
-
-arm:
-    multi_v7_defconfig: (gcc-8) FAIL
-    u8500_defconfig: (gcc-8) FAIL
-
-mips:
-    sead3micro_defconfig: (gcc-8) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-    allnoconfig (gcc-8): 3 warnings
-    tinyconfig (gcc-8): 4 warnings
-
-arm64:
-
-arm:
-    clps711x_defconfig (gcc-8): 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
-    lpc32xx_defconfig (gcc-8): 1 warning
-    multi_v7_defconfig (gcc-8): 2 errors
-    mxs_defconfig (gcc-8): 1 warning
-    u8500_defconfig (gcc-8): 2 errors
-
-i386:
-
-mips:
-    ip22_defconfig (gcc-8): 1 warning
-    ip28_defconfig (gcc-8): 1 warning
-    sead3micro_defconfig (gcc-8): 2 errors
-
-x86_64:
-
-Errors summary:
-
-    2    arch/arm/mach-ux500/board-mop500-regulators.c:957:3: error: =E2=80=
-=98AB8505_LDO_USB=E2=80=99 undeclared here (not in a function); did you mea=
-n =E2=80=98AB9540_LDO_USB=E2=80=99?
-    2    arch/arm/mach-ux500/board-mop500-regulators.c:957:3: error: array =
-index in initializer not of integer type
-    1    arch/mips/kernel/genex.S:271: Error: branch to a symbol in another=
- ISA mode
-    1    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another=
- ISA mode
-
-Warnings summary:
-
-    7    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct d=
-ependencies (FUTEX)
-    2    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argum=
-ent 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer withou=
-t a cast [-Wint-conversion]
-    1    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98c=
-onst=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=
-=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=
-=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
- =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
-smatches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate =E2=
-=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=98con=
-st=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argument 5=
- of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer without a c=
-ast [-Wint-conversion]
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argument 5=
- of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer without a c=
-ast [-Wint-conversion]
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=98con=
-st=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ls1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    arch/arm/mach-ux500/board-mop500-regulators.c:957:3: error: =E2=80=98AB=
-8505_LDO_USB=E2=80=99 undeclared here (not in a function); did you mean =E2=
-=80=98AB9540_LDO_USB=E2=80=99?
-    arch/arm/mach-ux500/board-mop500-regulators.c:957:3: error: array index=
- in initializer not of integer type
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98const=
-=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-realview-smp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-sead3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sead3micro_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 =
-section mismatches
-
-Errors:
-    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another ISA =
-mode
-    arch/mips/kernel/genex.S:271: Error: branch to a symbol in another ISA =
-mode
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mis=
-matches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Errors:
-    arch/arm/mach-ux500/board-mop500-regulators.c:957:3: error: =E2=80=98AB=
-8505_LDO_USB=E2=80=99 undeclared here (not in a function); did you mean =E2=
-=80=98AB9540_LDO_USB=E2=80=99?
-    arch/arm/mach-ux500/board-mop500-regulators.c:957:3: error: array index=
- in initializer not of integer type
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----
-For more info write to <info@kernelci.org>
+On Fri, Jan 03, 2020 at 01:49:01AM +0000, Al Viro wrote:
+
+> It's a mess, again in mountpoint_last().  FWIW, at some point I proposed
+> to have nd_jump_link() to fail with -ELOOP if the target was a symlink;
+> Linus asked for reasons deeper than my dislike of the semantics, I looked
+> around and hadn't spotted anything.  And there hadn't been at the time,
+> but when four months later umount_lookup_last() went in I failed to look
+> for that source of potential problems in it ;-/
+> 
+> I've looked at that area again now.  Aside of usual cursing at do_last()
+> horrors (yes, its control flow is a horror; yes, it needs serious massage;
+> no, it's not a good idea to get sidetracked into that right now), there
+> are several fun questions:
+> 	* d_manage() and d_automount().  We almost certainly don't
+> want those for autofs on the final component of pathname in umount,
+> including the trailing symlinks.  But do we want those on usual access
+> via /proc/*/fd/*?  I.e. suppose somebody does open() (O_PATH or not)
+> in autofs; do we want ->d_manage()/->d_automount() called when
+> resolving /proc/self/fd/<whatever>/foo/bar?  We do not; is that
+> correct from autofs point of view?  I suspect that refusing to
+> do ->d_automount() is correct, but I don't understand ->d_manage()
+> purpose well enough to tell.
+> 	* I really hope that the weird "trailing / forces automount
+> even in cases when we normally wouldn't trigger it" (stat /mnt/foo
+> vs. stat /mnt/foo/) is not meant to extend to umount.  I'd like
+> Ian's confirmation, though.
+> 	* do we want ->d_manage() on following .. into overmounted
+> directory?  Again, autofs question...
+
+FWIW, I suspect that we want to do something along the following lines:
+
+1) make build_open_flags() treat O_CREAT | O_EXCL as if there had been
+O_NOFOLLOW in the mix.  Reason: if there is a trailing symlink, we want
+to fail with EEXIST anyway.  Benefit: this fragment in do_last()
+        error = follow_managed(&path, nd);
+        if (unlikely(error < 0))
+                return error;
+
+        /*
+         * create/update audit record if it already exists.
+         */
+        audit_inode(nd->name, path.dentry, 0);
+
+        if (unlikely((open_flag & (O_EXCL | O_CREAT)) == (O_EXCL | O_CREAT))) {
+                path_to_nameidata(&path, nd);
+                return -EEXIST;
+        }
+
+        seq = 0;        /* out of RCU mode, so the value doesn't matter */
+        inode = d_backing_inode(path.dentry);
+finish_lookup:  
+        error = step_into(nd, &path, 0, inode, seq);
+        if (unlikely(error))
+                return error;
+can become
+        error = follow_managed(&path, nd);
+        if (unlikely(error < 0))
+                return error;
+
+        seq = 0;        /* out of RCU mode, so the value doesn't matter */
+        inode = d_backing_inode(path.dentry);
+finish_lookup:  
+        error = step_into(nd, &path, 0, inode, seq);
+        if (unlikely(error))
+                return error;
+
+        if (unlikely((open_flag & (O_EXCL | O_CREAT)) == (O_EXCL | O_CREAT))) {
+		audit_inode(nd->name, nd->path.dentry, 0);
+                return -EEXIST;
+        }
+Equivalent transformation, since the the only goto finish_lookup; is under
+if (!(open_flag & O_CREAT)).  What it buys us is more regular structure
+of follow_managed() callers.
+
+2) make follow_managed() take &inode and &seq.  Look: follow_managed() never
+returns 0 (we have
+        if (ret == -EISDIR || !ret)
+                ret = 1;
+on the way to the only return in it) and the callers are
+        err = follow_managed(path, nd);
+        if (likely(err > 0))
+                *inode = d_backing_inode(path->dentry);
+        return err;
+in lookup_fast(),
+                err = follow_managed(&path, nd);
+                if (unlikely(err < 0))
+                        return err;
+
+                seq = 0;        /* we are already out of RCU mode */
+                inode = d_backing_inode(path.dentry);
+in walk_component(),
+                err = follow_managed(&path, nd);
+                if (unlikely(err < 0))
+                        return err;
+                inode = d_backing_inode(path.dentry);
+                seq = 0;
+in handle_lookup_down() and (after the previous change)
+        error = follow_managed(&path, nd);
+        if (unlikely(error < 0))
+                return error;
+
+        seq = 0;        /* out of RCU mode, so the value doesn't matter */
+        inode = d_backing_inode(path.dentry);
+in do_last().  That's begging to fold those followups into follow_managed()
+itself, doesn't it?  And having *seqp = 0; equivalent added in lookup_fast()
+is not going to hurt the performance - in all callers it's an address of
+local variable, right next to the one whose address is passed as inodep.
+Which we'd just dirtied, and the cacheline is not going to have been shared
+anyway.
+
+Note that after that the arguments for follow_managed() become identical
+to those for __follow_mount_rcu().  Which makes a lot of sense, since
+the latter is RCU-mode counterpart of the former.
+
+3) have the followup to failing __follow_mount_rcu() taken into it.
+After (2) we have this in lookup_fast():
+
+                *seqp = seq;
+                status = d_revalidate(dentry, nd->flags);
+                if (likely(status > 0)) {
+                        /*
+                         * Note: do negative dentry check after revalidation in
+                         * case that drops it.
+                         */
+                        if (unlikely(negative))
+                                return -ENOENT;
+                        path->mnt = mnt;
+                        path->dentry = dentry;
+                        if (likely(__follow_mount_rcu(nd, path, inode, seqp)))
+                                return 1;
+                }
+                if (unlazy_child(nd, dentry, seq))
+                        return -ECHILD;
+                if (unlikely(status == -ECHILD))
+                        /* we'd been told to redo it in non-rcu mode */
+                        status = d_revalidate(dentry, nd->flags);
+        } else {   
+		...
+	}
+        if (unlikely(status <= 0)) {
+                if (!status)
+                        d_invalidate(dentry);
+                dput(dentry);
+                return status;
+        }
+
+        path->mnt = mnt;
+        path->dentry = dentry;
+        return follow_managed(path, nd, inode, seqp);
+
+Suppose __follow_mount_rcu() returns false; what follows is
+                if (unlazy_child(nd, dentry, seq))
+                        return -ECHILD;
+seq here is equal to *seqp here, dentry - the value of path->dentry at the
+time of __follow_mount_rcu() call.
+                if (unlikely(status == -ECHILD))
+			....
+not taken - we know that status must have been positive
+        if (unlikely(status <= 0)) {
+		...
+	}
+ditto
+        path->mnt = mnt;
+        path->dentry = dentry;
+        return follow_managed(path, nd, inode, seqp);
+we return *path to original and call follow_managed().  IOW, we could bloody
+well do all of that in the __follow_mount_rcu() itself, having it return 1
+when the original would've returned true and doing that "revert *path,
+call unlazy_child() and fall back to follow_mount_rcu() in case of success"
+in cases when the original would've returned false.  The caller turns into
+                        /*
+                         * Note: do negative dentry check after revalidation in
+                         * case that drops it.
+                         */
+                        if (unlikely(negative))
+                                return -ENOENT;
+                        path->mnt = mnt;
+                        path->dentry = dentry;
+                        return __follow_mount_rcu(nd, path, inode, seqp);
+
+4) fold __follow_mount_rcu() into follow_managed(), using the latter both in
+RCU and non-RCU cases.
+
+5) take the calls of follow_managed() out of lookup_fast() into its callers.
+That would be
+        err = lookup_fast(nd, &path, &inode, &seq);
+        if (unlikely(err <= 0)) {
+                if (err < 0)
+                        return err;
+                path.dentry = lookup_slow(&nd->last, nd->path.dentry,
+                                          nd->flags);
+                if (IS_ERR(path.dentry))
+                        return PTR_ERR(path.dentry);
+
+                path.mnt = nd->path.mnt;
+                err = follow_managed(&path, nd, &inode, &seq);
+                if (unlikely(err < 0))
+                        return err;
+        }
+turning into
+        err = lookup_fast(nd, &path, &inode, &seq);
+        if (unlikely(err <= 0)) {
+                if (err < 0)
+                        return err;
+                path.dentry = lookup_slow(&nd->last, nd->path.dentry,
+                                          nd->flags);
+                if (IS_ERR(path.dentry))
+                        return PTR_ERR(path.dentry);
+
+                path.mnt = nd->path.mnt;
+	}
+	err = follow_managed(&path, nd, &inode, &seq);
+        if (unlikely(err < 0))
+		return err;
+in walk_component() and
+                error = lookup_fast(nd, &path, &inode, &seq);
+                if (likely(error > 0))
+                        goto finish_lookup;
+...
+        error = follow_managed(&path, nd, &inode, &seq);
+        if (unlikely(error < 0))
+                return error;
+finish_lookup:  
+turning into
+                error = lookup_fast(nd, &path, &inode, &seq);
+                if (likely(error > 0))
+                        goto finish_lookup;
+...
+finish_lookup:
+        error = follow_managed(&path, nd, &inode, &seq);
+        if (unlikely(error < 0))
+                return error;
+in do_last().
+
+6) after that we have 3 callers of step_into(); the ones in
+walk_component() and in do_last() would be immediately preceded
+by the calls of follow_managed().  The last one is in
+mountpoint_last().  That's
+        if (d_flags_negative(smp_load_acquire(&path.dentry->d_flags))) {
+                dput(path.dentry);
+                return -ENOENT;
+        }
+        path.mnt = nd->path.mnt;
+        return step_into(nd, &path, 0, d_backing_inode(path.dentry), 0);
+And that's where we are missing the mountpoint traversal in symlink case -
+sure, the caller does follow_mount(), but it doesn't catch the case when
+we have a symlink overmounted - we run into step_into() before that.
+Note that smp_load_acquire + d_flags_negative is what we would've done
+in follow_managed(), as well as getting d_backing_inode().  So here
+we also have an open-coded bastardized variant of follow_managed().
+The difference is, we don't want to trigger ->d_automount() and ->d_manage()
+in that one.
+
+And at that point the only call of follow_managed() *NOT* followed by
+step_into() is in handle_lookup_down().  What it is followed by is
+        path_to_nameidata(&path, nd);
+        nd->inode = inode;
+        nd->seq = seq;
+And that's a piece of step_into():
+        if (likely(!d_is_symlink(path->dentry)) ||
+           !(flags & WALK_FOLLOW || nd->flags & LOOKUP_FOLLOW)) {
+                /* not a symlink or should not follow */
+                path_to_nameidata(path, nd);
+                nd->inode = inode;
+                nd->seq = seq;
+                return 0;
+        }
+is the normal path through that sucker.  What's more, we are guaranteed
+that this will _not_ be a symlink (it's the starting point of pathwalk,
+and path_init() would've told us to sod off were it not a directory).
+
+So if we manage to convert the damn thing in mountpoint_last() into
+follow_managed(), we could fold follow_managed() into step_into().
+Which suggests the way to do that - not that step_into() takes an
+argument containing ORed WALK_... constants.  So we can simply add
+WALK_NOAUTOMOUNT and put a check for it into
+                if (flags & DCACHE_MANAGE_TRANSIT) {
+and
+                if (flags & DCACHE_NEED_AUTOMOUNT) {
+bodies, so that they would be ignored if that's passed to
+follow_mount()/step_into() hybrid.
+
+At that point we have one primitive for moving into child, handling
+both the mountpoint traversals and keeping track of symlinks.  Moreover,
+there's a fairly strong argument for using it in case of .. as well.
+As it is, if the parent is overmounted, we cross into whatever is
+mounted on top of it.  And we ignore ->d_manage/->d_automount on
+the damn thing.  Which is not an issue for anything other than
+autofs (nobody else has ->d_manage() and nfs/afs/cifs automount
+points don't have children) and for autofs we *want* those called;
+that's not something likely to be encountered, but it's an impossible
+setup (autofs direct mount set on an ancestor of somebody's current
+directory) and autofs does count upon not walking into something
+being set up by the daemon.
+
+I'll put together such series and see how well does it work; it would
+fix the idiocies in user_path_mountpoint_at() and make the pathwalk
+machinery easier to follow - the boilerplate around mountpoint
+crossing and symlink handling is demonstrably easy to get wrong.
+If that works and doesn't cause observable slowdown, I'll put it
+into -next, either stepping around the changes done by openat2()
+series, or rebasing it on top of that.
+
+Another interesting question is whether we want O_PATH open
+to trigger automounts.  The thing is, we do *NOT* trigger them
+(or traverse mountpoints) at the starting point of lookups.
+I believe it's a mistake (and mine, at that), but I doubt that
+there's anything that can be done about it at that point.
+It's a user-visible behaviour and I can easily imagine
+a custom /init that ends up relying upon it ;-/  mkdir /root,
+mount the final root there, chdir /root, mount --move . /,
+remove everything on initramfs using absolute pathnames
+and chroot to "." to finish...  Traversing mounts at the
+beginning of pathwalk would break the hell out of that,
+potentially with root filesystem contents wiped out... ;-/
+
+I wish we could change that, but I'm afraid that's cast
+in stone by now (and had been for 20 years or so).  As it is,
+we have an unpleasant side effect - O_PATH open does *NOT*
+trigger automounts.  So if you do that to e.g. referral point
+and try to do ...at() syscalls with that as the origin, you'll
+get an unpleasant surprise - automount won't trigger at all.
+
+I think the easiest way to handle that is to have O_PATH
+turn LOOKUP_AUTOMOUNT, same as the normal open() does.  That's
+trivial to do, but that changes user-visible behaviour.  OTOH,
+with the current behaviour nobody can rely upon automount not
+getting triggered by somebody else just as they are entering
+their open(dir, O_PATH), so I think that's not a problem.
+
+Linus, do you have any objections to such O_PATH semantics
+change?
+
+PS: I think I see how to untangle the control flow horrors
+in do_last() with this massage done, but I'm not going there
+until this is sorted out - by previous experience touching
+the damn thing can easily turn into several weeks of digging
+through the nfs/gfs2/etc. guts trying to verify something,
+with a couple of detours into fixing something in there
+found in process... ;-/
