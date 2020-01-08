@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D26C134BF4
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:49:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C5C134BEF
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729202AbgAHTs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 14:48:28 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43696 "EHLO
+        id S1727200AbgAHTsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 14:48:19 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43726 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730457AbgAHTqE (ORCPT
+        by vger.kernel.org with ESMTP id S1730463AbgAHTqE (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 14:46:04 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHD-0006ov-Tc; Wed, 08 Jan 2020 19:45:59 +0000
+        id 1ipHHE-0006p4-76; Wed, 08 Jan 2020 19:46:00 +0000
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHD-007doY-4M; Wed, 08 Jan 2020 19:45:59 +0000
+        id 1ipHHD-007dod-6C; Wed, 08 Jan 2020 19:45:59 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Vinod Koul" <vkoul@kernel.org>,
-        "Jeffrey Hugo" <jeffrey.l.hugo@gmail.com>
-Date:   Wed, 08 Jan 2020 19:43:49 +0000
-Message-ID: <lsq.1578512578.711401705@decadent.org.uk>
+        "Kalle Valo" <kvalo@codeaurora.org>,
+        "Adrian Bunk" <bunk@kernel.org>
+Date:   Wed, 08 Jan 2020 19:43:50 +0000
+Message-ID: <lsq.1578512578.688246585@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 51/63] dmaengine: qcom: bam_dma: Fix resource leak
+Subject: [PATCH 3.16 52/63] mwifiex: Fix NL80211_TX_POWER_LIMITED
 In-Reply-To: <lsq.1578512578.117275639@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,52 +46,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+From: Adrian Bunk <bunk@kernel.org>
 
-commit 7667819385457b4aeb5fac94f67f52ab52cc10d5 upstream.
+commit 65a576e27309120e0621f54d5c81eb9128bd56be upstream.
 
-bam_dma_terminate_all() will leak resources if any of the transactions are
-committed to the hardware (present in the desc fifo), and not complete.
-Since bam_dma_terminate_all() does not cause the hardware to be updated,
-the hardware will still operate on any previously committed transactions.
-This can cause memory corruption if the memory for the transaction has been
-reassigned, and will cause a sync issue between the BAM and its client(s).
+NL80211_TX_POWER_LIMITED was treated as NL80211_TX_POWER_AUTOMATIC,
+which is the opposite of what should happen and can cause nasty
+regulatory problems.
 
-Fix this by properly updating the hardware in bam_dma_terminate_all().
+if/else converted to a switch without default to make gcc warn
+on unhandled enum values.
 
-Fixes: e7c0fe2a5c84 ("dmaengine: add Qualcomm BAM dma driver")
-Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Link: https://lore.kernel.org/r/20191017152606.34120-1-jeffrey.l.hugo@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-[Jeffrey Hugo: Backported to 4.4 which is lacking 6b4faeac05bc
- ("dmaengine: qcom-bam: Process multiple pending descriptors")]
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[bwh: Backported to 3.16: adjust filenames]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/dma/qcom_bam_dma.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/wireless/mwifiex/cfg80211.c  | 13 +++++++++++--
+ drivers/net/wireless/mwifiex/ioctl.h     |  1 +
+ drivers/net/wireless/mwifiex/sta_ioctl.c | 11 +++++++----
+ 3 files changed, 19 insertions(+), 6 deletions(-)
 
---- a/drivers/dma/qcom_bam_dma.c
-+++ b/drivers/dma/qcom_bam_dma.c
-@@ -539,7 +539,21 @@ static void bam_dma_terminate_all(struct
+--- a/drivers/net/wireless/mwifiex/cfg80211.c
++++ b/drivers/net/wireless/mwifiex/cfg80211.c
+@@ -343,11 +343,20 @@ mwifiex_cfg80211_set_tx_power(struct wip
+ 	struct mwifiex_power_cfg power_cfg;
+ 	int dbm = MBM_TO_DBM(mbm);
  
- 	/* remove all transactions, including active transaction */
- 	spin_lock_irqsave(&bchan->vc.lock, flag);
-+	/*
-+	 * If we have transactions queued, then some might be committed to the
-+	 * hardware in the desc fifo.  The only way to reset the desc fifo is
-+	 * to do a hardware reset (either by pipe or the entire block).
-+	 * bam_chan_init_hw() will trigger a pipe reset, and also reinit the
-+	 * pipe.  If the pipe is left disabled (default state after pipe reset)
-+	 * and is accessed by a connected hardware engine, a fatal error in
-+	 * the BAM will occur.  There is a small window where this could happen
-+	 * with bam_chan_init_hw(), but it is assumed that the caller has
-+	 * stopped activity on any attached hardware engine.  Make sure to do
-+	 * this first so that the BAM hardware doesn't cause memory corruption
-+	 * by accessing freed resources.
-+	 */
- 	if (bchan->curr_txd) {
-+		bam_chan_init_hw(bchan, bchan->curr_txd->dir);
- 		list_add(&bchan->curr_txd->vd.node, &bchan->vc.desc_issued);
- 		bchan->curr_txd = NULL;
+-	if (type == NL80211_TX_POWER_FIXED) {
++	switch (type) {
++	case NL80211_TX_POWER_FIXED:
+ 		power_cfg.is_power_auto = 0;
++		power_cfg.is_power_fixed = 1;
+ 		power_cfg.power_level = dbm;
+-	} else {
++		break;
++	case NL80211_TX_POWER_LIMITED:
++		power_cfg.is_power_auto = 0;
++		power_cfg.is_power_fixed = 0;
++		power_cfg.power_level = dbm;
++		break;
++	case NL80211_TX_POWER_AUTOMATIC:
+ 		power_cfg.is_power_auto = 1;
++		break;
+ 	}
+ 
+ 	priv = mwifiex_get_priv(adapter, MWIFIEX_BSS_ROLE_ANY);
+--- a/drivers/net/wireless/mwifiex/ioctl.h
++++ b/drivers/net/wireless/mwifiex/ioctl.h
+@@ -245,6 +245,7 @@ struct mwifiex_ds_encrypt_key {
+ 
+ struct mwifiex_power_cfg {
+ 	u32 is_power_auto;
++	u32 is_power_fixed;
+ 	u32 power_level;
+ };
+ 
+--- a/drivers/net/wireless/mwifiex/sta_ioctl.c
++++ b/drivers/net/wireless/mwifiex/sta_ioctl.c
+@@ -659,6 +659,9 @@ int mwifiex_set_tx_power(struct mwifiex_
+ 	txp_cfg = (struct host_cmd_ds_txpwr_cfg *) buf;
+ 	txp_cfg->action = cpu_to_le16(HostCmd_ACT_GEN_SET);
+ 	if (!power_cfg->is_power_auto) {
++		u16 dbm_min = power_cfg->is_power_fixed ?
++			      dbm : priv->min_tx_power_level;
++
+ 		txp_cfg->mode = cpu_to_le32(1);
+ 		pg_tlv = (struct mwifiex_types_power_group *)
+ 			 (buf + sizeof(struct host_cmd_ds_txpwr_cfg));
+@@ -673,7 +676,7 @@ int mwifiex_set_tx_power(struct mwifiex_
+ 		pg->last_rate_code = 0x03;
+ 		pg->modulation_class = MOD_CLASS_HR_DSSS;
+ 		pg->power_step = 0;
+-		pg->power_min = (s8) dbm;
++		pg->power_min = (s8) dbm_min;
+ 		pg->power_max = (s8) dbm;
+ 		pg++;
+ 		/* Power group for modulation class OFDM */
+@@ -681,7 +684,7 @@ int mwifiex_set_tx_power(struct mwifiex_
+ 		pg->last_rate_code = 0x07;
+ 		pg->modulation_class = MOD_CLASS_OFDM;
+ 		pg->power_step = 0;
+-		pg->power_min = (s8) dbm;
++		pg->power_min = (s8) dbm_min;
+ 		pg->power_max = (s8) dbm;
+ 		pg++;
+ 		/* Power group for modulation class HTBW20 */
+@@ -689,7 +692,7 @@ int mwifiex_set_tx_power(struct mwifiex_
+ 		pg->last_rate_code = 0x20;
+ 		pg->modulation_class = MOD_CLASS_HT;
+ 		pg->power_step = 0;
+-		pg->power_min = (s8) dbm;
++		pg->power_min = (s8) dbm_min;
+ 		pg->power_max = (s8) dbm;
+ 		pg->ht_bandwidth = HT_BW_20;
+ 		pg++;
+@@ -698,7 +701,7 @@ int mwifiex_set_tx_power(struct mwifiex_
+ 		pg->last_rate_code = 0x20;
+ 		pg->modulation_class = MOD_CLASS_HT;
+ 		pg->power_step = 0;
+-		pg->power_min = (s8) dbm;
++		pg->power_min = (s8) dbm_min;
+ 		pg->power_max = (s8) dbm;
+ 		pg->ht_bandwidth = HT_BW_40;
  	}
 
