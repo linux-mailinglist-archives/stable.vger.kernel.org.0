@@ -2,107 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC88E13444C
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 14:51:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AA3A134414
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 14:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728424AbgAHNvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 08:51:40 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:60042 "EHLO www.linuxtv.org"
+        id S1727726AbgAHNnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 08:43:35 -0500
+Received: from foss.arm.com ([217.140.110.172]:44708 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727158AbgAHNvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jan 2020 08:51:40 -0500
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1ipBjU-000BYU-3f; Wed, 08 Jan 2020 13:50:48 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Wed, 08 Jan 2020 13:34:14 +0000
-Subject: [git:media_tree/master] media: v4l2-rect.h: fix v4l2_rect_map_inside() top/left adjustments
-To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Helen Koike <helen.koike@collabora.com>, stable@vger.kernel.org
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1ipBjU-000BYU-3f@www.linuxtv.org>
+        id S1726931AbgAHNnf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jan 2020 08:43:35 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D0DBC31B;
+        Wed,  8 Jan 2020 05:43:34 -0800 (PST)
+Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 4A7833F703;
+        Wed,  8 Jan 2020 05:43:33 -0800 (PST)
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        maz@kernel.org, alexandru.elisei@arm.com
+Cc:     drjones@redhat.com, james.morse@arm.com,
+        julien.thierry.kdev@gmail.com, mark.rutland@arm.com,
+        peter.maydell@linaro.org, stable@vger.kernel.org,
+        suzuki.poulose@arm.com, will@kernel.org
+Subject: [PATCHv2 0/3] KVM: arm/arm64: exception injection fixes
+Date:   Wed,  8 Jan 2020 13:43:21 +0000
+Message-Id: <20200108134324.46500-1-mark.rutland@arm.com>
+X-Mailer: git-send-email 2.11.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+Hi,
 
-Subject: media: v4l2-rect.h: fix v4l2_rect_map_inside() top/left adjustments
-Author:  Helen Koike <helen.koike@collabora.com>
-Date:    Tue Dec 17 21:00:22 2019 +0100
+While looking at the KVM code, I realised that our exception injection handling
+isn't quite right, as it generates the target PSTATE/CPSR from scratch, and
+doesn't handle all bits which need to be (conditionally) cleared or set upon
+taking an exception.
 
-boundary->width and boundary->height are sizes relative to
-boundary->left and boundary->top coordinates, but they were not being
-taken into consideration to adjust r->left and r->top, leading to the
-following error:
+The first two patches address this for injecting exceptions into AArch64 and
+AArch32 contexts respectively. I've tried to organise the code so that it can
+easily be audited against the ARM ARM, and/or extended in future if/when new
+bits are added to the SPSRs.
 
-Consider the follow as initial values for boundary and r:
+While writing the AArch32 portion I also realised that on an AArch64 host we
+don't correctly synthesize the SPSR_{abt,und} seen by the guest, as we copy the
+value of SPSR_EL2, and the layouts of those SPSRs differ. The third patch
+addresses this by explicitly moving bits into the SPSR_{abt,und} layout.
 
-struct v4l2_rect boundary = {
-	.left = 100,
-	.top = 100,
-	.width = 800,
-	.height = 600,
-}
+I'd appreciate any testing people could offer, especially for AArch32 guests
+and/or AArch32 hosts, which I'm currently ill equipped to test. Ideally we'd
+have some unit tests for this.
 
-struct v4l2_rect r = {
-	.left = 0,
-	.top = 0,
-	.width = 1920,
-	.height = 960,
-}
+These issues don't seem to upset contemporary guests, but they do mean that KVM
+isn't providing an architecturally compliant environment in all cases, which is
+liable to cause issues in future. Given that, and that the patches are fairly
+self-contained, I've marked all three patches for stable.
 
-calling v4l2_rect_map_inside(&r, &boundary) was modifying r to:
+All three patches can be found on my kvm/exception-state branch [1].
 
-r = {
-	.left = 0,
-	.top = 0,
-	.width = 800,
-	.height = 600,
-}
+Since v1 [2]:
+* Fix host_spsr_to_spsr32() bit preservation
+* Fix SPAN polarity; tested with a modified arm64 guest
+* Fix DIT preservation on 32-bit hosts
+* Add Alex's Reviewed-by to patch 3
 
-Which is wrongly outside the boundary rectangle, because:
+Thanks,
+Mark.
 
-	v4l2_rect_set_max_size(r, boundary); // r->width = 800, r->height = 600
-	...
-	if (r->left + r->width > boundary->width) // true
-		r->left = boundary->width - r->width; // r->left = 800 - 800
-	if (r->top + r->height > boundary->height) // true
-		r->top = boundary->height - r->height; // r->height = 600 - 600
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git/log/?h=kvm/exception-state
 
-Fix this by considering top/left coordinates from boundary.
+Mark Rutland (3):
+  KVM: arm64: correct PSTATE on exception entry
+  KVM: arm/arm64: correct CPSR on exception entry
+  KVM: arm/arm64: correct AArch32 SPSR on exception entry
 
-Fixes: ac49de8c49d7 ("[media] v4l2-rect.h: new header with struct v4l2_rect helper functions")
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Cc: <stable@vger.kernel.org>      # for v4.7 and up
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+ arch/arm/include/asm/kvm_emulate.h   |  17 +++++
+ arch/arm64/include/asm/kvm_emulate.h |  32 ++++++++++
+ arch/arm64/include/asm/ptrace.h      |   1 +
+ arch/arm64/include/uapi/asm/ptrace.h |   1 +
+ arch/arm64/kvm/inject_fault.c        |  70 +++++++++++++++++++--
+ virt/kvm/arm/aarch32.c               | 117 +++++++++++++++++++++++++++++++----
+ 6 files changed, 220 insertions(+), 18 deletions(-)
 
- include/media/v4l2-rect.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+-- 
+2.11.0
 
----
-
-diff --git a/include/media/v4l2-rect.h b/include/media/v4l2-rect.h
-index c86474dc7b55..8800a640c224 100644
---- a/include/media/v4l2-rect.h
-+++ b/include/media/v4l2-rect.h
-@@ -63,10 +63,10 @@ static inline void v4l2_rect_map_inside(struct v4l2_rect *r,
- 		r->left = boundary->left;
- 	if (r->top < boundary->top)
- 		r->top = boundary->top;
--	if (r->left + r->width > boundary->width)
--		r->left = boundary->width - r->width;
--	if (r->top + r->height > boundary->height)
--		r->top = boundary->height - r->height;
-+	if (r->left + r->width > boundary->left + boundary->width)
-+		r->left = boundary->left + boundary->width - r->width;
-+	if (r->top + r->height > boundary->top + boundary->height)
-+		r->top = boundary->top + boundary->height - r->height;
- }
- 
- /**
