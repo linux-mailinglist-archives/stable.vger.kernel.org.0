@@ -2,188 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5942134BDA
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 20:49:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17D83134D19
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 21:23:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725446AbgAHTrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 14:47:23 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43832 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730483AbgAHTqF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 14:46:05 -0500
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHE-0006on-4A; Wed, 08 Jan 2020 19:46:00 +0000
-Received: from ben by deadeye with local (Exim 4.93)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1ipHHD-007dpa-JO; Wed, 08 Jan 2020 19:45:59 +0000
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+        id S1725941AbgAHUXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 15:23:31 -0500
+Received: from mail-mw2nam10on2087.outbound.protection.outlook.com ([40.107.94.87]:1281
+        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725881AbgAHUXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jan 2020 15:23:30 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZtfuGoXpNGFQCzla6d41RvdnXte6oEBu7XKam5VqKa1BvhllhBWbH7GMmkzHb4OtQVKkUNieroz0LSHaiIzBVV6X9Oq/NUu4ewUmvJFn4mDKTvSwX/MNntBR5uu+c986UlbfSvqGnm8mUJKBEkaOOMB8VQYRqCcyQxMz6GcbR7xFVviL4Mr7TYjWDN2TgXqm65Dj/yUEYxRpUwEzxtPdm65PNBH68/Q5JkcfaHztz8EF64SLpj7qpCbwLTY0rAYRmT7iuQDK5YdX8pIgkq0aGaLwjKhY8gX62eu8PtfQXRAmRgdOQHUhb6Oa0+SA7tNH7purSwtwdAjLSPgsuNDqFA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9LDRqAYmrb6YtYfNNe3jSO7o6EVgEE8oUpJVmqEfT04=;
+ b=DKqYBFdtBP2eVaOi7zZFWEWVMKPvfzseC1OQJuYZI+86kNhFHGlC00hErBVuyOgBy+U90govkKcSh+KbtvG+jiXLbcPG4sl/TsKmMgkJ7h9It0q55pQdjPWVqS92LTA6NWk0puiuSkVKRKjS3msR4YAIXkvwnNfj9eGT1NR4MpmSNIkYvfC/BH2+gyKO+uPKt0jn7cqqdQ/celY3vCVWDZeoIhU3AvGgUCBx/Lx02bhPe5f4iz4ViYML5ewo7Z4jUFNyT8bv/bLtIpe2q5qlGaixMpn/a9GqXyjXK8MgKs7mGq75SjA6vx4E0HXqXT0c5fg+BSZNROuIMe/Dt9QIsg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9LDRqAYmrb6YtYfNNe3jSO7o6EVgEE8oUpJVmqEfT04=;
+ b=WrillX3lMezolfdl5Gzm1McUXZkEDDjuMCCg6FuT4YSMfOcVSDuEtWjk7pyd71DMdLsXgLGDnxIUMe8U4LaOfgsZ81fNoa8NstslKrUWoDv1o273ZmuYWRwdrm46GzFdkDTNGshMpoe/CrkCZdS9nq/Lbi7plK4Es5oTzNe10b4=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=kim.phillips@amd.com; 
+Received: from SN6PR12MB2845.namprd12.prod.outlook.com (52.135.106.33) by
+ SN6PR12MB2781.namprd12.prod.outlook.com (52.135.99.20) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2623.9; Wed, 8 Jan 2020 20:23:26 +0000
+Received: from SN6PR12MB2845.namprd12.prod.outlook.com
+ ([fe80::48af:8c71:edee:5bc]) by SN6PR12MB2845.namprd12.prod.outlook.com
+ ([fe80::48af:8c71:edee:5bc%7]) with mapi id 15.20.2602.017; Wed, 8 Jan 2020
+ 20:23:26 +0000
+Subject: Re: [PATCH internal v2] perf/x86/amd: Add missing L2 misses event
+ spec to AMD Family 17h's event map
+To:     Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc:     stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        =?UTF-8?Q?Martin_Li=c5=a1ka?= <mliska@suse.cz>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        linux-kernel@vger.kernel.org, Babu Moger <babu.moger@amd.com>
+References: <20200108193455.29834-1-kim.phillips@amd.com>
+From:   Kim Phillips <kim.phillips@amd.com>
+Message-ID: <03e5fd9e-5662-c4a5-5792-c64146225dc8@amd.com>
+Date:   Wed, 8 Jan 2020 14:23:25 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
+In-Reply-To: <20200108193455.29834-1-kim.phillips@amd.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SN4PR0401CA0027.namprd04.prod.outlook.com
+ (2603:10b6:803:2a::13) To SN6PR12MB2845.namprd12.prod.outlook.com
+ (2603:10b6:805:75::33)
 MIME-Version: 1.0
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jason Yan" <yanaijie@huawei.com>,
-        "John Garry" <john.garry@huawei.com>,
-        "Gao Chuan" <gaochuan4@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Date:   Wed, 08 Jan 2020 19:44:01 +0000
-Message-ID: <lsq.1578512578.643033814@decadent.org.uk>
-X-Mailer: LinuxStableQueue (scripts by bwh)
-X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 63/63] scsi: libsas: stop discovering if oob mode is
- disconnected
-In-Reply-To: <lsq.1578512578.117275639@decadent.org.uk>
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Received: from [10.236.136.247] (165.204.77.1) by SN4PR0401CA0027.namprd04.prod.outlook.com (2603:10b6:803:2a::13) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2623.9 via Frontend Transport; Wed, 8 Jan 2020 20:23:26 +0000
+X-Originating-IP: [165.204.77.1]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 02f3b658-7fd2-4d94-8537-08d794789e1a
+X-MS-TrafficTypeDiagnostic: SN6PR12MB2781:|SN6PR12MB2781:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <SN6PR12MB278116499EC0C66AAEE0DADA873E0@SN6PR12MB2781.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Forefront-PRVS: 02760F0D1C
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10009020)(4636009)(366004)(199004)(189003)(44832011)(31696002)(2616005)(5660300002)(558084003)(26005)(66556008)(66476007)(66946007)(956004)(53546011)(52116002)(86362001)(16526019)(54906003)(81166006)(81156014)(16576012)(110136005)(4326008)(31686004)(8936002)(2906002)(8676002)(6486002)(186003)(36756003)(498600001)(7416002);DIR:OUT;SFP:1101;SCL:1;SRVR:SN6PR12MB2781;H:SN6PR12MB2845.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+Received-SPF: None (protection.outlook.com: amd.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Fj/I6yKhad3l0Irnhyo3mdQ4oVqhsDtwdApXlUjLROK1/+nTNy7OQApFqIpJ3HL7NN6tO1VIiZINFUwqE8p1yK+EhLAq7adn2E4GKfvHWfFKwH+ecxBLtf8Gt2ZJT+QMqi9FBQkCag7qEQIAqB+7XcCtXGY5OKEejbGaMyd9LmJl4xxelz9lDM0UhL7bNLexLrQBxBFM+xI/tVJW0QImwL4fCX/vRor0irDdqhAYleWOG6ZyAgiN7oUSkRqAj3ur6alFzIaBiXe8PcXZVDArstVbEGSfT2nZX3WkquVi1HNU4z4T8hCsKzT5Ri26Bdx5cabYQ0U7D5dpVrGjWAqvhOVPDRQPerU4sDf639nNgPIlRP9KDEjFHOtEAav3yMuB5BZozy3SRFU1Il/3ZQruZcyG154NlA0Stdr9CHL4fA+9KVz98JCD5qE2TKGIlE1Y
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 02f3b658-7fd2-4d94-8537-08d794789e1a
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jan 2020 20:23:26.7078
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: YX5ElSg6qCFI90TXaGkjNJzAx+ihjuLdy42rvjyeeGtmf2jhywO6tmmDG25e35VFLMluGc9a0DahmXVLdBwfuQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR12MB2781
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-3.16.81-rc1 review patch.  If anyone has any objections, please let me know.
+On 1/8/20 1:34 PM, Kim Phillips wrote:
+> Commit 3fe3331bb285 ("perf/x86/amd: Add event map for AMD Family 17h"),
 
-------------------
+Hi, I neglected to remove the "internal v2" from the $SUBJECT.
 
-From: Jason Yan <yanaijie@huawei.com>
+This is not an internal patch, it is intended to be an upstream submission.
 
-commit f70267f379b5e5e11bdc5d72a56bf17e5feed01f upstream.
+Please consider applying it.
 
-The discovering of sas port is driven by workqueue in libsas. When libsas
-is processing port events or phy events in workqueue, new events may rise
-up and change the state of some structures such as asd_sas_phy.  This may
-cause some problems such as follows:
+Thanks,
 
-==>thread 1                       ==>thread 2
-
-                                  ==>phy up
-                                  ==>phy_up_v3_hw()
-                                    ==>oob_mode = SATA_OOB_MODE;
-                                  ==>phy down quickly
-                                  ==>hisi_sas_phy_down()
-                                    ==>sas_ha->notify_phy_event()
-                                    ==>sas_phy_disconnected()
-                                      ==>oob_mode = OOB_NOT_CONNECTED
-==>workqueue wakeup
-==>sas_form_port()
-  ==>sas_discover_domain()
-    ==>sas_get_port_device()
-      ==>oob_mode is OOB_NOT_CONNECTED and device
-         is wrongly taken as expander
-
-This at last lead to the panic when libsas trying to issue a command to
-discover the device.
-
-[183047.614035] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000058
-[183047.622896] Mem abort info:
-[183047.625762]   ESR = 0x96000004
-[183047.628893]   Exception class = DABT (current EL), IL = 32 bits
-[183047.634888]   SET = 0, FnV = 0
-[183047.638015]   EA = 0, S1PTW = 0
-[183047.641232] Data abort info:
-[183047.644189]   ISV = 0, ISS = 0x00000004
-[183047.648100]   CM = 0, WnR = 0
-[183047.651145] user pgtable: 4k pages, 48-bit VAs, pgdp =
-00000000b7df67be
-[183047.657834] [0000000000000058] pgd=0000000000000000
-[183047.662789] Internal error: Oops: 96000004 [#1] SMP
-[183047.667740] Process kworker/u16:2 (pid: 31291, stack limit =
-0x00000000417c4974)
-[183047.675208] CPU: 0 PID: 3291 Comm: kworker/u16:2 Tainted: G
-W  OE 4.19.36-vhulk1907.1.0.h410.eulerosv2r8.aarch64 #1
-[183047.687015] Hardware name: N/A N/A/Kunpeng Desktop Board D920S10,
-BIOS 0.15 10/22/2019
-[183047.695007] Workqueue: 0000:74:02.0_disco_q sas_discover_domain
-[183047.700999] pstate: 20c00009 (nzCv daif +PAN +UAO)
-[183047.705864] pc : prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
-[183047.711510] lr : prep_ata_v3_hw+0xb0/0x230 [hisi_sas_v3_hw]
-[183047.717153] sp : ffff00000f28ba60
-[183047.720541] x29: ffff00000f28ba60 x28: ffff8026852d7228
-[183047.725925] x27: ffff8027dba3e0a8 x26: ffff8027c05fc200
-[183047.731310] x25: 0000000000000000 x24: ffff8026bafa8dc0
-[183047.736695] x23: ffff8027c05fc218 x22: ffff8026852d7228
-[183047.742079] x21: ffff80007c2f2940 x20: ffff8027c05fc200
-[183047.747464] x19: 0000000000f80800 x18: 0000000000000010
-[183047.752848] x17: 0000000000000000 x16: 0000000000000000
-[183047.758232] x15: ffff000089a5a4ff x14: 0000000000000005
-[183047.763617] x13: ffff000009a5a50e x12: ffff8026bafa1e20
-[183047.769001] x11: ffff0000087453b8 x10: ffff00000f28b870
-[183047.774385] x9 : 0000000000000000 x8 : ffff80007e58f9b0
-[183047.779770] x7 : 0000000000000000 x6 : 000000000000003f
-[183047.785154] x5 : 0000000000000040 x4 : ffffffffffffffe0
-[183047.790538] x3 : 00000000000000f8 x2 : 0000000002000007
-[183047.795922] x1 : 0000000000000008 x0 : 0000000000000000
-[183047.801307] Call trace:
-[183047.803827]  prep_ata_v3_hw+0xf8/0x230 [hisi_sas_v3_hw]
-[183047.809127]  hisi_sas_task_prep+0x750/0x888 [hisi_sas_main]
-[183047.814773]  hisi_sas_task_exec.isra.7+0x88/0x1f0 [hisi_sas_main]
-[183047.820939]  hisi_sas_queue_command+0x28/0x38 [hisi_sas_main]
-[183047.826757]  smp_execute_task_sg+0xec/0x218
-[183047.831013]  smp_execute_task+0x74/0xa0
-[183047.834921]  sas_discover_expander.part.7+0x9c/0x5f8
-[183047.839959]  sas_discover_root_expander+0x90/0x160
-[183047.844822]  sas_discover_domain+0x1b8/0x1e8
-[183047.849164]  process_one_work+0x1b4/0x3f8
-[183047.853246]  worker_thread+0x54/0x470
-[183047.856981]  kthread+0x134/0x138
-[183047.860283]  ret_from_fork+0x10/0x18
-[183047.863931] Code: f9407a80 528000e2 39409281 72a04002 (b9405800)
-[183047.870097] kernel fault(0x1) notification starting on CPU 0
-[183047.875828] kernel fault(0x1) notification finished on CPU 0
-[183047.881559] Modules linked in: unibsp(OE) hns3(OE) hclge(OE)
-hnae3(OE) mem_drv(OE) hisi_sas_v3_hw(OE) hisi_sas_main(OE)
-[183047.892418] ---[ end trace 4cc26083fc11b783  ]---
-[183047.897107] Kernel panic - not syncing: Fatal exception
-[183047.902403] kernel fault(0x5) notification starting on CPU 0
-[183047.908134] kernel fault(0x5) notification finished on CPU 0
-[183047.913865] SMP: stopping secondary CPUs
-[183047.917861] Kernel Offset: disabled
-[183047.921422] CPU features: 0x2,a2a00a38
-[183047.925243] Memory Limit: none
-[183047.928372] kernel reboot(0x2) notification starting on CPU 0
-[183047.934190] kernel reboot(0x2) notification finished on CPU 0
-[183047.940008] ---[ end Kernel panic - not syncing: Fatal exception
-]---
-
-Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
-Link: https://lore.kernel.org/r/20191206011118.46909-1-yanaijie@huawei.com
-Reported-by: Gao Chuan <gaochuan4@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
----
- drivers/scsi/libsas/sas_discover.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
-
---- a/drivers/scsi/libsas/sas_discover.c
-+++ b/drivers/scsi/libsas/sas_discover.c
-@@ -97,12 +97,21 @@ static int sas_get_port_device(struct as
- 		else
- 			dev->dev_type = SAS_SATA_DEV;
- 		dev->tproto = SAS_PROTOCOL_SATA;
--	} else {
-+	} else if (port->oob_mode == SAS_OOB_MODE) {
- 		struct sas_identify_frame *id =
- 			(struct sas_identify_frame *) dev->frame_rcvd;
- 		dev->dev_type = id->dev_type;
- 		dev->iproto = id->initiator_bits;
- 		dev->tproto = id->target_bits;
-+	} else {
-+		/* If the oob mode is OOB_NOT_CONNECTED, the port is
-+		 * disconnected due to race with PHY down. We cannot
-+		 * continue to discover this port
-+		 */
-+		sas_put_device(dev);
-+		pr_warn("Port %016llx is disconnected when discovering\n",
-+			SAS_ADDR(port->attached_sas_addr));
-+		return -ENODEV;
- 	}
- 
- 	sas_init_dev(dev);
-
+Kim
