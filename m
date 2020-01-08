@@ -2,69 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE141134718
-	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 17:05:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C251347BD
+	for <lists+stable@lfdr.de>; Wed,  8 Jan 2020 17:23:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728772AbgAHQE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 11:04:59 -0500
-Received: from mga07.intel.com ([134.134.136.100]:7093 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726922AbgAHQE7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jan 2020 11:04:59 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Jan 2020 08:04:59 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,410,1571727600"; 
-   d="scan'208";a="211580709"
-Received: from dkurtaev-mobl.ccr.corp.intel.com ([10.252.22.167])
-  by orsmga007.jf.intel.com with ESMTP; 08 Jan 2020 08:04:55 -0800
-Message-ID: <80272f0259d967fe61dacd1036cbbd9f555b8402.camel@linux.intel.com>
-Subject: Re: [PATCH] tpm: handle negative priv->response_len in
- tpm_common_read
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Tadeusz Struk <tadeusz.struk@intel.com>
-Cc:     keescook@chromium.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-integrity@vger.kernel.org,
-        labbott@redhat.com
-In-Reply-To: <b469b7e8454a69402529cc8e25244860e136308e.camel@linux.intel.com>
-References: <b85fa669-d3aa-f6c9-9631-988ae47e392c@redhat.com>
-         <157843468820.24718.10808226634364669421.stgit@tstruk-mobl1>
-         <b469b7e8454a69402529cc8e25244860e136308e.camel@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160
- Espoo
-Content-Type: text/plain; charset="UTF-8"
+        id S1728762AbgAHQWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 11:22:43 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:9997 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728273AbgAHQWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 11:22:42 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e1601bf0002>; Wed, 08 Jan 2020 08:22:23 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 08 Jan 2020 08:22:41 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 08 Jan 2020 08:22:41 -0800
+Received: from [10.26.11.166] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 8 Jan
+ 2020 16:22:39 +0000
+Subject: Re: [PATCH 4.14 00/74] 4.14.163-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200107205135.369001641@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <1dd88418-510b-ee47-4358-ebe3c54df0b1@nvidia.com>
+Date:   Wed, 8 Jan 2020 16:22:37 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Date:   Wed, 08 Jan 2020 18:04:49 +0200
-User-Agent: Evolution 3.34.1-2 
+In-Reply-To: <20200107205135.369001641@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1578500543; bh=Fw/dCvbW8epbzb0nikJruAg605AT6QrBFgpG3lrVsDw=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=aQyETl1VjnqV/uW4vezdaOpiS9FUeeQ07qgramWlyjnf2IufPkt6uwkPFe2FLtq6N
+         Be8Wv80kzMxu/MI22jzq6bDeKXaTCvhqwrkp91vK1RiPooXVqrEUpvNEGm3sTme5uT
+         pJ2+kPs4e8FgWtKrKGOGuhwDQLBxjN8UjC1g4jjRAxq+1oT4x6Ry+NqLKeRiE3MGRn
+         TlcCOIJlVpNlBCziMyZyqajRF6VfIeIGSoHgBi6L5QbXsETPSjCmVBliptjLx2TzTu
+         kZuOyjgJBDrRCZl0o0yhtClZ+Xl/BhqSAWIJlCwE3E7vPgEXtnaYl4grfe/Rvd3lGX
+         SfR9/GWumK7Dg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2020-01-08 at 17:58 +0200, Jarkko Sakkinen wrote:
-> On Tue, 2020-01-07 at 14:04 -0800, Tadeusz Struk wrote:
-> > The priv->responce_length can hold the size of an response or
-> > an negative error code, and the tpm_common_read() needs to handle
-> > both cases correctly. Changed the type of responce_length to
-> > signed and accounted for negative value in tpm_common_read()
-> > 
-> > Cc: stable@vger.kernel.org
-> > Fixes: d23d12484307 ("tpm: fix invalid locking in NONBLOCKING mode")
-> > Reported-by: Laura Abbott <labbott@redhat.com>
-> > Signed-off-by: Tadeusz Struk <tadeusz.struk@intel.com>
+
+On 07/01/2020 20:54, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.163 release.
+> There are 74 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> Responses should be made by Thu, 09 Jan 2020 20:44:51 +0000.
+> Anything received after that time might be too late.
 > 
-> Adding to the next PR.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.163-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -------------
 
-Applied but had to fix bunch of typos, missing punctaction and
-missing parentheses in the commit message. Even checkpatch.pl
-was complaining :-/
+All tests for Tegra are passing ...
 
-Thanks.
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    24 tests:	24 pass, 0 fail
 
-/Jarkko
+Linux version:	4.14.163-rc2-ga95271edf2c8
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
+Cheers
+Jon
+
+-- 
+nvpublic
