@@ -2,119 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC7613510E
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 02:52:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF65135236
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 05:41:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727417AbgAIBw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jan 2020 20:52:26 -0500
-Received: from mta03.svc.cra.dublin.eircom.net ([159.134.118.145]:58181 "HELO
-        mta03.svc.cra.dublin.eircom.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with SMTP id S1726913AbgAIBw0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 20:52:26 -0500
-Received: (qmail 10583 messnum 15759595 invoked from network[213.94.190.15/avas03.vendorsvc.cra.dublin.eircom.net]); 9 Jan 2020 01:52:21 -0000
-Received: from avas03.vendorsvc.cra.dublin.eircom.net (HELO avas03) (213.94.190.15)
-  by mta03.svc.cra.dublin.eircom.net (qp 10583) with SMTP; 9 Jan 2020 01:52:21 -0000
-Received: from vzmbx18.eircom.net ([86.43.60.98])
-        by Cloudmark Gateway with SMTP
-        id pMzlinSrnbSpIpMzliYo3s; Thu, 09 Jan 2020 01:52:21 +0000
-X-Spam-Flag: NO
-X-CNFS-Analysis: v=2.2 cv=FcBH/N26 c=1 sm=1 tr=0
- a=e7gqILOnBbllteVy7xBg4A==:117 a=9cW_t1CCXrUA:10 a=FKkrIqjQGGEA:10
- a=8i8RMFKtq2cA:10 a=ctaZEviP27oA:10 a=IkcTkHD0fZMA:10 a=x7bEGLp0ZPQA:10
- a=vf9cpJ_ryQcA:10 a=41oI_6PU1OsA:10 a=ZZnuYtJkoWoA:10 a=69EAbJreAAAA:8
- a=LfGao4Mlnh-ZEnamovwA:9 a=yJkV_QmUg7waNTTx:21 a=QEXdDO2ut3YA:10
- a=HWS5tXWuunIA:10 a=G_vNCzyu_JUA:10
-Date:   Thu, 9 Jan 2020 01:52:21 +0000 (GMT)
-From:   mr ahmed <ahmed15112@eircom.net>
-Reply-To: ahmedoue@hotmail.com
-Message-ID: <630619374.125624.1578534741441.JavaMail.zimbra@eircom.net>
-Subject: Please Respond Urgently.
+        id S1727888AbgAIEkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jan 2020 23:40:55 -0500
+Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:57393 "EHLO
+        wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727749AbgAIEkz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jan 2020 23:40:55 -0500
+X-Greylist: delayed 600 seconds by postgrey-1.27 at vger.kernel.org; Wed, 08 Jan 2020 23:40:54 EST
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailnew.west.internal (Postfix) with ESMTP id 9CFC29EA;
+        Wed,  8 Jan 2020 23:30:52 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Wed, 08 Jan 2020 23:30:54 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anarazel.de; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm3; bh=T3IpaNh6tON7Z0J6BNGMp35jqP
+        cvLlQMXYRa9Ey0PUY=; b=FxKTRHnD4I2nmGm01m/Qrb7EJgiipwTTvsfnKL6dV1
+        s0MFPFrsqYdD/E2cCt1VASFOwPnVIlTZxSM92nSFR73g8+4JM/0W7mAW3VE57ybY
+        8kAIr2bKxW2SS9RZhd9VK9bw+rPXsxUaZ/Cn6njZugYT/xQx+cF8ADbc/ZzQEhn9
+        iB/LLcvpQKtr7hAMWub89RtK9s4VqZnb1FDk1mvo19Onz5GZKzsX9iqAdoW9aIyl
+        Uk7P4j179XNu7Fi1xikWDAAuc2/vN9lm72M8zlZjYMQrVnCFngWXDyRBR1xb2AXo
+        YJj7s8aI1J7JTuZE+c//ir9wTL7GdY7soVP2BbxO3KmQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=T3IpaNh6tON7Z0J6B
+        NGMp35jqPcvLlQMXYRa9Ey0PUY=; b=fzf7yeMtz23cZcpTYXNROyfZXuDYDWxSM
+        PrUF7lFIuia0DLnBZypneihyxytRmi06aatmvWAKbjk5+rxA9cqhjB9+I7J+VYNk
+        wdbdj/5sECQyAdmjDgRSPT8NVCJe3uQLG2UE43TaFHzkA1QkZ/iS4OetQGK+vlfR
+        tj7fJ27E2115LaDLdhmNIXLdybDXM3DN9me9XJZFZMLBSWWpmxlnikGPlUjoR9lR
+        YxSxLULWNWymcB5S4DLQbncxclBg5ZnPyjzIQxA3u0119jPwyOzdTHicJwA3ODHD
+        c7Y3jrAANeBWFcVGwbOAxIghUZkyL3JsD16HrwIXs6rIX7Yo7fJjQ==
+X-ME-Sender: <xms:e6wWXgvKKBsGJIcyFg7XNPj2Fpaa9yHUz2p4azCKG6cfevK2A3v6UQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdehledgieefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeetnhgurhgvshcu
+    hfhrvghunhguuceorghnughrvghssegrnhgrrhgriigvlhdruggvqeenucfkphepieejrd
+    duiedtrddvudejrddvhedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrnhgurhgvshes
+    rghnrghrrgiivghlrdguvgenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:e6wWXi8Ip0xs3ExUbEn6_9lmGFVpX4sgqniUjJ4ffg-xivB2EQW_HQ>
+    <xmx:e6wWXkFN52PjyGQMnUJyW7wiWB99xdtKUqigRjwjvJv7C_iiYVCRHA>
+    <xmx:e6wWXhQKh4qxHJX8Y8BEpDpYMy-HE9WCfzkoBqEjyDVRPRFCsYkaHA>
+    <xmx:fKwWXmg-rKXlkTEMzsYzgteBs8zX7wYegz_5Gte9QyygyYdBetCcyB2m6Vs>
+Received: from intern.anarazel.de (c-67-160-217-250.hsd1.ca.comcast.net [67.160.217.250])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 272E18005B;
+        Wed,  8 Jan 2020 23:30:51 -0500 (EST)
+From:   Andres Freund <andres@anarazel.de>
+To:     Jiri Olsa <jolsa@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, Andres Freund <andres@anarazel.de>,
+        Jiri Olsa <jolsa@kernel.org>, Andi Kleen <ak@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org
+Subject: [PATCH] perf c2c: Fix sorting.
+Date:   Wed,  8 Jan 2020 20:30:30 -0800
+Message-Id: <20200109043030.233746-1-andres@anarazel.de>
+X-Mailer: git-send-email 2.25.0.rc1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [196.52.38.32]
-X-Mailer: Zimbra 8.6.0_GA_1242 (zclient/8.6.0_GA_1242)
-Thread-Topic: Please Respond Urgently.
-Thread-Index: HzKrQHiZHS3o7jn9ikM0jgKFiniu7A==
-X-CMAE-Envelope: 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
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
+Commit 722ddfde366f ("perf tools: Fix time sorting") changed -
+correctly so - hist_entry__sort to return int64. Unfortunately several
+of the builtin-c2c.c comparison routines only happened to work due the
+cast caused by the wrong return type.
 
-I need your urgent assistance in transferring the sum of $11.3million to your private account .By indicating your interest I will send you the full details on how the business will be executed.
+This causes meaningless ordering of both the cacheline list, and the
+cacheline details page. E.g a simple
+  perf c2c record -a sleep 3
+  perf c2c report
+will result in cacheline table like
+  =================================================
+             Shared Data Cache Line Table
+  =================================================
+  #
+  #        ----------- Cacheline ----------    Total      Tot  ----- LLC Load Hitm -----  ---- Store Reference ----  --- Load Dram ----      LLC    Total  ----- Core Load Hit -----  -- LLC Load Hit --
+  # Index             Address  Node  PA cnt  records     Hitm    Total      Lcl      Rmt    Total    L1Hit   L1Miss       Lcl       Rmt  Ld Miss    Loads       FB       L1       L2       Llc       Rmt
+  # .....  ..................  ....  ......  .......  .......  .......  .......  .......  .......  .......  .......  ........  ........  .......  .......  .......  .......  .......  ........  ........
+  #
+        0      0x7f0d27ffba00   N/A       0       52    0.12%       13        6        7       12       12        0         0         7       14       40        4       16        0         0         0
+        1      0x7f0d27ff61c0   N/A       0     6353   14.04%     1475      801      674      779      779        0         0       718     1392     5574     1299     1967        0       115         0
+        2      0x7f0d26d3ec80   N/A       0       71    0.15%       16        4       12       13       13        0         0        12       24       58        1       20        0         9         0
+        3      0x7f0d26d3ec00   N/A       0       98    0.22%       23       17        6       19       19        0         0         6       12       79        0       40        0        10         0
+i.e. with the list not being ordered by Total Hitm.
 
-Please if you are interested send your reply to  /     ahmedoue@hotmail.com 
+Fixes: 722ddfde366f ("perf tools: Fix time sorting")
+Signed-off-by: Andres Freund <andres@anarazel.de>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org # v3.16+
+---
+ tools/perf/builtin-c2c.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Best Regards,
-Ahmed Ouedraogo.
+diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
+index e69f44941aad..f2e9d2b1b913 100644
+--- a/tools/perf/builtin-c2c.c
++++ b/tools/perf/builtin-c2c.c
+@@ -595,8 +595,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
+ {
+ 	struct c2c_hist_entry *c2c_left;
+ 	struct c2c_hist_entry *c2c_right;
+-	unsigned int tot_hitm_left;
+-	unsigned int tot_hitm_right;
++	uint64_t tot_hitm_left;
++	uint64_t tot_hitm_right;
+ 
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);
+@@ -629,7 +629,8 @@ __f ## _cmp(struct perf_hpp_fmt *fmt __maybe_unused,			\
+ 									\
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);	\
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);	\
+-	return c2c_left->stats.__f - c2c_right->stats.__f;		\
++	return (uint64_t) c2c_left->stats.__f -				\
++	       (uint64_t) c2c_right->stats.__f;				\
+ }
+ 
+ #define STAT_FN(__f)		\
+@@ -682,7 +683,8 @@ ld_llcmiss_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);
+ 
+-	return llc_miss(&c2c_left->stats) - llc_miss(&c2c_right->stats);
++	return (uint64_t) llc_miss(&c2c_left->stats) -
++	       (uint64_t) llc_miss(&c2c_right->stats);
+ }
+ 
+ static uint64_t total_records(struct c2c_stats *stats)
+-- 
+2.25.0.rc1
+
