@@ -2,120 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E789136076
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 19:49:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71644136158
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 20:46:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388553AbgAIStX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 13:49:23 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:23018 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732156AbgAIStX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 13:49:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578595762;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Oqc3MMQw8O1qNIVg8hSlbU7+hvRjZ2to1iSNBj/pjyU=;
-        b=NC1edDrdWYyAxnnnxN6vpEb8jG9P4vNmcxWvyPldY0bcZQKeG6Qe+WTR7uQYiNzv3CsED1
-        NY996fn7te/m5hlsmPgWESpzP8wnVCfxsrOdlqLBJ++DFVG+nASt5+2uIO7U5wmpN8g/5R
-        abh7aaPna9FObMXLNStglTHjxGfLGA0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-130-xRHamForM8qjwjMPloRdvg-1; Thu, 09 Jan 2020 13:49:15 -0500
-X-MC-Unique: xRHamForM8qjwjMPloRdvg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1731631AbgAITqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 14:46:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54682 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728567AbgAITqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jan 2020 14:46:47 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6F3FC100725A;
-        Thu,  9 Jan 2020 18:49:14 +0000 (UTC)
-Received: from cantor.redhat.com (ovpn-116-184.phx2.redhat.com [10.3.116.184])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EE5BE1A8E4;
-        Thu,  9 Jan 2020 18:49:13 +0000 (UTC)
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     rhkernel-list@redhat.com
-Cc:     stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Xiaoping Zhou <xiaoping.zhou@intel.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [RHEL8.2 PATCH BZ1789088 2/2] tpm: Revert "tpm_tis_core: Turn on the TPM before probing IRQ's"
-Date:   Thu,  9 Jan 2020 11:48:59 -0700
-Message-Id: <20200109184859.6755-3-jsnitsel@redhat.com>
-In-Reply-To: <20200109184859.6755-1-jsnitsel@redhat.com>
-References: <20200109184859.6755-1-jsnitsel@redhat.com>
-MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Content-Transfer-Encoding: quoted-printable
+        by mail.kernel.org (Postfix) with ESMTPSA id CB20F206ED;
+        Thu,  9 Jan 2020 19:46:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578599206;
+        bh=Fx9m5wsTVGCM1LTo+ucF0qsB0UheDlPcPQv4CLNYHSw=;
+        h=Date:From:To:Subject:From;
+        b=gM5c1VsF+4foVLEecTUM2QWwuFQUiYxyAWjZUnz/wwpuaUbO2YBrUbZCXWEGX6iXv
+         F+l26WJa/Lm4zbPR3jrgU1iS3O5crc9SNAZOmL615xWnA3BG3z5uIzyVIvx8EwKZzN
+         RK+pSbdFz+1Rpo4X9gYMhwUhM0tWo/T+wywDfFIY=
+Date:   Thu, 09 Jan 2020 11:46:45 -0800
+From:   akpm@linux-foundation.org
+To:     hch@lst.de, linux@armlinux.org.uk, mm-commits@vger.kernel.org,
+        robin.murphy@arm.com, stable@vger.kernel.org, wens@csie.org
+Subject:  +
+ arm-dma-api-fix-max_pfn-off-by-one-error-in-__dma_supported.patch added to
+ -mm tree
+Message-ID: <20200109194645.50bCXmbXm%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Bugzilla: 1789088
-Upstream Status: aa4a63dd981682b1742baa01237036e48bc11923
-Build Info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=3D=
-25656672
 
-commit aa4a63dd981682b1742baa01237036e48bc11923
-Author: Stefan Berger <stefanb@linux.ibm.com>
-Date:   Tue Nov 26 08:17:53 2019 -0500
+The patch titled
+     Subject: ARM: dma-api: fix max_pfn off-by-one error in __dma_supported()
+has been added to the -mm tree.  Its filename is
+     arm-dma-api-fix-max_pfn-off-by-one-error-in-__dma_supported.patch
 
-tpm: Revert "tpm_tis_core: Turn on the TPM before probing IRQ's"
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/arm-dma-api-fix-max_pfn-off-by-one-error-in-__dma_supported.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/arm-dma-api-fix-max_pfn-off-by-one-error-in-__dma_supported.patch
 
-There has been a bunch of reports (one from kernel bugzilla linked)
-reporting that when this commit is applied it causes on some machines
-boot freezes.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Unfortunately hardware where this commit causes a failure is not widely
-available (only one I'm aware is Lenovo T490), which means we cannot
-predict yet how long it will take to properly fix tpm_tis interrupt
-probing.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Thus, the least worst short term action is to revert the code to the
-state before this commit. In long term we need fix the tpm_tis probing
-code to work on machines that Stefan's fix was supposed to fix.
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Fixes: 21df4a8b6018 ("tpm_tis: reserve chip for duration of tpm_tis_core_=
-init")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D205935
-Cc: stable@vger.kernel.org
-Cc: Jerry Snitselaar <jsnitsel@redhat.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Tested-by: Dan Williams <dan.j.williams@intel.com>
-Tested-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-(cherry picked from commit aa4a63dd981682b1742baa01237036e48bc11923)
-Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+------------------------------------------------------
+From: Chen-Yu Tsai <wens@csie.org>
+Subject: ARM: dma-api: fix max_pfn off-by-one error in __dma_supported()
+
+max_pfn, as set in arch/arm/mm/init.c:
+
+    static void __init find_limits(unsigned long *min,
+				   unsigned long *max_low,
+				   unsigned long *max_high)
+    {
+	    *max_low = PFN_DOWN(memblock_get_current_limit());
+	    *min = PFN_UP(memblock_start_of_DRAM());
+	    *max_high = PFN_DOWN(memblock_end_of_DRAM());
+    }
+
+with memblock_end_of_DRAM() pointing to the next byte after DRAM.  As
+such, max_pfn points to the PFN after the end of DRAM.
+
+Thus when using max_pfn to check DMA masks, we should subtract one when
+checking DMA ranges against it.
+
+Commit 8bf1268f48ad ("ARM: dma-api: fix off-by-one error in
+__dma_supported()") fixed the same issue, but missed this spot.
+
+This issue was found while working on the sun4i-csi v4l2 driver on the
+Allwinner R40 SoC.  On Allwinner SoCs, DRAM is offset at 0x40000000, and
+we are starting to use of_dma_configure() with the "dma-ranges" property
+in the device tree to have the DMA API handle the offset.
+
+In this particular instance, dma-ranges was set to the same range as the
+actual available (2 GiB) DRAM.  The following error appeared when the
+driver attempted to allocate a buffer:
+
+    sun4i-csi 1c09000.csi: Coherent DMA mask 0x7fffffff (pfn 0x40000-0xc0000)
+    covers a smaller range of system memory than the DMA zone pfn 0x0-0xc0001
+    sun4i-csi 1c09000.csi: dma_alloc_coherent of size 307200 failed
+
+Fixing the off-by-one error makes things work.
+
+Link: http://lkml.kernel.org/r/20191224030239.5656-1-wens@kernel.org
+Fixes: 11a5aa32562e ("ARM: dma-mapping: check DMA mask against available memory")
+Fixes: 9f28cde0bc64 ("ARM: another fix for the DMA mapping checks")
+Fixes: ab746573c405 ("ARM: dma-mapping: allow larger DMA mask than supported")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/char/tpm/tpm_tis_core.c | 2 --
- 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_c=
-ore.c
-index ffa9048d8f6c..c3181ea9f271 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -980,7 +980,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_=
-tis_data *priv, int irq,
- 			goto out_err;
- 		}
-=20
--		tpm_chip_start(chip);
- 		if (irq) {
- 			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
- 						 irq);
-@@ -990,7 +989,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_=
-tis_data *priv, int irq,
- 		} else {
- 			tpm_tis_probe_irq(chip, intmask);
- 		}
--		tpm_chip_stop(chip);
- 	}
-=20
- 	rc =3D tpm_chip_register(chip);
---=20
-2.24.0
+ arch/arm/mm/dma-mapping.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/arm/mm/dma-mapping.c~arm-dma-api-fix-max_pfn-off-by-one-error-in-__dma_supported
++++ a/arch/arm/mm/dma-mapping.c
+@@ -221,7 +221,7 @@ EXPORT_SYMBOL(arm_coherent_dma_ops);
+ 
+ static int __dma_supported(struct device *dev, u64 mask, bool warn)
+ {
+-	unsigned long max_dma_pfn = min(max_pfn, arm_dma_pfn_limit);
++	unsigned long max_dma_pfn = min(max_pfn - 1, arm_dma_pfn_limit);
+ 
+ 	/*
+ 	 * Translate the device's DMA mask to a PFN limit.  This
+_
+
+Patches currently in -mm which might be from wens@csie.org are
+
+arm-dma-api-fix-max_pfn-off-by-one-error-in-__dma_supported.patch
 
