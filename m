@@ -2,88 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70BE6135847
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 12:43:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B8C135897
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 12:55:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728431AbgAILnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 06:43:47 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:32858 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728273AbgAILnr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 06:43:47 -0500
-Received: by mail-pj1-f66.google.com with SMTP id u63so888480pjb.0;
-        Thu, 09 Jan 2020 03:43:46 -0800 (PST)
+        id S1730055AbgAILz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 06:55:26 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:38985 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729130AbgAILzZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 06:55:25 -0500
+Received: by mail-wr1-f66.google.com with SMTP id y11so7091537wrt.6;
+        Thu, 09 Jan 2020 03:55:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:mime-version
-         :content-disposition:user-agent;
-        bh=k+CxAu0VDmJBfyM0W8hIIm9rZiwUPX2eTvUTzZyDrRQ=;
-        b=YAGqtuiXmrVRygS5Xiz/pKNOd7/HCEK0KrnYzrNgj33GyCzaIeZhvy9kRpPOGaGFTt
-         hyUh66HLQYGVQoHEbovH+bWGvprqYEjXw4Uy7NTuzoFCfehrVwCJgZkl7+UQYVPM42EJ
-         sBSiTRJPrlF6ag5cqC1WoZtdcFDYEUlrwcaOUGC7HPR7mbkzQTpv5UvwKxIVdMyZZWte
-         W2LzFFDMYfrlrZPPZCTzApeygirDxQqj/NfGx62uRe/603F3AwrxFTqctNyo4g18/r7d
-         PLvs/jgj3AyaDKspPtOzQ0eo2Zqxbdr6bnzNVn2cb84ZItAFlz0h+9ceZMhpe5HM9szb
-         ORmQ==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=mFkJFYkrFDlWwhK3VKXDGs8jHD7xXTyu7e9TssfROcw=;
+        b=VupQPDUFRW6nGI/fzWa+ImG6XxRsc/hamERXHTC1dosaWxKNgdAbWQDk0HOMqzR66F
+         +2dhGR+dnG6oMn7gR22cxPsacp8CL5RP63fJFGXzFeQ+4apuOHZL+lHxNifRs8OQnJg1
+         E+otA/VR0s0acLtclp9GbEySjXdImnzLwESx+PL/+SoIpENiFYmczifnTPlZgwr9MYDc
+         SZC7aUgd7yxZif/HC4+zpmRUYOQMviQpQdqPK/fgF4hlQ5W7tl7ZCE5iOxkoOyWA01c1
+         s7/jp7cpF86j/jZ2mjNHNi8TPPegY78m8Q2gbP0afcYMGZZ05ADgKsoX1OtyxB4Bxkjg
+         gUZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:mime-version:content-disposition:user-agent;
-        bh=k+CxAu0VDmJBfyM0W8hIIm9rZiwUPX2eTvUTzZyDrRQ=;
-        b=kV7iVohF32TDWMmgDLJBdBM6KPEev3LZEiuQH37Jk4nUu6VO+JbptccbHfC45XL/4h
-         eioFOWi4YAtotW08KkUxIvlgfp3kXagY3JcwLmOg4EsbS6Peaguef3KgBJ31D0am+IsT
-         +n4zWOvcVOoICduR0fJx8DPUetVveejFoSMPZR3FXFt+R8Wxwv/tELdWW9sWRwJ4ZC5r
-         7pjVJOnXynfRfSViOCDaN5rmFwzCjGoUUioW3WtOITR/AiXWo5yHJaSU+C/tHglTsYfk
-         qRL+JxC3tNJ9H+w18+53DuUzu1yE8QahJZxEAsO5p3uAr53G/fjcS87lgJpdZX7LZykW
-         mZGQ==
-X-Gm-Message-State: APjAAAV2HQpjf1AXmoT0vFK2gGPJ6jDDY3iQ+7quRE/pyoEVuswhSufv
-        ijciSDvwICun4GxOIHSafNhXYhg9
-X-Google-Smtp-Source: APXvYqw8hABGGJOgCw9/2qfVSTvUBKdLcQBUxNSlYbHEVNlFpmyDuGK4LuzaCcLJ8qHR5c4IO42l6A==
-X-Received: by 2002:a17:90a:7345:: with SMTP id j5mr4541891pjs.69.1578570225935;
-        Thu, 09 Jan 2020 03:43:45 -0800 (PST)
-Received: from Gentoo ([103.231.90.173])
-        by smtp.gmail.com with ESMTPSA id k1sm2915637pjl.21.2020.01.09.03.43.41
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 Jan 2020 03:43:45 -0800 (PST)
-Date:   Thu, 9 Jan 2020 17:13:32 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     StableKernel <stable@vger.kernel.org>, linux-kernel@vger.kernel.org
-Cc:     Greg KH <gregkh@linuxfoundation.org>
-Subject: What happend to 5.4.9??? Kernel.org showing 5.4.10!!
-Message-ID: <20200109114330.GC19235@Gentoo>
-Mail-Followup-To: Bhaskar Chowdhury <unixbhaskar@gmail.com>,
-        StableKernel <stable@vger.kernel.org>, linux-kernel@vger.kernel.org,
-        Greg KH <gregkh@linuxfoundation.org>
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=mFkJFYkrFDlWwhK3VKXDGs8jHD7xXTyu7e9TssfROcw=;
+        b=IBx+/0OQxcLiYOYI43+yn5aArRtLY50ckQ1ZRtV6OJ0D6oageu/+DHbaVU0D5NESQ4
+         PLJwfYD5EmHSs390pxrzvaxcIiW/0/IOUQeKGJK3lhqc1+s1sHeRVrbt3XR+SksuukX+
+         PlXwIqafvC9nS8mjmsHCnWwaGHil3NINsm/REFCx8v50yi1jNQ8Q5GXVPc/bGw+/Aph+
+         fZxgQxlUWxBjBDZ6A91+Uij+rL4t7VZfXlxC8yxOpL/WKSHgAAy2BP7El3LFZfNVPM+h
+         EFpiqSK2EGGr76CsqTziwSIRMXO5q+pR7sSu//j2l5JDC4bD0tRve0iBP97Ek4B35Jql
+         Cc0g==
+X-Gm-Message-State: APjAAAUF+qnB8B6Jc1rVf+E9Wtxi1to/VZCLh2bMWh6XuLz8l4bMFK9u
+        sx9C6kiRhtgISLZ/E+8IWcZQwhGf6+w=
+X-Google-Smtp-Source: APXvYqzZdiDmnWeIjKl6Zs3UBhHThSKFOQFbH9wX9X39v5aH1m8oz0pIqOBHZJxJHGAj4woPe0HMbQ==
+X-Received: by 2002:adf:d0c1:: with SMTP id z1mr10906394wrh.371.1578570923526;
+        Thu, 09 Jan 2020 03:55:23 -0800 (PST)
+Received: from lorien (lorien.valinor.li. [2a01:4f8:192:61d5::2])
+        by smtp.gmail.com with ESMTPSA id g25sm3634075wmh.3.2020.01.09.03.55.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jan 2020 03:55:22 -0800 (PST)
+Date:   Thu, 9 Jan 2020 12:55:21 +0100
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Bhaskar Chowdhury <unixbhaskar@gmail.com>
+Cc:     StableKernel <stable@vger.kernel.org>,
+        linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: What happend to 5.4.9??? Kernel.org showing 5.4.10!!
+Message-ID: <20200109115514.GA1270@lorien.valinor.li>
+References: <20200109114330.GC19235@Gentoo>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tqI+Z3u+9OQ7kwn0"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20200109114330.GC19235@Gentoo>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
---tqI+Z3u+9OQ7kwn0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Jan 09, 2020 at 05:13:32PM +0530, Bhaskar Chowdhury wrote:
+> I am wondering, it might be lack of morning coffee for Greg  :)
 
-I am wondering, it might be lack of morning coffee for Greg  :)=20
+5.4.10 contains one followup, backport of 6f4679b95674 ("powerpc/pmem:
+Fix kernel crash due to wrong range value usage in
+flush_dcache_range") which fixes a regression introduced in 5.4.9 via
+backport of 076265907cf9 ("powerpc: Chunk calls to flush_dcache_range
+in arch_*_memory").
 
---tqI+Z3u+9OQ7kwn0
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl4XEd4ACgkQsjqdtxFL
-KRV4AQf/b8ZPX1KUHTRB2kblZjjQl5aEj7TBrxc9cseW7ERXvoEvNKE9ZjxoBQIg
-ZdDLba9BquWHoIeJ8hE8A8gJRt19BCUJq/2Qyt333u5v37jZVAAKLX5gWlWR814M
-zc2gFItH6BxZ4Kys7Zgya6Vg/awwpmF1GcJiXEu4Og741RasudsZhKaUbYLL5lHi
-TS8KwisPScUWZBl6RSQ1siV3tFDYx2z+BTdQO4AFUYVnKIIsKodhbjY05vK5x1NG
-n9DcsU5ZC5EtzyTrwdDeRJBjW44G8NdaktBTFKxQu9T5Q1jPjYVIvLURBk+CJ69+
-A69CcbYoJsgcIG1qtgnuGBl+jN/z6Q==
-=x1ZM
------END PGP SIGNATURE-----
-
---tqI+Z3u+9OQ7kwn0--
+Regards,
+Salvatore
