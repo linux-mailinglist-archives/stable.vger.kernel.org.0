@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2371358D2
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 13:05:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B5F1358D5
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 13:06:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730111AbgAIMFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 07:05:54 -0500
-Received: from mail-pg1-f182.google.com ([209.85.215.182]:35305 "EHLO
-        mail-pg1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728653AbgAIMFy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 07:05:54 -0500
-Received: by mail-pg1-f182.google.com with SMTP id l24so3146933pgk.2;
-        Thu, 09 Jan 2020 04:05:54 -0800 (PST)
+        id S1730163AbgAIMGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 07:06:52 -0500
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:52243 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728653AbgAIMGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 07:06:51 -0500
+Received: by mail-pj1-f65.google.com with SMTP id a6so1078873pjh.2;
+        Thu, 09 Jan 2020 04:06:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:mail-followup-to:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=0ip4b34cghB4s4OCkst8mSaebMmcHXne3KKW6x6vu18=;
-        b=KEtmxSsD9o+89Fy7PeYCQq4ROxzgpj05btDIBfRcem/LFlNGOEFHJH+6veE+WFvOK9
-         nHv9bKRGTamg91cfuF8JtYcNHCQi0Jlf/lLV/wcps460Km2BaqPQSN15JAyaVoWFZbCj
-         PUzBDGXiKa34Y3y4oQltujdc8hWRDncQN5wpFqirty4v28Y2Q6uhlO1r4SagHraWKKlL
-         GuEVWSlPJzvowV+Gp40bHi50lTKxnqlelnzuYiKoh3SyBBLazM13/htfXCjgd9WzL0Pl
-         bV69Cbj9pv8KyONtg4WpqQsZcl8HWpwED0xVfDax7x9oKn9Gew9T6qSD4blBVPCgEONZ
-         1nvA==
+        bh=hmIycbUVcS+pfeeCibTBHWK6WtvOxVuFBuQ8992eW/g=;
+        b=BYSqbPH5N78ZZCbnIMdjQooooI4YQxW+KN6VxpqanIrGHZ55CMqzP9hzQOz/HAfD2w
+         4Gc56pO7WiLE2Y0kajzWARbpsg/C153u9Jd0rWfQnWKewlWHTAgmwKMqaV9pVlMpdjpV
+         VomwRTZvUFb2XBkNeSc7ZMB14wgEHzH0In/6mRgLoMDJruXGzuc34vz3EjHiZ6fG5EJg
+         FGsWarsnphSF5x6lYlHFIeCGrWI4XeTDX+ZUlGj+NamzS4kMi1fqPLqFXVpz5WhvzS+5
+         PscuSuIqNWWnmpzb3/LeBQmv8et6w9k5uDCqCjy1IDSpqdg71vKeJ9CnDbJDXlBjFgia
+         BKIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id
          :mail-followup-to:references:mime-version:content-disposition
          :in-reply-to:user-agent;
-        bh=0ip4b34cghB4s4OCkst8mSaebMmcHXne3KKW6x6vu18=;
-        b=LjUKRtdnQnMZnBbr69MmCHOQ2VErZ6h5YQsz1oFMapdZhwoFDbTLVwEepvtpPOBvfO
-         wE3k+RQ9IBdV6WfV/rhLSJyDSILlteOCisCCTt9Qb31z+d7Q4kCg3vdHD4vijOGQrxHh
-         x8uNkZv6djOflJyuBwhU4jD4PD3NmH9tBayXUZXrjB2U1xHDC/keaU660JKzkT3JIvnv
-         CMtOk7rIMXO+DEMTlxdtW0p4/+F4BLkkYbq50GUDzIN5i0di8dpRbE/woUgLe3DCjHgV
-         sIA96gHijkLgGWOIZp4xzHqSiTsGfUm7Pi4iNlIMlo4/jZAlJ8GuWGBNJhgC6038bquq
-         BoKw==
-X-Gm-Message-State: APjAAAU0/Bj3kdEMwmsuvimzakj2BQkHkrH4Dzrw0PdUskJ9T/5VarsG
-        2PCl24bwALJgySEq6ePhX8HwY2IZ
-X-Google-Smtp-Source: APXvYqx3DbQmHr1G07zCe4C2a7sHNW4r1ALAHpM+Qt6qaZIbcFQtiEF3EGE4M+AylUcOVHoPzHk+Tg==
-X-Received: by 2002:aa7:8096:: with SMTP id v22mr10766726pff.240.1578571553764;
-        Thu, 09 Jan 2020 04:05:53 -0800 (PST)
+        bh=hmIycbUVcS+pfeeCibTBHWK6WtvOxVuFBuQ8992eW/g=;
+        b=MrVpyB8ITeUQGZrMu6pTdU4yOIWB7qm60cSJR6jr0rv0eWve8/7AmQh64yjUYYC2oc
+         PU5zGS1Vtxj/SaPYUg2sTvgvEVVRvr6tF7+WjxnKY7dcgRrDSHaSQiI89vH1Me6bpv8s
+         ONmssDMTu4+2nvrlGqDiX6EmA1g9ZY4AqL7hM+GFt80/w+piqxlQd8Y2aVrK25Jz1rtS
+         93TzauntLuVp67vLDhrKI2e1CtHAJ2+suX4rNTNzrUADlhVsou9vXBzt9ZWkJSyOMVqG
+         7skxi1D4As5pS9A0TG39hMjANvcrfQ46ECEitUjAhA0BZMKeN+Vu7+DUy3KrlRlYsPxO
+         XuJQ==
+X-Gm-Message-State: APjAAAX2do6WhVgeHfo+Xq9FJEO2HM23nQnnITpDCYoW8HLr3LhVy0zB
+        JpDgoCsWdsqM/MstgRFLUNE=
+X-Google-Smtp-Source: APXvYqwasyKsQoLxmd3Ddy6w4uPDyQyZgmj/zsCEYdkq9WmS9xOe5NJNjxE9y4tmAcjM4e1E7jAeHw==
+X-Received: by 2002:a17:902:aa92:: with SMTP id d18mr1570928plr.157.1578571611109;
+        Thu, 09 Jan 2020 04:06:51 -0800 (PST)
 Received: from Gentoo ([103.231.90.173])
-        by smtp.gmail.com with ESMTPSA id o19sm4205222pjr.2.2020.01.09.04.05.48
+        by smtp.gmail.com with ESMTPSA id 189sm8036311pfw.73.2020.01.09.04.06.46
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 Jan 2020 04:05:52 -0800 (PST)
-Date:   Thu, 9 Jan 2020 17:35:40 +0530
+        Thu, 09 Jan 2020 04:06:50 -0800 (PST)
+Date:   Thu, 9 Jan 2020 17:36:37 +0530
 From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     Christian Hesse <list@eworm.de>
+To:     Salvatore Bonaccorso <carnil@debian.org>
 Cc:     StableKernel <stable@vger.kernel.org>,
         linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
 Subject: Re: What happend to 5.4.9??? Kernel.org showing 5.4.10!!
-Message-ID: <20200109120537.GD19235@Gentoo>
+Message-ID: <20200109120635.GE19235@Gentoo>
 Mail-Followup-To: Bhaskar Chowdhury <unixbhaskar@gmail.com>,
-        Christian Hesse <list@eworm.de>,
+        Salvatore Bonaccorso <carnil@debian.org>,
         StableKernel <stable@vger.kernel.org>, linux-kernel@vger.kernel.org,
         Greg KH <gregkh@linuxfoundation.org>
 References: <20200109114330.GC19235@Gentoo>
- <20200109125711.26b31965@leda>
+ <20200109115514.GA1270@lorien.valinor.li>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="NtwzykIc2mflq5ck"
+        protocol="application/pgp-signature"; boundary="84ND8YJRMFlzkrP4"
 Content-Disposition: inline
-In-Reply-To: <20200109125711.26b31965@leda>
+In-Reply-To: <20200109115514.GA1270@lorien.valinor.li>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -70,57 +70,40 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---NtwzykIc2mflq5ck
+--84ND8YJRMFlzkrP4
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On 12:57 Thu 09 Jan 2020, Christian Hesse wrote:
->Bhaskar Chowdhury <unixbhaskar@gmail.com> on Thu, 2020/01/09 17:13:
->> I am wondering, it might be lack of morning coffee for Greg  :)=20
+On 12:55 Thu 09 Jan 2020, Salvatore Bonaccorso wrote:
+>Hi,
 >
->Just see what's in git:
+>On Thu, Jan 09, 2020 at 05:13:32PM +0530, Bhaskar Chowdhury wrote:
+>> I am wondering, it might be lack of morning coffee for Greg  :)
 >
->https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/log/?h=3D=
-linux-5.4.y
+>5.4.10 contains one followup, backport of 6f4679b95674 ("powerpc/pmem:
+>Fix kernel crash due to wrong range value usage in
+>flush_dcache_range") which fixes a regression introduced in 5.4.9 via
+>backport of 076265907cf9 ("powerpc: Chunk calls to flush_dcache_range
+>in arch_*_memory").
 >
->Version 5.4.9 suffered a crash on powerpc. Not sure if coffee could have
->prevented. :-p
->--=20
->main(a){char*c=3D/*    Schoene Gruesse                         */"B?IJj;ME=
-H"
->"CX:;",b;for(a/*    Best regards             my address:    */=3D0;b=3Dc[a=
-++];)
->putchar(b-1/(/*    Chris            cc -ox -xc - && ./x    */b/42*2-3)*42)=
-;}
-=20
- :) ...thanks.
+>Regards,
+>Salvatore
 
->-----BEGIN PGP SIGNATURE-----
->
->iQEzBAEBCAAdFiEEXHmveYAHrRp+prOviUUh18yA9HYFAl4XFRcACgkQiUUh18yA
->9HaOzgf/UQ3ItscDbzDqpZ9TTHCJafCB+Qox6x8emjr5LO0GZV5Nv4z1qpTPh8U9
->UkVr47YrP70SX6YlQT1Mnua8zuK9zkIyNnGVkC//4b8DDnPHexURSfk8rj1iijah
->G3SCUi//Ar58Fs4nERF6VNfise0bOAehW9ZH6t1YGqUmjQDImDCy8+NSD82Kyb5U
->Wdc+eYCaORMIBwnac3sn0grpP1F2XPb2T4DypTpn6m9VnJP6rfHT0TmbDjKEIyAg
->9vbJG7hosEEGgi/7/wuMxwZ6dOPt9IZv3I2bbpPKmI00LRgy8Vfshke9bWhNRRam
->fgZPOfVkxTSveDVlrx2Oj0wuRZL6ww=3D=3D
->=3DMn31
->-----END PGP SIGNATURE-----
+Got it! thanks.
 
---NtwzykIc2mflq5ck
+--84ND8YJRMFlzkrP4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl4XFw4ACgkQsjqdtxFL
-KRX1jQf+LKJbjvWPN4EeAYFNjCxsluvBVashu4m5CphL2Zt0lqGtchQATtwGpr7K
-VC/HGHecPjUeYYwf2zEU6cWmVylZDTiuSIVJl4j/qJquev7SdETyemzpFi9mDGct
-XTFpupxC2ZFaN43XMGfqVONKV4290IAu2VDpHA97ZqjmrYPHbl0JUaPOsYqrbJzj
-+1SMNg8fOxxqTrjYljucAcEUx8WQxCjAwhhRykiH3XvmuvyvrkKdFVmM5pIZZf4r
-Ztgkyz2WpCam/gD4gEl4dKXGGdcaQCvM2VapURUkZaLUJiZKxRKFO7q5ABRZuqAw
-yHV+ak42DS8LpsvROXV3LIRLm4+jWA==
-=daat
+iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl4XF0oACgkQsjqdtxFL
+KRVifQf+IGVtZO+4SLRXXf/W/YaAEKGkYb52+z+OH8a3pdi834AexuHdgZi0Gg2w
+21UGyUryXkHIspfQvVjgWeiYQS9sPtqoDbekXaM6ctiqfHpOs/PDA0dK3vvCyka/
+rD63GAmRRAGUzPS+Ia9Fm4pd8Qx6S1+aooAeyX79aLgN3deaabXiOxZfURrTkeqT
+V8+P99bVY1lH4ezsE/OjjYXuceFTDHfnW6qnPa/uBOTy9JjBZjulua57+WcMl0+P
+G+kbSYwheUm81Vccldg5KWZ5f4P7vw1FloeYg3ZeEoH/R0og27/ZJopM8vkLLq2M
+OPEiHyX8P0KuS/dx/TcVL/YLiVyNuw==
+=j7Dd
 -----END PGP SIGNATURE-----
 
---NtwzykIc2mflq5ck--
+--84ND8YJRMFlzkrP4--
