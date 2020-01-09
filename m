@@ -2,115 +2,320 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DB1136283
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 22:30:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E59F21362B9
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 22:40:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725840AbgAIVaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 16:30:46 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:30641 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725763AbgAIVaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 16:30:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578605445;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type;
-        bh=1IUjlo6h+sZStx42VL9j/a6mBCI3UCW9wRCGNoHJVX8=;
-        b=PZJGYjfsz7Xs7moPBiTWYljPdliqaL43FBklIgl1fpHorXJsTGmbMkNN8HzdYzkFW3Ky+4
-        qKRk7GW2vO7LNLt0r7jUEnJhGvoeI0aTfr8lH1LeIF6gXuepUCbc+N21g3PorNc2pIJIdK
-        wDCXe2seNfMaBVF5JtAqnsmW9sG4Emc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-390-a4zBthMkNV-7d4xcXbW_iw-1; Thu, 09 Jan 2020 16:30:41 -0500
-X-MC-Unique: a4zBthMkNV-7d4xcXbW_iw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725840AbgAIVkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 16:40:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51296 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725763AbgAIVkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jan 2020 16:40:13 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8657C107ACC4
-        for <stable@vger.kernel.org>; Thu,  9 Jan 2020 21:30:40 +0000 (UTC)
-Received: from [172.54.108.255] (cpt-1042.paas.prod.upshift.rdu2.redhat.com [10.0.19.67])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DB8075C545;
-        Thu,  9 Jan 2020 21:30:37 +0000 (UTC)
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.4.11-rc1-c2277d0.cki
- (stable)
-Date:   Thu, 09 Jan 2020 21:30:37 -0000
-Message-ID: <cki.2D14222D64.0OY8ZIUAF0@redhat.com>
-X-Gitlab-Pipeline-ID: 374903
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/374903
-Content-Type: multipart/mixed; boundary="===============4389216519533175408=="
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+        by mail.kernel.org (Postfix) with ESMTPSA id B7B7820721;
+        Thu,  9 Jan 2020 21:40:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578606013;
+        bh=Jnl3khuevR0OFKWeoeSf1KRZZBlKjRgoPuXb0M8pUik=;
+        h=Date:From:To:Subject:From;
+        b=fuTybKZDGsUM6F5jg7VZw53h1nOek3RtC0w9GXyQXYrfRKa+urJzb/p78hEhZ6aNL
+         TwIuvkzU756GgJyApZ02afrWTAvx97LBzGOeMxULJrZPgugZNBqJ+5e/6wTAh27r7m
+         gten9T3jJKybga6aPmvHBmWjc7spDzhJ0UxhGoNE=
+Date:   Thu, 09 Jan 2020 13:40:12 -0800
+From:   akpm@linux-foundation.org
+To:     axboe@kernel.dk, clm@fb.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, tj@kernel.org, tytso@mit.edu
+Subject:  +
+ memcg-fix-a-crash-in-wb_workfn-when-a-device-disappears.patch added to -mm
+ tree
+Message-ID: <20200109214012.owD78fqhs%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---===============4389216519533175408==
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
 
+The patch titled
+     Subject: memcg: fix a crash in wb_workfn when a device disappears
+has been added to the -mm tree.  Its filename is
+     memcg-fix-a-crash-in-wb_workfn-when-a-device-disappears.patch
 
-Hello,
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/memcg-fix-a-crash-in-wb_workfn-when-a-device-disappears.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/memcg-fix-a-crash-in-wb_workfn-when-a-device-disappears.patch
 
-We ran automated tests on a recent commit from this kernel tree:
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: c2277d07f243 - Linux 5.4.11-rc1
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-The results of these automated tests are provided below.
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: FAILED
+------------------------------------------------------
+From: "Theodore Ts'o" <tytso@mit.edu>
+Subject: memcg: fix a crash in wb_workfn when a device disappears
 
-All kernel binaries, config files, and logs are available for download here:
+Without memcg, there is a one-to-one mapping between the bdi and
+bdi_writeback structures.  In this world, things are fairly
+straightforward; the first thing bdi_unregister() does is to shutdown the
+bdi_writeback structure (or wb), and part of that writeback ensures that
+no other work queued against the wb, and that the wb is fully drained.
 
-  https://artifacts.cki-project.org/pipelines/374903
+With memcg, however, there is a one-to-many relationship between the bdi
+and bdi_writeback structures; that is, there are multiple wb objects which
+can all point to a single bdi.  There is a refcount which prevents the bdi
+object from being released (and hence, unregistered).  So in theory, the
+bdi_unregister() *should* only get called once its refcount goes to zero
+(bdi_put will drop the refcount, and when it is zero, release_bdi gets
+called, which calls bdi_unregister).
 
-We attempted to compile the kernel for multiple architectures, but the compile
-failed on one or more architectures:
+Unfortunately, del_gendisk() in block/gen_hd.c never got the memo about
+the Brave New memcg World, and calls bdi_unregister directly.  It does
+this without informing the file system, or the memcg code, or anything
+else.  This causes the root wb associated with the bdi to be unregistered,
+but none of the memcg-specific wb's are shutdown.  So when one of these
+wb's are woken up to do delayed work, they try to dereference their
+wb->bdi->dev to fetch the device name, but unfortunately bdi->dev is now
+NULL, thanks to the bdi_unregister() called by del_gendisk().  As a
+result, *boom*.
 
-           aarch64: FAILED (see build-aarch64.log.xz attachment)
+Fortunately, it looks like the rest of the writeback path is perfectly
+happy with bdi->dev and bdi->owner being NULL, so the simplest fix is to
+create a bdi_dev_name() function which can handle bdi->dev being NULL. 
+This also allows us to bulletproof the writeback tracepoints to prevent
+them from dereferencing a NULL pointer and crashing the kernel if one is
+tracing with memcg's enabled, and an iSCSI device dies or a USB storage
+stick is pulled.
 
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
+The most common way of triggering this will be hotremoval of a device
+while writeback with memcg enabled is going on.  It was triggering several
+times a day in a heavily loaded production environment.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Google Bug Id: 145475544
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+Link: https://lore.kernel.org/r/20191227194829.150110-1-tytso@mit.edu
+Link: http://lkml.kernel.org/r/20191228005211.163952-1-tytso@mit.edu
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: Chris Mason <clm@fb.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-Compile testing
----------------
+ fs/fs-writeback.c                |    2 -
+ include/linux/backing-dev.h      |   10 +++++++
+ include/trace/events/writeback.h |   37 +++++++++++++----------------
+ mm/backing-dev.c                 |    1 
+ 4 files changed, 29 insertions(+), 21 deletions(-)
 
-We compiled the kernel for 3 architectures:
+--- a/fs/fs-writeback.c~memcg-fix-a-crash-in-wb_workfn-when-a-device-disappears
++++ a/fs/fs-writeback.c
+@@ -2063,7 +2063,7 @@ void wb_workfn(struct work_struct *work)
+ 						struct bdi_writeback, dwork);
+ 	long pages_written;
+ 
+-	set_worker_desc("flush-%s", dev_name(wb->bdi->dev));
++	set_worker_desc("flush-%s", bdi_dev_name(wb->bdi));
+ 	current->flags |= PF_SWAPWRITE;
+ 
+ 	if (likely(!current_is_workqueue_rescuer() ||
+--- a/include/linux/backing-dev.h~memcg-fix-a-crash-in-wb_workfn-when-a-device-disappears
++++ a/include/linux/backing-dev.h
+@@ -13,6 +13,7 @@
+ #include <linux/fs.h>
+ #include <linux/sched.h>
+ #include <linux/blkdev.h>
++#include <linux/device.h>
+ #include <linux/writeback.h>
+ #include <linux/blk-cgroup.h>
+ #include <linux/backing-dev-defs.h>
+@@ -504,4 +505,13 @@ static inline int bdi_rw_congested(struc
+ 				  (1 << WB_async_congested));
+ }
+ 
++extern const char *bdi_unknown_name;
++
++static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
++{
++	if (!bdi || !bdi->dev)
++		return bdi_unknown_name;
++	return dev_name(bdi->dev);
++}
++
+ #endif	/* _LINUX_BACKING_DEV_H */
+--- a/include/trace/events/writeback.h~memcg-fix-a-crash-in-wb_workfn-when-a-device-disappears
++++ a/include/trace/events/writeback.h
+@@ -67,8 +67,8 @@ DECLARE_EVENT_CLASS(writeback_page_templ
+ 
+ 	TP_fast_assign(
+ 		strscpy_pad(__entry->name,
+-			    mapping ? dev_name(inode_to_bdi(mapping->host)->dev) : "(unknown)",
+-			    32);
++			    bdi_dev_name(mapping ? inode_to_bdi(mapping->host) :
++					 NULL), 32);
+ 		__entry->ino = mapping ? mapping->host->i_ino : 0;
+ 		__entry->index = page->index;
+ 	),
+@@ -111,8 +111,7 @@ DECLARE_EVENT_CLASS(writeback_dirty_inod
+ 		struct backing_dev_info *bdi = inode_to_bdi(inode);
+ 
+ 		/* may be called for files on pseudo FSes w/ unregistered bdi */
+-		strscpy_pad(__entry->name,
+-			    bdi->dev ? dev_name(bdi->dev) : "(unknown)", 32);
++		strscpy_pad(__entry->name, bdi_dev_name(bdi), 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->state		= inode->i_state;
+ 		__entry->flags		= flags;
+@@ -193,7 +192,7 @@ TRACE_EVENT(inode_foreign_history,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name, dev_name(inode_to_bdi(inode)->dev), 32);
++		strncpy(__entry->name, bdi_dev_name(inode_to_bdi(inode)), 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->cgroup_ino	= __trace_wbc_assign_cgroup(wbc);
+ 		__entry->history	= history;
+@@ -222,7 +221,7 @@ TRACE_EVENT(inode_switch_wbs,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name,	dev_name(old_wb->bdi->dev), 32);
++		strncpy(__entry->name,	bdi_dev_name(old_wb->bdi), 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->old_cgroup_ino	= __trace_wb_assign_cgroup(old_wb);
+ 		__entry->new_cgroup_ino	= __trace_wb_assign_cgroup(new_wb);
+@@ -255,7 +254,7 @@ TRACE_EVENT(track_foreign_dirty,
+ 		struct address_space *mapping = page_mapping(page);
+ 		struct inode *inode = mapping ? mapping->host : NULL;
+ 
+-		strncpy(__entry->name,	dev_name(wb->bdi->dev), 32);
++		strncpy(__entry->name,	bdi_dev_name(wb->bdi), 32);
+ 		__entry->bdi_id		= wb->bdi->id;
+ 		__entry->ino		= inode ? inode->i_ino : 0;
+ 		__entry->memcg_id	= wb->memcg_css->id;
+@@ -288,7 +287,7 @@ TRACE_EVENT(flush_foreign,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name,	dev_name(wb->bdi->dev), 32);
++		strncpy(__entry->name,	bdi_dev_name(wb->bdi), 32);
+ 		__entry->cgroup_ino	= __trace_wb_assign_cgroup(wb);
+ 		__entry->frn_bdi_id	= frn_bdi_id;
+ 		__entry->frn_memcg_id	= frn_memcg_id;
+@@ -318,7 +317,7 @@ DECLARE_EVENT_CLASS(writeback_write_inod
+ 
+ 	TP_fast_assign(
+ 		strscpy_pad(__entry->name,
+-			    dev_name(inode_to_bdi(inode)->dev), 32);
++			    bdi_dev_name(inode_to_bdi(inode)), 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->sync_mode	= wbc->sync_mode;
+ 		__entry->cgroup_ino	= __trace_wbc_assign_cgroup(wbc);
+@@ -361,9 +360,7 @@ DECLARE_EVENT_CLASS(writeback_work_class
+ 		__field(ino_t, cgroup_ino)
+ 	),
+ 	TP_fast_assign(
+-		strscpy_pad(__entry->name,
+-			    wb->bdi->dev ? dev_name(wb->bdi->dev) :
+-			    "(unknown)", 32);
++		strscpy_pad(__entry->name, bdi_dev_name(wb->bdi), 32);
+ 		__entry->nr_pages = work->nr_pages;
+ 		__entry->sb_dev = work->sb ? work->sb->s_dev : 0;
+ 		__entry->sync_mode = work->sync_mode;
+@@ -416,7 +413,7 @@ DECLARE_EVENT_CLASS(writeback_class,
+ 		__field(ino_t, cgroup_ino)
+ 	),
+ 	TP_fast_assign(
+-		strscpy_pad(__entry->name, dev_name(wb->bdi->dev), 32);
++		strscpy_pad(__entry->name, bdi_dev_name(wb->bdi), 32);
+ 		__entry->cgroup_ino = __trace_wb_assign_cgroup(wb);
+ 	),
+ 	TP_printk("bdi %s: cgroup_ino=%lu",
+@@ -438,7 +435,7 @@ TRACE_EVENT(writeback_bdi_register,
+ 		__array(char, name, 32)
+ 	),
+ 	TP_fast_assign(
+-		strscpy_pad(__entry->name, dev_name(bdi->dev), 32);
++		strscpy_pad(__entry->name, bdi_dev_name(bdi), 32);
+ 	),
+ 	TP_printk("bdi %s",
+ 		__entry->name
+@@ -463,7 +460,7 @@ DECLARE_EVENT_CLASS(wbc_class,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strscpy_pad(__entry->name, dev_name(bdi->dev), 32);
++		strscpy_pad(__entry->name, bdi_dev_name(bdi), 32);
+ 		__entry->nr_to_write	= wbc->nr_to_write;
+ 		__entry->pages_skipped	= wbc->pages_skipped;
+ 		__entry->sync_mode	= wbc->sync_mode;
+@@ -514,7 +511,7 @@ TRACE_EVENT(writeback_queue_io,
+ 	),
+ 	TP_fast_assign(
+ 		unsigned long *older_than_this = work->older_than_this;
+-		strscpy_pad(__entry->name, dev_name(wb->bdi->dev), 32);
++		strscpy_pad(__entry->name, bdi_dev_name(wb->bdi), 32);
+ 		__entry->older	= older_than_this ?  *older_than_this : 0;
+ 		__entry->age	= older_than_this ?
+ 				  (jiffies - *older_than_this) * 1000 / HZ : -1;
+@@ -600,7 +597,7 @@ TRACE_EVENT(bdi_dirty_ratelimit,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strscpy_pad(__entry->bdi, dev_name(wb->bdi->dev), 32);
++		strscpy_pad(__entry->bdi, bdi_dev_name(wb->bdi), 32);
+ 		__entry->write_bw	= KBps(wb->write_bandwidth);
+ 		__entry->avg_write_bw	= KBps(wb->avg_write_bandwidth);
+ 		__entry->dirty_rate	= KBps(dirty_rate);
+@@ -665,7 +662,7 @@ TRACE_EVENT(balance_dirty_pages,
+ 
+ 	TP_fast_assign(
+ 		unsigned long freerun = (thresh + bg_thresh) / 2;
+-		strscpy_pad(__entry->bdi, dev_name(wb->bdi->dev), 32);
++		strscpy_pad(__entry->bdi, bdi_dev_name(wb->bdi), 32);
+ 
+ 		__entry->limit		= global_wb_domain.dirty_limit;
+ 		__entry->setpoint	= (global_wb_domain.dirty_limit +
+@@ -726,7 +723,7 @@ TRACE_EVENT(writeback_sb_inodes_requeue,
+ 
+ 	TP_fast_assign(
+ 		strscpy_pad(__entry->name,
+-			    dev_name(inode_to_bdi(inode)->dev), 32);
++			    bdi_dev_name(inode_to_bdi(inode)), 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->state		= inode->i_state;
+ 		__entry->dirtied_when	= inode->dirtied_when;
+@@ -800,7 +797,7 @@ DECLARE_EVENT_CLASS(writeback_single_ino
+ 
+ 	TP_fast_assign(
+ 		strscpy_pad(__entry->name,
+-			    dev_name(inode_to_bdi(inode)->dev), 32);
++			    bdi_dev_name(inode_to_bdi(inode)), 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->state		= inode->i_state;
+ 		__entry->dirtied_when	= inode->dirtied_when;
+--- a/mm/backing-dev.c~memcg-fix-a-crash-in-wb_workfn-when-a-device-disappears
++++ a/mm/backing-dev.c
+@@ -21,6 +21,7 @@ struct backing_dev_info noop_backing_dev
+ EXPORT_SYMBOL_GPL(noop_backing_dev_info);
+ 
+ static struct class *bdi_class;
++const char *bdi_unknown_name = "(unknown)";
+ 
+ /*
+  * bdi_lock protects bdi_tree and updates to bdi_list. bdi_list has RCU
+_
 
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+Patches currently in -mm which might be from tytso@mit.edu are
 
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
---===============4389216519533175408==
-Content-Type: application/x-xz
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="build-aarch64.log.xz"
-MIME-Version: 1.0
-
-/Td6WFoAAATm1rRGAgAhARYAAAB0L+WjAQAIYnVpbGQubG9nAAAAAG7M3kpeYfe/AAEhCWwYxdUf
-tvN9AQAAAAAEWVo=
-
---===============4389216519533175408==--
+memcg-fix-a-crash-in-wb_workfn-when-a-device-disappears.patch
 
