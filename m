@@ -2,148 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4FE1354AF
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 09:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B1913551B
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 10:04:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728448AbgAIIse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 03:48:34 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:45927 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728511AbgAIIsd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 03:48:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578559711;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=7gUnYXOKmpS/NEpT+R2hURrL5sPZKcFBzwobZVjhnkk=;
-        b=NJBHtW0xn5JCsHSIrKofmXfYHFcT/Cj7wYlK/MRvwsGAL9dzFHl2TWBcsr0awMLL7fsUJ6
-        fpW3LAChVTAht3vZQyRLppbzV4IvVo5et+MZPceHpsF+jgXJNkR75JO5yCDxWdmHxxhmhH
-        BLuoRudaTt8ErKUjjD/OpYdur4i1b/8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-405-CnYy1Ns1Od6kEkzjCocMXg-1; Thu, 09 Jan 2020 03:48:28 -0500
-X-MC-Unique: CnYy1Ns1Od6kEkzjCocMXg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AAA79107ACC4;
-        Thu,  9 Jan 2020 08:48:26 +0000 (UTC)
-Received: from krava (unknown [10.43.17.48])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id AA83A10013A7;
-        Thu,  9 Jan 2020 08:48:24 +0000 (UTC)
-Date:   Thu, 9 Jan 2020 09:48:22 +0100
-From:   Jiri Olsa <jolsa@redhat.com>
-To:     Andres Freund <andres@anarazel.de>
-Cc:     linux-kernel@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] perf c2c: Fix sorting.
-Message-ID: <20200109084822.GD52936@krava>
-References: <20200109043030.233746-1-andres@anarazel.de>
+        id S1728686AbgAIJEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 04:04:40 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:40096 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728593AbgAIJEk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 04:04:40 -0500
+Received: by mail-lj1-f196.google.com with SMTP id u1so6364111ljk.7;
+        Thu, 09 Jan 2020 01:04:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:in-reply-to:references:date:message-id
+         :mime-version;
+        bh=1wEOto74WtWWVBt7hzzCLvY/HjBRw+30JpsajXmQoEk=;
+        b=VotdQx0hBmaNiqYwnMQi/EoFgHh8UCayXB4uXSKGMi1WrsslgqIiMk59yLYmePW/jr
+         UX4X7OlHN1wka3AG+U7v53aOSLZrO6JLZiCfDYCucZVVijrOdaq/sx+VIYgYXuTddXKh
+         HErVa3kc1zbVXwjCK9ABRN80F+eWwLWplp5TcBYnDlfVdQcGmyMocfoTCSD++pWq9rZT
+         8+b4E9RJdzBq2saGIqWgAiuKRKAkLFCN22MLVOGvl564Rd6NiZXie7FPJw5lDC/L9f7E
+         ujtVV/TvXH9WuNheVFI0GN72woG0jjR6C2kwmb4Hpk6bH2UzgNZAE9Pa9zVuAB+4wwsx
+         Jn4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:in-reply-to:references
+         :date:message-id:mime-version;
+        bh=1wEOto74WtWWVBt7hzzCLvY/HjBRw+30JpsajXmQoEk=;
+        b=YfAj7FduZ+lHwQ87EolwzgfeM7wDTHHpjco/5P2oQKeo7z+ER5MykxV6PgnTSUDyuZ
+         DRU9qeE73dBFb84jtuenHIO/54rTfXeid6jqRnuvj71nkQyApQ1xKCg7DOEVnQh3nyCn
+         dL7uWM9wn5axhJpauqSQuBQhMHBUSIBuOSWDMu9tMTVdyRzY7KfX0XFjhIa8QRMB5Dx1
+         gH6swkRSvbUHav2GcLbZnuO/A47vOinGMQaRMCFD1vufgiy+Q77no6WvnUbkc1s4ohnc
+         lBnJqQyyMAzdeB4CmnJ0VSwHfojOfq6NtF+07HwMYK2fU0ldMKZq6LvhxsXpJo1EIrCy
+         bwQw==
+X-Gm-Message-State: APjAAAVR2Kiek7kx2337kzuGVQ8AFjtn9N/YKjIfIJAvuc72XocicaeC
+        xB8uFlMwGMc2p0XJEytV+oUHR25Ztnw=
+X-Google-Smtp-Source: APXvYqzlF6/2MuHY8a8TVJoWkGCaL58M640PRwVGM5HPTEGrm05lpplLJqVg2vc2CwGADNtR1gTPSQ==
+X-Received: by 2002:a2e:804c:: with SMTP id p12mr5681606ljg.31.1578560677836;
+        Thu, 09 Jan 2020 01:04:37 -0800 (PST)
+Received: from saruman (88-113-215-33.elisa-laajakaista.fi. [88.113.215.33])
+        by smtp.gmail.com with ESMTPSA id u66sm2615261lje.7.2020.01.09.01.04.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jan 2020 01:04:37 -0800 (PST)
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Tejas Joglekar <Tejas.Joglekar@synopsys.com>,
+        Ran Wang <ran.wang_1@nxp.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Tejas Joglekar <Tejas.Joglekar@synopsys.com>,
+        Jun Li <jun.li@nxp.com>, Peter Chen <peter.chen@nxp.com>
+Cc:     "linux-usb\@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: Re: [PATCH] usb: dwc3: gadget: Fix controller get stuck when kicking extra transfer in wrong case
+In-Reply-To: <9f9d0193-8fe6-33b3-4f5c-95a1181e6681@synopsys.com>
+References: <20200107071441.480-1-ran.wang_1@nxp.com> <9f9d0193-8fe6-33b3-4f5c-95a1181e6681@synopsys.com>
+Date:   Thu, 09 Jan 2020 11:05:30 +0200
+Message-ID: <87woa1rodh.fsf@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200109043030.233746-1-andres@anarazel.de>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 08, 2020 at 08:30:30PM -0800, Andres Freund wrote:
-> Commit 722ddfde366f ("perf tools: Fix time sorting") changed -
-> correctly so - hist_entry__sort to return int64. Unfortunately several
-> of the builtin-c2c.c comparison routines only happened to work due the
-> cast caused by the wrong return type.
-> 
-> This causes meaningless ordering of both the cacheline list, and the
-> cacheline details page. E.g a simple
->   perf c2c record -a sleep 3
->   perf c2c report
-> will result in cacheline table like
->   =================================================
->              Shared Data Cache Line Table
->   =================================================
->   #
->   #        ----------- Cacheline ----------    Total      Tot  ----- LLC Load Hitm -----  ---- Store Reference ----  --- Load Dram ----      LLC    Total  ----- Core Load Hit -----  -- LLC Load Hit --
->   # Index             Address  Node  PA cnt  records     Hitm    Total      Lcl      Rmt    Total    L1Hit   L1Miss       Lcl       Rmt  Ld Miss    Loads       FB       L1       L2       Llc       Rmt
->   # .....  ..................  ....  ......  .......  .......  .......  .......  .......  .......  .......  .......  ........  ........  .......  .......  .......  .......  .......  ........  ........
->   #
->         0      0x7f0d27ffba00   N/A       0       52    0.12%       13        6        7       12       12        0         0         7       14       40        4       16        0         0         0
->         1      0x7f0d27ff61c0   N/A       0     6353   14.04%     1475      801      674      779      779        0         0       718     1392     5574     1299     1967        0       115         0
->         2      0x7f0d26d3ec80   N/A       0       71    0.15%       16        4       12       13       13        0         0        12       24       58        1       20        0         9         0
->         3      0x7f0d26d3ec00   N/A       0       98    0.22%       23       17        6       19       19        0         0         6       12       79        0       40        0        10         0
-> i.e. with the list not being ordered by Total Hitm.
-> 
-> Fixes: 722ddfde366f ("perf tools: Fix time sorting")
-> Signed-off-by: Andres Freund <andres@anarazel.de>
-> Cc: Jiri Olsa <jolsa@kernel.org>
-> Cc: Andi Kleen <ak@linux.intel.com>
-> Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-> Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> Cc: Michael Petlan <mpetlan@redhat.com>
-> Cc: Namhyung Kim <namhyung@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: stable@vger.kernel.org # v3.16+
-> ---
->  tools/perf/builtin-c2c.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
-> 
-> diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
-> index e69f44941aad..f2e9d2b1b913 100644
-> --- a/tools/perf/builtin-c2c.c
-> +++ b/tools/perf/builtin-c2c.c
-> @@ -595,8 +595,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
->  {
->  	struct c2c_hist_entry *c2c_left;
->  	struct c2c_hist_entry *c2c_right;
-> -	unsigned int tot_hitm_left;
-> -	unsigned int tot_hitm_right;
-> +	uint64_t tot_hitm_left;
-> +	uint64_t tot_hitm_right;
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-that change looks right, but I can't see how that could
-happened because of change in Fixes: tag
 
-was the return statement of this function:
+Hi,
 
-        return tot_hitm_left - tot_hitm_right;
+(Tejas, please break your lines at 80-columns. You shouldn't have to be
+reminded of this)
 
-considered to be 'unsigned int' and then converted to int64_t,
-which would treat negative 'unsigned int' as big positive 'int64_t'?
+Tejas Joglekar <Tejas.Joglekar@synopsys.com> writes:
 
-thanks,
-jirka
+> Hi,
+> On 1/7/2020 12:44 PM, Ran Wang wrote:
+>> According to original commit c96e6725db9d6a ("usb: dwc3: gadget: Correct=
+ the
+>> logic for queuing sgs"), we would only kick off another transfer in case=
+ of
+>> req->num_pending_sgs > 0.
+>>=20
+> The commit 8c7d4b7b3d43 ("usb: dwc3: gadget: Fix logical condition")
+> fixes the commit f38e35dd84e2 (usb: dwc3: gadget: split
+> dwc3_gadget_ep_cleanup_completed_requests()).
+>
+>> However, current logic will do this as long as req->remaining > 0, this =
+will
+>> include the case of non-sgs (both dwc3_gadget_ep_request_completed(req) =
+and
+>> req->num_pending_sgs are 0) that we did not want to.
+>>=20
+>> Without this fix, we observed dwc3 got stuck on Layerscape plaftorms (su=
+ch as
+>> LS1088ARDB) when enabling gadget (mass storage function) as below:
+>>
+> Similar issue was reported by Thinh after my fix, and he has submitted
+> a patch for the same. You can refer the discussion
+> https://patchwork.kernel.org/patch/11292087/.
 
->  
->  	c2c_left  = container_of(left, struct c2c_hist_entry, he);
->  	c2c_right = container_of(right, struct c2c_hist_entry, he);
-> @@ -629,7 +629,8 @@ __f ## _cmp(struct perf_hpp_fmt *fmt __maybe_unused,			\
->  									\
->  	c2c_left  = container_of(left, struct c2c_hist_entry, he);	\
->  	c2c_right = container_of(right, struct c2c_hist_entry, he);	\
-> -	return c2c_left->stats.__f - c2c_right->stats.__f;		\
-> +	return (uint64_t) c2c_left->stats.__f -				\
-> +	       (uint64_t) c2c_right->stats.__f;				\
->  }
->  
->  #define STAT_FN(__f)		\
-> @@ -682,7 +683,8 @@ ld_llcmiss_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
->  	c2c_left  = container_of(left, struct c2c_hist_entry, he);
->  	c2c_right = container_of(right, struct c2c_hist_entry, he);
->  
-> -	return llc_miss(&c2c_left->stats) - llc_miss(&c2c_right->stats);
-> +	return (uint64_t) llc_miss(&c2c_left->stats) -
-> +	       (uint64_t) llc_miss(&c2c_right->stats);
->  }
->  
->  static uint64_t total_records(struct c2c_stats *stats)
-> -- 
-> 2.25.0.rc1
-> 
+Based on this, I'm assuming we don't need this patch.
 
+=2D-=20
+balbi
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl4W7NoACgkQzL64meEa
+mQZPbBAAglbugDsFjPT9ikTC9/5AsAxJ+HS5SorFeA9dP3g1FIQ/m+ktbTeSnVlJ
+j4dMLFA/6URa7v+Tsfq9U8lM2BJfHOoyE89lQwTZ45emLwdt10YdOTcN6LwbC9KB
+YRsR7ezdI78Nwaq0tIIinJMefjgEtQZWXfNGAkgKCAG7j9SKgRSJYd9J7sck5+FD
+w26iKRioC/ZTcnX8XLiDDbE2s9hpshCxWmH7XiZ93+b8pPkdada+/alFDFIDbrr+
+kYsyFtFSL5w+WiNp+Ls4FSHddmF0iHs+E0Jeft7uSnPTRRcg5Ns4YcjmQgh+Bxkz
+jJwp+LnYOI3wPjpK5JiG6BuZVqOB0hzWF0Xzb/Uz57Mx3fIKpx1bvJsuH9zZMAKX
+4Qn6kmsxHs2vhuX+YJwzdMQLvF/M6Jg9+CwckLcE2TZJ7hKW26bgyfkiJG7EID7D
+E+y2MBc3MtRO5p0kO6fGpJmbWLw7y46gnu8DgRWmdcEZr7BDzx4JTeZ7pHSP0UMn
+ulJGntcsYKX2FighVVMjJCLRYjQOVfzzeh76kIoEJSMlW8qAKdVPgZp530LFWB6c
+Ak84Nxf6jhcVnj7GofYZwPUXvpedHCDQqXK+ZB5aj228ypSiVnD8yRp5/Xh0sdJD
+67ZBtVd0/rzn8Iez4RnR/psGJUNDt50tQVW9xasGn5Rjd+IywOg=
+=Q3Sj
+-----END PGP SIGNATURE-----
+--=-=-=--
