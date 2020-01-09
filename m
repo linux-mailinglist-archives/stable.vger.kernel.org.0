@@ -2,103 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EDD81362CD
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 22:46:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52BE813630E
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 23:09:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728437AbgAIVqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 16:46:22 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:58261 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727905AbgAIVqW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 16:46:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578606381;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZbAF9d7fjB7aZO4keNV6FYG7yhXE6/ctJ0M/uR6RLjI=;
-        b=AC/NQy55Tph1GZL0hgGWTMCqWxVo1kdDpPPwf7nPaUrIUgjsCVdMSumnYDcPNY78m2tAc0
-        yp1eOdO7VuEouXqxALyS2mSyxBK/fkAMil/Ajag8p7I/FsxYf2ZFSzXDqwSgsaU2wUaY8t
-        W0k+OZbId2cUYtx3+4y+6Mk9QfJZKMI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-276--ATCng3CP3KnlYqAzwkAQA-1; Thu, 09 Jan 2020 16:46:17 -0500
-X-MC-Unique: -ATCng3CP3KnlYqAzwkAQA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5709010054E3;
-        Thu,  9 Jan 2020 21:46:16 +0000 (UTC)
-Received: from krava (ovpn-204-81.brq.redhat.com [10.40.204.81])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2DD59620A6;
-        Thu,  9 Jan 2020 21:46:13 +0000 (UTC)
-Date:   Thu, 9 Jan 2020 22:46:11 +0100
-From:   Jiri Olsa <jolsa@redhat.com>
-To:     Andres Freund <andres@anarazel.de>
-Cc:     linux-kernel@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] perf c2c: Fix sorting.
-Message-ID: <20200109214611.GC82989@krava>
-References: <20200109043030.233746-1-andres@anarazel.de>
- <20200109084822.GD52936@krava>
- <20200109170041.wgvxcci3mkjh4uee@alap3.anarazel.de>
+        id S1725840AbgAIWJa convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 9 Jan 2020 17:09:30 -0500
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:45200 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725775AbgAIWJa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 17:09:30 -0500
+Received: by mail-oi1-f194.google.com with SMTP id n16so95898oie.12;
+        Thu, 09 Jan 2020 14:09:29 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=b6zdP+4ezdaWmrmstWZr4Ef+4+QYkTOZwXSnjeAq9iE=;
+        b=h/c797jGaQ5nZHEyYqMEwVhQvDuos1gibxLivTdQFLxWcUWxQ2f91IgJxbCYAVdqam
+         uk7kjeX4Ya3X8LHUtuXhzrzFXFGH2P8YbX8FZNHfVgu5/uOoBegJZyRaZIBGBynJz+bC
+         D0SbttWVnPi6ME3Z9u4ZQ8yU69oeIvlB/cfpahoaQbnyYmIjIJpuLWS+uKWtBSWs3aMd
+         0mX9HrJMCc0p46iqJO/oXVJWGx+GjxowCkhoa3Kcvo2XQM47kkYQXfj8C2Oq1kUO4FaQ
+         4cUCTWGJ7RLZDg3RYQseJCac1BGioYa61hRZFPg5CG5AsmdJ0mzsPbh1Xs8gLdcD5nC4
+         ZtIg==
+X-Gm-Message-State: APjAAAV45GeepIeseyV1pPH78pJ4KVqQnZS00xKVliliRJydzFYLs18I
+        41UoWI59EKjrVOjZgLALeyz+MRr+tLQc+Sz+YCs=
+X-Google-Smtp-Source: APXvYqzlIGd8xnxYkeaHlqu13vHOyX4TJHiM2RDE4U53W7gzzcU0tlk6ml61hZBx3NUsTrCijWmby0vB/c69WLU//V0=
+X-Received: by 2002:aca:eb83:: with SMTP id j125mr4744312oih.153.1578607769329;
+ Thu, 09 Jan 2020 14:09:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200109170041.wgvxcci3mkjh4uee@alap3.anarazel.de>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+References: <20200109203851.7078B2072E@mail.kernel.org>
+In-Reply-To: <20200109203851.7078B2072E@mail.kernel.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Thu, 9 Jan 2020 23:09:18 +0100
+Message-ID: <CAMuHMdUBMoNRK++Uadq2CYdK_Dv5W1vrBu+6VaOc=Tn-CUPVdA@mail.gmail.com>
+Subject: Re: Patch "ARM: shmobile: defconfig: Restore debugfs support" has
+ been added to the 5.4-stable tree
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 09, 2020 at 09:00:41AM -0800, Andres Freund wrote:
+Hi Sasha,
 
-SNIP
+On Thu, Jan 9, 2020 at 9:38 PM Sasha Levin <sashal@kernel.org> wrote:
+> This is a note to let you know that I've just added the patch titled
+>
+>     ARM: shmobile: defconfig: Restore debugfs support
+>
+> to the 5.4-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>
+> The filename of the patch is:
+>      arm-shmobile-defconfig-restore-debugfs-support.patch
+> and it can be found in the queue-5.4 subdirectory.
+>
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+>
+>
+>
+> commit b56e3b1467eba2ba55bca05e3c8697b23304f12b
+> Author: Geert Uytterhoeven <geert+renesas@glider.be>
+> Date:   Mon Dec 9 11:13:27 2019 +0100
+>
+>     ARM: shmobile: defconfig: Restore debugfs support
+>
+>     [ Upstream commit fa2cdb1762d15f701b83efa60b04f0d04e71bf89 ]
+>
+>     Since commit 0e4a459f56c32d3e ("tracing: Remove unnecessary DEBUG_FS
+>     dependency"), CONFIG_DEBUG_FS is no longer auto-enabled.  This breaks
 
-> > >  tools/perf/builtin-c2c.c | 10 ++++++----
-> > >  1 file changed, 6 insertions(+), 4 deletions(-)
-> > > 
-> > > diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
-> > > index e69f44941aad..f2e9d2b1b913 100644
-> > > --- a/tools/perf/builtin-c2c.c
-> > > +++ b/tools/perf/builtin-c2c.c
-> > > @@ -595,8 +595,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
-> > >  {
-> > >  	struct c2c_hist_entry *c2c_left;
-> > >  	struct c2c_hist_entry *c2c_right;
-> > > -	unsigned int tot_hitm_left;
-> > > -	unsigned int tot_hitm_right;
-> > > +	uint64_t tot_hitm_left;
-> > > +	uint64_t tot_hitm_right;
-> > 
-> > that change looks right, but I can't see how that could
-> > happened because of change in Fixes: tag
-> > 
-> > was the return statement of this function:
-> > 
-> >         return tot_hitm_left - tot_hitm_right;
-> > 
-> > considered to be 'unsigned int' and then converted to int64_t,
-> > which would treat negative 'unsigned int' as big positive 'int64_t'?
-> 
-> Correct. So e.g. when comparing 1 and 2 tot_hitm, we'd get (int64_t)
-> UINT_MAX as a result, which is obviously wrong. However, due to
-> hist_entry__sort() returning int at the time, this was masked, as the
-> int64_t was cast to int. Thereby again yielding a negative number for
-> the comparisons of hist_entry__sort()'s result.  After
-> hist_entry__sort() was fixed however, there never could be negative
-> return values (but 0's are possible) of hist_entry__sort() for c2c.
+AFAIK, that commit is not present in v5.4, and hasn't been backported yet.
+So I don't think there is a need to backport this and all other fixes restoring
+debugfs support in post-v5.4 kernels.
 
-I see.. ok
+BTW, I noticed you plan to backport this "fix" not just to v5.4, but also
+to v4.19?
 
-Acked-by: Jiri Olsa <jolsa@redhat.com>
+>     booting Debian 9, as systemd needs debugfs:
+>
+>         [FAILED] Failed to mount /sys/kernel/debug.
+>         See 'systemctl status sys-kernel-debug.mount' for details.
+>         [DEPEND] Dependency failed for Local File Systems.
+>         ...
+>         You are in emergGive root password for maintenance
+>         (or press Control-D to continue):
+>
+>     Fix this by enabling CONFIG_DEBUG_FS explicitly.
+>
+>     See also commit 18977008f44c66bd ("ARM: multi_v7_defconfig: Restore
+>     debugfs support").
+>
+>     Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+>     Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+>     Link: https://lore.kernel.org/r/20191209101327.26571-1-geert+renesas@glider.be
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
+>
+> diff --git a/arch/arm/configs/shmobile_defconfig b/arch/arm/configs/shmobile_defconfig
+> index c6c70355141c..7e7b678ae153 100644
+> --- a/arch/arm/configs/shmobile_defconfig
+> +++ b/arch/arm/configs/shmobile_defconfig
+> @@ -215,4 +215,5 @@ CONFIG_DMA_CMA=y
+>  CONFIG_CMA_SIZE_MBYTES=64
+>  CONFIG_PRINTK_TIME=y
+>  # CONFIG_ENABLE_MUST_CHECK is not set
+> +CONFIG_DEBUG_FS=y
+>  CONFIG_DEBUG_KERNEL=y
 
-thanks,
-jirka
+Gr{oetje,eeting}s,
 
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
