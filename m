@@ -2,70 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 615F1135C3D
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 16:07:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49296135CC1
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 16:29:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732174AbgAIPHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 10:07:49 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:34874 "EHLO www.linuxtv.org"
+        id S1731005AbgAIP31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 10:29:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732121AbgAIPHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Jan 2020 10:07:49 -0500
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1ipZOh-001i3n-I6; Thu, 09 Jan 2020 15:06:55 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Thu, 09 Jan 2020 15:07:04 +0000
-Subject: [git:media_tree/master] media: iguanair: fix endpoint sanity check
-To:     linuxtv-commits@linuxtv.org
-Cc:     Sean Young <sean@mess.org>, stable <stable@vger.kernel.org>,
-        Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1ipZOh-001i3n-I6@www.linuxtv.org>
+        id S1728257AbgAIP31 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jan 2020 10:29:27 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 494B220673;
+        Thu,  9 Jan 2020 15:29:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578583766;
+        bh=4yxdqliRGaByZbgaDZ+g0vdg0HH/Wm3FEJvh3Vpr2hA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TcAh4qCnn5OC28taqif6ZQ5peLRBI0+88/71AT9LJjl1Yooy6ln/XA/nkGmMTYWM1
+         AafmmaIpfOvqtN2/d6SYTQ4fphKoWzNLx6DvYDK5syk1uVnzIrtiX032CJAPc67pJj
+         1c3QK0M89DmKJsTda8pbXY2AW7E601NPpiJFVbGM=
+Date:   Thu, 9 Jan 2020 10:29:25 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     Linux Kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        huangwen <huangwenabc@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        "<netdev@vger.kernel.org>" <netdev@vger.kernel.org>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Subject: Re: [PATCH AUTOSEL 5.4 008/187] mwifiex: fix possible heap overflow
+ in mwifiex_process_country_ie()
+Message-ID: <20200109152925.GF1706@sasha-vm>
+References: <20191227174055.4923-1-sashal@kernel.org>
+ <20191227174055.4923-8-sashal@kernel.org>
+ <CA+ASDXM6UvVCDYGq7gMEai_v3d79Pi_ZH=UFs1gfw_pL_BLMJg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CA+ASDXM6UvVCDYGq7gMEai_v3d79Pi_ZH=UFs1gfw_pL_BLMJg@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+On Mon, Jan 06, 2020 at 02:51:28PM -0800, Brian Norris wrote:
+>On Fri, Dec 27, 2019 at 9:59 AM Sasha Levin <sashal@kernel.org> wrote:
+>>
+>> From: Ganapathi Bhat <gbhat@marvell.com>
+>>
+>> [ Upstream commit 3d94a4a8373bf5f45cf5f939e88b8354dbf2311b ]
+>
+>FYI, this upstream commit has unbalanced locking. I've submitted a
+>followup here:
+>
+>[PATCH] mwifiex: fix unbalanced locking in mwifiex_process_country_ie()
+>https://lkml.kernel.org/linux-wireless/20200106224212.189763-1-briannorris@chromium.org/T/#u
+>https://patchwork.kernel.org/patch/11320227/
+>
+>I'd recommend holding off until that gets landed somewhere. (Same for
+>the AUTOSEL patches sent to other kernel branches.)
 
-Subject: media: iguanair: fix endpoint sanity check
-Author:  Johan Hovold <johan@kernel.org>
-Date:    Fri Jan 3 17:35:13 2020 +0100
+I'll drop it for now, just ping us when the fix is in and we'll get both
+patches queued back up.
 
-Make sure to use the current alternate setting, which need not be the
-first one by index, when verifying the endpoint descriptors and
-initialising the URBs.
-
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
-
-Fixes: 26ff63137c45 ("[media] Add support for the IguanaWorks USB IR Transceiver")
-Fixes: ab1cbdf159be ("media: iguanair: add sanity checks")
-Cc: stable <stable@vger.kernel.org>     # 3.6
-Cc: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/media/rc/iguanair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-diff --git a/drivers/media/rc/iguanair.c b/drivers/media/rc/iguanair.c
-index 872d6441e512..a7deca1fefb7 100644
---- a/drivers/media/rc/iguanair.c
-+++ b/drivers/media/rc/iguanair.c
-@@ -413,7 +413,7 @@ static int iguanair_probe(struct usb_interface *intf,
- 	int ret, pipein, pipeout;
- 	struct usb_host_interface *idesc;
- 
--	idesc = intf->altsetting;
-+	idesc = intf->cur_altsetting;
- 	if (idesc->desc.bNumEndpoints < 2)
- 		return -ENODEV;
- 
+-- 
+Thanks,
+Sasha
