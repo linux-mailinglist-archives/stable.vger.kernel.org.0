@@ -2,89 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46F19135EC6
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 17:55:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26918135ED3
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 18:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387560AbgAIQz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 11:55:57 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:38596 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727738AbgAIQz5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 11:55:57 -0500
-Received: by mail-wm1-f68.google.com with SMTP id u2so3631699wmc.3
-        for <stable@vger.kernel.org>; Thu, 09 Jan 2020 08:55:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lmqBnBT1Hq742OLa0bwrwAUJdIw3fdw5RkMD+Xl3/Cs=;
-        b=wGePHQv3vLwixrW1h+pgQpleQhhvOWAPZLeKlKqhI09BZ7MsEHAFCFku15RCJwjbpd
-         k1bCYgWvZqujVcap9GalXIftDJeOm3AgbpbYOq+i3QOZoS3ywMskxx4LmPiyJ7wAz+LV
-         4AnpDFq9SimVyn8MbiDHQB9CkRQ9XxbcJ31B+QHlCOPrMkmSkNMp6ktZGBnPuBRUQC+Y
-         oDe5vz4GvDT83fTMmVjylA+ji6VIlO786LS1njh9ItAa71jSxGnGCHav90KAmgbVCpdV
-         PZzWdfMA7yx6C/wQtyRHhI5kx0dYxDFbXSWpxQci/iL8I7tkifnZYyGnISxDNOytc/f9
-         Heyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lmqBnBT1Hq742OLa0bwrwAUJdIw3fdw5RkMD+Xl3/Cs=;
-        b=JSKhn2l/2QMEfPZJGGbIZUaNjjVsIIZAqdp8V3WclBhO/nwp3YfOoszzBPL65D6jaa
-         A3FWtLk/wtl8IbwvMUHHIQQsXCG3iYT06g5oKpcpQWNW3+klXCZFonci1UG5d8CMvNDU
-         DXbEXOHkkjP8g3Q07PNSxF5xB35XVvts5448bJeMEbgI1y2bIIZhBtYC352fJkcrwEpN
-         bjqkb/zPCqy0+9N820Pi7ieDPTM7gDOwrLakq0ar4TXkk6n+V1i104B8Ei8caIUP+BR4
-         HLcyjRfS314B31JhpZP4+stn26eTU3vT5P3yZyrx4pzNpIBbzv5OTiQNVomOPO8MU19V
-         j4lA==
-X-Gm-Message-State: APjAAAXhsdEb6De4XVsvz1OfBXb83OvnDnEnhEx4w+xeUFEnQbg2WUrJ
-        +QZqKlvBA/yeIVewjYQZAVNMgfk+1if/1w==
-X-Google-Smtp-Source: APXvYqy2GJ9VCJzOvh7ij42wUc09H4xkh5cCv9ZG5zyziFTLw8+AVSGyQxXqeDQxAbEAHWkKC0/OrA==
-X-Received: by 2002:a1c:4144:: with SMTP id o65mr6118691wma.81.1578588955094;
-        Thu, 09 Jan 2020 08:55:55 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u7sm3434058wmj.3.2020.01.09.08.55.54
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jan 2020 08:55:54 -0800 (PST)
-Message-ID: <5e175b1a.1c69fb81.bdc04.1c1e@mx.google.com>
-Date:   Thu, 09 Jan 2020 08:55:54 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1731464AbgAIRAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 12:00:45 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:50517 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731320AbgAIRAo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 12:00:44 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 55153214DB;
+        Thu,  9 Jan 2020 12:00:43 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Thu, 09 Jan 2020 12:00:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anarazel.de; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=hcgptnGOQIZIIhyQtpsCyNNyBT2
+        /xi/KbtsQbbxl1sM=; b=i6cV77nSAvfaICP1k5kwwfHKme5Q8VKHkYjvdeDpe0o
+        nS8qxapgapFts3bc/uQ86OmWjwKa5yulhHZ9+L69WgwC93cot5MryFjhWCrFD/Xd
+        ZgdEDf/R700vhY5ZLZvijQMkEIt28TLIYXR0gMpzJdX1ptSGCp52HoytAVcm2qzv
+        zwqcqnmpAgUDUGZ/VwGYTZnwWagNnW9Mfs0tpIXLdVyW8JTfjOZNrXditk73sI8t
+        wtIO1HJMCTS5JFI7a514Gy4SRgaVuy0u3w6YcfjWGp2R603vzZhQ7vvTuqMiINUh
+        xEE9x4n4Mhe6L8Spn+aeOcjaUfShy8+zbCDU9BWdryA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=hcgptn
+        GOQIZIIhyQtpsCyNNyBT2/xi/KbtsQbbxl1sM=; b=cxjk8PuoU8UAskb2Z2/zjc
+        Z0MkVcdGI7jx5d1ehOUaFu9u2RQquQOdE6TdiVrN0AE1yKlzLYfo2TtzXtqoM/ow
+        ihn87wsNsspehcHIBZCb35O7iKjku/A4O/9byOccNllNEuCfnI1pzQmpj2oCTdhU
+        H4uQnBtuDoly+cM5vIjDmM10DAsrGNrhLMex4dEtFgRoEGlEPKypwZqRAGUX0Pgz
+        X1mSN/rw88fT5OIlHPhoesKVspmeTFdn9LhKdaylwwPfMPplXtolI60H7ADb0GXC
+        +xlCVTp1QEZf1Je7Hlerd89G/J8fZv1OLgGgJHUm84VkD690Oyyw/h9/STNqIWLg
+        ==
+X-ME-Sender: <xms:OlwXXtmLU14-7_RSAqAhLzFI2_BAY4A5V82oqQwME8tH6iZCLNgiYQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeiuddgiedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeetnhgurhgv
+    shcuhfhrvghunhguuceorghnughrvghssegrnhgrrhgriigvlhdruggvqeenucfkphepie
+    ejrdduiedtrddvudejrddvhedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrnhgurhgv
+    shesrghnrghrrgiivghlrdguvgenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:OlwXXq0WR0PtvZ_ri4vjXj1z9EuQmBTaPdxMeO12uG29VsZNasvPkQ>
+    <xmx:OlwXXn4AgxPb70QLFkm9qv61C2iHasXHiDx1XM8DF7mvqaORJeFaXA>
+    <xmx:OlwXXogv4koC5IyRXtFSAPeTTqMdAeVM4M-VQq9egBq_BqgCREpNUQ>
+    <xmx:O1wXXnyvNMVU5h6qFXSyJKt46evGJQD7-ISV31neF0E-Y-ST2rlQUA>
+Received: from intern.anarazel.de (c-67-160-217-250.hsd1.ca.comcast.net [67.160.217.250])
+        by mail.messagingengine.com (Postfix) with ESMTPA id B960830602DE;
+        Thu,  9 Jan 2020 12:00:42 -0500 (EST)
+Date:   Thu, 9 Jan 2020 09:00:41 -0800
+From:   Andres Freund <andres@anarazel.de>
+To:     Jiri Olsa <jolsa@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] perf c2c: Fix sorting.
+Message-ID: <20200109170041.wgvxcci3mkjh4uee@alap3.anarazel.de>
+References: <20200109043030.233746-1-andres@anarazel.de>
+ <20200109084822.GD52936@krava>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.94
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable/linux-4.19.y boot: 76 boots: 1 failed,
- 74 passed with 1 untried/unknown (v4.19.94)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200109084822.GD52936@krava>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 76 boots: 1 failed, 74 passed with 1 untried/unkn=
-own (v4.19.94)
+Hi,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.94/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.94/
+On 2020-01-09 09:48:22 +0100, Jiri Olsa wrote:
+> On Wed, Jan 08, 2020 at 08:30:30PM -0800, Andres Freund wrote:
+> > Commit 722ddfde366f ("perf tools: Fix time sorting") changed -
+> > correctly so - hist_entry__sort to return int64. Unfortunately several
+> > of the builtin-c2c.c comparison routines only happened to work due the
+> > cast caused by the wrong return type.
+> > 
+> > This causes meaningless ordering of both the cacheline list, and the
+> > cacheline details page. E.g a simple
+> >   perf c2c record -a sleep 3
+> >   perf c2c report
+> > will result in cacheline table like
+> >   =================================================
+> >              Shared Data Cache Line Table
+> >   =================================================
+> >   #
+> >   #        ----------- Cacheline ----------    Total      Tot  ----- LLC Load Hitm -----  ---- Store Reference ----  --- Load Dram ----      LLC    Total  ----- Core Load Hit -----  -- LLC Load Hit --
+> >   # Index             Address  Node  PA cnt  records     Hitm    Total      Lcl      Rmt    Total    L1Hit   L1Miss       Lcl       Rmt  Ld Miss    Loads       FB       L1       L2       Llc       Rmt
+> >   # .....  ..................  ....  ......  .......  .......  .......  .......  .......  .......  .......  .......  ........  ........  .......  .......  .......  .......  .......  ........  ........
+> >   #
+> >         0      0x7f0d27ffba00   N/A       0       52    0.12%       13        6        7       12       12        0         0         7       14       40        4       16        0         0         0
+> >         1      0x7f0d27ff61c0   N/A       0     6353   14.04%     1475      801      674      779      779        0         0       718     1392     5574     1299     1967        0       115         0
+> >         2      0x7f0d26d3ec80   N/A       0       71    0.15%       16        4       12       13       13        0         0        12       24       58        1       20        0         9         0
+> >         3      0x7f0d26d3ec00   N/A       0       98    0.22%       23       17        6       19       19        0         0         6       12       79        0       40        0        10         0
+> > i.e. with the list not being ordered by Total Hitm.
+> > 
+> > Fixes: 722ddfde366f ("perf tools: Fix time sorting")
+> > Signed-off-by: Andres Freund <andres@anarazel.de>
+> > Cc: Jiri Olsa <jolsa@kernel.org>
+> > Cc: Andi Kleen <ak@linux.intel.com>
+> > Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+> > Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> > Cc: Michael Petlan <mpetlan@redhat.com>
+> > Cc: Namhyung Kim <namhyung@kernel.org>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: stable@vger.kernel.org # v3.16+
+> > ---
+> >  tools/perf/builtin-c2c.c | 10 ++++++----
+> >  1 file changed, 6 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
+> > index e69f44941aad..f2e9d2b1b913 100644
+> > --- a/tools/perf/builtin-c2c.c
+> > +++ b/tools/perf/builtin-c2c.c
+> > @@ -595,8 +595,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
+> >  {
+> >  	struct c2c_hist_entry *c2c_left;
+> >  	struct c2c_hist_entry *c2c_right;
+> > -	unsigned int tot_hitm_left;
+> > -	unsigned int tot_hitm_right;
+> > +	uint64_t tot_hitm_left;
+> > +	uint64_t tot_hitm_right;
+> 
+> that change looks right, but I can't see how that could
+> happened because of change in Fixes: tag
+> 
+> was the return statement of this function:
+> 
+>         return tot_hitm_left - tot_hitm_right;
+> 
+> considered to be 'unsigned int' and then converted to int64_t,
+> which would treat negative 'unsigned int' as big positive 'int64_t'?
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.94
-Git Commit: cb1f9a169a0e197f93816ace48a6520e8640809d
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 48 unique boards, 17 SoC families, 16 builds out of 206
+Correct. So e.g. when comparing 1 and 2 tot_hitm, we'd get (int64_t)
+UINT_MAX as a result, which is obviously wrong. However, due to
+hist_entry__sort() returning int at the time, this was masked, as the
+int64_t was cast to int. Thereby again yielding a negative number for
+the comparisons of hist_entry__sort()'s result.  After
+hist_entry__sort() was fixed however, there never could be negative
+return values (but 0's are possible) of hist_entry__sort() for c2c.
 
-Boot Failure Detected:
+I briefly looked for places outside of c2c for similar issues in
+hist_entry comparison routines, but didn't find any.
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+Greetings,
 
----
-For more info write to <info@kernelci.org>
+Andres Freund
