@@ -2,86 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A1D136010
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 19:19:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 040B1136075
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 19:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388451AbgAISTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 13:19:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58490 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730866AbgAISTc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Jan 2020 13:19:32 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1732160AbgAIStU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 13:49:20 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:60096 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1732156AbgAIStU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 13:49:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578595758;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=X2h0R6xS52uSQnsEyxOMDBF/3vSZupo2+dOSewPV+DY=;
+        b=LvJXdB+iZB7kazp+krx2UA8WJB9OC9oRY1diTyHocay7Iq1g+iYK1bunBH4+wiLqMIOZfq
+        7CDO/ANtuZRp5AkXzdIfp6T/7AkdUVytnMKMsfintv2vK9D8Yp2UjHnQHzs5BTidWm4WcY
+        hhKLnCAR3ko83qzE5oOzYoT5SLyPr2Y=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-380-1tPce08VNjmToOKxTs4KBg-1; Thu, 09 Jan 2020 13:49:15 -0500
+X-MC-Unique: 1tPce08VNjmToOKxTs4KBg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B34F206ED;
-        Thu,  9 Jan 2020 18:19:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578593971;
-        bh=esBkzg5MYq/rPsyZTQhy8c+0I4QwYWJszwLKr0+BckQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Y40oKJo5S+aJROlCQAeCBmSo6v+tYzRFEQ7hWu0EHzcWxUkmarx/3xnKrOiOabEN4
-         eYdtB8nBB8tdU5f9XTkP5WFdXXjzAh9aRsmFtW4m0Jkj6iCPCgvPOMjh0diFsK3mzt
-         fcRuz0Tj/zoS2MqDOqvlu4D8GYtfcr9QcaHxhlMw=
-Date:   Thu, 9 Jan 2020 13:19:30 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     yeyunfeng@huawei.com, rafael.j.wysocki@intel.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] ACPI: sysfs: Change ACPI_MASKABLE_GPE_MAX
- to 0x100" failed to apply to 4.14-stable tree
-Message-ID: <20200109181930.GH1706@sasha-vm>
-References: <1578402908237122@kroah.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CE482100724D;
+        Thu,  9 Jan 2020 18:49:13 +0000 (UTC)
+Received: from cantor.redhat.com (ovpn-116-184.phx2.redhat.com [10.3.116.184])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 291FC1A8E4;
+        Thu,  9 Jan 2020 18:49:13 +0000 (UTC)
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     rhkernel-list@redhat.com
+Cc:     stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Xiaoping Zhou <xiaoping.zhou@intel.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: [RHEL8.2 PATCH BZ1789088 1/2] tpm: Revert "tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts"
+Date:   Thu,  9 Jan 2020 11:48:58 -0700
+Message-Id: <20200109184859.6755-2-jsnitsel@redhat.com>
+In-Reply-To: <20200109184859.6755-1-jsnitsel@redhat.com>
+References: <20200109184859.6755-1-jsnitsel@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1578402908237122@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 07, 2020 at 02:15:08PM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.14-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From a7583e72a5f22470d3e6fd3b6ba912892242339f Mon Sep 17 00:00:00 2001
->From: Yunfeng Ye <yeyunfeng@huawei.com>
->Date: Thu, 14 Nov 2019 15:16:24 +0800
->Subject: [PATCH] ACPI: sysfs: Change ACPI_MASKABLE_GPE_MAX to 0x100
->
->The commit 0f27cff8597d ("ACPI: sysfs: Make ACPI GPE mask kernel
->parameter cover all GPEs") says:
->  "Use a bitmap of size 0xFF instead of a u64 for the GPE mask so 256
->   GPEs can be masked"
->
->But the masking of GPE 0xFF it not supported and the check condition
->"gpe > ACPI_MASKABLE_GPE_MAX" is not valid because the type of gpe is
->u8.
->
->So modify the macro ACPI_MASKABLE_GPE_MAX to 0x100, and drop the "gpe >
->ACPI_MASKABLE_GPE_MAX" check. In addition, update the docs "Format" for
->acpi_mask_gpe parameter.
->
->Fixes: 0f27cff8597d ("ACPI: sysfs: Make ACPI GPE mask kernel parameter cover all GPEs")
->Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
->[ rjw: Use u16 as gpe data type in acpi_gpe_apply_masked_gpes() ]
->Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Bugzilla: 1789088
+Upstream Status: dda8b2af395b2ed508e2ef314ae32e122841b447
+Build Info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=3D=
+25656672
 
-We don't need this on 4.14 and older becuase they don't have
-0f27cff8597d ("ACPI: sysfs: Make ACPI GPE mask kernel parameter cover
-all GPEs").
+commit dda8b2af395b2ed508e2ef314ae32e122841b447
+Author: Stefan Berger <stefanb@linux.ibm.com>
+Date:   Tue Nov 26 08:17:52 2019 -0500
 
--- 
-Thanks,
-Sasha
+tpm: Revert "tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for inter=
+rupts"
+
+There has been a bunch of reports (one from kernel bugzilla linked)
+reporting that when this commit is applied it causes on some machines
+boot freezes.
+
+Unfortunately hardware where this commit causes a failure is not widely
+available (only one I'm aware is Lenovo T490), which means we cannot
+predict yet how long it will take to properly fix tpm_tis interrupt
+probing.
+
+Thus, the least worst short term action is to revert the code to the
+state before this commit. In long term we need fix the tpm_tis probing
+code to work on machines that Stefan's fix was supposed to fix.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D205935
+Fixes: 1ea32c83c699 ("tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing =
+for interrupts")
+Cc: stable@vger.kernel.org
+Cc: Jerry Snitselaar <jsnitsel@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Tested-by: Dan Williams <dan.j.williams@intel.com>
+Tested-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+(cherry picked from commit dda8b2af395b2ed508e2ef314ae32e122841b447)
+Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+---
+ drivers/char/tpm/tpm_tis_core.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_c=
+ore.c
+index 270f43acbb77..ffa9048d8f6c 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -981,7 +981,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_=
+tis_data *priv, int irq,
+ 		}
+=20
+ 		tpm_chip_start(chip);
+-		chip->flags |=3D TPM_CHIP_FLAG_IRQ;
+ 		if (irq) {
+ 			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
+ 						 irq);
+--=20
+2.24.0
+
