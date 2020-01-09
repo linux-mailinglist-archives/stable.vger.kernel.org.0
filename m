@@ -2,132 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 370C113535C
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 07:53:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E56213535D
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 07:54:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728069AbgAIGxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 01:53:15 -0500
-Received: from mail-mw2nam12on2052.outbound.protection.outlook.com ([40.107.244.52]:47072
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        id S1728091AbgAIGyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 01:54:46 -0500
+Received: from mail-mw2nam10on2085.outbound.protection.outlook.com ([40.107.94.85]:6241
+        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726541AbgAIGxO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Jan 2020 01:53:14 -0500
+        id S1726541AbgAIGyq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jan 2020 01:54:46 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bpn74U+0d0cNm3BtK+BF8vN4MJm57fBHLBx8MIgCpXQMRVsg69c8cz0TFiFl64og8yMSibO05xsCx2CnccIQdEzlbs2bcQZCKuPCWG7SlcgwhYoW5gI00sR9wG3WHa7eW9EmqbK/1Jf4vzRn+kyWXqGBBleldqguWLD0JMTVSbPHX6o/w+DdHeMSEk9i7MUijiBTjjrXZW4tMUSHh7ZLvX99E1z5FS0Vy6/yg71arzJlGLtYaRiotTGTdSYrZL24kxUjkE6j+pwOGWXJRFLHVagjnbDVN5LNalpCK2UAfAvijlV4WabBpBdoKt9BlYxCv8w/V/XNjuj4sgIG9bxKFw==
+ b=lYE0vKGYt2W5hioBwsoTer5FcFK91ObaOlFom9DCC94ozKew2Td15aT25MjRgNm6SrIQVABIEuH0oDFOlbngzHG10kP6PgNJgIOizvQVcv+6SAHlKUufhSLTCncGFAnKts6af6MBNP4FX+d0k+XoTrH6MgWzZ+WS7cr2WgYdfnLJ+ghB90Ovc6V4y5qPROcZnUkLbO4XUatATu753n2tpRI7vn/OW0S98Og65yTUWXwJ1XBKDSlciABiIdGtUg++5vumYuFZxLzKbie9PZixl7WszfSdFz+IkUAAfFjpr7V4yruldvmvHKK0tzAiySok1Lnx8zFKnGCdnIoFLK+w8w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fgqbVKQf3zbQMZ/dyOw0CBIczd2pDXaNpnvfb5e6g9g=;
- b=HVFbI3093ji15H2t6LPBroEo7hY0QXFtNEZ3TuH+qjLTYVtBEte6GzffaoL2Tk06Jm0eqsojY9ZyPCjSOCLEQ3vAz1rNNtIfYlxSiJtSX4NrLW2LnlEi8BVNK17PnXa5qFf6aBlWfOm/4NJQr5Vs6kiSDI3O9WcpOweTxiuCe9iGfpfVwRv1GSBMuNYxtNCcBlKTFkPVT5BCfYX1x9TYSLtbtyzXw7umeB4GqqIqxCt3t9Td7gwZSpLnYQZ0biDERwMLvVFAJ2BxwIdwyKLxIgiZ+MgBYpEgMPUlJFTnqn+NgpAWhpFueT+46+Lqny2P90N1mhYMNfbKB3R8jYsCPg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 149.199.60.83) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=xilinx.com;
- dmarc=bestguesspass action=none header.from=xilinx.com; dkim=none (message
- not signed); arc=none
+ bh=V94WOmX6yiMrJHHZsQhQX6mBNH1sJ9LoxkqvFNyDCXg=;
+ b=ZdqHYrUsNxj4DeGmg6X35IT2L0m9+NDaNe/gwVJvGXjPARucgMa0Eg/8J+jiMLZU7LI4wNw4CviEfCwQhwnFE+jFSi0hrQGsDKcMmEa3+r4EsbkQSIsU/yh9W5o2ldweRF7mRKmxehVIzxBMAq7NVivoYt9dfnMtAmM4OtQVeCf8YsJuZC8RAZmZvl8WdkYNXj03kOiEFVrL8tqczM3Laa/dqSTVrV87YT4Cf20ETKv06DSYyuqjFgwpcmHnvHpR9aU7anBSenOXRlwlqNRw3XbXgB5omdbX9wjxZNlDX8o67N/y+cazFqPA5Re7SoHd7LzBiJi+HVMm/gzI0FF5VQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=xilinx.com; dmarc=pass action=none header.from=xilinx.com;
+ dkim=pass header.d=xilinx.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fgqbVKQf3zbQMZ/dyOw0CBIczd2pDXaNpnvfb5e6g9g=;
- b=FOl7mLD3AJdZWJuqr/QNKhSdB6y8PHrudmJoErE5Fsd5S48D10eiAbRwAcA5iYBvJ9Ih0Ij+/TFh2FDOocbgVepYBzfl1uLY0R6ngHuwYFMH/zxfmhnWgCSudaV9wo6lGdJspTTdry5EPPqc3kWarDKGX85lnXVx5AEK9ykavPQ=
-Received: from CH2PR02CA0017.namprd02.prod.outlook.com (2603:10b6:610:4e::27)
- by DM6PR02MB6444.namprd02.prod.outlook.com (2603:10b6:5:158::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2623.9; Thu, 9 Jan
- 2020 06:53:09 +0000
-Received: from SN1NAM02FT060.eop-nam02.prod.protection.outlook.com
- (2a01:111:f400:7e44::206) by CH2PR02CA0017.outlook.office365.com
- (2603:10b6:610:4e::27) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2623.9 via Frontend
- Transport; Thu, 9 Jan 2020 06:53:09 +0000
-Authentication-Results: spf=pass (sender IP is 149.199.60.83)
- smtp.mailfrom=xilinx.com; vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=bestguesspass action=none
- header.from=xilinx.com;
-Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
- 149.199.60.83 as permitted sender) receiver=protection.outlook.com;
- client-ip=149.199.60.83; helo=xsj-pvapsmtpgw01;
-Received: from xsj-pvapsmtpgw01 (149.199.60.83) by
- SN1NAM02FT060.mail.protection.outlook.com (10.152.72.192) with Microsoft SMTP
- Server (version=TLS1_0, cipher=TLS_RSA_WITH_AES_256_CBC_SHA) id 15.20.2623.9
- via Frontend Transport; Thu, 9 Jan 2020 06:53:09 +0000
-Received: from unknown-38-66.xilinx.com ([149.199.38.66] helo=xsj-pvapsmtp01)
-        by xsj-pvapsmtpgw01 with esmtp (Exim 4.63)
-        (envelope-from <naga.sureshkumar.relli@xilinx.com>)
-        id 1ipRgr-0000Ty-1S
-        for stable@vger.kernel.org; Wed, 08 Jan 2020 22:53:09 -0800
-Received: from [127.0.0.1] (helo=localhost)
-        by xsj-pvapsmtp01 with smtp (Exim 4.63)
-        (envelope-from <naga.sureshkumar.relli@xilinx.com>)
-        id 1ipRgl-0005tX-Tj
-        for stable@vger.kernel.org; Wed, 08 Jan 2020 22:53:03 -0800
-Received: from [10.140.6.25] (helo=xhdnagasure40.xilinx.com)
-        by xsj-pvapsmtp01 with esmtp (Exim 4.63)
-        (envelope-from <naga.sureshkumar.relli@xilinx.com>)
-        id 1ipRgi-0005jV-Ko; Wed, 08 Jan 2020 22:53:01 -0800
-From:   Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
-To:     nagasure@xilinx.com
-Cc:     stable@vger.kernel.org
-Subject: [LINUX PATCH] ubifs: Fix wrong memory allocation
-Date:   Wed,  8 Jan 2020 23:52:59 -0700
-Message-Id: <20200109065259.4772-1-naga.sureshkumar.relli@xilinx.com>
-X-Mailer: git-send-email 2.17.1
-X-TM-AS-Product-Ver: IMSS-7.1.0.1224-8.2.0.1013-23620.005
-X-TM-AS-User-Approved-Sender: Yes;Yes
-X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-HT: Tenant
-X-Forefront-Antispam-Report: CIP:149.199.60.83;IPV:;CTRY:US;EFV:NLI;SFV:NSPM;SFS:(10009020)(4636009)(396003)(346002)(376002)(136003)(39860400002)(189003)(199004)(4326008)(81166006)(1076003)(36756003)(6636002)(478600001)(5660300002)(81156014)(8676002)(2906002)(70206006)(70586007)(8936002)(34206002)(9786002)(316002)(2616005)(426003)(186003)(103116003)(26005)(7696005)(356004)(37006003)(336012);DIR:OUT;SFP:1101;SCL:1;SRVR:DM6PR02MB6444;H:xsj-pvapsmtpgw01;FPR:;SPF:Pass;LANG:en;PTR:unknown-60-83.xilinx.com;MX:1;A:1;
-MIME-Version: 1.0
-Content-Type: text/plain
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 5569d8da-ee8f-48a6-1f10-08d794d09681
-X-MS-TrafficTypeDiagnostic: DM6PR02MB6444:
-X-Microsoft-Antispam-PRVS: <DM6PR02MB64446341BFB2E2977EE7C013AF390@DM6PR02MB6444.namprd02.prod.outlook.com>
+ bh=V94WOmX6yiMrJHHZsQhQX6mBNH1sJ9LoxkqvFNyDCXg=;
+ b=lgBiYjVJ3fTs36VmFz4tzbw6w+gYVKFkt9ddp+VUCPVLTI0pYQBbfo0aZtbTkCFf7yf4yLCTUcpG+rwGzw/yAwPZFN14tbpie/HYB0oe7EgXlPuJoF5oJrMAgeCsdjrRFs+rLT9xUBGM9QS7meS9ByrvCPvWUP1qkHz8C5Md0kM=
+Received: from MN2PR02MB5727.namprd02.prod.outlook.com (20.179.85.153) by
+ MN2PR02MB5998.namprd02.prod.outlook.com (20.179.99.12) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2602.15; Thu, 9 Jan 2020 06:54:43 +0000
+Received: from MN2PR02MB5727.namprd02.prod.outlook.com
+ ([fe80::e09d:a160:5349:8ed0]) by MN2PR02MB5727.namprd02.prod.outlook.com
+ ([fe80::e09d:a160:5349:8ed0%6]) with mapi id 15.20.2623.008; Thu, 9 Jan 2020
+ 06:54:43 +0000
+From:   Naga Sureshkumar Relli <nagasure@xilinx.com>
+To:     Naga Sureshkumar Relli <nagasure@xilinx.com>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [LINUX PATCH] ubifs: Fix wrong memory allocation
+Thread-Topic: [LINUX PATCH] ubifs: Fix wrong memory allocation
+Thread-Index: AQHVxrl5brpQ6ciucEyV8kg+Y3JOOafh5aqQ
+Date:   Thu, 9 Jan 2020 06:54:43 +0000
+Message-ID: <MN2PR02MB5727089A2B3BCF8FD49B9FF7AF390@MN2PR02MB5727.namprd02.prod.outlook.com>
+References: <20200109065259.4772-1-naga.sureshkumar.relli@xilinx.com>
+In-Reply-To: <20200109065259.4772-1-naga.sureshkumar.relli@xilinx.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
 X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
-X-MS-Oob-TLC-OOBClassifiers: OLM:176;
-X-Forefront-PRVS: 02778BF158
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: lkDSMlmKzw43MC+DzURMe6Q/WapiRUSro1bWzVTk6/ETWvQ0VnbnGD3mjf/JpgunGVT3CHPrTxbC+leRT8O7gPRDcw5TnaRjpkS1h5bVuz5i8+0iUeXbFomrASjfnnSqUmz1m3Eru0Incxj2ZlxWkbfl8nuEj/zOP+3QmdKmEw5HVoVQ/mYwTYLPNDvFXOus32xX1iLQYKA/iYFVpigws3lmoYXGei19x8RH/Uzphd4q+99Mw644EMLXW90DoKoCwoJRcZqbF4GbOLGWbSwMxkwPBd+Uds9KPRPKQHGifwSGLc9NMgiNws7CgL/ya2F4y08PU2FvhdHFnqJBdsSf7XZl3UYEe28eXoIf2A3oJ0cJtdHweHdnsshyK5/4YDgWeLOKkZ4WvMM1mpkEop+r07gWp6pHWro65XEn508Fd3eGM8FeCj2jz78WRSFa+Npw
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=nagasure@xilinx.com; 
+x-originating-ip: [149.199.50.133]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 9195b9c7-775b-4354-11d0-08d794d0ce81
+x-ms-traffictypediagnostic: MN2PR02MB5998:|MN2PR02MB5998:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <MN2PR02MB5998A5B090439610B8C130C3AF390@MN2PR02MB5998.namprd02.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:378;
+x-forefront-prvs: 02778BF158
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(366004)(396003)(136003)(39860400002)(376002)(346002)(13464003)(189003)(199004)(6636002)(55016002)(9686003)(71200400001)(86362001)(478600001)(316002)(76116006)(6506007)(26005)(64756008)(66556008)(4326008)(66446008)(66476007)(7696005)(53546011)(6862004)(186003)(33656002)(52536014)(66946007)(2906002)(5660300002)(8676002)(81166006)(81156014)(8936002);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR02MB5998;H:MN2PR02MB5727.namprd02.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: xilinx.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: QBAQtiC614CIdNLCpJ9j1N0cOGPa6Vis9NQZKgYX9gNKnA/CyWgY5/ZLSVlQjT4BEqFtpn/WyLyKoS184BiPY2RMYI60mc1nJsEFgumMFtGvIix9v99w6kagmMrj+kv+DUq7ypUBiyW+OuRrzv7SIy7JFhDLQM09GLboV/voT8T+aeX/lmns5biEkBKe4w+scv1q8GyY7OwL+WnuJa/FDPTjYgqB0q96Db4THgk0FNZMNqN73QogZ7esCeBBclvc50DDYJ22xSt3wfoj2FB+QHq48BopbVkZmA1T11CdRos71vHlUEJnDVke2o3ZJytN6Db2veiKpW26sDeFMJpma8XgNogur5KutUYGs8rc4lqF7jowO4ggklum8VpM/1q8UQIOYbbgOGGncfTNr3KrJi+90vNiostRHLtUIUIk8/810m0lT+h1d1gT4rQVBReCN2OHqKOhvvpAyy9BwWf7cyaASESFM6F0kEdj0pfMe47JQl0GX1gd+eIh1LiiYw+S
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 X-OriginatorOrg: xilinx.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jan 2020 06:53:09.4256
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9195b9c7-775b-4354-11d0-08d794d0ce81
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Jan 2020 06:54:43.3588
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5569d8da-ee8f-48a6-1f10-08d794d09681
-X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.60.83];Helo=[xsj-pvapsmtpgw01]
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR02MB6444
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 657af505-d5df-48d0-8300-c31994686c5c
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: S8IOxpF3HbpT4pb9uSWgN3wFUmm/twq8HcCqXRXj65Rl1cQHsClTYArlXE6qW20YZq7n1BxRwz9Ba57DjPH4JQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR02MB5998
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+Hi,
 
-In create_default_filesystem() when we allocate the idx node we must use
-the idx_node_size we calculated just one line before, not tmp, which
-contains completely other data.
+Please ignore this.
 
-Fixes: c4de6d7e4319 ("ubifs: Refactor create_default_filesystem()")
-Cc: stable@vger.kernel.org # v4.20+
-Reported-by: Naga Sureshkumar Relli <nagasure@xilinx.com>
-Tested-by: Naga Sureshkumar Relli <nagasure@xilinx.com>
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
----
- fs/ubifs/sb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks,
+Naga Sureshkumar Relli
 
-diff --git a/fs/ubifs/sb.c b/fs/ubifs/sb.c
-index a551eb3e9b89..6681c18e52b8 100644
---- a/fs/ubifs/sb.c
-+++ b/fs/ubifs/sb.c
-@@ -161,7 +161,7 @@ static int create_default_filesystem(struct ubifs_info *c)
- 	sup = kzalloc(ALIGN(UBIFS_SB_NODE_SZ, c->min_io_size), GFP_KERNEL);
- 	mst = kzalloc(c->mst_node_alsz, GFP_KERNEL);
- 	idx_node_size = ubifs_idx_node_sz(c, 1);
--	idx = kzalloc(ALIGN(tmp, c->min_io_size), GFP_KERNEL);
-+	idx = kzalloc(ALIGN(idx_node_size, c->min_io_size), GFP_KERNEL);
- 	ino = kzalloc(ALIGN(UBIFS_INO_NODE_SZ, c->min_io_size), GFP_KERNEL);
- 	cs = kzalloc(ALIGN(UBIFS_CS_NODE_SZ, c->min_io_size), GFP_KERNEL);
- 
--- 
-2.17.1
+> -----Original Message-----
+> From: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
+> Sent: Thursday, January 9, 2020 12:23 PM
+> To: Naga Sureshkumar Relli <nagasure@xilinx.com>
+> Cc: stable@vger.kernel.org
+> Subject: [LINUX PATCH] ubifs: Fix wrong memory allocation
+>=20
+> From: Sascha Hauer <s.hauer@pengutronix.de>
+>=20
+> In create_default_filesystem() when we allocate the idx node we must use =
+the idx_node_size we
+> calculated just one line before, not tmp, which contains completely other=
+ data.
+>=20
+> Fixes: c4de6d7e4319 ("ubifs: Refactor create_default_filesystem()")
+> Cc: stable@vger.kernel.org # v4.20+
+> Reported-by: Naga Sureshkumar Relli <nagasure@xilinx.com>
+> Tested-by: Naga Sureshkumar Relli <nagasure@xilinx.com>
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> ---
+>  fs/ubifs/sb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/fs/ubifs/sb.c b/fs/ubifs/sb.c index a551eb3e9b89..6681c18e52=
+b8 100644
+> --- a/fs/ubifs/sb.c
+> +++ b/fs/ubifs/sb.c
+> @@ -161,7 +161,7 @@ static int create_default_filesystem(struct ubifs_inf=
+o *c)
+>  	sup =3D kzalloc(ALIGN(UBIFS_SB_NODE_SZ, c->min_io_size), GFP_KERNEL);
+>  	mst =3D kzalloc(c->mst_node_alsz, GFP_KERNEL);
+>  	idx_node_size =3D ubifs_idx_node_sz(c, 1);
+> -	idx =3D kzalloc(ALIGN(tmp, c->min_io_size), GFP_KERNEL);
+> +	idx =3D kzalloc(ALIGN(idx_node_size, c->min_io_size), GFP_KERNEL);
+>  	ino =3D kzalloc(ALIGN(UBIFS_INO_NODE_SZ, c->min_io_size), GFP_KERNEL);
+>  	cs =3D kzalloc(ALIGN(UBIFS_CS_NODE_SZ, c->min_io_size), GFP_KERNEL);
+>=20
+> --
+> 2.17.1
 
