@@ -2,72 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49296135CC1
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 16:29:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD98135CD1
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 16:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731005AbgAIP31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 10:29:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33566 "EHLO mail.kernel.org"
+        id S1729643AbgAIPc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 10:32:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728257AbgAIP31 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Jan 2020 10:29:27 -0500
+        id S1729589AbgAIPc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jan 2020 10:32:28 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 494B220673;
-        Thu,  9 Jan 2020 15:29:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FFE92072A;
+        Thu,  9 Jan 2020 15:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578583766;
-        bh=4yxdqliRGaByZbgaDZ+g0vdg0HH/Wm3FEJvh3Vpr2hA=;
+        s=default; t=1578583947;
+        bh=e+8teUutDcTrOf1C5tq1dzQr8Tjsy4MZMpCRFIYHJuc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TcAh4qCnn5OC28taqif6ZQ5peLRBI0+88/71AT9LJjl1Yooy6ln/XA/nkGmMTYWM1
-         AafmmaIpfOvqtN2/d6SYTQ4fphKoWzNLx6DvYDK5syk1uVnzIrtiX032CJAPc67pJj
-         1c3QK0M89DmKJsTda8pbXY2AW7E601NPpiJFVbGM=
-Date:   Thu, 9 Jan 2020 10:29:25 -0500
+        b=x0+zT5fu5S2nCgP35Kc9swptcQDkCVh27Z9qnkoMWKBJy5yQ7KwHux13C4WwVsxeU
+         kXmNgtSCnHfhTbdZsigqPxu8OO2SYXWmcDvaPxHkFWk+T1D9WIDDjy+IBzf6h0yK1r
+         0e/PzjaCU6YFd00U72+HOKb8jUFv5SL+NSoSDeTs=
+Date:   Thu, 9 Jan 2020 10:32:26 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Brian Norris <briannorris@chromium.org>
-Cc:     Linux Kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        huangwen <huangwenabc@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        "<netdev@vger.kernel.org>" <netdev@vger.kernel.org>,
-        Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Subject: Re: [PATCH AUTOSEL 5.4 008/187] mwifiex: fix possible heap overflow
- in mwifiex_process_country_ie()
-Message-ID: <20200109152925.GF1706@sasha-vm>
-References: <20191227174055.4923-1-sashal@kernel.org>
- <20191227174055.4923-8-sashal@kernel.org>
- <CA+ASDXM6UvVCDYGq7gMEai_v3d79Pi_ZH=UFs1gfw_pL_BLMJg@mail.gmail.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Michal Kubecek <mkubecek@suse.cz>,
+        Firo Yang <firo.yang@suse.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        rcu@vger.kernel.org, Netdev <netdev@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Subject: Re: [PATCH AUTOSEL 4.19 46/84] tcp/dccp: fix possible race
+ __inet_lookup_established()
+Message-ID: <20200109153226.GG1706@sasha-vm>
+References: <20191227174352.6264-1-sashal@kernel.org>
+ <20191227174352.6264-46-sashal@kernel.org>
+ <CA+G9fYv8o4he83kqpxB9asT7eUMAeODyX3MBbmwsCdgqLcXPWw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CA+ASDXM6UvVCDYGq7gMEai_v3d79Pi_ZH=UFs1gfw_pL_BLMJg@mail.gmail.com>
+In-Reply-To: <CA+G9fYv8o4he83kqpxB9asT7eUMAeODyX3MBbmwsCdgqLcXPWw@mail.gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 06, 2020 at 02:51:28PM -0800, Brian Norris wrote:
->On Fri, Dec 27, 2019 at 9:59 AM Sasha Levin <sashal@kernel.org> wrote:
+On Thu, Jan 02, 2020 at 01:31:22PM +0530, Naresh Kamboju wrote:
+>On Fri, 27 Dec 2019 at 23:17, Sasha Levin <sashal@kernel.org> wrote:
 >>
->> From: Ganapathi Bhat <gbhat@marvell.com>
+>> From: Eric Dumazet <edumazet@google.com>
 >>
->> [ Upstream commit 3d94a4a8373bf5f45cf5f939e88b8354dbf2311b ]
+>> [ Upstream commit 8dbd76e79a16b45b2ccb01d2f2e08dbf64e71e40 ]
+>>
+>> Michal Kubecek and Firo Yang did a very nice analysis of crashes
+>> happening in __inet_lookup_established().
+>>
+>> Since a TCP socket can go from TCP_ESTABLISH to TCP_LISTEN
+>> (via a close()/socket()/listen() cycle) without a RCU grace period,
+>> I should not have changed listeners linkage in their hash table.
+>>
+>> They must use the nulls protocol (Documentation/RCU/rculist_nulls.txt),
+>> so that a lookup can detect a socket in a hash list was moved in
+>> another one.
+>>
+>> Since we added code in commit d296ba60d8e2 ("soreuseport: Resolve
+>> merge conflict for v4/v6 ordering fix"), we have to add
+>> hlist_nulls_add_tail_rcu() helper.
 >
->FYI, this upstream commit has unbalanced locking. I've submitted a
->followup here:
+>The kernel panic reported on all devices,
+>While running LTP syscalls accept* test cases on stable-rc-4.19 branch kernel.
+>This report log extracted from qemu_x86_64.
 >
->[PATCH] mwifiex: fix unbalanced locking in mwifiex_process_country_ie()
->https://lkml.kernel.org/linux-wireless/20200106224212.189763-1-briannorris@chromium.org/T/#u
->https://patchwork.kernel.org/patch/11320227/
->
->I'd recommend holding off until that gets landed somewhere. (Same for
->the AUTOSEL patches sent to other kernel branches.)
+>Reverting this patch re-solved kernel crash.
 
-I'll drop it for now, just ping us when the fix is in and we'll get both
-patches queued back up.
+I'll drop it until we can look into what's happening here, thanks!
 
 -- 
 Thanks,
