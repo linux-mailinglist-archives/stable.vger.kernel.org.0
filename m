@@ -2,82 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2865135B16
-	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 15:10:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03FF7135B76
+	for <lists+stable@lfdr.de>; Thu,  9 Jan 2020 15:35:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731430AbgAIOKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 09:10:23 -0500
-Received: from mail-wr1-f52.google.com ([209.85.221.52]:37261 "EHLO
-        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728406AbgAIOKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Jan 2020 09:10:23 -0500
-Received: by mail-wr1-f52.google.com with SMTP id w15so7570081wru.4
-        for <stable@vger.kernel.org>; Thu, 09 Jan 2020 06:10:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=y3JswQ/tu1+H8Fu7CI+7OpMo0RICI63sufKx3lFhwi8=;
-        b=maxPyATcLprYFfk8jdq9bArfa9s35y24bZ4fmHXjtH714Bq0XPPq2idaQk0dZQONol
-         bAvP2qYbWOWeNd8Li3UaIxBpIul4HoTg7d1HBR6AY07c/ZdMevta7RAtiP4FM4eb1DDS
-         NS4zE2f2fYsJRemU8YtiA64T8fibs2vh8zOCDUrBkRO1C99rwBkSc4AZUJJNmUejySfd
-         oEruBt2N8LSslKM37MUDvAPqCUE55sAEjeBlbuL9Rs3012q/g4zuxmH94KufC8cF9WsK
-         L5Z+LlzJ74dKOaOZQa6i0ZDa1b5NQWym66oBLohCnKhfr86fTIrt/KuDLbrESDltsApX
-         jdWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=y3JswQ/tu1+H8Fu7CI+7OpMo0RICI63sufKx3lFhwi8=;
-        b=SQxevOtr1EgRSaZsMRXozE/sV4O5cI91q6nZtMVnFNFeCUIhQ61m8CT5RMdq+qxmtn
-         4VnkWwc4TZClH03v/o/X/khNvKKXph9+A9CIgFBJt+JDqhtTH6FbR7n/1FcOUqHhNmm+
-         /8Z76nmNrYDKJXVz0UvybRaIXsGWEkreQ2NwtVzOEy60A7ohxf4FCLn9WRGdWlIvZfKP
-         aD2AxEVW5sbgRCuZ5CgGsoHVCSL0zo/u9pKazLl6FGIV5GhP53Yi+9qoebGSlIZrV3uJ
-         HSRmAepzC4PrLqolr7wnqT8qy908vzB5SZk0jABPzmlJi1xjxCT7zPFL9f/npbBzGTZ6
-         SYog==
-X-Gm-Message-State: APjAAAVpSnKr10wEW92mFeal7T6R9JM7iDjhslazwyitkVVjhxSB0MGA
-        PypWM8QY+7o0wvsuBt6qtGRkbmNMD5SYzA==
-X-Google-Smtp-Source: APXvYqzUZ6u3hsWDXw5MtbDsYqna6ThYbUDjVtKcokiOPUPVkhGP2aZjjWYyyCAYFuTQYuizCCKuhA==
-X-Received: by 2002:a05:6000:160d:: with SMTP id u13mr11572280wrb.22.1578579021213;
-        Thu, 09 Jan 2020 06:10:21 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id g7sm8228427wrq.21.2020.01.09.06.10.19
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jan 2020 06:10:20 -0800 (PST)
-Message-ID: <5e17344c.1c69fb81.b5f90.832e@mx.google.com>
-Date:   Thu, 09 Jan 2020 06:10:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1731726AbgAIOfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Jan 2020 09:35:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38806 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729577AbgAIOfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Jan 2020 09:35:39 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0715B2077B;
+        Thu,  9 Jan 2020 14:35:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578580539;
+        bh=6WcORVtf3DjfJCucb8ciuJeOMemSw+59Xl2wf5Zg4As=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JLcoFRE0CEI7rPiUjb8T/kz3hk2H769jyw7uuBhU49RmZ4zEs9p46DqAOS5b2bRy9
+         6VyNrlThT3o75JaweEKKKaEBq8ZmQE4NHf9JZluGVF82sah/LMOlJ9OcGJhyd1Bfzg
+         2MMAGgxQME80cfdAM2ugWu8VvdVlTa1nwwTEC49M=
+Date:   Thu, 9 Jan 2020 09:35:37 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc:     stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        mathieu.poirier@linaro.org, gregkh@linuxfoundation.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [stable] [PATCH 1/2] coresight: etb10: Do not call
+ smp_processor_id from preemptible
+Message-ID: <20200109143537.GE1706@sasha-vm>
+References: <20200108110541.318672-1-suzuki.poulose@arm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.208
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 52 boots: 0 failed,
- 51 passed with 1 untried/unknown (v4.9.208)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200108110541.318672-1-suzuki.poulose@arm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 52 boots: 0 failed, 51 passed with 1 untried/un=
-known (v4.9.208)
+On Wed, Jan 08, 2020 at 11:05:40AM +0000, Suzuki K Poulose wrote:
+>[ Upstream commit 730766bae3280a25d40ea76a53dc6342e84e6513 ]
+>
+>During a perf session we try to allocate buffers on the "node" associated
+>with the CPU the event is bound to. If it is not bound to a CPU, we
+>use the current CPU node, using smp_processor_id(). However this is unsafe
+>in a pre-emptible context and could generate the splats as below :
+>
+> BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
+>
+>Use NUMA_NO_NODE hint instead of using the current node for events
+>not bound to CPUs.
+>
+>Fixes: 2997aa4063d97fdb39 ("coresight: etb10: implementing AUX API")
+>Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+>Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+>Cc: stable <stable@vger.kernel.org> # v4.9 to v4.19
+>Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+>Link: https://lore.kernel.org/r/20190620221237.3536-5-mathieu.poirier@linaro.org
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.208/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.208/
+I've queued this for 4.9-4.19. There was a simple conflict on 4.9 which
+also had to be resolved.
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.208
-Git Commit: e77ff35fa79353a8bd85a33b83609bd3add65e4b
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 28 unique boards, 11 SoC families, 11 builds out of 197
-
----
-For more info write to <info@kernelci.org>
+-- 
+Thanks,
+Sasha
