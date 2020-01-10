@@ -2,189 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD8C13664B
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 05:46:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D961136668
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 06:03:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731251AbgAJEqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Jan 2020 23:46:21 -0500
-Received: from mga06.intel.com ([134.134.136.31]:54917 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731223AbgAJEqU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Jan 2020 23:46:20 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Jan 2020 20:46:19 -0800
-X-IronPort-AV: E=Sophos;i="5.69,415,1571727600"; 
-   d="scan'208";a="236767082"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Jan 2020 20:46:19 -0800
-Subject: [PATCH] mm/memory_hotplug: Fix remove_memory() lockdep splat
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     akpm@linux-foundation.org
-Cc:     stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Date:   Thu, 09 Jan 2020 20:30:17 -0800
-Message-ID: <157863061737.2230556.3959730620803366776.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-3-g996c
+        id S1725795AbgAJFDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jan 2020 00:03:24 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:36919 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725799AbgAJFDW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jan 2020 00:03:22 -0500
+Received: by mail-lf1-f65.google.com with SMTP id b15so478130lfc.4
+        for <stable@vger.kernel.org>; Thu, 09 Jan 2020 21:03:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=B/GI7mSLrO7+AWyztv1F/7+LjmBRdi9pxniW8srHraM=;
+        b=WJnSkgb5IoN+QFM9zDo/+1LUciNYCKC1uNr4+jda+SHQ4Al4kAzM40Ki7rykrkdSQb
+         LRo6BkP+xKhXKun/nrSizTl2SLNY7SO9HFhXKlKAOnq3AXpHt/oUN004/3so/HMeBcSV
+         czfR5SnYRegkSqQWTz+TDMXgEHM9RAu7JIN+Q=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=B/GI7mSLrO7+AWyztv1F/7+LjmBRdi9pxniW8srHraM=;
+        b=aC9Pi/GpgOGS2t24v+YMBnVDWjOBVn+PNWARRecfaIqSp43iOGk0JZAnTZlv/DZYu8
+         Mzd4r98DlZmHIEX9fCQOkgWg3bQFJupNZdbT9m/pjH+36rfBWLbnkeo6YnGpFWXLMXr6
+         czPFGUErnX39GgBF33laNefLcZD2j060zTLhxnL8pYHSXXCnjDDZuzW33NXtvL0eU6ev
+         FQ/55aAU75Z8QlLNnwFQxW1d52yGPqN5Qf3ttA0uv2EaS9KRYJv9DpjpKDfLtVwS/rqK
+         Ti6+dFr6YtaAkeYjj2CetAYD9jiudNI0QrFrgRwXQzQ21BXAbu/loiWGd/I9KPYSppCh
+         8bzw==
+X-Gm-Message-State: APjAAAXsUXMOOCV2G/PadPJDyKcvarJmmR7t6HGccYk1NuFzERGyC866
+        vvqHloUxncDZd0EkEuntZBANv+DbNGc=
+X-Google-Smtp-Source: APXvYqzpAnpyc7qjtL257s+nt8nUtJ3y/vP8je8bHjby7SvXHl4KLY0bjQfJZKoi5ciShpeuhW6EMA==
+X-Received: by 2002:a19:491a:: with SMTP id w26mr914592lfa.98.1578632599915;
+        Thu, 09 Jan 2020 21:03:19 -0800 (PST)
+Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com. [209.85.167.52])
+        by smtp.gmail.com with ESMTPSA id u9sm341796lji.49.2020.01.09.21.03.17
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 09 Jan 2020 21:03:18 -0800 (PST)
+Received: by mail-lf1-f52.google.com with SMTP id r14so476532lfm.5
+        for <stable@vger.kernel.org>; Thu, 09 Jan 2020 21:03:17 -0800 (PST)
+X-Received: by 2002:a05:6512:1dd:: with SMTP id f29mr961529lfp.106.1578632597317;
+ Thu, 09 Jan 2020 21:03:17 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+References: <20200101005446.GH4203@ZenIV.linux.org.uk> <20200101030815.GA17593@ZenIV.linux.org.uk>
+ <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com> <20200101234009.GB8904@ZenIV.linux.org.uk>
+ <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com> <20200103014901.GC8904@ZenIV.linux.org.uk>
+ <20200108031314.GE8904@ZenIV.linux.org.uk> <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
+ <20200108213444.GF8904@ZenIV.linux.org.uk> <CAHk-=wiq11+thoe60qhsSHk_nbRF2TRL1Wnf6eHcYObjhJmsww@mail.gmail.com>
+ <20200110041523.GK8904@ZenIV.linux.org.uk>
+In-Reply-To: <20200110041523.GK8904@ZenIV.linux.org.uk>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 9 Jan 2020 21:03:00 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiF6en6WD7JdYAUxHnzeTgs3P08ysDQPv4504hQ2qUcmA@mail.gmail.com>
+Message-ID: <CAHk-=wiF6en6WD7JdYAUxHnzeTgs3P08ysDQPv4504hQ2qUcmA@mail.gmail.com>
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over symlinks
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Aleksa Sarai <cyphar@cyphar.com>,
+        David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        stable <stable@vger.kernel.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Ian Kent <raven@themaw.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The daxctl unit test for the dax_kmem driver currently triggers the
-lockdep splat below. It results from the fact that
-remove_memory_block_devices() is invoked under the mem_hotplug_lock()
-causing lockdep entanglements with cpu_hotplug_lock().
+On Thu, Jan 9, 2020 at 8:15 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+> >
+> > Hmm. If that's the case, maybe they should be marked implicitly as
+> > O_PATH when opened?
+>
+> I thought you wanted O_PATH as starting point to have mounts traversed?
+> Confused...
 
-The mem_hotplug_lock() is not needed to synchronize the memory block
-device sysfs interface vs the page online state, that is already handled
-by lock_device_hotplug(). Specifically lock_device_hotplug()
-is sufficient to allow try_remove_memory() to check the offline
-state of the memblocks and be assured that subsequent online attempts
-will be blocked. The device_online() path checks mem->section_count
-before allowing any state manipulations and mem->section_count is
-cleared in remove_memory_block_devices().
+No, I'm confused.  I meant "non-O_PATH", just got the rules reversed in my mind.
 
-The add_memory() path does create memblock devices under the lock, but
-there is no lockdep report on that path, so it is left alone for now.
+So cwd/root would always act as it non-O_PATH, and only using an
+actual fd would look at the O_PATH flag, and if it was set would walk
+the mountpoints.
 
-This change is only possible thanks to the recent change that refactored
-memory block device removal out of arch_remove_memory() (commit
-4c4b7f9ba948 mm/memory_hotplug: remove memory block devices before
-arch_remove_memory()).
+> <grabs Bach> Right, he simply transcribes v7 iget().
+>
+> So I suspect that you are right - your variant of iget was pretty much
+> one-to-one implementation of Bach's description of v7 iget.
 
-    ======================================================
-    WARNING: possible circular locking dependency detected
-    5.5.0-rc3+ #230 Tainted: G           OE
-    ------------------------------------------------------
-    lt-daxctl/6459 is trying to acquire lock:
-    ffff99c7f0003510 (kn->count#241){++++}, at: kernfs_remove_by_name_ns+0x41/0x80
+Ok, that makes sense. My copy of Bach literally had the system call
+list "marked off" when I implemented them back when.
 
-    but task is already holding lock:
-    ffffffffa76a5450 (mem_hotplug_lock.rw_sem){++++}, at: percpu_down_write+0x20/0xe0
+I may still have that paperbook copy somewhere. I don't _think_ I'd
+have thrown it out, it has sentimental value.
 
-    which lock already depends on the new lock.
+> > I think that in a perfect world, the O_PATH'ness of '42' would be the
+> > deciding factor. Wouldn't those be the best and most consistent
+> > semantics?
+> >
+> > And then 'cwd'/'root' always have the O_PATH behavior.
+>
+> See above - unless I'm misparsing you, you wanted mount traversals in the
+> starting point if it's ...at() with O_PATH fd.
 
+.. and see above, it was just my confusion about the sense of O_PATH.
 
-    the existing dependency chain (in reverse order) is:
+> For cwd and root the situation is opposite - we do NOT traverse mounts
+> for those.  And that's really too late to change.
 
-    -> #2 (mem_hotplug_lock.rw_sem){++++}:
-           __lock_acquire+0x39c/0x790
-           lock_acquire+0xa2/0x1b0
-           get_online_mems+0x3e/0xb0
-           kmem_cache_create_usercopy+0x2e/0x260
-           kmem_cache_create+0x12/0x20
-           ptlock_cache_init+0x20/0x28
-           start_kernel+0x243/0x547
-           secondary_startup_64+0xb6/0xc0
+Oh, absolutely.
 
-    -> #1 (cpu_hotplug_lock.rw_sem){++++}:
-           __lock_acquire+0x39c/0x790
-           lock_acquire+0xa2/0x1b0
-           cpus_read_lock+0x3e/0xb0
-           online_pages+0x37/0x300
-           memory_subsys_online+0x17d/0x1c0
-           device_online+0x60/0x80
-           state_store+0x65/0xd0
-           kernfs_fop_write+0xcf/0x1c0
-           vfs_write+0xdb/0x1d0
-           ksys_write+0x65/0xe0
-           do_syscall_64+0x5c/0xa0
-           entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ snip some more about your automount digging. Looks about right, but
+I'm not going to make a peep after getting O_PATH reversed ;) ]
 
-    -> #0 (kn->count#241){++++}:
-           check_prev_add+0x98/0xa40
-           validate_chain+0x576/0x860
-           __lock_acquire+0x39c/0x790
-           lock_acquire+0xa2/0x1b0
-           __kernfs_remove+0x25f/0x2e0
-           kernfs_remove_by_name_ns+0x41/0x80
-           remove_files.isra.0+0x30/0x70
-           sysfs_remove_group+0x3d/0x80
-           sysfs_remove_groups+0x29/0x40
-           device_remove_attrs+0x39/0x70
-           device_del+0x16a/0x3f0
-           device_unregister+0x16/0x60
-           remove_memory_block_devices+0x82/0xb0
-           try_remove_memory+0xb5/0x130
-           remove_memory+0x26/0x40
-           dev_dax_kmem_remove+0x44/0x6a [kmem]
-           device_release_driver_internal+0xe4/0x1c0
-           unbind_store+0xef/0x120
-           kernfs_fop_write+0xcf/0x1c0
-           vfs_write+0xdb/0x1d0
-           ksys_write+0x65/0xe0
-           do_syscall_64+0x5c/0xa0
-           entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-    other info that might help us debug this:
-
-    Chain exists of:
-      kn->count#241 --> cpu_hotplug_lock.rw_sem --> mem_hotplug_lock.rw_sem
-
-     Possible unsafe locking scenario:
-
-           CPU0                    CPU1
-           ----                    ----
-      lock(mem_hotplug_lock.rw_sem);
-                                   lock(cpu_hotplug_lock.rw_sem);
-                                   lock(mem_hotplug_lock.rw_sem);
-      lock(kn->count#241);
-
-     *** DEADLOCK ***
-
-No fixes tag as this seems to have been a long standing issue that
-likely predated the addition of kernfs lockdep annotations.
-
-Cc: <stable@vger.kernel.org>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- mm/memory_hotplug.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
-
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 55ac23ef11c1..a4e7dadded08 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1763,8 +1763,6 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 
- 	BUG_ON(check_hotplug_memory_range(start, size));
- 
--	mem_hotplug_begin();
--
- 	/*
- 	 * All memory blocks must be offlined before removing memory.  Check
- 	 * whether all memory blocks in question are offline and return error
-@@ -1777,9 +1775,17 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 	/* remove memmap entry */
- 	firmware_map_remove(start, start + size, "System RAM");
- 
--	/* remove memory block devices before removing memory */
-+	/*
-+	 * Remove memory block devices before removing memory, and do
-+	 * not hold the mem_hotplug_lock() over kobject removal
-+	 * operations. lock_device_hotplug() keeps the
-+	 * check_memblock_offlined_cb result valid until the entire
-+	 * removal process is complete.
-+	 */
- 	remove_memory_block_devices(start, size);
- 
-+	mem_hotplug_begin();
-+
- 	arch_remove_memory(nid, start, size, NULL);
- 	memblock_free(start, size);
- 	memblock_remove(start, size);
-
+            Linus
