@@ -2,68 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9840A136EDD
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 14:58:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22BF8136EF8
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 15:07:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727503AbgAJN65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jan 2020 08:58:57 -0500
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:33304 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727501AbgAJN65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jan 2020 08:58:57 -0500
-Received: by mail-qk1-f194.google.com with SMTP id d71so1904621qkc.0
-        for <stable@vger.kernel.org>; Fri, 10 Jan 2020 05:58:57 -0800 (PST)
+        id S1727965AbgAJOHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jan 2020 09:07:38 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:37781 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727358AbgAJOHi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jan 2020 09:07:38 -0500
+Received: by mail-wr1-f65.google.com with SMTP id w15so1950743wru.4
+        for <stable@vger.kernel.org>; Fri, 10 Jan 2020 06:07:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=a0qqR4rOC3fdkIKtadAKedBSbC/Zedt68w/yL2TONDU=;
-        b=TMTEF1st75beR3Qx8lSfyYfUD0E2Ga5kPHCKtnoq3AbBFHDvbeBqNI0CPriti1zJ6O
-         WaHzrZ8/DocxmJgE9gg2l6Bmy1ba/9V2sZsGpA1ZSUNBJI3seBZBnI8W5jHO4/DMH1nA
-         l1QPxP4y5Gi94AmFcCwu20fdmuyF2XI661+ENRiTiKzUUTv750f2A06WLkr2TRwZERGy
-         aKOPvJawGlnAo4zPOrSE7p4MgNT5lCmUHZpm5Vvv1Qp7CB+XG8/L34JczQq2r+BJKfyq
-         zqwUiAN4j9u4KqO1KbWP9mqXhxT/OT+dT+PCnxgSbaxm/o2S0o9D/MgjBl1jp+kenqd4
-         lf+g==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HS3Ajip1UVbHWRT+CDPoJdT+ibZqWnpAWn+Hfr3slaY=;
+        b=mxasKHrIJC+Fyu5sFtG66XYrxzGkWKQeVFh2G0SsRIwZriH2JAFTu5CHc5hkXMVaRS
+         Q+JmQofKyLl7ydL22GhKMmLr+pJEIgDZO1EUGdfhFscv8JdqIggf/2dgcvJSy4KI29Wp
+         TeXOU3L+iRxnh2MUzTHFunU45MjC1uUdfKsZ2CbNLNrDoTvA0OqgyqmdbrmvfCTwzwZ7
+         03ZaxgrsIE/tdJZUxMzFy62v7/8O5eDoewlLDhC7l/HCq36JJ0plmlBRlj/n7da68PBK
+         nJ12bfcfyjaw4MYw02pui+Ve2pr2iF75K8MVxC3wA7rN5TeVquiVSatwfINFqj9J4kpC
+         bs9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=a0qqR4rOC3fdkIKtadAKedBSbC/Zedt68w/yL2TONDU=;
-        b=heb4b1opyLtlMSfcHo48FcJBPqv8NmI7p2WSPSDHyN37nZouSe+bEHwvMJZc1XQKSb
-         oe2DcJNkIvyt7bHHolUvYi4t7De6QU9dV/sp/2rgpYki68alvGcqOA8agkM3FF5ve2Ne
-         otcMQ7gPDnkiOpJ3p2fPfgncRlQ6VMvUj6LRdzdEYST/UmbalTFzKFtcr2yhss2bF9ov
-         06cZSGo3p5VuwWbMgCzi4s+hLsYzJomm4ecMD2BFlzXSIyvu5Qw2ZTSgcID5AaNpuZ6y
-         lBh8eXTTcNdBYZw8UDw0oco3TQtYFiWHgWuu62klp5rN3U9vyBVrtAuUkI7ygC/7+XvQ
-         OaFg==
-X-Gm-Message-State: APjAAAUZj36wqlqTswPoVhNCPNXLLH5Xw8O6yPWcpPMvlSa4PhPs/48P
-        loMxMHHM8TxVeCzxFjC8Lbmj6VS9pJLO4YoKxxo=
-X-Google-Smtp-Source: APXvYqy+ScYB85fVuAQUSnKa2OC2Ly66w8m+Pt5ub99M0hKoqyKMD6yttyTlDqb+SvqOTfJrQQwK/Gg+2m00TKBBKh0=
-X-Received: by 2002:a37:8e44:: with SMTP id q65mr3324286qkd.70.1578664736649;
- Fri, 10 Jan 2020 05:58:56 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HS3Ajip1UVbHWRT+CDPoJdT+ibZqWnpAWn+Hfr3slaY=;
+        b=lsbwqlofmK7XgYnqZUJYqUyST8TfJPRgppYwRIcqGic/ygIpBMlbirFJDARkmD7BPx
+         qhmo6Azq5JbhSQCahg8AaAb8iPlc2T8isXGxVWBTBXP/76Bx9MW5Qng/85NGyUdLGZf/
+         XlCHMVb9vj7kEA60Wex7s3z1h1tWRBCkVGbTj52gXTReFpstHV8s2LnWTUeOMlHjn9yL
+         2gEQUcqGRknngLfgDxvClkd4hVyGG+pEzY6Or11yD8aBL+3jEXjbjEJyUMM9zGbP+uMH
+         hergdA3U8LHfI5rkqkgn49gTLuMr5CtJQsJw+Ojhf0OORmmyY0At0I3jifJHEXDaow/t
+         y6SA==
+X-Gm-Message-State: APjAAAXjG9ha1TjNfgwxJ2muZRHELJuoNb0Xf9P2/IXl94SGD6qKeNP3
+        ZOV3ZQgKpoyM/Tu+e7PzobyXS3x5TTpyuQ==
+X-Google-Smtp-Source: APXvYqy8O4qG3dwKnW0EOcGjZFu3vuYEnPWF2y0GxTJuw2mDe7CRySGTzukt6ADDnBQ26plh6+ns6Q==
+X-Received: by 2002:adf:dc86:: with SMTP id r6mr4032445wrj.68.1578665255982;
+        Fri, 10 Jan 2020 06:07:35 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id z123sm2474628wme.18.2020.01.10.06.07.35
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jan 2020 06:07:35 -0800 (PST)
+Message-ID: <5e188527.1c69fb81.d4805.b9ac@mx.google.com>
+Date:   Fri, 10 Jan 2020 06:07:35 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:a0c:ea8f:0:0:0:0:0 with HTTP; Fri, 10 Jan 2020 05:58:56
- -0800 (PST)
-Reply-To: mariamkonta001@gmail.com
-From:   Mrs Mariam Konta <sashaguo5@gmail.com>
-Date:   Fri, 10 Jan 2020 13:58:56 +0000
-Message-ID: <CAJmSNEOQ6x60qVjrHGuc9=7oyFZB8LPWidxRO3SLxkiqda=Etw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.163-42-gd508caa26185
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 72 boots: 1 failed,
+ 67 passed with 4 untried/unknown (v4.14.163-42-gd508caa26185)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-My dear friend, happy new year to you and your whole family
+stable-rc/linux-4.14.y boot: 72 boots: 1 failed, 67 passed with 4 untried/u=
+nknown (v4.14.163-42-gd508caa26185)
 
-My name is Mrs. Mariam Konta, a widow who suffers from a cancer
-disease. I am writing this email with serious tears in my eyes and a
-great sorrow in my heart. I decided to contact you due to the urgency
-of my situation.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.163-42-gd508caa26185/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.163-42-gd508caa26185/
 
-Dear, I want to donate US $ 3.5 million for charity projects in your country,
-the poor and also for the construction of churches.
-Please reply for more details.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.163-42-gd508caa26185
+Git Commit: d508caa261851cf05cfa501df31cb52777942dd2
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 39 unique boards, 15 SoC families, 13 builds out of 201
 
-Mrs Mariam Konta
+Boot Regressions Detected:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v4.14.163-40-g258da0180=
+e68)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
