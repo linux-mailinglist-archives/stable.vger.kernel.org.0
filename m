@@ -2,140 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0672813784B
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 22:07:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 211A7137857
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 22:12:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726912AbgAJVHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jan 2020 16:07:43 -0500
-Received: from mout-p-102.mailbox.org ([80.241.56.152]:23372 "EHLO
-        mout-p-102.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726842AbgAJVHm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Jan 2020 16:07:42 -0500
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:105:465:1:2:0])
-        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
-        (No client certificate requested)
-        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 47vbCv5hSczKmhn;
-        Fri, 10 Jan 2020 22:07:39 +0100 (CET)
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-Received: from smtp2.mailbox.org ([80.241.60.241])
-        by spamfilter01.heinlein-hosting.de (spamfilter01.heinlein-hosting.de [80.241.56.115]) (amavisd-new, port 10030)
-        with ESMTP id hIHoHiMQzTgm; Fri, 10 Jan 2020 22:07:33 +0100 (CET)
-Date:   Sat, 11 Jan 2020 08:07:19 +1100
-From:   Aleksa Sarai <cyphar@cyphar.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        David Howells <dhowells@redhat.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        stable <stable@vger.kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Ian Kent <raven@themaw.net>
-Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
- symlinks
-Message-ID: <20200110210719.ktg3l2kwjrdutlh6@yavin>
-References: <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com>
- <20200101004324.GA11269@ZenIV.linux.org.uk>
- <20200101005446.GH4203@ZenIV.linux.org.uk>
- <20200101030815.GA17593@ZenIV.linux.org.uk>
- <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
- <20200101234009.GB8904@ZenIV.linux.org.uk>
- <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
- <20200103014901.GC8904@ZenIV.linux.org.uk>
- <20200108031314.GE8904@ZenIV.linux.org.uk>
- <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
+        id S1727078AbgAJVMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jan 2020 16:12:25 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:33935 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726762AbgAJVMZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jan 2020 16:12:25 -0500
+Received: by mail-wr1-f67.google.com with SMTP id t2so3132382wrr.1
+        for <stable@vger.kernel.org>; Fri, 10 Jan 2020 13:12:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rxCqT6gvrvJoiXdA6marh8/xysFvKU7/qmNekPAeEiY=;
+        b=BPhZiUFMmDt0VbMyfH5Aczr/bWAnkJVQqU75VadW1tIIuMWlFz7tVTjYlvxUfOTCgq
+         hvT5C+gYyAiHB4tjiicZVCFFv1Tp1A6XR9WRF9gWOa6/tqk6T1bP+ESwNYSMNFLjeAEo
+         wU53mt7B7IjS+TSshUJfnxLfz/RgVbi8N2N8IgBS7NxP2EoMkB9++MHbaN33XTcj3dVg
+         395ltOAiQuu08DB+QmQlDmYbvAsVhJcybpXJAng3r9YmwpQXf++AnYKD3h4PDdWpTDbZ
+         MivzjgZwkaW02ccxrkdW3uMf41c46VPlirQ3FGnlZ0aD9uAn+PKXrBjlM/mI86//yNR1
+         JzdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rxCqT6gvrvJoiXdA6marh8/xysFvKU7/qmNekPAeEiY=;
+        b=CITsshVgP7G4srRcntP+V/UtHSJDqVNtq/2fkMtSO4DeqFUTPBw66kPe+7qKmbiLeo
+         J8lym0pZQGDC9GOJEFrm3d0LITNO7QLNt+pYPdzWp6UQhvd2BUQ+6QZjwxLYBheY2Lk8
+         q5AJUAB/TW1FZ0ySy4nb/+OPF6W0hH16mUjIYi5GE6XSD6MDYHTbT+OeyMvG1ofcPckS
+         Dheu4vYgIvfQnzPybH+wdhLryRY+kDo9x1J+h1wkeGPM9laGvYLNmHtrXYxcYfz8+23A
+         sJiozP7pQpB5nIbIqo6dYQ6IkwA5WmjMSwV/1RPMH6razMynckk60XaRM8GJ5XmTB7Dr
+         Ts1Q==
+X-Gm-Message-State: APjAAAUuQOkrf75jJNvw5BCrG76mvcE9dzeUePh+schwJ7yuL/BvZZgV
+        +tMTzZjYAJW1PumSABYK8uHQCHRmK8cDtg==
+X-Google-Smtp-Source: APXvYqz3g3y7llxrqbPfLqVTGQ2EzdKA06VzJDJyzK0it8gzqapEAMshE19PGCf9nFfBE0GAb3+w1Q==
+X-Received: by 2002:adf:e2cf:: with SMTP id d15mr5329828wrj.225.1578690743251;
+        Fri, 10 Jan 2020 13:12:23 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s8sm3481111wrt.57.2020.01.10.13.12.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jan 2020 13:12:22 -0800 (PST)
+Message-ID: <5e18e8b6.1c69fb81.38c15.0e0b@mx.google.com>
+Date:   Fri, 10 Jan 2020 13:12:22 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ngr34thsixezvd7j"
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.94-65-ga9b05c4e2c9e
+Subject: stable-rc/linux-4.19.y boot: 81 boots: 1 failed,
+ 75 passed with 5 untried/unknown (v4.19.94-65-ga9b05c4e2c9e)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 81 boots: 1 failed, 75 passed with 5 untried/u=
+nknown (v4.19.94-65-ga9b05c4e2c9e)
 
---ngr34thsixezvd7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.94-65-ga9b05c4e2c9e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.94-65-ga9b05c4e2c9e/
 
-On 2020-01-07, Linus Torvalds <torvalds@linux-foundation.org> wrote:
-> On Tue, Jan 7, 2020 at 7:13 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
-> > Another interesting question is whether we want O_PATH open
-> > to trigger automounts.
->=20
-> It does sound like they shouldn't, but as you say:
->=20
-> >     The thing is, we do *NOT* trigger them
-> > (or traverse mountpoints) at the starting point of lookups.
-> > I believe it's a mistake (and mine, at that), but I doubt that
-> > there's anything that can be done about it at that point.
-> > It's a user-visible behaviour [..]
->=20
-> Hmm. I wonder how set in stone that is. We may have two decades of
-> history of not doing it at start point of lookups, but we do *not*
-> have two decades of history of O_PATH.
->=20
-> So what I think we agree would be sane behavior would be for O_PATH
-> opens to not trigger automounts (unless there's a slash at the end,
-> whatever), but _do_ add the mount-point traversal to the beginning of
-> lookups.
->=20
-> But only do it for the actual O_PATH fd case, not the cwd/root/non-O_PATH=
- case.
->=20
-> That way we maintain original behavior: if somebody overmounts your
-> cwd, you still see the pre-mount directory on lookups, because your
-> cwd is "under" the mount.
->=20
-> But if you open a file with O_PATH, and somebody does a mount
-> _afterwards_, the openat() will see that later mount and/or do the
-> automount.
->=20
-> Don't you think that would be the more sane/obvious semantics of how
-> O_PATH should work?
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.94-65-ga9b05c4e2c9e
+Git Commit: a9b05c4e2c9e96954ae9bafea58eb23cff45fd9a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 17 SoC families, 14 builds out of 206
 
-If I'm understanding this proposal correctly, this would be a problem
-for the libpathrs use-case -- if this is done then there's no way to
-avoid a TOCTOU with someone mounting and the userspace program checking
-whether something is a mountpoint (unless you have Linux >5.6 and
-RESOLVE_NO_XDEV). Today, you can (in theory) do it with MNT_EXPIRE:
+Boot Regressions Detected:
 
-  1. Open the candidate directory.
-  2. umount2(MNT_EXPIRE) the fd.
-    * -EINVAL means it wasn't a mountpoint when we got the fd, and the
-	  fd is a stable handle to the underlying directory.
-	* -EAGAIN or -EBUSY means that it was a mountpoint or became a
-	  mountpoint after the fd was opened (we don't care about that, but
-	  fail-safe is better here).
-  3. Use the fd from (1) for all operations.
+arm:
 
-Don't get me wrong, I want to fix this issue *properly* by adding some
-new kernel features that allow us to avoid worrying about
-mounts-over-magiclinks -- but on old kernels (which libpathrs cares
-about) I would be worried about changes like this being backported
-resulting in it being not possible to implement the hardening I
-mentioned up-thread.
+    davinci_all_defconfig:
+        gcc-8:
+          da850-lcdk:
+              lab-baylibre: new failure (last pass: v4.19.94-64-gc6052d0e86=
+3f)
 
---=20
-Aleksa Sarai
-Senior Software Engineer (Containers)
-SUSE Linux GmbH
-<https://www.cyphar.com/>
+    multi_v7_defconfig:
+        gcc-8:
+          alpine-db:
+              lab-baylibre: new failure (last pass: v4.19.94-64-gc6052d0e86=
+3f)
+          at91-sama5d4_xplained:
+              lab-baylibre: new failure (last pass: v4.19.94-64-gc6052d0e86=
+3f)
 
---ngr34thsixezvd7j
-Content-Type: application/pgp-signature; name="signature.asc"
+    sunxi_defconfig:
+        gcc-8:
+          sun8i-h2-plus-orangepi-r1:
+              lab-baylibre: new failure (last pass: v4.19.94-64-gc6052d0e86=
+3f)
 
------BEGIN PGP SIGNATURE-----
+Boot Failure Detected:
 
-iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXhjnhAAKCRCdlLljIbnQ
-EhaiAP9e9kkZEWJCnBThFyXtSMRZyNVXHckugjlX6Ia4tELkfwD+KmuEPaDHPZsv
-ZqHH8TBxEFo6jF26WNsOXtxaBZwFsQ0=
-=uAob
------END PGP SIGNATURE-----
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            alpine-db: 1 failed lab
 
---ngr34thsixezvd7j--
+---
+For more info write to <info@kernelci.org>
