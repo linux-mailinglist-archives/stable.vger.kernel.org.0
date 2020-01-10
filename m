@@ -2,97 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEFB2136859
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 08:36:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7581368BC
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 09:03:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726401AbgAJHgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jan 2020 02:36:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50796 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726549AbgAJHgE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jan 2020 02:36:04 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22B322072E;
-        Fri, 10 Jan 2020 07:36:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578641763;
-        bh=28UsxldREJ16JoozMn50gEh9Cvrqlg1LTxMj+nPfB1s=;
-        h=Subject:To:From:Date:From;
-        b=hH75bAACqiJAv2E+lGOahEGv5JjDkFZialnWEg8AMxa9HKQFltHPdb/qlXDYm6zU4
-         TPpUumBRPIh1Pv3RAjgBx0oyu91z/MURabvf5+l5oMVTo5ygCqnFg7VYbAJ3aB4+kh
-         8IpGik6OCiTHjq4wVlJp3B07vNOaAtRXNLDp5y3k=
-Subject: patch "usb: missing parentheses in USE_NEW_SCHEME" added to usb-linus
-To:     atmgnd@outlook.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, stern@rowland.harvard.edu
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Jan 2020 08:36:01 +0100
-Message-ID: <1578641761021@kroah.com>
+        id S1726770AbgAJIDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jan 2020 03:03:12 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:41836 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726666AbgAJIDK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jan 2020 03:03:10 -0500
+Received: by mail-lj1-f194.google.com with SMTP id h23so1145128ljc.8
+        for <stable@vger.kernel.org>; Fri, 10 Jan 2020 00:03:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=upQt3GzlnvjSOqoMwk/degessP4GmM83hujHAC7qtm0=;
+        b=cxcFzrW2eyB+uI590hq5nOTUQHHVRUT6Thep14+XyUUFBXMNKMnghxjuFE9IkBsnz7
+         aqXKN1s4ZBhEZx1ujM7yedQW+6vlI46+a6WCiTQvAzbDCiMS6yZfZVrMnmUYJkc2gfpF
+         /CRsUCehyGHLcauGq+mpESjqOADm8pXGiyBaEhuYn1/vo/aaotw5pz51Gw4EtR6IlhZ9
+         3/7oXUJnFngHFALfDH1Pa2IJ5yd++kplyC/swZm7UHPAh8/x34gB9Q+ZWhzvrb/W0MTW
+         EHMYkMkkWTLX8aijook0wH6sLNcZN94BmYUsDoXklLfgKttL4pL5KNmF9G22Q4cizAgE
+         iL8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=upQt3GzlnvjSOqoMwk/degessP4GmM83hujHAC7qtm0=;
+        b=iytn+JBVsFirxXyQdWs88G4QJsDqPEuwPdr5gAv+o3xSjwDJ9pyi5YBH+q5m5IF54R
+         oRHmUB3iSzexp6n49uW/sclrsMFvgZHf2wBwho89gCcKAC5aeUliD3pBkRnya2G4RcLq
+         3Bf+A7aH6z8g77DY34LBUxez19Qk0V+0+qPPuC0BjjIKXvKOuN3WYCcmaaHTUqKZUlX0
+         cY66eEKU/kYMorWIQeMxZLZayFrKf/57s5cB5iEshVcqNgOJPZQ5tIySPNcKCovWVQl4
+         74b1FBFfHcqNfTkmmOKreqdHhqV8xmPBOS8qrzjjLaQWvw4H+O56keM7RCZxLX9UsTQ2
+         GnqQ==
+X-Gm-Message-State: APjAAAX5vXLtvZDLIj1tR3BZ4W2RNlYhNgRNa/OdUS97lt5FiNZPBeit
+        wsv0ujFsMl1yURTHxrLMPZIy33hEL+mE+sIZoNoJkQ==
+X-Google-Smtp-Source: APXvYqzgj8OGge7NQJchcfB33MSmUCAalLcd1nHlhSwplwywzQr3fVX9R/RNGsRHqOEFszThgJZ8r0py0uns5CQu5FM=
+X-Received: by 2002:a2e:868c:: with SMTP id l12mr1539426lji.194.1578643388598;
+ Fri, 10 Jan 2020 00:03:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20191106173125.14496-1-stephan@gerhold.net> <CACRpkdaH8ahbVKTrBHh7NKVZVg-PZvyKDKNityEyv5rL8=Qdag@mail.gmail.com>
+In-Reply-To: <CACRpkdaH8ahbVKTrBHh7NKVZVg-PZvyKDKNityEyv5rL8=Qdag@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 10 Jan 2020 13:32:57 +0530
+Message-ID: <CA+G9fYvSQJ0BVAAMyTk0mViqCdNjtsZCrhhorRnrmcPg98yQVA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] regulator: ab8500: Remove AB8505 USB regulator
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 7 Nov 2019 at 13:32, Linus Walleij <linus.walleij@linaro.org> wrote:
+>
+> On Wed, Nov 6, 2019 at 6:33 PM Stephan Gerhold <stephan@gerhold.net> wrote:
+>
+> > The USB regulator was removed for AB8500 in
+> > commit 41a06aa738ad ("regulator: ab8500: Remove USB regulator").
+> > It was then added for AB8505 in
+> > commit 547f384f33db ("regulator: ab8500: add support for ab8505").
+> >
 
-This is a note to let you know that I've just added the patch titled
+Stable-rc 4.4 branch arm build failed due to this error.
 
-    usb: missing parentheses in USE_NEW_SCHEME
+arch/arm/mach-ux500/board-mop500-regulators.c:957:3: error:
+'AB8505_LDO_USB' undeclared here (not in a function); did you mean
+'AB9540_LDO_USB'?
+  [AB8505_LDO_USB] = {
+   ^~~~~~~~~~~~~~
+   AB9540_LDO_USB
+arch/arm/mach-ux500/board-mop500-regulators.c:957:3: error: array
+index in initializer not of integer type
+arch/arm/mach-ux500/board-mop500-regulators.c:957:3: note: (near
+initialization for 'ab8505_regulators')
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Full build log,
+https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.4/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/703/consoleText
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 1530f6f5f5806b2abbf2a9276c0db313ae9a0e09 Mon Sep 17 00:00:00 2001
-From: Qi Zhou <atmgnd@outlook.com>
-Date: Sat, 4 Jan 2020 11:02:01 +0000
-Subject: usb: missing parentheses in USE_NEW_SCHEME
-
-According to bd0e6c9614b9 ("usb: hub: try old enumeration scheme first
-for high speed devices") the kernel will try the old enumeration scheme
-first for high speed devices.  This can happen when a high speed device
-is plugged in.
-
-But due to missing parentheses in the USE_NEW_SCHEME define, this logic
-can get messed up and the incorrect result happens.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Qi Zhou <atmgnd@outlook.com>
-Link: https://lore.kernel.org/r/ht4mtag8ZP-HKEhD0KkJhcFnVlOFV8N8eNjJVRD9pDkkLUNhmEo8_cL_sl7xy9mdajdH-T8J3TFQsjvoYQT61NFjQXy469Ed_BbBw_x4S1E=@protonmail.com
-[ fixup changelog text - gregkh]
-Cc: stable <stable@vger.kernel.org>
-Fixes: bd0e6c9614b9 ("usb: hub: try old enumeration scheme first for high speed devices")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/hub.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index f229ad6952c0..8c4e5adbf820 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -2692,7 +2692,7 @@ static unsigned hub_is_wusb(struct usb_hub *hub)
- #define SET_ADDRESS_TRIES	2
- #define GET_DESCRIPTOR_TRIES	2
- #define SET_CONFIG_TRIES	(2 * (use_both_schemes + 1))
--#define USE_NEW_SCHEME(i, scheme)	((i) / 2 == (int)scheme)
-+#define USE_NEW_SCHEME(i, scheme)	((i) / 2 == (int)(scheme))
- 
- #define HUB_ROOT_RESET_TIME	60	/* times are in msec */
- #define HUB_SHORT_RESET_TIME	10
--- 
-2.24.1
-
-
+--
+Linaro LKFT
+https://lkft.linaro.org
