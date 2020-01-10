@@ -2,297 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E8813785C
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 22:16:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0672813784B
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 22:07:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726836AbgAJVQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jan 2020 16:16:02 -0500
-Received: from mga06.intel.com ([134.134.136.31]:59339 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726762AbgAJVQC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jan 2020 16:16:02 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jan 2020 13:16:01 -0800
-X-IronPort-AV: E=Sophos;i="5.69,418,1571727600"; 
-   d="scan'208";a="223924571"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jan 2020 13:16:01 -0800
-Subject: [PATCH v3] mm/memory_hotplug: Fix remove_memory() lockdep splat
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     akpm@linux-foundation.org
-Cc:     stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Date:   Fri, 10 Jan 2020 12:59:59 -0800
-Message-ID: <157868988882.2387473.11703138480034171351.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-3-g996c
+        id S1726912AbgAJVHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jan 2020 16:07:43 -0500
+Received: from mout-p-102.mailbox.org ([80.241.56.152]:23372 "EHLO
+        mout-p-102.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726842AbgAJVHm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jan 2020 16:07:42 -0500
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:105:465:1:2:0])
+        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
+        (No client certificate requested)
+        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 47vbCv5hSczKmhn;
+        Fri, 10 Jan 2020 22:07:39 +0100 (CET)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp2.mailbox.org ([80.241.60.241])
+        by spamfilter01.heinlein-hosting.de (spamfilter01.heinlein-hosting.de [80.241.56.115]) (amavisd-new, port 10030)
+        with ESMTP id hIHoHiMQzTgm; Fri, 10 Jan 2020 22:07:33 +0100 (CET)
+Date:   Sat, 11 Jan 2020 08:07:19 +1100
+From:   Aleksa Sarai <cyphar@cyphar.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>,
+        David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        stable <stable@vger.kernel.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+Message-ID: <20200110210719.ktg3l2kwjrdutlh6@yavin>
+References: <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com>
+ <20200101004324.GA11269@ZenIV.linux.org.uk>
+ <20200101005446.GH4203@ZenIV.linux.org.uk>
+ <20200101030815.GA17593@ZenIV.linux.org.uk>
+ <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
+ <20200101234009.GB8904@ZenIV.linux.org.uk>
+ <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
+ <20200103014901.GC8904@ZenIV.linux.org.uk>
+ <20200108031314.GE8904@ZenIV.linux.org.uk>
+ <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ngr34thsixezvd7j"
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The daxctl unit test for the dax_kmem driver currently triggers the
-lockdep splat below. It results from the fact that
-remove_memory_block_devices() is invoked under the mem_hotplug_lock()
-causing lockdep entanglements with cpu_hotplug_lock().
 
-The mem_hotplug_lock() is not needed to synchronize the memory block
-device sysfs interface vs the page online state, that is already handled
-by lock_device_hotplug(). Specifically lock_device_hotplug()
-is sufficient to allow try_remove_memory() to check the offline
-state of the memblocks and be assured that subsequent online attempts
-will be blocked. The device_online() path checks mem->section_count
-before allowing any state manipulations and mem->section_count is
-cleared in remove_memory_block_devices().
+--ngr34thsixezvd7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The add_memory() path does create memblock devices under the lock, but
-there is no lockdep report on that path, and it wants to unwind the
-hot-add (via arch_remove_memory()) if the memblock device creation
-fails, so it is left alone for now.
+On 2020-01-07, Linus Torvalds <torvalds@linux-foundation.org> wrote:
+> On Tue, Jan 7, 2020 at 7:13 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+> > Another interesting question is whether we want O_PATH open
+> > to trigger automounts.
+>=20
+> It does sound like they shouldn't, but as you say:
+>=20
+> >     The thing is, we do *NOT* trigger them
+> > (or traverse mountpoints) at the starting point of lookups.
+> > I believe it's a mistake (and mine, at that), but I doubt that
+> > there's anything that can be done about it at that point.
+> > It's a user-visible behaviour [..]
+>=20
+> Hmm. I wonder how set in stone that is. We may have two decades of
+> history of not doing it at start point of lookups, but we do *not*
+> have two decades of history of O_PATH.
+>=20
+> So what I think we agree would be sane behavior would be for O_PATH
+> opens to not trigger automounts (unless there's a slash at the end,
+> whatever), but _do_ add the mount-point traversal to the beginning of
+> lookups.
+>=20
+> But only do it for the actual O_PATH fd case, not the cwd/root/non-O_PATH=
+ case.
+>=20
+> That way we maintain original behavior: if somebody overmounts your
+> cwd, you still see the pre-mount directory on lookups, because your
+> cwd is "under" the mount.
+>=20
+> But if you open a file with O_PATH, and somebody does a mount
+> _afterwards_, the openat() will see that later mount and/or do the
+> automount.
+>=20
+> Don't you think that would be the more sane/obvious semantics of how
+> O_PATH should work?
 
-This change is only possible thanks to the recent change that refactored
-memory block device removal out of arch_remove_memory() (commit
-4c4b7f9ba948 mm/memory_hotplug: remove memory block devices before
-arch_remove_memory()).
+If I'm understanding this proposal correctly, this would be a problem
+for the libpathrs use-case -- if this is done then there's no way to
+avoid a TOCTOU with someone mounting and the userspace program checking
+whether something is a mountpoint (unless you have Linux >5.6 and
+RESOLVE_NO_XDEV). Today, you can (in theory) do it with MNT_EXPIRE:
 
-    ======================================================
-    WARNING: possible circular locking dependency detected
-    5.5.0-rc3+ #230 Tainted: G           OE
-    ------------------------------------------------------
-    lt-daxctl/6459 is trying to acquire lock:
-    ffff99c7f0003510 (kn->count#241){++++}, at: kernfs_remove_by_name_ns+0x41/0x80
+  1. Open the candidate directory.
+  2. umount2(MNT_EXPIRE) the fd.
+    * -EINVAL means it wasn't a mountpoint when we got the fd, and the
+	  fd is a stable handle to the underlying directory.
+	* -EAGAIN or -EBUSY means that it was a mountpoint or became a
+	  mountpoint after the fd was opened (we don't care about that, but
+	  fail-safe is better here).
+  3. Use the fd from (1) for all operations.
 
-    but task is already holding lock:
-    ffffffffa76a5450 (mem_hotplug_lock.rw_sem){++++}, at: percpu_down_write+0x20/0xe0
+Don't get me wrong, I want to fix this issue *properly* by adding some
+new kernel features that allow us to avoid worrying about
+mounts-over-magiclinks -- but on old kernels (which libpathrs cares
+about) I would be worried about changes like this being backported
+resulting in it being not possible to implement the hardening I
+mentioned up-thread.
 
-    which lock already depends on the new lock.
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
 
+--ngr34thsixezvd7j
+Content-Type: application/pgp-signature; name="signature.asc"
 
-    the existing dependency chain (in reverse order) is:
+-----BEGIN PGP SIGNATURE-----
 
-    -> #2 (mem_hotplug_lock.rw_sem){++++}:
-           __lock_acquire+0x39c/0x790
-           lock_acquire+0xa2/0x1b0
-           get_online_mems+0x3e/0xb0
-           kmem_cache_create_usercopy+0x2e/0x260
-           kmem_cache_create+0x12/0x20
-           ptlock_cache_init+0x20/0x28
-           start_kernel+0x243/0x547
-           secondary_startup_64+0xb6/0xc0
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXhjnhAAKCRCdlLljIbnQ
+EhaiAP9e9kkZEWJCnBThFyXtSMRZyNVXHckugjlX6Ia4tELkfwD+KmuEPaDHPZsv
+ZqHH8TBxEFo6jF26WNsOXtxaBZwFsQ0=
+=uAob
+-----END PGP SIGNATURE-----
 
-    -> #1 (cpu_hotplug_lock.rw_sem){++++}:
-           __lock_acquire+0x39c/0x790
-           lock_acquire+0xa2/0x1b0
-           cpus_read_lock+0x3e/0xb0
-           online_pages+0x37/0x300
-           memory_subsys_online+0x17d/0x1c0
-           device_online+0x60/0x80
-           state_store+0x65/0xd0
-           kernfs_fop_write+0xcf/0x1c0
-           vfs_write+0xdb/0x1d0
-           ksys_write+0x65/0xe0
-           do_syscall_64+0x5c/0xa0
-           entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-    -> #0 (kn->count#241){++++}:
-           check_prev_add+0x98/0xa40
-           validate_chain+0x576/0x860
-           __lock_acquire+0x39c/0x790
-           lock_acquire+0xa2/0x1b0
-           __kernfs_remove+0x25f/0x2e0
-           kernfs_remove_by_name_ns+0x41/0x80
-           remove_files.isra.0+0x30/0x70
-           sysfs_remove_group+0x3d/0x80
-           sysfs_remove_groups+0x29/0x40
-           device_remove_attrs+0x39/0x70
-           device_del+0x16a/0x3f0
-           device_unregister+0x16/0x60
-           remove_memory_block_devices+0x82/0xb0
-           try_remove_memory+0xb5/0x130
-           remove_memory+0x26/0x40
-           dev_dax_kmem_remove+0x44/0x6a [kmem]
-           device_release_driver_internal+0xe4/0x1c0
-           unbind_store+0xef/0x120
-           kernfs_fop_write+0xcf/0x1c0
-           vfs_write+0xdb/0x1d0
-           ksys_write+0x65/0xe0
-           do_syscall_64+0x5c/0xa0
-           entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-    other info that might help us debug this:
-
-    Chain exists of:
-      kn->count#241 --> cpu_hotplug_lock.rw_sem --> mem_hotplug_lock.rw_sem
-
-     Possible unsafe locking scenario:
-
-           CPU0                    CPU1
-           ----                    ----
-      lock(mem_hotplug_lock.rw_sem);
-                                   lock(cpu_hotplug_lock.rw_sem);
-                                   lock(mem_hotplug_lock.rw_sem);
-      lock(kn->count#241);
-
-     *** DEADLOCK ***
-
-No fixes tag as this seems to have been a long standing issue that
-likely predated the addition of kernfs lockdep annotations.
-
-Cc: <stable@vger.kernel.org>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
-Changes since v2 [1]:
-- Apologies I overlooked that I had local changes in my tree to fix a
-  compiler error (misspelled assert_held_device_hotplug()). Now fixed
-  up.
-
-[1]: http://lore.kernel.org/r/157868867304.2306270.4899678179641333013.stgit@dwillia2-desk3.amr.corp.intel.com
-
- Documentation/core-api/memory-hotplug.rst |   15 +++++++++++----
- drivers/base/core.c                       |    5 +++++
- drivers/base/memory.c                     |    8 ++++++--
- include/linux/device.h                    |    1 +
- mm/memory_hotplug.c                       |   10 +++++++---
- 5 files changed, 30 insertions(+), 9 deletions(-)
-
-diff --git a/Documentation/core-api/memory-hotplug.rst b/Documentation/core-api/memory-hotplug.rst
-index de7467e48067..637b467378b7 100644
---- a/Documentation/core-api/memory-hotplug.rst
-+++ b/Documentation/core-api/memory-hotplug.rst
-@@ -90,12 +90,13 @@ Locking Internals
- =================
- 
- When adding/removing memory that uses memory block devices (i.e. ordinary RAM),
--the device_hotplug_lock should be held to:
-+the device_hotplug_lock is held to:
- 
- - synchronize against online/offline requests (e.g. via sysfs). This way, memory
-   block devices can only be accessed (.online/.state attributes) by user
--  space once memory has been fully added. And when removing memory, we
--  know nobody is in critical sections.
-+  space once memory has been fully added. And when removing memory, the
-+  memory block device is invalidated (mem->section count set to 0) under the
-+  lock to abort any in-flight online requests.
- - synchronize against CPU hotplug and similar (e.g. relevant for ACPI and PPC)
- 
- Especially, there is a possible lock inversion that is avoided using
-@@ -112,7 +113,13 @@ can result in a lock inversion.
- 
- onlining/offlining of memory should be done via device_online()/
- device_offline() - to make sure it is properly synchronized to actions
--via sysfs. Holding device_hotplug_lock is advised (to e.g. protect online_type)
-+via sysfs. Holding device_hotplug_lock is required to prevent online racing
-+removal. The device_hotplug_lock and memblock invalidation allows
-+remove_memory_block_devices() to run outside of mem_hotplug_lock to avoid lock
-+dependency conflicts with memblock-sysfs teardown. The add_memory() path
-+performs create_memory_block_devices() under mem_hotplug_lock so that if it
-+fails it can perform an arch_remove_memory() cleanup. There are no known lock
-+dependency problems with memblock-sysfs setup.
- 
- When adding/removing/onlining/offlining memory or adding/removing
- heterogeneous/device memory, we should always hold the mem_hotplug_lock in
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 42a672456432..5d5036370c92 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1146,6 +1146,11 @@ void unlock_device_hotplug(void)
- 	mutex_unlock(&device_hotplug_lock);
- }
- 
-+void assert_held_device_hotplug(void)
-+{
-+	lockdep_assert_held(&device_hotplug_lock);
-+}
-+
- int lock_device_hotplug_sysfs(void)
- {
- 	if (mutex_trylock(&device_hotplug_lock))
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index 799b43191dea..91c6fbd2383e 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -280,6 +280,10 @@ static int memory_subsys_online(struct device *dev)
- 	if (mem->state == MEM_ONLINE)
- 		return 0;
- 
-+	/* online lost the race with hot-unplug, abort */
-+	if (!mem->section_count)
-+		return -ENXIO;
-+
- 	/*
- 	 * If we are called from state_store(), online_type will be
- 	 * set >= 0 Otherwise we were called from the device online
-@@ -736,8 +740,6 @@ int create_memory_block_devices(unsigned long start, unsigned long size)
-  * Remove memory block devices for the given memory area. Start and size
-  * have to be aligned to memory block granularity. Memory block devices
-  * have to be offline.
-- *
-- * Called under device_hotplug_lock.
-  */
- void remove_memory_block_devices(unsigned long start, unsigned long size)
- {
-@@ -746,6 +748,8 @@ void remove_memory_block_devices(unsigned long start, unsigned long size)
- 	struct memory_block *mem;
- 	unsigned long block_id;
- 
-+	assert_held_device_hotplug();
-+
- 	if (WARN_ON_ONCE(!IS_ALIGNED(start, memory_block_size_bytes()) ||
- 			 !IS_ALIGNED(size, memory_block_size_bytes())))
- 		return;
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 96ff76731e93..e042da3b1953 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -1553,6 +1553,7 @@ static inline bool device_supports_offline(struct device *dev)
- extern void lock_device_hotplug(void);
- extern void unlock_device_hotplug(void);
- extern int lock_device_hotplug_sysfs(void);
-+extern void assert_held_device_hotlpug(void);
- extern int device_offline(struct device *dev);
- extern int device_online(struct device *dev);
- extern void set_primary_fwnode(struct device *dev, struct fwnode_handle *fwnode);
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 55ac23ef11c1..0158cd4cca48 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1763,8 +1763,6 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 
- 	BUG_ON(check_hotplug_memory_range(start, size));
- 
--	mem_hotplug_begin();
--
- 	/*
- 	 * All memory blocks must be offlined before removing memory.  Check
- 	 * whether all memory blocks in question are offline and return error
-@@ -1777,9 +1775,15 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 	/* remove memmap entry */
- 	firmware_map_remove(start, start + size, "System RAM");
- 
--	/* remove memory block devices before removing memory */
-+	/*
-+	 * Remove memory block devices before removing memory and before
-+	 * mem_hotplug_begin() (see Documentation/core-api/memory-hotplug.rst
-+	 * "Locking Internals").
-+	 */
- 	remove_memory_block_devices(start, size);
- 
-+	mem_hotplug_begin();
-+
- 	arch_remove_memory(nid, start, size, NULL);
- 	memblock_free(start, size);
- 	memblock_remove(start, size);
-
+--ngr34thsixezvd7j--
