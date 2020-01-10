@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DAEF136CFF
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 13:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85F39136D56
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 13:50:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728034AbgAJMYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jan 2020 07:24:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60282 "EHLO mail.kernel.org"
+        id S1727181AbgAJMud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jan 2020 07:50:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728002AbgAJMYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jan 2020 07:24:48 -0500
+        id S1727174AbgAJMud (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jan 2020 07:50:33 -0500
 Received: from localhost (83-84-126-242.cable.dynamic.v4.ziggo.nl [83.84.126.242])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9122B2077C;
-        Fri, 10 Jan 2020 12:24:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A06A82080D;
+        Fri, 10 Jan 2020 12:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578659088;
-        bh=J80SX+o3Kk5A8sv90BkrBdVmpHZwYIHnUOkGnfV3Bwg=;
+        s=default; t=1578660631;
+        bh=wQmKFkhMa9+cEAOOQKMClW0W2MfU3l3ZxMZFektPyTA=;
         h=Subject:To:From:Date:From;
-        b=MJ54FqNlbJWFHMQEr5uYQi5/AFGJ0jpbLz3hYWGau3rBgYLxbCAijqcdQuBIsf/Vo
-         XfGYCrGm5m+XIb9JAZMDNNzXEV0Gl2a1RpvPDNT5w2QKy03vRAuHHyOgYO/uRqDEn7
-         WUfK1pA47q/BjcKB0P1syjTsOUm89KJ5mbMKWTiU=
-Subject: patch "mei: hdcp: bind only with i915 on the same PCH" added to char-misc-testing
-To:     tomas.winkler@intel.com, alexander.usyskin@intel.com,
-        gregkh@linuxfoundation.org, ramalingam.c@intel.com,
+        b=u/oMG8nI2lh6cJ64MU3mwYrga8aapK4qLDOIFRbBj17v70Bhw2MyryniP+EX23ies
+         hXJh9gz1+iDJfsv/Q+DkBQVGbWIcMojXMC9t2Bz2bmK4erykr9uiucuqYU8kCYjgWu
+         UQDR5Pp2/Zqn9MLTjKKoXhXdruAD3dmqM/H+9bPo=
+Subject: patch "staging: vt6656: correct packet types for CTS protect, mode." added to staging-testing
+To:     tvboxspy@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Jan 2020 13:20:53 +0100
-Message-ID: <157865885369236@kroah.com>
+Date:   Fri, 10 Jan 2020 13:50:16 +0100
+Message-ID: <1578660616133125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,100 +40,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    mei: hdcp: bind only with i915 on the same PCH
+    staging: vt6656: correct packet types for CTS protect, mode.
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the char-misc-next branch sometime soon,
+The patch will be merged to the staging-next branch sometime soon,
 after it passes testing, and the merge window is open.
 
 If you have any questions about this process, please let me know.
 
 
-From 1e8d19d9b0dfcf11b61bac627203a290577e807a Mon Sep 17 00:00:00 2001
-From: Tomas Winkler <tomas.winkler@intel.com>
-Date: Thu, 12 Dec 2019 10:41:03 +0200
-Subject: mei: hdcp: bind only with i915 on the same PCH
+From d971fdd3412f8342747778fb59b8803720ed82b1 Mon Sep 17 00:00:00 2001
+From: Malcolm Priestley <tvboxspy@gmail.com>
+Date: Wed, 8 Jan 2020 21:40:58 +0000
+Subject: staging: vt6656: correct packet types for CTS protect, mode.
 
-The mei device and i915 must reside on the same
-PCH in order for HDCP to work. Make the component
-matching function enforce this requirement.
+It appears that the driver still transmits in CTS protect mode even
+though it is not enabled in mac80211.
 
-                   hdcp
-                    |
-   i915            mei
-    |               |
-    +----= PCH =----+
+That is both packet types PK_TYPE_11GA and PK_TYPE_11GB both use CTS protect.
+The only difference between them GA does not use B rates.
 
-Cc: <stable@vger.kernel.org> v5.0+
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Reviewed-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Link: https://lore.kernel.org/r/20191212084103.2893-1-tomas.winkler@intel.com
+Find if only B rate in GB or GA in protect mode otherwise transmit packets
+as PK_TYPE_11A.
+
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/9c1323ff-dbb3-0eaa-43e1-9453f7390dc0@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hdcp/mei_hdcp.c | 33 +++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
+ drivers/staging/vt6656/device.h |  2 ++
+ drivers/staging/vt6656/rxtx.c   | 12 ++++++++----
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/mei/hdcp/mei_hdcp.c b/drivers/misc/mei/hdcp/mei_hdcp.c
-index 93027fd96c71..4c596c646ac0 100644
---- a/drivers/misc/mei/hdcp/mei_hdcp.c
-+++ b/drivers/misc/mei/hdcp/mei_hdcp.c
-@@ -757,11 +757,38 @@ static const struct component_master_ops mei_component_master_ops = {
- 	.unbind = mei_component_master_unbind,
- };
+diff --git a/drivers/staging/vt6656/device.h b/drivers/staging/vt6656/device.h
+index 6074ceda78bf..0a3f98f64916 100644
+--- a/drivers/staging/vt6656/device.h
++++ b/drivers/staging/vt6656/device.h
+@@ -52,6 +52,8 @@
+ #define RATE_AUTO	12
  
-+/**
-+ * mei_hdcp_component_match - compare function for matching mei hdcp.
-+ *
-+ *    The function checks if the driver is i915, the subcomponent is HDCP
-+ *    and the grand parent of hdcp and the parent of i915 are the same
-+ *    PCH device.
-+ *
-+ * @dev: master device
-+ * @subcomponent: subcomponent to match (I915_COMPONENT_HDCP)
-+ * @data: compare data (mei hdcp device)
-+ *
-+ * Return:
-+ * * 1 - if components match
-+ * * 0 - otherwise
-+ */
- static int mei_hdcp_component_match(struct device *dev, int subcomponent,
- 				    void *data)
- {
--	return !strcmp(dev->driver->name, "i915") &&
--	       subcomponent == I915_COMPONENT_HDCP;
-+	struct device *base = data;
-+
-+	if (strcmp(dev->driver->name, "i915") ||
-+	    subcomponent != I915_COMPONENT_HDCP)
-+		return 0;
-+
-+	base = base->parent;
-+	if (!base)
-+		return 0;
-+
-+	base = base->parent;
-+	dev = dev->parent;
-+
-+	return (base && dev && dev == base);
- }
+ #define MAX_RATE			12
++#define VNT_B_RATES	(BIT(RATE_1M) | BIT(RATE_2M) |\
++			BIT(RATE_5M) | BIT(RATE_11M))
  
- static int mei_hdcp_probe(struct mei_cl_device *cldev,
-@@ -785,7 +812,7 @@ static int mei_hdcp_probe(struct mei_cl_device *cldev,
- 
- 	master_match = NULL;
- 	component_match_add_typed(&cldev->dev, &master_match,
--				  mei_hdcp_component_match, comp_master);
-+				  mei_hdcp_component_match, &cldev->dev);
- 	if (IS_ERR_OR_NULL(master_match)) {
- 		ret = -ENOMEM;
- 		goto err_exit;
+ /*
+  * device specific
+diff --git a/drivers/staging/vt6656/rxtx.c b/drivers/staging/vt6656/rxtx.c
+index f9020a4f7bbf..39b557511b24 100644
+--- a/drivers/staging/vt6656/rxtx.c
++++ b/drivers/staging/vt6656/rxtx.c
+@@ -815,10 +815,14 @@ int vnt_tx_packet(struct vnt_private *priv, struct sk_buff *skb)
+ 		if (info->band == NL80211_BAND_5GHZ) {
+ 			pkt_type = PK_TYPE_11A;
+ 		} else {
+-			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT)
+-				pkt_type = PK_TYPE_11GB;
+-			else
+-				pkt_type = PK_TYPE_11GA;
++			if (tx_rate->flags & IEEE80211_TX_RC_USE_CTS_PROTECT) {
++				if (priv->basic_rates & VNT_B_RATES)
++					pkt_type = PK_TYPE_11GB;
++				else
++					pkt_type = PK_TYPE_11GA;
++			} else {
++				pkt_type = PK_TYPE_11A;
++			}
+ 		}
+ 	} else {
+ 		pkt_type = PK_TYPE_11B;
 -- 
 2.24.1
 
