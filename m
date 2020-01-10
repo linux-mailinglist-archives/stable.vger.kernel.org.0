@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05902137824
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 21:54:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E8813785C
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 22:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726830AbgAJUyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jan 2020 15:54:16 -0500
-Received: from mga01.intel.com ([192.55.52.88]:27867 "EHLO mga01.intel.com"
+        id S1726836AbgAJVQC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jan 2020 16:16:02 -0500
+Received: from mga06.intel.com ([134.134.136.31]:59339 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726808AbgAJUyP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jan 2020 15:54:15 -0500
+        id S1726762AbgAJVQC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jan 2020 16:16:02 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jan 2020 12:54:15 -0800
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jan 2020 13:16:01 -0800
 X-IronPort-AV: E=Sophos;i="5.69,418,1571727600"; 
-   d="scan'208";a="396551697"
+   d="scan'208";a="223924571"
 Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jan 2020 12:54:15 -0800
-Subject: [PATCH v2] mm/memory_hotplug: Fix remove_memory() lockdep splat
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jan 2020 13:16:01 -0800
+Subject: [PATCH v3] mm/memory_hotplug: Fix remove_memory() lockdep splat
 From:   Dan Williams <dan.j.williams@intel.com>
 To:     akpm@linux-foundation.org
 Cc:     stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
@@ -28,8 +28,8 @@ Cc:     stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
         Michal Hocko <mhocko@suse.com>,
         Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
         linux-kernel@vger.kernel.org
-Date:   Fri, 10 Jan 2020 12:38:12 -0800
-Message-ID: <157868867304.2306270.4899678179641333013.stgit@dwillia2-desk3.amr.corp.intel.com>
+Date:   Fri, 10 Jan 2020 12:59:59 -0800
+Message-ID: <157868988882.2387473.11703138480034171351.stgit@dwillia2-desk3.amr.corp.intel.com>
 User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -154,27 +154,12 @@ Cc: Michal Hocko <mhocko@suse.com>
 Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
-Changes since v1 [1]:
-- David prompted me to move the details of why
-  remove_memory_block_devices() is performed outside mem_hotplug_lock to
-  Documentation/core-api/memory-hotplug.rst.
+Changes since v2 [1]:
+- Apologies I overlooked that I had local changes in my tree to fix a
+  compiler error (misspelled assert_held_device_hotplug()). Now fixed
+  up.
 
-- While updating Documentation/core-api/memory-hotplug.rst I noticed
-  that only memory_subsys_offline() was checking for memory-block-device
-  invalidation (via mem->section_count). Added a similar check to
-  memory_subsys_online().
-
-- Also, while trying to document why create_memory_block_devices() is
-  still performed under mem_hotplug_lock(), I noticed that
-  add_memory_resources() wants to perform arch_remove_memory() after a
-  failed create_memory_block_devices() and that should remain an atomic
-  event.
-
-- Introduce assert_held_device_hotplug() for
-  remove_memory_block_devices() to runtime validate its locking
-  assumptions.
-
-[1]: https://lore.kernel.org/r/157863061737.2230556.3959730620803366776.stgit@dwillia2-desk3.amr.corp.intel.com/
+[1]: http://lore.kernel.org/r/157868867304.2306270.4899678179641333013.stgit@dwillia2-desk3.amr.corp.intel.com
 
  Documentation/core-api/memory-hotplug.rst |   15 +++++++++++----
  drivers/base/core.c                       |    5 +++++
