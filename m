@@ -2,102 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D99B4136D62
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 14:01:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9840A136EDD
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 14:58:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727362AbgAJNBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jan 2020 08:01:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42404 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727174AbgAJNBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jan 2020 08:01:06 -0500
-Received: from localhost (83-84-126-242.cable.dynamic.v4.ziggo.nl [83.84.126.242])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DCB42080D;
-        Fri, 10 Jan 2020 13:01:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578661266;
-        bh=q8W8mkHWA0SjVBdBw6X+C9gSsjZd6jpFOww+1a+J8BA=;
-        h=Subject:To:From:Date:From;
-        b=u2Yfvs3hdTh+vHSIqMlvhanqmuGt+0cT7pb64OwsxDF0SD38JaQuV4e/5lqatBk1G
-         C2Y2YhtRvvcapjc99uye3YOdpW52GuO2T05XHFeDahu8tj1UvdaWsSBsTPRcX9KPm6
-         SlhpDXVF/Xjr5BlPg5381kqMPUE/xoDs3PlGZIMo=
-Subject: patch "nvmem: imx: scu: fix write SIP" added to char-misc-testing
-To:     peng.fan@nxp.com, gregkh@linuxfoundation.org,
-        srinivas.kandagatla@linaro.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Jan 2020 14:01:03 +0100
-Message-ID: <1578661263244191@kroah.com>
+        id S1727503AbgAJN65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jan 2020 08:58:57 -0500
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:33304 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727501AbgAJN65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Jan 2020 08:58:57 -0500
+Received: by mail-qk1-f194.google.com with SMTP id d71so1904621qkc.0
+        for <stable@vger.kernel.org>; Fri, 10 Jan 2020 05:58:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=a0qqR4rOC3fdkIKtadAKedBSbC/Zedt68w/yL2TONDU=;
+        b=TMTEF1st75beR3Qx8lSfyYfUD0E2Ga5kPHCKtnoq3AbBFHDvbeBqNI0CPriti1zJ6O
+         WaHzrZ8/DocxmJgE9gg2l6Bmy1ba/9V2sZsGpA1ZSUNBJI3seBZBnI8W5jHO4/DMH1nA
+         l1QPxP4y5Gi94AmFcCwu20fdmuyF2XI661+ENRiTiKzUUTv750f2A06WLkr2TRwZERGy
+         aKOPvJawGlnAo4zPOrSE7p4MgNT5lCmUHZpm5Vvv1Qp7CB+XG8/L34JczQq2r+BJKfyq
+         zqwUiAN4j9u4KqO1KbWP9mqXhxT/OT+dT+PCnxgSbaxm/o2S0o9D/MgjBl1jp+kenqd4
+         lf+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=a0qqR4rOC3fdkIKtadAKedBSbC/Zedt68w/yL2TONDU=;
+        b=heb4b1opyLtlMSfcHo48FcJBPqv8NmI7p2WSPSDHyN37nZouSe+bEHwvMJZc1XQKSb
+         oe2DcJNkIvyt7bHHolUvYi4t7De6QU9dV/sp/2rgpYki68alvGcqOA8agkM3FF5ve2Ne
+         otcMQ7gPDnkiOpJ3p2fPfgncRlQ6VMvUj6LRdzdEYST/UmbalTFzKFtcr2yhss2bF9ov
+         06cZSGo3p5VuwWbMgCzi4s+hLsYzJomm4ecMD2BFlzXSIyvu5Qw2ZTSgcID5AaNpuZ6y
+         lBh8eXTTcNdBYZw8UDw0oco3TQtYFiWHgWuu62klp5rN3U9vyBVrtAuUkI7ygC/7+XvQ
+         OaFg==
+X-Gm-Message-State: APjAAAUZj36wqlqTswPoVhNCPNXLLH5Xw8O6yPWcpPMvlSa4PhPs/48P
+        loMxMHHM8TxVeCzxFjC8Lbmj6VS9pJLO4YoKxxo=
+X-Google-Smtp-Source: APXvYqy+ScYB85fVuAQUSnKa2OC2Ly66w8m+Pt5ub99M0hKoqyKMD6yttyTlDqb+SvqOTfJrQQwK/Gg+2m00TKBBKh0=
+X-Received: by 2002:a37:8e44:: with SMTP id q65mr3324286qkd.70.1578664736649;
+ Fri, 10 Jan 2020 05:58:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a0c:ea8f:0:0:0:0:0 with HTTP; Fri, 10 Jan 2020 05:58:56
+ -0800 (PST)
+Reply-To: mariamkonta001@gmail.com
+From:   Mrs Mariam Konta <sashaguo5@gmail.com>
+Date:   Fri, 10 Jan 2020 13:58:56 +0000
+Message-ID: <CAJmSNEOQ6x60qVjrHGuc9=7oyFZB8LPWidxRO3SLxkiqda=Etw@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    nvmem: imx: scu: fix write SIP
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 40bb95dbb8acca35f8d52a833393ddbb01cfa2db Mon Sep 17 00:00:00 2001
-From: Peng Fan <peng.fan@nxp.com>
-Date: Thu, 9 Jan 2020 10:40:14 +0000
-Subject: nvmem: imx: scu: fix write SIP
-
-SIP number 0xC200000A is for reading, 0xC200000B is for writing.
-And the following two args for write are word index, data to write.
-
-Fixes: 885ce72a09d0 ("nvmem: imx: scu: support write")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200109104017.6249-2-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/nvmem/imx-ocotp-scu.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/nvmem/imx-ocotp-scu.c b/drivers/nvmem/imx-ocotp-scu.c
-index 03f1ab23ad51..455675dd8efe 100644
---- a/drivers/nvmem/imx-ocotp-scu.c
-+++ b/drivers/nvmem/imx-ocotp-scu.c
-@@ -15,8 +15,7 @@
- #include <linux/platform_device.h>
- #include <linux/slab.h>
- 
--#define IMX_SIP_OTP			0xC200000A
--#define IMX_SIP_OTP_WRITE		0x2
-+#define IMX_SIP_OTP_WRITE		0xc200000B
- 
- enum ocotp_devtype {
- 	IMX8QXP,
-@@ -212,8 +211,7 @@ static int imx_scu_ocotp_write(void *context, unsigned int offset,
- 
- 	mutex_lock(&scu_ocotp_mutex);
- 
--	arm_smccc_smc(IMX_SIP_OTP, IMX_SIP_OTP_WRITE, index, *buf,
--		      0, 0, 0, 0, &res);
-+	arm_smccc_smc(IMX_SIP_OTP_WRITE, index, *buf, 0, 0, 0, 0, 0, &res);
- 
- 	mutex_unlock(&scu_ocotp_mutex);
- 
 -- 
-2.24.1
+My dear friend, happy new year to you and your whole family
 
+My name is Mrs. Mariam Konta, a widow who suffers from a cancer
+disease. I am writing this email with serious tears in my eyes and a
+great sorrow in my heart. I decided to contact you due to the urgency
+of my situation.
 
+Dear, I want to donate US $ 3.5 million for charity projects in your country,
+the poor and also for the construction of churches.
+Please reply for more details.
+
+Mrs Mariam Konta
