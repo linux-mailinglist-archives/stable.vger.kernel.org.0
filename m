@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E96C137967
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 23:08:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6DD713796C
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 23:08:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727798AbgAJWFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727789AbgAJWFk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 10 Jan 2020 17:05:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51362 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727744AbgAJWFg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jan 2020 17:05:36 -0500
+        id S1727764AbgAJWFh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jan 2020 17:05:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AF0E20721;
-        Fri, 10 Jan 2020 22:05:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 640CA20842;
+        Fri, 10 Jan 2020 22:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578693936;
-        bh=aIDscSX1q6XnLqh4cZ+1qy/9MlmC1EoFUjEMn3Uu06k=;
+        s=default; t=1578693937;
+        bh=Fiz5fCpuoIFHozhj8KdiO82jhr2DQ5w1R7fvcwlPtaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3smnVasrIK6eL9mWaG1/eQoFnCRTw70gyiT6fnx7Oam0Hd5YXG9S+YEOIBWzJoeH
-         GJH7XbM29HcrfvwO9zWMdadsmoX0kcvT/EIqWdG6Ypr443cBE0f7SWoL/aIGNm9g3Y
-         lijn7+pnKL5JdgjF5U2risePEtEffbuhKJTG1GJM=
+        b=mWDsyXXSD2+UeTqru04J497SKhwBWKKsMgrz5WCOdsxFVFYE0BTT51YXi1Ed7MzCy
+         w4sOyI5wUMOQqH4hHxY1xRDeeshamOf50e/ceZ3WXerjBxUYPZo7gZ+GRZzdgWlDqf
+         lTYBSCsAekk1ReqwB636h/0iArYE9LU22meDs3mo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Taehee Yoo <ap420073@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 18/26] hsr: reset network header when supervision frame is created
-Date:   Fri, 10 Jan 2020 17:05:11 -0500
-Message-Id: <20200110220519.28250-13-sashal@kernel.org>
+Cc:     "Alexander.Barabash@dell.com" <Alexander.Barabash@dell.com>,
+        Alexander Barabash <alexander.barabash@dell.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 19/26] ioat: ioat_alloc_ring() failure handling.
+Date:   Fri, 10 Jan 2020 17:05:12 -0500
+Message-Id: <20200110220519.28250-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200110220519.28250-1-sashal@kernel.org>
 References: <20200110220519.28250-1-sashal@kernel.org>
@@ -43,60 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: "Alexander.Barabash@dell.com" <Alexander.Barabash@dell.com>
 
-[ Upstream commit 3ed0a1d563903bdb4b4c36c58c4d9c1bcb23a6e6 ]
+[ Upstream commit b0b5ce1010ffc50015eaec72b0028aaae3f526bb ]
 
-The supervision frame is L2 frame.
-When supervision frame is created, hsr module doesn't set network header.
-If tap routine is enabled, dev_queue_xmit_nit() is called and it checks
-network_header. If network_header pointer wasn't set(or invalid),
-it resets network_header and warns.
-In order to avoid unnecessary warning message, resetting network_header
-is needed.
+If dma_alloc_coherent() returns NULL in ioat_alloc_ring(), ring
+allocation must not proceed.
 
-Test commands:
-    ip netns add nst
-    ip link add veth0 type veth peer name veth1
-    ip link add veth2 type veth peer name veth3
-    ip link set veth1 netns nst
-    ip link set veth3 netns nst
-    ip link set veth0 up
-    ip link set veth2 up
-    ip link add hsr0 type hsr slave1 veth0 slave2 veth2
-    ip a a 192.168.100.1/24 dev hsr0
-    ip link set hsr0 up
-    ip netns exec nst ip link set veth1 up
-    ip netns exec nst ip link set veth3 up
-    ip netns exec nst ip link add hsr1 type hsr slave1 veth1 slave2 veth3
-    ip netns exec nst ip a a 192.168.100.2/24 dev hsr1
-    ip netns exec nst ip link set hsr1 up
-    tcpdump -nei veth0
+Until now, if the first call to dma_alloc_coherent() in
+ioat_alloc_ring() returned NULL, the processing could proceed, failing
+with NULL-pointer dereferencing further down the line.
 
-Splat looks like:
-[  175.852292][    C3] protocol 88fb is buggy, dev veth0
-
-Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alexander Barabash <alexander.barabash@dell.com>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/75e9c0e84c3345d693c606c64f8b9ab5@x13pwhopdag1307.AMER.DELL.COM
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_device.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dma/ioat/dma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/hsr/hsr_device.c b/net/hsr/hsr_device.c
-index 62c03f0d0079..c7bd6c49fadf 100644
---- a/net/hsr/hsr_device.c
-+++ b/net/hsr/hsr_device.c
-@@ -272,6 +272,8 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
- 			    skb->dev->dev_addr, skb->len) <= 0)
- 		goto out;
- 	skb_reset_mac_header(skb);
-+	skb_reset_network_header(skb);
-+	skb_reset_transport_header(skb);
+diff --git a/drivers/dma/ioat/dma.c b/drivers/dma/ioat/dma.c
+index 1a422a8b43cf..18c011e57592 100644
+--- a/drivers/dma/ioat/dma.c
++++ b/drivers/dma/ioat/dma.c
+@@ -377,10 +377,11 @@ ioat_alloc_ring(struct dma_chan *c, int order, gfp_t flags)
  
- 	if (hsr_ver > 0) {
- 		hsr_tag = skb_put(skb, sizeof(struct hsr_tag));
+ 		descs->virt = dma_alloc_coherent(to_dev(ioat_chan),
+ 						 SZ_2M, &descs->hw, flags);
+-		if (!descs->virt && (i > 0)) {
++		if (!descs->virt) {
+ 			int idx;
+ 
+ 			for (idx = 0; idx < i; idx++) {
++				descs = &ioat_chan->descs[idx];
+ 				dma_free_coherent(to_dev(ioat_chan), SZ_2M,
+ 						  descs->virt, descs->hw);
+ 				descs->virt = NULL;
 -- 
 2.20.1
 
