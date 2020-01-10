@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 732EB13790F
-	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 23:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C31B137916
+	for <lists+stable@lfdr.de>; Fri, 10 Jan 2020 23:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727370AbgAJWGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Jan 2020 17:06:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
+        id S1728193AbgAJWGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Jan 2020 17:06:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728193AbgAJWGM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Jan 2020 17:06:12 -0500
+        id S1727413AbgAJWGY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Jan 2020 17:06:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF3262072E;
-        Fri, 10 Jan 2020 22:06:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 577462072E;
+        Fri, 10 Jan 2020 22:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578693971;
-        bh=hBwaXTVVLpAFd8JxQdJ267fOsT2qaYNUu7tSiP+LIwI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=stsOQDmOvCNIxaiNCQvtLhXr2MMiaJ06e/XuL0PWXWC+sIhbE3O/Es/Frx7+aBWrZ
-         V78UHwm4Aof85YYsv32pg958ZzG3yIdnSRJSLTtFbPyF8F3OWfH/GOtLR4/WThjvpN
-         9M7i3042sxZ4cEym8GVIP5CKuVQBRGMqysbWN63c=
+        s=default; t=1578693983;
+        bh=hNUI5rCXY/JGwB+H+BOV4HGykXp69tf62roWzp9ofdo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=0D55fHs739aBxnAceubbQXjALPjZdq3CQe7Q5uXPG4tNbL4tE1sK7KDIXCUu3NoeU
+         3Pklj5FcZNGGT4vcBC3mWJy2Jx6VvhMFZMsSw8x4tA/2oJzBE5/zIwY0ce8DrS9/fN
+         vc8a9f3W1SU5tHGZPS0WebARIWc6Iha4Fa8Oaca4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Li <li.kai4@h3c.com>, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Changwei Ge <gechangwei@live.cn>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
-Subject: [PATCH AUTOSEL 4.19 11/11] ocfs2: call journal flush to mark journal as empty after journal recovery when mount
-Date:   Fri, 10 Jan 2020 17:05:55 -0500
-Message-Id: <20200110220556.28505-10-sashal@kernel.org>
+Cc:     Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 1/8] mips: cacheinfo: report shared CPU map
+Date:   Fri, 10 Jan 2020 17:06:14 -0500
+Message-Id: <20200110220621.28651-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200110220556.28505-1-sashal@kernel.org>
-References: <20200110220556.28505-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -49,135 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Li <li.kai4@h3c.com>
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
 
-[ Upstream commit 397eac17f86f404f5ba31d8c3e39ec3124b39fd3 ]
+[ Upstream commit 3b1313eb32c499d46dc4c3e896d19d9564c879c4 ]
 
-If journal is dirty when mount, it will be replayed but jbd2 sb log tail
-cannot be updated to mark a new start because journal->j_flag has
-already been set with JBD2_ABORT first in journal_init_common.
+Report L1 caches as shared per core; L2 - per cluster.
 
-When a new transaction is committed, it will be recored in block 1
-first(journal->j_tail is set to 1 in journal_reset).  If emergency
-restart happens again before journal super block is updated
-unfortunately, the new recorded trans will not be replayed in the next
-mount.
+This fixes "perf" that went crazy if shared_cpu_map attribute not
+reported on sysfs, in form of
 
-The following steps describe this procedure in detail.
-1. mount and touch some files
-2. these transactions are committed to journal area but not checkpointed
-3. emergency restart
-4. mount again and its journals are replayed
-5. journal super block's first s_start is 1, but its s_seq is not updated
-6. touch a new file and its trans is committed but not checkpointed
-7. emergency restart again
-8. mount and journal is dirty, but trans committed in 6 will not be
-replayed.
+/sys/devices/system/cpu/cpu*/cache/index*/shared_cpu_list
+/sys/devices/system/cpu/cpu*/cache/index*/shared_cpu_map
 
-This exception happens easily when this lun is used by only one node.
-If it is used by multi-nodes, other node will replay its journal and its
-journal super block will be updated after recovery like what this patch
-does.
-
-ocfs2_recover_node->ocfs2_replay_journal.
-
-The following jbd2 journal can be generated by touching a new file after
-journal is replayed, and seq 15 is the first valid commit, but first seq
-is 13 in journal super block.
-
-logdump:
-  Block 0: Journal Superblock
-  Seq: 0   Type: 4 (JBD2_SUPERBLOCK_V2)
-  Blocksize: 4096   Total Blocks: 32768   First Block: 1
-  First Commit ID: 13   Start Log Blknum: 1
-  Error: 0
-  Feature Compat: 0
-  Feature Incompat: 2 block64
-  Feature RO compat: 0
-  Journal UUID: 4ED3822C54294467A4F8E87D2BA4BC36
-  FS Share Cnt: 1   Dynamic Superblk Blknum: 0
-  Per Txn Block Limit    Journal: 0    Data: 0
-
-  Block 1: Journal Commit Block
-  Seq: 14   Type: 2 (JBD2_COMMIT_BLOCK)
-
-  Block 2: Journal Descriptor
-  Seq: 15   Type: 1 (JBD2_DESCRIPTOR_BLOCK)
-  No. Blocknum        Flags
-   0. 587             none
-  UUID: 00000000000000000000000000000000
-   1. 8257792         JBD2_FLAG_SAME_UUID
-   2. 619             JBD2_FLAG_SAME_UUID
-   3. 24772864        JBD2_FLAG_SAME_UUID
-   4. 8257802         JBD2_FLAG_SAME_UUID
-   5. 513             JBD2_FLAG_SAME_UUID JBD2_FLAG_LAST_TAG
-  ...
-  Block 7: Inode
-  Inode: 8257802   Mode: 0640   Generation: 57157641 (0x3682809)
-  FS Generation: 2839773110 (0xa9437fb6)
-  CRC32: 00000000   ECC: 0000
-  Type: Regular   Attr: 0x0   Flags: Valid
-  Dynamic Features: (0x1) InlineData
-  User: 0 (root)   Group: 0 (root)   Size: 7
-  Links: 1   Clusters: 0
-  ctime: 0x5de5d870 0x11104c61 -- Tue Dec  3 11:37:20.286280801 2019
-  atime: 0x5de5d870 0x113181a1 -- Tue Dec  3 11:37:20.288457121 2019
-  mtime: 0x5de5d870 0x11104c61 -- Tue Dec  3 11:37:20.286280801 2019
-  dtime: 0x0 -- Thu Jan  1 08:00:00 1970
-  ...
-  Block 9: Journal Commit Block
-  Seq: 15   Type: 2 (JBD2_COMMIT_BLOCK)
-
-The following is journal recovery log when recovering the upper jbd2
-journal when mount again.
-
-syslog:
-  ocfs2: File system on device (252,1) was not unmounted cleanly, recovering it.
-  fs/jbd2/recovery.c:(do_one_pass, 449): Starting recovery pass 0
-  fs/jbd2/recovery.c:(do_one_pass, 449): Starting recovery pass 1
-  fs/jbd2/recovery.c:(do_one_pass, 449): Starting recovery pass 2
-  fs/jbd2/recovery.c:(jbd2_journal_recover, 278): JBD2: recovery, exit status 0, recovered transactions 13 to 13
-
-Due to first commit seq 13 recorded in journal super is not consistent
-with the value recorded in block 1(seq is 14), journal recovery will be
-terminated before seq 15 even though it is an unbroken commit, inode
-8257802 is a new file and it will be lost.
-
-Link: http://lkml.kernel.org/r/20191217020140.2197-1-li.kai4@h3c.com
-Signed-off-by: Kai Li <li.kai4@h3c.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reviewed-by: Changwei Ge <gechangwei@live.cn>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/journal.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/mips/kernel/cacheinfo.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/journal.c b/fs/ocfs2/journal.c
-index fc1f209e5db0..c27d8ef47392 100644
---- a/fs/ocfs2/journal.c
-+++ b/fs/ocfs2/journal.c
-@@ -1080,6 +1080,14 @@ int ocfs2_journal_load(struct ocfs2_journal *journal, int local, int replayed)
+diff --git a/arch/mips/kernel/cacheinfo.c b/arch/mips/kernel/cacheinfo.c
+index 428ef2189203..3ea95568ece4 100644
+--- a/arch/mips/kernel/cacheinfo.c
++++ b/arch/mips/kernel/cacheinfo.c
+@@ -61,6 +61,25 @@ static int __init_cache_level(unsigned int cpu)
+ 	return 0;
+ }
  
- 	ocfs2_clear_journal_error(osb->sb, journal->j_journal, osb->slot_num);
- 
-+	if (replayed) {
-+		jbd2_journal_lock_updates(journal->j_journal);
-+		status = jbd2_journal_flush(journal->j_journal);
-+		jbd2_journal_unlock_updates(journal->j_journal);
-+		if (status < 0)
-+			mlog_errno(status);
-+	}
++static void fill_cpumask_siblings(int cpu, cpumask_t *cpu_map)
++{
++	int cpu1;
 +
- 	status = ocfs2_journal_toggle_dirty(osb, 1, replayed);
- 	if (status < 0) {
- 		mlog_errno(status);
++	for_each_possible_cpu(cpu1)
++		if (cpus_are_siblings(cpu, cpu1))
++			cpumask_set_cpu(cpu1, cpu_map);
++}
++
++static void fill_cpumask_cluster(int cpu, cpumask_t *cpu_map)
++{
++	int cpu1;
++	int cluster = cpu_cluster(&cpu_data[cpu]);
++
++	for_each_possible_cpu(cpu1)
++		if (cpu_cluster(&cpu_data[cpu1]) == cluster)
++			cpumask_set_cpu(cpu1, cpu_map);
++}
++
+ static int __populate_cache_leaves(unsigned int cpu)
+ {
+ 	struct cpuinfo_mips *c = &current_cpu_data;
+@@ -68,14 +87,20 @@ static int __populate_cache_leaves(unsigned int cpu)
+ 	struct cacheinfo *this_leaf = this_cpu_ci->info_list;
+ 
+ 	if (c->icache.waysize) {
++		/* L1 caches are per core */
++		fill_cpumask_siblings(cpu, &this_leaf->shared_cpu_map);
+ 		populate_cache(dcache, this_leaf, 1, CACHE_TYPE_DATA);
++		fill_cpumask_siblings(cpu, &this_leaf->shared_cpu_map);
+ 		populate_cache(icache, this_leaf, 1, CACHE_TYPE_INST);
+ 	} else {
+ 		populate_cache(dcache, this_leaf, 1, CACHE_TYPE_UNIFIED);
+ 	}
+ 
+-	if (c->scache.waysize)
++	if (c->scache.waysize) {
++		/* L2 cache is per cluster */
++		fill_cpumask_cluster(cpu, &this_leaf->shared_cpu_map);
+ 		populate_cache(scache, this_leaf, 2, CACHE_TYPE_UNIFIED);
++	}
+ 
+ 	if (c->tcache.waysize)
+ 		populate_cache(tcache, this_leaf, 3, CACHE_TYPE_UNIFIED);
 -- 
 2.20.1
 
