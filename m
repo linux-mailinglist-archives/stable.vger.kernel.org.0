@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94E76138040
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:27:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C154F137E33
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:07:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730987AbgAKK1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:27:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33488 "EHLO mail.kernel.org"
+        id S1729430AbgAKKGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:06:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730369AbgAKK1b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:27:31 -0500
+        id S1729277AbgAKKGK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:06:10 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1F8C2082E;
-        Sat, 11 Jan 2020 10:27:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31D8E20848;
+        Sat, 11 Jan 2020 10:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738450;
-        bh=WVrp7kpSwaN3E2DQOEWjNnna9bWepczGG6U1C3xO4DQ=;
+        s=default; t=1578737170;
+        bh=THr1tRLvVX09Ro0T6M/vUy7Oez33Pgukhzb0B/IVhsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/VHK50Z1ik44l80iugrXHNVVaYAEE56x0Wj6qJ5DXoMWgmYSxmzo+nMuQy3B1Jdw
-         xx/nTLYv+bHnOeit6WIdaPDWNohaq0aSNrWaFOJGnrofQy5X1SC3DVPWE3vLly2niZ
-         l5vVKLA8WsTTxphv0rPt/9obeD8oPn5rihvj0NRY=
+        b=i0/4+8CIEucIMXUegZn8l3Ot+TuzyQ2DqjYWDNqZ2WfMTyjYt9JAsQrpqxa72OpQ6
+         qQt7GQ/912vmTxvmOc+7jY7z/gex08DvmA1DjoAvFteZnb3iYGu0QE7HMCAXqsT+/x
+         Jw4DF1EwcmydDvGr0Ee3/0NhrcASd+u7bHpcKFh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 096/165] kconfig: dont crash on NULL expressions in expr_eq()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        RENARD Pierre-Francois <pfrenard@gmail.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Woojung Huh <woojung.huh@microchip.com>,
+        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 82/91] net: usb: lan78xx: fix possible skb leak
 Date:   Sat, 11 Jan 2020 10:50:15 +0100
-Message-Id: <20200111094929.687953100@linuxfoundation.org>
+Message-Id: <20200111094912.458055213@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 272a72103012862e3a24ea06635253ead0b6e808 ]
+[ Upstream commit 47240ba0cd09bb6fe6db9889582048324999dfa4 ]
 
-NULL expressions are taken to always be true, as implemented by the
-expr_is_yes() macro and by several other functions in expr.c. As such,
-they ought to be valid inputs to expr_eq(), which compares two
-expressions.
+If skb_linearize() fails, we need to free the skb.
 
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+TSO makes skb bigger, and this bug might be the reason
+Raspberry Pi 3B+ users had to disable TSO.
+
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: RENARD Pierre-Francois <pfrenard@gmail.com>
+Cc: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Woojung Huh <woojung.huh@microchip.com>
+Cc: Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/kconfig/expr.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/usb/lan78xx.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/scripts/kconfig/expr.c b/scripts/kconfig/expr.c
-index 77ffff3a053c..9f1de58e9f0c 100644
---- a/scripts/kconfig/expr.c
-+++ b/scripts/kconfig/expr.c
-@@ -254,6 +254,13 @@ static int expr_eq(struct expr *e1, struct expr *e2)
- {
- 	int res, old_count;
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -2407,11 +2407,6 @@ static int lan78xx_stop(struct net_devic
+ 	return 0;
+ }
  
-+	/*
-+	 * A NULL expr is taken to be yes, but there's also a different way to
-+	 * represent yes. expr_is_yes() checks for either representation.
-+	 */
-+	if (!e1 || !e2)
-+		return expr_is_yes(e1) && expr_is_yes(e2);
-+
- 	if (e1->type != e2->type)
- 		return 0;
- 	switch (e1->type) {
--- 
-2.20.1
-
+-static int lan78xx_linearize(struct sk_buff *skb)
+-{
+-	return skb_linearize(skb);
+-}
+-
+ static struct sk_buff *lan78xx_tx_prep(struct lan78xx_net *dev,
+ 				       struct sk_buff *skb, gfp_t flags)
+ {
+@@ -2422,8 +2417,10 @@ static struct sk_buff *lan78xx_tx_prep(s
+ 		return NULL;
+ 	}
+ 
+-	if (lan78xx_linearize(skb) < 0)
++	if (skb_linearize(skb)) {
++		dev_kfree_skb_any(skb);
+ 		return NULL;
++	}
+ 
+ 	tx_cmd_a = (u32)(skb->len & TX_CMD_A_LEN_MASK_) | TX_CMD_A_FCS_;
+ 
 
 
