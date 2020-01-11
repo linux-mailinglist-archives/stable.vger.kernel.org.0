@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80615137D33
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:54:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB731137D59
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:57:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728900AbgAKJyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:54:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43532 "EHLO mail.kernel.org"
+        id S1728819AbgAKJ4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 04:56:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728807AbgAKJyk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:54:40 -0500
+        id S1728808AbgAKJ4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 04:56:43 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FAFE2072E;
-        Sat, 11 Jan 2020 09:54:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E43412064C;
+        Sat, 11 Jan 2020 09:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736480;
-        bh=YifGFmuHCJnKvVu31HrpEi2c+jHaN5s8ZBCC9Uc/+yo=;
+        s=default; t=1578736602;
+        bh=tLns9gbVAwhHpW2u7vZVvshMGi8XSOoUHu7ct+ahSTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kzuJsB4O6EPK2WKrpBC8eGoU8LyyVrg0V1n5zH6FYeKjtXJ7H359rd8k8Dj7S5+VC
-         o7anAf8kCJPlc6qrmDx/rMhaAOeMu34USZBlwlWo/FcBXkkQ/KcDzEoGjjWbTOWxj6
-         En1staket0mxcviv2GdRg55SliqvAUJ4CY0J1B1s=
+        b=w3oM+CXP8TVmdzkJEsVoJXEPAaAo/h4i9Oqs28j98n6iyGCKiPbrs0TcBUfhYtA5I
+         IwFexaVahJBbGNoUkRXrCgsjz3lx/kxikhcBqVQpoFJzneyqPX0yUIA8QKaEiQeylj
+         tZDenxEndGN+d8XEzeHsVUlk7VPSu4eQ1gLMBbpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksandr Yashkin <a.yashkin@inango-systems.com>,
-        Nikolay Merinov <n.merinov@inango-systems.com>,
-        Ariel Gilman <a.gilman@inango-systems.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 33/59] pstore/ram: Write new dumps to start of recycled zones
-Date:   Sat, 11 Jan 2020 10:49:42 +0100
-Message-Id: <20200111094844.943026669@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Marco Elver <elver@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 34/59] locking/spinlock/debug: Fix various data races
+Date:   Sat, 11 Jan 2020 10:49:43 +0100
+Message-Id: <20200111094845.098826440@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094835.417654274@linuxfoundation.org>
 References: <20200111094835.417654274@linuxfoundation.org>
@@ -47,51 +50,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksandr Yashkin <a.yashkin@inango-systems.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 9e5f1c19800b808a37fb9815a26d382132c26c3d ]
+[ Upstream commit 1a365e822372ba24c9da0822bc583894f6f3d821 ]
 
-The ram_core.c routines treat przs as circular buffers. When writing a
-new crash dump, the old buffer needs to be cleared so that the new dump
-doesn't end up in the wrong place (i.e. at the end).
+This fixes various data races in spinlock_debug. By testing with KCSAN,
+it is observable that the console gets spammed with data races reports,
+suggesting these are extremely frequent.
 
-The solution to this problem is to reset the circular buffer state before
-writing a new Oops dump.
+Example data race report:
 
-Signed-off-by: Aleksandr Yashkin <a.yashkin@inango-systems.com>
-Signed-off-by: Nikolay Merinov <n.merinov@inango-systems.com>
-Signed-off-by: Ariel Gilman <a.gilman@inango-systems.com>
-Link: https://lore.kernel.org/r/20191223133816.28155-1-n.merinov@inango-systems.com
-Fixes: 896fc1f0c4c6 ("pstore/ram: Switch to persistent_ram routines")
-[kees: backport to v4.9]
-Signed-off-by: Kees Cook <keescook@chromium.org>
+  read to 0xffff8ab24f403c48 of 4 bytes by task 221 on cpu 2:
+   debug_spin_lock_before kernel/locking/spinlock_debug.c:85 [inline]
+   do_raw_spin_lock+0x9b/0x210 kernel/locking/spinlock_debug.c:112
+   __raw_spin_lock include/linux/spinlock_api_smp.h:143 [inline]
+   _raw_spin_lock+0x39/0x40 kernel/locking/spinlock.c:151
+   spin_lock include/linux/spinlock.h:338 [inline]
+   get_partial_node.isra.0.part.0+0x32/0x2f0 mm/slub.c:1873
+   get_partial_node mm/slub.c:1870 [inline]
+  <snip>
+
+  write to 0xffff8ab24f403c48 of 4 bytes by task 167 on cpu 3:
+   debug_spin_unlock kernel/locking/spinlock_debug.c:103 [inline]
+   do_raw_spin_unlock+0xc9/0x1a0 kernel/locking/spinlock_debug.c:138
+   __raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:159 [inline]
+   _raw_spin_unlock_irqrestore+0x2d/0x50 kernel/locking/spinlock.c:191
+   spin_unlock_irqrestore include/linux/spinlock.h:393 [inline]
+   free_debug_processing+0x1b3/0x210 mm/slub.c:1214
+   __slab_free+0x292/0x400 mm/slub.c:2864
+  <snip>
+
+As a side-effect, with KCSAN, this eventually locks up the console, most
+likely due to deadlock, e.g. .. -> printk lock -> spinlock_debug ->
+KCSAN detects data race -> kcsan_print_report() -> printk lock ->
+deadlock.
+
+This fix will 1) avoid the data races, and 2) allow using lock debugging
+together with KCSAN.
+
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Marco Elver <elver@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Link: https://lkml.kernel.org/r/20191120155715.28089-1-elver@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/ram.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ kernel/locking/spinlock_debug.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
-index 59d93acc29c7..fa0e89edb62d 100644
---- a/fs/pstore/ram.c
-+++ b/fs/pstore/ram.c
-@@ -319,6 +319,17 @@ static int notrace ramoops_pstore_write_buf(enum pstore_type_id type,
+diff --git a/kernel/locking/spinlock_debug.c b/kernel/locking/spinlock_debug.c
+index 0374a596cffa..95e610e3f7ef 100644
+--- a/kernel/locking/spinlock_debug.c
++++ b/kernel/locking/spinlock_debug.c
+@@ -51,19 +51,19 @@ EXPORT_SYMBOL(__rwlock_init);
  
- 	prz = cxt->przs[cxt->dump_write_cnt];
+ static void spin_dump(raw_spinlock_t *lock, const char *msg)
+ {
+-	struct task_struct *owner = NULL;
++	struct task_struct *owner = READ_ONCE(lock->owner);
  
-+	/*
-+	 * Since this is a new crash dump, we need to reset the buffer in
-+	 * case it still has an old dump present. Without this, the new dump
-+	 * will get appended, which would seriously confuse anything trying
-+	 * to check dump file contents. Specifically, ramoops_read_kmsg_hdr()
-+	 * expects to find a dump header in the beginning of buffer data, so
-+	 * we must to reset the buffer values, in order to ensure that the
-+	 * header will be written to the beginning of the buffer.
-+	 */
-+	persistent_ram_zap(prz);
-+
- 	hlen = ramoops_write_kmsg_hdr(prz, compressed);
- 	if (size + hlen > prz->buffer_size)
- 		size = prz->buffer_size - hlen;
+-	if (lock->owner && lock->owner != SPINLOCK_OWNER_INIT)
+-		owner = lock->owner;
++	if (owner == SPINLOCK_OWNER_INIT)
++		owner = NULL;
+ 	printk(KERN_EMERG "BUG: spinlock %s on CPU#%d, %s/%d\n",
+ 		msg, raw_smp_processor_id(),
+ 		current->comm, task_pid_nr(current));
+ 	printk(KERN_EMERG " lock: %pS, .magic: %08x, .owner: %s/%d, "
+ 			".owner_cpu: %d\n",
+-		lock, lock->magic,
++		lock, READ_ONCE(lock->magic),
+ 		owner ? owner->comm : "<none>",
+ 		owner ? task_pid_nr(owner) : -1,
+-		lock->owner_cpu);
++		READ_ONCE(lock->owner_cpu));
+ 	dump_stack();
+ }
+ 
+@@ -80,16 +80,16 @@ static void spin_bug(raw_spinlock_t *lock, const char *msg)
+ static inline void
+ debug_spin_lock_before(raw_spinlock_t *lock)
+ {
+-	SPIN_BUG_ON(lock->magic != SPINLOCK_MAGIC, lock, "bad magic");
+-	SPIN_BUG_ON(lock->owner == current, lock, "recursion");
+-	SPIN_BUG_ON(lock->owner_cpu == raw_smp_processor_id(),
++	SPIN_BUG_ON(READ_ONCE(lock->magic) != SPINLOCK_MAGIC, lock, "bad magic");
++	SPIN_BUG_ON(READ_ONCE(lock->owner) == current, lock, "recursion");
++	SPIN_BUG_ON(READ_ONCE(lock->owner_cpu) == raw_smp_processor_id(),
+ 							lock, "cpu recursion");
+ }
+ 
+ static inline void debug_spin_lock_after(raw_spinlock_t *lock)
+ {
+-	lock->owner_cpu = raw_smp_processor_id();
+-	lock->owner = current;
++	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
++	WRITE_ONCE(lock->owner, current);
+ }
+ 
+ static inline void debug_spin_unlock(raw_spinlock_t *lock)
+@@ -99,8 +99,8 @@ static inline void debug_spin_unlock(raw_spinlock_t *lock)
+ 	SPIN_BUG_ON(lock->owner != current, lock, "wrong owner");
+ 	SPIN_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
+ 							lock, "wrong CPU");
+-	lock->owner = SPINLOCK_OWNER_INIT;
+-	lock->owner_cpu = -1;
++	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
++	WRITE_ONCE(lock->owner_cpu, -1);
+ }
+ 
+ static void __spin_lock_debug(raw_spinlock_t *lock)
+@@ -233,8 +233,8 @@ static inline void debug_write_lock_before(rwlock_t *lock)
+ 
+ static inline void debug_write_lock_after(rwlock_t *lock)
+ {
+-	lock->owner_cpu = raw_smp_processor_id();
+-	lock->owner = current;
++	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
++	WRITE_ONCE(lock->owner, current);
+ }
+ 
+ static inline void debug_write_unlock(rwlock_t *lock)
+@@ -243,8 +243,8 @@ static inline void debug_write_unlock(rwlock_t *lock)
+ 	RWLOCK_BUG_ON(lock->owner != current, lock, "wrong owner");
+ 	RWLOCK_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
+ 							lock, "wrong CPU");
+-	lock->owner = SPINLOCK_OWNER_INIT;
+-	lock->owner_cpu = -1;
++	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
++	WRITE_ONCE(lock->owner_cpu, -1);
+ }
+ 
+ #if 0		/* This can cause lockups */
 -- 
 2.20.1
 
