@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B486C138021
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:26:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D80C7137E7D
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:10:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730163AbgAKK0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:26:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58732 "EHLO mail.kernel.org"
+        id S1729547AbgAKKKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:10:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729047AbgAKK0U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:26:20 -0500
+        id S1729346AbgAKKKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:10:32 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC58A2082E;
-        Sat, 11 Jan 2020 10:26:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F421420880;
+        Sat, 11 Jan 2020 10:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738379;
-        bh=COBC09XpNymQw6b0tBfDvAq6aOaIfPtQHpnj8ZBaIzA=;
+        s=default; t=1578737431;
+        bh=ZMe5PCi44onBsQSMmx6BzVqwcH/iyoiNk7gBWQzdsZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+cNUK1kVQVnmsBnxDNPC0yZseApGcypw7uzalVLUCBIJpRY22VrbF9Nyr7PtNu2K
-         +xHkPNqshd5OuT6i1qKIzBCpmoU4PQcaBh37LbhUz1KlcsLIq3QUt3ErFiOV5gQf4D
-         EF/Rgq6ScMVTLcoFitKlNjW0aFNsgdmCayQjqGjc=
+        b=m6v3IQtLaaC3zQ2RjOhezRasky8fncyEjKTjjRpDeLvdN8JlGsZj88OgI1ie4PHpQ
+         aSw1Tcz4X+RSyFjezKcjMpD08Q/lI+8lI7jQQmuZm8c/f25Uobr8Rg/3aUrIKdTNWV
+         4RO0y/9z9xVnv2htN42mt3cJ2w1tz051BbcgPDIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Wandun <chenwandun@huawei.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/165] habanalabs: remove variable val set but not used
+Subject: [PATCH 4.14 19/62] ARM: dts: am437x-gp/epos-evm: fix panel compatible
 Date:   Sat, 11 Jan 2020 10:50:01 +0100
-Message-Id: <20200111094928.031788029@linuxfoundation.org>
+Message-Id: <20200111094843.798642075@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Wandun <chenwandun@huawei.com>
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
-[ Upstream commit 68a1fdf2451f38b4ada0607eb6e1303f8a02e0b7 ]
+[ Upstream commit c6b16761c6908d3dc167a0a566578b4b0b972905 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+The LCD panel on AM4 GP EVMs and ePOS boards seems to be
+osd070t1718-19ts. The current dts files say osd057T0559-34ts. Possibly
+the panel has changed since the early EVMs, or there has been a mistake
+with the panel type.
 
-drivers/misc/habanalabs/goya/goya.c: In function goya_pldm_init_cpu:
-drivers/misc/habanalabs/goya/goya.c:2195:6: warning: variable val set but not used [-Wunused-but-set-variable]
-drivers/misc/habanalabs/goya/goya.c: In function goya_hw_init:
-drivers/misc/habanalabs/goya/goya.c:2505:6: warning: variable val set but not used [-Wunused-but-set-variable]
+Update the DT files accordingly.
 
-Fixes: 9494a8dd8d22 ("habanalabs: add h/w queues module")
-Signed-off-by: Chen Wandun <chenwandun@huawei.com>
-Reviewed-by: Oded Gabbay <oded.gabbay@gmail.com>
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/goya/goya.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/am437x-gp-evm.dts  | 2 +-
+ arch/arm/boot/dts/am43x-epos-evm.dts | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/goya/goya.c b/drivers/misc/habanalabs/goya/goya.c
-index 6fba14b81f90..fe3574a83b7c 100644
---- a/drivers/misc/habanalabs/goya/goya.c
-+++ b/drivers/misc/habanalabs/goya/goya.c
-@@ -2171,7 +2171,7 @@ static int goya_push_linux_to_device(struct hl_device *hdev)
+diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
+index afb8eb0a0a16..051823b7e5a1 100644
+--- a/arch/arm/boot/dts/am437x-gp-evm.dts
++++ b/arch/arm/boot/dts/am437x-gp-evm.dts
+@@ -83,7 +83,7 @@
+ 		};
  
- static int goya_pldm_init_cpu(struct hl_device *hdev)
- {
--	u32 val, unit_rst_val;
-+	u32 unit_rst_val;
- 	int rc;
+ 	lcd0: display {
+-		compatible = "osddisplays,osd057T0559-34ts", "panel-dpi";
++		compatible = "osddisplays,osd070t1718-19ts", "panel-dpi";
+ 		label = "lcd";
  
- 	/* Must initialize SRAM scrambler before pushing u-boot to SRAM */
-@@ -2179,14 +2179,14 @@ static int goya_pldm_init_cpu(struct hl_device *hdev)
+ 		panel-timing {
+diff --git a/arch/arm/boot/dts/am43x-epos-evm.dts b/arch/arm/boot/dts/am43x-epos-evm.dts
+index 081fa68b6f98..c4279b0b9f12 100644
+--- a/arch/arm/boot/dts/am43x-epos-evm.dts
++++ b/arch/arm/boot/dts/am43x-epos-evm.dts
+@@ -45,7 +45,7 @@
+ 	};
  
- 	/* Put ARM cores into reset */
- 	WREG32(mmCPU_CA53_CFG_ARM_RST_CONTROL, CPU_RESET_ASSERT);
--	val = RREG32(mmCPU_CA53_CFG_ARM_RST_CONTROL);
-+	RREG32(mmCPU_CA53_CFG_ARM_RST_CONTROL);
+ 	lcd0: display {
+-		compatible = "osddisplays,osd057T0559-34ts", "panel-dpi";
++		compatible = "osddisplays,osd070t1718-19ts", "panel-dpi";
+ 		label = "lcd";
  
- 	/* Reset the CA53 MACRO */
- 	unit_rst_val = RREG32(mmPSOC_GLOBAL_CONF_UNIT_RST_N);
- 	WREG32(mmPSOC_GLOBAL_CONF_UNIT_RST_N, CA53_RESET);
--	val = RREG32(mmPSOC_GLOBAL_CONF_UNIT_RST_N);
-+	RREG32(mmPSOC_GLOBAL_CONF_UNIT_RST_N);
- 	WREG32(mmPSOC_GLOBAL_CONF_UNIT_RST_N, unit_rst_val);
--	val = RREG32(mmPSOC_GLOBAL_CONF_UNIT_RST_N);
-+	RREG32(mmPSOC_GLOBAL_CONF_UNIT_RST_N);
- 
- 	rc = goya_push_uboot_to_device(hdev);
- 	if (rc)
-@@ -2207,7 +2207,7 @@ static int goya_pldm_init_cpu(struct hl_device *hdev)
- 	/* Release ARM core 0 from reset */
- 	WREG32(mmCPU_CA53_CFG_ARM_RST_CONTROL,
- 					CPU_RESET_CORE0_DEASSERT);
--	val = RREG32(mmCPU_CA53_CFG_ARM_RST_CONTROL);
-+	RREG32(mmCPU_CA53_CFG_ARM_RST_CONTROL);
- 
- 	return 0;
- }
-@@ -2475,13 +2475,12 @@ int goya_mmu_init(struct hl_device *hdev)
- static int goya_hw_init(struct hl_device *hdev)
- {
- 	struct asic_fixed_properties *prop = &hdev->asic_prop;
--	u32 val;
- 	int rc;
- 
- 	dev_info(hdev->dev, "Starting initialization of H/W\n");
- 
- 	/* Perform read from the device to make sure device is up */
--	val = RREG32(mmPCIE_DBI_DEVICE_ID_VENDOR_ID_REG);
-+	RREG32(mmPCIE_DBI_DEVICE_ID_VENDOR_ID_REG);
- 
- 	/*
- 	 * Let's mark in the H/W that we have reached this point. We check
-@@ -2533,7 +2532,7 @@ static int goya_hw_init(struct hl_device *hdev)
- 		goto disable_queues;
- 
- 	/* Perform read from the device to flush all MSI-X configuration */
--	val = RREG32(mmPCIE_DBI_DEVICE_ID_VENDOR_ID_REG);
-+	RREG32(mmPCIE_DBI_DEVICE_ID_VENDOR_ID_REG);
- 
- 	return 0;
- 
+ 		panel-timing {
 -- 
 2.20.1
 
