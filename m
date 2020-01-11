@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB38137D75
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91D5F137D77
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728947AbgAKJ57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:57:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50744 "EHLO mail.kernel.org"
+        id S1728964AbgAKJ6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 04:58:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728825AbgAKJ57 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:57:59 -0500
+        id S1728825AbgAKJ6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 04:58:04 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99B4F2082E;
-        Sat, 11 Jan 2020 09:57:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8EC02082E;
+        Sat, 11 Jan 2020 09:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736678;
-        bh=94hAH9NlWUCGPC3/bxmyNYELJcLDeZ9hO8DfsagdILU=;
+        s=default; t=1578736683;
+        bh=qHvB531V3RJdaRoKgWd7QiWpenSN3LNiYeeliilRbKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6RFa0SnyR5gU8WzZF7uJrDx373sR5m6oUqqjnObJL5YJKDksWzqsCyZ4OE1Exvf4
-         rkPiNvzw9DaG3x4hXlaFVhGNsUOBSurNSw4ymnSzWEIqjJVNfZD8mk0CNcy6z5TDA1
-         6Xt24BgF4ne9KtcV743ZxM9cpYPj0F9GrAH6MV3Y=
+        b=Cs+4jnNLfIflJ5UpXEWAYcDDiIfDwg6v6ei5+tv4rSrFWbvekIRi4CWhoMJB4Smui
+         SEP84C0XFT5wqF7Wc7v6iW80Ez5rBMUhFHCxkbxlgwMqAynYhQlTxJGRj8OnSFVzC9
+         nlDXDKk4YfmO9RzMGTriiQCwKT55a7llHf222IFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 54/59] vlan: vlan_changelink() should propagate errors
-Date:   Sat, 11 Jan 2020 10:50:03 +0100
-Message-Id: <20200111094851.924608194@linuxfoundation.org>
+Subject: [PATCH 4.4 55/59] vlan: fix memory leak in vlan_dev_set_egress_priority
+Date:   Sat, 11 Jan 2020 10:50:04 +0100
+Message-Id: <20200111094852.370151428@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094835.417654274@linuxfoundation.org>
 References: <20200111094835.417654274@linuxfoundation.org>
@@ -45,47 +46,98 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit eb8ef2a3c50092bb018077c047b8dba1ce0e78e3 ]
+[ Upstream commit 9bbd917e0bec9aebdbd0c8dbc966caec15eb33e9 ]
 
-Both vlan_dev_change_flags() and vlan_dev_set_egress_priority()
-can return an error. vlan_changelink() should not ignore them.
+There are few cases where the ndo_uninit() handler might be not
+called if an error happens while device is initialized.
 
-Fixes: 07b5b17e157b ("[VLAN]: Use rtnl_link API")
+Since vlan_newlink() calls vlan_changelink() before
+trying to register the netdevice, we need to make sure
+vlan_dev_uninit() has been called at least once,
+or we might leak allocated memory.
+
+BUG: memory leak
+unreferenced object 0xffff888122a206c0 (size 32):
+  comm "syz-executor511", pid 7124, jiffies 4294950399 (age 32.240s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 61 73 00 00 00 00 00 00 00 00  ......as........
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000000eb3bb85>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
+    [<000000000eb3bb85>] slab_post_alloc_hook mm/slab.h:586 [inline]
+    [<000000000eb3bb85>] slab_alloc mm/slab.c:3320 [inline]
+    [<000000000eb3bb85>] kmem_cache_alloc_trace+0x145/0x2c0 mm/slab.c:3549
+    [<000000007b99f620>] kmalloc include/linux/slab.h:556 [inline]
+    [<000000007b99f620>] vlan_dev_set_egress_priority+0xcc/0x150 net/8021q/vlan_dev.c:194
+    [<000000007b0cb745>] vlan_changelink+0xd6/0x140 net/8021q/vlan_netlink.c:126
+    [<0000000065aba83a>] vlan_newlink+0x135/0x200 net/8021q/vlan_netlink.c:181
+    [<00000000fb5dd7a2>] __rtnl_newlink+0x89a/0xb80 net/core/rtnetlink.c:3305
+    [<00000000ae4273a1>] rtnl_newlink+0x4e/0x80 net/core/rtnetlink.c:3363
+    [<00000000decab39f>] rtnetlink_rcv_msg+0x178/0x4b0 net/core/rtnetlink.c:5424
+    [<00000000accba4ee>] netlink_rcv_skb+0x61/0x170 net/netlink/af_netlink.c:2477
+    [<00000000319fe20f>] rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5442
+    [<00000000d51938dc>] netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+    [<00000000d51938dc>] netlink_unicast+0x223/0x310 net/netlink/af_netlink.c:1328
+    [<00000000e539ac79>] netlink_sendmsg+0x2c0/0x570 net/netlink/af_netlink.c:1917
+    [<000000006250c27e>] sock_sendmsg_nosec net/socket.c:639 [inline]
+    [<000000006250c27e>] sock_sendmsg+0x54/0x70 net/socket.c:659
+    [<00000000e2a156d1>] ____sys_sendmsg+0x2d0/0x300 net/socket.c:2330
+    [<000000008c87466e>] ___sys_sendmsg+0x8a/0xd0 net/socket.c:2384
+    [<00000000110e3054>] __sys_sendmsg+0x80/0xf0 net/socket.c:2417
+    [<00000000d71077c8>] __do_sys_sendmsg net/socket.c:2426 [inline]
+    [<00000000d71077c8>] __se_sys_sendmsg net/socket.c:2424 [inline]
+    [<00000000d71077c8>] __x64_sys_sendmsg+0x23/0x30 net/socket.c:2424
+
+Fixe: 07b5b17e157b ("[VLAN]: Use rtnl_link API")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/8021q/vlan_netlink.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/8021q/vlan.h         |    1 +
+ net/8021q/vlan_dev.c     |    3 ++-
+ net/8021q/vlan_netlink.c |    9 +++++----
+ 3 files changed, 8 insertions(+), 5 deletions(-)
 
+--- a/net/8021q/vlan.h
++++ b/net/8021q/vlan.h
+@@ -109,6 +109,7 @@ int vlan_check_real_dev(struct net_devic
+ void vlan_setup(struct net_device *dev);
+ int register_vlan_dev(struct net_device *dev);
+ void unregister_vlan_dev(struct net_device *dev, struct list_head *head);
++void vlan_dev_uninit(struct net_device *dev);
+ bool vlan_dev_inherit_address(struct net_device *dev,
+ 			      struct net_device *real_dev);
+ 
+--- a/net/8021q/vlan_dev.c
++++ b/net/8021q/vlan_dev.c
+@@ -606,7 +606,8 @@ static int vlan_dev_init(struct net_devi
+ 	return 0;
+ }
+ 
+-static void vlan_dev_uninit(struct net_device *dev)
++/* Note: this function might be called multiple times for the same device. */
++void vlan_dev_uninit(struct net_device *dev)
+ {
+ 	struct vlan_priority_tci_mapping *pm;
+ 	struct vlan_dev_priv *vlan = vlan_dev_priv(dev);
 --- a/net/8021q/vlan_netlink.c
 +++ b/net/8021q/vlan_netlink.c
-@@ -92,11 +92,13 @@ static int vlan_changelink(struct net_de
- 	struct ifla_vlan_flags *flags;
- 	struct ifla_vlan_qos_mapping *m;
- 	struct nlattr *attr;
--	int rem;
-+	int rem, err;
+@@ -154,10 +154,11 @@ static int vlan_newlink(struct net *src_
+ 		return -EINVAL;
  
- 	if (data[IFLA_VLAN_FLAGS]) {
- 		flags = nla_data(data[IFLA_VLAN_FLAGS]);
--		vlan_dev_change_flags(dev, flags->flags, flags->mask);
-+		err = vlan_dev_change_flags(dev, flags->flags, flags->mask);
-+		if (err)
-+			return err;
- 	}
- 	if (data[IFLA_VLAN_INGRESS_QOS]) {
- 		nla_for_each_nested(attr, data[IFLA_VLAN_INGRESS_QOS], rem) {
-@@ -107,7 +109,9 @@ static int vlan_changelink(struct net_de
- 	if (data[IFLA_VLAN_EGRESS_QOS]) {
- 		nla_for_each_nested(attr, data[IFLA_VLAN_EGRESS_QOS], rem) {
- 			m = nla_data(attr);
--			vlan_dev_set_egress_priority(dev, m->from, m->to);
-+			err = vlan_dev_set_egress_priority(dev, m->from, m->to);
-+			if (err)
-+				return err;
- 		}
- 	}
- 	return 0;
+ 	err = vlan_changelink(dev, tb, data);
+-	if (err < 0)
+-		return err;
+-
+-	return register_vlan_dev(dev);
++	if (!err)
++		err = register_vlan_dev(dev);
++	if (err)
++		vlan_dev_uninit(dev);
++	return err;
+ }
+ 
+ static inline size_t vlan_qos_map_size(unsigned int n)
 
 
