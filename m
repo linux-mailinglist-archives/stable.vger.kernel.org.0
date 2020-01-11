@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94364137FB4
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B857137F90
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:21:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730642AbgAKKWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:22:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
+        id S1730577AbgAKKVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:21:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730333AbgAKKWS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:22:18 -0500
+        id S1729336AbgAKKVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:21:00 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 374112084D;
-        Sat, 11 Jan 2020 10:22:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 482BE208E4;
+        Sat, 11 Jan 2020 10:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738138;
-        bh=qM1K8b9ABcWajK0PB6SL3OmVqdsQlj0LkxqO2SEIa10=;
+        s=default; t=1578738060;
+        bh=fGh5qYSB3I35x/gwyaPv4GcNUN3Bj392V79vARehqmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqejxFdYyMhpXyulmr+j4tU8S1aatpAZipBOmCIKBJK58P2QOvFcQ0K1oc+RzVHCm
-         5gi21eEwjDDc7LAci9eToznOZqQdKaXzY0hYb3LdnZ6Owin6yKBiCj3YV/Hpw5++kt
-         lbPVGQkQw3gu1IiiFagtzKIhtRCpDPUhw/9yBFQI=
+        b=Gv4R/Buc3XU47CbsgQAxI/iAb0EYaGC5n2Ymlr6ADTvg/uGZ70+nDvGcGJIORP8d1
+         2bHGp2h+AXHJaCHkDKkn179wLgC5aQ9maI+CBr2871/6K8wJLzpG6Ssk41Jl+hDfnI
+         nameQlVUirgmmVUGA0JD840YtdpmQyA1mjMMmt3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudipm Mukherjee <sudipm.mukherjee@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        linux-trace-devel@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 016/165] libtraceevent: Copy pkg-config file to output folder when using O=
-Date:   Sat, 11 Jan 2020 10:48:55 +0100
-Message-Id: <20200111094922.361098351@linuxfoundation.org>
+Subject: [PATCH 5.4 017/165] regulator: core: fix regulator_register() error paths to properly release rdev
+Date:   Sat, 11 Jan 2020 10:48:56 +0100
+Message-Id: <20200111094922.413716871@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -47,43 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-[ Upstream commit 15b3904f8e884e0d34d5f09906cf6526d0b889a2 ]
+[ Upstream commit a3cde9534ebdafe18a9bbab208df724c57e6c8e8 ]
 
-When we use 'O=' with make to build libtraceevent in a separate folder
-it still copies 'libtraceevent.pc' to its source folder. Modify the
-Makefile so that it uses the output folder to copy the pkg-config file
-and install from there.
+There are several issues with the error handling code of
+the regulator_register() function:
+        ret = device_register(&rdev->dev);
+        if (ret != 0) {
+                put_device(&rdev->dev); --> rdev released
+                goto unset_supplies;
+        }
+...
+unset_supplies:
+...
+        unset_regulator_supplies(rdev); --> use-after-free
+...
+clean:
+        if (dangling_of_gpiod)
+                gpiod_put(config->ena_gpiod);
+        kfree(rdev);                     --> double free
 
-Signed-off-by: Sudipm Mukherjee <sudipm.mukherjee@gmail.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: linux-trace-devel@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20191115113610.21493-2-sudipm.mukherjee@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+We add a variable to record the failure of device_register() and
+move put_device() down a bit to avoid the above issues.
+
+Fixes: c438b9d01736 ("regulator: core: Move registration of regulator device")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/20191201030250.38074-1-wenyang@linux.alibaba.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/Makefile | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/regulator/core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
-index d008e64042ce..ecf882308d8a 100644
---- a/tools/lib/traceevent/Makefile
-+++ b/tools/lib/traceevent/Makefile
-@@ -208,10 +208,11 @@ define do_install
- 	$(INSTALL) $(if $3,-m $3,) $1 '$(DESTDIR_SQ)$2'
- endef
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index d66404920976..1dba0bdf3762 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -4992,6 +4992,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
+ 	struct regulator_dev *rdev;
+ 	bool dangling_cfg_gpiod = false;
+ 	bool dangling_of_gpiod = false;
++	bool reg_device_fail = false;
+ 	struct device *dev;
+ 	int ret, i;
  
--PKG_CONFIG_FILE = libtraceevent.pc
-+PKG_CONFIG_SOURCE_FILE = libtraceevent.pc
-+PKG_CONFIG_FILE := $(addprefix $(OUTPUT),$(PKG_CONFIG_SOURCE_FILE))
- define do_install_pkgconfig_file
- 	if [ -n "${pkgconfig_dir}" ]; then 					\
--		cp -f ${PKG_CONFIG_FILE}.template ${PKG_CONFIG_FILE}; 		\
-+		cp -f ${PKG_CONFIG_SOURCE_FILE}.template ${PKG_CONFIG_FILE};	\
- 		sed -i "s|INSTALL_PREFIX|${1}|g" ${PKG_CONFIG_FILE}; 		\
- 		sed -i "s|LIB_VERSION|${EVENT_PARSE_VERSION}|g" ${PKG_CONFIG_FILE}; \
- 		sed -i "s|LIB_DIR|${libdir}|g" ${PKG_CONFIG_FILE}; \
+@@ -5177,7 +5178,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
+ 	dev_set_drvdata(&rdev->dev, rdev);
+ 	ret = device_register(&rdev->dev);
+ 	if (ret != 0) {
+-		put_device(&rdev->dev);
++		reg_device_fail = true;
+ 		goto unset_supplies;
+ 	}
+ 
+@@ -5208,7 +5209,10 @@ regulator_register(const struct regulator_desc *regulator_desc,
+ clean:
+ 	if (dangling_of_gpiod)
+ 		gpiod_put(config->ena_gpiod);
+-	kfree(rdev);
++	if (reg_device_fail)
++		put_device(&rdev->dev);
++	else
++		kfree(rdev);
+ 	kfree(config);
+ rinse:
+ 	if (dangling_cfg_gpiod)
 -- 
 2.20.1
 
