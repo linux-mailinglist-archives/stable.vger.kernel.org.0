@@ -2,57 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 625E6138173
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 14:56:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D2F7138189
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 15:26:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729446AbgAKN4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 08:56:02 -0500
-Received: from mail-qv1-f68.google.com ([209.85.219.68]:37811 "EHLO
-        mail-qv1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729301AbgAKN4C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jan 2020 08:56:02 -0500
-Received: by mail-qv1-f68.google.com with SMTP id f16so2100310qvi.4
-        for <stable@vger.kernel.org>; Sat, 11 Jan 2020 05:56:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=lca.pw; s=google;
-        h=content-transfer-encoding:from:mime-version:subject:date:message-id
-         :references:cc:in-reply-to:to;
-        bh=pLHRqkxg+SGX61pyQZgO27/FZ0iiiEv81an7baxGtT8=;
-        b=OK9i4wKZg4fpUMfvuXi2xTweFEImd2guEcKGUGG9TGCnq/lnobxG5dIEKh+f5v4Z5t
-         RJguCkMFef6Kyh658FgBzhIuXfuA2DgakWfeWnR5v8dRbT9qsGppLVUSHaQx1fTTI3pp
-         7jSMOw8w7XL1PQ+Xuzu9phKMirES4XYeQUnPXdJIjnRp6Q5jifr+F7juLnTV6HiKHdsh
-         7hEzCE4KcXFZkEVQjIKHWm0BmPvivOR6+QT7EzNH/rUSKN9P1VIxVYEEfV42I9+WrzwV
-         wf8m+vDhPxjuRfRnPbZUta1RTimN7ihWkbwg8ulLOVSY0hBdFoYkV6x01ICtFF3AJHnM
-         CRLA==
+        id S1729382AbgAKOZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 09:25:49 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:40274 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729446AbgAKOZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Jan 2020 09:25:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578752747;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uwm6fzYAwEwYeUfJoESjpA/0Z/xwqqojB6vogh+wkjc=;
+        b=hdRCBOSXPuBExbHjmDfXCr9fKwJf29R4rIYcHXDUH9Is352NVa5OT3qAeh0mX8DoYdWqXm
+        ZvJr9C104URymMN+rhmU0aZakYda6MDTfB9keYVF0C2QEt98bUmjYyIN/vvltCosxya+oG
+        yANE6NtAmS/IK5Bc+Zyr78UK+gdJ2cA=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-403-A-OyvlMvP42dyeMB6pdIxw-1; Sat, 11 Jan 2020 09:25:46 -0500
+X-MC-Unique: A-OyvlMvP42dyeMB6pdIxw-1
+Received: by mail-wr1-f69.google.com with SMTP id w6so2388806wrm.16
+        for <stable@vger.kernel.org>; Sat, 11 Jan 2020 06:25:45 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:content-transfer-encoding:from:mime-version
          :subject:date:message-id:references:cc:in-reply-to:to;
-        bh=pLHRqkxg+SGX61pyQZgO27/FZ0iiiEv81an7baxGtT8=;
-        b=YnM25ikHXumBleWkZlpYMTqa3OnzWuVOdX8lhiYEJXuhAsD/ljJsOSY3W+/YNNubza
-         IoV9mQY+kfWLBzMjYeC4GZS0PMLQ23vo5Sak7gHnIj14Y4i+gqTSDJngSwcCjCL4xa/J
-         3eIDnFKoyvD3wYw4G0/cJFQ6CjQugDehpZPWEKgKKBtsXqcBl//GdCZUaMnUivUjx3IA
-         UiGhgRLhFo3hHjkJqQ6WjOKm/i2Ao0S/5v385AQHiICTd1eodJbA8VEw+9SGCSfVImHF
-         rluocDVt88nmEhFo/Q/tZYTWyumQG/70MnOQofuhRiLrxqtZVDoIktlItDZDxtW5jRTP
-         lolg==
-X-Gm-Message-State: APjAAAUtDbMKfwdr29UWcCmMbn6xeqr99ITsN6qIaMt+HuVJ4wv0rg/R
-        2Qa1L/QDP059BuP35GaRf6RGlQ==
-X-Google-Smtp-Source: APXvYqyGmywokZQjVyxs1thk3QfLbiLA75tqN71SQZ7K+dfrdGpw+G6es//twpI2Pr5mRwsHAW+hHA==
-X-Received: by 2002:a05:6214:180e:: with SMTP id o14mr3499290qvw.209.1578750961706;
-        Sat, 11 Jan 2020 05:56:01 -0800 (PST)
-Received: from [192.168.1.183] (pool-71-184-117-43.bstnma.fios.verizon.net. [71.184.117.43])
-        by smtp.gmail.com with ESMTPSA id c8sm2636707qtv.61.2020.01.11.05.56.00
+        bh=uwm6fzYAwEwYeUfJoESjpA/0Z/xwqqojB6vogh+wkjc=;
+        b=ktiTmPxA8slaczl2YtLw1/G7jL6ooVsUW3OOy1sp61eMy2Ept+7hys9pEwNbG9cw/5
+         kCYIHQleOFgsEBidQMXwyT7fRs1c4AyZ+AxqKec1DagVqDim3mnfflaKgKpi/ZiOKsi0
+         CVZ1jCOja/H9KvLm78c1wGuxttYMmUC3yqpkHb1ScOtqqFr9lQJiN27lYN8CJOPZAYIi
+         N7KTymb6GY2AB++xtosozk6h6JWhYrdW6WiOlv+yzCLcKNpD9gdWpPAtRckxQi3Eqnhl
+         8GkZHvlvXmZcMbYM2vwMnrNf8Cqn7/p26tmZ4MlbbJr22HbnZkEozikNpZMhmq+IzuLd
+         qGYw==
+X-Gm-Message-State: APjAAAVE2dp4yK6Z+kNyltMa2iS9ZzUeM/SiuM04tKqEZeo7QW9eJ2Cw
+        4r4qfapp3MmdBD7l3TxOzNRjw3L4PPxSsQ7qJeOkZvpu66HTeOQF1VHG9exgyk9LdWL9RRWCCbh
+        nPow5tv6SALuSDOlF
+X-Received: by 2002:a05:600c:230d:: with SMTP id 13mr10515199wmo.13.1578752744911;
+        Sat, 11 Jan 2020 06:25:44 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzSMY0g766OIWIeVMg+yNdNqGqj5e1pDAALjmcABqjRilt5M6mGJLkpE9/bqBayyDf6yzOWnA==
+X-Received: by 2002:a05:600c:230d:: with SMTP id 13mr10515180wmo.13.1578752744691;
+        Sat, 11 Jan 2020 06:25:44 -0800 (PST)
+Received: from ?IPv6:2a01:598:a803:c918:4c2f:c5d7:9026:f3de? ([2a01:598:a803:c918:4c2f:c5d7:9026:f3de])
+        by smtp.gmail.com with ESMTPSA id z83sm6670184wmg.2.2020.01.11.06.25.44
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 11 Jan 2020 05:56:01 -0800 (PST)
+        Sat, 11 Jan 2020 06:25:44 -0800 (PST)
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-From:   Qian Cai <cai@lca.pw>
+From:   David Hildenbrand <david@redhat.com>
 Mime-Version: 1.0 (1.0)
 Subject: Re: [PATCH v4] mm/memory_hotplug: Fix remove_memory() lockdep splat
-Date:   Sat, 11 Jan 2020 08:55:59 -0500
-Message-Id: <0BE8F7EF-01DC-47BD-899B-11FB8B40EB0A@lca.pw>
-References: <a3d58f0b-145f-1e70-434f-e97e1f08ebcf@redhat.com>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
+Date:   Sat, 11 Jan 2020 15:25:43 +0100
+Message-Id: <A5A31713-0D55-487C-814A-1415BB26DC1F@redhat.com>
+References: <0BE8F7EF-01DC-47BD-899B-11FB8B40EB0A@lca.pw>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         stable <stable@vger.kernel.org>,
         Vishal Verma <vishal.l.verma@intel.com>,
@@ -62,8 +69,8 @@ Cc:     Dan Williams <dan.j.williams@intel.com>,
         Linux MM <linux-mm@kvack.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Greg KH <gregkh@linuxfoundation.org>
-In-Reply-To: <a3d58f0b-145f-1e70-434f-e97e1f08ebcf@redhat.com>
-To:     David Hildenbrand <david@redhat.com>
+In-Reply-To: <0BE8F7EF-01DC-47BD-899B-11FB8B40EB0A@lca.pw>
+To:     Qian Cai <cai@lca.pw>
 X-Mailer: iPhone Mail (17C54)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -72,39 +79,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-> On Jan 11, 2020, at 6:03 AM, David Hildenbrand <david@redhat.com> wrote:
+> Am 11.01.2020 um 14:56 schrieb Qian Cai <cai@lca.pw>:
 >=20
-> So I just remember why I think this (and the previously reported done
-> for ACPI DIMMs) are false positives. The actual locking order is
+> =EF=BB=BF
 >=20
-> onlining/offlining from user space:
+>> On Jan 11, 2020, at 6:03 AM, David Hildenbrand <david@redhat.com> wrote:
+>>=20
+>> So I just remember why I think this (and the previously reported done
+>> for ACPI DIMMs) are false positives. The actual locking order is
+>>=20
+>> onlining/offlining from user space:
+>>=20
+>> kn->count -> device_hotplug_lock -> cpu_hotplug_lock -> mem_hotplug_lock
+>>=20
+>> memory removal:
+>>=20
+>> device_hotplug_lock -> cpu_hotplug_lock -> mem_hotplug_lock -> kn->count
+>>=20
+>>=20
+>> This looks like a locking inversion - but it's not. Whenever we come via
+>> user space we do a mutex_trylock(), which resolves this issue by backing
+>> up. The device_hotplug_lock will prevent
+>>=20
+>> I have no clue why the device_hotplug_lock does not pop up in the
+>> lockdep report here. Sounds wrong to me.
+>>=20
+>> I think this is a false positive and not stable material.
 >=20
-> kn->count -> device_hotplug_lock -> cpu_hotplug_lock -> mem_hotplug_lock
+> The point is that there are other paths does kn->count =E2=80=94> cpu_hotp=
+lug_lock without needing device_hotplug_lock to race with memory removal.
 >=20
-> memory removal:
+> kmem_cache_shrink_all+0x50/0x100 (cpu_hotplug_lock.rw_sem/mem_hotplug_lock=
+.rw_sem)
+> shrink_store+0x34/0x60
+> slab_attr_store+0x6c/0x170
+> sysfs_kf_write+0x70/0xb0
+> kernfs_fop_write+0x11c/0x270 ((kn->count)
+> __vfs_write+0x3c/0x70
+> vfs_write+0xcc/0x200
+> ksys_write+0x7c/0x140
+> system_call+0x5c/0x6
 >=20
-> device_hotplug_lock -> cpu_hotplug_lock -> mem_hotplug_lock -> kn->count
->=20
->=20
-> This looks like a locking inversion - but it's not. Whenever we come via
-> user space we do a mutex_trylock(), which resolves this issue by backing
-> up. The device_hotplug_lock will prevent
->=20
-> I have no clue why the device_hotplug_lock does not pop up in the
-> lockdep report here. Sounds wrong to me.
->=20
-> I think this is a false positive and not stable material.
 
-The point is that there are other paths does kn->count =E2=80=94> cpu_hotplu=
-g_lock without needing device_hotplug_lock to race with memory removal.
+But not the lock of the memory devices, or am I missing something?=
 
-kmem_cache_shrink_all+0x50/0x100 (cpu_hotplug_lock.rw_sem/mem_hotplug_lock.r=
-w_sem)
-shrink_store+0x34/0x60
-slab_attr_store+0x6c/0x170
-sysfs_kf_write+0x70/0xb0
-kernfs_fop_write+0x11c/0x270 ((kn->count)
- __vfs_write+0x3c/0x70
- vfs_write+0xcc/0x200
-ksys_write+0x7c/0x140
-system_call+0x5c/0x6=
