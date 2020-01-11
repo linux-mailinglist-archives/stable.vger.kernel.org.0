@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96A71137CFA
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:52:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E92D137CFC
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:52:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728832AbgAKJvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:51:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36218 "EHLO mail.kernel.org"
+        id S1728815AbgAKJwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 04:52:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728797AbgAKJvw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:51:52 -0500
+        id S1728793AbgAKJwA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 04:52:00 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E62CF2082E;
-        Sat, 11 Jan 2020 09:51:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 863D32072E;
+        Sat, 11 Jan 2020 09:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736312;
-        bh=+omM7I4KuuuOfeolNeiCmQdWML8/9kyeNwCQLH73fBg=;
+        s=default; t=1578736318;
+        bh=wBIjNcOw6JLGo2Bd5rkMJAlRrsyuyjQmwyVQ+KjhGRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bD3MIRrJtVQlJoWF1yy6QL9RSmuDIP1eX+yaCh2U9JJJTNSR3jYApeCJsOKaj4iEs
-         gMSr75spwx7WfHSD1NlQMhZ3h3snEv+dWn5JThuLqOZa/4jkVjApuiPIshxi28TswH
-         iAgzhiEan1/8YBLhgQnuCja+SNG2x1xmYBgP+V+s=
+        b=kMlmZ6MTJSBaxwcyeNr+59z9X7iJi8oeYt9TKK/fL8KzTJO8SuE3JbHpVY7RplQLn
+         K9DpU+0mW5TzRll6Eos9gk3ab3/l1Jxyv+EDsUx9vTNC+HJJer/HGIggC+KwVseC4+
+         IiFAiMzs1vebajIhBh++sSncKdh7ZxUTTwuJp9JU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/59] md: raid1: check rdev before reference in raid1_sync_request func
-Date:   Sat, 11 Jan 2020 10:49:17 +0100
-Message-Id: <20200111094838.711326636@linuxfoundation.org>
+Subject: [PATCH 4.4 09/59] s390/cpum_sf: Adjust sampling interval to avoid hitting sample limits
+Date:   Sat, 11 Jan 2020 10:49:18 +0100
+Message-Id: <20200111094838.999686595@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094835.417654274@linuxfoundation.org>
 References: <20200111094835.417654274@linuxfoundation.org>
@@ -44,32 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 028288df635f5a9addd48ac4677b720192747944 ]
+[ Upstream commit 39d4a501a9ef55c57b51e3ef07fc2aeed7f30b3b ]
 
-In raid1_sync_request func, rdev should be checked before reference.
+Function perf_event_ever_overflow() and perf_event_account_interrupt()
+are called every time samples are processed by the interrupt handler.
+However function perf_event_account_interrupt() has checks to avoid being
+flooded with interrupts (more then 1000 samples are received per
+task_tick).  Samples are then dropped and a PERF_RECORD_THROTTLED is
+added to the perf data. The perf subsystem limit calculation is:
 
-Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+    maximum sample frequency := 100000 --> 1 samples per 10 us
+    task_tick = 10ms = 10000us --> 1000 samples per task_tick
+
+The work flow is
+
+measurement_alert() uses SDBT head and each SBDT points to 511
+ SDB pages, each with 126 sample entries. After processing 8 SBDs
+ and for each valid sample calling:
+
+     perf_event_overflow()
+       perf_event_account_interrupts()
+
+there is a considerable amount of samples being dropped, especially when
+the sample frequency is very high and near the 100000 limit.
+
+To avoid the high amount of samples being dropped near the end of a
+task_tick time frame, increment the sampling interval in case of
+dropped events. The CPU Measurement sampling facility on the s390
+supports only intervals, specifiing how many CPU cycles have to be
+executed before a sample is generated. Increase the interval when the
+samples being generated hit the task_tick limit.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/perf_cpum_sf.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index abb99515068b..096f3a2ba524 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -2630,7 +2630,7 @@ static sector_t sync_request(struct mddev *mddev, sector_t sector_nr, int *skipp
- 				write_targets++;
- 			}
- 		}
--		if (bio->bi_end_io) {
-+		if (rdev && bio->bi_end_io) {
- 			atomic_inc(&rdev->nr_pending);
- 			bio->bi_iter.bi_sector = sector_nr + rdev->data_offset;
- 			bio->bi_bdev = rdev->bdev;
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 7490c52b2715..01766671fa2a 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1306,6 +1306,22 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ 	if (sampl_overflow)
+ 		OVERFLOW_REG(hwc) = DIV_ROUND_UP(OVERFLOW_REG(hwc) +
+ 						 sampl_overflow, 1 + num_sdb);
++
++	/* Perf_event_overflow() and perf_event_account_interrupt() limit
++	 * the interrupt rate to an upper limit. Roughly 1000 samples per
++	 * task tick.
++	 * Hitting this limit results in a large number
++	 * of throttled REF_REPORT_THROTTLE entries and the samples
++	 * are dropped.
++	 * Slightly increase the interval to avoid hitting this limit.
++	 */
++	if (event_overflow) {
++		SAMPL_RATE(hwc) += DIV_ROUND_UP(SAMPL_RATE(hwc), 10);
++		debug_sprintf_event(sfdbg, 1, "%s: rate adjustment %ld\n",
++				    __func__,
++				    DIV_ROUND_UP(SAMPL_RATE(hwc), 10));
++	}
++
+ 	if (sampl_overflow || event_overflow)
+ 		debug_sprintf_event(sfdbg, 4, "hw_perf_event_update: "
+ 				    "overflow stats: sample=%llu event=%llu\n",
 -- 
 2.20.1
 
