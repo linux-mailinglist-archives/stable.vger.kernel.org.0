@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D3C31380C0
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:34:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 543931380C2
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:34:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731302AbgAKKdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:33:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48704 "EHLO mail.kernel.org"
+        id S1731550AbgAKKdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:33:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731497AbgAKKdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:33:41 -0500
+        id S1731148AbgAKKdq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:33:46 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1162F20678;
-        Sat, 11 Jan 2020 10:33:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 365B620678;
+        Sat, 11 Jan 2020 10:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738820;
-        bh=6Km0dNntMQlznu/2kdlM2OLUda37TQIeESQhzvg+gUY=;
+        s=default; t=1578738825;
+        bh=s0IQh4DdqFyX1TBRWfPvCvxf0cHcIHtdc9wDARQ3tMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1sByjruOXC5Wl+jj2Ezjn/GiTQlDpoXKBMtY8NVJ93UrnDqIjNDcuoXYbpXi2MiZX
-         czINYOsISCWJ10sG1eJaa5yuYdHLBOX+McsHBjrazdsb6WAdy8Vnso42mEmeJG73Y8
-         9EvbYV/nAKw/ifhdES3aMkyj+kv48ohZRhTouIRg=
+        b=WS14dVqG4A1MEkh+YJ3QAkvmm2a38a/FsN+Gfhcq6EqYr5TYNKHV3HfroihEyXoo7
+         i4wkMrHXdthUwfbidhwVQUfd+HaeuMix4uYmTx0ys8sYaJuEr+OiQ/hR8itjohTDKD
+         T1us6hixj7AoQAdLfISdSWC4jWXyed+zuugEscZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 152/165] net: sch_prio: When ungrafting, replace with FIFO
-Date:   Sat, 11 Jan 2020 10:51:11 +0100
-Message-Id: <20200111094940.933170652@linuxfoundation.org>
+Subject: [PATCH 5.4 153/165] vlan: fix memory leak in vlan_dev_set_egress_priority
+Date:   Sat, 11 Jan 2020 10:51:12 +0100
+Message-Id: <20200111094941.179813569@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -44,48 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 240ce7f6428ff5188b9eedc066e1e4d645b8635f ]
+[ Upstream commit 9bbd917e0bec9aebdbd0c8dbc966caec15eb33e9 ]
 
-When a child Qdisc is removed from one of the PRIO Qdisc's bands, it is
-replaced unconditionally by a NOOP qdisc. As a result, any traffic hitting
-that band gets dropped. That is incorrect--no Qdisc was explicitly added
-when PRIO was created, and after removal, none should have to be added
-either.
+There are few cases where the ndo_uninit() handler might be not
+called if an error happens while device is initialized.
 
-Fix PRIO by first attempting to create a default Qdisc and only falling
-back to noop when that fails. This pattern of attempting to create an
-invisible FIFO, using NOOP only as a fallback, is also seen in other
-Qdiscs.
+Since vlan_newlink() calls vlan_changelink() before
+trying to register the netdevice, we need to make sure
+vlan_dev_uninit() has been called at least once,
+or we might leak allocated memory.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
+BUG: memory leak
+unreferenced object 0xffff888122a206c0 (size 32):
+  comm "syz-executor511", pid 7124, jiffies 4294950399 (age 32.240s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 61 73 00 00 00 00 00 00 00 00  ......as........
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000000eb3bb85>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
+    [<000000000eb3bb85>] slab_post_alloc_hook mm/slab.h:586 [inline]
+    [<000000000eb3bb85>] slab_alloc mm/slab.c:3320 [inline]
+    [<000000000eb3bb85>] kmem_cache_alloc_trace+0x145/0x2c0 mm/slab.c:3549
+    [<000000007b99f620>] kmalloc include/linux/slab.h:556 [inline]
+    [<000000007b99f620>] vlan_dev_set_egress_priority+0xcc/0x150 net/8021q/vlan_dev.c:194
+    [<000000007b0cb745>] vlan_changelink+0xd6/0x140 net/8021q/vlan_netlink.c:126
+    [<0000000065aba83a>] vlan_newlink+0x135/0x200 net/8021q/vlan_netlink.c:181
+    [<00000000fb5dd7a2>] __rtnl_newlink+0x89a/0xb80 net/core/rtnetlink.c:3305
+    [<00000000ae4273a1>] rtnl_newlink+0x4e/0x80 net/core/rtnetlink.c:3363
+    [<00000000decab39f>] rtnetlink_rcv_msg+0x178/0x4b0 net/core/rtnetlink.c:5424
+    [<00000000accba4ee>] netlink_rcv_skb+0x61/0x170 net/netlink/af_netlink.c:2477
+    [<00000000319fe20f>] rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5442
+    [<00000000d51938dc>] netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+    [<00000000d51938dc>] netlink_unicast+0x223/0x310 net/netlink/af_netlink.c:1328
+    [<00000000e539ac79>] netlink_sendmsg+0x2c0/0x570 net/netlink/af_netlink.c:1917
+    [<000000006250c27e>] sock_sendmsg_nosec net/socket.c:639 [inline]
+    [<000000006250c27e>] sock_sendmsg+0x54/0x70 net/socket.c:659
+    [<00000000e2a156d1>] ____sys_sendmsg+0x2d0/0x300 net/socket.c:2330
+    [<000000008c87466e>] ___sys_sendmsg+0x8a/0xd0 net/socket.c:2384
+    [<00000000110e3054>] __sys_sendmsg+0x80/0xf0 net/socket.c:2417
+    [<00000000d71077c8>] __do_sys_sendmsg net/socket.c:2426 [inline]
+    [<00000000d71077c8>] __se_sys_sendmsg net/socket.c:2424 [inline]
+    [<00000000d71077c8>] __x64_sys_sendmsg+0x23/0x30 net/socket.c:2424
+
+Fixe: 07b5b17e157b ("[VLAN]: Use rtnl_link API")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_prio.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/8021q/vlan.h         |    1 +
+ net/8021q/vlan_dev.c     |    3 ++-
+ net/8021q/vlan_netlink.c |    9 +++++----
+ 3 files changed, 8 insertions(+), 5 deletions(-)
 
---- a/net/sched/sch_prio.c
-+++ b/net/sched/sch_prio.c
-@@ -292,8 +292,14 @@ static int prio_graft(struct Qdisc *sch,
- 	struct tc_prio_qopt_offload graft_offload;
- 	unsigned long band = arg - 1;
+--- a/net/8021q/vlan.h
++++ b/net/8021q/vlan.h
+@@ -126,6 +126,7 @@ int vlan_check_real_dev(struct net_devic
+ void vlan_setup(struct net_device *dev);
+ int register_vlan_dev(struct net_device *dev, struct netlink_ext_ack *extack);
+ void unregister_vlan_dev(struct net_device *dev, struct list_head *head);
++void vlan_dev_uninit(struct net_device *dev);
+ bool vlan_dev_inherit_address(struct net_device *dev,
+ 			      struct net_device *real_dev);
  
--	if (new == NULL)
--		new = &noop_qdisc;
-+	if (!new) {
-+		new = qdisc_create_dflt(sch->dev_queue, &pfifo_qdisc_ops,
-+					TC_H_MAKE(sch->handle, arg), extack);
-+		if (!new)
-+			new = &noop_qdisc;
-+		else
-+			qdisc_hash_add(new, true);
-+	}
+--- a/net/8021q/vlan_dev.c
++++ b/net/8021q/vlan_dev.c
+@@ -586,7 +586,8 @@ static int vlan_dev_init(struct net_devi
+ 	return 0;
+ }
  
- 	*old = qdisc_replace(sch, new, &q->queues[band]);
+-static void vlan_dev_uninit(struct net_device *dev)
++/* Note: this function might be called multiple times for the same device. */
++void vlan_dev_uninit(struct net_device *dev)
+ {
+ 	struct vlan_priority_tci_mapping *pm;
+ 	struct vlan_dev_priv *vlan = vlan_dev_priv(dev);
+--- a/net/8021q/vlan_netlink.c
++++ b/net/8021q/vlan_netlink.c
+@@ -179,10 +179,11 @@ static int vlan_newlink(struct net *src_
+ 		return -EINVAL;
  
+ 	err = vlan_changelink(dev, tb, data, extack);
+-	if (err < 0)
+-		return err;
+-
+-	return register_vlan_dev(dev, extack);
++	if (!err)
++		err = register_vlan_dev(dev, extack);
++	if (err)
++		vlan_dev_uninit(dev);
++	return err;
+ }
+ 
+ static inline size_t vlan_qos_map_size(unsigned int n)
 
 
