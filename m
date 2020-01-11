@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61740137E41
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:07:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B9B3137F2C
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729062AbgAKKGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:06:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
+        id S1730351AbgAKKRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:17:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728893AbgAKKGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:06:49 -0500
+        id S1730441AbgAKKRB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:17:01 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8731F206DA;
-        Sat, 11 Jan 2020 10:06:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49C4420848;
+        Sat, 11 Jan 2020 10:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737209;
-        bh=kZGM1WKiRixqfuBi3lyzYU5wQdVEpt56nuy0jTJIuqk=;
+        s=default; t=1578737821;
+        bh=dFQraUQ897zd/9F+NFuGJy0G1y79+V4LN5u273fGebw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kp6oYrX1IwiHDZjKvlaayDKjxkGPPM00EGj69ZsaHD8c8WO5xdX3hz4VMMhgcCqiH
-         SGhAqaCo6z4xKA/VMpkw8wc+H00l6ppt0yxmzc+KKRo3PV7/684Emy/jZHfLBvABk3
-         0DTTVOVoZIlwlG+9KL3kKAJbJ4OMXCqNkVPvWQQM=
+        b=GkkBg9aLEotHQmbBI2Cv2RWlUC88dw6CMhshmSwSyKhiBA/1ZG1NE9hQSO0f0LSmB
+         RO2x3WCFrLKx84b1Alm0f/GZ/4JAT6y/aB6E/gXy4nQqKhv8cv+JRaKSMuivJFrzKS
+         LKXqTDeTh+G1ZafEvuK0kFm4cC0Qu3zSNwgvAlyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 89/91] vlan: fix memory leak in vlan_dev_set_egress_priority
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 45/84] kconfig: dont crash on NULL expressions in expr_eq()
 Date:   Sat, 11 Jan 2020 10:50:22 +0100
-Message-Id: <20200111094913.319527830@linuxfoundation.org>
+Message-Id: <20200111094903.417945382@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-[ Upstream commit 9bbd917e0bec9aebdbd0c8dbc966caec15eb33e9 ]
+[ Upstream commit 272a72103012862e3a24ea06635253ead0b6e808 ]
 
-There are few cases where the ndo_uninit() handler might be not
-called if an error happens while device is initialized.
+NULL expressions are taken to always be true, as implemented by the
+expr_is_yes() macro and by several other functions in expr.c. As such,
+they ought to be valid inputs to expr_eq(), which compares two
+expressions.
 
-Since vlan_newlink() calls vlan_changelink() before
-trying to register the netdevice, we need to make sure
-vlan_dev_uninit() has been called at least once,
-or we might leak allocated memory.
-
-BUG: memory leak
-unreferenced object 0xffff888122a206c0 (size 32):
-  comm "syz-executor511", pid 7124, jiffies 4294950399 (age 32.240s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 61 73 00 00 00 00 00 00 00 00  ......as........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000000eb3bb85>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
-    [<000000000eb3bb85>] slab_post_alloc_hook mm/slab.h:586 [inline]
-    [<000000000eb3bb85>] slab_alloc mm/slab.c:3320 [inline]
-    [<000000000eb3bb85>] kmem_cache_alloc_trace+0x145/0x2c0 mm/slab.c:3549
-    [<000000007b99f620>] kmalloc include/linux/slab.h:556 [inline]
-    [<000000007b99f620>] vlan_dev_set_egress_priority+0xcc/0x150 net/8021q/vlan_dev.c:194
-    [<000000007b0cb745>] vlan_changelink+0xd6/0x140 net/8021q/vlan_netlink.c:126
-    [<0000000065aba83a>] vlan_newlink+0x135/0x200 net/8021q/vlan_netlink.c:181
-    [<00000000fb5dd7a2>] __rtnl_newlink+0x89a/0xb80 net/core/rtnetlink.c:3305
-    [<00000000ae4273a1>] rtnl_newlink+0x4e/0x80 net/core/rtnetlink.c:3363
-    [<00000000decab39f>] rtnetlink_rcv_msg+0x178/0x4b0 net/core/rtnetlink.c:5424
-    [<00000000accba4ee>] netlink_rcv_skb+0x61/0x170 net/netlink/af_netlink.c:2477
-    [<00000000319fe20f>] rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5442
-    [<00000000d51938dc>] netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
-    [<00000000d51938dc>] netlink_unicast+0x223/0x310 net/netlink/af_netlink.c:1328
-    [<00000000e539ac79>] netlink_sendmsg+0x2c0/0x570 net/netlink/af_netlink.c:1917
-    [<000000006250c27e>] sock_sendmsg_nosec net/socket.c:639 [inline]
-    [<000000006250c27e>] sock_sendmsg+0x54/0x70 net/socket.c:659
-    [<00000000e2a156d1>] ____sys_sendmsg+0x2d0/0x300 net/socket.c:2330
-    [<000000008c87466e>] ___sys_sendmsg+0x8a/0xd0 net/socket.c:2384
-    [<00000000110e3054>] __sys_sendmsg+0x80/0xf0 net/socket.c:2417
-    [<00000000d71077c8>] __do_sys_sendmsg net/socket.c:2426 [inline]
-    [<00000000d71077c8>] __se_sys_sendmsg net/socket.c:2424 [inline]
-    [<00000000d71077c8>] __x64_sys_sendmsg+0x23/0x30 net/socket.c:2424
-
-Fixe: 07b5b17e157b ("[VLAN]: Use rtnl_link API")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/8021q/vlan.h         |    1 +
- net/8021q/vlan_dev.c     |    3 ++-
- net/8021q/vlan_netlink.c |    9 +++++----
- 3 files changed, 8 insertions(+), 5 deletions(-)
+ scripts/kconfig/expr.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/8021q/vlan.h
-+++ b/net/8021q/vlan.h
-@@ -109,6 +109,7 @@ int vlan_check_real_dev(struct net_devic
- void vlan_setup(struct net_device *dev);
- int register_vlan_dev(struct net_device *dev);
- void unregister_vlan_dev(struct net_device *dev, struct list_head *head);
-+void vlan_dev_uninit(struct net_device *dev);
- bool vlan_dev_inherit_address(struct net_device *dev,
- 			      struct net_device *real_dev);
- 
---- a/net/8021q/vlan_dev.c
-+++ b/net/8021q/vlan_dev.c
-@@ -610,7 +610,8 @@ static int vlan_dev_init(struct net_devi
- 	return 0;
- }
- 
--static void vlan_dev_uninit(struct net_device *dev)
-+/* Note: this function might be called multiple times for the same device. */
-+void vlan_dev_uninit(struct net_device *dev)
+diff --git a/scripts/kconfig/expr.c b/scripts/kconfig/expr.c
+index e1a39e90841d..7e38070ee523 100644
+--- a/scripts/kconfig/expr.c
++++ b/scripts/kconfig/expr.c
+@@ -252,6 +252,13 @@ static int expr_eq(struct expr *e1, struct expr *e2)
  {
- 	struct vlan_priority_tci_mapping *pm;
- 	struct vlan_dev_priv *vlan = vlan_dev_priv(dev);
---- a/net/8021q/vlan_netlink.c
-+++ b/net/8021q/vlan_netlink.c
-@@ -157,10 +157,11 @@ static int vlan_newlink(struct net *src_
- 		return -EINVAL;
+ 	int res, old_count;
  
- 	err = vlan_changelink(dev, tb, data);
--	if (err < 0)
--		return err;
--
--	return register_vlan_dev(dev);
-+	if (!err)
-+		err = register_vlan_dev(dev);
-+	if (err)
-+		vlan_dev_uninit(dev);
-+	return err;
- }
- 
- static inline size_t vlan_qos_map_size(unsigned int n)
++	/*
++	 * A NULL expr is taken to be yes, but there's also a different way to
++	 * represent yes. expr_is_yes() checks for either representation.
++	 */
++	if (!e1 || !e2)
++		return expr_is_yes(e1) && expr_is_yes(e2);
++
+ 	if (e1->type != e2->type)
+ 		return 0;
+ 	switch (e1->type) {
+-- 
+2.20.1
+
 
 
