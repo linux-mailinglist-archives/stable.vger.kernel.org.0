@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8CE137EFF
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:16:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A84313805F
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:29:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730320AbgAKKPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:15:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57720 "EHLO mail.kernel.org"
+        id S1731091AbgAKK2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:28:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729126AbgAKKPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:15:44 -0500
+        id S1730755AbgAKK2r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:28:47 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B075920673;
-        Sat, 11 Jan 2020 10:15:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 684022087F;
+        Sat, 11 Jan 2020 10:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737743;
-        bh=k6QT/VGBgYhYTKy+MtjXvJgXYzPO5IhqpOqJKnhk06U=;
+        s=default; t=1578738526;
+        bh=Zhh8mlWbxSNHdATn4ItCyFo0X+Liip+CoikS38de9UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s92jHV4caoeR7ENboMM5FyvLxsf/0u9p98v6bNTW9CKFbYepYTbEg8aPrjc6NTeg3
-         pE3MD6NMmi4LtXj6ZfJql131ZdGBWc3uD6PWVSVAv0A0XZF5r6JG65sdLgnnmuvp+e
-         Tsq0hwzdCJ7gd1MQN0uClVGGG+mDmueQxIgKszzc=
+        b=r6OwVutYjIja0+xWLIYyTgOUfAjc1GCQlW5DnxX1LG2cE94l/vr3mrwnpK/gVYMJU
+         IsVKCvOMAbmYDgMo9Jmzi7Ljd4caa67xQf6ox6irpczuBRFhXbBn0afruYCtXAGcSe
+         UqQ8nnpBLZFGZgn0Umz5iAtdT0J9qe5AQJ0yNP8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        stable@vger.kernel.org,
+        Brendan Higgins <brendanhiggins@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/84] bnx2x: Do not handle requests from VFs after parity
+Subject: [PATCH 5.4 094/165] staging: axis-fifo: add unspecified HAS_IOMEM dependency
 Date:   Sat, 11 Jan 2020 10:50:13 +0100
-Message-Id: <20200111094859.842767516@linuxfoundation.org>
+Message-Id: <20200111094929.103632802@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,86 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Brendan Higgins <brendanhiggins@google.com>
 
-[ Upstream commit 7113f796bbbced2470cd6d7379d50d7a7a78bf34 ]
+[ Upstream commit d3aa8de6b5d0853c43c616586b4e232aa1fa7de9 ]
 
-Parity error from the hardware will cause PF to lose the state
-of their VFs due to PF's internal reload and hardware reset following
-the parity error. Restrict any configuration request from the VFs after
-the parity as it could cause unexpected hardware behavior, only way
-for VFs to recover would be to trigger FLR on VFs and reload them.
+Currently CONFIG_XIL_AXIS_FIFO=y implicitly depends on
+CONFIG_HAS_IOMEM=y; consequently, on architectures without IOMEM we get
+the following build error:
 
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+ld: drivers/staging/axis-fifo/axis-fifo.o: in function `axis_fifo_probe':
+drivers/staging/axis-fifo/axis-fifo.c:809: undefined reference to `devm_ioremap_resource'
+
+Fix the build error by adding the unspecified dependency.
+
+Reported-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Link: https://lore.kernel.org/r/20191211192742.95699-7-brendanhiggins@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c  | 12 ++++++++++--
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.h |  1 +
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c  | 12 ++++++++++++
- 3 files changed, 23 insertions(+), 2 deletions(-)
+ drivers/staging/axis-fifo/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-index af57568c922e..df4f77ad95c4 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-@@ -9995,10 +9995,18 @@ static void bnx2x_recovery_failed(struct bnx2x *bp)
-  */
- static void bnx2x_parity_recover(struct bnx2x *bp)
- {
--	bool global = false;
- 	u32 error_recovered, error_unrecovered;
--	bool is_parity;
-+	bool is_parity, global = false;
-+#ifdef CONFIG_BNX2X_SRIOV
-+	int vf_idx;
-+
-+	for (vf_idx = 0; vf_idx < bp->requested_nr_virtfn; vf_idx++) {
-+		struct bnx2x_virtf *vf = BP_VF(bp, vf_idx);
- 
-+		if (vf)
-+			vf->state = VF_LOST;
-+	}
-+#endif
- 	DP(NETIF_MSG_HW, "Handling parity\n");
- 	while (1) {
- 		switch (bp->recovery_state) {
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.h
-index eb814c65152f..4dc34de1a09a 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.h
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.h
-@@ -139,6 +139,7 @@ struct bnx2x_virtf {
- #define VF_ACQUIRED	1	/* VF acquired, but not initialized */
- #define VF_ENABLED	2	/* VF Enabled */
- #define VF_RESET	3	/* VF FLR'd, pending cleanup */
-+#define VF_LOST		4	/* Recovery while VFs are loaded */
- 
- 	bool flr_clnup_stage;	/* true during flr cleanup */
- 	bool malicious;		/* true if FW indicated so, until FLR */
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c
-index 8e0a317b31f7..152758a45150 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c
-@@ -2114,6 +2114,18 @@ static void bnx2x_vf_mbx_request(struct bnx2x *bp, struct bnx2x_virtf *vf,
- {
- 	int i;
- 
-+	if (vf->state == VF_LOST) {
-+		/* Just ack the FW and return if VFs are lost
-+		 * in case of parity error. VFs are supposed to be timedout
-+		 * on waiting for PF response.
-+		 */
-+		DP(BNX2X_MSG_IOV,
-+		   "VF 0x%x lost, not handling the request\n", vf->abs_vfid);
-+
-+		storm_memset_vf_mbx_ack(bp, vf->abs_vfid);
-+		return;
-+	}
-+
- 	/* check if tlv type is known */
- 	if (bnx2x_tlv_supported(mbx->first_tlv.tl.type)) {
- 		/* Lock the per vf op mutex and note the locker's identity.
+diff --git a/drivers/staging/axis-fifo/Kconfig b/drivers/staging/axis-fifo/Kconfig
+index 3fffe4d6f327..f180a8e9f58a 100644
+--- a/drivers/staging/axis-fifo/Kconfig
++++ b/drivers/staging/axis-fifo/Kconfig
+@@ -4,7 +4,7 @@
+ #
+ config XIL_AXIS_FIFO
+ 	tristate "Xilinx AXI-Stream FIFO IP core driver"
+-	depends on OF
++	depends on OF && HAS_IOMEM
+ 	help
+ 	  This adds support for the Xilinx AXI-Stream FIFO IP core driver.
+ 	  The AXI Streaming FIFO allows memory mapped access to a AXI Streaming
 -- 
 2.20.1
 
