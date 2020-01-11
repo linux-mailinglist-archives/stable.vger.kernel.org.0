@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 329C4137FC9
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:23:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29647137DD9
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:02:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729373AbgAKKXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:23:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49428 "EHLO mail.kernel.org"
+        id S1728800AbgAKKCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:02:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730884AbgAKKXD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:23:03 -0500
+        id S1728833AbgAKKCL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:02:11 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B1A7205F4;
-        Sat, 11 Jan 2020 10:23:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 696DD2077C;
+        Sat, 11 Jan 2020 10:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738183;
-        bh=ZWtIO+a0vaQunMSWxVY3ld+/seCZC51wG2H3XXUbHJ8=;
+        s=default; t=1578736930;
+        bh=eF14u/Agx2NnQzrUulSSIaE+Ij+oL00qwPCin6NyJss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NTvuG5gjkjFk3DY60UxtbNW0wBENNpH4D1M1HXIGhA6njYJh0T1RIP40bfz9y7dzP
-         xO07GDvLWYwfkieMpZJhY+8f6PqlAUyUpA4/UUMfWirv3axXFy8r5ZeGAno5NSc8LW
-         f4kA53JblLYwsbbqnY31Tk+73/y6dm3BDV3ZBScQ=
+        b=VyOS26LDm0Qhl0F21AldXE6QuujKr4Fp9yDvLZB+apfJNAWN5cWgnlmgN9vfx4I8q
+         wGx6foJGebXavbbXWHbfTohAkAaxtzF0D+Ne5g+RESJyqBseYpyNcH9iP7+aIfyOm9
+         IYkR4SwaEfBbIG3eIL4Se3m6VJ4GmoVpB25nODnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Dragos Tarcatu <dragos_tarcatu@mentor.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 045/165] ASoC: topology: Check return value for snd_soc_add_dai_link()
-Date:   Sat, 11 Jan 2020 10:49:24 +0100
-Message-Id: <20200111094924.881167802@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 32/91] ftrace: Avoid potential division by zero in function profiler
+Date:   Sat, 11 Jan 2020 10:49:25 +0100
+Message-Id: <20200111094856.874096754@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,72 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-[ Upstream commit 76d2703649321c296df7ec0dafd50add96215de4 ]
+commit e31f7939c1c27faa5d0e3f14519eaf7c89e8a69d upstream.
 
-snd_soc_add_dai_link() might fail. This situation occurs for
-instance in a very specific use case where a PCM device and a
-Back End DAI link are given identical names in the topology.
-When this happens, soc_new_pcm_runtime() fails and then
-snd_soc_add_dai_link() returns -ENOMEM when called from
-soc_tplg_fe_link_create(). Because of that, the link will not
-get added into the card list, so any attempt to remove it later
-ends up in a panic.
+The ftrace_profile->counter is unsigned long and
+do_div truncates it to 32 bits, which means it can test
+non-zero and be truncated to zero for division.
+Fix this issue by using div64_ul() instead.
 
-Fix that by checking the return status and free the memory in case
-of an error.
+Link: http://lkml.kernel.org/r/20200103030248.14516-1-wenyang@linux.alibaba.com
 
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191210003939.15752-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: e330b3bcd8319 ("tracing: Show sample std dev in function profiling")
+Fixes: 34886c8bc590f ("tracing: add average time in function to function profiler")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/soc-topology.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ kernel/trace/ftrace.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index 0fd032914a31..c92e360d27b8 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -1918,11 +1918,13 @@ static int soc_tplg_fe_link_create(struct soc_tplg *tplg,
- 	ret = soc_tplg_dai_link_load(tplg, link, NULL);
- 	if (ret < 0) {
- 		dev_err(tplg->comp->dev, "ASoC: FE link loading failed\n");
--		kfree(link->name);
--		kfree(link->stream_name);
--		kfree(link->cpus->dai_name);
--		kfree(link);
--		return ret;
-+		goto err;
-+	}
-+
-+	ret = snd_soc_add_dai_link(tplg->comp->card, link);
-+	if (ret < 0) {
-+		dev_err(tplg->comp->dev, "ASoC: adding FE link failed\n");
-+		goto err;
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -609,8 +609,7 @@ static int function_stat_show(struct seq
  	}
  
- 	link->dobj.index = tplg->index;
-@@ -1930,8 +1932,13 @@ static int soc_tplg_fe_link_create(struct soc_tplg *tplg,
- 	link->dobj.type = SND_SOC_DOBJ_DAI_LINK;
- 	list_add(&link->dobj.list, &tplg->comp->dobj_list);
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	avg = rec->time;
+-	do_div(avg, rec->counter);
++	avg = div64_ul(rec->time, rec->counter);
+ 	if (tracing_thresh && (avg < tracing_thresh))
+ 		goto out;
+ #endif
+@@ -636,7 +635,8 @@ static int function_stat_show(struct seq
+ 		 * Divide only 1000 for ns^2 -> us^2 conversion.
+ 		 * trace_print_graph_duration will divide 1000 again.
+ 		 */
+-		do_div(stddev, rec->counter * (rec->counter - 1) * 1000);
++		stddev = div64_ul(stddev,
++				  rec->counter * (rec->counter - 1) * 1000);
+ 	}
  
--	snd_soc_add_dai_link(tplg->comp->card, link);
- 	return 0;
-+err:
-+	kfree(link->name);
-+	kfree(link->stream_name);
-+	kfree(link->cpus->dai_name);
-+	kfree(link);
-+	return ret;
- }
- 
- /* create a FE DAI and DAI link from the PCM object */
--- 
-2.20.1
-
+ 	trace_seq_init(&s);
 
 
