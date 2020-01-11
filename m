@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F47137FCF
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4A4137DB9
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730585AbgAKKXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:23:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50018 "EHLO mail.kernel.org"
+        id S1729051AbgAKKAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:00:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730898AbgAKKXR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:23:17 -0500
+        id S1729163AbgAKKAf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:00:35 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18397205F4;
-        Sat, 11 Jan 2020 10:23:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A39482087F;
+        Sat, 11 Jan 2020 10:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738195;
-        bh=gFZNpGJApJIvKCCoZj4wHFDnvyaGOvkhUJkx1IjrRt4=;
+        s=default; t=1578736834;
+        bh=BESYq3wEDtW3WyBtJ/WI9hulRLQmR5xMczrOPQodybk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GC6vJ4JEPynUm9iZNBOw49ZamN8TN5p3QLxS/rS7TcqvZ4hzxJCyH6x991WGE9yDd
-         3lNl6IMtCidx5g7ld1xLY2JgD3X5M2M0dgSP+FoQ94omk27HFQgnC8Tv6ZhhNShgYb
-         Rs9unTD7Y9q8ktg5IZhQq5BV6LB87rQ//wF/3wRI=
+        b=YirACXk471g3sHaDch8VuStYHPvLsTHAXHzYxNrn4UxGfwzdWGSdcBU/pJgwDWMAa
+         2/U/ugYVGk3MPuppQLS1t5iZyo/vxMqiowm3ShxgPxzMfbAXqo58UChMwl5GaAMFB5
+         xZHPJ4xTQwkuXk1OYGydoyW6JGVLt6LfDUbIWRIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Marco Elver <elver@google.com>, Will Deacon <will@kernel.org>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/165] netfilter: nf_tables: validate NFT_DATA_VALUE after nft_data_init()
+Subject: [PATCH 4.9 16/91] taskstats: fix data-race
 Date:   Sat, 11 Jan 2020 10:49:09 +0100
-Message-Id: <20200111094923.222578226@linuxfoundation.org>
+Message-Id: <20200111094849.193217311@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,107 +48,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-[ Upstream commit 0d2c96af797ba149e559c5875c0151384ab6dd14 ]
+[ Upstream commit 0b8d616fb5a8ffa307b1d3af37f55c15dae14f28 ]
 
-Userspace might bogusly sent NFT_DATA_VERDICT in several netlink
-attributes that assume NFT_DATA_VALUE. Moreover, make sure that error
-path invokes nft_data_release() to decrement the reference count on the
-chain object.
+When assiging and testing taskstats in taskstats_exit() there's a race
+when setting up and reading sig->stats when a thread-group with more
+than one thread exits:
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Fixes: 0f3cd9b36977 ("netfilter: nf_tables: add range expression")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+write to 0xffff8881157bbe10 of 8 bytes by task 7951 on cpu 0:
+ taskstats_tgid_alloc kernel/taskstats.c:567 [inline]
+ taskstats_exit+0x6b7/0x717 kernel/taskstats.c:596
+ do_exit+0x2c2/0x18e0 kernel/exit.c:864
+ do_group_exit+0xb4/0x1c0 kernel/exit.c:983
+ get_signal+0x2a2/0x1320 kernel/signal.c:2734
+ do_signal+0x3b/0xc00 arch/x86/kernel/signal.c:815
+ exit_to_usermode_loop+0x250/0x2c0 arch/x86/entry/common.c:159
+ prepare_exit_to_usermode arch/x86/entry/common.c:194 [inline]
+ syscall_return_slowpath arch/x86/entry/common.c:274 [inline]
+ do_syscall_64+0x2d7/0x2f0 arch/x86/entry/common.c:299
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+read to 0xffff8881157bbe10 of 8 bytes by task 7949 on cpu 1:
+ taskstats_tgid_alloc kernel/taskstats.c:559 [inline]
+ taskstats_exit+0xb2/0x717 kernel/taskstats.c:596
+ do_exit+0x2c2/0x18e0 kernel/exit.c:864
+ do_group_exit+0xb4/0x1c0 kernel/exit.c:983
+ __do_sys_exit_group kernel/exit.c:994 [inline]
+ __se_sys_exit_group kernel/exit.c:992 [inline]
+ __x64_sys_exit_group+0x2e/0x30 kernel/exit.c:992
+ do_syscall_64+0xcf/0x2f0 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fix this by using smp_load_acquire() and smp_store_release().
+
+Reported-by: syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com
+Fixes: 34ec12349c8a ("taskstats: cleanup ->signal->stats allocation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Acked-by: Marco Elver <elver@google.com>
+Reviewed-by: Will Deacon <will@kernel.org>
+Reviewed-by: Andrea Parri <parri.andrea@gmail.com>
+Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+Link: https://lore.kernel.org/r/20191009114809.8643-1-christian.brauner@ubuntu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c |  4 +++-
- net/netfilter/nft_bitwise.c   |  4 ++--
- net/netfilter/nft_cmp.c       |  6 ++++++
- net/netfilter/nft_range.c     | 10 ++++++++++
- 4 files changed, 21 insertions(+), 3 deletions(-)
+ kernel/taskstats.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 7120eba71ac5..4c03c14e46bc 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -4252,8 +4252,10 @@ static int nft_get_set_elem(struct nft_ctx *ctx, struct nft_set *set,
- 		return err;
+diff --git a/kernel/taskstats.c b/kernel/taskstats.c
+index cbb387a265db..23df1fbad4b4 100644
+--- a/kernel/taskstats.c
++++ b/kernel/taskstats.c
+@@ -559,25 +559,33 @@ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
+ static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
+ {
+ 	struct signal_struct *sig = tsk->signal;
+-	struct taskstats *stats;
++	struct taskstats *stats_new, *stats;
  
- 	err = -EINVAL;
--	if (desc.type != NFT_DATA_VALUE || desc.len != set->klen)
-+	if (desc.type != NFT_DATA_VALUE || desc.len != set->klen) {
-+		nft_data_release(&elem.key.val, desc.type);
- 		return err;
-+	}
+-	if (sig->stats || thread_group_empty(tsk))
+-		goto ret;
++	/* Pairs with smp_store_release() below. */
++	stats = smp_load_acquire(&sig->stats);
++	if (stats || thread_group_empty(tsk))
++		return stats;
  
- 	priv = set->ops->get(ctx->net, set, &elem, flags);
- 	if (IS_ERR(priv))
-diff --git a/net/netfilter/nft_bitwise.c b/net/netfilter/nft_bitwise.c
-index 02afa752dd2e..10e9d50e4e19 100644
---- a/net/netfilter/nft_bitwise.c
-+++ b/net/netfilter/nft_bitwise.c
-@@ -80,7 +80,7 @@ static int nft_bitwise_init(const struct nft_ctx *ctx,
- 			    tb[NFTA_BITWISE_MASK]);
- 	if (err < 0)
- 		return err;
--	if (d1.len != priv->len) {
-+	if (d1.type != NFT_DATA_VALUE || d1.len != priv->len) {
- 		err = -EINVAL;
- 		goto err1;
+ 	/* No problem if kmem_cache_zalloc() fails */
+-	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
++	stats_new = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+ 
+ 	spin_lock_irq(&tsk->sighand->siglock);
+-	if (!sig->stats) {
+-		sig->stats = stats;
+-		stats = NULL;
++	stats = sig->stats;
++	if (!stats) {
++		/*
++		 * Pairs with smp_store_release() above and order the
++		 * kmem_cache_zalloc().
++		 */
++		smp_store_release(&sig->stats, stats_new);
++		stats = stats_new;
++		stats_new = NULL;
  	}
-@@ -89,7 +89,7 @@ static int nft_bitwise_init(const struct nft_ctx *ctx,
- 			    tb[NFTA_BITWISE_XOR]);
- 	if (err < 0)
- 		goto err1;
--	if (d2.len != priv->len) {
-+	if (d2.type != NFT_DATA_VALUE || d2.len != priv->len) {
- 		err = -EINVAL;
- 		goto err2;
- 	}
-diff --git a/net/netfilter/nft_cmp.c b/net/netfilter/nft_cmp.c
-index 0744b2bb46da..ae730dba60c8 100644
---- a/net/netfilter/nft_cmp.c
-+++ b/net/netfilter/nft_cmp.c
-@@ -80,6 +80,12 @@ static int nft_cmp_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 	if (err < 0)
- 		return err;
+ 	spin_unlock_irq(&tsk->sighand->siglock);
  
-+	if (desc.type != NFT_DATA_VALUE) {
-+		err = -EINVAL;
-+		nft_data_release(&priv->data, desc.type);
-+		return err;
-+	}
+-	if (stats)
+-		kmem_cache_free(taskstats_cache, stats);
+-ret:
+-	return sig->stats;
++	if (stats_new)
++		kmem_cache_free(taskstats_cache, stats_new);
 +
- 	priv->sreg = nft_parse_register(tb[NFTA_CMP_SREG]);
- 	err = nft_validate_register_load(priv->sreg, desc.len);
- 	if (err < 0)
-diff --git a/net/netfilter/nft_range.c b/net/netfilter/nft_range.c
-index 4701fa8a45e7..89efcc5a533d 100644
---- a/net/netfilter/nft_range.c
-+++ b/net/netfilter/nft_range.c
-@@ -66,11 +66,21 @@ static int nft_range_init(const struct nft_ctx *ctx, const struct nft_expr *expr
- 	if (err < 0)
- 		return err;
++	return stats;
+ }
  
-+	if (desc_from.type != NFT_DATA_VALUE) {
-+		err = -EINVAL;
-+		goto err1;
-+	}
-+
- 	err = nft_data_init(NULL, &priv->data_to, sizeof(priv->data_to),
- 			    &desc_to, tb[NFTA_RANGE_TO_DATA]);
- 	if (err < 0)
- 		goto err1;
- 
-+	if (desc_to.type != NFT_DATA_VALUE) {
-+		err = -EINVAL;
-+		goto err2;
-+	}
-+
- 	if (desc_from.len != desc_to.len) {
- 		err = -EINVAL;
- 		goto err2;
+ /* Send pid data out on exit */
 -- 
 2.20.1
 
