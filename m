@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A84F3137F4E
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:18:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29021137E95
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:11:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730536AbgAKKSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:18:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36148 "EHLO mail.kernel.org"
+        id S1729690AbgAKKLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:11:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730546AbgAKKSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:18:15 -0500
+        id S1728949AbgAKKLm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:11:42 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 265602077C;
-        Sat, 11 Jan 2020 10:18:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DF8120673;
+        Sat, 11 Jan 2020 10:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737895;
-        bh=PA4FxnAk4aNpdZ8YIp/EAybWfqD/vW0X7F1oDdtjVRc=;
+        s=default; t=1578737501;
+        bh=kYqk2K6nYY8mkvM5dqaiSdhQb2blKG4W9xp5zpLsvUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wj3IDEdJL8neA8Evvi1grqr0Fy3O9oQaJoNcfGCos2/smjLMoEQqOgrBQhUf0HTKi
-         ffU54kd0xSqcod96AeU1N5hkv7BpQamTD6UVS2RXNPl9kSvNpb6mWQTe6yqLhXm5Fo
-         GJZQtpGX12/gon2Ibb2jV29HWD309TjH8JMxtwQM=
+        b=bbfiQlVCYBfwIGNJKpdsYns8Xvlw2UfurH7vZbSqQbfgNYb48X5X9vhbO7MJsh9+d
+         Na0F4dOcnkyA5HhCL11bunfHKO5wuZ73WaQxnsXcm5pGU71TFDZi8iMpugXKBXj+I7
+         VozyDB00pl5yp2sOirym5ITbKyByCS2W041hg57A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Inki Dae <inki.dae@samsung.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 53/84] drm/exynos: gsc: add missed component_del
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 48/62] gtp: fix bad unlock balance in gtp_encap_enable_socket
 Date:   Sat, 11 Jan 2020 10:50:30 +0100
-Message-Id: <20200111094906.379794988@linuxfoundation.org>
+Message-Id: <20200111094852.090050610@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 84c92365b20a44c363b95390ea00dfbdd786f031 ]
+[ Upstream commit 90d72256addff9e5f8ad645e8f632750dd1f8935 ]
 
-The driver forgets to call component_del in remove to match component_add
-in probe.
-Add the missed call to fix it.
+WARNING: bad unlock balance detected!
+5.5.0-rc5-syzkaller #0 Not tainted
+-------------------------------------
+syz-executor921/9688 is trying to release lock (sk_lock-AF_INET6) at:
+[<ffffffff84bf8506>] gtp_encap_enable_socket+0x146/0x400 drivers/net/gtp.c:830
+but there are no more locks to release!
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+other info that might help us debug this:
+2 locks held by syz-executor921/9688:
+ #0: ffffffff8a4d8840 (rtnl_mutex){+.+.}, at: rtnl_lock net/core/rtnetlink.c:72 [inline]
+ #0: ffffffff8a4d8840 (rtnl_mutex){+.+.}, at: rtnetlink_rcv_msg+0x405/0xaf0 net/core/rtnetlink.c:5421
+ #1: ffff88809304b560 (slock-AF_INET6){+...}, at: spin_lock_bh include/linux/spinlock.h:343 [inline]
+ #1: ffff88809304b560 (slock-AF_INET6){+...}, at: release_sock+0x20/0x1c0 net/core/sock.c:2951
+
+stack backtrace:
+CPU: 0 PID: 9688 Comm: syz-executor921 Not tainted 5.5.0-rc5-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ print_unlock_imbalance_bug kernel/locking/lockdep.c:4008 [inline]
+ print_unlock_imbalance_bug.cold+0x114/0x123 kernel/locking/lockdep.c:3984
+ __lock_release kernel/locking/lockdep.c:4242 [inline]
+ lock_release+0x5f2/0x960 kernel/locking/lockdep.c:4503
+ sock_release_ownership include/net/sock.h:1496 [inline]
+ release_sock+0x17c/0x1c0 net/core/sock.c:2961
+ gtp_encap_enable_socket+0x146/0x400 drivers/net/gtp.c:830
+ gtp_encap_enable drivers/net/gtp.c:852 [inline]
+ gtp_newlink+0x9fc/0xc60 drivers/net/gtp.c:666
+ __rtnl_newlink+0x109e/0x1790 net/core/rtnetlink.c:3305
+ rtnl_newlink+0x69/0xa0 net/core/rtnetlink.c:3363
+ rtnetlink_rcv_msg+0x45e/0xaf0 net/core/rtnetlink.c:5424
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5442
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x58c/0x7d0 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x91c/0xea0 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:639 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:659
+ ____sys_sendmsg+0x753/0x880 net/socket.c:2330
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2384
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2417
+ __do_sys_sendmsg net/socket.c:2426 [inline]
+ __se_sys_sendmsg net/socket.c:2424 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2424
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x445d49
+Code: e8 bc b7 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 2b 12 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f8019074db8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00000000006dac38 RCX: 0000000000445d49
+RDX: 0000000000000000 RSI: 0000000020000180 RDI: 0000000000000003
+RBP: 00000000006dac30 R08: 0000000000000004 R09: 0000000000000000
+R10: 0000000000000008 R11: 0000000000000246 R12: 00000000006dac3c
+R13: 00007ffea687f6bf R14: 00007f80190759c0 R15: 20c49ba5e353f7cf
+
+Fixes: e198987e7dd7 ("gtp: fix suspicious RCU usage")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_gsc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/gtp.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_gsc.c b/drivers/gpu/drm/exynos/exynos_drm_gsc.c
-index 7ba414b52faa..d71188b982cb 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_gsc.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_gsc.c
-@@ -1292,6 +1292,7 @@ static int gsc_remove(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -816,7 +816,7 @@ static struct sock *gtp_encap_enable_soc
+ 	lock_sock(sock->sk);
+ 	if (sock->sk->sk_user_data) {
+ 		sk = ERR_PTR(-EBUSY);
+-		goto out_sock;
++		goto out_rel_sock;
+ 	}
  
-+	component_del(dev, &gsc_component_ops);
- 	pm_runtime_dont_use_autosuspend(dev);
- 	pm_runtime_disable(dev);
+ 	sk = sock->sk;
+@@ -829,8 +829,9 @@ static struct sock *gtp_encap_enable_soc
  
--- 
-2.20.1
-
+ 	setup_udp_tunnel_sock(sock_net(sock->sk), sock, &tuncfg);
+ 
+-out_sock:
++out_rel_sock:
+ 	release_sock(sock->sk);
++out_sock:
+ 	sockfd_put(sock);
+ 	return sk;
+ }
 
 
