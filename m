@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F7FB137E87
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBAF6137E2F
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729744AbgAKKK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:10:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47894 "EHLO mail.kernel.org"
+        id S1729390AbgAKKGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:06:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729229AbgAKKK5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:10:57 -0500
+        id S1729277AbgAKKGB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:06:01 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C844206DA;
-        Sat, 11 Jan 2020 10:10:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32E232064C;
+        Sat, 11 Jan 2020 10:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737456;
-        bh=sdiCfufsqv15TAciuvFAxtys8p1gNNUMonDYZzsFveI=;
+        s=default; t=1578737160;
+        bh=4QdQTm/Dkx3w4kDSPsXzEvYSoyZn+BOOipbeN+G3DwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+mjvAAcOLtvAS2h92PYfqHx8fpF1lGF3fpvpe5MrNcaYBSGgzUHh9aecOGWIIz8a
-         8Zd0m3aPeUhQEOjPTf/LOKHWwWzCdBwnxuiL11vw5vJFXAWs8rPBS0A/VHpWi/tB7X
-         y7WCNGlJGRt2LH4Z8tD0NcUube3b3KlTXNa+dFbE=
+        b=zljjoApYNi8cfpGKrIg7N9pLKB6mQcUuysMFXUYLDBrnKcv2ilIJ7cXMGsQK9SgK1
+         79yzbePA7KeljPOhJ4BCHgKjuRat+JD2nwV5N2iPk1VCxFlE35AKx6L2rMm0IdNwh5
+         zVEA6UbwYqxz6yHcwJExrLD8Z6HrM8JZxXp9mSM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.14 41/62] bpf: Fix passing modified ctx to ld/abs/ind instruction
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.9 90/91] USB: core: fix check for duplicate endpoints
 Date:   Sat, 11 Jan 2020 10:50:23 +0100
-Message-Id: <20200111094848.737962017@linuxfoundation.org>
+Message-Id: <20200111094913.478733512@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,117 +43,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Johan Hovold <johan@kernel.org>
 
-commit 6d4f151acf9a4f6fab09b615f246c717ddedcf0c upstream.
+commit 3e4f8e21c4f27bcf30a48486b9dcc269512b79ff upstream.
 
-Anatoly has been fuzzing with kBdysch harness and reported a KASAN
-slab oob in one of the outcomes:
+Amend the endpoint-descriptor sanity checks to detect all duplicate
+endpoint addresses in a configuration.
 
-  [...]
-  [   77.359642] BUG: KASAN: slab-out-of-bounds in bpf_skb_load_helper_8_no_cache+0x71/0x130
-  [   77.360463] Read of size 4 at addr ffff8880679bac68 by task bpf/406
-  [   77.361119]
-  [   77.361289] CPU: 2 PID: 406 Comm: bpf Not tainted 5.5.0-rc2-xfstests-00157-g2187f215eba #1
-  [   77.362134] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-  [   77.362984] Call Trace:
-  [   77.363249]  dump_stack+0x97/0xe0
-  [   77.363603]  print_address_description.constprop.0+0x1d/0x220
-  [   77.364251]  ? bpf_skb_load_helper_8_no_cache+0x71/0x130
-  [   77.365030]  ? bpf_skb_load_helper_8_no_cache+0x71/0x130
-  [   77.365860]  __kasan_report.cold+0x37/0x7b
-  [   77.366365]  ? bpf_skb_load_helper_8_no_cache+0x71/0x130
-  [   77.366940]  kasan_report+0xe/0x20
-  [   77.367295]  bpf_skb_load_helper_8_no_cache+0x71/0x130
-  [   77.367821]  ? bpf_skb_load_helper_8+0xf0/0xf0
-  [   77.368278]  ? mark_lock+0xa3/0x9b0
-  [   77.368641]  ? kvm_sched_clock_read+0x14/0x30
-  [   77.369096]  ? sched_clock+0x5/0x10
-  [   77.369460]  ? sched_clock_cpu+0x18/0x110
-  [   77.369876]  ? bpf_skb_load_helper_8+0xf0/0xf0
-  [   77.370330]  ___bpf_prog_run+0x16c0/0x28f0
-  [   77.370755]  __bpf_prog_run32+0x83/0xc0
-  [   77.371153]  ? __bpf_prog_run64+0xc0/0xc0
-  [   77.371568]  ? match_held_lock+0x1b/0x230
-  [   77.371984]  ? rcu_read_lock_held+0xa1/0xb0
-  [   77.372416]  ? rcu_is_watching+0x34/0x50
-  [   77.372826]  sk_filter_trim_cap+0x17c/0x4d0
-  [   77.373259]  ? sock_kzfree_s+0x40/0x40
-  [   77.373648]  ? __get_filter+0x150/0x150
-  [   77.374059]  ? skb_copy_datagram_from_iter+0x80/0x280
-  [   77.374581]  ? do_raw_spin_unlock+0xa5/0x140
-  [   77.375025]  unix_dgram_sendmsg+0x33a/0xa70
-  [   77.375459]  ? do_raw_spin_lock+0x1d0/0x1d0
-  [   77.375893]  ? unix_peer_get+0xa0/0xa0
-  [   77.376287]  ? __fget_light+0xa4/0xf0
-  [   77.376670]  __sys_sendto+0x265/0x280
-  [   77.377056]  ? __ia32_sys_getpeername+0x50/0x50
-  [   77.377523]  ? lock_downgrade+0x350/0x350
-  [   77.377940]  ? __sys_setsockopt+0x2a6/0x2c0
-  [   77.378374]  ? sock_read_iter+0x240/0x240
-  [   77.378789]  ? __sys_socketpair+0x22a/0x300
-  [   77.379221]  ? __ia32_sys_socket+0x50/0x50
-  [   77.379649]  ? mark_held_locks+0x1d/0x90
-  [   77.380059]  ? trace_hardirqs_on_thunk+0x1a/0x1c
-  [   77.380536]  __x64_sys_sendto+0x74/0x90
-  [   77.380938]  do_syscall_64+0x68/0x2a0
-  [   77.381324]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [   77.381878] RIP: 0033:0x44c070
-  [...]
+Commit 0a8fd1346254 ("USB: fix problems with duplicate endpoint
+addresses") added a check for duplicate endpoint addresses within a
+single alternate setting, but did not look for duplicate addresses in
+other interfaces.
 
-After further debugging, turns out while in case of other helper functions
-we disallow passing modified ctx, the special case of ld/abs/ind instruction
-which has similar semantics (except r6 being the ctx argument) is missing
-such check. Modified ctx is impossible here as bpf_skb_load_helper_8_no_cache()
-and others are expecting skb fields in original position, hence, add
-check_ctx_reg() to reject any modified ctx. Issue was first introduced back
-in f1174f77b50c ("bpf/verifier: rework value tracking").
+The current check would also not detect all duplicate addresses when one
+endpoint is as a (bi-directional) control endpoint.
 
-Fixes: f1174f77b50c ("bpf/verifier: rework value tracking")
-Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200106215157.3553-1-daniel@iogearbox.net
+This specifically avoids overwriting the endpoint entries in struct
+usb_device when enabling a duplicate endpoint, something which could
+potentially lead to crashes or leaks, for example, when endpoints are
+later disabled.
+
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20191219161016.6695-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/verifier.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/core/config.c |   70 ++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 58 insertions(+), 12 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -3457,6 +3457,7 @@ static bool may_access_skb(enum bpf_prog
- static int check_ld_abs(struct bpf_verifier_env *env, struct bpf_insn *insn)
- {
- 	struct bpf_reg_state *regs = cur_regs(env);
-+	static const int ctx_reg = BPF_REG_6;
- 	u8 mode = BPF_MODE(insn->code);
- 	int i, err;
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -198,9 +198,58 @@ static const unsigned short super_speed_
+ 	[USB_ENDPOINT_XFER_INT] = 1024,
+ };
  
-@@ -3473,11 +3474,11 @@ static int check_ld_abs(struct bpf_verif
- 	}
- 
- 	/* check whether implicit source operand (register R6) is readable */
--	err = check_reg_arg(env, BPF_REG_6, SRC_OP);
-+	err = check_reg_arg(env, ctx_reg, SRC_OP);
- 	if (err)
- 		return err;
- 
--	if (regs[BPF_REG_6].type != PTR_TO_CTX) {
-+	if (regs[ctx_reg].type != PTR_TO_CTX) {
- 		verbose("at the time of BPF_LD_ABS|IND R6 != pointer to skb\n");
- 		return -EINVAL;
- 	}
-@@ -3489,6 +3490,10 @@ static int check_ld_abs(struct bpf_verif
- 			return err;
- 	}
- 
-+	err = check_ctx_reg(env, &regs[ctx_reg], ctx_reg);
-+	if (err < 0)
-+		return err;
+-static int usb_parse_endpoint(struct device *ddev, int cfgno, int inum,
+-    int asnum, struct usb_host_interface *ifp, int num_ep,
+-    unsigned char *buffer, int size)
++static bool endpoint_is_duplicate(struct usb_endpoint_descriptor *e1,
++		struct usb_endpoint_descriptor *e2)
++{
++	if (e1->bEndpointAddress == e2->bEndpointAddress)
++		return true;
 +
- 	/* reset caller saved regs to unreadable */
- 	for (i = 0; i < CALLER_SAVED_REGS; i++) {
- 		mark_reg_not_init(regs, caller_saved[i]);
++	if (usb_endpoint_xfer_control(e1) || usb_endpoint_xfer_control(e2)) {
++		if (usb_endpoint_num(e1) == usb_endpoint_num(e2))
++			return true;
++	}
++
++	return false;
++}
++
++/*
++ * Check for duplicate endpoint addresses in other interfaces and in the
++ * altsetting currently being parsed.
++ */
++static bool config_endpoint_is_duplicate(struct usb_host_config *config,
++		int inum, int asnum, struct usb_endpoint_descriptor *d)
++{
++	struct usb_endpoint_descriptor *epd;
++	struct usb_interface_cache *intfc;
++	struct usb_host_interface *alt;
++	int i, j, k;
++
++	for (i = 0; i < config->desc.bNumInterfaces; ++i) {
++		intfc = config->intf_cache[i];
++
++		for (j = 0; j < intfc->num_altsetting; ++j) {
++			alt = &intfc->altsetting[j];
++
++			if (alt->desc.bInterfaceNumber == inum &&
++					alt->desc.bAlternateSetting != asnum)
++				continue;
++
++			for (k = 0; k < alt->desc.bNumEndpoints; ++k) {
++				epd = &alt->endpoint[k].desc;
++
++				if (endpoint_is_duplicate(epd, d))
++					return true;
++			}
++		}
++	}
++
++	return false;
++}
++
++static int usb_parse_endpoint(struct device *ddev, int cfgno,
++		struct usb_host_config *config, int inum, int asnum,
++		struct usb_host_interface *ifp, int num_ep,
++		unsigned char *buffer, int size)
+ {
+ 	unsigned char *buffer0 = buffer;
+ 	struct usb_endpoint_descriptor *d;
+@@ -237,13 +286,10 @@ static int usb_parse_endpoint(struct dev
+ 		goto skip_to_next_endpoint_or_interface_descriptor;
+ 
+ 	/* Check for duplicate endpoint addresses */
+-	for (i = 0; i < ifp->desc.bNumEndpoints; ++i) {
+-		if (ifp->endpoint[i].desc.bEndpointAddress ==
+-		    d->bEndpointAddress) {
+-			dev_warn(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
+-			    cfgno, inum, asnum, d->bEndpointAddress);
+-			goto skip_to_next_endpoint_or_interface_descriptor;
+-		}
++	if (config_endpoint_is_duplicate(config, inum, asnum, d)) {
++		dev_warn(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
++				cfgno, inum, asnum, d->bEndpointAddress);
++		goto skip_to_next_endpoint_or_interface_descriptor;
+ 	}
+ 
+ 	endpoint = &ifp->endpoint[ifp->desc.bNumEndpoints];
+@@ -517,8 +563,8 @@ static int usb_parse_interface(struct de
+ 		if (((struct usb_descriptor_header *) buffer)->bDescriptorType
+ 		     == USB_DT_INTERFACE)
+ 			break;
+-		retval = usb_parse_endpoint(ddev, cfgno, inum, asnum, alt,
+-		    num_ep, buffer, size);
++		retval = usb_parse_endpoint(ddev, cfgno, config, inum, asnum,
++				alt, num_ep, buffer, size);
+ 		if (retval < 0)
+ 			return retval;
+ 		++n;
 
 
