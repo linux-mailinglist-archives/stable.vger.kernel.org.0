@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7264137EF3
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:15:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A06B137DE7
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:02:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730153AbgAKKPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:15:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56610 "EHLO mail.kernel.org"
+        id S1729122AbgAKKCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:02:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729890AbgAKKPS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:15:18 -0500
+        id S1729172AbgAKKCo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:02:44 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7EDD2077C;
-        Sat, 11 Jan 2020 10:15:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B4BA20842;
+        Sat, 11 Jan 2020 10:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737717;
-        bh=dSpqFK6i710jE4XItym/hIRAQU51Rs8DQiINUBZ5nGk=;
+        s=default; t=1578736964;
+        bh=x46ZqZekimlPN+R+iky3j2yxrRSHk+gskssGOu7DI3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tzu7KtF/t7yQoR7KRv4bY6NFf7xHx+PTNz9ctn7tZBMQT6nR5MzMdP2HMJm4pPBxu
-         iwJKtPu3vduUbqNvbSHcwE1vZxgg2Yll5EX/sNyARU8E3b/H6Rw1gOECVfTzwwMWY4
-         GpfVVP0ANcbn9+W1hjDUkc/4tlDS7U/UePmUlyuM=
+        b=mieM/oC8o8mTXs8/+tEOxYWMgm/5sGb5Rc3JmB2P2dAppJNpaea6FziN9dxuPGJ7u
+         5mBldILUGuf/IELXiFfkcJqOvz7VTrwg8FIyVPzOfgzYVnDfm0PSWy9dBH17p6CImu
+         93UZ3joWutnbO1+NZQ/SOxGUy+m71b62NspBWjKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bhupesh Sharma <bhsharma@redhat.com>,
-        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
-        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org,
+        Aleksandr Yashkin <a.yashkin@inango-systems.com>,
+        Nikolay Merinov <n.merinov@inango-systems.com>,
+        Ariel Gilman <a.gilman@inango-systems.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/84] efi/gop: Return EFI_NOT_FOUND if there are no usable GOPs
+Subject: [PATCH 4.9 56/91] pstore/ram: Write new dumps to start of recycled zones
 Date:   Sat, 11 Jan 2020 10:49:49 +0100
-Message-Id: <20200111094849.029768084@linuxfoundation.org>
+Message-Id: <20200111094905.956540988@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,89 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Aleksandr Yashkin <a.yashkin@inango-systems.com>
 
-[ Upstream commit 6fc3cec30dfeee7d3c5db8154016aff9d65503c5 ]
+[ Upstream commit 9e5f1c19800b808a37fb9815a26d382132c26c3d ]
 
-If we don't find a usable instance of the Graphics Output Protocol
-(GOP) because none of them have a framebuffer (i.e. they were all
-PIXEL_BLT_ONLY), but all the EFI calls succeeded, we will return
-EFI_SUCCESS even though we didn't find a usable GOP.
+The ram_core.c routines treat przs as circular buffers. When writing a
+new crash dump, the old buffer needs to be cleared so that the new dump
+doesn't end up in the wrong place (i.e. at the end).
 
-Fix this by explicitly returning EFI_NOT_FOUND if no usable GOPs are
-found, allowing the caller to probe for UGA instead.
+The solution to this problem is to reset the circular buffer state before
+writing a new Oops dump.
 
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Bhupesh Sharma <bhsharma@redhat.com>
-Cc: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
-Cc: linux-efi@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191206165542.31469-3-ardb@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Aleksandr Yashkin <a.yashkin@inango-systems.com>
+Signed-off-by: Nikolay Merinov <n.merinov@inango-systems.com>
+Signed-off-by: Ariel Gilman <a.gilman@inango-systems.com>
+Link: https://lore.kernel.org/r/20191223133816.28155-1-n.merinov@inango-systems.com
+Fixes: 896fc1f0c4c6 ("pstore/ram: Switch to persistent_ram routines")
+[kees: backport to v4.9]
+Link: https://lore.kernel.org/stable/157831399811194@kroah.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/gop.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/pstore/ram.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/firmware/efi/libstub/gop.c b/drivers/firmware/efi/libstub/gop.c
-index 24c461dea7af..16ed61c023e8 100644
---- a/drivers/firmware/efi/libstub/gop.c
-+++ b/drivers/firmware/efi/libstub/gop.c
-@@ -121,7 +121,7 @@ setup_gop32(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 	u64 fb_base;
- 	struct efi_pixel_bitmask pixel_info;
- 	int pixel_format;
--	efi_status_t status = EFI_NOT_FOUND;
-+	efi_status_t status;
- 	u32 *handles = (u32 *)(unsigned long)gop_handle;
- 	int i;
+diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
+index 8b09271e5d66..a73959e6ae32 100644
+--- a/fs/pstore/ram.c
++++ b/fs/pstore/ram.c
+@@ -321,6 +321,17 @@ static int notrace ramoops_pstore_write_buf(enum pstore_type_id type,
  
-@@ -177,7 +177,7 @@ setup_gop32(efi_system_table_t *sys_table_arg, struct screen_info *si,
+ 	prz = cxt->przs[cxt->dump_write_cnt];
  
- 	/* Did we find any GOPs? */
- 	if (!first_gop)
--		goto out;
-+		return EFI_NOT_FOUND;
- 
- 	/* EFI framebuffer */
- 	si->orig_video_isVGA = VIDEO_TYPE_EFI;
-@@ -199,7 +199,7 @@ setup_gop32(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 	si->lfb_size = si->lfb_linelength * si->lfb_height;
- 
- 	si->capabilities |= VIDEO_CAPABILITY_SKIP_QUIRKS;
--out:
++	/*
++	 * Since this is a new crash dump, we need to reset the buffer in
++	 * case it still has an old dump present. Without this, the new dump
++	 * will get appended, which would seriously confuse anything trying
++	 * to check dump file contents. Specifically, ramoops_read_kmsg_hdr()
++	 * expects to find a dump header in the beginning of buffer data, so
++	 * we must to reset the buffer values, in order to ensure that the
++	 * header will be written to the beginning of the buffer.
++	 */
++	persistent_ram_zap(prz);
 +
- 	return status;
- }
- 
-@@ -239,7 +239,7 @@ setup_gop64(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 	u64 fb_base;
- 	struct efi_pixel_bitmask pixel_info;
- 	int pixel_format;
--	efi_status_t status = EFI_NOT_FOUND;
-+	efi_status_t status;
- 	u64 *handles = (u64 *)(unsigned long)gop_handle;
- 	int i;
- 
-@@ -295,7 +295,7 @@ setup_gop64(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 
- 	/* Did we find any GOPs? */
- 	if (!first_gop)
--		goto out;
-+		return EFI_NOT_FOUND;
- 
- 	/* EFI framebuffer */
- 	si->orig_video_isVGA = VIDEO_TYPE_EFI;
-@@ -317,7 +317,7 @@ setup_gop64(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 	si->lfb_size = si->lfb_linelength * si->lfb_height;
- 
- 	si->capabilities |= VIDEO_CAPABILITY_SKIP_QUIRKS;
--out:
-+
- 	return status;
- }
- 
+ 	hlen = ramoops_write_kmsg_hdr(prz, compressed);
+ 	if (size + hlen > prz->buffer_size)
+ 		size = prz->buffer_size - hlen;
 -- 
 2.20.1
 
