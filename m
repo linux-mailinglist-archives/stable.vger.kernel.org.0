@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CD7C137E19
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:06:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB039137EFB
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:15:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729381AbgAKKEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:04:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37706 "EHLO mail.kernel.org"
+        id S1729984AbgAKKPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:15:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729014AbgAKKEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:04:55 -0500
+        id S1729868AbgAKKPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:15:35 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC80E20848;
-        Sat, 11 Jan 2020 10:04:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F41B20673;
+        Sat, 11 Jan 2020 10:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737094;
-        bh=Czplure2xZKgEkKI4XC5UMk7izwZoY4ItYjVWnKukSo=;
+        s=default; t=1578737735;
+        bh=Ghd8K6VPRoWQjIndb3Yakrwxh4d7h/MYFhx9oZL8UIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CS8Rhi1ZpXvaC1bV99SD0ZceWfoHUg5tMRV4V8Wk0FOKL/2rK9CHdZMsQvxEZbwaa
-         Zxup85V2ytPPwUSVhhWFE+5FF+2prFmK0ofBMKw1+szAEbVwjGiOGgGXjTxi9TEpSF
-         3uCWwXTcvTkk6x7xvmHt/d8nGAgXmq03NwZbgFnc=
+        b=lBY1/eA4w1Ok6b9Vi9kk27Ug9OCKqtySeXSHPg6SIkDGhygX1HR6yx46ZyM83/yZF
+         F+m3h5QCdDPcafoLWqDxQAb/eq2cIoANdo5gYL95cUnOjXNtsWxwnKos0EsqWeKvPV
+         82H3uO/F2Gx9n9gyLNM5fIO31I6jCY+EX/nTsIYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 78/91] parisc: Fix compiler warnings in debug_core.c
+Subject: [PATCH 4.19 34/84] btrfs: Fix error messages in qgroup_rescan_init
 Date:   Sat, 11 Jan 2020 10:50:11 +0100
-Message-Id: <20200111094911.999048821@linuxfoundation.org>
+Message-Id: <20200111094859.126448426@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Nikolay Borisov <nborisov@suse.com>
 
-[ Upstream commit 75cf9797006a3a9f29a3a25c1febd6842a4a9eb2 ]
+[ Upstream commit 37d02592f11bb76e4ab1dcaa5b8a2a0715403207 ]
 
-Fix this compiler warning:
-kernel/debug/debug_core.c: In function ‘kgdb_cpu_enter’:
-arch/parisc/include/asm/cmpxchg.h:48:3: warning: value computed is not used [-Wunused-value]
-   48 |  ((__typeof__(*(ptr)))__xchg((unsigned long)(x), (ptr), sizeof(*(ptr))))
-arch/parisc/include/asm/atomic.h:78:30: note: in expansion of macro ‘xchg’
-   78 | #define atomic_xchg(v, new) (xchg(&((v)->counter), new))
-      |                              ^~~~
-kernel/debug/debug_core.c:596:4: note: in expansion of macro ‘atomic_xchg’
-  596 |    atomic_xchg(&kgdb_active, cpu);
-      |    ^~~~~~~~~~~
+The branch of qgroup_rescan_init which is executed from the mount
+path prints wrong errors messages. The textual print out in case
+BTRFS_QGROUP_STATUS_FLAG_RESCAN/BTRFS_QGROUP_STATUS_FLAG_ON are not
+set are transposed. Fix it by exchanging their place.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/include/asm/cmpxchg.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/btrfs/qgroup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/parisc/include/asm/cmpxchg.h b/arch/parisc/include/asm/cmpxchg.h
-index 7ada30900807..90253bdc2ee5 100644
---- a/arch/parisc/include/asm/cmpxchg.h
-+++ b/arch/parisc/include/asm/cmpxchg.h
-@@ -43,8 +43,14 @@ __xchg(unsigned long x, __volatile__ void *ptr, int size)
- **		if (((unsigned long)p & 0xf) == 0)
- **			return __ldcw(p);
- */
--#define xchg(ptr, x) \
--	((__typeof__(*(ptr)))__xchg((unsigned long)(x), (ptr), sizeof(*(ptr))))
-+#define xchg(ptr, x)							\
-+({									\
-+	__typeof__(*(ptr)) __ret;					\
-+	__typeof__(*(ptr)) _x_ = (x);					\
-+	__ret = (__typeof__(*(ptr)))					\
-+		__xchg((unsigned long)_x_, (ptr), sizeof(*(ptr)));	\
-+	__ret;								\
-+})
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index cdd6d5021000..7916f711daf5 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -2862,12 +2862,12 @@ qgroup_rescan_init(struct btrfs_fs_info *fs_info, u64 progress_objectid,
+ 		if (!(fs_info->qgroup_flags &
+ 		      BTRFS_QGROUP_STATUS_FLAG_RESCAN)) {
+ 			btrfs_warn(fs_info,
+-			"qgroup rescan init failed, qgroup is not enabled");
++			"qgroup rescan init failed, qgroup rescan is not queued");
+ 			ret = -EINVAL;
+ 		} else if (!(fs_info->qgroup_flags &
+ 			     BTRFS_QGROUP_STATUS_FLAG_ON)) {
+ 			btrfs_warn(fs_info,
+-			"qgroup rescan init failed, qgroup rescan is not queued");
++			"qgroup rescan init failed, qgroup is not enabled");
+ 			ret = -EINVAL;
+ 		}
  
- /* bug catcher for when unsupported size is used - won't link */
- extern void __cmpxchg_called_with_bad_pointer(void);
 -- 
 2.20.1
 
