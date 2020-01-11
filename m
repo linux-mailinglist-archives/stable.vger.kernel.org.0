@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9912137FFE
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:25:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 011B2137DC3
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730166AbgAKKYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:24:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54420 "EHLO mail.kernel.org"
+        id S1729255AbgAKKBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:01:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731011AbgAKKYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:24:48 -0500
+        id S1729064AbgAKKBB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:01:01 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C06C2082E;
-        Sat, 11 Jan 2020 10:24:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D59C2082E;
+        Sat, 11 Jan 2020 10:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738288;
-        bh=CuHDXm6CnEmH/l+I+Z4tOhOiGH9ZvYgGUysk2Z+MD98=;
+        s=default; t=1578736860;
+        bh=R4b/CKHP7JvZDV66qTaF7d//2d8ksi5dmX0LRaHr1z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KK8jFVH1I9pSoZ7xXaWKU3KvYNh1z7d2ZP5dTFe4m7kuB7mvNLRtdaIqYDUEtJq6L
-         BUkVoSjMCCkhH2z9V3LmTHx6eOOo+PSacikN1uAfhx7ar+gRrUhynCS20EYA6tfLUA
-         hNgNM+UwFOEtbXKM+lTxRhxHwndfn6tI5JLg9wCg=
+        b=i6xZS+3ZHK70M3t2t+TM0n1QnLVYxETSN+w5zv9KLzUfHwt/ccgfE/mVnQCr1l+KU
+         e41/DfpCujqHdKml3I6s0lxpmWmaUzQVTw261ezLrsyuQ96NCsywRXYMiiLCDHQ37j
+         jmv97sjG455jMJHXNIXWOph/kfPoCEJ5kcabUcaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 051/165] ARM: dts: bcm283x: Fix critical trip point
-Date:   Sat, 11 Jan 2020 10:49:30 +0100
-Message-Id: <20200111094925.656174796@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.9 38/91] Bluetooth: delete a stray unlock
+Date:   Sat, 11 Jan 2020 10:49:31 +0100
+Message-Id: <20200111094859.385467870@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <wahrenst@gmx.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 30e647a764d446723a7e0fb08d209e0104f16173 ]
+commit df66499a1fab340c167250a5743931dc50d5f0fa upstream.
 
-During definition of the CPU thermal zone of BCM283x SoC family there
-was a misunderstanding of the meaning "criticial trip point" and the
-thermal throttling range of the VideoCore firmware. The latter one takes
-effect when the core temperature is at least 85 degree celsius or higher
+We used to take a lock in amp_physical_cfm() but then we moved it to
+the caller function.  Unfortunately the unlock on this error path was
+overlooked so it leads to a double unlock.
 
-So the current critical trip point doesn't make sense, because the
-thermal shutdown appears before the firmware has a chance to throttle
-the ARM core(s).
+Fixes: a514b17fab51 ("Bluetooth: Refactor locking in amp_physical_cfm")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix these unwanted shutdowns by increasing the critical trip point
-to a value which shouldn't be reached with working thermal throttling.
-
-Fixes: 0fe4d2181cc4 ("ARM: dts: bcm283x: Add CPU thermal zone with 1 trip point")
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm283x.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
-index 2d191fcbc2cc..90125ce19a1b 100644
---- a/arch/arm/boot/dts/bcm283x.dtsi
-+++ b/arch/arm/boot/dts/bcm283x.dtsi
-@@ -40,7 +40,7 @@
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4908,10 +4908,8 @@ void __l2cap_physical_cfm(struct l2cap_c
+ 	BT_DBG("chan %p, result %d, local_amp_id %d, remote_amp_id %d",
+ 	       chan, result, local_amp_id, remote_amp_id);
  
- 			trips {
- 				cpu-crit {
--					temperature	= <80000>;
-+					temperature	= <90000>;
- 					hysteresis	= <0>;
- 					type		= "critical";
- 				};
--- 
-2.20.1
-
+-	if (chan->state == BT_DISCONN || chan->state == BT_CLOSED) {
+-		l2cap_chan_unlock(chan);
++	if (chan->state == BT_DISCONN || chan->state == BT_CLOSED)
+ 		return;
+-	}
+ 
+ 	if (chan->state != BT_CONNECTED) {
+ 		l2cap_do_create(chan, result, local_amp_id, remote_amp_id);
 
 
