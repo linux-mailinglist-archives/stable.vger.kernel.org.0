@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49283137D4D
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:56:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 691DA137D4F
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:56:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728828AbgAKJ4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:56:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46990 "EHLO mail.kernel.org"
+        id S1728784AbgAKJ4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 04:56:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728784AbgAKJ4N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:56:13 -0500
+        id S1728768AbgAKJ4V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 04:56:21 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DDD42064C;
-        Sat, 11 Jan 2020 09:56:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EE7E2064C;
+        Sat, 11 Jan 2020 09:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736573;
-        bh=TfKscB+YyGmraVZx/JDDwLL3JwcC8LoM23ldBIGOkXM=;
+        s=default; t=1578736580;
+        bh=Q1o8h/zPHzFtnLMEx2DXNfR7tGOva6KqlcozL3/R9Ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1fFDaGgYz1AdnE0C13mCZTa7ITNP8SQjY0kixpKHSnhyGc0HMOnKyIGz3rbPr0sm
-         PP/kKQKejAGMwfehHW1IUOwaExwG4aF0Sx6aHoAZwSTQ+LLadgwgklKZnJg3zlgB3k
-         Q9d4eY9fAnAyrNTN5k9tTDydodFlEtjzh+ZZQD88=
+        b=vCrlgFNXTQBliUKS0rx8T5qdKUoqE1CyoN888kyORucgAoWBK3vTHUdqcpqRmWxer
+         swB7GTKdIbE2buBgjx48LSK7slhmxJ8r4t39djeQVgmjyIvO2h7SgLTd758AXzaJDV
+         j9Git7JQg9Xh4qoTfI9b0270t6PEPfBHnF9Cv9uM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        RENARD Pierre-Francois <pfrenard@gmail.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Woojung Huh <woojung.huh@microchip.com>,
+        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 49/59] net: stmmac: dwmac-sunxi: Allow all RGMII modes
-Date:   Sat, 11 Jan 2020 10:49:58 +0100
-Message-Id: <20200111094849.595210115@linuxfoundation.org>
+Subject: [PATCH 4.4 50/59] net: usb: lan78xx: fix possible skb leak
+Date:   Sat, 11 Jan 2020 10:49:59 +0100
+Message-Id: <20200111094850.091642079@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094835.417654274@linuxfoundation.org>
 References: <20200111094835.417654274@linuxfoundation.org>
@@ -43,32 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 52cc73e5404c7ba0cbfc50cb4c265108c84b3d5a ]
+[ Upstream commit 47240ba0cd09bb6fe6db9889582048324999dfa4 ]
 
-Allow all the RGMII modes to be used. This would allow us to represent
-the hardware better in the device tree with RGMII_ID where in most
-cases the PHY's internal delay for both RX and TX are used.
+If skb_linearize() fails, we need to free the skb.
 
-Fixes: af0bd4e9ba80 ("net: stmmac: sunxi platform extensions for GMAC in Allwinner A20 SoC's")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+TSO makes skb bigger, and this bug might be the reason
+Raspberry Pi 3B+ users had to disable TSO.
+
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: RENARD Pierre-Francois <pfrenard@gmail.com>
+Cc: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Woojung Huh <woojung.huh@microchip.com>
+Cc: Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/lan78xx.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-@@ -53,7 +53,7 @@ static int sun7i_gmac_init(struct platfo
- 	 * rate, which then uses the auto-reparenting feature of the
- 	 * clock driver, and enabling/disabling the clock.
- 	 */
--	if (gmac->interface == PHY_INTERFACE_MODE_RGMII) {
-+	if (phy_interface_mode_is_rgmii(gmac->interface)) {
- 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_GMII_RGMII_RATE);
- 		clk_prepare_enable(gmac->tx_clk);
- 		gmac->clk_enabled = 1;
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -2036,11 +2036,6 @@ int lan78xx_stop(struct net_device *net)
+ 	return 0;
+ }
+ 
+-static int lan78xx_linearize(struct sk_buff *skb)
+-{
+-	return skb_linearize(skb);
+-}
+-
+ static struct sk_buff *lan78xx_tx_prep(struct lan78xx_net *dev,
+ 				       struct sk_buff *skb, gfp_t flags)
+ {
+@@ -2051,8 +2046,10 @@ static struct sk_buff *lan78xx_tx_prep(s
+ 		return NULL;
+ 	}
+ 
+-	if (lan78xx_linearize(skb) < 0)
++	if (skb_linearize(skb)) {
++		dev_kfree_skb_any(skb);
+ 		return NULL;
++	}
+ 
+ 	tx_cmd_a = (u32)(skb->len & TX_CMD_A_LEN_MASK_) | TX_CMD_A_FCS_;
+ 
 
 
