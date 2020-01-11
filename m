@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30D62137EA3
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EFD6137EDB
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:14:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729490AbgAKKMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:12:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46480 "EHLO mail.kernel.org"
+        id S1729842AbgAKKOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:14:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729836AbgAKKKH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:10:07 -0500
+        id S1729888AbgAKKOb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:14:31 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54C94206DA;
-        Sat, 11 Jan 2020 10:10:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07DC720673;
+        Sat, 11 Jan 2020 10:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737407;
-        bh=LhXCJwhZ7SIthiaSz6eacka57FWG4LDTW51FS5XhUMc=;
+        s=default; t=1578737670;
+        bh=Jvvz7VAOuf5cr7sba0W0VhPGhpU6NhDWTovzuuWPgIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1B8Spb8Alh7/Q2byitjY99ChwuHg26pKOKwBXcyBnTmquC1gj0iiFMFDFs5S9sSxP
-         pUu9DNCaK2hegiub3GDOFAqem87OnG3QvLAMDjYDUmTpBZ2jfOei70r2TI7gldebvr
-         I7ziWd2oWy+Tokrxm23kP5tLQ48YxmGkjCsQucNc=
+        b=UKypVWz01QDlDIP6oSPwKvXwemjrs+i77W0xs1bVPryLL8HaM446apizPUcz8WDbu
+         aE9F93C0sXgJPTEovNmQPHbvwUjMsv75c7k2qeQXNdIeCb7YaF7V9KKx7yDvxf6QeL
+         4FOb9VArBq3r7hV5K7TLLXs9p5mxy9K5JojRnvFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Horman <simon.horman@netronome.com>,
-        Ray Jui <ray.jui@broadcom.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/62] ARM: dts: Cygnus: Fix MDIO node address/size cells
+Subject: [PATCH 4.19 19/84] netfilter: nf_tables: validate NFT_SET_ELEM_INTERVAL_END
 Date:   Sat, 11 Jan 2020 10:49:56 +0100
-Message-Id: <20200111094842.966053502@linuxfoundation.org>
+Message-Id: <20200111094852.451412708@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit fac2c2da3596d77c343988bb0d41a8c533b2e73c ]
+[ Upstream commit bffc124b6fe37d0ae9b428d104efb426403bb5c9 ]
 
-The MDIO node on Cygnus had an reversed #address-cells and
- #size-cells properties, correct those.
+Only NFTA_SET_ELEM_KEY and NFTA_SET_ELEM_FLAGS make sense for elements
+whose NFT_SET_ELEM_INTERVAL_END flag is set on.
 
-Fixes: 40c26d3af60a ("ARM: dts: Cygnus: Add the ethernet switch and ethernet PHY")
-Reported-by: Simon Horman <simon.horman@netronome.com>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm-cygnus.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm-cygnus.dtsi b/arch/arm/boot/dts/bcm-cygnus.dtsi
-index 8b2c65cd61a2..b822952c29f8 100644
---- a/arch/arm/boot/dts/bcm-cygnus.dtsi
-+++ b/arch/arm/boot/dts/bcm-cygnus.dtsi
-@@ -165,8 +165,8 @@
- 		mdio: mdio@18002000 {
- 			compatible = "brcm,iproc-mdio";
- 			reg = <0x18002000 0x8>;
--			#size-cells = <1>;
--			#address-cells = <0>;
-+			#size-cells = <0>;
-+			#address-cells = <1>;
- 			status = "disabled";
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 0e1b1f7f4745..42f79f9532c6 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -4351,14 +4351,20 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 		if (nla[NFTA_SET_ELEM_DATA] == NULL &&
+ 		    !(flags & NFT_SET_ELEM_INTERVAL_END))
+ 			return -EINVAL;
+-		if (nla[NFTA_SET_ELEM_DATA] != NULL &&
+-		    flags & NFT_SET_ELEM_INTERVAL_END)
+-			return -EINVAL;
+ 	} else {
+ 		if (nla[NFTA_SET_ELEM_DATA] != NULL)
+ 			return -EINVAL;
+ 	}
  
- 			gphy0: ethernet-phy@0 {
++	if ((flags & NFT_SET_ELEM_INTERVAL_END) &&
++	     (nla[NFTA_SET_ELEM_DATA] ||
++	      nla[NFTA_SET_ELEM_OBJREF] ||
++	      nla[NFTA_SET_ELEM_TIMEOUT] ||
++	      nla[NFTA_SET_ELEM_EXPIRATION] ||
++	      nla[NFTA_SET_ELEM_USERDATA] ||
++	      nla[NFTA_SET_ELEM_EXPR]))
++		return -EINVAL;
++
+ 	timeout = 0;
+ 	if (nla[NFTA_SET_ELEM_TIMEOUT] != NULL) {
+ 		if (!(set->flags & NFT_SET_TIMEOUT))
 -- 
 2.20.1
 
