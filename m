@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D52A9137DB3
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EFFD137FDF
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729008AbgAKKAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:00:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S1730680AbgAKKXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:23:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728991AbgAKKAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:00:21 -0500
+        id S1730776AbgAKKXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:23:52 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E26222077C;
-        Sat, 11 Jan 2020 10:00:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D3342082E;
+        Sat, 11 Jan 2020 10:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736820;
-        bh=J5k4I5PjDOISQmUJ+K3wvYYqJ/TLF/0wPiYvQi9KZAA=;
+        s=default; t=1578738231;
+        bh=FI2zumC+h06Z1xumFA3Cq4/NFMfxrB4/U/qNtkyGovA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EizOxTpT1H3WTSyMQKaCyEPKQBqaKYYFr4/dvtC72Qg9PdJKQ7P0Y0d1IlIQm17Lq
-         a/Fnhd+5Z3//bYMnOygNuSrQcUh+6yj3s+9alecWMc+X5ajJlajchCRoeYQpMOsMfH
-         7bFrjniYLmtHx4Shak0Czp/texS0tUuARYMGPr+A=
+        b=ZBtQ+LmGCM1wlzEx1uMwVtlV31Y83/f7wkXuUjHSaJnX17tNDp4yDzMVa7MacqbiC
+         Np6VAqdOPa4R3EftsiQdjpIwDUyzseMokMZVI3tg9yXdfFMHxZ6aTgobLTUZKgit9P
+         WuUh2kImybx/ohqOf2ZutL3PwzXq8hQTDC7m7oDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
-        Andy Whitcroft <apw@canonical.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 14/91] PM / hibernate: memory_bm_find_bit(): Tighten node optimisation
+Subject: [PATCH 5.4 028/165] netfilter: nft_set_rbtree: bogus lookup/get on consecutive elements in named sets
 Date:   Sat, 11 Jan 2020 10:49:07 +0100
-Message-Id: <20200111094848.319826655@linuxfoundation.org>
+Message-Id: <20200111094923.091623278@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Whitcroft <apw@canonical.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit da6043fe85eb5ec621e34a92540735dcebbea134 ]
+[ Upstream commit db3b665dd77b34e34df00e17d7b299c98fcfb2c5 ]
 
-When looking for a bit by number we make use of the cached result from the
-preceding lookup to speed up operation.  Firstly we check if the requested
-pfn is within the cached zone and if not lookup the new zone.  We then
-check if the offset for that pfn falls within the existing cached node.
-This happens regardless of whether the node is within the zone we are
-now scanning.  With certain memory layouts it is possible for this to
-false trigger creating a temporary alias for the pfn to a different bit.
-This leads the hibernation code to free memory which it was never allocated
-with the expected fallout.
+The existing rbtree implementation might store consecutive elements
+where the closing element and the opening element might overlap, eg.
 
-Ensure the zone we are scanning matches the cached zone before considering
-the cached node.
+	[ a, a+1) [ a+1, a+2)
 
-Deep thanks go to Andrea for many, many, many hours of hacking and testing
-that went into cornering this bug.
+This patch removes the optimization for non-anonymous sets in the exact
+matching case, where it is assumed to stop searching in case that the
+closing element is found. Instead, invalidate candidate interval and
+keep looking further in the tree.
 
-Reported-by: Andrea Righi <andrea.righi@canonical.com>
-Tested-by: Andrea Righi <andrea.righi@canonical.com>
-Signed-off-by: Andy Whitcroft <apw@canonical.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The lookup/get operation might return false, while there is an element
+in the rbtree. Moreover, the get operation returns true as if a+2 would
+be in the tree. This happens with named sets after several set updates.
+
+The existing lookup optimization (that only works for the anonymous
+sets) might not reach the opening [ a+1,... element if the closing
+...,a+1) is found in first place when walking over the rbtree. Hence,
+walking the full tree in that case is needed.
+
+This patch fixes the lookup and get operations.
+
+Fixes: e701001e7cbe ("netfilter: nft_rbtree: allow adjacent intervals with dynamic updates")
+Fixes: ba0e4d9917b4 ("netfilter: nf_tables: get set elements via netlink")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/snapshot.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/netfilter/nft_set_rbtree.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
-index 4f0f0604f1c4..5dfac92521fa 100644
---- a/kernel/power/snapshot.c
-+++ b/kernel/power/snapshot.c
-@@ -732,8 +732,15 @@ static int memory_bm_find_bit(struct memory_bitmap *bm, unsigned long pfn,
- 	 * We have found the zone. Now walk the radix tree to find the leaf node
- 	 * for our PFN.
- 	 */
-+
-+	/*
-+	 * If the zone we wish to scan is the the current zone and the
-+	 * pfn falls into the current node then we do not need to walk
-+	 * the tree.
-+	 */
- 	node = bm->cur.node;
--	if (((pfn - zone->start_pfn) & ~BM_BLOCK_MASK) == bm->cur.node_pfn)
-+	if (zone == bm->cur.zone &&
-+	    ((pfn - zone->start_pfn) & ~BM_BLOCK_MASK) == bm->cur.node_pfn)
- 		goto node_found;
+diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
+index 57123259452f..a9f804f7a04a 100644
+--- a/net/netfilter/nft_set_rbtree.c
++++ b/net/netfilter/nft_set_rbtree.c
+@@ -74,8 +74,13 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
+ 				parent = rcu_dereference_raw(parent->rb_left);
+ 				continue;
+ 			}
+-			if (nft_rbtree_interval_end(rbe))
+-				goto out;
++			if (nft_rbtree_interval_end(rbe)) {
++				if (nft_set_is_anonymous(set))
++					return false;
++				parent = rcu_dereference_raw(parent->rb_left);
++				interval = NULL;
++				continue;
++			}
  
- 	node      = zone->rtree;
+ 			*ext = &rbe->ext;
+ 			return true;
+@@ -88,7 +93,7 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
+ 		*ext = &interval->ext;
+ 		return true;
+ 	}
+-out:
++
+ 	return false;
+ }
+ 
+@@ -139,8 +144,10 @@ static bool __nft_rbtree_get(const struct net *net, const struct nft_set *set,
+ 			if (flags & NFT_SET_ELEM_INTERVAL_END)
+ 				interval = rbe;
+ 		} else {
+-			if (!nft_set_elem_active(&rbe->ext, genmask))
++			if (!nft_set_elem_active(&rbe->ext, genmask)) {
+ 				parent = rcu_dereference_raw(parent->rb_left);
++				continue;
++			}
+ 
+ 			if (!nft_set_ext_exists(&rbe->ext, NFT_SET_EXT_FLAGS) ||
+ 			    (*nft_set_ext_flags(&rbe->ext) & NFT_SET_ELEM_INTERVAL_END) ==
+@@ -148,7 +155,11 @@ static bool __nft_rbtree_get(const struct net *net, const struct nft_set *set,
+ 				*elem = rbe;
+ 				return true;
+ 			}
+-			return false;
++
++			if (nft_rbtree_interval_end(rbe))
++				interval = NULL;
++
++			parent = rcu_dereference_raw(parent->rb_left);
+ 		}
+ 	}
+ 
 -- 
 2.20.1
 
