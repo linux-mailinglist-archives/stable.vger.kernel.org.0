@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61D561380E4
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:38:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D96A1380EA
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728999AbgAKKiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:38:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56836 "EHLO mail.kernel.org"
+        id S1729622AbgAKKii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:38:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728808AbgAKKiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:38:22 -0500
+        id S1729445AbgAKKig (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:38:36 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6DBB20848;
-        Sat, 11 Jan 2020 10:38:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D032B20848;
+        Sat, 11 Jan 2020 10:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578739101;
-        bh=t0N1ByeMceaz4tEkzMRi0NbLTc3xWbHmeA+gCrPDEMk=;
+        s=default; t=1578739115;
+        bh=4L+WNPHNKKg6Jw3SiwCYTFzyVmNImrxHEevu5JrADSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGy+DKu9q3yQp9+YuFF+pO2T84UA6OMgqI2lbHQV7MpyQpFqufMJGEdAJmaBcNZb6
-         BI0scG6F/3UHq4ytk4H6Y7ZvsDDyL4l1QYUYcijZvb7Al4xJa5HUe4JtIoAxFpkD+D
-         v507GzDFybyfS6Q6f9x3Yn++VDAq12fO0UJhwI9M=
+        b=WQXC2J+ljHBQWsA1HyahRDtpLjvKatjWipnCsmHeM4GAz1b9bhB5mJyInOLzQATWt
+         DjraeIs2jyOr172wEwC2aPA3yMOGG7LlWpG8pIj1XZUQP25r/Cu0FY7fjya3j78l5H
+         zP5TbXlB6pps1/pR1ScZwL+RzlGqHnx4LGfjnilM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Chan Shu Tak, Alex" <alexchan@task.com.hk>,
-        "David S. Miller" <davem@davemloft.net>,
+        "Enrico Weigelt, metux IT consult" <info@metux.net>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 79/91] llc2: Fix return statement of llc_stat_ev_rx_null_dsap_xid_c (and _test_c)
-Date:   Sat, 11 Jan 2020 10:50:12 +0100
-Message-Id: <20200111094912.111343165@linuxfoundation.org>
+Subject: [PATCH 5.4 097/165] scripts: package: mkdebian: add missing rsync dependency
+Date:   Sat, 11 Jan 2020 10:50:16 +0100
+Message-Id: <20200111094929.770391490@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chan Shu Tak, Alex <alexchan@task.com.hk>
+From: Enrico Weigelt, metux IT consult <info@metux.net>
 
-[ Upstream commit af1c0e4e00f3cc76cb136ebf2e2c04e8b6446285 ]
+[ Upstream commit a11391b6f50689adb22c65df783e09143fafb794 ]
 
-When a frame with NULL DSAP is received, llc_station_rcv is called.
-In turn, llc_stat_ev_rx_null_dsap_xid_c is called to check if it is a NULL
-XID frame. The return statement of llc_stat_ev_rx_null_dsap_xid_c returns 1
-when the incoming frame is not a NULL XID frame and 0 otherwise. Hence, a
-NULL XID response is returned unexpectedly, e.g. when the incoming frame is
-a NULL TEST command.
+We've missed the dependency to rsync, so build fails on
+minimal containers.
 
-To fix the error, simply remove the conditional operator.
-
-A similar error in llc_stat_ev_rx_null_dsap_test_c is also fixed.
-
-Signed-off-by: Chan Shu Tak, Alex <alexchan@task.com.hk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 59b2bd05f5f4 ("kbuild: add 'headers' target to build up uapi headers in usr/include")
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/llc/llc_station.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ scripts/package/mkdebian | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/llc/llc_station.c b/net/llc/llc_station.c
-index 204a8351efff..c29170e767a8 100644
---- a/net/llc/llc_station.c
-+++ b/net/llc/llc_station.c
-@@ -32,7 +32,7 @@ static int llc_stat_ev_rx_null_dsap_xid_c(struct sk_buff *skb)
- 	return LLC_PDU_IS_CMD(pdu) &&			/* command PDU */
- 	       LLC_PDU_TYPE_IS_U(pdu) &&		/* U type PDU */
- 	       LLC_U_PDU_CMD(pdu) == LLC_1_PDU_CMD_XID &&
--	       !pdu->dsap ? 0 : 1;			/* NULL DSAP value */
-+	       !pdu->dsap;				/* NULL DSAP value */
- }
+diff --git a/scripts/package/mkdebian b/scripts/package/mkdebian
+index e0750b70453f..7c230016b08d 100755
+--- a/scripts/package/mkdebian
++++ b/scripts/package/mkdebian
+@@ -174,7 +174,7 @@ Source: $sourcename
+ Section: kernel
+ Priority: optional
+ Maintainer: $maintainer
+-Build-Depends: bc, kmod, cpio, bison, flex | flex:native $extra_build_depends
++Build-Depends: bc, rsync, kmod, cpio, bison, flex | flex:native $extra_build_depends
+ Homepage: http://www.kernel.org/
  
- static int llc_stat_ev_rx_null_dsap_test_c(struct sk_buff *skb)
-@@ -42,7 +42,7 @@ static int llc_stat_ev_rx_null_dsap_test_c(struct sk_buff *skb)
- 	return LLC_PDU_IS_CMD(pdu) &&			/* command PDU */
- 	       LLC_PDU_TYPE_IS_U(pdu) &&		/* U type PDU */
- 	       LLC_U_PDU_CMD(pdu) == LLC_1_PDU_CMD_TEST &&
--	       !pdu->dsap ? 0 : 1;			/* NULL DSAP */
-+	       !pdu->dsap;				/* NULL DSAP */
- }
- 
- static int llc_station_ac_send_xid_r(struct sk_buff *skb)
+ Package: $packagename
 -- 
 2.20.1
 
