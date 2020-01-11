@@ -2,89 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E9ED138469
-	for <lists+stable@lfdr.de>; Sun, 12 Jan 2020 02:19:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA05D138474
+	for <lists+stable@lfdr.de>; Sun, 12 Jan 2020 02:52:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731870AbgALBTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 20:19:02 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:37743 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731867AbgALBTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Jan 2020 20:19:02 -0500
-Received: by mail-wr1-f65.google.com with SMTP id w15so5269948wru.4
-        for <stable@vger.kernel.org>; Sat, 11 Jan 2020 17:19:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=L5QS+6uB0v5haeHsBrYX5yXS4ZS8JN19nSwhG30brEw=;
-        b=BlORCNskG0gGZABunIcIjGLmjg+IlUt9BXIPscXqERLrCwCNE7M4gN1dZWq3CXPDHf
-         tvdov2W92yKiP3kIjlA6y+V4HTTTqRFYTOARfVcc/YZunsnXwFMwetVkHQ0ouOOHeaOQ
-         4Gj9h4FCNyoF1LILAxkiY9Zlk2Fo834wmZIdLiwbHRwkY8xVvv0j7V5X/cq6Ij8J34Lp
-         eiucvlQjIwynPp7cK1OV4ZEZWdAMrVUSIo4/cHmb0HrSbPlZMSaGaRQddBHUP70IKpr2
-         vNM+QY3FOM24fR8GebPXezrMprjV6ApqZ8BfrkCDpOU/sLnx/HP75VV03jyHf/J31bti
-         2GtA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=L5QS+6uB0v5haeHsBrYX5yXS4ZS8JN19nSwhG30brEw=;
-        b=ClpOGzG28buWShDx6P/MNSVQ//2sCiPadOaHV/WeZQATViuo7gHPMwD2JIXAxqOdD9
-         itjMx9QHBckkKhGuSyLvY8bLhmoL/pEmkbAJysJ28Yt8GI1U/LocvHUr3KJ8mKlVUO+q
-         NNCl/BdON5yH5IizX8n3q82+rsruAC/ppp42hA1wcvNY0lVsNIJzAZl9ec4dzHK+RDF8
-         memIIeabka9OclWAL3WRZ/Dns/SBUbEyUUlvOBP3PW99H0R0c6PtymjjkuFVP5C6eJ/6
-         OOFJPFw5UcvPgeRM0+t7jCZUIjIZUzBu75fdGGwKCjK11+OyaMkepKJkjKawqbceC6LP
-         Zhfg==
-X-Gm-Message-State: APjAAAU3Hvc3UJtZyMhxQwCh6wPwQIfBa9bk0/fcqcBf9a3ku/Hy+Noi
-        yHV2wm4KxNVIoaSVH2pgECCn+QeeE61PhQ==
-X-Google-Smtp-Source: APXvYqwIeIjsV25sl1I2IA5MLeBBPC9PjWNDwWbqe4/OQ1+iFgUenqMRhWDkKyYN9Lrg/cRexdZ20Q==
-X-Received: by 2002:a5d:4d8d:: with SMTP id b13mr11477460wru.6.1578791940297;
-        Sat, 11 Jan 2020 17:19:00 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id k11sm8033677wmc.20.2020.01.11.17.18.59
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Jan 2020 17:18:59 -0800 (PST)
-Message-ID: <5e1a7403.1c69fb81.89099.2014@mx.google.com>
-Date:   Sat, 11 Jan 2020 17:18:59 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.94-84-g4f77fc728c70
-Subject: stable-rc/linux-4.19.y boot: 80 boots: 1 failed,
- 78 passed with 1 untried/unknown (v4.19.94-84-g4f77fc728c70)
+        id S1731899AbgALBwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 20:52:42 -0500
+Received: from mail3-bck.iservicesmail.com ([217.130.24.85]:48625 "EHLO
+        mail3-bck.iservicesmail.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731893AbgALBwm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Jan 2020 20:52:42 -0500
+X-Greylist: delayed 302 seconds by postgrey-1.27 at vger.kernel.org; Sat, 11 Jan 2020 20:52:42 EST
+IronPort-SDR: nspYCaEwA9XE8P0UsFHS57/Wsn8GOi44z0TEdZkR7lzQcC/vXGUiwlGXJVd43CMeDGvnpG/300
+ HRY/SPsT/xgQ==
+IronPort-PHdr: =?us-ascii?q?9a23=3A1ZXFPR8Uo3T5DP9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B31OIcTK2v8tzYMVDF4r011RmVBN6dsawawLGG+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxhGiTanf79/LRS7oQrfu8QVnIBvNrs/xh?=
+ =?us-ascii?q?zVr3VSZu9Y33loJVWdnxb94se/4ptu+DlOtvwi6sBNT7z0c7w3QrJEAjsmNX?=
+ =?us-ascii?q?s15NDwuhnYUQSP/HocXX4InRdOHgPI8Qv1Xpb1siv9q+p9xCyXNtD4QLwoRT?=
+ =?us-ascii?q?iv6bpgRBnvhCkaKzE26mTXi8xpgK9FpxKhvQR/w4nOYI6PKPpxYLrRcs0cRW?=
+ =?us-ascii?q?ZYQstRSzBBDZmgYIsPEeUBOPhXr4/hp1cXsxS+AxCgCuToyj9OmHD33bQ23P?=
+ =?us-ascii?q?onEQrb2AAtEc4CvGjRoNjzKawcU/26zLPQwDvNb/1Wwynz5ovVfB8uvf6CUq?=
+ =?us-ascii?q?l9cdbTxEYzCw/JkkmcpZLjMjiI1uoNqW+b7+94WOy1lWEntx9+oiKyzcgsjY?=
+ =?us-ascii?q?nJgI0VwU3D+CVh3ok1OcO3SFR1YN6jFptQuDqXN4ttQsw5X25kojo1yroDuZ?=
+ =?us-ascii?q?KhfCgKy40qyhjCYPKEa4iF+gzvWPuTLDtimX5odq6ziwys/UWv0OHxWMm53V?=
+ =?us-ascii?q?BXpSRfiNbMrGoC1xnL58iCTfty41mu1C6U1wDW9uFEOUc0lbfHK5I5wr4/iJ?=
+ =?us-ascii?q?4TsUPbEy/zgkr2jauWdl869eis9+jqba/qpoGbN4BpkA7+PKMumsqhDugiLA?=
+ =?us-ascii?q?cORHCX+eW61LL94U30WKtGguA0n6XDrZzXK9gXqrSnDwJayIou5RayAy+j0N?=
+ =?us-ascii?q?sCnHkHKFxFeAiAj4jsI1zOOO73DeuhjFS2njZrwPbGPrL6D5XNNXjMi6vuca?=
+ =?us-ascii?q?xh5E5bzQo/19Bf55FMBrEbPP3zQlPxtMDfDhIhKAy03/zoB8551owAQm+PHK?=
+ =?us-ascii?q?CZP73IsVOS5eIgPfOMZIkLtzb5MfQl4OTujXBq0WMaKLK11JETZVimEfl8ZU?=
+ =?us-ascii?q?aUe3zhhpEGC2hZhAcmSP3Wjwi6XCJefT6NWKQzrmUjBZ6rF5jEQI+tm7aK3C?=
+ =?us-ascii?q?STEZhfZ2QAAVeJRyTGbYKBDs8BdC+IavBmlDNMAaCsV4I7yhaouyf60LBsaO?=
+ =?us-ascii?q?HT/2sYtsSwh5BO++TPmERrpnRPBMOH3jTWFzl5?=
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: =?us-ascii?q?A2HVAQArehpelyMYgtlMGBoBAQEBAQE?=
+ =?us-ascii?q?BAQEDAQEBAREBAQECAgEBAQGBaAQBAQEBCwEBGwQBgSmBTVIgEpNQgU0fg0O?=
+ =?us-ascii?q?LY4EAgx4VhgcUDIFbDQEBAQEBNQIBAYRATgEXgQ8kNQgOAgMNAQEFAQEBAQE?=
+ =?us-ascii?q?FBAEBAhABAQEBAQYYBoVzgh0MHgEEAQEBAQMDAwEBDAGDXQcZDzlKTAEOAVO?=
+ =?us-ascii?q?DBIJLAQEznXsBjQQNDQKFHYI7BAqBCYEaI4E2AYwYGoFBP4EjIYIrCAGCAYJ?=
+ =?us-ascii?q?/ARIBbIJIglkEjUISIYEHiCmYF4JBBHaJTIwCgjcBD4gBhDEDEIJFD4EJiAO?=
+ =?us-ascii?q?EToF9ozdXdAGBHnEzGoImGoEgTxgNiBuOLUCBFhACT4xbgjIBAQ?=
+X-IPAS-Result: =?us-ascii?q?A2HVAQArehpelyMYgtlMGBoBAQEBAQEBAQEDAQEBAREBA?=
+ =?us-ascii?q?QECAgEBAQGBaAQBAQEBCwEBGwQBgSmBTVIgEpNQgU0fg0OLY4EAgx4VhgcUD?=
+ =?us-ascii?q?IFbDQEBAQEBNQIBAYRATgEXgQ8kNQgOAgMNAQEFAQEBAQEFBAEBAhABAQEBA?=
+ =?us-ascii?q?QYYBoVzgh0MHgEEAQEBAQMDAwEBDAGDXQcZDzlKTAEOAVODBIJLAQEznXsBj?=
+ =?us-ascii?q?QQNDQKFHYI7BAqBCYEaI4E2AYwYGoFBP4EjIYIrCAGCAYJ/ARIBbIJIglkEj?=
+ =?us-ascii?q?UISIYEHiCmYF4JBBHaJTIwCgjcBD4gBhDEDEIJFD4EJiAOEToF9ozdXdAGBH?=
+ =?us-ascii?q?nEzGoImGoEgTxgNiBuOLUCBFhACT4xbgjIBAQ?=
+X-IronPort-AV: E=Sophos;i="5.69,423,1571695200"; 
+   d="scan'208";a="323111585"
+Received: from mailrel04.vodafone.es ([217.130.24.35])
+  by mail02.vodafone.es with ESMTP; 12 Jan 2020 02:47:39 +0100
+Received: (qmail 15556 invoked from network); 11 Jan 2020 23:10:55 -0000
+Received: from unknown (HELO 192.168.1.3) (quesosbelda@[217.217.179.17])
+          (envelope-sender <peterwong@hsbc.com.hk>)
+          by mailrel04.vodafone.es (qmail-ldap-1.03) with SMTP
+          for <stable@vger.kernel.org>; 11 Jan 2020 23:10:55 -0000
+Date:   Sun, 12 Jan 2020 00:10:52 +0100 (CET)
+From:   Peter Wong <peterwong@hsbc.com.hk>
+Reply-To: Peter Wong <peterwonghsbchk@gmail.com>
 To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <2680044.89047.1578784254863.JavaMail.cash@217.130.24.55>
+Subject: Investment opportunity
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 80 boots: 1 failed, 78 passed with 1 untried/u=
-nknown (v4.19.94-84-g4f77fc728c70)
+Greetings,
+Please read the attached investment proposal and reply for more details.
+Are you interested in loan?
+Sincerely: Peter Wong
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.94-84-g4f77fc728c70/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.94-84-g4f77fc728c70/
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.94-84-g4f77fc728c70
-Git Commit: 4f77fc728c7082f1c925966660d42fcd34780e6c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 47 unique boards, 16 SoC families, 15 builds out of 206
 
-Boot Failure Detected:
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+----------------------------------------------------
+This email was sent by the shareware version of Postman Professional.
 
----
-For more info write to <info@kernelci.org>
