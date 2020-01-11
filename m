@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95AFE137DA8
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A60E4137FA3
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:21:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729346AbgAKJ77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:59:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55378 "EHLO mail.kernel.org"
+        id S1730491AbgAKKVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:21:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729133AbgAKJ77 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:59:59 -0500
+        id S1729296AbgAKKVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:21:36 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B612A20848;
-        Sat, 11 Jan 2020 09:59:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A131820848;
+        Sat, 11 Jan 2020 10:21:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736798;
-        bh=JFCUHKxyVKwgSL+NanAh19r9rBcLUNYoar4WgrPBQPA=;
+        s=default; t=1578738095;
+        bh=HJ0ymcUkdCCjoz9nZLNfodLIvHB94KyevMzMw3Nhzz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vs1d7g04Ftg87jKWOp35PgenG/EgLCpwGkwTyeQPtsYbveYTkE++J6itIjZQNqxU9
-         baAVpw+DG/xJDsmWDDfh30oawQ7NHNtwZa0mTGNtZl8swTHE+6JzSjXm5kLLUF4RrF
-         /JQU1TNKbcsuyyngsPsNWgglGNjT3xYsyFko8Fkg=
+        b=SCmrme02gOVDB7+ZU3reQ3YpoNYMVBUXYAlEG12wm9/2ZK1RY3dVSAZYsNPRyoqlg
+         C9bZ7v89ef7SISeF+n/uR9Iuadq4T46FcxZmXCxJ5caC/RzaSsfiihFgCP3ssMSG0U
+         GPCEF9qv3Lf9qPZv/MFOZ9KWPJ3Vyb4Rny1Dp6ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 10/91] s390/cpum_sf: Avoid SBD overflow condition in irq handler
-Date:   Sat, 11 Jan 2020 10:49:03 +0100
-Message-Id: <20200111094846.581063465@linuxfoundation.org>
+Subject: [PATCH 5.4 025/165] ARM: dts: imx6ul: imx6ul-14x14-evk.dtsi: Fix SPI NOR probing
+Date:   Sat, 11 Jan 2020 10:49:04 +0100
+Message-Id: <20200111094922.896386049@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Stefan Roese <sr@denx.de>
 
-[ Upstream commit 0539ad0b22877225095d8adef0c376f52cc23834 ]
+[ Upstream commit 0aeb1f2b74f3402e9cdb7c0b8e2c369c9767301e ]
 
-The s390 CPU Measurement sampling facility has an overflow condition
-which fires when all entries in a SBD are used.
-The measurement alert interrupt is triggered and reads out all samples
-in this SDB. It then tests the successor SDB, if this SBD is not full,
-the interrupt handler does not read any samples at all from this SDB
-The design waits for the hardware to fill this SBD and then trigger
-another meassurement alert interrupt.
+Without this "jedec,spi-nor" compatible property, probing of the SPI NOR
+does not work on the NXP i.MX6ULL EVK. Fix this by adding this
+compatible property to the DT.
 
-This scheme works nicely until
-an perf_event_overflow() function call discards the sample due to
-a too high sampling rate.
-The interrupt handler has logic to read out a partially filled SDB
-when the perf event overflow condition in linux common code is met.
-This causes the CPUM sampling measurement hardware and the PMU
-device driver to operate on the same SBD's trailer entry.
-This should not happen.
-
-This can be seen here using this trace:
-   cpumsf_pmu_add: tear:0xb5286000
-   hw_perf_event_update: sdbt 0xb5286000 full 1 over 0 flush_all:0
-   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
-        above shows 1. interrupt
-   hw_perf_event_update: sdbt 0xb5286008 full 1 over 0 flush_all:0
-   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
-        above shows 2. interrupt
-	... this goes on fine until...
-   hw_perf_event_update: sdbt 0xb5286068 full 1 over 0 flush_all:0
-   perf_push_sample1: overflow
-      one or more samples read from the IRQ handler are rejected by
-      perf_event_overflow() and the IRQ handler advances to the next SDB
-      and modifies the trailer entry of a partially filled SDB.
-   hw_perf_event_update: sdbt 0xb5286070 full 0 over 0 flush_all:1
-      timestamp: 14:32:52.519953
-
-Next time the IRQ handler is called for this SDB the trailer entry shows
-an overflow count of 19 missed entries.
-   hw_perf_event_update: sdbt 0xb5286070 full 1 over 19 flush_all:1
-      timestamp: 14:32:52.970058
-
-Remove access to a follow on SDB when event overflow happened.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 7d77b8505aa9 ("ARM: dts: imx6ull: fix the imx6ull-14x14-evk configuration")
+Signed-off-by: Stefan Roese <sr@denx.de>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 6 ------
- 1 file changed, 6 deletions(-)
+ arch/arm/boot/dts/imx6ul-14x14-evk.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 3b8e5a3d2d64..c62eb09b2ba7 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1295,12 +1295,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
- 		 */
- 		if (flush_all && done)
- 			break;
--
--		/* If an event overflow happened, discard samples by
--		 * processing any remaining sample-data-blocks.
--		 */
--		if (event_overflow)
--			flush_all = 1;
- 	}
- 
- 	/* Account sample overflows in the event hardware structure */
+diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk.dtsi b/arch/arm/boot/dts/imx6ul-14x14-evk.dtsi
+index c2a9dd57e56a..aa86341adaaa 100644
+--- a/arch/arm/boot/dts/imx6ul-14x14-evk.dtsi
++++ b/arch/arm/boot/dts/imx6ul-14x14-evk.dtsi
+@@ -215,7 +215,7 @@
+ 	flash0: n25q256a@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "micron,n25q256a";
++		compatible = "micron,n25q256a", "jedec,spi-nor";
+ 		spi-max-frequency = <29000000>;
+ 		spi-rx-bus-width = <4>;
+ 		spi-tx-bus-width = <4>;
 -- 
 2.20.1
 
