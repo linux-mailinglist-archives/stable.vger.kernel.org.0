@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 701FB137FD9
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61AC5137FDB
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730631AbgAKKXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:23:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51044 "EHLO mail.kernel.org"
+        id S1729426AbgAKKXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:23:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728833AbgAKKXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:23:37 -0500
+        id S1728833AbgAKKXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:23:42 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DAE52087F;
-        Sat, 11 Jan 2020 10:23:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D90520880;
+        Sat, 11 Jan 2020 10:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738217;
-        bh=rKXG2FfPMLu109YtxLFFCzBWv+qZUCaZCORPmxlgi04=;
+        s=default; t=1578738221;
+        bh=jvIKsNNS0M5HdCCq0no463cJMVXdRbq/EAGpse4yLuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ggcTK3SO+SzvAWzZMALf6cYT37fAaI0pVP0u9VkPRmiazzhLnFf2BN+M95yBIZjeF
-         hw2ARSkwMGCchnYwuEXxfsTUEMQvX+LwDKQyjPN8Ci8mRVwScLmSlsVgUaRQrg0nBx
-         5wn4uimh88gLot7f857OYw2Uj0G9aKZi1USs95aw=
+        b=KXqclM7C8ciHEHp0Se5Ox4YaaFGdA4QPPWuHuC171d/vnmpK1soJlHt4L2dUrMeug
+         Et/CcZ0sMZGpYU7Qm87nkW5W3Kk/cuUHCCLWBHjdqxk8OH5xRtPJ45dPvMDAztkPLv
+         Ti4EMs9m8mhUZ3f8NEahD/4VkQbNDktIqJsilCuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 035/165] selftests/ftrace: Fix ftrace test cases to check unsupported
-Date:   Sat, 11 Jan 2020 10:49:14 +0100
-Message-Id: <20200111094924.083776544@linuxfoundation.org>
+Subject: [PATCH 5.4 036/165] selftests/ftrace: Do not to use absolute debugfs path
+Date:   Sat, 11 Jan 2020 10:49:15 +0100
+Message-Id: <20200111094924.138112623@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -47,55 +47,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 25deae098e748d8d36bc35129a66734b8f6925c9 ]
+[ Upstream commit ba1b9c5048e43716921abe3a1db19cebebf4a5f5 ]
 
-Since dynamic function tracer can be disabled, set_ftrace_filter
-can be disappeared. Test cases which depends on it, must check
-whether the set_ftrace_filter exists or not before testing
-and if not, return as unsupported.
-
-Also, if the function tracer itself is disabled, we can not
-set "function" to current_tracer. Test cases must check it
-before testing, and return as unsupported.
+Use relative path to trigger file instead of absolute debugfs path,
+because if the user uses tracefs instead of debugfs, it can be
+mounted at /sys/kernel/tracing.
+Anyway, since the ftracetest is designed to be run at the tracing
+directory, user doesn't need to use absolute path.
 
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/ftrace/func-filter-stacktrace.tc | 2 ++
- tools/testing/selftests/ftrace/test.d/ftrace/func_cpumask.tc | 5 +++++
- 2 files changed, 7 insertions(+)
+ .../test.d/trigger/inter-event/trigger-action-hist-xfail.tc   | 4 ++--
+ .../trigger/inter-event/trigger-onchange-action-hist.tc       | 2 +-
+ .../trigger/inter-event/trigger-snapshot-action-hist.tc       | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-stacktrace.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-stacktrace.tc
-index 36fb59f886ea..1a52f2883fe0 100644
---- a/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-stacktrace.tc
-+++ b/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-stacktrace.tc
-@@ -3,6 +3,8 @@
- # description: ftrace - stacktrace filter command
- # flags: instance
+diff --git a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-action-hist-xfail.tc b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-action-hist-xfail.tc
+index 1221240f8cf6..3f2aee115f6e 100644
+--- a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-action-hist-xfail.tc
++++ b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-action-hist-xfail.tc
+@@ -21,10 +21,10 @@ grep -q "snapshot()" README || exit_unsupported # version issue
  
-+[ ! -f set_ftrace_filter ] && exit_unsupported
-+
- echo _do_fork:stacktrace >> set_ftrace_filter
+ echo "Test expected snapshot action failure"
  
- grep -q "_do_fork:stacktrace:unlimited" set_ftrace_filter
-diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func_cpumask.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func_cpumask.tc
-index 86a1f07ef2ca..71fa3f49e35e 100644
---- a/tools/testing/selftests/ftrace/test.d/ftrace/func_cpumask.tc
-+++ b/tools/testing/selftests/ftrace/test.d/ftrace/func_cpumask.tc
-@@ -15,6 +15,11 @@ if [ $NP -eq 1 ] ;then
-   exit_unresolved
- fi
+-echo 'hist:keys=comm:onmatch(sched.sched_wakeup).snapshot()' >> /sys/kernel/debug/tracing/events/sched/sched_waking/trigger && exit_fail
++echo 'hist:keys=comm:onmatch(sched.sched_wakeup).snapshot()' >> events/sched/sched_waking/trigger && exit_fail
  
-+if ! grep -q "function" available_tracers ; then
-+  echo "Function trace is not enabled"
-+  exit_unsupported
-+fi
-+
- ORIG_CPUMASK=`cat tracing_cpumask`
+ echo "Test expected save action failure"
  
- do_reset() {
+-echo 'hist:keys=comm:onmatch(sched.sched_wakeup).save(comm,prio)' >> /sys/kernel/debug/tracing/events/sched/sched_waking/trigger && exit_fail
++echo 'hist:keys=comm:onmatch(sched.sched_wakeup).save(comm,prio)' >> events/sched/sched_waking/trigger && exit_fail
+ 
+ exit_xfail
+diff --git a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-onchange-action-hist.tc b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-onchange-action-hist.tc
+index 064a284e4e75..c80007aa9f86 100644
+--- a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-onchange-action-hist.tc
++++ b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-onchange-action-hist.tc
+@@ -16,7 +16,7 @@ grep -q "onchange(var)" README || exit_unsupported # version issue
+ 
+ echo "Test onchange action"
+ 
+-echo 'hist:keys=comm:newprio=prio:onchange($newprio).save(comm,prio) if comm=="ping"' >> /sys/kernel/debug/tracing/events/sched/sched_waking/trigger
++echo 'hist:keys=comm:newprio=prio:onchange($newprio).save(comm,prio) if comm=="ping"' >> events/sched/sched_waking/trigger
+ 
+ ping $LOCALHOST -c 3
+ nice -n 1 ping $LOCALHOST -c 3
+diff --git a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-snapshot-action-hist.tc b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-snapshot-action-hist.tc
+index 18fff69fc433..f546c1b66a9b 100644
+--- a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-snapshot-action-hist.tc
++++ b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-snapshot-action-hist.tc
+@@ -23,9 +23,9 @@ grep -q "snapshot()" README || exit_unsupported # version issue
+ 
+ echo "Test snapshot action"
+ 
+-echo 1 > /sys/kernel/debug/tracing/events/sched/enable
++echo 1 > events/sched/enable
+ 
+-echo 'hist:keys=comm:newprio=prio:onchange($newprio).save(comm,prio):onchange($newprio).snapshot() if comm=="ping"' >> /sys/kernel/debug/tracing/events/sched/sched_waking/trigger
++echo 'hist:keys=comm:newprio=prio:onchange($newprio).save(comm,prio):onchange($newprio).snapshot() if comm=="ping"' >> events/sched/sched_waking/trigger
+ 
+ ping $LOCALHOST -c 3
+ nice -n 1 ping $LOCALHOST -c 3
 -- 
 2.20.1
 
