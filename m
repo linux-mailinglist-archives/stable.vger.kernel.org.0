@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28D0A137DDF
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:02:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D68137FE0
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728996AbgAKKCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:02:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60856 "EHLO mail.kernel.org"
+        id S1730955AbgAKKX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:23:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729034AbgAKKCZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:02:25 -0500
+        id S1730850AbgAKKX5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:23:57 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 617CA20842;
-        Sat, 11 Jan 2020 10:02:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAF6D205F4;
+        Sat, 11 Jan 2020 10:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736945;
-        bh=rqh2HQ0MrSBQu+Rjr4Pxb85MCFGCTcTehbCzdEyqgR0=;
+        s=default; t=1578738236;
+        bh=zKTBkj+dms4Z/T6nHnFDicQS7r9JXyUG8csVj+Gi90c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TRG/XuyfsD288rV3uTzn7J3YczCbFSNjGC0FV2mVsg94+iR7bQPq9dru4a9CqBcUh
-         IyNPIfs3d6d9yOQpn0GhtGeUyXv3c3//Xw2wvNXuP6AS9Y/LTIhbDH1XWn93qX51jD
-         ++bmAkr6Ghw/BL1mrSnG7s0dLP1kfHhN8n5IzXYo=
+        b=CezUM83UskxEAUl2+jzcnHoURjBdaVS6TYDDO6sbWlp4ps1ok2JJAluIqp3LMXsHA
+         yPgYz0Izx++xOW1c66QzHVARxZ5hcIF4fIdIVbkmBOHx+VjiJ04iijxb1RyJaA0OmT
+         t7ZUCBwbOJqAf0nuX//KKcFEo+mCy3UwT92SPV3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 4.9 35/91] nfsd4: fix up replay_matches_cache()
+        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 049/165] ARM: dts: am335x-sancloud-bbe: fix phy mode
 Date:   Sat, 11 Jan 2020 10:49:28 +0100
-Message-Id: <20200111094858.163637835@linuxfoundation.org>
+Message-Id: <20200111094925.508283640@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Mans Rullgard <mans@mansr.com>
 
-commit 6e73e92b155c868ff7fce9d108839668caf1d9be upstream.
+[ Upstream commit c842b8c4ff9859f750447f3ca08f64b2ed23cebc ]
 
-When running an nfs stress test, I see quite a few cached replies that
-don't match up with the actual request.  The first comment in
-replay_matches_cache() makes sense, but the code doesn't seem to
-match... fix it.
+The phy mode should be rgmii-id.  For some reason, it used to work with
+rgmii-txid but doesn't any more.
 
-This isn't exactly a bugfix, as the server isn't required to catch every
-case of a false retry.  So, we may as well do this, but if this is
-fixing a problem then that suggests there's a client bug.
-
-Fixes: 53da6a53e1d4 ("nfsd4: catch some false session retries")
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/am335x-sancloud-bbe.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -3067,12 +3067,17 @@ static bool replay_matches_cache(struct
- 	    (bool)seq->cachethis)
- 		return false;
- 	/*
--	 * If there's an error than the reply can have fewer ops than
--	 * the call.  But if we cached a reply with *more* ops than the
--	 * call you're sending us now, then this new call is clearly not
--	 * really a replay of the old one:
-+	 * If there's an error then the reply can have fewer ops than
-+	 * the call.
- 	 */
--	if (slot->sl_opcnt < argp->opcnt)
-+	if (slot->sl_opcnt < argp->opcnt && !slot->sl_status)
-+		return false;
-+	/*
-+	 * But if we cached a reply with *more* ops than the call you're
-+	 * sending us now, then this new call is clearly not really a
-+	 * replay of the old one:
-+	 */
-+	if (slot->sl_opcnt > argp->opcnt)
- 		return false;
- 	/* This is the only check explicitly called by spec: */
- 	if (!same_creds(&rqstp->rq_cred, &slot->sl_cred))
+diff --git a/arch/arm/boot/dts/am335x-sancloud-bbe.dts b/arch/arm/boot/dts/am335x-sancloud-bbe.dts
+index 8678e6e35493..e5fdb7abb0d5 100644
+--- a/arch/arm/boot/dts/am335x-sancloud-bbe.dts
++++ b/arch/arm/boot/dts/am335x-sancloud-bbe.dts
+@@ -108,7 +108,7 @@
+ 
+ &cpsw_emac0 {
+ 	phy-handle = <&ethphy0>;
+-	phy-mode = "rgmii-txid";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &i2c0 {
+-- 
+2.20.1
+
 
 
