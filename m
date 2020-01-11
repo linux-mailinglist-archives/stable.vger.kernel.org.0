@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BADF138090
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:31:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD60A138092
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:31:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731292AbgAKKb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:31:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43090 "EHLO mail.kernel.org"
+        id S1729029AbgAKKbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:31:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728901AbgAKKbZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:31:25 -0500
+        id S1728919AbgAKKbl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:31:41 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 111A120880;
-        Sat, 11 Jan 2020 10:31:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2DEB20678;
+        Sat, 11 Jan 2020 10:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738684;
-        bh=6P3mEpt+EZtfaqkH6sYTaUltr3yxoCaUdwy0Fm+ZyJg=;
+        s=default; t=1578738700;
+        bh=K/FnqOrzPxXzd8Cy29EfUt4mTxgmx4R4v4ePT54WymU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YIgT2qq84T+7QhZB2nqKzXhetqrK8aVe7Zft5gh00akKOxIBqMmbo8Dcv5XI53Z+7
-         4Er4xmugeGEJ9CUIUO0rP3mK7rm7p0lRLkX2cqRZfyvcKH2lAEui7t2SwBxexV0G9g
-         0y/m+0Co0I2gOsfhWx8FvwOsEzdC3KInDBl5n8KU=
+        b=1xNUnTALHSeWicej83hfCeVRv+3IEdVYaqGdZ9NBjjlE+/ZGw5i9lftBdWDGi92mL
+         L9+a+QQXtAaUAPCAxFRw15wp+G3uDHgMgz5ToTO7SiDpitKpNEwney8+Mq3jgnZvVu
+         hvVlyEg0pUccSMRekH6ZnTJPW5lHoHrnJ0seJYCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Garrett <mjg59@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 137/165] tracing: Do not create directories if lockdown is in affect
-Date:   Sat, 11 Jan 2020 10:50:56 +0100
-Message-Id: <20200111094937.426468077@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 138/165] gtp: fix bad unlock balance in gtp_encap_enable_socket
+Date:   Sat, 11 Jan 2020 10:50:57 +0100
+Message-Id: <20200111094937.659697179@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -43,90 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit a356646a56857c2e5ad875beec734d7145ecd49a upstream.
+[ Upstream commit 90d72256addff9e5f8ad645e8f632750dd1f8935 ]
 
-If lockdown is disabling tracing on boot up, it prevents the tracing files
-from even bering created. But when that happens, there's several places that
-will give a warning that the files were not created as that is usually a
-sign of a bug.
+WARNING: bad unlock balance detected!
+5.5.0-rc5-syzkaller #0 Not tainted
+-------------------------------------
+syz-executor921/9688 is trying to release lock (sk_lock-AF_INET6) at:
+[<ffffffff84bf8506>] gtp_encap_enable_socket+0x146/0x400 drivers/net/gtp.c:830
+but there are no more locks to release!
 
-Add in strategic locations where a check is made to see if tracing is
-disabled by lockdown, and if it is, do not go further, and fail silently
-(but print that tracing is disabled by lockdown, without doing a WARN_ON()).
+other info that might help us debug this:
+2 locks held by syz-executor921/9688:
+ #0: ffffffff8a4d8840 (rtnl_mutex){+.+.}, at: rtnl_lock net/core/rtnetlink.c:72 [inline]
+ #0: ffffffff8a4d8840 (rtnl_mutex){+.+.}, at: rtnetlink_rcv_msg+0x405/0xaf0 net/core/rtnetlink.c:5421
+ #1: ffff88809304b560 (slock-AF_INET6){+...}, at: spin_lock_bh include/linux/spinlock.h:343 [inline]
+ #1: ffff88809304b560 (slock-AF_INET6){+...}, at: release_sock+0x20/0x1c0 net/core/sock.c:2951
 
-Cc: Matthew Garrett <mjg59@google.com>
-Fixes: 17911ff38aa5 ("tracing: Add locked_down checks to the open calls of files created for tracefs")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+stack backtrace:
+CPU: 0 PID: 9688 Comm: syz-executor921 Not tainted 5.5.0-rc5-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ print_unlock_imbalance_bug kernel/locking/lockdep.c:4008 [inline]
+ print_unlock_imbalance_bug.cold+0x114/0x123 kernel/locking/lockdep.c:3984
+ __lock_release kernel/locking/lockdep.c:4242 [inline]
+ lock_release+0x5f2/0x960 kernel/locking/lockdep.c:4503
+ sock_release_ownership include/net/sock.h:1496 [inline]
+ release_sock+0x17c/0x1c0 net/core/sock.c:2961
+ gtp_encap_enable_socket+0x146/0x400 drivers/net/gtp.c:830
+ gtp_encap_enable drivers/net/gtp.c:852 [inline]
+ gtp_newlink+0x9fc/0xc60 drivers/net/gtp.c:666
+ __rtnl_newlink+0x109e/0x1790 net/core/rtnetlink.c:3305
+ rtnl_newlink+0x69/0xa0 net/core/rtnetlink.c:3363
+ rtnetlink_rcv_msg+0x45e/0xaf0 net/core/rtnetlink.c:5424
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5442
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x58c/0x7d0 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x91c/0xea0 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:639 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:659
+ ____sys_sendmsg+0x753/0x880 net/socket.c:2330
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2384
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2417
+ __do_sys_sendmsg net/socket.c:2426 [inline]
+ __se_sys_sendmsg net/socket.c:2424 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2424
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x445d49
+Code: e8 bc b7 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 2b 12 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f8019074db8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00000000006dac38 RCX: 0000000000445d49
+RDX: 0000000000000000 RSI: 0000000020000180 RDI: 0000000000000003
+RBP: 00000000006dac30 R08: 0000000000000004 R09: 0000000000000000
+R10: 0000000000000008 R11: 0000000000000246 R12: 00000000006dac3c
+R13: 00007ffea687f6bf R14: 00007f80190759c0 R15: 20c49ba5e353f7cf
+
+Fixes: e198987e7dd7 ("gtp: fix suspicious RCU usage")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/trace/ring_buffer.c |    6 ++++++
- kernel/trace/trace.c       |   17 +++++++++++++++++
- 2 files changed, 23 insertions(+)
+ drivers/net/gtp.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -11,6 +11,7 @@
- #include <linux/trace_seq.h>
- #include <linux/spinlock.h>
- #include <linux/irq_work.h>
-+#include <linux/security.h>
- #include <linux/uaccess.h>
- #include <linux/hardirq.h>
- #include <linux/kthread.h>	/* for self test */
-@@ -5068,6 +5069,11 @@ static __init int test_ringbuffer(void)
- 	int cpu;
- 	int ret = 0;
- 
-+	if (security_locked_down(LOCKDOWN_TRACEFS)) {
-+		pr_warning("Lockdown is enabled, skipping ring buffer tests\n");
-+		return 0;
-+	}
-+
- 	pr_info("Running ring buffer tests...\n");
- 
- 	buffer = ring_buffer_alloc(RB_TEST_BUFFER_SIZE, RB_FL_OVERWRITE);
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1804,6 +1804,12 @@ int __init register_tracer(struct tracer
- 		return -1;
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -813,7 +813,7 @@ static struct sock *gtp_encap_enable_soc
+ 	lock_sock(sock->sk);
+ 	if (sock->sk->sk_user_data) {
+ 		sk = ERR_PTR(-EBUSY);
+-		goto out_sock;
++		goto out_rel_sock;
  	}
  
-+	if (security_locked_down(LOCKDOWN_TRACEFS)) {
-+		pr_warning("Can not register tracer %s due to lockdown\n",
-+			   type->name);
-+		return -EPERM;
-+	}
-+
- 	mutex_lock(&trace_types_lock);
+ 	sk = sock->sk;
+@@ -826,8 +826,9 @@ static struct sock *gtp_encap_enable_soc
  
- 	tracing_selftest_running = true;
-@@ -8647,6 +8653,11 @@ struct dentry *tracing_init_dentry(void)
- {
- 	struct trace_array *tr = &global_trace;
+ 	setup_udp_tunnel_sock(sock_net(sock->sk), sock, &tuncfg);
  
-+	if (security_locked_down(LOCKDOWN_TRACEFS)) {
-+		pr_warning("Tracing disabled due to lockdown\n");
-+		return ERR_PTR(-EPERM);
-+	}
-+
- 	/* The top level trace array uses  NULL as parent */
- 	if (tr->dir)
- 		return NULL;
-@@ -9089,6 +9100,12 @@ __init static int tracer_alloc_buffers(v
- 	int ring_buf_size;
- 	int ret = -ENOMEM;
- 
-+
-+	if (security_locked_down(LOCKDOWN_TRACEFS)) {
-+		pr_warning("Tracing disabled due to lockdown\n");
-+		return -EPERM;
-+	}
-+
- 	/*
- 	 * Make sure we don't accidently add more trace options
- 	 * than we have bits for.
+-out_sock:
++out_rel_sock:
+ 	release_sock(sock->sk);
++out_sock:
+ 	sockfd_put(sock);
+ 	return sk;
+ }
 
 
