@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF60A137EED
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:15:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE82F137E0D
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:06:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730137AbgAKKPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:15:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56414 "EHLO mail.kernel.org"
+        id S1729510AbgAKKE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:04:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730048AbgAKKPO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:15:14 -0500
+        id S1729517AbgAKKEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:04:25 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD0CE20673;
-        Sat, 11 Jan 2020 10:15:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF58920848;
+        Sat, 11 Jan 2020 10:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737713;
-        bh=krTLrVFMMhFw59KqM6Sc1XIPnvxmiQ9iy0lkBLR8KnA=;
+        s=default; t=1578737064;
+        bh=zzWo/VpO3F0hQ1irh1MATqWf6Naq9PBHIWWuISSMs5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ww7ly9fyp54VIAZbyDAE9T+tQB8DlwwqNCkHsoRhn59E0kJouWtytJAafKKplxoqV
-         R/CutnQJaMQroQ3YxzvLG+TLhRQqTd/Hf1gQgcDohn8aHHp9+YZtBeRmwtUFm5Go1T
-         XXZmR4q8LxJQLyifQ/zNqT2IPxr/cuk0F0FzlTj8=
+        b=D5uJAc+6T+DnPxwl4gBPtBhVUNGV9TQF//t0QY2L/uSGtmsDHKjVAYekklKwu6KbP
+         sbjikCmfioKmbmYak1lXJDGFvnRy8Mzf4mY6Qm/w/G2MdKXyRxAQS/M9T9I1dH2VJB
+         T87CckR43csRhZzaV6ST0KB5rEuJKrpVQ8eIDYc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/84] ASoC: Intel: bytcr_rt5640: Update quirk for Teclast X89
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 55/91] locking/x86: Remove the unused atomic_inc_short() methd
 Date:   Sat, 11 Jan 2020 10:49:48 +0100
-Message-Id: <20200111094848.526477075@linuxfoundation.org>
+Message-Id: <20200111094905.611021015@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +51,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dmitry Vyukov <dvyukov@google.com>
 
-[ Upstream commit 7eccc05c7101f34cc36afe9405d15de6d4099fb4 ]
+commit 31b35f6b4d5285a311e10753f4eb17304326b211 upstream.
 
-When the Teclast X89 quirk was added we did not have jack-detection
-support yet.
+It is completely unused and implemented only on x86.
+Remove it.
 
-Note the over-current detection limit is set to 2mA instead of the usual
-1.5mA because this tablet tends to give false-positive button-presses
-when it is set to 1.5mA.
+Suggested-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/20170526172900.91058-1-dvyukov@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191203221442.2657-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/tile/lib/atomic_asm_32.S |    3 +--
+ arch/x86/include/asm/atomic.h |   13 -------------
+ 2 files changed, 1 insertion(+), 15 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 6acd5dd599dc..e58240e18b30 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -677,13 +677,17 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_MCLK_EN),
- 	},
- 	{
-+		/* Teclast X89 */
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
- 			DMI_MATCH(DMI_BOARD_NAME, "tPAD"),
- 		},
- 		.driver_data = (void *)(BYT_RT5640_IN3_MAP |
--					BYT_RT5640_MCLK_EN |
--					BYT_RT5640_SSP0_AIF1),
-+					BYT_RT5640_JD_SRC_JD1_IN4P |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_1P0 |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
- 	},
- 	{	/* Toshiba Satellite Click Mini L9W-B */
- 		.matches = {
--- 
-2.20.1
-
+--- a/arch/tile/lib/atomic_asm_32.S
++++ b/arch/tile/lib/atomic_asm_32.S
+@@ -24,8 +24,7 @@
+  * has an opportunity to return -EFAULT to the user if needed.
+  * The 64-bit routines just return a "long long" with the value,
+  * since they are only used from kernel space and don't expect to fault.
+- * Support for 16-bit ops is included in the framework but we don't provide
+- * any (x86_64 has an atomic_inc_short(), so we might want to some day).
++ * Support for 16-bit ops is included in the framework but we don't provide any.
+  *
+  * Note that the caller is advised to issue a suitable L1 or L2
+  * prefetch on the address being manipulated to avoid extra stalls.
+--- a/arch/x86/include/asm/atomic.h
++++ b/arch/x86/include/asm/atomic.h
+@@ -249,19 +249,6 @@ static __always_inline int __atomic_add_
+ 	return c;
+ }
+ 
+-/**
+- * atomic_inc_short - increment of a short integer
+- * @v: pointer to type int
+- *
+- * Atomically adds 1 to @v
+- * Returns the new value of @u
+- */
+-static __always_inline short int atomic_inc_short(short int *v)
+-{
+-	asm(LOCK_PREFIX "addw $1, %0" : "+m" (*v));
+-	return *v;
+-}
+-
+ #ifdef CONFIG_X86_32
+ # include <asm/atomic64_32.h>
+ #else
 
 
