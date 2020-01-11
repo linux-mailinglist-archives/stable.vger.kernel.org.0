@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 576611380B5
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:33:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C761380B8
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:33:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731184AbgAKKdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:33:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
+        id S1731602AbgAKKdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:33:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731514AbgAKKdS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:33:18 -0500
+        id S1731419AbgAKKdX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:33:23 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 258A320842;
-        Sat, 11 Jan 2020 10:33:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DF5A20678;
+        Sat, 11 Jan 2020 10:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738797;
-        bh=3s5JAX5Q2ODEjcC2HpUaI66ihhczXZpmWqli7dJibxU=;
+        s=default; t=1578738803;
+        bh=jQp9bemt5ZIrIqiVgbTZLdlJ8l36Q0NJtwarDDg30/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ATaFfo20IkngoTDMZUK5hCOVAQBwZf/0VXTcrJH9miBnIU2MUhs5XwQ8wZZXySMXx
-         w9ae/4kQjc4AXOE4lOkEPCIeVzsQ5YONt/rCyqzxoQ0BM8rqnboBc/vuKjWGiUz/Ww
-         xUO1n3fvQw4OShYchTBQzCI+aVnp0gqE6bBeZ+KY=
+        b=acOgKofgu9Fuk1N25gMdDUa2SHS57WA/Z5syygwqr4IJrEm4pDb8jebxOd4pfHV5l
+         QWZ22IynMgddZlUfcd1QetQklH8OUGZCBuF1D38bBbfW/GQA8SIeywfMv0t1KXFbTO
+         tJeoWoTRycTiCkCuqVuLKyckGV8XSrvIHdNw9EZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        Kevin Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        cake@lists.bufferbloat.net, netdev@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>
-Subject: [PATCH 5.4 147/165] sch_cake: avoid possible divide by zero in cake_enqueue()
-Date:   Sat, 11 Jan 2020 10:51:06 +0100
-Message-Id: <20200111094939.776468385@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+107c4aff5f392bf1517f@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 148/165] sctp: free cmd->obj.chunk for the unprocessed SCTP_CMD_REPLY
+Date:   Sat, 11 Jan 2020 10:51:07 +0100
+Message-Id: <20200111094940.013179440@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -48,43 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 68aab823c223646fab311f8a6581994facee66a0 ]
+[ Upstream commit be7a7729207797476b6666f046d765bdf9630407 ]
 
-The variables 'window_interval' is u64 and do_div()
-truncates it to 32 bits, which means it can test
-non-zero and be truncated to zero for division.
-The unit of window_interval is nanoseconds,
-so its lower 32-bit is relatively easy to exceed.
-Fix this issue by using div64_u64() instead.
+This patch is to fix a memleak caused by no place to free cmd->obj.chunk
+for the unprocessed SCTP_CMD_REPLY. This issue occurs when failing to
+process a cmd while there're still SCTP_CMD_REPLY cmds on the cmd seq
+with an allocated chunk in cmd->obj.chunk.
 
-Fixes: 7298de9cd725 ("sch_cake: Add ingress mode")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Cc: Kevin Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
-Cc: Toke Høiland-Jørgensen <toke@redhat.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: cake@lists.bufferbloat.net
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+So fix it by freeing cmd->obj.chunk for each SCTP_CMD_REPLY cmd left on
+the cmd seq when any cmd returns error. While at it, also remove 'nomem'
+label.
+
+Reported-by: syzbot+107c4aff5f392bf1517f@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_cake.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sctp/sm_sideeffect.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
---- a/net/sched/sch_cake.c
-+++ b/net/sched/sch_cake.c
-@@ -1769,7 +1769,7 @@ static s32 cake_enqueue(struct sk_buff *
- 						      q->avg_window_begin));
- 			u64 b = q->avg_window_bytes * (u64)NSEC_PER_SEC;
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -1358,8 +1358,10 @@ static int sctp_cmd_interpreter(enum sct
+ 			/* Generate an INIT ACK chunk.  */
+ 			new_obj = sctp_make_init_ack(asoc, chunk, GFP_ATOMIC,
+ 						     0);
+-			if (!new_obj)
+-				goto nomem;
++			if (!new_obj) {
++				error = -ENOMEM;
++				break;
++			}
  
--			do_div(b, window_interval);
-+			b = div64_u64(b, window_interval);
- 			q->avg_peak_bandwidth =
- 				cake_ewma(q->avg_peak_bandwidth, b,
- 					  b > q->avg_peak_bandwidth ? 2 : 8);
+ 			sctp_add_cmd_sf(commands, SCTP_CMD_REPLY,
+ 					SCTP_CHUNK(new_obj));
+@@ -1381,7 +1383,8 @@ static int sctp_cmd_interpreter(enum sct
+ 			if (!new_obj) {
+ 				if (cmd->obj.chunk)
+ 					sctp_chunk_free(cmd->obj.chunk);
+-				goto nomem;
++				error = -ENOMEM;
++				break;
+ 			}
+ 			sctp_add_cmd_sf(commands, SCTP_CMD_REPLY,
+ 					SCTP_CHUNK(new_obj));
+@@ -1428,8 +1431,10 @@ static int sctp_cmd_interpreter(enum sct
+ 
+ 			/* Generate a SHUTDOWN chunk.  */
+ 			new_obj = sctp_make_shutdown(asoc, chunk);
+-			if (!new_obj)
+-				goto nomem;
++			if (!new_obj) {
++				error = -ENOMEM;
++				break;
++			}
+ 			sctp_add_cmd_sf(commands, SCTP_CMD_REPLY,
+ 					SCTP_CHUNK(new_obj));
+ 			break;
+@@ -1765,11 +1770,17 @@ static int sctp_cmd_interpreter(enum sct
+ 			break;
+ 		}
+ 
+-		if (error)
++		if (error) {
++			cmd = sctp_next_cmd(commands);
++			while (cmd) {
++				if (cmd->verb == SCTP_CMD_REPLY)
++					sctp_chunk_free(cmd->obj.chunk);
++				cmd = sctp_next_cmd(commands);
++			}
+ 			break;
++		}
+ 	}
+ 
+-out:
+ 	/* If this is in response to a received chunk, wait until
+ 	 * we are done with the packet to open the queue so that we don't
+ 	 * send multiple packets in response to a single request.
+@@ -1784,7 +1795,4 @@ out:
+ 		sp->data_ready_signalled = 0;
+ 
+ 	return error;
+-nomem:
+-	error = -ENOMEM;
+-	goto out;
+ }
 
 
