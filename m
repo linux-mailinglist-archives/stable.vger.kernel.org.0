@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E90D613803E
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:27:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB1F138052
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:28:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729443AbgAKK1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:27:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33100 "EHLO mail.kernel.org"
+        id S1730908AbgAKK2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:28:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730398AbgAKK1V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:27:21 -0500
+        id S1729383AbgAKK2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:28:19 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F41B92087F;
-        Sat, 11 Jan 2020 10:27:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E793D205F4;
+        Sat, 11 Jan 2020 10:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738440;
-        bh=zOuj6n+fYGJwlWbMnFsq3QNqgVU7cb1hz3VpkEgVXtw=;
+        s=default; t=1578738499;
+        bh=V4IO6kOWJmt05tF5obmitFkuflGbBRrOd2f4vBuEhxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d19xVFCr/B91FrVGvYgn7QZKSRdc83S/fcUHlvJuBDP2njKHb/FR2OhyiRxlNZCdc
-         z7lyFmaIS8xYemQu5e6FzD0u0mmIsAKz5IQ7gEDBiKBRQDD3Lya4tdyp/COoJz95HO
-         tYI+GnbU5/h6WjW6LHKm48RSIrJIy/bbQyHHINDc=
+        b=xG+NWgWkZGSmrOM9l24/dCH/UnbTWhm9tIuBtcmlq5d8eyv6TvX0n3hVaXbOc9AQK
+         Wct3Tv9QCcHJb8FPiwDThXjihWNW3rE9ZX/Ll4sW6nQol9YeK6elAcC5Uf5XjYoTGf
+         Hc/h6t7kyEGJk116KXvSW6UDp12o7Qo5b13AUvtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Sven Schnelle <svens@stackframe.org>,
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/165] parisc: fix compilation when KEXEC=n and KEXEC_FILE=y
-Date:   Sat, 11 Jan 2020 10:50:06 +0100
-Message-Id: <20200111094928.443787499@linuxfoundation.org>
+Subject: [PATCH 5.4 088/165] parisc: add missing __init annotation
+Date:   Sat, 11 Jan 2020 10:50:07 +0100
+Message-Id: <20200111094928.526171242@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -46,51 +45,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit e16260c21f87b16a33ae8ecac9e8c79f3a8b89bd ]
+[ Upstream commit aeea5eae4fd54e94d820ed17ea3b238160be723e ]
 
-Fix compilation when the CONFIG_KEXEC_FILE=y and
-CONFIG_KEXEC=n.
+compilation failed with:
 
-Reported-by: kbuild test robot <lkp@intel.com>
+MODPOST vmlinux.o
+WARNING: vmlinux.o(.text.unlikely+0xa0c): Section mismatch in reference from the function walk_lower_bus() to the function .init.text:walk_native_bus()
+The function walk_lower_bus() references
+the function __init walk_native_bus().
+This is often because walk_lower_bus lacks a __init
+annotation or the annotation of walk_native_bus is wrong.
+
+FATAL: modpost: Section mismatches detected.
+Set CONFIG_SECTION_MISMATCH_WARN_ONLY=y to allow them.
+make[2]: *** [/home/svens/linux/parisc-linux/src/scripts/Makefile.modpost:64: __modpost] Error 1
+make[1]: *** [/home/svens/linux/parisc-linux/src/Makefile:1077: vmlinux] Error 2
+make[1]: Leaving directory '/home/svens/linux/parisc-linux/build'
+make: *** [Makefile:179: sub-make] Error 2
+
 Signed-off-by: Sven Schnelle <svens@stackframe.org>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/include/asm/kexec.h | 4 ----
- arch/parisc/kernel/Makefile     | 2 +-
- 2 files changed, 1 insertion(+), 5 deletions(-)
+ arch/parisc/kernel/drivers.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/parisc/include/asm/kexec.h b/arch/parisc/include/asm/kexec.h
-index a99ea747d7ed..87e174006995 100644
---- a/arch/parisc/include/asm/kexec.h
-+++ b/arch/parisc/include/asm/kexec.h
-@@ -2,8 +2,6 @@
- #ifndef _ASM_PARISC_KEXEC_H
- #define _ASM_PARISC_KEXEC_H
+diff --git a/arch/parisc/kernel/drivers.c b/arch/parisc/kernel/drivers.c
+index 3b330e58a4f0..a6c9f49c6612 100644
+--- a/arch/parisc/kernel/drivers.c
++++ b/arch/parisc/kernel/drivers.c
+@@ -810,7 +810,7 @@ EXPORT_SYMBOL(device_to_hwpath);
+ static void walk_native_bus(unsigned long io_io_low, unsigned long io_io_high,
+                             struct device *parent);
  
--#ifdef CONFIG_KEXEC
--
- /* Maximum physical address we can use pages from */
- #define KEXEC_SOURCE_MEMORY_LIMIT (-1UL)
- /* Maximum address we can reach in physical address mode */
-@@ -32,6 +30,4 @@ static inline void crash_setup_regs(struct pt_regs *newregs,
+-static void walk_lower_bus(struct parisc_device *dev)
++static void __init walk_lower_bus(struct parisc_device *dev)
+ {
+ 	unsigned long io_io_low, io_io_high;
  
- #endif /* __ASSEMBLY__ */
- 
--#endif /* CONFIG_KEXEC */
--
- #endif /* _ASM_PARISC_KEXEC_H */
-diff --git a/arch/parisc/kernel/Makefile b/arch/parisc/kernel/Makefile
-index 2663c8f8be11..068d90950d93 100644
---- a/arch/parisc/kernel/Makefile
-+++ b/arch/parisc/kernel/Makefile
-@@ -37,5 +37,5 @@ obj-$(CONFIG_FUNCTION_GRAPH_TRACER)	+= ftrace.o
- obj-$(CONFIG_JUMP_LABEL)		+= jump_label.o
- obj-$(CONFIG_KGDB)			+= kgdb.o
- obj-$(CONFIG_KPROBES)			+= kprobes.o
--obj-$(CONFIG_KEXEC)			+= kexec.o relocate_kernel.o
-+obj-$(CONFIG_KEXEC_CORE)		+= kexec.o relocate_kernel.o
- obj-$(CONFIG_KEXEC_FILE)		+= kexec_file.o
 -- 
 2.20.1
 
