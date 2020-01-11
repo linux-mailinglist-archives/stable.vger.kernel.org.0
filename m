@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA234137E09
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:06:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 679F6137E50
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729348AbgAKKER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:04:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36252 "EHLO mail.kernel.org"
+        id S1729078AbgAKKId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:08:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728930AbgAKKER (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:04:17 -0500
+        id S1728949AbgAKKIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:08:32 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E51820848;
-        Sat, 11 Jan 2020 10:04:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78D4C2082E;
+        Sat, 11 Jan 2020 10:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737055;
-        bh=fbvmo8+KlHIKYVvh0cnmPiWMpsqcNZRAXgK+EO7LOKA=;
+        s=default; t=1578737312;
+        bh=5xoNdYn26opBSDh04DZK7AGpg1tz1m+vcD613elU4+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwmscnpoeTyzO+kPWdHNUuYynDhFsR7hBRy7JLBTN5Kq3tymIuE7IBwgziiUxIRTg
-         v0fthjCcE66gKz+tpJnZ5DgHrZib6zGCKhYqhOAXTuQhBEgdnKVim+bLiCtOSwVy+b
-         qJdVgg9uycNptkYYBFUmMMFAjoIMgVuDPpfAedF8=
+        b=gaoe1+cPU5rhDHf6iZbrjvIu8rxBST275UVhdRYB84zUSd1kHfCwrqaANKotmf0gs
+         5eXy3Q9BP1/PSBvspB9s6plZ2PdG8UkDhoQyFnCmuV5wuL6MSJ+1IcDFUAooPd0a/z
+         88KpHuJAykXgRnY1dRMY80RQz6wWOdwRBB05Siz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 53/91] s390/smp: fix physical to logical CPU map for SMT
+Subject: [PATCH 4.14 04/62] netfilter: ctnetlink: netns exit must wait for callbacks
 Date:   Sat, 11 Jan 2020 10:49:46 +0100
-Message-Id: <20200111094904.876955444@linuxfoundation.org>
+Message-Id: <20200111094839.309829854@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,153 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 72a81ad9d6d62dcb79f7e8ad66ffd1c768b72026 ]
+[ Upstream commit 18a110b022a5c02e7dc9f6109d0bd93e58ac6ebb ]
 
-If an SMT capable system is not IPL'ed from the first CPU the setup of
-the physical to logical CPU mapping is broken: the IPL core gets CPU
-number 0, but then the next core gets CPU number 1. Correct would be
-that all SMT threads of CPU 0 get the subsequent logical CPU numbers.
+Curtis Taylor and Jon Maxwell reported and debugged a crash on 3.10
+based kernel.
 
-This is important since a lot of code (like e.g. the CPU topology
-code) assumes that CPU maps are setup like this. If the mapping is
-broken the system will not IPL due to broken topology masks:
+Crash occurs in ctnetlink_conntrack_events because net->nfnl socket is
+NULL.  The nfnl socket was set to NULL by netns destruction running on
+another cpu.
 
-[    1.716341] BUG: arch topology broken
-[    1.716342]      the SMT domain not a subset of the MC domain
-[    1.716343] BUG: arch topology broken
-[    1.716344]      the MC domain not a subset of the BOOK domain
+The exiting network namespace calls the relevant destructors in the
+following order:
 
-This scenario can usually not happen since LPARs are always IPL'ed
-from CPU 0 and also re-IPL is intiated from CPU 0. However older
-kernels did initiate re-IPL on an arbitrary CPU. If therefore a re-IPL
-from an old kernel into a new kernel is initiated this may lead to
-crash.
+1. ctnetlink_net_exit_batch
 
-Fix this by setting up the physical to logical CPU mapping correctly.
+This nulls out the event callback pointer in struct netns.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+2. nfnetlink_net_exit_batch
+
+This nulls net->nfnl socket and frees it.
+
+3. nf_conntrack_cleanup_net_list
+
+This removes all remaining conntrack entries.
+
+This is order is correct. The only explanation for the crash so ar is:
+
+cpu1: conntrack is dying, eviction occurs:
+ -> nf_ct_delete()
+   -> nf_conntrack_event_report \
+     -> nf_conntrack_eventmask_report
+       -> notify->fcn() (== ctnetlink_conntrack_events).
+
+cpu1: a. fetches rcu protected pointer to obtain ctnetlink event callback.
+      b. gets interrupted.
+ cpu2: runs netns exit handlers:
+     a runs ctnetlink destructor, event cb pointer set to NULL.
+     b runs nfnetlink destructor, nfnl socket is closed and set to NULL.
+cpu1: c. resumes and trips over NULL net->nfnl.
+
+Problem appears to be that ctnetlink_net_exit_batch only prevents future
+callers of nf_conntrack_eventmask_report() from obtaining the callback.
+It doesn't wait of other cpus that might have already obtained the
+callbacks address.
+
+I don't see anything in upstream kernels that would prevent similar
+crash: We need to wait for all cpus to have exited the event callback.
+
+Fixes: 9592a5c01e79dbc59eb56fa ("netfilter: ctnetlink: netns support")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/smp.c | 80 ++++++++++++++++++++++++++++--------------
- 1 file changed, 54 insertions(+), 26 deletions(-)
+ net/netfilter/nf_conntrack_netlink.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index d52a94e9f57f..cba8e56cd63d 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -691,39 +691,67 @@ static struct sclp_core_info *smp_get_core_info(void)
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index c781c9a1a697..39a32edaa92c 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -3422,6 +3422,9 @@ static void __net_exit ctnetlink_net_exit_batch(struct list_head *net_exit_list)
  
- static int smp_add_present_cpu(int cpu);
- 
--static int __smp_rescan_cpus(struct sclp_core_info *info, int sysfs_add)
-+static int smp_add_core(struct sclp_core_entry *core, cpumask_t *avail,
-+			bool configured, bool early)
- {
- 	struct pcpu *pcpu;
--	cpumask_t avail;
--	int cpu, nr, i, j;
-+	int cpu, nr, i;
- 	u16 address;
- 
- 	nr = 0;
--	cpumask_xor(&avail, cpu_possible_mask, cpu_present_mask);
--	cpu = cpumask_first(&avail);
--	for (i = 0; (i < info->combined) && (cpu < nr_cpu_ids); i++) {
--		if (sclp.has_core_type && info->core[i].type != boot_core_type)
-+	if (sclp.has_core_type && core->type != boot_core_type)
-+		return nr;
-+	cpu = cpumask_first(avail);
-+	address = core->core_id << smp_cpu_mt_shift;
-+	for (i = 0; (i <= smp_cpu_mtid) && (cpu < nr_cpu_ids); i++) {
-+		if (pcpu_find_address(cpu_present_mask, address + i))
- 			continue;
--		address = info->core[i].core_id << smp_cpu_mt_shift;
--		for (j = 0; j <= smp_cpu_mtid; j++) {
--			if (pcpu_find_address(cpu_present_mask, address + j))
--				continue;
--			pcpu = pcpu_devices + cpu;
--			pcpu->address = address + j;
--			pcpu->state =
--				(cpu >= info->configured*(smp_cpu_mtid + 1)) ?
--				CPU_STATE_STANDBY : CPU_STATE_CONFIGURED;
--			smp_cpu_set_polarization(cpu, POLARIZATION_UNKNOWN);
--			set_cpu_present(cpu, true);
--			if (sysfs_add && smp_add_present_cpu(cpu) != 0)
--				set_cpu_present(cpu, false);
--			else
--				nr++;
--			cpu = cpumask_next(cpu, &avail);
--			if (cpu >= nr_cpu_ids)
-+		pcpu = pcpu_devices + cpu;
-+		pcpu->address = address + i;
-+		if (configured)
-+			pcpu->state = CPU_STATE_CONFIGURED;
-+		else
-+			pcpu->state = CPU_STATE_STANDBY;
-+		smp_cpu_set_polarization(cpu, POLARIZATION_UNKNOWN);
-+		set_cpu_present(cpu, true);
-+		if (!early && smp_add_present_cpu(cpu) != 0)
-+			set_cpu_present(cpu, false);
-+		else
-+			nr++;
-+		cpumask_clear_cpu(cpu, avail);
-+		cpu = cpumask_next(cpu, avail);
-+	}
-+	return nr;
-+}
+ 	list_for_each_entry(net, net_exit_list, exit_list)
+ 		ctnetlink_net_exit(net);
 +
-+static int __smp_rescan_cpus(struct sclp_core_info *info, bool early)
-+{
-+	struct sclp_core_entry *core;
-+	cpumask_t avail;
-+	bool configured;
-+	u16 core_id;
-+	int nr, i;
-+
-+	nr = 0;
-+	cpumask_xor(&avail, cpu_possible_mask, cpu_present_mask);
-+	/*
-+	 * Add IPL core first (which got logical CPU number 0) to make sure
-+	 * that all SMT threads get subsequent logical CPU numbers.
-+	 */
-+	if (early) {
-+		core_id = pcpu_devices[0].address >> smp_cpu_mt_shift;
-+		for (i = 0; i < info->configured; i++) {
-+			core = &info->core[i];
-+			if (core->core_id == core_id) {
-+				nr += smp_add_core(core, &avail, true, early);
- 				break;
-+			}
- 		}
- 	}
-+	for (i = 0; i < info->combined; i++) {
-+		configured = i < info->configured;
-+		nr += smp_add_core(&info->core[i], &avail, configured, early);
-+	}
- 	return nr;
++	/* wait for other cpus until they are done with ctnl_notifiers */
++	synchronize_rcu();
  }
  
-@@ -771,7 +799,7 @@ static void __init smp_detect_cpus(void)
- 
- 	/* Add CPUs present at boot */
- 	get_online_cpus();
--	__smp_rescan_cpus(info, 0);
-+	__smp_rescan_cpus(info, true);
- 	put_online_cpus();
- 	kfree(info);
- }
-@@ -1127,7 +1155,7 @@ int __ref smp_rescan_cpus(void)
- 		return -ENOMEM;
- 	get_online_cpus();
- 	mutex_lock(&smp_cpu_state_mutex);
--	nr = __smp_rescan_cpus(info, 1);
-+	nr = __smp_rescan_cpus(info, false);
- 	mutex_unlock(&smp_cpu_state_mutex);
- 	put_online_cpus();
- 	kfree(info);
+ static struct pernet_operations ctnetlink_net_ops = {
 -- 
 2.20.1
 
