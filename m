@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCBDF138055
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:28:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1087137F35
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:17:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729383AbgAKK2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:28:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35826 "EHLO mail.kernel.org"
+        id S1730019AbgAKKQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:16:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731047AbgAKK2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:28:24 -0500
+        id S1730398AbgAKKQt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:16:49 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5440205F4;
-        Sat, 11 Jan 2020 10:28:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA22220880;
+        Sat, 11 Jan 2020 10:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738503;
-        bh=h5NfLAMahDeyBWLnNDHOkNGkRzHip58O6rBMQh4p7X4=;
+        s=default; t=1578737808;
+        bh=VVAXxor+iPN+v/i1b9zhPl8bSbTs/m3d8lkUIp2osCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=paq/kgpU0wUFFQeek+xRBxBiP/rB22SgxPY8wWEbFOHYsDo9bmpmeeB7wLgvf6Reo
-         Kzuj4JckBT0kMbRX7T37wJUbcXPUGHapC6HI5WEdbd0mSXgOkOsdvYznHe/DV/8DLB
-         QIu4Oc6Jtox3ZUmYW7/Uk0VVwz3eE7G+JjrJItnw=
+        b=RzlB/Dc5Eds9VClp0Kgz4EEd0bE35Nv0Rn32Kc7uWb6bwh5QjgSoC3a00jCtTtO4k
+         67bGEnJ1sJZ+t6c0SZXvmRamKbs/GNHFTurl+7XywKHwRkKn+A2dPktMZbxXfb41SC
+         q8mZdbQe752nME3Nmh8MdZbLS56Vk8jh5BUEEQ+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, "Daniel T. Lee" <danieltimlee@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/165] rfkill: Fix incorrect check to avoid NULL pointer dereference
-Date:   Sat, 11 Jan 2020 10:50:08 +0100
-Message-Id: <20200111094928.612233905@linuxfoundation.org>
+Subject: [PATCH 4.19 32/84] samples: bpf: fix syscall_tp due to unused syscall
+Date:   Sat, 11 Jan 2020 10:50:09 +0100
+Message-Id: <20200111094858.413545470@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Daniel T. Lee <danieltimlee@gmail.com>
 
-[ Upstream commit 6fc232db9e8cd50b9b83534de9cd91ace711b2d7 ]
+[ Upstream commit fe3300897cbfd76c6cb825776e5ac0ca50a91ca4 ]
 
-In rfkill_register, the struct rfkill pointer is first derefernced
-and then checked for NULL. This patch removes the BUG_ON and returns
-an error to the caller in case rfkill is NULL.
+Currently, open() is called from the user program and it calls the syscall
+'sys_openat', not the 'sys_open'. This leads to an error of the program
+of user side, due to the fact that the counter maps are zero since no
+function such 'sys_open' is called.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Link: https://lore.kernel.org/r/20191215153409.21696-1-pakki001@umn.edu
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+This commit adds the kernel bpf program which are attached to the
+tracepoint 'sys_enter_openat' and 'sys_enter_openat'.
+
+Fixes: 1da236b6be963 ("bpf: add a test case for syscalls/sys_{enter|exit}_* tracepoints")
+Signed-off-by: Daniel T. Lee <danieltimlee@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rfkill/core.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ samples/bpf/syscall_tp_kern.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/net/rfkill/core.c b/net/rfkill/core.c
-index 0bf9bf1ceb8f..6c089320ae4f 100644
---- a/net/rfkill/core.c
-+++ b/net/rfkill/core.c
-@@ -1002,10 +1002,13 @@ static void rfkill_sync_work(struct work_struct *work)
- int __must_check rfkill_register(struct rfkill *rfkill)
+diff --git a/samples/bpf/syscall_tp_kern.c b/samples/bpf/syscall_tp_kern.c
+index 9149c524d279..8833aacb9c8c 100644
+--- a/samples/bpf/syscall_tp_kern.c
++++ b/samples/bpf/syscall_tp_kern.c
+@@ -50,13 +50,27 @@ static __always_inline void count(void *map)
+ SEC("tracepoint/syscalls/sys_enter_open")
+ int trace_enter_open(struct syscalls_enter_open_args *ctx)
  {
- 	static unsigned long rfkill_no;
--	struct device *dev = &rfkill->dev;
-+	struct device *dev;
- 	int error;
- 
--	BUG_ON(!rfkill);
-+	if (!rfkill)
-+		return -EINVAL;
+-	count((void *)&enter_open_map);
++	count(&enter_open_map);
++	return 0;
++}
 +
-+	dev = &rfkill->dev;
++SEC("tracepoint/syscalls/sys_enter_openat")
++int trace_enter_open_at(struct syscalls_enter_open_args *ctx)
++{
++	count(&enter_open_map);
+ 	return 0;
+ }
  
- 	mutex_lock(&rfkill_global_mutex);
- 
+ SEC("tracepoint/syscalls/sys_exit_open")
+ int trace_enter_exit(struct syscalls_exit_open_args *ctx)
+ {
+-	count((void *)&exit_open_map);
++	count(&exit_open_map);
++	return 0;
++}
++
++SEC("tracepoint/syscalls/sys_exit_openat")
++int trace_enter_exit_at(struct syscalls_exit_open_args *ctx)
++{
++	count(&exit_open_map);
+ 	return 0;
+ }
 -- 
 2.20.1
 
