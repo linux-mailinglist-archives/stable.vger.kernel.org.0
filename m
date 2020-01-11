@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 786D5138088
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:31:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 478591380E8
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730107AbgAKKbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:31:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42254 "EHLO mail.kernel.org"
+        id S1729409AbgAKKic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:38:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728905AbgAKKbD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:31:03 -0500
+        id S1729445AbgAKKib (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:38:31 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76E092087F;
-        Sat, 11 Jan 2020 10:31:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DB0620848;
+        Sat, 11 Jan 2020 10:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738662;
-        bh=8MzWV4eYSQYuaeCOKKsG+5mnNrwZDQJddPQNJTSKJgE=;
+        s=default; t=1578739111;
+        bh=t0N1ByeMceaz4tEkzMRi0NbLTc3xWbHmeA+gCrPDEMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQmuVSgLvMHkHaEt3Rw2DevYI6Ra7hi7K95l6wKKb2rWE1mapu5yYdLIATi4rD9FU
-         5Dh6z8CnkhgJ+aN7YxMOBP63xTCO5cPwPdbAqGFz0bZGc2FMfR1BeKA9HhBIIcPKpl
-         /TCNkcg57BE0AoKAzdELmJiglwQnZTDiu2EcWxqg=
+        b=dS5La+6DbtIBKiQDdyyJavqd3xTdh48rGJKrxcxyW0IEZKzJBgChNCtiFoxct2oah
+         6WQKicWcG9yZ1PS5iasnYvDdL7eWEqq3fo9t+li5XSPvdpwWuNleP4ieIjT8kpklql
+         CmYbwawPqUiLkb0FwdRGR2gUnHnLWm4SZGTCaHC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
+        stable@vger.kernel.org,
+        "Chan Shu Tak, Alex" <alexchan@task.com.hk>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 115/165] net: stmmac: Always arm TX Timer at end of transmission start
-Date:   Sat, 11 Jan 2020 10:50:34 +0100
-Message-Id: <20200111094932.349821973@linuxfoundation.org>
+Subject: [PATCH 4.19 58/84] llc2: Fix return statement of llc_stat_ev_rx_null_dsap_xid_c (and _test_c)
+Date:   Sat, 11 Jan 2020 10:50:35 +0100
+Message-Id: <20200111094908.151684889@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <Jose.Abreu@synopsys.com>
+From: Chan Shu Tak, Alex <alexchan@task.com.hk>
 
-[ Upstream commit 4772f26db8d1fb568c4862c538344a1b5fb52081 ]
+[ Upstream commit af1c0e4e00f3cc76cb136ebf2e2c04e8b6446285 ]
 
-If TX Coalesce timer is enabled we should always arm it, otherwise we
-may hit the case where an interrupt is missed and the TX Queue will
-timeout.
+When a frame with NULL DSAP is received, llc_station_rcv is called.
+In turn, llc_stat_ev_rx_null_dsap_xid_c is called to check if it is a NULL
+XID frame. The return statement of llc_stat_ev_rx_null_dsap_xid_c returns 1
+when the incoming frame is not a NULL XID frame and 0 otherwise. Hence, a
+NULL XID response is returned unexpectedly, e.g. when the incoming frame is
+a NULL TEST command.
 
-Arming the timer does not necessarly mean it will run the tx_clean()
-because this function is wrapped around NAPI launcher.
+To fix the error, simply remove the conditional operator.
 
-Fixes: 9125cdd1be11 ("stmmac: add the initial tx coalesce schema")
-Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+A similar error in llc_stat_ev_rx_null_dsap_test_c is also fixed.
+
+Signed-off-by: Chan Shu Tak, Alex <alexchan@task.com.hk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/llc/llc_station.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index cfb60b20e625..903c5d8a226e 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3101,6 +3101,7 @@ static netdev_tx_t stmmac_tso_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/net/llc/llc_station.c b/net/llc/llc_station.c
+index 204a8351efff..c29170e767a8 100644
+--- a/net/llc/llc_station.c
++++ b/net/llc/llc_station.c
+@@ -32,7 +32,7 @@ static int llc_stat_ev_rx_null_dsap_xid_c(struct sk_buff *skb)
+ 	return LLC_PDU_IS_CMD(pdu) &&			/* command PDU */
+ 	       LLC_PDU_TYPE_IS_U(pdu) &&		/* U type PDU */
+ 	       LLC_U_PDU_CMD(pdu) == LLC_1_PDU_CMD_XID &&
+-	       !pdu->dsap ? 0 : 1;			/* NULL DSAP value */
++	       !pdu->dsap;				/* NULL DSAP value */
+ }
  
- 	tx_q->tx_tail_addr = tx_q->dma_tx_phy + (tx_q->cur_tx * sizeof(*desc));
- 	stmmac_set_tx_tail_ptr(priv, priv->ioaddr, tx_q->tx_tail_addr, queue);
-+	stmmac_tx_timer_arm(priv, queue);
+ static int llc_stat_ev_rx_null_dsap_test_c(struct sk_buff *skb)
+@@ -42,7 +42,7 @@ static int llc_stat_ev_rx_null_dsap_test_c(struct sk_buff *skb)
+ 	return LLC_PDU_IS_CMD(pdu) &&			/* command PDU */
+ 	       LLC_PDU_TYPE_IS_U(pdu) &&		/* U type PDU */
+ 	       LLC_U_PDU_CMD(pdu) == LLC_1_PDU_CMD_TEST &&
+-	       !pdu->dsap ? 0 : 1;			/* NULL DSAP */
++	       !pdu->dsap;				/* NULL DSAP */
+ }
  
- 	return NETDEV_TX_OK;
- 
-@@ -3328,6 +3329,7 @@ static netdev_tx_t stmmac_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 	tx_q->tx_tail_addr = tx_q->dma_tx_phy + (tx_q->cur_tx * sizeof(*desc));
- 	stmmac_set_tx_tail_ptr(priv, priv->ioaddr, tx_q->tx_tail_addr, queue);
-+	stmmac_tx_timer_arm(priv, queue);
- 
- 	return NETDEV_TX_OK;
- 
+ static int llc_station_ac_send_xid_r(struct sk_buff *skb)
 -- 
 2.20.1
 
