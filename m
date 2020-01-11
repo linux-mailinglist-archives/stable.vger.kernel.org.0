@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18A2F137DC9
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:01:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10872138007
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:25:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728938AbgAKKBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:01:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58680 "EHLO mail.kernel.org"
+        id S1730638AbgAKKZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:25:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728747AbgAKKBY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:01:24 -0500
+        id S1730627AbgAKKZR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:25:17 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 690142077C;
-        Sat, 11 Jan 2020 10:01:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43D822082E;
+        Sat, 11 Jan 2020 10:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736884;
-        bh=Dbl+ncwhMB3Xk8G2+tbpLHrwmr3/Xrw+XklCgJMWSjE=;
+        s=default; t=1578738316;
+        bh=y5ZUJdBGvEd9wU+ozgECUMyVdZfnmtAjppTvIhvO/fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhwFYV2pmRp9RYNDaanDsKeubXgQCgJybtUy5wMuqfwIAHJlHsfR8UWUP1fV4+CdG
-         V9cEJtgYjyIUR8pFXn/mE/GwjXmH0DOe8xuXZQWqhJLq4ZiwJtIdWqzAlGqbj0bPwJ
-         8tb0YZp9lx9/iS+7UneVJffJRv+d01DIPH+gzrpU=
+        b=szwNqUxyKcfeX/v9VpefpvgFTlmCcHpjgoj/zMMyu3BREsbF67R1uS4lqcNx0AHwL
+         FUpLGPdupd7K1i5nbaTF5jjbjKmkpa/7Dji4H8dgi/AnLVFMnjexwR1eqWhZzV4sCT
+         rGGOW76OLT5xkDKDgxVLG0eDMbEmjUiJ0J3pyn3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 41/91] regulator: ab8500: Remove AB8505 USB regulator
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 055/165] bpftool: Dont crash on missing jited insns or ksyms
 Date:   Sat, 11 Jan 2020 10:49:34 +0100
-Message-Id: <20200111094900.556473956@linuxfoundation.org>
+Message-Id: <20200111094925.886400657@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit 99c4f70df3a6446c56ca817c2d0f9c12d85d4e7c upstream.
+[ Upstream commit 5b79bcdf03628a3a9ee04d9cd5fabcf61a8e20be ]
 
-The USB regulator was removed for AB8500 in
-commit 41a06aa738ad ("regulator: ab8500: Remove USB regulator").
-It was then added for AB8505 in
-commit 547f384f33db ("regulator: ab8500: add support for ab8505").
+When the kptr_restrict sysctl is set, the kernel can fail to return
+jited_ksyms or jited_prog_insns, but still have positive values in
+nr_jited_ksyms and jited_prog_len. This causes bpftool to crash when
+trying to dump the program because it only checks the len fields not
+the actual pointers to the instructions and ksyms.
 
-However, there was never an entry added for it in
-ab8505_regulator_match. This causes all regulators after it
-to be initialized with the wrong device tree data, eventually
-leading to an out-of-bounds array read.
+Fix this by adding the missing checks.
 
-Given that it is not used anywhere in the kernel, it seems
-likely that similar arguments against supporting it exist for
-AB8505 (it is controlled by hardware).
-
-Therefore, simply remove it like for AB8500 instead of adding
-an entry in ab8505_regulator_match.
-
-Fixes: 547f384f33db ("regulator: ab8500: add support for ab8505")
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20191106173125.14496-1-stephan@gerhold.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 71bb428fe2c1 ("tools: bpf: add bpftool")
+Fixes: f84192ee00b7 ("tools: bpftool: resolve calls without using imm field")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20191210181412.151226-1-toke@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/ab8500.c       |   17 -----------------
- include/linux/regulator/ab8500.h |    1 -
- 2 files changed, 18 deletions(-)
+ tools/bpf/bpftool/prog.c          | 2 +-
+ tools/bpf/bpftool/xlated_dumper.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/regulator/ab8500.c
-+++ b/drivers/regulator/ab8500.c
-@@ -1099,23 +1099,6 @@ static struct ab8500_regulator_info
- 		.update_val_idle	= 0x82,
- 		.update_val_normal	= 0x02,
- 	},
--	[AB8505_LDO_USB] = {
--		.desc = {
--			.name           = "LDO-USB",
--			.ops            = &ab8500_regulator_mode_ops,
--			.type           = REGULATOR_VOLTAGE,
--			.id             = AB8505_LDO_USB,
--			.owner          = THIS_MODULE,
--			.n_voltages     = 1,
--			.volt_table	= fixed_3300000_voltage,
--		},
--		.update_bank            = 0x03,
--		.update_reg             = 0x82,
--		.update_mask            = 0x03,
--		.update_val		= 0x01,
--		.update_val_idle	= 0x03,
--		.update_val_normal	= 0x01,
--	},
- 	[AB8505_LDO_AUDIO] = {
- 		.desc = {
- 			.name		= "LDO-AUDIO",
---- a/include/linux/regulator/ab8500.h
-+++ b/include/linux/regulator/ab8500.h
-@@ -38,7 +38,6 @@ enum ab8505_regulator_id {
- 	AB8505_LDO_AUX6,
- 	AB8505_LDO_INTCORE,
- 	AB8505_LDO_ADC,
--	AB8505_LDO_USB,
- 	AB8505_LDO_AUDIO,
- 	AB8505_LDO_ANAMIC1,
- 	AB8505_LDO_ANAMIC2,
+diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
+index 43fdbbfe41bb..ea0bcd58bcb9 100644
+--- a/tools/bpf/bpftool/prog.c
++++ b/tools/bpf/bpftool/prog.c
+@@ -493,7 +493,7 @@ static int do_dump(int argc, char **argv)
+ 
+ 	info = &info_linear->info;
+ 	if (mode == DUMP_JITED) {
+-		if (info->jited_prog_len == 0) {
++		if (info->jited_prog_len == 0 || !info->jited_prog_insns) {
+ 			p_info("no instructions returned");
+ 			goto err_free;
+ 		}
+diff --git a/tools/bpf/bpftool/xlated_dumper.c b/tools/bpf/bpftool/xlated_dumper.c
+index 494d7ae3614d..5b91ee65a080 100644
+--- a/tools/bpf/bpftool/xlated_dumper.c
++++ b/tools/bpf/bpftool/xlated_dumper.c
+@@ -174,7 +174,7 @@ static const char *print_call(void *private_data,
+ 	struct kernel_sym *sym;
+ 
+ 	if (insn->src_reg == BPF_PSEUDO_CALL &&
+-	    (__u32) insn->imm < dd->nr_jited_ksyms)
++	    (__u32) insn->imm < dd->nr_jited_ksyms && dd->jited_ksyms)
+ 		address = dd->jited_ksyms[insn->imm];
+ 
+ 	sym = kernel_syms_search(dd, address);
+-- 
+2.20.1
+
 
 
