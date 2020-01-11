@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADD67137EA4
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83EF2137F0B
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729725AbgAKKMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:12:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49922 "EHLO mail.kernel.org"
+        id S1730147AbgAKKQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:16:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729723AbgAKKML (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:12:11 -0500
+        id S1729748AbgAKKQH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:16:07 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CF8A2077C;
-        Sat, 11 Jan 2020 10:12:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 131D1205F4;
+        Sat, 11 Jan 2020 10:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737530;
-        bh=EP0SVqUmoXOJjI5gUdiDY42SwakQbyZ3BQJ4zWKpusA=;
+        s=default; t=1578737766;
+        bh=0xQ8P7yf+V4sMgR1H+CJZnw+jxrvwqav9Q7bf4FpDVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+sI6Fg/gHHCQfIMte1WTzFxz8aQ8OVyZC/ExJrczJ9ARuzqYKtSvRgEgDWnEnEEp
-         13dmHLUtwcf906AgErf0gKUDXiNy4pv1Ei1o/3vvF0OyjPuRBOZzgQu+EUoC7UnSBL
-         pEaste/caao/3re1MRRDs08eTRxU5ZE4cmLCyeN8=
+        b=BHHXZ18cXZ1t2hkV+8y8MZLnWKnWecpYhsR3VV4SBJjHQ/Y3qjivvJ+dIFQvd0yMT
+         9k2dcfktxlxWde+/IhdrAktUWEmfYRDrGR5mEOiSP7YVGhAfizNzzICQjd0HR8vm3M
+         gmnPfKe/Sw2NMQisgJiYNqf5Dwwn91XCKZU7SlJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Liu <bob.liu@oracle.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/62] block: fix memleak when __blk_rq_map_user_iov() is failed
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 41/84] rfkill: Fix incorrect check to avoid NULL pointer dereference
 Date:   Sat, 11 Jan 2020 10:50:18 +0100
-Message-Id: <20200111094846.643194077@linuxfoundation.org>
+Message-Id: <20200111094901.927519712@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 3b7995a98ad76da5597b488fa84aa5a56d43b608 ]
+[ Upstream commit 6fc232db9e8cd50b9b83534de9cd91ace711b2d7 ]
 
-When I doing fuzzy test, get the memleak report:
+In rfkill_register, the struct rfkill pointer is first derefernced
+and then checked for NULL. This patch removes the BUG_ON and returns
+an error to the caller in case rfkill is NULL.
 
-BUG: memory leak
-unreferenced object 0xffff88837af80000 (size 4096):
-  comm "memleak", pid 3557, jiffies 4294817681 (age 112.499s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    20 00 00 00 10 01 00 00 00 00 00 00 01 00 00 00   ...............
-  backtrace:
-    [<000000001c894df8>] bio_alloc_bioset+0x393/0x590
-    [<000000008b139a3c>] bio_copy_user_iov+0x300/0xcd0
-    [<00000000a998bd8c>] blk_rq_map_user_iov+0x2f1/0x5f0
-    [<000000005ceb7f05>] blk_rq_map_user+0xf2/0x160
-    [<000000006454da92>] sg_common_write.isra.21+0x1094/0x1870
-    [<00000000064bb208>] sg_write.part.25+0x5d9/0x950
-    [<000000004fc670f6>] sg_write+0x5f/0x8c
-    [<00000000b0d05c7b>] __vfs_write+0x7c/0x100
-    [<000000008e177714>] vfs_write+0x1c3/0x500
-    [<0000000087d23f34>] ksys_write+0xf9/0x200
-    [<000000002c8dbc9d>] do_syscall_64+0x9f/0x4f0
-    [<00000000678d8e9a>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-If __blk_rq_map_user_iov() is failed in blk_rq_map_user_iov(),
-the bio(s) which is allocated before this failing will leak. The
-refcount of the bio(s) is init to 1 and increased to 2 by calling
-bio_get(), but __blk_rq_unmap_user() only decrease it to 1, so
-the bio cannot be freed. Fix it by calling blk_rq_unmap_user().
-
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Link: https://lore.kernel.org/r/20191215153409.21696-1-pakki001@umn.edu
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-map.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rfkill/core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-map.c b/block/blk-map.c
-index e31be14da8ea..f72a3af689b6 100644
---- a/block/blk-map.c
-+++ b/block/blk-map.c
-@@ -152,7 +152,7 @@ int blk_rq_map_user_iov(struct request_queue *q, struct request *rq,
- 	return 0;
+diff --git a/net/rfkill/core.c b/net/rfkill/core.c
+index 7fbc8314f626..d6467cbf5c4f 100644
+--- a/net/rfkill/core.c
++++ b/net/rfkill/core.c
+@@ -1014,10 +1014,13 @@ static void rfkill_sync_work(struct work_struct *work)
+ int __must_check rfkill_register(struct rfkill *rfkill)
+ {
+ 	static unsigned long rfkill_no;
+-	struct device *dev = &rfkill->dev;
++	struct device *dev;
+ 	int error;
  
- unmap_rq:
--	__blk_rq_unmap_user(bio);
-+	blk_rq_unmap_user(bio);
- fail:
- 	rq->bio = NULL;
- 	return ret;
+-	BUG_ON(!rfkill);
++	if (!rfkill)
++		return -EINVAL;
++
++	dev = &rfkill->dev;
+ 
+ 	mutex_lock(&rfkill_global_mutex);
+ 
 -- 
 2.20.1
 
