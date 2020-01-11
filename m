@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B321137FED
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22892137DD5
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:02:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730588AbgAKKW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:22:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49236 "EHLO mail.kernel.org"
+        id S1728896AbgAKKBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:01:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729391AbgAKKW7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:22:59 -0500
+        id S1728833AbgAKKBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:01:54 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C780205F4;
-        Sat, 11 Jan 2020 10:22:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D53882084D;
+        Sat, 11 Jan 2020 10:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738178;
-        bh=5+KBnVdLRuk87lNb6TdfP6q2MkTmfaix4p79kTqEKBk=;
+        s=default; t=1578736913;
+        bh=lfWjhJOim8/hVj2RmOHfNBLhqUiZM0pgfFhdbKid6Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WUefFcL5vGsi+8Tl2kdHN0WFvOQC0Ijtz/9q9aHZVdNn+6QlCt/bhcCdHOEJrCire
-         E2vcfiVFdE9g3VtrEiCPDVAjCZGNm5nQU72Em3MspXO1bB/EY6BvV23/emdYaA1z1d
-         nddqHyiPN0AkWgj5iw9YR0/ssKFKpcQzSQdblLdw=
+        b=l1UL1ZhuRkslqosJmpBYgfXDEL2sZnsnxn8+uAPZVUYoVycOfeN7kFI6mn+R2m+bX
+         b4WzL+TlXiysVPWdpW+GGK8hQd3OTOdYYMF6ntwLTmM4ZnCXYjv6TYBPfJE2QdjZtx
+         5cWWkWzIkXL/Z++vBUthCE6E1w5/TszXDO8RE15g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 044/165] reset: Do not register resource data for missing resets
+        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
+        Sven Schnelle <svens@stackframe.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 30/91] tracing: Have the histogram compare functions convert to u64 first
 Date:   Sat, 11 Jan 2020 10:49:23 +0100
-Message-Id: <20200111094924.584538805@linuxfoundation.org>
+Message-Id: <20200111094855.840373857@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit db23808615e29d9a04f96806cac56f78b0fee0ef ]
+commit 106f41f5a302cb1f36c7543fae6a05de12e96fa4 upstream.
 
-When an optional reset is not present, __devm_reset_control_get() and
-devm_reset_control_array_get() still register resource data to release
-the non-existing reset on cleanup, which is futile.
+The compare functions of the histogram code would be specific for the size
+of the value being compared (byte, short, int, long long). It would
+reference the value from the array via the type of the compare, but the
+value was stored in a 64 bit number. This is fine for little endian
+machines, but for big endian machines, it would end up comparing zeros or
+all ones (depending on the sign) for anything but 64 bit numbers.
 
-Fix this by skipping NULL reset control pointers.
+To fix this, first derference the value as a u64 then convert it to the type
+being compared.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/20191211103557.7bed6928@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Fixes: 08d43a5fa063e ("tracing: Add lock-free tracing_map")
+Acked-by: Tom Zanussi <zanussi@kernel.org>
+Reported-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/reset/core.c | 4 ++--
+ kernel/trace/tracing_map.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/reset/core.c b/drivers/reset/core.c
-index 3c9a64c1b7a8..f343bd814d32 100644
---- a/drivers/reset/core.c
-+++ b/drivers/reset/core.c
-@@ -787,7 +787,7 @@ struct reset_control *__devm_reset_control_get(struct device *dev,
- 		return ERR_PTR(-ENOMEM);
- 
- 	rstc = __reset_control_get(dev, id, index, shared, optional, acquired);
--	if (!IS_ERR(rstc)) {
-+	if (!IS_ERR_OR_NULL(rstc)) {
- 		*ptr = rstc;
- 		devres_add(dev, ptr);
- 	} else {
-@@ -930,7 +930,7 @@ devm_reset_control_array_get(struct device *dev, bool shared, bool optional)
- 		return ERR_PTR(-ENOMEM);
- 
- 	rstc = of_reset_control_array_get(dev->of_node, shared, optional, true);
--	if (IS_ERR(rstc)) {
-+	if (IS_ERR_OR_NULL(rstc)) {
- 		devres_free(devres);
- 		return rstc;
- 	}
--- 
-2.20.1
-
+--- a/kernel/trace/tracing_map.c
++++ b/kernel/trace/tracing_map.c
+@@ -90,8 +90,8 @@ static int tracing_map_cmp_atomic64(void
+ #define DEFINE_TRACING_MAP_CMP_FN(type)					\
+ static int tracing_map_cmp_##type(void *val_a, void *val_b)		\
+ {									\
+-	type a = *(type *)val_a;					\
+-	type b = *(type *)val_b;					\
++	type a = (type)(*(u64 *)val_a);					\
++	type b = (type)(*(u64 *)val_b);					\
+ 									\
+ 	return (a > b) ? 1 : ((a < b) ? -1 : 0);			\
+ }
 
 
