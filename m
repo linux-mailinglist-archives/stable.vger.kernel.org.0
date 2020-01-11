@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 616F5137F3F
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:17:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACE20137EBC
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:13:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729932AbgAKKRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:17:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34618 "EHLO mail.kernel.org"
+        id S1729839AbgAKKNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:13:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728946AbgAKKRj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:17:39 -0500
+        id S1729008AbgAKKNM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:13:12 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5163B205F4;
-        Sat, 11 Jan 2020 10:17:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 388CA206DA;
+        Sat, 11 Jan 2020 10:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737858;
-        bh=8HqPpUK4lbbYZ29XPFjNX0qGSsN6mCtBaDarIVX60QU=;
+        s=default; t=1578737592;
+        bh=lbhtmtzioIGljo56mqJLTPr//RPVp9UAwuyOOVeiPvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nq2tadundeYr3j3ojroYgpNy99VMFaxEMwLR+y3jSAV/nWKv4lW9RWUsdOjF23/z/
-         y1xcHf0EaWyH+nD6r4w965ZB//7yRQBt9HrPRelxlNT/JmXDyj174RV1DyRPJkSaZ/
-         as6Bt5egAJCFsWa3A33JvI+qlCeHsrL1zDfmfOGw=
+        b=N4DNgue4hf0/sABD2E92WjTSYDuJ7Ymxm28U7LeJLAQBpFfNnOyly9nVxJa37EpHo
+         Go6SE4KsR535INE7iidFSXE+ihktUaXgK+VnPGzYQgdF8u4XjWrDTAjk10BWBhkmd8
+         I6MPeOHEQyoKKorh2G3j8UrJUu3ov/oPZSmWjx8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
-        <sebastien.szymanski@armadeus.com>,
-        Lucas Stach <l.stach@pengutronix.de>
-Subject: [PATCH 4.19 62/84] cpufreq: imx6q: read OCOTP through nvmem for imx6ul/imx6ull
+        stable@vger.kernel.org,
+        syzbot+107c4aff5f392bf1517f@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 57/62] sctp: free cmd->obj.chunk for the unprocessed SCTP_CMD_REPLY
 Date:   Sat, 11 Jan 2020 10:50:39 +0100
-Message-Id: <20200111094909.497698930@linuxfoundation.org>
+Message-Id: <20200111094855.929883686@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,119 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 2733fb0d0699246711cf622e0e2faf02a05b69dc upstream.
+[ Upstream commit be7a7729207797476b6666f046d765bdf9630407 ]
 
-On i.MX6UL/i.MX6ULL, accessing OCOTP directly is wrong because
-the ocotp clock needs to be enabled first. Add support for reading
-OCOTP through the nvmem API, and keep the old method there to
-support old dtb.
+This patch is to fix a memleak caused by no place to free cmd->obj.chunk
+for the unprocessed SCTP_CMD_REPLY. This issue occurs when failing to
+process a cmd while there're still SCTP_CMD_REPLY cmds on the cmd seq
+with an allocated chunk in cmd->obj.chunk.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
+So fix it by freeing cmd->obj.chunk for each SCTP_CMD_REPLY cmd left on
+the cmd seq when any cmd returns error. While at it, also remove 'nomem'
+label.
+
+Reported-by: syzbot+107c4aff5f392bf1517f@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/cpufreq/imx6q-cpufreq.c |   52 ++++++++++++++++++++++++++--------------
- 1 file changed, 35 insertions(+), 17 deletions(-)
+ net/sctp/sm_sideeffect.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
---- a/drivers/cpufreq/imx6q-cpufreq.c
-+++ b/drivers/cpufreq/imx6q-cpufreq.c
-@@ -12,6 +12,7 @@
- #include <linux/cpu_cooling.h>
- #include <linux/err.h>
- #include <linux/module.h>
-+#include <linux/nvmem-consumer.h>
- #include <linux/of.h>
- #include <linux/of_address.h>
- #include <linux/pm_opp.h>
-@@ -295,20 +296,32 @@ put_node:
- #define OCOTP_CFG3_6ULL_SPEED_792MHZ	0x2
- #define OCOTP_CFG3_6ULL_SPEED_900MHZ	0x3
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -1359,8 +1359,10 @@ static int sctp_cmd_interpreter(enum sct
+ 			/* Generate an INIT ACK chunk.  */
+ 			new_obj = sctp_make_init_ack(asoc, chunk, GFP_ATOMIC,
+ 						     0);
+-			if (!new_obj)
+-				goto nomem;
++			if (!new_obj) {
++				error = -ENOMEM;
++				break;
++			}
  
--static void imx6ul_opp_check_speed_grading(struct device *dev)
-+static int imx6ul_opp_check_speed_grading(struct device *dev)
- {
--	struct device_node *np;
--	void __iomem *base;
- 	u32 val;
-+	int ret = 0;
+ 			sctp_add_cmd_sf(commands, SCTP_CMD_REPLY,
+ 					SCTP_CHUNK(new_obj));
+@@ -1382,7 +1384,8 @@ static int sctp_cmd_interpreter(enum sct
+ 			if (!new_obj) {
+ 				if (cmd->obj.chunk)
+ 					sctp_chunk_free(cmd->obj.chunk);
+-				goto nomem;
++				error = -ENOMEM;
++				break;
+ 			}
+ 			sctp_add_cmd_sf(commands, SCTP_CMD_REPLY,
+ 					SCTP_CHUNK(new_obj));
+@@ -1429,8 +1432,10 @@ static int sctp_cmd_interpreter(enum sct
  
--	np = of_find_compatible_node(NULL, NULL, "fsl,imx6ul-ocotp");
--	if (!np)
--		return;
-+	if (of_find_property(dev->of_node, "nvmem-cells", NULL)) {
-+		ret = nvmem_cell_read_u32(dev, "speed_grade", &val);
-+		if (ret)
-+			return ret;
-+	} else {
-+		struct device_node *np;
-+		void __iomem *base;
+ 			/* Generate a SHUTDOWN chunk.  */
+ 			new_obj = sctp_make_shutdown(asoc, chunk);
+-			if (!new_obj)
+-				goto nomem;
++			if (!new_obj) {
++				error = -ENOMEM;
++				break;
++			}
+ 			sctp_add_cmd_sf(commands, SCTP_CMD_REPLY,
+ 					SCTP_CHUNK(new_obj));
+ 			break;
+@@ -1760,11 +1765,17 @@ static int sctp_cmd_interpreter(enum sct
+ 			break;
+ 		}
  
--	base = of_iomap(np, 0);
--	if (!base) {
--		dev_err(dev, "failed to map ocotp\n");
--		goto put_node;
-+		np = of_find_compatible_node(NULL, NULL, "fsl,imx6ul-ocotp");
-+		if (!np)
-+			return -ENOENT;
-+
-+		base = of_iomap(np, 0);
-+		of_node_put(np);
-+		if (!base) {
-+			dev_err(dev, "failed to map ocotp\n");
-+			return -EFAULT;
+-		if (error)
++		if (error) {
++			cmd = sctp_next_cmd(commands);
++			while (cmd) {
++				if (cmd->verb == SCTP_CMD_REPLY)
++					sctp_chunk_free(cmd->obj.chunk);
++				cmd = sctp_next_cmd(commands);
++			}
+ 			break;
 +		}
-+
-+		val = readl_relaxed(base + OCOTP_CFG3);
-+		iounmap(base);
  	}
  
- 	/*
-@@ -319,7 +332,6 @@ static void imx6ul_opp_check_speed_gradi
- 	 * 2b'11: 900000000Hz on i.MX6ULL only;
- 	 * We need to set the max speed of ARM according to fuse map.
- 	 */
--	val = readl_relaxed(base + OCOTP_CFG3);
- 	val >>= OCOTP_CFG3_SPEED_SHIFT;
- 	val &= 0x3;
+-out:
+ 	/* If this is in response to a received chunk, wait until
+ 	 * we are done with the packet to open the queue so that we don't
+ 	 * send multiple packets in response to a single request.
+@@ -1779,8 +1790,5 @@ out:
+ 		sp->data_ready_signalled = 0;
  
-@@ -339,9 +351,7 @@ static void imx6ul_opp_check_speed_gradi
- 				dev_warn(dev, "failed to disable 900MHz OPP\n");
- 	}
- 
--	iounmap(base);
--put_node:
--	of_node_put(np);
-+	return ret;
+ 	return error;
+-nomem:
+-	error = -ENOMEM;
+-	goto out;
  }
  
- static int imx6q_cpufreq_probe(struct platform_device *pdev)
-@@ -399,10 +409,18 @@ static int imx6q_cpufreq_probe(struct pl
- 	}
- 
- 	if (of_machine_is_compatible("fsl,imx6ul") ||
--	    of_machine_is_compatible("fsl,imx6ull"))
--		imx6ul_opp_check_speed_grading(cpu_dev);
--	else
-+	    of_machine_is_compatible("fsl,imx6ull")) {
-+		ret = imx6ul_opp_check_speed_grading(cpu_dev);
-+		if (ret == -EPROBE_DEFER)
-+			return ret;
-+		if (ret) {
-+			dev_err(cpu_dev, "failed to read ocotp: %d\n",
-+				ret);
-+			return ret;
-+		}
-+	} else {
- 		imx6q_opp_check_speed_grading(cpu_dev);
-+	}
- 
- 	/* Because we have added the OPPs here, we must free them */
- 	free_opp = true;
 
 
