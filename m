@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 468BD137E21
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:06:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C58137F11
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:16:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728907AbgAKKFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:05:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38306 "EHLO mail.kernel.org"
+        id S1730241AbgAKKQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:16:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728850AbgAKKFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:05:17 -0500
+        id S1730151AbgAKKQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:16:21 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AF472082E;
-        Sat, 11 Jan 2020 10:05:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B6222082E;
+        Sat, 11 Jan 2020 10:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737116;
-        bh=iQGXxCHV1+CJ7ks380hPcc4n61ekmCUk3qyBkkXbrt4=;
+        s=default; t=1578737780;
+        bh=4YIWANv+xk2ULjgUiU9TKCAH+VD5k1p14EtAPNJLawo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LyP5A6veTNv9AikElGqA9+HxS12a+ULMmV73CUdkTCAwr9U3gUvyxW+ez5oTw2c1O
-         eO0eoa/k/VXH4VNuFgQkIML10nokSlYMF6WC11/maVj+mW5H2o8vn0ZiWJECbmwWYm
-         yPo3ZZDR/EArPvdQBuE0G0+xVAWWoRKjMPVzmvUg=
+        b=DdSwxXLDvO//f+Gkh47cdpffca/XdO75+RZDrYRnSnCFHsWLg892MXg0/6ZgM6/Ay
+         y4ayOxlOm+yvMguOd2dxE+UBIOZGju1ZG29EtHrFP7TC8ukk/62bhgyrDhFHG7gdIB
+         /bCwgZfpuqsm17yS1p10DSi+EqETRAixVveV5YgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Birsan <cristian.birsan@microchip.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        stable@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 70/91] net: usb: lan78xx: Fix error message format specifier
+Subject: [PATCH 4.19 26/84] ARM: dts: bcm283x: Fix critical trip point
 Date:   Sat, 11 Jan 2020 10:50:03 +0100
-Message-Id: <20200111094910.623117502@linuxfoundation.org>
+Message-Id: <20200111094855.550236467@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Birsan <cristian.birsan@microchip.com>
+From: Stefan Wahren <wahrenst@gmx.net>
 
-[ Upstream commit 858ce8ca62ea1530f2779d0e3f934b0176e663c3 ]
+[ Upstream commit 30e647a764d446723a7e0fb08d209e0104f16173 ]
 
-Display the return code as decimal integer.
+During definition of the CPU thermal zone of BCM283x SoC family there
+was a misunderstanding of the meaning "criticial trip point" and the
+thermal throttling range of the VideoCore firmware. The latter one takes
+effect when the core temperature is at least 85 degree celsius or higher
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+So the current critical trip point doesn't make sense, because the
+thermal shutdown appears before the firmware has a chance to throttle
+the ARM core(s).
+
+Fix these unwanted shutdowns by increasing the critical trip point
+to a value which shouldn't be reached with working thermal throttling.
+
+Fixes: 0fe4d2181cc4 ("ARM: dts: bcm283x: Add CPU thermal zone with 1 trip point")
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c | 2 +-
+ arch/arm/boot/dts/bcm283x.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index 96258e6a1920..207660fd4b74 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -442,7 +442,7 @@ static int lan78xx_read_stats(struct lan78xx_net *dev,
- 		}
- 	} else {
- 		netdev_warn(dev->net,
--			    "Failed to read stat ret = 0x%x", ret);
-+			    "Failed to read stat ret = %d", ret);
- 	}
+diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
+index 31b29646b14c..c9322a56300d 100644
+--- a/arch/arm/boot/dts/bcm283x.dtsi
++++ b/arch/arm/boot/dts/bcm283x.dtsi
+@@ -39,7 +39,7 @@
  
- 	kfree(stats);
+ 			trips {
+ 				cpu-crit {
+-					temperature	= <80000>;
++					temperature	= <90000>;
+ 					hysteresis	= <0>;
+ 					type		= "critical";
+ 				};
 -- 
 2.20.1
 
