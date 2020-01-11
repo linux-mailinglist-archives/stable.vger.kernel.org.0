@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD53B137F16
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:16:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12028138063
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:29:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730097AbgAKKQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:16:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59614 "EHLO mail.kernel.org"
+        id S1730777AbgAKK24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:28:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729229AbgAKKQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:16:31 -0500
+        id S1731321AbgAKK2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:28:55 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A7CD20673;
-        Sat, 11 Jan 2020 10:16:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FC2E20842;
+        Sat, 11 Jan 2020 10:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737790;
-        bh=YgJ1Rj9xwayAqRHWe+d8iXp2E6DpWtapNBQW+ENO0ok=;
+        s=default; t=1578738535;
+        bh=X+Ebr00IaI3qLwvQu4pO4xc+Xvp9x6957Zo4dXEN+6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TIIBlzFRSrF4aoyPzFe7/XQLENiqK8I936SO8W3+l+luZc8A9byaGls0CAaz5JFEP
-         +Qp3d3RD68ZnHJ+ztPeuMA/otnLym5r6CTEJ+dsUF8nae5fRV2AoQH+LlajVJTUiQR
-         id+HzvUtD6ICBymrH+PjWyz12vlidvCVX/2xspgM=
+        b=uG7s4teWMg9yLUrl8XV8lj5ln97c9HVQA4DW29+3+ni2LrPxXsEb2JUiZK6EeC+yf
+         KP7fvxEoQM88CBhYH1Y+6w/vyflRQBlFqqG/dCIluuy9Haw9xH9oZxHtqMPH0Iv+3L
+         bSJ4crpx+1XNtMej7rJ8gKLR1kh1awNx7Y13prPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mahshid Khezri <khezri.mahshid@gmail.com>,
-        Paul Chaignon <paul.chaignon@orange.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org,
+        Cristian Birsan <cristian.birsan@microchip.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/84] bpf, mips: Limit to 33 tail calls
+Subject: [PATCH 5.4 086/165] net: usb: lan78xx: Fix error message format specifier
 Date:   Sat, 11 Jan 2020 10:50:05 +0100
-Message-Id: <20200111094856.523171865@linuxfoundation.org>
+Message-Id: <20200111094928.355598363@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Chaignon <paul.chaignon@orange.com>
+From: Cristian Birsan <cristian.birsan@microchip.com>
 
-[ Upstream commit e49e6f6db04e915dccb494ae10fa14888fea6f89 ]
+[ Upstream commit 858ce8ca62ea1530f2779d0e3f934b0176e663c3 ]
 
-All BPF JIT compilers except RISC-V's and MIPS' enforce a 33-tail calls
-limit at runtime.  In addition, a test was recently added, in tailcalls2,
-to check this limit.
+Display the return code as decimal integer.
 
-This patch updates the tail call limit in MIPS' JIT compiler to allow
-33 tail calls.
-
-Fixes: b6bd53f9c4e8 ("MIPS: Add missing file for eBPF JIT.")
-Reported-by: Mahshid Khezri <khezri.mahshid@gmail.com>
-Signed-off-by: Paul Chaignon <paul.chaignon@orange.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/b8eb2caac1c25453c539248e56ca22f74b5316af.1575916815.git.paul.chaignon@gmail.com
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/net/ebpf_jit.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/usb/lan78xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/net/ebpf_jit.c b/arch/mips/net/ebpf_jit.c
-index 9bda82ed75eb..3832c4628608 100644
---- a/arch/mips/net/ebpf_jit.c
-+++ b/arch/mips/net/ebpf_jit.c
-@@ -586,6 +586,7 @@ static void emit_const_to_reg(struct jit_ctx *ctx, int dst, u64 value)
- static int emit_bpf_tail_call(struct jit_ctx *ctx, int this_idx)
- {
- 	int off, b_off;
-+	int tcc_reg;
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 0becc79fd431..e3cdfdde2265 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -511,7 +511,7 @@ static int lan78xx_read_stats(struct lan78xx_net *dev,
+ 		}
+ 	} else {
+ 		netdev_warn(dev->net,
+-			    "Failed to read stat ret = 0x%x", ret);
++			    "Failed to read stat ret = %d", ret);
+ 	}
  
- 	ctx->flags |= EBPF_SEEN_TC;
- 	/*
-@@ -598,14 +599,14 @@ static int emit_bpf_tail_call(struct jit_ctx *ctx, int this_idx)
- 	b_off = b_imm(this_idx + 1, ctx);
- 	emit_instr(ctx, bne, MIPS_R_AT, MIPS_R_ZERO, b_off);
- 	/*
--	 * if (--TCC < 0)
-+	 * if (TCC-- < 0)
- 	 *     goto out;
- 	 */
- 	/* Delay slot */
--	emit_instr(ctx, daddiu, MIPS_R_T5,
--		   (ctx->flags & EBPF_TCC_IN_V1) ? MIPS_R_V1 : MIPS_R_S4, -1);
-+	tcc_reg = (ctx->flags & EBPF_TCC_IN_V1) ? MIPS_R_V1 : MIPS_R_S4;
-+	emit_instr(ctx, daddiu, MIPS_R_T5, tcc_reg, -1);
- 	b_off = b_imm(this_idx + 1, ctx);
--	emit_instr(ctx, bltz, MIPS_R_T5, b_off);
-+	emit_instr(ctx, bltz, tcc_reg, b_off);
- 	/*
- 	 * prog = array->ptrs[index];
- 	 * if (prog == NULL)
+ 	kfree(stats);
 -- 
 2.20.1
 
