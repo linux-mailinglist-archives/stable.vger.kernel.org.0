@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21856137DD7
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:02:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 329C4137FC9
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729395AbgAKKB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:01:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59880 "EHLO mail.kernel.org"
+        id S1729373AbgAKKXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:23:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728833AbgAKKB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:01:58 -0500
+        id S1730884AbgAKKXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:23:03 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06D942077C;
-        Sat, 11 Jan 2020 10:01:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B1A7205F4;
+        Sat, 11 Jan 2020 10:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736917;
-        bh=UhKWdznl3WaIfp7JHn+VhYkc7uxuSFKGbwszSTT+IcI=;
+        s=default; t=1578738183;
+        bh=ZWtIO+a0vaQunMSWxVY3ld+/seCZC51wG2H3XXUbHJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c0VbprYl2u82AydcEmSpCc1ihbdRvO289KJHDRQVr1YwM2DXvdUbgURnLgyFY0Ka4
-         yvg+ffYBhYhdZStUuyUZ4NUbqTP3ejEyjzPBTaqjeSlw/spYkyi/5NmDdb65lILXJk
-         yrojE2WCWkftS+xeYRBQkEvarAWsqKuC/HMsqgl4=
+        b=NTvuG5gjkjFk3DY60UxtbNW0wBENNpH4D1M1HXIGhA6njYJh0T1RIP40bfz9y7dzP
+         xO07GDvLWYwfkieMpZJhY+8f6PqlAUyUpA4/UUMfWirv3axXFy8r5ZeGAno5NSc8LW
+         f4kA53JblLYwsbbqnY31Tk+73/y6dm3BDV3ZBScQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 31/91] ALSA: cs4236: fix error return comparison of an unsigned integer
+        stable@vger.kernel.org,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Dragos Tarcatu <dragos_tarcatu@mentor.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 045/165] ASoC: topology: Check return value for snd_soc_add_dai_link()
 Date:   Sat, 11 Jan 2020 10:49:24 +0100
-Message-Id: <20200111094856.406546046@linuxfoundation.org>
+Message-Id: <20200111094924.881167802@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
 
-commit d60229d84846a8399257006af9c5444599f64361 upstream.
+[ Upstream commit 76d2703649321c296df7ec0dafd50add96215de4 ]
 
-The return from pnp_irq is an unsigned integer type resource_size_t
-and hence the error check for a positive non-error code is always
-going to be true.  A check for a non-failure return from pnp_irq
-should in fact be for (resource_size_t)-1 rather than >= 0.
+snd_soc_add_dai_link() might fail. This situation occurs for
+instance in a very specific use case where a PCM device and a
+Back End DAI link are given identical names in the topology.
+When this happens, soc_new_pcm_runtime() fails and then
+snd_soc_add_dai_link() returns -ENOMEM when called from
+soc_tplg_fe_link_create(). Because of that, the link will not
+get added into the card list, so any attempt to remove it later
+ends up in a panic.
 
-Addresses-Coverity: ("Unsigned compared against 0")
-Fixes: a9824c868a2c ("[ALSA] Add CS4232 PnP BIOS support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20191122131354.58042-1-colin.king@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix that by checking the return status and free the memory in case
+of an error.
 
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20191210003939.15752-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/cs423x/cs4236.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/soc-topology.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
---- a/sound/isa/cs423x/cs4236.c
-+++ b/sound/isa/cs423x/cs4236.c
-@@ -293,7 +293,8 @@ static int snd_cs423x_pnp_init_mpu(int d
- 	} else {
- 		mpu_port[dev] = pnp_port_start(pdev, 0);
- 		if (mpu_irq[dev] >= 0 &&
--		    pnp_irq_valid(pdev, 0) && pnp_irq(pdev, 0) >= 0) {
-+		    pnp_irq_valid(pdev, 0) &&
-+		    pnp_irq(pdev, 0) != (resource_size_t)-1) {
- 			mpu_irq[dev] = pnp_irq(pdev, 0);
- 		} else {
- 			mpu_irq[dev] = -1;	/* disable interrupt */
+diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
+index 0fd032914a31..c92e360d27b8 100644
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -1918,11 +1918,13 @@ static int soc_tplg_fe_link_create(struct soc_tplg *tplg,
+ 	ret = soc_tplg_dai_link_load(tplg, link, NULL);
+ 	if (ret < 0) {
+ 		dev_err(tplg->comp->dev, "ASoC: FE link loading failed\n");
+-		kfree(link->name);
+-		kfree(link->stream_name);
+-		kfree(link->cpus->dai_name);
+-		kfree(link);
+-		return ret;
++		goto err;
++	}
++
++	ret = snd_soc_add_dai_link(tplg->comp->card, link);
++	if (ret < 0) {
++		dev_err(tplg->comp->dev, "ASoC: adding FE link failed\n");
++		goto err;
+ 	}
+ 
+ 	link->dobj.index = tplg->index;
+@@ -1930,8 +1932,13 @@ static int soc_tplg_fe_link_create(struct soc_tplg *tplg,
+ 	link->dobj.type = SND_SOC_DOBJ_DAI_LINK;
+ 	list_add(&link->dobj.list, &tplg->comp->dobj_list);
+ 
+-	snd_soc_add_dai_link(tplg->comp->card, link);
+ 	return 0;
++err:
++	kfree(link->name);
++	kfree(link->stream_name);
++	kfree(link->cpus->dai_name);
++	kfree(link);
++	return ret;
+ }
+ 
+ /* create a FE DAI and DAI link from the PCM object */
+-- 
+2.20.1
+
 
 
