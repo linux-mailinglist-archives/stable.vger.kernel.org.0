@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13E55137F46
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:18:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F46137E8D
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730118AbgAKKR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:17:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35358 "EHLO mail.kernel.org"
+        id S1729789AbgAKKLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:11:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730511AbgAKKR4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:17:56 -0500
+        id S1729229AbgAKKLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:11:11 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D0F1205F4;
-        Sat, 11 Jan 2020 10:17:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6774206DA;
+        Sat, 11 Jan 2020 10:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737876;
-        bh=qFaFhA/v8t/Rov8CR3MaVpvPyNkIPH9jwaowkLAYxUY=;
+        s=default; t=1578737470;
+        bh=S58NJcF7W084CSOKXy/vHHYh/uY+5RLG0+7WgTqAwHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bABpykEpirfWMCUk5jge3L3tj7CuKQJ4JawLdverMaG8WDnFYv7j4CIJbdXFCaoKs
-         RVfTLOZcCGnN4rXqADiGpNYYGISzFX9iaYHmLxy7GuL0jK0IISvR0r2dA74TNNOVWK
-         EB/YNbv9cXns5gFs/PkuiqltGegyTjaNEuc9xhoc=
+        b=k5g1/YG35nPrskuA/vy7sg4lEqS/bCrSoxpC/cLls64draZ3aDCqf2aomsQb4K8kV
+         UoOIkd+8Ota8OXtQOcGtaUFN+vf7NxcADEP+itmYdTVEnO+HGVVIy6sDosZFOCRcoB
+         5XxahgH0yvomQgW2vxXGm+ycILBs82p/K2G/FyE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/84] net: stmmac: xgmac: Clear previous RX buffer size
+        stable@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Subject: [PATCH 4.14 44/62] mmc: block: Delete mmc_access_rpmb()
 Date:   Sat, 11 Jan 2020 10:50:26 +0100
-Message-Id: <20200111094905.013686656@linuxfoundation.org>
+Message-Id: <20200111094850.226463946@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <Jose.Abreu@synopsys.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 11d55fd9975f8e46a0e5e19c14899544e81e1e15 ]
+commit 14f4ca7e4d2825f9f71e22905ae177b899959f1d upstream.
 
-When switching between buffer sizes we need to clear the previous value.
+This function is used by the block layer queue to bail out of
+requests if the current request is towards an RPMB
+"block device".
 
-Fixes: d6ddfacd95c7 ("net: stmmac: Add DMA related callbacks for XGMAC2")
-Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This was done to avoid boot time scanning of this "block
+device" which was never really a block device, thus duct-taping
+over the fact that it was badly engineered.
+
+This problem is now gone as we removed the offending RPMB block
+device in another patch and replaced it with a character
+device.
+
+Cc: Tomas Winkler <tomas.winkler@intel.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/stmicro/stmmac/dwxgmac2.h     | 2 ++
- drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c | 3 ++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/mmc/core/block.c |   12 ------------
+ drivers/mmc/core/queue.c |    2 +-
+ drivers/mmc/core/queue.h |    2 --
+ 3 files changed, 1 insertion(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2.h b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2.h
-index 0a80fa25afe3..209745294751 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2.h
-@@ -169,6 +169,8 @@
- #define XGMAC_DMA_CH_RX_CONTROL(x)	(0x00003108 + (0x80 * (x)))
- #define XGMAC_RxPBL			GENMASK(21, 16)
- #define XGMAC_RxPBL_SHIFT		16
-+#define XGMAC_RBSZ			GENMASK(14, 1)
-+#define XGMAC_RBSZ_SHIFT		1
- #define XGMAC_RXST			BIT(0)
- #define XGMAC_DMA_CH_TxDESC_LADDR(x)	(0x00003114 + (0x80 * (x)))
- #define XGMAC_DMA_CH_RxDESC_LADDR(x)	(0x0000311c + (0x80 * (x)))
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c
-index 1c3930527444..27942c53b567 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c
-@@ -379,7 +379,8 @@ static void dwxgmac2_set_bfsize(void __iomem *ioaddr, int bfsize, u32 chan)
- 	u32 value;
- 
- 	value = readl(ioaddr + XGMAC_DMA_CH_RX_CONTROL(chan));
--	value |= bfsize << 1;
-+	value &= ~XGMAC_RBSZ;
-+	value |= bfsize << XGMAC_RBSZ_SHIFT;
- 	writel(value, ioaddr + XGMAC_DMA_CH_RX_CONTROL(chan));
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -1239,18 +1239,6 @@ static inline void mmc_blk_reset_success
+ 	md->reset_done &= ~type;
  }
  
--- 
-2.20.1
-
+-int mmc_access_rpmb(struct mmc_queue *mq)
+-{
+-	struct mmc_blk_data *md = mq->blkdata;
+-	/*
+-	 * If this is a RPMB partition access, return ture
+-	 */
+-	if (md && md->part_type == EXT_CSD_PART_CONFIG_ACC_RPMB)
+-		return true;
+-
+-	return false;
+-}
+-
+ /*
+  * The non-block commands come back from the block layer after it queued it and
+  * processed it with all other requests and then they get issued in this
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -30,7 +30,7 @@ static int mmc_prep_request(struct reque
+ {
+ 	struct mmc_queue *mq = q->queuedata;
+ 
+-	if (mq && (mmc_card_removed(mq->card) || mmc_access_rpmb(mq)))
++	if (mq && mmc_card_removed(mq->card))
+ 		return BLKPREP_KILL;
+ 
+ 	req->rq_flags |= RQF_DONTPREP;
+--- a/drivers/mmc/core/queue.h
++++ b/drivers/mmc/core/queue.h
+@@ -84,6 +84,4 @@ extern void mmc_queue_resume(struct mmc_
+ extern unsigned int mmc_queue_map_sg(struct mmc_queue *,
+ 				     struct mmc_queue_req *);
+ 
+-extern int mmc_access_rpmb(struct mmc_queue *);
+-
+ #endif
 
 
