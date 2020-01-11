@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E2413809D
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:33:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 475581380C4
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:34:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731416AbgAKKcL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:32:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44836 "EHLO mail.kernel.org"
+        id S1731180AbgAKKdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:33:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731413AbgAKKcL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:32:11 -0500
+        id S1731148AbgAKKdt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:33:49 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 179B120842;
-        Sat, 11 Jan 2020 10:32:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28D1D20678;
+        Sat, 11 Jan 2020 10:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738730;
-        bh=qz7OBvYYmjdiZUx0rakr8tLYU2rPys71XSlSy/UCK4U=;
+        s=default; t=1578738829;
+        bh=v3mttVPp1GerNJolr6lWCMYoGvxolo6C6ng1zXOq1eA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/607bsldVUgdFY8dMxcmaIpwIJC/xOeVOKee+6aRZZI3UpbrBV9joKseZeqBr3jj
-         mjhoL5I5nyc7NgisgEAqabd6wZUKvWrILC5aua5n7hvh8HIWm4LGKDJ6lzbto7PO7v
-         Ap6EQYeD9m0+BwQ5dM/0RFB2K4vXL9XrMkuv1hv0=
+        b=SKEv0Nk+bKcXKpotDNz0uXs19w4qXdmrcwz7fndt7d93SMTw3G9Kx7BOb4yFlExqy
+         fmlQ74E2Ms4jm5dImh/P79VjenBHbcekXHaaWxxvYPDo899/z0Kp1RFv5whkiWtAQs
+         3KTCjTaRTryN06B7WIlwDbyQ3T9aUl8GuZIiUCDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
+        "kernelci.org bot" <bot@kernelci.org>,
+        Jose Abreu <Jose.Abreu@synopsys.com>,
+        Sriram Dash <Sriram.dash@samsung.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 143/165] net: stmmac: dwmac-sunxi: Allow all RGMII modes
-Date:   Sat, 11 Jan 2020 10:51:02 +0100
-Message-Id: <20200111094938.813100485@linuxfoundation.org>
+Subject: [PATCH 5.4 144/165] net: stmmac: Fixed link does not need MDIO Bus
+Date:   Sat, 11 Jan 2020 10:51:03 +0100
+Message-Id: <20200111094939.030296312@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -43,32 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 52cc73e5404c7ba0cbfc50cb4c265108c84b3d5a ]
+[ Upstream commit da29f2d84bd10234df570b7f07cbd0166e738230 ]
 
-Allow all the RGMII modes to be used. This would allow us to represent
-the hardware better in the device tree with RGMII_ID where in most
-cases the PHY's internal delay for both RX and TX are used.
+When using fixed link we don't need the MDIO bus support.
 
-Fixes: af0bd4e9ba80 ("net: stmmac: sunxi platform extensions for GMAC in Allwinner A20 SoC's")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Reported-by: Heiko Stuebner <heiko@sntech.de>
+Reported-by: kernelci.org bot <bot@kernelci.org>
+Fixes: d3e014ec7d5e ("net: stmmac: platform: Fix MDIO init for platforms without PHY")
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Acked-by: Sriram Dash <Sriram.dash@samsung.com>
+Tested-by: Patrice Chotard <patrice.chotard@st.com>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail> # Lamobo R1 (fixed-link + MDIO sub node for roboswitch).
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c |    2 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-@@ -44,7 +44,7 @@ static int sun7i_gmac_init(struct platfo
- 	 * rate, which then uses the auto-reparenting feature of the
- 	 * clock driver, and enabling/disabling the clock.
- 	 */
--	if (gmac->interface == PHY_INTERFACE_MODE_RGMII) {
-+	if (phy_interface_mode_is_rgmii(gmac->interface)) {
- 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_GMII_RGMII_RATE);
- 		clk_prepare_enable(gmac->tx_clk);
- 		gmac->clk_enabled = 1;
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -320,7 +320,7 @@ out:
+ static int stmmac_dt_phy(struct plat_stmmacenet_data *plat,
+ 			 struct device_node *np, struct device *dev)
+ {
+-	bool mdio = false;
++	bool mdio = !of_phy_is_fixed_link(np);
+ 	static const struct of_device_id need_mdio_ids[] = {
+ 		{ .compatible = "snps,dwc-qos-ethernet-4.10" },
+ 		{},
 
 
