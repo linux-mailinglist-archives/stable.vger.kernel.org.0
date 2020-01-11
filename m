@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B86137DA6
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 377C3137FBC
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728973AbgAKJ7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:59:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55168 "EHLO mail.kernel.org"
+        id S1730750AbgAKKWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:22:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729346AbgAKJ7y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:59:54 -0500
+        id S1730655AbgAKKWk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:22:40 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 552F02084D;
-        Sat, 11 Jan 2020 09:59:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0237B20848;
+        Sat, 11 Jan 2020 10:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736794;
-        bh=vcovTOHbKP78JFWf13jdL/gXq0Zxg4qPHG5JDYfThhw=;
+        s=default; t=1578738159;
+        bh=7rwKNQPuyOvNkbJa8xITK69Gi8xyKc1iP/xJ7pOhLxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KPO2q8o7xGalFZ541xM+/pXctutTD+USTQLrKEkhlSRzGmvSOu5vaYNXUpA/dCd4o
-         xdlRxOl2mnS09AsvjZltvUM9fHkk/Vur8e/i4JIttm4Mu+igNzY3lZF31Cvj58K+VC
-         kRRZnF7qhXLUoED07VovvY3R+5LhcYg0hdaHPZ/8=
+        b=L8f3GYbdaMaxgJPLAA0VYu5oeTJdEJQSYGgo64oyqUARNvayfF7vvxRaW6xZpifNh
+         rOKZyWiXvIUBOltmpIXsSPgfRS2qusarsvEBeD4PjiHFuDMPcPKI0cslCbw7jrx9W7
+         72G78a/EAV+c4DItLqzNA80eFfaFm7L+wg9s/NQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 26/91] ata: libahci_platform: Export again ahci_platform_<en/dis>able_phys()
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 040/165] selftests: safesetid: Fix Makefile to set correct test program
 Date:   Sat, 11 Jan 2020 10:49:19 +0100
-Message-Id: <20200111094854.129854519@linuxfoundation.org>
+Message-Id: <20200111094924.350981057@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 84b032dbfdf1c139cd2b864e43959510646975f8 upstream.
+[ Upstream commit 8ef1ec0ca32c6f8a87f5b4c24b1db26da67c5609 ]
 
-This reverts commit 6bb86fefa086faba7b60bb452300b76a47cde1a5
-("libahci_platform: Staticize ahci_platform_<en/dis>able_phys()") we are
-going to need ahci_platform_{enable,disable}_phys() in a subsequent
-commit for ahci_brcm.c in order to properly control the PHY
-initialization order.
+Fix Makefile to set safesetid-test.sh to TEST_PROGS instead
+of non existing run_tests.sh.
 
-Also make sure the function prototypes are declared in
-include/linux/ahci_platform.h as a result.
+Without this fix, I got following error.
+  ----
+  TAP version 13
+  1..1
+  # selftests: safesetid: run_tests.sh
+  # Warning: file run_tests.sh is missing!
+  not ok 1 selftests: safesetid: run_tests.sh
+  ----
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c67e8ec03f3f ("LSM: SafeSetID: add selftest")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libahci_platform.c |    6 ++++--
- include/linux/ahci_platform.h  |    2 ++
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ tools/testing/selftests/safesetid/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -46,7 +46,7 @@ EXPORT_SYMBOL_GPL(ahci_platform_ops);
-  * RETURNS:
-  * 0 on success otherwise a negative error code
-  */
--static int ahci_platform_enable_phys(struct ahci_host_priv *hpriv)
-+int ahci_platform_enable_phys(struct ahci_host_priv *hpriv)
- {
- 	int rc, i;
+diff --git a/tools/testing/selftests/safesetid/Makefile b/tools/testing/selftests/safesetid/Makefile
+index cac42cd36a1b..fa02c4d5ec13 100644
+--- a/tools/testing/selftests/safesetid/Makefile
++++ b/tools/testing/selftests/safesetid/Makefile
+@@ -3,7 +3,7 @@
+ CFLAGS = -Wall -O2
+ LDLIBS = -lcap
  
-@@ -71,6 +71,7 @@ disable_phys:
- 	}
- 	return rc;
- }
-+EXPORT_SYMBOL_GPL(ahci_platform_enable_phys);
+-TEST_PROGS := run_tests.sh
++TEST_PROGS := safesetid-test.sh
+ TEST_GEN_FILES := safesetid-test
  
- /**
-  * ahci_platform_disable_phys - Disable PHYs
-@@ -78,7 +79,7 @@ disable_phys:
-  *
-  * This function disables all PHYs found in hpriv->phys.
-  */
--static void ahci_platform_disable_phys(struct ahci_host_priv *hpriv)
-+void ahci_platform_disable_phys(struct ahci_host_priv *hpriv)
- {
- 	int i;
- 
-@@ -87,6 +88,7 @@ static void ahci_platform_disable_phys(s
- 		phy_exit(hpriv->phys[i]);
- 	}
- }
-+EXPORT_SYMBOL_GPL(ahci_platform_disable_phys);
- 
- /**
-  * ahci_platform_enable_clks - Enable platform clocks
---- a/include/linux/ahci_platform.h
-+++ b/include/linux/ahci_platform.h
-@@ -23,6 +23,8 @@ struct ahci_host_priv;
- struct platform_device;
- struct scsi_host_template;
- 
-+int ahci_platform_enable_phys(struct ahci_host_priv *hpriv);
-+void ahci_platform_disable_phys(struct ahci_host_priv *hpriv);
- int ahci_platform_enable_clks(struct ahci_host_priv *hpriv);
- void ahci_platform_disable_clks(struct ahci_host_priv *hpriv);
- int ahci_platform_enable_regulators(struct ahci_host_priv *hpriv);
+ include ../lib.mk
+-- 
+2.20.1
+
 
 
