@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 377C3137FBC
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:22:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 900BE137DE3
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730750AbgAKKWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:22:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48268 "EHLO mail.kernel.org"
+        id S1729109AbgAKKCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:02:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730655AbgAKKWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:22:40 -0500
+        id S1728819AbgAKKCe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:02:34 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0237B20848;
-        Sat, 11 Jan 2020 10:22:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86CEA20848;
+        Sat, 11 Jan 2020 10:02:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738159;
-        bh=7rwKNQPuyOvNkbJa8xITK69Gi8xyKc1iP/xJ7pOhLxU=;
+        s=default; t=1578736953;
+        bh=0t7sFC/dghiBRKtxczAFkc+MQIDlbu6/0fLf7MkGFtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L8f3GYbdaMaxgJPLAA0VYu5oeTJdEJQSYGgo64oyqUARNvayfF7vvxRaW6xZpifNh
-         rOKZyWiXvIUBOltmpIXsSPgfRS2qusarsvEBeD4PjiHFuDMPcPKI0cslCbw7jrx9W7
-         72G78a/EAV+c4DItLqzNA80eFfaFm7L+wg9s/NQ8=
+        b=2v2E2Di5AwU+i1LgdWHFDzrhaXYUUQgma23YcTo8/P1ypmbN7l/cs29pm4BVXAxMU
+         kj7QNsAwH3dZuG/QGSfYZvBkaR8uUmX95XAnRiVk408PjN+LcQEhUXJyfiNWOcqQYM
+         C/rL1YmmmKP5dTIsE6UHVKLIGzI6wguiAIfrnHK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 040/165] selftests: safesetid: Fix Makefile to set correct test program
-Date:   Sat, 11 Jan 2020 10:49:19 +0100
-Message-Id: <20200111094924.350981057@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.9 27/91] ata: ahci_brcm: Allow optional reset controller to be used
+Date:   Sat, 11 Jan 2020 10:49:20 +0100
+Message-Id: <20200111094854.595033052@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 8ef1ec0ca32c6f8a87f5b4c24b1db26da67c5609 ]
+commit 2b2c47d9e1fe90311b725125d6252a859ee87a79 upstream.
 
-Fix Makefile to set safesetid-test.sh to TEST_PROGS instead
-of non existing run_tests.sh.
+On BCM63138, we need to reset the AHCI core prior to start utilizing it,
+grab the reset controller device cookie and do that.
 
-Without this fix, I got following error.
-  ----
-  TAP version 13
-  1..1
-  # selftests: safesetid: run_tests.sh
-  # Warning: file run_tests.sh is missing!
-  not ok 1 selftests: safesetid: run_tests.sh
-  ----
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: c67e8ec03f3f ("LSM: SafeSetID: add selftest")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/safesetid/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/ahci_brcm.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/tools/testing/selftests/safesetid/Makefile b/tools/testing/selftests/safesetid/Makefile
-index cac42cd36a1b..fa02c4d5ec13 100644
---- a/tools/testing/selftests/safesetid/Makefile
-+++ b/tools/testing/selftests/safesetid/Makefile
-@@ -3,7 +3,7 @@
- CFLAGS = -Wall -O2
- LDLIBS = -lcap
+--- a/drivers/ata/ahci_brcm.c
++++ b/drivers/ata/ahci_brcm.c
+@@ -25,6 +25,7 @@
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
++#include <linux/reset.h>
+ #include <linux/string.h>
  
--TEST_PROGS := run_tests.sh
-+TEST_PROGS := safesetid-test.sh
- TEST_GEN_FILES := safesetid-test
+ #include "ahci.h"
+@@ -88,6 +89,7 @@ struct brcm_ahci_priv {
+ 	u32 port_mask;
+ 	u32 quirks;
+ 	enum brcm_ahci_version version;
++	struct reset_control *rcdev;
+ };
  
- include ../lib.mk
--- 
-2.20.1
-
+ static const struct ata_port_info ahci_brcm_port_info = {
+@@ -332,6 +334,11 @@ static int brcm_ahci_probe(struct platfo
+ 	if (IS_ERR(priv->top_ctrl))
+ 		return PTR_ERR(priv->top_ctrl);
+ 
++	/* Reset is optional depending on platform */
++	priv->rcdev = devm_reset_control_get(&pdev->dev, "ahci");
++	if (!IS_ERR_OR_NULL(priv->rcdev))
++		reset_control_deassert(priv->rcdev);
++
+ 	if ((priv->version == BRCM_SATA_BCM7425) ||
+ 		(priv->version == BRCM_SATA_NSP)) {
+ 		priv->quirks |= BRCM_AHCI_QUIRK_NO_NCQ;
 
 
