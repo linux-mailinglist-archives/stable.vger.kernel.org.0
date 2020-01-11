@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D30137E23
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD53B137F16
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:16:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728881AbgAKKF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:05:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38548 "EHLO mail.kernel.org"
+        id S1730097AbgAKKQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:16:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728850AbgAKKF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:05:27 -0500
+        id S1729229AbgAKKQb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:16:31 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 707912082E;
-        Sat, 11 Jan 2020 10:05:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A7CD20673;
+        Sat, 11 Jan 2020 10:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737127;
-        bh=m3YkXNtADal+FxT5+G8XsLoAk5H/L8pRwhFC/xDTCPA=;
+        s=default; t=1578737790;
+        bh=YgJ1Rj9xwayAqRHWe+d8iXp2E6DpWtapNBQW+ENO0ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EpjXXVQGwxPTmeJvkrRE/MHyDi9vhXdu57kzLm3vljOIxD/UQWf8ZsfDWGd8t4gWI
-         lz9wMcrExTaf6JQdqZFojMYD2fP1RxEoqUNGgbIXGuSJxPOhAog1ojv0dZovDiIlQm
-         tJ9GNTf376e28Ce/S93Ji8DZY9DgrwvxdHwZmmyQ=
+        b=TIIBlzFRSrF4aoyPzFe7/XQLENiqK8I936SO8W3+l+luZc8A9byaGls0CAaz5JFEP
+         +Qp3d3RD68ZnHJ+ztPeuMA/otnLym5r6CTEJ+dsUF8nae5fRV2AoQH+LlajVJTUiQR
+         id+HzvUtD6ICBymrH+PjWyz12vlidvCVX/2xspgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Mahshid Khezri <khezri.mahshid@gmail.com>,
+        Paul Chaignon <paul.chaignon@orange.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 71/91] rfkill: Fix incorrect check to avoid NULL pointer dereference
-Date:   Sat, 11 Jan 2020 10:50:04 +0100
-Message-Id: <20200111094910.852061715@linuxfoundation.org>
+Subject: [PATCH 4.19 28/84] bpf, mips: Limit to 33 tail calls
+Date:   Sat, 11 Jan 2020 10:50:05 +0100
+Message-Id: <20200111094856.523171865@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Paul Chaignon <paul.chaignon@orange.com>
 
-[ Upstream commit 6fc232db9e8cd50b9b83534de9cd91ace711b2d7 ]
+[ Upstream commit e49e6f6db04e915dccb494ae10fa14888fea6f89 ]
 
-In rfkill_register, the struct rfkill pointer is first derefernced
-and then checked for NULL. This patch removes the BUG_ON and returns
-an error to the caller in case rfkill is NULL.
+All BPF JIT compilers except RISC-V's and MIPS' enforce a 33-tail calls
+limit at runtime.  In addition, a test was recently added, in tailcalls2,
+to check this limit.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Link: https://lore.kernel.org/r/20191215153409.21696-1-pakki001@umn.edu
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+This patch updates the tail call limit in MIPS' JIT compiler to allow
+33 tail calls.
+
+Fixes: b6bd53f9c4e8 ("MIPS: Add missing file for eBPF JIT.")
+Reported-by: Mahshid Khezri <khezri.mahshid@gmail.com>
+Signed-off-by: Paul Chaignon <paul.chaignon@orange.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/b8eb2caac1c25453c539248e56ca22f74b5316af.1575916815.git.paul.chaignon@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rfkill/core.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/mips/net/ebpf_jit.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/net/rfkill/core.c b/net/rfkill/core.c
-index 884027f62783..87c35844d7d9 100644
---- a/net/rfkill/core.c
-+++ b/net/rfkill/core.c
-@@ -940,10 +940,13 @@ static void rfkill_sync_work(struct work_struct *work)
- int __must_check rfkill_register(struct rfkill *rfkill)
+diff --git a/arch/mips/net/ebpf_jit.c b/arch/mips/net/ebpf_jit.c
+index 9bda82ed75eb..3832c4628608 100644
+--- a/arch/mips/net/ebpf_jit.c
++++ b/arch/mips/net/ebpf_jit.c
+@@ -586,6 +586,7 @@ static void emit_const_to_reg(struct jit_ctx *ctx, int dst, u64 value)
+ static int emit_bpf_tail_call(struct jit_ctx *ctx, int this_idx)
  {
- 	static unsigned long rfkill_no;
--	struct device *dev = &rfkill->dev;
-+	struct device *dev;
- 	int error;
+ 	int off, b_off;
++	int tcc_reg;
  
--	BUG_ON(!rfkill);
-+	if (!rfkill)
-+		return -EINVAL;
-+
-+	dev = &rfkill->dev;
- 
- 	mutex_lock(&rfkill_global_mutex);
- 
+ 	ctx->flags |= EBPF_SEEN_TC;
+ 	/*
+@@ -598,14 +599,14 @@ static int emit_bpf_tail_call(struct jit_ctx *ctx, int this_idx)
+ 	b_off = b_imm(this_idx + 1, ctx);
+ 	emit_instr(ctx, bne, MIPS_R_AT, MIPS_R_ZERO, b_off);
+ 	/*
+-	 * if (--TCC < 0)
++	 * if (TCC-- < 0)
+ 	 *     goto out;
+ 	 */
+ 	/* Delay slot */
+-	emit_instr(ctx, daddiu, MIPS_R_T5,
+-		   (ctx->flags & EBPF_TCC_IN_V1) ? MIPS_R_V1 : MIPS_R_S4, -1);
++	tcc_reg = (ctx->flags & EBPF_TCC_IN_V1) ? MIPS_R_V1 : MIPS_R_S4;
++	emit_instr(ctx, daddiu, MIPS_R_T5, tcc_reg, -1);
+ 	b_off = b_imm(this_idx + 1, ctx);
+-	emit_instr(ctx, bltz, MIPS_R_T5, b_off);
++	emit_instr(ctx, bltz, tcc_reg, b_off);
+ 	/*
+ 	 * prog = array->ptrs[index];
+ 	 * if (prog == NULL)
 -- 
 2.20.1
 
