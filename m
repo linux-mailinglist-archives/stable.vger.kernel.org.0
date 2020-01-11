@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D76A13804A
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:28:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF4E137E3F
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730424AbgAKK2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:28:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34710 "EHLO mail.kernel.org"
+        id S1729079AbgAKKGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:06:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729295AbgAKK17 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:27:59 -0500
+        id S1728893AbgAKKGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:06:39 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 945862082E;
-        Sat, 11 Jan 2020 10:27:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 032B3206DA;
+        Sat, 11 Jan 2020 10:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738479;
-        bh=3l1KICiLGAHbaDqp64hBkx4pmtGm3ykWiyUsFzWdfSY=;
+        s=default; t=1578737198;
+        bh=oTyxjdiVlbNqEznx9mghwmfposZQKPRulhQo0d4mv5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPTGIkZD8tbiCFOh3FRajIq+yty9lh9L8nmN48GsPGYr3lBN5CZuUn9yjsurDL+gW
-         Cxu7df5R4GHP74OyoveKi5hhr1XsrN+LTuKO28WrkPF5A3wRkJmqV4Tqwc7Me1jveD
-         RpQ8ap4nb0IBdKxpt8/HkeJ4at86VCNP8eIyMMoE=
+        b=KgZGM9Vfkk5wBeIp+ThBoJiwNHMBB1k1yGzWhmek1vND2jkmnhzD8emYVA5id/Va1
+         fDPNCKSNKhEFD693Bay6wdwbNagFVNMbyvHu6H4Yr6+y17iqZBzs3iiSHU9oMDkqWG
+         npDpJqmjaXY+U9WV6e9PVATv/UZ+gVssSzOSmhvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        zhong jiang <zhongjiang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 102/165] usb: typec: fusb302: Fix an undefined reference to extcon_get_state
+        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 88/91] net: sch_prio: When ungrafting, replace with FIFO
 Date:   Sat, 11 Jan 2020 10:50:21 +0100
-Message-Id: <20200111094930.268150068@linuxfoundation.org>
+Message-Id: <20200111094913.183706298@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit 547fc228755d79af648898187e7831a825d4f42c ]
+[ Upstream commit 240ce7f6428ff5188b9eedc066e1e4d645b8635f ]
 
-Fixes the following compile error:
+When a child Qdisc is removed from one of the PRIO Qdisc's bands, it is
+replaced unconditionally by a NOOP qdisc. As a result, any traffic hitting
+that band gets dropped. That is incorrect--no Qdisc was explicitly added
+when PRIO was created, and after removal, none should have to be added
+either.
 
-drivers/usb/typec/tcpm/fusb302.o: In function `tcpm_get_current_limit':
-fusb302.c:(.text+0x3ee): undefined reference to `extcon_get_state'
-fusb302.c:(.text+0x422): undefined reference to `extcon_get_state'
-fusb302.c:(.text+0x450): undefined reference to `extcon_get_state'
-fusb302.c:(.text+0x48c): undefined reference to `extcon_get_state'
-drivers/usb/typec/tcpm/fusb302.o: In function `fusb302_probe':
-fusb302.c:(.text+0x980): undefined reference to `extcon_get_extcon_dev'
-make: *** [vmlinux] Error 1
+Fix PRIO by first attempting to create a default Qdisc and only falling
+back to noop when that fails. This pattern of attempting to create an
+invisible FIFO, using NOOP only as a fallback, is also seen in other
+Qdiscs.
 
-It is because EXTCON is build as a module, but FUSB302 is not.
-
-Suggested-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/1576239378-50795-1-git-send-email-zhongjiang@huawei.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/tcpm/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ net/sched/sch_prio.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/typec/tcpm/Kconfig b/drivers/usb/typec/tcpm/Kconfig
-index 72481bbb2af3..5b986d6c801d 100644
---- a/drivers/usb/typec/tcpm/Kconfig
-+++ b/drivers/usb/typec/tcpm/Kconfig
-@@ -32,6 +32,7 @@ endif # TYPEC_TCPCI
- config TYPEC_FUSB302
- 	tristate "Fairchild FUSB302 Type-C chip driver"
- 	depends on I2C
-+	depends on EXTCON || !EXTCON
- 	help
- 	  The Fairchild FUSB302 Type-C chip driver that works with
- 	  Type-C Port Controller Manager to provide USB PD and USB
--- 
-2.20.1
-
+--- a/net/sched/sch_prio.c
++++ b/net/sched/sch_prio.c
+@@ -232,8 +232,14 @@ static int prio_graft(struct Qdisc *sch,
+ 	struct prio_sched_data *q = qdisc_priv(sch);
+ 	unsigned long band = arg - 1;
+ 
+-	if (new == NULL)
+-		new = &noop_qdisc;
++	if (!new) {
++		new = qdisc_create_dflt(sch->dev_queue, &pfifo_qdisc_ops,
++					TC_H_MAKE(sch->handle, arg));
++		if (!new)
++			new = &noop_qdisc;
++		else
++			qdisc_hash_add(new);
++	}
+ 
+ 	*old = qdisc_replace(sch, new, &q->queues[band]);
+ 	return 0;
 
 
