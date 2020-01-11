@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 849EA137EB8
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F0013806D
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:29:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729824AbgAKKNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:13:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
+        id S1729328AbgAKK3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:29:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729008AbgAKKNE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:13:04 -0500
+        id S1729171AbgAKK3c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:29:32 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1956E206DA;
-        Sat, 11 Jan 2020 10:13:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCEDE20842;
+        Sat, 11 Jan 2020 10:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737583;
-        bh=Szw6ys8LnCVnsTt06jMBo0T+8Yvamx5Z4vLGAz8NCt4=;
+        s=default; t=1578738571;
+        bh=gvUfKMKRH/t4NRqfU6iHpf39qn7HbiZhJj6cXBk/K10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVp+JJbLl80Pgi9xw16ESnt/L00wyRxcrh6HzGnMa9LgvBVVhkMrfFuWcip8t11Ne
-         EeJxycIZlbZ6kwoUHcs5hLfasyRuLB85ufJCPlOWrl7JrOJ1/E579yQt7dH2DnSLn8
-         jM1EEoXXAu4koH4UJG/YfiP47qxgWErwovnnh600=
+        b=cXJXSPqXv0gWdme58hCKgg2XTVcJ4V0noQU4ags7r81xFokOexH62VfZda8fMy3Dn
+         OVsb1lI1LGc4UPswpDzQWbvz1PclZuMb97oxKWsS2lWV78BiK2G5e7WrV2ZR69wcgb
+         8PkSC8r1L6lRoQUeD8bqtrYBH3hlxlEh3KdeCmdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.14 55/62] USB: core: fix check for duplicate endpoints
-Date:   Sat, 11 Jan 2020 10:50:37 +0100
-Message-Id: <20200111094855.154007922@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 119/165] xsk: Add rcu_read_lock around the XSK wakeup
+Date:   Sat, 11 Jan 2020 10:50:38 +0100
+Message-Id: <20200111094933.339758468@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,128 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-commit 3e4f8e21c4f27bcf30a48486b9dcc269512b79ff upstream.
+[ Upstream commit 06870682087b58398671e8cdc896cd62314c4399 ]
 
-Amend the endpoint-descriptor sanity checks to detect all duplicate
-endpoint addresses in a configuration.
+The XSK wakeup callback in drivers makes some sanity checks before
+triggering NAPI. However, some configuration changes may occur during
+this function that affect the result of those checks. For example, the
+interface can go down, and all the resources will be destroyed after the
+checks in the wakeup function, but before it attempts to use these
+resources. Wrap this callback in rcu_read_lock to allow driver to
+synchronize_rcu before actually destroying the resources.
 
-Commit 0a8fd1346254 ("USB: fix problems with duplicate endpoint
-addresses") added a check for duplicate endpoint addresses within a
-single alternate setting, but did not look for duplicate addresses in
-other interfaces.
+xsk_wakeup is a new function that encapsulates calling ndo_xsk_wakeup
+wrapped into the RCU lock. After this commit, xsk_poll starts using
+xsk_wakeup and checks xs->zc instead of ndo_xsk_wakeup != NULL to decide
+ndo_xsk_wakeup should be called. It also fixes a bug introduced with the
+need_wakeup feature: a non-zero-copy socket may be used with a driver
+supporting zero-copy, and in this case ndo_xsk_wakeup should not be
+called, so the xs->zc check is the correct one.
 
-The current check would also not detect all duplicate addresses when one
-endpoint is as a (bi-directional) control endpoint.
-
-This specifically avoids overwriting the endpoint entries in struct
-usb_device when enabling a duplicate endpoint, something which could
-potentially lead to crashes or leaks, for example, when endpoints are
-later disabled.
-
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20191219161016.6695-1-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 77cd0d7b3f25 ("xsk: add support for need_wakeup flag in AF_XDP rings")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Signed-off-by: Björn Töpel <bjorn.topel@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20191217162023.16011-2-maximmi@mellanox.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/config.c |   70 ++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 58 insertions(+), 12 deletions(-)
+ net/xdp/xsk.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -203,9 +203,58 @@ static const unsigned short super_speed_
- 	[USB_ENDPOINT_XFER_INT] = 1024,
- };
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index 9044073fbf22..d426fc01c529 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -305,12 +305,21 @@ bool xsk_umem_consume_tx(struct xdp_umem *umem, struct xdp_desc *desc)
+ }
+ EXPORT_SYMBOL(xsk_umem_consume_tx);
  
--static int usb_parse_endpoint(struct device *ddev, int cfgno, int inum,
--    int asnum, struct usb_host_interface *ifp, int num_ep,
--    unsigned char *buffer, int size)
-+static bool endpoint_is_duplicate(struct usb_endpoint_descriptor *e1,
-+		struct usb_endpoint_descriptor *e2)
-+{
-+	if (e1->bEndpointAddress == e2->bEndpointAddress)
-+		return true;
-+
-+	if (usb_endpoint_xfer_control(e1) || usb_endpoint_xfer_control(e2)) {
-+		if (usb_endpoint_num(e1) == usb_endpoint_num(e2))
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+/*
-+ * Check for duplicate endpoint addresses in other interfaces and in the
-+ * altsetting currently being parsed.
-+ */
-+static bool config_endpoint_is_duplicate(struct usb_host_config *config,
-+		int inum, int asnum, struct usb_endpoint_descriptor *d)
-+{
-+	struct usb_endpoint_descriptor *epd;
-+	struct usb_interface_cache *intfc;
-+	struct usb_host_interface *alt;
-+	int i, j, k;
-+
-+	for (i = 0; i < config->desc.bNumInterfaces; ++i) {
-+		intfc = config->intf_cache[i];
-+
-+		for (j = 0; j < intfc->num_altsetting; ++j) {
-+			alt = &intfc->altsetting[j];
-+
-+			if (alt->desc.bInterfaceNumber == inum &&
-+					alt->desc.bAlternateSetting != asnum)
-+				continue;
-+
-+			for (k = 0; k < alt->desc.bNumEndpoints; ++k) {
-+				epd = &alt->endpoint[k].desc;
-+
-+				if (endpoint_is_duplicate(epd, d))
-+					return true;
-+			}
-+		}
-+	}
-+
-+	return false;
-+}
-+
-+static int usb_parse_endpoint(struct device *ddev, int cfgno,
-+		struct usb_host_config *config, int inum, int asnum,
-+		struct usb_host_interface *ifp, int num_ep,
-+		unsigned char *buffer, int size)
+-static int xsk_zc_xmit(struct xdp_sock *xs)
++static int xsk_wakeup(struct xdp_sock *xs, u8 flags)
  {
- 	unsigned char *buffer0 = buffer;
- 	struct usb_endpoint_descriptor *d;
-@@ -242,13 +291,10 @@ static int usb_parse_endpoint(struct dev
- 		goto skip_to_next_endpoint_or_interface_descriptor;
+ 	struct net_device *dev = xs->dev;
++	int err;
++
++	rcu_read_lock();
++	err = dev->netdev_ops->ndo_xsk_wakeup(dev, xs->queue_id, flags);
++	rcu_read_unlock();
++
++	return err;
++}
  
- 	/* Check for duplicate endpoint addresses */
--	for (i = 0; i < ifp->desc.bNumEndpoints; ++i) {
--		if (ifp->endpoint[i].desc.bEndpointAddress ==
--		    d->bEndpointAddress) {
--			dev_warn(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
--			    cfgno, inum, asnum, d->bEndpointAddress);
--			goto skip_to_next_endpoint_or_interface_descriptor;
--		}
-+	if (config_endpoint_is_duplicate(config, inum, asnum, d)) {
-+		dev_warn(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
-+				cfgno, inum, asnum, d->bEndpointAddress);
-+		goto skip_to_next_endpoint_or_interface_descriptor;
- 	}
+-	return dev->netdev_ops->ndo_xsk_wakeup(dev, xs->queue_id,
+-					       XDP_WAKEUP_TX);
++static int xsk_zc_xmit(struct xdp_sock *xs)
++{
++	return xsk_wakeup(xs, XDP_WAKEUP_TX);
+ }
  
- 	endpoint = &ifp->endpoint[ifp->desc.bNumEndpoints];
-@@ -522,8 +568,8 @@ static int usb_parse_interface(struct de
- 		if (((struct usb_descriptor_header *) buffer)->bDescriptorType
- 		     == USB_DT_INTERFACE)
- 			break;
--		retval = usb_parse_endpoint(ddev, cfgno, inum, asnum, alt,
--		    num_ep, buffer, size);
-+		retval = usb_parse_endpoint(ddev, cfgno, config, inum, asnum,
-+				alt, num_ep, buffer, size);
- 		if (retval < 0)
- 			return retval;
- 		++n;
+ static void xsk_destruct_skb(struct sk_buff *skb)
+@@ -424,19 +433,16 @@ static unsigned int xsk_poll(struct file *file, struct socket *sock,
+ 	unsigned int mask = datagram_poll(file, sock, wait);
+ 	struct sock *sk = sock->sk;
+ 	struct xdp_sock *xs = xdp_sk(sk);
+-	struct net_device *dev;
+ 	struct xdp_umem *umem;
+ 
+ 	if (unlikely(!xsk_is_bound(xs)))
+ 		return mask;
+ 
+-	dev = xs->dev;
+ 	umem = xs->umem;
+ 
+ 	if (umem->need_wakeup) {
+-		if (dev->netdev_ops->ndo_xsk_wakeup)
+-			dev->netdev_ops->ndo_xsk_wakeup(dev, xs->queue_id,
+-							umem->need_wakeup);
++		if (xs->zc)
++			xsk_wakeup(xs, umem->need_wakeup);
+ 		else
+ 			/* Poll needs to drive Tx also in copy mode */
+ 			__xsk_sendmsg(sk);
+-- 
+2.20.1
+
 
 
