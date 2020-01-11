@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FE52137E4B
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:08:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A1C137ED5
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:14:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729478AbgAKKIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:08:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43056 "EHLO mail.kernel.org"
+        id S1729889AbgAKKOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:14:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729136AbgAKKIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:08:10 -0500
+        id S1730149AbgAKKOO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:14:14 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BC192064C;
-        Sat, 11 Jan 2020 10:08:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE86720673;
+        Sat, 11 Jan 2020 10:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737290;
-        bh=eBjrplUd8aCTYwHqod0BQxVuTBr6XQqjFyvzyzNAwv0=;
+        s=default; t=1578737653;
+        bh=fohQj2/as9dqSua8w1ktK1w4smDl+xuPyoiq0d5bKiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RpLnhtPx5o7l/OXzLhhbV4oIrRT+iY+kylZyaRfpCyfgn2zcybS3WjPwdqx1A4pWY
-         eXZgl7+vHZvoe+d6WwGSkfqG2bSIZO5M1sjZqD3cavbf4qoj6zrrWQ+UNmAe51YqGa
-         hDOcITkQ4sBBjQ1wOOXwsiLbaCKDPt0tXhn4sqfo=
+        b=JT3ThTQJzo90hqEH6o+Vmm9B7CtppOuwL6+PFlSKQR8qLUhWAViNFj+qhrfH7ql9k
+         0brO+EynVW1HGjUvv94JpqgAEAjbO/Xsd6qx15XOU/auUCMoZfFJTMb0X+QrypfjJu
+         r/DjChiWLdJlIXUHwzkyI2yU47pra4LtpXxzrTMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dietmar Eggemann <dietmar.eggemann@arm.com>,
         Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/62] ARM: vexpress: Set-up shared OPP table instead of individual for each CPU
+Subject: [PATCH 4.19 16/84] ARM: vexpress: Set-up shared OPP table instead of individual for each CPU
 Date:   Sat, 11 Jan 2020 10:49:53 +0100
-Message-Id: <20200111094842.224295811@linuxfoundation.org>
+Message-Id: <20200111094851.026831013@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,10 +76,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
-index fe488523694c..635b0d549487 100644
+index 0f5381d13494..55bbbc3b328f 100644
 --- a/arch/arm/mach-vexpress/spc.c
 +++ b/arch/arm/mach-vexpress/spc.c
-@@ -555,8 +555,9 @@ static struct clk *ve_spc_clk_register(struct device *cpu_dev)
+@@ -551,8 +551,9 @@ static struct clk *ve_spc_clk_register(struct device *cpu_dev)
  
  static int __init ve_spc_clk_init(void)
  {
@@ -90,7 +90,7 @@ index fe488523694c..635b0d549487 100644
  
  	if (!info)
  		return 0; /* Continue only if SPC is initialised */
-@@ -582,8 +583,17 @@ static int __init ve_spc_clk_init(void)
+@@ -578,8 +579,17 @@ static int __init ve_spc_clk_init(void)
  			continue;
  		}
  
