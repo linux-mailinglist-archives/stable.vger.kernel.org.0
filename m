@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C154F137E33
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2851137E9B
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729430AbgAKKGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:06:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39890 "EHLO mail.kernel.org"
+        id S1729756AbgAKKL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:11:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729277AbgAKKGK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:06:10 -0500
+        id S1729420AbgAKKLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:11:55 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31D8E20848;
-        Sat, 11 Jan 2020 10:06:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EE992082E;
+        Sat, 11 Jan 2020 10:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737170;
-        bh=THr1tRLvVX09Ro0T6M/vUy7Oez33Pgukhzb0B/IVhsk=;
+        s=default; t=1578737515;
+        bh=gIyIU93aBqwRp4LrB8fM2LEhhTHoiTkDl6m3HJi/KcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i0/4+8CIEucIMXUegZn8l3Ot+TuzyQ2DqjYWDNqZ2WfMTyjYt9JAsQrpqxa72OpQ6
-         qQt7GQ/912vmTxvmOc+7jY7z/gex08DvmA1DjoAvFteZnb3iYGu0QE7HMCAXqsT+/x
-         Jw4DF1EwcmydDvGr0Ee3/0NhrcASd+u7bHpcKFh0=
+        b=HoQ1zZlUDOe6stMOLatPOAai+zgGpc4pY3f7RtZzgl7BEgbkyKbH1Dtxzwev1eoUy
+         2ASOelZ0YyyM8g/MEOI2Jz9prz5OVZvhHsgIvhRHhW1iFZrbH58CoeyeWk62cKISQ0
+         B0xu/HU6TM9O43mxgKIvb47oH44hotoC1BifL0mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        RENARD Pierre-Francois <pfrenard@gmail.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Woojung Huh <woojung.huh@microchip.com>,
-        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 82/91] net: usb: lan78xx: fix possible skb leak
+        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 33/62] net: stmmac: RX buffer size must be 16 byte aligned
 Date:   Sat, 11 Jan 2020 10:50:15 +0100
-Message-Id: <20200111094912.458055213@linuxfoundation.org>
+Message-Id: <20200111094846.043011725@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,52 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 47240ba0cd09bb6fe6db9889582048324999dfa4 ]
+[ Upstream commit 8d558f0294fe92e04af192e221d0d0f6a180ee7b ]
 
-If skb_linearize() fails, we need to free the skb.
+We need to align the RX buffer size to at least 16 byte so that IP
+doesn't mis-behave. This is required by HW.
 
-TSO makes skb bigger, and this bug might be the reason
-Raspberry Pi 3B+ users had to disable TSO.
+Changes from v2:
+- Align UP and not DOWN (David)
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: RENARD Pierre-Francois <pfrenard@gmail.com>
-Cc: Stefan Wahren <stefan.wahren@i2se.com>
-Cc: Woojung Huh <woojung.huh@microchip.com>
-Cc: Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
+Fixes: 7ac6653a085b ("stmmac: Move the STMicroelectronics driver")
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -2407,11 +2407,6 @@ static int lan78xx_stop(struct net_devic
- 	return 0;
- }
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 4ef923f1094a..e89466bd432d 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -51,7 +51,7 @@
+ #include <linux/of_mdio.h>
+ #include "dwmac1000.h"
  
--static int lan78xx_linearize(struct sk_buff *skb)
--{
--	return skb_linearize(skb);
--}
--
- static struct sk_buff *lan78xx_tx_prep(struct lan78xx_net *dev,
- 				       struct sk_buff *skb, gfp_t flags)
- {
-@@ -2422,8 +2417,10 @@ static struct sk_buff *lan78xx_tx_prep(s
- 		return NULL;
- 	}
+-#define	STMMAC_ALIGN(x)		__ALIGN_KERNEL(x, SMP_CACHE_BYTES)
++#define	STMMAC_ALIGN(x)		ALIGN(ALIGN(x, SMP_CACHE_BYTES), 16)
+ #define	TSO_MAX_BUFF_SIZE	(SZ_16K - 1)
  
--	if (lan78xx_linearize(skb) < 0)
-+	if (skb_linearize(skb)) {
-+		dev_kfree_skb_any(skb);
- 		return NULL;
-+	}
- 
- 	tx_cmd_a = (u32)(skb->len & TX_CMD_A_LEN_MASK_) | TX_CMD_A_FCS_;
- 
+ /* Module parameters */
+-- 
+2.20.1
+
 
 
