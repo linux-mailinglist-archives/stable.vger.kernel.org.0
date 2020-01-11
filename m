@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E93A4138034
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:27:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE52137E4B
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:08:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731027AbgAKK07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:26:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60398 "EHLO mail.kernel.org"
+        id S1729478AbgAKKIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:08:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729122AbgAKK07 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:26:59 -0500
+        id S1729136AbgAKKIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:08:10 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78DD020842;
-        Sat, 11 Jan 2020 10:26:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BC192064C;
+        Sat, 11 Jan 2020 10:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738418;
-        bh=S+w4KJDE5XByCpBm+fE8vRGeqF8zC6rTCNGq2iQEB5w=;
+        s=default; t=1578737290;
+        bh=eBjrplUd8aCTYwHqod0BQxVuTBr6XQqjFyvzyzNAwv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cp8kZ7vD1TebMggLHxgE8TD7UoYsMm85CnzJJnUDfDukJMravnReqUjdkSuxVTrDE
-         0Jpm7H2TA71Nk9TGLsZqs2Trqpe2PW4vOeb0HX2vtlVoZM8grhAFrQeaBAVaDiF59R
-         NyH1Rv6Sjn0vqawcqn4Yyjgn6Kif+p3JRuAdHBwI=
+        b=RpLnhtPx5o7l/OXzLhhbV4oIrRT+iY+kylZyaRfpCyfgn2zcybS3WjPwdqx1A4pWY
+         eXZgl7+vHZvoe+d6WwGSkfqG2bSIZO5M1sjZqD3cavbf4qoj6zrrWQ+UNmAe51YqGa
+         hDOcITkQ4sBBjQ1wOOXwsiLbaCKDPt0tXhn4sqfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Liviu Dudau <liviu.dudau@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/165] btrfs: Fix error messages in qgroup_rescan_init
-Date:   Sat, 11 Jan 2020 10:49:52 +0100
-Message-Id: <20200111094927.278639956@linuxfoundation.org>
+Subject: [PATCH 4.14 11/62] ARM: vexpress: Set-up shared OPP table instead of individual for each CPU
+Date:   Sat, 11 Jan 2020 10:49:53 +0100
+Message-Id: <20200111094842.224295811@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 37d02592f11bb76e4ab1dcaa5b8a2a0715403207 ]
+[ Upstream commit 2a76352ad2cc6b78e58f737714879cc860903802 ]
 
-The branch of qgroup_rescan_init which is executed from the mount
-path prints wrong errors messages. The textual print out in case
-BTRFS_QGROUP_STATUS_FLAG_RESCAN/BTRFS_QGROUP_STATUS_FLAG_ON are not
-set are transposed. Fix it by exchanging their place.
+Currently we add individual copy of same OPP table for each CPU within
+the cluster. This is redundant and doesn't reflect the reality.
 
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+We can't use core cpumask to set policy->cpus in ve_spc_cpufreq_init()
+anymore as it gets called via cpuhp_cpufreq_online()->cpufreq_online()
+->cpufreq_driver->init() and the cpumask gets updated upon CPU hotplug
+operations. It also may cause issues when the vexpress_spc_cpufreq
+driver is built as a module.
+
+Since ve_spc_clk_init is built-in device initcall, we should be able to
+use the same topology_core_cpumask to set the opp sharing cpumask via
+dev_pm_opp_set_sharing_cpus and use the same later in the driver via
+dev_pm_opp_get_sharing_cpus.
+
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/qgroup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-vexpress/spc.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index 27a903aaf43b..aeb5f2f3cdd7 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -3232,12 +3232,12 @@ qgroup_rescan_init(struct btrfs_fs_info *fs_info, u64 progress_objectid,
- 		if (!(fs_info->qgroup_flags &
- 		      BTRFS_QGROUP_STATUS_FLAG_RESCAN)) {
- 			btrfs_warn(fs_info,
--			"qgroup rescan init failed, qgroup is not enabled");
-+			"qgroup rescan init failed, qgroup rescan is not queued");
- 			ret = -EINVAL;
- 		} else if (!(fs_info->qgroup_flags &
- 			     BTRFS_QGROUP_STATUS_FLAG_ON)) {
- 			btrfs_warn(fs_info,
--			"qgroup rescan init failed, qgroup rescan is not queued");
-+			"qgroup rescan init failed, qgroup is not enabled");
- 			ret = -EINVAL;
+diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
+index fe488523694c..635b0d549487 100644
+--- a/arch/arm/mach-vexpress/spc.c
++++ b/arch/arm/mach-vexpress/spc.c
+@@ -555,8 +555,9 @@ static struct clk *ve_spc_clk_register(struct device *cpu_dev)
+ 
+ static int __init ve_spc_clk_init(void)
+ {
+-	int cpu;
++	int cpu, cluster;
+ 	struct clk *clk;
++	bool init_opp_table[MAX_CLUSTERS] = { false };
+ 
+ 	if (!info)
+ 		return 0; /* Continue only if SPC is initialised */
+@@ -582,8 +583,17 @@ static int __init ve_spc_clk_init(void)
+ 			continue;
  		}
  
++		cluster = topology_physical_package_id(cpu_dev->id);
++		if (init_opp_table[cluster])
++			continue;
++
+ 		if (ve_init_opp_table(cpu_dev))
+ 			pr_warn("failed to initialise cpu%d opp table\n", cpu);
++		else if (dev_pm_opp_set_sharing_cpus(cpu_dev,
++			 topology_core_cpumask(cpu_dev->id)))
++			pr_warn("failed to mark OPPs shared for cpu%d\n", cpu);
++		else
++			init_opp_table[cluster] = true;
+ 	}
+ 
+ 	platform_device_register_simple("vexpress-spc-cpufreq", -1, NULL, 0);
 -- 
 2.20.1
 
