@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D323137D99
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69893137FD7
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728908AbgAKJ73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:59:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54066 "EHLO mail.kernel.org"
+        id S1729454AbgAKKXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:23:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729147AbgAKJ73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:59:29 -0500
+        id S1728833AbgAKKXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:23:33 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4027C2077C;
-        Sat, 11 Jan 2020 09:59:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C65D2082E;
+        Sat, 11 Jan 2020 10:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736768;
-        bh=Q76nd1rY7PubR1tz37aB6Z90FHySurzEY50SY9L8GaY=;
+        s=default; t=1578738213;
+        bh=GmOtnR2Eu61QLEuSN3v9F9H3Vw8HY9Qr0TfA7waih40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBZnxWgvKtAMa4Jw088gzdghZNDGNV68v1wclghMmG+tw0eq8u42rG7RnDR0U/bF+
-         3VeGeON18bkwrcEM9wus8UaR9AGPFtGk8TXq7ykzom8k2KOYZf/Tkv2BYOFRY4iMA6
-         ysNVPiqe0iqXgBuLUs6rFUNTKglv+TZVx9pzoS5c=
+        b=ofXzKlbBcNRi2mKhAQdVZntCE33P0IUMqmY5u5xinkfTPOah49BhROe8mTT79XHGW
+         t11uD/fUm3nYIrSDXyVcmULleVam7GBoKd6H/Kh07G2KDRhclHMw65LmvGezGKB0f7
+         /X0x4YZqIYLfRK0wqewjp7tlFmxeXtwsXnKzN+C0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christian Brauner <christian.brauner@canonical.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        linux-mips@vger.kernel.org
-Subject: [PATCH 4.9 20/91] MIPS: Avoid VDSO ABI breakage due to global register variable
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 034/165] selftests/ftrace: Fix to check the existence of set_ftrace_filter
 Date:   Sat, 11 Jan 2020 10:49:13 +0100
-Message-Id: <20200111094851.289779602@linuxfoundation.org>
+Message-Id: <20200111094924.024835197@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,97 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@kernel.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit bbcc5672b0063b0e9d65dc8787a4f09c3b5bb5cc upstream.
+[ Upstream commit fd1baf6ca2ea3550ea47f2bb0bdcf34ec764a779 ]
 
-Declaring __current_thread_info as a global register variable has the
-effect of preventing GCC from saving & restoring its value in cases
-where the ABI would typically do so.
+If we run ftracetest on the kernel with CONFIG_DYNAMIC_FTRACE=n,
+there is no set_ftrace_filter and all test cases are failed, because
+reset_ftrace_filter() returns an error.
+Let's check whether set_ftrace_filter exists in reset_ftrace_filter()
+and clean up only set_ftrace_notrace in initialize_ftrace().
 
-To quote GCC documentation:
-
-> If the register is a call-saved register, call ABI is affected: the
-> register will not be restored in function epilogue sequences after the
-> variable has been assigned. Therefore, functions cannot safely return
-> to callers that assume standard ABI.
-
-When our position independent VDSO is built for the n32 or n64 ABIs all
-functions it exposes should be preserving the value of $gp/$28 for their
-caller, but in the presence of the __current_thread_info global register
-variable GCC stops doing so & simply clobbers $gp/$28 when calculating
-the address of the GOT.
-
-In cases where the VDSO returns success this problem will typically be
-masked by the caller in libc returning & restoring $gp/$28 itself, but
-that is by no means guaranteed. In cases where the VDSO returns an error
-libc will typically contain a fallback path which will now fail
-(typically with a bad memory access) if it attempts anything which
-relies upon the value of $gp/$28 - eg. accessing anything via the GOT.
-
-One fix for this would be to move the declaration of
-__current_thread_info inside the current_thread_info() function,
-demoting it from global register variable to local register variable &
-avoiding inadvertently creating a non-standard calling ABI for the VDSO.
-Unfortunately this causes issues for clang, which doesn't support local
-register variables as pointed out by commit fe92da0f355e ("MIPS: Changed
-current_thread_info() to an equivalent supported by both clang and GCC")
-which introduced the global register variable before we had a VDSO to
-worry about.
-
-Instead, fix this by continuing to use the global register variable for
-the kernel proper but declare __current_thread_info as a simple extern
-variable when building the VDSO. It should never be referenced, and will
-cause a link error if it is. This resolves the calling convention issue
-for the VDSO without having any impact upon the build of the kernel
-itself for either clang or gcc.
-
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
-Reported-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Christian Brauner <christian.brauner@canonical.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: <stable@vger.kernel.org> # v4.4+
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/thread_info.h |   20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ tools/testing/selftests/ftrace/test.d/functions | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/mips/include/asm/thread_info.h
-+++ b/arch/mips/include/asm/thread_info.h
-@@ -52,8 +52,26 @@ struct thread_info {
- #define init_thread_info	(init_thread_union.thread_info)
- #define init_stack		(init_thread_union.stack)
+diff --git a/tools/testing/selftests/ftrace/test.d/functions b/tools/testing/selftests/ftrace/test.d/functions
+index 86986c4bba54..5d4550591ff9 100644
+--- a/tools/testing/selftests/ftrace/test.d/functions
++++ b/tools/testing/selftests/ftrace/test.d/functions
+@@ -46,6 +46,9 @@ reset_events_filter() { # reset all current setting filters
+ }
  
--/* How to get the thread information struct from C.  */
-+/*
-+ * A pointer to the struct thread_info for the currently executing thread is
-+ * held in register $28/$gp.
-+ *
-+ * We declare __current_thread_info as a global register variable rather than a
-+ * local register variable within current_thread_info() because clang doesn't
-+ * support explicit local register variables.
-+ *
-+ * When building the VDSO we take care not to declare the global register
-+ * variable because this causes GCC to not preserve the value of $28/$gp in
-+ * functions that change its value (which is common in the PIC VDSO when
-+ * accessing the GOT). Since the VDSO shouldn't be accessing
-+ * __current_thread_info anyway we declare it extern in order to cause a link
-+ * failure if it's referenced.
-+ */
-+#ifdef __VDSO__
-+extern struct thread_info *__current_thread_info;
-+#else
- register struct thread_info *__current_thread_info __asm__("$28");
-+#endif
- 
- static inline struct thread_info *current_thread_info(void)
- {
+ reset_ftrace_filter() { # reset all triggers in set_ftrace_filter
++    if [ ! -f set_ftrace_filter ]; then
++      return 0
++    fi
+     echo > set_ftrace_filter
+     grep -v '^#' set_ftrace_filter | while read t; do
+ 	tr=`echo $t | cut -d: -f2`
+@@ -93,7 +96,7 @@ initialize_ftrace() { # Reset ftrace to initial-state
+     disable_events
+     [ -f set_event_pid ] && echo > set_event_pid
+     [ -f set_ftrace_pid ] && echo > set_ftrace_pid
+-    [ -f set_ftrace_filter ] && echo | tee set_ftrace_*
++    [ -f set_ftrace_notrace ] && echo > set_ftrace_notrace
+     [ -f set_graph_function ] && echo | tee set_graph_*
+     [ -f stack_trace_filter ] && echo > stack_trace_filter
+     [ -f kprobe_events ] && echo > kprobe_events
+-- 
+2.20.1
+
 
 
