@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9799137D11
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:54:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5BBE137D13
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:54:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728871AbgAKJxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:53:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39940 "EHLO mail.kernel.org"
+        id S1728808AbgAKJxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 04:53:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728788AbgAKJxO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:53:14 -0500
+        id S1728788AbgAKJxc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 04:53:32 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CB0F2077C;
-        Sat, 11 Jan 2020 09:53:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 488402077C;
+        Sat, 11 Jan 2020 09:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736392;
-        bh=50MZj0KaXnzwbmOMRzRYead42JcpXetnbLvm5qj473M=;
+        s=default; t=1578736411;
+        bh=j05j9EA7Jyp5tIhQjMygXGv32fanc47xrhQ065nVFvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e4PlxBN+8ky8k1CidqXp73TORwjPUytuSX9r6dbVg8ht9touCTZoIilxWU6GMga3H
-         CVXzjzoNe6GF/SmWPHLu8I2UabSzUo0SLg9vEWOBKCsnxY0ZLYbLPUWDBvNRRQBiLY
-         7PF+fcQIEAn1FA0jQwb6jxP7kp5E6z03g+AKI1yw=
+        b=NluvtNRGkURLMMyQ031cPCjCidTFJ7HnWcn+DC98FKOl+PRNMBZMBJeceOVUpWPmE
+         neJl0WSBuNeP6YJFNMOThSl7GSyv4TWIXZVLMIZM8nXKQk/bjqyNkRQlolbyBlRup4
+         j2V4PDxai6I9FVI8P4FeFnByATzPhQgMUi9/lCHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masashi Honma <masashi.honma@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 29/59] ath9k_htc: Discard undersized packets
-Date:   Sat, 11 Jan 2020 10:49:38 +0100
-Message-Id: <20200111094844.333620920@linuxfoundation.org>
+Subject: [PATCH 4.4 30/59] net: add annotations on hh->hh_len lockless accesses
+Date:   Sat, 11 Jan 2020 10:49:39 +0100
+Message-Id: <20200111094844.480592383@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094835.417654274@linuxfoundation.org>
 References: <20200111094835.417654274@linuxfoundation.org>
@@ -44,122 +45,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masashi Honma <masashi.honma@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit cd486e627e67ee9ab66914d36d3127ef057cc010 ]
+[ Upstream commit c305c6ae79e2ce20c22660ceda94f0d86d639a82 ]
 
-Sometimes the hardware will push small packets that trigger a WARN_ON
-in mac80211. Discard them early to avoid this issue.
+KCSAN reported a data-race [1]
 
-This patch ports 2 patches from ath9k to ath9k_htc.
-commit 3c0efb745a172bfe96459e20cbd37b0c945d5f8d "ath9k: discard
-undersized packets".
-commit df5c4150501ee7e86383be88f6490d970adcf157 "ath9k: correctly
-handle short radar pulses".
+While we can use READ_ONCE() on the read sides,
+we need to make sure hh->hh_len is written last.
 
-[  112.835889] ------------[ cut here ]------------
-[  112.835971] WARNING: CPU: 5 PID: 0 at net/mac80211/rx.c:804 ieee80211_rx_napi+0xaac/0xb40 [mac80211]
-[  112.835973] Modules linked in: ath9k_htc ath9k_common ath9k_hw ath mac80211 cfg80211 libarc4 nouveau snd_hda_codec_hdmi intel_rapl_msr intel_rapl_common x86_pkg_temp_thermal intel_powerclamp coretemp snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio snd_hda_intel snd_hda_codec video snd_hda_core ttm snd_hwdep drm_kms_helper snd_pcm crct10dif_pclmul snd_seq_midi drm snd_seq_midi_event crc32_pclmul snd_rawmidi ghash_clmulni_intel snd_seq aesni_intel aes_x86_64 crypto_simd cryptd snd_seq_device glue_helper snd_timer sch_fq_codel i2c_algo_bit fb_sys_fops snd input_leds syscopyarea sysfillrect sysimgblt intel_cstate mei_me intel_rapl_perf soundcore mxm_wmi lpc_ich mei kvm_intel kvm mac_hid irqbypass parport_pc ppdev lp parport ip_tables x_tables autofs4 hid_generic usbhid hid raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx xor raid6_pq libcrc32c raid1 raid0 multipath linear e1000e ahci libahci wmi
-[  112.836022] CPU: 5 PID: 0 Comm: swapper/5 Not tainted 5.3.0-wt #1
-[  112.836023] Hardware name: MouseComputer Co.,Ltd. X99-S01/X99-S01, BIOS 1.0C-W7 04/01/2015
-[  112.836056] RIP: 0010:ieee80211_rx_napi+0xaac/0xb40 [mac80211]
-[  112.836059] Code: 00 00 66 41 89 86 b0 00 00 00 e9 c8 fa ff ff 4c 89 b5 40 ff ff ff 49 89 c6 e9 c9 fa ff ff 48 c7 c7 e0 a2 a5 c0 e8 47 41 b0 e9 <0f> 0b 48 89 df e8 5a 94 2d ea e9 02 f9 ff ff 41 39 c1 44 89 85 60
-[  112.836060] RSP: 0018:ffffaa6180220da8 EFLAGS: 00010286
-[  112.836062] RAX: 0000000000000024 RBX: ffff909a20eeda00 RCX: 0000000000000000
-[  112.836064] RDX: 0000000000000000 RSI: ffff909a2f957448 RDI: ffff909a2f957448
-[  112.836065] RBP: ffffaa6180220e78 R08: 00000000000006e9 R09: 0000000000000004
-[  112.836066] R10: 000000000000000a R11: 0000000000000001 R12: 0000000000000000
-[  112.836068] R13: ffff909a261a47a0 R14: 0000000000000000 R15: 0000000000000004
-[  112.836070] FS:  0000000000000000(0000) GS:ffff909a2f940000(0000) knlGS:0000000000000000
-[  112.836071] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  112.836073] CR2: 00007f4e3ffffa08 CR3: 00000001afc0a006 CR4: 00000000001606e0
-[  112.836074] Call Trace:
-[  112.836076]  <IRQ>
-[  112.836083]  ? finish_td+0xb3/0xf0
-[  112.836092]  ? ath9k_rx_prepare.isra.11+0x22f/0x2a0 [ath9k_htc]
-[  112.836099]  ath9k_rx_tasklet+0x10b/0x1d0 [ath9k_htc]
-[  112.836105]  tasklet_action_common.isra.22+0x63/0x110
-[  112.836108]  tasklet_action+0x22/0x30
-[  112.836115]  __do_softirq+0xe4/0x2da
-[  112.836118]  irq_exit+0xae/0xb0
-[  112.836121]  do_IRQ+0x86/0xe0
-[  112.836125]  common_interrupt+0xf/0xf
-[  112.836126]  </IRQ>
-[  112.836130] RIP: 0010:cpuidle_enter_state+0xa9/0x440
-[  112.836133] Code: 3d bc 20 38 55 e8 f7 1d 84 ff 49 89 c7 0f 1f 44 00 00 31 ff e8 28 29 84 ff 80 7d d3 00 0f 85 e6 01 00 00 fb 66 0f 1f 44 00 00 <45> 85 ed 0f 89 ff 01 00 00 41 c7 44 24 10 00 00 00 00 48 83 c4 18
-[  112.836134] RSP: 0018:ffffaa61800e3e48 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffde
-[  112.836136] RAX: ffff909a2f96b340 RBX: ffffffffabb58200 RCX: 000000000000001f
-[  112.836137] RDX: 0000001a458adc5d RSI: 0000000026c9b581 RDI: 0000000000000000
-[  112.836139] RBP: ffffaa61800e3e88 R08: 0000000000000002 R09: 000000000002abc0
-[  112.836140] R10: ffffaa61800e3e18 R11: 000000000000002d R12: ffffca617fb40b00
-[  112.836141] R13: 0000000000000002 R14: ffffffffabb582d8 R15: 0000001a458adc5d
-[  112.836145]  ? cpuidle_enter_state+0x98/0x440
-[  112.836149]  ? menu_select+0x370/0x600
-[  112.836151]  cpuidle_enter+0x2e/0x40
-[  112.836154]  call_cpuidle+0x23/0x40
-[  112.836156]  do_idle+0x204/0x280
-[  112.836159]  cpu_startup_entry+0x1d/0x20
-[  112.836164]  start_secondary+0x167/0x1c0
-[  112.836169]  secondary_startup_64+0xa4/0xb0
-[  112.836173] ---[ end trace 9f4cd18479cc5ae5 ]---
+[1]
 
-Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+BUG: KCSAN: data-race in eth_header_cache / neigh_resolve_output
+
+write to 0xffff8880b9dedcb8 of 4 bytes by task 29760 on cpu 0:
+ eth_header_cache+0xa9/0xd0 net/ethernet/eth.c:247
+ neigh_hh_init net/core/neighbour.c:1463 [inline]
+ neigh_resolve_output net/core/neighbour.c:1480 [inline]
+ neigh_resolve_output+0x415/0x470 net/core/neighbour.c:1470
+ neigh_output include/net/neighbour.h:511 [inline]
+ ip6_finish_output2+0x7a2/0xec0 net/ipv6/ip6_output.c:116
+ __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
+ __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
+ ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
+ dst_output include/net/dst.h:436 [inline]
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ ndisc_send_skb+0x459/0x5f0 net/ipv6/ndisc.c:505
+ ndisc_send_ns+0x207/0x430 net/ipv6/ndisc.c:647
+ rt6_probe_deferred+0x98/0xf0 net/ipv6/route.c:615
+ process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
+ worker_thread+0xa0/0x800 kernel/workqueue.c:2415
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+read to 0xffff8880b9dedcb8 of 4 bytes by task 29572 on cpu 1:
+ neigh_resolve_output net/core/neighbour.c:1479 [inline]
+ neigh_resolve_output+0x113/0x470 net/core/neighbour.c:1470
+ neigh_output include/net/neighbour.h:511 [inline]
+ ip6_finish_output2+0x7a2/0xec0 net/ipv6/ip6_output.c:116
+ __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
+ __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
+ ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
+ dst_output include/net/dst.h:436 [inline]
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ ndisc_send_skb+0x459/0x5f0 net/ipv6/ndisc.c:505
+ ndisc_send_ns+0x207/0x430 net/ipv6/ndisc.c:647
+ rt6_probe_deferred+0x98/0xf0 net/ipv6/route.c:615
+ process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
+ worker_thread+0xa0/0x800 kernel/workqueue.c:2415
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 29572 Comm: kworker/1:4 Not tainted 5.4.0-rc6+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: events rt6_probe_deferred
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 23 +++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ drivers/firewire/net.c  | 6 +++++-
+ include/net/neighbour.h | 2 +-
+ net/core/neighbour.c    | 4 ++--
+ net/ethernet/eth.c      | 7 ++++++-
+ 4 files changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index 54e96c661a9c..0d757ced49ba 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -972,6 +972,8 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 	struct ath_htc_rx_status *rxstatus;
- 	struct ath_rx_status rx_stats;
- 	bool decrypt_error = false;
-+	__be16 rs_datalen;
-+	bool is_phyerr;
- 
- 	if (skb->len < HTC_RX_FRAME_HEADER_SIZE) {
- 		ath_err(common, "Corrupted RX frame, dropping (len: %d)\n",
-@@ -981,11 +983,24 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 
- 	rxstatus = (struct ath_htc_rx_status *)skb->data;
- 
--	if (be16_to_cpu(rxstatus->rs_datalen) -
--	    (skb->len - HTC_RX_FRAME_HEADER_SIZE) != 0) {
-+	rs_datalen = be16_to_cpu(rxstatus->rs_datalen);
-+	if (unlikely(rs_datalen -
-+	    (skb->len - HTC_RX_FRAME_HEADER_SIZE) != 0)) {
- 		ath_err(common,
- 			"Corrupted RX data len, dropping (dlen: %d, skblen: %d)\n",
--			be16_to_cpu(rxstatus->rs_datalen), skb->len);
-+			rs_datalen, skb->len);
-+		goto rx_next;
-+	}
+diff --git a/drivers/firewire/net.c b/drivers/firewire/net.c
+index b9d2f76a0cf7..117d16a455fd 100644
+--- a/drivers/firewire/net.c
++++ b/drivers/firewire/net.c
+@@ -249,7 +249,11 @@ static int fwnet_header_cache(const struct neighbour *neigh,
+ 	h = (struct fwnet_header *)((u8 *)hh->hh_data + HH_DATA_OFF(sizeof(*h)));
+ 	h->h_proto = type;
+ 	memcpy(h->h_dest, neigh->ha, net->addr_len);
+-	hh->hh_len = FWNET_HLEN;
 +
-+	is_phyerr = rxstatus->rs_status & ATH9K_RXERR_PHY;
-+	/*
-+	 * Discard zero-length packets and packets smaller than an ACK
-+	 * which are not PHY_ERROR (short radar pulses have a length of 3)
++	/* Pairs with the READ_ONCE() in neigh_resolve_output(),
++	 * neigh_hh_output() and neigh_update_hhs().
 +	 */
-+	if (unlikely(!rs_datalen || (rs_datalen < 10 && !is_phyerr))) {
-+		ath_warn(common,
-+			 "Short RX data len, dropping (dlen: %d)\n",
-+			 rs_datalen);
- 		goto rx_next;
- 	}
++	smp_store_release(&hh->hh_len, FWNET_HLEN);
  
-@@ -1010,7 +1025,7 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 	 * Process PHY errors and return so that the packet
- 	 * can be dropped.
- 	 */
--	if (rx_stats.rs_status & ATH9K_RXERR_PHY) {
-+	if (unlikely(is_phyerr)) {
- 		/* TODO: Not using DFS processing now. */
- 		if (ath_cmn_process_fft(&priv->spec_priv, hdr,
- 				    &rx_stats, rx_status->mactime)) {
+ 	return 0;
+ }
+diff --git a/include/net/neighbour.h b/include/net/neighbour.h
+index 1c0d07376125..a68a460fa4f3 100644
+--- a/include/net/neighbour.h
++++ b/include/net/neighbour.h
+@@ -454,7 +454,7 @@ static inline int neigh_hh_output(const struct hh_cache *hh, struct sk_buff *skb
+ 
+ 	do {
+ 		seq = read_seqbegin(&hh->hh_lock);
+-		hh_len = hh->hh_len;
++		hh_len = READ_ONCE(hh->hh_len);
+ 		if (likely(hh_len <= HH_DATA_MOD)) {
+ 			hh_alen = HH_DATA_MOD;
+ 
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 8aef689b8f32..af1ecd0e7b07 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -1058,7 +1058,7 @@ static void neigh_update_hhs(struct neighbour *neigh)
+ 
+ 	if (update) {
+ 		hh = &neigh->hh;
+-		if (hh->hh_len) {
++		if (READ_ONCE(hh->hh_len)) {
+ 			write_seqlock_bh(&hh->hh_lock);
+ 			update(hh, neigh->dev, neigh->ha);
+ 			write_sequnlock_bh(&hh->hh_lock);
+@@ -1323,7 +1323,7 @@ int neigh_resolve_output(struct neighbour *neigh, struct sk_buff *skb)
+ 		struct net_device *dev = neigh->dev;
+ 		unsigned int seq;
+ 
+-		if (dev->header_ops->cache && !neigh->hh.hh_len)
++		if (dev->header_ops->cache && !READ_ONCE(neigh->hh.hh_len))
+ 			neigh_hh_init(neigh);
+ 
+ 		do {
+diff --git a/net/ethernet/eth.c b/net/ethernet/eth.c
+index 52dcd414c2af..3f51b4e590b1 100644
+--- a/net/ethernet/eth.c
++++ b/net/ethernet/eth.c
+@@ -235,7 +235,12 @@ int eth_header_cache(const struct neighbour *neigh, struct hh_cache *hh, __be16
+ 	eth->h_proto = type;
+ 	memcpy(eth->h_source, dev->dev_addr, ETH_ALEN);
+ 	memcpy(eth->h_dest, neigh->ha, ETH_ALEN);
+-	hh->hh_len = ETH_HLEN;
++
++	/* Pairs with READ_ONCE() in neigh_resolve_output(),
++	 * neigh_hh_output() and neigh_update_hhs().
++	 */
++	smp_store_release(&hh->hh_len, ETH_HLEN);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(eth_header_cache);
 -- 
 2.20.1
 
