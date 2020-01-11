@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 826E413807A
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:30:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27112137F49
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:18:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730890AbgAKKaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:30:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40460 "EHLO mail.kernel.org"
+        id S1730370AbgAKKSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:18:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728889AbgAKKaR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:30:17 -0500
+        id S1730523AbgAKKSF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:18:05 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D07C20842;
-        Sat, 11 Jan 2020 10:30:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BF6A205F4;
+        Sat, 11 Jan 2020 10:18:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738616;
-        bh=CFNwPztFO66+fNuWLj9lWoBwPVGYz0e6dx8S1QsPuDk=;
+        s=default; t=1578737885;
+        bh=fQ02JyQDkRWNpS/HDzUVnfKR46n40zNB008usY4M+uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2M1+ahFH/E2kDgquRRQbPCano75oRV9GIfN4/lg+2a78C71CnSVdMDVPoEvbt+4lE
-         9FTcNp5tSwDCgqw2oxX2BVHy7MlBW62jlHW4523txiPYhbwzXtS+JD7/TIPeThqbI9
-         bnkqKBmbLGNtatM48DnYibu4gcjJpu9HNG3f2/QI=
+        b=Lg2ptPHMsOBMtp/PHqnsZc3lgTYhRJmvGsSRQO+acyGEGqWRUkcnHgnI+xtzthY1k
+         jvFRTFe2TQUT21+I2r7BvtPPxf+p8kTYzcAurWY+Qj+hN9udDev8RBPwRFO5lmQFbV
+         emz4Y+ITsbVl8cyR1DatKitffhlZa5ljSQGBzw3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 108/165] io_uring: dont wait when under-submitting
-Date:   Sat, 11 Jan 2020 10:50:27 +0100
-Message-Id: <20200111094931.130840868@linuxfoundation.org>
+        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 51/84] net: stmmac: Always arm TX Timer at end of transmission start
+Date:   Sat, 11 Jan 2020 10:50:28 +0100
+Message-Id: <20200111094905.690898219@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 7c504e65206a4379ff38fe41d21b32b6c2c3e53e ]
+[ Upstream commit 4772f26db8d1fb568c4862c538344a1b5fb52081 ]
 
-There is no reliable way to submit and wait in a single syscall, as
-io_submit_sqes() may under-consume sqes (in case of an early error).
-Then it will wait for not-yet-submitted requests, deadlocking the user
-in most cases.
+If TX Coalesce timer is enabled we should always arm it, otherwise we
+may hit the case where an interrupt is missed and the TX Queue will
+timeout.
 
-Don't wait/poll if can't submit all sqes
+Arming the timer does not necessarly mean it will run the tx_clean()
+because this function is wrapped around NAPI launcher.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 9125cdd1be11 ("stmmac: add the initial tx coalesce schema")
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a60c6315a348..709671faaed6 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3721,6 +3721,9 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 		mutex_lock(&ctx->uring_lock);
- 		submitted = io_ring_submit(ctx, to_submit);
- 		mutex_unlock(&ctx->uring_lock);
-+
-+		if (submitted != to_submit)
-+			goto out;
- 	}
- 	if (flags & IORING_ENTER_GETEVENTS) {
- 		unsigned nr_events = 0;
-@@ -3734,6 +3737,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 		}
- 	}
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 437b1b2b3e6b..7ee0e46539c0 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -2997,6 +2997,7 @@ static netdev_tx_t stmmac_tso_xmit(struct sk_buff *skb, struct net_device *dev)
  
-+out:
- 	percpu_ref_put(&ctx->refs);
- out_fput:
- 	fdput(f);
+ 	tx_q->tx_tail_addr = tx_q->dma_tx_phy + (tx_q->cur_tx * sizeof(*desc));
+ 	stmmac_set_tx_tail_ptr(priv, priv->ioaddr, tx_q->tx_tail_addr, queue);
++	stmmac_tx_timer_arm(priv, queue);
+ 
+ 	return NETDEV_TX_OK;
+ 
+@@ -3210,6 +3211,7 @@ static netdev_tx_t stmmac_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	tx_q->tx_tail_addr = tx_q->dma_tx_phy + (tx_q->cur_tx * sizeof(*desc));
+ 	stmmac_set_tx_tail_ptr(priv, priv->ioaddr, tx_q->tx_tail_addr, queue);
++	stmmac_tx_timer_arm(priv, queue);
+ 
+ 	return NETDEV_TX_OK;
+ 
 -- 
 2.20.1
 
