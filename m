@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29647137DD9
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:02:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32447137FE3
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728800AbgAKKCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:02:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60306 "EHLO mail.kernel.org"
+        id S1730688AbgAKKXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:23:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728833AbgAKKCL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:02:11 -0500
+        id S1730789AbgAKKXI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:23:08 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 696DD2077C;
-        Sat, 11 Jan 2020 10:02:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B32DF20880;
+        Sat, 11 Jan 2020 10:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736930;
-        bh=eF14u/Agx2NnQzrUulSSIaE+Ij+oL00qwPCin6NyJss=;
+        s=default; t=1578738187;
+        bh=M7HQ865n/QAKmQEHDY5qkcuhxcXhnjjq5IZ81ggnCXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VyOS26LDm0Qhl0F21AldXE6QuujKr4Fp9yDvLZB+apfJNAWN5cWgnlmgN9vfx4I8q
-         wGx6foJGebXavbbXWHbfTohAkAaxtzF0D+Ne5g+RESJyqBseYpyNcH9iP7+aIfyOm9
-         IYkR4SwaEfBbIG3eIL4Se3m6VJ4GmoVpB25nODnQ=
+        b=lygiZJS6tQH6r0a+38KBFebQN5BneMAYIyj33x2rttdNQ0pCoO3gCjjt6z3MHo6Og
+         N8nIGSoShlMxS4Sd3JMIaAJXBPsDWxA9anaoRoiKUAOUStg7NzsRZ96Cben57wfWTM
+         rFP/1vji9+6yx0vXWxo6Ztvl2U6Uy0PrGxqCqsYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 32/91] ftrace: Avoid potential division by zero in function profiler
+        stable@vger.kernel.org,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Dragos Tarcatu <dragos_tarcatu@mentor.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 046/165] ASoC: topology: Check return value for soc_tplg_pcm_create()
 Date:   Sat, 11 Jan 2020 10:49:25 +0100
-Message-Id: <20200111094856.874096754@linuxfoundation.org>
+Message-Id: <20200111094925.134358232@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
 
-commit e31f7939c1c27faa5d0e3f14519eaf7c89e8a69d upstream.
+[ Upstream commit a3039aef52d9ffeb67e9211899cd3e8a2953a01f ]
 
-The ftrace_profile->counter is unsigned long and
-do_div truncates it to 32 bits, which means it can test
-non-zero and be truncated to zero for division.
-Fix this issue by using div64_ul() instead.
+The return value of soc_tplg_pcm_create() is currently not checked
+in soc_tplg_pcm_elems_load(). If an error is to occur there, the
+topology ignores it and continues loading.
 
-Link: http://lkml.kernel.org/r/20200103030248.14516-1-wenyang@linux.alibaba.com
+Fix that by checking the status and rejecting the topology on error.
 
-Cc: stable@vger.kernel.org
-Fixes: e330b3bcd8319 ("tracing: Show sample std dev in function profiling")
-Fixes: 34886c8bc590f ("tracing: add average time in function to function profiler")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20191210003939.15752-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/soc-topology.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -609,8 +609,7 @@ static int function_stat_show(struct seq
- 	}
+diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
+index c92e360d27b8..fd2d22ddc81b 100644
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -2031,6 +2031,7 @@ static int soc_tplg_pcm_elems_load(struct soc_tplg *tplg,
+ 	int size;
+ 	int i;
+ 	bool abi_match;
++	int ret;
  
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
--	avg = rec->time;
--	do_div(avg, rec->counter);
-+	avg = div64_ul(rec->time, rec->counter);
- 	if (tracing_thresh && (avg < tracing_thresh))
- 		goto out;
- #endif
-@@ -636,7 +635,8 @@ static int function_stat_show(struct seq
- 		 * Divide only 1000 for ns^2 -> us^2 conversion.
- 		 * trace_print_graph_duration will divide 1000 again.
- 		 */
--		do_div(stddev, rec->counter * (rec->counter - 1) * 1000);
-+		stddev = div64_ul(stddev,
-+				  rec->counter * (rec->counter - 1) * 1000);
- 	}
+ 	count = le32_to_cpu(hdr->count);
  
- 	trace_seq_init(&s);
+@@ -2072,7 +2073,12 @@ static int soc_tplg_pcm_elems_load(struct soc_tplg *tplg,
+ 		}
+ 
+ 		/* create the FE DAIs and DAI links */
+-		soc_tplg_pcm_create(tplg, _pcm);
++		ret = soc_tplg_pcm_create(tplg, _pcm);
++		if (ret < 0) {
++			if (!abi_match)
++				kfree(_pcm);
++			return ret;
++		}
+ 
+ 		/* offset by version-specific struct size and
+ 		 * real priv data size
+-- 
+2.20.1
+
 
 
