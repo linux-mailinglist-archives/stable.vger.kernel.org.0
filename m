@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEAFC138057
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:28:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9844B137E15
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:06:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731047AbgAKK2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:28:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36106 "EHLO mail.kernel.org"
+        id S1729311AbgAKKEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:04:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730398AbgAKK23 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:28:29 -0500
+        id S1729021AbgAKKEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:04:45 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C80B2082E;
-        Sat, 11 Jan 2020 10:28:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB4F020848;
+        Sat, 11 Jan 2020 10:04:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738509;
-        bh=GQiAvbWLjMvJk09cCba+syEJkkqYycnVG/FlajrljWk=;
+        s=default; t=1578737085;
+        bh=cxid6C6F9WrArkdBSO7ewILRRUwrf6B52AkZM6I+OZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+vbQ9pNKNG86xsBq+8HI7jii921gfMZGRkoC06WgqdPAF1FH3YgMGkJ90nl/zpCq
-         Q4JdpfhlOHmvXDlHW+IVyyFIpOodbeOn7W6GhHrMdMUi2dlfwRAbDcFBALKl08rncO
-         JfNPidXzPMBhX7KZCKMcYjw8oUpwlkKQe5p+hL0Q=
+        b=ga5lMUWbPKlUR8lncotJbYYq3V3A9acVbAfsjP+4ouvf+TQGO3awXyK7r7oBXPb1c
+         delxHOvFwxV15fpngBk3hRUUxBWm/SIHIXHyfGdVz5ERTkI+SxU5LeTOY9hFEnPMsg
+         40i+7BGWugyb2a5lCC3mcVNnFjfAdfOaxzl2oov0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/165] ASoC: wm8962: fix lambda value
+Subject: [PATCH 4.9 76/91] net: stmmac: RX buffer size must be 16 byte aligned
 Date:   Sat, 11 Jan 2020 10:50:09 +0100
-Message-Id: <20200111094928.703357933@linuxfoundation.org>
+Message-Id: <20200111094911.724733301@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 556672d75ff486e0b6786056da624131679e0576 ]
+[ Upstream commit 8d558f0294fe92e04af192e221d0d0f6a180ee7b ]
 
-According to user manual, it is required that FLL_LAMBDA > 0
-in all cases (Integer and Franctional modes).
+We need to align the RX buffer size to at least 16 byte so that IP
+doesn't mis-behave. This is required by HW.
 
-Fixes: 9a76f1ff6e29 ("ASoC: Add initial WM8962 CODEC driver")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/1576065442-19763-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Changes from v2:
+- Align UP and not DOWN (David)
+
+Fixes: 7ac6653a085b ("stmmac: Move the STMicroelectronics driver")
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8962.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm8962.c b/sound/soc/codecs/wm8962.c
-index 3e5c69fbc33a..d9d59f45833f 100644
---- a/sound/soc/codecs/wm8962.c
-+++ b/sound/soc/codecs/wm8962.c
-@@ -2788,7 +2788,7 @@ static int fll_factors(struct _fll_div *fll_div, unsigned int Fref,
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 5ac48a594951..a2b7c685cbf1 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -55,7 +55,7 @@
+ #include <linux/of_mdio.h>
+ #include "dwmac1000.h"
  
- 	if (target % Fref == 0) {
- 		fll_div->theta = 0;
--		fll_div->lambda = 0;
-+		fll_div->lambda = 1;
- 	} else {
- 		gcd_fll = gcd(target, fratio * Fref);
+-#define	STMMAC_ALIGN(x)		__ALIGN_KERNEL(x, SMP_CACHE_BYTES)
++#define	STMMAC_ALIGN(x)		ALIGN(ALIGN(x, SMP_CACHE_BYTES), 16)
+ #define	TSO_MAX_BUFF_SIZE	(SZ_16K - 1)
  
-@@ -2858,7 +2858,7 @@ static int wm8962_set_fll(struct snd_soc_component *component, int fll_id, int s
- 		return -EINVAL;
- 	}
- 
--	if (fll_div.theta || fll_div.lambda)
-+	if (fll_div.theta)
- 		fll1 |= WM8962_FLL_FRAC;
- 
- 	/* Stop the FLL while we reconfigure */
+ /* Module parameters */
 -- 
 2.20.1
 
