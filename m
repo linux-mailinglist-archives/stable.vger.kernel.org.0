@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E7471380CE
+	by mail.lfdr.de (Postfix) with ESMTP id A178C1380CF
 	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:35:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731444AbgAKKeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:34:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49938 "EHLO mail.kernel.org"
+        id S1731496AbgAKKeR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:34:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731664AbgAKKeL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:34:11 -0500
+        id S1731482AbgAKKeP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:34:15 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D03D820882;
-        Sat, 11 Jan 2020 10:34:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D985020882;
+        Sat, 11 Jan 2020 10:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738850;
-        bh=OGdi3cRaoNqr0Vcs1iz9PDm0wsGbqlSnYfM4JsxQ1Eg=;
+        s=default; t=1578738854;
+        bh=LwYgJs1NDSNzQSImIZbDEYdnR/Lpt2lrbiiwqlrDCbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtDcRQhTAjBmX/V/OBBxCd6Q/4DJ2KpU2oLSuxXEU2vL8yQ0MHwI9Eu0qK1FdV1mA
-         FA/BGc9cq+GpDubJKRniK6dmkTCPwcXXXdxhsR9ywWPuTJHVAlA/hMgazDN2DhblXe
-         6yZEcu74dD2pbBv7cAAXY8pdXrIaCG7q2c35LUfI=
+        b=2GXMk23j7aZDPwTGNj9W1mpmtXVOqshOGBjDJuo3kbaUECZUxDYLx+JTWzWt7WflN
+         po15r1wpdmyWVUaTIMLt3jNw9aO95JImtwFOmWQTTBa9uA/vh0Yb3AQybVOGevwi+v
+         hYuAtt8uiPfizpgLuNZFlkKbdr/Z133HmnK/l28E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yevgeny Kliteynik <kliteyn@mellanox.com>,
-        Alex Vesker <valex@mellanox.com>,
+        stable@vger.kernel.org, Eli Cohen <eli@mellanox.com>,
+        Mark Bloch <markb@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 159/165] net/mlx5: DR, No need for atomic refcount for internal SW steering resources
-Date:   Sat, 11 Jan 2020 10:51:18 +0100
-Message-Id: <20200111094942.499776527@linuxfoundation.org>
+Subject: [PATCH 5.4 160/165] net/mlx5e: Fix hairpin RSS table size
+Date:   Sat, 11 Jan 2020 10:51:19 +0100
+Message-Id: <20200111094942.748330852@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -44,147 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yevgeny Kliteynik <kliteyn@mellanox.com>
+From: Eli Cohen <eli@mellanox.com>
 
-[ Upstream commit 4ce380ca477507e2f413584cdd99e1698d6682d6 ]
+[ Upstream commit 6412bb396a63f28de994b1480edf8e4caf4aa494 ]
 
-No need for an atomic refcounter for the STE and hashtables.
-These are internal SW steering resources and they are always
-under domain mutex.
+Set hairpin table size to the corret size, based on the groups that
+would be created in it. Groups are laid out on the table such that a
+group occupies a range of entries in the table. This implies that the
+group ranges should have correspondence to the table they are laid upon.
 
-This also fixes the following refcount error:
-  refcount_t: addition on 0; use-after-free.
-  WARNING: CPU: 9 PID: 3527 at lib/refcount.c:25 refcount_warn_saturate+0x81/0xe0
-  Call Trace:
-   dr_table_init_nic+0x10d/0x110 [mlx5_core]
-   mlx5dr_table_create+0xb4/0x230 [mlx5_core]
-   mlx5_cmd_dr_create_flow_table+0x39/0x120 [mlx5_core]
-   __mlx5_create_flow_table+0x221/0x5f0 [mlx5_core]
-   esw_create_offloads_fdb_tables+0x180/0x5a0 [mlx5_core]
-   ...
+The patch cited below  made group 1's size to grow hence causing
+overflow of group range laid on the table.
 
-Fixes: 26d688e33f88 ("net/mlx5: DR, Add Steering entry (STE) utilities")
-Signed-off-by: Yevgeny Kliteynik <kliteyn@mellanox.com>
-Reviewed-by: Alex Vesker <valex@mellanox.com>
+Fixes: a795d8db2a6d ("net/mlx5e: Support RSS for IP-in-IP and IPv6 tunneled packets")
+Signed-off-by: Eli Cohen <eli@mellanox.com>
+Signed-off-by: Mark Bloch <markb@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_rule.c  |    2 -
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c   |   10 ++++----
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h |   14 ++++++------
- 3 files changed, 14 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/fs.h |   16 ++++++++++++++++
+ drivers/net/ethernet/mellanox/mlx5/core/en_fs.c |   16 ----------------
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |    2 +-
+ 3 files changed, 17 insertions(+), 17 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_rule.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_rule.c
-@@ -209,7 +209,7 @@ static void dr_rule_rehash_copy_ste_ctrl
- 	/* We need to copy the refcount since this ste
- 	 * may have been traversed several times
- 	 */
--	refcount_set(&new_ste->refcount, refcount_read(&cur_ste->refcount));
-+	new_ste->refcount = cur_ste->refcount;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
+@@ -122,6 +122,22 @@ enum {
+ #endif
+ };
  
- 	/* Link old STEs rule_mem list to the new ste */
- 	mlx5dr_rule_update_rule_member(cur_ste, new_ste);
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
-@@ -340,7 +340,7 @@ static void dr_ste_replace(struct mlx5dr
- 	if (dst->next_htbl)
- 		dst->next_htbl->pointing_ste = dst;
++#define MLX5E_TTC_NUM_GROUPS	3
++#define MLX5E_TTC_GROUP1_SIZE	(BIT(3) + MLX5E_NUM_TUNNEL_TT)
++#define MLX5E_TTC_GROUP2_SIZE	 BIT(1)
++#define MLX5E_TTC_GROUP3_SIZE	 BIT(0)
++#define MLX5E_TTC_TABLE_SIZE	(MLX5E_TTC_GROUP1_SIZE +\
++				 MLX5E_TTC_GROUP2_SIZE +\
++				 MLX5E_TTC_GROUP3_SIZE)
++
++#define MLX5E_INNER_TTC_NUM_GROUPS	3
++#define MLX5E_INNER_TTC_GROUP1_SIZE	BIT(3)
++#define MLX5E_INNER_TTC_GROUP2_SIZE	BIT(1)
++#define MLX5E_INNER_TTC_GROUP3_SIZE	BIT(0)
++#define MLX5E_INNER_TTC_TABLE_SIZE	(MLX5E_INNER_TTC_GROUP1_SIZE +\
++					 MLX5E_INNER_TTC_GROUP2_SIZE +\
++					 MLX5E_INNER_TTC_GROUP3_SIZE)
++
+ #ifdef CONFIG_MLX5_EN_RXNFC
  
--	refcount_set(&dst->refcount, refcount_read(&src->refcount));
-+	dst->refcount = src->refcount;
- 
- 	INIT_LIST_HEAD(&dst->rule_list);
- 	list_splice_tail_init(&src->rule_list, &dst->rule_list);
-@@ -557,7 +557,7 @@ bool mlx5dr_ste_is_not_valid_entry(u8 *p
- 
- bool mlx5dr_ste_not_used_ste(struct mlx5dr_ste *ste)
- {
--	return !refcount_read(&ste->refcount);
-+	return !ste->refcount;
+ struct mlx5e_ethtool_table {
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
+@@ -904,22 +904,6 @@ del_rules:
+ 	return err;
  }
  
- /* Init one ste as a pattern for ste data array */
-@@ -681,14 +681,14 @@ struct mlx5dr_ste_htbl *mlx5dr_ste_htbl_
- 	htbl->ste_arr = chunk->ste_arr;
- 	htbl->hw_ste_arr = chunk->hw_ste_arr;
- 	htbl->miss_list = chunk->miss_list;
--	refcount_set(&htbl->refcount, 0);
-+	htbl->refcount = 0;
- 
- 	for (i = 0; i < chunk->num_of_entries; i++) {
- 		struct mlx5dr_ste *ste = &htbl->ste_arr[i];
- 
- 		ste->hw_ste = htbl->hw_ste_arr + i * DR_STE_SIZE_REDUCED;
- 		ste->htbl = htbl;
--		refcount_set(&ste->refcount, 0);
-+		ste->refcount = 0;
- 		INIT_LIST_HEAD(&ste->miss_list_node);
- 		INIT_LIST_HEAD(&htbl->miss_list[i]);
- 		INIT_LIST_HEAD(&ste->rule_list);
-@@ -705,7 +705,7 @@ out_free_htbl:
- 
- int mlx5dr_ste_htbl_free(struct mlx5dr_ste_htbl *htbl)
+-#define MLX5E_TTC_NUM_GROUPS	3
+-#define MLX5E_TTC_GROUP1_SIZE	(BIT(3) + MLX5E_NUM_TUNNEL_TT)
+-#define MLX5E_TTC_GROUP2_SIZE	 BIT(1)
+-#define MLX5E_TTC_GROUP3_SIZE	 BIT(0)
+-#define MLX5E_TTC_TABLE_SIZE	(MLX5E_TTC_GROUP1_SIZE +\
+-				 MLX5E_TTC_GROUP2_SIZE +\
+-				 MLX5E_TTC_GROUP3_SIZE)
+-
+-#define MLX5E_INNER_TTC_NUM_GROUPS	3
+-#define MLX5E_INNER_TTC_GROUP1_SIZE	BIT(3)
+-#define MLX5E_INNER_TTC_GROUP2_SIZE	BIT(1)
+-#define MLX5E_INNER_TTC_GROUP3_SIZE	BIT(0)
+-#define MLX5E_INNER_TTC_TABLE_SIZE	(MLX5E_INNER_TTC_GROUP1_SIZE +\
+-					 MLX5E_INNER_TTC_GROUP2_SIZE +\
+-					 MLX5E_INNER_TTC_GROUP3_SIZE)
+-
+ static int mlx5e_create_ttc_table_groups(struct mlx5e_ttc_table *ttc,
+ 					 bool use_ipv)
  {
--	if (refcount_read(&htbl->refcount))
-+	if (htbl->refcount)
- 		return -EBUSY;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -586,7 +586,7 @@ static void mlx5e_hairpin_set_ttc_params
+ 	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++)
+ 		ttc_params->indir_tirn[tt] = hp->indir_tirn[tt];
  
- 	mlx5dr_icm_free_chunk(htbl->chunk);
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-@@ -117,7 +117,7 @@ struct mlx5dr_matcher_rx_tx;
- struct mlx5dr_ste {
- 	u8 *hw_ste;
- 	/* refcount: indicates the num of rules that using this ste */
--	refcount_t refcount;
-+	u32 refcount;
- 
- 	/* attached to the miss_list head at each htbl entry */
- 	struct list_head miss_list_node;
-@@ -149,7 +149,7 @@ struct mlx5dr_ste_htbl_ctrl {
- struct mlx5dr_ste_htbl {
- 	u8 lu_type;
- 	u16 byte_mask;
--	refcount_t refcount;
-+	u32 refcount;
- 	struct mlx5dr_icm_chunk *chunk;
- 	struct mlx5dr_ste *ste_arr;
- 	u8 *hw_ste_arr;
-@@ -200,13 +200,14 @@ int mlx5dr_ste_htbl_free(struct mlx5dr_s
- 
- static inline void mlx5dr_htbl_put(struct mlx5dr_ste_htbl *htbl)
- {
--	if (refcount_dec_and_test(&htbl->refcount))
-+	htbl->refcount--;
-+	if (!htbl->refcount)
- 		mlx5dr_ste_htbl_free(htbl);
+-	ft_attr->max_fte = MLX5E_NUM_TT;
++	ft_attr->max_fte = MLX5E_TTC_TABLE_SIZE;
+ 	ft_attr->level = MLX5E_TC_TTC_FT_LEVEL;
+ 	ft_attr->prio = MLX5E_TC_PRIO;
  }
- 
- static inline void mlx5dr_htbl_get(struct mlx5dr_ste_htbl *htbl)
- {
--	refcount_inc(&htbl->refcount);
-+	htbl->refcount++;
- }
- 
- /* STE utils */
-@@ -248,14 +249,15 @@ static inline void mlx5dr_ste_put(struct
- 				  struct mlx5dr_matcher *matcher,
- 				  struct mlx5dr_matcher_rx_tx *nic_matcher)
- {
--	if (refcount_dec_and_test(&ste->refcount))
-+	ste->refcount--;
-+	if (!ste->refcount)
- 		mlx5dr_ste_free(ste, matcher, nic_matcher);
- }
- 
- /* initial as 0, increased only when ste appears in a new rule */
- static inline void mlx5dr_ste_get(struct mlx5dr_ste *ste)
- {
--	refcount_inc(&ste->refcount);
-+	ste->refcount++;
- }
- 
- void mlx5dr_ste_set_hit_addr_by_next_htbl(u8 *hw_ste,
 
 
