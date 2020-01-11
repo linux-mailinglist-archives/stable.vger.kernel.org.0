@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7499137F33
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:17:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 736A0137EB4
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:13:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730048AbgAKKRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:17:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33660 "EHLO mail.kernel.org"
+        id S1729407AbgAKKM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:12:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728946AbgAKKRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:17:18 -0500
+        id S1729517AbgAKKMz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:12:55 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DCCC2082E;
-        Sat, 11 Jan 2020 10:17:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B71DE206DA;
+        Sat, 11 Jan 2020 10:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737838;
-        bh=sy2Calgp9CwR7ibuyNniX63iyl5RxqkfSkdj2DtD6cM=;
+        s=default; t=1578737574;
+        bh=aFP7IX833MSPG1i0k3d0tupmv1vVEDZzjYEMJFiptCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfpWFmoEqZHPEQoW5+91zCcBAI7eP79DsXKh4Qn5SxzXJVPXw5K6dj5XCugLRBGI2
-         fpEVYRnoWOLgfmo6ESBgDak5pIxSoBEo4KNR8KlTVEKr367xwWgl/cgIqwnGoW39O7
-         XK9DOg83tgbRY7cZfr1zZ/RkuYD7zWD4L+gRxTzk=
+        b=Za+6qLD9EmhKJizMJjieZil2IUIaKVsttpXRBh+uCHFe6x1U07UUFvmvxVDMdohw3
+         /8eKUvP9+0yIlqFm5TXfgcxcmq/rgW0pueqjs2JRw7ts+Gnmp30U+WQA/kg8KsYeFD
+         dvGSgz6/V7TPqI/muot58vozuODB2o4UxHyn6+nQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 57/84] parisc: Fix compiler warnings in debug_core.c
-Date:   Sat, 11 Jan 2020 10:50:34 +0100
-Message-Id: <20200111094907.843466351@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        RENARD Pierre-Francois <pfrenard@gmail.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Woojung Huh <woojung.huh@microchip.com>,
+        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 53/62] net: usb: lan78xx: fix possible skb leak
+Date:   Sat, 11 Jan 2020 10:50:35 +0100
+Message-Id: <20200111094854.255385750@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 75cf9797006a3a9f29a3a25c1febd6842a4a9eb2 ]
+[ Upstream commit 47240ba0cd09bb6fe6db9889582048324999dfa4 ]
 
-Fix this compiler warning:
-kernel/debug/debug_core.c: In function ‘kgdb_cpu_enter’:
-arch/parisc/include/asm/cmpxchg.h:48:3: warning: value computed is not used [-Wunused-value]
-   48 |  ((__typeof__(*(ptr)))__xchg((unsigned long)(x), (ptr), sizeof(*(ptr))))
-arch/parisc/include/asm/atomic.h:78:30: note: in expansion of macro ‘xchg’
-   78 | #define atomic_xchg(v, new) (xchg(&((v)->counter), new))
-      |                              ^~~~
-kernel/debug/debug_core.c:596:4: note: in expansion of macro ‘atomic_xchg’
-  596 |    atomic_xchg(&kgdb_active, cpu);
-      |    ^~~~~~~~~~~
+If skb_linearize() fails, we need to free the skb.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+TSO makes skb bigger, and this bug might be the reason
+Raspberry Pi 3B+ users had to disable TSO.
+
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: RENARD Pierre-Francois <pfrenard@gmail.com>
+Cc: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Woojung Huh <woojung.huh@microchip.com>
+Cc: Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/cmpxchg.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/usb/lan78xx.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/parisc/include/asm/cmpxchg.h b/arch/parisc/include/asm/cmpxchg.h
-index f627c37dad9c..ab5c215cf46c 100644
---- a/arch/parisc/include/asm/cmpxchg.h
-+++ b/arch/parisc/include/asm/cmpxchg.h
-@@ -44,8 +44,14 @@ __xchg(unsigned long x, __volatile__ void *ptr, int size)
- **		if (((unsigned long)p & 0xf) == 0)
- **			return __ldcw(p);
- */
--#define xchg(ptr, x) \
--	((__typeof__(*(ptr)))__xchg((unsigned long)(x), (ptr), sizeof(*(ptr))))
-+#define xchg(ptr, x)							\
-+({									\
-+	__typeof__(*(ptr)) __ret;					\
-+	__typeof__(*(ptr)) _x_ = (x);					\
-+	__ret = (__typeof__(*(ptr)))					\
-+		__xchg((unsigned long)_x_, (ptr), sizeof(*(ptr)));	\
-+	__ret;								\
-+})
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -2604,11 +2604,6 @@ static int lan78xx_stop(struct net_devic
+ 	return 0;
+ }
  
- /* bug catcher for when unsupported size is used - won't link */
- extern void __cmpxchg_called_with_bad_pointer(void);
--- 
-2.20.1
-
+-static int lan78xx_linearize(struct sk_buff *skb)
+-{
+-	return skb_linearize(skb);
+-}
+-
+ static struct sk_buff *lan78xx_tx_prep(struct lan78xx_net *dev,
+ 				       struct sk_buff *skb, gfp_t flags)
+ {
+@@ -2619,8 +2614,10 @@ static struct sk_buff *lan78xx_tx_prep(s
+ 		return NULL;
+ 	}
+ 
+-	if (lan78xx_linearize(skb) < 0)
++	if (skb_linearize(skb)) {
++		dev_kfree_skb_any(skb);
+ 		return NULL;
++	}
+ 
+ 	tx_cmd_a = (u32)(skb->len & TX_CMD_A_LEN_MASK_) | TX_CMD_A_FCS_;
+ 
 
 
