@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF1D113802C
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D07137E55
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729303AbgAKK0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:26:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59650 "EHLO mail.kernel.org"
+        id S1729630AbgAKKIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:08:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731043AbgAKK0l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:26:41 -0500
+        id S1728812AbgAKKIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:08:47 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6A8320842;
-        Sat, 11 Jan 2020 10:26:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BB782064C;
+        Sat, 11 Jan 2020 10:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738400;
-        bh=2m/b3YaV30WQP7EmUHqtvR2SDpsnEF7V/wpRmsP9GRw=;
+        s=default; t=1578737327;
+        bh=QwCiPWsHROdyM6XfCtmVRetKjby4HK+y9x9ed/v9fuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bp3wLSwT02m3i2ibJBlkxmpTb7Q10W8wIF4UkySQbZ6CO+JVEEaqGJosVoaA9FRDy
-         mRbH7777dmlkqaomAqKor1AhRp2D3ywa7fZRENYIwWpENUvhqk+6losm7cFvVbI+le
-         4wbYepS883laCByNWqtpumAsLA13Pikm9WVfeDBM=
+        b=aI7I0PxNjqd8nvN4bOAKz3aK3Tm4GW0kLgWldw4STJ59mjR7tStyuulFLFDCEpit/
+         TEIcMh9SVvtNhtLecIa5XcNGg3CI3CoGYZvgPEY49gcokAE0mO2xlvMpin1hqA2LyH
+         WiuG5hgFc6R+HspzSnl15ErC5MYq10RmwUe8lP80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Fredrik Olofsson <fredrik.olofsson@anyfinetworks.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        Sudipm Mukherjee <sudipm.mukherjee@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        linux-trace-devel@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/165] mac80211: fix TID field in monitor mode transmit
+Subject: [PATCH 4.14 06/62] libtraceevent: Fix lib installation with O=
 Date:   Sat, 11 Jan 2020 10:49:48 +0100
-Message-Id: <20200111094926.915883486@linuxfoundation.org>
+Message-Id: <20200111094840.134928601@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fredrik Olofsson <fredrik.olofsson@anyfinetworks.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-[ Upstream commit 753ffad3d6243303994227854d951ff5c70fa9e0 ]
+[ Upstream commit 587db8ebdac2c5eb3a8851e16b26f2e2711ab797 ]
 
-Fix overwriting of the qos_ctrl.tid field for encrypted frames injected on
-a monitor interface. While qos_ctrl.tid is not encrypted, it's used as an
-input into the encryption algorithm so it's protected, and thus cannot be
-modified after encryption. For injected frames, the encryption may already
-have been done in userspace, so we cannot change any fields.
+When we use 'O=' with make to build libtraceevent in a separate folder
+it fails to install libtraceevent.a and libtraceevent.so.1.1.0 with the
+error:
 
-Before passing the frame to the driver, the qos_ctrl.tid field is updated
-from skb->priority. Prior to dbd50a851c50 skb->priority was updated in
-ieee80211_select_queue_80211(), but this function is no longer always
-called.
+  INSTALL  /home/sudip/linux/obj-trace/libtraceevent.a
+  INSTALL  /home/sudip/linux/obj-trace/libtraceevent.so.1.1.0
 
-Update skb->priority in ieee80211_monitor_start_xmit() so that the value
-is stored, and when later code 'modifies' the TID it really sets it to
-the same value as before, preserving the encryption.
+  cp: cannot stat 'libtraceevent.a': No such file or directory
+  Makefile:225: recipe for target 'install_lib' failed
+  make: *** [install_lib] Error 1
 
-Fixes: dbd50a851c50 ("mac80211: only allocate one queue when using iTXQs")
-Signed-off-by: Fredrik Olofsson <fredrik.olofsson@anyfinetworks.com>
-Link: https://lore.kernel.org/r/20191119133451.14711-1-fredrik.olofsson@anyfinetworks.com
-[rewrite commit message based on our discussion]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+I used the command:
+
+  make O=../../../obj-trace DESTDIR=~/test prefix==/usr  install
+
+It turns out libtraceevent Makefile, even though it builds in a separate
+folder, searches for libtraceevent.a and libtraceevent.so.1.1.0 in its
+source folder.
+
+So, add the 'OUTPUT' prefix to the source path so that 'make' looks for
+the files in the correct place.
+
+Signed-off-by: Sudipm Mukherjee <sudipm.mukherjee@gmail.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: linux-trace-devel@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20191115113610.21493-1-sudipm.mukherjee@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ tools/lib/traceevent/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 1fa422782905..cbd273c0b275 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -2263,6 +2263,15 @@ netdev_tx_t ieee80211_monitor_start_xmit(struct sk_buff *skb,
- 						    payload[7]);
- 	}
+diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
+index 8107f060fa84..a0ac01c647f5 100644
+--- a/tools/lib/traceevent/Makefile
++++ b/tools/lib/traceevent/Makefile
+@@ -115,6 +115,7 @@ EVENT_PARSE_VERSION = $(EP_VERSION).$(EP_PATCHLEVEL).$(EP_EXTRAVERSION)
  
-+	/*
-+	 * Initialize skb->priority for QoS frames. This is put in the TID field
-+	 * of the frame before passing it to the driver.
-+	 */
-+	if (ieee80211_is_data_qos(hdr->frame_control)) {
-+		u8 *p = ieee80211_get_qos_ctl(hdr);
-+		skb->priority = *p & IEEE80211_QOS_CTL_TAG1D_MASK;
-+	}
-+
- 	memset(info, 0, sizeof(*info));
+ LIB_TARGET  = libtraceevent.a libtraceevent.so.$(EVENT_PARSE_VERSION)
+ LIB_INSTALL = libtraceevent.a libtraceevent.so*
++LIB_INSTALL := $(addprefix $(OUTPUT),$(LIB_INSTALL))
  
- 	info->flags = IEEE80211_TX_CTL_REQ_TX_STATUS |
+ INCLUDES = -I. -I $(srctree)/tools/include $(CONFIG_INCLUDES)
+ 
 -- 
 2.20.1
 
