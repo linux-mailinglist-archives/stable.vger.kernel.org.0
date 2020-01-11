@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C7DB137E5B
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:09:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BFEC137DE9
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:02:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729687AbgAKKI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:08:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
+        id S1729328AbgAKKCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:02:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729148AbgAKKI4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:08:56 -0500
+        id S1729172AbgAKKCt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:02:49 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 133A720880;
-        Sat, 11 Jan 2020 10:08:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 247FE2077C;
+        Sat, 11 Jan 2020 10:02:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737335;
-        bh=dSpqFK6i710jE4XItym/hIRAQU51Rs8DQiINUBZ5nGk=;
+        s=default; t=1578736968;
+        bh=3P/hjoYRsu8bPZf0I3NrWjo6PZBfPtY27pUf3fjXgP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5lKDXqb1594+Eo9PLCfku7X3efS26q0dDnIer0AYYjEr87uz/WRjc54PjCXM1Qnb
-         0lDcnf+/jql6Cd6B3UUs9xq9SC2D9sSpLp73CRJ7+2q/l6IKGHiWG6oAid6MmVvGWP
-         BgaThR15rWO85YOcX+gZudAmjl9bayktdNd9nVEY=
+        b=Y+RM7j95flHyAo/63QBxCJd7q4QGkyni5si/SHrAwCvqJhv6eG8AKU92IGtmEGYCI
+         9VBRrzyJziGxiMUQxV7hPDXa7NRJe/vu6jFo36d20d0iYLm1Vtg+4+D5dXYsvgbx8M
+         osRYJj4j9IsMQZLUSUzMAoCmvD+kDE1rw0PYJt4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bhupesh Sharma <bhsharma@redhat.com>,
-        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
-        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/62] efi/gop: Return EFI_NOT_FOUND if there are no usable GOPs
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Marco Elver <elver@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 57/91] locking/spinlock/debug: Fix various data races
 Date:   Sat, 11 Jan 2020 10:49:50 +0100
-Message-Id: <20200111094840.974597343@linuxfoundation.org>
+Message-Id: <20200111094906.313065617@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,89 +50,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 6fc3cec30dfeee7d3c5db8154016aff9d65503c5 ]
+[ Upstream commit 1a365e822372ba24c9da0822bc583894f6f3d821 ]
 
-If we don't find a usable instance of the Graphics Output Protocol
-(GOP) because none of them have a framebuffer (i.e. they were all
-PIXEL_BLT_ONLY), but all the EFI calls succeeded, we will return
-EFI_SUCCESS even though we didn't find a usable GOP.
+This fixes various data races in spinlock_debug. By testing with KCSAN,
+it is observable that the console gets spammed with data races reports,
+suggesting these are extremely frequent.
 
-Fix this by explicitly returning EFI_NOT_FOUND if no usable GOPs are
-found, allowing the caller to probe for UGA instead.
+Example data race report:
 
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Bhupesh Sharma <bhsharma@redhat.com>
-Cc: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
-Cc: linux-efi@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191206165542.31469-3-ardb@kernel.org
+  read to 0xffff8ab24f403c48 of 4 bytes by task 221 on cpu 2:
+   debug_spin_lock_before kernel/locking/spinlock_debug.c:85 [inline]
+   do_raw_spin_lock+0x9b/0x210 kernel/locking/spinlock_debug.c:112
+   __raw_spin_lock include/linux/spinlock_api_smp.h:143 [inline]
+   _raw_spin_lock+0x39/0x40 kernel/locking/spinlock.c:151
+   spin_lock include/linux/spinlock.h:338 [inline]
+   get_partial_node.isra.0.part.0+0x32/0x2f0 mm/slub.c:1873
+   get_partial_node mm/slub.c:1870 [inline]
+  <snip>
+
+  write to 0xffff8ab24f403c48 of 4 bytes by task 167 on cpu 3:
+   debug_spin_unlock kernel/locking/spinlock_debug.c:103 [inline]
+   do_raw_spin_unlock+0xc9/0x1a0 kernel/locking/spinlock_debug.c:138
+   __raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:159 [inline]
+   _raw_spin_unlock_irqrestore+0x2d/0x50 kernel/locking/spinlock.c:191
+   spin_unlock_irqrestore include/linux/spinlock.h:393 [inline]
+   free_debug_processing+0x1b3/0x210 mm/slub.c:1214
+   __slab_free+0x292/0x400 mm/slub.c:2864
+  <snip>
+
+As a side-effect, with KCSAN, this eventually locks up the console, most
+likely due to deadlock, e.g. .. -> printk lock -> spinlock_debug ->
+KCSAN detects data race -> kcsan_print_report() -> printk lock ->
+deadlock.
+
+This fix will 1) avoid the data races, and 2) allow using lock debugging
+together with KCSAN.
+
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Marco Elver <elver@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Link: https://lkml.kernel.org/r/20191120155715.28089-1-elver@google.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/gop.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ kernel/locking/spinlock_debug.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/firmware/efi/libstub/gop.c b/drivers/firmware/efi/libstub/gop.c
-index 24c461dea7af..16ed61c023e8 100644
---- a/drivers/firmware/efi/libstub/gop.c
-+++ b/drivers/firmware/efi/libstub/gop.c
-@@ -121,7 +121,7 @@ setup_gop32(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 	u64 fb_base;
- 	struct efi_pixel_bitmask pixel_info;
- 	int pixel_format;
--	efi_status_t status = EFI_NOT_FOUND;
-+	efi_status_t status;
- 	u32 *handles = (u32 *)(unsigned long)gop_handle;
- 	int i;
+diff --git a/kernel/locking/spinlock_debug.c b/kernel/locking/spinlock_debug.c
+index 9aa0fccd5d43..03595c29c566 100644
+--- a/kernel/locking/spinlock_debug.c
++++ b/kernel/locking/spinlock_debug.c
+@@ -51,19 +51,19 @@ EXPORT_SYMBOL(__rwlock_init);
  
-@@ -177,7 +177,7 @@ setup_gop32(efi_system_table_t *sys_table_arg, struct screen_info *si,
+ static void spin_dump(raw_spinlock_t *lock, const char *msg)
+ {
+-	struct task_struct *owner = NULL;
++	struct task_struct *owner = READ_ONCE(lock->owner);
  
- 	/* Did we find any GOPs? */
- 	if (!first_gop)
--		goto out;
-+		return EFI_NOT_FOUND;
- 
- 	/* EFI framebuffer */
- 	si->orig_video_isVGA = VIDEO_TYPE_EFI;
-@@ -199,7 +199,7 @@ setup_gop32(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 	si->lfb_size = si->lfb_linelength * si->lfb_height;
- 
- 	si->capabilities |= VIDEO_CAPABILITY_SKIP_QUIRKS;
--out:
-+
- 	return status;
+-	if (lock->owner && lock->owner != SPINLOCK_OWNER_INIT)
+-		owner = lock->owner;
++	if (owner == SPINLOCK_OWNER_INIT)
++		owner = NULL;
+ 	printk(KERN_EMERG "BUG: spinlock %s on CPU#%d, %s/%d\n",
+ 		msg, raw_smp_processor_id(),
+ 		current->comm, task_pid_nr(current));
+ 	printk(KERN_EMERG " lock: %pS, .magic: %08x, .owner: %s/%d, "
+ 			".owner_cpu: %d\n",
+-		lock, lock->magic,
++		lock, READ_ONCE(lock->magic),
+ 		owner ? owner->comm : "<none>",
+ 		owner ? task_pid_nr(owner) : -1,
+-		lock->owner_cpu);
++		READ_ONCE(lock->owner_cpu));
+ 	dump_stack();
  }
  
-@@ -239,7 +239,7 @@ setup_gop64(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 	u64 fb_base;
- 	struct efi_pixel_bitmask pixel_info;
- 	int pixel_format;
--	efi_status_t status = EFI_NOT_FOUND;
-+	efi_status_t status;
- 	u64 *handles = (u64 *)(unsigned long)gop_handle;
- 	int i;
- 
-@@ -295,7 +295,7 @@ setup_gop64(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 
- 	/* Did we find any GOPs? */
- 	if (!first_gop)
--		goto out;
-+		return EFI_NOT_FOUND;
- 
- 	/* EFI framebuffer */
- 	si->orig_video_isVGA = VIDEO_TYPE_EFI;
-@@ -317,7 +317,7 @@ setup_gop64(efi_system_table_t *sys_table_arg, struct screen_info *si,
- 	si->lfb_size = si->lfb_linelength * si->lfb_height;
- 
- 	si->capabilities |= VIDEO_CAPABILITY_SKIP_QUIRKS;
--out:
-+
- 	return status;
+@@ -80,16 +80,16 @@ static void spin_bug(raw_spinlock_t *lock, const char *msg)
+ static inline void
+ debug_spin_lock_before(raw_spinlock_t *lock)
+ {
+-	SPIN_BUG_ON(lock->magic != SPINLOCK_MAGIC, lock, "bad magic");
+-	SPIN_BUG_ON(lock->owner == current, lock, "recursion");
+-	SPIN_BUG_ON(lock->owner_cpu == raw_smp_processor_id(),
++	SPIN_BUG_ON(READ_ONCE(lock->magic) != SPINLOCK_MAGIC, lock, "bad magic");
++	SPIN_BUG_ON(READ_ONCE(lock->owner) == current, lock, "recursion");
++	SPIN_BUG_ON(READ_ONCE(lock->owner_cpu) == raw_smp_processor_id(),
+ 							lock, "cpu recursion");
  }
  
+ static inline void debug_spin_lock_after(raw_spinlock_t *lock)
+ {
+-	lock->owner_cpu = raw_smp_processor_id();
+-	lock->owner = current;
++	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
++	WRITE_ONCE(lock->owner, current);
+ }
+ 
+ static inline void debug_spin_unlock(raw_spinlock_t *lock)
+@@ -99,8 +99,8 @@ static inline void debug_spin_unlock(raw_spinlock_t *lock)
+ 	SPIN_BUG_ON(lock->owner != current, lock, "wrong owner");
+ 	SPIN_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
+ 							lock, "wrong CPU");
+-	lock->owner = SPINLOCK_OWNER_INIT;
+-	lock->owner_cpu = -1;
++	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
++	WRITE_ONCE(lock->owner_cpu, -1);
+ }
+ 
+ /*
+@@ -183,8 +183,8 @@ static inline void debug_write_lock_before(rwlock_t *lock)
+ 
+ static inline void debug_write_lock_after(rwlock_t *lock)
+ {
+-	lock->owner_cpu = raw_smp_processor_id();
+-	lock->owner = current;
++	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
++	WRITE_ONCE(lock->owner, current);
+ }
+ 
+ static inline void debug_write_unlock(rwlock_t *lock)
+@@ -193,8 +193,8 @@ static inline void debug_write_unlock(rwlock_t *lock)
+ 	RWLOCK_BUG_ON(lock->owner != current, lock, "wrong owner");
+ 	RWLOCK_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
+ 							lock, "wrong CPU");
+-	lock->owner = SPINLOCK_OWNER_INIT;
+-	lock->owner_cpu = -1;
++	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
++	WRITE_ONCE(lock->owner_cpu, -1);
+ }
+ 
+ void do_raw_write_lock(rwlock_t *lock)
 -- 
 2.20.1
 
