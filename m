@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6312A137FD5
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D323137D99
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730654AbgAKKX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:23:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50614 "EHLO mail.kernel.org"
+        id S1728908AbgAKJ73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 04:59:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728833AbgAKKX2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:23:28 -0500
+        id S1729147AbgAKJ73 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 04:59:29 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65D602082E;
-        Sat, 11 Jan 2020 10:23:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4027C2077C;
+        Sat, 11 Jan 2020 09:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738208;
-        bh=VpTE1uMYQYHAjVi/WQfKAjM9ST04k+XHCIZY0MSvKwI=;
+        s=default; t=1578736768;
+        bh=Q76nd1rY7PubR1tz37aB6Z90FHySurzEY50SY9L8GaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wxa94HHhWyyLftoTOFKyJmhKHR/8LvNywFT5YSk7yBbNAkD3XRQUZ/OWaHDjHlnH
-         kBICWKIkQYFpL6biEuP2YAvIe8jStDdPJIRSzpuE3S23urGWZ+EABNPWNwwbj4HaJ4
-         y/MaW5DMY4UjhW7WoGS7AOF/GFl18aSwgbXQ5sQA=
+        b=VBZnxWgvKtAMa4Jw088gzdghZNDGNV68v1wclghMmG+tw0eq8u42rG7RnDR0U/bF+
+         3VeGeON18bkwrcEM9wus8UaR9AGPFtGk8TXq7ykzom8k2KOYZf/Tkv2BYOFRY4iMA6
+         ysNVPiqe0iqXgBuLUs6rFUNTKglv+TZVx9pzoS5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Horman <simon.horman@netronome.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 033/165] ARM: dts: BCM5301X: Fix MDIO node address/size cells
-Date:   Sat, 11 Jan 2020 10:49:12 +0100
-Message-Id: <20200111094923.963516146@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Christian Brauner <christian.brauner@canonical.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        linux-mips@vger.kernel.org
+Subject: [PATCH 4.9 20/91] MIPS: Avoid VDSO ABI breakage due to global register variable
+Date:   Sat, 11 Jan 2020 10:49:13 +0100
+Message-Id: <20200111094851.289779602@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +47,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Paul Burton <paulburton@kernel.org>
 
-[ Upstream commit 093c3f94e922d83a734fc4da08cc5814990f32c6 ]
+commit bbcc5672b0063b0e9d65dc8787a4f09c3b5bb5cc upstream.
 
-The MDIO node on BCM5301X had an reversed #address-cells and
- #size-cells properties, correct those, silencing checker warnings:
+Declaring __current_thread_info as a global register variable has the
+effect of preventing GCC from saving & restoring its value in cases
+where the ABI would typically do so.
 
-.../linux/arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dt.yaml: mdio@18003000: #address-cells:0:0: 1 was expected
+To quote GCC documentation:
 
-Reported-by: Simon Horman <simon.horman@netronome.com>
-Fixes: 23f1eca6d59b ("ARM: dts: BCM5301X: Specify MDIO bus in the DT")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+> If the register is a call-saved register, call ABI is affected: the
+> register will not be restored in function epilogue sequences after the
+> variable has been assigned. Therefore, functions cannot safely return
+> to callers that assume standard ABI.
+
+When our position independent VDSO is built for the n32 or n64 ABIs all
+functions it exposes should be preserving the value of $gp/$28 for their
+caller, but in the presence of the __current_thread_info global register
+variable GCC stops doing so & simply clobbers $gp/$28 when calculating
+the address of the GOT.
+
+In cases where the VDSO returns success this problem will typically be
+masked by the caller in libc returning & restoring $gp/$28 itself, but
+that is by no means guaranteed. In cases where the VDSO returns an error
+libc will typically contain a fallback path which will now fail
+(typically with a bad memory access) if it attempts anything which
+relies upon the value of $gp/$28 - eg. accessing anything via the GOT.
+
+One fix for this would be to move the declaration of
+__current_thread_info inside the current_thread_info() function,
+demoting it from global register variable to local register variable &
+avoiding inadvertently creating a non-standard calling ABI for the VDSO.
+Unfortunately this causes issues for clang, which doesn't support local
+register variables as pointed out by commit fe92da0f355e ("MIPS: Changed
+current_thread_info() to an equivalent supported by both clang and GCC")
+which introduced the global register variable before we had a VDSO to
+worry about.
+
+Instead, fix this by continuing to use the global register variable for
+the kernel proper but declare __current_thread_info as a simple extern
+variable when building the VDSO. It should never be referenced, and will
+cause a link error if it is. This resolves the calling convention issue
+for the VDSO without having any impact upon the build of the kernel
+itself for either clang or gcc.
+
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
+Reported-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Christian Brauner <christian.brauner@canonical.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: <stable@vger.kernel.org> # v4.4+
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/bcm5301x.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/thread_info.h |   20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
-index 372dc1eb88a0..2d9b4dd05830 100644
---- a/arch/arm/boot/dts/bcm5301x.dtsi
-+++ b/arch/arm/boot/dts/bcm5301x.dtsi
-@@ -353,8 +353,8 @@
- 	mdio: mdio@18003000 {
- 		compatible = "brcm,iproc-mdio";
- 		reg = <0x18003000 0x8>;
--		#size-cells = <1>;
--		#address-cells = <0>;
-+		#size-cells = <0>;
-+		#address-cells = <1>;
- 	};
+--- a/arch/mips/include/asm/thread_info.h
++++ b/arch/mips/include/asm/thread_info.h
+@@ -52,8 +52,26 @@ struct thread_info {
+ #define init_thread_info	(init_thread_union.thread_info)
+ #define init_stack		(init_thread_union.stack)
  
- 	mdio-bus-mux@18003000 {
--- 
-2.20.1
-
+-/* How to get the thread information struct from C.  */
++/*
++ * A pointer to the struct thread_info for the currently executing thread is
++ * held in register $28/$gp.
++ *
++ * We declare __current_thread_info as a global register variable rather than a
++ * local register variable within current_thread_info() because clang doesn't
++ * support explicit local register variables.
++ *
++ * When building the VDSO we take care not to declare the global register
++ * variable because this causes GCC to not preserve the value of $28/$gp in
++ * functions that change its value (which is common in the PIC VDSO when
++ * accessing the GOT). Since the VDSO shouldn't be accessing
++ * __current_thread_info anyway we declare it extern in order to cause a link
++ * failure if it's referenced.
++ */
++#ifdef __VDSO__
++extern struct thread_info *__current_thread_info;
++#else
+ register struct thread_info *__current_thread_info __asm__("$28");
++#endif
+ 
+ static inline struct thread_info *current_thread_info(void)
+ {
 
 
