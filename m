@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60EA9137EB0
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:12:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB37138076
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729946AbgAKKMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:12:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50866 "EHLO mail.kernel.org"
+        id S1730997AbgAKKaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:30:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729782AbgAKKMp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:12:45 -0500
+        id S1728889AbgAKKaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:30:08 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFB8E2077C;
-        Sat, 11 Jan 2020 10:12:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BFFD20842;
+        Sat, 11 Jan 2020 10:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737564;
-        bh=MSDiproYo3WADSlzilDQfi8s9qyoDD9w4tomXkXUypo=;
+        s=default; t=1578738608;
+        bh=YNKS4Tm3ked/WoWgQbe7SvOeinH9G+RC3XdjwiMRG3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b5Niiit8A2HWRPHP2AvGgrjjgCLCnUtgdJKjrOktXACAk6I4JWN1hPaegNLb2TA0R
-         CDHBMYgkFmjAZSYBKDO3C5QX9/QOncQc8Q3ljGaUsGeQY18bMZ2tEWxkeVko+1No++
-         x4yrS2ofcL+XwvTRbiHCsA+ygKxsHgYbsEXANMAc=
+        b=iLrfdQOqMeo4/qAA4UVjaymkuud8EvLHyCSlhqb3mvT9lUiy550omOG9P0UzY0VwB
+         NW12P2T2nAMbhnj5vEeIkXUAVSqo+NrxqLHRA6J1WNWh1yeOTBjRjDx1akgPNW3+ZI
+         GVwBIaX0uG8pX3ZNm4owcqf+RGhjQBRFmD951zrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 61/62] net: sch_prio: When ungrafting, replace with FIFO
+        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 124/165] arm64: cpu_errata: Add Hisilicon TSV110 to spectre-v2 safe list
 Date:   Sat, 11 Jan 2020 10:50:43 +0100
-Message-Id: <20200111094857.906503326@linuxfoundation.org>
+Message-Id: <20200111094934.506469863@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Wei Li <liwei391@huawei.com>
 
-[ Upstream commit 240ce7f6428ff5188b9eedc066e1e4d645b8635f ]
+[ Upstream commit aa638cfe3e7358122a15cb1d295b622aae69e006 ]
 
-When a child Qdisc is removed from one of the PRIO Qdisc's bands, it is
-replaced unconditionally by a NOOP qdisc. As a result, any traffic hitting
-that band gets dropped. That is incorrect--no Qdisc was explicitly added
-when PRIO was created, and after removal, none should have to be added
-either.
+HiSilicon Taishan v110 CPUs didn't implement CSV2 field of the
+ID_AA64PFR0_EL1, but spectre-v2 is mitigated by hardware, so
+whitelist the MIDR in the safe list.
 
-Fix PRIO by first attempting to create a default Qdisc and only falling
-back to noop when that fails. This pattern of attempting to create an
-invisible FIFO, using NOOP only as a fallback, is also seen in other
-Qdiscs.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wei Li <liwei391@huawei.com>
+[hanjun: re-write the commit log]
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_prio.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/cpu_errata.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/sched/sch_prio.c
-+++ b/net/sched/sch_prio.c
-@@ -244,8 +244,14 @@ static int prio_graft(struct Qdisc *sch,
- 	struct prio_sched_data *q = qdisc_priv(sch);
- 	unsigned long band = arg - 1;
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index 93f34b4eca25..96f576e9ea46 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -575,6 +575,7 @@ static const struct midr_range spectre_v2_safe_list[] = {
+ 	MIDR_ALL_VERSIONS(MIDR_CORTEX_A53),
+ 	MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
+ 	MIDR_ALL_VERSIONS(MIDR_BRAHMA_B53),
++	MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
+ 	{ /* sentinel */ }
+ };
  
--	if (new == NULL)
--		new = &noop_qdisc;
-+	if (!new) {
-+		new = qdisc_create_dflt(sch->dev_queue, &pfifo_qdisc_ops,
-+					TC_H_MAKE(sch->handle, arg));
-+		if (!new)
-+			new = &noop_qdisc;
-+		else
-+			qdisc_hash_add(new, true);
-+	}
- 
- 	*old = qdisc_replace(sch, new, &q->queues[band]);
- 	return 0;
+-- 
+2.20.1
+
 
 
