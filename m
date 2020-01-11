@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 865AC137E97
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEB45137F2D
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729688AbgAKKLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:11:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49230 "EHLO mail.kernel.org"
+        id S1730184AbgAKKRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:17:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728949AbgAKKLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:11:47 -0500
+        id S1729229AbgAKKRH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:17:07 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5920C206DA;
-        Sat, 11 Jan 2020 10:11:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD6F2205F4;
+        Sat, 11 Jan 2020 10:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737506;
-        bh=hUos0hfH9yc+3F85AO2RCkMxw9/ke1vT/KKJaDu7Uy8=;
+        s=default; t=1578737825;
+        bh=voZJ6+sHQ+7u32dzQueGKsDn3hu12ZM7e5NFUxeERmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AIUjnc2IIVp5E917f36GQRxuSopMMy+0jAK6vZQ09GmWrfoyxE96/UhR1ltctMZ79
-         lLmRb/mtvkQ9hAIsfxDfiXzeclQSN4uT8qZelOhX/RzN4RrHZZ/BRUir4ZQtVc6jkp
-         t9Ee8YoMH8eFkGcL0z4G/lMEcOLlhr1qgNU+0RaY=
+        b=LhYtDV4+XSkxySWpa50WEUVjirYE4zlDp4TwbEx+jHF0+1FP1gZ9/bXuKxvp5Rt4Q
+         Ke9WGp555bTXTYCWbu7CFw9lnu9GtMYoGda5D0nhzDStH7JxNqc4oCbZoIxBlB0k6A
+         Qq8u4KQmRmqZLPkl342VQSt7OPNbY0ye53MTZTwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 49/62] macvlan: do not assume mac_header is set in macvlan_broadcast()
+        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 54/84] s390/dasd/cio: Interpret ccw_device_get_mdc return value correctly
 Date:   Sat, 11 Jan 2020 10:50:31 +0100
-Message-Id: <20200111094852.580496708@linuxfoundation.org>
+Message-Id: <20200111094906.768841990@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,170 +46,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-[ Upstream commit 96cc4b69581db68efc9749ef32e9cf8e0160c509 ]
+[ Upstream commit dd4b3c83b9efac10d48a94c61372119fc555a077 ]
 
-Use of eth_hdr() in tx path is error prone.
+The max data count (mdc) is an unsigned 16-bit integer value as per AR
+documentation and is received via ccw_device_get_mdc() for a specific
+path mask from the CIO layer. The function itself also always returns a
+positive mdc value or 0 in case mdc isn't supported or couldn't be
+determined.
 
-Many drivers call skb_reset_mac_header() before using it,
-but others do not.
+Though, the comment for this function describes a negative return value
+to indicate failures.
 
-Commit 6d1ccff62780 ("net: reset mac header in dev_start_xmit()")
-attempted to fix this generically, but commit d346a3fae3ff
-("packet: introduce PACKET_QDISC_BYPASS socket option") brought
-back the macvlan bug.
+As a result, the DASD device driver interprets the return value of
+ccw_device_get_mdc() incorrectly. The error case is essentially a dead
+code path.
 
-Lets add a new helper, so that tx paths no longer have
-to call skb_reset_mac_header() only to get a pointer
-to skb->data.
+To fix this behaviour, check explicitly for a return value of 0 and
+change the comment for ccw_device_get_mdc() accordingly.
 
-Hopefully we will be able to revert 6d1ccff62780
-("net: reset mac header in dev_start_xmit()") and save few cycles
-in transmit fast path.
+This fix merely enables the error code path in the DASD functions
+get_fcx_max_data() and verify_fcx_max_data(). The actual functionality
+stays the same and is still correct.
 
-BUG: KASAN: use-after-free in __get_unaligned_cpu32 include/linux/unaligned/packed_struct.h:19 [inline]
-BUG: KASAN: use-after-free in mc_hash drivers/net/macvlan.c:251 [inline]
-BUG: KASAN: use-after-free in macvlan_broadcast+0x547/0x620 drivers/net/macvlan.c:277
-Read of size 4 at addr ffff8880a4932401 by task syz-executor947/9579
-
-CPU: 0 PID: 9579 Comm: syz-executor947 Not tainted 5.5.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x197/0x210 lib/dump_stack.c:118
- print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
- __kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
- kasan_report+0x12/0x20 mm/kasan/common.c:639
- __asan_report_load_n_noabort+0xf/0x20 mm/kasan/generic_report.c:145
- __get_unaligned_cpu32 include/linux/unaligned/packed_struct.h:19 [inline]
- mc_hash drivers/net/macvlan.c:251 [inline]
- macvlan_broadcast+0x547/0x620 drivers/net/macvlan.c:277
- macvlan_queue_xmit drivers/net/macvlan.c:520 [inline]
- macvlan_start_xmit+0x402/0x77f drivers/net/macvlan.c:559
- __netdev_start_xmit include/linux/netdevice.h:4447 [inline]
- netdev_start_xmit include/linux/netdevice.h:4461 [inline]
- dev_direct_xmit+0x419/0x630 net/core/dev.c:4079
- packet_direct_xmit+0x1a9/0x250 net/packet/af_packet.c:240
- packet_snd net/packet/af_packet.c:2966 [inline]
- packet_sendmsg+0x260d/0x6220 net/packet/af_packet.c:2991
- sock_sendmsg_nosec net/socket.c:639 [inline]
- sock_sendmsg+0xd7/0x130 net/socket.c:659
- __sys_sendto+0x262/0x380 net/socket.c:1985
- __do_sys_sendto net/socket.c:1997 [inline]
- __se_sys_sendto net/socket.c:1993 [inline]
- __x64_sys_sendto+0xe1/0x1a0 net/socket.c:1993
- do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x442639
-Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 5b 10 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007ffc13549e08 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000442639
-RDX: 000000000000000e RSI: 0000000020000080 RDI: 0000000000000003
-RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 0000000000403bb0 R14: 0000000000000000 R15: 0000000000000000
-
-Allocated by task 9389:
- save_stack+0x23/0x90 mm/kasan/common.c:72
- set_track mm/kasan/common.c:80 [inline]
- __kasan_kmalloc mm/kasan/common.c:513 [inline]
- __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:486
- kasan_kmalloc+0x9/0x10 mm/kasan/common.c:527
- __do_kmalloc mm/slab.c:3656 [inline]
- __kmalloc+0x163/0x770 mm/slab.c:3665
- kmalloc include/linux/slab.h:561 [inline]
- tomoyo_realpath_from_path+0xc5/0x660 security/tomoyo/realpath.c:252
- tomoyo_get_realpath security/tomoyo/file.c:151 [inline]
- tomoyo_path_perm+0x230/0x430 security/tomoyo/file.c:822
- tomoyo_inode_getattr+0x1d/0x30 security/tomoyo/tomoyo.c:129
- security_inode_getattr+0xf2/0x150 security/security.c:1222
- vfs_getattr+0x25/0x70 fs/stat.c:115
- vfs_statx_fd+0x71/0xc0 fs/stat.c:145
- vfs_fstat include/linux/fs.h:3265 [inline]
- __do_sys_newfstat+0x9b/0x120 fs/stat.c:378
- __se_sys_newfstat fs/stat.c:375 [inline]
- __x64_sys_newfstat+0x54/0x80 fs/stat.c:375
- do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 9389:
- save_stack+0x23/0x90 mm/kasan/common.c:72
- set_track mm/kasan/common.c:80 [inline]
- kasan_set_free_info mm/kasan/common.c:335 [inline]
- __kasan_slab_free+0x102/0x150 mm/kasan/common.c:474
- kasan_slab_free+0xe/0x10 mm/kasan/common.c:483
- __cache_free mm/slab.c:3426 [inline]
- kfree+0x10a/0x2c0 mm/slab.c:3757
- tomoyo_realpath_from_path+0x1a7/0x660 security/tomoyo/realpath.c:289
- tomoyo_get_realpath security/tomoyo/file.c:151 [inline]
- tomoyo_path_perm+0x230/0x430 security/tomoyo/file.c:822
- tomoyo_inode_getattr+0x1d/0x30 security/tomoyo/tomoyo.c:129
- security_inode_getattr+0xf2/0x150 security/security.c:1222
- vfs_getattr+0x25/0x70 fs/stat.c:115
- vfs_statx_fd+0x71/0xc0 fs/stat.c:145
- vfs_fstat include/linux/fs.h:3265 [inline]
- __do_sys_newfstat+0x9b/0x120 fs/stat.c:378
- __se_sys_newfstat fs/stat.c:375 [inline]
- __x64_sys_newfstat+0x54/0x80 fs/stat.c:375
- do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-The buggy address belongs to the object at ffff8880a4932000
- which belongs to the cache kmalloc-4k of size 4096
-The buggy address is located 1025 bytes inside of
- 4096-byte region [ffff8880a4932000, ffff8880a4933000)
-The buggy address belongs to the page:
-page:ffffea0002924c80 refcount:1 mapcount:0 mapping:ffff8880aa402000 index:0x0 compound_mapcount: 0
-raw: 00fffe0000010200 ffffea0002846208 ffffea00028f3888 ffff8880aa402000
-raw: 0000000000000000 ffff8880a4932000 0000000100000001 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff8880a4932300: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff8880a4932380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
->ffff8880a4932400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                   ^
- ffff8880a4932480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff8880a4932500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-
-Fixes: b863ceb7ddce ("[NET]: Add macvlan driver")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macvlan.c    |    2 +-
- include/linux/if_ether.h |    8 ++++++++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ drivers/s390/block/dasd_eckd.c | 9 +++++----
+ drivers/s390/cio/device_ops.c  | 2 +-
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -263,7 +263,7 @@ static void macvlan_broadcast(struct sk_
- 			      struct net_device *src,
- 			      enum macvlan_mode mode)
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index f89f9d02e788..108fb1c77e1d 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1135,7 +1135,8 @@ static u32 get_fcx_max_data(struct dasd_device *device)
  {
--	const struct ethhdr *eth = eth_hdr(skb);
-+	const struct ethhdr *eth = skb_eth_hdr(skb);
- 	const struct macvlan_dev *vlan;
- 	struct sk_buff *nskb;
- 	unsigned int i;
---- a/include/linux/if_ether.h
-+++ b/include/linux/if_ether.h
-@@ -28,6 +28,14 @@ static inline struct ethhdr *eth_hdr(con
- 	return (struct ethhdr *)skb_mac_header(skb);
- }
+ 	struct dasd_eckd_private *private = device->private;
+ 	int fcx_in_css, fcx_in_gneq, fcx_in_features;
+-	int tpm, mdc;
++	unsigned int mdc;
++	int tpm;
  
-+/* Prefer this version in TX path, instead of
-+ * skb_reset_mac_header() + eth_hdr()
-+ */
-+static inline struct ethhdr *skb_eth_hdr(const struct sk_buff *skb)
-+{
-+	return (struct ethhdr *)skb->data;
-+}
-+
- static inline struct ethhdr *inner_eth_hdr(const struct sk_buff *skb)
+ 	if (dasd_nofcx)
+ 		return 0;
+@@ -1149,7 +1150,7 @@ static u32 get_fcx_max_data(struct dasd_device *device)
+ 		return 0;
+ 
+ 	mdc = ccw_device_get_mdc(device->cdev, 0);
+-	if (mdc < 0) {
++	if (mdc == 0) {
+ 		dev_warn(&device->cdev->dev, "Detecting the maximum supported data size for zHPF requests failed\n");
+ 		return 0;
+ 	} else {
+@@ -1160,12 +1161,12 @@ static u32 get_fcx_max_data(struct dasd_device *device)
+ static int verify_fcx_max_data(struct dasd_device *device, __u8 lpm)
  {
- 	return (struct ethhdr *)skb_inner_mac_header(skb);
+ 	struct dasd_eckd_private *private = device->private;
+-	int mdc;
++	unsigned int mdc;
+ 	u32 fcx_max_data;
+ 
+ 	if (private->fcx_max_data) {
+ 		mdc = ccw_device_get_mdc(device->cdev, lpm);
+-		if ((mdc < 0)) {
++		if (mdc == 0) {
+ 			dev_warn(&device->cdev->dev,
+ 				 "Detecting the maximum data size for zHPF "
+ 				 "requests failed (rc=%d) for a new path %x\n",
+diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
+index 4435ae0b3027..f0cae1973f78 100644
+--- a/drivers/s390/cio/device_ops.c
++++ b/drivers/s390/cio/device_ops.c
+@@ -624,7 +624,7 @@ EXPORT_SYMBOL(ccw_device_tm_start_timeout);
+  * @mask: mask of paths to use
+  *
+  * Return the number of 64K-bytes blocks all paths at least support
+- * for a transport command. Return values <= 0 indicate failures.
++ * for a transport command. Return value 0 indicates failure.
+  */
+ int ccw_device_get_mdc(struct ccw_device *cdev, u8 mask)
+ {
+-- 
+2.20.1
+
 
 
