@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65980137EE5
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:15:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8764137FF8
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:25:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730189AbgAKKOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:14:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55494 "EHLO mail.kernel.org"
+        id S1730742AbgAKKYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:24:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730052AbgAKKOy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:14:54 -0500
+        id S1730986AbgAKKYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:24:33 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA5B920848;
-        Sat, 11 Jan 2020 10:14:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5018620848;
+        Sat, 11 Jan 2020 10:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737692;
-        bh=3P/hjoYRsu8bPZf0I3NrWjo6PZBfPtY27pUf3fjXgP0=;
+        s=default; t=1578738273;
+        bh=HbygnXdb9+pNdvN77EkwyXpwBKKeuf9al5hOlxjXzp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJeb99LUN2QQLTX+xMOPB8qUwY/fhPVWmj8sY1f4ip1QghRD7Zg5e+DgI8sm41lgj
-         D2uCy5HuP2WW+XCKNRzijLG3CmygznKwL4K3tvk357/oZ5Kb8NAkatq8rd6IS4B7fT
-         r8+qF6P0nB9qBlTMOLG0dvN8U05P95N3MNjKmR7k=
+        b=g8wFL2J4VHLMIJycHytcWyhVTH36Kzwb50DS65hhuLLx7+8DpUZL3AcPBCsPgSxlW
+         I9pABoHqbwX7uGGNP0tXjT+scnDQHX2pefC9ESOShk44bNJ82VdVBywi+CFTcRKAX+
+         MLJPRHBy9rinPGS4i+5nt4qWjSyzsv0n8JiCiSzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Marco Elver <elver@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/84] locking/spinlock/debug: Fix various data races
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 064/165] arm64: dts: ls1028a: fix reboot node
 Date:   Sat, 11 Jan 2020 10:49:43 +0100
-Message-Id: <20200111094846.434896299@linuxfoundation.org>
+Message-Id: <20200111094926.483420867@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,143 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 1a365e822372ba24c9da0822bc583894f6f3d821 ]
+[ Upstream commit 3f0fb37b22b460e3dec62bee284932881574acb9 ]
 
-This fixes various data races in spinlock_debug. By testing with KCSAN,
-it is observable that the console gets spammed with data races reports,
-suggesting these are extremely frequent.
+The reboot register isn't located inside the DCFG controller, but in its
+own RST controller. Fix it.
 
-Example data race report:
-
-  read to 0xffff8ab24f403c48 of 4 bytes by task 221 on cpu 2:
-   debug_spin_lock_before kernel/locking/spinlock_debug.c:85 [inline]
-   do_raw_spin_lock+0x9b/0x210 kernel/locking/spinlock_debug.c:112
-   __raw_spin_lock include/linux/spinlock_api_smp.h:143 [inline]
-   _raw_spin_lock+0x39/0x40 kernel/locking/spinlock.c:151
-   spin_lock include/linux/spinlock.h:338 [inline]
-   get_partial_node.isra.0.part.0+0x32/0x2f0 mm/slub.c:1873
-   get_partial_node mm/slub.c:1870 [inline]
-  <snip>
-
-  write to 0xffff8ab24f403c48 of 4 bytes by task 167 on cpu 3:
-   debug_spin_unlock kernel/locking/spinlock_debug.c:103 [inline]
-   do_raw_spin_unlock+0xc9/0x1a0 kernel/locking/spinlock_debug.c:138
-   __raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:159 [inline]
-   _raw_spin_unlock_irqrestore+0x2d/0x50 kernel/locking/spinlock.c:191
-   spin_unlock_irqrestore include/linux/spinlock.h:393 [inline]
-   free_debug_processing+0x1b3/0x210 mm/slub.c:1214
-   __slab_free+0x292/0x400 mm/slub.c:2864
-  <snip>
-
-As a side-effect, with KCSAN, this eventually locks up the console, most
-likely due to deadlock, e.g. .. -> printk lock -> spinlock_debug ->
-KCSAN detects data race -> kcsan_print_report() -> printk lock ->
-deadlock.
-
-This fix will 1) avoid the data races, and 2) allow using lock debugging
-together with KCSAN.
-
-Reported-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Marco Elver <elver@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Link: https://lkml.kernel.org/r/20191120155715.28089-1-elver@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 8897f3255c9c ("arm64: dts: Add support for NXP LS1028A SoC")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/spinlock_debug.c | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/locking/spinlock_debug.c b/kernel/locking/spinlock_debug.c
-index 9aa0fccd5d43..03595c29c566 100644
---- a/kernel/locking/spinlock_debug.c
-+++ b/kernel/locking/spinlock_debug.c
-@@ -51,19 +51,19 @@ EXPORT_SYMBOL(__rwlock_init);
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+index c7dae9ec17da..bb960fe2bb64 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+@@ -102,7 +102,7 @@
  
- static void spin_dump(raw_spinlock_t *lock, const char *msg)
- {
--	struct task_struct *owner = NULL;
-+	struct task_struct *owner = READ_ONCE(lock->owner);
+ 	reboot {
+ 		compatible ="syscon-reboot";
+-		regmap = <&dcfg>;
++		regmap = <&rst>;
+ 		offset = <0xb0>;
+ 		mask = <0x02>;
+ 	};
+@@ -161,6 +161,12 @@
+ 			big-endian;
+ 		};
  
--	if (lock->owner && lock->owner != SPINLOCK_OWNER_INIT)
--		owner = lock->owner;
-+	if (owner == SPINLOCK_OWNER_INIT)
-+		owner = NULL;
- 	printk(KERN_EMERG "BUG: spinlock %s on CPU#%d, %s/%d\n",
- 		msg, raw_smp_processor_id(),
- 		current->comm, task_pid_nr(current));
- 	printk(KERN_EMERG " lock: %pS, .magic: %08x, .owner: %s/%d, "
- 			".owner_cpu: %d\n",
--		lock, lock->magic,
-+		lock, READ_ONCE(lock->magic),
- 		owner ? owner->comm : "<none>",
- 		owner ? task_pid_nr(owner) : -1,
--		lock->owner_cpu);
-+		READ_ONCE(lock->owner_cpu));
- 	dump_stack();
- }
- 
-@@ -80,16 +80,16 @@ static void spin_bug(raw_spinlock_t *lock, const char *msg)
- static inline void
- debug_spin_lock_before(raw_spinlock_t *lock)
- {
--	SPIN_BUG_ON(lock->magic != SPINLOCK_MAGIC, lock, "bad magic");
--	SPIN_BUG_ON(lock->owner == current, lock, "recursion");
--	SPIN_BUG_ON(lock->owner_cpu == raw_smp_processor_id(),
-+	SPIN_BUG_ON(READ_ONCE(lock->magic) != SPINLOCK_MAGIC, lock, "bad magic");
-+	SPIN_BUG_ON(READ_ONCE(lock->owner) == current, lock, "recursion");
-+	SPIN_BUG_ON(READ_ONCE(lock->owner_cpu) == raw_smp_processor_id(),
- 							lock, "cpu recursion");
- }
- 
- static inline void debug_spin_lock_after(raw_spinlock_t *lock)
- {
--	lock->owner_cpu = raw_smp_processor_id();
--	lock->owner = current;
-+	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
-+	WRITE_ONCE(lock->owner, current);
- }
- 
- static inline void debug_spin_unlock(raw_spinlock_t *lock)
-@@ -99,8 +99,8 @@ static inline void debug_spin_unlock(raw_spinlock_t *lock)
- 	SPIN_BUG_ON(lock->owner != current, lock, "wrong owner");
- 	SPIN_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
- 							lock, "wrong CPU");
--	lock->owner = SPINLOCK_OWNER_INIT;
--	lock->owner_cpu = -1;
-+	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
-+	WRITE_ONCE(lock->owner_cpu, -1);
- }
- 
- /*
-@@ -183,8 +183,8 @@ static inline void debug_write_lock_before(rwlock_t *lock)
- 
- static inline void debug_write_lock_after(rwlock_t *lock)
- {
--	lock->owner_cpu = raw_smp_processor_id();
--	lock->owner = current;
-+	WRITE_ONCE(lock->owner_cpu, raw_smp_processor_id());
-+	WRITE_ONCE(lock->owner, current);
- }
- 
- static inline void debug_write_unlock(rwlock_t *lock)
-@@ -193,8 +193,8 @@ static inline void debug_write_unlock(rwlock_t *lock)
- 	RWLOCK_BUG_ON(lock->owner != current, lock, "wrong owner");
- 	RWLOCK_BUG_ON(lock->owner_cpu != raw_smp_processor_id(),
- 							lock, "wrong CPU");
--	lock->owner = SPINLOCK_OWNER_INIT;
--	lock->owner_cpu = -1;
-+	WRITE_ONCE(lock->owner, SPINLOCK_OWNER_INIT);
-+	WRITE_ONCE(lock->owner_cpu, -1);
- }
- 
- void do_raw_write_lock(rwlock_t *lock)
++		rst: syscon@1e60000 {
++			compatible = "syscon";
++			reg = <0x0 0x1e60000 0x0 0x10000>;
++			little-endian;
++		};
++
+ 		scfg: syscon@1fc0000 {
+ 			compatible = "fsl,ls1028a-scfg", "syscon";
+ 			reg = <0x0 0x1fc0000 0x0 0x10000>;
 -- 
 2.20.1
 
