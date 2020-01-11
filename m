@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB37137E93
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:11:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0983137F4C
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729150AbgAKKLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:11:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48830 "EHLO mail.kernel.org"
+        id S1730537AbgAKKSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:18:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728949AbgAKKLb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:11:31 -0500
+        id S1730536AbgAKKSK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:18:10 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CAC3206DA;
-        Sat, 11 Jan 2020 10:11:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E43B3205F4;
+        Sat, 11 Jan 2020 10:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737490;
-        bh=fCECriq/Dd3+bz+oZpgg4nTsESff8bNif0i8bUc+1Qg=;
+        s=default; t=1578737890;
+        bh=rf5GDJhkL4Q+n2tNS9aPD1oxmd0VP+VQAoMT3YDuq3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vIQEcF+CypMMRPse2oHldA3FPwNHy7af9DgmLFegQgUxTXIx4JGLM/v581Rxe5BUs
-         SaxslZPV5Ygd3tIDJptK0qIqe6czqGWEoLMRHXiPg3vDiuFWvB0KS5eKiXFZANtMd8
-         p+EL+xA7nWmddviFVik66J4fKIwAZIO88eBRDu2o=
+        b=lHJfCI1IBKVNOXufUZju6cLSjDtPsd/zu+XPfii00ttbo/9vX7kIT+rHHGWHCHN0w
+         T+zGFf5RKMfqcuPJ0qpwyIJKdCqwkFRpgM4wm4j36Ni2JeoP3tY+dFHGdoHNKyO8W3
+         KiLDNgHA8ZLG9k7/C2EgBmRh5XNnOZC4ajscojXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathieu Malaterre <malat@debian.org>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Subject: [PATCH 4.14 47/62] mmc: block: propagate correct returned value in mmc_rpmb_ioctl
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 52/84] s390/purgatory: do not build purgatory with kcov, kasan and friends
 Date:   Sat, 11 Jan 2020 10:50:29 +0100
-Message-Id: <20200111094851.671908152@linuxfoundation.org>
+Message-Id: <20200111094906.046347851@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Malaterre <malat@debian.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-commit b25b750df99bcba29317d3f9d9f93c4ec58890e6 upstream.
+[ Upstream commit c23587c92f6e3260fe3b82bb75b38aa2553b9468 ]
 
-In commit 97548575bef3 ("mmc: block: Convert RPMB to a character device") a
-new function `mmc_rpmb_ioctl` was added. The final return is simply
-returning a value of `0` instead of propagating the correct return code.
+the purgatory must not rely on functions from the "old" kernel,
+so we must disable kasan and friends. We also need to have a
+separate copy of string.c as the default does not build memcmp
+with KASAN.
 
-Discovered during a compilation with W=1, silence the following gcc warning
-
-drivers/mmc/core/block.c:2470:6: warning: variable ‘ret’ set but not used
-[-Wunused-but-set-variable]
-
-Signed-off-by: Mathieu Malaterre <malat@debian.org>
-Reviewed-by: Shawn Lin <shawn.lin@rock-chips.com>
-Fixes: 97548575bef3 ("mmc: block: Convert RPMB to a character device")
-Cc: stable@vger.kernel.org # v4.15+
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/block.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/purgatory/Makefile | 6 ++++--
+ arch/s390/purgatory/string.c | 3 +++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+ create mode 100644 arch/s390/purgatory/string.c
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -2305,7 +2305,7 @@ static long mmc_rpmb_ioctl(struct file *
- 		break;
- 	}
+diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+index ce6a3f75065b..fdccb7689bb9 100644
+--- a/arch/s390/purgatory/Makefile
++++ b/arch/s390/purgatory/Makefile
+@@ -13,8 +13,10 @@ $(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
+ $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
+ 	$(call if_changed_rule,as_o_S)
  
--	return 0;
-+	return ret;
- }
+-$(obj)/string.o: $(srctree)/arch/s390/lib/string.c FORCE
+-	$(call if_changed_rule,cc_o_c)
++KCOV_INSTRUMENT := n
++GCOV_PROFILE := n
++UBSAN_SANITIZE := n
++KASAN_SANITIZE := n
  
- #ifdef CONFIG_COMPAT
+ LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib
+ LDFLAGS_purgatory.ro += -z nodefaultlib
+diff --git a/arch/s390/purgatory/string.c b/arch/s390/purgatory/string.c
+new file mode 100644
+index 000000000000..c98c22a72db7
+--- /dev/null
++++ b/arch/s390/purgatory/string.c
+@@ -0,0 +1,3 @@
++// SPDX-License-Identifier: GPL-2.0
++#define __HAVE_ARCH_MEMCMP	/* arch function */
++#include "../lib/string.c"
+-- 
+2.20.1
+
 
 
