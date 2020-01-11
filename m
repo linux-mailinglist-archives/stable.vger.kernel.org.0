@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6C79137FFC
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:25:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9EFF137DC1
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:01:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731006AbgAKKYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:24:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54164 "EHLO mail.kernel.org"
+        id S1728998AbgAKKA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:00:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731011AbgAKKYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:24:43 -0500
+        id S1729064AbgAKKA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:00:56 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C4EE205F4;
-        Sat, 11 Jan 2020 10:24:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C905D2082E;
+        Sat, 11 Jan 2020 10:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738283;
-        bh=QOJ/HmWlN3DYN2V57jaXJYrIYWXf794kujwxayZsLBw=;
+        s=default; t=1578736855;
+        bh=Lo5Smt3oSA4bNODey7pLbvX9J2tYch+fFpPESUk3xPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MjUZplPeTunXdYqURAg8l6BJfUeplbYT/n9O7UJpauo8vvd/fNpEsb0a6+wVm3NzH
-         IYbgjqK+CDnyU+RFchoaSvCpZ3YYRvJZHsPvG1a9Ss604UA7cVkbM+UAGKVwTJKKxi
-         O5/AHuz7UVapfGJ4THdA04Ajw+KL3xAi0Vqj9BUE=
+        b=XcSPHlNuxNMhlaJbvkHVTv4HA8r96hTLROr7m51swRf7LlzZbkjwlX6g3bI0cqYO2
+         iZPJjf8DCU9U7Kj7E7ggp4aG+JtqRqVJS75Md24uTu1E+8EqI5HUVKuzzdifvH2ig0
+         Uz2LpqA0nkKEUGdzbdScuxS4rVDCdMGt/RpsSQLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 050/165] ARM: omap2plus_defconfig: Add back DEBUG_FS
-Date:   Sat, 11 Jan 2020 10:49:29 +0100
-Message-Id: <20200111094925.603072836@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.9 37/91] Bluetooth: btusb: fix PM leak in error case of setup
+Date:   Sat, 11 Jan 2020 10:49:30 +0100
+Message-Id: <20200111094858.986634438@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit e00b59d30506dc9ef91caf2f3c584209cc9f61e4 ]
+commit 3d44a6fd0775e6215e836423e27f8eedf8c871ea upstream.
 
-Commit 0e4a459f56c3 ("tracing: Remove unnecessary DEBUG_FS dependency")
-removed select for DEBUG_FS but we still need it at least for enabling
-deeper idle states for the SoCs.
+If setup() fails a reference for runtime PM has already
+been taken. Proper use of the error handling in btusb_open()is needed.
+You cannot just return.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ace31982585a3 ("Bluetooth: btusb: Add setup callback for chip init on USB")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/configs/omap2plus_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/bluetooth/btusb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/configs/omap2plus_defconfig b/arch/arm/configs/omap2plus_defconfig
-index 40d7f1a4fc45..4ec69fb8a698 100644
---- a/arch/arm/configs/omap2plus_defconfig
-+++ b/arch/arm/configs/omap2plus_defconfig
-@@ -552,5 +552,6 @@ CONFIG_DEBUG_INFO=y
- CONFIG_DEBUG_INFO_SPLIT=y
- CONFIG_DEBUG_INFO_DWARF4=y
- CONFIG_MAGIC_SYSRQ=y
-+CONFIG_DEBUG_FS=y
- CONFIG_SCHEDSTATS=y
- # CONFIG_DEBUG_BUGVERBOSE is not set
--- 
-2.20.1
-
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -1069,7 +1069,7 @@ static int btusb_open(struct hci_dev *hd
+ 	if (data->setup_on_usb) {
+ 		err = data->setup_on_usb(hdev);
+ 		if (err < 0)
+-			return err;
++			goto setup_fail;
+ 	}
+ 
+ 	data->intf->needs_remote_wakeup = 1;
+@@ -1101,6 +1101,7 @@ done:
+ 
+ failed:
+ 	clear_bit(BTUSB_INTR_RUNNING, &data->flags);
++setup_fail:
+ 	usb_autopm_put_interface(data->intf);
+ 	return err;
+ }
 
 
