@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19A58137E8B
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:11:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D811137F43
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:17:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729772AbgAKKLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:11:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48140 "EHLO mail.kernel.org"
+        id S1729849AbgAKKRx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:17:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729229AbgAKKLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:11:07 -0500
+        id S1730389AbgAKKRw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:17:52 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F4F52082E;
-        Sat, 11 Jan 2020 10:11:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BA6E205F4;
+        Sat, 11 Jan 2020 10:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737466;
-        bh=K3ZYX2xSV0uBedTimKd4fvHeqgyRf3zsNP02esuUiXM=;
+        s=default; t=1578737871;
+        bh=Ip+IIaODiV15hv7n3lJiWcwHnWf8dWUAsBCm4PN9k/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4VCUBtajVQfyH6FNX5ztvJVqY3MiWf4jkc+bZOlQMcUmUeYcUJagI0tM5wWum4g7
-         12S6337vEqZzj5Pr794woi/xSaT11uBYRUYg51NxRVOlD00S3ITN4WnpUEKupx2yA4
-         HNh+0oimtXMfHZ8VAmOSAdIS/NzFdLd0bKtmplDk=
+        b=EF58uxVtlkqVSI1P82l3uiM+DD0FKsYF5G+O8aM5ss42M/GzzJlyAmcurRQJhujIi
+         NbzNiE/oD7eNpXrAweiPaNFvm4ij0XZBviiP6BxtctjA0Zoovn1XhFBbr9pQubxwQw
+         QFQ/FGryfmOW93saQgfetdQxe5CvJ/PZ4oQwiQd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Subject: [PATCH 4.14 43/62] mmc: block: Convert RPMB to a character device
+        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 48/84] net: stmmac: Do not accept invalid MTU values
 Date:   Sat, 11 Jan 2020 10:50:25 +0100
-Message-Id: <20200111094849.703111421@linuxfoundation.org>
+Message-Id: <20200111094904.531150484@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,610 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-commit 97548575bef38abd06690a5a6f6816200c7e77f7 upstream.
+[ Upstream commit eaf4fac478077d4ed57cbca2c044c4b58a96bd98 ]
 
-The RPMB partition on the eMMC devices is a special area used
-for storing cryptographically safe information signed by a
-special secret key. To write and read records from this special
-area, authentication is needed.
+The maximum MTU value is determined by the maximum size of TX FIFO so
+that a full packet can fit in the FIFO. Add a check for this in the MTU
+change callback.
 
-The RPMB area is *only* and *exclusively* accessed using
-ioctl():s from userspace. It is not really a block device,
-as blocks cannot be read or written from the device, also
-the signed chunks that can be stored on the RPMB are actually
-256 bytes, not 512 making a block device a real bad fit.
+Also check if provided and rounded MTU does not passes the maximum limit
+of 16K.
 
-Currently the RPMB partition spawns a separate block device
-named /dev/mmcblkNrpmb for each device with an RPMB partition,
-including the creation of a block queue with its own kernel
-thread and all overhead associated with this. On the Ux500
-HREFv60 platform, for example, the two eMMCs means that two
-block queues with separate threads are created for no use
-whatsoever.
+Changes from v2:
+- Align MTU before checking if its valid
 
-I have concluded that this block device design for RPMB is
-actually pretty wrong. The RPMB area should have been designed
-to be accessed from /dev/mmcblkN directly, using ioctl()s on
-the main block device. It is however way too late to change
-that, since userspace expects to open an RPMB device in
-/dev/mmcblkNrpmb and we cannot break userspace.
-
-This patch tries to amend the situation using the following
-strategy:
-
-- Stop creating a block device for the RPMB partition/area
-
-- Instead create a custom, dynamic character device with
-  the same name.
-
-- Make this new character device support exactly the same
-  set of ioctl()s as the old block device.
-
-- Wrap the requests back to the same ioctl() handlers, but
-  issue them on the block queue of the main partition/area,
-  i.e. /dev/mmcblkN
-
-We need to create a special "rpmb" bus type in order to get
-udev and/or busybox hot/coldplug to instantiate the device
-node properly.
-
-Before the patch, this appears in 'ps aux':
-
-101 root       0:00 [mmcqd/2rpmb]
-123 root       0:00 [mmcqd/3rpmb]
-
-After applying the patch these surplus block queue threads
-are gone, but RPMB is as usable as ever using the userspace
-MMC tools, such as 'mmc rpmb read-counter'.
-
-We get instead those dynamice devices in /dev:
-
-brw-rw----    1 root     root      179,   0 Jan  1  2000 mmcblk0
-brw-rw----    1 root     root      179,   1 Jan  1  2000 mmcblk0p1
-brw-rw----    1 root     root      179,   2 Jan  1  2000 mmcblk0p2
-brw-rw----    1 root     root      179,   5 Jan  1  2000 mmcblk0p5
-brw-rw----    1 root     root      179,   8 Jan  1  2000 mmcblk2
-brw-rw----    1 root     root      179,  16 Jan  1  2000 mmcblk2boot0
-brw-rw----    1 root     root      179,  24 Jan  1  2000 mmcblk2boot1
-crw-rw----    1 root     root      248,   0 Jan  1  2000 mmcblk2rpmb
-brw-rw----    1 root     root      179,  32 Jan  1  2000 mmcblk3
-brw-rw----    1 root     root      179,  40 Jan  1  2000 mmcblk3boot0
-brw-rw----    1 root     root      179,  48 Jan  1  2000 mmcblk3boot1
-brw-rw----    1 root     root      179,  33 Jan  1  2000 mmcblk3p1
-crw-rw----    1 root     root      248,   1 Jan  1  2000 mmcblk3rpmb
-
-Notice the (248,0) and (248,1) character devices for RPMB.
-
-Cc: Tomas Winkler <tomas.winkler@intel.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 7ac6653a085b ("stmmac: Move the STMicroelectronics driver")
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/block.c |  283 +++++++++++++++++++++++++++++++++++++++++++----
- drivers/mmc/core/queue.h |    2 
- 2 files changed, 263 insertions(+), 22 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -28,6 +28,7 @@
- #include <linux/hdreg.h>
- #include <linux/kdev_t.h>
- #include <linux/blkdev.h>
-+#include <linux/cdev.h>
- #include <linux/mutex.h>
- #include <linux/scatterlist.h>
- #include <linux/string_helpers.h>
-@@ -87,6 +88,7 @@ static int max_devices;
- #define MAX_DEVICES 256
- 
- static DEFINE_IDA(mmc_blk_ida);
-+static DEFINE_IDA(mmc_rpmb_ida);
- 
- /*
-  * There is one mmc_blk_data per slot.
-@@ -97,6 +99,7 @@ struct mmc_blk_data {
- 	struct gendisk	*disk;
- 	struct mmc_queue queue;
- 	struct list_head part;
-+	struct list_head rpmbs;
- 
- 	unsigned int	flags;
- #define MMC_BLK_CMD23	(1 << 0)	/* Can do SET_BLOCK_COUNT for multiblock */
-@@ -126,6 +129,32 @@ struct mmc_blk_data {
- 	struct dentry *ext_csd_dentry;
- };
- 
-+/* Device type for RPMB character devices */
-+static dev_t mmc_rpmb_devt;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 014fe93ed2d8..ec37ef7521e9 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3604,12 +3604,24 @@ static void stmmac_set_rx_mode(struct net_device *dev)
+ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
++	int txfifosz = priv->plat->tx_fifo_size;
 +
-+/* Bus type for RPMB character devices */
-+static struct bus_type mmc_rpmb_bus_type = {
-+	.name = "mmc_rpmb",
-+};
++	if (txfifosz == 0)
++		txfifosz = priv->dma_cap.tx_fifo_size;
 +
-+/**
-+ * struct mmc_rpmb_data - special RPMB device type for these areas
-+ * @dev: the device for the RPMB area
-+ * @chrdev: character device for the RPMB area
-+ * @id: unique device ID number
-+ * @part_index: partition index (0 on first)
-+ * @md: parent MMC block device
-+ * @node: list item, so we can put this device on a list
-+ */
-+struct mmc_rpmb_data {
-+	struct device dev;
-+	struct cdev chrdev;
-+	int id;
-+	unsigned int part_index;
-+	struct mmc_blk_data *md;
-+	struct list_head node;
-+};
-+
- static DEFINE_MUTEX(open_lock);
++	txfifosz /= priv->plat->tx_queues_to_use;
  
- module_param(perdev_minors, int, 0444);
-@@ -309,6 +338,7 @@ struct mmc_blk_ioc_data {
- 	struct mmc_ioc_cmd ic;
- 	unsigned char *buf;
- 	u64 buf_bytes;
-+	struct mmc_rpmb_data *rpmb;
- };
- 
- static struct mmc_blk_ioc_data *mmc_blk_ioctl_copy_from_user(
-@@ -447,14 +477,25 @@ static int __mmc_blk_ioctl_cmd(struct mm
- 	struct mmc_request mrq = {};
- 	struct scatterlist sg;
- 	int err;
--	bool is_rpmb = false;
-+	unsigned int target_part;
- 	u32 status = 0;
- 
- 	if (!card || !md || !idata)
- 		return -EINVAL;
- 
--	if (md->area_type & MMC_BLK_DATA_AREA_RPMB)
--		is_rpmb = true;
-+	/*
-+	 * The RPMB accesses comes in from the character device, so we
-+	 * need to target these explicitly. Else we just target the
-+	 * partition type for the block device the ioctl() was issued
-+	 * on.
-+	 */
-+	if (idata->rpmb) {
-+		/* Support multiple RPMB partitions */
-+		target_part = idata->rpmb->part_index;
-+		target_part |= EXT_CSD_PART_CONFIG_ACC_RPMB;
-+	} else {
-+		target_part = md->part_type;
-+	}
- 
- 	cmd.opcode = idata->ic.opcode;
- 	cmd.arg = idata->ic.arg;
-@@ -498,7 +539,7 @@ static int __mmc_blk_ioctl_cmd(struct mm
- 
- 	mrq.cmd = &cmd;
- 
--	err = mmc_blk_part_switch(card, md->part_type);
-+	err = mmc_blk_part_switch(card, target_part);
- 	if (err)
- 		return err;
- 
-@@ -508,7 +549,7 @@ static int __mmc_blk_ioctl_cmd(struct mm
- 			return err;
+ 	if (netif_running(dev)) {
+ 		netdev_err(priv->dev, "must be stopped to change its MTU\n");
+ 		return -EBUSY;
  	}
  
--	if (is_rpmb) {
-+	if (idata->rpmb) {
- 		err = mmc_set_blockcount(card, data.blocks,
- 			idata->ic.write_flag & (1 << 31));
- 		if (err)
-@@ -566,7 +607,7 @@ static int __mmc_blk_ioctl_cmd(struct mm
++	new_mtu = STMMAC_ALIGN(new_mtu);
++
++	/* If condition true, FIFO is too small or MTU too large */
++	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
++		return -EINVAL;
++
+ 	dev->mtu = new_mtu;
  
- 	memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
- 
--	if (is_rpmb) {
-+	if (idata->rpmb) {
- 		/*
- 		 * Ensure RPMB command has completed by polling CMD13
- 		 * "Send Status".
-@@ -582,7 +623,8 @@ static int __mmc_blk_ioctl_cmd(struct mm
- }
- 
- static int mmc_blk_ioctl_cmd(struct mmc_blk_data *md,
--			     struct mmc_ioc_cmd __user *ic_ptr)
-+			     struct mmc_ioc_cmd __user *ic_ptr,
-+			     struct mmc_rpmb_data *rpmb)
- {
- 	struct mmc_blk_ioc_data *idata;
- 	struct mmc_blk_ioc_data *idatas[1];
-@@ -594,6 +636,8 @@ static int mmc_blk_ioctl_cmd(struct mmc_
- 	idata = mmc_blk_ioctl_copy_from_user(ic_ptr);
- 	if (IS_ERR(idata))
- 		return PTR_ERR(idata);
-+	/* This will be NULL on non-RPMB ioctl():s */
-+	idata->rpmb = rpmb;
- 
- 	card = md->queue.card;
- 	if (IS_ERR(card)) {
-@@ -613,7 +657,8 @@ static int mmc_blk_ioctl_cmd(struct mmc_
- 		goto cmd_done;
- 	}
- 	idatas[0] = idata;
--	req_to_mmc_queue_req(req)->drv_op = MMC_DRV_OP_IOCTL;
-+	req_to_mmc_queue_req(req)->drv_op =
-+		rpmb ? MMC_DRV_OP_IOCTL_RPMB : MMC_DRV_OP_IOCTL;
- 	req_to_mmc_queue_req(req)->drv_op_data = idatas;
- 	req_to_mmc_queue_req(req)->ioc_count = 1;
- 	blk_execute_rq(mq->queue, NULL, req, 0);
-@@ -628,7 +673,8 @@ cmd_done:
- }
- 
- static int mmc_blk_ioctl_multi_cmd(struct mmc_blk_data *md,
--				   struct mmc_ioc_multi_cmd __user *user)
-+				   struct mmc_ioc_multi_cmd __user *user,
-+				   struct mmc_rpmb_data *rpmb)
- {
- 	struct mmc_blk_ioc_data **idata = NULL;
- 	struct mmc_ioc_cmd __user *cmds = user->cmds;
-@@ -659,6 +705,8 @@ static int mmc_blk_ioctl_multi_cmd(struc
- 			num_of_cmds = i;
- 			goto cmd_err;
- 		}
-+		/* This will be NULL on non-RPMB ioctl():s */
-+		idata[i]->rpmb = rpmb;
- 	}
- 
- 	card = md->queue.card;
-@@ -679,7 +727,8 @@ static int mmc_blk_ioctl_multi_cmd(struc
- 		err = PTR_ERR(req);
- 		goto cmd_err;
- 	}
--	req_to_mmc_queue_req(req)->drv_op = MMC_DRV_OP_IOCTL;
-+	req_to_mmc_queue_req(req)->drv_op =
-+		rpmb ? MMC_DRV_OP_IOCTL_RPMB : MMC_DRV_OP_IOCTL;
- 	req_to_mmc_queue_req(req)->drv_op_data = idata;
- 	req_to_mmc_queue_req(req)->ioc_count = num_of_cmds;
- 	blk_execute_rq(mq->queue, NULL, req, 0);
-@@ -727,7 +776,8 @@ static int mmc_blk_ioctl(struct block_de
- 		if (!md)
- 			return -EINVAL;
- 		ret = mmc_blk_ioctl_cmd(md,
--					(struct mmc_ioc_cmd __user *)arg);
-+					(struct mmc_ioc_cmd __user *)arg,
-+					NULL);
- 		mmc_blk_put(md);
- 		return ret;
- 	case MMC_IOC_MULTI_CMD:
-@@ -738,7 +788,8 @@ static int mmc_blk_ioctl(struct block_de
- 		if (!md)
- 			return -EINVAL;
- 		ret = mmc_blk_ioctl_multi_cmd(md,
--					(struct mmc_ioc_multi_cmd __user *)arg);
-+					(struct mmc_ioc_multi_cmd __user *)arg,
-+					NULL);
- 		mmc_blk_put(md);
- 		return ret;
- 	default:
-@@ -1210,17 +1261,19 @@ static void mmc_blk_issue_drv_op(struct
- 	struct mmc_queue_req *mq_rq;
- 	struct mmc_card *card = mq->card;
- 	struct mmc_blk_data *md = mq->blkdata;
--	struct mmc_blk_data *main_md = dev_get_drvdata(&card->dev);
- 	struct mmc_blk_ioc_data **idata;
-+	bool rpmb_ioctl;
- 	u8 **ext_csd;
- 	u32 status;
- 	int ret;
- 	int i;
- 
- 	mq_rq = req_to_mmc_queue_req(req);
-+	rpmb_ioctl = (mq_rq->drv_op == MMC_DRV_OP_IOCTL_RPMB);
- 
- 	switch (mq_rq->drv_op) {
- 	case MMC_DRV_OP_IOCTL:
-+	case MMC_DRV_OP_IOCTL_RPMB:
- 		idata = mq_rq->drv_op_data;
- 		for (i = 0, ret = 0; i < mq_rq->ioc_count; i++) {
- 			ret = __mmc_blk_ioctl_cmd(card, md, idata[i]);
-@@ -1228,8 +1281,8 @@ static void mmc_blk_issue_drv_op(struct
- 				break;
- 		}
- 		/* Always switch back to main area after RPMB access */
--		if (md->area_type & MMC_BLK_DATA_AREA_RPMB)
--			mmc_blk_part_switch(card, main_md->part_type);
-+		if (rpmb_ioctl)
-+			mmc_blk_part_switch(card, 0);
- 		break;
- 	case MMC_DRV_OP_BOOT_WP:
- 		ret = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BOOT_WP,
-@@ -2114,6 +2167,7 @@ static struct mmc_blk_data *mmc_blk_allo
- 
- 	spin_lock_init(&md->lock);
- 	INIT_LIST_HEAD(&md->part);
-+	INIT_LIST_HEAD(&md->rpmbs);
- 	md->usage = 1;
- 
- 	ret = mmc_init_queue(&md->queue, card, &md->lock, subname);
-@@ -2232,6 +2286,154 @@ static int mmc_blk_alloc_part(struct mmc
- 	return 0;
- }
- 
-+/**
-+ * mmc_rpmb_ioctl() - ioctl handler for the RPMB chardev
-+ * @filp: the character device file
-+ * @cmd: the ioctl() command
-+ * @arg: the argument from userspace
-+ *
-+ * This will essentially just redirect the ioctl()s coming in over to
-+ * the main block device spawning the RPMB character device.
-+ */
-+static long mmc_rpmb_ioctl(struct file *filp, unsigned int cmd,
-+			   unsigned long arg)
-+{
-+	struct mmc_rpmb_data *rpmb = filp->private_data;
-+	int ret;
-+
-+	switch (cmd) {
-+	case MMC_IOC_CMD:
-+		ret = mmc_blk_ioctl_cmd(rpmb->md,
-+					(struct mmc_ioc_cmd __user *)arg,
-+					rpmb);
-+		break;
-+	case MMC_IOC_MULTI_CMD:
-+		ret = mmc_blk_ioctl_multi_cmd(rpmb->md,
-+					(struct mmc_ioc_multi_cmd __user *)arg,
-+					rpmb);
-+		break;
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_COMPAT
-+static long mmc_rpmb_ioctl_compat(struct file *filp, unsigned int cmd,
-+			      unsigned long arg)
-+{
-+	return mmc_rpmb_ioctl(filp, cmd, (unsigned long)compat_ptr(arg));
-+}
-+#endif
-+
-+static int mmc_rpmb_chrdev_open(struct inode *inode, struct file *filp)
-+{
-+	struct mmc_rpmb_data *rpmb = container_of(inode->i_cdev,
-+						  struct mmc_rpmb_data, chrdev);
-+
-+	get_device(&rpmb->dev);
-+	filp->private_data = rpmb;
-+	mutex_lock(&open_lock);
-+	rpmb->md->usage++;
-+	mutex_unlock(&open_lock);
-+
-+	return nonseekable_open(inode, filp);
-+}
-+
-+static int mmc_rpmb_chrdev_release(struct inode *inode, struct file *filp)
-+{
-+	struct mmc_rpmb_data *rpmb = container_of(inode->i_cdev,
-+						  struct mmc_rpmb_data, chrdev);
-+
-+	put_device(&rpmb->dev);
-+	mutex_lock(&open_lock);
-+	rpmb->md->usage--;
-+	mutex_unlock(&open_lock);
-+
-+	return 0;
-+}
-+
-+static const struct file_operations mmc_rpmb_fileops = {
-+	.release = mmc_rpmb_chrdev_release,
-+	.open = mmc_rpmb_chrdev_open,
-+	.owner = THIS_MODULE,
-+	.llseek = no_llseek,
-+	.unlocked_ioctl = mmc_rpmb_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl = mmc_rpmb_ioctl_compat,
-+#endif
-+};
-+
-+
-+static int mmc_blk_alloc_rpmb_part(struct mmc_card *card,
-+				   struct mmc_blk_data *md,
-+				   unsigned int part_index,
-+				   sector_t size,
-+				   const char *subname)
-+{
-+	int devidx, ret;
-+	char rpmb_name[DISK_NAME_LEN];
-+	char cap_str[10];
-+	struct mmc_rpmb_data *rpmb;
-+
-+	/* This creates the minor number for the RPMB char device */
-+	devidx = ida_simple_get(&mmc_rpmb_ida, 0, max_devices, GFP_KERNEL);
-+	if (devidx < 0)
-+		return devidx;
-+
-+	rpmb = kzalloc(sizeof(*rpmb), GFP_KERNEL);
-+	if (!rpmb)
-+		return -ENOMEM;
-+
-+	snprintf(rpmb_name, sizeof(rpmb_name),
-+		 "mmcblk%u%s", card->host->index, subname ? subname : "");
-+
-+	rpmb->id = devidx;
-+	rpmb->part_index = part_index;
-+	rpmb->dev.init_name = rpmb_name;
-+	rpmb->dev.bus = &mmc_rpmb_bus_type;
-+	rpmb->dev.devt = MKDEV(MAJOR(mmc_rpmb_devt), rpmb->id);
-+	rpmb->dev.parent = &card->dev;
-+	device_initialize(&rpmb->dev);
-+	dev_set_drvdata(&rpmb->dev, rpmb);
-+	rpmb->md = md;
-+
-+	cdev_init(&rpmb->chrdev, &mmc_rpmb_fileops);
-+	rpmb->chrdev.owner = THIS_MODULE;
-+	ret = cdev_device_add(&rpmb->chrdev, &rpmb->dev);
-+	if (ret) {
-+		pr_err("%s: could not add character device\n", rpmb_name);
-+		goto out_remove_ida;
-+	}
-+
-+	list_add(&rpmb->node, &md->rpmbs);
-+
-+	string_get_size((u64)size, 512, STRING_UNITS_2,
-+			cap_str, sizeof(cap_str));
-+
-+	pr_info("%s: %s %s partition %u %s, chardev (%d:%d)\n",
-+		rpmb_name, mmc_card_id(card),
-+		mmc_card_name(card), EXT_CSD_PART_CONFIG_ACC_RPMB, cap_str,
-+		MAJOR(mmc_rpmb_devt), rpmb->id);
-+
-+	return 0;
-+
-+out_remove_ida:
-+	ida_simple_remove(&mmc_rpmb_ida, rpmb->id);
-+	kfree(rpmb);
-+	return ret;
-+}
-+
-+static void mmc_blk_remove_rpmb_part(struct mmc_rpmb_data *rpmb)
-+{
-+	cdev_device_del(&rpmb->chrdev, &rpmb->dev);
-+	device_del(&rpmb->dev);
-+	ida_simple_remove(&mmc_rpmb_ida, rpmb->id);
-+	kfree(rpmb);
-+}
-+
- /* MMC Physical partitions consist of two boot partitions and
-  * up to four general purpose partitions.
-  * For each partition enabled in EXT_CSD a block device will be allocatedi
-@@ -2240,13 +2442,26 @@ static int mmc_blk_alloc_part(struct mmc
- 
- static int mmc_blk_alloc_parts(struct mmc_card *card, struct mmc_blk_data *md)
- {
--	int idx, ret = 0;
-+	int idx, ret;
- 
- 	if (!mmc_card_mmc(card))
- 		return 0;
- 
- 	for (idx = 0; idx < card->nr_parts; idx++) {
--		if (card->part[idx].size) {
-+		if (card->part[idx].area_type & MMC_BLK_DATA_AREA_RPMB) {
-+			/*
-+			 * RPMB partitions does not provide block access, they
-+			 * are only accessed using ioctl():s. Thus create
-+			 * special RPMB block devices that do not have a
-+			 * backing block queue for these.
-+			 */
-+			ret = mmc_blk_alloc_rpmb_part(card, md,
-+				card->part[idx].part_cfg,
-+				card->part[idx].size >> 9,
-+				card->part[idx].name);
-+			if (ret)
-+				return ret;
-+		} else if (card->part[idx].size) {
- 			ret = mmc_blk_alloc_part(card, md,
- 				card->part[idx].part_cfg,
- 				card->part[idx].size >> 9,
-@@ -2258,7 +2473,7 @@ static int mmc_blk_alloc_parts(struct mm
- 		}
- 	}
- 
--	return ret;
-+	return 0;
- }
- 
- static void mmc_blk_remove_req(struct mmc_blk_data *md)
-@@ -2295,7 +2510,15 @@ static void mmc_blk_remove_parts(struct
- {
- 	struct list_head *pos, *q;
- 	struct mmc_blk_data *part_md;
-+	struct mmc_rpmb_data *rpmb;
- 
-+	/* Remove RPMB partitions */
-+	list_for_each_safe(pos, q, &md->rpmbs) {
-+		rpmb = list_entry(pos, struct mmc_rpmb_data, node);
-+		list_del(pos);
-+		mmc_blk_remove_rpmb_part(rpmb);
-+	}
-+	/* Remove block partitions */
- 	list_for_each_safe(pos, q, &md->part) {
- 		part_md = list_entry(pos, struct mmc_blk_data, part);
- 		list_del(pos);
-@@ -2649,6 +2872,17 @@ static int __init mmc_blk_init(void)
- {
- 	int res;
- 
-+	res  = bus_register(&mmc_rpmb_bus_type);
-+	if (res < 0) {
-+		pr_err("mmcblk: could not register RPMB bus type\n");
-+		return res;
-+	}
-+	res = alloc_chrdev_region(&mmc_rpmb_devt, 0, MAX_DEVICES, "rpmb");
-+	if (res < 0) {
-+		pr_err("mmcblk: failed to allocate rpmb chrdev region\n");
-+		goto out_bus_unreg;
-+	}
-+
- 	if (perdev_minors != CONFIG_MMC_BLOCK_MINORS)
- 		pr_info("mmcblk: using %d minors per device\n", perdev_minors);
- 
-@@ -2656,16 +2890,20 @@ static int __init mmc_blk_init(void)
- 
- 	res = register_blkdev(MMC_BLOCK_MAJOR, "mmc");
- 	if (res)
--		goto out;
-+		goto out_chrdev_unreg;
- 
- 	res = mmc_register_driver(&mmc_driver);
- 	if (res)
--		goto out2;
-+		goto out_blkdev_unreg;
- 
- 	return 0;
-- out2:
-+
-+out_blkdev_unreg:
- 	unregister_blkdev(MMC_BLOCK_MAJOR, "mmc");
-- out:
-+out_chrdev_unreg:
-+	unregister_chrdev_region(mmc_rpmb_devt, MAX_DEVICES);
-+out_bus_unreg:
-+	bus_unregister(&mmc_rpmb_bus_type);
- 	return res;
- }
- 
-@@ -2673,6 +2911,7 @@ static void __exit mmc_blk_exit(void)
- {
- 	mmc_unregister_driver(&mmc_driver);
- 	unregister_blkdev(MMC_BLOCK_MAJOR, "mmc");
-+	unregister_chrdev_region(mmc_rpmb_devt, MAX_DEVICES);
- }
- 
- module_init(mmc_blk_init);
---- a/drivers/mmc/core/queue.h
-+++ b/drivers/mmc/core/queue.h
-@@ -36,12 +36,14 @@ struct mmc_blk_request {
- /**
-  * enum mmc_drv_op - enumerates the operations in the mmc_queue_req
-  * @MMC_DRV_OP_IOCTL: ioctl operation
-+ * @MMC_DRV_OP_IOCTL_RPMB: RPMB-oriented ioctl operation
-  * @MMC_DRV_OP_BOOT_WP: write protect boot partitions
-  * @MMC_DRV_OP_GET_CARD_STATUS: get card status
-  * @MMC_DRV_OP_GET_EXT_CSD: get the EXT CSD from an eMMC card
-  */
- enum mmc_drv_op {
- 	MMC_DRV_OP_IOCTL,
-+	MMC_DRV_OP_IOCTL_RPMB,
- 	MMC_DRV_OP_BOOT_WP,
- 	MMC_DRV_OP_GET_CARD_STATUS,
- 	MMC_DRV_OP_GET_EXT_CSD,
+ 	netdev_update_features(dev);
+-- 
+2.20.1
+
 
 
