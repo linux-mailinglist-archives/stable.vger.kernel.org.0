@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C43137F07
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:16:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADD67137EA4
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:12:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729995AbgAKKQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:16:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58530 "EHLO mail.kernel.org"
+        id S1729725AbgAKKMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:12:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729748AbgAKKQD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:16:03 -0500
+        id S1729723AbgAKKML (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:12:11 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA53E205F4;
-        Sat, 11 Jan 2020 10:16:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CF8A2077C;
+        Sat, 11 Jan 2020 10:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737762;
-        bh=h4EI1R3/8ZqYDlUaddUK89wFS87jVB3ZVX4EeXuri7Y=;
+        s=default; t=1578737530;
+        bh=EP0SVqUmoXOJjI5gUdiDY42SwakQbyZ3BQJ4zWKpusA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWOWgZhRCx2TE51Y0vHx8Bgl4Gyis36zXVD32Tx/01OALwAWKxMeaixsWgH+QDV4N
-         PWiBFlrEyPUpjt619jSmjhfNJP0h4YpPEglMPl82EHjdmNjAFowl9VAhIkXW0XbHQN
-         2oU9XliFKXBomeCPblM7KmhwU1AfD3D1/b67sMcQ=
+        b=D+sI6Fg/gHHCQfIMte1WTzFxz8aQ8OVyZC/ExJrczJ9ARuzqYKtSvRgEgDWnEnEEp
+         13dmHLUtwcf906AgErf0gKUDXiNy4pv1Ei1o/3vvF0OyjPuRBOZzgQu+EUoC7UnSBL
+         pEaste/caao/3re1MRRDs08eTRxU5ZE4cmLCyeN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/84] parisc: add missing __init annotation
-Date:   Sat, 11 Jan 2020 10:50:17 +0100
-Message-Id: <20200111094901.521679707@linuxfoundation.org>
+        stable@vger.kernel.org, Bob Liu <bob.liu@oracle.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 36/62] block: fix memleak when __blk_rq_map_user_iov() is failed
+Date:   Sat, 11 Jan 2020 10:50:18 +0100
+Message-Id: <20200111094846.643194077@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@stackframe.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit aeea5eae4fd54e94d820ed17ea3b238160be723e ]
+[ Upstream commit 3b7995a98ad76da5597b488fa84aa5a56d43b608 ]
 
-compilation failed with:
+When I doing fuzzy test, get the memleak report:
 
-MODPOST vmlinux.o
-WARNING: vmlinux.o(.text.unlikely+0xa0c): Section mismatch in reference from the function walk_lower_bus() to the function .init.text:walk_native_bus()
-The function walk_lower_bus() references
-the function __init walk_native_bus().
-This is often because walk_lower_bus lacks a __init
-annotation or the annotation of walk_native_bus is wrong.
+BUG: memory leak
+unreferenced object 0xffff88837af80000 (size 4096):
+  comm "memleak", pid 3557, jiffies 4294817681 (age 112.499s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    20 00 00 00 10 01 00 00 00 00 00 00 01 00 00 00   ...............
+  backtrace:
+    [<000000001c894df8>] bio_alloc_bioset+0x393/0x590
+    [<000000008b139a3c>] bio_copy_user_iov+0x300/0xcd0
+    [<00000000a998bd8c>] blk_rq_map_user_iov+0x2f1/0x5f0
+    [<000000005ceb7f05>] blk_rq_map_user+0xf2/0x160
+    [<000000006454da92>] sg_common_write.isra.21+0x1094/0x1870
+    [<00000000064bb208>] sg_write.part.25+0x5d9/0x950
+    [<000000004fc670f6>] sg_write+0x5f/0x8c
+    [<00000000b0d05c7b>] __vfs_write+0x7c/0x100
+    [<000000008e177714>] vfs_write+0x1c3/0x500
+    [<0000000087d23f34>] ksys_write+0xf9/0x200
+    [<000000002c8dbc9d>] do_syscall_64+0x9f/0x4f0
+    [<00000000678d8e9a>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-FATAL: modpost: Section mismatches detected.
-Set CONFIG_SECTION_MISMATCH_WARN_ONLY=y to allow them.
-make[2]: *** [/home/svens/linux/parisc-linux/src/scripts/Makefile.modpost:64: __modpost] Error 1
-make[1]: *** [/home/svens/linux/parisc-linux/src/Makefile:1077: vmlinux] Error 2
-make[1]: Leaving directory '/home/svens/linux/parisc-linux/build'
-make: *** [Makefile:179: sub-make] Error 2
+If __blk_rq_map_user_iov() is failed in blk_rq_map_user_iov(),
+the bio(s) which is allocated before this failing will leak. The
+refcount of the bio(s) is init to 1 and increased to 2 by calling
+bio_get(), but __blk_rq_unmap_user() only decrease it to 1, so
+the bio cannot be freed. Fix it by calling blk_rq_unmap_user().
 
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reviewed-by: Bob Liu <bob.liu@oracle.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/drivers.c | 2 +-
+ block/blk-map.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/parisc/kernel/drivers.c b/arch/parisc/kernel/drivers.c
-index 5eb979d04b90..a1a5e4c59e6b 100644
---- a/arch/parisc/kernel/drivers.c
-+++ b/arch/parisc/kernel/drivers.c
-@@ -789,7 +789,7 @@ EXPORT_SYMBOL(device_to_hwpath);
- static void walk_native_bus(unsigned long io_io_low, unsigned long io_io_high,
-                             struct device *parent);
+diff --git a/block/blk-map.c b/block/blk-map.c
+index e31be14da8ea..f72a3af689b6 100644
+--- a/block/blk-map.c
++++ b/block/blk-map.c
+@@ -152,7 +152,7 @@ int blk_rq_map_user_iov(struct request_queue *q, struct request *rq,
+ 	return 0;
  
--static void walk_lower_bus(struct parisc_device *dev)
-+static void __init walk_lower_bus(struct parisc_device *dev)
- {
- 	unsigned long io_io_low, io_io_high;
- 
+ unmap_rq:
+-	__blk_rq_unmap_user(bio);
++	blk_rq_unmap_user(bio);
+ fail:
+ 	rq->bio = NULL;
+ 	return ret;
 -- 
 2.20.1
 
