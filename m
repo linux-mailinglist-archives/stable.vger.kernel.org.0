@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F36138096
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EC21138098
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:32:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731425AbgAKKb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:31:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44294 "EHLO mail.kernel.org"
+        id S1731462AbgAKKcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:32:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731427AbgAKKb6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:31:58 -0500
+        id S1731427AbgAKKcC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:32:02 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74DB420842;
-        Sat, 11 Jan 2020 10:31:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC29620842;
+        Sat, 11 Jan 2020 10:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738717;
-        bh=gs6niWsiyKYIyoG5cMYwvOv5JwvBTByi4ayzcbFI9C8=;
+        s=default; t=1578738721;
+        bh=KF6s90fhz/KsObcRNEnzvmzeZe4j2swFpwvf26/OvPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QHV+zvl3xTHHgVkKsZTAaRntbn7d/GJZYIOxtM00MWx2tXfO4jTMzY+aIy/yLmv2/
-         QcP/NgxcmmfsXT22BPCzLluWAOEo0ZcoDIflNT2H4AvmFLQBMPZ+nt/rPcJXrSHT4t
-         wG0tJw+eMM6QRXCkDA5DziupBq5GEuMoUTrDIaT0=
+        b=1juBh8avk2lIfwi4fxcss/G7eq/zXjMh4DLp8wgUREXRlAjbITepDtCN8An/dy/zJ
+         auKtun92Wu02q6ZIjSvoT6RnnqTUiJL88Qk2WAqX/vz3s7E1+L+ljdIdk5wDQT8oQ7
+         O3PjVZteMnL81axNsPAepATZaLRZ/Of+53YyeHIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Chris Healy <cphealy@gmail.com>,
+        stable@vger.kernel.org, Chris Healy <Chris.Healy@zii.aero>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 140/165] net: dsa: mv88e6xxx: Preserve priority when setting CPU port.
-Date:   Sat, 11 Jan 2020 10:50:59 +0100
-Message-Id: <20200111094938.112808898@linuxfoundation.org>
+Subject: [PATCH 5.4 141/165] net: freescale: fec: Fix ethtool -d runtime PM
+Date:   Sat, 11 Jan 2020 10:51:00 +0100
+Message-Id: <20200111094938.376646085@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -46,48 +46,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit d8dc2c9676e614ef62f54a155b50076888c8a29a ]
+[ Upstream commit c72a0bc0aa19f49160330a65ab77184b5b7d131b ]
 
-The 6390 family uses an extended register to set the port connected to
-the CPU. The lower 5 bits indicate the port, the upper three bits are
-the priority of the frames as they pass through the switch, what
-egress queue they should use, etc. Since frames being set to the CPU
-are typically management frames, BPDU, IGMP, ARP, etc set the priority
-to 7, the reset default, and the highest.
+In order to dump the FECs registers the clocks have to be ticking,
+otherwise a data abort occurs.  Add calls to runtime PM so they are
+enabled and later disabled.
 
-Fixes: 33641994a676 ("net: dsa: mv88e6xxx: Monitor and Management tables")
+Fixes: e8fcfcd5684a ("net: fec: optimize the clock management to save power")
+Reported-by: Chris Healy <Chris.Healy@zii.aero>
 Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Tested-by: Chris Healy <cphealy@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/global1.c |    5 +++++
- drivers/net/dsa/mv88e6xxx/global1.h |    1 +
- 2 files changed, 6 insertions(+)
+ drivers/net/ethernet/freescale/fec_main.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/net/dsa/mv88e6xxx/global1.c
-+++ b/drivers/net/dsa/mv88e6xxx/global1.c
-@@ -332,6 +332,11 @@ int mv88e6390_g1_set_cpu_port(struct mv8
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -2199,8 +2199,14 @@ static void fec_enet_get_regs(struct net
  {
- 	u16 ptr = MV88E6390_G1_MONITOR_MGMT_CTL_PTR_CPU_DEST;
- 
-+	/* Use the default high priority for management frames sent to
-+	 * the CPU.
-+	 */
-+	port |= MV88E6390_G1_MONITOR_MGMT_CTL_PTR_CPU_DEST_MGMTPRI;
+ 	struct fec_enet_private *fep = netdev_priv(ndev);
+ 	u32 __iomem *theregs = (u32 __iomem *)fep->hwp;
++	struct device *dev = &fep->pdev->dev;
+ 	u32 *buf = (u32 *)regbuf;
+ 	u32 i, off;
++	int ret;
 +
- 	return mv88e6390_g1_monitor_write(chip, ptr, port);
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0)
++		return;
+ 
+ 	regs->version = fec_enet_register_version;
+ 
+@@ -2216,6 +2222,9 @@ static void fec_enet_get_regs(struct net
+ 		off >>= 2;
+ 		buf[off] = readl(&theregs[off]);
+ 	}
++
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
  }
  
---- a/drivers/net/dsa/mv88e6xxx/global1.h
-+++ b/drivers/net/dsa/mv88e6xxx/global1.h
-@@ -210,6 +210,7 @@
- #define MV88E6390_G1_MONITOR_MGMT_CTL_PTR_INGRESS_DEST		0x2000
- #define MV88E6390_G1_MONITOR_MGMT_CTL_PTR_EGRESS_DEST		0x2100
- #define MV88E6390_G1_MONITOR_MGMT_CTL_PTR_CPU_DEST		0x3000
-+#define MV88E6390_G1_MONITOR_MGMT_CTL_PTR_CPU_DEST_MGMTPRI	0x00e0
- #define MV88E6390_G1_MONITOR_MGMT_CTL_DATA_MASK			0x00ff
- 
- /* Offset 0x1C: Global Control 2 */
+ static int fec_enet_get_ts_info(struct net_device *ndev,
 
 
