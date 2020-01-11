@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC810137F65
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:19:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D30A6137F67
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729290AbgAKKTb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:19:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39174 "EHLO mail.kernel.org"
+        id S1729341AbgAKKTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:19:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728998AbgAKKTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:19:31 -0500
+        id S1728998AbgAKKTf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:19:35 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE2B520848;
-        Sat, 11 Jan 2020 10:19:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E00020848;
+        Sat, 11 Jan 2020 10:19:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737970;
-        bh=RjKyGyHDjMtfKLgwT6hxJC6iWMeiB35CNzj+g9jOmzY=;
+        s=default; t=1578737974;
+        bh=Szw6ys8LnCVnsTt06jMBo0T+8Yvamx5Z4vLGAz8NCt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hv+qoPhMTsY+2KyqFo/BeNBzlQ65GKzLSLkZUAplIrUJ+13ZpBYFPSC/6HpE3pxjf
-         V6rVAfi1RXHpq5r5G3nMzGc1tYpuPQj1QLZCJwCMpGFABnw+T/qHatUU6o2MDRWhkE
-         AGFCycip40ySkmy/EXoaqwBAzVLPJogrHd/eFTZc=
+        b=jCYOXvM1+3X3ictfo9v3r/kvl22ACWcF3K+fhnGIrq0bAuDDOYDrbrieIPgo8As79
+         8FKNyYuIrz9meG1RTN6tvO4IkmicDilOCg2r4+o2baYQtzJ7eXHKwjKzYTpMbjbf5e
+         koZa4O3rG3FiIriJ/xrbwJq/6jyEU5IkxYNO+DsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>
-Subject: [PATCH 4.19 81/84] usb: dwc3: gadget: Fix request complete check
-Date:   Sat, 11 Jan 2020 10:50:58 +0100
-Message-Id: <20200111094912.700962986@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.19 82/84] USB: core: fix check for duplicate endpoints
+Date:   Sat, 11 Jan 2020 10:50:59 +0100
+Message-Id: <20200111094912.820076630@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
 References: <20200111094845.328046411@linuxfoundation.org>
@@ -42,39 +43,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit ea0d762775e20aaff7909a3f0866ff1688b1c618 upstream.
+commit 3e4f8e21c4f27bcf30a48486b9dcc269512b79ff upstream.
 
-We can only check for IN direction if the request had completed. For OUT
-direction, it's perfectly fine that the host can send less than the
-setup length. Let's return true fall all cases of OUT direction.
+Amend the endpoint-descriptor sanity checks to detect all duplicate
+endpoint addresses in a configuration.
 
-Fixes: e0c42ce590fe ("usb: dwc3: gadget: simplify IOC handling")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Link: https://lore.kernel.org/r/ac5a3593a94fdaa3d92e6352356b5f7a01ccdc7c.1576291140.git.thinhn@synopsys.com
+Commit 0a8fd1346254 ("USB: fix problems with duplicate endpoint
+addresses") added a check for duplicate endpoint addresses within a
+single alternate setting, but did not look for duplicate addresses in
+other interfaces.
+
+The current check would also not detect all duplicate addresses when one
+endpoint is as a (bi-directional) control endpoint.
+
+This specifically avoids overwriting the endpoint entries in struct
+usb_device when enabling a duplicate endpoint, something which could
+potentially lead to crashes or leaks, for example, when endpoints are
+later disabled.
+
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20191219161016.6695-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/core/config.c |   70 ++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 58 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2271,6 +2271,13 @@ static int dwc3_gadget_ep_reclaim_trb_li
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -203,9 +203,58 @@ static const unsigned short super_speed_
+ 	[USB_ENDPOINT_XFER_INT] = 1024,
+ };
  
- static bool dwc3_gadget_ep_request_completed(struct dwc3_request *req)
- {
-+	/*
-+	 * For OUT direction, host may send less than the setup
-+	 * length. Return true for all OUT requests.
-+	 */
-+	if (!req->direction)
+-static int usb_parse_endpoint(struct device *ddev, int cfgno, int inum,
+-    int asnum, struct usb_host_interface *ifp, int num_ep,
+-    unsigned char *buffer, int size)
++static bool endpoint_is_duplicate(struct usb_endpoint_descriptor *e1,
++		struct usb_endpoint_descriptor *e2)
++{
++	if (e1->bEndpointAddress == e2->bEndpointAddress)
 +		return true;
 +
- 	return req->request.actual == req->request.length;
- }
++	if (usb_endpoint_xfer_control(e1) || usb_endpoint_xfer_control(e2)) {
++		if (usb_endpoint_num(e1) == usb_endpoint_num(e2))
++			return true;
++	}
++
++	return false;
++}
++
++/*
++ * Check for duplicate endpoint addresses in other interfaces and in the
++ * altsetting currently being parsed.
++ */
++static bool config_endpoint_is_duplicate(struct usb_host_config *config,
++		int inum, int asnum, struct usb_endpoint_descriptor *d)
++{
++	struct usb_endpoint_descriptor *epd;
++	struct usb_interface_cache *intfc;
++	struct usb_host_interface *alt;
++	int i, j, k;
++
++	for (i = 0; i < config->desc.bNumInterfaces; ++i) {
++		intfc = config->intf_cache[i];
++
++		for (j = 0; j < intfc->num_altsetting; ++j) {
++			alt = &intfc->altsetting[j];
++
++			if (alt->desc.bInterfaceNumber == inum &&
++					alt->desc.bAlternateSetting != asnum)
++				continue;
++
++			for (k = 0; k < alt->desc.bNumEndpoints; ++k) {
++				epd = &alt->endpoint[k].desc;
++
++				if (endpoint_is_duplicate(epd, d))
++					return true;
++			}
++		}
++	}
++
++	return false;
++}
++
++static int usb_parse_endpoint(struct device *ddev, int cfgno,
++		struct usb_host_config *config, int inum, int asnum,
++		struct usb_host_interface *ifp, int num_ep,
++		unsigned char *buffer, int size)
+ {
+ 	unsigned char *buffer0 = buffer;
+ 	struct usb_endpoint_descriptor *d;
+@@ -242,13 +291,10 @@ static int usb_parse_endpoint(struct dev
+ 		goto skip_to_next_endpoint_or_interface_descriptor;
  
+ 	/* Check for duplicate endpoint addresses */
+-	for (i = 0; i < ifp->desc.bNumEndpoints; ++i) {
+-		if (ifp->endpoint[i].desc.bEndpointAddress ==
+-		    d->bEndpointAddress) {
+-			dev_warn(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
+-			    cfgno, inum, asnum, d->bEndpointAddress);
+-			goto skip_to_next_endpoint_or_interface_descriptor;
+-		}
++	if (config_endpoint_is_duplicate(config, inum, asnum, d)) {
++		dev_warn(ddev, "config %d interface %d altsetting %d has a duplicate endpoint with address 0x%X, skipping\n",
++				cfgno, inum, asnum, d->bEndpointAddress);
++		goto skip_to_next_endpoint_or_interface_descriptor;
+ 	}
+ 
+ 	endpoint = &ifp->endpoint[ifp->desc.bNumEndpoints];
+@@ -522,8 +568,8 @@ static int usb_parse_interface(struct de
+ 		if (((struct usb_descriptor_header *) buffer)->bDescriptorType
+ 		     == USB_DT_INTERFACE)
+ 			break;
+-		retval = usb_parse_endpoint(ddev, cfgno, inum, asnum, alt,
+-		    num_ep, buffer, size);
++		retval = usb_parse_endpoint(ddev, cfgno, config, inum, asnum,
++				alt, num_ep, buffer, size);
+ 		if (retval < 0)
+ 			return retval;
+ 		++n;
 
 
