@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DB9F137EA6
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A784137E3B
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:07:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729865AbgAKKMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:12:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50084 "EHLO mail.kernel.org"
+        id S1729248AbgAKKG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:06:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729606AbgAKKMR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:12:17 -0500
+        id S1728978AbgAKKG3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:06:29 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DBE12082E;
-        Sat, 11 Jan 2020 10:12:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5F782084D;
+        Sat, 11 Jan 2020 10:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737536;
-        bh=sy2Calgp9CwR7ibuyNniX63iyl5RxqkfSkdj2DtD6cM=;
+        s=default; t=1578737188;
+        bh=FKtjPjpbJUTRIEuCuS8N8QyyKbF/721xh1pmYRGZG20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MV5jkeJwS8sfxU7RCEryNkAnOJEldZI6apkXx5VoVrZ9q4zfpdH8bAbqTLGLlQYsV
-         5OHxy8MuuEq6ihY56UFBNJ+IZbmbm0i7Mz1Jo1s+IOPAhd4WKSz9PSNi89PQmi2YoZ
-         VOJ3ld/8EJJ8+bFUcvLa5I/xNW+qxMqFsg3pvwR8=
+        b=KerqzRkBxdQnOSMseDFjat4M6jC0GpF2W7vl4bT5WnBMeOWTaerlBnbtb9ciSrc1l
+         /VtIwktp6v/IpFWPci2bGXmCTpmvhqQu7bm1eMdqjwJ/MDyWz2b9Vo9BziQY95n6Al
+         DxyKiVpek7b4RDVYnqsyccMM4tlHF+7q3xI3ZVtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 37/62] parisc: Fix compiler warnings in debug_core.c
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 86/91] vxlan: fix tos value before xmit
 Date:   Sat, 11 Jan 2020 10:50:19 +0100
-Message-Id: <20200111094847.139609489@linuxfoundation.org>
+Message-Id: <20200111094912.922519274@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
-References: <20200111094837.425430968@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 75cf9797006a3a9f29a3a25c1febd6842a4a9eb2 ]
+[ Upstream commit 71130f29979c7c7956b040673e6b9d5643003176 ]
 
-Fix this compiler warning:
-kernel/debug/debug_core.c: In function ‘kgdb_cpu_enter’:
-arch/parisc/include/asm/cmpxchg.h:48:3: warning: value computed is not used [-Wunused-value]
-   48 |  ((__typeof__(*(ptr)))__xchg((unsigned long)(x), (ptr), sizeof(*(ptr))))
-arch/parisc/include/asm/atomic.h:78:30: note: in expansion of macro ‘xchg’
-   78 | #define atomic_xchg(v, new) (xchg(&((v)->counter), new))
-      |                              ^~~~
-kernel/debug/debug_core.c:596:4: note: in expansion of macro ‘atomic_xchg’
-  596 |    atomic_xchg(&kgdb_active, cpu);
-      |    ^~~~~~~~~~~
+Before ip_tunnel_ecn_encap() and udp_tunnel_xmit_skb() we should filter
+tos value by RT_TOS() instead of using config tos directly.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+vxlan_get_route() would filter the tos to fl4.flowi4_tos but we didn't
+return it back, as geneve_get_v4_rt() did. So we have to use RT_TOS()
+directly in function ip_tunnel_ecn_encap().
+
+Fixes: 206aaafcd279 ("VXLAN: Use IP Tunnels tunnel ENC encap API")
+Fixes: 1400615d64cf ("vxlan: allow setting ipv6 traffic class")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/cmpxchg.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/vxlan.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/parisc/include/asm/cmpxchg.h b/arch/parisc/include/asm/cmpxchg.h
-index f627c37dad9c..ab5c215cf46c 100644
---- a/arch/parisc/include/asm/cmpxchg.h
-+++ b/arch/parisc/include/asm/cmpxchg.h
-@@ -44,8 +44,14 @@ __xchg(unsigned long x, __volatile__ void *ptr, int size)
- **		if (((unsigned long)p & 0xf) == 0)
- **			return __ldcw(p);
- */
--#define xchg(ptr, x) \
--	((__typeof__(*(ptr)))__xchg((unsigned long)(x), (ptr), sizeof(*(ptr))))
-+#define xchg(ptr, x)							\
-+({									\
-+	__typeof__(*(ptr)) __ret;					\
-+	__typeof__(*(ptr)) _x_ = (x);					\
-+	__ret = (__typeof__(*(ptr)))					\
-+		__xchg((unsigned long)_x_, (ptr), sizeof(*(ptr)));	\
-+	__ret;								\
-+})
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -2104,7 +2104,7 @@ static void vxlan_xmit_one(struct sk_buf
+ 		else if (info->key.tun_flags & TUNNEL_DONT_FRAGMENT)
+ 			df = htons(IP_DF);
  
- /* bug catcher for when unsupported size is used - won't link */
- extern void __cmpxchg_called_with_bad_pointer(void);
--- 
-2.20.1
-
+-		tos = ip_tunnel_ecn_encap(tos, old_iph, skb);
++		tos = ip_tunnel_ecn_encap(RT_TOS(tos), old_iph, skb);
+ 		ttl = ttl ? : ip4_dst_hoplimit(&rt->dst);
+ 		err = vxlan_build_skb(skb, &rt->dst, sizeof(struct iphdr),
+ 				      vni, md, flags, udp_sum);
+@@ -2163,7 +2163,7 @@ static void vxlan_xmit_one(struct sk_buf
+ 		if (!info)
+ 			udp_sum = !(flags & VXLAN_F_UDP_ZERO_CSUM6_TX);
+ 
+-		tos = ip_tunnel_ecn_encap(tos, old_iph, skb);
++		tos = ip_tunnel_ecn_encap(RT_TOS(tos), old_iph, skb);
+ 		ttl = ttl ? : ip6_dst_hoplimit(ndst);
+ 		skb_scrub_packet(skb, xnet);
+ 		err = vxlan_build_skb(skb, ndst, sizeof(struct ipv6hdr),
 
 
