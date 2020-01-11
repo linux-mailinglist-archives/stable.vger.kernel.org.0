@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB45137F2D
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:17:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 955D4137E99
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:11:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730184AbgAKKRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:17:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33110 "EHLO mail.kernel.org"
+        id S1729837AbgAKKLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:11:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729229AbgAKKRH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:17:07 -0500
+        id S1729839AbgAKKLv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:11:51 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD6F2205F4;
-        Sat, 11 Jan 2020 10:17:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B84C6206DA;
+        Sat, 11 Jan 2020 10:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737825;
-        bh=voZJ6+sHQ+7u32dzQueGKsDn3hu12ZM7e5NFUxeERmQ=;
+        s=default; t=1578737510;
+        bh=2Rmy882+v3ZU/D0FsubaW4hnxblpvIlq1ohsA+xGmLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhYtDV4+XSkxySWpa50WEUVjirYE4zlDp4TwbEx+jHF0+1FP1gZ9/bXuKxvp5Rt4Q
-         Ke9WGp555bTXTYCWbu7CFw9lnu9GtMYoGda5D0nhzDStH7JxNqc4oCbZoIxBlB0k6A
-         Qq8u4KQmRmqZLPkl342VQSt7OPNbY0ye53MTZTwE=
+        b=a/2gec3FUX8/TjUGVJ6TLxo3JEvg/EA+B14OGsiKZXSQWpVYSVGPJ+JtGmQij7L/b
+         Vdl1HwtehU/KLg9cCt92EJ0I74/XcH2LTRQDPZNASQ5uhJuDxCxtpr2lQ17c/yQ8HO
+         HhJxXhrj1WqEF1ndlN57OtszP2O0SW6tnfWIIoKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 54/84] s390/dasd/cio: Interpret ccw_device_get_mdc return value correctly
-Date:   Sat, 11 Jan 2020 10:50:31 +0100
-Message-Id: <20200111094906.768841990@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Chris Healy <cphealy@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 50/62] net: dsa: mv88e6xxx: Preserve priority when setting CPU port.
+Date:   Sat, 11 Jan 2020 10:50:32 +0100
+Message-Id: <20200111094853.119503692@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,95 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit dd4b3c83b9efac10d48a94c61372119fc555a077 ]
+[ Upstream commit d8dc2c9676e614ef62f54a155b50076888c8a29a ]
 
-The max data count (mdc) is an unsigned 16-bit integer value as per AR
-documentation and is received via ccw_device_get_mdc() for a specific
-path mask from the CIO layer. The function itself also always returns a
-positive mdc value or 0 in case mdc isn't supported or couldn't be
-determined.
+The 6390 family uses an extended register to set the port connected to
+the CPU. The lower 5 bits indicate the port, the upper three bits are
+the priority of the frames as they pass through the switch, what
+egress queue they should use, etc. Since frames being set to the CPU
+are typically management frames, BPDU, IGMP, ARP, etc set the priority
+to 7, the reset default, and the highest.
 
-Though, the comment for this function describes a negative return value
-to indicate failures.
-
-As a result, the DASD device driver interprets the return value of
-ccw_device_get_mdc() incorrectly. The error case is essentially a dead
-code path.
-
-To fix this behaviour, check explicitly for a return value of 0 and
-change the comment for ccw_device_get_mdc() accordingly.
-
-This fix merely enables the error code path in the DASD functions
-get_fcx_max_data() and verify_fcx_max_data(). The actual functionality
-stays the same and is still correct.
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 33641994a676 ("net: dsa: mv88e6xxx: Monitor and Management tables")
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Tested-by: Chris Healy <cphealy@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd_eckd.c | 9 +++++----
- drivers/s390/cio/device_ops.c  | 2 +-
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/dsa/mv88e6xxx/global1.c |    5 +++++
+ drivers/net/dsa/mv88e6xxx/global1.h |    1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index f89f9d02e788..108fb1c77e1d 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1135,7 +1135,8 @@ static u32 get_fcx_max_data(struct dasd_device *device)
+--- a/drivers/net/dsa/mv88e6xxx/global1.c
++++ b/drivers/net/dsa/mv88e6xxx/global1.c
+@@ -313,6 +313,11 @@ int mv88e6390_g1_set_cpu_port(struct mv8
  {
- 	struct dasd_eckd_private *private = device->private;
- 	int fcx_in_css, fcx_in_gneq, fcx_in_features;
--	int tpm, mdc;
-+	unsigned int mdc;
-+	int tpm;
+ 	u16 ptr = MV88E6390_G1_MONITOR_MGMT_CTL_PTR_CPU_DEST;
  
- 	if (dasd_nofcx)
- 		return 0;
-@@ -1149,7 +1150,7 @@ static u32 get_fcx_max_data(struct dasd_device *device)
- 		return 0;
++	/* Use the default high priority for management frames sent to
++	 * the CPU.
++	 */
++	port |= MV88E6390_G1_MONITOR_MGMT_CTL_PTR_CPU_DEST_MGMTPRI;
++
+ 	return mv88e6390_g1_monitor_write(chip, ptr, port);
+ }
  
- 	mdc = ccw_device_get_mdc(device->cdev, 0);
--	if (mdc < 0) {
-+	if (mdc == 0) {
- 		dev_warn(&device->cdev->dev, "Detecting the maximum supported data size for zHPF requests failed\n");
- 		return 0;
- 	} else {
-@@ -1160,12 +1161,12 @@ static u32 get_fcx_max_data(struct dasd_device *device)
- static int verify_fcx_max_data(struct dasd_device *device, __u8 lpm)
- {
- 	struct dasd_eckd_private *private = device->private;
--	int mdc;
-+	unsigned int mdc;
- 	u32 fcx_max_data;
+--- a/drivers/net/dsa/mv88e6xxx/global1.h
++++ b/drivers/net/dsa/mv88e6xxx/global1.h
+@@ -189,6 +189,7 @@
+ #define MV88E6390_G1_MONITOR_MGMT_CTL_PTR_INGRESS_DEST		0x2000
+ #define MV88E6390_G1_MONITOR_MGMT_CTL_PTR_EGRESS_DEST		0x2100
+ #define MV88E6390_G1_MONITOR_MGMT_CTL_PTR_CPU_DEST		0x3000
++#define MV88E6390_G1_MONITOR_MGMT_CTL_PTR_CPU_DEST_MGMTPRI	0x00e0
+ #define MV88E6390_G1_MONITOR_MGMT_CTL_DATA_MASK			0x00ff
  
- 	if (private->fcx_max_data) {
- 		mdc = ccw_device_get_mdc(device->cdev, lpm);
--		if ((mdc < 0)) {
-+		if (mdc == 0) {
- 			dev_warn(&device->cdev->dev,
- 				 "Detecting the maximum data size for zHPF "
- 				 "requests failed (rc=%d) for a new path %x\n",
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index 4435ae0b3027..f0cae1973f78 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -624,7 +624,7 @@ EXPORT_SYMBOL(ccw_device_tm_start_timeout);
-  * @mask: mask of paths to use
-  *
-  * Return the number of 64K-bytes blocks all paths at least support
-- * for a transport command. Return values <= 0 indicate failures.
-+ * for a transport command. Return value 0 indicates failure.
-  */
- int ccw_device_get_mdc(struct ccw_device *cdev, u8 mask)
- {
--- 
-2.20.1
-
+ /* Offset 0x1C: Global Control 2 */
 
 
