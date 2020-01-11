@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE18137FD3
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A453137D97
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730916AbgAKKXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:23:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50380 "EHLO mail.kernel.org"
+        id S1729153AbgAKJ7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 04:59:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730914AbgAKKXY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:23:24 -0500
+        id S1729143AbgAKJ7T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 04:59:19 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46AA12082E;
-        Sat, 11 Jan 2020 10:23:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D1D62077C;
+        Sat, 11 Jan 2020 09:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738204;
-        bh=1TsBAZt0kGZestdFokrITKiGHIC4EGqDGcbQA7U+5uU=;
+        s=default; t=1578736758;
+        bh=MABIAo/8O2n9vUpWI2QDXB80LRbXfp1lWRL4aI2t6Dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqay0AGgmG6Yhv4tig2+pFjPwogbgKi+oRweu/4XVfe76aJJckVFbrzXEboLFvR3G
-         tEUWrU05sApUXxFyUahKPKS7qPWunT3uxPI//uDSkzBRHmL244KHJ4znCs6jy78mwd
-         djIPRDvJunq7y5fINtSI7kH2KU8Zj14miLoHx/Ro=
+        b=yp5cPKYqOvvjkBXoRN4vlEQpbMA4dWHkkV/qhjU09iYF1g11jnTrgSVuIK2FyZTpn
+         LlJGxZ0F3HO+BW61va3t5gLGiy7f0FiPir+vbuQOUPWYXix9gOmVxWHEQi+NRhHo+X
+         UdvhPXIM4Ox/QN7ViK5Cc9I6tJn+DnpEnb0BMuVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 032/165] netfilter: nf_tables_offload: return EOPNOTSUPP if rule specifies no actions
-Date:   Sat, 11 Jan 2020 10:49:11 +0100
-Message-Id: <20200111094923.576241586@linuxfoundation.org>
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 19/91] ALSA: ice1724: Fix sleep-in-atomic in Infrasonic Quartet support code
+Date:   Sat, 11 Jan 2020 10:49:12 +0100
+Message-Id: <20200111094850.844321090@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 81ec61074bcf68acfcb2820cda3ff9d9984419c7 ]
+commit 0aec96f5897ac16ad9945f531b4bef9a2edd2ebd upstream.
 
-If the rule only specifies the matching side, return EOPNOTSUPP.
-Otherwise, the front-end relies on the drivers to reject this rule.
+Jia-Ju Bai reported a possible sleep-in-atomic scenario in the ice1724
+driver with Infrasonic Quartet support code: namely, ice->set_rate
+callback gets called inside ice->reg_lock spinlock, while the callback
+in quartet.c holds ice->gpio_mutex.
 
-Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch fixes the invalid call: it simply moves the calls of
+ice->set_rate and ice->set_mclk callbacks outside the spinlock.
+
+Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/5d43135e-73b9-a46a-2155-9e91d0dcdf83@gmail.com
+Link: https://lore.kernel.org/r/20191218192606.12866-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/netfilter/nf_tables_offload.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/ice1712/ice1724.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
-index 6f7eab502e65..e743f811245f 100644
---- a/net/netfilter/nf_tables_offload.c
-+++ b/net/netfilter/nf_tables_offload.c
-@@ -44,6 +44,9 @@ struct nft_flow_rule *nft_flow_rule_create(struct net *net,
- 		expr = nft_expr_next(expr);
+--- a/sound/pci/ice1712/ice1724.c
++++ b/sound/pci/ice1712/ice1724.c
+@@ -661,6 +661,7 @@ static int snd_vt1724_set_pro_rate(struc
+ 	unsigned long flags;
+ 	unsigned char mclk_change;
+ 	unsigned int i, old_rate;
++	bool call_set_rate = false;
+ 
+ 	if (rate > ice->hw_rates->list[ice->hw_rates->count - 1])
+ 		return -EINVAL;
+@@ -684,7 +685,7 @@ static int snd_vt1724_set_pro_rate(struc
+ 		 * setting clock rate for internal clock mode */
+ 		old_rate = ice->get_rate(ice);
+ 		if (force || (old_rate != rate))
+-			ice->set_rate(ice, rate);
++			call_set_rate = true;
+ 		else if (rate == ice->cur_rate) {
+ 			spin_unlock_irqrestore(&ice->reg_lock, flags);
+ 			return 0;
+@@ -692,12 +693,14 @@ static int snd_vt1724_set_pro_rate(struc
  	}
  
-+	if (num_actions == 0)
-+		return ERR_PTR(-EOPNOTSUPP);
+ 	ice->cur_rate = rate;
++	spin_unlock_irqrestore(&ice->reg_lock, flags);
 +
- 	flow = nft_flow_rule_alloc(num_actions);
- 	if (!flow)
- 		return ERR_PTR(-ENOMEM);
--- 
-2.20.1
-
++	if (call_set_rate)
++		ice->set_rate(ice, rate);
+ 
+ 	/* setting master clock */
+ 	mclk_change = ice->set_mclk(ice, rate);
+ 
+-	spin_unlock_irqrestore(&ice->reg_lock, flags);
+-
+ 	if (mclk_change && ice->gpio.i2s_mclk_changed)
+ 		ice->gpio.i2s_mclk_changed(ice);
+ 	if (ice->gpio.set_pro_rate)
 
 
