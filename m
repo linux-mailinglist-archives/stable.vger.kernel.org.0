@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A40137DAB
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72BFA137DAE
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:00:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729229AbgAKKAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:00:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55600 "EHLO mail.kernel.org"
+        id S1729407AbgAKKAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:00:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729133AbgAKKAD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:00:03 -0500
+        id S1729388AbgAKKAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:00:07 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CB972082E;
-        Sat, 11 Jan 2020 10:00:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8CAB2082E;
+        Sat, 11 Jan 2020 10:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736803;
-        bh=b9feuh1X62L8XNcbF6YOz/POC/CpMDvqh3CP6FF44Bo=;
+        s=default; t=1578736807;
+        bh=NfbA8pO07EswMY0SuPWfahwVm7jF59HzRXEitD+Noqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a2IurvZzG2VG0oqg6ZttlKKszmibchZODIiMNpMigCCAmu8TvKv/pzyCXkJPlxXB+
-         IMaepXqWJqDw53ryFNRruYH9G572dsx3GTD6pZW4CznN0T1V2UzY3Xrg+WEkzIb2Re
-         AfQidJaD5wnugpeqgI/gRB6RrQC9rhpl5zSlWLxU=
+        b=RzMvGXo8/rZRc9RQJjnXp+8JSvvazDOoZgv1Q40tnAITjNXvK2c1N39REXuGRyFhb
+         mU34+0/P7wDrrZQ+bocLLUxvlX3sk7rjykHPQr98Wmr+g9U2Z33IoRt6/CYjHsAh+9
+         WgLNRlrQ9vlA+pSB6k+OlwTqH9uOknGYHvKydOdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>,
+        stable@vger.kernel.org, Paul Durrant <pdurrant@amazon.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/91] IB/mlx4: Follow mirror sequence of device add during device removal
-Date:   Sat, 11 Jan 2020 10:49:04 +0100
-Message-Id: <20200111094847.033591288@linuxfoundation.org>
+Subject: [PATCH 4.9 12/91] xen-blkback: prevent premature module unload
+Date:   Sat, 11 Jan 2020 10:49:05 +0100
+Message-Id: <20200111094847.475565864@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
 References: <20200111094844.748507863@linuxfoundation.org>
@@ -46,64 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@mellanox.com>
+From: Paul Durrant <pdurrant@amazon.com>
 
-[ Upstream commit 89f988d93c62384758b19323c886db917a80c371 ]
+[ Upstream commit fa2ac657f9783f0891b2935490afe9a7fd29d3fa ]
 
-Current code device add sequence is:
+Objects allocated by xen_blkif_alloc come from the 'blkif_cache' kmem
+cache. This cache is destoyed when xen-blkif is unloaded so it is
+necessary to wait for the deferred free routine used for such objects to
+complete. This necessity was missed in commit 14855954f636 "xen-blkback:
+allow module to be cleanly unloaded". This patch fixes the problem by
+taking/releasing extra module references in xen_blkif_alloc/free()
+respectively.
 
-ib_register_device()
-ib_mad_init()
-init_sriov_init()
-register_netdev_notifier()
-
-Therefore, the remove sequence should be,
-
-unregister_netdev_notifier()
-close_sriov()
-mad_cleanup()
-ib_unregister_device()
-
-However it is not above.
-Hence, make do above remove sequence.
-
-Fixes: fa417f7b520ee ("IB/mlx4: Add support for IBoE")
-Signed-off-by: Parav Pandit <parav@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Link: https://lore.kernel.org/r/20191212091214.315005-3-leon@kernel.org
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Paul Durrant <pdurrant@amazon.com>
+Reviewed-by: Roger Pau Monné <roger.pau@citrix.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/main.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/block/xen-blkback/xenbus.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/infiniband/hw/mlx4/main.c b/drivers/infiniband/hw/mlx4/main.c
-index 7ccf7225f75a..adc46b809ef2 100644
---- a/drivers/infiniband/hw/mlx4/main.c
-+++ b/drivers/infiniband/hw/mlx4/main.c
-@@ -3031,16 +3031,17 @@ static void mlx4_ib_remove(struct mlx4_dev *dev, void *ibdev_ptr)
- 	ibdev->ib_active = false;
- 	flush_workqueue(wq);
- 
--	mlx4_ib_close_sriov(ibdev);
--	mlx4_ib_mad_cleanup(ibdev);
--	ib_unregister_device(&ibdev->ib_dev);
--	mlx4_ib_diag_cleanup(ibdev);
- 	if (ibdev->iboe.nb.notifier_call) {
- 		if (unregister_netdevice_notifier(&ibdev->iboe.nb))
- 			pr_warn("failure unregistering notifier\n");
- 		ibdev->iboe.nb.notifier_call = NULL;
- 	}
- 
-+	mlx4_ib_close_sriov(ibdev);
-+	mlx4_ib_mad_cleanup(ibdev);
-+	ib_unregister_device(&ibdev->ib_dev);
-+	mlx4_ib_diag_cleanup(ibdev);
+diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
+index ad736d7de838..1d1f86657967 100644
+--- a/drivers/block/xen-blkback/xenbus.c
++++ b/drivers/block/xen-blkback/xenbus.c
+@@ -178,6 +178,15 @@ static struct xen_blkif *xen_blkif_alloc(domid_t domid)
+ 	blkif->domid = domid;
+ 	atomic_set(&blkif->refcnt, 1);
+ 	init_completion(&blkif->drain_complete);
 +
- 	mlx4_qp_release_range(dev, ibdev->steer_qpn_base,
- 			      ibdev->steer_qpn_count);
- 	kfree(ibdev->ib_uc_qpns_bitmap);
++	/*
++	 * Because freeing back to the cache may be deferred, it is not
++	 * safe to unload the module (and hence destroy the cache) until
++	 * this has completed. To prevent premature unloading, take an
++	 * extra module reference here and release only when the object
++	 * has been freed back to the cache.
++	 */
++	__module_get(THIS_MODULE);
+ 	INIT_WORK(&blkif->free_work, xen_blkif_deferred_free);
+ 
+ 	return blkif;
+@@ -322,6 +331,7 @@ static void xen_blkif_free(struct xen_blkif *blkif)
+ 
+ 	/* Make sure everything is drained before shutting down */
+ 	kmem_cache_free(xen_blkif_cachep, blkif);
++	module_put(THIS_MODULE);
+ }
+ 
+ int __init xen_blkif_interface_init(void)
 -- 
 2.20.1
 
