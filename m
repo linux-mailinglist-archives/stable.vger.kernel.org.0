@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0558137F7B
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:20:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BEA11380E2
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:38:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729326AbgAKKUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:20:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41486 "EHLO mail.kernel.org"
+        id S1729000AbgAKKiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:38:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729211AbgAKKUR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:20:17 -0500
+        id S1728999AbgAKKiN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:38:13 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4105A20848;
-        Sat, 11 Jan 2020 10:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81C6020848;
+        Sat, 11 Jan 2020 10:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738017;
-        bh=jmJB1y3x5UX3kTWCdOAhvNiSyyyMa/BYn7obqSdk+PY=;
+        s=default; t=1578739092;
+        bh=z5+SqbdqGinhWk8sMlCTepknVOWj8EdUUdgwxhiX/D0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdgWSD4ONJqLuxw8B7Hzso4cM0C8fRzmQZIQ645dX3PrOsjXjSkdKqSGkpwOM0ApE
-         5LyMWJTbd7++o3ux2FGH6qCtS9UhQdPWRGa/VX1OVxhMwxQstw1k53H9lizTtxHTtr
-         zBof8N2VYQ/8Rad8rDXX+BsTwnbCTCvgHRbhHrU8=
+        b=XGrTR62J9sIY2Nz39Owpc5ev1lKMzHaq3yG9j/0v7gG/AkLhXgDaQfNcPBZu/Xcqb
+         heEGaOwXftOoxlAA0xxk4T6cJTv8IrT2zJ8eZJb2xqcWF1gA8QSVWXhhOpubvBbN+f
+         yBOgN9WeOIJUGZSH48vcuqT4hIhu8uvSCP/TDynU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Qi Zhou <atmgnd@outlook.com>
-Subject: [PATCH 4.19 84/84] usb: missing parentheses in USE_NEW_SCHEME
-Date:   Sat, 11 Jan 2020 10:51:01 +0100
-Message-Id: <20200111094913.052164288@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Chan Shu Tak, Alex" <alexchan@task.com.hk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 48/59] llc2: Fix return statement of llc_stat_ev_rx_null_dsap_xid_c (and _test_c)
+Date:   Sat, 11 Jan 2020 10:49:57 +0100
+Message-Id: <20200111094849.096755166@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
-References: <20200111094845.328046411@linuxfoundation.org>
+In-Reply-To: <20200111094835.417654274@linuxfoundation.org>
+References: <20200111094835.417654274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qi Zhou <atmgnd@outlook.com>
+From: Chan Shu Tak, Alex <alexchan@task.com.hk>
 
-commit 1530f6f5f5806b2abbf2a9276c0db313ae9a0e09 upstream.
+[ Upstream commit af1c0e4e00f3cc76cb136ebf2e2c04e8b6446285 ]
 
-According to bd0e6c9614b9 ("usb: hub: try old enumeration scheme first
-for high speed devices") the kernel will try the old enumeration scheme
-first for high speed devices.  This can happen when a high speed device
-is plugged in.
+When a frame with NULL DSAP is received, llc_station_rcv is called.
+In turn, llc_stat_ev_rx_null_dsap_xid_c is called to check if it is a NULL
+XID frame. The return statement of llc_stat_ev_rx_null_dsap_xid_c returns 1
+when the incoming frame is not a NULL XID frame and 0 otherwise. Hence, a
+NULL XID response is returned unexpectedly, e.g. when the incoming frame is
+a NULL TEST command.
 
-But due to missing parentheses in the USE_NEW_SCHEME define, this logic
-can get messed up and the incorrect result happens.
+To fix the error, simply remove the conditional operator.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Qi Zhou <atmgnd@outlook.com>
-Link: https://lore.kernel.org/r/ht4mtag8ZP-HKEhD0KkJhcFnVlOFV8N8eNjJVRD9pDkkLUNhmEo8_cL_sl7xy9mdajdH-T8J3TFQsjvoYQT61NFjQXy469Ed_BbBw_x4S1E=@protonmail.com
-[ fixup changelog text - gregkh]
-Cc: stable <stable@vger.kernel.org>
-Fixes: bd0e6c9614b9 ("usb: hub: try old enumeration scheme first for high speed devices")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+A similar error in llc_stat_ev_rx_null_dsap_test_c is also fixed.
 
+Signed-off-by: Chan Shu Tak, Alex <alexchan@task.com.hk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/llc/llc_station.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -2657,7 +2657,7 @@ static unsigned hub_is_wusb(struct usb_h
- #define SET_ADDRESS_TRIES	2
- #define GET_DESCRIPTOR_TRIES	2
- #define SET_CONFIG_TRIES	(2 * (use_both_schemes + 1))
--#define USE_NEW_SCHEME(i, scheme)	((i) / 2 == (int)scheme)
-+#define USE_NEW_SCHEME(i, scheme)	((i) / 2 == (int)(scheme))
+--- a/net/llc/llc_station.c
++++ b/net/llc/llc_station.c
+@@ -32,7 +32,7 @@ static int llc_stat_ev_rx_null_dsap_xid_
+ 	return LLC_PDU_IS_CMD(pdu) &&			/* command PDU */
+ 	       LLC_PDU_TYPE_IS_U(pdu) &&		/* U type PDU */
+ 	       LLC_U_PDU_CMD(pdu) == LLC_1_PDU_CMD_XID &&
+-	       !pdu->dsap ? 0 : 1;			/* NULL DSAP value */
++	       !pdu->dsap;				/* NULL DSAP value */
+ }
  
- #define HUB_ROOT_RESET_TIME	60	/* times are in msec */
- #define HUB_SHORT_RESET_TIME	10
+ static int llc_stat_ev_rx_null_dsap_test_c(struct sk_buff *skb)
+@@ -42,7 +42,7 @@ static int llc_stat_ev_rx_null_dsap_test
+ 	return LLC_PDU_IS_CMD(pdu) &&			/* command PDU */
+ 	       LLC_PDU_TYPE_IS_U(pdu) &&		/* U type PDU */
+ 	       LLC_U_PDU_CMD(pdu) == LLC_1_PDU_CMD_TEST &&
+-	       !pdu->dsap ? 0 : 1;			/* NULL DSAP */
++	       !pdu->dsap;				/* NULL DSAP */
+ }
+ 
+ static int llc_station_ac_send_xid_r(struct sk_buff *skb)
 
 
