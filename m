@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDF6F137CDE
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:51:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D39C137D31
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:54:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728864AbgAKJuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:50:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32964 "EHLO mail.kernel.org"
+        id S1728812AbgAKJyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 04:54:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728789AbgAKJuv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:50:51 -0500
+        id S1728807AbgAKJyg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 04:54:36 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CF0A2082E;
-        Sat, 11 Jan 2020 09:50:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 032512072E;
+        Sat, 11 Jan 2020 09:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736251;
-        bh=sgPoZuyrC/wmdnNYYIwRy3WGKs/xJNs/D6IS6/65TD0=;
+        s=default; t=1578736475;
+        bh=CW+8YHjb911IXQD++FpPnPErWmULIcsG8GPVMa5/gdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=edULj/COvbgb5Tn892k/ZA6QqZZ+VgY18N9A1k3MWm0aVdYBy6+6Cta/xWdlDB+41
-         +lIySgc3+buy7O3vNOk+NdWt0IfAHuzDRE/uKU+e8d/4jDAgSeofp/Dutyof0kDsMH
-         G8gbAZDdNqY5xch2wYTkvYAOpk/bJt7ynpUdp3Sk=
+        b=J5sstdRlfieUO8ZDKO2qRW7vYOAk6Xtu/wDMZFAwJms5iCvhYvZAlAmRIP5qbTn6L
+         vSh7e5uiNATKVf/3ZLh/Tp2mlCy7UkyHFN0+g1JZEH5g6tYjrMmm9Vw41NtEUcEcFy
+         /0MnyIxpLWX4vJ9njkYKSsedYm6I2OAYfAXhYGDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Tsirakis <niko.tsirakis@gmail.com>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        syzbot+c732f8644185de340492@syzkaller.appspotmail.com,
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 11/59] xen/balloon: fix ballooned page accounting without hotplug enabled
-Date:   Sat, 11 Jan 2020 10:49:20 +0100
-Message-Id: <20200111094839.923105101@linuxfoundation.org>
+Subject: [PATCH 4.4 12/59] xfs: fix mount failure crash on invalid iclog memory access
+Date:   Sat, 11 Jan 2020 10:49:21 +0100
+Message-Id: <20200111094840.323120975@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094835.417654274@linuxfoundation.org>
 References: <20200111094835.417654274@linuxfoundation.org>
@@ -46,41 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit c673ec61ade89bf2f417960f986bc25671762efb ]
+[ Upstream commit 798a9cada4694ca8d970259f216cec47e675bfd5 ]
 
-When CONFIG_XEN_BALLOON_MEMORY_HOTPLUG is not defined
-reserve_additional_memory() will set balloon_stats.target_pages to a
-wrong value in case there are still some ballooned pages allocated via
-alloc_xenballooned_pages().
+syzbot (via KASAN) reports a use-after-free in the error path of
+xlog_alloc_log(). Specifically, the iclog freeing loop doesn't
+handle the case of a fully initialized ->l_iclog linked list.
+Instead, it assumes that the list is partially constructed and NULL
+terminated.
 
-This will result in balloon_process() no longer be triggered when
-ballooned pages are freed in batches.
+This bug manifested because there was no possible error scenario
+after iclog list setup when the original code was added.  Subsequent
+code and associated error conditions were added some time later,
+while the original error handling code was never updated. Fix up the
+error loop to terminate either on a NULL iclog or reaching the end
+of the list.
 
-Reported-by: Nicholas Tsirakis <niko.tsirakis@gmail.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Reported-by: syzbot+c732f8644185de340492@syzkaller.appspotmail.com
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/balloon.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_log.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index cfab1d24e4bc..1c789056e7e8 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -392,7 +392,8 @@ static struct notifier_block xen_memory_nb = {
- #else
- static enum bp_state reserve_additional_memory(void)
- {
--	balloon_stats.target_pages = balloon_stats.current_pages;
-+	balloon_stats.target_pages = balloon_stats.current_pages +
-+				     balloon_stats.target_unpopulated;
- 	return BP_ECANCELED;
- }
- #endif /* CONFIG_XEN_BALLOON_MEMORY_HOTPLUG */
+diff --git a/fs/xfs/xfs_log.c b/fs/xfs/xfs_log.c
+index 73b725f965eb..065aa4752607 100644
+--- a/fs/xfs/xfs_log.c
++++ b/fs/xfs/xfs_log.c
+@@ -1503,6 +1503,8 @@ xlog_alloc_log(
+ 		if (iclog->ic_bp)
+ 			xfs_buf_free(iclog->ic_bp);
+ 		kmem_free(iclog);
++		if (prev_iclog == log->l_iclog)
++			break;
+ 	}
+ 	spinlock_destroy(&log->l_icloglock);
+ 	xfs_buf_free(log->l_xbuf);
 -- 
 2.20.1
 
