@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCFA2137D0D
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:54:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E32D1137D0F
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 10:54:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728784AbgAKJxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 04:53:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39530 "EHLO mail.kernel.org"
+        id S1728937AbgAKJxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 04:53:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728752AbgAKJxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 04:53:05 -0500
+        id S1728788AbgAKJxJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 04:53:09 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC7C620842;
-        Sat, 11 Jan 2020 09:53:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 113A62072E;
+        Sat, 11 Jan 2020 09:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578736384;
-        bh=wL6HCTVAlcZDf7Nmfb5nhq3M1MQucxU/iSCj/9IbWXI=;
+        s=default; t=1578736388;
+        bh=b+oDzQHYFWqh4GhFlqP1FBy9gLqfo2Twtg7XrUABY7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYChWGtvng+ZM0CPQU9V+7biwweTdItcgcEK9WCP2xDMobbM+WJKL8A9Z6pp4xgIa
-         QnZ+fXde0vuEO1cB1/rxKU6tmXaiYhJmHRCmf11OxUGg80CAxX22lB0Q8roMUj23/u
-         bdX4JyaXmmGdBLSVQjmvUcofrUvN6Gsf2799EiqY=
+        b=pKabw3SLXg+dedYcPZ4FRNOAtkLX3ZZVrxbbvjZktWrrjs1qTNRyrCyOahegWQZPU
+         NX5l0S+BOZPKCjSDjZCkLOC3nO3mJh8oKWxnvP5FUuIJ8o+H2eCm1ronoJ+pipDGIR
+         2zxxQf1UBeKypySIsKR5IdgWdQ+bXjOcTH3vTLWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Masashi Honma <masashi.honma@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 27/59] powerpc/pseries/hvconsole: Fix stack overread via udbg
-Date:   Sat, 11 Jan 2020 10:49:36 +0100
-Message-Id: <20200111094844.025396036@linuxfoundation.org>
+Subject: [PATCH 4.4 28/59] ath9k_htc: Modify byte order for an error message
+Date:   Sat, 11 Jan 2020 10:49:37 +0100
+Message-Id: <20200111094844.185354781@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094835.417654274@linuxfoundation.org>
 References: <20200111094835.417654274@linuxfoundation.org>
@@ -44,114 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Masashi Honma <masashi.honma@gmail.com>
 
-[ Upstream commit 934bda59f286d0221f1a3ebab7f5156a996cc37d ]
+[ Upstream commit e01fddc19d215f6ad397894ec2a851d99bf154e2 ]
 
-While developing KASAN for 64-bit book3s, I hit the following stack
-over-read.
+rs_datalen is be16 so we need to convert it before printing.
 
-It occurs because the hypercall to put characters onto the terminal
-takes 2 longs (128 bits/16 bytes) of characters at a time, and so
-hvc_put_chars() would unconditionally copy 16 bytes from the argument
-buffer, regardless of supplied length. However, udbg_hvc_putc() can
-call hvc_put_chars() with a single-byte buffer, leading to the error.
-
-  ==================================================================
-  BUG: KASAN: stack-out-of-bounds in hvc_put_chars+0xdc/0x110
-  Read of size 8 at addr c0000000023e7a90 by task swapper/0
-
-  CPU: 0 PID: 0 Comm: swapper Not tainted 5.2.0-rc2-next-20190528-02824-g048a6ab4835b #113
-  Call Trace:
-    dump_stack+0x104/0x154 (unreliable)
-    print_address_description+0xa0/0x30c
-    __kasan_report+0x20c/0x224
-    kasan_report+0x18/0x30
-    __asan_report_load8_noabort+0x24/0x40
-    hvc_put_chars+0xdc/0x110
-    hvterm_raw_put_chars+0x9c/0x110
-    udbg_hvc_putc+0x154/0x200
-    udbg_write+0xf0/0x240
-    console_unlock+0x868/0xd30
-    register_console+0x970/0xe90
-    register_early_udbg_console+0xf8/0x114
-    setup_arch+0x108/0x790
-    start_kernel+0x104/0x784
-    start_here_common+0x1c/0x534
-
-  Memory state around the buggy address:
-   c0000000023e7980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-   c0000000023e7a00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1
-  >c0000000023e7a80: f1 f1 01 f2 f2 f2 00 00 00 00 00 00 00 00 00 00
-                           ^
-   c0000000023e7b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-   c0000000023e7b80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ==================================================================
-
-Document that a 16-byte buffer is requred, and provide it in udbg.
-
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/hvconsole.c |  2 +-
- drivers/tty/hvc/hvc_vio.c                  | 16 +++++++++++++++-
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/hvconsole.c b/arch/powerpc/platforms/pseries/hvconsole.c
-index 849b29b3e9ae..954ef27128f2 100644
---- a/arch/powerpc/platforms/pseries/hvconsole.c
-+++ b/arch/powerpc/platforms/pseries/hvconsole.c
-@@ -62,7 +62,7 @@ EXPORT_SYMBOL(hvc_get_chars);
-  * @vtermno: The vtermno or unit_address of the adapter from which the data
-  *	originated.
-  * @buf: The character buffer that contains the character data to send to
-- *	firmware.
-+ *	firmware. Must be at least 16 bytes, even if count is less than 16.
-  * @count: Send this number of characters.
-  */
- int hvc_put_chars(uint32_t vtermno, const char *buf, int count)
-diff --git a/drivers/tty/hvc/hvc_vio.c b/drivers/tty/hvc/hvc_vio.c
-index f575a9b5ede7..1d671d058dcb 100644
---- a/drivers/tty/hvc/hvc_vio.c
-+++ b/drivers/tty/hvc/hvc_vio.c
-@@ -122,6 +122,14 @@ static int hvterm_raw_get_chars(uint32_t vtermno, char *buf, int count)
- 	return got;
- }
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index cc9648f844ae..54e96c661a9c 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -985,7 +985,7 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
+ 	    (skb->len - HTC_RX_FRAME_HEADER_SIZE) != 0) {
+ 		ath_err(common,
+ 			"Corrupted RX data len, dropping (dlen: %d, skblen: %d)\n",
+-			rxstatus->rs_datalen, skb->len);
++			be16_to_cpu(rxstatus->rs_datalen), skb->len);
+ 		goto rx_next;
+ 	}
  
-+/**
-+ * hvterm_raw_put_chars: send characters to firmware for given vterm adapter
-+ * @vtermno: The virtual terminal number.
-+ * @buf: The characters to send. Because of the underlying hypercall in
-+ *       hvc_put_chars(), this buffer must be at least 16 bytes long, even if
-+ *       you are sending fewer chars.
-+ * @count: number of chars to send.
-+ */
- static int hvterm_raw_put_chars(uint32_t vtermno, const char *buf, int count)
- {
- 	struct hvterm_priv *pv = hvterm_privs[vtermno];
-@@ -234,6 +242,7 @@ static const struct hv_ops hvterm_hvsi_ops = {
- static void udbg_hvc_putc(char c)
- {
- 	int count = -1;
-+	unsigned char bounce_buffer[16];
- 
- 	if (!hvterm_privs[0])
- 		return;
-@@ -244,7 +253,12 @@ static void udbg_hvc_putc(char c)
- 	do {
- 		switch(hvterm_privs[0]->proto) {
- 		case HV_PROTOCOL_RAW:
--			count = hvterm_raw_put_chars(0, &c, 1);
-+			/*
-+			 * hvterm_raw_put_chars requires at least a 16-byte
-+			 * buffer, so go via the bounce buffer
-+			 */
-+			bounce_buffer[0] = c;
-+			count = hvterm_raw_put_chars(0, bounce_buffer, 1);
- 			break;
- 		case HV_PROTOCOL_HVSI:
- 			count = hvterm_hvsi_put_chars(0, &c, 1);
 -- 
 2.20.1
 
