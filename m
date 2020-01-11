@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0983137F4C
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:18:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A84F3137F4E
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:18:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730537AbgAKKSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:18:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35930 "EHLO mail.kernel.org"
+        id S1730536AbgAKKSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:18:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730536AbgAKKSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:18:10 -0500
+        id S1730546AbgAKKSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:18:15 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E43B3205F4;
-        Sat, 11 Jan 2020 10:18:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 265602077C;
+        Sat, 11 Jan 2020 10:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737890;
-        bh=rf5GDJhkL4Q+n2tNS9aPD1oxmd0VP+VQAoMT3YDuq3A=;
+        s=default; t=1578737895;
+        bh=PA4FxnAk4aNpdZ8YIp/EAybWfqD/vW0X7F1oDdtjVRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHJfCI1IBKVNOXufUZju6cLSjDtPsd/zu+XPfii00ttbo/9vX7kIT+rHHGWHCHN0w
-         T+zGFf5RKMfqcuPJ0qpwyIJKdCqwkFRpgM4wm4j36Ni2JeoP3tY+dFHGdoHNKyO8W3
-         KiLDNgHA8ZLG9k7/C2EgBmRh5XNnOZC4ajscojXc=
+        b=Wj3IDEdJL8neA8Evvi1grqr0Fy3O9oQaJoNcfGCos2/smjLMoEQqOgrBQhUf0HTKi
+         ffU54kd0xSqcod96AeU1N5hkv7BpQamTD6UVS2RXNPl9kSvNpb6mWQTe6yqLhXm5Fo
+         GJZQtpGX12/gon2Ibb2jV29HWD309TjH8JMxtwQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Inki Dae <inki.dae@samsung.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 52/84] s390/purgatory: do not build purgatory with kcov, kasan and friends
-Date:   Sat, 11 Jan 2020 10:50:29 +0100
-Message-Id: <20200111094906.046347851@linuxfoundation.org>
+Subject: [PATCH 4.19 53/84] drm/exynos: gsc: add missed component_del
+Date:   Sat, 11 Jan 2020 10:50:30 +0100
+Message-Id: <20200111094906.379794988@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
 References: <20200111094845.328046411@linuxfoundation.org>
@@ -45,52 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit c23587c92f6e3260fe3b82bb75b38aa2553b9468 ]
+[ Upstream commit 84c92365b20a44c363b95390ea00dfbdd786f031 ]
 
-the purgatory must not rely on functions from the "old" kernel,
-so we must disable kasan and friends. We also need to have a
-separate copy of string.c as the default does not build memcmp
-with KASAN.
+The driver forgets to call component_del in remove to match component_add
+in probe.
+Add the missed call to fix it.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Inki Dae <inki.dae@samsung.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/purgatory/Makefile | 6 ++++--
- arch/s390/purgatory/string.c | 3 +++
- 2 files changed, 7 insertions(+), 2 deletions(-)
- create mode 100644 arch/s390/purgatory/string.c
+ drivers/gpu/drm/exynos/exynos_drm_gsc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-index ce6a3f75065b..fdccb7689bb9 100644
---- a/arch/s390/purgatory/Makefile
-+++ b/arch/s390/purgatory/Makefile
-@@ -13,8 +13,10 @@ $(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
- $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
- 	$(call if_changed_rule,as_o_S)
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_gsc.c b/drivers/gpu/drm/exynos/exynos_drm_gsc.c
+index 7ba414b52faa..d71188b982cb 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_gsc.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_gsc.c
+@@ -1292,6 +1292,7 @@ static int gsc_remove(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
  
--$(obj)/string.o: $(srctree)/arch/s390/lib/string.c FORCE
--	$(call if_changed_rule,cc_o_c)
-+KCOV_INSTRUMENT := n
-+GCOV_PROFILE := n
-+UBSAN_SANITIZE := n
-+KASAN_SANITIZE := n
++	component_del(dev, &gsc_component_ops);
+ 	pm_runtime_dont_use_autosuspend(dev);
+ 	pm_runtime_disable(dev);
  
- LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib
- LDFLAGS_purgatory.ro += -z nodefaultlib
-diff --git a/arch/s390/purgatory/string.c b/arch/s390/purgatory/string.c
-new file mode 100644
-index 000000000000..c98c22a72db7
---- /dev/null
-+++ b/arch/s390/purgatory/string.c
-@@ -0,0 +1,3 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#define __HAVE_ARCH_MEMCMP	/* arch function */
-+#include "../lib/string.c"
 -- 
 2.20.1
 
