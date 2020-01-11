@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32447137FE3
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCD3E137DDB
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:02:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730688AbgAKKXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:23:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49656 "EHLO mail.kernel.org"
+        id S1728833AbgAKKCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:02:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730789AbgAKKXI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:23:08 -0500
+        id S1728888AbgAKKCQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:02:16 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B32DF20880;
-        Sat, 11 Jan 2020 10:23:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00A8320842;
+        Sat, 11 Jan 2020 10:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738187;
-        bh=M7HQ865n/QAKmQEHDY5qkcuhxcXhnjjq5IZ81ggnCXA=;
+        s=default; t=1578736935;
+        bh=1fnI6aUTDTUR6gujDAhqQrt0aJB0YLNvLt5D3fwF7xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lygiZJS6tQH6r0a+38KBFebQN5BneMAYIyj33x2rttdNQ0pCoO3gCjjt6z3MHo6Og
-         N8nIGSoShlMxS4Sd3JMIaAJXBPsDWxA9anaoRoiKUAOUStg7NzsRZ96Cben57wfWTM
-         rFP/1vji9+6yx0vXWxo6Ztvl2U6Uy0PrGxqCqsYE=
+        b=15RJp5JFqhqamehM8WAg0y7cNsOiwUg6IrTyYRRbZrFqMD1G3374lY9T/cHooTWHS
+         WhWv8von4/R9G3BSq8y2hkAbdS3gqTUCE2hlx7MwGVWScO9ZvcTlBjXC6GTccCDvj1
+         O7OfGgDBiCjkLI5ygHayqysTA5auEIAx96RyMMUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Dragos Tarcatu <dragos_tarcatu@mentor.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/165] ASoC: topology: Check return value for soc_tplg_pcm_create()
-Date:   Sat, 11 Jan 2020 10:49:25 +0100
-Message-Id: <20200111094925.134358232@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 33/91] arm64: Revert support for execute-only user mappings
+Date:   Sat, 11 Jan 2020 10:49:26 +0100
+Message-Id: <20200111094857.366585437@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
+References: <20200111094844.748507863@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-[ Upstream commit a3039aef52d9ffeb67e9211899cd3e8a2953a01f ]
+commit 24cecc37746393432d994c0dbc251fb9ac7c5d72 upstream.
 
-The return value of soc_tplg_pcm_create() is currently not checked
-in soc_tplg_pcm_elems_load(). If an error is to occur there, the
-topology ignores it and continues loading.
+The ARMv8 64-bit architecture supports execute-only user permissions by
+clearing the PTE_USER and PTE_UXN bits, practically making it a mostly
+privileged mapping but from which user running at EL0 can still execute.
 
-Fix that by checking the status and rejecting the topology on error.
+The downside, however, is that the kernel at EL1 inadvertently reading
+such mapping would not trip over the PAN (privileged access never)
+protection.
 
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191210003939.15752-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Revert the relevant bits from commit cab15ce604e5 ("arm64: Introduce
+execute-only page access permissions") so that PROT_EXEC implies
+PROT_READ (and therefore PTE_USER) until the architecture gains proper
+support for execute-only user mappings.
+
+Fixes: cab15ce604e5 ("arm64: Introduce execute-only page access permissions")
+Cc: <stable@vger.kernel.org> # 4.9.x-
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+
 ---
- sound/soc/soc-topology.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/pgtable-prot.h |    5 ++---
+ arch/arm64/include/asm/pgtable.h      |   10 +++-------
+ arch/arm64/mm/fault.c                 |    2 +-
+ mm/mmap.c                             |    6 ------
+ 4 files changed, 6 insertions(+), 17 deletions(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index c92e360d27b8..fd2d22ddc81b 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -2031,6 +2031,7 @@ static int soc_tplg_pcm_elems_load(struct soc_tplg *tplg,
- 	int size;
- 	int i;
- 	bool abi_match;
-+	int ret;
+--- a/arch/arm64/include/asm/pgtable-prot.h
++++ b/arch/arm64/include/asm/pgtable-prot.h
+@@ -77,13 +77,12 @@
+ #define PAGE_COPY_EXEC		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN)
+ #define PAGE_READONLY		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN | PTE_UXN)
+ #define PAGE_READONLY_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN)
+-#define PAGE_EXECONLY		__pgprot(_PAGE_DEFAULT | PTE_NG | PTE_PXN)
  
- 	count = le32_to_cpu(hdr->count);
+ #define __P000  PAGE_NONE
+ #define __P001  PAGE_READONLY
+ #define __P010  PAGE_COPY
+ #define __P011  PAGE_COPY
+-#define __P100  PAGE_EXECONLY
++#define __P100  PAGE_READONLY_EXEC
+ #define __P101  PAGE_READONLY_EXEC
+ #define __P110  PAGE_COPY_EXEC
+ #define __P111  PAGE_COPY_EXEC
+@@ -92,7 +91,7 @@
+ #define __S001  PAGE_READONLY
+ #define __S010  PAGE_SHARED
+ #define __S011  PAGE_SHARED
+-#define __S100  PAGE_EXECONLY
++#define __S100  PAGE_READONLY_EXEC
+ #define __S101  PAGE_READONLY_EXEC
+ #define __S110  PAGE_SHARED_EXEC
+ #define __S111  PAGE_SHARED_EXEC
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -83,12 +83,8 @@ extern unsigned long empty_zero_page[PAG
+ #define pte_dirty(pte)		(pte_sw_dirty(pte) || pte_hw_dirty(pte))
  
-@@ -2072,7 +2073,12 @@ static int soc_tplg_pcm_elems_load(struct soc_tplg *tplg,
- 		}
+ #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
+-/*
+- * Execute-only user mappings do not have the PTE_USER bit set. All valid
+- * kernel mappings have the PTE_UXN bit set.
+- */
+ #define pte_valid_not_user(pte) \
+-	((pte_val(pte) & (PTE_VALID | PTE_USER | PTE_UXN)) == (PTE_VALID | PTE_UXN))
++	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
+ #define pte_valid_young(pte) \
+ 	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
+ #define pte_valid_user(pte) \
+@@ -104,8 +100,8 @@ extern unsigned long empty_zero_page[PAG
  
- 		/* create the FE DAIs and DAI links */
--		soc_tplg_pcm_create(tplg, _pcm);
-+		ret = soc_tplg_pcm_create(tplg, _pcm);
-+		if (ret < 0) {
-+			if (!abi_match)
-+				kfree(_pcm);
-+			return ret;
-+		}
+ /*
+  * p??_access_permitted() is true for valid user mappings (subject to the
+- * write permission check) other than user execute-only which do not have the
+- * PTE_USER bit set. PROT_NONE mappings do not have the PTE_VALID bit set.
++ * write permission check). PROT_NONE mappings do not have the PTE_VALID bit
++ * set.
+  */
+ #define pte_access_permitted(pte, write) \
+ 	(pte_valid_user(pte) && (!(write) || pte_write(pte)))
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -319,7 +319,7 @@ static int __kprobes do_page_fault(unsig
+ 	struct task_struct *tsk;
+ 	struct mm_struct *mm;
+ 	int fault, sig, code;
+-	unsigned long vm_flags = VM_READ | VM_WRITE;
++	unsigned long vm_flags = VM_READ | VM_WRITE | VM_EXEC;
+ 	unsigned int mm_flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
  
- 		/* offset by version-specific struct size and
- 		 * real priv data size
--- 
-2.20.1
-
+ 	if (notify_page_fault(regs, esr))
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -87,12 +87,6 @@ static void unmap_region(struct mm_struc
+  * MAP_PRIVATE	r: (no) no	r: (yes) yes	r: (no) yes	r: (no) yes
+  *		w: (no) no	w: (no) no	w: (copy) copy	w: (no) no
+  *		x: (no) no	x: (no) yes	x: (no) yes	x: (yes) yes
+- *
+- * On arm64, PROT_EXEC has the following behaviour for both MAP_SHARED and
+- * MAP_PRIVATE:
+- *								r: (no) no
+- *								w: (no) no
+- *								x: (yes) yes
+  */
+ pgprot_t protection_map[16] = {
+ 	__P000, __P001, __P010, __P011, __P100, __P101, __P110, __P111,
 
 
