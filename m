@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F0013806D
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:29:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAD72137F3C
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729328AbgAKK3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:29:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38780 "EHLO mail.kernel.org"
+        id S1730366AbgAKKRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:17:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729171AbgAKK3c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:29:32 -0500
+        id S1728946AbgAKKRe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:17:34 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCEDE20842;
-        Sat, 11 Jan 2020 10:29:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCCB920842;
+        Sat, 11 Jan 2020 10:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738571;
-        bh=gvUfKMKRH/t4NRqfU6iHpf39qn7HbiZhJj6cXBk/K10=;
+        s=default; t=1578737853;
+        bh=ULEHRFKuKintFlbXwxDMzFw2qiaGlBfmVx+49HXc6Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cXJXSPqXv0gWdme58hCKgg2XTVcJ4V0noQU4ags7r81xFokOexH62VfZda8fMy3Dn
-         OVsb1lI1LGc4UPswpDzQWbvz1PclZuMb97oxKWsS2lWV78BiK2G5e7WrV2ZR69wcgb
-         8PkSC8r1L6lRoQUeD8bqtrYBH3hlxlEh3KdeCmdI=
+        b=GRT7gNep/FGQtPjy/hG2oeqB6upq701Nt/rpDdyaKZkE+74tmDmT/1i6b3FWKKHLn
+         pBB3he3EJwIJBZOagsF2+BwN4F8/jbaGlitE0LCBA7YH41fW818Yn/hx+zWEi2P2P2
+         ofmn82+kHM/vjesCVJLjlWqFdUPIV1o2fSFabo6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 119/165] xsk: Add rcu_read_lock around the XSK wakeup
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Srikar Dronamraju <srikar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Subject: [PATCH 4.19 61/84] powerpc/spinlocks: Include correct header for static key
 Date:   Sat, 11 Jan 2020 10:50:38 +0100
-Message-Id: <20200111094933.339758468@linuxfoundation.org>
+Message-Id: <20200111094909.129295013@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
-References: <20200111094921.347491861@linuxfoundation.org>
+In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
+References: <20200111094845.328046411@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 06870682087b58398671e8cdc896cd62314c4399 ]
+commit 6da3eced8c5f3b03340b0c395bacd552c4d52411 upstream.
 
-The XSK wakeup callback in drivers makes some sanity checks before
-triggering NAPI. However, some configuration changes may occur during
-this function that affect the result of those checks. For example, the
-interface can go down, and all the resources will be destroyed after the
-checks in the wakeup function, but before it attempts to use these
-resources. Wrap this callback in rcu_read_lock to allow driver to
-synchronize_rcu before actually destroying the resources.
+Recently, the spinlock implementation grew a static key optimization,
+but the jump_label.h header include was left out, leading to build
+errors:
 
-xsk_wakeup is a new function that encapsulates calling ndo_xsk_wakeup
-wrapped into the RCU lock. After this commit, xsk_poll starts using
-xsk_wakeup and checks xs->zc instead of ndo_xsk_wakeup != NULL to decide
-ndo_xsk_wakeup should be called. It also fixes a bug introduced with the
-need_wakeup feature: a non-zero-copy socket may be used with a driver
-supporting zero-copy, and in this case ndo_xsk_wakeup should not be
-called, so the xs->zc check is the correct one.
+  linux/arch/powerpc/include/asm/spinlock.h:44:7: error: implicit declaration of function ‘static_branch_unlikely’
+   44 |  if (!static_branch_unlikely(&shared_processor))
 
-Fixes: 77cd0d7b3f25 ("xsk: add support for need_wakeup flag in AF_XDP rings")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Signed-off-by: Björn Töpel <bjorn.topel@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20191217162023.16011-2-maximmi@mellanox.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This commit adds the missing header.
+
+mpe: The build break is only seen with CONFIG_JUMP_LABEL=n.
+
+Fixes: 656c21d6af5d ("powerpc/shared: Use static key to detect shared processor")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Srikar Dronamraju <srikar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191223133147.129983-1-Jason@zx2c4.com
+Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/xdp/xsk.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ arch/powerpc/include/asm/spinlock.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index 9044073fbf22..d426fc01c529 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -305,12 +305,21 @@ bool xsk_umem_consume_tx(struct xdp_umem *umem, struct xdp_desc *desc)
- }
- EXPORT_SYMBOL(xsk_umem_consume_tx);
- 
--static int xsk_zc_xmit(struct xdp_sock *xs)
-+static int xsk_wakeup(struct xdp_sock *xs, u8 flags)
- {
- 	struct net_device *dev = xs->dev;
-+	int err;
-+
-+	rcu_read_lock();
-+	err = dev->netdev_ops->ndo_xsk_wakeup(dev, xs->queue_id, flags);
-+	rcu_read_unlock();
-+
-+	return err;
-+}
- 
--	return dev->netdev_ops->ndo_xsk_wakeup(dev, xs->queue_id,
--					       XDP_WAKEUP_TX);
-+static int xsk_zc_xmit(struct xdp_sock *xs)
-+{
-+	return xsk_wakeup(xs, XDP_WAKEUP_TX);
- }
- 
- static void xsk_destruct_skb(struct sk_buff *skb)
-@@ -424,19 +433,16 @@ static unsigned int xsk_poll(struct file *file, struct socket *sock,
- 	unsigned int mask = datagram_poll(file, sock, wait);
- 	struct sock *sk = sock->sk;
- 	struct xdp_sock *xs = xdp_sk(sk);
--	struct net_device *dev;
- 	struct xdp_umem *umem;
- 
- 	if (unlikely(!xsk_is_bound(xs)))
- 		return mask;
- 
--	dev = xs->dev;
- 	umem = xs->umem;
- 
- 	if (umem->need_wakeup) {
--		if (dev->netdev_ops->ndo_xsk_wakeup)
--			dev->netdev_ops->ndo_xsk_wakeup(dev, xs->queue_id,
--							umem->need_wakeup);
-+		if (xs->zc)
-+			xsk_wakeup(xs, umem->need_wakeup);
- 		else
- 			/* Poll needs to drive Tx also in copy mode */
- 			__xsk_sendmsg(sk);
--- 
-2.20.1
-
+--- a/arch/powerpc/include/asm/spinlock.h
++++ b/arch/powerpc/include/asm/spinlock.h
+@@ -19,6 +19,7 @@
+  *
+  * (the type definitions are in asm/spinlock_types.h)
+  */
++#include <linux/jump_label.h>
+ #include <linux/irqflags.h>
+ #ifdef CONFIG_PPC64
+ #include <asm/paca.h>
 
 
