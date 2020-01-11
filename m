@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EFB6137E29
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:06:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E918137E6A
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:10:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728985AbgAKKFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:05:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39012 "EHLO mail.kernel.org"
+        id S1728973AbgAKKJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:09:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728850AbgAKKFm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:05:42 -0500
+        id S1729530AbgAKKJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:09:37 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07FBB2082E;
-        Sat, 11 Jan 2020 10:05:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D07702082E;
+        Sat, 11 Jan 2020 10:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737141;
-        bh=CML4ynmYXN0xB1zt3WrGElGGQONxilXaUfFuXX/uags=;
+        s=default; t=1578737376;
+        bh=vfwvDSWPrY0aHH2qtgXQ09be4+ozgnBDYPys9QmJ9Dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMOz6+B2hAcrS88BRiIfUBT9n6p6My3PiPtdDZwvMYtTkrRTD0W+YSm0hAb81XOz9
-         Ar/UHzXUZnHAYo3BEs1FYDBhydKhfZfGKq6eZBGriRaAlr42KhwdYb8Crr/4+ojIhd
-         xsJcH6NqzhZnpu53RwHp01VLMaMWUP0H0FePjOuk=
+        b=QGl6jdmdln9mmIk6OxMkeOXdF4lhXOb5Rrpgh+cRaLAIrKWSBt5ZRQwEyhRlrOQcE
+         khh+aLifagA7jEnqc4yfMXtTLLHUSiY/fFChuMVVtNlHmdMneZ0NV2fXaGLJ2+eBbn
+         KiVT9CtpOCBVN/YSJtln3gpMSr//J51XTpEQPoQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org,
+        Cristian Birsan <cristian.birsan@microchip.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 74/91] kconfig: dont crash on NULL expressions in expr_eq()
+Subject: [PATCH 4.14 25/62] net: usb: lan78xx: Fix error message format specifier
 Date:   Sat, 11 Jan 2020 10:50:07 +0100
-Message-Id: <20200111094911.443916963@linuxfoundation.org>
+Message-Id: <20200111094844.693417108@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Cristian Birsan <cristian.birsan@microchip.com>
 
-[ Upstream commit 272a72103012862e3a24ea06635253ead0b6e808 ]
+[ Upstream commit 858ce8ca62ea1530f2779d0e3f934b0176e663c3 ]
 
-NULL expressions are taken to always be true, as implemented by the
-expr_is_yes() macro and by several other functions in expr.c. As such,
-they ought to be valid inputs to expr_eq(), which compares two
-expressions.
+Display the return code as decimal integer.
 
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/kconfig/expr.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/usb/lan78xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/kconfig/expr.c b/scripts/kconfig/expr.c
-index ed29bad1f03a..96420b620963 100644
---- a/scripts/kconfig/expr.c
-+++ b/scripts/kconfig/expr.c
-@@ -201,6 +201,13 @@ static int expr_eq(struct expr *e1, struct expr *e2)
- {
- 	int res, old_count;
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 7d1d5b30ecc3..0aa6f3a5612d 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -497,7 +497,7 @@ static int lan78xx_read_stats(struct lan78xx_net *dev,
+ 		}
+ 	} else {
+ 		netdev_warn(dev->net,
+-			    "Failed to read stat ret = 0x%x", ret);
++			    "Failed to read stat ret = %d", ret);
+ 	}
  
-+	/*
-+	 * A NULL expr is taken to be yes, but there's also a different way to
-+	 * represent yes. expr_is_yes() checks for either representation.
-+	 */
-+	if (!e1 || !e2)
-+		return expr_is_yes(e1) && expr_is_yes(e2);
-+
- 	if (e1->type != e2->type)
- 		return 0;
- 	switch (e1->type) {
+ 	kfree(stats);
 -- 
 2.20.1
 
