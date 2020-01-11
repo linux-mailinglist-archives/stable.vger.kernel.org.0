@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85313137BD5
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 07:16:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A854C137BD6
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 07:16:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726183AbgAKGQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 01:16:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56692 "EHLO mail.kernel.org"
+        id S1726272AbgAKGQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 01:16:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726104AbgAKGQX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 01:16:23 -0500
+        id S1726104AbgAKGQZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 01:16:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2C1D2072E;
-        Sat, 11 Jan 2020 06:16:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9C952072E;
+        Sat, 11 Jan 2020 06:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578723382;
-        bh=xuIt3pI9UIJTtODfYx1SXNJ89/uHyqpJYVWiOpmlbag=;
+        s=default; t=1578723385;
+        bh=DOl1cId/6NtQZrWQf88AYsudY/JuMvNqDOG+X7l05sQ=;
         h=Subject:To:From:Date:From;
-        b=c8juVxPDeXU4aeTtzk9jqzc8J3DSMNJhNLCew8W7FOLClkWrlFzYTdjws5Pz+vwro
-         VF/C2BY9U80wKa/VfTdyNlxtR/Ij0c9jktH0NTPA4t+1o4QZKupI8fmI+T/zFeBik4
-         GOnA4eK5sj8GjZP4WGSoX7XoZ9GpKQczUO5q6EGs=
-Subject: patch "mei: hdcp: bind only with i915 on the same PCH" added to char-misc-next
-To:     tomas.winkler@intel.com, alexander.usyskin@intel.com,
-        gregkh@linuxfoundation.org, ramalingam.c@intel.com,
-        stable@vger.kernel.org
+        b=oiS4EmWFLx4d/afNTE2Wv4arL0Hrzq9WvYT4JuyUJuYgVJlUuCJk3glpbP5b9f5ao
+         9mwS3KAUytwS4JW4zJBqODgXCWu4MwhjR3umIL9xROVeY41KhPm/xId11pRFsvwIPu
+         tvdLoxtIbq7PgYyU98uEmDmha1GbHgALiINfX54Q=
+Subject: patch "nvmem: imx: scu: fix write SIP" added to char-misc-next
+To:     peng.fan@nxp.com, gregkh@linuxfoundation.org,
+        srinivas.kandagatla@linaro.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 11 Jan 2020 07:16:17 +0100
-Message-ID: <157872337720848@kroah.com>
+Date:   Sat, 11 Jan 2020 07:16:18 +0100
+Message-ID: <15787233787222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    mei: hdcp: bind only with i915 on the same PCH
+    nvmem: imx: scu: fix write SIP
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -56,85 +55,48 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 1e8d19d9b0dfcf11b61bac627203a290577e807a Mon Sep 17 00:00:00 2001
-From: Tomas Winkler <tomas.winkler@intel.com>
-Date: Thu, 12 Dec 2019 10:41:03 +0200
-Subject: mei: hdcp: bind only with i915 on the same PCH
+From 40bb95dbb8acca35f8d52a833393ddbb01cfa2db Mon Sep 17 00:00:00 2001
+From: Peng Fan <peng.fan@nxp.com>
+Date: Thu, 9 Jan 2020 10:40:14 +0000
+Subject: nvmem: imx: scu: fix write SIP
 
-The mei device and i915 must reside on the same
-PCH in order for HDCP to work. Make the component
-matching function enforce this requirement.
+SIP number 0xC200000A is for reading, 0xC200000B is for writing.
+And the following two args for write are word index, data to write.
 
-                   hdcp
-                    |
-   i915            mei
-    |               |
-    +----= PCH =----+
-
-Cc: <stable@vger.kernel.org> v5.0+
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Reviewed-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Link: https://lore.kernel.org/r/20191212084103.2893-1-tomas.winkler@intel.com
+Fixes: 885ce72a09d0 ("nvmem: imx: scu: support write")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200109104017.6249-2-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hdcp/mei_hdcp.c | 33 +++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
+ drivers/nvmem/imx-ocotp-scu.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/mei/hdcp/mei_hdcp.c b/drivers/misc/mei/hdcp/mei_hdcp.c
-index 93027fd96c71..4c596c646ac0 100644
---- a/drivers/misc/mei/hdcp/mei_hdcp.c
-+++ b/drivers/misc/mei/hdcp/mei_hdcp.c
-@@ -757,11 +757,38 @@ static const struct component_master_ops mei_component_master_ops = {
- 	.unbind = mei_component_master_unbind,
- };
+diff --git a/drivers/nvmem/imx-ocotp-scu.c b/drivers/nvmem/imx-ocotp-scu.c
+index 03f1ab23ad51..455675dd8efe 100644
+--- a/drivers/nvmem/imx-ocotp-scu.c
++++ b/drivers/nvmem/imx-ocotp-scu.c
+@@ -15,8 +15,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
  
-+/**
-+ * mei_hdcp_component_match - compare function for matching mei hdcp.
-+ *
-+ *    The function checks if the driver is i915, the subcomponent is HDCP
-+ *    and the grand parent of hdcp and the parent of i915 are the same
-+ *    PCH device.
-+ *
-+ * @dev: master device
-+ * @subcomponent: subcomponent to match (I915_COMPONENT_HDCP)
-+ * @data: compare data (mei hdcp device)
-+ *
-+ * Return:
-+ * * 1 - if components match
-+ * * 0 - otherwise
-+ */
- static int mei_hdcp_component_match(struct device *dev, int subcomponent,
- 				    void *data)
- {
--	return !strcmp(dev->driver->name, "i915") &&
--	       subcomponent == I915_COMPONENT_HDCP;
-+	struct device *base = data;
-+
-+	if (strcmp(dev->driver->name, "i915") ||
-+	    subcomponent != I915_COMPONENT_HDCP)
-+		return 0;
-+
-+	base = base->parent;
-+	if (!base)
-+		return 0;
-+
-+	base = base->parent;
-+	dev = dev->parent;
-+
-+	return (base && dev && dev == base);
- }
+-#define IMX_SIP_OTP			0xC200000A
+-#define IMX_SIP_OTP_WRITE		0x2
++#define IMX_SIP_OTP_WRITE		0xc200000B
  
- static int mei_hdcp_probe(struct mei_cl_device *cldev,
-@@ -785,7 +812,7 @@ static int mei_hdcp_probe(struct mei_cl_device *cldev,
+ enum ocotp_devtype {
+ 	IMX8QXP,
+@@ -212,8 +211,7 @@ static int imx_scu_ocotp_write(void *context, unsigned int offset,
  
- 	master_match = NULL;
- 	component_match_add_typed(&cldev->dev, &master_match,
--				  mei_hdcp_component_match, comp_master);
-+				  mei_hdcp_component_match, &cldev->dev);
- 	if (IS_ERR_OR_NULL(master_match)) {
- 		ret = -ENOMEM;
- 		goto err_exit;
+ 	mutex_lock(&scu_ocotp_mutex);
+ 
+-	arm_smccc_smc(IMX_SIP_OTP, IMX_SIP_OTP_WRITE, index, *buf,
+-		      0, 0, 0, 0, &res);
++	arm_smccc_smc(IMX_SIP_OTP_WRITE, index, *buf, 0, 0, 0, 0, 0, &res);
+ 
+ 	mutex_unlock(&scu_ocotp_mutex);
+ 
 -- 
 2.24.1
 
