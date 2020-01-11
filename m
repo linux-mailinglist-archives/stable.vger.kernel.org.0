@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F07137F5F
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:19:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C066A137F61
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:19:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729272AbgAKKTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:19:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38570 "EHLO mail.kernel.org"
+        id S1728938AbgAKKTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:19:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726133AbgAKKTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:19:17 -0500
+        id S1729290AbgAKKTV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:19:21 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DACA20848;
-        Sat, 11 Jan 2020 10:19:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3212320848;
+        Sat, 11 Jan 2020 10:19:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737956;
-        bh=CxRfztQPFPpTTNG2bnFdUvwgiscg6BhlR1vkQlSyAPI=;
+        s=default; t=1578737961;
+        bh=KAZGPNOUpXPjKxUQxVo2QmQRLvQcbRjYGdHWikqgbPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K//DmKZJCxytR2yxb5KWZjXfPd3PR7E6YB7oqYEgMBa0lgw/SUhVv+yXzHF6/457e
-         6i90oQkz3znSTqhJumaEHzlHj+xysLeMZnnoB79wFXQ87n/mZiKMw5XGu9bd661UOd
-         W9LlL3VKKbz+UTy+on2zTF5yks/ntpPo3XlR3rDk=
+        b=wf8sWTEecZXmR9rCOo0sH3fsk0yXaKSpFoSFfAJJXlVhXsAJp2AB3a/wGDut92i6N
+         RW/IsVY7rME9QX9HQoy58QTFcaGj/RGn7J/vokX5mXAFstpYoHvvpPOhPvbFhb1RQ8
+         OvBArZUcjkNV1l9OftuQarCE8A8M0y/D15CtOLMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 78/84] vlan: vlan_changelink() should propagate errors
-Date:   Sat, 11 Jan 2020 10:50:55 +0100
-Message-Id: <20200111094912.351854476@linuxfoundation.org>
+Subject: [PATCH 4.19 79/84] mlxsw: spectrum_qdisc: Ignore grafting of invisible FIFO
+Date:   Sat, 11 Jan 2020 10:50:56 +0100
+Message-Id: <20200111094912.472153699@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
 References: <20200111094845.328046411@linuxfoundation.org>
@@ -43,49 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit eb8ef2a3c50092bb018077c047b8dba1ce0e78e3 ]
+[ Upstream commit 3971a535b839489e4ea31796cc086e6ce616318c ]
 
-Both vlan_dev_change_flags() and vlan_dev_set_egress_priority()
-can return an error. vlan_changelink() should not ignore them.
+The following patch will change PRIO to replace a removed Qdisc with an
+invisible FIFO, instead of NOOP. mlxsw will see this replacement due to the
+graft message that is generated. But because FIFO does not issue its own
+REPLACE message, when the graft operation takes place, the Qdisc that mlxsw
+tracks under the indicated band is still the old one. The child
+handle (0:0) therefore does not match, and mlxsw rejects the graft
+operation, which leads to an extack message:
 
-Fixes: 07b5b17e157b ("[VLAN]: Use rtnl_link API")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+    Warning: Offloading graft operation failed.
+
+Fix by ignoring the invisible children in the PRIO graft handler. The
+DESTROY message of the removed Qdisc is going to follow shortly and handle
+the removal.
+
+Fixes: 32dc5efc6cb4 ("mlxsw: spectrum: qdiscs: prio: Handle graft command")
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/8021q/vlan_netlink.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/8021q/vlan_netlink.c
-+++ b/net/8021q/vlan_netlink.c
-@@ -110,11 +110,13 @@ static int vlan_changelink(struct net_de
- 	struct ifla_vlan_flags *flags;
- 	struct ifla_vlan_qos_mapping *m;
- 	struct nlattr *attr;
--	int rem;
-+	int rem, err;
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c
+@@ -650,6 +650,13 @@ mlxsw_sp_qdisc_prio_graft(struct mlxsw_s
+ 	    mlxsw_sp_port->tclass_qdiscs[tclass_num].handle == p->child_handle)
+ 		return 0;
  
- 	if (data[IFLA_VLAN_FLAGS]) {
- 		flags = nla_data(data[IFLA_VLAN_FLAGS]);
--		vlan_dev_change_flags(dev, flags->flags, flags->mask);
-+		err = vlan_dev_change_flags(dev, flags->flags, flags->mask);
-+		if (err)
-+			return err;
- 	}
- 	if (data[IFLA_VLAN_INGRESS_QOS]) {
- 		nla_for_each_nested(attr, data[IFLA_VLAN_INGRESS_QOS], rem) {
-@@ -125,7 +127,9 @@ static int vlan_changelink(struct net_de
- 	if (data[IFLA_VLAN_EGRESS_QOS]) {
- 		nla_for_each_nested(attr, data[IFLA_VLAN_EGRESS_QOS], rem) {
- 			m = nla_data(attr);
--			vlan_dev_set_egress_priority(dev, m->from, m->to);
-+			err = vlan_dev_set_egress_priority(dev, m->from, m->to);
-+			if (err)
-+				return err;
- 		}
- 	}
- 	return 0;
++	if (!p->child_handle) {
++		/* This is an invisible FIFO replacing the original Qdisc.
++		 * Ignore it--the original Qdisc's destroy will follow.
++		 */
++		return 0;
++	}
++
+ 	/* See if the grafted qdisc is already offloaded on any tclass. If so,
+ 	 * unoffload it.
+ 	 */
 
 
