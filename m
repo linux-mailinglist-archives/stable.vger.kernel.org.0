@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36CDE137F80
+	by mail.lfdr.de (Postfix) with ESMTP id B3C2D137F81
 	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:20:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730629AbgAKKU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:20:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41918 "EHLO mail.kernel.org"
+        id S1730404AbgAKKUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:20:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730625AbgAKKU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:20:26 -0500
+        id S1729107AbgAKKUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:20:30 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DABC205F4;
-        Sat, 11 Jan 2020 10:20:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8555205F4;
+        Sat, 11 Jan 2020 10:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738025;
-        bh=W+sKJaj7dhNZNE8kx03VWm50nT0eOXV4jWWj0vm9+18=;
+        s=default; t=1578738029;
+        bh=2DiBYGWS5QE5BOVdqskwBBmd2acNGLzfTTvG7WdtHDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsjEv2sI1K1sUx5MbMAy2zEejWIR8HVqQz8iZPBgF9KetkvMNitpyChm+fC3o1ic0
-         11ZwPhQNCqMSST1IxW7Do+lQRTanNlZhg8Mg9zvPeMAcxP3XwAAHS+L9u/9p0UfxU+
-         VbIuJhds7ltlu0A1+RgZkoDuEroxDm8qV93JjC1U=
+        b=Bz92jVL1OvMVoCo4Z/dJZyUQHrRtOMPnID5PWdA8C8uGiTtE+99NiYRLO+7UARV6B
+         X6sDJYa1rlJR3xEq8lXTB+fIZCJOHX4mq/PC0HyKAzHfE3j6yefy7QU+MzJI6FYE5d
+         PsItEGe1NjIcVS3q3vpHtrDOfx8wO4YAVkarIJxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>
-Subject: [PATCH 5.4 001/165] USB: dummy-hcd: use usb_urb_dir_in instead of usb_pipein
-Date:   Sat, 11 Jan 2020 10:48:40 +0100
-Message-Id: <20200111094921.447775542@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.4 002/165] bpf: Fix passing modified ctx to ld/abs/ind instruction
+Date:   Sat, 11 Jan 2020 10:48:41 +0100
+Message-Id: <20200111094921.534028771@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,62 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 6dabeb891c001c592645df2f477fed9f5d959987 upstream.
+commit 6d4f151acf9a4f6fab09b615f246c717ddedcf0c upstream.
 
-Commit fea3409112a9 ("USB: add direction bit to urb->transfer_flags") has
-added a usb_urb_dir_in() helper function that can be used to determine
-the direction of the URB. With that patch USB_DIR_IN control requests with
-wLength == 0 are considered out requests by real USB HCDs. This patch
-changes dummy-hcd to use the usb_urb_dir_in() helper to match that
-behavior.
+Anatoly has been fuzzing with kBdysch harness and reported a KASAN
+slab oob in one of the outcomes:
 
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Link: https://lore.kernel.org/r/4ae9e68ebca02f08a93ac61fe065057c9a01f0a8.1571667489.git.andreyknvl@google.com
+  [...]
+  [   77.359642] BUG: KASAN: slab-out-of-bounds in bpf_skb_load_helper_8_no_cache+0x71/0x130
+  [   77.360463] Read of size 4 at addr ffff8880679bac68 by task bpf/406
+  [   77.361119]
+  [   77.361289] CPU: 2 PID: 406 Comm: bpf Not tainted 5.5.0-rc2-xfstests-00157-g2187f215eba #1
+  [   77.362134] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+  [   77.362984] Call Trace:
+  [   77.363249]  dump_stack+0x97/0xe0
+  [   77.363603]  print_address_description.constprop.0+0x1d/0x220
+  [   77.364251]  ? bpf_skb_load_helper_8_no_cache+0x71/0x130
+  [   77.365030]  ? bpf_skb_load_helper_8_no_cache+0x71/0x130
+  [   77.365860]  __kasan_report.cold+0x37/0x7b
+  [   77.366365]  ? bpf_skb_load_helper_8_no_cache+0x71/0x130
+  [   77.366940]  kasan_report+0xe/0x20
+  [   77.367295]  bpf_skb_load_helper_8_no_cache+0x71/0x130
+  [   77.367821]  ? bpf_skb_load_helper_8+0xf0/0xf0
+  [   77.368278]  ? mark_lock+0xa3/0x9b0
+  [   77.368641]  ? kvm_sched_clock_read+0x14/0x30
+  [   77.369096]  ? sched_clock+0x5/0x10
+  [   77.369460]  ? sched_clock_cpu+0x18/0x110
+  [   77.369876]  ? bpf_skb_load_helper_8+0xf0/0xf0
+  [   77.370330]  ___bpf_prog_run+0x16c0/0x28f0
+  [   77.370755]  __bpf_prog_run32+0x83/0xc0
+  [   77.371153]  ? __bpf_prog_run64+0xc0/0xc0
+  [   77.371568]  ? match_held_lock+0x1b/0x230
+  [   77.371984]  ? rcu_read_lock_held+0xa1/0xb0
+  [   77.372416]  ? rcu_is_watching+0x34/0x50
+  [   77.372826]  sk_filter_trim_cap+0x17c/0x4d0
+  [   77.373259]  ? sock_kzfree_s+0x40/0x40
+  [   77.373648]  ? __get_filter+0x150/0x150
+  [   77.374059]  ? skb_copy_datagram_from_iter+0x80/0x280
+  [   77.374581]  ? do_raw_spin_unlock+0xa5/0x140
+  [   77.375025]  unix_dgram_sendmsg+0x33a/0xa70
+  [   77.375459]  ? do_raw_spin_lock+0x1d0/0x1d0
+  [   77.375893]  ? unix_peer_get+0xa0/0xa0
+  [   77.376287]  ? __fget_light+0xa4/0xf0
+  [   77.376670]  __sys_sendto+0x265/0x280
+  [   77.377056]  ? __ia32_sys_getpeername+0x50/0x50
+  [   77.377523]  ? lock_downgrade+0x350/0x350
+  [   77.377940]  ? __sys_setsockopt+0x2a6/0x2c0
+  [   77.378374]  ? sock_read_iter+0x240/0x240
+  [   77.378789]  ? __sys_socketpair+0x22a/0x300
+  [   77.379221]  ? __ia32_sys_socket+0x50/0x50
+  [   77.379649]  ? mark_held_locks+0x1d/0x90
+  [   77.380059]  ? trace_hardirqs_on_thunk+0x1a/0x1c
+  [   77.380536]  __x64_sys_sendto+0x74/0x90
+  [   77.380938]  do_syscall_64+0x68/0x2a0
+  [   77.381324]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  [   77.381878] RIP: 0033:0x44c070
+  [...]
+
+After further debugging, turns out while in case of other helper functions
+we disallow passing modified ctx, the special case of ld/abs/ind instruction
+which has similar semantics (except r6 being the ctx argument) is missing
+such check. Modified ctx is impossible here as bpf_skb_load_helper_8_no_cache()
+and others are expecting skb fields in original position, hence, add
+check_ctx_reg() to reject any modified ctx. Issue was first introduced back
+in f1174f77b50c ("bpf/verifier: rework value tracking").
+
+Fixes: f1174f77b50c ("bpf/verifier: rework value tracking")
+Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200106215157.3553-1-daniel@iogearbox.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/udc/dummy_hcd.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/bpf/verifier.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/udc/dummy_hcd.c
-+++ b/drivers/usb/gadget/udc/dummy_hcd.c
-@@ -1321,7 +1321,7 @@ static int dummy_perform_transfer(struct
- 	u32 this_sg;
- 	bool next_sg;
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -6039,6 +6039,7 @@ static bool may_access_skb(enum bpf_prog
+ static int check_ld_abs(struct bpf_verifier_env *env, struct bpf_insn *insn)
+ {
+ 	struct bpf_reg_state *regs = cur_regs(env);
++	static const int ctx_reg = BPF_REG_6;
+ 	u8 mode = BPF_MODE(insn->code);
+ 	int i, err;
  
--	to_host = usb_pipein(urb->pipe);
-+	to_host = usb_urb_dir_in(urb);
- 	rbuf = req->req.buf + req->req.actual;
+@@ -6072,7 +6073,7 @@ static int check_ld_abs(struct bpf_verif
+ 	}
  
- 	if (!urb->num_sgs) {
-@@ -1409,7 +1409,7 @@ top:
+ 	/* check whether implicit source operand (register R6) is readable */
+-	err = check_reg_arg(env, BPF_REG_6, SRC_OP);
++	err = check_reg_arg(env, ctx_reg, SRC_OP);
+ 	if (err)
+ 		return err;
  
- 		/* FIXME update emulated data toggle too */
+@@ -6091,7 +6092,7 @@ static int check_ld_abs(struct bpf_verif
+ 		return -EINVAL;
+ 	}
  
--		to_host = usb_pipein(urb->pipe);
-+		to_host = usb_urb_dir_in(urb);
- 		if (unlikely(len == 0))
- 			is_short = 1;
- 		else {
-@@ -1830,7 +1830,7 @@ restart:
+-	if (regs[BPF_REG_6].type != PTR_TO_CTX) {
++	if (regs[ctx_reg].type != PTR_TO_CTX) {
+ 		verbose(env,
+ 			"at the time of BPF_LD_ABS|IND R6 != pointer to skb\n");
+ 		return -EINVAL;
+@@ -6104,6 +6105,10 @@ static int check_ld_abs(struct bpf_verif
+ 			return err;
+ 	}
  
- 		/* find the gadget's ep for this request (if configured) */
- 		address = usb_pipeendpoint (urb->pipe);
--		if (usb_pipein(urb->pipe))
-+		if (usb_urb_dir_in(urb))
- 			address |= USB_DIR_IN;
- 		ep = find_endpoint(dum, address);
- 		if (!ep) {
-@@ -2385,7 +2385,7 @@ static inline ssize_t show_urb(char *buf
- 			s = "?";
- 			break;
- 		 } s; }),
--		ep, ep ? (usb_pipein(urb->pipe) ? "in" : "out") : "",
-+		ep, ep ? (usb_urb_dir_in(urb) ? "in" : "out") : "",
- 		({ char *s; \
- 		switch (usb_pipetype(urb->pipe)) { \
- 		case PIPE_CONTROL: \
++	err = check_ctx_reg(env, &regs[ctx_reg], ctx_reg);
++	if (err < 0)
++		return err;
++
+ 	/* reset caller saved regs to unreadable */
+ 	for (i = 0; i < CALLER_SAVED_REGS; i++) {
+ 		mark_reg_not_init(env, regs, caller_saved[i]);
 
 
