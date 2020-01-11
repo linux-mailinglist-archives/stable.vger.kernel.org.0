@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 478ED1380CA
+	by mail.lfdr.de (Postfix) with ESMTP id BA9B71380CB
 	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:35:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731532AbgAKKeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:34:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49626 "EHLO mail.kernel.org"
+        id S1731576AbgAKKeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:34:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731664AbgAKKeC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:34:02 -0500
+        id S1731482AbgAKKeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:34:07 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2278920882;
-        Sat, 11 Jan 2020 10:34:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 979BB2146E;
+        Sat, 11 Jan 2020 10:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578738842;
-        bh=66DVYFBrLGLVARYkBMilCyp7NSpvJyAn5q3dwlYhkL4=;
+        s=default; t=1578738846;
+        bh=2JEldexF+q/JsBqhHy+gKCiMmS+qMufmA/AodFp3BsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6c1INa5Q45lM7CZGqgqv1ntx0tVlhlTvx1n/fApqbtOtc4xwQ8wMQwg/OLudZCWg
-         n8EJoRvJ0gvfFtcaQy9utGsb6sSjih9LQD3hs7IMCVntY6fNtcTgPQhSRw02umbv69
-         IavZDH42TXItyaT8eg7AB9mmTu63U0FINtVseZrM=
+        b=yvfOBBQLVGF60u8UakzD7sfWHxHf7Vy9AXsu9BwZGb7Bt11Xv395qv/EUBh7F1XQC
+         MKIOtmNMYrlbPfA5Fp6AzmQtri39gn0xe5awsAm6IOiriE7UV+JsiXtM9dvstj0lHx
+         3wrrT8MpIPGPCMmZFRnoA7uBloEEiJ3wdivLAIZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Denis Odintsov <d.odintsov@traviangames.com>,
-        Baruch Siach <baruch@tkos.co.il>, Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 157/165] net: dsa: mv88e6xxx: force cmode write on 6141/6341
-Date:   Sat, 11 Jan 2020 10:51:16 +0100
-Message-Id: <20200111094942.051996560@linuxfoundation.org>
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.4 158/165] net/mlx5e: Always print health reporter message to dmesg
+Date:   Sat, 11 Jan 2020 10:51:17 +0100
+Message-Id: <20200111094942.283510775@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
 References: <20200111094921.347491861@linuxfoundation.org>
@@ -45,81 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch@tkos.co.il>
+From: Eran Ben Elisha <eranbe@mellanox.com>
 
-[ Upstream commit f7a48b68abd9b20ce1ac6298aaaa3c4d158271dd ]
+[ Upstream commit 99cda45426c9a2c59bb2f7cb886a405440282455 ]
 
-mv88e6xxx_port_set_cmode() relies on cmode stored in struct
-mv88e6xxx_port to skip cmode update when the requested value matches the
-cached value. It turns out that mv88e6xxx_port_hidden_write() might
-change the port cmode setting as a side effect, so we can't rely on the
-cached value to determine that cmode update in not necessary.
+In case a reporter exists, error message is logged only to the devlink
+tracer. The devlink tracer is a visibility utility only, which user can
+choose not to monitor.
+After cited patch, 3rd party monitoring tools that tracks these error
+message will no longer find them in dmesg, causing a regression.
 
-Force cmode update in mv88e6341_port_set_cmode(), to make
-serdes configuration work again. Other mv88e6xxx_port_set_cmode()
-callers keep the current behaviour.
+With this patch, error messages are also logged into the dmesg.
 
-This fixes serdes configuration of the 6141 switch on SolidRun Clearfog
-GT-8K.
-
-Fixes: 7a3007d22e8 ("net: dsa: mv88e6xxx: fully support SERDES on Topaz family")
-Reported-by: Denis Odintsov <d.odintsov@traviangames.com>
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c50de4af1d63 ("net/mlx5e: Generalize tx reporter's functionality")
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/port.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/health.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/dsa/mv88e6xxx/port.c
-+++ b/drivers/net/dsa/mv88e6xxx/port.c
-@@ -393,7 +393,7 @@ phy_interface_t mv88e6390x_port_max_spee
- }
- 
- static int mv88e6xxx_port_set_cmode(struct mv88e6xxx_chip *chip, int port,
--				    phy_interface_t mode)
-+				    phy_interface_t mode, bool force)
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/health.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/health.c
+@@ -197,9 +197,10 @@ int mlx5e_health_report(struct mlx5e_pri
+ 			struct devlink_health_reporter *reporter, char *err_str,
+ 			struct mlx5e_err_ctx *err_ctx)
  {
- 	u8 lane;
- 	u16 cmode;
-@@ -427,8 +427,8 @@ static int mv88e6xxx_port_set_cmode(stru
- 		cmode = 0;
- 	}
- 
--	/* cmode doesn't change, nothing to do for us */
--	if (cmode == chip->ports[port].cmode)
-+	/* cmode doesn't change, nothing to do for us unless forced */
-+	if (cmode == chip->ports[port].cmode && !force)
- 		return 0;
- 
- 	lane = mv88e6xxx_serdes_get_lane(chip, port);
-@@ -484,7 +484,7 @@ int mv88e6390x_port_set_cmode(struct mv8
- 	if (port != 9 && port != 10)
- 		return -EOPNOTSUPP;
- 
--	return mv88e6xxx_port_set_cmode(chip, port, mode);
-+	return mv88e6xxx_port_set_cmode(chip, port, mode, false);
+-	if (!reporter) {
+-		netdev_err(priv->netdev, err_str);
++	netdev_err(priv->netdev, err_str);
++
++	if (!reporter)
+ 		return err_ctx->recover(&err_ctx->ctx);
+-	}
++
+ 	return devlink_health_report(reporter, err_str, err_ctx);
  }
- 
- int mv88e6390_port_set_cmode(struct mv88e6xxx_chip *chip, int port,
-@@ -504,7 +504,7 @@ int mv88e6390_port_set_cmode(struct mv88
- 		break;
- 	}
- 
--	return mv88e6xxx_port_set_cmode(chip, port, mode);
-+	return mv88e6xxx_port_set_cmode(chip, port, mode, false);
- }
- 
- static int mv88e6341_port_set_cmode_writable(struct mv88e6xxx_chip *chip,
-@@ -555,7 +555,7 @@ int mv88e6341_port_set_cmode(struct mv88
- 	if (err)
- 		return err;
- 
--	return mv88e6xxx_port_set_cmode(chip, port, mode);
-+	return mv88e6xxx_port_set_cmode(chip, port, mode, true);
- }
- 
- int mv88e6185_port_get_cmode(struct mv88e6xxx_chip *chip, int port, u8 *cmode)
 
 
