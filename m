@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA41D137F6B
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:19:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E09CC137F6D
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:19:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729972AbgAKKTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:19:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39744 "EHLO mail.kernel.org"
+        id S1728937AbgAKKTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:19:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730558AbgAKKTn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:19:43 -0500
+        id S1730558AbgAKKTs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:19:48 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2656920848;
-        Sat, 11 Jan 2020 10:19:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 513CC20848;
+        Sat, 11 Jan 2020 10:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737982;
-        bh=kgklFIXr5YCgi1ccJCz/mgx9tfBvzSz/JflF8EIZIY8=;
+        s=default; t=1578737987;
+        bh=hUos0hfH9yc+3F85AO2RCkMxw9/ke1vT/KKJaDu7Uy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ssAHiaYlpQm8h2T0c4x5BZmbqijhQkECXTgHc7HBgidCWEOSQ3xFchEfazvjdd1v
-         MdOZqV6+HxggikO6f0pE/QZcDouSFZADo/lUK+YeW3bAcmiTfxI4wkcshK2kHn/QUY
-         AJGl5SIPT5QnIDZPd/rkPn8g1a5XsTKjn2j3Ji/0=
+        b=luTFh7fOEJ7RJM6awVh4rEK9lw97ADy1rY+LtqLy+3klIEuRwAZyMbM0rsuWqIVlA
+         0eyFfu6NNpOweu2xDPM1HozVDfLrgf5D6rnZuPyX2rGUKsVYP+mKACtEAiNIhZJQDj
+         5hpcqFq4tMqxYN9WXIYK+8nHBhqSfjzkiWgTKMk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
-        Taehee Yoo <ap420073@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 66/84] gtp: fix bad unlock balance in gtp_encap_enable_socket
-Date:   Sat, 11 Jan 2020 10:50:43 +0100
-Message-Id: <20200111094910.533184272@linuxfoundation.org>
+Subject: [PATCH 4.19 67/84] macvlan: do not assume mac_header is set in macvlan_broadcast()
+Date:   Sat, 11 Jan 2020 10:50:44 +0100
+Message-Id: <20200111094910.766544246@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200111094845.328046411@linuxfoundation.org>
 References: <20200111094845.328046411@linuxfoundation.org>
@@ -47,95 +46,168 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 90d72256addff9e5f8ad645e8f632750dd1f8935 ]
+[ Upstream commit 96cc4b69581db68efc9749ef32e9cf8e0160c509 ]
 
-WARNING: bad unlock balance detected!
-5.5.0-rc5-syzkaller #0 Not tainted
--------------------------------------
-syz-executor921/9688 is trying to release lock (sk_lock-AF_INET6) at:
-[<ffffffff84bf8506>] gtp_encap_enable_socket+0x146/0x400 drivers/net/gtp.c:830
-but there are no more locks to release!
+Use of eth_hdr() in tx path is error prone.
 
-other info that might help us debug this:
-2 locks held by syz-executor921/9688:
- #0: ffffffff8a4d8840 (rtnl_mutex){+.+.}, at: rtnl_lock net/core/rtnetlink.c:72 [inline]
- #0: ffffffff8a4d8840 (rtnl_mutex){+.+.}, at: rtnetlink_rcv_msg+0x405/0xaf0 net/core/rtnetlink.c:5421
- #1: ffff88809304b560 (slock-AF_INET6){+...}, at: spin_lock_bh include/linux/spinlock.h:343 [inline]
- #1: ffff88809304b560 (slock-AF_INET6){+...}, at: release_sock+0x20/0x1c0 net/core/sock.c:2951
+Many drivers call skb_reset_mac_header() before using it,
+but others do not.
 
-stack backtrace:
-CPU: 0 PID: 9688 Comm: syz-executor921 Not tainted 5.5.0-rc5-syzkaller #0
+Commit 6d1ccff62780 ("net: reset mac header in dev_start_xmit()")
+attempted to fix this generically, but commit d346a3fae3ff
+("packet: introduce PACKET_QDISC_BYPASS socket option") brought
+back the macvlan bug.
+
+Lets add a new helper, so that tx paths no longer have
+to call skb_reset_mac_header() only to get a pointer
+to skb->data.
+
+Hopefully we will be able to revert 6d1ccff62780
+("net: reset mac header in dev_start_xmit()") and save few cycles
+in transmit fast path.
+
+BUG: KASAN: use-after-free in __get_unaligned_cpu32 include/linux/unaligned/packed_struct.h:19 [inline]
+BUG: KASAN: use-after-free in mc_hash drivers/net/macvlan.c:251 [inline]
+BUG: KASAN: use-after-free in macvlan_broadcast+0x547/0x620 drivers/net/macvlan.c:277
+Read of size 4 at addr ffff8880a4932401 by task syz-executor947/9579
+
+CPU: 0 PID: 9579 Comm: syz-executor947 Not tainted 5.5.0-rc4-syzkaller #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 Call Trace:
  __dump_stack lib/dump_stack.c:77 [inline]
  dump_stack+0x197/0x210 lib/dump_stack.c:118
- print_unlock_imbalance_bug kernel/locking/lockdep.c:4008 [inline]
- print_unlock_imbalance_bug.cold+0x114/0x123 kernel/locking/lockdep.c:3984
- __lock_release kernel/locking/lockdep.c:4242 [inline]
- lock_release+0x5f2/0x960 kernel/locking/lockdep.c:4503
- sock_release_ownership include/net/sock.h:1496 [inline]
- release_sock+0x17c/0x1c0 net/core/sock.c:2961
- gtp_encap_enable_socket+0x146/0x400 drivers/net/gtp.c:830
- gtp_encap_enable drivers/net/gtp.c:852 [inline]
- gtp_newlink+0x9fc/0xc60 drivers/net/gtp.c:666
- __rtnl_newlink+0x109e/0x1790 net/core/rtnetlink.c:3305
- rtnl_newlink+0x69/0xa0 net/core/rtnetlink.c:3363
- rtnetlink_rcv_msg+0x45e/0xaf0 net/core/rtnetlink.c:5424
- netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
- rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5442
- netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
- netlink_unicast+0x58c/0x7d0 net/netlink/af_netlink.c:1328
- netlink_sendmsg+0x91c/0xea0 net/netlink/af_netlink.c:1917
+ print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+ __kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:639
+ __asan_report_load_n_noabort+0xf/0x20 mm/kasan/generic_report.c:145
+ __get_unaligned_cpu32 include/linux/unaligned/packed_struct.h:19 [inline]
+ mc_hash drivers/net/macvlan.c:251 [inline]
+ macvlan_broadcast+0x547/0x620 drivers/net/macvlan.c:277
+ macvlan_queue_xmit drivers/net/macvlan.c:520 [inline]
+ macvlan_start_xmit+0x402/0x77f drivers/net/macvlan.c:559
+ __netdev_start_xmit include/linux/netdevice.h:4447 [inline]
+ netdev_start_xmit include/linux/netdevice.h:4461 [inline]
+ dev_direct_xmit+0x419/0x630 net/core/dev.c:4079
+ packet_direct_xmit+0x1a9/0x250 net/packet/af_packet.c:240
+ packet_snd net/packet/af_packet.c:2966 [inline]
+ packet_sendmsg+0x260d/0x6220 net/packet/af_packet.c:2991
  sock_sendmsg_nosec net/socket.c:639 [inline]
  sock_sendmsg+0xd7/0x130 net/socket.c:659
- ____sys_sendmsg+0x753/0x880 net/socket.c:2330
- ___sys_sendmsg+0x100/0x170 net/socket.c:2384
- __sys_sendmsg+0x105/0x1d0 net/socket.c:2417
- __do_sys_sendmsg net/socket.c:2426 [inline]
- __se_sys_sendmsg net/socket.c:2424 [inline]
- __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2424
+ __sys_sendto+0x262/0x380 net/socket.c:1985
+ __do_sys_sendto net/socket.c:1997 [inline]
+ __se_sys_sendto net/socket.c:1993 [inline]
+ __x64_sys_sendto+0xe1/0x1a0 net/socket.c:1993
  do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x445d49
-Code: e8 bc b7 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 2b 12 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f8019074db8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00000000006dac38 RCX: 0000000000445d49
-RDX: 0000000000000000 RSI: 0000000020000180 RDI: 0000000000000003
-RBP: 00000000006dac30 R08: 0000000000000004 R09: 0000000000000000
-R10: 0000000000000008 R11: 0000000000000246 R12: 00000000006dac3c
-R13: 00007ffea687f6bf R14: 00007f80190759c0 R15: 20c49ba5e353f7cf
+RIP: 0033:0x442639
+Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 5b 10 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffc13549e08 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000442639
+RDX: 000000000000000e RSI: 0000000020000080 RDI: 0000000000000003
+RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000000000403bb0 R14: 0000000000000000 R15: 0000000000000000
 
-Fixes: e198987e7dd7 ("gtp: fix suspicious RCU usage")
+Allocated by task 9389:
+ save_stack+0x23/0x90 mm/kasan/common.c:72
+ set_track mm/kasan/common.c:80 [inline]
+ __kasan_kmalloc mm/kasan/common.c:513 [inline]
+ __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:486
+ kasan_kmalloc+0x9/0x10 mm/kasan/common.c:527
+ __do_kmalloc mm/slab.c:3656 [inline]
+ __kmalloc+0x163/0x770 mm/slab.c:3665
+ kmalloc include/linux/slab.h:561 [inline]
+ tomoyo_realpath_from_path+0xc5/0x660 security/tomoyo/realpath.c:252
+ tomoyo_get_realpath security/tomoyo/file.c:151 [inline]
+ tomoyo_path_perm+0x230/0x430 security/tomoyo/file.c:822
+ tomoyo_inode_getattr+0x1d/0x30 security/tomoyo/tomoyo.c:129
+ security_inode_getattr+0xf2/0x150 security/security.c:1222
+ vfs_getattr+0x25/0x70 fs/stat.c:115
+ vfs_statx_fd+0x71/0xc0 fs/stat.c:145
+ vfs_fstat include/linux/fs.h:3265 [inline]
+ __do_sys_newfstat+0x9b/0x120 fs/stat.c:378
+ __se_sys_newfstat fs/stat.c:375 [inline]
+ __x64_sys_newfstat+0x54/0x80 fs/stat.c:375
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 9389:
+ save_stack+0x23/0x90 mm/kasan/common.c:72
+ set_track mm/kasan/common.c:80 [inline]
+ kasan_set_free_info mm/kasan/common.c:335 [inline]
+ __kasan_slab_free+0x102/0x150 mm/kasan/common.c:474
+ kasan_slab_free+0xe/0x10 mm/kasan/common.c:483
+ __cache_free mm/slab.c:3426 [inline]
+ kfree+0x10a/0x2c0 mm/slab.c:3757
+ tomoyo_realpath_from_path+0x1a7/0x660 security/tomoyo/realpath.c:289
+ tomoyo_get_realpath security/tomoyo/file.c:151 [inline]
+ tomoyo_path_perm+0x230/0x430 security/tomoyo/file.c:822
+ tomoyo_inode_getattr+0x1d/0x30 security/tomoyo/tomoyo.c:129
+ security_inode_getattr+0xf2/0x150 security/security.c:1222
+ vfs_getattr+0x25/0x70 fs/stat.c:115
+ vfs_statx_fd+0x71/0xc0 fs/stat.c:145
+ vfs_fstat include/linux/fs.h:3265 [inline]
+ __do_sys_newfstat+0x9b/0x120 fs/stat.c:378
+ __se_sys_newfstat fs/stat.c:375 [inline]
+ __x64_sys_newfstat+0x54/0x80 fs/stat.c:375
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The buggy address belongs to the object at ffff8880a4932000
+ which belongs to the cache kmalloc-4k of size 4096
+The buggy address is located 1025 bytes inside of
+ 4096-byte region [ffff8880a4932000, ffff8880a4933000)
+The buggy address belongs to the page:
+page:ffffea0002924c80 refcount:1 mapcount:0 mapping:ffff8880aa402000 index:0x0 compound_mapcount: 0
+raw: 00fffe0000010200 ffffea0002846208 ffffea00028f3888 ffff8880aa402000
+raw: 0000000000000000 ffff8880a4932000 0000000100000001 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8880a4932300: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8880a4932380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+>ffff8880a4932400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                   ^
+ ffff8880a4932480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8880a4932500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+
+Fixes: b863ceb7ddce ("[NET]: Add macvlan driver")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/gtp.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/macvlan.c    |    2 +-
+ include/linux/if_ether.h |    8 ++++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -818,7 +818,7 @@ static struct sock *gtp_encap_enable_soc
- 	lock_sock(sock->sk);
- 	if (sock->sk->sk_user_data) {
- 		sk = ERR_PTR(-EBUSY);
--		goto out_sock;
-+		goto out_rel_sock;
- 	}
- 
- 	sk = sock->sk;
-@@ -831,8 +831,9 @@ static struct sock *gtp_encap_enable_soc
- 
- 	setup_udp_tunnel_sock(sock_net(sock->sk), sock, &tuncfg);
- 
--out_sock:
-+out_rel_sock:
- 	release_sock(sock->sk);
-+out_sock:
- 	sockfd_put(sock);
- 	return sk;
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -263,7 +263,7 @@ static void macvlan_broadcast(struct sk_
+ 			      struct net_device *src,
+ 			      enum macvlan_mode mode)
+ {
+-	const struct ethhdr *eth = eth_hdr(skb);
++	const struct ethhdr *eth = skb_eth_hdr(skb);
+ 	const struct macvlan_dev *vlan;
+ 	struct sk_buff *nskb;
+ 	unsigned int i;
+--- a/include/linux/if_ether.h
++++ b/include/linux/if_ether.h
+@@ -28,6 +28,14 @@ static inline struct ethhdr *eth_hdr(con
+ 	return (struct ethhdr *)skb_mac_header(skb);
  }
+ 
++/* Prefer this version in TX path, instead of
++ * skb_reset_mac_header() + eth_hdr()
++ */
++static inline struct ethhdr *skb_eth_hdr(const struct sk_buff *skb)
++{
++	return (struct ethhdr *)skb->data;
++}
++
+ static inline struct ethhdr *inner_eth_hdr(const struct sk_buff *skb)
+ {
+ 	return (struct ethhdr *)skb_inner_mac_header(skb);
 
 
