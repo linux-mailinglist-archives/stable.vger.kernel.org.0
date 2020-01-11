@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F2B137E1F
-	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:06:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBADA137E81
+	for <lists+stable@lfdr.de>; Sat, 11 Jan 2020 11:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729216AbgAKKFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Jan 2020 05:05:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38170 "EHLO mail.kernel.org"
+        id S1729346AbgAKKKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Jan 2020 05:10:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728907AbgAKKFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Jan 2020 05:05:13 -0500
+        id S1729701AbgAKKKl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Jan 2020 05:10:41 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E99312084D;
-        Sat, 11 Jan 2020 10:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72B602084D;
+        Sat, 11 Jan 2020 10:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578737112;
-        bh=ZiKqarfD7gvBtHxUSYxjAwSapGh97upDC3yH7c6GbzM=;
+        s=default; t=1578737440;
+        bh=VVAXxor+iPN+v/i1b9zhPl8bSbTs/m3d8lkUIp2osCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qChkB7dUNqQM643vemX8/Uyf7KWp8nhKzD67wsW81/0Y798fsj12hz5m1kmUc5yV1
-         JqAI64NRTY2yvJW77XdotOdPkCkXZt0scJvGRkvXkWz9LWr1ISyYTBXeCxegRZVjhj
-         2P5bg4bOodryY4sYWIWegLnn02TNgRZWZudLdwHk=
+        b=zbjNm3bThSrY34sRgiV0gkqlza7T9Ygkq6VUAOPoMbaA1hTGjl2eDKQcLi6BGvOB/
+         VGc16VcucA2AFK1fgYeQkdNUfkAhF3DgEQGSItY30H/B1Ueb54V0LgX/WqJISAAo1+
+         /0HH/OrtCL2nBO/Paipyaypa8UeRqVSLGRj7j5kY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        stable@vger.kernel.org, "Daniel T. Lee" <danieltimlee@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 69/91] bnx2x: Fix logic to get total no. of PFs per engine
-Date:   Sat, 11 Jan 2020 10:50:02 +0100
-Message-Id: <20200111094910.408624679@linuxfoundation.org>
+Subject: [PATCH 4.14 21/62] samples: bpf: fix syscall_tp due to unused syscall
+Date:   Sat, 11 Jan 2020 10:50:03 +0100
+Message-Id: <20200111094844.096095095@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200111094844.748507863@linuxfoundation.org>
-References: <20200111094844.748507863@linuxfoundation.org>
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+References: <20200111094837.425430968@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Daniel T. Lee <danieltimlee@gmail.com>
 
-[ Upstream commit ee699f89bdbaa19c399804504241b5c531b48888 ]
+[ Upstream commit fe3300897cbfd76c6cb825776e5ac0ca50a91ca4 ]
 
-Driver doesn't calculate total number of PFs configured on a
-given engine correctly which messed up resources in the PFs
-loaded on that engine, leading driver to exceed configuration
-of resources (like vlan filters etc.) beyond the limit per
-engine, which ended up with asserts from the firmware.
+Currently, open() is called from the user program and it calls the syscall
+'sys_openat', not the 'sys_open'. This leads to an error of the program
+of user side, due to the fact that the counter maps are zero since no
+function such 'sys_open' is called.
 
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+This commit adds the kernel bpf program which are attached to the
+tracepoint 'sys_enter_openat' and 'sys_enter_openat'.
+
+Fixes: 1da236b6be963 ("bpf: add a test case for syscalls/sys_{enter|exit}_* tracepoints")
+Signed-off-by: Daniel T. Lee <danieltimlee@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ samples/bpf/syscall_tp_kern.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h
-index 2ec1c43270b7..bb36312c9696 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.h
-@@ -1112,7 +1112,7 @@ static inline u8 bnx2x_get_path_func_num(struct bnx2x *bp)
- 		for (i = 0; i < E1H_FUNC_MAX / 2; i++) {
- 			u32 func_config =
- 				MF_CFG_RD(bp,
--					  func_mf_config[BP_PORT(bp) + 2 * i].
-+					  func_mf_config[BP_PATH(bp) + 2 * i].
- 					  config);
- 			func_num +=
- 				((func_config & FUNC_MF_CFG_FUNC_HIDE) ? 0 : 1);
+diff --git a/samples/bpf/syscall_tp_kern.c b/samples/bpf/syscall_tp_kern.c
+index 9149c524d279..8833aacb9c8c 100644
+--- a/samples/bpf/syscall_tp_kern.c
++++ b/samples/bpf/syscall_tp_kern.c
+@@ -50,13 +50,27 @@ static __always_inline void count(void *map)
+ SEC("tracepoint/syscalls/sys_enter_open")
+ int trace_enter_open(struct syscalls_enter_open_args *ctx)
+ {
+-	count((void *)&enter_open_map);
++	count(&enter_open_map);
++	return 0;
++}
++
++SEC("tracepoint/syscalls/sys_enter_openat")
++int trace_enter_open_at(struct syscalls_enter_open_args *ctx)
++{
++	count(&enter_open_map);
+ 	return 0;
+ }
+ 
+ SEC("tracepoint/syscalls/sys_exit_open")
+ int trace_enter_exit(struct syscalls_exit_open_args *ctx)
+ {
+-	count((void *)&exit_open_map);
++	count(&exit_open_map);
++	return 0;
++}
++
++SEC("tracepoint/syscalls/sys_exit_openat")
++int trace_enter_exit_at(struct syscalls_exit_open_args *ctx)
++{
++	count(&exit_open_map);
+ 	return 0;
+ }
 -- 
 2.20.1
 
