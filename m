@@ -2,76 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7054138A1F
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 05:04:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A642138A87
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 06:00:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387474AbgAMEEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jan 2020 23:04:47 -0500
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:35845 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387415AbgAMEEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jan 2020 23:04:47 -0500
-Received: by mail-ed1-f67.google.com with SMTP id j17so7254675edp.3;
-        Sun, 12 Jan 2020 20:04:46 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YnyjyeBwwZr9qnp1y/94ZH/bjZ4Zleb23W13zJRNH0w=;
-        b=cJYOu5uurFKRO2SGrHsFjHIYKq5KdS4yXez4riFZ8I/8c5IOBse1eVwxDQdLDlwzN+
-         ArC0ZR+jJn5H81WpOYAHHbnpI8bagGBezCK6088Y0NRua9PMh4H7eAtDuYDNPzEL/jJZ
-         tzOWQe5URR7E67mqf3tzEIlDgB98eghseSlHDiqEPTrmowBtSiVX2LIX8ga2kZ3g5CRQ
-         phvh5gfNQ3TV+BrAwGirYaiDLK249hOfaG4k704WjFoTRso0+5B0lH0wTLHr1o2sUyIV
-         Fp6CP+7hGHWtzEY221kb4cfLikNx24Np1xsi9JpcOjTJKkNy0LTAGFpb9KzujStBZumg
-         MeeQ==
-X-Gm-Message-State: APjAAAXD3Jeobz5t1GXcloneMoy3XEEjtBg4RNsNdTrx6aFBWfT4Likp
-        N0Z2AQ8QVFtIsuBw2el/HQeSG4JwBYM=
-X-Google-Smtp-Source: APXvYqzddlPRYzVrqaVhh49IUibhAGSKzYOaoynWHr9wBegeTSuSFI7W3jWGkyZafxKfIsZNMUg4pQ==
-X-Received: by 2002:a50:dacd:: with SMTP id s13mr15165113edj.194.1578888285416;
-        Sun, 12 Jan 2020 20:04:45 -0800 (PST)
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com. [209.85.128.49])
-        by smtp.gmail.com with ESMTPSA id o19sm414495ejx.36.2020.01.12.20.04.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 12 Jan 2020 20:04:45 -0800 (PST)
-Received: by mail-wm1-f49.google.com with SMTP id d73so8089485wmd.1;
-        Sun, 12 Jan 2020 20:04:44 -0800 (PST)
-X-Received: by 2002:a1c:a50e:: with SMTP id o14mr16972151wme.2.1578888284770;
- Sun, 12 Jan 2020 20:04:44 -0800 (PST)
+        id S1725268AbgAMFAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 00:00:13 -0500
+Received: from mail02.vodafone.es ([217.130.24.81]:22156 "EHLO
+        mail02.vodafone.es" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725263AbgAMFAN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 00:00:13 -0500
+IronPort-SDR: 6lLlv9pt45Ja1QotnZOJ8kPm2+ynjT7QYXJovuaKFBYD4h3+sdXRwxArbrbMgCqFdRZ1fjL3qK
+ zJ9n2HWT7P+w==
+IronPort-PHdr: =?us-ascii?q?9a23=3AZyep3RANpB5ag0tKS77kUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSPT8r8bcNUDSrc9gkEXOFd2Cra4d0KyM7fGrBjxIyK3CmUhKSIZLWR?=
+ =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
+ =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfL1/IA+ooQjQssQajolvJ6UswR?=
+ =?us-ascii?q?bVv3VEfPhby3l1LlyJhRb84cmw/J9n8ytOvv8q6tBNX6bncakmVLJUFDspPX?=
+ =?us-ascii?q?w7683trhnDUBCA5mAAXWUMkxpHGBbK4RfnVZrsqCT6t+592C6HPc3qSL0/RD?=
+ =?us-ascii?q?qv47t3RBLulSwLMTk1/nzLhcNqiaJaoAutqgJ4w47OeIGVM+B+cbnBfdwEXG?=
+ =?us-ascii?q?ZOQMBRWzVdD4Ogc4sAFfYOPeZGoIn4uVQOqwe+CRCyC+Pp0zNGgXj23ask3O?=
+ =?us-ascii?q?UhCA3JwgogFM8KvHnasNn5KKIeXOaox6fK0DrDdetb1zn95ojSbB4vouyCUr?=
+ =?us-ascii?q?1sfsTe0kQvCwHIgUmMpYD5Iz+ZyOIAuHWb4ep6UuKvjnYqpRtvrTiz2MgskJ?=
+ =?us-ascii?q?TCiYISylDC+iVy3YE4JcWmR05nf9GkCpVRtyacN4t5Wc4iQ3potz0mxbEcpZ?=
+ =?us-ascii?q?G7ey0KxI4nxx7ccvGKdZWD7BH7VOuJPzt0mXBodKiiixu87USs0PPwW8au3F?=
+ =?us-ascii?q?tEridIlMTHuGoX2BzJ8MeHT+Nw/kKm2TmSyQ/e8vpEIUUolarDLJ4h36Iwmo?=
+ =?us-ascii?q?ITsUvdGi/2n137jKqMeUUl/uio8froYrH6qpKTLYN0lAb+Pbk0lcyxBuQ4NB?=
+ =?us-ascii?q?YBU3KF9uSnzLHj/Ev5T6tWjvAujKXVrZLXKd4GqqO3HwNZyJgv5hmlAzqo0N?=
+ =?us-ascii?q?kUhXwHI0hEeBKDgYjpIVbOIPXgAPennVusjClkx+rIP73mBJXNIWPOkLf6fb?=
+ =?us-ascii?q?lm90FQ0hY8zdda555OCrEBI+r/WlXtu9zAEh85Lwu0zv78CNVhzIwRQmaPDb?=
+ =?us-ascii?q?GCPaPMvl+H+PgvL/OPZIALojb9LeYq5/r0gX8+g18dcvrh4ZxCc2yxFPBrC1?=
+ =?us-ascii?q?uWbGCqgdobF2oO+A0kQ7/QhUWGQAJUMk6/Q68mrg48Do3uWZ/OWo23n7uH0y?=
+ =?us-ascii?q?e4HoZcbUhJD1mNFTHjcIDSCNkWbyfHGsJ9nyZMar+nRMd1zRyyuRXlzLxoBu?=
+ =?us-ascii?q?rP8CZevpXmkth2sb6A3Sou/CB5Wp3Om1qGSHt5yzhQHzI=3D?=
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: =?us-ascii?q?A2FHWQBE+BtemCMYgtkUBTMYGwEBAQE?=
+ =?us-ascii?q?BAQEFAQEBEQEBAwMBAQGBewIBARcBAYEjAgmBTVIgEpNQgU0fg0OLY4EAgx4?=
+ =?us-ascii?q?VhggTDIFbDQEBAQEBNQIBAYRATgEXgQ8kOgQNAgMNAQEFAQEBAQEFBAEBAhA?=
+ =?us-ascii?q?BAQEBAQYNCwYphUqCHQweAQQBAQEBAwMDAQEMAYNdBxkPOUoMQAEOAVODBIJ?=
+ =?us-ascii?q?LAQEzhSOXWAGNBA0NAoUdgjUECoEJgRojgTQCAQGMFxqBQT+BIyGCKwgBggG?=
+ =?us-ascii?q?CfwESAWyCSIJZBI1CEiGBB4gpmBeCQQR2iUyMAoI3AQ+IAYQxAxCCRQ+BCYg?=
+ =?us-ascii?q?DhE6BfaM3V4EMDXpxMxqCJhqBIE8YDYgbji1AgRYQAk+JLoIyAQE?=
+X-IPAS-Result: =?us-ascii?q?A2FHWQBE+BtemCMYgtkUBTMYGwEBAQEBAQEFAQEBEQEBA?=
+ =?us-ascii?q?wMBAQGBewIBARcBAYEjAgmBTVIgEpNQgU0fg0OLY4EAgx4VhggTDIFbDQEBA?=
+ =?us-ascii?q?QEBNQIBAYRATgEXgQ8kOgQNAgMNAQEFAQEBAQEFBAEBAhABAQEBAQYNCwYph?=
+ =?us-ascii?q?UqCHQweAQQBAQEBAwMDAQEMAYNdBxkPOUoMQAEOAVODBIJLAQEzhSOXWAGNB?=
+ =?us-ascii?q?A0NAoUdgjUECoEJgRojgTQCAQGMFxqBQT+BIyGCKwgBggGCfwESAWyCSIJZB?=
+ =?us-ascii?q?I1CEiGBB4gpmBeCQQR2iUyMAoI3AQ+IAYQxAxCCRQ+BCYgDhE6BfaM3V4EMD?=
+ =?us-ascii?q?XpxMxqCJhqBIE8YDYgbji1AgRYQAk+JLoIyAQE?=
+X-IronPort-AV: E=Sophos;i="5.69,427,1571695200"; 
+   d="scan'208";a="323785011"
+Received: from mailrel04.vodafone.es ([217.130.24.35])
+  by mail02.vodafone.es with ESMTP; 13 Jan 2020 06:00:11 +0100
+Received: (qmail 13859 invoked from network); 12 Jan 2020 03:50:08 -0000
+Received: from unknown (HELO 192.168.1.3) (quesosbelda@[217.217.179.17])
+          (envelope-sender <peterwong@hsbc.com.hk>)
+          by mailrel04.vodafone.es (qmail-ldap-1.03) with SMTP
+          for <stable@vger.kernel.org>; 12 Jan 2020 03:50:08 -0000
+Date:   Sun, 12 Jan 2020 04:50:07 +0100 (CET)
+From:   Peter Wong <peterwong@hsbc.com.hk>
+Reply-To: Peter Wong <peterwonghkhsbc@gmail.com>
+To:     stable@vger.kernel.org
+Message-ID: <16879860.243035.1578801008654.JavaMail.cash@217.130.24.55>
+Subject: Investment opportunity
 MIME-Version: 1.0
-References: <20200113035310.18950-1-samuel@sholland.org> <20200113035310.18950-2-samuel@sholland.org>
-In-Reply-To: <20200113035310.18950-2-samuel@sholland.org>
-From:   Chen-Yu Tsai <wens@csie.org>
-Date:   Mon, 13 Jan 2020 12:04:36 +0800
-X-Gmail-Original-Message-ID: <CAGb2v66GOHBkuEaKZTe1ez4WHwyY28jvhO3ADfDPOzzH6Ui4pQ@mail.gmail.com>
-Message-ID: <CAGb2v66GOHBkuEaKZTe1ez4WHwyY28jvhO3ADfDPOzzH6Ui4pQ@mail.gmail.com>
-Subject: Re: [PATCH v3 1/8] power: supply: axp20x_ac_power: Fix reporting
- online status
-To:     Samuel Holland <samuel@sholland.org>
-Cc:     Sebastian Reichel <sre@kernel.org>,
-        Oskari Lemmela <oskari@lemmela.net>,
-        "open list:THERMAL" <linux-pm@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-sunxi <linux-sunxi@googlegroups.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 13, 2020 at 11:53 AM Samuel Holland <samuel@sholland.org> wrote:
->
-> AXP803/AXP813 have a flag that enables/disables the AC power supply
-> input. This flag does not affect the status bits in PWR_INPUT_STATUS.
-> Its effect can be verified by checking the battery charge/discharge
-> state (bit 2 of PWR_INPUT_STATUS), or by examining the current draw on
-> the AC input.
->
-> Take this flag into account when getting the ONLINE property of the AC
-> input, on PMICs where this flag is present.
->
-> Fixes: 7693b5643fd2 ("power: supply: add AC power supply driver for AXP813")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Samuel Holland <samuel@sholland.org>
+Greetings,
+Please read the attached investment proposal and reply for more details.
+Are you interested in loan?
+Sincerely: Peter Wong
 
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+
+
+
+----------------------------------------------------
+This email was sent by the shareware version of Postman Professional.
+
