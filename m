@@ -2,58 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D97D138904
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 01:07:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD71F138924
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 02:04:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387507AbgAMAHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jan 2020 19:07:14 -0500
-Received: from mga04.intel.com ([192.55.52.120]:27165 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387503AbgAMAHO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 12 Jan 2020 19:07:14 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Jan 2020 16:07:13 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,426,1571727600"; 
-   d="scan'208";a="247554391"
-Received: from akurtz1-mobl.ger.corp.intel.com (HELO localhost) ([10.252.10.99])
-  by fmsmga004.fm.intel.com with ESMTP; 12 Jan 2020 16:07:10 -0800
-Date:   Mon, 13 Jan 2020 02:07:09 +0200
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Tadeusz Struk <tadeusz.struk@intel.com>
-Cc:     keescook@chromium.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-integrity@vger.kernel.org,
-        labbott@redhat.com
-Subject: Re: [PATCH] tpm: handle negative priv->response_len in
- tpm_common_read
-Message-ID: <20200113000709.GB16145@linux.intel.com>
-References: <b85fa669-d3aa-f6c9-9631-988ae47e392c@redhat.com>
- <157843468820.24718.10808226634364669421.stgit@tstruk-mobl1>
- <b469b7e8454a69402529cc8e25244860e136308e.camel@linux.intel.com>
- <80272f0259d967fe61dacd1036cbbd9f555b8402.camel@linux.intel.com>
- <d1ee03ce-c8bd-75ab-e348-8a05fb6be69d@intel.com>
+        id S1727459AbgAMBEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jan 2020 20:04:24 -0500
+Received: from mail01.vodafone.es ([217.130.24.71]:10658 "EHLO
+        mail01.vodafone.es" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727222AbgAMBEX (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 12 Jan 2020 20:04:23 -0500
+IronPort-SDR: 0yAOOd7NXJNvwfPpwRw/AWUFV+JVGqbzK+ypf6Z3exqedDnRoKfWGKxJ4mO6O8UC4r6R3OflDk
+ aAHX4642SUGw==
+IronPort-PHdr: =?us-ascii?q?9a23=3AO17WgRHsRDLaLRrasv9GKp1GYnF86YWxBRYc79?=
+ =?us-ascii?q?8ds5kLTJ7zoMSwAkXT6L1XgUPTWs2DsrQY0rGQ6f6xEjdYqb+681k6OKRWUB?=
+ =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
+ =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba58IRmsswnct80bjYRsJ6ot1x?=
+ =?us-ascii?q?DEvmZGd+NKyG1yOFmdhQz85sC+/J5i9yRfpfcs/NNeXKv5Yqo1U6VWACwpPG?=
+ =?us-ascii?q?4p6sLrswLDTRaU6XsHTmoWiBtIDBPb4xz8Q5z8rzH1tut52CmdIM32UbU5Ui?=
+ =?us-ascii?q?ms4qt3VBPljjoMOzg+/G/KlsN/lqdboRK4qxFhxI7UepmVNP1kfqzHYdMVW3?=
+ =?us-ascii?q?NNUdhXVyBYHo68c5cPAPAdMuZYsYb9okUBrR2iBQW1GuzvzCZEiHjx3a08ze?=
+ =?us-ascii?q?sgERjK0xImH9kTtHjZosn5OLsXXe2z0aLGzyjMb+lO1Dnz6IbIaA4vr/KRU7?=
+ =?us-ascii?q?1/bcXfxlIiFx/Hg1qMtYDpIy+Z2voLvmOG7+RgT+Wvi2s/pg9rvDev2tkjip?=
+ =?us-ascii?q?PUjY0VzVDE8yp5y5syKN2gVkF7fcCrEIFetiGdMYt2TdgvQ2FzuCkh1rIKo4?=
+ =?us-ascii?q?K0fC8PyJg9xx7faOWKfo6V6RzgTOacOSl0iG9ndb6lmhq//1SsxvfiWsS7yl?=
+ =?us-ascii?q?pHoCpIn9/RvX4XzRPT8NKISv5l80ek3jaAyh7c5/lfIUAxiarbM5khwqMslp?=
+ =?us-ascii?q?YLsUTMACv2mELuga+TbEok++yo6/75bbXiupOROJV4ih/5MqszgMO/D+M4Mg?=
+ =?us-ascii?q?4QUGSB5+u8z6Xv/Uz/QLpUkv07irfVvI3YKMgBu6K0DRNZ3pw95xuwFTur3t?=
+ =?us-ascii?q?QVkWECLF1feRKHi4bpO0vJIPD9Ffq/m0qjkCt1yPDcMLzhBZPNLnfYnbfhZr?=
+ =?us-ascii?q?Zy8FJTxBAvwtBY4pJYELEBIPHrVk/rqNPYFgM5MxCzw+v/Fdt9ypkRVnmLAq?=
+ =?us-ascii?q?CHK67Sr1CI6fw1I+WWZ48apiz9K/476P7ql3M5nkUdfab6lacQPUukF/5iLm?=
+ =?us-ascii?q?2Hbnf2xNQMC2EHukw5VuO5slCaVS9vYCOKUr4x/HkED4SpRdPbS5ygmqOG2i?=
+ =?us-ascii?q?i7BZddZmNuBVWFEHOufIKBDaQiciWXd/dsjjEeHYemTYBpgQmjqALg1L1hIc?=
+ =?us-ascii?q?LU4ScT85nk0Z515LuAxlkJ6TVoApHEgCm2RGZukzZTH2c7?=
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: =?us-ascii?q?A2FHSwAWwRtemCMYgtkUBjMYGwEBAQE?=
+ =?us-ascii?q?BAQEFAQEBEQEBAwMBAQGBewIBgT0CCYFNUiASk1CBTR+DQ4tjgQCDHhWGCBM?=
+ =?us-ascii?q?MgVsNAQEBAQE1AgEBhEBOAReBDyQ6BA0CAw0BAQUBAQEBAQUEAQECEAEBAQE?=
+ =?us-ascii?q?BBg0LBimFSoIdDB4BBAEBAQEDAwMBAQwBg10HGQ85SkwBDgFTgwSCSwEBM4U?=
+ =?us-ascii?q?fl3IBjQQNDQKFHYItBAqBCYEaI4E0AgEBjBcagUE/gSMhgisIAYIBgn8BEgF?=
+ =?us-ascii?q?sgkiCWQSNQhIhgQeIKZgXgkEEdolMjAKCNwEPiAGEMQMQgkUPgQmIA4ROgX2?=
+ =?us-ascii?q?jN1eBDAh/cTMagiYagSBPGA2IG44tQIEWEAJPi2KCMgEB?=
+X-IPAS-Result: =?us-ascii?q?A2FHSwAWwRtemCMYgtkUBjMYGwEBAQEBAQEFAQEBEQEBA?=
+ =?us-ascii?q?wMBAQGBewIBgT0CCYFNUiASk1CBTR+DQ4tjgQCDHhWGCBMMgVsNAQEBAQE1A?=
+ =?us-ascii?q?gEBhEBOAReBDyQ6BA0CAw0BAQUBAQEBAQUEAQECEAEBAQEBBg0LBimFSoIdD?=
+ =?us-ascii?q?B4BBAEBAQEDAwMBAQwBg10HGQ85SkwBDgFTgwSCSwEBM4Ufl3IBjQQNDQKFH?=
+ =?us-ascii?q?YItBAqBCYEaI4E0AgEBjBcagUE/gSMhgisIAYIBgn8BEgFsgkiCWQSNQhIhg?=
+ =?us-ascii?q?QeIKZgXgkEEdolMjAKCNwEPiAGEMQMQgkUPgQmIA4ROgX2jN1eBDAh/cTMag?=
+ =?us-ascii?q?iYagSBPGA2IG44tQIEWEAJPi2KCMgEB?=
+X-IronPort-AV: E=Sophos;i="5.69,427,1571695200"; 
+   d="scan'208";a="304395897"
+Received: from mailrel04.vodafone.es ([217.130.24.35])
+  by mail01.vodafone.es with ESMTP; 13 Jan 2020 02:04:21 +0100
+Received: (qmail 23444 invoked from network); 12 Jan 2020 06:49:48 -0000
+Received: from unknown (HELO 192.168.1.3) (quesosbelda@[217.217.179.17])
+          (envelope-sender <peterwong@hsbc.com.hk>)
+          by mailrel04.vodafone.es (qmail-ldap-1.03) with SMTP
+          for <Stable@vger.kernel.org>; 12 Jan 2020 06:49:48 -0000
+Date:   Sun, 12 Jan 2020 07:49:47 +0100 (CET)
+From:   Peter Wong <peterwong@hsbc.com.hk>
+Reply-To: Peter Wong <peterwonghsbchk@gmail.com>
+To:     Stable@vger.kernel.org
+Message-ID: <18493302.20321.1578811788421.JavaMail.cash@217.130.24.55>
+Subject: Investment opportunity
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d1ee03ce-c8bd-75ab-e348-8a05fb6be69d@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 08, 2020 at 09:47:31AM -0800, Tadeusz Struk wrote:
-> On 1/8/20 8:04 AM, Jarkko Sakkinen wrote:
-> > Applied but had to fix bunch of typos, missing punctaction and
-> > missing parentheses in the commit message. Even checkpatch.pl
-> > was complaining :-/
-> 
-> Forgot about the checkpatch.pl thing. Sorry.
+Greetings,
+Please read the attached investment proposal and reply for more details.
+Are you interested in loan?
+Sincerely: Peter Wong
 
-NP, just mentioning this for the future patches.
 
-/Jarkko
+
+
+----------------------------------------------------
+This email was sent by the shareware version of Postman Professional.
+
