@@ -2,101 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08CDA1386C2
-	for <lists+stable@lfdr.de>; Sun, 12 Jan 2020 15:02:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3FF1386ED
+	for <lists+stable@lfdr.de>; Sun, 12 Jan 2020 16:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732954AbgALOCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jan 2020 09:02:23 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:59229 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732953AbgALOCW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jan 2020 09:02:22 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 7951B21FF3;
-        Sun, 12 Jan 2020 09:02:21 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 12 Jan 2020 09:02:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=NJHVvAW6H45CORrSOrRuKfIQ+gp
-        hAzjARjRdpy0mtZU=; b=ofuU86puPMAxtQzA1HSo5IrkN3wwdhjS1hZYNjCYcof
-        LCGwJyy9qDOYYqZOJ94o+MriK+60V/vqf4Ga1N6aiJajuhe+I32/mgQF/jbQZptN
-        MNj00JiTuUMTv3dyuFjMxJBcARFZFmRJcCZt7VGiSpzVIB37D7RdNjdM/sbm/3t6
-        KCU6WLd0gzPP5IX3VUhbWGAITGu5SQW8QF4jFvnAawK9f8sjqTKKhL02Kyu64/q6
-        +s4lzIjvq6UnmI7n588vgHHUxJ0gobmPVL+dc9Dxs9pr5PdiTG0OtT4DGKnnldv7
-        6HSq+wyP83zeUn07R7aHfxgFF4Q3gu4SHtI9neg9ARg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=NJHVvA
-        W6H45CORrSOrRuKfIQ+gphAzjARjRdpy0mtZU=; b=cYzxR5UWGSFLtYh27kOQii
-        6R4dp5H2kabSo57qlG6K031/ON7fEXKaNMaxEo9d0RwbHTeajqdAWcRL4hbmhGnH
-        Eaxxh+b7PJEFvLz+4FkUqkgWHPlNnWQvF/MctRjYYIeCdoLqI0EJ0h0oBTaVtUcs
-        vq7r+JiRovKZANDjhIDf+LgfanLEk57xYZZcC5vEyhAzIWAnKYbXse9HKJiR+qzg
-        c3IiHclubyHj8LUkB5Twh9HiFahBnnM9AbNcaW+AvkdarS1SFBuRPUkGVB0dRvGa
-        rDsaHNayn+hVqz00+CkZ5JSiHOv4fPUcz4qqAxq3udz5W/89pKgTRXJPChRMLzPQ
-        ==
-X-ME-Sender: <xms:7CYbXmgzj8tYjkQk0VeFa8mG-T7FRCoynFDPPpdcccZ-2uvUTA7uLg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeikedgheekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:7CYbXmWBMQngVZt3grB6kqf6PLtAQAG6bcHL8_HvrT0sQpHnD1gb5A>
-    <xmx:7CYbXlCQuXf3rWRW9Cl4YYqk8V3VIKDWvKQSridujQr1Bg2Wq8DFCA>
-    <xmx:7CYbXqkXDzt0C2SVctkFJeWJBKj_Pl7droBrJJ7ET4feQlu-OTOZVQ>
-    <xmx:7SYbXlDY7op9ooJpZqIncmA_Y9SaQ6p0yhj0y3Xt794nNmUtUagnJg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6ABE880062;
-        Sun, 12 Jan 2020 09:02:20 -0500 (EST)
-Date:   Sun, 12 Jan 2020 15:02:18 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Jari Ruusu <jari.ruusu@gmail.com>
-Cc:     Borislav Petkov <bp@alien8.de>, Fenghua Yu <fenghua.yu@intel.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Fix built-in early-load Intel microcode alignment
-Message-ID: <20200112140218.GA902610@kroah.com>
-References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
- <CACMCwJ+FE8yD10VF07ci6tTqiBA8aBejKQT0EwyayQQOrLGUKQ@mail.gmail.com>
+        id S1733070AbgALPlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jan 2020 10:41:46 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:56251 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733062AbgALPlq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jan 2020 10:41:46 -0500
+Received: by mail-wm1-f67.google.com with SMTP id q9so6969482wmj.5
+        for <stable@vger.kernel.org>; Sun, 12 Jan 2020 07:41:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rf6cAg8NvfHOt4rC0WMmwzdiesIU86lAKhO2f1b10iQ=;
+        b=tz6GO6Ykjjt4cMqjug6kpZpefglk5H7RnEoFka7tZ5oX/wQ7Ks2Xh6AA3Q04vb/OaL
+         h+iClMzGaYkWzEUIUk3dA+DpX/VkCgEP+m5k4zghrJqdeOYtfK6pTBIFBj289n56q3Dz
+         toxkgKr4LRmHn0zoqyYqSqRf8Hu536z1RyzOHhopC7dtGFfL9zM2C5MX19UiMpwt+k3j
+         7XD81pm45Kw+i+2EtK8RUdIM/Nk3gP5hpHxrB/XrH59yFX39CJKXxJeqgekZE1GtzJwI
+         v1AJ+zAAeFbfIyzG2WhooqoQsQBYx7jutHEVL3pAGPy+2JiK3RpGwsPqMSnhcr1UlKZM
+         /deA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rf6cAg8NvfHOt4rC0WMmwzdiesIU86lAKhO2f1b10iQ=;
+        b=Erq/is4EiNraiSa1p8GIiLYMh/qtAfi58GJm04vUqNgphGhp/V2I+BvI8WcyN8aASu
+         gShZeCzRNIkyBVsnqlhNvIIAkRGPrixHxjOnMQRgNxrowsPt4BOB+2e4SA37YhmwsJsV
+         /p+F30e97GYJxZ8yzRLFuDRJK/gnaUszS5ZenrYcwnPEu+3yf3v4FJG/HFDyoTOufpup
+         KTf0ssczsSkwHxtBif+vB5nNqLTqo/lBCnVNmDjn6ff0PuEItkXdhuKoJkec8Byczpg+
+         KEEWK3JThPfhDhGZgiSe4Xko7o9wcRSK6ysWUHfYTMIHp1+jVQqLO/l5dPQoNbib21O4
+         aKFA==
+X-Gm-Message-State: APjAAAWpwOQjwOUT1J1IrNaJOYb99tRLmG7TPWWZurndWt3oq69o0Jzw
+        +esELs9bYAw+3NxCc73uOyNeNqhx6+ZWRQ==
+X-Google-Smtp-Source: APXvYqzrUg0ICGxhywIez9MIKQTBWkel6vnjRDw7UbnyUiQttOzLRi0nNQBTnYvS/oyn8nGorGK1Cg==
+X-Received: by 2002:a7b:c4c3:: with SMTP id g3mr14834771wmk.131.1578843704126;
+        Sun, 12 Jan 2020 07:41:44 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c9sm10480004wmc.47.2020.01.12.07.41.43
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 12 Jan 2020 07:41:43 -0800 (PST)
+Message-ID: <5e1b3e37.1c69fb81.bb630.b15e@mx.google.com>
+Date:   Sun, 12 Jan 2020 07:41:43 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACMCwJ+FE8yD10VF07ci6tTqiBA8aBejKQT0EwyayQQOrLGUKQ@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.209
+Subject: stable/linux-4.9.y boot: 28 boots: 1 failed,
+ 26 passed with 1 untried/unknown (v4.9.209)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 12, 2020 at 03:03:44PM +0200, Jari Ruusu wrote:
-> On 1/12/20, Jari Ruusu <jari.ruusu@gmail.com> wrote:
-> > Intel Software Developer's Manual, volume 3, chapter 9.11.6 says:
-> > "Note that the microcode update must be aligned on a 16-byte
-> > boundary and the size of the microcode update must be 1-KByte
-> > granular"
-> >
-> > When early-load Intel microcode is loaded from initramfs,
-> > userspace tool 'iucode_tool' has already 16-byte aligned those
-> > microcode bits in that initramfs image. Image that was created
-> > something like this:
-> >
-> >  iucode_tool --write-earlyfw=FOO.cpio microcode-files...
-> >
-> > However, when early-load Intel microcode is loaded from built-in
-> > firmware BLOB using CONFIG_EXTRA_FIRMWARE= kernel config option,
-> > that 16-byte alignment is not guaranteed.
-> >
-> > Fix this by forcing all built-in firmware BLOBs to 16-byte
-> > alignment.
-> 
-> Backport of "Fix built-in early-load Intel microcode alignment"
-> for linux-4.19 and older stable kernels.
+stable/linux-4.9.y boot: 28 boots: 1 failed, 26 passed with 1 untried/unkno=
+wn (v4.9.209)
 
-Any hint as to what that git commit id is?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.209/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.209/
 
-thanks,
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.209
+Git Commit: 753a4bcdbe536620ecfc66e8ba7f59389edc6304
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 22 unique boards, 8 SoC families, 9 builds out of 197
 
-greg k-h
+Boot Regressions Detected:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v4.9.208)
+
+i386:
+
+    i386_defconfig:
+        gcc-8:
+          qemu_i386:
+              lab-baylibre: new failure (last pass: v4.9.208)
+
+Boot Failure Detected:
+
+i386:
+    i386_defconfig:
+        gcc-8:
+            qemu_i386: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
