@@ -2,88 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DE9138BCC
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 07:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 968A1138BD4
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 07:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733271AbgAMG2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 01:28:30 -0500
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:32798 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725909AbgAMG2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 01:28:30 -0500
-Received: by mail-pf1-f196.google.com with SMTP id z16so4380190pfk.0
-        for <stable@vger.kernel.org>; Sun, 12 Jan 2020 22:28:30 -0800 (PST)
+        id S1732311AbgAMGac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 01:30:32 -0500
+Received: from mail-ed1-f50.google.com ([209.85.208.50]:42499 "EHLO
+        mail-ed1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387633AbgAMGa3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 01:30:29 -0500
+Received: by mail-ed1-f50.google.com with SMTP id e10so7454211edv.9;
+        Sun, 12 Jan 2020 22:30:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=I5C3nwrlmpAyk+QkEXs7euA2p6whJngz7gNkLGAB+Ws=;
-        b=EQ//Ej4CuJIOHENKsDe7JOHI8zjDbtFhhHsj5YCGU3PB1YX04S4W8Bw2pFN6S9QmmZ
-         QLXumgM5mJyIFQdCT1oxH5p4P7SbWmgmYf1P9QHzPDiMmWLNII38CmGqffYb3QhkrZvW
-         Lil4iTXVDD/Ux4IJJIRGvNag3acWc0Ta6cMZlfG/NkPVZnRHz2BLhfDS3iTuK7H8k7nx
-         4wrxfJiHYssbimlmf2G7cqAbjsF4zpo15Y2FGFD7A3v/I8e7QOMduSabuVjXegZWmKyh
-         fD64SbbGcM8ScqwhOGEJbtBg6tCk9OL8IiGZd2kNqRGDNarP+mp3T1RTEddLDgxVFrue
-         d2Zw==
+        d=gmail.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=CJ4ZswgCxRhQ6h5Ad3QQvTSlKhWbXFgXln0BG8u9GAg=;
+        b=ekbaXVjI21kUlN/zb/O6dio5edYHM/QuT1OTt45TXWtmactU1Cn0mWHSf1ZDdCrCp8
+         QKq5sKH0n3L3JuxXw3lzzfJrJGip4xm5VjTPqFLU4oidgbUgzisUUvl10Qeeoh1Ujz3u
+         f64H8a6BFhrFs3w5OQmt7byyo42NlVQkSWSMqcEC9QXtZBj/OtEsR5QGLM+3akpNCtlo
+         2bCZtJt1BHSa6FevfR1QXpbgWqyBvPU44o3rpC1/rpOyiI3v8pmDoESiPFBP7Tenv4ei
+         KlOGg+90xu00RB7AznQ+31dMHYb8Vdryzs2O38GwYldKkVnjULTAcXSe8WQ/Y0RFeYIK
+         YkGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=I5C3nwrlmpAyk+QkEXs7euA2p6whJngz7gNkLGAB+Ws=;
-        b=VImyfRN8Pi1Fz2X3QH7tqcwVTLE7kgUuU1C+vKKazvHNgDXw7KeTb7V8xj8mwf1vD0
-         QlBkzFkJKHM/YS5D4z8hSWv3UDu/TsKWANLTaYjVwlEUkwVt0MZ+CzlQorZ8ZfJ9ygVB
-         f68ICxc1hbnvNAckt37NMDl/KEUG0DCeUxni5AWCbdWAa1bQUOr1GgDod5KktuAS9e22
-         U8bjQExUnhbk+cF+lYj/R2P/oWnZWolg3tKEcmfrcEdKCwE3570TxmBQFB7Rw3XSMHqg
-         yBOrv/V7NogoqYdu/YLGFOlhWg/9KF0Pa/xjr9Wbb5K1UMS09wUZiSkhDuwTQU8EXoFk
-         33hA==
-X-Gm-Message-State: APjAAAUxCQ+6dxVtbzjaa6mE6+uQwqpr94eG32Rruj/+NDt2b1j0a5j0
-        jsBZ/pHj6zOaVEc5+xHtLaG+hg==
-X-Google-Smtp-Source: APXvYqwu4X6ngOi3zIhRdvZ4Miog4ASVHjmWUWWXs8oWzKVUD+5CfBDHp8WBVT0IF5H4FzeXFlcpIw==
-X-Received: by 2002:a62:ab0d:: with SMTP id p13mr17955039pff.135.1578896909830;
-        Sun, 12 Jan 2020 22:28:29 -0800 (PST)
-Received: from debian ([122.164.106.111])
-        by smtp.gmail.com with ESMTPSA id q10sm12867346pfn.5.2020.01.12.22.28.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Jan 2020 22:28:29 -0800 (PST)
-Date:   Mon, 13 Jan 2020 11:58:22 +0530
-From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        jeffrin@rajagiritech.edu.in
-Subject: Re: [PATCH 5.4 000/165] 5.4.11-stable review
-Message-ID: <20200113062822.GA2706@debian>
-References: <20200111094921.347491861@linuxfoundation.org>
+        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
+         :message-id:subject:to:cc;
+        bh=CJ4ZswgCxRhQ6h5Ad3QQvTSlKhWbXFgXln0BG8u9GAg=;
+        b=gIpWiHVN8oX7462b2b++XZqDmQK81mDjBa3aFufvXgNjyTdvThhj1q3xIUGa/EAJjR
+         ayAwXTjpebwEcm1pf+mXIko0/ylVS80zsFPr8YRPZV7qZsxBqTr2qCIMJA2xwYKGq48b
+         19wU8CeFVM17fdm1waxL2antLKFI2fd8NVRDyxYtekblVdokQ3hpxID1QrB5ZORlptCT
+         PlQ0VviSeku3etszTUY3uUQ1aKLtYN1LQQE9Lya9s11Ob7NoIAijR7r3bJMegsHXHn6l
+         C2Vp1TTX7llscS6k1E4NcDYh4TbR3YRilFfCOGjADDPPxu8/ygLt4kNL8vHFdabY75uR
+         RpBQ==
+X-Gm-Message-State: APjAAAXWCCsj6Eoagvk26wMawM3AXBWa68zy0jHfl4eDERzlCkdWgwhn
+        cDDuljbMEmqYveXRlt3jqT28RayriW6xPPFxMSg=
+X-Google-Smtp-Source: APXvYqzZdU/zBcFlC1Qppl5O+e5V/0DsFkCsg7jwBIYaTqVJTQE7M/VV+aFBv4Z1ZRjJzZ4jtzqM/jb+plq8wH5u/94=
+X-Received: by 2002:a17:906:5586:: with SMTP id y6mr11953821ejp.336.1578897027885;
+ Sun, 12 Jan 2020 22:30:27 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200111094921.347491861@linuxfoundation.org>
+Received: by 2002:a05:6402:1c11:0:0:0:0 with HTTP; Sun, 12 Jan 2020 22:30:27
+ -0800 (PST)
+In-Reply-To: <20200112140218.GA902610@kroah.com>
+References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
+ <CACMCwJ+FE8yD10VF07ci6tTqiBA8aBejKQT0EwyayQQOrLGUKQ@mail.gmail.com> <20200112140218.GA902610@kroah.com>
+From:   Jari Ruusu <jari.ruusu@gmail.com>
+Date:   Mon, 13 Jan 2020 08:30:27 +0200
+Message-ID: <CACMCwJL7uqMtp7Jg8GdrRpJkk7jeMrxksr4EXQq86Agw9Zme+A@mail.gmail.com>
+Subject: Re: Fix built-in early-load Intel microcode alignment
+To:     Greg KH <greg@kroah.com>
+Cc:     Borislav Petkov <bp@alien8.de>, Fenghua Yu <fenghua.yu@intel.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 11, 2020 at 10:48:39AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.11 release.
-> There are 165 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Mon, 13 Jan 2020 09:46:17 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.11-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
+On 1/12/20, Greg KH <greg@kroah.com> wrote:
+> On Sun, Jan 12, 2020 at 03:03:44PM +0200, Jari Ruusu wrote:
+>> Backport of "Fix built-in early-load Intel microcode alignment"
+>> for linux-4.19 and older stable kernels.
+>
+> Any hint as to what that git commit id is?
 
-compiled and booted 5.4.11-rc1+ . no regression according to "sudo dmesg -l err"
+It is not in mainline yet.
+You have far better chances of pushing it to mainline than I do.
 
-
---
-software engineer
-rajagiri school of engineering and technology
-
+-- 
+Jari Ruusu  4096R/8132F189 12D6 4C3A DCDA 0AA4 27BD  ACDF F073 3C80 8132 F189
