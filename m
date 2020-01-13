@@ -2,86 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7F24139791
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 18:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FEBC13989B
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 19:16:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728940AbgAMRYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 12:24:11 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:34834 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728775AbgAMRYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 12:24:11 -0500
-Received: by mail-lj1-f194.google.com with SMTP id j1so11012892lja.2;
-        Mon, 13 Jan 2020 09:24:09 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=QlfFAdFScE9eazBxy44sDKtFGtk3es9wEFbHmp3zDH8=;
-        b=Dwi2MzSf3x75Cm3NUReGz4TmJIv3IL8zxYwqhwh7l+atsApn4JQMxRsmOKI+bbmzdu
-         vx3oQz4JCRQzXeBDnRiJFTNqi420EohDflU5e7g/gqFexFG3KwZZnDIcSFlSEtdQF/JD
-         eAqmnw8hFaU3o/3JPmK01bNhFinkwiltDQR5EJVU0B9C9m80K9kmIo1X06mzTBg0yUyp
-         QAGS+TKhdNWCvSc2+T/4zOVgVtq2+VlJz1wyUKXUo/n5hqyikTk5pFDhzGl6Ciy4Yfum
-         g78pchG55OOYohherHGgVQ+6sPbVpapPrVDe62ofAALWrkuLdjmcrFSvJoM/CgFqMSn5
-         uSiQ==
-X-Gm-Message-State: APjAAAU1PPxCLgv8a9uW9XgIoIu8IvN8ZDLmRGprVlgXqSU2tWnQy0K4
-        54vOqI7yZlhoy9a1TXh4fKm6juZB
-X-Google-Smtp-Source: APXvYqzJvte/a6SWB5ZAj9L2MQ7QjnxsCkcIXmQtT/nS+1XGi9SQt7q7KO1lF5rx8+2E6/c+2EldWA==
-X-Received: by 2002:a2e:3619:: with SMTP id d25mr11668282lja.231.1578936248566;
-        Mon, 13 Jan 2020 09:24:08 -0800 (PST)
-Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id 144sm6083349lfi.67.2020.01.13.09.24.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2020 09:24:07 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@xi.terra>)
-        id 1ir3Rf-00084L-UG; Mon, 13 Jan 2020 18:24:07 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     netdev@vger.kernel.org
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH] NFC: pn533: fix bulk-message timeout
-Date:   Mon, 13 Jan 2020 18:23:58 +0100
-Message-Id: <20200113172358.30973-1-johan@kernel.org>
-X-Mailer: git-send-email 2.24.1
+        id S1728804AbgAMSQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 13:16:04 -0500
+Received: from [167.172.186.51] ([167.172.186.51]:33636 "EHLO shell.v3.sk"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726934AbgAMSQE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Jan 2020 13:16:04 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id 37BFEDFE00;
+        Mon, 13 Jan 2020 18:16:06 +0000 (UTC)
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id GQk6v_fn2iS5; Mon, 13 Jan 2020 18:16:05 +0000 (UTC)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id 8F5BBDF241;
+        Mon, 13 Jan 2020 18:16:05 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at zimbra.v3.sk
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 3XGmZ5XrTaCr; Mon, 13 Jan 2020 18:16:05 +0000 (UTC)
+Received: from nedofet.lan (unknown [109.183.109.54])
+        by zimbra.v3.sk (Postfix) with ESMTPSA id 282ECDFE19;
+        Mon, 13 Jan 2020 18:16:05 +0000 (UTC)
+Message-ID: <d292dfbb9b10129c76f7a282c5a1015b04b775dd.camel@v3.sk>
+Subject: Re: [PATCH] media: usbtv: fix control-message timeouts
+From:   Lubomir Rintel <lkundrak@v3.sk>
+To:     Johan Hovold <johan@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     linux-media@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>
+Date:   Mon, 13 Jan 2020 19:15:56 +0100
+In-Reply-To: <20200113171818.30715-1-johan@kernel.org>
+References: <20200113171818.30715-1-johan@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.2 (3.34.2-1.fc31) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver was doing a synchronous uninterruptible bulk-transfer without
-using a timeout. This could lead to the driver hanging on probe due to a
-malfunctioning (or malicious) device until the device is physically
-disconnected. While sleeping in probe the driver prevents other devices
-connected to the same hub from being added to (or removed from) the bus.
+On Mon, 2020-01-13 at 18:18 +0100, Johan Hovold wrote:
+> The driver was issuing synchronous uninterruptible control requests
+> without using a timeout. This could lead to the driver hanging on
+> various user requests due to a malfunctioning (or malicious) device
+> until the device is physically disconnected.
+> 
+> The USB upper limit of five seconds per request should be more than
+> enough.
+> 
+> Fixes: f3d27f34fdd7 ("[media] usbtv: Add driver for Fushicai USBTV007 video frame grabber")
+> Fixes: c53a846c48f2 ("[media] usbtv: add video controls")
+> Cc: stable <stable@vger.kernel.org>     # 3.11
+> Cc: Lubomir Rintel <lkundrak@v3.sk>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
 
-An arbitrary limit of five seconds should be more than enough.
+Acked-by: Lubomir Rintel <lkundrak@v3.sk>
 
-Fixes: dbafc28955fa ("NFC: pn533: don't send USB data off of the stack")
-Cc: stable <stable@vger.kernel.org>     # 4.18
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/nfc/pn533/usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thank you,
+Lubo
 
-diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
-index 4590fbf82dc2..f5bb7ace2ff5 100644
---- a/drivers/nfc/pn533/usb.c
-+++ b/drivers/nfc/pn533/usb.c
-@@ -391,7 +391,7 @@ static int pn533_acr122_poweron_rdr(struct pn533_usb_phy *phy)
- 		       cmd, sizeof(cmd), false);
- 
- 	rc = usb_bulk_msg(phy->udev, phy->out_urb->pipe, buffer, sizeof(cmd),
--			  &transferred, 0);
-+			  &transferred, 5000);
- 	kfree(buffer);
- 	if (rc || (transferred != sizeof(cmd))) {
- 		nfc_err(&phy->udev->dev,
--- 
-2.24.1
+> ---
+>  drivers/media/usb/usbtv/usbtv-core.c  | 2 +-
+>  drivers/media/usb/usbtv/usbtv-video.c | 5 +++--
+>  2 files changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/media/usb/usbtv/usbtv-core.c b/drivers/media/usb/usbtv/usbtv-core.c
+> index 5095c380b2c1..ee9c656d121f 100644
+> --- a/drivers/media/usb/usbtv/usbtv-core.c
+> +++ b/drivers/media/usb/usbtv/usbtv-core.c
+> @@ -56,7 +56,7 @@ int usbtv_set_regs(struct usbtv *usbtv, const u16 regs[][2], int size)
+>  
+>  		ret = usb_control_msg(usbtv->udev, pipe, USBTV_REQUEST_REG,
+>  			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+> -			value, index, NULL, 0, 0);
+> +			value, index, NULL, 0, USB_CTRL_GET_TIMEOUT);
+>  		if (ret < 0)
+>  			return ret;
+>  	}
+> diff --git a/drivers/media/usb/usbtv/usbtv-video.c b/drivers/media/usb/usbtv/usbtv-video.c
+> index 3d9284a09ee5..b249f037900c 100644
+> --- a/drivers/media/usb/usbtv/usbtv-video.c
+> +++ b/drivers/media/usb/usbtv/usbtv-video.c
+> @@ -800,7 +800,8 @@ static int usbtv_s_ctrl(struct v4l2_ctrl *ctrl)
+>  		ret = usb_control_msg(usbtv->udev,
+>  			usb_rcvctrlpipe(usbtv->udev, 0), USBTV_CONTROL_REG,
+>  			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+> -			0, USBTV_BASE + 0x0244, (void *)data, 3, 0);
+> +			0, USBTV_BASE + 0x0244, (void *)data, 3,
+> +			USB_CTRL_GET_TIMEOUT);
+>  		if (ret < 0)
+>  			goto error;
+>  	}
+> @@ -851,7 +852,7 @@ static int usbtv_s_ctrl(struct v4l2_ctrl *ctrl)
+>  	ret = usb_control_msg(usbtv->udev, usb_sndctrlpipe(usbtv->udev, 0),
+>  			USBTV_CONTROL_REG,
+>  			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+> -			0, index, (void *)data, size, 0);
+> +			0, index, (void *)data, size, USB_CTRL_SET_TIMEOUT);
+>  
+>  error:
+>  	if (ret < 0)
 
