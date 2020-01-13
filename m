@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD11138DF1
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 10:41:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48CD4138E1D
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 10:47:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726193AbgAMJlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 04:41:16 -0500
-Received: from mx2.suse.de ([195.135.220.15]:52438 "EHLO mx2.suse.de"
+        id S1726109AbgAMJrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 04:47:13 -0500
+Received: from mx2.suse.de ([195.135.220.15]:57088 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725978AbgAMJlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Jan 2020 04:41:16 -0500
+        id S1725992AbgAMJrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Jan 2020 04:47:13 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 3C6C1AFCE;
-        Mon, 13 Jan 2020 09:41:15 +0000 (UTC)
-Date:   Mon, 13 Jan 2020 10:41:15 +0100
-Message-ID: <s5h1rs3lmmc.wl-tiwai@suse.de>
+        by mx2.suse.de (Postfix) with ESMTP id 9942DAD6F;
+        Mon, 13 Jan 2020 09:47:11 +0000 (UTC)
+Date:   Mon, 13 Jan 2020 10:47:11 +0100
+Message-ID: <s5htv4zk7s0.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Cc:     alsa-devel@alsa-project.org, Scott Bahling <sbahling@suse.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] ALSA: firewire-tascam: fix corruption due to spin lock without restoration in SoftIRQ context
-In-Reply-To: <20200113085719.26788-1-o-takashi@sakamocchi.jp>
-References: <20200113085719.26788-1-o-takashi@sakamocchi.jp>
+Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] dice: fix fallback from protocol extension into limited functionality
+In-Reply-To: <20200113084630.14305-2-o-takashi@sakamocchi.jp>
+References: <20200113084630.14305-1-o-takashi@sakamocchi.jp>
+        <20200113084630.14305-2-o-takashi@sakamocchi.jp>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -34,18 +34,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 13 Jan 2020 09:57:19 +0100,
+On Mon, 13 Jan 2020 09:46:28 +0100,
 Takashi Sakamoto wrote:
 > 
-> ALSA firewire-tascam driver can bring corruption due to spin lock without
-> restoration of IRQ flag in SoftIRQ context. This commit fixes the bug.
+> At failure of attempt to detect protocol extension, ALSA dice driver
+> should be fallback to limited functionality. However it's not.
 > 
-> Cc: Scott Bahling <sbahling@suse.com>
-> Cc: <stable@vger.kernel.org> # v4.21
-> Fixes: d7167422433c ("ALSA: firewire-tascam: queue events for change of control surface")
+> This commit fixes it.
+> 
+> Cc: <stable@vger.kernel.org> # v4.18+
+> Fixes: 58579c056c1c9 ("ALSA: dice: use extended protocol to detect available stream formats")
 > Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-Applied, thanks.
+Applied to for-linus branch.  Thanks.
 
 
 Takashi
