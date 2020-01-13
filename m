@@ -2,82 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 647A7139057
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 12:46:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6895E1390A7
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 13:03:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727331AbgAMLqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 06:46:06 -0500
-Received: from mail-wm1-f48.google.com ([209.85.128.48]:53149 "EHLO
-        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727014AbgAMLqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 06:46:06 -0500
-Received: by mail-wm1-f48.google.com with SMTP id p9so9307896wmc.2
-        for <stable@vger.kernel.org>; Mon, 13 Jan 2020 03:46:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=4DJPA9N34BfhTPaAGSo/23JvrhSMWKfPRVHM7siXISw=;
-        b=aV+ZhMi5cuIzb3hmg4KDiwjWY4oFG5HXK+B9PtDCI8pzZitj90DgVBR+0xBLmkp3IP
-         PAo9MUrZ9dwusNyHd7XKd6HkGenbFGzK7sb8rOiBxSy2DZhND3uvHfTMydkjAVp9VlNs
-         ZAkv2ypt+wvgD3M3xWLeZqWLDPHAGabTGxYJ+QiudKRt4Va5yuRemD3ifh8QXjGiI/p6
-         PqtwaT2IKr2E4x9ON+gGh6jR3WItB4XFQMP+bIA0TyLOSTlj9PmoBZd0zCk7XrzCw/ZT
-         bTOY5JwKc/lT9qTfvxnj8rPgpfaFVb7IWThjDkrssMAKLNwyvDmyEVocNPqamsmbZ1fc
-         //Ww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=4DJPA9N34BfhTPaAGSo/23JvrhSMWKfPRVHM7siXISw=;
-        b=UH4z6KeqyQVDroCodsQmiSTUIaTTKup7gIcEnqdNs2w797dNbyX2uRbp9zjjAnWUWD
-         6AgkEq1Rqa4yKAshtqDBKZoVDlDTF3zgzVwxr1e60GfwzEDruqByELHOCSvrq89Y0H9b
-         c8UFzRYN+ACyiT3/TfGxJgGU0ovIdnofHQdVP9+1XVqmSpt3kUlAkbo5UQE2m9haNTKS
-         ApK+zV2STczakkXMcahrwPYJAb4zj42eLRDAwYjoShnokaMKVzQgwFBea5Vkn9e92QmB
-         cw10MzMMjc1jba6audR6XFPglcGRuMMRxLFh17l9bTBi8rl1LZbrlHld0Iz0fbtz4Ym5
-         KUog==
-X-Gm-Message-State: APjAAAWZ+o8BEhtzFeqQLSeI4na/E7CGt91HLo5Ez3CglY4Dt8KXuUST
-        hrntl2OvXecaZYAaGvjxpoHNDfmUrav4Eg==
-X-Google-Smtp-Source: APXvYqyv5lPgCTuTDEjJ/cHgl1B1SXQUroWBNLITTCGz2k2h+A0QgkihrfPhB/nobn1MtcjfdfsDRw==
-X-Received: by 2002:a05:600c:409:: with SMTP id q9mr19578552wmb.19.1578915964190;
-        Mon, 13 Jan 2020 03:46:04 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id z124sm15154998wmc.20.2020.01.13.03.46.03
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2020 03:46:03 -0800 (PST)
-Message-ID: <5e1c587b.1c69fb81.a5968.da28@mx.google.com>
-Date:   Mon, 13 Jan 2020 03:46:03 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726277AbgAMMDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 07:03:52 -0500
+Received: from fllv0016.ext.ti.com ([198.47.19.142]:34450 "EHLO
+        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726236AbgAMMDw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 07:03:52 -0500
+Received: from lelv0266.itg.ti.com ([10.180.67.225])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 00DC2xCT066475;
+        Mon, 13 Jan 2020 06:02:59 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1578916979;
+        bh=rCDlfrd8km2xUmG6bzFw3i5aptxyHAA7AlJkzYZgtyQ=;
+        h=Subject:From:To:CC:References:Date:In-Reply-To;
+        b=cVuC+W4kzuwU4qxTixwv/TGhE6fRZz/ARLeW8MJZAtDXQPZb4HXWQPyB4Nyd+6V6q
+         7SELq/VFOVplT8d3W53dtCWrJ8wfaMZBkz19lA4npqPLJ7idhj+U4nFvkH0g5V06Ii
+         SC5cgrYR4BPSeeu4khDvOCA79SAKKuoccTORr71Y=
+Received: from DFLE115.ent.ti.com (dfle115.ent.ti.com [10.64.6.36])
+        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 00DC2xu1105405
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 13 Jan 2020 06:02:59 -0600
+Received: from DFLE115.ent.ti.com (10.64.6.36) by DFLE115.ent.ti.com
+ (10.64.6.36) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Mon, 13
+ Jan 2020 06:02:59 -0600
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DFLE115.ent.ti.com
+ (10.64.6.36) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Mon, 13 Jan 2020 06:02:59 -0600
+Received: from [172.24.145.246] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 00DC2tJF015538;
+        Mon, 13 Jan 2020 06:02:57 -0600
+Subject: Re: [PATCH] ARM: davinci: select CONFIG_RESET_CONTROLLER
+From:   Sekhar Nori <nsekhar@ti.com>
+To:     Arnd Bergmann <arnd@arndb.de>
+CC:     <stable@vger.kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        David Lechner <david@lechnology.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+References: <20191210195202.622734-1-arnd@arndb.de>
+ <ba94531d-1f16-b985-5638-c226bab28d5b@ti.com>
+Message-ID: <1513bfee-6623-47fa-1eef-6074ba9ab3b8@ti.com>
+Date:   Mon, 13 Jan 2020 17:32:54 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.209
-Subject: stable-rc/linux-4.9.y boot: 49 boots: 0 failed,
- 48 passed with 1 untried/unknown (v4.9.209)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <ba94531d-1f16-b985-5638-c226bab28d5b@ti.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 49 boots: 0 failed, 48 passed with 1 untried/un=
-known (v4.9.209)
+Hi Arnd,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.209/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.209/
+On 11/12/19 3:42 PM, Sekhar Nori wrote:
+> Hi Arnd,
+> 
+> On 11/12/19 1:21 AM, Arnd Bergmann wrote:
+>> Selecting RESET_CONTROLLER is actually required, otherwise we
+>> can get a link failure in the clock driver:
+>>
+>> drivers/clk/davinci/psc.o: In function `__davinci_psc_register_clocks':
+>> psc.c:(.text+0x9a0): undefined reference to `devm_reset_controller_register'
+>> drivers/clk/davinci/psc-da850.o: In function `da850_psc0_init':
+>> psc-da850.c:(.text+0x24): undefined reference to `reset_controller_add_lookup'
+>>
+>> Fixes: f962396ce292 ("ARM: davinci: support multiplatform build for ARM v5")
+>> Cc: <stable@vger.kernel.org> # v5.4
+>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> 
+> Assuming you are going to apply directly to ARM-SoC,
+> 
+> Acked-by: Sekhar Nori <nsekhar@ti.com>
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.209
-Git Commit: 753a4bcdbe536620ecfc66e8ba7f59389edc6304
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 27 unique boards, 12 SoC families, 12 builds out of 197
+This is not yet in Linus's master. Let me know if I should collect it
+and send a pull request.
 
----
-For more info write to <info@kernelci.org>
+Thanks,
+Sekhar
