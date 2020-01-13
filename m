@@ -2,92 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B45E313916D
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 13:53:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB9AE139201
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 14:19:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726480AbgAMMxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 07:53:33 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:40795 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725832AbgAMMxd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 07:53:33 -0500
-Received: by mail-wr1-f68.google.com with SMTP id c14so8438042wrn.7
-        for <stable@vger.kernel.org>; Mon, 13 Jan 2020 04:53:31 -0800 (PST)
+        id S1726277AbgAMNT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 08:19:28 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:36123 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726074AbgAMNT2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 08:19:28 -0500
+Received: by mail-wm1-f68.google.com with SMTP id p17so9620473wma.1;
+        Mon, 13 Jan 2020 05:19:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6yzRCt3WyjBZQXR5zvtupKq9/2xuMrwk0+cW2XGinVc=;
-        b=V5upr8Rc/HgbytumGFHc90ZTqB2ogwfFQkLWiidFd7e8ZXwH+cipdhEATBgqmj6S7B
-         cvY2q4GQRxNomk/AtKrWUaW//mUFIxCGB0/kXs1MnO3Tbz2TtU81sb8TS0CStvgY8WEn
-         4q7JN0kuilKQolZdKigR7Ye+E/yFgvayRllFSMz/ISezin7D9q0i72fs9f5JaZyrIVC+
-         ty5/euy9K8k2ymYsIUn/8nz9MH+vdhrrgS/fWRvpkwahianJ1cHG+/sZ4bYmMm0rxdyK
-         dK8gRXTqCJmspYfQ+wgTYaNFGw9bW6lYjiReDONx37K8DJ57aN5DVhzUD4X1VZvVwm6N
-         97nw==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=oPpAx4psrCRpvGxa+BiR5YMo0bdqOSs/oqk3OpqA2oE=;
+        b=nWfPhbzI4KL3RW27J8sCj9bO4EGHIMFwVLTgYFDFOZ+ANyQXA2pSwjrFy7psj7W+ZP
+         MdbRRjRbTVNa6CoYI1BBlpzinR2bYmiLozKhWnRabab4FT4Vx3/5uf9wX9S+Mh7gQ49Y
+         UbKNk8qoaO0amqRtlEv712jO3q3egODBlzftQohOvXzHHA9w+447cDVyeZYK7s37SiOI
+         EysUDLsiaCsJAeLVOYLgWZN0PRMMjrIpMHhRGoP+GiMlKdbzZXfhqxZRoqNj4Kxyq7ch
+         zHzgEoZGyoo52b8uWmEYSsdiQyIw74mbx7/RNV2rlK1EuAjtm+9Ew7qzdTV/5taVURqC
+         cEQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6yzRCt3WyjBZQXR5zvtupKq9/2xuMrwk0+cW2XGinVc=;
-        b=buSkWkcR41r7orYJ6L6lWIu9NM0C4F6YLXqQjsUyec9U7JifR5wyLvjc4vURqEka33
-         GbAWAXYbqrd+bGwu2EXy4eq7fsspViSHxDW4bb7dr61dwrPzCMscxag2pwYymFmD7ynV
-         DdILMqbBLHyLKi1ZZnGiVvhFGccpqEOb5xDod+MleQYJSNhQAWWztv2PwVeni/rPv9sl
-         s3LE3Qe6z23DZIG1gEeStiP81SK04xWyG3oIMxEWeIDPXzWMU30KbrdBFGMlPJuzQ3MA
-         m2hbZo7gOlySQwoEtW0167ynWImuQTBcUGdp0hIZtREpB7WRV+Iq6/ssalK38QukDe3T
-         c8lg==
-X-Gm-Message-State: APjAAAXaewX9KFGxB0ZVBYdtEITVlaQQtPt8mt+IL6uvttDO/2CQUO7N
-        v6AhBaxPNkh0vBPFh2RcdpKXY3KMymdSLA==
-X-Google-Smtp-Source: APXvYqynr8DGQk8zpl4OGcDBMSd7jNLCl2HUvqZv82a0uG8BAyFnuH7ZkT0JroZmqWUm5HhnRCgvdQ==
-X-Received: by 2002:a5d:5452:: with SMTP id w18mr17782702wrv.333.1578920010861;
-        Mon, 13 Jan 2020 04:53:30 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s8sm14477737wrt.57.2020.01.13.04.53.30
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=oPpAx4psrCRpvGxa+BiR5YMo0bdqOSs/oqk3OpqA2oE=;
+        b=J2vUT3Pc/jAjIuqnmayDmABBaEwk0GKrDrgo67eUbIlcDhkiLH3ceMM9ewfyvVKRhH
+         yEMe2GfVk0q6yIQTYY35MJiLrB3Ibrb958bQ5Gbr3HLMnc8CyeyYr/Jxiu7MYtqhnyFg
+         q0N6mgP9AGw0beC/HTEcCZfRs1NKV3cjoAKK706LiE1O5Hs2Inh0gyvNswr/l0eFgv4l
+         jFZxVbGNyaB09/qZlaJf5tWr+2iGAcAt1qojw9/47ljbxDYzZ6+ohWzIovSpAY+C1NKq
+         /nbEjT4Ekce1+LYg4srhoUZIrVkAnP448ukJDmFSs67h+8sNaIhIkOEwQKpPebX3zFrL
+         UCRg==
+X-Gm-Message-State: APjAAAWF4UfYj/TQQux/D3wOYvPoOI3A8/Dxjwgx7sFBi3Ut10lSVb8K
+        Vj0+t66A/Inbf6aJafwExBOZSxdQKh4=
+X-Google-Smtp-Source: APXvYqxn3ntfwmrL/v96gX5s5FIm1RyRW1Potx8vLiHtfqQr7a+LGA0J651zcltIe5UzdBDMZMOa/g==
+X-Received: by 2002:a1c:a982:: with SMTP id s124mr19609972wme.132.1578921566115;
+        Mon, 13 Jan 2020 05:19:26 -0800 (PST)
+Received: from L340.local ([2a02:85f:511:c300:1684:322e:585c:32af])
+        by smtp.gmail.com with ESMTPSA id s1sm14200368wmc.23.2020.01.13.05.19.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2020 04:53:30 -0800 (PST)
-Message-ID: <5e1c684a.1c69fb81.38c15.b1f9@mx.google.com>
-Date:   Mon, 13 Jan 2020 04:53:30 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 13 Jan 2020 05:19:25 -0800 (PST)
+From:   "Leonidas P. Papadakos" <papadakospan@gmail.com>
+To:     patrice.chotard@st.com
+Cc:     Jose.Abreu@synopsys.com, davem@davemloft.net, f.fainelli@gmail.com,
+        heiko@sntech.de, jayati.sahu@samsung.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com, netdev@vger.kernel.org,
+        p.rajanbabu@samsung.com, pankaj.dubey@samsung.com,
+        peppe.cavallaro@st.com, rcsekar@samsung.com,
+        sriram.dash@samsung.com, stable@vger.kernel.org
+Subject: Re: [Linux-stm32] [PATCH] net: stmmac: platform: Fix MDIO init for platforms without PHY
+Date:   Mon, 13 Jan 2020 15:19:20 +0200
+Message-Id: <20200113131920.13273-1-papadakospan@gmail.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <c1af466d-0870-364f-1bff-0ac015811e60@st.com>
+References: <c1af466d-0870-364f-1bff-0ac015811e60@st.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.95
-Subject: stable-rc/linux-4.19.y boot: 79 boots: 0 failed,
- 77 passed with 2 untried/unknown (v4.19.95)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 79 boots: 0 failed, 77 passed with 2 untried/u=
-nknown (v4.19.95)
+This change affects my Renegade board (rockchip/rk3328-roc-cc.dtb),
+(and probably the very similar Rock64) preventing me from using any kernel after
+5.4.6 in a meaningful way.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.95/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.95/
+I get the stacktrace mentioned before at boot.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.95
-Git Commit: dcd888983542055210f5e68f1b1f1f8fe11a369a
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 46 unique boards, 14 SoC families, 14 builds out of 206
-
-Boot Regressions Detected:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          sun4i-a10-olinuxino-lime:
-              lab-baylibre: new failure (last pass: v4.19.94-84-g4f77fc728c=
-70)
-
----
-For more info write to <info@kernelci.org>
+Predictably, a command like 'ip address show' will hang since it probes 
+networking but 'sudo' also freezes...
