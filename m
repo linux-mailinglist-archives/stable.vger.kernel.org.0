@@ -2,84 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A642138A87
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 06:00:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E45F138B9A
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 07:05:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725268AbgAMFAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 00:00:13 -0500
-Received: from mail02.vodafone.es ([217.130.24.81]:22156 "EHLO
-        mail02.vodafone.es" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725263AbgAMFAN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 00:00:13 -0500
-IronPort-SDR: 6lLlv9pt45Ja1QotnZOJ8kPm2+ynjT7QYXJovuaKFBYD4h3+sdXRwxArbrbMgCqFdRZ1fjL3qK
- zJ9n2HWT7P+w==
-IronPort-PHdr: =?us-ascii?q?9a23=3AZyep3RANpB5ag0tKS77kUyQJP3N1i/DPJgcQr6?=
- =?us-ascii?q?AfoPdwSPT8r8bcNUDSrc9gkEXOFd2Cra4d0KyM7fGrBjxIyK3CmUhKSIZLWR?=
- =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
- =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfL1/IA+ooQjQssQajolvJ6UswR?=
- =?us-ascii?q?bVv3VEfPhby3l1LlyJhRb84cmw/J9n8ytOvv8q6tBNX6bncakmVLJUFDspPX?=
- =?us-ascii?q?w7683trhnDUBCA5mAAXWUMkxpHGBbK4RfnVZrsqCT6t+592C6HPc3qSL0/RD?=
- =?us-ascii?q?qv47t3RBLulSwLMTk1/nzLhcNqiaJaoAutqgJ4w47OeIGVM+B+cbnBfdwEXG?=
- =?us-ascii?q?ZOQMBRWzVdD4Ogc4sAFfYOPeZGoIn4uVQOqwe+CRCyC+Pp0zNGgXj23ask3O?=
- =?us-ascii?q?UhCA3JwgogFM8KvHnasNn5KKIeXOaox6fK0DrDdetb1zn95ojSbB4vouyCUr?=
- =?us-ascii?q?1sfsTe0kQvCwHIgUmMpYD5Iz+ZyOIAuHWb4ep6UuKvjnYqpRtvrTiz2MgskJ?=
- =?us-ascii?q?TCiYISylDC+iVy3YE4JcWmR05nf9GkCpVRtyacN4t5Wc4iQ3potz0mxbEcpZ?=
- =?us-ascii?q?G7ey0KxI4nxx7ccvGKdZWD7BH7VOuJPzt0mXBodKiiixu87USs0PPwW8au3F?=
- =?us-ascii?q?tEridIlMTHuGoX2BzJ8MeHT+Nw/kKm2TmSyQ/e8vpEIUUolarDLJ4h36Iwmo?=
- =?us-ascii?q?ITsUvdGi/2n137jKqMeUUl/uio8froYrH6qpKTLYN0lAb+Pbk0lcyxBuQ4NB?=
- =?us-ascii?q?YBU3KF9uSnzLHj/Ev5T6tWjvAujKXVrZLXKd4GqqO3HwNZyJgv5hmlAzqo0N?=
- =?us-ascii?q?kUhXwHI0hEeBKDgYjpIVbOIPXgAPennVusjClkx+rIP73mBJXNIWPOkLf6fb?=
- =?us-ascii?q?lm90FQ0hY8zdda555OCrEBI+r/WlXtu9zAEh85Lwu0zv78CNVhzIwRQmaPDb?=
- =?us-ascii?q?GCPaPMvl+H+PgvL/OPZIALojb9LeYq5/r0gX8+g18dcvrh4ZxCc2yxFPBrC1?=
- =?us-ascii?q?uWbGCqgdobF2oO+A0kQ7/QhUWGQAJUMk6/Q68mrg48Do3uWZ/OWo23n7uH0y?=
- =?us-ascii?q?e4HoZcbUhJD1mNFTHjcIDSCNkWbyfHGsJ9nyZMar+nRMd1zRyyuRXlzLxoBu?=
- =?us-ascii?q?rP8CZevpXmkth2sb6A3Sou/CB5Wp3Om1qGSHt5yzhQHzI=3D?=
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: =?us-ascii?q?A2FHWQBE+BtemCMYgtkUBTMYGwEBAQE?=
- =?us-ascii?q?BAQEFAQEBEQEBAwMBAQGBewIBARcBAYEjAgmBTVIgEpNQgU0fg0OLY4EAgx4?=
- =?us-ascii?q?VhggTDIFbDQEBAQEBNQIBAYRATgEXgQ8kOgQNAgMNAQEFAQEBAQEFBAEBAhA?=
- =?us-ascii?q?BAQEBAQYNCwYphUqCHQweAQQBAQEBAwMDAQEMAYNdBxkPOUoMQAEOAVODBIJ?=
- =?us-ascii?q?LAQEzhSOXWAGNBA0NAoUdgjUECoEJgRojgTQCAQGMFxqBQT+BIyGCKwgBggG?=
- =?us-ascii?q?CfwESAWyCSIJZBI1CEiGBB4gpmBeCQQR2iUyMAoI3AQ+IAYQxAxCCRQ+BCYg?=
- =?us-ascii?q?DhE6BfaM3V4EMDXpxMxqCJhqBIE8YDYgbji1AgRYQAk+JLoIyAQE?=
-X-IPAS-Result: =?us-ascii?q?A2FHWQBE+BtemCMYgtkUBTMYGwEBAQEBAQEFAQEBEQEBA?=
- =?us-ascii?q?wMBAQGBewIBARcBAYEjAgmBTVIgEpNQgU0fg0OLY4EAgx4VhggTDIFbDQEBA?=
- =?us-ascii?q?QEBNQIBAYRATgEXgQ8kOgQNAgMNAQEFAQEBAQEFBAEBAhABAQEBAQYNCwYph?=
- =?us-ascii?q?UqCHQweAQQBAQEBAwMDAQEMAYNdBxkPOUoMQAEOAVODBIJLAQEzhSOXWAGNB?=
- =?us-ascii?q?A0NAoUdgjUECoEJgRojgTQCAQGMFxqBQT+BIyGCKwgBggGCfwESAWyCSIJZB?=
- =?us-ascii?q?I1CEiGBB4gpmBeCQQR2iUyMAoI3AQ+IAYQxAxCCRQ+BCYgDhE6BfaM3V4EMD?=
- =?us-ascii?q?XpxMxqCJhqBIE8YDYgbji1AgRYQAk+JLoIyAQE?=
-X-IronPort-AV: E=Sophos;i="5.69,427,1571695200"; 
-   d="scan'208";a="323785011"
-Received: from mailrel04.vodafone.es ([217.130.24.35])
-  by mail02.vodafone.es with ESMTP; 13 Jan 2020 06:00:11 +0100
-Received: (qmail 13859 invoked from network); 12 Jan 2020 03:50:08 -0000
-Received: from unknown (HELO 192.168.1.3) (quesosbelda@[217.217.179.17])
-          (envelope-sender <peterwong@hsbc.com.hk>)
-          by mailrel04.vodafone.es (qmail-ldap-1.03) with SMTP
-          for <stable@vger.kernel.org>; 12 Jan 2020 03:50:08 -0000
-Date:   Sun, 12 Jan 2020 04:50:07 +0100 (CET)
-From:   Peter Wong <peterwong@hsbc.com.hk>
-Reply-To: Peter Wong <peterwonghkhsbc@gmail.com>
-To:     stable@vger.kernel.org
-Message-ID: <16879860.243035.1578801008654.JavaMail.cash@217.130.24.55>
-Subject: Investment opportunity
+        id S1730663AbgAMGF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 01:05:59 -0500
+Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:52561 "EHLO
+        wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725909AbgAMGF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 01:05:58 -0500
+X-Greylist: delayed 320 seconds by postgrey-1.27 at vger.kernel.org; Mon, 13 Jan 2020 01:05:58 EST
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.west.internal (Postfix) with ESMTP id 7D7396A6;
+        Mon, 13 Jan 2020 01:00:37 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 13 Jan 2020 01:00:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
+        message-id:subject:from:to:cc:date:in-reply-to:references
+        :content-type:mime-version:content-transfer-encoding; s=fm2; bh=
+        P8DhK8ltRJH7uYyzmEkUgfSyp/2vnpQjSfGyqb1nic0=; b=ZZUKSO/eTQMdBTbp
+        HwxYMmt5tQQXo9lQ68s/ozcY3kw2lmk0BK8HuO8G28NY5us6DWQrzZrdKrrYSKEZ
+        raViLEKQ+wuKAHbVdEA7pe8mSeQricDisxvaq0vr4ZdY4vBgAQuvxus7Xj2v1icm
+        qmZ1Gfu5HPGU0/ZEAvB1wN8tQe4tDHms6lZrWSz9LlPOYgI76UhtHt1faOQ7JOLu
+        nZYieX/RBOpmrAo7w7jJd9UBZTRpORyMXmuR32Buo1RhOuRJjqhjTv8l1BeKQtEX
+        JtHpRz+h13YCmoFaKivCVk2xVN2w9Gl23M4wxIEy8AurSOCsI4QF8IFhTUGRQQPl
+        bT28CQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; bh=P8DhK8ltRJH7uYyzmEkUgfSyp/2vnpQjSfGyqb1ni
+        c0=; b=PKtgL8O965o7BZB7yToXfSyN/QrXVnmtMhuDAckJbnw2QLJ1781zumeoS
+        Kg19K4ra6jcO3vYE71aH+AMsGiOizSK29/sAOX5eVugJLDf+JgHESEmayhVovMKK
+        oTocikkRAaEuEo5Kp9KyPaBppHBBsiJ3zI/baro9dFWr/CI7Ze60zESzYs61djLI
+        R4qeND0+/h0TP87tYSSU2LF3EA33xMr0j8GSADl+NLgYxDXNU7Lyxp0R5Y1XOXPx
+        pdMMERFQ9vD81VIbvmXAkshoPQpXAViz8hiStMVZO45OPjMHYnqk7DMLAbfW4ELs
+        RLWwC7HXldqNyfo7k1e2jRINGJPxQ==
+X-ME-Sender: <xms:hAccXtQe9N0U2D21iCeMFUPr552x_0IruXA1oAo-qyMjpWTzn28xOQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeiledgleduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomhepkfgrnhcu
+    mfgvnhhtuceorhgrvhgvnhesthhhvghmrgifrdhnvghtqeenucffohhmrghinhepghhith
+    hhuhgsrdgtohhmnecukfhppeduudekrddvtdelrddujeehrddvheenucfrrghrrghmpehm
+    rghilhhfrhhomheprhgrvhgvnhesthhhvghmrgifrdhnvghtnecuvehluhhsthgvrhfuih
+    iivgeptd
+X-ME-Proxy: <xmx:hAccXvDikIat0APaVAnruEZ5hJJ4LeAt_mTc1PmEW6-K7XJJpcE4Rg>
+    <xmx:hAccXouQscriB9WR8k4h8-wYSx7VDpMV5kgaM8GMcWwqpiI1n_8X9A>
+    <xmx:hAccXmuJ9Rq8dqE8EEt9jcXP2bApKhO1FL_S3JqK8HS6RIoQOn_j4A>
+    <xmx:hQccXlBL9iw23cs5OVqLct57YHOCh1SqXFT1kFEthWob7JJcH05RLmMyQY0>
+Received: from mickey.themaw.net (unknown [118.209.175.25])
+        by mail.messagingengine.com (Postfix) with ESMTPA id AC6AA8005A;
+        Mon, 13 Jan 2020 01:00:31 -0500 (EST)
+Message-ID: <41c535d689530f3715f21cd25074eb61e825a5f6.camel@themaw.net>
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+From:   Ian Kent <raven@themaw.net>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Aleksa Sarai <cyphar@cyphar.com>,
+        David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
+        containers@lists.linux-foundation.org, linux-api@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Mon, 13 Jan 2020 14:00:28 +0800
+In-Reply-To: <20200113035407.GQ8904@ZenIV.linux.org.uk>
+References: <20191230072959.62kcojxpthhdwmfa@yavin.dot.cyphar.com>
+         <20200101004324.GA11269@ZenIV.linux.org.uk>
+         <20200101005446.GH4203@ZenIV.linux.org.uk>
+         <20200101030815.GA17593@ZenIV.linux.org.uk>
+         <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
+         <20200101234009.GB8904@ZenIV.linux.org.uk>
+         <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
+         <20200103014901.GC8904@ZenIV.linux.org.uk>
+         <20200110231945.GL8904@ZenIV.linux.org.uk>
+         <aea0bc800b6a1e547ca1944738ff9db4379098ba.camel@themaw.net>
+         <20200113035407.GQ8904@ZenIV.linux.org.uk>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.5 (3.32.5-1.fc30) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
-Please read the attached investment proposal and reply for more details.
-Are you interested in loan?
-Sincerely: Peter Wong
+On Mon, 2020-01-13 at 03:54 +0000, Al Viro wrote:
+> On Mon, Jan 13, 2020 at 09:48:23AM +0800, Ian Kent wrote:
+> 
+> > I did try this patch and I was trying to work out why it didn't
+> > work. But thought I'd let you know what I saw.
+> > 
+> > Applying it to current Linus tree systemd stops at switch root.
+> > 
+> > Not sure what causes that, I couldn't see any reason for it.
+> 
+> Wait a minute...  So you are seeing problems early in the boot,
+> before any autofs ioctls might come into play?
 
+I did, then I checked it booted without the patch, then tried
+building from scratch with the patch twice and same thing
+happened each time.
 
+Looked like this, such as it is:
+[ OK ] Reached target Switch Root.
+[ OK ] Started Plymouth switch root service.
+       Starting Switch Root...
 
+I don't have any evidence but thought it might be this:
+https://github.com/karelzak/util-linux/blob/master/sys-utils/switch_root.c
 
-----------------------------------------------------
-This email was sent by the shareware version of Postman Professional.
+Mind you, that's not the actual systemd repo. either I probably
+need to look a lot deeper (and at the actual systemd repo) to
+work out what's actually being called.
+
+> 
+> Sigh...  Guess I'll have to dig that Fedora KVM image out and
+> try to see what it's about... ;-/  Here comes a couple of hours
+> of build...
 
