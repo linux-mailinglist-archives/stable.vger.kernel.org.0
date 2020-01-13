@@ -2,129 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAAC8139522
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 16:47:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8411139524
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 16:48:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727286AbgAMPrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 10:47:43 -0500
-Received: from mail-yw1-f65.google.com ([209.85.161.65]:41390 "EHLO
-        mail-yw1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726567AbgAMPrn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 10:47:43 -0500
-Received: by mail-yw1-f65.google.com with SMTP id l22so6361695ywc.8;
-        Mon, 13 Jan 2020 07:47:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ChFe9qShyUOuZ5tGPkN8C3BJi+grvsqUW91W4CaiU70=;
-        b=sb9j7bVv5w5DqVRlAnGzko6bpBEFCVnTQzfgd40wZwi2UzSPg7uDOPW5IWdaZNCWFm
-         /4y0QTQ7ZsPssSeMWKIqStmEYByqotjTZmSQn/v3GMhngrwnj1N1TITGeK0lAnwgWTL7
-         PWW9eJLeYo+45ZVhw66zFnpBKh2H8a2+vVzsmkO2dBrBDKSljKRrN7cpedMfBsNxsx40
-         OvFWo1gGEXUhgP/eMNcPDpleMf6QQs3eZlQCt3Yl96wMXXGfM4HicO2D64zkWDw5MfSX
-         r/AVsekKrtzw0vQIPkqToasr7TYD/qin+hW3oclEwfWk+SJIcXOpzjsKyxjA/Wgaxs0W
-         tcFA==
-X-Gm-Message-State: APjAAAXqlVJWdm6xHOUWAPtMzD4j7eXvj3j5Fh1l17mJKyefzwJMNEvu
-        85ofvHNkkesrZPjAYzEcmg8=
-X-Google-Smtp-Source: APXvYqzbo6GdbAXBFKhjYFyAJK6iFjdMvfRes3jb97qjaZdhry7UeogsYch3o1Y1JOOx1O7bJ8uSMQ==
-X-Received: by 2002:a25:3481:: with SMTP id b123mr14417705yba.16.1578930461921;
-        Mon, 13 Jan 2020 07:47:41 -0800 (PST)
-Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
-        by smtp.gmail.com with ESMTPSA id 124sm5593686ywn.76.2020.01.13.07.47.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2020 07:47:40 -0800 (PST)
-Received: by 42.do-not-panic.com (Postfix, from userid 1000)
-        id 7BDDC4018C; Mon, 13 Jan 2020 15:47:39 +0000 (UTC)
-Date:   Mon, 13 Jan 2020 15:47:39 +0000
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Jari Ruusu <jari.ruusu@gmail.com>
-Cc:     Borislav Petkov <bp@alien8.de>, Fenghua Yu <fenghua.yu@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        johannes.berg@intel.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: Fix built-in early-load Intel microcode alignment
-Message-ID: <20200113154739.GB11244@42.do-not-panic.com>
-References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
+        id S1728774AbgAMPsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 10:48:01 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:1428 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726567AbgAMPsB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Jan 2020 10:48:01 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e1c911d0000>; Mon, 13 Jan 2020 07:47:41 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Mon, 13 Jan 2020 07:48:00 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Mon, 13 Jan 2020 07:48:00 -0800
+Received: from [10.26.11.97] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 13 Jan
+ 2020 15:47:57 +0000
+Subject: Re: [PATCH 4.14 00/62] 4.14.164-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200111094837.425430968@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <17085aef-4a87-5d56-3b36-1051559292fc@nvidia.com>
+Date:   Mon, 13 Jan 2020 15:47:55 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200111094837.425430968@linuxfoundation.org>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1578930461; bh=YlEAkKaz04Q1ui63iZV6FoMN+8nVud8YmO8YlXI6B6Y=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=VuTGKnJgTXZw1rWF63/d0DxI3B7TImLE0GIIPn/WwSBj6ifNkmo0sOQ8vQMmEtCAt
+         kAWB4PqZq3qypy+IRaNOh4pdbiql30zkLh1ljijsRiaykXAk5cSQHXeMpbZFJuY5l5
+         FxrCc5gBDUQEQZksdnZO80/vY9irYSwoSsLsrnxOinvCnV2phlq+OQFhlKobwcyd5o
+         T3yXchWWrsW3t/nCyd45bHjAKW9JHfb3PbWhz1lY4YILpNiF9dp09rCbK03xAjSS5R
+         sxBRcdcKR/snrCTytcsb5K9T6hPt1+pQavki/BCaeI2cQmO8ups4lqMyO677TRiour
+         qM2PExW9GAIbQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 12, 2020 at 03:00:53PM +0200, Jari Ruusu wrote:
-> Intel Software Developer's Manual, volume 3, chapter 9.11.6 says:
-> "Note that the microcode update must be aligned on a 16-byte
-> boundary and the size of the microcode update must be 1-KByte
-> granular"
+
+On 11/01/2020 09:49, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.164 release.
+> There are 62 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> When early-load Intel microcode is loaded from initramfs,
-> userspace tool 'iucode_tool' has already 16-byte aligned those
-> microcode bits in that initramfs image. Image that was created
-> something like this:
+> Responses should be made by Mon, 13 Jan 2020 09:46:17 +0000.
+> Anything received after that time might be too late.
 > 
->  iucode_tool --write-earlyfw=FOO.cpio microcode-files...
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.164-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
 > 
-> However, when early-load Intel microcode is loaded from built-in
-> firmware BLOB using CONFIG_EXTRA_FIRMWARE= kernel config option,
-> that 16-byte alignment is not guaranteed.
-
-Thanks for the patch!
-
-So what happens with you use the built-in firmware loader for
-the Intel microcode at this time? I am surprised this issue
-wasn't reported earlier, so thanks for picking it up, but to
-be complete such a change requires a bit more information.
-
-What exactly happens now?
-
-> Fix this by forcing all built-in firmware BLOBs to 16-byte
-> alignment.
-
-That's a huge stretch, see below.
-
-> Signed-off-by: Jari Ruusu <jari.ruusu@gmail.com>
+> thanks,
 > 
-> --- a/drivers/base/firmware_loader/builtin/Makefile
-> +++ b/drivers/base/firmware_loader/builtin/Makefile
-> @@ -17,7 +17,7 @@
->  filechk_fwbin = \
->  	echo "/* Generated by $(src)/Makefile */"		;\
->  	echo "    .section .rodata"				;\
-> -	echo "    .p2align $(ASM_ALIGN)"			;\
-> +	echo "    .p2align 4"					;\
+> greg k-h
+> 
+> -------------
 
-You are forcing 16 byte alignment to *all* built-in firmware, and some
-architectures may have a different requirement. If things used to work
-with ASM_ALIGN which is a construct only used for this code, but your
-change fixes it with Intel microcode loading -- it however *may* break
-things for other built-in firmware used. In particular if you note above
-it used to align things to 2^3 so 8 bytes if on CONFIG_64BIT, otherwise
-things get aligned to 2^2 so 4 bytes.
+All tests are passing for Tegra ...
 
-So I'd like to determine first if we really need this. Then if so,
-either add a new global config option, and worst comes to worst
-figure out a way to do it per driver. I don't think we'd need it
-per driver.
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    21 tests:	21 pass, 0 fail
 
-If set as a global new config option, we can use the same logic and
-allow an architecture override if the user / architecture kconfig
-configures it such:
+Linux version:	4.14.164-rc1-gf19c9ce58066
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-config ARCH_DEFAULT_FIRMWARE_ALIGNMENT
-	string "Default architecture firmware aligmnent"
-	"4" if 64BIT
-	"3" if !64BIT
+Cheers
+Jon
 
-config FIRMWARE_BUILTIN_ALIGN
-	string "Built in firmware aligment requirement"
-	default ARCH_DEFAULT_FIRMWARE_ALIGNMENT if !ARCH_CUSTOM_FIRMWARE_ALIGNMENT
-	default ARCH_CUSTOM_FIRMWARE_ALIGNMENT_VAL if ARCH_CUSTOM_FIRMWARE_ALIGNMENT
-	  Some good description goes here
-
-Or something like that.
-
- Luis
+-- 
+nvpublic
