@@ -2,360 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FF213898A
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 04:00:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2761389F4
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 04:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733020AbgAMC7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Jan 2020 21:59:47 -0500
-Received: from new3-smtp.messagingengine.com ([66.111.4.229]:54045 "EHLO
-        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732866AbgAMC7q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Jan 2020 21:59:46 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 31E9661D0;
-        Sun, 12 Jan 2020 21:59:45 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sun, 12 Jan 2020 21:59:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
-        message-id:subject:from:to:cc:date:in-reply-to:references
-        :content-type:mime-version:content-transfer-encoding; s=fm2; bh=
-        1bZIV+rpNOzTMwIXXxXsvQ8lODr3Ka/3YHY8+jRb82M=; b=Chdyz1apP3+e+cvC
-        12aEBQuzaBuUsr490yXbRKDwuJQqpmiucNgh7JAC3pjt6pSnzzTqHjKEBTyB3pMK
-        Uyubl9r3in8KUqB8e/QscLtof+F27nwjv3CkZiWxou0C3eKddaUcHDNyoCdF+ANJ
-        BcnATrLPwsqbyX5HUep542iVEjUzjWuIhEtcr0tPe1SwXb0bExZAU+pgkT2RbDbj
-        biKg7v5uuWYwcEZT2Lm6jGSWau/nQAXXLz0wEigo+tbUUMpS8hULCvM4MNdqhZIn
-        AFpJtcipI8lLJAm26CIrSAW+FgyoeyXaAmQOoDUXkjkuNjZZfnL4zec+Co/9k9oS
-        +cnbOQ==
+        id S2387503AbgAMDxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Jan 2020 22:53:13 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:53451 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387494AbgAMDxN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Jan 2020 22:53:13 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 418C421C1E;
+        Sun, 12 Jan 2020 22:53:12 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Sun, 12 Jan 2020 22:53:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=fm1; bh=m4PaaL1uSYSw4
+        MJXUFb/Hne13RaJ0dX5yeTCgehScLE=; b=AatXWb4iAOlWuYpCHWxYKhzBu031b
+        a3UcZsvV9x/Qh/JxeSMG4YcukEpYcWMP9o8L5LhENM1ajFowudpTQrQB8qdVvq5j
+        TVFKgky1ZUOcWvNphMTbNRvAFyFXI37X2fxCx2GX5iyY15TOG1DO6NXxTFyPVGzF
+        04Y7srUIuVFMvsU6zJlPxeVuQc70cUeyKYAjeYDnUdTCUSpQb0PnzvCalAK/I4FM
+        awjWbalm6FqfXdSPs88lKvBX2hSWYwoo9U2Rch2N8K++rlRQlzbGUJ5wd1nMM6WY
+        nxMnRs2iDm6eEfUMiC0lsxB+mTaIi9PWkdM42Nm9l+pGelh3ufOHWXjoA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=1bZIV+rpNOzTMwIXXxXsvQ8lODr3Ka/3YHY8+jRb8
-        2M=; b=mlXiWZX+hzo6o3irGpo+NQ+g8lfrJ7Ti9i1bbhCxhI0PTKCrJCt1O9AJ+
-        Dcob9Ryi56n1/foM3JDt0GksH9zLbF2nrE797jbRBUv3lNfgSk4h38wMoNxOL+L7
-        om/b1QmonhbTHAqjhqnh27skjmfOkb+4zxD4wHh2YHm3fyT1J/bGaICzNP3aXAsN
-        4bO0mjTLOSu9h3pv/dYIOMEHiLeEE2xjWduaBNSE1RpP02YaY879RmAZ6mak6Clz
-        nARboLl4YPJVKG6A+LQqjGal8mc14SF/F8uftv/UU0H7Ut98S0smKb5dAIcLR4ie
-        0bCejvZLzV+CascUJKgH4fZV9b/FQ==
-X-ME-Sender: <xms:IN0bXqpJZMdycaxtq8DflaUIlVAcdgY8qii7_bEkMLTyWW-vkPu3GQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeiledgheehucetufdoteggodetrfdotf
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; bh=m4PaaL1uSYSw4MJXUFb/Hne13RaJ0dX5yeTCgehScLE=; b=gflvmVMs
+        2HLOEIj0Fbr+WRqUsM39j/MKmq/8SjUkxlOjZSQNdYCUHH8Bp2YA+AJY6fUCRs6q
+        7RP50/tWf4HO7yyhQVk6cOv1uAdt8CEd9Nh79BKzkrqzpQJqAIJcV/WWifN3zLuy
+        xGOJYLKGivuJfBButcVpiLvofNzWdLqJdiI3a2eDAcGW9C2wwKtjvOdoQDGaeaDb
+        oAgaSX25Vu8OjoYsxOkkZphl33WjKzvtFI5qCU3LDIk0hHU3m3qlFGvYIzPkL5Ff
+        eMGcbXf9DABRoPDjuDIeRkY2Sn9otlCXmKD0U7onCj+vKKzH/c7QTMwKowk2JjlW
+        pavBcnAFJGxC7Q==
+X-ME-Sender: <xms:qOkbXrrCkR29pmi6t3HcTNX-cznYZm7CqFVQTfSev7STqhlh7hzikQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdeiledgieeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomhepkfgrnhcu
-    mfgvnhhtuceorhgrvhgvnhesthhhvghmrgifrdhnvghtqeenucfkphepuddukedrvddtle
-    drudejhedrvdehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehrrghvvghnsehthhgvmhgr
-    fidrnhgvthenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:IN0bXpYiDZYm43p1cZ9X963meTdsWuboqzvZqQXeeOYEX4fxGA9Nkw>
-    <xmx:IN0bXoGtt9SOYbvyGZZrtTABWy9PH0ynRCUoujPEnvcqfZRXfN19hQ>
-    <xmx:IN0bXhxcoa5ThcqQk8WSAE3wTYg7XVsgfLQUO7JYFysZUh6CrjnoIg>
-    <xmx:Id0bXqSuGLGpBQhL54tMHL4QgVWrj3dmeqqwdWwYWNFL_evTzS6ORg>
-Received: from mickey.themaw.net (unknown [118.209.175.25])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E44DA30600A8;
-        Sun, 12 Jan 2020 21:59:39 -0500 (EST)
-Message-ID: <800d36a0dccd43f1b61cab6332a6252ab9aab73c.camel@themaw.net>
-Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
- symlinks
-From:   Ian Kent <raven@themaw.net>
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        David Howells <dhowells@redhat.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        stable <stable@vger.kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date:   Mon, 13 Jan 2020 10:59:36 +0800
-In-Reply-To: <20200112213352.GP8904@ZenIV.linux.org.uk>
-References: <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
-         <20200101234009.GB8904@ZenIV.linux.org.uk>
-         <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
-         <20200103014901.GC8904@ZenIV.linux.org.uk>
-         <20200108031314.GE8904@ZenIV.linux.org.uk>
-         <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
-         <20200108213444.GF8904@ZenIV.linux.org.uk>
-         <CAHk-=wiq11+thoe60qhsSHk_nbRF2TRL1Wnf6eHcYObjhJmsww@mail.gmail.com>
-         <20200110041523.GK8904@ZenIV.linux.org.uk>
-         <979cf680b0fbdce515293a3449d564690cde6a3f.camel@themaw.net>
-         <20200112213352.GP8904@ZenIV.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.5 (3.32.5-1.fc30) 
+    cujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgv
+    lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucfkph
+    epjedtrddufeehrddugeekrdduhedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghm
+    uhgvlhesshhhohhllhgrnhgurdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:qOkbXtUdbMJsqq-W__VU_izvYsEbnIahqnxuMt9W0Grgjb_8KXwNeQ>
+    <xmx:qOkbXib-RB1VKU1s_kdEZl8vGjlHYewnkjIV3nzybAjE07Y_0OxT2g>
+    <xmx:qOkbXuFdSeTkFzSAAbuQlxOxigCGfc_sxntXYuoroV1tPSqJhBLwXQ>
+    <xmx:qOkbXqetzqGkmg42jdwM8jE3fmCiN5IrkwWFR33NaWBSgalU5heQpA>
+Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A3A0580062;
+        Sun, 12 Jan 2020 22:53:11 -0500 (EST)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Chen-Yu Tsai <wens@csie.org>, Sebastian Reichel <sre@kernel.org>,
+        Oskari Lemmela <oskari@lemmela.net>
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-sunxi@googlegroups.com, Samuel Holland <samuel@sholland.org>,
+        stable@vger.kernel.org
+Subject: [PATCH v3 1/8] power: supply: axp20x_ac_power: Fix reporting online status
+Date:   Sun, 12 Jan 2020 21:53:03 -0600
+Message-Id: <20200113035310.18950-2-samuel@sholland.org>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20200113035310.18950-1-samuel@sholland.org>
+References: <20200113035310.18950-1-samuel@sholland.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 2020-01-12 at 21:33 +0000, Al Viro wrote:
-> On Fri, Jan 10, 2020 at 02:20:55PM +0800, Ian Kent wrote:
-> 
-> > Yeah, autofs ->d_automount() doesn't return -EISDIR, by the time
-> > we get there it's not relevant any more, so that check looks
-> > redundant. I'm not aware of any other fs automount implementation
-> > that needs that EISDIR pass-thru function.
-> > 
-> > I didn't notice it at the time of the merge, sorry about that.
-> > 
-> > While we're at it that:
-> >    if (!path->dentry->d_op || !path->dentry->d_op->d_automount)
-> >        return -EREMOTE;
-> > 
-> > at the top of follow_automount() isn't going to be be relevant
-> > for autofs because ->d_automount() really must always be defined
-> > for it.
-> > 
-> > But, at the time of the merge, I didn't object to it because
-> > there were (are) other file systems that use the VFS automount
-> > function which may accidentally not define the method.
-> 
-> OK...
-> 
-> > > Unfortunately, there are other interesting questions related to
-> > > autofs-specific bits (->d_manage()) and the timezone-related fun
-> > > is, of course, still there.  I hope to sort that out today or
-> > > tomorrow, at least enough to do a reasonable set of backportable
-> > > fixes to put in front of follow_managed()/step_into() queue.
-> > > Oh, well...
-> > 
-> > Yeah, I know it slows you down but I kink-off like having a chance
-> 
-> Nice typo, that ;-)
-> 
-> > to look at what's going and think about your questions before
-> > trying
-> > to answer them, rather than replying prematurely, as I usually do
-> > ...
-> > 
-> > It's been a bit of a busy day so far but I'm getting to look into
-> > the questions you've asked.
-> 
-> Here's a bit more of those (I might've missed some of your replies on
-> IRC; my apologies if that's the case):
-> 
-> 1) AFAICS, -EISDIR from ->d_manage() actually means "don't even try
-> ->d_automount() here".  If its effect can be delayed until the
-> decision
-> to call ->d_automount(), the things seem to get simpler.  Is it ever
-> returned in situation when the sucker _is_ overmounted?
+AXP803/AXP813 have a flag that enables/disables the AC power supply
+input. This flag does not affect the status bits in PWR_INPUT_STATUS.
+Its effect can be verified by checking the battery charge/discharge
+state (bit 2 of PWR_INPUT_STATUS), or by examining the current draw on
+the AC input.
 
-In theory it shouldn't need to be returned when there is an
-actual mount there.
+Take this flag into account when getting the ONLINE property of the AC
+input, on PMICs where this flag is present.
 
-If there is a real mount at this point that should be enough to
-prevent walks into that mount until it's mount is complete.
+Fixes: 7693b5643fd2 ("power: supply: add AC power supply driver for AXP813")
+Cc: stable@vger.kernel.org
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+ drivers/power/supply/axp20x_ac_power.c | 31 +++++++++++++++++++++-----
+ 1 file changed, 25 insertions(+), 6 deletions(-)
 
-The whole idea of -EISDIR is to prevent processes from walking
-into a directory tree that "doesn't have a real mount at its
-base" (the so called multi-mount map construct).
-
-> 
-> 2) can autofs_d_automount() ever be called for a daemon?  Looks like
-> it
-> shouldn't be...
-
-Can't do that, it will lead to deadlock very quickly.
-
-> 
-> 3) is _anything_ besides root directory ever created in direct autofs
-> superblocks by anyone?  If not, why does autofs_lookup() even bother
-> to
-> do anything there?  IOW, why not have it return ERR_PTR(-ENOENT)
-> immediately
-> for direct ones?  Or am I missing something and it is, in fact,
-> possible
-> to have the daemon create something in those?
-
-Short answer is no, longer answer is directories "shouldn't" ever
-be created inside direct mount points.
-
-The thing is that the multi-mount map construct can be used with
-direct mounts too, but they must always have a real mount at the
-base because they are direct mounts. So processes should not be
-able to walk into them while they are being mounted (constructed).
-
-But I'm pretty sure it's rare (maybe not done at all) that this
-map construct is used with direct mounts.
-
-> 
-> 4) Symlinks look like they should qualify for parent being non-empty;
-> at least autofs_d_manage() seems to think so (simple_empty() use).
-> So shouldn't we remove the trap from its parent on symlink/restore on
-> unlink if parent gets empty?  For version 4 or earlier, that is.  Or
-> is
-> it simply that daemon only creates symlinks in root directory?
-
-Yes, they have to be empty.
-
-If a symlink is to be used (based on autofs config or map option)
-and the "browse" option is used for the indirect mount (browse
-only makes sense for indirect autofs managed mounts) then the
-mount point directory has to be removed and a symlink created
-so it must be empty to for this to make sense.
-
-If it's a "nobrowse" autofs mount then nothing should already
-exist, it just gets created.
-
-The catch is that a map entry for which a symlink is to be used
-instead of a mount can't be a multi-mount. I'm pretty sure I don't
-have sufficient error checking for that in the daemon but I also
-haven't had reports of problems with it either.
-
-For a very long time the use of symlinks was not common but when
-the amd format map parser was added it made sense to use symlinks
-in some cases for those. That was partly to reduce the number of
-mounts needed and because I deliberately don't support amd map
-entries that provide the multi-mount construct. The way amd did
-this looked ugly to me, very much a hack to add a Sun format
-mount feature.
-
-As far as keeping the trap flags up to date, I don't.
-
-It seemed so much simpler to just leave the flags in place but,
-at that time, symlinks were not used (although it was possible to
-do so), now that's changed fiddling with the flags might now make
-sense.
-
-As I said on IRC:
-"DCACHE_NEED_AUTOMOUNT is set on symlink dentries because, when
-->lookup() is called the dentry may trigger a callback to the
-daemon that will either create a directory (since, in this case,
-one does not already exist) and attempt to mount on it or create
-a symlink if the autofs config/map requires it.
-
-I didn't think there would be potential simplification by setting
-and clearing the DCACHE_NEED_AUTOMOUNT flag based on it being a
-directory (mountpoint) or a symlink so the flag is always left set.
-Although, as you point out, symlinks won't actually trigger mounts
-so the flag being left set when the dentry is a symlink is due to
-lazyness, since there's nothing to gain. If you can see potential
-simplification in the VFS code by managing this flag better then
-that would be worth while."
-
-> 
-> 
-> Anyway, intermediate state of the series is in #work.namei right now,
-> and some _very_ interesting possibilities open up.  It definitely
-> needs more massage around __follow_mount_rcu() (as it is, the
-> fastpath in there is still too twisted).  Said that
-> 	* call graph is less convoluted
-> 	* follow_managed() calls are folded into
-> step_into().  Interface:
-> int step_into(nd, flags, dentry, inode, seq), with inode/seq used
-> only
-> if we are in RCU mode.
-> 	* ".." still doesn't use that; it probably ought to.
-> 	* lookup_fast() doesn't take path - nd, &inode, &seq and
-> returns dentry
-> 	* lookup_open() and fs/namei.c:atomic_open() get similar
-> treatment
-> - don't take path, return dentry.
-> 	* calls of follow_managed()/step_into() combination returning 1
-> are always followed by get_link(), and very shortly, at that.  So
-> much
-> that we can realistically merge pick_link() (in the end of
-> step_into()) with get_link().  That merge is NOT done in this branch
-> yet.
-> 
-> The last one promises to get rid of a rather unpleasant group of
-> calling
-> conventions.  Right now we have several functions (step_into()/
-> walk_component()/lookup_last()/do_last()) with the following calling
-> conventions:
-> 	-E...	=> error
-> 	0	=> non-symlink or symlink not followed; nd->path points to it
-> 	1	=> picked a symlink to follow; its mount/dentry/seq has been
-> pushed on nd->stack[]; its inode is stashed into nd->link_inode for
-> subsequent get_link() to pick.  nd->path is left unchanged.
-> 
-> That way all of those become
-> 	ERR_PTR(-E...)	=> error
-> 	NULL		=> non-symlink, symlink not followed or a
-> pure
-> jump (bare "/" or procfs ones); nd->path points to where we end up
->         string		=> symlink being followed; the sucker's
-> pushed
-> to stack, initial jump (if any) has been handled and the string
-> returned
-> is what we need to traverse.
-> 
-> IMO it's less arbitrary that way.  More importantly, the separation
-> between
-> step_into() committing to symlink traversal and (inevitably
-> following)
-> get_link() is gone - it's one operation after that change.  No nd-
-> >link_inode
-> either - it's only needed to carry the information from pick_link()
-> to the
-> next get_link().
-> 
-> Loops turn into
-> 	while (!(err = link_path_walk(nd, s)) &&
-> 	       (s = lookup_last(nd)) != NULL)
-> 		;
-> and
-> 	while (!(err = link_path_walk(nd, s)) &&
-> 	       (s = do_last(nd, file, op)) != NULL)
-> 		;
-> 
-> trailing_symlink() goes away (folded into pick_link()/get_link()
-> combo,
-> conditional upon nd->depth at the entry).  And in link_path_walk()
-> we'll
-> have
->                 if (unlikely(!*name)) {
->                         /* pathname body, done */
->                         if (!nd->depth)
->                                 return 0;
->                         name = nd->stack[nd->depth - 1].name;
->                         /* trailing symlink, done */
->                         if (!name)
->                                 return 0;
->                         /* last component of nested symlink */
->                         s = walk_component(nd, WALK_FOLLOW);
->                 } else {
->                         /* not the last component */
->                         s = walk_component(nd, WALK_FOLLOW |
-> WALK_MORE);
->                 }
->                 if (s) {
->                         if (IS_ERR(s))
->                                 return PTR_ERR(s);
-> 			/* a symlink to follow */
-> 			nd->stack[nd->depth - 1].name = name;
->                         name = s;
->                         continue;
->                 }
-> 
-> Anyway, before I try that one I'm going to fold path_openat2() into
-> that series - that step is definitely going to require some massage
-> there; it's too close to get_link() changes done in Aleksa's series.
-> 
-> If we do that, we get a single primitive for "here's the result of
-> lookup; traverse mounts and either move into the result or, if
-> it's a symlink that needs to be traversed, start the symlink
-> traversal - jump into the base position for it (if needed) and
-> return the pathname that needs to be handled".  As it is, mainline
-> has that logics spread over about a dozen locations...
-> 
-> Diffstat at the moment:
->  fs/autofs/dev-ioctl.c |   6 +-
->  fs/internal.h         |   1 -
->  fs/namei.c            | 460 ++++++++++++++------------------------
-> ------------
->  fs/namespace.c        |  97 +++++++----
->  fs/nfs/nfstrace.h     |   2 -
->  fs/open.c             |   4 +-
->  include/linux/namei.h |   3 +-
->  7 files changed, 197 insertions(+), 376 deletions(-)
-> 
-> In the current form the sucker appears to work (so far - about 30%
-> into the usual xfstests run) without visible slowdowns...
-
-Ok, I'll have a look at that branch, ;)
-
-Ian
+diff --git a/drivers/power/supply/axp20x_ac_power.c b/drivers/power/supply/axp20x_ac_power.c
+index 0d34a932b6d5..f74b0556bb6b 100644
+--- a/drivers/power/supply/axp20x_ac_power.c
++++ b/drivers/power/supply/axp20x_ac_power.c
+@@ -23,6 +23,8 @@
+ #define AXP20X_PWR_STATUS_ACIN_PRESENT	BIT(7)
+ #define AXP20X_PWR_STATUS_ACIN_AVAIL	BIT(6)
+ 
++#define AXP813_ACIN_PATH_SEL		BIT(7)
++
+ #define AXP813_VHOLD_MASK		GENMASK(5, 3)
+ #define AXP813_VHOLD_UV_TO_BIT(x)	((((x) / 100000) - 40) << 3)
+ #define AXP813_VHOLD_REG_TO_UV(x)	\
+@@ -40,6 +42,7 @@ struct axp20x_ac_power {
+ 	struct power_supply *supply;
+ 	struct iio_channel *acin_v;
+ 	struct iio_channel *acin_i;
++	bool has_acin_path_sel;
+ };
+ 
+ static irqreturn_t axp20x_ac_power_irq(int irq, void *devid)
+@@ -86,6 +89,17 @@ static int axp20x_ac_power_get_property(struct power_supply *psy,
+ 			return ret;
+ 
+ 		val->intval = !!(reg & AXP20X_PWR_STATUS_ACIN_AVAIL);
++
++		/* ACIN_PATH_SEL disables ACIN even if ACIN_AVAIL is set. */
++		if (val->intval && power->has_acin_path_sel) {
++			ret = regmap_read(power->regmap, AXP813_ACIN_PATH_CTRL,
++					  &reg);
++			if (ret)
++				return ret;
++
++			val->intval = !!(reg & AXP813_ACIN_PATH_SEL);
++		}
++
+ 		return 0;
+ 
+ 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
+@@ -224,21 +238,25 @@ static const struct power_supply_desc axp813_ac_power_desc = {
+ struct axp_data {
+ 	const struct power_supply_desc	*power_desc;
+ 	bool				acin_adc;
++	bool				acin_path_sel;
+ };
+ 
+ static const struct axp_data axp20x_data = {
+-	.power_desc = &axp20x_ac_power_desc,
+-	.acin_adc = true,
++	.power_desc	= &axp20x_ac_power_desc,
++	.acin_adc	= true,
++	.acin_path_sel	= false,
+ };
+ 
+ static const struct axp_data axp22x_data = {
+-	.power_desc = &axp22x_ac_power_desc,
+-	.acin_adc = false,
++	.power_desc	= &axp22x_ac_power_desc,
++	.acin_adc	= false,
++	.acin_path_sel	= false,
+ };
+ 
+ static const struct axp_data axp813_data = {
+-	.power_desc = &axp813_ac_power_desc,
+-	.acin_adc = false,
++	.power_desc	= &axp813_ac_power_desc,
++	.acin_adc	= false,
++	.acin_path_sel	= true,
+ };
+ 
+ static int axp20x_ac_power_probe(struct platform_device *pdev)
+@@ -282,6 +300,7 @@ static int axp20x_ac_power_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	power->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	power->has_acin_path_sel = axp_data->acin_path_sel;
+ 
+ 	platform_set_drvdata(pdev, power);
+ 
+-- 
+2.23.0
 
