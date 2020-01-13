@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B33B6138FC9
-	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 12:08:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A146B138FCA
+	for <lists+stable@lfdr.de>; Mon, 13 Jan 2020 12:08:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728670AbgAMLIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 06:08:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51694 "EHLO mail.kernel.org"
+        id S1728646AbgAMLI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 06:08:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728646AbgAMLIy (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 13 Jan 2020 06:08:54 -0500
+        id S1727014AbgAMLI6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Jan 2020 06:08:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3ECFC207E0;
-        Mon, 13 Jan 2020 11:08:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFF7E2081E;
+        Mon, 13 Jan 2020 11:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578913733;
-        bh=398y/PZw8xulsxfpVFTr1FAcCAvJhJ/kSdizepY3lhY=;
+        s=default; t=1578913737;
+        bh=MvxVJiIw4Ezn6DHBk3kWI1msuF/5/dKr5YuWjzpYU8g=;
         h=Subject:To:From:Date:From;
-        b=twa731KCxgQpWomR1qBuRWDTmbHYU0jD+/KPnafQbxyfLjH5333Zd5ehcWqGfeE+P
-         267ue1eG0Zyfw28kGY0xyEEhAcqJAvy4tmb2iftGuhmj1QbgSquNNKJyg2+QpAVwaR
-         rKCABb/igx1cT79Zn1QdafiwX0OQjWgercBKmipQ=
-Subject: patch "iio: adc: ad7124: Fix DT channel configuration" added to staging-linus
-To:     alexandru.tachici@analog.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, gregkh@linuxfoundation.org
+        b=2elMkpx6gGmkh/NXr9HbPdZg6PZFcI4DoIRASjyonpFkscUeiuG3YOh+m1H9z11qF
+         MTJtGfHuwe7pwLjdAOCWAd/ox3PnCX0WNz/SPpt+PVF0UzlN+DWjCELtjxKL66Pajn
+         /UqZl2QIt9YK4A0k6ygN5Ok88bX+DYhk/dYsmUSU=
+Subject: patch "iio: imu: st_lsm6dsx: Fix selection of ST_LSM6DS3_ID" added to staging-linus
+To:     stephan@gerhold.net, Jonathan.Cameron@huawei.com,
+        gregkh@linuxfoundation.org, lorenzo@kernel.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Jan 2020 12:08:50 +0100
-Message-ID: <1578913730124148@kroah.com>
+Date:   Mon, 13 Jan 2020 12:08:51 +0100
+Message-ID: <157891373111512@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: ad7124: Fix DT channel configuration
+    iio: imu: st_lsm6dsx: Fix selection of ST_LSM6DS3_ID
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,71 +56,55 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From d7857e4ee1ba69732b16c73b2f2dde83ecd78ee4 Mon Sep 17 00:00:00 2001
-From: Alexandru Tachici <alexandru.tachici@analog.com>
-Date: Fri, 20 Dec 2019 12:07:19 +0200
-Subject: iio: adc: ad7124: Fix DT channel configuration
+From fb4fbc8904e786537e29329d791147389e1465a2 Mon Sep 17 00:00:00 2001
+From: Stephan Gerhold <stephan@gerhold.net>
+Date: Mon, 16 Dec 2019 13:41:20 +0100
+Subject: iio: imu: st_lsm6dsx: Fix selection of ST_LSM6DS3_ID
 
-This patch fixes device tree channel configuration.
+At the moment, attempting to probe a device with ST_LSM6DS3_ID
+(e.g. using the st,lsm6ds3 compatible) fails with:
 
-ad7124 driver reads channels configuration from the device tree.
-It expects to find channel specifications as child nodes.
-Before this patch ad7124 driver assumed that the child nodes are parsed
-by for_each_available_child_of_node in the order 0,1,2,3...
+    st_lsm6dsx_i2c 1-006b: unsupported whoami [69]
 
-This is wrong and the real order of the children can be seen by running:
-dtc -I fs /sys/firmware/devicetree/base on the machine.
+... even though 0x69 is the whoami listed for ST_LSM6DS3_ID.
 
-For example, running this on an rpi 3B+ yields the real
-children order: 4,2,0,7,5,3,1,6
+This happens because st_lsm6dsx_check_whoami() also attempts
+to match unspecified (zero-initialized) entries in the "id" array.
+ST_LSM6DS3_ID = 0 will therefore match any entry in
+st_lsm6dsx_sensor_settings (here: the first), because none of them
+actually have all 12 entries listed in the "id" array.
 
-Before this patch the driver assigned the channel configuration
-like this:
-        - 0 <- 4
-        - 1 <- 2
-        - 2 <- 0
-        ........
-For example, the symptoms can be observed by connecting the 4th channel
-to a 1V tension and then reading the in_voltage0-voltage19_raw sysfs
-(multiplied of course by the scale) one would see that channel 0
-measures 1V and channel 4 measures only noise.
+Avoid this by additionally checking if "name" is set,
+which is only set for valid entries in the "id" array.
 
-Now the driver uses the reg property of each child in order to
-correctly identify to which channel the parsed configuration
-belongs to.
+Note: Although the problem was introduced earlier it did not surface until
+commit 52f4b1f19679 ("iio: imu: st_lsm6dsx: add support for accel/gyro unit of lsm9ds1")
+because ST_LSM6DS3_ID was the first entry in st_lsm6dsx_sensor_settings.
 
-Fixes b3af341bbd966: ("iio: adc: Add ad7124 support")
-Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
-Cc: <Stable@vger.kernel.org>
+Fixes: d068e4a0f921 ("iio: imu: st_lsm6dsx: add support to multiple devices with the same settings")
+Cc: <stable@vger.kernel.org> # 5.4
+Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7124.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ad7124.c b/drivers/iio/adc/ad7124.c
-index 3f03abf100b5..306bf15023a7 100644
---- a/drivers/iio/adc/ad7124.c
-+++ b/drivers/iio/adc/ad7124.c
-@@ -494,13 +494,11 @@ static int ad7124_of_parse_channel_config(struct iio_dev *indio_dev,
- 		st->channel_config[channel].buf_negative =
- 			of_property_read_bool(child, "adi,buffered-negative");
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index a7d40c02ce6b..b921dd9e108f 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -1301,7 +1301,8 @@ static int st_lsm6dsx_check_whoami(struct st_lsm6dsx_hw *hw, int id,
  
--		*chan = ad7124_channel_template;
--		chan->address = channel;
--		chan->scan_index = channel;
--		chan->channel = ain[0];
--		chan->channel2 = ain[1];
--
--		chan++;
-+		chan[channel] = ad7124_channel_template;
-+		chan[channel].address = channel;
-+		chan[channel].scan_index = channel;
-+		chan[channel].channel = ain[0];
-+		chan[channel].channel2 = ain[1];
- 	}
- 
- 	return 0;
+ 	for (i = 0; i < ARRAY_SIZE(st_lsm6dsx_sensor_settings); i++) {
+ 		for (j = 0; j < ST_LSM6DSX_MAX_ID; j++) {
+-			if (id == st_lsm6dsx_sensor_settings[i].id[j].hw_id)
++			if (st_lsm6dsx_sensor_settings[i].id[j].name &&
++			    id == st_lsm6dsx_sensor_settings[i].id[j].hw_id)
+ 				break;
+ 		}
+ 		if (j < ST_LSM6DSX_MAX_ID)
 -- 
 2.24.1
 
