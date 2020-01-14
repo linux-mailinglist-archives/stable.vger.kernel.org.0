@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 336AD13A62B
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B031E13A61B
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731508AbgANKJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:09:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43274 "EHLO mail.kernel.org"
+        id S1731217AbgANKJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:09:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731498AbgANKJz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:09:55 -0500
+        id S1731214AbgANKJF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:09:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6682C24677;
-        Tue, 14 Jan 2020 10:09:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F8892467A;
+        Tue, 14 Jan 2020 10:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996594;
-        bh=Lv120bcg/Eqbm6F5BkYFSHwxvzllsH613wmYXWHfjqE=;
+        s=default; t=1578996544;
+        bh=+PI48K9XTvgjwsMAYb2zfC9iKKt9NZ6/WaU3LZy+OyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRVFVI1D/fBw/OYuJ+rmh31cOxemarbcegJtdI7WLr++D0BYATg9GHbDxtxOYYlbw
-         37opuIF8IESK/9/8clw/Pd41wevTGzbFhnyQ3BTC8N+OflmTfgCF1I2NPzEqiF7PQB
-         0/SSVOL+RDbhkiNWuc6EW/YnwCZFhc6V2RCmygm4=
+        b=CRXJrjGWiL/vBIOx51IJtYNogX0phv7PPaTW7SRVxNDV2HawdNmz3bUpzrgLJby1B
+         atzp7tQivCPO3IbcowIN8roANmKKXc3SPFys41TTCzcOC677ynTlGAIN2/LAfkQ/ff
+         9r+44paFn64/WZrzoz9s62YNcFPTwICWjHc8YjA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Wayne Lin <Wayne.Lin@amd.com>, Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 4.14 24/39] drm/dp_mst: correct the shifting in DP_REMOTE_I2C_READ
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Roger Whittaker <Roger.Whittaker@suse.com>
+Subject: [PATCH 4.19 41/46] USB: Fix: Dont skip endpoint descriptors with maxpacket=0
 Date:   Tue, 14 Jan 2020 11:01:58 +0100
-Message-Id: <20200114094344.333911566@linuxfoundation.org>
+Message-Id: <20200114094348.257779024@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit c4e4fccc5d52d881afaac11d3353265ef4eccb8b upstream.
+commit 2548288b4fb059b2da9ceada172ef763077e8a59 upstream.
 
-[Why]
-According to DP spec, it should shift left 4 digits for NO_STOP_BIT
-in REMOTE_I2C_READ message. Not 5 digits.
+It turns out that even though endpoints with a maxpacket length of 0
+aren't useful for data transfer, the descriptors do serve other
+purposes.  In particular, skipping them will also skip over other
+class-specific descriptors for classes such as UVC.  This unexpected
+side effect has caused some UVC cameras to stop working.
 
-In current code, NO_STOP_BIT is always set to zero which means I2C
-master is always generating a I2C stop at the end of each I2C write
-transaction while handling REMOTE_I2C_READ sideband message. This issue
-might have the generated I2C signal not meeting the requirement. Take
-random read in I2C for instance, I2C master should generate a repeat
-start to start to read data after writing the read address. This issue
-will cause the I2C master to generate a stop-start rather than a
-re-start which is not expected in I2C random read.
+In addition, the USB spec requires that when isochronous endpoint
+descriptors are present in an interface's altsetting 0 (which is true
+on some devices), the maxpacket size _must_ be set to 0.  Warning
+about such things seems like a bad idea.
 
-[How]
-Correct the shifting value of NO_STOP_BIT for DP_REMOTE_I2C_READ case in
-drm_dp_encode_sideband_req().
+This patch updates an earlier commit which would log a warning and
+skip these endpoint descriptors.  Now we only log a warning, and we
+don't even do that for isochronous endpoints in altsetting 0.
 
-Changes since v1:(https://patchwork.kernel.org/patch/11312667/)
-* Add more descriptions in commit and cc to stable
+We don't need to worry about preventing endpoints with maxpacket = 0
+from ever being used for data transfers; usb_submit_urb() already
+checks for this.
 
-Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200103055001.10287-1-Wayne.Lin@amd.com
+Reported-and-tested-by: Roger Whittaker <Roger.Whittaker@suse.com>
+Fixes: d482c7bb0541 ("USB: Skip endpoints with 0 maxpacket length")
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://marc.info/?l=linux-usb&m=157790377329882&w=2
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2001061040270.1514-100000@iolanthe.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/core/config.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -274,7 +274,7 @@ static void drm_dp_encode_sideband_req(s
- 			memcpy(&buf[idx], req->u.i2c_read.transactions[i].bytes, req->u.i2c_read.transactions[i].num_bytes);
- 			idx += req->u.i2c_read.transactions[i].num_bytes;
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -392,12 +392,16 @@ static int usb_parse_endpoint(struct dev
+ 			endpoint->desc.wMaxPacketSize = cpu_to_le16(8);
+ 	}
  
--			buf[idx] = (req->u.i2c_read.transactions[i].no_stop_bit & 0x1) << 5;
-+			buf[idx] = (req->u.i2c_read.transactions[i].no_stop_bit & 0x1) << 4;
- 			buf[idx] |= (req->u.i2c_read.transactions[i].i2c_transaction_delay & 0xf);
- 			idx++;
- 		}
+-	/* Validate the wMaxPacketSize field */
++	/*
++	 * Validate the wMaxPacketSize field.
++	 * Some devices have isochronous endpoints in altsetting 0;
++	 * the USB-2 spec requires such endpoints to have wMaxPacketSize = 0
++	 * (see the end of section 5.6.3), so don't warn about them.
++	 */
+ 	maxp = usb_endpoint_maxp(&endpoint->desc);
+-	if (maxp == 0) {
+-		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has wMaxPacketSize 0, skipping\n",
++	if (maxp == 0 && !(usb_endpoint_xfer_isoc(d) && asnum == 0)) {
++		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
+ 		    cfgno, inum, asnum, d->bEndpointAddress);
+-		goto skip_to_next_endpoint_or_interface_descriptor;
+ 	}
+ 
+ 	/* Find the highest legal maxpacket size for this endpoint */
 
 
