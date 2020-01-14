@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB7813A691
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B1E13A6A1
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732925AbgANKMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:12:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48304 "EHLO mail.kernel.org"
+        id S1733084AbgANKMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:12:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732908AbgANKMN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:12:13 -0500
+        id S1733081AbgANKMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:12:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47B19207FF;
-        Tue, 14 Jan 2020 10:12:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07DC820678;
+        Tue, 14 Jan 2020 10:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996732;
-        bh=k18qRjP/nywpIHZ3grDId+QnddItalWgK5eGRgAKNkk=;
+        s=default; t=1578996757;
+        bh=8W7dvBwMRQLuHVRZsMPvivPXSG58cKKOr57Wv6sdDI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2dRy8DIc4r3NOWH6D2FFXi9oHOovTIcY+bDmbxkyxf66tMM6Y0QtDfG4KmX1cZQM
-         nFNoVgfhf3d/jtDnmJfHd4g/yBuOWG1EVhTCoRYorIZ2Ni9RsZDQFCJ7NgIUz+/NnY
-         RpWV/13yzYvKGBGQ4M7y/3l2PhPdHXKncWF5ity0=
+        b=h/F/OrS+53d4w98T41LhAVyga53cNAxym9pSDQw9MVYGI5NG8OORtVtSbHMdiV6ai
+         FdFfYaDDZgjpWh1skrWzjlaSz23GZXbjrPffFhZ1C0L9JRj4B5aihS91bGmqWo0Xsr
+         PKya9Nc3t1TODbxQvL4MKMnI84rpt5wN3R2CYXow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Faber <faber@faberman.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.9 14/31] can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
-Date:   Tue, 14 Jan 2020 11:02:06 +0100
-Message-Id: <20200114094342.408517831@linuxfoundation.org>
+        stable@vger.kernel.org, Kaitao Cheng <pilgrimtao@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.4 05/28] kernel/trace: Fix do not unregister tracepoints when register sched_migrate_task fail
+Date:   Tue, 14 Jan 2020 11:02:07 +0100
+Message-Id: <20200114094340.513473929@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
-References: <20200114094334.725604663@linuxfoundation.org>
+In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
+References: <20200114094336.845958665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Faber <faber@faberman.de>
+From: Kaitao Cheng <pilgrimtao@gmail.com>
 
-commit 2d77bd61a2927be8f4e00d9478fe6996c47e8d45 upstream.
+commit 50f9ad607ea891a9308e67b81f774c71736d1098 upstream.
 
-Under load, the RX side of the mscan driver can get stuck while TX still
-works. Restarting the interface locks up the system. This behaviour
-could be reproduced reliably on a MPC5121e based system.
+In the function, if register_trace_sched_migrate_task() returns error,
+sched_switch/sched_wakeup_new/sched_wakeup won't unregister. That is
+why fail_deprobe_sched_switch was added.
 
-The patch fixes the return value of the NAPI polling function (should be
-the number of processed packets, not constant 1) and the condition under
-which IRQs are enabled again after polling is finished.
+Link: http://lkml.kernel.org/r/20191231133530.2794-1-pilgrimtao@gmail.com
 
-With this patch, no more lockups were observed over a test period of ten
-days.
-
-Fixes: afa17a500a36 ("net/can: add driver for mscan family & mpc52xx_mscan")
-Signed-off-by: Florian Faber <faber@faberman.de>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: stable@vger.kernel.org
+Fixes: 478142c39c8c2 ("tracing: do not grab lock in wakeup latency function tracing")
+Signed-off-by: Kaitao Cheng <pilgrimtao@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/mscan/mscan.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ kernel/trace/trace_sched_wakeup.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/mscan/mscan.c
-+++ b/drivers/net/can/mscan/mscan.c
-@@ -392,13 +392,12 @@ static int mscan_rx_poll(struct napi_str
- 	struct net_device *dev = napi->dev;
- 	struct mscan_regs __iomem *regs = priv->reg_base;
- 	struct net_device_stats *stats = &dev->stats;
--	int npackets = 0;
--	int ret = 1;
-+	int work_done = 0;
- 	struct sk_buff *skb;
- 	struct can_frame *frame;
- 	u8 canrflg;
- 
--	while (npackets < quota) {
-+	while (work_done < quota) {
- 		canrflg = in_8(&regs->canrflg);
- 		if (!(canrflg & (MSCAN_RXF | MSCAN_ERR_IF)))
- 			break;
-@@ -419,18 +418,18 @@ static int mscan_rx_poll(struct napi_str
- 
- 		stats->rx_packets++;
- 		stats->rx_bytes += frame->can_dlc;
--		npackets++;
-+		work_done++;
- 		netif_receive_skb(skb);
+--- a/kernel/trace/trace_sched_wakeup.c
++++ b/kernel/trace/trace_sched_wakeup.c
+@@ -625,7 +625,7 @@ static void start_wakeup_tracer(struct t
+ 	if (ret) {
+ 		pr_info("wakeup trace: Couldn't activate tracepoint"
+ 			" probe to kernel_sched_migrate_task\n");
+-		return;
++		goto fail_deprobe_sched_switch;
  	}
  
--	if (!(in_8(&regs->canrflg) & (MSCAN_RXF | MSCAN_ERR_IF))) {
--		napi_complete(&priv->napi);
--		clear_bit(F_RX_PROGRESS, &priv->flags);
--		if (priv->can.state < CAN_STATE_BUS_OFF)
--			out_8(&regs->canrier, priv->shadow_canrier);
--		ret = 0;
-+	if (work_done < quota) {
-+		if (likely(napi_complete_done(&priv->napi, work_done))) {
-+			clear_bit(F_RX_PROGRESS, &priv->flags);
-+			if (priv->can.state < CAN_STATE_BUS_OFF)
-+				out_8(&regs->canrier, priv->shadow_canrier);
-+		}
- 	}
--	return ret;
-+	return work_done;
- }
+ 	wakeup_reset(tr);
+@@ -643,6 +643,8 @@ static void start_wakeup_tracer(struct t
+ 		printk(KERN_ERR "failed to start wakeup tracer\n");
  
- static irqreturn_t mscan_isr(int irq, void *dev_id)
+ 	return;
++fail_deprobe_sched_switch:
++	unregister_trace_sched_switch(probe_wakeup_sched_switch, NULL);
+ fail_deprobe_wake_new:
+ 	unregister_trace_sched_wakeup_new(probe_wakeup, NULL);
+ fail_deprobe:
 
 
