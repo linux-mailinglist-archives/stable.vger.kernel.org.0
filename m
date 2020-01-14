@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DE513A56A
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E19D13A6ED
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726169AbgANKHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:07:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37854 "EHLO mail.kernel.org"
+        id S1730177AbgANKQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:16:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729499AbgANKHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:07:31 -0500
+        id S1730743AbgANKJr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:09:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A17BC20678;
-        Tue, 14 Jan 2020 10:07:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8019207FF;
+        Tue, 14 Jan 2020 10:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996450;
-        bh=k18qRjP/nywpIHZ3grDId+QnddItalWgK5eGRgAKNkk=;
+        s=default; t=1578996587;
+        bh=kj5oLprT9pQG69urIPM3UZ0hDiIFQcdBiSg9DXCNPXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0ixdT7HT4ko6ZUnq1qxLhLWR3IddHdJ7h2EvRe38FRNmyE5L8gCFv+6nLYN6zgwH
-         dAW7ig350Yu8zjX1IWoDh0wxiFInm3fFTLj+d+/rxkNQLApIcaFXlE6Slmu6Ijn7B4
-         YsLJy9M68MxFRy/RReorky/OCXKSjyHTxaNcGOoQ=
+        b=swo++ogz1/UjAZGRYHcZnkvP0NRnFEnPFI4ZS+9aaHf1A3vQELto12kb3z6Zokjzz
+         HcTNTNINI74623lEFYEQIJBgEiHPnJOXU2F25D9mMBp1GqwRsD9N2MDwjFjYQc7jGV
+         11z6mGJHmQNZEMPrIEBvY+nZsGoZhqjz7LwNTxyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Faber <faber@faberman.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 21/46] can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 04/39] ALSA: hda/realtek - Add new codec supported for ALCS1200A
 Date:   Tue, 14 Jan 2020 11:01:38 +0100
-Message-Id: <20200114094344.766503208@linuxfoundation.org>
+Message-Id: <20200114094338.882263254@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
-References: <20200114094339.608068818@linuxfoundation.org>
+In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
+References: <20200114094336.210038037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Faber <faber@faberman.de>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 2d77bd61a2927be8f4e00d9478fe6996c47e8d45 upstream.
+commit 6d9ffcff646bbd0ede6c2a59f4cd28414ecec6e0 upstream.
 
-Under load, the RX side of the mscan driver can get stuck while TX still
-works. Restarting the interface locks up the system. This behaviour
-could be reproduced reliably on a MPC5121e based system.
+Add ALCS1200A supported.
+It was similar as ALC900.
 
-The patch fixes the return value of the NAPI polling function (should be
-the number of processed packets, not constant 1) and the condition under
-which IRQs are enabled again after polling is finished.
-
-With this patch, no more lockups were observed over a test period of ten
-days.
-
-Fixes: afa17a500a36 ("net/can: add driver for mscan family & mpc52xx_mscan")
-Signed-off-by: Florian Faber <faber@faberman.de>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/a9bd3cdaa02d4fa197623448d5c51e50@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/mscan/mscan.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ sound/pci/hda/patch_realtek.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/can/mscan/mscan.c
-+++ b/drivers/net/can/mscan/mscan.c
-@@ -392,13 +392,12 @@ static int mscan_rx_poll(struct napi_str
- 	struct net_device *dev = napi->dev;
- 	struct mscan_regs __iomem *regs = priv->reg_base;
- 	struct net_device_stats *stats = &dev->stats;
--	int npackets = 0;
--	int ret = 1;
-+	int work_done = 0;
- 	struct sk_buff *skb;
- 	struct can_frame *frame;
- 	u8 canrflg;
- 
--	while (npackets < quota) {
-+	while (work_done < quota) {
- 		canrflg = in_8(&regs->canrflg);
- 		if (!(canrflg & (MSCAN_RXF | MSCAN_ERR_IF)))
- 			break;
-@@ -419,18 +418,18 @@ static int mscan_rx_poll(struct napi_str
- 
- 		stats->rx_packets++;
- 		stats->rx_bytes += frame->can_dlc;
--		npackets++;
-+		work_done++;
- 		netif_receive_skb(skb);
- 	}
- 
--	if (!(in_8(&regs->canrflg) & (MSCAN_RXF | MSCAN_ERR_IF))) {
--		napi_complete(&priv->napi);
--		clear_bit(F_RX_PROGRESS, &priv->flags);
--		if (priv->can.state < CAN_STATE_BUS_OFF)
--			out_8(&regs->canrier, priv->shadow_canrier);
--		ret = 0;
-+	if (work_done < quota) {
-+		if (likely(napi_complete_done(&priv->napi, work_done))) {
-+			clear_bit(F_RX_PROGRESS, &priv->flags);
-+			if (priv->can.state < CAN_STATE_BUS_OFF)
-+				out_8(&regs->canrier, priv->shadow_canrier);
-+		}
- 	}
--	return ret;
-+	return work_done;
- }
- 
- static irqreturn_t mscan_isr(int irq, void *dev_id)
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -396,6 +396,7 @@ static void alc_fill_eapd_coef(struct hd
+ 		break;
+ 	case 0x10ec0899:
+ 	case 0x10ec0900:
++	case 0x10ec0b00:
+ 	case 0x10ec1168:
+ 	case 0x10ec1220:
+ 		alc_update_coef_idx(codec, 0x7, 1<<1, 0);
+@@ -2389,6 +2390,7 @@ static int patch_alc882(struct hda_codec
+ 	case 0x10ec0882:
+ 	case 0x10ec0885:
+ 	case 0x10ec0900:
++	case 0x10ec0b00:
+ 	case 0x10ec1220:
+ 		break;
+ 	default:
+@@ -8398,6 +8400,7 @@ static const struct hda_device_id snd_hd
+ 	HDA_CODEC_ENTRY(0x10ec0892, "ALC892", patch_alc662),
+ 	HDA_CODEC_ENTRY(0x10ec0899, "ALC898", patch_alc882),
+ 	HDA_CODEC_ENTRY(0x10ec0900, "ALC1150", patch_alc882),
++	HDA_CODEC_ENTRY(0x10ec0b00, "ALCS1200A", patch_alc882),
+ 	HDA_CODEC_ENTRY(0x10ec1168, "ALC1220", patch_alc882),
+ 	HDA_CODEC_ENTRY(0x10ec1220, "ALC1220", patch_alc882),
+ 	{} /* terminator */
 
 
