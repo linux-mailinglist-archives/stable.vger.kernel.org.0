@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2468113A59E
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E52B813A547
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730613AbgANKJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:09:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42142 "EHLO mail.kernel.org"
+        id S1730319AbgANKGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:06:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729377AbgANKJY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:09:24 -0500
+        id S1729654AbgANKGK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:06:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1939A207FF;
-        Tue, 14 Jan 2020 10:09:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 257CA2467A;
+        Tue, 14 Jan 2020 10:06:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996563;
-        bh=Fe04CNtIFKZ403HJ8Xhk/Ben/KJctnIUWsMjXX4BxBI=;
+        s=default; t=1578996370;
+        bh=+PI48K9XTvgjwsMAYb2zfC9iKKt9NZ6/WaU3LZy+OyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXcdzU/cJUupQwy+D3WDZ1xUXd0PQSKa5kVqAz1ti7aMvueckkVb7X08bD7t5LEv/
-         L6lgdRZ9gyiIZJ4tS/ExLO+SDjSJF1JYUl1loR4uF5itGBM75as8ta7uZoLp2iNgxg
-         +5JG1xSDSHdD0k+PB+i/35ChE7r1IjnfGtKYkiPc=
+        b=S729PkJU6iy3Rqi4jeCXbfDpA53C5GimcIMSf2Ju0iXfFwG3TATHn5AOZbSHJmdRI
+         NvlZa0Jbjdld1BkFEkJFtm373Q7VwBW7/wjJxsxBl7DQDnE5+lqsMbTVgJ2Nl7kNSY
+         RU5SsKVkJa9lqQwBMXQKDRalDXBFHP96e0RIclK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 13/39] gpiolib: acpi: Turn dmi_system_id table into a generic quirk table
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Roger Whittaker <Roger.Whittaker@suse.com>
+Subject: [PATCH 5.4 73/78] USB: Fix: Dont skip endpoint descriptors with maxpacket=0
 Date:   Tue, 14 Jan 2020 11:01:47 +0100
-Message-Id: <20200114094342.117512030@linuxfoundation.org>
+Message-Id: <20200114094403.165941697@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
+References: <20200114094352.428808181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,82 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 1ad1b54099c231aed8f6f257065c1b322583f264 upstream.
+commit 2548288b4fb059b2da9ceada172ef763077e8a59 upstream.
 
-Turn the existing run_edge_events_on_boot_blacklist dmi_system_id table
-into a generic quirk table, storing the quirks in the driver_data ptr.
+It turns out that even though endpoints with a maxpacket length of 0
+aren't useful for data transfer, the descriptors do serve other
+purposes.  In particular, skipping them will also skip over other
+class-specific descriptors for classes such as UVC.  This unexpected
+side effect has caused some UVC cameras to stop working.
 
-This is a preparation patch for adding other types of (DMI based) quirks.
+In addition, the USB spec requires that when isochronous endpoint
+descriptors are present in an interface's altsetting 0 (which is true
+on some devices), the maxpacket size _must_ be set to 0.  Warning
+about such things seems like a bad idea.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200105160357.97154-2-hdegoede@redhat.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This patch updates an earlier commit which would log a warning and
+skip these endpoint descriptors.  Now we only log a warning, and we
+don't even do that for isochronous endpoints in altsetting 0.
+
+We don't need to worry about preventing endpoints with maxpacket = 0
+from ever being used for data transfers; usb_submit_urb() already
+checks for this.
+
+Reported-and-tested-by: Roger Whittaker <Roger.Whittaker@suse.com>
+Fixes: d482c7bb0541 ("USB: Skip endpoints with 0 maxpacket length")
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://marc.info/?l=linux-usb&m=157790377329882&w=2
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2001061040270.1514-100000@iolanthe.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib-acpi.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/usb/core/config.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -24,6 +24,8 @@
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -392,12 +392,16 @@ static int usb_parse_endpoint(struct dev
+ 			endpoint->desc.wMaxPacketSize = cpu_to_le16(8);
+ 	}
  
- #include "gpiolib.h"
+-	/* Validate the wMaxPacketSize field */
++	/*
++	 * Validate the wMaxPacketSize field.
++	 * Some devices have isochronous endpoints in altsetting 0;
++	 * the USB-2 spec requires such endpoints to have wMaxPacketSize = 0
++	 * (see the end of section 5.6.3), so don't warn about them.
++	 */
+ 	maxp = usb_endpoint_maxp(&endpoint->desc);
+-	if (maxp == 0) {
+-		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has wMaxPacketSize 0, skipping\n",
++	if (maxp == 0 && !(usb_endpoint_xfer_isoc(d) && asnum == 0)) {
++		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
+ 		    cfgno, inum, asnum, d->bEndpointAddress);
+-		goto skip_to_next_endpoint_or_interface_descriptor;
+ 	}
  
-+#define QUIRK_NO_EDGE_EVENTS_ON_BOOT		0x01l
-+
- static int run_edge_events_on_boot = -1;
- module_param(run_edge_events_on_boot, int, 0444);
- MODULE_PARM_DESC(run_edge_events_on_boot,
-@@ -1312,7 +1314,7 @@ static int acpi_gpio_handle_deferred_req
- /* We must use _sync so that this runs after the first deferred_probe run */
- late_initcall_sync(acpi_gpio_handle_deferred_request_irqs);
- 
--static const struct dmi_system_id run_edge_events_on_boot_blacklist[] = {
-+static const struct dmi_system_id gpiolib_acpi_quirks[] = {
- 	{
- 		/*
- 		 * The Minix Neo Z83-4 has a micro-USB-B id-pin handler for
-@@ -1322,7 +1324,8 @@ static const struct dmi_system_id run_ed
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "MINIX"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
--		}
-+		},
-+		.driver_data = (void *)QUIRK_NO_EDGE_EVENTS_ON_BOOT,
- 	},
- 	{
- 		/*
-@@ -1334,15 +1337,23 @@ static const struct dmi_system_id run_ed
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Wortmann_AG"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "TERRA_PAD_1061"),
--		}
-+		},
-+		.driver_data = (void *)QUIRK_NO_EDGE_EVENTS_ON_BOOT,
- 	},
- 	{} /* Terminating entry */
- };
- 
- static int acpi_gpio_setup_params(void)
- {
-+	const struct dmi_system_id *id;
-+	long quirks = 0;
-+
-+	id = dmi_first_match(gpiolib_acpi_quirks);
-+	if (id)
-+		quirks = (long)id->driver_data;
-+
- 	if (run_edge_events_on_boot < 0) {
--		if (dmi_check_system(run_edge_events_on_boot_blacklist))
-+		if (quirks & QUIRK_NO_EDGE_EVENTS_ON_BOOT)
- 			run_edge_events_on_boot = 0;
- 		else
- 			run_edge_events_on_boot = 1;
+ 	/* Find the highest legal maxpacket size for this endpoint */
 
 
