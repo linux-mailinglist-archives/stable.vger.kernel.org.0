@@ -2,61 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1C3139FA1
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 03:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 425BB139FC1
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 04:11:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728851AbgANC40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 21:56:26 -0500
-Received: from mx4.wp.pl ([212.77.101.11]:47066 "EHLO mx4.wp.pl"
+        id S1729568AbgANDLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 22:11:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729524AbgANC40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Jan 2020 21:56:26 -0500
-Received: (wp-smtpd smtp.wp.pl 6345 invoked from network); 14 Jan 2020 03:56:23 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wp.pl; s=1024a;
-          t=1578970583; bh=nh+SpzcVz9PdRA4EUKXJMNWDTbd5tTvZHBf3TO8V5Ls=;
-          h=From:To:Cc:Subject;
-          b=vLm+ykKHyMt4U5fsPsfBhBQbi9gP+NYXIAeb2K7NnVgXycc93GZsvTrTJ9jFh8Gz4
-           fMVKXaXWPCWi81S0jbsVWNZsSWQZOyrgBdB4/Zx5jKiHSGMP4chkb/cktTMxSzTd+n
-           4CLY5YwS1yIpowz8rxjlOeqUXBymDiN4CLP2clF0=
-Received: from c-73-93-4-247.hsd1.ca.comcast.net (HELO cakuba) (kubakici@wp.pl@[73.93.4.247])
-          (envelope-sender <kubakici@wp.pl>)
-          by smtp.wp.pl (WP-SMTPD) with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP
-          for <johan@kernel.org>; 14 Jan 2020 03:56:23 +0100
-Date:   Mon, 13 Jan 2020 18:56:15 -0800
-From:   Jakub Kicinski <kubakici@wp.pl>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] NFC: pn533: fix bulk-message timeout
-Message-ID: <20200113185615.5aa7720a@cakuba>
-In-Reply-To: <20200113172358.30973-1-johan@kernel.org>
-References: <20200113172358.30973-1-johan@kernel.org>
+        id S1729253AbgANDLn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Jan 2020 22:11:43 -0500
+Received: from cakuba (c-73-93-4-247.hsd1.ca.comcast.net [73.93.4.247])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5671214AF;
+        Tue, 14 Jan 2020 03:11:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578971503;
+        bh=/SfqBD92fICPQ2MJPlPDphMIEZBFgHMeIidu8S3fyNs=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=S5OSfMyvw9IKZQe/EfS3bSv0NA/BCeviOd4MJrWF1a9pR9LwKfrdJdmotG5ZWyBrQ
+         UUgkWCiBpSs6XfoVHVslE4AtqC+HH02ki6KrYIeP4D3i9xylr41kxY8M/iB985ITT9
+         1YwzJ3DKQ0WwCD9u9GeGK7t7yUHgJWiba5zTtA8Q=
+Date:   Mon, 13 Jan 2020 19:11:40 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        netdev <netdev@vger.kernel.org>, stable <stable@vger.kernel.org>,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: Re: [stable] i40e: prevent memory leak in i40e_setup_macvlans
+Message-ID: <20200113191140.60360f61@cakuba>
+In-Reply-To: <5cc1353038a8d71518710539312dc578693e5ab3.camel@codethink.co.uk>
+References: <5cc1353038a8d71518710539312dc578693e5ab3.camel@codethink.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-WP-MailID: 65ac5bd168de56cbec22fb9484b94580
-X-WP-AV: skaner antywirusowy Poczty Wirtualnej Polski
-X-WP-SPAM: NO 000000A [oTOk]                               
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 13 Jan 2020 18:23:58 +0100, Johan Hovold wrote:
-> The driver was doing a synchronous uninterruptible bulk-transfer without
-> using a timeout. This could lead to the driver hanging on probe due to a
-> malfunctioning (or malicious) device until the device is physically
-> disconnected. While sleeping in probe the driver prevents other devices
-> connected to the same hub from being added to (or removed from) the bus.
+On Mon, 13 Jan 2020 22:45:23 +0000, Ben Hutchings wrote:
+> It looks like this fix is needed for 5.4 (but not any older stable
+> branch):
 > 
-> An arbitrary limit of five seconds should be more than enough.
+> commit 27d461333459d282ffa4a2bdb6b215a59d493a8f
+> Author: Navid Emamdoost <navid.emamdoost@gmail.com>
+> Date:   Wed Sep 25 10:48:30 2019 -0500
 > 
-> Fixes: dbafc28955fa ("NFC: pn533: don't send USB data off of the stack")
-> Cc: stable <stable@vger.kernel.org>     # 4.18
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
+>     i40e: prevent memory leak in i40e_setup_macvlans
 
-Applied to net, thank you. In the future please don't CC stable
-explicitly on networking patches, Dave (or I) will select and send
-all relevant patches to stable as noted in netdev FAQ.
+Queued now.
