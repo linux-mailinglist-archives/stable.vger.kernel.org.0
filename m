@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 890C713A531
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:08:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3AA213A60C
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730129AbgANKFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:05:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33450 "EHLO mail.kernel.org"
+        id S1730189AbgANKIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:08:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730126AbgANKFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:05:24 -0500
+        id S1729416AbgANKIU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:08:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94D242467D;
-        Tue, 14 Jan 2020 10:05:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65AF7207FF;
+        Tue, 14 Jan 2020 10:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996324;
-        bh=QLRq49Oa3q7afnFXHe3koQkdpAPWSchtx4mPwYc8D+I=;
+        s=default; t=1578996500;
+        bh=Zkne0qlY6NJIT3bKQZGPcYYlFRgfrwxG1in28LCITt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ocP803m3vJDqSW9N+mq/KBnYnbYh63mjRmez2j1NKJrgGVQe4PYo9GyAH5I0F13TP
-         Gy1Jww4B90ilLilztCRavn3v5ZHBXY8co2NZjV5Gea20aFCOpiKp47TyOOvqZeFdfB
-         UQw2KbPdqLY1LdKspCGRJDAfhJvqllx1BerXE5g8=
+        b=UG4FDY5eeU4TQTFWEu9Ii1E/2lPuDJSikkEgzMWaFEpWTymYo99xQ5jzRjuk8G06B
+         NiDv8eDWjMm383/psVMGNlrLQC9g4B3/LV/varVunP7Bx0n67ctI717+NK/WwQA+/Y
+         lScQXAJUZvAl8AHnLV51YEzk7mSohD1qHHhOgdUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Kenneth R. Crudup" <kenny@panix.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 56/78] tty: always relink the port
-Date:   Tue, 14 Jan 2020 11:01:30 +0100
-Message-Id: <20200114094400.977175947@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+c769968809f9359b07aa@syzkaller.appspotmail.com,
+        syzbot+76f3a30e88d256644c78@syzkaller.appspotmail.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 14/46] Input: add safety guards to input_set_keycode()
+Date:   Tue, 14 Jan 2020 11:01:31 +0100
+Message-Id: <20200114094343.435861738@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
-References: <20200114094352.428808181@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit 273f632912f1b24b642ba5b7eb5022e43a72f3b5 upstream.
+commit cb222aed03d798fc074be55e59d9a112338ee784 upstream.
 
-If the serial device is disconnected and reconnected, it re-enumerates
-properly but does not link it. fwiw, linking means just saving the port
-index, so allow it always as there is no harm in saving the same value
-again even if it tries to relink with the same port.
+If we happen to have a garbage in input device's keycode table with values
+too big we'll end up doing clear_bit() with offset way outside of our
+bitmaps, damaging other objects within an input device or even outside of
+it. Let's add sanity checks to the returned old keycodes.
 
-Fixes: fb2b90014d78 ("tty: link tty and port before configuring it as console")
-Reported-by: Kenneth R. Crudup <kenny@panix.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191227174434.12057-1-sudipm.mukherjee@gmail.com
+Reported-by: syzbot+c769968809f9359b07aa@syzkaller.appspotmail.com
+Reported-by: syzbot+76f3a30e88d256644c78@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20191207212757.GA245964@dtor-ws
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/tty_port.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/input.c |   26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
---- a/drivers/tty/tty_port.c
-+++ b/drivers/tty/tty_port.c
-@@ -89,8 +89,7 @@ void tty_port_link_device(struct tty_por
- {
- 	if (WARN_ON(index >= driver->num))
- 		return;
--	if (!driver->ports[index])
--		driver->ports[index] = port;
-+	driver->ports[index] = port;
- }
- EXPORT_SYMBOL_GPL(tty_port_link_device);
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -858,16 +858,18 @@ static int input_default_setkeycode(stru
+ 		}
+ 	}
  
+-	__clear_bit(*old_keycode, dev->keybit);
+-	__set_bit(ke->keycode, dev->keybit);
+-
+-	for (i = 0; i < dev->keycodemax; i++) {
+-		if (input_fetch_keycode(dev, i) == *old_keycode) {
+-			__set_bit(*old_keycode, dev->keybit);
+-			break; /* Setting the bit twice is useless, so break */
++	if (*old_keycode <= KEY_MAX) {
++		__clear_bit(*old_keycode, dev->keybit);
++		for (i = 0; i < dev->keycodemax; i++) {
++			if (input_fetch_keycode(dev, i) == *old_keycode) {
++				__set_bit(*old_keycode, dev->keybit);
++				/* Setting the bit twice is useless, so break */
++				break;
++			}
+ 		}
+ 	}
+ 
++	__set_bit(ke->keycode, dev->keybit);
+ 	return 0;
+ }
+ 
+@@ -923,9 +925,13 @@ int input_set_keycode(struct input_dev *
+ 	 * Simulate keyup event if keycode is not present
+ 	 * in the keymap anymore
+ 	 */
+-	if (test_bit(EV_KEY, dev->evbit) &&
+-	    !is_event_supported(old_keycode, dev->keybit, KEY_MAX) &&
+-	    __test_and_clear_bit(old_keycode, dev->key)) {
++	if (old_keycode > KEY_MAX) {
++		dev_warn(dev->dev.parent ?: &dev->dev,
++			 "%s: got too big old keycode %#x\n",
++			 __func__, old_keycode);
++	} else if (test_bit(EV_KEY, dev->evbit) &&
++		   !is_event_supported(old_keycode, dev->keybit, KEY_MAX) &&
++		   __test_and_clear_bit(old_keycode, dev->key)) {
+ 		struct input_value vals[] =  {
+ 			{ EV_KEY, old_keycode, 0 },
+ 			input_value_sync
 
 
