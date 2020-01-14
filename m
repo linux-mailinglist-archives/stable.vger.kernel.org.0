@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BFF413A526
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:08:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B435B13A560
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730004AbgANKFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:05:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
+        id S1730627AbgANKHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:07:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729605AbgANKFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:05:01 -0500
+        id S1730620AbgANKHM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:07:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 569E12467E;
-        Tue, 14 Jan 2020 10:05:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47B5B24695;
+        Tue, 14 Jan 2020 10:07:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996300;
-        bh=QOtqjUFCOKYM8zRv5UdVdn1GxVGQCrtHBIh9QLZ5b9Y=;
+        s=default; t=1578996431;
+        bh=jCi41ZsJLM7yYkSsH9juRlawv+6zNQHW4Q3VfUb71UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xWRuhyH2MF4WYg0SQfR0jKFpasGXVCFrSDQxINf2z4UYpyw6VOO1QhjJSA+s4xaos
-         gCiHPyaFWuCEjK2jM27q6MCJ4pNLQ/HVW7H2wFWZ5Xk5nwJtSP/gqkaX5Xug0Za4aP
-         QV1Q21USNNrMfjMxXwyU/o0xrXp+g2RoJQj7Jyok=
+        b=llIiidnwbRhsmFnG4f7b4z5kce9zhV5qo6c+SYDydlt64Nqy01EGtOST9DvBUB544
+         Z+gbCKzGHB7XOYKXqrPxn2n1T/s+BqzISIYqgG1LwiMWaKc8DSwqQgjpxFWpZ2PtHn
+         Uyh7j2DpO0DQUD5PbWti4qj/0PxiSFUe+8YLNqtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmytro Fil <monkdaf@gmail.com>,
-        Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.4 49/78] staging: comedi: adv_pci1710: fix AI channels 16-31 for PCI-1713
-Date:   Tue, 14 Jan 2020 11:01:23 +0100
-Message-Id: <20200114094400.082859298@linuxfoundation.org>
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 07/46] ALSA: hda/realtek - Add quirk for the bass speaker on Lenovo Yoga X1 7th gen
+Date:   Tue, 14 Jan 2020 11:01:24 +0100
+Message-Id: <20200114094341.923274527@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
-References: <20200114094352.428808181@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Kailang Yang <kailang@realtek.com>
 
-commit a9d3a9cedc1330c720e0ddde1978a8e7771da5ab upstream.
+commit 54a6a7dc107da0492a9e84fd7e9a107b3c58138d upstream.
 
-The Advantech PCI-1713 has 32 analog input channels, but an incorrect
-bit-mask in the definition of the `PCI171X_MUX_CHANH(x)` and
-PCI171X_MUX_CHANL(x)` macros is causing channels 16 to 31 to be aliases
-of channels 0 to 15.  Change the bit-mask value from 0xf to 0xff to fix
-it.  Note that the channel numbers will have been range checked already,
-so the bit-mask isn't really needed.
+Add quirk to ALC285_FIXUP_SPEAKER2_TO_DAC1, which is the same fixup
+applied for X1 Carbon 7th gen in commit d2cd795c4ece ("ALSA: hda -
+fixup for the bass speaker on Lenovo Carbon X1 7th gen").
 
-Fixes: 92c65e5553ed ("staging: comedi: adv_pci1710: define the mux control register bits")
-Reported-by: Dmytro Fil <monkdaf@gmail.com>
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20191227170054.32051-1-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/adv_pci1710.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/comedi/drivers/adv_pci1710.c
-+++ b/drivers/staging/comedi/drivers/adv_pci1710.c
-@@ -46,8 +46,8 @@
- #define PCI171X_RANGE_UNI	BIT(4)
- #define PCI171X_RANGE_GAIN(x)	(((x) & 0x7) << 0)
- #define PCI171X_MUX_REG		0x04	/* W:   A/D multiplexor control */
--#define PCI171X_MUX_CHANH(x)	(((x) & 0xf) << 8)
--#define PCI171X_MUX_CHANL(x)	(((x) & 0xf) << 0)
-+#define PCI171X_MUX_CHANH(x)	(((x) & 0xff) << 8)
-+#define PCI171X_MUX_CHANL(x)	(((x) & 0xff) << 0)
- #define PCI171X_MUX_CHAN(x)	(PCI171X_MUX_CHANH(x) | PCI171X_MUX_CHANL(x))
- #define PCI171X_STATUS_REG	0x06	/* R:   status register */
- #define PCI171X_STATUS_IRQ	BIT(11)	/* 1=IRQ occurred */
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7042,6 +7042,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x224c, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x224d, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x225d, "Thinkpad T480", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
++	SND_PCI_QUIRK(0x17aa, 0x2292, "Thinkpad X1 Yoga 7th", ALC285_FIXUP_SPEAKER2_TO_DAC1),
+ 	SND_PCI_QUIRK(0x17aa, 0x2293, "Thinkpad X1 Carbon 7th", ALC285_FIXUP_SPEAKER2_TO_DAC1),
+ 	SND_PCI_QUIRK(0x17aa, 0x30bb, "ThinkCentre AIO", ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY),
+ 	SND_PCI_QUIRK(0x17aa, 0x30e2, "ThinkCentre AIO", ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY),
 
 
