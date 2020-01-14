@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFE513A7C0
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:57:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D073913A7CD
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 12:02:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728826AbgANK5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:57:08 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:38757 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725956AbgANK5I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 05:57:08 -0500
-Received: by mail-lf1-f67.google.com with SMTP id r14so9474171lfm.5;
-        Tue, 14 Jan 2020 02:57:06 -0800 (PST)
+        id S1725842AbgANLCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 06:02:12 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:36526 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729248AbgANLCM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 06:02:12 -0500
+Received: by mail-lf1-f65.google.com with SMTP id n12so9483804lfe.3;
+        Tue, 14 Jan 2020 03:02:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=AK4H5oKIjYr2wZjOrbeVS5Z8MRQMGd91D6AnA03+yKc=;
-        b=mljcX3z8f1NxZ5bp5NvdVd+sdoQXLmCYcZvG9tkF8brGLEolToNzLSZmLUyQARZMKa
-         qbYYrNnX0NbTeU0PdtCvXAkYg/AOhRPEanhSuHrLLCEfKCGKQxB91eizp98Fw4yHLv9D
-         yftZM0Ocq7+K9VVZm9ZKGNYGy20Hq1RrY5RN2I6gWfLaUN0+1gMDwvdZM4jM8cp7oq0m
-         S87xmgSDEvH3/Wx58QNS6KjsAFZ0yDwO33Cevbu+m1wIOJR7cG1cyZ3+mIlWwInmg0WE
-         lpIkb/XYSxNqx/SGNhSxOe5ckFgoGeVwO1hOzDnubcKWfR2nv6A9WdBi6S77kZwQ+cjB
-         EmbQ==
-X-Gm-Message-State: APjAAAVTuu1DhaH8lv7q6XQiGOjcZf9A2qk18LmbLqKs1Ln34mIgvYH1
-        jtJ/m05tF652mAKzTQb3PVD8st5n
-X-Google-Smtp-Source: APXvYqzTRki5Rxm/UFWnMldDRUxhIN/dptoTIPEWwRzBWUVWXcaTVe5aytEtJm/XYzQgJ7nREjWFrQ==
-X-Received: by 2002:a19:7604:: with SMTP id c4mr1266545lff.101.1578999425934;
-        Tue, 14 Jan 2020 02:57:05 -0800 (PST)
+        bh=KUjTgp22+/yqEKgWaGHHHjms+UIgzsHHTgm48VbX94s=;
+        b=s+VO2WjZO2yU7cZrP9mdc/0Is4epULdijqi7Rx3d2RUBmmjQEsmXrGP7gb3U2UiHqw
+         8OMq3rLvOOzfpUKE5uoXUNuD7xgKvyzX6iPL9sSn52IuZD5pwh6Jzf2DvLDAZwFubrLg
+         QJlJd3A9qvElkohFk72jL1gtnm3DVe0fJMq63gY4tKN0HANvhAEmsHMWuW/pAW0f0nSl
+         so9i/2CjbtXsdHIFEw0FWJahkEfM6BqYmCwYZe7b2OPf3FfGSCIzRzMqINKQEjEVfhw7
+         RTi9FQWx+c/YtrqYBEmDZJP/YYlPBDRfa65Ow5dMddVnR8OweYWGVgWrFCseYNdg77jG
+         mGxw==
+X-Gm-Message-State: APjAAAVdFoM9ZVebE8rTkGRoFuEAvoj/h6gUbyHTDsdBfoTanfVXUwL4
+        h/6HAZrnDgeRNDc2KhqbrLssMNcy
+X-Google-Smtp-Source: APXvYqz7PUFsG1yu1W/eOAorCpRydpb0AWxQ/NLyMuJuEyFfnBRDpqlXFB3ZZRleU1kYcG3F2oOdnw==
+X-Received: by 2002:a19:c697:: with SMTP id w145mr1385784lff.54.1578999730188;
+        Tue, 14 Jan 2020 03:02:10 -0800 (PST)
 Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id i16sm7031332lfo.87.2020.01.14.02.57.04
+        by smtp.gmail.com with ESMTPSA id d24sm7138358lfb.94.2020.01.14.03.02.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jan 2020 02:57:04 -0800 (PST)
+        Tue, 14 Jan 2020 03:02:08 -0800 (PST)
 Received: from johan by xi.terra with local (Exim 4.92.3)
         (envelope-from <johan@xi.terra>)
-        id 1irJse-00040w-V2; Tue, 14 Jan 2020 11:57:04 +0100
+        id 1irJxZ-0001Z0-0E; Tue, 14 Jan 2020 12:02:09 +0100
 From:   Johan Hovold <johan@kernel.org>
 To:     Johan Hovold <johan@kernel.org>
 Cc:     linux-usb@vger.kernel.org, stable <stable@vger.kernel.org>
-Subject: [PATCH 2/2] USB: serial: opticon: stop all I/O on close()
-Date:   Tue, 14 Jan 2020 11:55:17 +0100
-Message-Id: <20200114105517.15360-2-johan@kernel.org>
+Subject: [PATCH v2 2/2] USB: serial: opticon: stop all I/O on close()
+Date:   Tue, 14 Jan 2020 12:01:46 +0100
+Message-Id: <20200114110146.5929-2-johan@kernel.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114105517.15360-1-johan@kernel.org>
-References: <20200114105517.15360-1-johan@kernel.org>
+In-Reply-To: <20200114110146.5929-1-johan@kernel.org>
+References: <20200114110146.5929-1-johan@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -60,11 +60,17 @@ Fixes: 648d4e16567e ("USB: serial: opticon: add write support")
 Cc: stable <stable@vger.kernel.org>	# 2.6.30: xxx: USB: serial: opticon: add chars_in_buffer() implementation
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
+
+v2
+ - add missing address-of operator that was never commit before
+   generating the patch
+
+
  drivers/usb/serial/opticon.c | 16 ++++++++++++++++
  1 file changed, 16 insertions(+)
 
 diff --git a/drivers/usb/serial/opticon.c b/drivers/usb/serial/opticon.c
-index f7bccf14a71f..61ce359221ec 100644
+index f7bccf14a71f..0af76800bd78 100644
 --- a/drivers/usb/serial/opticon.c
 +++ b/drivers/usb/serial/opticon.c
 @@ -42,6 +42,8 @@ struct opticon_private {
@@ -96,7 +102,7 @@ index f7bccf14a71f..61ce359221ec 100644
  		(unsigned char *)dr, buffer, count,
  		opticon_write_control_callback, port);
  
-+	usb_anchor_urb(urb, priv->anchor);
++	usb_anchor_urb(urb, &priv->anchor);
 +
  	/* send it down the pipe */
  	ret = usb_submit_urb(urb, GFP_ATOMIC);
