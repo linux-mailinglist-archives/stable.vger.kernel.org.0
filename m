@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B798113A53C
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 367D913A53D
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729590AbgANKFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:05:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34096 "EHLO mail.kernel.org"
+        id S1726044AbgANKFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:05:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730192AbgANKFo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:05:44 -0500
+        id S1729568AbgANKFr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:05:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F85120678;
-        Tue, 14 Jan 2020 10:05:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09D8924679;
+        Tue, 14 Jan 2020 10:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996343;
-        bh=YYDNboL4m8g3g4m2YUaCkwrjnE5SH4FJd0ATILs0d6s=;
+        s=default; t=1578996346;
+        bh=rdnAqln+pjo34z88vpAB74Pfr8H4svabBXYjPIaWrj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KdNEH5ni1RtDaYm7wa6Lge4o5vjwxLvFbEwcqK202ldZf5pXGkq2AGHIXVLR3QOZw
-         7aiEPOo8t4jdg9zN6huAgap6QAl6KzqWZaSan6CERpHxVco9KtcfVKsV//ETZktgcf
-         mw003QeC28KGO+jZgt0fw4HsUhpV/z9JqfLrcuGc=
+        b=ukd7tlEqUxPmU9BED74Z73VPok0NSJemrHM8bUsMgzuY3+vnfimvXBUWUlh8IkGGs
+         LUWeF5er925pHmcZ05JAoth0PSzXUHOUJH93913iprqSbxb2r/UbAfnFrsqWcyzmg/
+         9aFu3BBJ5Ci5vNVvuD9KZf1NK3gWBzbS1xPeZU3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 5.4 40/78] staging: vt6656: set usb_set_intfdata on driver fail.
-Date:   Tue, 14 Jan 2020 11:01:14 +0100
-Message-Id: <20200114094358.969291521@linuxfoundation.org>
+Subject: [PATCH 5.4 41/78] staging: vt6656: Fix non zero logical return of, usb_control_msg
+Date:   Tue, 14 Jan 2020 11:01:15 +0100
+Message-Id: <20200114094359.096762080@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -44,53 +44,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Malcolm Priestley <tvboxspy@gmail.com>
 
-commit c0bcf9f3f5b661d4ace2a64a79ef661edd2a4dc8 upstream.
+commit 58c3e681b04dd57c70d0dcb7b69fe52d043ff75a upstream.
 
-intfdata will contain stale pointer when the device is detached after
-failed initialization when referenced in vt6656_disconnect
+Starting with commit 59608cb1de1856
+("staging: vt6656: clean function's error path in usbpipe.c")
+the usb control functions have returned errors throughout driver
+with only logical variable checking.
 
-Provide driver access to it here and NULL it.
+However, usb_control_msg return the amount of bytes transferred
+this means that normal operation causes errors.
 
-Cc: stable <stable@vger.kernel.org>
+Correct the return function so only return zero when transfer
+is successful.
+
+Cc: stable <stable@vger.kernel.org> # v5.3+
 Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/6de448d7-d833-ef2e-dd7b-3ef9992fee0e@gmail.com
+Link: https://lore.kernel.org/r/08e88842-6f78-a2e3-a7a0-139fec960b2b@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6656/device.h   |    1 +
- drivers/staging/vt6656/main_usb.c |    1 +
- drivers/staging/vt6656/wcmd.c     |    1 +
- 3 files changed, 3 insertions(+)
+ drivers/staging/vt6656/usbpipe.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/vt6656/device.h
-+++ b/drivers/staging/vt6656/device.h
-@@ -259,6 +259,7 @@ struct vnt_private {
- 	u8 mac_hw;
- 	/* netdev */
- 	struct usb_device *usb;
-+	struct usb_interface *intf;
+--- a/drivers/staging/vt6656/usbpipe.c
++++ b/drivers/staging/vt6656/usbpipe.c
+@@ -59,7 +59,9 @@ int vnt_control_out(struct vnt_private *
  
- 	u64 tsf_time;
- 	u8 rx_rate;
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -993,6 +993,7 @@ vt6656_probe(struct usb_interface *intf,
- 	priv = hw->priv;
- 	priv->hw = hw;
- 	priv->usb = udev;
-+	priv->intf = intf;
+ 	kfree(usb_buffer);
  
- 	vnt_set_options(priv);
+-	if (ret >= 0 && ret < (int)length)
++	if (ret == (int)length)
++		ret = 0;
++	else
+ 		ret = -EIO;
  
---- a/drivers/staging/vt6656/wcmd.c
-+++ b/drivers/staging/vt6656/wcmd.c
-@@ -99,6 +99,7 @@ void vnt_run_command(struct work_struct
- 		if (vnt_init(priv)) {
- 			/* If fail all ends TODO retry */
- 			dev_err(&priv->usb->dev, "failed to start\n");
-+			usb_set_intfdata(priv->intf, NULL);
- 			ieee80211_free_hw(priv->hw);
- 			return;
- 		}
+ end_unlock:
+@@ -103,7 +105,9 @@ int vnt_control_in(struct vnt_private *p
+ 
+ 	kfree(usb_buffer);
+ 
+-	if (ret >= 0 && ret < (int)length)
++	if (ret == (int)length)
++		ret = 0;
++	else
+ 		ret = -EIO;
+ 
+ end_unlock:
 
 
