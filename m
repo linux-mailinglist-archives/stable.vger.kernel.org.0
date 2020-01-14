@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E84113A6F2
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F84213A690
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725842AbgANKQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:16:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41222 "EHLO mail.kernel.org"
+        id S1731608AbgANKMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:12:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729472AbgANKJC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:09:02 -0500
+        id S1731515AbgANKMQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:12:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E5AE20678;
-        Tue, 14 Jan 2020 10:09:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF29024677;
+        Tue, 14 Jan 2020 10:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996542;
-        bh=BFxh46HFy9ySY4mUcKY0PvlwJXW3zNmemXO2wpQrlu4=;
+        s=default; t=1578996735;
+        bh=UoeNj3LierfqBK3dFQablLeSko3NlsPKQVgd4DF+MxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/Pn6Ba2keUVUEZohGeLMXc8UG4xNv5Mmki8J0VYOVQ/i1F5RpFns7BPzqEwhe/eD
-         kGzokRK67XI93JxnFJAN1zlWwTlk5tZsAs55DZOcvi9PU7dWBhhJjC/F7ojaRdFL1Q
-         3k5UO72wMagS/81SuambEq0iuhPZ/BWMLCPdUsM8=
+        b=Fa0wulJajRP2mhVKvGnnyKvwJEmJxiEbVmRYCApIBCHjCt6/4EDSw0+iHts/PlyuK
+         ckSZrNfOcr3DqVRG4G+ZG4yWXaZiTp2vBKZdRJdHAlGRITwRYftG+SOB16wWA0IE9T
+         e6jrNt4r/FLq9Ve2h9oddii9vIAoV0j0rLLSyodc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4.19 40/46] HID: hiddev: fix mess in hiddev_open()
+        Markus Trippelsdorf <markus@trippelsdorf.de>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Salvatore Bonaccorso <carnil@debian.org>
+Subject: [PATCH 4.9 05/31] tcp: minimize false-positives on TCP/GRO check
 Date:   Tue, 14 Jan 2020 11:01:57 +0100
-Message-Id: <20200114094348.101474810@linuxfoundation.org>
+Message-Id: <20200114094340.570688818@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
-References: <20200114094339.608068818@linuxfoundation.org>
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
+References: <20200114094334.725604663@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,157 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-commit 18a1b06e5b91d47dc86c0a66a762646ea7c5d141 upstream.
+commit 0b9aefea860063bb39e36bd7fe6c7087fed0ba87 upstream.
 
-The open method of hiddev handler fails to bring the device out of
-autosuspend state as was promised in 0361a28d3f9a, as it actually has 2
-blocks that try to start the transport (call hid_hw_open()) with both
-being guarded by the "open" counter, so the 2nd block is never executed as
-the first block increments the counter so it is never at 0 when we check
-it for the second block.
+Markus Trippelsdorf reported that after commit dcb17d22e1c2 ("tcp: warn
+on bogus MSS and try to amend it") the kernel started logging the
+warning for a NIC driver that doesn't even support GRO.
 
-Additionally hiddev_open() was leaving counter incremented on errors,
-causing the device to never be reopened properly if there was ever an
-error.
+It was diagnosed that it was possibly caused on connections that were
+using TCP Timestamps but some packets lacked the Timestamps option. As
+we reduce rcv_mss when timestamps are used, the lack of them would cause
+the packets to be bigger than expected, although this is a valid case.
 
-Let's fix all of this by factoring out code that creates client structure
-and powers up the device into a separate function that is being called
-from usbhid_open() with the "existancelock" being held.
+As this warning is more as a hint, getting a clean-cut on the
+threshold is probably not worth the execution time spent on it. This
+patch thus alleviates the false-positives with 2 quick checks: by
+accounting for the entire TCP option space and also checking against the
+interface MTU if it's available.
 
-Fixes: 0361a28d3f9a ("HID: autosuspend support for USB HID")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+These changes, specially the MTU one, might mask some real positives,
+though if they are really happening, it's possible that sooner or later
+it will be triggered anyway.
+
+Reported-by: Markus Trippelsdorf <markus@trippelsdorf.de>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Salvatore Bonaccorso <carnil@debian.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/usbhid/hiddev.c |   97 +++++++++++++++++++-------------------------
- 1 file changed, 42 insertions(+), 55 deletions(-)
+ net/ipv4/tcp_input.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -254,12 +254,51 @@ static int hiddev_release(struct inode *
- 	return 0;
- }
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -129,7 +129,8 @@ int sysctl_tcp_invalid_ratelimit __read_
+ #define REXMIT_LOST	1 /* retransmit packets marked lost */
+ #define REXMIT_NEW	2 /* FRTO-style transmit of unsent/new packets */
  
-+static int __hiddev_open(struct hiddev *hiddev, struct file *file)
-+{
-+	struct hiddev_list *list;
-+	int error;
-+
-+	lockdep_assert_held(&hiddev->existancelock);
-+
-+	list = vzalloc(sizeof(*list));
-+	if (!list)
-+		return -ENOMEM;
-+
-+	mutex_init(&list->thread_lock);
-+	list->hiddev = hiddev;
-+
-+	if (!hiddev->open++) {
-+		error = hid_hw_power(hiddev->hid, PM_HINT_FULLON);
-+		if (error < 0)
-+			goto err_drop_count;
-+
-+		error = hid_hw_open(hiddev->hid);
-+		if (error < 0)
-+			goto err_normal_power;
-+	}
-+
-+	spin_lock_irq(&hiddev->list_lock);
-+	list_add_tail(&list->node, &hiddev->list);
-+	spin_unlock_irq(&hiddev->list_lock);
-+
-+	file->private_data = list;
-+
-+	return 0;
-+
-+err_normal_power:
-+	hid_hw_power(hiddev->hid, PM_HINT_NORMAL);
-+err_drop_count:
-+	hiddev->open--;
-+	vfree(list);
-+	return error;
-+}
-+
- /*
-  * open file op
-  */
- static int hiddev_open(struct inode *inode, struct file *file)
+-static void tcp_gro_dev_warn(struct sock *sk, const struct sk_buff *skb)
++static void tcp_gro_dev_warn(struct sock *sk, const struct sk_buff *skb,
++			     unsigned int len)
  {
--	struct hiddev_list *list;
- 	struct usb_interface *intf;
- 	struct hid_device *hid;
- 	struct hiddev *hiddev;
-@@ -268,66 +307,14 @@ static int hiddev_open(struct inode *ino
- 	intf = usbhid_find_interface(iminor(inode));
- 	if (!intf)
- 		return -ENODEV;
-+
- 	hid = usb_get_intfdata(intf);
- 	hiddev = hid->hiddev;
+ 	static bool __once __read_mostly;
  
--	if (!(list = vzalloc(sizeof(struct hiddev_list))))
--		return -ENOMEM;
--	mutex_init(&list->thread_lock);
--	list->hiddev = hiddev;
--	file->private_data = list;
--
--	/*
--	 * no need for locking because the USB major number
--	 * is shared which usbcore guards against disconnect
--	 */
--	if (list->hiddev->exist) {
--		if (!list->hiddev->open++) {
--			res = hid_hw_open(hiddev->hid);
--			if (res < 0)
--				goto bail;
--		}
--	} else {
--		res = -ENODEV;
--		goto bail;
--	}
--
--	spin_lock_irq(&list->hiddev->list_lock);
--	list_add_tail(&list->node, &hiddev->list);
--	spin_unlock_irq(&list->hiddev->list_lock);
--
- 	mutex_lock(&hiddev->existancelock);
--	/*
--	 * recheck exist with existance lock held to
--	 * avoid opening a disconnected device
--	 */
--	if (!list->hiddev->exist) {
--		res = -ENODEV;
--		goto bail_unlock;
--	}
--	if (!list->hiddev->open++)
--		if (list->hiddev->exist) {
--			struct hid_device *hid = hiddev->hid;
--			res = hid_hw_power(hid, PM_HINT_FULLON);
--			if (res < 0)
--				goto bail_unlock;
--			res = hid_hw_open(hid);
--			if (res < 0)
--				goto bail_normal_power;
--		}
--	mutex_unlock(&hiddev->existancelock);
--	return 0;
--bail_normal_power:
--	hid_hw_power(hid, PM_HINT_NORMAL);
--bail_unlock:
-+	res = hiddev->exist ? __hiddev_open(hiddev, file) : -ENODEV;
- 	mutex_unlock(&hiddev->existancelock);
+@@ -140,8 +141,9 @@ static void tcp_gro_dev_warn(struct sock
  
--	spin_lock_irq(&list->hiddev->list_lock);
--	list_del(&list->node);
--	spin_unlock_irq(&list->hiddev->list_lock);
--bail:
--	file->private_data = NULL;
--	vfree(list);
- 	return res;
+ 		rcu_read_lock();
+ 		dev = dev_get_by_index_rcu(sock_net(sk), skb->skb_iif);
+-		pr_warn("%s: Driver has suspect GRO implementation, TCP performance may be compromised.\n",
+-			dev ? dev->name : "Unknown driver");
++		if (!dev || len >= dev->mtu)
++			pr_warn("%s: Driver has suspect GRO implementation, TCP performance may be compromised.\n",
++				dev ? dev->name : "Unknown driver");
+ 		rcu_read_unlock();
+ 	}
  }
- 
+@@ -164,8 +166,10 @@ static void tcp_measure_rcv_mss(struct s
+ 	if (len >= icsk->icsk_ack.rcv_mss) {
+ 		icsk->icsk_ack.rcv_mss = min_t(unsigned int, len,
+ 					       tcp_sk(sk)->advmss);
+-		if (unlikely(icsk->icsk_ack.rcv_mss != len))
+-			tcp_gro_dev_warn(sk, skb);
++		/* Account for possibly-removed options */
++		if (unlikely(len > icsk->icsk_ack.rcv_mss +
++				   MAX_TCP_OPTION_SPACE))
++			tcp_gro_dev_warn(sk, skb, len);
+ 	} else {
+ 		/* Otherwise, we make more careful check taking into account,
+ 		 * that SACKs block is variable.
 
 
