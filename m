@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83A6213A610
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E141F13A656
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729774AbgANKIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:08:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40028 "EHLO mail.kernel.org"
+        id S1730197AbgANKKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:10:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731005AbgANKIc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:08:32 -0500
+        id S1730223AbgANKKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:10:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1BE020678;
-        Tue, 14 Jan 2020 10:08:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D72C207FF;
+        Tue, 14 Jan 2020 10:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996511;
-        bh=D3VkGmMM0F+62RmYOJvCGnU+mkcmb+KmFgNnf0ojJhg=;
+        s=default; t=1578996654;
+        bh=3m7vJrRJiNVPTW0Tg9aTVd7TV0vHHZB0UqpneiJ7gSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yfl2ikiQo8SCt+QbpboaqzO8fTK2hAS1HJYrT8z6Iiy1gtwYRO2AUYewcvhT2n42E
-         0lvAteHBAO2pt3GqQyUKicNrczAauyF0i9LQ4C+sqiCFH6QClwZjdIcbNIeh4EfX+j
-         Oqp5pJlgL2lGq60PCQl3oHVrWt0FXprBSndY4cXY=
+        b=LAPc7f6kXQ37mKYBI7h23X0zX5Q/6KmOMUAtU1hEQ7/ql/PrYu2Sy5TQYn7nHSAHb
+         rprpaFN5lUxZPKszwnsiHxEONpWov83NfncP74FMeOwakXuzEXYRoWRpmFGvqmjdVt
+         6nMbHNiDLM1iYtA3VDCxoy72xd3ZujCdzvPN45x8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 4.19 42/46] phy: cpcap-usb: Fix error path when no host driver is loaded
+        stable@vger.kernel.org, Michael Straube <straube.linux@gmail.com>
+Subject: [PATCH 4.14 25/39] staging: rtl8188eu: Add device code for TP-Link TL-WN727N v5.21
 Date:   Tue, 14 Jan 2020 11:01:59 +0100
-Message-Id: <20200114094348.395107803@linuxfoundation.org>
+Message-Id: <20200114094344.485415658@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
-References: <20200114094339.608068818@linuxfoundation.org>
+In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
+References: <20200114094336.210038037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,107 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Michael Straube <straube.linux@gmail.com>
 
-commit 4acb0200ab2b07843e3ef5599add3454c7440f03 upstream.
+commit 58dcc5bf4030cab548d5c98cd4cd3632a5444d5a upstream.
 
-If musb_mailbox() returns an error, we must still continue to finish
-configuring the phy.
+This device was added to the stand-alone driver on github.
+Add it to the staging driver as well.
 
-Otherwise the phy state may end up only half initialized, and this can
-cause the debug serial console to stop working. And this will happen if the
-usb driver musb controller is not loaded.
-
-Let's fix the issue by adding helper for cpcap_usb_try_musb_mailbox().
-
-Fixes: 6d6ce40f63af ("phy: cpcap-usb: Add CPCAP PMIC USB support")
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Link: https://github.com/lwfinger/rtl8188eu/commit/b9b537aa25a8
+Signed-off-by: Michael Straube <straube.linux@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191228143725.24455-1-straube.linux@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/phy/motorola/phy-cpcap-usb.c |   33 ++++++++++++++++++---------------
- 1 file changed, 18 insertions(+), 15 deletions(-)
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/phy/motorola/phy-cpcap-usb.c
-+++ b/drivers/phy/motorola/phy-cpcap-usb.c
-@@ -207,6 +207,19 @@ static int cpcap_phy_get_ints_state(stru
- static int cpcap_usb_set_uart_mode(struct cpcap_phy_ddata *ddata);
- static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata);
- 
-+static void cpcap_usb_try_musb_mailbox(struct cpcap_phy_ddata *ddata,
-+				       enum musb_vbus_id_status status)
-+{
-+	int error;
-+
-+	error = musb_mailbox(status);
-+	if (!error)
-+		return;
-+
-+	dev_dbg(ddata->dev, "%s: musb_mailbox failed: %i\n",
-+		__func__, error);
-+}
-+
- static void cpcap_usb_detect(struct work_struct *work)
- {
- 	struct cpcap_phy_ddata *ddata;
-@@ -226,9 +239,7 @@ static void cpcap_usb_detect(struct work
- 		if (error)
- 			goto out_err;
- 
--		error = musb_mailbox(MUSB_ID_GROUND);
--		if (error)
--			goto out_err;
-+		cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
- 
- 		error = regmap_update_bits(ddata->reg, CPCAP_REG_USBC3,
- 					   CPCAP_BIT_VBUSSTBY_EN,
-@@ -255,9 +266,7 @@ static void cpcap_usb_detect(struct work
- 			error = cpcap_usb_set_usb_mode(ddata);
- 			if (error)
- 				goto out_err;
--			error = musb_mailbox(MUSB_ID_GROUND);
--			if (error)
--				goto out_err;
-+			cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
- 
- 			return;
- 		}
-@@ -267,9 +276,7 @@ static void cpcap_usb_detect(struct work
- 		error = cpcap_usb_set_usb_mode(ddata);
- 		if (error)
- 			goto out_err;
--		error = musb_mailbox(MUSB_VBUS_VALID);
--		if (error)
--			goto out_err;
-+		cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_VALID);
- 
- 		return;
- 	}
-@@ -279,9 +286,7 @@ static void cpcap_usb_detect(struct work
- 	if (error)
- 		goto out_err;
- 
--	error = musb_mailbox(MUSB_VBUS_OFF);
--	if (error)
--		goto out_err;
-+	cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_OFF);
- 
- 	dev_dbg(ddata->dev, "set UART mode\n");
- 
-@@ -647,9 +652,7 @@ static int cpcap_usb_phy_remove(struct p
- 	if (error)
- 		dev_err(ddata->dev, "could not set UART mode\n");
- 
--	error = musb_mailbox(MUSB_VBUS_OFF);
--	if (error)
--		dev_err(ddata->dev, "could not set mailbox\n");
-+	cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_OFF);
- 
- 	usb_remove_phy(&ddata->phy);
- 	cancel_delayed_work_sync(&ddata->detect_work);
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -45,6 +45,7 @@ static const struct usb_device_id rtw_us
+ 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
+ 	{USB_DEVICE(0x2001, 0x331B)}, /* D-Link DWA-121 rev B1 */
+ 	{USB_DEVICE(0x2357, 0x010c)}, /* TP-Link TL-WN722N v2 */
++	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
+ 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
+ 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
+ 	{}	/* Terminating entry */
 
 
