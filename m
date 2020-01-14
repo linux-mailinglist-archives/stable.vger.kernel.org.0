@@ -2,49 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 808F613B156
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 18:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0720313B1C2
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 19:14:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726450AbgANRui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 12:50:38 -0500
-Received: from imap2.colo.codethink.co.uk ([78.40.148.184]:57256 "EHLO
-        imap2.colo.codethink.co.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726053AbgANRui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 12:50:38 -0500
-Received: from [167.98.27.226] (helo=xylophone)
-        by imap2.colo.codethink.co.uk with esmtpsa  (Exim 4.92 #3 (Debian))
-        id 1irQKp-0002Jn-TO; Tue, 14 Jan 2020 17:50:36 +0000
-Message-ID: <41577104e06f774691365564d0a74b46e16b50e5.camel@codethink.co.uk>
-Subject: Re: [4.19-stable] Mostly securit y fixes
-From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <Alexander.Levin@microsoft.com>
-Cc:     stable <stable@vger.kernel.org>
-Date:   Tue, 14 Jan 2020 17:50:35 +0000
-In-Reply-To: <1eaa745218d25ab3c5c61361ae0d9b0601f1d99f.camel@codethink.co.uk>
-References: <1eaa745218d25ab3c5c61361ae0d9b0601f1d99f.camel@codethink.co.uk>
-Organization: Codethink Ltd.
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1726669AbgANSOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 13:14:21 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:37541 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726491AbgANSOV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 13:14:21 -0500
+Received: by mail-pf1-f194.google.com with SMTP id p14so6961948pfn.4;
+        Tue, 14 Jan 2020 10:14:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=IkaLOQ3vGpDnLPLXbO8PKwjfKeCZnpWKJVvJP3P1NK4=;
+        b=M7wQku+Vf+zSp8QzaHWXAychEckTzEPENnIRGy8fLIveUqYjwLTe13Q0v96516q8tT
+         bmidfmPsk5JsCMMPGKs6FJDc7c+wGbBekpccpP2w23aqdVDo329oquAdeGfSrTIDb1px
+         tqBp+Jriz/qhU5srNzaBY6voln50QTzRpSu39AYYG97riFKR7UxyfIBWvx5fICDU8p1x
+         JKxENhPM9OmwHkZxQ49E2qME+NN5mjlT2It8qCuRMkuoQYkPyyDGUG+r15CiEqXHHB6A
+         xHJ7inMgcdKnPpo8eL6EgT0uVDvE77agwUbHcBPjPXTANfJWfBtD5bHahs1VIWwqiGcs
+         Vutw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=IkaLOQ3vGpDnLPLXbO8PKwjfKeCZnpWKJVvJP3P1NK4=;
+        b=AcnXVr8folR/DCZvtzjGOhwgxbOXJvwi5BwL8wuwWIPkRUDCoVs6+tv+XOaNREpkP+
+         MNFJP/cwyIBmBLl6wdnk0uvvetLnfoF7GgC+UyBxnnJ5i+xdVrBokpv5AfUiEffYhfe7
+         u9okP9XSSJ/rwsXwwNmhmy8JpnVoEl5tRsjldZKlkEa04w3W9z23kLyTWf/b2bn00q0a
+         DldBGVYicmtzaK9d5WsL5LmygJql8wgIOjZM7p8SxGfCXW5aBJfPY52e3ii4PTfJFjqV
+         2ww+ViLa+/rX8SEFBe6qY1ptBvzvgYgads3rSB+kMs2i45mLWc9Yaf+3r8rNuXB8QEqW
+         rGTA==
+X-Gm-Message-State: APjAAAVQ80dE66YUpanvxyomsvJa5TQ7eKcY0vlvFADsBfsBUmrZm51N
+        cgc8Dc6tN86e3D/UkLUJnFw=
+X-Google-Smtp-Source: APXvYqzN4TDN+jboatk3ALPHlYJpoJkUNk9WAWCHIZVztE6jfKLgEctlYY8ZwFCdM3u4+BCO6AXBfA==
+X-Received: by 2002:a63:1908:: with SMTP id z8mr28425288pgl.350.1579025660435;
+        Tue, 14 Jan 2020 10:14:20 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id z16sm19511367pff.125.2020.01.14.10.14.19
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 14 Jan 2020 10:14:19 -0800 (PST)
+Date:   Tue, 14 Jan 2020 10:14:18 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/28] 4.4.210-stable review
+Message-ID: <20200114181418.GA18872@roeck-us.net>
+References: <20200114094336.845958665@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2020-01-14 at 14:47 +0000, Ben Hutchings wrote:
-> Some more fixes that required backporting for 4.19.  All these fixes
-> are related to CVEs though some of them don't seem to have any security
-> impact.
+On Tue, Jan 14, 2020 at 11:02:02AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.210 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 16 Jan 2020 09:41:58 +0000.
+> Anything received after that time might be too late.
+> 
+Build results:
+	total: 170 pass: 170 fail: 0
+Qemu test results:
+	total: 326 pass: 326 fail: 0
 
-The last of these (for dccp) should probably go to you via David
-Miller, though.
-
-Ben.
-
--- 
-Ben Hutchings, Software Developer                         Codethink Ltd
-https://www.codethink.co.uk/                 Dale House, 35 Dale Street
-                                     Manchester, M1 2HF, United Kingdom
-
+Guenter
