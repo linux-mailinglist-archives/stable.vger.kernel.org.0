@@ -2,103 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E901113A6D5
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BFE513A7C0
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:57:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732865AbgANKNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:13:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51616 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733108AbgANKNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:13:48 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5572624676;
-        Tue, 14 Jan 2020 10:13:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996828;
-        bh=7+tDIkDKEgMJ/MxV6Y7r6xHMBAn2XLb88L/SHHq88rY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1VX1bCOB+B8n4wRAm/5P3LkR+k5kB+fkpQ+wicfSpVxwJRYJCqLafufaiP18k+rwM
-         bRQ6jO0IQLMDXi3bD6u7QxMVsJsK9MdSb42JKCt4T7Fa+jL71Owt5EzvxmW9U8RSDC
-         0iih5/ZWp3IiAEFNypSye81c2qFEn3eMFhUCLrx0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>,
-        syzbot+34bd2369d38707f3f4a7@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.4 28/28] netfilter: ipset: avoid null deref when IPSET_ATTR_LINENO is present
-Date:   Tue, 14 Jan 2020 11:02:30 +0100
-Message-Id: <20200114094345.119644409@linuxfoundation.org>
+        id S1728826AbgANK5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:57:08 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:38757 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725956AbgANK5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 05:57:08 -0500
+Received: by mail-lf1-f67.google.com with SMTP id r14so9474171lfm.5;
+        Tue, 14 Jan 2020 02:57:06 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=AK4H5oKIjYr2wZjOrbeVS5Z8MRQMGd91D6AnA03+yKc=;
+        b=mljcX3z8f1NxZ5bp5NvdVd+sdoQXLmCYcZvG9tkF8brGLEolToNzLSZmLUyQARZMKa
+         qbYYrNnX0NbTeU0PdtCvXAkYg/AOhRPEanhSuHrLLCEfKCGKQxB91eizp98Fw4yHLv9D
+         yftZM0Ocq7+K9VVZm9ZKGNYGy20Hq1RrY5RN2I6gWfLaUN0+1gMDwvdZM4jM8cp7oq0m
+         S87xmgSDEvH3/Wx58QNS6KjsAFZ0yDwO33Cevbu+m1wIOJR7cG1cyZ3+mIlWwInmg0WE
+         lpIkb/XYSxNqx/SGNhSxOe5ckFgoGeVwO1hOzDnubcKWfR2nv6A9WdBi6S77kZwQ+cjB
+         EmbQ==
+X-Gm-Message-State: APjAAAVTuu1DhaH8lv7q6XQiGOjcZf9A2qk18LmbLqKs1Ln34mIgvYH1
+        jtJ/m05tF652mAKzTQb3PVD8st5n
+X-Google-Smtp-Source: APXvYqzTRki5Rxm/UFWnMldDRUxhIN/dptoTIPEWwRzBWUVWXcaTVe5aytEtJm/XYzQgJ7nREjWFrQ==
+X-Received: by 2002:a19:7604:: with SMTP id c4mr1266545lff.101.1578999425934;
+        Tue, 14 Jan 2020 02:57:05 -0800 (PST)
+Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
+        by smtp.gmail.com with ESMTPSA id i16sm7031332lfo.87.2020.01.14.02.57.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jan 2020 02:57:04 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@xi.terra>)
+        id 1irJse-00040w-V2; Tue, 14 Jan 2020 11:57:04 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     linux-usb@vger.kernel.org, stable <stable@vger.kernel.org>
+Subject: [PATCH 2/2] USB: serial: opticon: stop all I/O on close()
+Date:   Tue, 14 Jan 2020 11:55:17 +0100
+Message-Id: <20200114105517.15360-2-johan@kernel.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
-References: <20200114094336.845958665@linuxfoundation.org>
-User-Agent: quilt/0.66
+In-Reply-To: <20200114105517.15360-1-johan@kernel.org>
+References: <20200114105517.15360-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+Make sure to stop any submitted write URBs on close(). This specifically
+avoids a NULL-pointer dereference or use-after-free in case of a late
+completion event after driver unbind.
 
-commit 22dad713b8a5ff488e07b821195270672f486eb2 upstream.
-
-The set uadt functions assume lineno is never NULL, but it is in
-case of ip_set_utest().
-
-syzkaller managed to generate a netlink message that calls this with
-LINENO attr present:
-
-general protection fault: 0000 [#1] PREEMPT SMP KASAN
-RIP: 0010:hash_mac4_uadt+0x1bc/0x470 net/netfilter/ipset/ip_set_hash_mac.c:104
-Call Trace:
- ip_set_utest+0x55b/0x890 net/netfilter/ipset/ip_set_core.c:1867
- nfnetlink_rcv_msg+0xcf2/0xfb0 net/netfilter/nfnetlink.c:229
- netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
- nfnetlink_rcv+0x1ba/0x460 net/netfilter/nfnetlink.c:563
-
-pass a dummy lineno storage, its easier than patching all set
-implementations.
-
-This seems to be a day-0 bug.
-
-Cc: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
-Reported-by: syzbot+34bd2369d38707f3f4a7@syzkaller.appspotmail.com
-Fixes: a7b4f989a6294 ("netfilter: ipset: IP set core support")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Acked-by: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 648d4e16567e ("USB: serial: opticon: add write support")
+Cc: stable <stable@vger.kernel.org>	# 2.6.30: xxx: USB: serial: opticon: add chars_in_buffer() implementation
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- net/netfilter/ipset/ip_set_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/opticon.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/net/netfilter/ipset/ip_set_core.c
-+++ b/net/netfilter/ipset/ip_set_core.c
-@@ -1619,6 +1619,7 @@ ip_set_utest(struct sock *ctnl, struct s
- 	struct ip_set *set;
- 	struct nlattr *tb[IPSET_ATTR_ADT_MAX + 1] = {};
- 	int ret = 0;
-+	u32 lineno;
+diff --git a/drivers/usb/serial/opticon.c b/drivers/usb/serial/opticon.c
+index f7bccf14a71f..61ce359221ec 100644
+--- a/drivers/usb/serial/opticon.c
++++ b/drivers/usb/serial/opticon.c
+@@ -42,6 +42,8 @@ struct opticon_private {
+ 	bool cts;
+ 	int outstanding_urbs;
+ 	int outstanding_bytes;
++
++	struct usb_anchor anchor;
+ };
  
- 	if (unlikely(protocol_failed(attr) ||
- 		     !attr[IPSET_ATTR_SETNAME] ||
-@@ -1635,7 +1636,7 @@ ip_set_utest(struct sock *ctnl, struct s
- 		return -IPSET_ERR_PROTOCOL;
  
- 	rcu_read_lock_bh();
--	ret = set->variant->uadt(set, tb, IPSET_TEST, NULL, 0, 0);
-+	ret = set->variant->uadt(set, tb, IPSET_TEST, &lineno, 0, 0);
- 	rcu_read_unlock_bh();
- 	/* Userspace can't trigger element to be re-added */
- 	if (ret == -EAGAIN)
-
+@@ -150,6 +152,15 @@ static int opticon_open(struct tty_struct *tty, struct usb_serial_port *port)
+ 	return res;
+ }
+ 
++static void opticon_close(struct usb_serial_port *port)
++{
++	struct opticon_private *priv = usb_get_serial_port_data(port);
++
++	usb_kill_anchored_urbs(&priv->anchor);
++
++	usb_serial_generic_close(port);
++}
++
+ static void opticon_write_control_callback(struct urb *urb)
+ {
+ 	struct usb_serial_port *port = urb->context;
+@@ -226,10 +237,13 @@ static int opticon_write(struct tty_struct *tty, struct usb_serial_port *port,
+ 		(unsigned char *)dr, buffer, count,
+ 		opticon_write_control_callback, port);
+ 
++	usb_anchor_urb(urb, priv->anchor);
++
+ 	/* send it down the pipe */
+ 	ret = usb_submit_urb(urb, GFP_ATOMIC);
+ 	if (ret) {
+ 		dev_err(&port->dev, "failed to submit write urb: %d\n", ret);
++		usb_unanchor_urb(urb);
+ 		goto error;
+ 	}
+ 
+@@ -364,6 +378,7 @@ static int opticon_port_probe(struct usb_serial_port *port)
+ 		return -ENOMEM;
+ 
+ 	spin_lock_init(&priv->lock);
++	init_usb_anchor(&priv->anchor);
+ 
+ 	usb_set_serial_port_data(port, priv);
+ 
+@@ -391,6 +406,7 @@ static struct usb_serial_driver opticon_device = {
+ 	.port_probe =		opticon_port_probe,
+ 	.port_remove =		opticon_port_remove,
+ 	.open =			opticon_open,
++	.close =		opticon_close,
+ 	.write =		opticon_write,
+ 	.write_room = 		opticon_write_room,
+ 	.chars_in_buffer =	opticon_chars_in_buffer,
+-- 
+2.24.1
 
