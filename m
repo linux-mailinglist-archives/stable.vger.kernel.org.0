@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F059413A722
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:26:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01DE513A56A
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728914AbgANKTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:19:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35664 "EHLO mail.kernel.org"
+        id S1726169AbgANKHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:07:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730353AbgANKGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:06:30 -0500
+        id S1729499AbgANKHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:07:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8176F24672;
-        Tue, 14 Jan 2020 10:06:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A17BC20678;
+        Tue, 14 Jan 2020 10:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996389;
-        bh=FkcS2BdMEXIokPkWULH/aGT00OXhvGq1WKC6EOCQqfc=;
+        s=default; t=1578996450;
+        bh=k18qRjP/nywpIHZ3grDId+QnddItalWgK5eGRgAKNkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFZbSJW8hNnwmZVw7ntbo32WbOF8G0aL5rlrwoPd9ylcRsbuXDzCT3KVXgzUJjFQA
-         dBAmR0WCwS0J1UAzWE0P4/ElfYnGPFnEiu3aXz2Kr7/+PhP9FOoovcP8uq95g1mqxi
-         DB9Di4v7919AquLZq1lKYHthpcZ83DE3//PxDk3c=
+        b=l0ixdT7HT4ko6ZUnq1qxLhLWR3IddHdJ7h2EvRe38FRNmyE5L8gCFv+6nLYN6zgwH
+         dAW7ig350Yu8zjX1IWoDh0wxiFInm3fFTLj+d+/rxkNQLApIcaFXlE6Slmu6Ijn7B4
+         YsLJy9M68MxFRy/RReorky/OCXKSjyHTxaNcGOoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amanieu dAntras <amanieu@gmail.com>,
-        linux-um@lists.infradead.org,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.4 64/78] um: Implement copy_thread_tls
+        stable@vger.kernel.org, Florian Faber <faber@faberman.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 21/46] can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
 Date:   Tue, 14 Jan 2020 11:01:38 +0100
-Message-Id: <20200114094402.012253565@linuxfoundation.org>
+Message-Id: <20200114094344.766503208@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
-References: <20200114094352.428808181@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,109 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amanieu d'Antras <amanieu@gmail.com>
+From: Florian Faber <faber@faberman.de>
 
-commit 457677c70c7672a4586b0b8abc396cc1ecdd376d upstream.
+commit 2d77bd61a2927be8f4e00d9478fe6996c47e8d45 upstream.
 
-This is required for clone3 which passes the TLS value through a
-struct rather than a register.
+Under load, the RX side of the mscan driver can get stuck while TX still
+works. Restarting the interface locks up the system. This behaviour
+could be reproduced reliably on a MPC5121e based system.
 
-Signed-off-by: Amanieu d'Antras <amanieu@gmail.com>
-Cc: linux-um@lists.infradead.org
-Cc: <stable@vger.kernel.org> # 5.3.x
-Link: https://lore.kernel.org/r/20200104123928.1048822-1-amanieu@gmail.com
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+The patch fixes the return value of the NAPI polling function (should be
+the number of processed packets, not constant 1) and the condition under
+which IRQs are enabled again after polling is finished.
+
+With this patch, no more lockups were observed over a test period of ten
+days.
+
+Fixes: afa17a500a36 ("net/can: add driver for mscan family & mpc52xx_mscan")
+Signed-off-by: Florian Faber <faber@faberman.de>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/um/Kconfig                      |    1 +
- arch/um/include/asm/ptrace-generic.h |    2 +-
- arch/um/kernel/process.c             |    6 +++---
- arch/x86/um/tls_32.c                 |    6 ++----
- arch/x86/um/tls_64.c                 |    7 +++----
- 5 files changed, 10 insertions(+), 12 deletions(-)
+ drivers/net/can/mscan/mscan.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/arch/um/Kconfig
-+++ b/arch/um/Kconfig
-@@ -14,6 +14,7 @@ config UML
- 	select HAVE_FUTEX_CMPXCHG if FUTEX
- 	select HAVE_DEBUG_KMEMLEAK
- 	select HAVE_DEBUG_BUGVERBOSE
-+	select HAVE_COPY_THREAD_TLS
- 	select GENERIC_IRQ_SHOW
- 	select GENERIC_CPU_DEVICES
- 	select GENERIC_CLOCKEVENTS
---- a/arch/um/include/asm/ptrace-generic.h
-+++ b/arch/um/include/asm/ptrace-generic.h
-@@ -36,7 +36,7 @@ extern long subarch_ptrace(struct task_s
- extern unsigned long getreg(struct task_struct *child, int regno);
- extern int putreg(struct task_struct *child, int regno, unsigned long value);
+--- a/drivers/net/can/mscan/mscan.c
++++ b/drivers/net/can/mscan/mscan.c
+@@ -392,13 +392,12 @@ static int mscan_rx_poll(struct napi_str
+ 	struct net_device *dev = napi->dev;
+ 	struct mscan_regs __iomem *regs = priv->reg_base;
+ 	struct net_device_stats *stats = &dev->stats;
+-	int npackets = 0;
+-	int ret = 1;
++	int work_done = 0;
+ 	struct sk_buff *skb;
+ 	struct can_frame *frame;
+ 	u8 canrflg;
  
--extern int arch_copy_tls(struct task_struct *new);
-+extern int arch_set_tls(struct task_struct *new, unsigned long tls);
- extern void clear_flushed_tls(struct task_struct *task);
- extern int syscall_trace_enter(struct pt_regs *regs);
- extern void syscall_trace_leave(struct pt_regs *regs);
---- a/arch/um/kernel/process.c
-+++ b/arch/um/kernel/process.c
-@@ -153,8 +153,8 @@ void fork_handler(void)
- 	userspace(&current->thread.regs.regs, current_thread_info()->aux_fp_regs);
- }
+-	while (npackets < quota) {
++	while (work_done < quota) {
+ 		canrflg = in_8(&regs->canrflg);
+ 		if (!(canrflg & (MSCAN_RXF | MSCAN_ERR_IF)))
+ 			break;
+@@ -419,18 +418,18 @@ static int mscan_rx_poll(struct napi_str
  
--int copy_thread(unsigned long clone_flags, unsigned long sp,
--		unsigned long arg, struct task_struct * p)
-+int copy_thread_tls(unsigned long clone_flags, unsigned long sp,
-+		unsigned long arg, struct task_struct * p, unsigned long tls)
- {
- 	void (*handler)(void);
- 	int kthread = current->flags & PF_KTHREAD;
-@@ -188,7 +188,7 @@ int copy_thread(unsigned long clone_flag
- 		 * Set a new TLS for the child thread?
- 		 */
- 		if (clone_flags & CLONE_SETTLS)
--			ret = arch_copy_tls(p);
-+			ret = arch_set_tls(p, tls);
+ 		stats->rx_packets++;
+ 		stats->rx_bytes += frame->can_dlc;
+-		npackets++;
++		work_done++;
+ 		netif_receive_skb(skb);
  	}
  
- 	return ret;
---- a/arch/x86/um/tls_32.c
-+++ b/arch/x86/um/tls_32.c
-@@ -215,14 +215,12 @@ static int set_tls_entry(struct task_str
- 	return 0;
+-	if (!(in_8(&regs->canrflg) & (MSCAN_RXF | MSCAN_ERR_IF))) {
+-		napi_complete(&priv->napi);
+-		clear_bit(F_RX_PROGRESS, &priv->flags);
+-		if (priv->can.state < CAN_STATE_BUS_OFF)
+-			out_8(&regs->canrier, priv->shadow_canrier);
+-		ret = 0;
++	if (work_done < quota) {
++		if (likely(napi_complete_done(&priv->napi, work_done))) {
++			clear_bit(F_RX_PROGRESS, &priv->flags);
++			if (priv->can.state < CAN_STATE_BUS_OFF)
++				out_8(&regs->canrier, priv->shadow_canrier);
++		}
+ 	}
+-	return ret;
++	return work_done;
  }
  
--int arch_copy_tls(struct task_struct *new)
-+int arch_set_tls(struct task_struct *new, unsigned long tls)
- {
- 	struct user_desc info;
- 	int idx, ret = -EFAULT;
- 
--	if (copy_from_user(&info,
--			   (void __user *) UPT_SI(&new->thread.regs.regs),
--			   sizeof(info)))
-+	if (copy_from_user(&info, (void __user *) tls, sizeof(info)))
- 		goto out;
- 
- 	ret = -EINVAL;
---- a/arch/x86/um/tls_64.c
-+++ b/arch/x86/um/tls_64.c
-@@ -6,14 +6,13 @@ void clear_flushed_tls(struct task_struc
- {
- }
- 
--int arch_copy_tls(struct task_struct *t)
-+int arch_set_tls(struct task_struct *t, unsigned long tls)
- {
- 	/*
- 	 * If CLONE_SETTLS is set, we need to save the thread id
--	 * (which is argument 5, child_tid, of clone) so it can be set
--	 * during context switches.
-+	 * so it can be set during context switches.
- 	 */
--	t->thread.arch.fs = t->thread.regs.regs.gp[R8 / sizeof(long)];
-+	t->thread.arch.fs = tls;
- 
- 	return 0;
- }
+ static irqreturn_t mscan_isr(int irq, void *dev_id)
 
 
