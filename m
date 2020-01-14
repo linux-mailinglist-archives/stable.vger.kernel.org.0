@@ -2,108 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BACE13A0BC
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 06:40:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A6FC13A0CF
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 06:59:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725842AbgANFkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 00:40:00 -0500
-Received: from eddie.linux-mips.org ([148.251.95.138]:44658 "EHLO
-        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725820AbgANFkA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 00:40:00 -0500
-Received: (from localhost user: 'macro', uid#1010) by eddie.linux-mips.org
-        with ESMTP id S23990431AbgANFj45Upcz (ORCPT
-        <rfc822;stable@vger.kernel.org> + 2 others);
-        Tue, 14 Jan 2020 06:39:56 +0100
-Date:   Tue, 14 Jan 2020 05:39:56 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@linux-mips.org>
-To:     Paul Burton <paulburton@kernel.org>
-cc:     David Laight <David.Laight@aculab.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] MIPS: Use __copy_{to,from}_user() for emulated FP
- loads/stores
-In-Reply-To: <20191229190123.ju24cz7thuvybejs@lantea.localdomain>
-Message-ID: <alpine.LFD.2.21.2001140508250.1162854@eddie.linux-mips.org>
-References: <20191203204933.1642259-1-paulburton@kernel.org> <f5e09155580d417e9dcd07b1c20786ed@AcuMS.aculab.com> <20191204154048.eotzglp4rdlx4yzl@lantea.localdomain> <e220ba9a19da41abba599b5873afa494@AcuMS.aculab.com> <alpine.LFD.2.21.1912260251520.3762799@eddie.linux-mips.org>
- <20191229190123.ju24cz7thuvybejs@lantea.localdomain>
+        id S1726335AbgANF7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 00:59:54 -0500
+Received: from new2-smtp.messagingengine.com ([66.111.4.224]:50999 "EHLO
+        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725936AbgANF7x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 00:59:53 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 94EAB808C;
+        Tue, 14 Jan 2020 00:59:52 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 14 Jan 2020 00:59:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=themaw.net; h=
+        message-id:subject:from:to:cc:date:in-reply-to:references
+        :content-type:mime-version:content-transfer-encoding; s=fm2; bh=
+        hfX/vQq29sm8h9CFPcu58VExDE6jtSKXUcX35KAhkgc=; b=TX7kp1INE+5wqoGG
+        2dS8Lci3evRXmsaBr6Pqfc/H7NeZ8j8WAB99WrrirX0VSl9pDySJ40pejgfyv6tR
+        Pf4L1DG5vWZYst91xX8cOqLpNLvqGl7dILUHJ/mJSyG/LYRznKZqT47vYOVtHzYK
+        ErzWGITiDIrzs6Oh2iT/FaR7h/fsJ0sVbOvehKm1cJB+1XqX+WkO0vcCrbBP6HQp
+        ueiXgLWqufjOM4f5dY2ZmHJc50L3U7vlT+Akdg84nXRczEj5Vx8hLNAfLTvcjwVg
+        I5Fd7XQjMcS1yaBfQuTUc54czgaFiMqELjboKY/RoAFw+tLGO4Q3lR+49C8ASh8+
+        8+1Z4w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; bh=hfX/vQq29sm8h9CFPcu58VExDE6jtSKXUcX35KAhk
+        gc=; b=pfC2hgW1S6aGHeRRLZh50FI6XFlxAz/YvH23cZs1FKkoVMqfRxx+zeJEg
+        buE2AveXYsJSs61U0VuDhAz5yPde8bHsc5pmyjvO9OyHN6DrRNUDKJbBJ95WqMV3
+        9QsRp6ECp/BXJ6iZi6WoFvnMhV+fcPQ1wIGRnnGa+CUbiWHXq75PwV3zsMV1fxfC
+        hwvfXsabduveumYMVHvLSfSe4ysxldZYGqEwHdunaFyUbplSA2n3Dd2vQZLNZ8aI
+        0K4xrB3ksaFoizMdo/5tQeFktvOuOZgUJUiwkqbKB31fFWU7r3vgBcB9hXtj7dwC
+        FzUF9Mqf4F7vb2XFOiX0xWRixQRiw==
+X-ME-Sender: <xms:11gdXvIE27K_H38S--vhJQc-RtpSE7kWUNrBl-BjvnjjiRRYgGdtow>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdejuddgkeelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomhepkfgrnhcu
+    mfgvnhhtuceorhgrvhgvnhesthhhvghmrgifrdhnvghtqeenucfkphepuddukedrvddtle
+    drudejhedrvdehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehrrghvvghnsehthhgvmhgr
+    fidrnhgvthenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:11gdXrgfD8N45aCScFuMVLwL5wUuHYNxfbvItm6sOV3Cqko4bCcDlw>
+    <xmx:11gdXp4pVJxMEp1kK4N-dDTpndGxZSlJblpzjv1RtvTZWFsANIKfoA>
+    <xmx:11gdXgPeP4AE5dG4mr9SOxe2VSBxgjhVnFlpTAMJKQZUqXKtxDlQXQ>
+    <xmx:2FgdXp-gxBJS0lsQH1Uzf2yCm1XjTMjjcpT8mxhqXnouo-SfN1wwxw>
+Received: from mickey.themaw.net (unknown [118.209.175.25])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9CC6C80061;
+        Tue, 14 Jan 2020 00:59:46 -0500 (EST)
+Message-ID: <1fb8a0e4a763219f0f6cde6023ba89c1774cb854.camel@themaw.net>
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+From:   Ian Kent <raven@themaw.net>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        stable <stable@vger.kernel.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date:   Tue, 14 Jan 2020 13:59:42 +0800
+In-Reply-To: <d6cad1552171da1eb38c55d1d7b1ff45902b101f.camel@themaw.net>
+References: <20200103014901.GC8904@ZenIV.linux.org.uk>
+         <20200108031314.GE8904@ZenIV.linux.org.uk>
+         <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
+         <20200108213444.GF8904@ZenIV.linux.org.uk>
+         <CAHk-=wiq11+thoe60qhsSHk_nbRF2TRL1Wnf6eHcYObjhJmsww@mail.gmail.com>
+         <20200110041523.GK8904@ZenIV.linux.org.uk>
+         <979cf680b0fbdce515293a3449d564690cde6a3f.camel@themaw.net>
+         <20200112213352.GP8904@ZenIV.linux.org.uk>
+         <800d36a0dccd43f1b61cab6332a6252ab9aab73c.camel@themaw.net>
+         <19fa114ef619057c0d14dc1a587d0ae9ad67dc6d.camel@themaw.net>
+         <20200114043924.GV8904@ZenIV.linux.org.uk>
+         <d6cad1552171da1eb38c55d1d7b1ff45902b101f.camel@themaw.net>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.5 (3.32.5-1.fc30) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Paul,
-
- Sorry to take so long; it took me a while to track down the discussion I 
-had in mind, and I was quite busy too.  Also greetings from linux.conf.au!
-
-> >  As I recall we only emulate unaligned accesses with a subset of integer 
-> > load/store instructions (and then only if TIF_FIXADE is set, which is the 
-> > default), and never with FP load/store instructions.  Consequently I see 
-> > no point in doing this in the FP emulator either and I think these ought 
-> > to just send SIGBUS instead.  Otherwise you'll end up with user code that 
-> > works differently depending on whether the FP hardware is real or 
-> > emulated, which is really bad.
+On Tue, 2020-01-14 at 13:01 +0800, Ian Kent wrote:
+> On Tue, 2020-01-14 at 04:39 +0000, Al Viro wrote:
+> > On Tue, Jan 14, 2020 at 08:25:19AM +0800, Ian Kent wrote:
+> > 
+> > > This isn't right.
+> > > 
+> > > There's actually nothing stopping a user from using a direct map
+> > > entry that's a multi-mount without an actual mount at its root.
+> > > So there could be directories created under these, it's just not
+> > > usually done.
+> > > 
+> > > I'm pretty sure I don't check and disallow this.
+> > 
+> > IDGI...  How the hell will that work in v5?  Who will set _any_
+> > traps outside the one in root in that scenario?  autofs_lookup()
+> > won't (there it's conditional upon indirect mount).  Neither
+> > will autofs_dir_mkdir() (conditional upon version being less
+> > than 5).  Who will, then?
+> > 
+> > Confused...
 > 
-> That might simplify things here, but it's incorrect. I'm fairly certain
-> the intent is that emulate_load_store_insn() handles all non-FP loads &
-> stores (though looking at it we're missing some instructions added in
-> r6). More importantly though we've been emulating FP loads & stores
-> since v3.10 which introduced the change alongside microMIPS support in
-> commit 102cedc32a6e ("MIPS: microMIPS: Floating point support."). The
-> commit contains no description of why, and I'm not aware of any reason
-> microMIPS specifically would need this so I suspect that commit bundled
-> this change for no good reason...
+> It's easy to miss.
+> 
+> For autofs type direct and offset mounts the flags are set at fill
+> super time.
+> 
+> They have to be set then because they are direct mounts and offset
+> mounts behave the same as direct mounts so they need to be set then
+> too. So, like direct mounts, offset mounts are each distinct autofs
+> (trigger) mounts.
+> 
+> I could check for this construct and refuse it if that's really
+> needed. I'm pretty sure this map construct isn't much used by
+> people using direct mounts.
 
- See the thread of discussion starting from this submission:
+Ok, once again I'm not exactly accurate is some of what I said.
 
-<https://www.linux-mips.org/cgi-bin/mesg.cgi?a=linux-mips&i=20120615234641.6938B58FE7C%40mail.viric.name>
+It turns out that the autofs connectathon tests, one of the tests
+that I use, does test direct mounts with offsets both with and
+without a real mount at the base of the mount.
 
-and in particular Ralf's response (not referred directly due to the 
-monthly archive rollover):
+Based on that, I have to say this map construct is meant to be
+supported with Sun format maps of autofs (even though I think it's
+probably not used much).
 
-<https://www.linux-mips.org/cgi-bin/mesg.cgi?a=linux-mips&i=20120731134001.GA14151%40linux-mips.org>
+So not allowing it is probably the wrong thing to do.
 
-I think Ralf's argument still stands and I find it regrettable that an 
-unwanted feature was sneaked in with a trick along with a submission 
-supposed to only add a different, unrelated feature.
+OTOH initial testing with the #work.namei branch shows these are
+functioning as required.
 
- I can't even track down a public submission/review of the change you 
-refer, which is not how things are supposed to work with Linux!  And 
-neither the `Signed-off-by' tags help figuring out what the route of the 
-change was to get there upstream.  At that time there was supposed to be 
-Ralf's tag there, as it was him who was the sole port maintainer.
+Ian
 
-> It's also worth noting that some hardware will handle unaligned FP
-> loads/stores, which means having the emulator reject them will result in
-> more of a visible difference to userland. ie. on some hardware they'll
-> work just fine, but on some you'd get SIGBUS. So I do think emulating
-> them makes some sense - just as for non-FP loads & stores it lets
-> userland not care whether the hardware will handle them, so long as it's
-> not performance critical code. If we knew that had never been used then
-> perhaps we could enforce the alignment requirement (and maybe that's
-> what you recall doing), but since we've been emulating them for the past
-> 6 years it's too late for that now.
-
- I don't think it's ever too late to remove a broken feature that everyone 
-knows is not a part of the architecture and the emulation of which has 
-never been advertised as a part of the Linux ABI either.  You just don't 
-make it a part of the ABI when you sneak in a feature without a proper 
-review, we do not accept the fait accompli method in Linux development.
-
- The presence of unaligned FP data is a sign of user code breakage and 
-whoever caused that breakage will best know that ASAP by seeing their 
-program trap (they can emulate the trap in their software by installing a 
-suitable signal handler if they are so desperate to have unaligned FP data 
-handled).
-
- So I think that not only the new submission should be rejected, but also 
-parts of commit 102cedc32a6e ("MIPS: microMIPS: Floating point support.") 
-reverted that are not a part of actual microMIPS support.  If someone 
-relied on it by accident or ignorance, they'll simply have to adjust.
-
-  Maciej
