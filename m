@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15E8613A5EB
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AE5313A5F9
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730252AbgANKF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:05:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34570 "EHLO mail.kernel.org"
+        id S1729793AbgANKG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:06:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730242AbgANKF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:05:56 -0500
+        id S1730497AbgANKGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:06:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5682324679;
-        Tue, 14 Jan 2020 10:05:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF00524676;
+        Tue, 14 Jan 2020 10:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996355;
-        bh=RBXAiiyvsTUqqMd8QvTDja/F0J5+e2uKRVWGvdJhjRQ=;
+        s=default; t=1578996414;
+        bh=wMVcQRP82232iYT/6w3tIiCe68QFyz0NHLbAdhJripI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEFQ9es+YLoIlX5akc0+yB5C3VRWIwOsqwKftJQc8f2gXixuQMZHCSNJvq8D/gnSX
-         EU79rDBcGqz/ec28Zba4L65tFBpLeTmotqZjjsxDP5oDAQrTcc1S3rXWaFnY1d9XW1
-         FRFlcIKtiyCUo+NXl72vAOppvNAxHn0ijZ4MXBuU=
+        b=gonk2tnbLYgpSQ0y9dyDd/IaOgUaLfE5qlPTLjdIgUWMc7+muUFWKWKBSmVqPUQrp
+         BNXdjCRvaNNyUN4wB3xKwoGJu04txB+/nR2OpxJ/FnIxbOX8XPb6E7uInddeqqcLu/
+         T4jO0ef9rIbtX1F5lGiFm+INC1lTQXsiY3Ns1udU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.4 44/78] USB-PD tcpm: bad warning+size, PPS adapters
+        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        syzbot+82defefbbd8527e1c2cb@syzkaller.appspotmail.com,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 01/46] chardev: Avoid potential use-after-free in chrdev_open()
 Date:   Tue, 14 Jan 2020 11:01:18 +0100
-Message-Id: <20200114094359.462572888@linuxfoundation.org>
+Message-Id: <20200114094340.695668933@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
-References: <20200114094352.428808181@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,76 +48,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Gilbert <dgilbert@interlog.com>
+From: Will Deacon <will@kernel.org>
 
-commit c215e48e97d232249a33849fc46fc50311043e11 upstream.
+commit 68faa679b8be1a74e6663c21c3a9d25d32f1c079 upstream.
 
-Augmented Power Delivery Objects (A)PDO_s are used by USB-C
-PD power adapters to advertize the voltages and currents
-they support. There can be up to 7 PDO_s but before PPS
-(programmable power supply) there were seldom more than 4
-or 5. Recently Samsung released an optional PPS 45 Watt power
-adapter (EP-TA485) that has 7 PDO_s. It is for the Galaxy 10+
-tablet and charges it quicker than the adapter supplied at
-purchase. The EP-TA485 causes an overzealous WARN_ON to soil
-the log plus it miscalculates the number of bytes to read.
+'chrdev_open()' calls 'cdev_get()' to obtain a reference to the
+'struct cdev *' stashed in the 'i_cdev' field of the target inode
+structure. If the pointer is NULL, then it is initialised lazily by
+looking up the kobject in the 'cdev_map' and so the whole procedure is
+protected by the 'cdev_lock' spinlock to serialise initialisation of
+the shared pointer.
 
-So this bug has been there for some time but goes
-undetected for the majority of USB-C PD power adapters on
-the market today that have 6 or less PDO_s. That may soon
-change as more USB-C PD adapters with PPS come to market.
+Unfortunately, it is possible for the initialising thread to fail *after*
+installing the new pointer, for example if the subsequent '->open()' call
+on the file fails. In this case, 'cdev_put()' is called, the reference
+count on the kobject is dropped and, if nobody else has taken a reference,
+the release function is called which finally clears 'inode->i_cdev' from
+'cdev_purge()' before potentially freeing the object. The problem here
+is that a racing thread can happily take the 'cdev_lock' and see the
+non-NULL pointer in the inode, which can result in a refcount increment
+from zero and a warning:
 
-Tested on a EP-TA485 and an older Lenovo PN: SA10M13950
-USB-C 65 Watt adapter (without PPS and has 4 PDO_s) plus
-several other PD power adapters.
+  |  ------------[ cut here ]------------
+  |  refcount_t: addition on 0; use-after-free.
+  |  WARNING: CPU: 2 PID: 6385 at lib/refcount.c:25 refcount_warn_saturate+0x6d/0xf0
+  |  Modules linked in:
+  |  CPU: 2 PID: 6385 Comm: repro Not tainted 5.5.0-rc2+ #22
+  |  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+  |  RIP: 0010:refcount_warn_saturate+0x6d/0xf0
+  |  Code: 05 55 9a 15 01 01 e8 9d aa c8 ff 0f 0b c3 80 3d 45 9a 15 01 00 75 ce 48 c7 c7 00 9c 62 b3 c6 08
+  |  RSP: 0018:ffffb524c1b9bc70 EFLAGS: 00010282
+  |  RAX: 0000000000000000 RBX: ffff9e9da1f71390 RCX: 0000000000000000
+  |  RDX: ffff9e9dbbd27618 RSI: ffff9e9dbbd18798 RDI: ffff9e9dbbd18798
+  |  RBP: 0000000000000000 R08: 000000000000095f R09: 0000000000000039
+  |  R10: 0000000000000000 R11: ffffb524c1b9bb20 R12: ffff9e9da1e8c700
+  |  R13: ffffffffb25ee8b0 R14: 0000000000000000 R15: ffff9e9da1e8c700
+  |  FS:  00007f3b87d26700(0000) GS:ffff9e9dbbd00000(0000) knlGS:0000000000000000
+  |  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  |  CR2: 00007fc16909c000 CR3: 000000012df9c000 CR4: 00000000000006e0
+  |  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  |  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  |  Call Trace:
+  |   kobject_get+0x5c/0x60
+  |   cdev_get+0x2b/0x60
+  |   chrdev_open+0x55/0x220
+  |   ? cdev_put.part.3+0x20/0x20
+  |   do_dentry_open+0x13a/0x390
+  |   path_openat+0x2c8/0x1470
+  |   do_filp_open+0x93/0x100
+  |   ? selinux_file_ioctl+0x17f/0x220
+  |   do_sys_open+0x186/0x220
+  |   do_syscall_64+0x48/0x150
+  |   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  |  RIP: 0033:0x7f3b87efcd0e
+  |  Code: 89 54 24 08 e8 a3 f4 ff ff 8b 74 24 0c 48 8b 3c 24 41 89 c0 44 8b 54 24 08 b8 01 01 00 00 89 f4
+  |  RSP: 002b:00007f3b87d259f0 EFLAGS: 00000293 ORIG_RAX: 0000000000000101
+  |  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3b87efcd0e
+  |  RDX: 0000000000000000 RSI: 00007f3b87d25a80 RDI: 00000000ffffff9c
+  |  RBP: 00007f3b87d25e90 R08: 0000000000000000 R09: 0000000000000000
+  |  R10: 0000000000000000 R11: 0000000000000293 R12: 00007ffe188f504e
+  |  R13: 00007ffe188f504f R14: 00007f3b87d26700 R15: 0000000000000000
+  |  ---[ end trace 24f53ca58db8180a ]---
 
-Signed-off-by: Douglas Gilbert <dgilbert@interlog.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Since 'cdev_get()' can already fail to obtain a reference, simply move
+it over to use 'kobject_get_unless_zero()' instead of 'kobject_get()',
+which will cause the racing thread to return -ENXIO if the initialising
+thread fails unexpectedly.
+
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Reported-by: syzbot+82defefbbd8527e1c2cb@syzkaller.appspotmail.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191230033544.1809-1-dgilbert@interlog.com
+Link: https://lore.kernel.org/r/20191219120203.32691-1-will@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/typec/tcpm/tcpci.c |   20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ fs/char_dev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/typec/tcpm/tcpci.c
-+++ b/drivers/usb/typec/tcpm/tcpci.c
-@@ -432,20 +432,30 @@ irqreturn_t tcpci_irq(struct tcpci *tcpc
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -361,7 +361,7 @@ static struct kobject *cdev_get(struct c
  
- 	if (status & TCPC_ALERT_RX_STATUS) {
- 		struct pd_message msg;
--		unsigned int cnt;
-+		unsigned int cnt, payload_cnt;
- 		u16 header;
- 
- 		regmap_read(tcpci->regmap, TCPC_RX_BYTE_CNT, &cnt);
-+		/*
-+		 * 'cnt' corresponds to READABLE_BYTE_COUNT in section 4.4.14
-+		 * of the TCPCI spec [Rev 2.0 Ver 1.0 October 2017] and is
-+		 * defined in table 4-36 as one greater than the number of
-+		 * bytes received. And that number includes the header. So:
-+		 */
-+		if (cnt > 3)
-+			payload_cnt = cnt - (1 + sizeof(msg.header));
-+		else
-+			payload_cnt = 0;
- 
- 		tcpci_read16(tcpci, TCPC_RX_HDR, &header);
- 		msg.header = cpu_to_le16(header);
- 
--		if (WARN_ON(cnt > sizeof(msg.payload)))
--			cnt = sizeof(msg.payload);
-+		if (WARN_ON(payload_cnt > sizeof(msg.payload)))
-+			payload_cnt = sizeof(msg.payload);
- 
--		if (cnt > 0)
-+		if (payload_cnt > 0)
- 			regmap_raw_read(tcpci->regmap, TCPC_RX_DATA,
--					&msg.payload, cnt);
-+					&msg.payload, payload_cnt);
- 
- 		/* Read complete, clear RX status alert bit */
- 		tcpci_write16(tcpci, TCPC_ALERT, TCPC_ALERT_RX_STATUS);
+ 	if (owner && !try_module_get(owner))
+ 		return NULL;
+-	kobj = kobject_get(&p->kobj);
++	kobj = kobject_get_unless_zero(&p->kobj);
+ 	if (!kobj)
+ 		module_put(owner);
+ 	return kobj;
 
 
