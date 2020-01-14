@@ -2,356 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37A7C13B229
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 19:33:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1CF13B240
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 19:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727331AbgANSdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 13:33:06 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:29047 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726523AbgANSdG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 13:33:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579026784;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=5VO3KT3jw45jMl+C1zAD/4FkZLf4vP7JUuIjO41aQ+o=;
-        b=A1lnFnNStGX5lWn8I7JhNSq94GjX8n3Y9Yu6hyqW3WS6+F/ANQqwrU5WXS/nwDB8oImPxg
-        YtEKXtMe1CQwF7fEArCDVnZIGPcx4kdf+2V+TDGyAIwELIprNILHtQNDuUxBY9Idy4iQw5
-        jeFtqR6t0yuL2/6Kg30yOw6I+qmxu3c=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-173-4QRbCkBVODqEnooocC9mEw-1; Tue, 14 Jan 2020 13:33:01 -0500
-X-MC-Unique: 4QRbCkBVODqEnooocC9mEw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06E5010054E3;
-        Tue, 14 Jan 2020 18:33:00 +0000 (UTC)
-Received: from [172.54.91.90] (cpt-1046.paas.prod.upshift.rdu2.redhat.com [10.0.19.73])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 087CF5C1D6;
-        Tue, 14 Jan 2020 18:32:54 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1728741AbgANSkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 13:40:49 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:60081 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726491AbgANSks (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 13:40:48 -0500
+Received: from 2.general.tyhicks.us.vpn ([10.172.64.53] helo=sec.work.tihix.com)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <tyhicks@canonical.com>)
+        id 1irR7O-0004MW-46; Tue, 14 Jan 2020 18:40:46 +0000
+From:   Tyler Hicks <tyhicks@canonical.com>
+To:     stable@vger.kernel.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Jon Bloomfield <jon.bloomfield@intel.com>
+Subject: [PATCH] drm/i915: Fix use-after-free when destroying GEM context
+Date:   Tue, 14 Jan 2020 18:39:37 +0000
+Message-Id: <20200114183937.12224-1-tyhicks@canonical.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.4.12-rc1-fc79c22.cki
- (stable)
-Date:   Tue, 14 Jan 2020 18:32:54 -0000
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>
-Message-ID: <cki.63107281D5.F4HIWEIQDO@redhat.com>
-X-Gitlab-Pipeline-ID: 382061
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/382061
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This patch is a simplified fix to address a use-after-free in 4.14.x and
+4.19.x stable kernels. The flaw is already fixed upstream, starting in
+5.2, by commit 7dc40713618c ("drm/i915: Introduce a mutex for
+file_priv->context_idr") as part of a more complex patch series that
+isn't appropriate for backporting to stable kernels.
 
-Hello,
+Expand mutex coverage, while destroying the GEM context, to include the
+GEM context lookup step. This fixes a use-after-free detected by KASAN:
 
-We ran automated tests on a recent commit from this kernel tree:
+ ==================================================================
+ BUG: KASAN: use-after-free in i915_ppgtt_close+0x2ca/0x2f0
+ Write of size 1 at addr ffff8881368a8368 by task i915-poc/3124
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
-x-stable-rc.git
-            Commit: fc79c2294846 - Linux 5.4.12-rc1
+ CPU: 0 PID: 3124 Comm: i915-poc Not tainted 4.14.164 #1
+ Hardware name: HP HP Elite x2 1012 G1 /80FC, BIOS N85 Ver. 01.20 04/05/2017
+ Call Trace:
+  dump_stack+0xcd/0x12e
+  ? _atomic_dec_and_lock+0x1b2/0x1b2
+  ? i915_ppgtt_close+0x2ca/0x2f0
+  ? printk+0x8f/0xab
+  ? show_regs_print_info+0x53/0x53
+  ? i915_ppgtt_close+0x2ca/0x2f0
+  print_address_description+0x65/0x270
+  ? i915_ppgtt_close+0x2ca/0x2f0
+  kasan_report+0x251/0x340
+  i915_ppgtt_close+0x2ca/0x2f0
+  ? __radix_tree_insert+0x3f0/0x3f0
+  ? i915_ppgtt_init_hw+0x7c0/0x7c0
+  context_close+0x42e/0x680
+  ? i915_gem_context_release+0x230/0x230
+  ? kasan_kmalloc+0xa0/0xd0
+  ? radix_tree_delete_item+0x1d4/0x250
+  ? radix_tree_lookup+0x10/0x10
+  ? inet_recvmsg+0x4b0/0x4b0
+  ? kasan_slab_free+0x88/0xc0
+  i915_gem_context_destroy_ioctl+0x236/0x300
+  ? i915_gem_context_create_ioctl+0x360/0x360
+  ? drm_dev_printk+0x1d0/0x1d0
+  ? memcpy+0x34/0x50
+  ? i915_gem_context_create_ioctl+0x360/0x360
+  drm_ioctl_kernel+0x1b0/0x2b0
+  ? drm_ioctl_permit+0x2a0/0x2a0
+  ? avc_ss_reset+0xd0/0xd0
+  drm_ioctl+0x6fe/0xa20
+  ? i915_gem_context_create_ioctl+0x360/0x360
+  ? drm_getstats+0x20/0x20
+  ? put_unused_fd+0x260/0x260
+  do_vfs_ioctl+0x189/0x12d0
+  ? ioctl_preallocate+0x280/0x280
+  ? selinux_file_ioctl+0x3a7/0x680
+  ? selinux_bprm_set_creds+0xe30/0xe30
+  ? security_file_ioctl+0x69/0xa0
+  ? selinux_bprm_set_creds+0xe30/0xe30
+  SyS_ioctl+0x6f/0x80
+  ? __sys_sendmmsg+0x4a0/0x4a0
+  ? do_vfs_ioctl+0x12d0/0x12d0
+  do_syscall_64+0x214/0x5f0
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x25/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? syscall_return_slowpath+0x2c0/0x2c0
+  ? copy_overflow+0x20/0x20
+  ? __switch_to_asm+0x25/0x60
+  ? syscall_return_via_sysret+0x2a/0x7a
+  ? prepare_exit_to_usermode+0x200/0x200
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x25/0x60
+  ? __switch_to_asm+0x25/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x25/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x25/0x60
+  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+ RIP: 0033:0x7f7fda5115d7
+ RSP: 002b:00007f7eec317ec8 EFLAGS: 00000286 ORIG_RAX: 0000000000000010
+ RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7fda5115d7
+ RDX: 000055b306db9188 RSI: 000000004008646e RDI: 0000000000000003
+ RBP: 00007f7eec317ef0 R08: 00007f7eec318700 R09: 0000000000000000
+ R10: 0000000000000000 R11: 0000000000000286 R12: 00007f7eec317fc0
+ R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffd8007ade0
 
-The results of these automated tests are provided below.
+ Allocated by task 2898:
+  save_stack+0x32/0xb0
+  kasan_kmalloc+0xa0/0xd0
+  kmem_cache_alloc_trace+0x5e/0x180
+  i915_ppgtt_create+0xab/0x2510
+  i915_gem_create_context+0x981/0xf90
+  i915_gem_context_create_ioctl+0x1d7/0x360
+  drm_ioctl_kernel+0x1b0/0x2b0
+  drm_ioctl+0x6fe/0xa20
+  do_vfs_ioctl+0x189/0x12d0
+  SyS_ioctl+0x6f/0x80
+  do_syscall_64+0x214/0x5f0
+  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
 
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
+ Freed by task 104:
+  save_stack+0x32/0xb0
+  kasan_slab_free+0x72/0xc0
+  kfree+0x88/0x190
+  i915_ppgtt_release+0x24e/0x460
+  i915_gem_context_free+0x90/0x480
+  contexts_free_worker+0x54/0x80
+  process_one_work+0x876/0x14e0
+  worker_thread+0x1b8/0xfd0
+  kthread+0x2f8/0x3c0
+  ret_from_fork+0x35/0x40
 
-All kernel binaries, config files, and logs are available for download here:
+ The buggy address belongs to the object at ffff8881368a8000
+  which belongs to the cache kmalloc-8192 of size 8192
+ The buggy address is located 872 bytes inside of
+  8192-byte region [ffff8881368a8000, ffff8881368aa000)
+ The buggy address belongs to the page:
+ page:ffffea0004da2a00 count:1 mapcount:0 mapping:          (null) index:0x0 compound_mapcount: 0
+ flags: 0x200000000008100(slab|head)
+ raw: 0200000000008100 0000000000000000 0000000000000000 0000000100030003
+ raw: dead000000000100 dead000000000200 ffff88822a002280 0000000000000000
+ page dumped because: kasan: bad access detected
 
-  https://artifacts.cki-project.org/pipelines/382061
+ Memory state around the buggy address:
+  ffff8881368a8200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8881368a8280: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ >ffff8881368a8300: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                                           ^
+  ffff8881368a8380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8881368a8400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ==================================================================
 
-One or more kernel tests failed:
+Fixes: 1acfc104cdf8 ("drm/i915: Enable rcu-only context lookups")
+Reported-by: 罗权 <luoquan@qianxin.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Jon Bloomfield <jon.bloomfield@intel.com>
+Cc: stable@vger.kernel.org # 4.14.x
+Cc: stable@vger.kernel.org # 4.19.x
+Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
+---
+ drivers/gpu/drm/i915/i915_gem_context.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-    x86_64:
-     =E2=9D=8C LTP
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns transport
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=8F=B1  Memory function: memfd_create
-       =E2=8F=B1  AMTU (Abstract Machine Test Utility)
-       =E2=8F=B1  Networking bridge: sanity
-       =E2=8F=B1  Ethernet drivers sanity
-       =E2=8F=B1  Networking MACsec: sanity
-       =E2=8F=B1  Networking socket: fuzz
-       =E2=8F=B1  Networking sctp-auth: sockopts test
-       =E2=8F=B1  Networking: igmp conformance test
-       =E2=8F=B1  Networking route: pmtu
-       =E2=8F=B1  Networking route_func: local
-       =E2=8F=B1  Networking route_func: forward
-       =E2=8F=B1  Networking TCP: keepalive test
-       =E2=8F=B1  Networking UDP: socket
-       =E2=8F=B1  Networking tunnel: geneve basic test
-       =E2=8F=B1  Networking tunnel: gre basic
-       =E2=8F=B1  L2TP basic test
-       =E2=8F=B1  Networking tunnel: vxlan basic
-       =E2=8F=B1  Networking ipsec: basic netns transport
-       =E2=8F=B1  Networking ipsec: basic netns tunnel
-       =E2=8F=B1  audit: audit testsuite test
-       =E2=8F=B1  httpd: mod_ssl smoke sanity
-       =E2=8F=B1  tuned: tune-processes-through-perf
-       =E2=8F=B1  ALSA PCM loopback test
-       =E2=8F=B1  ALSA Control (mixer) Userspace Element test
-       =E2=8F=B1  storage: SCSI VPD
-       =E2=8F=B1  trace: ftrace/tracer
-       =E2=8F=B1  CIFS Connectathon
-       =E2=8F=B1  POSIX pjd-fstest suites
-       =E2=8F=B1  jvm test suite
-       =E2=8F=B1  Memory function: kaslr
-       =E2=8F=B1  LTP: openposix test suite
-       =E2=8F=B1  Networking vnic: ipvlan/basic
-       =E2=8F=B1  iotop: sanity
-       =E2=8F=B1  Usex - version 1.9-29
-       =E2=8F=B1  storage: dm/common
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
-
-    Host 4:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9D=8C LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
-       =F0=9F=9A=A7 =E2=9D=8C Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernels =
-have
-a Beaker recipe linked to next to each host.
+diff --git a/drivers/gpu/drm/i915/i915_gem_context.c b/drivers/gpu/drm/i915/i915_gem_context.c
+index 7a0e6dbbad2e..ef383fd42988 100644
+--- a/drivers/gpu/drm/i915/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/i915_gem_context.c
+@@ -770,18 +770,19 @@ int i915_gem_context_destroy_ioctl(struct drm_device *dev, void *data,
+ 	if (args->ctx_id == DEFAULT_CONTEXT_HANDLE)
+ 		return -ENOENT;
+ 
++	ret = i915_mutex_lock_interruptible(dev);
++	if (ret)
++		return ret;
++
+ 	ctx = i915_gem_context_lookup(file_priv, args->ctx_id);
+-	if (!ctx)
++	if (!ctx) {
++		mutex_unlock(&dev->struct_mutex);
+ 		return -ENOENT;
+-
+-	ret = mutex_lock_interruptible(&dev->struct_mutex);
+-	if (ret)
+-		goto out;
++	}
+ 
+ 	__destroy_hw_context(ctx, file_priv);
+ 	mutex_unlock(&dev->struct_mutex);
+ 
+-out:
+ 	i915_gem_context_put(ctx);
+ 	return 0;
+ }
+-- 
+2.17.1
 
