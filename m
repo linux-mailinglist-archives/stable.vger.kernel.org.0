@@ -2,211 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1097013A661
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F6113A615
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729489AbgANKLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:11:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45910 "EHLO mail.kernel.org"
+        id S1731083AbgANKIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:08:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729878AbgANKLI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:11:08 -0500
+        id S1731061AbgANKIs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:08:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E96A024676;
-        Tue, 14 Jan 2020 10:11:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AADF20678;
+        Tue, 14 Jan 2020 10:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996667;
-        bh=pNAqwTSpzvtKvbMUwWTpCb+EeL25wu4GCETo00xysXc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=abFtCrMeMBEwvw1cfKZfZKPHHT41Cl5xYMVXcCBFLByUfolfrxxRFJraAbLiG+QSE
-         sVUK2Un3uTDN5ImW8i47lB4YlqSg2W6le23FHa+56N18z3kPtovIoeZHfj6NPXEG4d
-         GRTH9UvK22VfZWrFcbPwnxnSwZxwMfiA5r4LPoPk=
+        s=default; t=1578996528;
+        bh=WyIhIt16m1+94Tbnkg+8anM20YQiwXa69PsEMkW6yR0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=yI+TkWf4l2Bt2IJBWH71bmklj5wprp+3+qFYaCSof00958+oNO+SFLkxPQjj/KGbC
+         vj+tnBU8LCbv8Fbtr0fIxl9Fuv251wZ2ata+AHeCgQfHYPgHAD6iKv6BKBXePlwJlR
+         N3dkWSnk8IF34kf9cnZXUg3mUkpRt1grm72/trI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.9 00/31] 4.9.210-stable review
+        stable@vger.kernel.org, huangwen <huangwenabc@gmail.com>,
+        Ganapathi Bhat <gbhat@marvell.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.19 35/46] mwifiex: fix possible heap overflow in mwifiex_process_country_ie()
 Date:   Tue, 14 Jan 2020 11:01:52 +0100
-Message-Id: <20200114094334.725604663@linuxfoundation.org>
+Message-Id: <20200114094347.269035680@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-MIME-Version: 1.0
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.210-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.210-rc1
-X-KernelTest-Deadline: 2020-01-16T09:43+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.210 release.
-There are 31 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Ganapathi Bhat <gbhat@marvell.com>
 
-Responses should be made by Thu, 16 Jan 2020 09:41:58 +0000.
-Anything received after that time might be too late.
+commit 3d94a4a8373bf5f45cf5f939e88b8354dbf2311b upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.210-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+mwifiex_process_country_ie() function parse elements of bss
+descriptor in beacon packet. When processing WLAN_EID_COUNTRY
+element, there is no upper limit check for country_ie_len before
+calling memcpy. The destination buffer domain_info->triplet is an
+array of length MWIFIEX_MAX_TRIPLET_802_11D(83). The remote
+attacker can build a fake AP with the same ssid as real AP, and
+send malicous beacon packet with long WLAN_EID_COUNTRY elemen
+(country_ie_len > 83). Attacker can  force STA connect to fake AP
+on a different channel. When the victim STA connects to fake AP,
+will trigger the heap buffer overflow. Fix this by checking for
+length and if found invalid, don not connect to the AP.
 
-thanks,
+This fix addresses CVE-2019-14895.
 
-greg k-h
+Reported-by: huangwen <huangwenabc@gmail.com>
+Signed-off-by: Ganapathi Bhat <gbhat@marvell.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
--------------
-Pseudo-Shortlog of commits:
+---
+ drivers/net/wireless/marvell/mwifiex/sta_ioctl.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.210-rc1
-
-Florian Westphal <fw@strlen.de>
-    netfilter: ipset: avoid null deref when IPSET_ATTR_LINENO is present
-
-Florian Westphal <fw@strlen.de>
-    netfilter: arp_tables: init netns pointer in xt_tgchk_param struct
-
-Alan Stern <stern@rowland.harvard.edu>
-    USB: Fix: Don't skip endpoint descriptors with maxpacket=0
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    rtl8xxxu: prevent leaking urb
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    scsi: bfa: release allocated memory in case of error
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    mwifiex: pcie: Fix memory leak in mwifiex_pcie_alloc_cmdrsp_buf
-
-Ganapathi Bhat <gbhat@marvell.com>
-    mwifiex: fix possible heap overflow in mwifiex_process_country_ie()
-
-Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-    tty: always relink the port
-
-Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-    tty: link tty and port before configuring it as console
-
-Michael Straube <straube.linux@gmail.com>
-    staging: rtl8188eu: Add device code for TP-Link TL-WN727N v5.21
-
-Ian Abbott <abbotti@mev.co.uk>
-    staging: comedi: adv_pci1710: fix AI channels 16-31 for PCI-1713
-
-Paul Cercueil <paul@crapouillou.net>
-    usb: musb: dma: Correct parameter passed to IRQ handler
-
-Paul Cercueil <paul@crapouillou.net>
-    usb: musb: Disable pullup at init
-
-Tony Lindgren <tony@atomide.com>
-    usb: musb: fix idling for suspend after disconnect interrupt
-
-Daniele Palmas <dnlplm@gmail.com>
-    USB: serial: option: add ZLP support for 0x1bc7/0x9010
-
-Malcolm Priestley <tvboxspy@gmail.com>
-    staging: vt6656: set usb_set_intfdata on driver fail.
-
-Oliver Hartkopp <socketcan@hartkopp.net>
-    can: can_dropped_invalid_skb(): ensure an initialized headroom in outgoing CAN sk_buffs
-
-Florian Faber <faber@faberman.de>
-    can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
-
-Johan Hovold <johan@kernel.org>
-    can: gs_usb: gs_usb_probe(): use descriptors of current altsetting
-
-Wayne Lin <Wayne.Lin@amd.com>
-    drm/dp_mst: correct the shifting in DP_REMOTE_I2C_READ
-
-Dmitry Torokhov <dmitry.torokhov@gmail.com>
-    Input: add safety guards to input_set_keycode()
-
-Dmitry Torokhov <dmitry.torokhov@gmail.com>
-    HID: hid-input: clear unmapped usages
-
-Marcel Holtmann <marcel@holtmann.org>
-    HID: uhid: Fix returning EPOLLOUT from uhid_char_poll
-
-Alan Stern <stern@rowland.harvard.edu>
-    HID: Fix slab-out-of-bounds read in hid_field_extract
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    tracing: Have stack tracer compile when MCOUNT_INSN_SIZE is not defined
-
-Kaitao Cheng <pilgrimtao@gmail.com>
-    kernel/trace: Fix do not unregister tracepoints when register sched_migrate_task fail
-
-Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-    tcp: minimize false-positives on TCP/GRO check
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: usb-audio: Apply the sample rate quirk for Bose Companion 5
-
-Guenter Roeck <linux@roeck-us.net>
-    usb: chipidea: host: Disable port power only if previously enabled
-
-Will Deacon <will@kernel.org>
-    chardev: Avoid potential use-after-free in 'chrdev_open()'
-
-Jan Kara <jack@suse.cz>
-    kobject: Export kobject_get_unless_zero()
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +--
- drivers/gpu/drm/drm_dp_mst_topology.c              |  2 +-
- drivers/hid/hid-core.c                             |  6 ++++
- drivers/hid/hid-input.c                            | 16 +++++++---
- drivers/hid/uhid.c                                 |  3 +-
- drivers/input/input.c                              | 26 ++++++++++-------
- drivers/net/can/mscan/mscan.c                      | 21 +++++++------
- drivers/net/can/usb/gs_usb.c                       |  4 +--
- drivers/net/wireless/marvell/mwifiex/pcie.c        |  4 ++-
- drivers/net/wireless/marvell/mwifiex/sta_ioctl.c   | 13 +++++++--
- .../net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  |  1 +
- drivers/scsi/bfa/bfad_attr.c                       |  4 ++-
- drivers/staging/comedi/drivers/adv_pci1710.c       |  4 +--
- drivers/staging/rtl8188eu/os_dep/usb_intf.c        |  1 +
- drivers/staging/vt6656/device.h                    |  1 +
- drivers/staging/vt6656/main_usb.c                  |  1 +
- drivers/staging/vt6656/wcmd.c                      |  1 +
- drivers/tty/serial/serial_core.c                   |  1 +
- drivers/usb/chipidea/host.c                        |  4 ++-
- drivers/usb/core/config.c                          | 12 +++++---
- drivers/usb/musb/musb_core.c                       | 11 +++++++
- drivers/usb/musb/musbhsdma.c                       |  2 +-
- drivers/usb/serial/option.c                        |  8 +++++
- drivers/usb/serial/usb-wwan.h                      |  1 +
- drivers/usb/serial/usb_wwan.c                      |  4 +++
- fs/char_dev.c                                      |  2 +-
- include/linux/can/dev.h                            | 34 ++++++++++++++++++++++
- include/linux/kobject.h                            |  2 ++
- kernel/trace/trace_sched_wakeup.c                  |  4 ++-
- kernel/trace/trace_stack.c                         |  5 ++++
- lib/kobject.c                                      |  5 +++-
- net/ipv4/netfilter/arp_tables.c                    | 27 ++++++++++-------
- net/ipv4/tcp_input.c                               | 14 +++++----
- net/netfilter/ipset/ip_set_core.c                  |  3 +-
- sound/usb/quirks.c                                 |  1 +
- 35 files changed, 189 insertions(+), 63 deletions(-)
+--- a/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
++++ b/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
+@@ -229,6 +229,14 @@ static int mwifiex_process_country_ie(st
+ 			    "11D: skip setting domain info in FW\n");
+ 		return 0;
+ 	}
++
++	if (country_ie_len >
++	    (IEEE80211_COUNTRY_STRING_LEN + MWIFIEX_MAX_TRIPLET_802_11D)) {
++		mwifiex_dbg(priv->adapter, ERROR,
++			    "11D: country_ie_len overflow!, deauth AP\n");
++		return -EINVAL;
++	}
++
+ 	memcpy(priv->adapter->country_code, &country_ie[2], 2);
+ 
+ 	domain_info->country_code[0] = country_ie[2];
+@@ -272,8 +280,9 @@ int mwifiex_bss_start(struct mwifiex_pri
+ 	priv->scan_block = false;
+ 
+ 	if (bss) {
+-		if (adapter->region_code == 0x00)
+-			mwifiex_process_country_ie(priv, bss);
++		if (adapter->region_code == 0x00 &&
++		    mwifiex_process_country_ie(priv, bss))
++			return -EINVAL;
+ 
+ 		/* Allocate and fill new bss descriptor */
+ 		bss_desc = kzalloc(sizeof(struct mwifiex_bssdescriptor),
 
 
