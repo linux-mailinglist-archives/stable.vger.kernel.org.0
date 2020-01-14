@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 994F613A6AE
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8759613A671
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729629AbgANKMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:12:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49666 "EHLO mail.kernel.org"
+        id S1732546AbgANKLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:11:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729532AbgANKMy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:12:54 -0500
+        id S1731651AbgANKLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:11:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FE252467D;
-        Tue, 14 Jan 2020 10:12:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34C6220678;
+        Tue, 14 Jan 2020 10:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996773;
-        bh=la7x7aFzLjJ5M5bG0q9rlD8zmmIiYStPzsQN80+IsqU=;
+        s=default; t=1578996691;
+        bh=rkSjrn7Hqd8PJz5qq88E2kS3hyDaQ57gfM2PwtCM6EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tnzTnC5+AMbcAA0S4icA/ZNni6sXWXGxeTLq+VmIh8OCXZl0gBaU+kfSNpGhLa+A4
-         wnNXj2KfffJkchtcyjdQkBx1vOviaBx7xJVYT9gLFWbi6pc/II71+52Nyfw4Uh8Sbb
-         JMST/RbGlpMeBxxc6zS1P06SIXdATwxhD1WrgpUE=
+        b=PObRDJSF+kPwSO2DcNEugt9wiF6jQe+3sbJLynd3csmZ6E5th1dNnnUvAxZWKHpao
+         8rXiKVYxz48vF7bEf1SPM2/ZGuEewKBAlR+sQqwVMzPg03JQJLgodo5x38RintTJXD
+         x+w1Jvyh+d0OnO4Tm4RiKiuPxyPtZsT57TzDuQxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.4 12/28] can: gs_usb: gs_usb_probe(): use descriptors of current altsetting
+        stable@vger.kernel.org, Michael Straube <straube.linux@gmail.com>
+Subject: [PATCH 4.9 22/31] staging: rtl8188eu: Add device code for TP-Link TL-WN727N v5.21
 Date:   Tue, 14 Jan 2020 11:02:14 +0100
-Message-Id: <20200114094341.890032359@linuxfoundation.org>
+Message-Id: <20200114094344.081944689@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
-References: <20200114094336.845958665@linuxfoundation.org>
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
+References: <20200114094334.725604663@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Michael Straube <straube.linux@gmail.com>
 
-commit 2f361cd9474ab2c4ab9ac8db20faf81e66c6279b upstream.
+commit 58dcc5bf4030cab548d5c98cd4cd3632a5444d5a upstream.
 
-Make sure to always use the descriptors of the current alternate setting
-to avoid future issues when accessing fields that may differ between
-settings.
+This device was added to the stand-alone driver on github.
+Add it to the staging driver as well.
 
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://github.com/lwfinger/rtl8188eu/commit/b9b537aa25a8
+Signed-off-by: Michael Straube <straube.linux@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191228143725.24455-1-straube.linux@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/usb/gs_usb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -847,7 +847,7 @@ static int gs_usb_probe(struct usb_inter
- 			     GS_USB_BREQ_HOST_FORMAT,
- 			     USB_DIR_OUT|USB_TYPE_VENDOR|USB_RECIP_INTERFACE,
- 			     1,
--			     intf->altsetting[0].desc.bInterfaceNumber,
-+			     intf->cur_altsetting->desc.bInterfaceNumber,
- 			     hconf,
- 			     sizeof(*hconf),
- 			     1000);
-@@ -870,7 +870,7 @@ static int gs_usb_probe(struct usb_inter
- 			     GS_USB_BREQ_DEVICE_CONFIG,
- 			     USB_DIR_IN|USB_TYPE_VENDOR|USB_RECIP_INTERFACE,
- 			     1,
--			     intf->altsetting[0].desc.bInterfaceNumber,
-+			     intf->cur_altsetting->desc.bInterfaceNumber,
- 			     dconf,
- 			     sizeof(*dconf),
- 			     1000);
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -45,6 +45,7 @@ static struct usb_device_id rtw_usb_id_t
+ 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
+ 	{USB_DEVICE(0x2001, 0x331B)}, /* D-Link DWA-121 rev B1 */
+ 	{USB_DEVICE(0x2357, 0x010c)}, /* TP-Link TL-WN722N v2 */
++	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
+ 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
+ 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
+ 	{}	/* Terminating entry */
 
 
