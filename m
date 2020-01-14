@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40A0A13A729
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:26:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B2813A539
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:08:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729470AbgANKTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:19:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33386 "EHLO mail.kernel.org"
+        id S1729190AbgANKFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:05:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729727AbgANKFW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:05:22 -0500
+        id S1730161AbgANKFl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:05:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4AB224672;
-        Tue, 14 Jan 2020 10:05:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1C6224683;
+        Tue, 14 Jan 2020 10:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996321;
-        bh=f+zasHaFZPGHYrBOj3ttLWGwZTdT81teXLi8J/9nfYI=;
+        s=default; t=1578996340;
+        bh=sbl4UHn02AWHf0pfvvgwLZS/ij6DwQksVxXf3qeOdro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJL9b3MN4qfecomgMvphJNbqTooks3hM/XMgTV+ZYjeOY63DNgJpGInlbJ90hTA0R
-         yU01SRJyUzFEuYxG5grckDX/YjGVQ+Z7s6Bd5X3bUNq7Jsg2jc5aUXuXExtMFSHjuS
-         LhgADU208AtXQImxG+J22uPnpvOvqoIVAxchIcfo=
+        b=ZsqLjwCryoFdXKVT013k/w7TF0NptzLam5LZ9snAFp4g5FZ/G9FklCrjL541zbo//
+         OzcqxqSXTf9x1+gF3+XHQkUj0gOLGYKfl/EG6fdp4vV4DtBoU+aVvlUrj3nxDKECDW
+         plg0FgWzRu60V86jtr9RMb+yN4bm9974FsOd+MQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 38/78] gpiolib: acpi: Add honor_wakeup module-option + quirk mechanism
-Date:   Tue, 14 Jan 2020 11:01:12 +0100
-Message-Id: <20200114094358.716630382@linuxfoundation.org>
+        stable@vger.kernel.org, Cengiz Can <cengiz@kernel.wtf>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.4 39/78] pstore/ram: Regularize prz label allocation lifetime
+Date:   Tue, 14 Jan 2020 11:01:13 +0100
+Message-Id: <20200114094358.836312422@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -46,106 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit aa23ca3d98f756d5b1e503fb140665fb24a41a38 upstream.
+commit e163fdb3f7f8c62dccf194f3f37a7bcb3c333aa8 upstream.
 
-On some laptops enabling wakeup on the GPIO interrupts used for ACPI _AEI
-event handling causes spurious wakeups.
+In my attempt to fix a memory leak, I introduced a double-free in the
+pstore error path. Instead of trying to manage the allocation lifetime
+between persistent_ram_new() and its callers, adjust the logic so
+persistent_ram_new() always takes a kstrdup() copy, and leaves the
+caller's allocation lifetime up to the caller. Therefore callers are
+_always_ responsible for freeing their label. Before, it only needed
+freeing when the prz itself failed to allocate, and not in any of the
+other prz failure cases, which callers would have no visibility into,
+which is the root design problem that lead to both the leak and now
+double-free bugs.
 
-This commit adds a new honor_wakeup option, defaulting to true (our current
-behavior), which can be used to disable wakeup on troublesome hardware
-to avoid these spurious wakeups.
-
-This is a workaround for an architectural problem with s2idle under Linux
-where we do not have any mechanism to immediately go back to sleep after
-wakeup events, other then for embedded-controller events using the standard
-ACPI EC interface, for details see:
-https://lore.kernel.org/linux-acpi/61450f9b-cbc6-0c09-8b3a-aff6bf9a0b3c@redhat.com/
-
-One series of laptops which is not able to suspend without this workaround
-is the HP x2 10 Cherry Trail models, this commit adds a DMI based quirk
-which makes sets honor_wakeup to false on these models.
-
+Reported-by: Cengiz Can <cengiz@kernel.wtf>
+Link: https://lore.kernel.org/lkml/d4ec59002ede4aaf9928c7f7526da87c@kernel.wtf
+Fixes: 8df955a32a73 ("pstore/ram: Fix error-path memory leak in persistent_ram_new() callers")
 Cc: stable@vger.kernel.org
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200105160357.97154-3-hdegoede@redhat.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib-acpi.c |   32 +++++++++++++++++++++++++++++++-
- 1 file changed, 31 insertions(+), 1 deletion(-)
+ fs/pstore/ram.c      |    4 ++--
+ fs/pstore/ram_core.c |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -22,12 +22,18 @@
- #include "gpiolib-acpi.h"
+--- a/fs/pstore/ram.c
++++ b/fs/pstore/ram.c
+@@ -583,12 +583,12 @@ static int ramoops_init_przs(const char
+ 		prz_ar[i] = persistent_ram_new(*paddr, zone_sz, sig,
+ 					       &cxt->ecc_info,
+ 					       cxt->memtype, flags, label);
++		kfree(label);
+ 		if (IS_ERR(prz_ar[i])) {
+ 			err = PTR_ERR(prz_ar[i]);
+ 			dev_err(dev, "failed to request %s mem region (0x%zx@0x%llx): %d\n",
+ 				name, record_size,
+ 				(unsigned long long)*paddr, err);
+-			kfree(label);
  
- #define QUIRK_NO_EDGE_EVENTS_ON_BOOT		0x01l
-+#define QUIRK_NO_WAKEUP				0x02l
+ 			while (i > 0) {
+ 				i--;
+@@ -629,12 +629,12 @@ static int ramoops_init_prz(const char *
+ 	label = kasprintf(GFP_KERNEL, "ramoops:%s", name);
+ 	*prz = persistent_ram_new(*paddr, sz, sig, &cxt->ecc_info,
+ 				  cxt->memtype, PRZ_FLAG_ZAP_OLD, label);
++	kfree(label);
+ 	if (IS_ERR(*prz)) {
+ 		int err = PTR_ERR(*prz);
  
- static int run_edge_events_on_boot = -1;
- module_param(run_edge_events_on_boot, int, 0444);
- MODULE_PARM_DESC(run_edge_events_on_boot,
- 		 "Run edge _AEI event-handlers at boot: 0=no, 1=yes, -1=auto");
- 
-+static int honor_wakeup = -1;
-+module_param(honor_wakeup, int, 0444);
-+MODULE_PARM_DESC(honor_wakeup,
-+		 "Honor the ACPI wake-capable flag: 0=no, 1=yes, -1=auto");
-+
- /**
-  * struct acpi_gpio_event - ACPI GPIO event handler data
-  *
-@@ -276,7 +282,7 @@ static acpi_status acpi_gpiochip_alloc_e
- 	event->handle = evt_handle;
- 	event->handler = handler;
- 	event->irq = irq;
--	event->irq_is_wake = agpio->wake_capable == ACPI_WAKE_CAPABLE;
-+	event->irq_is_wake = honor_wakeup && agpio->wake_capable == ACPI_WAKE_CAPABLE;
- 	event->pin = pin;
- 	event->desc = desc;
- 
-@@ -1330,6 +1336,23 @@ static const struct dmi_system_id gpioli
- 		},
- 		.driver_data = (void *)QUIRK_NO_EDGE_EVENTS_ON_BOOT,
- 	},
-+	{
-+		/*
-+		 * Various HP X2 10 Cherry Trail models use an external
-+		 * embedded-controller connected via I2C + an ACPI GPIO
-+		 * event handler. The embedded controller generates various
-+		 * spurious wakeup events when suspended. So disable wakeup
-+		 * for its handler (it uses the only ACPI GPIO event handler).
-+		 * This breaks wakeup when opening the lid, the user needs
-+		 * to press the power-button to wakeup the system. The
-+		 * alternative is suspend simply not working, which is worse.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP x2 Detachable 10-p0XX"),
-+		},
-+		.driver_data = (void *)QUIRK_NO_WAKEUP,
-+	},
- 	{} /* Terminating entry */
- };
- 
-@@ -1349,6 +1372,13 @@ static int acpi_gpio_setup_params(void)
- 			run_edge_events_on_boot = 1;
+ 		dev_err(dev, "failed to request %s mem region (0x%zx@0x%llx): %d\n",
+ 			name, sz, (unsigned long long)*paddr, err);
+-		kfree(label);
+ 		return err;
  	}
  
-+	if (honor_wakeup < 0) {
-+		if (quirks & QUIRK_NO_WAKEUP)
-+			honor_wakeup = 0;
-+		else
-+			honor_wakeup = 1;
-+	}
-+
- 	return 0;
- }
+--- a/fs/pstore/ram_core.c
++++ b/fs/pstore/ram_core.c
+@@ -574,7 +574,7 @@ struct persistent_ram_zone *persistent_r
+ 	/* Initialize general buffer state. */
+ 	raw_spin_lock_init(&prz->buffer_lock);
+ 	prz->flags = flags;
+-	prz->label = label;
++	prz->label = kstrdup(label, GFP_KERNEL);
  
+ 	ret = persistent_ram_buffer_map(start, size, prz, memtype);
+ 	if (ret)
 
 
