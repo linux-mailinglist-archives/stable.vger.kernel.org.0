@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0284713A5A4
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1BBF13A65C
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731398AbgANKJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:09:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42848 "EHLO mail.kernel.org"
+        id S1732274AbgANKLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:11:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729629AbgANKJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:09:42 -0500
+        id S1731458AbgANKLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:11:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9B6720678;
-        Tue, 14 Jan 2020 10:09:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E90752467A;
+        Tue, 14 Jan 2020 10:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996582;
-        bh=S149emDsIbFFVWoWLMxxfD7hllL66UfhYl6+QGNZYZM=;
+        s=default; t=1578996662;
+        bh=/zh7hUGsbKPWP/EZmi18VLr6WqJo0rJEHGMtCmg7Y3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsqYYS3AWlOL8OLTResHNwddAHYXWgg+lEoCDTzSNZ970aWG/zJEMes8d4BoYypd7
-         Z0ZSWyBD8jYqpekyP1yZgHp1G+8paEbr43wzNAYLIj1wWBEDv5W6Rso944j6a2RCSF
-         cWzp7CrNvsFRjTraIBGFc+gK8Cd9l3PhILZHtDwY=
+        b=Y+P9GnyMe7Qsk/DfYL5vTBaQDoM4uvALG4/cFOP06U/k8xrYvSYpEt8ZGo2dOyGBa
+         H9+qbZpaBfgZAot3m5AWdTVPl7mSXB0tKI8L4e6wta6FLo5d/6GJ1+YTREGXJVTKgl
+         CRpbhAS/XYFjVQZhQiLNKefg5YFC4hLAiZQXc7tQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmytro Fil <monkdaf@gmail.com>,
-        Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.14 20/39] staging: comedi: adv_pci1710: fix AI channels 16-31 for PCI-1713
-Date:   Tue, 14 Jan 2020 11:01:54 +0100
-Message-Id: <20200114094343.563407396@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Peter Chen <peter.chen@freescale.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.9 03/31] usb: chipidea: host: Disable port power only if previously enabled
+Date:   Tue, 14 Jan 2020 11:01:55 +0100
+Message-Id: <20200114094337.955093296@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
+References: <20200114094334.725604663@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit a9d3a9cedc1330c720e0ddde1978a8e7771da5ab upstream.
+commit c1ffba305dbcf3fb9ca969c20a97acbddc38f8e9 upstream.
 
-The Advantech PCI-1713 has 32 analog input channels, but an incorrect
-bit-mask in the definition of the `PCI171X_MUX_CHANH(x)` and
-PCI171X_MUX_CHANL(x)` macros is causing channels 16 to 31 to be aliases
-of channels 0 to 15.  Change the bit-mask value from 0xf to 0xff to fix
-it.  Note that the channel numbers will have been range checked already,
-so the bit-mask isn't really needed.
+On shutdown, ehci_power_off() is called unconditionally to power off
+each port, even if it was never called to power on the port.
+For chipidea, this results in a call to ehci_ci_portpower() with a request
+to power off ports even if the port was never powered on.
+This results in the following warning from the regulator code.
 
-Fixes: 92c65e5553ed ("staging: comedi: adv_pci1710: define the mux control register bits")
-Reported-by: Dmytro Fil <monkdaf@gmail.com>
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20191227170054.32051-1-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+WARNING: CPU: 0 PID: 182 at drivers/regulator/core.c:2596 _regulator_disable+0x1a8/0x210
+unbalanced disables for usb_otg2_vbus
+Modules linked in:
+CPU: 0 PID: 182 Comm: init Not tainted 5.4.6 #1
+Hardware name: Freescale i.MX7 Dual (Device Tree)
+[<c0313658>] (unwind_backtrace) from [<c030d698>] (show_stack+0x10/0x14)
+[<c030d698>] (show_stack) from [<c1133afc>] (dump_stack+0xe0/0x10c)
+[<c1133afc>] (dump_stack) from [<c0349098>] (__warn+0xf4/0x10c)
+[<c0349098>] (__warn) from [<c0349128>] (warn_slowpath_fmt+0x78/0xbc)
+[<c0349128>] (warn_slowpath_fmt) from [<c09f36ac>] (_regulator_disable+0x1a8/0x210)
+[<c09f36ac>] (_regulator_disable) from [<c09f374c>] (regulator_disable+0x38/0xe8)
+[<c09f374c>] (regulator_disable) from [<c0df7bac>] (ehci_ci_portpower+0x38/0xdc)
+[<c0df7bac>] (ehci_ci_portpower) from [<c0db4fa4>] (ehci_port_power+0x50/0xa4)
+[<c0db4fa4>] (ehci_port_power) from [<c0db5420>] (ehci_silence_controller+0x5c/0xc4)
+[<c0db5420>] (ehci_silence_controller) from [<c0db7644>] (ehci_stop+0x3c/0xcc)
+[<c0db7644>] (ehci_stop) from [<c0d5bdc4>] (usb_remove_hcd+0xe0/0x19c)
+[<c0d5bdc4>] (usb_remove_hcd) from [<c0df7638>] (host_stop+0x38/0xa8)
+[<c0df7638>] (host_stop) from [<c0df2f34>] (ci_hdrc_remove+0x44/0xe4)
+...
+
+Keeping track of the power enable state avoids the warning and traceback.
+
+Fixes: c8679a2fb8dec ("usb: chipidea: host: add portpower override")
+Cc: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cc: Peter Chen <peter.chen@freescale.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20191226155754.25451-1-linux@roeck-us.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/adv_pci1710.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/chipidea/host.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/adv_pci1710.c
-+++ b/drivers/staging/comedi/drivers/adv_pci1710.c
-@@ -45,8 +45,8 @@
- #define PCI171X_RANGE_UNI	BIT(4)
- #define PCI171X_RANGE_GAIN(x)	(((x) & 0x7) << 0)
- #define PCI171X_MUX_REG		0x04	/* W:   A/D multiplexor control */
--#define PCI171X_MUX_CHANH(x)	(((x) & 0xf) << 8)
--#define PCI171X_MUX_CHANL(x)	(((x) & 0xf) << 0)
-+#define PCI171X_MUX_CHANH(x)	(((x) & 0xff) << 8)
-+#define PCI171X_MUX_CHANL(x)	(((x) & 0xff) << 0)
- #define PCI171X_MUX_CHAN(x)	(PCI171X_MUX_CHANH(x) | PCI171X_MUX_CHANL(x))
- #define PCI171X_STATUS_REG	0x06	/* R:   status register */
- #define PCI171X_STATUS_IRQ	BIT(11)	/* 1=IRQ occurred */
+--- a/drivers/usb/chipidea/host.c
++++ b/drivers/usb/chipidea/host.c
+@@ -37,6 +37,7 @@ static int (*orig_bus_suspend)(struct us
+ 
+ struct ehci_ci_priv {
+ 	struct regulator *reg_vbus;
++	bool enabled;
+ };
+ 
+ static int ehci_ci_portpower(struct usb_hcd *hcd, int portnum, bool enable)
+@@ -48,7 +49,7 @@ static int ehci_ci_portpower(struct usb_
+ 	int ret = 0;
+ 	int port = HCS_N_PORTS(ehci->hcs_params);
+ 
+-	if (priv->reg_vbus) {
++	if (priv->reg_vbus && enable != priv->enabled) {
+ 		if (port > 1) {
+ 			dev_warn(dev,
+ 				"Not support multi-port regulator control\n");
+@@ -64,6 +65,7 @@ static int ehci_ci_portpower(struct usb_
+ 				enable ? "enable" : "disable", ret);
+ 			return ret;
+ 		}
++		priv->enabled = enable;
+ 	}
+ 
+ 	if (enable && (ci->platdata->phy_mode == USBPHY_INTERFACE_MODE_HSIC)) {
 
 
