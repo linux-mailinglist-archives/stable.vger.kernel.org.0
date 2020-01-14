@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A90C13A640
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF09113A6DD
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731667AbgANKK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:10:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44166 "EHLO mail.kernel.org"
+        id S1729190AbgANKPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:15:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731652AbgANKKX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:10:23 -0500
+        id S1732469AbgANKLY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:11:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4DE324679;
-        Tue, 14 Jan 2020 10:10:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C706A24682;
+        Tue, 14 Jan 2020 10:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996622;
-        bh=D3VkGmMM0F+62RmYOJvCGnU+mkcmb+KmFgNnf0ojJhg=;
+        s=default; t=1578996684;
+        bh=fU+uoKOXpuBcf++EMnv2Fo9GfhZpAn5vxVCa+VZOIWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWh4A6+lIEtNCUdSBi+0pR8R8zZGgf5xHIO+xIJwCjAWBTE+7bIs08FcgF3Rh24PY
-         llkfzGW1q3qt3cS6k4EkiK4ZNb3O+RZP/F9FioY1UNjIg3JsGjeHqIZgENnVTRDUbC
-         NWq8Vf5yk8uRJfupPhAB6hadUsHeGFG1BQGBqrPw=
+        b=SoRf1YikQ6C8SZ5bIbprFJsRZ+36zpNpoL5Y1OVi63h1uSSRjfuBSJxtY3wzsQaEA
+         vSqeOQ75RVwtkRf7IiG4r00Wyq6BdM5lb82PlpCLcQAX5uHXA2JwMUey1DtMqRbH3N
+         DuXQ4j6W/EaLWCDoMo1Da1AzZkdR/699c2xXCPKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 4.14 36/39] phy: cpcap-usb: Fix error path when no host driver is loaded
-Date:   Tue, 14 Jan 2020 11:02:10 +0100
-Message-Id: <20200114094346.548999755@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Bin Liu <b-liu@ti.com>
+Subject: [PATCH 4.9 19/31] usb: musb: Disable pullup at init
+Date:   Tue, 14 Jan 2020 11:02:11 +0100
+Message-Id: <20200114094343.516551634@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
+References: <20200114094334.725604663@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,107 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 4acb0200ab2b07843e3ef5599add3454c7440f03 upstream.
+commit 96a0c12843109e5c4d5eb1e09d915fdd0ce31d25 upstream.
 
-If musb_mailbox() returns an error, we must still continue to finish
-configuring the phy.
+The pullup may be already enabled before the driver is initialized. This
+happens for instance on JZ4740.
 
-Otherwise the phy state may end up only half initialized, and this can
-cause the debug serial console to stop working. And this will happen if the
-usb driver musb controller is not loaded.
+It has to be disabled at init time, as we cannot guarantee that a gadget
+driver will be bound to the UDC.
 
-Let's fix the issue by adding helper for cpcap_usb_try_musb_mailbox().
-
-Fixes: 6d6ce40f63af ("phy: cpcap-usb: Add CPCAP PMIC USB support")
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Suggested-by: Bin Liu <b-liu@ti.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bin Liu <b-liu@ti.com>
+Link: https://lore.kernel.org/r/20200107152625.857-3-b-liu@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/phy/motorola/phy-cpcap-usb.c |   33 ++++++++++++++++++---------------
- 1 file changed, 18 insertions(+), 15 deletions(-)
+ drivers/usb/musb/musb_core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/phy/motorola/phy-cpcap-usb.c
-+++ b/drivers/phy/motorola/phy-cpcap-usb.c
-@@ -207,6 +207,19 @@ static int cpcap_phy_get_ints_state(stru
- static int cpcap_usb_set_uart_mode(struct cpcap_phy_ddata *ddata);
- static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata);
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2317,6 +2317,9 @@ musb_init_controller(struct device *dev,
+ 	musb_platform_disable(musb);
+ 	musb_generic_disable(musb);
  
-+static void cpcap_usb_try_musb_mailbox(struct cpcap_phy_ddata *ddata,
-+				       enum musb_vbus_id_status status)
-+{
-+	int error;
++	/* MUSB_POWER_SOFTCONN might be already set, JZ4740 does this. */
++	musb_writeb(musb->mregs, MUSB_POWER, 0);
 +
-+	error = musb_mailbox(status);
-+	if (!error)
-+		return;
-+
-+	dev_dbg(ddata->dev, "%s: musb_mailbox failed: %i\n",
-+		__func__, error);
-+}
-+
- static void cpcap_usb_detect(struct work_struct *work)
- {
- 	struct cpcap_phy_ddata *ddata;
-@@ -226,9 +239,7 @@ static void cpcap_usb_detect(struct work
- 		if (error)
- 			goto out_err;
- 
--		error = musb_mailbox(MUSB_ID_GROUND);
--		if (error)
--			goto out_err;
-+		cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
- 
- 		error = regmap_update_bits(ddata->reg, CPCAP_REG_USBC3,
- 					   CPCAP_BIT_VBUSSTBY_EN,
-@@ -255,9 +266,7 @@ static void cpcap_usb_detect(struct work
- 			error = cpcap_usb_set_usb_mode(ddata);
- 			if (error)
- 				goto out_err;
--			error = musb_mailbox(MUSB_ID_GROUND);
--			if (error)
--				goto out_err;
-+			cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
- 
- 			return;
- 		}
-@@ -267,9 +276,7 @@ static void cpcap_usb_detect(struct work
- 		error = cpcap_usb_set_usb_mode(ddata);
- 		if (error)
- 			goto out_err;
--		error = musb_mailbox(MUSB_VBUS_VALID);
--		if (error)
--			goto out_err;
-+		cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_VALID);
- 
- 		return;
- 	}
-@@ -279,9 +286,7 @@ static void cpcap_usb_detect(struct work
- 	if (error)
- 		goto out_err;
- 
--	error = musb_mailbox(MUSB_VBUS_OFF);
--	if (error)
--		goto out_err;
-+	cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_OFF);
- 
- 	dev_dbg(ddata->dev, "set UART mode\n");
- 
-@@ -647,9 +652,7 @@ static int cpcap_usb_phy_remove(struct p
- 	if (error)
- 		dev_err(ddata->dev, "could not set UART mode\n");
- 
--	error = musb_mailbox(MUSB_VBUS_OFF);
--	if (error)
--		dev_err(ddata->dev, "could not set mailbox\n");
-+	cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_OFF);
- 
- 	usb_remove_phy(&ddata->phy);
- 	cancel_delayed_work_sync(&ddata->detect_work);
+ 	/* Init IRQ workqueue before request_irq */
+ 	INIT_DELAYED_WORK(&musb->irq_work, musb_irq_work);
+ 	INIT_DELAYED_WORK(&musb->deassert_reset_work, musb_deassert_reset);
 
 
