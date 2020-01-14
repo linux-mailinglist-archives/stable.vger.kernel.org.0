@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F263B13A693
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A16013A6B2
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732959AbgANKMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:12:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48512 "EHLO mail.kernel.org"
+        id S1732839AbgANKM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:12:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732937AbgANKMS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:12:18 -0500
+        id S1732558AbgANKM7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:12:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6418624686;
-        Tue, 14 Jan 2020 10:12:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ACDA24679;
+        Tue, 14 Jan 2020 10:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996738;
-        bh=m+6CnTgFPLZVAN1JPjTJS+EawGXCA13mNcIhkE9Q0mw=;
+        s=default; t=1578996778;
+        bh=3jVM3h6LTqfuKy2l8oK+jeAcAegMVD9D42+Lcw17tHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UzD0L4f9uyfJraffvE9+z8uk95Z3leZUnJ2b8NIckhXxXsq98jib9VAM7g/8UxJh/
-         /dIrNrxwwrDW/RGiNgzYb+RWEXps4F3BBTF6Yac+hZ0LmlEAkhj+cP4+J4/OVEizej
-         ByjbcHI2xPuS96JCHmIzk+65nnIZQBHPHItudaVQ=
+        b=ZHdl7ijbDCPMsFNMkzAZD3bGVz+y8Hv0C+EEC+iKRVnxDd6s1jNbC7uYjNAEMfoYf
+         vizu6IAMP8rFO35nZP3tsvHUiNQOcZlopi97cuSZHxqCZ4hZVaz+Vev0AX37ZO9U2g
+         d71nXAzP3a4a4bnZ5xTxyeXc3DWOADeglDce4bko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>,
-        syzbot+34bd2369d38707f3f4a7@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 31/31] netfilter: ipset: avoid null deref when IPSET_ATTR_LINENO is present
-Date:   Tue, 14 Jan 2020 11:02:23 +0100
-Message-Id: <20200114094345.829995252@linuxfoundation.org>
+        stable@vger.kernel.org, huangwen <huangwenabc@gmail.com>,
+        Ganapathi Bhat <gbhat@marvell.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 22/28] mwifiex: fix possible heap overflow in mwifiex_process_country_ie()
+Date:   Tue, 14 Jan 2020 11:02:24 +0100
+Message-Id: <20200114094343.972568076@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
-References: <20200114094334.725604663@linuxfoundation.org>
+In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
+References: <20200114094336.845958665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Ganapathi Bhat <gbhat@marvell.com>
 
-commit 22dad713b8a5ff488e07b821195270672f486eb2 upstream.
+commit 3d94a4a8373bf5f45cf5f939e88b8354dbf2311b upstream.
 
-The set uadt functions assume lineno is never NULL, but it is in
-case of ip_set_utest().
+mwifiex_process_country_ie() function parse elements of bss
+descriptor in beacon packet. When processing WLAN_EID_COUNTRY
+element, there is no upper limit check for country_ie_len before
+calling memcpy. The destination buffer domain_info->triplet is an
+array of length MWIFIEX_MAX_TRIPLET_802_11D(83). The remote
+attacker can build a fake AP with the same ssid as real AP, and
+send malicous beacon packet with long WLAN_EID_COUNTRY elemen
+(country_ie_len > 83). Attacker can  force STA connect to fake AP
+on a different channel. When the victim STA connects to fake AP,
+will trigger the heap buffer overflow. Fix this by checking for
+length and if found invalid, don not connect to the AP.
 
-syzkaller managed to generate a netlink message that calls this with
-LINENO attr present:
+This fix addresses CVE-2019-14895.
 
-general protection fault: 0000 [#1] PREEMPT SMP KASAN
-RIP: 0010:hash_mac4_uadt+0x1bc/0x470 net/netfilter/ipset/ip_set_hash_mac.c:104
-Call Trace:
- ip_set_utest+0x55b/0x890 net/netfilter/ipset/ip_set_core.c:1867
- nfnetlink_rcv_msg+0xcf2/0xfb0 net/netfilter/nfnetlink.c:229
- netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
- nfnetlink_rcv+0x1ba/0x460 net/netfilter/nfnetlink.c:563
-
-pass a dummy lineno storage, its easier than patching all set
-implementations.
-
-This seems to be a day-0 bug.
-
-Cc: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
-Reported-by: syzbot+34bd2369d38707f3f4a7@syzkaller.appspotmail.com
-Fixes: a7b4f989a6294 ("netfilter: ipset: IP set core support")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Acked-by: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: huangwen <huangwenabc@gmail.com>
+Signed-off-by: Ganapathi Bhat <gbhat@marvell.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/ipset/ip_set_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mwifiex/sta_ioctl.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/net/netfilter/ipset/ip_set_core.c
-+++ b/net/netfilter/ipset/ip_set_core.c
-@@ -1634,6 +1634,7 @@ static int ip_set_utest(struct net *net,
- 	struct ip_set *set;
- 	struct nlattr *tb[IPSET_ATTR_ADT_MAX + 1] = {};
- 	int ret = 0;
-+	u32 lineno;
+--- a/drivers/net/wireless/mwifiex/sta_ioctl.c
++++ b/drivers/net/wireless/mwifiex/sta_ioctl.c
+@@ -229,6 +229,14 @@ static int mwifiex_process_country_ie(st
+ 			    "11D: skip setting domain info in FW\n");
+ 		return 0;
+ 	}
++
++	if (country_ie_len >
++	    (IEEE80211_COUNTRY_STRING_LEN + MWIFIEX_MAX_TRIPLET_802_11D)) {
++		mwifiex_dbg(priv->adapter, ERROR,
++			    "11D: country_ie_len overflow!, deauth AP\n");
++		return -EINVAL;
++	}
++
+ 	memcpy(priv->adapter->country_code, &country_ie[2], 2);
  
- 	if (unlikely(protocol_failed(attr) ||
- 		     !attr[IPSET_ATTR_SETNAME] ||
-@@ -1650,7 +1651,7 @@ static int ip_set_utest(struct net *net,
- 		return -IPSET_ERR_PROTOCOL;
+ 	domain_info->country_code[0] = country_ie[2];
+@@ -272,7 +280,8 @@ int mwifiex_bss_start(struct mwifiex_pri
+ 	priv->scan_block = false;
  
- 	rcu_read_lock_bh();
--	ret = set->variant->uadt(set, tb, IPSET_TEST, NULL, 0, 0);
-+	ret = set->variant->uadt(set, tb, IPSET_TEST, &lineno, 0, 0);
- 	rcu_read_unlock_bh();
- 	/* Userspace can't trigger element to be re-added */
- 	if (ret == -EAGAIN)
+ 	if (bss) {
+-		mwifiex_process_country_ie(priv, bss);
++		if (mwifiex_process_country_ie(priv, bss))
++			return -EINVAL;
+ 
+ 		/* Allocate and fill new bss descriptor */
+ 		bss_desc = kzalloc(sizeof(struct mwifiex_bssdescriptor),
 
 
