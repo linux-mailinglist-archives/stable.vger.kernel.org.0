@@ -2,206 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1CF13B240
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 19:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4F7E13B242
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 19:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728741AbgANSkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 13:40:49 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:60081 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726491AbgANSks (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 13:40:48 -0500
-Received: from 2.general.tyhicks.us.vpn ([10.172.64.53] helo=sec.work.tihix.com)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <tyhicks@canonical.com>)
-        id 1irR7O-0004MW-46; Tue, 14 Jan 2020 18:40:46 +0000
-From:   Tyler Hicks <tyhicks@canonical.com>
-To:     stable@vger.kernel.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Jon Bloomfield <jon.bloomfield@intel.com>
-Subject: [PATCH] drm/i915: Fix use-after-free when destroying GEM context
-Date:   Tue, 14 Jan 2020 18:39:37 +0000
-Message-Id: <20200114183937.12224-1-tyhicks@canonical.com>
-X-Mailer: git-send-email 2.17.1
+        id S1727092AbgANSlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 13:41:47 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:40097 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726491AbgANSlr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 13:41:47 -0500
+Received: by mail-pj1-f67.google.com with SMTP id bg7so6255626pjb.5;
+        Tue, 14 Jan 2020 10:41:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=s4kzfvQuAUG/YkKLjqJV+os6xxA9F6Z1Rb8ieNlktis=;
+        b=U4HXgPEOKpAIOcCUy1Gv+sMDpQM1cb7DPhAbd9ElDkTn4oPyKxt2vvGuLzffSXoF/K
+         fBnmNeqxurIx6isgAdaNIntzt24TopOxkMydM+K92BinpIhm92zcVJk6yXmCbIxRT/ux
+         kLN81Ru07SChNWtqadSB3suS1xufk9e2XIslNla+0cU9xpcDCesI6edwXs6DBJnqzkfr
+         KszEv64QNnHPaXzQcOnrm0+2W0WMYyYKKTS8Xqu4y6E1IhoLEYGlvF0ieEgazkOlxICk
+         iH3nBZcSrar2DNihEO5RElP622pgWnUROi+RZw6maxBQmRW5AejOZiP9/gflldwBULMs
+         Vf8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=s4kzfvQuAUG/YkKLjqJV+os6xxA9F6Z1Rb8ieNlktis=;
+        b=CVsNExDTLqno3uDhatwEg7X68P35lKPY71jQ3xBGVsaEyWmcTixhTVG6bsOnpPBpGp
+         6Q3Zg0yvtp4js2K08UFQqsFR7m+iGLXsBSP3MnJ7nX8Wglf0b6AMfXXvO9yPB1kkjwve
+         tbuh/0s1uT3fCRB9jmW8KENdSB19tMbrXitBzn5ujv9bzaDROZiuZSVS8tiSez7hyZpM
+         DYbQSl+Ug1wo50v8+AmH74CRQ7+sekHtZugcDMjc8pO3JQq07gfw8jpFxNM0Y2oeEEZW
+         LK5KIBWuZV6RcGQFuEc7iSlCYTXAbKOk2qygitdPQzEF+rD2XXFYnqgeU1Gns3jHRRKi
+         sxTw==
+X-Gm-Message-State: APjAAAXEWDRcKaiVcjPVH9KXxUcvBm2YDFnt0isWbyEIyQXlrDo5oNvT
+        /l8WtIFZbB8P2XxkxaLhwQ/y1ap5
+X-Google-Smtp-Source: APXvYqy7ECMc97rCEZhONpFA5RqWE99HgvdVrrT5yJ+R2GM559pBaNPkBmea3TTi8RBZL+sdPab4iA==
+X-Received: by 2002:a17:902:aa85:: with SMTP id d5mr28455967plr.16.1579027306414;
+        Tue, 14 Jan 2020 10:41:46 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id v5sm18485413pfn.122.2020.01.14.10.41.45
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 14 Jan 2020 10:41:45 -0800 (PST)
+Date:   Tue, 14 Jan 2020 10:41:44 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.9 00/31] 4.9.210-stable review
+Message-ID: <20200114184144.GA20450@roeck-us.net>
+References: <20200114094334.725604663@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch is a simplified fix to address a use-after-free in 4.14.x and
-4.19.x stable kernels. The flaw is already fixed upstream, starting in
-5.2, by commit 7dc40713618c ("drm/i915: Introduce a mutex for
-file_priv->context_idr") as part of a more complex patch series that
-isn't appropriate for backporting to stable kernels.
+On Tue, Jan 14, 2020 at 11:01:52AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.210 release.
+> There are 31 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 16 Jan 2020 09:41:58 +0000.
+> Anything received after that time might be too late.
+> 
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 358 pass: 358 fail: 0
 
-Expand mutex coverage, while destroying the GEM context, to include the
-GEM context lookup step. This fixes a use-after-free detected by KASAN:
-
- ==================================================================
- BUG: KASAN: use-after-free in i915_ppgtt_close+0x2ca/0x2f0
- Write of size 1 at addr ffff8881368a8368 by task i915-poc/3124
-
- CPU: 0 PID: 3124 Comm: i915-poc Not tainted 4.14.164 #1
- Hardware name: HP HP Elite x2 1012 G1 /80FC, BIOS N85 Ver. 01.20 04/05/2017
- Call Trace:
-  dump_stack+0xcd/0x12e
-  ? _atomic_dec_and_lock+0x1b2/0x1b2
-  ? i915_ppgtt_close+0x2ca/0x2f0
-  ? printk+0x8f/0xab
-  ? show_regs_print_info+0x53/0x53
-  ? i915_ppgtt_close+0x2ca/0x2f0
-  print_address_description+0x65/0x270
-  ? i915_ppgtt_close+0x2ca/0x2f0
-  kasan_report+0x251/0x340
-  i915_ppgtt_close+0x2ca/0x2f0
-  ? __radix_tree_insert+0x3f0/0x3f0
-  ? i915_ppgtt_init_hw+0x7c0/0x7c0
-  context_close+0x42e/0x680
-  ? i915_gem_context_release+0x230/0x230
-  ? kasan_kmalloc+0xa0/0xd0
-  ? radix_tree_delete_item+0x1d4/0x250
-  ? radix_tree_lookup+0x10/0x10
-  ? inet_recvmsg+0x4b0/0x4b0
-  ? kasan_slab_free+0x88/0xc0
-  i915_gem_context_destroy_ioctl+0x236/0x300
-  ? i915_gem_context_create_ioctl+0x360/0x360
-  ? drm_dev_printk+0x1d0/0x1d0
-  ? memcpy+0x34/0x50
-  ? i915_gem_context_create_ioctl+0x360/0x360
-  drm_ioctl_kernel+0x1b0/0x2b0
-  ? drm_ioctl_permit+0x2a0/0x2a0
-  ? avc_ss_reset+0xd0/0xd0
-  drm_ioctl+0x6fe/0xa20
-  ? i915_gem_context_create_ioctl+0x360/0x360
-  ? drm_getstats+0x20/0x20
-  ? put_unused_fd+0x260/0x260
-  do_vfs_ioctl+0x189/0x12d0
-  ? ioctl_preallocate+0x280/0x280
-  ? selinux_file_ioctl+0x3a7/0x680
-  ? selinux_bprm_set_creds+0xe30/0xe30
-  ? security_file_ioctl+0x69/0xa0
-  ? selinux_bprm_set_creds+0xe30/0xe30
-  SyS_ioctl+0x6f/0x80
-  ? __sys_sendmmsg+0x4a0/0x4a0
-  ? do_vfs_ioctl+0x12d0/0x12d0
-  do_syscall_64+0x214/0x5f0
-  ? __switch_to_asm+0x31/0x60
-  ? __switch_to_asm+0x25/0x60
-  ? __switch_to_asm+0x31/0x60
-  ? syscall_return_slowpath+0x2c0/0x2c0
-  ? copy_overflow+0x20/0x20
-  ? __switch_to_asm+0x25/0x60
-  ? syscall_return_via_sysret+0x2a/0x7a
-  ? prepare_exit_to_usermode+0x200/0x200
-  ? __switch_to_asm+0x31/0x60
-  ? __switch_to_asm+0x31/0x60
-  ? __switch_to_asm+0x25/0x60
-  ? __switch_to_asm+0x25/0x60
-  ? __switch_to_asm+0x31/0x60
-  ? __switch_to_asm+0x25/0x60
-  ? __switch_to_asm+0x31/0x60
-  ? __switch_to_asm+0x31/0x60
-  ? __switch_to_asm+0x25/0x60
-  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
- RIP: 0033:0x7f7fda5115d7
- RSP: 002b:00007f7eec317ec8 EFLAGS: 00000286 ORIG_RAX: 0000000000000010
- RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7fda5115d7
- RDX: 000055b306db9188 RSI: 000000004008646e RDI: 0000000000000003
- RBP: 00007f7eec317ef0 R08: 00007f7eec318700 R09: 0000000000000000
- R10: 0000000000000000 R11: 0000000000000286 R12: 00007f7eec317fc0
- R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffd8007ade0
-
- Allocated by task 2898:
-  save_stack+0x32/0xb0
-  kasan_kmalloc+0xa0/0xd0
-  kmem_cache_alloc_trace+0x5e/0x180
-  i915_ppgtt_create+0xab/0x2510
-  i915_gem_create_context+0x981/0xf90
-  i915_gem_context_create_ioctl+0x1d7/0x360
-  drm_ioctl_kernel+0x1b0/0x2b0
-  drm_ioctl+0x6fe/0xa20
-  do_vfs_ioctl+0x189/0x12d0
-  SyS_ioctl+0x6f/0x80
-  do_syscall_64+0x214/0x5f0
-  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
-
- Freed by task 104:
-  save_stack+0x32/0xb0
-  kasan_slab_free+0x72/0xc0
-  kfree+0x88/0x190
-  i915_ppgtt_release+0x24e/0x460
-  i915_gem_context_free+0x90/0x480
-  contexts_free_worker+0x54/0x80
-  process_one_work+0x876/0x14e0
-  worker_thread+0x1b8/0xfd0
-  kthread+0x2f8/0x3c0
-  ret_from_fork+0x35/0x40
-
- The buggy address belongs to the object at ffff8881368a8000
-  which belongs to the cache kmalloc-8192 of size 8192
- The buggy address is located 872 bytes inside of
-  8192-byte region [ffff8881368a8000, ffff8881368aa000)
- The buggy address belongs to the page:
- page:ffffea0004da2a00 count:1 mapcount:0 mapping:          (null) index:0x0 compound_mapcount: 0
- flags: 0x200000000008100(slab|head)
- raw: 0200000000008100 0000000000000000 0000000000000000 0000000100030003
- raw: dead000000000100 dead000000000200 ffff88822a002280 0000000000000000
- page dumped because: kasan: bad access detected
-
- Memory state around the buggy address:
-  ffff8881368a8200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8881368a8280: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- >ffff8881368a8300: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                                           ^
-  ffff8881368a8380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8881368a8400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ==================================================================
-
-Fixes: 1acfc104cdf8 ("drm/i915: Enable rcu-only context lookups")
-Reported-by: 罗权 <luoquan@qianxin.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-Cc: stable@vger.kernel.org # 4.14.x
-Cc: stable@vger.kernel.org # 4.19.x
-Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
----
- drivers/gpu/drm/i915/i915_gem_context.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/i915_gem_context.c b/drivers/gpu/drm/i915/i915_gem_context.c
-index 7a0e6dbbad2e..ef383fd42988 100644
---- a/drivers/gpu/drm/i915/i915_gem_context.c
-+++ b/drivers/gpu/drm/i915/i915_gem_context.c
-@@ -770,18 +770,19 @@ int i915_gem_context_destroy_ioctl(struct drm_device *dev, void *data,
- 	if (args->ctx_id == DEFAULT_CONTEXT_HANDLE)
- 		return -ENOENT;
- 
-+	ret = i915_mutex_lock_interruptible(dev);
-+	if (ret)
-+		return ret;
-+
- 	ctx = i915_gem_context_lookup(file_priv, args->ctx_id);
--	if (!ctx)
-+	if (!ctx) {
-+		mutex_unlock(&dev->struct_mutex);
- 		return -ENOENT;
--
--	ret = mutex_lock_interruptible(&dev->struct_mutex);
--	if (ret)
--		goto out;
-+	}
- 
- 	__destroy_hw_context(ctx, file_priv);
- 	mutex_unlock(&dev->struct_mutex);
- 
--out:
- 	i915_gem_context_put(ctx);
- 	return 0;
- }
--- 
-2.17.1
-
+Guenter
