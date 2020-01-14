@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57A1A13A637
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 048EE13A556
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729849AbgANKKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:10:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43816 "EHLO mail.kernel.org"
+        id S1730422AbgANKGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:06:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729505AbgANKKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:10:12 -0500
+        id S1729417AbgANKGt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:06:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A750724677;
-        Tue, 14 Jan 2020 10:10:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E76824681;
+        Tue, 14 Jan 2020 10:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996612;
-        bh=k18qRjP/nywpIHZ3grDId+QnddItalWgK5eGRgAKNkk=;
+        s=default; t=1578996408;
+        bh=I2LKLTtBWS4PoSIgSlNuZBGxHpJKQwjuaBfWGWzmPiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1XetOQKH+mLzTKbJOu+Bxcyim0B8sP2oXXo3PDs36Il2At2z/E3UjrEw/tnxuKdr3
-         /CSzQdNL10DANZPz3HSO5XblglUTpa258j1kyvMENFJ+o6d9Zr3SWIu1ZgjEoP7jAr
-         LJndQIz07/bhUCMkSSsLe7D05dRLtZykstt8y+ow=
+        b=JoOHi580/XXtel+8yhK3KsO1arIJ8tPCYcgjyQFz0y3p7ajEb+99vBcZiwct+NF60
+         GKtmo/kV8JDWrlzcKTQkDPHC19mXhX7qcsY6c96GvSW7gdmVF996nw7zOGZclUvydQ
+         qkP6NILdBErQr45V0BbxhCE8pM0B8tbgvh/s7ZP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Faber <faber@faberman.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.14 11/39] can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 5.4 71/78] ath10k: fix memory leak
 Date:   Tue, 14 Jan 2020 11:01:45 +0100
-Message-Id: <20200114094341.641803479@linuxfoundation.org>
+Message-Id: <20200114094402.874361267@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
+References: <20200114094352.428808181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +45,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Faber <faber@faberman.de>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit 2d77bd61a2927be8f4e00d9478fe6996c47e8d45 upstream.
+commit b8d17e7d93d2beb89e4f34c59996376b8b544792 upstream.
 
-Under load, the RX side of the mscan driver can get stuck while TX still
-works. Restarting the interface locks up the system. This behaviour
-could be reproduced reliably on a MPC5121e based system.
+In ath10k_usb_hif_tx_sg the allocated urb should be released if
+usb_submit_urb fails.
 
-The patch fixes the return value of the NAPI polling function (should be
-the number of processed packets, not constant 1) and the condition under
-which IRQs are enabled again after polling is finished.
-
-With this patch, no more lockups were observed over a test period of ten
-days.
-
-Fixes: afa17a500a36 ("net/can: add driver for mscan family & mpc52xx_mscan")
-Signed-off-by: Florian Faber <faber@faberman.de>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/mscan/mscan.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/net/wireless/ath/ath10k/usb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/can/mscan/mscan.c
-+++ b/drivers/net/can/mscan/mscan.c
-@@ -392,13 +392,12 @@ static int mscan_rx_poll(struct napi_str
- 	struct net_device *dev = napi->dev;
- 	struct mscan_regs __iomem *regs = priv->reg_base;
- 	struct net_device_stats *stats = &dev->stats;
--	int npackets = 0;
--	int ret = 1;
-+	int work_done = 0;
- 	struct sk_buff *skb;
- 	struct can_frame *frame;
- 	u8 canrflg;
- 
--	while (npackets < quota) {
-+	while (work_done < quota) {
- 		canrflg = in_8(&regs->canrflg);
- 		if (!(canrflg & (MSCAN_RXF | MSCAN_ERR_IF)))
- 			break;
-@@ -419,18 +418,18 @@ static int mscan_rx_poll(struct napi_str
- 
- 		stats->rx_packets++;
- 		stats->rx_bytes += frame->can_dlc;
--		npackets++;
-+		work_done++;
- 		netif_receive_skb(skb);
- 	}
- 
--	if (!(in_8(&regs->canrflg) & (MSCAN_RXF | MSCAN_ERR_IF))) {
--		napi_complete(&priv->napi);
--		clear_bit(F_RX_PROGRESS, &priv->flags);
--		if (priv->can.state < CAN_STATE_BUS_OFF)
--			out_8(&regs->canrier, priv->shadow_canrier);
--		ret = 0;
-+	if (work_done < quota) {
-+		if (likely(napi_complete_done(&priv->napi, work_done))) {
-+			clear_bit(F_RX_PROGRESS, &priv->flags);
-+			if (priv->can.state < CAN_STATE_BUS_OFF)
-+				out_8(&regs->canrier, priv->shadow_canrier);
-+		}
- 	}
--	return ret;
-+	return work_done;
- }
- 
- static irqreturn_t mscan_isr(int irq, void *dev_id)
+--- a/drivers/net/wireless/ath/ath10k/usb.c
++++ b/drivers/net/wireless/ath/ath10k/usb.c
+@@ -443,6 +443,7 @@ static int ath10k_usb_hif_tx_sg(struct a
+ 			ath10k_dbg(ar, ATH10K_DBG_USB_BULK,
+ 				   "usb bulk transmit failed: %d\n", ret);
+ 			usb_unanchor_urb(urb);
++			usb_free_urb(urb);
+ 			ret = -EINVAL;
+ 			goto err_free_urb_to_pipe;
+ 		}
 
 
