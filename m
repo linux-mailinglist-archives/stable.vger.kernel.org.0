@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74AD113A56B
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A407B13A59D
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729652AbgANKHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:07:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37752 "EHLO mail.kernel.org"
+        id S1729525AbgANKJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:09:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728779AbgANKH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:07:27 -0500
+        id S1730344AbgANKJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:09:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3DDD24685;
-        Tue, 14 Jan 2020 10:07:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DCCB24677;
+        Tue, 14 Jan 2020 10:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996447;
-        bh=uUrA3Z+l+qzdLYCP9M082e6po9DoD8BgNE22uN5SkBk=;
+        s=default; t=1578996556;
+        bh=BYuNfj1nw+D5gkWyr3wenMnYQK7C14TUVrWawPaE4Y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDIJ8QuydOB8hM4mPePSwiQn/jPwYVsC+GGZHUW+WIiWSp0ZdFs1YL/eh0vvsG8h+
-         9+i4sO7yB8d80/IYNwqQI8scsjimOrE7aWyS2EjSUyut81P7TJ18KQh72QkwdOYOVP
-         sYipMIL8DVTEqC/iYsrGHb0fBlWUiffmPPs8GVls=
+        b=kEB+FBpVs9KQb6dHo5smYxDJA/WS4ZMZKKj1y3EeFAnjQQd9qkddYr0KBpIfhrhJS
+         8K0NowxMkjO03GReuoV99F9YIp4UfAsCsru5KB2lT+az6SzU1saRry4dJAZaSiVZ7i
+         Bu/ahQhd55SkodM9DwpE0JneRmA+Tt8VXzAKJxhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 20/46] can: gs_usb: gs_usb_probe(): use descriptors of current altsetting
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 03/39] ALSA: usb-audio: Apply the sample rate quirk for Bose Companion 5
 Date:   Tue, 14 Jan 2020 11:01:37 +0100
-Message-Id: <20200114094344.577360795@linuxfoundation.org>
+Message-Id: <20200114094337.479991841@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
-References: <20200114094339.608068818@linuxfoundation.org>
+In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
+References: <20200114094336.210038037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 2f361cd9474ab2c4ab9ac8db20faf81e66c6279b upstream.
+commit 51d4efab7865e6ea6a4ebcd25b3f03c019515c4c upstream.
 
-Make sure to always use the descriptors of the current alternate setting
-to avoid future issues when accessing fields that may differ between
-settings.
+Bose Companion 5 (with USB ID 05a7:1020) doesn't seem supporting
+reading back the sample rate, so the existing quirk is needed.
 
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206063
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200104110936.14288-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/usb/gs_usb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/usb/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -926,7 +926,7 @@ static int gs_usb_probe(struct usb_inter
- 			     GS_USB_BREQ_HOST_FORMAT,
- 			     USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_INTERFACE,
- 			     1,
--			     intf->altsetting[0].desc.bInterfaceNumber,
-+			     intf->cur_altsetting->desc.bInterfaceNumber,
- 			     hconf,
- 			     sizeof(*hconf),
- 			     1000);
-@@ -949,7 +949,7 @@ static int gs_usb_probe(struct usb_inter
- 			     GS_USB_BREQ_DEVICE_CONFIG,
- 			     USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_INTERFACE,
- 			     1,
--			     intf->altsetting[0].desc.bInterfaceNumber,
-+			     intf->cur_altsetting->desc.bInterfaceNumber,
- 			     dconf,
- 			     sizeof(*dconf),
- 			     1000);
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1143,6 +1143,7 @@ bool snd_usb_get_sample_rate_quirk(struc
+ 	case USB_ID(0x04D8, 0xFEEA): /* Benchmark DAC1 Pre */
+ 	case USB_ID(0x0556, 0x0014): /* Phoenix Audio TMX320VC */
+ 	case USB_ID(0x05A3, 0x9420): /* ELP HD USB Camera */
++	case USB_ID(0x05a7, 0x1020): /* Bose Companion 5 */
+ 	case USB_ID(0x074D, 0x3553): /* Outlaw RR2150 (Micronas UAC3553B) */
+ 	case USB_ID(0x1395, 0x740a): /* Sennheiser DECT */
+ 	case USB_ID(0x1901, 0x0191): /* GE B850V3 CP2114 audio interface */
 
 
