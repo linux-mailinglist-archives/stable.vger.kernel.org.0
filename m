@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81E9113A5DD
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9AE013A513
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729019AbgANKET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:04:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59780 "EHLO mail.kernel.org"
+        id S1729163AbgANKE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:04:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729375AbgANKES (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:04:18 -0500
+        id S1729873AbgANKE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:04:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B22924672;
-        Tue, 14 Jan 2020 10:04:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AEFD24673;
+        Tue, 14 Jan 2020 10:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996257;
-        bh=2ejj/U4kx70Rb1UpkbNqX1RW2WtsjFSzCDYZstS/hTk=;
+        s=default; t=1578996267;
+        bh=WqD2Us02xrSuoy6mpu73fSbZ4IxiJuvY/HXOclXffyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbrycaYE8QUnX3XQpMrYD55uIVW0t6AkvSIORU3BKzARxvPH1VJ575PpVGrfKJFIh
-         Ftr41NDll+pIpOxVpO1vdL+e0zUUdXdbNSMx4M9CLoFoe9HSifQ84KPXPpEEEscwVB
-         onqYAX7Mhk+XiJ5GMy2Rka0rleS2ULUkbb40P9Co=
+        b=S4sDllkZnm8j/XVmPisniS/j98lJdJuolYnUpj5JR+j6v5HmeZRZASiNUwEmPi8bj
+         Ss2KkZ7Md2Uf5Mion727mVEYyiy1Y3CvEsIUvPgjWdLtIa73XcD26H18zJrydyDVIl
+         KgjQEQOWD1mEhC7wrMTVNPVM634pmskIJpe20IB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        David Sterba <dsterba@suse.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Antonio Borneo <antonio.borneo@st.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 16/78] tracing: Change offset type to s32 in preempt/irq tracepoints
-Date:   Tue, 14 Jan 2020 11:00:50 +0100
-Message-Id: <20200114094355.821961976@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jkosina@suse.cz>,
+        syzbot+09ef48aa58261464b621@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 17/78] HID: Fix slab-out-of-bounds read in hid_field_extract
+Date:   Tue, 14 Jan 2020 11:00:51 +0100
+Message-Id: <20200114094356.028051662@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -50,53 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Fernandes (Google) <joel@joelfernandes.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit bf44f488e168368cae4139b4b33c3d0aaa11679c upstream.
+commit 8ec321e96e056de84022c032ffea253431a83c3c upstream.
 
-Discussion in the below link reported that symbols in modules can appear
-to be before _stext on ARM architecture, causing wrapping with the
-offsets of this tracepoint. Change the offset type to s32 to fix this.
+The syzbot fuzzer found a slab-out-of-bounds bug in the HID report
+handler.  The bug was caused by a report descriptor which included a
+field with size 12 bits and count 4899, for a total size of 7349
+bytes.
 
-Link: http://lore.kernel.org/r/20191127154428.191095-1-antonio.borneo@st.com
-Link: http://lkml.kernel.org/r/20200102194625.226436-1-joel@joelfernandes.org
+The usbhid driver uses at most a single-page 4-KB buffer for reports.
+In the test there wasn't any problem about overflowing the buffer,
+since only one byte was received from the device.  Rather, the bug
+occurred when the HID core tried to extract the data from the report
+fields, which caused it to try reading data beyond the end of the
+allocated buffer.
 
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: David Sterba <dsterba@suse.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: Antonio Borneo <antonio.borneo@st.com>
-Cc: stable@vger.kernel.org
-Fixes: d59158162e032 ("tracing: Add support for preempt and irq enable/disable events")
-Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+This patch fixes the problem by rejecting any report whose total
+length exceeds the HID_MAX_BUFFER_SIZE limit (minus one byte to allow
+for a possible report index).  In theory a device could have a report
+longer than that, but if there was such a thing we wouldn't handle it
+correctly anyway.
+
+Reported-and-tested-by: syzbot+09ef48aa58261464b621@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/trace/events/preemptirq.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/hid/hid-core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/trace/events/preemptirq.h
-+++ b/include/trace/events/preemptirq.h
-@@ -18,13 +18,13 @@ DECLARE_EVENT_CLASS(preemptirq_template,
- 	TP_ARGS(ip, parent_ip),
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -288,6 +288,12 @@ static int hid_add_field(struct hid_pars
+ 	offset = report->size;
+ 	report->size += parser->global.report_size * parser->global.report_count;
  
- 	TP_STRUCT__entry(
--		__field(u32, caller_offs)
--		__field(u32, parent_offs)
-+		__field(s32, caller_offs)
-+		__field(s32, parent_offs)
- 	),
++	/* Total size check: Allow for possible report index byte */
++	if (report->size > (HID_MAX_BUFFER_SIZE - 1) << 3) {
++		hid_err(parser->device, "report is too long\n");
++		return -1;
++	}
++
+ 	if (!parser->local.usage_index) /* Ignore padding fields */
+ 		return 0;
  
- 	TP_fast_assign(
--		__entry->caller_offs = (u32)(ip - (unsigned long)_stext);
--		__entry->parent_offs = (u32)(parent_ip - (unsigned long)_stext);
-+		__entry->caller_offs = (s32)(ip - (unsigned long)_stext);
-+		__entry->parent_offs = (s32)(parent_ip - (unsigned long)_stext);
- 	),
- 
- 	TP_printk("caller=%pS parent=%pS",
 
 
