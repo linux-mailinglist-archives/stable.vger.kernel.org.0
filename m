@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB06813A522
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:08:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3136A13A72B
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729982AbgANKE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:04:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60814 "EHLO mail.kernel.org"
+        id S1730070AbgANKTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:19:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729961AbgANKEx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:04:53 -0500
+        id S1729262AbgANKEz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:04:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0268824684;
-        Tue, 14 Jan 2020 10:04:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D79E72467E;
+        Tue, 14 Jan 2020 10:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996292;
-        bh=fPvff8lqbwF7B9D9FjXp9TM/QjGIZzgMn+/M5kWPjTo=;
+        s=default; t=1578996295;
+        bh=MAlV+duEr8rc3TFIDMPW6PfMhcvKZUNZfrDrNpUsQj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Npc1d73tRf/vjX6NYInOYidFIQIKJvYIlZ5s+LhYxA4QNx6sdbMSOCoFYWaEJXWEb
-         L8sLL0mae0/7UgZJwKSBEixeX2UgctCNzv1WCuXqBd2GfkipAmNGUSmVYE27XpWVcz
-         SrqeSlQUCFSGZnJGECPKpaIWOoxBbbL2XiW66x54=
+        b=CEJ+3Y64zyDKNUzBAeqPG/AqHeZwSVaFPgl6zL8yBR2Kl3BTPFGZ0aRWUnNwOTlZv
+         jGZIpj/OVmjCwrQ1v7DkAihktrBT9MeG/CEqAJFvt1/IcXnHojrNBm94qSpprZ6NDl
+         PTOoi6JdTlHHppqXw8o/RQkNygayzWORhkeVY7i0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>, Bin Liu <b-liu@ti.com>
-Subject: [PATCH 5.4 46/78] usb: musb: fix idling for suspend after disconnect interrupt
-Date:   Tue, 14 Jan 2020 11:01:20 +0100
-Message-Id: <20200114094359.717460015@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Bin Liu <b-liu@ti.com>
+Subject: [PATCH 5.4 47/78] usb: musb: Disable pullup at init
+Date:   Tue, 14 Jan 2020 11:01:21 +0100
+Message-Id: <20200114094359.836642366@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -45,62 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 5fbf7a2534703fd71159d3d71504b0ad01b43394 upstream.
+commit 96a0c12843109e5c4d5eb1e09d915fdd0ce31d25 upstream.
 
-When disconnected as USB B-device, suspend interrupt should come before
-diconnect interrupt, because the DP/DM pins are shorter than the
-VBUS/GND pins on the USB connectors. But we sometimes get a suspend
-interrupt after disconnect interrupt. In that case we have devctl set to
-99 with VBUS still valid and musb_pm_runtime_check_session() wrongly
-thinks we have an active session. We have no other interrupts after
-disconnect coming in this case at least with the omap2430 glue.
+The pullup may be already enabled before the driver is initialized. This
+happens for instance on JZ4740.
 
-Let's fix the issue by checking the interrupt status again with
-delayed work for the devctl 99 case. In the suspend after disconnect
-case the devctl session bit has cleared by then and musb can idle.
-For a typical USB B-device connect case we just continue with normal
-interrupts.
+It has to be disabled at init time, as we cannot guarantee that a gadget
+driver will be bound to the UDC.
 
-Fixes: 467d5c980709 ("usb: musb: Implement session bit based runtime PM for musb-core")
-
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Suggested-by: Bin Liu <b-liu@ti.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20200107152625.857-2-b-liu@ti.com
+Link: https://lore.kernel.org/r/20200107152625.857-3-b-liu@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/musb/musb_core.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/musb/musb_core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
 --- a/drivers/usb/musb/musb_core.c
 +++ b/drivers/usb/musb/musb_core.c
-@@ -1840,6 +1840,9 @@ ATTRIBUTE_GROUPS(musb);
- #define MUSB_QUIRK_B_INVALID_VBUS_91	(MUSB_DEVCTL_BDEVICE | \
- 					 (2 << MUSB_DEVCTL_VBUS_SHIFT) | \
- 					 MUSB_DEVCTL_SESSION)
-+#define MUSB_QUIRK_B_DISCONNECT_99	(MUSB_DEVCTL_BDEVICE | \
-+					 (3 << MUSB_DEVCTL_VBUS_SHIFT) | \
-+					 MUSB_DEVCTL_SESSION)
- #define MUSB_QUIRK_A_DISCONNECT_19	((3 << MUSB_DEVCTL_VBUS_SHIFT) | \
- 					 MUSB_DEVCTL_SESSION)
+@@ -2318,6 +2318,9 @@ musb_init_controller(struct device *dev,
+ 	musb_disable_interrupts(musb);
+ 	musb_writeb(musb->mregs, MUSB_DEVCTL, 0);
  
-@@ -1862,6 +1865,11 @@ static void musb_pm_runtime_check_sessio
- 	s = MUSB_DEVCTL_FSDEV | MUSB_DEVCTL_LSDEV |
- 		MUSB_DEVCTL_HR;
- 	switch (devctl & ~s) {
-+	case MUSB_QUIRK_B_DISCONNECT_99:
-+		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
-+		schedule_delayed_work(&musb->irq_work,
-+				      msecs_to_jiffies(1000));
-+		break;
- 	case MUSB_QUIRK_B_INVALID_VBUS_91:
- 		if (musb->quirk_retries && !musb->flush_irq_work) {
- 			musb_dbg(musb,
++	/* MUSB_POWER_SOFTCONN might be already set, JZ4740 does this. */
++	musb_writeb(musb->mregs, MUSB_POWER, 0);
++
+ 	/* Init IRQ workqueue before request_irq */
+ 	INIT_DELAYED_WORK(&musb->irq_work, musb_irq_work);
+ 	INIT_DELAYED_WORK(&musb->deassert_reset_work, musb_deassert_reset);
 
 
