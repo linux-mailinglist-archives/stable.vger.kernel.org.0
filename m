@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD15C13A525
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:08:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9397813A60E
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729593AbgANKE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:04:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60998 "EHLO mail.kernel.org"
+        id S1730960AbgANKI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:08:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729994AbgANKE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:04:58 -0500
+        id S1729094AbgANKI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:08:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B172A24699;
-        Tue, 14 Jan 2020 10:04:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CF5020678;
+        Tue, 14 Jan 2020 10:08:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996298;
-        bh=YLLRxSU8TbjHH9MhIW8POwazjj39RFa0uNS6FY9gSTM=;
+        s=default; t=1578996505;
+        bh=VspWGomgS76X8lVDq+qOmUYynAz+7FxKT9rWHeesm6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJUm8qWI8ToHL/hnz2mMEZFKuSy8vmhsmFk0J3lRMMuwEb4/vZFgxuwJaR5Mv+Kqn
-         rbx9u2bdcV+XzI1DYA3dcEj/d8n48YTZaAZE+Yali/QssA6UxgPIALWXC8Uvdpnx8w
-         It2NGDMO891vRvwQPEXwbA7b+XOTklZqs84wV/TA=
+        b=qUdDob/WxkY6lIZtopiJORpG+f5KnjZYFBFsF6wjcadzU39fhQOKTdpTdNAAeJWTJ
+         jpBMBJMwxyBwonZGK+dcXygFrJEcWcFjJ5tjc9k33gUo9sNSFN93LllW65ZR4H+SuR
+         pS3BKG0rI08OOmjVD6Cs4P4DdaSlpyToKbrpC5Bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Artur Rojek <contact@artur-rojek.eu>, Bin Liu <b-liu@ti.com>
-Subject: [PATCH 5.4 48/78] usb: musb: dma: Correct parameter passed to IRQ handler
-Date:   Tue, 14 Jan 2020 11:01:22 +0100
-Message-Id: <20200114094359.954908568@linuxfoundation.org>
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 06/46] ALSA: hda/realtek - Set EAPD control to default for ALC222
+Date:   Tue, 14 Jan 2020 11:01:23 +0100
+Message-Id: <20200114094341.708820909@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
-References: <20200114094352.428808181@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Kailang Yang <kailang@realtek.com>
 
-commit c80d0f4426c7fdc7efd6ae8d8b021dcfc89b4254 upstream.
+commit 9194a1ebbc56d7006835e2b4cacad301201fb832 upstream.
 
-The IRQ handler was passed a pointer to a struct dma_controller, but the
-argument was then casted to a pointer to a struct musb_dma_controller.
+Set EAPD control to verb control.
 
-Fixes: 427c4f333474 ("usb: struct device - replace bus_id with dev_name(), dev_set_name()")
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Tested-by: Artur Rojek <contact@artur-rojek.eu>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20191216161844.772-2-b-liu@ti.com
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/musb/musbhsdma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/musb/musbhsdma.c
-+++ b/drivers/usb/musb/musbhsdma.c
-@@ -425,7 +425,7 @@ struct dma_controller *musbhs_dma_contro
- 	controller->controller.channel_abort = dma_channel_abort;
- 
- 	if (request_irq(irq, dma_controller_irq, 0,
--			dev_name(musb->controller), &controller->controller)) {
-+			dev_name(musb->controller), controller)) {
- 		dev_err(dev, "request_irq %d failed!\n", irq);
- 		musb_dma_controller_destroy(&controller->controller);
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -424,6 +424,7 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0672:
+ 		alc_update_coef_idx(codec, 0xd, 0, 1<<14); /* EAPD Ctrl */
+ 		break;
++	case 0x10ec0222:
+ 	case 0x10ec0623:
+ 		alc_update_coef_idx(codec, 0x19, 1<<13, 0);
+ 		break;
 
 
