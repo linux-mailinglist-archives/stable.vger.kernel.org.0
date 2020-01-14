@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7448913A510
+	by mail.lfdr.de (Postfix) with ESMTP id E7C8D13A511
 	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:08:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727285AbgANKEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:04:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59896 "EHLO mail.kernel.org"
+        id S1729424AbgANKEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:04:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729163AbgANKEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:04:21 -0500
+        id S1729163AbgANKEY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:04:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 811502467C;
-        Tue, 14 Jan 2020 10:04:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A23B2467D;
+        Tue, 14 Jan 2020 10:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996261;
-        bh=l8K21f1BSw03G59OGU4gmIVI6A4ckLt+MGapVwDypmA=;
+        s=default; t=1578996264;
+        bh=78T+bpLA7/RmBMo8dSWS9SOZnKlKwg5JEWcCQl/VvCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQ5qxqRY29otZ++hw2xy+RN/pqHXXff2mUoNZmdhR3wUCQZen4V+u1Tx1AqfE+Edg
-         DVwr4UuBx4jmNzdmfWM9wisbgtEXvpEtpK9WhV7fBOQ9KtyBz8OHtGTesXWLMPwLG/
-         PnWyEGgIQ6mgjEns7P8wpZ2XLawOT+NFQxZdo+6Y=
+        b=s79UoxgYbGe95gf33bicFloLfeYz0vLPw7mnznJ2G4RPIyYwHbJYcHn2SxoUKsZYX
+         BWKv712mbHGFlFamVOGj3/58Q7177rg0YjnwAvEMo9tqrsZin3oWJ/bwzkU3rdECwc
+         A4m6gkYjhj0WUd4BxQrmcZdPjqpqwflD7BIWTZLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Dan Murphy <dmurphy@ti.com>,
+        stable@vger.kernel.org, Florian Faber <faber@faberman.de>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 34/78] can: tcan4x5x: tcan4x5x_can_probe(): get the device out of standby before register access
-Date:   Tue, 14 Jan 2020 11:01:08 +0100
-Message-Id: <20200114094358.214072795@linuxfoundation.org>
+Subject: [PATCH 5.4 35/78] can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
+Date:   Tue, 14 Jan 2020 11:01:09 +0100
+Message-Id: <20200114094358.333077052@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -44,47 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Florian Faber <faber@faberman.de>
 
-commit 3069ce620daed85e4ef2b0c087dca2509f809470 upstream.
+commit 2d77bd61a2927be8f4e00d9478fe6996c47e8d45 upstream.
 
-The m_can tries to detect if Non ISO Operation is available while in
-standby mode, this function results in the following error:
+Under load, the RX side of the mscan driver can get stuck while TX still
+works. Restarting the interface locks up the system. This behaviour
+could be reproduced reliably on a MPC5121e based system.
 
-| tcan4x5x spi2.0 (unnamed net_device) (uninitialized): Failed to init module
-| tcan4x5x spi2.0: m_can device registered (irq=84, version=32)
-| tcan4x5x spi2.0 can2: TCAN4X5X successfully initialized.
+The patch fixes the return value of the NAPI polling function (should be
+the number of processed packets, not constant 1) and the condition under
+which IRQs are enabled again after polling is finished.
 
-When the tcan device comes out of reset it goes in standby mode. The
-m_can driver tries to access the control register but fails due to the
-device being in standby mode.
+With this patch, no more lockups were observed over a test period of ten
+days.
 
-So this patch will put the tcan device in normal mode before the m_can
-driver does the initialization.
-
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Acked-by: Dan Murphy <dmurphy@ti.com>
+Fixes: afa17a500a36 ("net/can: add driver for mscan family & mpc52xx_mscan")
+Signed-off-by: Florian Faber <faber@faberman.de>
+Cc: linux-stable <stable@vger.kernel.org>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/m_can/tcan4x5x.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/can/mscan/mscan.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/net/can/m_can/tcan4x5x.c
-+++ b/drivers/net/can/m_can/tcan4x5x.c
-@@ -445,6 +445,10 @@ static int tcan4x5x_can_probe(struct spi
+--- a/drivers/net/can/mscan/mscan.c
++++ b/drivers/net/can/mscan/mscan.c
+@@ -381,13 +381,12 @@ static int mscan_rx_poll(struct napi_str
+ 	struct net_device *dev = napi->dev;
+ 	struct mscan_regs __iomem *regs = priv->reg_base;
+ 	struct net_device_stats *stats = &dev->stats;
+-	int npackets = 0;
+-	int ret = 1;
++	int work_done = 0;
+ 	struct sk_buff *skb;
+ 	struct can_frame *frame;
+ 	u8 canrflg;
  
- 	tcan4x5x_power_enable(priv->power, 1);
+-	while (npackets < quota) {
++	while (work_done < quota) {
+ 		canrflg = in_8(&regs->canrflg);
+ 		if (!(canrflg & (MSCAN_RXF | MSCAN_ERR_IF)))
+ 			break;
+@@ -408,18 +407,18 @@ static int mscan_rx_poll(struct napi_str
  
-+	ret = tcan4x5x_init(mcan_class);
-+	if (ret)
-+		goto out_power;
-+
- 	ret = m_can_class_register(mcan_class);
- 	if (ret)
- 		goto out_power;
+ 		stats->rx_packets++;
+ 		stats->rx_bytes += frame->can_dlc;
+-		npackets++;
++		work_done++;
+ 		netif_receive_skb(skb);
+ 	}
+ 
+-	if (!(in_8(&regs->canrflg) & (MSCAN_RXF | MSCAN_ERR_IF))) {
+-		napi_complete(&priv->napi);
+-		clear_bit(F_RX_PROGRESS, &priv->flags);
+-		if (priv->can.state < CAN_STATE_BUS_OFF)
+-			out_8(&regs->canrier, priv->shadow_canrier);
+-		ret = 0;
++	if (work_done < quota) {
++		if (likely(napi_complete_done(&priv->napi, work_done))) {
++			clear_bit(F_RX_PROGRESS, &priv->flags);
++			if (priv->can.state < CAN_STATE_BUS_OFF)
++				out_8(&regs->canrier, priv->shadow_canrier);
++		}
+ 	}
+-	return ret;
++	return work_done;
+ }
+ 
+ static irqreturn_t mscan_isr(int irq, void *dev_id)
 
 
