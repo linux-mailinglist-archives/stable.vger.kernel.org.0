@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2BB913A577
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57A1A13A637
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730185AbgANKHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:07:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38726 "EHLO mail.kernel.org"
+        id S1729849AbgANKKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:10:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730158AbgANKHz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:07:55 -0500
+        id S1729505AbgANKKM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:10:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A71F24677;
-        Tue, 14 Jan 2020 10:07:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A750724677;
+        Tue, 14 Jan 2020 10:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996474;
-        bh=233lHTpAXwJwCP194gW01K4F3DNqIeFJxperaV1GY2k=;
+        s=default; t=1578996612;
+        bh=k18qRjP/nywpIHZ3grDId+QnddItalWgK5eGRgAKNkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0o7Qdjw7/cchupVbko/vBZ3XZP0FuDmInjrwU0UbeS+9MEYW4WK7RGQqYHbKi+p2F
-         0aO7Chmh0z9iAYeY/8CaIFOCfCXmGHXeOrNjgxoYlckvDtiaK6lA4kMr9u/YHxIVo7
-         Ngh6hlErC8JUpgBWaqwYHVTcCCW3ShrAsrTB8O2o=
+        b=1XetOQKH+mLzTKbJOu+Bxcyim0B8sP2oXXo3PDs36Il2At2z/E3UjrEw/tnxuKdr3
+         /CSzQdNL10DANZPz3HSO5XblglUTpa258j1kyvMENFJ+o6d9Zr3SWIu1ZgjEoP7jAr
+         LJndQIz07/bhUCMkSSsLe7D05dRLtZykstt8y+ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Bin Liu <b-liu@ti.com>
-Subject: [PATCH 4.19 28/46] usb: musb: Disable pullup at init
+        stable@vger.kernel.org, Florian Faber <faber@faberman.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.14 11/39] can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
 Date:   Tue, 14 Jan 2020 11:01:45 +0100
-Message-Id: <20200114094346.102633539@linuxfoundation.org>
+Message-Id: <20200114094341.641803479@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
-References: <20200114094339.608068818@linuxfoundation.org>
+In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
+References: <20200114094336.210038037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Florian Faber <faber@faberman.de>
 
-commit 96a0c12843109e5c4d5eb1e09d915fdd0ce31d25 upstream.
+commit 2d77bd61a2927be8f4e00d9478fe6996c47e8d45 upstream.
 
-The pullup may be already enabled before the driver is initialized. This
-happens for instance on JZ4740.
+Under load, the RX side of the mscan driver can get stuck while TX still
+works. Restarting the interface locks up the system. This behaviour
+could be reproduced reliably on a MPC5121e based system.
 
-It has to be disabled at init time, as we cannot guarantee that a gadget
-driver will be bound to the UDC.
+The patch fixes the return value of the NAPI polling function (should be
+the number of processed packets, not constant 1) and the condition under
+which IRQs are enabled again after polling is finished.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Suggested-by: Bin Liu <b-liu@ti.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20200107152625.857-3-b-liu@ti.com
+With this patch, no more lockups were observed over a test period of ten
+days.
+
+Fixes: afa17a500a36 ("net/can: add driver for mscan family & mpc52xx_mscan")
+Signed-off-by: Florian Faber <faber@faberman.de>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/musb/musb_core.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2324,6 +2324,9 @@ musb_init_controller(struct device *dev,
- 	musb_disable_interrupts(musb);
- 	musb_writeb(musb->mregs, MUSB_DEVCTL, 0);
+---
+ drivers/net/can/mscan/mscan.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
+
+--- a/drivers/net/can/mscan/mscan.c
++++ b/drivers/net/can/mscan/mscan.c
+@@ -392,13 +392,12 @@ static int mscan_rx_poll(struct napi_str
+ 	struct net_device *dev = napi->dev;
+ 	struct mscan_regs __iomem *regs = priv->reg_base;
+ 	struct net_device_stats *stats = &dev->stats;
+-	int npackets = 0;
+-	int ret = 1;
++	int work_done = 0;
+ 	struct sk_buff *skb;
+ 	struct can_frame *frame;
+ 	u8 canrflg;
  
-+	/* MUSB_POWER_SOFTCONN might be already set, JZ4740 does this. */
-+	musb_writeb(musb->mregs, MUSB_POWER, 0);
-+
- 	/* Init IRQ workqueue before request_irq */
- 	INIT_DELAYED_WORK(&musb->irq_work, musb_irq_work);
- 	INIT_DELAYED_WORK(&musb->deassert_reset_work, musb_deassert_reset);
+-	while (npackets < quota) {
++	while (work_done < quota) {
+ 		canrflg = in_8(&regs->canrflg);
+ 		if (!(canrflg & (MSCAN_RXF | MSCAN_ERR_IF)))
+ 			break;
+@@ -419,18 +418,18 @@ static int mscan_rx_poll(struct napi_str
+ 
+ 		stats->rx_packets++;
+ 		stats->rx_bytes += frame->can_dlc;
+-		npackets++;
++		work_done++;
+ 		netif_receive_skb(skb);
+ 	}
+ 
+-	if (!(in_8(&regs->canrflg) & (MSCAN_RXF | MSCAN_ERR_IF))) {
+-		napi_complete(&priv->napi);
+-		clear_bit(F_RX_PROGRESS, &priv->flags);
+-		if (priv->can.state < CAN_STATE_BUS_OFF)
+-			out_8(&regs->canrier, priv->shadow_canrier);
+-		ret = 0;
++	if (work_done < quota) {
++		if (likely(napi_complete_done(&priv->napi, work_done))) {
++			clear_bit(F_RX_PROGRESS, &priv->flags);
++			if (priv->can.state < CAN_STATE_BUS_OFF)
++				out_8(&regs->canrier, priv->shadow_canrier);
++		}
+ 	}
+-	return ret;
++	return work_done;
+ }
+ 
+ static irqreturn_t mscan_isr(int irq, void *dev_id)
 
 
