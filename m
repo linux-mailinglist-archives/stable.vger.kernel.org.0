@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B031E13A61B
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A6213A610
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731217AbgANKJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:09:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41338 "EHLO mail.kernel.org"
+        id S1729774AbgANKIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:08:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731214AbgANKJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:09:05 -0500
+        id S1731005AbgANKIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:08:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F8892467A;
-        Tue, 14 Jan 2020 10:09:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1BE020678;
+        Tue, 14 Jan 2020 10:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996544;
-        bh=+PI48K9XTvgjwsMAYb2zfC9iKKt9NZ6/WaU3LZy+OyI=;
+        s=default; t=1578996511;
+        bh=D3VkGmMM0F+62RmYOJvCGnU+mkcmb+KmFgNnf0ojJhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CRXJrjGWiL/vBIOx51IJtYNogX0phv7PPaTW7SRVxNDV2HawdNmz3bUpzrgLJby1B
-         atzp7tQivCPO3IbcowIN8roANmKKXc3SPFys41TTCzcOC677ynTlGAIN2/LAfkQ/ff
-         9r+44paFn64/WZrzoz9s62YNcFPTwICWjHc8YjA8=
+        b=yfl2ikiQo8SCt+QbpboaqzO8fTK2hAS1HJYrT8z6Iiy1gtwYRO2AUYewcvhT2n42E
+         0lvAteHBAO2pt3GqQyUKicNrczAauyF0i9LQ4C+sqiCFH6QClwZjdIcbNIeh4EfX+j
+         Oqp5pJlgL2lGq60PCQl3oHVrWt0FXprBSndY4cXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Roger Whittaker <Roger.Whittaker@suse.com>
-Subject: [PATCH 4.19 41/46] USB: Fix: Dont skip endpoint descriptors with maxpacket=0
-Date:   Tue, 14 Jan 2020 11:01:58 +0100
-Message-Id: <20200114094348.257779024@linuxfoundation.org>
+        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 4.19 42/46] phy: cpcap-usb: Fix error path when no host driver is loaded
+Date:   Tue, 14 Jan 2020 11:01:59 +0100
+Message-Id: <20200114094348.395107803@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
 References: <20200114094339.608068818@linuxfoundation.org>
@@ -44,63 +46,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 2548288b4fb059b2da9ceada172ef763077e8a59 upstream.
+commit 4acb0200ab2b07843e3ef5599add3454c7440f03 upstream.
 
-It turns out that even though endpoints with a maxpacket length of 0
-aren't useful for data transfer, the descriptors do serve other
-purposes.  In particular, skipping them will also skip over other
-class-specific descriptors for classes such as UVC.  This unexpected
-side effect has caused some UVC cameras to stop working.
+If musb_mailbox() returns an error, we must still continue to finish
+configuring the phy.
 
-In addition, the USB spec requires that when isochronous endpoint
-descriptors are present in an interface's altsetting 0 (which is true
-on some devices), the maxpacket size _must_ be set to 0.  Warning
-about such things seems like a bad idea.
+Otherwise the phy state may end up only half initialized, and this can
+cause the debug serial console to stop working. And this will happen if the
+usb driver musb controller is not loaded.
 
-This patch updates an earlier commit which would log a warning and
-skip these endpoint descriptors.  Now we only log a warning, and we
-don't even do that for isochronous endpoints in altsetting 0.
+Let's fix the issue by adding helper for cpcap_usb_try_musb_mailbox().
 
-We don't need to worry about preventing endpoints with maxpacket = 0
-from ever being used for data transfers; usb_submit_urb() already
-checks for this.
-
-Reported-and-tested-by: Roger Whittaker <Roger.Whittaker@suse.com>
-Fixes: d482c7bb0541 ("USB: Skip endpoints with 0 maxpacket length")
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://marc.info/?l=linux-usb&m=157790377329882&w=2
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2001061040270.1514-100000@iolanthe.rowland.org
+Fixes: 6d6ce40f63af ("phy: cpcap-usb: Add CPCAP PMIC USB support")
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/config.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/phy/motorola/phy-cpcap-usb.c |   33 ++++++++++++++++++---------------
+ 1 file changed, 18 insertions(+), 15 deletions(-)
 
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -392,12 +392,16 @@ static int usb_parse_endpoint(struct dev
- 			endpoint->desc.wMaxPacketSize = cpu_to_le16(8);
- 	}
+--- a/drivers/phy/motorola/phy-cpcap-usb.c
++++ b/drivers/phy/motorola/phy-cpcap-usb.c
+@@ -207,6 +207,19 @@ static int cpcap_phy_get_ints_state(stru
+ static int cpcap_usb_set_uart_mode(struct cpcap_phy_ddata *ddata);
+ static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata);
  
--	/* Validate the wMaxPacketSize field */
-+	/*
-+	 * Validate the wMaxPacketSize field.
-+	 * Some devices have isochronous endpoints in altsetting 0;
-+	 * the USB-2 spec requires such endpoints to have wMaxPacketSize = 0
-+	 * (see the end of section 5.6.3), so don't warn about them.
-+	 */
- 	maxp = usb_endpoint_maxp(&endpoint->desc);
--	if (maxp == 0) {
--		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has wMaxPacketSize 0, skipping\n",
-+	if (maxp == 0 && !(usb_endpoint_xfer_isoc(d) && asnum == 0)) {
-+		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
- 		    cfgno, inum, asnum, d->bEndpointAddress);
--		goto skip_to_next_endpoint_or_interface_descriptor;
- 	}
++static void cpcap_usb_try_musb_mailbox(struct cpcap_phy_ddata *ddata,
++				       enum musb_vbus_id_status status)
++{
++	int error;
++
++	error = musb_mailbox(status);
++	if (!error)
++		return;
++
++	dev_dbg(ddata->dev, "%s: musb_mailbox failed: %i\n",
++		__func__, error);
++}
++
+ static void cpcap_usb_detect(struct work_struct *work)
+ {
+ 	struct cpcap_phy_ddata *ddata;
+@@ -226,9 +239,7 @@ static void cpcap_usb_detect(struct work
+ 		if (error)
+ 			goto out_err;
  
- 	/* Find the highest legal maxpacket size for this endpoint */
+-		error = musb_mailbox(MUSB_ID_GROUND);
+-		if (error)
+-			goto out_err;
++		cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
+ 
+ 		error = regmap_update_bits(ddata->reg, CPCAP_REG_USBC3,
+ 					   CPCAP_BIT_VBUSSTBY_EN,
+@@ -255,9 +266,7 @@ static void cpcap_usb_detect(struct work
+ 			error = cpcap_usb_set_usb_mode(ddata);
+ 			if (error)
+ 				goto out_err;
+-			error = musb_mailbox(MUSB_ID_GROUND);
+-			if (error)
+-				goto out_err;
++			cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
+ 
+ 			return;
+ 		}
+@@ -267,9 +276,7 @@ static void cpcap_usb_detect(struct work
+ 		error = cpcap_usb_set_usb_mode(ddata);
+ 		if (error)
+ 			goto out_err;
+-		error = musb_mailbox(MUSB_VBUS_VALID);
+-		if (error)
+-			goto out_err;
++		cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_VALID);
+ 
+ 		return;
+ 	}
+@@ -279,9 +286,7 @@ static void cpcap_usb_detect(struct work
+ 	if (error)
+ 		goto out_err;
+ 
+-	error = musb_mailbox(MUSB_VBUS_OFF);
+-	if (error)
+-		goto out_err;
++	cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_OFF);
+ 
+ 	dev_dbg(ddata->dev, "set UART mode\n");
+ 
+@@ -647,9 +652,7 @@ static int cpcap_usb_phy_remove(struct p
+ 	if (error)
+ 		dev_err(ddata->dev, "could not set UART mode\n");
+ 
+-	error = musb_mailbox(MUSB_VBUS_OFF);
+-	if (error)
+-		dev_err(ddata->dev, "could not set mailbox\n");
++	cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_OFF);
+ 
+ 	usb_remove_phy(&ddata->phy);
+ 	cancel_delayed_work_sync(&ddata->detect_work);
 
 
