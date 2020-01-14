@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F3213A5DB
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1017D13A5DC
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729801AbgANKEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:04:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59490 "EHLO mail.kernel.org"
+        id S1729186AbgANKEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:04:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728944AbgANKEJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:04:09 -0500
+        id S1728944AbgANKEM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:04:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AF9624676;
-        Tue, 14 Jan 2020 10:04:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB0FF2465B;
+        Tue, 14 Jan 2020 10:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996248;
-        bh=4v5wvKo9nMdl4yXFhyl6u3jWJXkwSStR/SDynIEaXZA=;
+        s=default; t=1578996251;
+        bh=2m06gkz84QLde4drCqbnIjIW6b8Xjt+SP/Y7t00iEcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjfKHcYPLOpA9r9UK9l0y9wPN7SLGOl2N00eFuocYoK9Y14NngsX8y8PpvhxMzRjd
-         x7RuI8Vcyvk39k3XMo1vUIoPwP9yt2tnWwwgYsRu6/qS/yi+20SOLokinIzihScwxY
-         M1zHBf3j1ULXdi03sYuVqjB+/bqwDKicMkgcCEls=
+        b=dlSlFQyZwDiu1w42JfEGHm+ShtqLmBJrr/F6PVqTI/OF4pE6vUExO4r0tP4XaJMza
+         w4YJsKPNBy+MRWEFr/E6DzYUBxaketufu15o997rx1MDkHRkQ6KgBgL1MP4ZeUhj5+
+         20Vt4E0K8tSWAiIYsKfpxnUY9+qptqiaRqDaooI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 31/78] IB/hfi1: Adjust flow PSN with the correct resync_psn
-Date:   Tue, 14 Jan 2020 11:01:05 +0100
-Message-Id: <20200114094357.850365222@linuxfoundation.org>
+        stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
+        Christer Beskow <chbe@kvaser.com>,
+        Nicklas Johansson <extnj@kvaser.com>,
+        Martin Henriksson <mh@kvaser.com>,
+        Johan Hovold <johan@kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 32/78] can: kvaser_usb: fix interface sanity check
+Date:   Tue, 14 Jan 2020 11:01:06 +0100
+Message-Id: <20200114094357.974017346@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -46,92 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit b2ff0d510182eb5cc05a65d1b2371af62c4b170c upstream.
+commit 5660493c637c9d83786f1c9297f403eae44177b6 upstream.
 
-When a TID RDMA ACK to RESYNC request is received, the flow PSNs for
-pending TID RDMA WRITE segments will be adjusted with the next flow
-generation number, based on the resync_psn value extracted from the flow
-PSN of the TID RDMA ACK packet. The resync_psn value indicates the last
-flow PSN for which a TID RDMA WRITE DATA packet has been received by the
-responder and the requester should resend TID RDMA WRITE DATA packets,
-starting from the next flow PSN.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid binding to an invalid interface.
 
-However, if resync_psn points to the last flow PSN for a segment and the
-next segment flow PSN starts with a new generation number, use of the old
-resync_psn to adjust the flow PSN for the next segment will lead to
-miscalculation, resulting in WARN_ON and sge rewinding errors:
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
 
-  WARNING: CPU: 4 PID: 146961 at /nfs/site/home/phcvs2/gitrepo/ifs-all/components/Drivers/tmp/rpmbuild/BUILD/ifs-kernel-updates-3.10.0_957.el7.x86_64/hfi1/tid_rdma.c:4764 hfi1_rc_rcv_tid_rdma_ack+0x8f6/0xa90 [hfi1]
-  Modules linked in: ib_ipoib(OE) hfi1(OE) rdmavt(OE) rpcsec_gss_krb5 auth_rpcgss nfsv4 dns_resolver nfsv3 nfs_acl nfs lockd grace fscache iTCO_wdt iTCO_vendor_support skx_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm irqbypass crc32_pclmul ghash_clmulni_intel ib_isert iscsi_target_mod target_core_mod aesni_intel lrw gf128mul glue_helper ablk_helper cryptd rpcrdma sunrpc opa_vnic ast ttm ib_iser libiscsi drm_kms_helper scsi_transport_iscsi ipmi_ssif syscopyarea sysfillrect sysimgblt fb_sys_fops drm joydev ipmi_si pcspkr sg drm_panel_orientation_quirks ipmi_devintf lpc_ich i2c_i801 ipmi_msghandler wmi rdma_ucm ib_ucm ib_uverbs acpi_cpufreq acpi_power_meter ib_umad rdma_cm ib_cm iw_cm ip_tables ext4 mbcache jbd2 sd_mod crc_t10dif crct10dif_generic crct10dif_pclmul i2c_algo_bit crct10dif_common
-   crc32c_intel e1000e ib_core ahci libahci ptp libata pps_core nfit libnvdimm [last unloaded: rdmavt]
-  CPU: 4 PID: 146961 Comm: kworker/4:0H Kdump: loaded Tainted: G        W  OE  ------------   3.10.0-957.el7.x86_64 #1
-  Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.0X.02.0117.040420182310 04/04/2018
-  Workqueue: hfi0_0 _hfi1_do_tid_send [hfi1]
-  Call Trace:
-   <IRQ>  [<ffffffff9e361dc1>] dump_stack+0x19/0x1b
-   [<ffffffff9dc97648>] __warn+0xd8/0x100
-   [<ffffffff9dc9778d>] warn_slowpath_null+0x1d/0x20
-   [<ffffffffc05d28c6>] hfi1_rc_rcv_tid_rdma_ack+0x8f6/0xa90 [hfi1]
-   [<ffffffffc05c21cc>] hfi1_kdeth_eager_rcv+0x1dc/0x210 [hfi1]
-   [<ffffffffc05c23ef>] ? hfi1_kdeth_expected_rcv+0x1ef/0x210 [hfi1]
-   [<ffffffffc0574f15>] kdeth_process_eager+0x35/0x90 [hfi1]
-   [<ffffffffc0575b5a>] handle_receive_interrupt_nodma_rtail+0x17a/0x2b0 [hfi1]
-   [<ffffffffc056a623>] receive_context_interrupt+0x23/0x40 [hfi1]
-   [<ffffffff9dd4a294>] __handle_irq_event_percpu+0x44/0x1c0
-   [<ffffffff9dd4a442>] handle_irq_event_percpu+0x32/0x80
-   [<ffffffff9dd4a4cc>] handle_irq_event+0x3c/0x60
-   [<ffffffff9dd4d27f>] handle_edge_irq+0x7f/0x150
-   [<ffffffff9dc2e554>] handle_irq+0xe4/0x1a0
-   [<ffffffff9e3795dd>] do_IRQ+0x4d/0xf0
-   [<ffffffff9e36b362>] common_interrupt+0x162/0x162
-   <EOI>  [<ffffffff9dfa0f79>] ? swiotlb_map_page+0x49/0x150
-   [<ffffffffc05c2ed1>] hfi1_verbs_send_dma+0x291/0xb70 [hfi1]
-   [<ffffffffc05c2c40>] ? hfi1_wait_kmem+0xf0/0xf0 [hfi1]
-   [<ffffffffc05c3f26>] hfi1_verbs_send+0x126/0x2b0 [hfi1]
-   [<ffffffffc05ce683>] _hfi1_do_tid_send+0x1d3/0x320 [hfi1]
-   [<ffffffff9dcb9d4f>] process_one_work+0x17f/0x440
-   [<ffffffff9dcbade6>] worker_thread+0x126/0x3c0
-   [<ffffffff9dcbacc0>] ? manage_workers.isra.25+0x2a0/0x2a0
-   [<ffffffff9dcc1c31>] kthread+0xd1/0xe0
-   [<ffffffff9dcc1b60>] ? insert_kthread_work+0x40/0x40
-   [<ffffffff9e374c1d>] ret_from_fork_nospec_begin+0x7/0x21
-   [<ffffffff9dcc1b60>] ? insert_kthread_work+0x40/0x40
-
-This patch fixes the issue by adjusting the resync_psn first if the flow
-generation has been advanced for a pending segment.
-
-Fixes: 9e93e967f7b4 ("IB/hfi1: Add a function to receive TID RDMA ACK packet")
-Link: https://lore.kernel.org/r/20191219231920.51069.37147.stgit@awfm-01.aw.intel.com
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
+Cc: stable <stable@vger.kernel.org>     # 4.19
+Cc: Jimmy Assarsson <extja@kvaser.com>
+Cc: Christer Beskow <chbe@kvaser.com>
+Cc: Nicklas Johansson <extnj@kvaser.com>
+Cc: Martin Henriksson <mh@kvaser.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/tid_rdma.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c |    2 +-
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c  |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/tid_rdma.c
-+++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
-@@ -4633,6 +4633,15 @@ void hfi1_rc_rcv_tid_rdma_ack(struct hfi
- 			 */
- 			fpsn = full_flow_psn(flow, flow->flow_state.spsn);
- 			req->r_ack_psn = psn;
-+			/*
-+			 * If resync_psn points to the last flow PSN for a
-+			 * segment and the new segment (likely from a new
-+			 * request) starts with a new generation number, we
-+			 * need to adjust resync_psn accordingly.
-+			 */
-+			if (flow->flow_state.generation !=
-+			    (resync_psn >> HFI1_KDETH_BTH_SEQ_SHIFT))
-+				resync_psn = mask_psn(fpsn - 1);
- 			flow->resync_npkts +=
- 				delta_psn(mask_psn(resync_psn + 1), fpsn);
- 			/*
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+@@ -1590,7 +1590,7 @@ static int kvaser_usb_hydra_setup_endpoi
+ 	struct usb_endpoint_descriptor *ep;
+ 	int i;
+ 
+-	iface_desc = &dev->intf->altsetting[0];
++	iface_desc = dev->intf->cur_altsetting;
+ 
+ 	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
+ 		ep = &iface_desc->endpoint[i].desc;
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -1310,7 +1310,7 @@ static int kvaser_usb_leaf_setup_endpoin
+ 	struct usb_endpoint_descriptor *endpoint;
+ 	int i;
+ 
+-	iface_desc = &dev->intf->altsetting[0];
++	iface_desc = dev->intf->cur_altsetting;
+ 
+ 	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
+ 		endpoint = &iface_desc->endpoint[i].desc;
 
 
