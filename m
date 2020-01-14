@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD92E13A55A
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB06813A522
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728978AbgANKHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:07:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36606 "EHLO mail.kernel.org"
+        id S1729982AbgANKE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:04:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730558AbgANKHB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:07:01 -0500
+        id S1729961AbgANKEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:04:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47F0720678;
-        Tue, 14 Jan 2020 10:06:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0268824684;
+        Tue, 14 Jan 2020 10:04:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996419;
-        bh=rTuW6XD6+BeoH+HPUkAft1lIeA8jtdHv//koodJO8h8=;
+        s=default; t=1578996292;
+        bh=fPvff8lqbwF7B9D9FjXp9TM/QjGIZzgMn+/M5kWPjTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VPCHslTPgcdM9wOviLGUQyag+fK1ZUAKtpTbtixBUC255WIaNR1vFFaZQQD8lTz6b
-         LhcvPbUyakl75XhPZ1dMfk2G6cskdxN0fcB+bLNLcHApcCuArFKernow4eas9tUzTy
-         vwAJmMK9VUkwVID5G+5QyvZbfc9M50+QHDiMKkWQ=
+        b=Npc1d73tRf/vjX6NYInOYidFIQIKJvYIlZ5s+LhYxA4QNx6sdbMSOCoFYWaEJXWEb
+         L8sLL0mae0/7UgZJwKSBEixeX2UgctCNzv1WCuXqBd2GfkipAmNGUSmVYE27XpWVcz
+         SrqeSlQUCFSGZnJGECPKpaIWOoxBbbL2XiW66x54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Peter Chen <peter.chen@freescale.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.19 03/46] usb: chipidea: host: Disable port power only if previously enabled
+        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>, Bin Liu <b-liu@ti.com>
+Subject: [PATCH 5.4 46/78] usb: musb: fix idling for suspend after disconnect interrupt
 Date:   Tue, 14 Jan 2020 11:01:20 +0100
-Message-Id: <20200114094341.112906176@linuxfoundation.org>
+Message-Id: <20200114094359.717460015@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
-References: <20200114094339.608068818@linuxfoundation.org>
+In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
+References: <20200114094352.428808181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,77 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Tony Lindgren <tony@atomide.com>
 
-commit c1ffba305dbcf3fb9ca969c20a97acbddc38f8e9 upstream.
+commit 5fbf7a2534703fd71159d3d71504b0ad01b43394 upstream.
 
-On shutdown, ehci_power_off() is called unconditionally to power off
-each port, even if it was never called to power on the port.
-For chipidea, this results in a call to ehci_ci_portpower() with a request
-to power off ports even if the port was never powered on.
-This results in the following warning from the regulator code.
+When disconnected as USB B-device, suspend interrupt should come before
+diconnect interrupt, because the DP/DM pins are shorter than the
+VBUS/GND pins on the USB connectors. But we sometimes get a suspend
+interrupt after disconnect interrupt. In that case we have devctl set to
+99 with VBUS still valid and musb_pm_runtime_check_session() wrongly
+thinks we have an active session. We have no other interrupts after
+disconnect coming in this case at least with the omap2430 glue.
 
-WARNING: CPU: 0 PID: 182 at drivers/regulator/core.c:2596 _regulator_disable+0x1a8/0x210
-unbalanced disables for usb_otg2_vbus
-Modules linked in:
-CPU: 0 PID: 182 Comm: init Not tainted 5.4.6 #1
-Hardware name: Freescale i.MX7 Dual (Device Tree)
-[<c0313658>] (unwind_backtrace) from [<c030d698>] (show_stack+0x10/0x14)
-[<c030d698>] (show_stack) from [<c1133afc>] (dump_stack+0xe0/0x10c)
-[<c1133afc>] (dump_stack) from [<c0349098>] (__warn+0xf4/0x10c)
-[<c0349098>] (__warn) from [<c0349128>] (warn_slowpath_fmt+0x78/0xbc)
-[<c0349128>] (warn_slowpath_fmt) from [<c09f36ac>] (_regulator_disable+0x1a8/0x210)
-[<c09f36ac>] (_regulator_disable) from [<c09f374c>] (regulator_disable+0x38/0xe8)
-[<c09f374c>] (regulator_disable) from [<c0df7bac>] (ehci_ci_portpower+0x38/0xdc)
-[<c0df7bac>] (ehci_ci_portpower) from [<c0db4fa4>] (ehci_port_power+0x50/0xa4)
-[<c0db4fa4>] (ehci_port_power) from [<c0db5420>] (ehci_silence_controller+0x5c/0xc4)
-[<c0db5420>] (ehci_silence_controller) from [<c0db7644>] (ehci_stop+0x3c/0xcc)
-[<c0db7644>] (ehci_stop) from [<c0d5bdc4>] (usb_remove_hcd+0xe0/0x19c)
-[<c0d5bdc4>] (usb_remove_hcd) from [<c0df7638>] (host_stop+0x38/0xa8)
-[<c0df7638>] (host_stop) from [<c0df2f34>] (ci_hdrc_remove+0x44/0xe4)
-...
+Let's fix the issue by checking the interrupt status again with
+delayed work for the devctl 99 case. In the suspend after disconnect
+case the devctl session bit has cleared by then and musb can idle.
+For a typical USB B-device connect case we just continue with normal
+interrupts.
 
-Keeping track of the power enable state avoids the warning and traceback.
+Fixes: 467d5c980709 ("usb: musb: Implement session bit based runtime PM for musb-core")
 
-Fixes: c8679a2fb8dec ("usb: chipidea: host: add portpower override")
-Cc: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: Peter Chen <peter.chen@freescale.com>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20191226155754.25451-1-linux@roeck-us.net
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Bin Liu <b-liu@ti.com>
+Link: https://lore.kernel.org/r/20200107152625.857-2-b-liu@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/chipidea/host.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/musb/musb_core.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/usb/chipidea/host.c
-+++ b/drivers/usb/chipidea/host.c
-@@ -25,6 +25,7 @@ static int (*orig_bus_suspend)(struct us
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -1840,6 +1840,9 @@ ATTRIBUTE_GROUPS(musb);
+ #define MUSB_QUIRK_B_INVALID_VBUS_91	(MUSB_DEVCTL_BDEVICE | \
+ 					 (2 << MUSB_DEVCTL_VBUS_SHIFT) | \
+ 					 MUSB_DEVCTL_SESSION)
++#define MUSB_QUIRK_B_DISCONNECT_99	(MUSB_DEVCTL_BDEVICE | \
++					 (3 << MUSB_DEVCTL_VBUS_SHIFT) | \
++					 MUSB_DEVCTL_SESSION)
+ #define MUSB_QUIRK_A_DISCONNECT_19	((3 << MUSB_DEVCTL_VBUS_SHIFT) | \
+ 					 MUSB_DEVCTL_SESSION)
  
- struct ehci_ci_priv {
- 	struct regulator *reg_vbus;
-+	bool enabled;
- };
- 
- static int ehci_ci_portpower(struct usb_hcd *hcd, int portnum, bool enable)
-@@ -36,7 +37,7 @@ static int ehci_ci_portpower(struct usb_
- 	int ret = 0;
- 	int port = HCS_N_PORTS(ehci->hcs_params);
- 
--	if (priv->reg_vbus) {
-+	if (priv->reg_vbus && enable != priv->enabled) {
- 		if (port > 1) {
- 			dev_warn(dev,
- 				"Not support multi-port regulator control\n");
-@@ -52,6 +53,7 @@ static int ehci_ci_portpower(struct usb_
- 				enable ? "enable" : "disable", ret);
- 			return ret;
- 		}
-+		priv->enabled = enable;
- 	}
- 
- 	if (enable && (ci->platdata->phy_mode == USBPHY_INTERFACE_MODE_HSIC)) {
+@@ -1862,6 +1865,11 @@ static void musb_pm_runtime_check_sessio
+ 	s = MUSB_DEVCTL_FSDEV | MUSB_DEVCTL_LSDEV |
+ 		MUSB_DEVCTL_HR;
+ 	switch (devctl & ~s) {
++	case MUSB_QUIRK_B_DISCONNECT_99:
++		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
++		schedule_delayed_work(&musb->irq_work,
++				      msecs_to_jiffies(1000));
++		break;
+ 	case MUSB_QUIRK_B_INVALID_VBUS_91:
+ 		if (musb->quirk_retries && !musb->flush_irq_work) {
+ 			musb_dbg(musb,
 
 
