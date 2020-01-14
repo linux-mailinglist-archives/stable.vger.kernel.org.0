@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B86A113A6AA
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B02113A642
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729833AbgANKMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:12:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49492 "EHLO mail.kernel.org"
+        id S1731673AbgANKK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:10:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733104AbgANKMs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:12:48 -0500
+        id S1731670AbgANKK2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:10:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8995D207FF;
-        Tue, 14 Jan 2020 10:12:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAF9F24677;
+        Tue, 14 Jan 2020 10:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996768;
-        bh=me15p6+JbLUTwP3Fx/M4wtcxYJljV5YqR90eo9NluZ0=;
+        s=default; t=1578996627;
+        bh=6X+glQ2A8JCxThgNNBJvVmCp1LeOqVEUQ3LHX08BtJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ZqQtQ+sfcbW/YX5F/4i5+jnP+d8BcZP10YtfAeiyB7ujFLYNFmX0yoEM6uCmutbf
-         hXQRX95phZOXklBNtRt6DopMUAOzBdL8jDa1ow1gY0oav+WdvhSR6T9Uhxb2o8PvfH
-         N0Z7Rod8t4VqitoCpXxTQAJhSdf8WV8RnQp/nUMI=
+        b=kQEv3auh3I5xVN3F70y+RB+o02cnCtE8j1oNff2kC+xFAwckiiCzdJu7GB4rtw/ko
+         SGphqiHDE3hYI5nk9GpIbO6UaPSIakTBWav0rpvRX783ZST/GTBu/E05zbPKKbOYwe
+         IZ+E0IfnmGUdTAlN2yxTwXdZGyBTaaUSFXfWGDUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.4 09/28] HID: hid-input: clear unmapped usages
-Date:   Tue, 14 Jan 2020 11:02:11 +0100
-Message-Id: <20200114094341.326896955@linuxfoundation.org>
+        syzbot+d7358a458d8a81aee898@syzkaller.appspotmail.com,
+        Florian Westphal <fw@strlen.de>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 38/39] netfilter: arp_tables: init netns pointer in xt_tgchk_param struct
+Date:   Tue, 14 Jan 2020 11:02:12 +0100
+Message-Id: <20200114094346.909293029@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
-References: <20200114094336.845958665@linuxfoundation.org>
+In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
+References: <20200114094336.210038037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,73 +46,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 4f3882177240a1f55e45a3d241d3121341bead78 upstream.
+commit 1b789577f655060d98d20ed0c6f9fbd469d6ba63 upstream.
 
-We should not be leaving half-mapped usages with potentially invalid
-keycodes, as that may confuse hidinput_find_key() when the key is located
-by index, which may end up feeding way too large keycode into the VT
-keyboard handler and cause OOB write there:
+We get crash when the targets checkentry function tries to make
+use of the network namespace pointer for arptables.
 
-BUG: KASAN: global-out-of-bounds in clear_bit include/asm-generic/bitops-instrumented.h:56 [inline]
-BUG: KASAN: global-out-of-bounds in kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
-BUG: KASAN: global-out-of-bounds in kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
-Write of size 8 at addr ffffffff89a1b2d8 by task syz-executor108/1722
-...
- kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
- kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
- input_to_handler+0x3b6/0x4c0 drivers/input/input.c:118
- input_pass_values.part.0+0x2e3/0x720 drivers/input/input.c:145
- input_pass_values drivers/input/input.c:949 [inline]
- input_set_keycode+0x290/0x320 drivers/input/input.c:954
- evdev_handle_set_keycode_v2+0xc4/0x120 drivers/input/evdev.c:882
- evdev_do_ioctl drivers/input/evdev.c:1150 [inline]
+When the net pointer got added back in 2010, only ip/ip6/ebtables were
+changed to initialize it, so arptables has this set to NULL.
 
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+This isn't a problem for normal arptables because no existing
+arptables target has a checkentry function that makes use of par->net.
+
+However, direct users of the setsockopt interface can provide any
+target they want as long as its registered for ARP or UNPSEC protocols.
+
+syzkaller managed to send a semi-valid arptables rule for RATEEST target
+which is enough to trigger NULL deref:
+
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+RIP: xt_rateest_tg_checkentry+0x11d/0xb40 net/netfilter/xt_RATEEST.c:109
+[..]
+ xt_check_target+0x283/0x690 net/netfilter/x_tables.c:1019
+ check_target net/ipv4/netfilter/arp_tables.c:399 [inline]
+ find_check_entry net/ipv4/netfilter/arp_tables.c:422 [inline]
+ translate_table+0x1005/0x1d70 net/ipv4/netfilter/arp_tables.c:572
+ do_replace net/ipv4/netfilter/arp_tables.c:977 [inline]
+ do_arpt_set_ctl+0x310/0x640 net/ipv4/netfilter/arp_tables.c:1456
+
+Fixes: add67461240c1d ("netfilter: add struct net * to target parameters")
+Reported-by: syzbot+d7358a458d8a81aee898@syzkaller.appspotmail.com
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-input.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ net/ipv4/netfilter/arp_tables.c |   27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -994,9 +994,15 @@ static void hidinput_configure_usage(str
- 	}
- 
- mapped:
--	if (device->driver->input_mapped && device->driver->input_mapped(device,
--				hidinput, field, usage, &bit, &max) < 0)
--		goto ignore;
-+	if (device->driver->input_mapped &&
-+	    device->driver->input_mapped(device, hidinput, field, usage,
-+					 &bit, &max) < 0) {
-+		/*
-+		 * The driver indicated that no further generic handling
-+		 * of the usage is desired.
-+		 */
-+		return;
-+	}
- 
- 	set_bit(usage->type, input->evbit);
- 
-@@ -1055,9 +1061,11 @@ mapped:
- 		set_bit(MSC_SCAN, input->mscbit);
- 	}
- 
--ignore:
- 	return;
- 
-+ignore:
-+	usage->type = 0;
-+	usage->code = 0;
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -394,10 +394,11 @@ next:		;
+ 	return 1;
  }
  
- void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value)
+-static inline int check_target(struct arpt_entry *e, const char *name)
++static int check_target(struct arpt_entry *e, struct net *net, const char *name)
+ {
+ 	struct xt_entry_target *t = arpt_get_target(e);
+ 	struct xt_tgchk_param par = {
++		.net       = net,
+ 		.table     = name,
+ 		.entryinfo = e,
+ 		.target    = t->u.kernel.target,
+@@ -409,8 +410,9 @@ static inline int check_target(struct ar
+ 	return xt_check_target(&par, t->u.target_size - sizeof(*t), 0, false);
+ }
+ 
+-static inline int
+-find_check_entry(struct arpt_entry *e, const char *name, unsigned int size,
++static int
++find_check_entry(struct arpt_entry *e, struct net *net, const char *name,
++		 unsigned int size,
+ 		 struct xt_percpu_counter_alloc_state *alloc_state)
+ {
+ 	struct xt_entry_target *t;
+@@ -429,7 +431,7 @@ find_check_entry(struct arpt_entry *e, c
+ 	}
+ 	t->u.kernel.target = target;
+ 
+-	ret = check_target(e, name);
++	ret = check_target(e, net, name);
+ 	if (ret)
+ 		goto err;
+ 	return 0;
+@@ -522,7 +524,9 @@ static inline void cleanup_entry(struct
+ /* Checks and translates the user-supplied table segment (held in
+  * newinfo).
+  */
+-static int translate_table(struct xt_table_info *newinfo, void *entry0,
++static int translate_table(struct net *net,
++			   struct xt_table_info *newinfo,
++			   void *entry0,
+ 			   const struct arpt_replace *repl)
+ {
+ 	struct xt_percpu_counter_alloc_state alloc_state = { 0 };
+@@ -586,7 +590,7 @@ static int translate_table(struct xt_tab
+ 	/* Finally, each sanity check must pass */
+ 	i = 0;
+ 	xt_entry_foreach(iter, entry0, newinfo->size) {
+-		ret = find_check_entry(iter, repl->name, repl->size,
++		ret = find_check_entry(iter, net, repl->name, repl->size,
+ 				       &alloc_state);
+ 		if (ret != 0)
+ 			break;
+@@ -974,7 +978,7 @@ static int do_replace(struct net *net, c
+ 		goto free_newinfo;
+ 	}
+ 
+-	ret = translate_table(newinfo, loc_cpu_entry, &tmp);
++	ret = translate_table(net, newinfo, loc_cpu_entry, &tmp);
+ 	if (ret != 0)
+ 		goto free_newinfo;
+ 
+@@ -1149,7 +1153,8 @@ compat_copy_entry_from_user(struct compa
+ 	}
+ }
+ 
+-static int translate_compat_table(struct xt_table_info **pinfo,
++static int translate_compat_table(struct net *net,
++				  struct xt_table_info **pinfo,
+ 				  void **pentry0,
+ 				  const struct compat_arpt_replace *compatr)
+ {
+@@ -1217,7 +1222,7 @@ static int translate_compat_table(struct
+ 	repl.num_counters = 0;
+ 	repl.counters = NULL;
+ 	repl.size = newinfo->size;
+-	ret = translate_table(newinfo, entry1, &repl);
++	ret = translate_table(net, newinfo, entry1, &repl);
+ 	if (ret)
+ 		goto free_newinfo;
+ 
+@@ -1270,7 +1275,7 @@ static int compat_do_replace(struct net
+ 		goto free_newinfo;
+ 	}
+ 
+-	ret = translate_compat_table(&newinfo, &loc_cpu_entry, &tmp);
++	ret = translate_compat_table(net, &newinfo, &loc_cpu_entry, &tmp);
+ 	if (ret != 0)
+ 		goto free_newinfo;
+ 
+@@ -1546,7 +1551,7 @@ int arpt_register_table(struct net *net,
+ 	loc_cpu_entry = newinfo->entries;
+ 	memcpy(loc_cpu_entry, repl->entries, repl->size);
+ 
+-	ret = translate_table(newinfo, loc_cpu_entry, repl);
++	ret = translate_table(net, newinfo, loc_cpu_entry, repl);
+ 	if (ret != 0)
+ 		goto out_free;
+ 
 
 
