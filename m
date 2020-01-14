@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F1913A6A2
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4D213A653
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733093AbgANKMk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:12:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49290 "EHLO mail.kernel.org"
+        id S1731792AbgANKKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:10:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733089AbgANKMk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:12:40 -0500
+        id S1730223AbgANKKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:10:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD0EA24676;
-        Tue, 14 Jan 2020 10:12:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 501A9207FF;
+        Tue, 14 Jan 2020 10:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996760;
-        bh=znToujCv4gKXyI2WE/bFFctzaBTLhDmy1kAXPqx8/Ys=;
+        s=default; t=1578996651;
+        bh=BFxh46HFy9ySY4mUcKY0PvlwJXW3zNmemXO2wpQrlu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKE3iQWsEJcHc2KFNFpxDQN8e1DKotZfJUTxnM8Ac9aJzqeYRm9YOb4dyxRPLO13y
-         bHW1L/i9NHCz1ijuSW9vmLczxc7oxGkC7qf6sIYVgqv2KNNeGB97n1udfAjHsSC50p
-         uRnex2paiNpuGzpFJDmSBVnR7UVAXjBYMo2JS7dI=
+        b=SwLeglJN7XfMP4j02CtFOyyyGErqHjfkLmwdPf4NQKtt3fbn7ydbLzryoZw2mHO5m
+         I/l4lHIXuUKHeRVsyFEb7rn8TGNu68Hlk9h6l+oTleg49E4QsK1vvaw2Wnbh5i0Umj
+         GaQ90SPKcHlXdbJlxGvMwZtzJT62qFuDpKq31L+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 06/28] tracing: Have stack tracer compile when MCOUNT_INSN_SIZE is not defined
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 4.14 34/39] HID: hiddev: fix mess in hiddev_open()
 Date:   Tue, 14 Jan 2020 11:02:08 +0100
-Message-Id: <20200114094340.793885089@linuxfoundation.org>
+Message-Id: <20200114094346.202352828@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
-References: <20200114094336.845958665@linuxfoundation.org>
+In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
+References: <20200114094336.210038037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit b8299d362d0837ae39e87e9019ebe6b736e0f035 upstream.
+commit 18a1b06e5b91d47dc86c0a66a762646ea7c5d141 upstream.
 
-On some archs with some configurations, MCOUNT_INSN_SIZE is not defined, and
-this makes the stack tracer fail to compile. Just define it to zero in this
-case.
+The open method of hiddev handler fails to bring the device out of
+autosuspend state as was promised in 0361a28d3f9a, as it actually has 2
+blocks that try to start the transport (call hid_hw_open()) with both
+being guarded by the "open" counter, so the 2nd block is never executed as
+the first block increments the counter so it is never at 0 when we check
+it for the second block.
 
-Link: https://lore.kernel.org/r/202001020219.zvE3vsty%lkp@intel.com
+Additionally hiddev_open() was leaving counter incremented on errors,
+causing the device to never be reopened properly if there was ever an
+error.
 
-Cc: stable@vger.kernel.org
-Fixes: 4df297129f622 ("tracing: Remove most or all of stack tracer stack size from stack_max_size")
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Let's fix all of this by factoring out code that creates client structure
+and powers up the device into a separate function that is being called
+from usbhid_open() with the "existancelock" being held.
+
+Fixes: 0361a28d3f9a ("HID: autosuspend support for USB HID")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_stack.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/usbhid/hiddev.c |   97 +++++++++++++++++++-------------------------
+ 1 file changed, 42 insertions(+), 55 deletions(-)
 
---- a/kernel/trace/trace_stack.c
-+++ b/kernel/trace/trace_stack.c
-@@ -197,6 +197,11 @@ check_stack(unsigned long ip, unsigned l
- 	local_irq_restore(flags);
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -254,12 +254,51 @@ static int hiddev_release(struct inode *
+ 	return 0;
  }
  
-+/* Some archs may not define MCOUNT_INSN_SIZE */
-+#ifndef MCOUNT_INSN_SIZE
-+# define MCOUNT_INSN_SIZE 0
-+#endif
++static int __hiddev_open(struct hiddev *hiddev, struct file *file)
++{
++	struct hiddev_list *list;
++	int error;
 +
- static void
- stack_trace_call(unsigned long ip, unsigned long parent_ip,
- 		 struct ftrace_ops *op, struct pt_regs *pt_regs)
++	lockdep_assert_held(&hiddev->existancelock);
++
++	list = vzalloc(sizeof(*list));
++	if (!list)
++		return -ENOMEM;
++
++	mutex_init(&list->thread_lock);
++	list->hiddev = hiddev;
++
++	if (!hiddev->open++) {
++		error = hid_hw_power(hiddev->hid, PM_HINT_FULLON);
++		if (error < 0)
++			goto err_drop_count;
++
++		error = hid_hw_open(hiddev->hid);
++		if (error < 0)
++			goto err_normal_power;
++	}
++
++	spin_lock_irq(&hiddev->list_lock);
++	list_add_tail(&list->node, &hiddev->list);
++	spin_unlock_irq(&hiddev->list_lock);
++
++	file->private_data = list;
++
++	return 0;
++
++err_normal_power:
++	hid_hw_power(hiddev->hid, PM_HINT_NORMAL);
++err_drop_count:
++	hiddev->open--;
++	vfree(list);
++	return error;
++}
++
+ /*
+  * open file op
+  */
+ static int hiddev_open(struct inode *inode, struct file *file)
+ {
+-	struct hiddev_list *list;
+ 	struct usb_interface *intf;
+ 	struct hid_device *hid;
+ 	struct hiddev *hiddev;
+@@ -268,66 +307,14 @@ static int hiddev_open(struct inode *ino
+ 	intf = usbhid_find_interface(iminor(inode));
+ 	if (!intf)
+ 		return -ENODEV;
++
+ 	hid = usb_get_intfdata(intf);
+ 	hiddev = hid->hiddev;
+ 
+-	if (!(list = vzalloc(sizeof(struct hiddev_list))))
+-		return -ENOMEM;
+-	mutex_init(&list->thread_lock);
+-	list->hiddev = hiddev;
+-	file->private_data = list;
+-
+-	/*
+-	 * no need for locking because the USB major number
+-	 * is shared which usbcore guards against disconnect
+-	 */
+-	if (list->hiddev->exist) {
+-		if (!list->hiddev->open++) {
+-			res = hid_hw_open(hiddev->hid);
+-			if (res < 0)
+-				goto bail;
+-		}
+-	} else {
+-		res = -ENODEV;
+-		goto bail;
+-	}
+-
+-	spin_lock_irq(&list->hiddev->list_lock);
+-	list_add_tail(&list->node, &hiddev->list);
+-	spin_unlock_irq(&list->hiddev->list_lock);
+-
+ 	mutex_lock(&hiddev->existancelock);
+-	/*
+-	 * recheck exist with existance lock held to
+-	 * avoid opening a disconnected device
+-	 */
+-	if (!list->hiddev->exist) {
+-		res = -ENODEV;
+-		goto bail_unlock;
+-	}
+-	if (!list->hiddev->open++)
+-		if (list->hiddev->exist) {
+-			struct hid_device *hid = hiddev->hid;
+-			res = hid_hw_power(hid, PM_HINT_FULLON);
+-			if (res < 0)
+-				goto bail_unlock;
+-			res = hid_hw_open(hid);
+-			if (res < 0)
+-				goto bail_normal_power;
+-		}
+-	mutex_unlock(&hiddev->existancelock);
+-	return 0;
+-bail_normal_power:
+-	hid_hw_power(hid, PM_HINT_NORMAL);
+-bail_unlock:
++	res = hiddev->exist ? __hiddev_open(hiddev, file) : -ENODEV;
+ 	mutex_unlock(&hiddev->existancelock);
+ 
+-	spin_lock_irq(&list->hiddev->list_lock);
+-	list_del(&list->node);
+-	spin_unlock_irq(&list->hiddev->list_lock);
+-bail:
+-	file->private_data = NULL;
+-	vfree(list);
+ 	return res;
+ }
+ 
 
 
