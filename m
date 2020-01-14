@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C036139E35
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 01:29:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A872D139E36
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 01:29:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728914AbgANA3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Jan 2020 19:29:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
+        id S1728977AbgANA3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Jan 2020 19:29:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728890AbgANA3W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Jan 2020 19:29:22 -0500
+        id S1728890AbgANA3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Jan 2020 19:29:34 -0500
 Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85FFD2084D;
-        Tue, 14 Jan 2020 00:29:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FD1F21556;
+        Tue, 14 Jan 2020 00:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578961761;
-        bh=KWl2p7alri5oK+YFVOZ4FhRmZmqm8L+8gOMyGzmKubQ=;
+        s=default; t=1578961773;
+        bh=DcHqBL64cbNkVbSmxrP/j7rkitdcnTiPDWtLdYy4gmU=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=G1FXr+2M08ju8p2c0M/qCbYDFX2ltn5SbKUBLPHBM/SSw+M5ehLWxOV6iGaFPZf9L
-         cmfBfnRgL+w6PfG8R9RvlqfmlOC7iMpxyBDiOGmJo4ERKn/IbOMJC59HguPO4AFJKv
-         Mzf9k7scQ6JRlPUagEWAGdCVBIFnHTYq5wLEritY=
-Date:   Mon, 13 Jan 2020 16:29:20 -0800
+        b=g6vf8wLwX37XkzCTV60uaetfiDyZU8PV3/W/mv0mIgR7vd1B0AMvTZuEt+5mG9sbV
+         izDaLs2RTWscjLS9XwJVXZtsuG8HzYTRnD8h8LjozYz3GmyNDcK1ZC2LE0mjchfvTh
+         Aae3BHnhZe23bDs8T0e224EYWkScf7hfBYNTjHB0=
+Date:   Mon, 13 Jan 2020 16:29:32 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     willy@infradead.org, stable@vger.kernel.org, sfr@canb.auug.org.au,
-        peterz@infradead.org, mhocko@kernel.org,
-        mgorman@techsingularity.net, kirill.shutemov@linux.intel.com,
-        iamjoonsoo.kim@lge.com, cai@lca.pw, bp@alien8.de, vbabka@suse.cz,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 06/11] mm, debug_pagealloc: don't rely on static
- keys too early
-Message-ID: <20200114002920.lOmmY%akpm@linux-foundation.org>
+To:     stable@vger.kernel.org, shakeelb@google.com, rientjes@google.com,
+        penberg@kernel.org, mhocko@kernel.org, lixc17@lenovo.com,
+        jroedel@suse.de, iamjoonsoo.kim@lge.com, hannes@cmpxchg.org,
+        cl@linux.com, ahuang12@lenovo.com, akpm@linux-foundation.org,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 10/11] mm: memcg/slab: call flush_memcg_workqueue()
+ only if memcg workqueue is valid
+Message-ID: <20200114002932.ZMvXk%akpm@linux-foundation.org>
 In-Reply-To: <20200113162831.f7d69e11e9e673c40005c9b0@linux-foundation.org>
 User-Agent: s-nail v14.9.15
 Sender: stable-owner@vger.kernel.org
@@ -41,258 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: mm, debug_pagealloc: don't rely on static keys too early
+From: Adrian Huang <ahuang12@lenovo.com>
+Subject: mm: memcg/slab: call flush_memcg_workqueue() only if memcg workqueue is valid
 
-Commit 96a2b03f281d ("mm, debug_pagelloc: use static keys to enable
-debugging") has introduced a static key to reduce overhead when
-debug_pagealloc is compiled in but not enabled.  It relied on the
-assumption that jump_label_init() is called before parse_early_param() as
-in start_kernel(), so when the "debug_pagealloc=on" option is parsed, it
-is safe to enable the static key.
+When booting with amd_iommu=off, the following WARNING message
+appears:
+  AMD-Vi: AMD IOMMU disabled on kernel command-line
+  ------------[ cut here ]------------
+  WARNING: CPU: 0 PID: 0 at kernel/workqueue.c:2772 flush_workqueue+0x42e/0x450
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.5.0-rc3-amd-iommu #6
+  Hardware name: Lenovo ThinkSystem SR655-2S/7D2WRCZ000, BIOS D8E101L-1.00 12/05/2019
+  RIP: 0010:flush_workqueue+0x42e/0x450
+  Code: ff 0f 0b e9 7a fd ff ff 4d 89 ef e9 33 fe ff ff 0f 0b e9 7f fd ff ff 0f 0b e9 bc fd ff ff 0f 0b e9 a8 fd ff ff e8 52 2c fe ff <0f> 0b 31 d2 48 c7 c6 e0 88 c5 95 48 c7 c7 d8 ad f0 95 e8 19 f5 04
+  RSP: 0000:ffffffff96203d80 EFLAGS: 00010246
+  RAX: ffffffff96203dc8 RBX: 0000000000000000 RCX: 0000000000000000
+  RDX: ffffffff96a63120 RSI: ffffffff95efcba2 RDI: ffffffff96203dc0
+  RBP: ffffffff96203e08 R08: 0000000000000000 R09: ffffffff962a1828
+  R10: 00000000f0000080 R11: dead000000000100 R12: ffff8d8a87c0a770
+  R13: dead000000000100 R14: 0000000000000456 R15: ffffffff96203da0
+  FS:  0000000000000000(0000) GS:ffff8d8dbd000000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffff8d91cfbff000 CR3: 000000078920a000 CR4: 00000000000406b0
+  Call Trace:
+   ? wait_for_completion+0x51/0x180
+   kmem_cache_destroy+0x69/0x260
+   iommu_go_to_state+0x40c/0x5ab
+   amd_iommu_prepare+0x16/0x2a
+   irq_remapping_prepare+0x36/0x5f
+   enable_IR_x2apic+0x21/0x172
+   default_setup_apic_routing+0x12/0x6f
+   apic_intr_mode_init+0x1a1/0x1f1
+   x86_late_time_init+0x17/0x1c
+   start_kernel+0x480/0x53f
+   secondary_startup_64+0xb6/0xc0
+  ---[ end trace 30894107c3749449 ]---
+  x2apic: IRQ remapping doesn't support X2APIC mode
+  x2apic disabled
 
-However, it turns out multiple architectures call parse_early_param()
-earlier from their setup_arch().  x86 also calls jump_label_init() even
-earlier, so no issue was found while testing the commit, but same is not
-true for e.g.  ppc64 and s390 where the kernel would not boot with
-debug_pagealloc=on as found by our QA.
+The warning is caused by the calling of 'kmem_cache_destroy()'
+in free_iommu_resources(). Here is the call path:
+  free_iommu_resources
+    kmem_cache_destroy
+      flush_memcg_workqueue
+        flush_workqueue
 
-To fix this without tricky changes to init code of multiple architectures,
-this patch partially reverts the static key conversion from 96a2b03f281d. 
-Init-time and non-fastpath calls (such as in arch code) of
-debug_pagealloc_enabled() will again test a simple bool variable. 
-Fastpath mm code is converted to a new debug_pagealloc_enabled_static()
-variant that relies on the static key, which is enabled in a well-defined
-point in mm_init() where it's guaranteed that jump_label_init() has been
-called, regardless of architecture.
+The root cause is that the IOMMU subsystem runs before the workqueue
+subsystem, which the variable 'wq_online' is still 'false'.  This leads to
+the statement 'if (WARN_ON(!wq_online))' in flush_workqueue() is 'true'.
 
-[sfr@canb.auug.org.au: export _debug_pagealloc_enabled_early]
-  Link: http://lkml.kernel.org/r/20200106164944.063ac07b@canb.auug.org.au
-Link: http://lkml.kernel.org/r/20191219130612.23171-1-vbabka@suse.cz
-Fixes: 96a2b03f281d ("mm, debug_pagelloc: use static keys to enable debugging")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Since the variable 'memcg_kmem_cache_wq' is not allocated during the time,
+it is unnecessary to call flush_memcg_workqueue().  This prevents the
+WARNING message triggered by flush_workqueue().
+
+Link: http://lkml.kernel.org/r/20200103085503.1665-1-ahuang12@lenovo.com
+Fixes: 92ee383f6daab ("mm: fix race between kmem_cache destroy, create and deactivate")
+Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
+Reported-by: Xiaochun Lee <lixc17@lenovo.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
 Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Qian Cai <cai@lca.pw>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/mm.h |   18 +++++++++++++++---
- init/main.c        |    1 +
- mm/page_alloc.c    |   37 +++++++++++++------------------------
- mm/slab.c          |    4 ++--
- mm/slub.c          |    2 +-
- mm/vmalloc.c       |    4 ++--
- 6 files changed, 34 insertions(+), 32 deletions(-)
+ mm/slab_common.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/mm.h~mm-debug_pagealloc-dont-rely-on-static-keys-too-early
-+++ a/include/linux/mm.h
-@@ -2658,14 +2658,26 @@ static inline bool want_init_on_free(voi
- 	       !page_poisoning_enabled();
- }
- 
--#ifdef CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT
--DECLARE_STATIC_KEY_TRUE(_debug_pagealloc_enabled);
-+#ifdef CONFIG_DEBUG_PAGEALLOC
-+extern void init_debug_pagealloc(void);
- #else
--DECLARE_STATIC_KEY_FALSE(_debug_pagealloc_enabled);
-+static inline void init_debug_pagealloc(void) {}
- #endif
-+extern bool _debug_pagealloc_enabled_early;
-+DECLARE_STATIC_KEY_FALSE(_debug_pagealloc_enabled);
- 
- static inline bool debug_pagealloc_enabled(void)
- {
-+	return IS_ENABLED(CONFIG_DEBUG_PAGEALLOC) &&
-+		_debug_pagealloc_enabled_early;
-+}
-+
-+/*
-+ * For use in fast paths after init_debug_pagealloc() has run, or when a
-+ * false negative result is not harmful when called too early.
-+ */
-+static inline bool debug_pagealloc_enabled_static(void)
-+{
- 	if (!IS_ENABLED(CONFIG_DEBUG_PAGEALLOC))
- 		return false;
- 
---- a/init/main.c~mm-debug_pagealloc-dont-rely-on-static-keys-too-early
-+++ a/init/main.c
-@@ -553,6 +553,7 @@ static void __init mm_init(void)
- 	 * bigger than MAX_ORDER unless SPARSEMEM.
+--- a/mm/slab_common.c~mm-memcg-slab-call-flush_memcg_workqueue-only-if-memcg-workqueue-is-valid
++++ a/mm/slab_common.c
+@@ -903,7 +903,8 @@ static void flush_memcg_workqueue(struct
+ 	 * deactivates the memcg kmem_caches through workqueue. Make sure all
+ 	 * previous workitems on workqueue are processed.
  	 */
- 	page_ext_init_flatmem();
-+	init_debug_pagealloc();
- 	report_meminit();
- 	mem_init();
- 	kmem_cache_init();
---- a/mm/page_alloc.c~mm-debug_pagealloc-dont-rely-on-static-keys-too-early
-+++ a/mm/page_alloc.c
-@@ -694,34 +694,27 @@ void prep_compound_page(struct page *pag
- #ifdef CONFIG_DEBUG_PAGEALLOC
- unsigned int _debug_guardpage_minorder;
+-	flush_workqueue(memcg_kmem_cache_wq);
++	if (likely(memcg_kmem_cache_wq))
++		flush_workqueue(memcg_kmem_cache_wq);
  
--#ifdef CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT
--DEFINE_STATIC_KEY_TRUE(_debug_pagealloc_enabled);
--#else
-+bool _debug_pagealloc_enabled_early __read_mostly
-+			= IS_ENABLED(CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT);
-+EXPORT_SYMBOL(_debug_pagealloc_enabled_early);
- DEFINE_STATIC_KEY_FALSE(_debug_pagealloc_enabled);
--#endif
- EXPORT_SYMBOL(_debug_pagealloc_enabled);
- 
- DEFINE_STATIC_KEY_FALSE(_debug_guardpage_enabled);
- 
- static int __init early_debug_pagealloc(char *buf)
- {
--	bool enable = false;
--
--	if (kstrtobool(buf, &enable))
--		return -EINVAL;
--
--	if (enable)
--		static_branch_enable(&_debug_pagealloc_enabled);
--
--	return 0;
-+	return kstrtobool(buf, &_debug_pagealloc_enabled_early);
- }
- early_param("debug_pagealloc", early_debug_pagealloc);
- 
--static void init_debug_guardpage(void)
-+void init_debug_pagealloc(void)
- {
- 	if (!debug_pagealloc_enabled())
- 		return;
- 
-+	static_branch_enable(&_debug_pagealloc_enabled);
-+
- 	if (!debug_guardpage_minorder())
- 		return;
- 
-@@ -1186,7 +1179,7 @@ static __always_inline bool free_pages_p
- 	 */
- 	arch_free_page(page, order);
- 
--	if (debug_pagealloc_enabled())
-+	if (debug_pagealloc_enabled_static())
- 		kernel_map_pages(page, 1 << order, 0);
- 
- 	kasan_free_nondeferred_pages(page, order);
-@@ -1207,7 +1200,7 @@ static bool free_pcp_prepare(struct page
- 
- static bool bulkfree_pcp_prepare(struct page *page)
- {
--	if (debug_pagealloc_enabled())
-+	if (debug_pagealloc_enabled_static())
- 		return free_pages_check(page);
- 	else
- 		return false;
-@@ -1221,7 +1214,7 @@ static bool bulkfree_pcp_prepare(struct
-  */
- static bool free_pcp_prepare(struct page *page)
- {
--	if (debug_pagealloc_enabled())
-+	if (debug_pagealloc_enabled_static())
- 		return free_pages_prepare(page, 0, true);
- 	else
- 		return free_pages_prepare(page, 0, false);
-@@ -1973,10 +1966,6 @@ void __init page_alloc_init_late(void)
- 
- 	for_each_populated_zone(zone)
- 		set_zone_contiguous(zone);
--
--#ifdef CONFIG_DEBUG_PAGEALLOC
--	init_debug_guardpage();
--#endif
- }
- 
- #ifdef CONFIG_CMA
-@@ -2106,7 +2095,7 @@ static inline bool free_pages_prezeroed(
-  */
- static inline bool check_pcp_refill(struct page *page)
- {
--	if (debug_pagealloc_enabled())
-+	if (debug_pagealloc_enabled_static())
- 		return check_new_page(page);
- 	else
- 		return false;
-@@ -2128,7 +2117,7 @@ static inline bool check_pcp_refill(stru
- }
- static inline bool check_new_pcp(struct page *page)
- {
--	if (debug_pagealloc_enabled())
-+	if (debug_pagealloc_enabled_static())
- 		return check_new_page(page);
- 	else
- 		return false;
-@@ -2155,7 +2144,7 @@ inline void post_alloc_hook(struct page
- 	set_page_refcounted(page);
- 
- 	arch_alloc_page(page, order);
--	if (debug_pagealloc_enabled())
-+	if (debug_pagealloc_enabled_static())
- 		kernel_map_pages(page, 1 << order, 1);
- 	kasan_alloc_pages(page, order);
- 	kernel_poison_pages(page, 1 << order, 1);
---- a/mm/slab.c~mm-debug_pagealloc-dont-rely-on-static-keys-too-early
-+++ a/mm/slab.c
-@@ -1416,7 +1416,7 @@ static void kmem_rcu_free(struct rcu_hea
- #if DEBUG
- static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
- {
--	if (debug_pagealloc_enabled() && OFF_SLAB(cachep) &&
-+	if (debug_pagealloc_enabled_static() && OFF_SLAB(cachep) &&
- 		(cachep->size % PAGE_SIZE) == 0)
- 		return true;
- 
-@@ -2008,7 +2008,7 @@ int __kmem_cache_create(struct kmem_cach
- 	 * to check size >= 256. It guarantees that all necessary small
- 	 * sized slab is initialized in current slab initialization sequence.
- 	 */
--	if (debug_pagealloc_enabled() && (flags & SLAB_POISON) &&
-+	if (debug_pagealloc_enabled_static() && (flags & SLAB_POISON) &&
- 		size >= 256 && cachep->object_size > cache_line_size()) {
- 		if (size < PAGE_SIZE || size % PAGE_SIZE == 0) {
- 			size_t tmp_size = ALIGN(size, PAGE_SIZE);
---- a/mm/slub.c~mm-debug_pagealloc-dont-rely-on-static-keys-too-early
-+++ a/mm/slub.c
-@@ -288,7 +288,7 @@ static inline void *get_freepointer_safe
- 	unsigned long freepointer_addr;
- 	void *p;
- 
--	if (!debug_pagealloc_enabled())
-+	if (!debug_pagealloc_enabled_static())
- 		return get_freepointer(s, object);
- 
- 	freepointer_addr = (unsigned long)object + s->offset;
---- a/mm/vmalloc.c~mm-debug_pagealloc-dont-rely-on-static-keys-too-early
-+++ a/mm/vmalloc.c
-@@ -1383,7 +1383,7 @@ static void free_unmap_vmap_area(struct
- {
- 	flush_cache_vunmap(va->va_start, va->va_end);
- 	unmap_vmap_area(va);
--	if (debug_pagealloc_enabled())
-+	if (debug_pagealloc_enabled_static())
- 		flush_tlb_kernel_range(va->va_start, va->va_end);
- 
- 	free_vmap_area_noflush(va);
-@@ -1681,7 +1681,7 @@ static void vb_free(const void *addr, un
- 
- 	vunmap_page_range((unsigned long)addr, (unsigned long)addr + size);
- 
--	if (debug_pagealloc_enabled())
-+	if (debug_pagealloc_enabled_static())
- 		flush_tlb_kernel_range((unsigned long)addr,
- 					(unsigned long)addr + size);
- 
+ 	/*
+ 	 * If we're racing with children kmem_cache deactivation, it might
 _
