@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7D913A543
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74AD113A56B
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:09:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729880AbgANKGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:06:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34830 "EHLO mail.kernel.org"
+        id S1729652AbgANKHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:07:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730291AbgANKGF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:06:05 -0500
+        id S1728779AbgANKH1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:07:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F22224680;
-        Tue, 14 Jan 2020 10:06:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3DDD24685;
+        Tue, 14 Jan 2020 10:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996364;
-        bh=LmySiv9v38Hu478RVBjfEARaYj4GudwdzSzApzt0T2g=;
+        s=default; t=1578996447;
+        bh=uUrA3Z+l+qzdLYCP9M082e6po9DoD8BgNE22uN5SkBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FQeaCtiRJuc8Fbgc1u+H808++Cr47X2jxy2yylvNdkgR2WkBiXJjL/9Jny3PKxK0e
-         3HRvX//DEPcH5l714PSMw1P0TglRKH2tcqaQRxFxzsfxyOEyHKWAUwn0Xhd8QCub02
-         wJ0yLzrxLSvpnHk062F1L5MPAY5c8gRHJlr7sibM=
+        b=DDIJ8QuydOB8hM4mPePSwiQn/jPwYVsC+GGZHUW+WIiWSp0ZdFs1YL/eh0vvsG8h+
+         9+i4sO7yB8d80/IYNwqQI8scsjimOrE7aWyS2EjSUyut81P7TJ18KQh72QkwdOYOVP
+         sYipMIL8DVTEqC/iYsrGHb0fBlWUiffmPPs8GVls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amanieu dAntras <amanieu@gmail.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.4 63/78] clone3: ensure copy_thread_tls is implemented
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 20/46] can: gs_usb: gs_usb_probe(): use descriptors of current altsetting
 Date:   Tue, 14 Jan 2020 11:01:37 +0100
-Message-Id: <20200114094401.878025357@linuxfoundation.org>
+Message-Id: <20200114094344.577360795@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
-References: <20200114094352.428808181@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amanieu d'Antras <amanieu@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit dd499f7a7e34270208350a849ef103c0b3ae477f upstream.
+commit 2f361cd9474ab2c4ab9ac8db20faf81e66c6279b upstream.
 
-copy_thread implementations handle CLONE_SETTLS by reading the TLS
-value from the registers containing the syscall arguments for
-clone. This doesn't work with clone3 since the TLS value is passed
-in clone_args instead.
+Make sure to always use the descriptors of the current alternate setting
+to avoid future issues when accessing fields that may differ between
+settings.
 
-Signed-off-by: Amanieu d'Antras <amanieu@gmail.com>
-Cc: <stable@vger.kernel.org> # 5.3.x
-Link: https://lore.kernel.org/r/20200102172413.654385-8-amanieu@gmail.com
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/fork.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/can/usb/gs_usb.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2513,6 +2513,16 @@ SYSCALL_DEFINE5(clone, unsigned long, cl
- #endif
- 
- #ifdef __ARCH_WANT_SYS_CLONE3
-+
-+/*
-+ * copy_thread implementations handle CLONE_SETTLS by reading the TLS value from
-+ * the registers containing the syscall arguments for clone. This doesn't work
-+ * with clone3 since the TLS value is passed in clone_args instead.
-+ */
-+#ifndef CONFIG_HAVE_COPY_THREAD_TLS
-+#error clone3 requires copy_thread_tls support in arch
-+#endif
-+
- noinline static int copy_clone_args_from_user(struct kernel_clone_args *kargs,
- 					      struct clone_args __user *uargs,
- 					      size_t usize)
+--- a/drivers/net/can/usb/gs_usb.c
++++ b/drivers/net/can/usb/gs_usb.c
+@@ -926,7 +926,7 @@ static int gs_usb_probe(struct usb_inter
+ 			     GS_USB_BREQ_HOST_FORMAT,
+ 			     USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_INTERFACE,
+ 			     1,
+-			     intf->altsetting[0].desc.bInterfaceNumber,
++			     intf->cur_altsetting->desc.bInterfaceNumber,
+ 			     hconf,
+ 			     sizeof(*hconf),
+ 			     1000);
+@@ -949,7 +949,7 @@ static int gs_usb_probe(struct usb_inter
+ 			     GS_USB_BREQ_DEVICE_CONFIG,
+ 			     USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_INTERFACE,
+ 			     1,
+-			     intf->altsetting[0].desc.bInterfaceNumber,
++			     intf->cur_altsetting->desc.bInterfaceNumber,
+ 			     dconf,
+ 			     sizeof(*dconf),
+ 			     1000);
 
 
