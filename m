@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 201E713A65F
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 436DD13A629
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731458AbgANKLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:11:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45800 "EHLO mail.kernel.org"
+        id S1731051AbgANKJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:09:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732359AbgANKLF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:11:05 -0500
+        id S1731467AbgANKJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:09:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E82E24685;
-        Tue, 14 Jan 2020 10:11:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E708E20678;
+        Tue, 14 Jan 2020 10:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996664;
-        bh=E/QgGsKX187fm06fbc72l+VFzYNIk6fBCxejTqhkB1c=;
+        s=default; t=1578996592;
+        bh=otAkdyOj/yWKhsgb0O1ZTTUXCLP9jOd+1Jir8Krge+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IqlISAb3/OCKSciEy6yIGgHHKikISp+RmXWzdC74uLvWMm52aj7zUouvNGy3ADEXt
-         NThgIrbxzao7b6Jnu9z7xdLIgpCpa1L5ek6O+fC0XhLWI29sDrPxsn/dXIb/cMR81J
-         3IxK2EUKH7Fkn1BuqUAO7MKZ0QZtZJW2pmX6fdJE=
+        b=hlDx3thdXmqVWsv6Ji9c6WLUk0QTzd3L7mOuVZVAQJvs9iax7MpZefAtKkQi+Wn6U
+         nDVczY+Kf7veEyhHDekj8tj8rqPz6kpuxx+SbmK7YXeTAdbycjx0j8SYoRqqHgJcYe
+         O7HPepRiD3yTN8BfuDOZ3sVuBm4Msu9tzNsAJ96o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 04/31] ALSA: usb-audio: Apply the sample rate quirk for Bose Companion 5
-Date:   Tue, 14 Jan 2020 11:01:56 +0100
-Message-Id: <20200114094340.082217722@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.14 23/39] drm/fb-helper: Round up bits_per_pixel if possible
+Date:   Tue, 14 Jan 2020 11:01:57 +0100
+Message-Id: <20200114094344.125349345@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
-References: <20200114094334.725604663@linuxfoundation.org>
+In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
+References: <20200114094336.210038037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 51d4efab7865e6ea6a4ebcd25b3f03c019515c4c upstream.
+commit f30e27779d3031a092c2a177b7fb76adccc45241 upstream.
 
-Bose Companion 5 (with USB ID 05a7:1020) doesn't seem supporting
-reading back the sample rate, so the existing quirk is needed.
+When userspace requests a video mode parameter value that is not
+supported, frame buffer device drivers should round it up to a supported
+value, if possible, instead of just rejecting it.  This allows
+applications to quickly scan for supported video modes.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206063
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200104110936.14288-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Currently this rule is not followed for the number of bits per pixel,
+causing e.g. "fbset -depth N" to fail, if N is smaller than the current
+number of bits per pixel.
+
+Fix this by returning an error only if bits per pixel is too large, and
+setting it to the current value otherwise.
+
+See also Documentation/fb/framebuffer.rst, Section 2 (Programmer's View
+of /dev/fb*").
+
+Fixes: 865afb11949e5bf4 ("drm/fb-helper: reject any changes to the fbdev")
+Cc: stable@vger.kernel.org
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191230132734.4538-1-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_fb_helper.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1141,6 +1141,7 @@ bool snd_usb_get_sample_rate_quirk(struc
- 	case USB_ID(0x04D8, 0xFEEA): /* Benchmark DAC1 Pre */
- 	case USB_ID(0x0556, 0x0014): /* Phoenix Audio TMX320VC */
- 	case USB_ID(0x05A3, 0x9420): /* ELP HD USB Camera */
-+	case USB_ID(0x05a7, 0x1020): /* Bose Companion 5 */
- 	case USB_ID(0x074D, 0x3553): /* Outlaw RR2150 (Micronas UAC3553B) */
- 	case USB_ID(0x1395, 0x740a): /* Sennheiser DECT */
- 	case USB_ID(0x1901, 0x0191): /* GE B850V3 CP2114 audio interface */
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -1590,7 +1590,7 @@ int drm_fb_helper_check_var(struct fb_va
+ 	 * Changes struct fb_var_screeninfo are currently not pushed back
+ 	 * to KMS, hence fail if different settings are requested.
+ 	 */
+-	if (var->bits_per_pixel != fb->format->cpp[0] * 8 ||
++	if (var->bits_per_pixel > fb->format->cpp[0] * 8 ||
+ 	    var->xres > fb->width || var->yres > fb->height ||
+ 	    var->xres_virtual > fb->width || var->yres_virtual > fb->height) {
+ 		DRM_DEBUG("fb requested width/height/bpp can't fit in current fb "
+@@ -1616,6 +1616,11 @@ int drm_fb_helper_check_var(struct fb_va
+ 	}
+ 
+ 	/*
++	 * Likewise, bits_per_pixel should be rounded up to a supported value.
++	 */
++	var->bits_per_pixel = fb->format->cpp[0] * 8;
++
++	/*
+ 	 * drm fbdev emulation doesn't support changing the pixel format at all,
+ 	 * so reject all pixel format changing requests.
+ 	 */
 
 
