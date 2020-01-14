@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3806113A63B
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDCF313A684
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731622AbgANKKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:10:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43984 "EHLO mail.kernel.org"
+        id S1732786AbgANKL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:11:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731616AbgANKKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:10:17 -0500
+        id S1731893AbgANKLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:11:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF8DF20678;
-        Tue, 14 Jan 2020 10:10:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B089824677;
+        Tue, 14 Jan 2020 10:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996617;
-        bh=+B9vjfKRifOYrJv2rNTi+ClHryp0A5p2lCBhAplKizI=;
+        s=default; t=1578996715;
+        bh=YK3CJYZemEg2rQGzQFkQQ62C9aHq0ZvdV48ceFQasXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMwpCbt2SwKL6B8jW14bDWjLWvjRsp0SAUCHwXttyTqU0Z1uSk7TQ23RtGodszmTD
-         j5RUkpnvic7DQlPTGzPC38QHO2oE41SnCdT5erEI+HL9MNXSKUAnkvtQ36+5JHEBtF
-         5ZTrhD22UyPazA5WsscW9dwtWT4tnpqVQir/rMaY=
+        b=UPakVc7SLFt2M89OTRw4dq3UHjdTJH3ZsM7V97HfOg8SUPUBvJdHg947U3XYzJhpZ
+         5VNdDxO2iV7vab8xDvFsx3VuwNp9dc7ercXeXDP2c6MTe6bf5VwOWQDUfG0c6lM978
+         WhyzfRlIDMmBozZWrEPHqaEcQkrW2SJ63SizoqFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 26/39] tty: link tty and port before configuring it as console
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jkosina@suse.cz>,
+        syzbot+09ef48aa58261464b621@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 08/31] HID: Fix slab-out-of-bounds read in hid_field_extract
 Date:   Tue, 14 Jan 2020 11:02:00 +0100
-Message-Id: <20200114094344.699176547@linuxfoundation.org>
+Message-Id: <20200114094341.216462553@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
+References: <20200114094334.725604663@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit fb2b90014d782d80d7ebf663e50f96d8c507a73c upstream.
+commit 8ec321e96e056de84022c032ffea253431a83c3c upstream.
 
-There seems to be a race condition in tty drivers and I could see on
-many boot cycles a NULL pointer dereference as tty_init_dev() tries to
-do 'tty->port->itty = tty' even though tty->port is NULL.
-'tty->port' will be set by the driver and if the driver has not yet done
-it before we open the tty device we can get to this situation. By adding
-some extra debug prints, I noticed that:
+The syzbot fuzzer found a slab-out-of-bounds bug in the HID report
+handler.  The bug was caused by a report descriptor which included a
+field with size 12 bits and count 4899, for a total size of 7349
+bytes.
 
-6.650130: uart_add_one_port
-6.663849: register_console
-6.664846: tty_open
-6.674391: tty_init_dev
-6.675456: tty_port_link_device
+The usbhid driver uses at most a single-page 4-KB buffer for reports.
+In the test there wasn't any problem about overflowing the buffer,
+since only one byte was received from the device.  Rather, the bug
+occurred when the HID core tried to extract the data from the report
+fields, which caused it to try reading data beyond the end of the
+allocated buffer.
 
-uart_add_one_port() registers the console, as soon as it registers, the
-userspace tries to use it and that leads to tty_open() but
-uart_add_one_port() has not yet done tty_port_link_device() and so
-tty->port is not yet configured when control reaches tty_init_dev().
+This patch fixes the problem by rejecting any report whose total
+length exceeds the HID_MAX_BUFFER_SIZE limit (minus one byte to allow
+for a possible report index).  In theory a device could have a report
+longer than that, but if there was such a thing we wouldn't handle it
+correctly anyway.
 
-Further look into the code and tty_port_link_device() is done by
-uart_add_one_port(). After registering the console uart_add_one_port()
-will call tty_port_register_device_attr_serdev() and
-tty_port_link_device() is called from this.
-
-Call add tty_port_link_device() before uart_configure_port() is done and
-add a check in tty_port_link_device() so that it only links the port if
-it has not been done yet.
-
-Suggested-by: Jiri Slaby <jslaby@suse.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191212131602.29504-1-sudipm.mukherjee@gmail.com
+Reported-and-tested-by: syzbot+09ef48aa58261464b621@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/serial_core.c |    1 +
- drivers/tty/tty_port.c           |    3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/hid/hid-core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -2810,6 +2810,7 @@ int uart_add_one_port(struct uart_driver
- 	if (uport->cons && uport->dev)
- 		of_console_check(uport->dev->of_node, uport->cons->name, uport->line);
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -269,6 +269,12 @@ static int hid_add_field(struct hid_pars
+ 	offset = report->size;
+ 	report->size += parser->global.report_size * parser->global.report_count;
  
-+	tty_port_link_device(port, drv->tty_driver, uport->line);
- 	uart_configure_port(drv, state, uport);
- 
- 	port->console = uart_console(uport);
---- a/drivers/tty/tty_port.c
-+++ b/drivers/tty/tty_port.c
-@@ -88,7 +88,8 @@ void tty_port_link_device(struct tty_por
- {
- 	if (WARN_ON(index >= driver->num))
- 		return;
--	driver->ports[index] = port;
-+	if (!driver->ports[index])
-+		driver->ports[index] = port;
- }
- EXPORT_SYMBOL_GPL(tty_port_link_device);
++	/* Total size check: Allow for possible report index byte */
++	if (report->size > (HID_MAX_BUFFER_SIZE - 1) << 3) {
++		hid_err(parser->device, "report is too long\n");
++		return -1;
++	}
++
+ 	if (!parser->local.usage_index) /* Ignore padding fields */
+ 		return 0;
  
 
 
