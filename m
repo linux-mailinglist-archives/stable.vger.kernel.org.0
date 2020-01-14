@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C21613A720
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:26:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF3213A600
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729067AbgANKSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:18:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37956 "EHLO mail.kernel.org"
+        id S1730705AbgANKHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:07:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730287AbgANKHe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:07:34 -0500
+        id S1729074AbgANKHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:07:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8146E24679;
-        Tue, 14 Jan 2020 10:07:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4874724680;
+        Tue, 14 Jan 2020 10:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996453;
-        bh=EzNgiiWZ33n+Hg8gPGnUEB6TwMW3CwgI6GJIxqhBaLE=;
+        s=default; t=1578996455;
+        bh=1b0Luv39zPdutEiUSX0IUUF9+gt/vZ658w3BW9a2FQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6gUs0X2OwfSWddcaHwhHnEE9DBqDW90UBnVucWzFnbwZPcLzM47CsS+ykCxspi0E
-         lvlb2v8IjZT2GzbQMewPdC9oNemB4cmE37y0Ug9BDKEIv6zMv3WAsH+AaE/s47x0Ql
-         WO1FJJRyxaahZ/F5eeBtf7Ce0sg7t4+31ndANH7U=
+        b=lxs4QmB5dpJikfFFN+hczaIxsb03Em0P7Og4SiEEQxsVXk55zATQvrfb6ghc1am3t
+         ggj3Wcv4zEhZFST9HgVY049ZtrDLdHgavE5+o3O6P8UJ0gCi1DnsGgwXzco1qFf6rR
+         kJyZ6eeVqIvxaRmfHOhBlFGeFo4xuvD48KK3JT3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+b02ff0707a97e4e79ebb@syzkaller.appspotmail.com,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 22/46] can: can_dropped_invalid_skb(): ensure an initialized headroom in outgoing CAN sk_buffs
-Date:   Tue, 14 Jan 2020 11:01:39 +0100
-Message-Id: <20200114094344.962581194@linuxfoundation.org>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.19 23/46] gpiolib: acpi: Turn dmi_system_id table into a generic quirk table
+Date:   Tue, 14 Jan 2020 11:01:40 +0100
+Message-Id: <20200114094345.178892638@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
 References: <20200114094339.608068818@linuxfoundation.org>
@@ -45,88 +46,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit e7153bf70c3496bac00e7e4f395bb8d8394ac0ea upstream.
+commit 1ad1b54099c231aed8f6f257065c1b322583f264 upstream.
 
-KMSAN sysbot detected a read access to an untinitialized value in the
-headroom of an outgoing CAN related sk_buff. When using CAN sockets this
-area is filled appropriately - but when using a packet socket this
-initialization is missing.
+Turn the existing run_edge_events_on_boot_blacklist dmi_system_id table
+into a generic quirk table, storing the quirks in the driver_data ptr.
 
-The problematic read access occurs in the CAN receive path which can
-only be triggered when the sk_buff is sent through a (virtual) CAN
-interface. So we check in the sending path whether we need to perform
-the missing initializations.
+This is a preparation patch for adding other types of (DMI based) quirks.
 
-Fixes: d3b58c47d330d ("can: replace timestamp as unique skb attribute")
-Reported-by: syzbot+b02ff0707a97e4e79ebb@syzkaller.appspotmail.com
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Cc: linux-stable <stable@vger.kernel.org> # >= v4.1
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: stable@vger.kernel.org
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200105160357.97154-2-hdegoede@redhat.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/can/dev.h |   34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ drivers/gpio/gpiolib-acpi.c |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/include/linux/can/dev.h
-+++ b/include/linux/can/dev.h
-@@ -18,6 +18,7 @@
- #include <linux/can/error.h>
- #include <linux/can/led.h>
- #include <linux/can/netlink.h>
-+#include <linux/can/skb.h>
- #include <linux/netdevice.h>
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -24,6 +24,8 @@
  
- /*
-@@ -91,6 +92,36 @@ struct can_priv {
- #define get_can_dlc(i)		(min_t(__u8, (i), CAN_MAX_DLC))
- #define get_canfd_dlc(i)	(min_t(__u8, (i), CANFD_MAX_DLC))
+ #include "gpiolib.h"
  
-+/* Check for outgoing skbs that have not been created by the CAN subsystem */
-+static inline bool can_skb_headroom_valid(struct net_device *dev,
-+					  struct sk_buff *skb)
-+{
-+	/* af_packet creates a headroom of HH_DATA_MOD bytes which is fine */
-+	if (WARN_ON_ONCE(skb_headroom(skb) < sizeof(struct can_skb_priv)))
-+		return false;
++#define QUIRK_NO_EDGE_EVENTS_ON_BOOT		0x01l
 +
-+	/* af_packet does not apply CAN skb specific settings */
-+	if (skb->ip_summed == CHECKSUM_NONE) {
-+		/* init headroom */
-+		can_skb_prv(skb)->ifindex = dev->ifindex;
-+		can_skb_prv(skb)->skbcnt = 0;
-+
-+		skb->ip_summed = CHECKSUM_UNNECESSARY;
-+
-+		/* preform proper loopback on capable devices */
-+		if (dev->flags & IFF_ECHO)
-+			skb->pkt_type = PACKET_LOOPBACK;
-+		else
-+			skb->pkt_type = PACKET_HOST;
-+
-+		skb_reset_mac_header(skb);
-+		skb_reset_network_header(skb);
-+		skb_reset_transport_header(skb);
-+	}
-+
-+	return true;
-+}
-+
- /* Drop a given socketbuffer if it does not contain a valid CAN frame. */
- static inline bool can_dropped_invalid_skb(struct net_device *dev,
- 					  struct sk_buff *skb)
-@@ -108,6 +139,9 @@ static inline bool can_dropped_invalid_s
- 	} else
- 		goto inval_skb;
+ static int run_edge_events_on_boot = -1;
+ module_param(run_edge_events_on_boot, int, 0444);
+ MODULE_PARM_DESC(run_edge_events_on_boot,
+@@ -1263,7 +1265,7 @@ static int acpi_gpio_handle_deferred_req
+ /* We must use _sync so that this runs after the first deferred_probe run */
+ late_initcall_sync(acpi_gpio_handle_deferred_request_irqs);
  
-+	if (!can_skb_headroom_valid(dev, skb))
-+		goto inval_skb;
-+
- 	return false;
+-static const struct dmi_system_id run_edge_events_on_boot_blacklist[] = {
++static const struct dmi_system_id gpiolib_acpi_quirks[] = {
+ 	{
+ 		/*
+ 		 * The Minix Neo Z83-4 has a micro-USB-B id-pin handler for
+@@ -1273,7 +1275,8 @@ static const struct dmi_system_id run_ed
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "MINIX"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
+-		}
++		},
++		.driver_data = (void *)QUIRK_NO_EDGE_EVENTS_ON_BOOT,
+ 	},
+ 	{
+ 		/*
+@@ -1285,15 +1288,23 @@ static const struct dmi_system_id run_ed
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Wortmann_AG"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "TERRA_PAD_1061"),
+-		}
++		},
++		.driver_data = (void *)QUIRK_NO_EDGE_EVENTS_ON_BOOT,
+ 	},
+ 	{} /* Terminating entry */
+ };
  
- inval_skb:
+ static int acpi_gpio_setup_params(void)
+ {
++	const struct dmi_system_id *id;
++	long quirks = 0;
++
++	id = dmi_first_match(gpiolib_acpi_quirks);
++	if (id)
++		quirks = (long)id->driver_data;
++
+ 	if (run_edge_events_on_boot < 0) {
+-		if (dmi_check_system(run_edge_events_on_boot_blacklist))
++		if (quirks & QUIRK_NO_EDGE_EVENTS_ON_BOOT)
+ 			run_edge_events_on_boot = 0;
+ 		else
+ 			run_edge_events_on_boot = 1;
 
 
