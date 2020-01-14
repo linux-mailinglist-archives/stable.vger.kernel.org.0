@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EE5413A620
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78A8113A5EE
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729702AbgANKJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:09:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42386 "EHLO mail.kernel.org"
+        id S1729936AbgANKGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:06:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730950AbgANKJa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:09:30 -0500
+        id S1729486AbgANKGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:06:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7838724676;
-        Tue, 14 Jan 2020 10:09:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D285A2467A;
+        Tue, 14 Jan 2020 10:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996569;
-        bh=t1MVqNJSBHmvZFHC7AaR1jN9CTHzsv73hqiSaQTsSxM=;
+        s=default; t=1578996377;
+        bh=7ZGV6GHlhqUKpvmtRxXTMs1FxLez45+frSJo/QaGVos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r4Wv1OhLrWnYJCXGooLMiVc5QB3VUQbvS5OZtfdCLbT5QzUFxtw3mr5z4Q5ACZkHN
-         JX1O+bxMqEuQ6zPn2ATnIrZk6/8y9fDTGSc+/EtErAOB2mZFpDO/uVnOB7ebvPgAlj
-         xiCRu+1Cyfiu9X+EpmS2xnbt0mrNKEXRwHMo7d58=
+        b=H6pnJWBVf9LFd7DOi2qxfpDaut83Ly+V6X1E6C0jHZj8T77dpX6qX7KeXZyGbdmMJ
+         4QJebiqAzr3TD5bseLSnSQGSlWa7951Lipy6ADhkl4lOhOwyuNvuapRbxykF9gBM7M
+         0amJSN0gPnBFXbw834pKANZ+FD+QpfL/dqftwXxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 4.14 15/39] staging: vt6656: set usb_set_intfdata on driver fail.
+        stable@vger.kernel.org, Jacopo Mondi <jacopo@jmondi.org>,
+        Marcel Partap <mpartap@gmx.net>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Michael Scott <hashcode0f@gmail.com>,
+        NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 5.4 75/78] phy: cpcap-usb: Fix flakey host idling and enumerating of devices
 Date:   Tue, 14 Jan 2020 11:01:49 +0100
-Message-Id: <20200114094342.541675810@linuxfoundation.org>
+Message-Id: <20200114094403.390224776@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
+References: <20200114094352.428808181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malcolm Priestley <tvboxspy@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit c0bcf9f3f5b661d4ace2a64a79ef661edd2a4dc8 upstream.
+commit 049226b9fd7442149dcbcf55f15408f5973cceda upstream.
 
-intfdata will contain stale pointer when the device is detached after
-failed initialization when referenced in vt6656_disconnect
+We must let the USB host idle things properly before we switch to debug
+UART mode. Otherwise the USB host may never idle after disconnecting
+devices, and that causes the next enumeration to be flakey.
 
-Provide driver access to it here and NULL it.
-
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/6de448d7-d833-ef2e-dd7b-3ef9992fee0e@gmail.com
+Cc: Jacopo Mondi <jacopo@jmondi.org>
+Cc: Marcel Partap <mpartap@gmx.net>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Michael Scott <hashcode0f@gmail.com>
+Cc: NeKit <nekit1000@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Fixes: 6d6ce40f63af ("phy: cpcap-usb: Add CPCAP PMIC USB support")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6656/device.h   |    1 +
- drivers/staging/vt6656/main_usb.c |    1 +
- drivers/staging/vt6656/wcmd.c     |    1 +
- 3 files changed, 3 insertions(+)
+ drivers/phy/motorola/phy-cpcap-usb.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/vt6656/device.h
-+++ b/drivers/staging/vt6656/device.h
-@@ -269,6 +269,7 @@ struct vnt_private {
- 	u8 mac_hw;
- 	/* netdev */
- 	struct usb_device *usb;
-+	struct usb_interface *intf;
+--- a/drivers/phy/motorola/phy-cpcap-usb.c
++++ b/drivers/phy/motorola/phy-cpcap-usb.c
+@@ -283,13 +283,13 @@ static void cpcap_usb_detect(struct work
+ 		return;
+ 	}
  
- 	u64 tsf_time;
- 	u8 rx_rate;
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -954,6 +954,7 @@ vt6656_probe(struct usb_interface *intf,
- 	priv = hw->priv;
- 	priv->hw = hw;
- 	priv->usb = udev;
-+	priv->intf = intf;
++	cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_OFF);
++
+ 	/* Default to debug UART mode */
+ 	error = cpcap_usb_set_uart_mode(ddata);
+ 	if (error)
+ 		goto out_err;
  
- 	vnt_set_options(priv);
+-	cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_OFF);
+-
+ 	dev_dbg(ddata->dev, "set UART mode\n");
  
---- a/drivers/staging/vt6656/wcmd.c
-+++ b/drivers/staging/vt6656/wcmd.c
-@@ -109,6 +109,7 @@ void vnt_run_command(struct work_struct
- 		if (vnt_init(priv)) {
- 			/* If fail all ends TODO retry */
- 			dev_err(&priv->usb->dev, "failed to start\n");
-+			usb_set_intfdata(priv->intf, NULL);
- 			ieee80211_free_hw(priv->hw);
- 			return;
- 		}
+ 	return;
 
 
