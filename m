@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 699DE13A5F0
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 960C813A62E
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729393AbgANKGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:06:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35720 "EHLO mail.kernel.org"
+        id S1729968AbgANKJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:09:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729640AbgANKGc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:06:32 -0500
+        id S1729963AbgANKJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:09:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FC3E24677;
-        Tue, 14 Jan 2020 10:06:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAB2120678;
+        Tue, 14 Jan 2020 10:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996391;
-        bh=Jh40u/tSBu3myoAaCydzkNwil2EpuaMTa9hi9TmuNPk=;
+        s=default; t=1578996597;
+        bh=Yxju/tOlV7GN9m7OTkRbGpno+PEH8N7lP/4YNiySSrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWhRRAPo3ygs8CHOJ2H6u6eMS2+3vvUuTfkUaY9MxAsr7rvAg3ZZ6WdQBgz3DdIYA
-         FuN1r9iOqOOdMn9vEngqbWAN14awrh2WE7fIRojo8MtfLFlP3z18WOrEdZoYggBo0c
-         MNqwm4H6GzON6mT+zyQMmQ2XXtL3jpU21WZvLDFs=
+        b=Jvln+9ja5Fp3cMF0nk4W0LJn9RPWsX8EFPMtOh5ZGQOWy2Qk1gAWVV6I1YT8pozSX
+         q/MNRgdCw0tfgI325SuE7GUFyo3h1czHdpZBh/NrgQ2wF4TQXj6BTps/FnCoz02Xf1
+         9AqfaMpD+WvqcYLj19iKItGzHNC5LLhi2G/Fv4Hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 5.4 65/78] staging: vt6656: remove bool from vnt_radio_power_on ret
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 05/39] ALSA: hda/realtek - Set EAPD control to default for ALC222
 Date:   Tue, 14 Jan 2020 11:01:39 +0100
-Message-Id: <20200114094402.155167930@linuxfoundation.org>
+Message-Id: <20200114094340.152430298@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
-References: <20200114094352.428808181@linuxfoundation.org>
+In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
+References: <20200114094336.210038037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,30 +43,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malcolm Priestley <tvboxspy@gmail.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 07f59f180ee083c48c32a1e69ae1d0091444d212 upstream.
+commit 9194a1ebbc56d7006835e2b4cacad301201fb832 upstream.
 
-The driver uses logical only error checking a bool true would flag error.
+Set EAPD control to verb control.
 
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/cc52b67c-9ef8-3e57-815a-44d10701919e@gmail.com
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6656/card.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/vt6656/card.c
-+++ b/drivers/staging/vt6656/card.c
-@@ -719,7 +719,7 @@ end:
-  */
- int vnt_radio_power_on(struct vnt_private *priv)
- {
--	int ret = true;
-+	int ret = 0;
- 
- 	vnt_exit_deep_sleep(priv);
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -378,6 +378,7 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0672:
+ 		alc_update_coef_idx(codec, 0xd, 0, 1<<14); /* EAPD Ctrl */
+ 		break;
++	case 0x10ec0222:
+ 	case 0x10ec0623:
+ 		alc_update_coef_idx(codec, 0x19, 1<<13, 0);
+ 		break;
 
 
