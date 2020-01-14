@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5388613A5E3
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2189813A60D
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729752AbgANKF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:05:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33524 "EHLO mail.kernel.org"
+        id S1730389AbgANKIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:08:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbgANKF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:05:27 -0500
+        id S1730960AbgANKIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:08:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33E0B2467E;
-        Tue, 14 Jan 2020 10:05:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CF0020678;
+        Tue, 14 Jan 2020 10:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996326;
-        bh=0cdLB7wehuBT3ubfoI3yEb17IXH1TWYAp5f76Ckw7m4=;
+        s=default; t=1578996502;
+        bh=JqCYsh26Mk9/vcxTTruMptcg0CwCViC/wGsnxWhfASE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=apxZPinOJ4E9dFBnHe/qYu71RzNQ7p9rZY1sOx2plVDx7nh5Dx8TgE9sqtu5cv3ju
-         vIriXsc/+RwVHJDfCjCthAaQ0H7G+2AMkNNl1tf+C/dBTj8NIvrR3LM6JhekCbVqK8
-         BnMtUQ853VF1TAQ1jrGjsQgkVTzhJcCeJLkGzjIo=
+        b=DyDRKRQXz15Z5OQaIePueWFkJBqGzTQ4bE1RuHYaoBYoW1VM/h4BOVRt5j30zdqNU
+         LYVXgC0jAz2wDu1xfD6fvJJBu5V4jwg8rb59dIsItjB1dQ7l4WAgKqSCQ9AuDDrDrz
+         8l0MYhf1z2AHI6XMbR+0XPlAcm6tyfp3lVGG5dSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amanieu dAntras <amanieu@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.4 57/78] arm64: Move __ARCH_WANT_SYS_CLONE3 definition to uapi headers
-Date:   Tue, 14 Jan 2020 11:01:31 +0100
-Message-Id: <20200114094401.111792585@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 15/46] Input: input_event - fix struct padding on sparc64
+Date:   Tue, 14 Jan 2020 11:01:32 +0100
+Message-Id: <20200114094343.665406071@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
-References: <20200114094352.428808181@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amanieu d'Antras <amanieu@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 3e3c8ca5a351350031f0f3d5ecedf7048b1b9008 upstream.
+commit f729a1b0f8df7091cea3729fc0e414f5326e1163 upstream.
 
-Previously this was only defined in the internal headers which
-resulted in __NR_clone3 not being defined in the user headers.
+Going through all uses of timeval, I noticed that we screwed up
+input_event in the previous attempts to fix it:
 
-Signed-off-by: Amanieu d'Antras <amanieu@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: <stable@vger.kernel.org> # 5.3.x
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200102172413.654385-2-amanieu@gmail.com
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+The time fields now match between kernel and user space, but all following
+fields are in the wrong place.
+
+Add the required padding that is implied by the glibc timeval definition
+to fix the layout, and use a struct initializer to avoid leaking kernel
+stack data.
+
+Fixes: 141e5dcaa735 ("Input: input_event - fix the CONFIG_SPARC64 mixup")
+Fixes: 2e746942ebac ("Input: input_event - provide override for sparc64")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20191213204936.3643476-2-arnd@arndb.de
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/unistd.h      |    1 -
- arch/arm64/include/uapi/asm/unistd.h |    1 +
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/evdev.c       |   14 +++++++-------
+ drivers/input/misc/uinput.c |   14 +++++++++-----
+ include/uapi/linux/input.h  |    1 +
+ 3 files changed, 17 insertions(+), 12 deletions(-)
 
---- a/arch/arm64/include/asm/unistd.h
-+++ b/arch/arm64/include/asm/unistd.h
-@@ -42,7 +42,6 @@
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -241,13 +241,13 @@ static void __pass_event(struct evdev_cl
+ 		 */
+ 		client->tail = (client->head - 2) & (client->bufsize - 1);
+ 
+-		client->buffer[client->tail].input_event_sec =
+-						event->input_event_sec;
+-		client->buffer[client->tail].input_event_usec =
+-						event->input_event_usec;
+-		client->buffer[client->tail].type = EV_SYN;
+-		client->buffer[client->tail].code = SYN_DROPPED;
+-		client->buffer[client->tail].value = 0;
++		client->buffer[client->tail] = (struct input_event) {
++			.input_event_sec = event->input_event_sec,
++			.input_event_usec = event->input_event_usec,
++			.type = EV_SYN,
++			.code = SYN_DROPPED,
++			.value = 0,
++		};
+ 
+ 		client->packet_head = client->tail;
+ 	}
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -87,12 +87,16 @@ static int uinput_dev_event(struct input
+ 	struct uinput_device	*udev = input_get_drvdata(dev);
+ 	struct timespec64	ts;
+ 
+-	udev->buff[udev->head].type = type;
+-	udev->buff[udev->head].code = code;
+-	udev->buff[udev->head].value = value;
+ 	ktime_get_ts64(&ts);
+-	udev->buff[udev->head].input_event_sec = ts.tv_sec;
+-	udev->buff[udev->head].input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
++
++	udev->buff[udev->head] = (struct input_event) {
++		.input_event_sec = ts.tv_sec,
++		.input_event_usec = ts.tv_nsec / NSEC_PER_USEC,
++		.type = type,
++		.code = code,
++		.value = value,
++	};
++
+ 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
+ 
+ 	wake_up_interruptible(&udev->waitq);
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -34,6 +34,7 @@ struct input_event {
+ 	__kernel_ulong_t __sec;
+ #if defined(__sparc__) && defined(__arch64__)
+ 	unsigned int __usec;
++	unsigned int __pad;
+ #else
+ 	__kernel_ulong_t __usec;
  #endif
- 
- #define __ARCH_WANT_SYS_CLONE
--#define __ARCH_WANT_SYS_CLONE3
- 
- #ifndef __COMPAT_SYSCALL_NR
- #include <uapi/asm/unistd.h>
---- a/arch/arm64/include/uapi/asm/unistd.h
-+++ b/arch/arm64/include/uapi/asm/unistd.h
-@@ -19,5 +19,6 @@
- #define __ARCH_WANT_NEW_STAT
- #define __ARCH_WANT_SET_GET_RLIMIT
- #define __ARCH_WANT_TIME32_SYSCALLS
-+#define __ARCH_WANT_SYS_CLONE3
- 
- #include <asm-generic/unistd.h>
 
 
