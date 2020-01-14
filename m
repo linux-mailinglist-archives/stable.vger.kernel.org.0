@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4274913A6CA
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 187A913A680
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729406AbgANKNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:13:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50976 "EHLO mail.kernel.org"
+        id S1728983AbgANKLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:11:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733209AbgANKNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:13:32 -0500
+        id S1731893AbgANKLu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:11:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C58E24676;
-        Tue, 14 Jan 2020 10:13:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B6D424677;
+        Tue, 14 Jan 2020 10:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996812;
-        bh=DqdKq8k+ElV5a+yPjy3KKkiW09hq6K3B7z9btllzCrQ=;
+        s=default; t=1578996709;
+        bh=B1XV/o6SJfKtoC5kFqGuPPVt02MVsT1m8qEe1Lgicmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+6ce4d+61TJWjuSfnzlRBg/Yghcz50pY3g0+JUyiOSQzdzM8nw+tW7BJKLfR2qye
-         WHHIbbOLfmfuz0BEKBZc5wdxaRS+e6dFouU4TTzeEYou3P22KcjoEq0Yw2uKifqd3E
-         oFiT/hRkcoOaksViD8xZ9EnaRcY0xmssJB2Mz7N8=
+        b=bFTwCDWI3KPpnv//pnBuqnlm2Fy1niXd3QrFS5i/FR9xice3y4hiV8rMRCRdznEd0
+         q/wyA6q1lV3dMACs2Z/Xqhi8VparNZQ8b/TPucRPBsVzu1xfOUqL3ibOiw7QHOv+8n
+         71w20itKgvdcGSHR1z4Je8oiFlDNTbhASwxFLVBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Bin Liu <b-liu@ti.com>
-Subject: [PATCH 4.4 17/28] usb: musb: Disable pullup at init
-Date:   Tue, 14 Jan 2020 11:02:19 +0100
-Message-Id: <20200114094343.011684611@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Chris Chiu <chiu@endlessm.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.9 28/31] rtl8xxxu: prevent leaking urb
+Date:   Tue, 14 Jan 2020 11:02:20 +0100
+Message-Id: <20200114094345.229722756@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
-References: <20200114094336.845958665@linuxfoundation.org>
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
+References: <20200114094334.725604663@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +46,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit 96a0c12843109e5c4d5eb1e09d915fdd0ce31d25 upstream.
+commit a2cdd07488e666aa93a49a3fc9c9b1299e27ef3c upstream.
 
-The pullup may be already enabled before the driver is initialized. This
-happens for instance on JZ4740.
+In rtl8xxxu_submit_int_urb if usb_submit_urb fails the allocated urb
+should be released.
 
-It has to be disabled at init time, as we cannot guarantee that a gadget
-driver will be bound to the UDC.
-
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Suggested-by: Bin Liu <b-liu@ti.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20200107152625.857-3-b-liu@ti.com
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Reviewed-by: Chris Chiu <chiu@endlessm.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/musb/musb_core.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2132,6 +2132,9 @@ musb_init_controller(struct device *dev,
- 	musb_platform_disable(musb);
- 	musb_generic_disable(musb);
+---
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -5422,6 +5422,7 @@ static int rtl8xxxu_submit_int_urb(struc
+ 	ret = usb_submit_urb(urb, GFP_KERNEL);
+ 	if (ret) {
+ 		usb_unanchor_urb(urb);
++		usb_free_urb(urb);
+ 		goto error;
+ 	}
  
-+	/* MUSB_POWER_SOFTCONN might be already set, JZ4740 does this. */
-+	musb_writeb(musb->mregs, MUSB_POWER, 0);
-+
- 	/* Init IRQ workqueue before request_irq */
- 	INIT_WORK(&musb->irq_work, musb_irq_work);
- 	INIT_DELAYED_WORK(&musb->deassert_reset_work, musb_deassert_reset);
 
 
