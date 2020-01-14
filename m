@@ -2,71 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7378913B501
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 23:03:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D73F613B520
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 23:10:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727072AbgANWDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 17:03:02 -0500
-Received: from mail-vk1-f196.google.com ([209.85.221.196]:35103 "EHLO
-        mail-vk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726491AbgANWDC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 17:03:02 -0500
-Received: by mail-vk1-f196.google.com with SMTP id o187so4121995vka.2
-        for <stable@vger.kernel.org>; Tue, 14 Jan 2020 14:03:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=9zVso/y+l9fYJUWFKEx22kJ6EV7m4O/L863RKKWXIL0=;
-        b=Ljjo+hC1FnTYV+c2wkoyUr3aNsNyXRpEEx+CooJYiThWumErVT4zyqMZvsRovt9Xpr
-         udNR3CyssVZw+sTMK5f5YOPCvB1I0lSQN7zikK4pqSMzN94TP50LEmM3MV0i14RjBle0
-         lRDafITU6z6/7T5RYow+WnTdvmQDakdwclnT23SLqg8sTTZYtdsxvRRAK/YvKMLDg3tT
-         BfY+tXHEmR+vctsQMzS77T8p6xafwOMc/klnJeEW81EUCXY6ZZAex8/jYGsERX9au55o
-         1UsYCEQUBYLhCnhwi674LJ775f44Ujngf2ice7Q084zOyiw373DuCfz2q4pL6OFQzawO
-         IP4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=9zVso/y+l9fYJUWFKEx22kJ6EV7m4O/L863RKKWXIL0=;
-        b=qkVJpaIzuMlsn+WyD6X29+YElBZkl5thw5MEFuQjCkA5WZx8uKjzqDpUuC0lSE1J/+
-         Z7BpksCx97MKjkvME0X1B7EYiQR6k33xxczOfk7ZMifIz1tH1Gse60q83jGBhhBFhFao
-         BQwT+pzdXbhjWN9JhggCjkJuDFSVNvsfLf+U8r5IU/kR0q+k9SuARhNxdPF6DUnpdm2f
-         UnjEKw9gmcoiC2H6teUIW3ahUcP9cjQcxZ0vrDvl7yX2fJIJvkDnGoHO34kDOydOYLHx
-         1Ws8IWh/Q+k1JORxYy1Q52NIJ6dG8z1LPWGQoyR8nDLuVOq1VJFEEgloR+OOn0w+eGrw
-         D30A==
-X-Gm-Message-State: APjAAAUTHA7Ut7x+oKaHHRFtLq5ErjW6Qo1Fb9fRogel1JinNdml1cq5
-        ZAU7bodDm85vdsYlN3ZrwZqBAn30xrJJaOfLdVU=
-X-Google-Smtp-Source: APXvYqwF4s9h3QCPJyMUv/TpIzpt300s3qv7ylcLnY5/J+DPrKQWVdhhBEXFJqHTaJHv2IjGk2qjc0gJNB0qzS3D2+Q=
-X-Received: by 2002:a1f:3fc1:: with SMTP id m184mr11906472vka.63.1579039381231;
- Tue, 14 Jan 2020 14:03:01 -0800 (PST)
+        id S1728754AbgANWK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 17:10:28 -0500
+Received: from vmicros1.altlinux.org ([194.107.17.57]:46066 "EHLO
+        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728748AbgANWK2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 17:10:28 -0500
+Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
+        by vmicros1.altlinux.org (Postfix) with ESMTP id C383772CC6C;
+        Wed, 15 Jan 2020 01:10:23 +0300 (MSK)
+Received: by mua.local.altlinux.org (Postfix, from userid 508)
+        id A58197CCE30; Wed, 15 Jan 2020 01:10:23 +0300 (MSK)
+Date:   Wed, 15 Jan 2020 01:10:23 +0300
+From:   "Dmitry V. Levin" <ldv@altlinux.org>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Sam Ravnborg <sam@ravnborg.org>, stable@vger.kernel.org,
+        Rich Felker <dalias@libc.org>, libc-alpha@sourceware.org,
+        sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sparc32: fix struct ipc64_perm type definition
+Message-ID: <20200114221023.GA8853@altlinux.org>
+References: <20200114132633.3694261-1-arnd@arndb.de>
 MIME-Version: 1.0
-Received: by 2002:a67:be05:0:0:0:0:0 with HTTP; Tue, 14 Jan 2020 14:03:00
- -0800 (PST)
-Reply-To: missaminaibrahim47@gmail.com
-From:   missaminaibrahim <idris.ali45687@gmail.com>
-Date:   Tue, 14 Jan 2020 22:03:00 +0000
-Message-ID: <CACLWo8_2rAfajpO_74Xw2cKmmSRnffONyXDvEFVxJbki3ADtxA@mail.gmail.com>
-Subject: My Name is Miss Amina Ibrahim from Libya,I am 22 years old
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Content-Disposition: inline
+In-Reply-To: <20200114132633.3694261-1-arnd@arndb.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Name is Miss Amina Ibrahim from Libya, I am 22 years old, I am in
-St.Christopher's Parish for refugee in Burkina Faso under United
-Nations High commission for Refugee ,I lost my parents in the recent
-war in  Libya, right now am in Burkina Faso, please save my life i am
-in danger need your help in transferring my inheritance my father left
-behind for me in a Bank in Burkina Faso here, I have every document
-for the transfer, all i need is a foreigner who will stand as the
-foreign partner to my father and beneficiary of the fund. The money
-deposited in the Bank is US10.5 MILLION UNITED STATES DOLLAR) I just
-need this fund to be transfer to your account so that I will come over
-to your country and complete my education as you know that my country
-have been in deep crisis due to the war .and I cannot go back there
-again because I have nobody again all of my family were killed in the
-war. If you are interested to save me and help me receive my
-inheritance fund Please get back to me
-Miss Amina IBRAHIM.
+
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Jan 14, 2020 at 02:26:14PM +0100, Arnd Bergmann wrote:
+> As discussed in the strace issue tracker, it appears that the sparc32
+> sysvipc support has been broken for the past 11 years. It was however
+> working in compat mode, which is how it must have escaped most of the
+> regular testing.
+>=20
+> The problem is that a cleanup patch inadvertently changed the uid/gid
+> fields in struct ipc64_perm from 32-bit types to 16-bit types in uapi
+> headers.
+>=20
+> Both glibc and uclibc-ng still use the original types, so they should
+> work fine with compat mode, but not natively.  Change the definitions
+> to use __kernel_uid32_t and __kernel_gid32_t again.
+>=20
+> Fixes: 83c86984bff2 ("sparc: unify ipcbuf.h")
+> Link: https://github.com/strace/strace/issues/116
+> Cc: <stable@vger.kernel.org> # v2.6.29
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Cc: "Dmitry V . Levin" <ldv@altlinux.org>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: libc-alpha@sourceware.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/sparc/include/uapi/asm/ipcbuf.h | 22 +++++++++++-----------
+>  1 file changed, 11 insertions(+), 11 deletions(-)
+>=20
+> diff --git a/arch/sparc/include/uapi/asm/ipcbuf.h b/arch/sparc/include/ua=
+pi/asm/ipcbuf.h
+> index 5b933a598a33..0ea1240d2ea1 100644
+> --- a/arch/sparc/include/uapi/asm/ipcbuf.h
+> +++ b/arch/sparc/include/uapi/asm/ipcbuf.h
+> @@ -17,19 +17,19 @@
+> =20
+>  struct ipc64_perm
+>  {
+> -	__kernel_key_t	key;
+> -	__kernel_uid_t	uid;
+> -	__kernel_gid_t	gid;
+> -	__kernel_uid_t	cuid;
+> -	__kernel_gid_t	cgid;
+> +	__kernel_key_t		key;
+> +	__kernel_uid32_t	uid;
+> +	__kernel_gid32_t	gid;
+> +	__kernel_uid32_t	cuid;
+> +	__kernel_gid32_t	cgid;
+>  #ifndef __arch64__
+> -	unsigned short	__pad0;
+> +	unsigned short		__pad0;
+>  #endif
+> -	__kernel_mode_t	mode;
+> -	unsigned short	__pad1;
+> -	unsigned short	seq;
+> -	unsigned long long __unused1;
+> -	unsigned long long __unused2;
+> +	__kernel_mode_t		mode;
+> +	unsigned short		__pad1;
+> +	unsigned short		seq;
+> +	unsigned long long	__unused1;
+> +	unsigned long long	__unused2;
+>  };
+> =20
+>  #endif /* __SPARC_IPCBUF_H */
+
+I think the fix is correct, I also confirm that the part of strace
+test suite that checks tracing of 32-bit tracees on sparc64 turns green
+again when this patch is applied.
+
+Please add to the commit message that
+this bug was found by strace test suite.
+
+Feel free to add
+Reported-and-tested-by: Dmitry V. Levin <ldv@altlinux.org>
+
+
+--=20
+ldv
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCAAGBQJeHjxPAAoJEAVFT+BVnCUIGwIQANO/CcoeRKwRxH+405T1A7gr
+RiBoO4UCZ8EydDh9r9ELr3vBfWLdn6wvEhSxgeyjswCbu2ObO4euUrSTPS+JpmDK
+eDlu7ANPIek/3ZPkqzc0vI6Gc/joYawdldlkvw6qWwoya11Y2WfxmhvWNzXEhTrC
+jVyf3rf+DKyDJg3wGpa1/0MhkYWl0MT5daESMh3h+RjwAarky1AQb0PI++FHda9G
+WcXivT3U+KJHGiU1tr/FEGzb97tarjc3PBFPTnfEiq7D2S/7VhMb3b7JS+nh4r2p
+oG2c5Rv/m+B9oiG1x8fLk5kMHn+BUKBv1kqc7SQC7AfWHiMucYmiAAvjNOvT5LCG
+s1+Kh8d7dNZMT2apJVdLSA+gBiWtZ3udLqlYDQ4IudhEe20VOG9EGG+71FeA2yTH
+eemiVwrGxSHKdkK9SAAk5Z0ljrMxIBHg1AFT6sUc3eFT5s7oIN6Epdsw3ooccT08
+ysEBm2O/jPSiHVuQdPolcwsje9bpYrzZaK/tUWS7clBO8oEpA3ZCdTN60l7xLMJt
+aWLKSGWz2zjNtOTrkgbOJTYhDeGXqQg2KiJ2zy0Ga0p7ujcMRydQAjxzu5kH2Dlg
+UVG+7u8ctOdFB9738k2NBbAVFsYAZ84Y61F2MqzuIXZRG5Nbz//EqyNBATH2Bp0f
+Rh4ul08WC6JsYU5Gx+Gv
+=SfW4
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--
