@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2C013A63C
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F38213A6DF
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731640AbgANKKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:10:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44052 "EHLO mail.kernel.org"
+        id S1730312AbgANKPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:15:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729447AbgANKKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:10:20 -0500
+        id S1731185AbgANKLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:11:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C47224676;
-        Tue, 14 Jan 2020 10:10:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59C1824677;
+        Tue, 14 Jan 2020 10:11:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996619;
-        bh=+PI48K9XTvgjwsMAYb2zfC9iKKt9NZ6/WaU3LZy+OyI=;
+        s=default; t=1578996681;
+        bh=Pyw5wxchVN35tiTMs8UXgw3fopnjWReBFHBylqdnMyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qT9ZOd+wf8mhLszf5Ur/zsM6adobQE3SMHRvYDRsTxf4zU0jdry4qfOMBSb3ktqD9
-         fuMYZPA4lsl3euMDe/jyc/ajfsKwkjHbbEF9oSSy6ZUBRwCr1eIRIvpEeaqjv1s7eq
-         uuP8EWfbE+RoS2TDMsv8YP62kugM2S+N327LNsME=
+        b=ItGiZm5e2gxL67uRre4MwuXIwY04a9x9LNIVijuoHduUEMbsofev0+YjxnQ7PbxOA
+         hBUilPa++z2JJUGGoSQke86RiU3OEO2RsOFAH51hdwTW2PR3gO8vW/ohUPNDCrIkyF
+         8wyy+2/qDQJ0zYC/BlZqrSjNclUSYZUMqrTs0Fx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Roger Whittaker <Roger.Whittaker@suse.com>
-Subject: [PATCH 4.14 35/39] USB: Fix: Dont skip endpoint descriptors with maxpacket=0
-Date:   Tue, 14 Jan 2020 11:02:09 +0100
-Message-Id: <20200114094346.366822834@linuxfoundation.org>
+        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>, Bin Liu <b-liu@ti.com>
+Subject: [PATCH 4.9 18/31] usb: musb: fix idling for suspend after disconnect interrupt
+Date:   Tue, 14 Jan 2020 11:02:10 +0100
+Message-Id: <20200114094343.362195429@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
+References: <20200114094334.725604663@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 2548288b4fb059b2da9ceada172ef763077e8a59 upstream.
+commit 5fbf7a2534703fd71159d3d71504b0ad01b43394 upstream.
 
-It turns out that even though endpoints with a maxpacket length of 0
-aren't useful for data transfer, the descriptors do serve other
-purposes.  In particular, skipping them will also skip over other
-class-specific descriptors for classes such as UVC.  This unexpected
-side effect has caused some UVC cameras to stop working.
+When disconnected as USB B-device, suspend interrupt should come before
+diconnect interrupt, because the DP/DM pins are shorter than the
+VBUS/GND pins on the USB connectors. But we sometimes get a suspend
+interrupt after disconnect interrupt. In that case we have devctl set to
+99 with VBUS still valid and musb_pm_runtime_check_session() wrongly
+thinks we have an active session. We have no other interrupts after
+disconnect coming in this case at least with the omap2430 glue.
 
-In addition, the USB spec requires that when isochronous endpoint
-descriptors are present in an interface's altsetting 0 (which is true
-on some devices), the maxpacket size _must_ be set to 0.  Warning
-about such things seems like a bad idea.
+Let's fix the issue by checking the interrupt status again with
+delayed work for the devctl 99 case. In the suspend after disconnect
+case the devctl session bit has cleared by then and musb can idle.
+For a typical USB B-device connect case we just continue with normal
+interrupts.
 
-This patch updates an earlier commit which would log a warning and
-skip these endpoint descriptors.  Now we only log a warning, and we
-don't even do that for isochronous endpoints in altsetting 0.
+Fixes: 467d5c980709 ("usb: musb: Implement session bit based runtime PM for musb-core")
 
-We don't need to worry about preventing endpoints with maxpacket = 0
-from ever being used for data transfers; usb_submit_urb() already
-checks for this.
-
-Reported-and-tested-by: Roger Whittaker <Roger.Whittaker@suse.com>
-Fixes: d482c7bb0541 ("USB: Skip endpoints with 0 maxpacket length")
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://marc.info/?l=linux-usb&m=157790377329882&w=2
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2001061040270.1514-100000@iolanthe.rowland.org
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Bin Liu <b-liu@ti.com>
+Link: https://lore.kernel.org/r/20200107152625.857-2-b-liu@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/config.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/usb/musb/musb_core.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -392,12 +392,16 @@ static int usb_parse_endpoint(struct dev
- 			endpoint->desc.wMaxPacketSize = cpu_to_le16(8);
- 	}
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -1832,6 +1832,9 @@ static const struct attribute_group musb
+ #define MUSB_QUIRK_B_INVALID_VBUS_91	(MUSB_DEVCTL_BDEVICE | \
+ 					 (2 << MUSB_DEVCTL_VBUS_SHIFT) | \
+ 					 MUSB_DEVCTL_SESSION)
++#define MUSB_QUIRK_B_DISCONNECT_99	(MUSB_DEVCTL_BDEVICE | \
++					 (3 << MUSB_DEVCTL_VBUS_SHIFT) | \
++					 MUSB_DEVCTL_SESSION)
+ #define MUSB_QUIRK_A_DISCONNECT_19	((3 << MUSB_DEVCTL_VBUS_SHIFT) | \
+ 					 MUSB_DEVCTL_SESSION)
  
--	/* Validate the wMaxPacketSize field */
-+	/*
-+	 * Validate the wMaxPacketSize field.
-+	 * Some devices have isochronous endpoints in altsetting 0;
-+	 * the USB-2 spec requires such endpoints to have wMaxPacketSize = 0
-+	 * (see the end of section 5.6.3), so don't warn about them.
-+	 */
- 	maxp = usb_endpoint_maxp(&endpoint->desc);
--	if (maxp == 0) {
--		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has wMaxPacketSize 0, skipping\n",
-+	if (maxp == 0 && !(usb_endpoint_xfer_isoc(d) && asnum == 0)) {
-+		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
- 		    cfgno, inum, asnum, d->bEndpointAddress);
--		goto skip_to_next_endpoint_or_interface_descriptor;
- 	}
- 
- 	/* Find the highest legal maxpacket size for this endpoint */
+@@ -1854,6 +1857,11 @@ static void musb_pm_runtime_check_sessio
+ 	s = MUSB_DEVCTL_FSDEV | MUSB_DEVCTL_LSDEV |
+ 		MUSB_DEVCTL_HR;
+ 	switch (devctl & ~s) {
++	case MUSB_QUIRK_B_DISCONNECT_99:
++		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
++		schedule_delayed_work(&musb->irq_work,
++				      msecs_to_jiffies(1000));
++		break;
+ 	case MUSB_QUIRK_B_INVALID_VBUS_91:
+ 		if (musb->quirk_retries--) {
+ 			musb_dbg(musb,
 
 
