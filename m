@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3231613A69C
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE74713A68C
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729660AbgANKMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:12:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48968 "EHLO mail.kernel.org"
+        id S1731914AbgANKMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:12:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729503AbgANKMa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:12:30 -0500
+        id S1732378AbgANKMH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:12:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0907207FF;
-        Tue, 14 Jan 2020 10:12:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87A60207FF;
+        Tue, 14 Jan 2020 10:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996749;
-        bh=szTmjal4HSnrS63ZUWmwLqq0z7P6GeYyZyvacrzg/KA=;
+        s=default; t=1578996727;
+        bh=qe+amIO6FsqBNpi7ZCNhfwA0gpWZnUNTGkxW7VB5bHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ok48/CYxIkoeW5fHF4DFA8cr6p7dKSl+cXn4QeQYrWl3pzfRCOJqis6v2qz5zlVBX
-         1cPkgAe0MUxiQhRKFPypDu7blpBCN/71VooTlLTjEArILePny/CJhWUBrZorf3I80s
-         HCzJyvHlpF8ORn2yah5lhFzYQqvGHlFqSwBC8EKw=
+        b=lvfmJuyJR3f/uOkgfep9nLaW77YSK9O7Cw2ttWzn6j+s9vHoh881TasDjgpFG6dDG
+         EI0e6mgNljSVGCTK0TzAFMMOixJyExixAxkuC7YDs52Diw06pMlKeHdLqLZGq6IZcY
+         s8fGB4ykZVNjgdO8x9aX3M/1RzVvp6KbENkXHja4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        syzbot+82defefbbd8527e1c2cb@syzkaller.appspotmail.com,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.4 02/28] chardev: Avoid potential use-after-free in chrdev_open()
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Wayne Lin <Wayne.Lin@amd.com>, Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 4.9 12/31] drm/dp_mst: correct the shifting in DP_REMOTE_I2C_READ
 Date:   Tue, 14 Jan 2020 11:02:04 +0100
-Message-Id: <20200114094337.950728924@linuxfoundation.org>
+Message-Id: <20200114094342.016777191@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
-References: <20200114094336.845958665@linuxfoundation.org>
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
+References: <20200114094334.725604663@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-commit 68faa679b8be1a74e6663c21c3a9d25d32f1c079 upstream.
+commit c4e4fccc5d52d881afaac11d3353265ef4eccb8b upstream.
 
-'chrdev_open()' calls 'cdev_get()' to obtain a reference to the
-'struct cdev *' stashed in the 'i_cdev' field of the target inode
-structure. If the pointer is NULL, then it is initialised lazily by
-looking up the kobject in the 'cdev_map' and so the whole procedure is
-protected by the 'cdev_lock' spinlock to serialise initialisation of
-the shared pointer.
+[Why]
+According to DP spec, it should shift left 4 digits for NO_STOP_BIT
+in REMOTE_I2C_READ message. Not 5 digits.
 
-Unfortunately, it is possible for the initialising thread to fail *after*
-installing the new pointer, for example if the subsequent '->open()' call
-on the file fails. In this case, 'cdev_put()' is called, the reference
-count on the kobject is dropped and, if nobody else has taken a reference,
-the release function is called which finally clears 'inode->i_cdev' from
-'cdev_purge()' before potentially freeing the object. The problem here
-is that a racing thread can happily take the 'cdev_lock' and see the
-non-NULL pointer in the inode, which can result in a refcount increment
-from zero and a warning:
+In current code, NO_STOP_BIT is always set to zero which means I2C
+master is always generating a I2C stop at the end of each I2C write
+transaction while handling REMOTE_I2C_READ sideband message. This issue
+might have the generated I2C signal not meeting the requirement. Take
+random read in I2C for instance, I2C master should generate a repeat
+start to start to read data after writing the read address. This issue
+will cause the I2C master to generate a stop-start rather than a
+re-start which is not expected in I2C random read.
 
-  |  ------------[ cut here ]------------
-  |  refcount_t: addition on 0; use-after-free.
-  |  WARNING: CPU: 2 PID: 6385 at lib/refcount.c:25 refcount_warn_saturate+0x6d/0xf0
-  |  Modules linked in:
-  |  CPU: 2 PID: 6385 Comm: repro Not tainted 5.5.0-rc2+ #22
-  |  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-  |  RIP: 0010:refcount_warn_saturate+0x6d/0xf0
-  |  Code: 05 55 9a 15 01 01 e8 9d aa c8 ff 0f 0b c3 80 3d 45 9a 15 01 00 75 ce 48 c7 c7 00 9c 62 b3 c6 08
-  |  RSP: 0018:ffffb524c1b9bc70 EFLAGS: 00010282
-  |  RAX: 0000000000000000 RBX: ffff9e9da1f71390 RCX: 0000000000000000
-  |  RDX: ffff9e9dbbd27618 RSI: ffff9e9dbbd18798 RDI: ffff9e9dbbd18798
-  |  RBP: 0000000000000000 R08: 000000000000095f R09: 0000000000000039
-  |  R10: 0000000000000000 R11: ffffb524c1b9bb20 R12: ffff9e9da1e8c700
-  |  R13: ffffffffb25ee8b0 R14: 0000000000000000 R15: ffff9e9da1e8c700
-  |  FS:  00007f3b87d26700(0000) GS:ffff9e9dbbd00000(0000) knlGS:0000000000000000
-  |  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  |  CR2: 00007fc16909c000 CR3: 000000012df9c000 CR4: 00000000000006e0
-  |  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  |  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  |  Call Trace:
-  |   kobject_get+0x5c/0x60
-  |   cdev_get+0x2b/0x60
-  |   chrdev_open+0x55/0x220
-  |   ? cdev_put.part.3+0x20/0x20
-  |   do_dentry_open+0x13a/0x390
-  |   path_openat+0x2c8/0x1470
-  |   do_filp_open+0x93/0x100
-  |   ? selinux_file_ioctl+0x17f/0x220
-  |   do_sys_open+0x186/0x220
-  |   do_syscall_64+0x48/0x150
-  |   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  |  RIP: 0033:0x7f3b87efcd0e
-  |  Code: 89 54 24 08 e8 a3 f4 ff ff 8b 74 24 0c 48 8b 3c 24 41 89 c0 44 8b 54 24 08 b8 01 01 00 00 89 f4
-  |  RSP: 002b:00007f3b87d259f0 EFLAGS: 00000293 ORIG_RAX: 0000000000000101
-  |  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3b87efcd0e
-  |  RDX: 0000000000000000 RSI: 00007f3b87d25a80 RDI: 00000000ffffff9c
-  |  RBP: 00007f3b87d25e90 R08: 0000000000000000 R09: 0000000000000000
-  |  R10: 0000000000000000 R11: 0000000000000293 R12: 00007ffe188f504e
-  |  R13: 00007ffe188f504f R14: 00007f3b87d26700 R15: 0000000000000000
-  |  ---[ end trace 24f53ca58db8180a ]---
+[How]
+Correct the shifting value of NO_STOP_BIT for DP_REMOTE_I2C_READ case in
+drm_dp_encode_sideband_req().
 
-Since 'cdev_get()' can already fail to obtain a reference, simply move
-it over to use 'kobject_get_unless_zero()' instead of 'kobject_get()',
-which will cause the racing thread to return -ENXIO if the initialising
-thread fails unexpectedly.
+Changes since v1:(https://patchwork.kernel.org/patch/11312667/)
+* Add more descriptions in commit and cc to stable
 
-Cc: Hillf Danton <hdanton@sina.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Reported-by: syzbot+82defefbbd8527e1c2cb@syzkaller.appspotmail.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191219120203.32691-1-will@kernel.org
+Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200103055001.10287-1-Wayne.Lin@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/char_dev.c |    2 +-
+ drivers/gpu/drm/drm_dp_mst_topology.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/char_dev.c
-+++ b/fs/char_dev.c
-@@ -332,7 +332,7 @@ static struct kobject *cdev_get(struct c
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -272,7 +272,7 @@ static void drm_dp_encode_sideband_req(s
+ 			memcpy(&buf[idx], req->u.i2c_read.transactions[i].bytes, req->u.i2c_read.transactions[i].num_bytes);
+ 			idx += req->u.i2c_read.transactions[i].num_bytes;
  
- 	if (owner && !try_module_get(owner))
- 		return NULL;
--	kobj = kobject_get(&p->kobj);
-+	kobj = kobject_get_unless_zero(&p->kobj);
- 	if (!kobj)
- 		module_put(owner);
- 	return kobj;
+-			buf[idx] = (req->u.i2c_read.transactions[i].no_stop_bit & 0x1) << 5;
++			buf[idx] = (req->u.i2c_read.transactions[i].no_stop_bit & 0x1) << 4;
+ 			buf[idx] |= (req->u.i2c_read.transactions[i].i2c_transaction_delay & 0xf);
+ 			idx++;
+ 		}
 
 
