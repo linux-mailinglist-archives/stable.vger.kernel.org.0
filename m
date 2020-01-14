@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F66313A5D6
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FEF013A5D8
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729674AbgANKDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:03:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59068 "EHLO mail.kernel.org"
+        id S1729718AbgANKD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:03:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727556AbgANKDz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:03:55 -0500
+        id S1729299AbgANKD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:03:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB8E62465B;
-        Tue, 14 Jan 2020 10:03:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC7D92465B;
+        Tue, 14 Jan 2020 10:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996234;
-        bh=0iI60ASd7ulC+qFe2HUEyy2qnyANXMoRKWE6iE05tXQ=;
+        s=default; t=1578996237;
+        bh=c3p9xyzbkCbQ+qAr0xNaABasAH5T/bI8pI3xuRccQSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMVYEgbbiTeEyDF5s8qdeEOu9cfdTdo3NoH1Mcb6JGmLlf9+szpFTIk0PNauUPJpY
-         93cxz4u/n9vP9HuB4ofGSdcRMn1/XxjVanuDyJyrfrvp9zsemOr75acWLrzUf84fAW
-         x36wpVbnFr55K5fnuasY4EgWSDJnOzjq9CfGhnTQ=
+        b=NKushH8pyNoObUXDFhjcRYwiqvg+H4YKB2rVuOCfHSXhT5DDslo9DZRt287zdjhKn
+         jVG9lD6wHotiSCuvJquPWS5FbP5TYBvsST7utiimvgW6QAdHOOlqZ/NptMNCAe42zR
+         5xpLkfXK8hFKiTO/FqX+YrjH9dwWIusbFhC5dnIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.4 26/78] drm/sun4i: tcon: Set RGB DCLK min. divider based on hardware model
-Date:   Tue, 14 Jan 2020 11:01:00 +0100
-Message-Id: <20200114094357.220171582@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.4 27/78] drm/fb-helper: Round up bits_per_pixel if possible
+Date:   Tue, 14 Jan 2020 11:01:01 +0100
+Message-Id: <20200114094357.331233293@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -43,125 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 4396393fb96449c56423fb4b351f76e45a6bcaf6 upstream.
+commit f30e27779d3031a092c2a177b7fb76adccc45241 upstream.
 
-In commit 0b8e7bbde5e7 ("drm/sun4i: tcon: Set min division of TCON0_DCLK
-to 1.") it was assumed that all TCON variants support a minimum divider
-of 1 if only DCLK was used.
+When userspace requests a video mode parameter value that is not
+supported, frame buffer device drivers should round it up to a supported
+value, if possible, instead of just rejecting it.  This allows
+applications to quickly scan for supported video modes.
 
-However, the oldest generation of hardware only supports minimum divider
-of 4 if only DCLK is used. If a divider of 1 was used on this old
-hardware, some scrolling artifact would appear. A divider of 2 seemed
-OK, but a divider of 3 had artifacts as well.
+Currently this rule is not followed for the number of bits per pixel,
+causing e.g. "fbset -depth N" to fail, if N is smaller than the current
+number of bits per pixel.
 
-Set the minimum divider when outputing to parallel RGB based on the
-hardware model, with a minimum of 4 for the oldest (A10/A10s/A13/A20)
-hardware, and a minimum of 1 for the rest. A value is not set for the
-TCON variants lacking channel 0.
+Fix this by returning an error only if bits per pixel is too large, and
+setting it to the current value otherwise.
 
-This fixes the scrolling artifacts seen on my A13 tablet.
+See also Documentation/fb/framebuffer.rst, Section 2 (Programmer's View
+of /dev/fb*").
 
-Fixes: 0b8e7bbde5e7 ("drm/sun4i: tcon: Set min division of TCON0_DCLK to 1.")
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200107070113.28951-1-wens@kernel.org
+Fixes: 865afb11949e5bf4 ("drm/fb-helper: reject any changes to the fbdev")
+Cc: stable@vger.kernel.org
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191230132734.4538-1-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/sun4i/sun4i_tcon.c |   15 ++++++++++++---
- drivers/gpu/drm/sun4i/sun4i_tcon.h |    1 +
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_fb_helper.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/sun4i/sun4i_tcon.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_tcon.c
-@@ -488,7 +488,7 @@ static void sun4i_tcon0_mode_set_rgb(str
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -1320,7 +1320,7 @@ int drm_fb_helper_check_var(struct fb_va
+ 	 * Changes struct fb_var_screeninfo are currently not pushed back
+ 	 * to KMS, hence fail if different settings are requested.
+ 	 */
+-	if (var->bits_per_pixel != fb->format->cpp[0] * 8 ||
++	if (var->bits_per_pixel > fb->format->cpp[0] * 8 ||
+ 	    var->xres > fb->width || var->yres > fb->height ||
+ 	    var->xres_virtual > fb->width || var->yres_virtual > fb->height) {
+ 		DRM_DEBUG("fb requested width/height/bpp can't fit in current fb "
+@@ -1346,6 +1346,11 @@ int drm_fb_helper_check_var(struct fb_va
+ 	}
  
- 	WARN_ON(!tcon->quirks->has_channel_0);
- 
--	tcon->dclk_min_div = 1;
-+	tcon->dclk_min_div = tcon->quirks->dclk_min_div;
- 	tcon->dclk_max_div = 127;
- 	sun4i_tcon0_mode_set_common(tcon, mode);
- 
-@@ -1425,12 +1425,14 @@ static int sun8i_r40_tcon_tv_set_mux(str
- static const struct sun4i_tcon_quirks sun4i_a10_quirks = {
- 	.has_channel_0		= true,
- 	.has_channel_1		= true,
-+	.dclk_min_div		= 4,
- 	.set_mux		= sun4i_a10_tcon_set_mux,
- };
- 
- static const struct sun4i_tcon_quirks sun5i_a13_quirks = {
- 	.has_channel_0		= true,
- 	.has_channel_1		= true,
-+	.dclk_min_div		= 4,
- 	.set_mux		= sun5i_a13_tcon_set_mux,
- };
- 
-@@ -1439,6 +1441,7 @@ static const struct sun4i_tcon_quirks su
- 	.has_channel_1		= true,
- 	.has_lvds_alt		= true,
- 	.needs_de_be_mux	= true,
-+	.dclk_min_div		= 1,
- 	.set_mux		= sun6i_tcon_set_mux,
- };
- 
-@@ -1446,11 +1449,13 @@ static const struct sun4i_tcon_quirks su
- 	.has_channel_0		= true,
- 	.has_channel_1		= true,
- 	.needs_de_be_mux	= true,
-+	.dclk_min_div		= 1,
- };
- 
- static const struct sun4i_tcon_quirks sun7i_a20_quirks = {
- 	.has_channel_0		= true,
- 	.has_channel_1		= true,
-+	.dclk_min_div		= 4,
- 	/* Same display pipeline structure as A10 */
- 	.set_mux		= sun4i_a10_tcon_set_mux,
- };
-@@ -1458,11 +1463,13 @@ static const struct sun4i_tcon_quirks su
- static const struct sun4i_tcon_quirks sun8i_a33_quirks = {
- 	.has_channel_0		= true,
- 	.has_lvds_alt		= true,
-+	.dclk_min_div		= 1,
- };
- 
- static const struct sun4i_tcon_quirks sun8i_a83t_lcd_quirks = {
- 	.supports_lvds		= true,
- 	.has_channel_0		= true,
-+	.dclk_min_div		= 1,
- };
- 
- static const struct sun4i_tcon_quirks sun8i_a83t_tv_quirks = {
-@@ -1476,11 +1483,13 @@ static const struct sun4i_tcon_quirks su
- 
- static const struct sun4i_tcon_quirks sun8i_v3s_quirks = {
- 	.has_channel_0		= true,
-+	.dclk_min_div		= 1,
- };
- 
- static const struct sun4i_tcon_quirks sun9i_a80_tcon_lcd_quirks = {
--	.has_channel_0	= true,
--	.needs_edp_reset = true,
-+	.has_channel_0		= true,
-+	.needs_edp_reset	= true,
-+	.dclk_min_div		= 1,
- };
- 
- static const struct sun4i_tcon_quirks sun9i_a80_tcon_tv_quirks = {
---- a/drivers/gpu/drm/sun4i/sun4i_tcon.h
-+++ b/drivers/gpu/drm/sun4i/sun4i_tcon.h
-@@ -224,6 +224,7 @@ struct sun4i_tcon_quirks {
- 	bool	needs_de_be_mux; /* sun6i needs mux to select backend */
- 	bool    needs_edp_reset; /* a80 edp reset needed for tcon0 access */
- 	bool	supports_lvds;   /* Does the TCON support an LVDS output? */
-+	u8	dclk_min_div;	/* minimum divider for TCON0 DCLK */
- 
- 	/* callback to handle tcon muxing options */
- 	int	(*set_mux)(struct sun4i_tcon *, const struct drm_encoder *);
+ 	/*
++	 * Likewise, bits_per_pixel should be rounded up to a supported value.
++	 */
++	var->bits_per_pixel = fb->format->cpp[0] * 8;
++
++	/*
+ 	 * drm fbdev emulation doesn't support changing the pixel format at all,
+ 	 * so reject all pixel format changing requests.
+ 	 */
 
 
