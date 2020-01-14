@@ -2,96 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02EA713A071
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 06:13:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BACE13A0BC
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 06:40:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725860AbgANFM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 00:12:58 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:33610 "EHLO
-        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725306AbgANFM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 00:12:58 -0500
-Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1irEVU-007mgT-4P; Tue, 14 Jan 2020 05:12:48 +0000
-Date:   Tue, 14 Jan 2020 05:12:48 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Aleksa Sarai <cyphar@cyphar.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        David Howells <dhowells@redhat.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        stable <stable@vger.kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
-        Linux Containers <containers@lists.linux-foundation.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Ian Kent <raven@themaw.net>
-Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
- symlinks
-Message-ID: <20200114051248.GX8904@ZenIV.linux.org.uk>
-References: <20200101005446.GH4203@ZenIV.linux.org.uk>
- <20200101030815.GA17593@ZenIV.linux.org.uk>
- <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
- <20200101234009.GB8904@ZenIV.linux.org.uk>
- <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
- <20200103014901.GC8904@ZenIV.linux.org.uk>
- <20200108031314.GE8904@ZenIV.linux.org.uk>
- <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
- <20200110210719.ktg3l2kwjrdutlh6@yavin>
- <20200114045733.GW8904@ZenIV.linux.org.uk>
+        id S1725842AbgANFkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 00:40:00 -0500
+Received: from eddie.linux-mips.org ([148.251.95.138]:44658 "EHLO
+        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725820AbgANFkA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 00:40:00 -0500
+Received: (from localhost user: 'macro', uid#1010) by eddie.linux-mips.org
+        with ESMTP id S23990431AbgANFj45Upcz (ORCPT
+        <rfc822;stable@vger.kernel.org> + 2 others);
+        Tue, 14 Jan 2020 06:39:56 +0100
+Date:   Tue, 14 Jan 2020 05:39:56 +0000 (GMT)
+From:   "Maciej W. Rozycki" <macro@linux-mips.org>
+To:     Paul Burton <paulburton@kernel.org>
+cc:     David Laight <David.Laight@aculab.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] MIPS: Use __copy_{to,from}_user() for emulated FP
+ loads/stores
+In-Reply-To: <20191229190123.ju24cz7thuvybejs@lantea.localdomain>
+Message-ID: <alpine.LFD.2.21.2001140508250.1162854@eddie.linux-mips.org>
+References: <20191203204933.1642259-1-paulburton@kernel.org> <f5e09155580d417e9dcd07b1c20786ed@AcuMS.aculab.com> <20191204154048.eotzglp4rdlx4yzl@lantea.localdomain> <e220ba9a19da41abba599b5873afa494@AcuMS.aculab.com> <alpine.LFD.2.21.1912260251520.3762799@eddie.linux-mips.org>
+ <20191229190123.ju24cz7thuvybejs@lantea.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200114045733.GW8904@ZenIV.linux.org.uk>
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 14, 2020 at 04:57:33AM +0000, Al Viro wrote:
-> On Sat, Jan 11, 2020 at 08:07:19AM +1100, Aleksa Sarai wrote:
+Hi Paul,
+
+ Sorry to take so long; it took me a while to track down the discussion I 
+had in mind, and I was quite busy too.  Also greetings from linux.conf.au!
+
+> >  As I recall we only emulate unaligned accesses with a subset of integer 
+> > load/store instructions (and then only if TIF_FIXADE is set, which is the 
+> > default), and never with FP load/store instructions.  Consequently I see 
+> > no point in doing this in the FP emulator either and I think these ought 
+> > to just send SIGBUS instead.  Otherwise you'll end up with user code that 
+> > works differently depending on whether the FP hardware is real or 
+> > emulated, which is really bad.
 > 
-> > If I'm understanding this proposal correctly, this would be a problem
-> > for the libpathrs use-case -- if this is done then there's no way to
-> > avoid a TOCTOU with someone mounting and the userspace program checking
-> > whether something is a mountpoint (unless you have Linux >5.6 and
-> > RESOLVE_NO_XDEV). Today, you can (in theory) do it with MNT_EXPIRE:
-> > 
-> >   1. Open the candidate directory.
-> >   2. umount2(MNT_EXPIRE) the fd.
-> >     * -EINVAL means it wasn't a mountpoint when we got the fd, and the
-> > 	  fd is a stable handle to the underlying directory.
-> > 	* -EAGAIN or -EBUSY means that it was a mountpoint or became a
-> > 	  mountpoint after the fd was opened (we don't care about that, but
-> > 	  fail-safe is better here).
-> >   3. Use the fd from (1) for all operations.
-> 
-> ... except that foo/../bar *WILL* cross into the covering mount, on any
-> kernel that supports ...at(2) at all, so I would be very cautious about
-> any kind "hardening" claims in that case.
-> 
-> I'm not sure about Linus' proposal - it looks rather convoluted and we
-> get a hard to describe twist of semantics in an area (procfs symlinks
-> vs. mount traversal) on top of everything else in there...
+> That might simplify things here, but it's incorrect. I'm fairly certain
+> the intent is that emulate_load_store_insn() handles all non-FP loads &
+> stores (though looking at it we're missing some instructions added in
+> r6). More importantly though we've been emulating FP loads & stores
+> since v3.10 which introduced the change alongside microMIPS support in
+> commit 102cedc32a6e ("MIPS: microMIPS: Floating point support."). The
+> commit contains no description of why, and I'm not aware of any reason
+> microMIPS specifically would need this so I suspect that commit bundled
+> this change for no good reason...
 
-PS: one thing that might be interesting is exposing LOOKUP_DOWN via
-AT_... flag - it would allow to request mount traversals at the starting
-point explicitly.  Pretty much all code needed for that is already there;
-all it would take is checking the flag in path_openat() and path_parentat()
-and having handle_lookup_down() called there, same as in path_lookupat().
+ See the thread of discussion starting from this submission:
 
-A tricky question is whether such flag should affect absolute symlinks -
-i.e.
+<https://www.linux-mips.org/cgi-bin/mesg.cgi?a=linux-mips&i=20120615234641.6938B58FE7C%40mail.viric.name>
 
-chdir /foo
-ln -s /bar barf
-overmount /
-do lookup with that flag for /bar/splat
-do lookup with that flag for barf/splat
+and in particular Ralf's response (not referred directly due to the 
+monthly archive rollover):
 
-Do we want the same results in both calls?  The first one would
-traverse mounts on / and walk into /bar/splat in overmounting;
-the second - see no mounts whatsoever on current directory (/foo
-in old root), see the symlink to "/bar", jump to process' root
-and proceed from there, first for "bar", then "splat" in it...
+<https://www.linux-mips.org/cgi-bin/mesg.cgi?a=linux-mips&i=20120731134001.GA14151%40linux-mips.org>
+
+I think Ralf's argument still stands and I find it regrettable that an 
+unwanted feature was sneaked in with a trick along with a submission 
+supposed to only add a different, unrelated feature.
+
+ I can't even track down a public submission/review of the change you 
+refer, which is not how things are supposed to work with Linux!  And 
+neither the `Signed-off-by' tags help figuring out what the route of the 
+change was to get there upstream.  At that time there was supposed to be 
+Ralf's tag there, as it was him who was the sole port maintainer.
+
+> It's also worth noting that some hardware will handle unaligned FP
+> loads/stores, which means having the emulator reject them will result in
+> more of a visible difference to userland. ie. on some hardware they'll
+> work just fine, but on some you'd get SIGBUS. So I do think emulating
+> them makes some sense - just as for non-FP loads & stores it lets
+> userland not care whether the hardware will handle them, so long as it's
+> not performance critical code. If we knew that had never been used then
+> perhaps we could enforce the alignment requirement (and maybe that's
+> what you recall doing), but since we've been emulating them for the past
+> 6 years it's too late for that now.
+
+ I don't think it's ever too late to remove a broken feature that everyone 
+knows is not a part of the architecture and the emulation of which has 
+never been advertised as a part of the Linux ABI either.  You just don't 
+make it a part of the ABI when you sneak in a feature without a proper 
+review, we do not accept the fait accompli method in Linux development.
+
+ The presence of unaligned FP data is a sign of user code breakage and 
+whoever caused that breakage will best know that ASAP by seeing their 
+program trap (they can emulate the trap in their software by installing a 
+suitable signal handler if they are so desperate to have unaligned FP data 
+handled).
+
+ So I think that not only the new submission should be rejected, but also 
+parts of commit 102cedc32a6e ("MIPS: microMIPS: Floating point support.") 
+reverted that are not a part of actual microMIPS support.  If someone 
+relied on it by accident or ignorance, they'll simply have to adjust.
+
+  Maciej
