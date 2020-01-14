@@ -2,78 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7132B13A623
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1097013A661
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729893AbgANKJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:09:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42638 "EHLO mail.kernel.org"
+        id S1729489AbgANKLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:11:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729605AbgANKJh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:09:37 -0500
+        id S1729878AbgANKLI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:11:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5D0424676;
-        Tue, 14 Jan 2020 10:09:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E96A024676;
+        Tue, 14 Jan 2020 10:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996577;
-        bh=JwV7d1BbX+/9gDwxCu7WXxNWnznGLGCuF71qbgZ6FdQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cT6hBdCUb9fNfikNsZ0MlKhHxzUFqTWDFECBMZDDM7xeVtVMWHzyYz5TYerSYoRrv
-         v5/TSIGAegHnCrkrILIcajM2EKW71XAegkRUUAFhViIWXncVFmZHQXydVkQaKZ/KMj
-         S27JXTLrANkEBAX7BGu0LdMJEARG/nBq/FxoDH2Y=
+        s=default; t=1578996667;
+        bh=pNAqwTSpzvtKvbMUwWTpCb+EeL25wu4GCETo00xysXc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=abFtCrMeMBEwvw1cfKZfZKPHHT41Cl5xYMVXcCBFLByUfolfrxxRFJraAbLiG+QSE
+         sVUK2Un3uTDN5ImW8i47lB4YlqSg2W6le23FHa+56N18z3kPtovIoeZHfj6NPXEG4d
+         GRTH9UvK22VfZWrFcbPwnxnSwZxwMfiA5r4LPoPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Bin Liu <b-liu@ti.com>
-Subject: [PATCH 4.14 18/39] usb: musb: Disable pullup at init
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.9 00/31] 4.9.210-stable review
 Date:   Tue, 14 Jan 2020 11:01:52 +0100
-Message-Id: <20200114094343.179143771@linuxfoundation.org>
+Message-Id: <20200114094334.725604663@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.210-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.210-rc1
+X-KernelTest-Deadline: 2020-01-16T09:43+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+This is the start of the stable review cycle for the 4.9.210 release.
+There are 31 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 96a0c12843109e5c4d5eb1e09d915fdd0ce31d25 upstream.
+Responses should be made by Thu, 16 Jan 2020 09:41:58 +0000.
+Anything received after that time might be too late.
 
-The pullup may be already enabled before the driver is initialized. This
-happens for instance on JZ4740.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.210-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-It has to be disabled at init time, as we cannot guarantee that a gadget
-driver will be bound to the UDC.
+thanks,
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Suggested-by: Bin Liu <b-liu@ti.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20200107152625.857-3-b-liu@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/musb/musb_core.c |    3 +++
- 1 file changed, 3 insertions(+)
+greg k-h
 
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2328,6 +2328,9 @@ musb_init_controller(struct device *dev,
- 	musb_disable_interrupts(musb);
- 	musb_writeb(musb->mregs, MUSB_DEVCTL, 0);
- 
-+	/* MUSB_POWER_SOFTCONN might be already set, JZ4740 does this. */
-+	musb_writeb(musb->mregs, MUSB_POWER, 0);
-+
- 	/* Init IRQ workqueue before request_irq */
- 	INIT_DELAYED_WORK(&musb->irq_work, musb_irq_work);
- 	INIT_DELAYED_WORK(&musb->deassert_reset_work, musb_deassert_reset);
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.210-rc1
+
+Florian Westphal <fw@strlen.de>
+    netfilter: ipset: avoid null deref when IPSET_ATTR_LINENO is present
+
+Florian Westphal <fw@strlen.de>
+    netfilter: arp_tables: init netns pointer in xt_tgchk_param struct
+
+Alan Stern <stern@rowland.harvard.edu>
+    USB: Fix: Don't skip endpoint descriptors with maxpacket=0
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    rtl8xxxu: prevent leaking urb
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    scsi: bfa: release allocated memory in case of error
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    mwifiex: pcie: Fix memory leak in mwifiex_pcie_alloc_cmdrsp_buf
+
+Ganapathi Bhat <gbhat@marvell.com>
+    mwifiex: fix possible heap overflow in mwifiex_process_country_ie()
+
+Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+    tty: always relink the port
+
+Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+    tty: link tty and port before configuring it as console
+
+Michael Straube <straube.linux@gmail.com>
+    staging: rtl8188eu: Add device code for TP-Link TL-WN727N v5.21
+
+Ian Abbott <abbotti@mev.co.uk>
+    staging: comedi: adv_pci1710: fix AI channels 16-31 for PCI-1713
+
+Paul Cercueil <paul@crapouillou.net>
+    usb: musb: dma: Correct parameter passed to IRQ handler
+
+Paul Cercueil <paul@crapouillou.net>
+    usb: musb: Disable pullup at init
+
+Tony Lindgren <tony@atomide.com>
+    usb: musb: fix idling for suspend after disconnect interrupt
+
+Daniele Palmas <dnlplm@gmail.com>
+    USB: serial: option: add ZLP support for 0x1bc7/0x9010
+
+Malcolm Priestley <tvboxspy@gmail.com>
+    staging: vt6656: set usb_set_intfdata on driver fail.
+
+Oliver Hartkopp <socketcan@hartkopp.net>
+    can: can_dropped_invalid_skb(): ensure an initialized headroom in outgoing CAN sk_buffs
+
+Florian Faber <faber@faberman.de>
+    can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
+
+Johan Hovold <johan@kernel.org>
+    can: gs_usb: gs_usb_probe(): use descriptors of current altsetting
+
+Wayne Lin <Wayne.Lin@amd.com>
+    drm/dp_mst: correct the shifting in DP_REMOTE_I2C_READ
+
+Dmitry Torokhov <dmitry.torokhov@gmail.com>
+    Input: add safety guards to input_set_keycode()
+
+Dmitry Torokhov <dmitry.torokhov@gmail.com>
+    HID: hid-input: clear unmapped usages
+
+Marcel Holtmann <marcel@holtmann.org>
+    HID: uhid: Fix returning EPOLLOUT from uhid_char_poll
+
+Alan Stern <stern@rowland.harvard.edu>
+    HID: Fix slab-out-of-bounds read in hid_field_extract
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracing: Have stack tracer compile when MCOUNT_INSN_SIZE is not defined
+
+Kaitao Cheng <pilgrimtao@gmail.com>
+    kernel/trace: Fix do not unregister tracepoints when register sched_migrate_task fail
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    tcp: minimize false-positives on TCP/GRO check
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Apply the sample rate quirk for Bose Companion 5
+
+Guenter Roeck <linux@roeck-us.net>
+    usb: chipidea: host: Disable port power only if previously enabled
+
+Will Deacon <will@kernel.org>
+    chardev: Avoid potential use-after-free in 'chrdev_open()'
+
+Jan Kara <jack@suse.cz>
+    kobject: Export kobject_get_unless_zero()
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +--
+ drivers/gpu/drm/drm_dp_mst_topology.c              |  2 +-
+ drivers/hid/hid-core.c                             |  6 ++++
+ drivers/hid/hid-input.c                            | 16 +++++++---
+ drivers/hid/uhid.c                                 |  3 +-
+ drivers/input/input.c                              | 26 ++++++++++-------
+ drivers/net/can/mscan/mscan.c                      | 21 +++++++------
+ drivers/net/can/usb/gs_usb.c                       |  4 +--
+ drivers/net/wireless/marvell/mwifiex/pcie.c        |  4 ++-
+ drivers/net/wireless/marvell/mwifiex/sta_ioctl.c   | 13 +++++++--
+ .../net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  |  1 +
+ drivers/scsi/bfa/bfad_attr.c                       |  4 ++-
+ drivers/staging/comedi/drivers/adv_pci1710.c       |  4 +--
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c        |  1 +
+ drivers/staging/vt6656/device.h                    |  1 +
+ drivers/staging/vt6656/main_usb.c                  |  1 +
+ drivers/staging/vt6656/wcmd.c                      |  1 +
+ drivers/tty/serial/serial_core.c                   |  1 +
+ drivers/usb/chipidea/host.c                        |  4 ++-
+ drivers/usb/core/config.c                          | 12 +++++---
+ drivers/usb/musb/musb_core.c                       | 11 +++++++
+ drivers/usb/musb/musbhsdma.c                       |  2 +-
+ drivers/usb/serial/option.c                        |  8 +++++
+ drivers/usb/serial/usb-wwan.h                      |  1 +
+ drivers/usb/serial/usb_wwan.c                      |  4 +++
+ fs/char_dev.c                                      |  2 +-
+ include/linux/can/dev.h                            | 34 ++++++++++++++++++++++
+ include/linux/kobject.h                            |  2 ++
+ kernel/trace/trace_sched_wakeup.c                  |  4 ++-
+ kernel/trace/trace_stack.c                         |  5 ++++
+ lib/kobject.c                                      |  5 +++-
+ net/ipv4/netfilter/arp_tables.c                    | 27 ++++++++++-------
+ net/ipv4/tcp_input.c                               | 14 +++++----
+ net/netfilter/ipset/ip_set_core.c                  |  3 +-
+ sound/usb/quirks.c                                 |  1 +
+ 35 files changed, 189 insertions(+), 63 deletions(-)
 
 
