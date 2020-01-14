@@ -2,82 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6D013A222
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 08:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E183413A235
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 08:44:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728877AbgANH3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 02:29:21 -0500
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:41803 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728868AbgANH3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 02:29:21 -0500
-Received: by mail-wr1-f45.google.com with SMTP id c9so11041311wrw.8
-        for <stable@vger.kernel.org>; Mon, 13 Jan 2020 23:29:20 -0800 (PST)
+        id S1729076AbgANHot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 02:44:49 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:38925 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728801AbgANHot (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 02:44:49 -0500
+Received: by mail-pf1-f193.google.com with SMTP id q10so6173298pfs.6;
+        Mon, 13 Jan 2020 23:44:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=YmxzQW3/CuXJxm39OD5V8mdPDLMOSsXZ2ZE7qk+rGEI=;
-        b=H1moWQkvI0jGUZwcOsKkLwKe3CruY1XvxYw+wyo7UiMv8LaZvsc3PomfHesQl8JEEb
-         fKrZpLhHgn0EJur/KJujQnnRyBvlAZOpMjifhhlCg3CtnujKe4hXGWFdKLy7/Jv9zUli
-         eEx91x76B0s20TLpETrWveJ9fe2t6gGxWRYvs5p5PMrvIsG1POhBQcb1ID8sNOyDacd5
-         E970Zo1JTmfc1R+4+MuvK9VWBZDT7icXvTw52BhI/Rq0ej0jBHCIVTgZpNT77wsUfiqZ
-         mnmeMn4Gwa9FwQKtM5/EERIXrFO+ZxEfLamtcoPKezH7Z1Azs5vDAwe4qBUJppc4d3Cd
-         ThkQ==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=Ji4/GGpTpCHtZjwRvAzGm3fytTn1eM1/uYYEuqSMvlo=;
+        b=V7KEAGOqYjfGtkT+aweWULgGvMOzq6GY5wvsDR1sJdb64//nhwfaSD0nOvGnCLEjl2
+         0KPkZx6/HX96zUi+9gxvqP5LwKvkIs5UfgdB8qCsGkaBClX/eqik4m7nYTYdoWz1D0Vw
+         pNOg/HJuG7UUFBMV6O8o73HCTlMrhBq07//BJdsnfXERnQ5bnfooehnVtlCTB9EOjLIx
+         aPqNfPG2EdrmsmDWPJaVQybqDQ9x0YymC5mSFSZuyqwPKmO0SuWKXAlcaSZSz7Hvd4AE
+         a6mLXqGH7cdyVKn1hiLPmbTAG7lYKIcL4xlUu1mJjSCnjNZxHmGGHQKbMY7+Cv5For94
+         LxCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=YmxzQW3/CuXJxm39OD5V8mdPDLMOSsXZ2ZE7qk+rGEI=;
-        b=rn7suNOgyhyMg1QSks9libFPviNEZsSkmlN7Ih0sYinPxyfeKreK2+LxgT3AMj4QrM
-         D4Kv/tAj5RjRYscYj/vqsYh+WsTvRY2RsbS1aFG3ur5zan1xoAmX4K5SwAx8sG/KaR1z
-         LXbT5TG/smb+gffVB0BaJ+2W33/r7rWpa5cBrxz9I65GB5c60NEUXrAP7zXhGk8MvO28
-         VWli64XI/uvTlf457QQNBZUlKfS1pg0PF4mo/+LPU8gGCfDEhJ9+8UA4CuiX5JgdTinK
-         xtXukHcbtEIYpKjjgZEDkk1iIve85pfeA6ql/mdre8E2gHfvJjVGPAjWarC+/T+OCve4
-         SZlQ==
-X-Gm-Message-State: APjAAAWFYrhkstBABvU8GvdRtq9yAWw1Z1zSmjL4C1NA/5KdA+MSTM/Y
-        Kor+t0gzG4osxfGt/BNPw/HyZPTbCOQh2w==
-X-Google-Smtp-Source: APXvYqzyNqPwSwlacTlcIBQmu0vE1iimk6zryuYoB7VhACltEGLF7Q7Hc4JwCxxD2DTzXFxmXYAwzw==
-X-Received: by 2002:a5d:46c7:: with SMTP id g7mr23145072wrs.11.1578986959474;
-        Mon, 13 Jan 2020 23:29:19 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id i5sm18702785wrv.34.2020.01.13.23.29.18
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2020 23:29:18 -0800 (PST)
-Message-ID: <5e1d6dce.1c69fb81.7cbc6.d632@mx.google.com>
-Date:   Mon, 13 Jan 2020 23:29:18 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.209-22-gfbc4ae7c27ee
-Subject: stable-rc/linux-4.4.y boot: 24 boots: 0 failed,
- 24 passed (v4.4.209-22-gfbc4ae7c27ee)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=Ji4/GGpTpCHtZjwRvAzGm3fytTn1eM1/uYYEuqSMvlo=;
+        b=bF3PrXUh0+4TCWH0Gl+nbNRu8TeYARjKqXknAbgk8RDt9hkhm08GfPFLOPnsNbUeTz
+         xS/D1uuiPUtHJNN/Pgtea2/UvtlWIXf2WNXEmt/xdlTiO3wwGj+EmZSVuzCf1KifwBLd
+         WX7sh7kDp9bBlvsJ9DzWR9ADAcX44Do83FCgM14hQIaqfEHwEUld1YvwzgDvPrL6WMb0
+         zmh1wU7xffoIa8j3y6yt/MrvgAntGqkvaM+oOR0mCAPHutGtDidZKuFWqRgIW5X2aGcg
+         5MvXk0NeeGPpMpvzb2uvYsLJT7q0rMZ0aaGREoN00ijKQdPzZig41sVw6wTGxIydEry2
+         kAyw==
+X-Gm-Message-State: APjAAAXxkTLvOle9AvtEfE6Rdmyfxp+Lw/ZEkpCchZ3nwXnamgITqqzd
+        BnqIw/NiMYN3gwJmeiYNXBQ=
+X-Google-Smtp-Source: APXvYqyR5qwh+EUVMQkFPgPEHQisjOpHIgs/mjN2cccTS/mUHiwuYt7H2FWIoKBjBCSftyqoVQPsNg==
+X-Received: by 2002:aa7:9808:: with SMTP id e8mr24349821pfl.32.1578987888490;
+        Mon, 13 Jan 2020 23:44:48 -0800 (PST)
+Received: from localhost.corp.microsoft.com ([167.220.255.5])
+        by smtp.googlemail.com with ESMTPSA id k3sm16350745pgc.3.2020.01.13.23.44.42
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 13 Jan 2020 23:44:47 -0800 (PST)
+From:   lantianyu1986@gmail.com
+X-Google-Original-From: Tianyu.Lan@microsoft.com
+To:     tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com,
+        x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org,
+        peterz@infradead.org, kys@microsoft.com, haiyangz@microsoft.com,
+        sthemmin@microsoft.com, sashal@kernel.org,
+        akpm@linux-foundation.org, michael.h.kelley@microsoft.com,
+        decui@microsoft.com
+Cc:     Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-mm@kvack.org, vkuznets@redhat.com, stable@vger.kernel.org
+Subject: [PATCH] x86/Hyper-V: Balloon up according to request page number
+Date:   Tue, 14 Jan 2020 15:44:35 +0800
+Message-Id: <20200114074435.12732-1-Tianyu.Lan@microsoft.com>
+X-Mailer: git-send-email 2.14.5
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 24 boots: 0 failed, 24 passed (v4.4.209-22-gfbc=
-4ae7c27ee)
+From: Tianyu Lan <Tianyu.Lan@microsoft.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.209-22-gfbc4ae7c27ee/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.209-22-gfbc4ae7c27ee/
+Current code has assumption that balloon request memory size aligns
+with 2MB. But actually Hyper-V doesn't guarantee such alignment. When
+balloon driver receives non-aligned balloon request, it produces warning
+and balloon up more memory than requested in order to keep 2MB alignment.
+Remove the warning and balloon up memory according to actual requested
+memory size.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.209-22-gfbc4ae7c27ee
-Git Commit: fbc4ae7c27ee627bdaa119f497844a16da15b8d9
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 16 unique boards, 5 SoC families, 7 builds out of 189
-
+Fixes: f6712238471a ("hv: hv_balloon: avoid memory leak on alloc_error of 2MB memory block")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/hv/hv_balloon.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 7f3e7ab22d5d..38ad0e44e927 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -1684,7 +1684,7 @@ static unsigned int alloc_balloon_pages(struct hv_dynmem_device *dm,
+ 	if (num_pages < alloc_unit)
+ 		return 0;
+ 
+-	for (i = 0; (i * alloc_unit) < num_pages; i++) {
++	for (i = 0; i < num_pages / alloc_unit; i++) {
+ 		if (bl_resp->hdr.size + sizeof(union dm_mem_page_range) >
+ 			HV_HYP_PAGE_SIZE)
+ 			return i * alloc_unit;
+@@ -1722,7 +1722,7 @@ static unsigned int alloc_balloon_pages(struct hv_dynmem_device *dm,
+ 
+ 	}
+ 
+-	return num_pages;
++	return i * alloc_unit;
+ }
+ 
+ static void balloon_up(union dm_msg_info *msg_info)
+@@ -1737,9 +1737,6 @@ static void balloon_up(union dm_msg_info *msg_info)
+ 	long avail_pages;
+ 	unsigned long floor;
+ 
+-	/* The host balloons pages in 2M granularity. */
+-	WARN_ON_ONCE(num_pages % PAGES_IN_2M != 0);
+-
+ 	/*
+ 	 * We will attempt 2M allocations. However, if we fail to
+ 	 * allocate 2M chunks, we will go back to PAGE_SIZE allocations.
+-- 
+2.14.5
+
