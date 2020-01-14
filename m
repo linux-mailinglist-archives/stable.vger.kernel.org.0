@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D97313A4DE
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7F713A4E0
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:03:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729457AbgANKDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:03:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57856 "EHLO mail.kernel.org"
+        id S1729472AbgANKDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:03:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726169AbgANKDL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:03:11 -0500
+        id S1726169AbgANKDO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:03:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D4042467D;
-        Tue, 14 Jan 2020 10:03:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E2602467A;
+        Tue, 14 Jan 2020 10:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996191;
-        bh=LbB7Csx7x/5VQGaUzYHoxWMPMWVZKDKqPZjC3U39p80=;
+        s=default; t=1578996193;
+        bh=Y8n5Xq7QrrHdn51y6Y+MiO1NJwW6aO/i/vy85JvAh30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5zSVDAm3168DXmXTwu1/JceN4NpWgTD+u8l4/WgM9JoJdrIOMVa6ZnULUd2d2NO7
-         nCfIp3xcpkaKtmmakGZ8zxXUK3KBsZErxl5ujeEiEv1K92B5ODWDWZGjul4wt3ctXG
-         dHbK7L3UBJJA9lmfI/CdwLHc8iIQpAWM4ANq0DpQ=
+        b=1XiVDGZ80SF7eBWg/dUy/tGi6VlgujKyiDw+qyCEEdes9OKuQ2sT5hwujBueW/FLC
+         VmvBXPVDhTqGpXrXvU7KAbJHET3smwk1aMZ9lEMcQE9vZb8qLAw6kmaIX6mMsadJil
+         Q9SGN4PwcutfrbYQlSAGvlZnhqGtwA2eIjFRE9qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Tadeusz Struk <tadeusz.struk@intel.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.4 12/78] tpm: Handle negative priv->response_len in tpm_common_read()
-Date:   Tue, 14 Jan 2020 11:00:46 +0100
-Message-Id: <20200114094354.348403483@linuxfoundation.org>
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.4 13/78] rtc: sun6i: Add support for RTC clocks on R40
+Date:   Tue, 14 Jan 2020 11:00:47 +0100
+Message-Id: <20200114094354.475637579@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -44,49 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@intel.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-commit a430e67d9a2c62a8c7b315b99e74de02018d0a96 upstream.
+commit 111bf02b8f544f98de53ea1f912ae01f598b161b upstream.
 
-The priv->response_length can hold the size of an response or an negative
-error code, and the tpm_common_read() needs to handle both cases correctly.
-Changed the type of response_length to signed and accounted for negative
-value in tpm_common_read().
+When support for the R40 in the rtc-sun6i driver was split out for a
+separate compatible string, only the RTC half was covered, and not the
+clock half. Unfortunately this results in the whole driver not working,
+as the RTC half expects the clock half to have been initialized.
 
-Cc: stable@vger.kernel.org
-Fixes: d23d12484307 ("tpm: fix invalid locking in NONBLOCKING mode")
-Reported-by: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Tadeusz Struk <tadeusz.struk@intel.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Add support for the clock part as well. The clock part is like the H3,
+but does not need to export the internal oscillator, nor does it have
+a gateable LOSC external output.
+
+This fixes issues with WiFi and Bluetooth not working on the BPI M2U.
+
+Fixes: d6624cc75021 ("rtc: sun6i: Add R40 compatible")
+Cc: <stable@vger.kernel.org> # 5.3.x
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Link: https://lore.kernel.org/r/20191205085054.6049-1-wens@kernel.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm-dev-common.c |    2 +-
- drivers/char/tpm/tpm-dev.h        |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-sun6i.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/char/tpm/tpm-dev-common.c
-+++ b/drivers/char/tpm/tpm-dev-common.c
-@@ -130,7 +130,7 @@ ssize_t tpm_common_read(struct file *fil
- 		priv->response_read = true;
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -380,6 +380,22 @@ static void __init sun50i_h6_rtc_clk_ini
+ CLK_OF_DECLARE_DRIVER(sun50i_h6_rtc_clk, "allwinner,sun50i-h6-rtc",
+ 		      sun50i_h6_rtc_clk_init);
  
- 		ret_size = min_t(ssize_t, size, priv->response_length);
--		if (!ret_size) {
-+		if (ret_size <= 0) {
- 			priv->response_length = 0;
- 			goto out;
- 		}
---- a/drivers/char/tpm/tpm-dev.h
-+++ b/drivers/char/tpm/tpm-dev.h
-@@ -14,7 +14,7 @@ struct file_priv {
- 	struct work_struct timeout_work;
- 	struct work_struct async_work;
- 	wait_queue_head_t async_wait;
--	size_t response_length;
-+	ssize_t response_length;
- 	bool response_read;
- 	bool command_enqueued;
- 
++/*
++ * The R40 user manual is self-conflicting on whether the prescaler is
++ * fixed or configurable. The clock diagram shows it as fixed, but there
++ * is also a configurable divider in the RTC block.
++ */
++static const struct sun6i_rtc_clk_data sun8i_r40_rtc_data = {
++	.rc_osc_rate = 16000000,
++	.fixed_prescaler = 512,
++};
++static void __init sun8i_r40_rtc_clk_init(struct device_node *node)
++{
++	sun6i_rtc_clk_init(node, &sun8i_r40_rtc_data);
++}
++CLK_OF_DECLARE_DRIVER(sun8i_r40_rtc_clk, "allwinner,sun8i-r40-rtc",
++		      sun8i_r40_rtc_clk_init);
++
+ static const struct sun6i_rtc_clk_data sun8i_v3_rtc_data = {
+ 	.rc_osc_rate = 32000,
+ 	.has_out_clk = 1,
 
 
