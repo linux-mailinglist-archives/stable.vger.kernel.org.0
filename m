@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 436DD13A629
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E84113A6F2
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731051AbgANKJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:09:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43210 "EHLO mail.kernel.org"
+        id S1725842AbgANKQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:16:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731467AbgANKJx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:09:53 -0500
+        id S1729472AbgANKJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:09:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E708E20678;
-        Tue, 14 Jan 2020 10:09:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E5AE20678;
+        Tue, 14 Jan 2020 10:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996592;
-        bh=otAkdyOj/yWKhsgb0O1ZTTUXCLP9jOd+1Jir8Krge+A=;
+        s=default; t=1578996542;
+        bh=BFxh46HFy9ySY4mUcKY0PvlwJXW3zNmemXO2wpQrlu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hlDx3thdXmqVWsv6Ji9c6WLUk0QTzd3L7mOuVZVAQJvs9iax7MpZefAtKkQi+Wn6U
-         nDVczY+Kf7veEyhHDekj8tj8rqPz6kpuxx+SbmK7YXeTAdbycjx0j8SYoRqqHgJcYe
-         O7HPepRiD3yTN8BfuDOZ3sVuBm4Msu9tzNsAJ96o=
+        b=0/Pn6Ba2keUVUEZohGeLMXc8UG4xNv5Mmki8J0VYOVQ/i1F5RpFns7BPzqEwhe/eD
+         kGzokRK67XI93JxnFJAN1zlWwTlk5tZsAs55DZOcvi9PU7dWBhhJjC/F7ojaRdFL1Q
+         3k5UO72wMagS/81SuambEq0iuhPZ/BWMLCPdUsM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.14 23/39] drm/fb-helper: Round up bits_per_pixel if possible
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 4.19 40/46] HID: hiddev: fix mess in hiddev_open()
 Date:   Tue, 14 Jan 2020 11:01:57 +0100
-Message-Id: <20200114094344.125349345@linuxfoundation.org>
+Message-Id: <20200114094348.101474810@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +44,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit f30e27779d3031a092c2a177b7fb76adccc45241 upstream.
+commit 18a1b06e5b91d47dc86c0a66a762646ea7c5d141 upstream.
 
-When userspace requests a video mode parameter value that is not
-supported, frame buffer device drivers should round it up to a supported
-value, if possible, instead of just rejecting it.  This allows
-applications to quickly scan for supported video modes.
+The open method of hiddev handler fails to bring the device out of
+autosuspend state as was promised in 0361a28d3f9a, as it actually has 2
+blocks that try to start the transport (call hid_hw_open()) with both
+being guarded by the "open" counter, so the 2nd block is never executed as
+the first block increments the counter so it is never at 0 when we check
+it for the second block.
 
-Currently this rule is not followed for the number of bits per pixel,
-causing e.g. "fbset -depth N" to fail, if N is smaller than the current
-number of bits per pixel.
+Additionally hiddev_open() was leaving counter incremented on errors,
+causing the device to never be reopened properly if there was ever an
+error.
 
-Fix this by returning an error only if bits per pixel is too large, and
-setting it to the current value otherwise.
+Let's fix all of this by factoring out code that creates client structure
+and powers up the device into a separate function that is being called
+from usbhid_open() with the "existancelock" being held.
 
-See also Documentation/fb/framebuffer.rst, Section 2 (Programmer's View
-of /dev/fb*").
-
-Fixes: 865afb11949e5bf4 ("drm/fb-helper: reject any changes to the fbdev")
-Cc: stable@vger.kernel.org
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191230132734.4538-1-geert+renesas@glider.be
+Fixes: 0361a28d3f9a ("HID: autosuspend support for USB HID")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_fb_helper.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/hid/usbhid/hiddev.c |   97 +++++++++++++++++++-------------------------
+ 1 file changed, 42 insertions(+), 55 deletions(-)
 
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -1590,7 +1590,7 @@ int drm_fb_helper_check_var(struct fb_va
- 	 * Changes struct fb_var_screeninfo are currently not pushed back
- 	 * to KMS, hence fail if different settings are requested.
- 	 */
--	if (var->bits_per_pixel != fb->format->cpp[0] * 8 ||
-+	if (var->bits_per_pixel > fb->format->cpp[0] * 8 ||
- 	    var->xres > fb->width || var->yres > fb->height ||
- 	    var->xres_virtual > fb->width || var->yres_virtual > fb->height) {
- 		DRM_DEBUG("fb requested width/height/bpp can't fit in current fb "
-@@ -1616,6 +1616,11 @@ int drm_fb_helper_check_var(struct fb_va
- 	}
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -254,12 +254,51 @@ static int hiddev_release(struct inode *
+ 	return 0;
+ }
  
- 	/*
-+	 * Likewise, bits_per_pixel should be rounded up to a supported value.
-+	 */
-+	var->bits_per_pixel = fb->format->cpp[0] * 8;
++static int __hiddev_open(struct hiddev *hiddev, struct file *file)
++{
++	struct hiddev_list *list;
++	int error;
 +
-+	/*
- 	 * drm fbdev emulation doesn't support changing the pixel format at all,
- 	 * so reject all pixel format changing requests.
- 	 */
++	lockdep_assert_held(&hiddev->existancelock);
++
++	list = vzalloc(sizeof(*list));
++	if (!list)
++		return -ENOMEM;
++
++	mutex_init(&list->thread_lock);
++	list->hiddev = hiddev;
++
++	if (!hiddev->open++) {
++		error = hid_hw_power(hiddev->hid, PM_HINT_FULLON);
++		if (error < 0)
++			goto err_drop_count;
++
++		error = hid_hw_open(hiddev->hid);
++		if (error < 0)
++			goto err_normal_power;
++	}
++
++	spin_lock_irq(&hiddev->list_lock);
++	list_add_tail(&list->node, &hiddev->list);
++	spin_unlock_irq(&hiddev->list_lock);
++
++	file->private_data = list;
++
++	return 0;
++
++err_normal_power:
++	hid_hw_power(hiddev->hid, PM_HINT_NORMAL);
++err_drop_count:
++	hiddev->open--;
++	vfree(list);
++	return error;
++}
++
+ /*
+  * open file op
+  */
+ static int hiddev_open(struct inode *inode, struct file *file)
+ {
+-	struct hiddev_list *list;
+ 	struct usb_interface *intf;
+ 	struct hid_device *hid;
+ 	struct hiddev *hiddev;
+@@ -268,66 +307,14 @@ static int hiddev_open(struct inode *ino
+ 	intf = usbhid_find_interface(iminor(inode));
+ 	if (!intf)
+ 		return -ENODEV;
++
+ 	hid = usb_get_intfdata(intf);
+ 	hiddev = hid->hiddev;
+ 
+-	if (!(list = vzalloc(sizeof(struct hiddev_list))))
+-		return -ENOMEM;
+-	mutex_init(&list->thread_lock);
+-	list->hiddev = hiddev;
+-	file->private_data = list;
+-
+-	/*
+-	 * no need for locking because the USB major number
+-	 * is shared which usbcore guards against disconnect
+-	 */
+-	if (list->hiddev->exist) {
+-		if (!list->hiddev->open++) {
+-			res = hid_hw_open(hiddev->hid);
+-			if (res < 0)
+-				goto bail;
+-		}
+-	} else {
+-		res = -ENODEV;
+-		goto bail;
+-	}
+-
+-	spin_lock_irq(&list->hiddev->list_lock);
+-	list_add_tail(&list->node, &hiddev->list);
+-	spin_unlock_irq(&list->hiddev->list_lock);
+-
+ 	mutex_lock(&hiddev->existancelock);
+-	/*
+-	 * recheck exist with existance lock held to
+-	 * avoid opening a disconnected device
+-	 */
+-	if (!list->hiddev->exist) {
+-		res = -ENODEV;
+-		goto bail_unlock;
+-	}
+-	if (!list->hiddev->open++)
+-		if (list->hiddev->exist) {
+-			struct hid_device *hid = hiddev->hid;
+-			res = hid_hw_power(hid, PM_HINT_FULLON);
+-			if (res < 0)
+-				goto bail_unlock;
+-			res = hid_hw_open(hid);
+-			if (res < 0)
+-				goto bail_normal_power;
+-		}
+-	mutex_unlock(&hiddev->existancelock);
+-	return 0;
+-bail_normal_power:
+-	hid_hw_power(hid, PM_HINT_NORMAL);
+-bail_unlock:
++	res = hiddev->exist ? __hiddev_open(hiddev, file) : -ENODEV;
+ 	mutex_unlock(&hiddev->existancelock);
+ 
+-	spin_lock_irq(&list->hiddev->list_lock);
+-	list_del(&list->node);
+-	spin_unlock_irq(&list->hiddev->list_lock);
+-bail:
+-	file->private_data = NULL;
+-	vfree(list);
+ 	return res;
+ }
+ 
 
 
