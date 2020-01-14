@@ -2,85 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D54F913ACBD
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 15:57:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB44F13ACDA
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 16:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728755AbgANO5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 09:57:04 -0500
-Received: from mail26.static.mailgun.info ([104.130.122.26]:27121 "EHLO
-        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725904AbgANO5E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 09:57:04 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1579013824; h=Content-Type: MIME-Version: Message-ID:
- In-Reply-To: Date: References: Subject: Cc: To: From: Sender;
- bh=/wDQzX9drwe6MnLxKEd1wgdmQ0ROFJy34Icy9JXF50Q=; b=mCFVjMMLOkJjVieBWS00YukNNyVXqDv4E4pVpljdbctxbFkJz/k647JDFEB1TXVqB1dEHrOF
- +5EtBZEPV1Mn8+BM1diBbYJCCvcy74ZIMfspusmrHlqS1beW/hM1+IH+Tue06MdsyelH+/HT
- xuqxYIWL01Vc0kiRxBTUM+Vhe3o=
-X-Mailgun-Sending-Ip: 104.130.122.26
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e1dd6be.7fba760c6f48-smtp-out-n01;
- Tue, 14 Jan 2020 14:57:02 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 655D2C4479F; Tue, 14 Jan 2020 14:57:01 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from tynnyri.adurom.net (tynnyri.adurom.net [51.15.11.48])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: kvalo)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 2370AC43383;
-        Tue, 14 Jan 2020 14:56:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 2370AC43383
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
-From:   Kalle Valo <kvalo@codeaurora.org>
-To:     Brian Norris <briannorris@chromium.org>
-Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
-        Nishant Sarmukadam <nishants@marvell.com>,
-        Amitkumar Karwar <amitkarwar@gmail.com>,
-        Xinming Hu <huxinming820@gmail.com>,
-        stable <stable@vger.kernel.org>, huangwen <huangwenabc@gmail.com>
-Subject: Re: [PATCH] mwifiex: fix unbalanced locking in mwifiex_process_country_ie()
-References: <20200106224212.189763-1-briannorris@chromium.org>
-        <CA+ASDXNN5=97nhN99rPneLGSQAmQ4ULS6Kim1oxCzKWNtPkWFw@mail.gmail.com>
-Date:   Tue, 14 Jan 2020 16:56:54 +0200
-In-Reply-To: <CA+ASDXNN5=97nhN99rPneLGSQAmQ4ULS6Kim1oxCzKWNtPkWFw@mail.gmail.com>
-        (Brian Norris's message of "Mon, 6 Jan 2020 14:51:02 -0800")
-Message-ID: <87imle13yh.fsf@tynnyri.adurom.net>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1728753AbgANPBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 10:01:42 -0500
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:19831 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725904AbgANPBm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 10:01:42 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e1dd79e0002>; Tue, 14 Jan 2020 07:00:46 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Tue, 14 Jan 2020 07:01:41 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Tue, 14 Jan 2020 07:01:41 -0800
+Received: from [10.21.133.51] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 14 Jan
+ 2020 15:01:38 +0000
+Subject: Re: [PATCH 4.4 00/28] 4.4.210-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200114094336.845958665@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <3673e451-6d19-bfbf-1693-1e1eda376728@nvidia.com>
+Date:   Tue, 14 Jan 2020 15:01:36 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1579014046; bh=UGYxn8XXuViTMygbPnUvXO+BE4JOD2+gQmkcAD5Fl6k=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=JVXLE9dLIgqmUut3n0Uc9oiuXdrNi22gaTjDete+zdrHQscIVQSMVqsbCpGkcwwVy
+         dDKOgXZVYQWveCMu0J5wtXCRLszp9zEXlXHekZ70H38/O2nY+Eq2+7Kob+QBRUi6qT
+         PRWk7+38/XSs698//ypuMG9kI5pImwa+2SfiTvDk/dFfz9KNYGgjL/64YpiN67OP8e
+         jc/+I/75gJHSjtpAxFT+++n+2oeP3SY6XEqD0OSQoWsXE4nqpuKYNzsAZS1uBtP+wT
+         ezAwKFDoZiRhwnGuwhSB90wL8V3JkDTzid+v/E9+3qvVpolHaCSkYLRTn4cryGyVgY
+         h7NblMs+ESBdQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Brian Norris <briannorris@chromium.org> writes:
 
-> On Mon, Jan 6, 2020 at 2:43 PM Brian Norris <briannorris@chromium.org> wrote:
->>
->> We called rcu_read_lock(), so we need to call rcu_read_unlock() before
->> we return.
->>
->> Fixes: 3d94a4a8373b ("mwifiex: fix possible heap overflow in mwifiex_process_country_ie()")
->> Cc: stable@vger.kernel.org
->> Cc: huangwen <huangwenabc@gmail.com>
->> Cc: Ganapathi Bhat <ganapathi.bhat@nxp.com>
->> Signed-off-by: Brian Norris <briannorris@chromium.org>
->
-> I probably should have mentioned somewhere here: the bug is currently
-> in 5.5-rc and is being ported to -stable already (I'll try to head
-> that off). So this probably should have said [PATCH 5.5]. Sorry about
-> that.
+On 14/01/2020 10:02, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.210 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 16 Jan 2020 09:41:58 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.210-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Ok, I'll queue this to v5.5.
+
+All tests are passing for Tegra ...
+
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
+
+Linux version:	4.4.210-rc1-ge249b6762aa6
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
+
+Cheers
+Jon
 
 -- 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+nvpublic
