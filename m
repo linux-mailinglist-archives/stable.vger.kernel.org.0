@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 960C813A62E
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:24:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C21613A720
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:26:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729968AbgANKJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:09:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
+        id S1729067AbgANKSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:18:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729963AbgANKJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:09:57 -0500
+        id S1730287AbgANKHe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:07:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAB2120678;
-        Tue, 14 Jan 2020 10:09:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8146E24679;
+        Tue, 14 Jan 2020 10:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996597;
-        bh=Yxju/tOlV7GN9m7OTkRbGpno+PEH8N7lP/4YNiySSrU=;
+        s=default; t=1578996453;
+        bh=EzNgiiWZ33n+Hg8gPGnUEB6TwMW3CwgI6GJIxqhBaLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jvln+9ja5Fp3cMF0nk4W0LJn9RPWsX8EFPMtOh5ZGQOWy2Qk1gAWVV6I1YT8pozSX
-         q/MNRgdCw0tfgI325SuE7GUFyo3h1czHdpZBh/NrgQ2wF4TQXj6BTps/FnCoz02Xf1
-         9AqfaMpD+WvqcYLj19iKItGzHNC5LLhi2G/Fv4Hw=
+        b=C6gUs0X2OwfSWddcaHwhHnEE9DBqDW90UBnVucWzFnbwZPcLzM47CsS+ykCxspi0E
+         lvlb2v8IjZT2GzbQMewPdC9oNemB4cmE37y0Ug9BDKEIv6zMv3WAsH+AaE/s47x0Ql
+         WO1FJJRyxaahZ/F5eeBtf7Ce0sg7t4+31ndANH7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 05/39] ALSA: hda/realtek - Set EAPD control to default for ALC222
+        stable@vger.kernel.org,
+        syzbot+b02ff0707a97e4e79ebb@syzkaller.appspotmail.com,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 22/46] can: can_dropped_invalid_skb(): ensure an initialized headroom in outgoing CAN sk_buffs
 Date:   Tue, 14 Jan 2020 11:01:39 +0100
-Message-Id: <20200114094340.152430298@linuxfoundation.org>
+Message-Id: <20200114094344.962581194@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094339.608068818@linuxfoundation.org>
+References: <20200114094339.608068818@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,30 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 9194a1ebbc56d7006835e2b4cacad301201fb832 upstream.
+commit e7153bf70c3496bac00e7e4f395bb8d8394ac0ea upstream.
 
-Set EAPD control to verb control.
+KMSAN sysbot detected a read access to an untinitialized value in the
+headroom of an outgoing CAN related sk_buff. When using CAN sockets this
+area is filled appropriately - but when using a packet socket this
+initialization is missing.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The problematic read access occurs in the CAN receive path which can
+only be triggered when the sk_buff is sent through a (virtual) CAN
+interface. So we check in the sending path whether we need to perform
+the missing initializations.
+
+Fixes: d3b58c47d330d ("can: replace timestamp as unique skb attribute")
+Reported-by: syzbot+b02ff0707a97e4e79ebb@syzkaller.appspotmail.com
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Cc: linux-stable <stable@vger.kernel.org> # >= v4.1
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/can/dev.h |   34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -378,6 +378,7 @@ static void alc_fill_eapd_coef(struct hd
- 	case 0x10ec0672:
- 		alc_update_coef_idx(codec, 0xd, 0, 1<<14); /* EAPD Ctrl */
- 		break;
-+	case 0x10ec0222:
- 	case 0x10ec0623:
- 		alc_update_coef_idx(codec, 0x19, 1<<13, 0);
- 		break;
+--- a/include/linux/can/dev.h
++++ b/include/linux/can/dev.h
+@@ -18,6 +18,7 @@
+ #include <linux/can/error.h>
+ #include <linux/can/led.h>
+ #include <linux/can/netlink.h>
++#include <linux/can/skb.h>
+ #include <linux/netdevice.h>
+ 
+ /*
+@@ -91,6 +92,36 @@ struct can_priv {
+ #define get_can_dlc(i)		(min_t(__u8, (i), CAN_MAX_DLC))
+ #define get_canfd_dlc(i)	(min_t(__u8, (i), CANFD_MAX_DLC))
+ 
++/* Check for outgoing skbs that have not been created by the CAN subsystem */
++static inline bool can_skb_headroom_valid(struct net_device *dev,
++					  struct sk_buff *skb)
++{
++	/* af_packet creates a headroom of HH_DATA_MOD bytes which is fine */
++	if (WARN_ON_ONCE(skb_headroom(skb) < sizeof(struct can_skb_priv)))
++		return false;
++
++	/* af_packet does not apply CAN skb specific settings */
++	if (skb->ip_summed == CHECKSUM_NONE) {
++		/* init headroom */
++		can_skb_prv(skb)->ifindex = dev->ifindex;
++		can_skb_prv(skb)->skbcnt = 0;
++
++		skb->ip_summed = CHECKSUM_UNNECESSARY;
++
++		/* preform proper loopback on capable devices */
++		if (dev->flags & IFF_ECHO)
++			skb->pkt_type = PACKET_LOOPBACK;
++		else
++			skb->pkt_type = PACKET_HOST;
++
++		skb_reset_mac_header(skb);
++		skb_reset_network_header(skb);
++		skb_reset_transport_header(skb);
++	}
++
++	return true;
++}
++
+ /* Drop a given socketbuffer if it does not contain a valid CAN frame. */
+ static inline bool can_dropped_invalid_skb(struct net_device *dev,
+ 					  struct sk_buff *skb)
+@@ -108,6 +139,9 @@ static inline bool can_dropped_invalid_s
+ 	} else
+ 		goto inval_skb;
+ 
++	if (!can_skb_headroom_valid(dev, skb))
++		goto inval_skb;
++
+ 	return false;
+ 
+ inval_skb:
 
 
