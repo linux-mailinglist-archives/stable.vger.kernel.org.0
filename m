@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7C8D13A511
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:08:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 064F913A5ED
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729424AbgANKEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:04:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60002 "EHLO mail.kernel.org"
+        id S1729876AbgANKGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:06:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729163AbgANKEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:04:24 -0500
+        id S1729225AbgANKGC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:06:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A23B2467D;
-        Tue, 14 Jan 2020 10:04:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B4B02467A;
+        Tue, 14 Jan 2020 10:06:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996264;
-        bh=78T+bpLA7/RmBMo8dSWS9SOZnKlKwg5JEWcCQl/VvCM=;
+        s=default; t=1578996362;
+        bh=EzNgiiWZ33n+Hg8gPGnUEB6TwMW3CwgI6GJIxqhBaLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s79UoxgYbGe95gf33bicFloLfeYz0vLPw7mnznJ2G4RPIyYwHbJYcHn2SxoUKsZYX
-         BWKv712mbHGFlFamVOGj3/58Q7177rg0YjnwAvEMo9tqrsZin3oWJ/bwzkU3rdECwc
-         A4m6gkYjhj0WUd4BxQrmcZdPjqpqwflD7BIWTZLA=
+        b=snuwBmexcIroCTXFUWFwaiZYdkfPt0ci1370m2WzsbMqHnBVmdP53czc7Lx+j023a
+         o9lHK0kywDAD5f7f+fIDnNN3e9yKSvoZCAQjVbKP6nL7Nr5R34Zo5UJ8iwZdxhdpDa
+         X6lvPYsHC9OxDY64E/cGF3z2Ql4TwH11RWc/d8J0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Faber <faber@faberman.de>,
+        stable@vger.kernel.org,
+        syzbot+b02ff0707a97e4e79ebb@syzkaller.appspotmail.com,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 35/78] can: mscan: mscan_rx_poll(): fix rx path lockup when returning from polling to irq mode
-Date:   Tue, 14 Jan 2020 11:01:09 +0100
-Message-Id: <20200114094358.333077052@linuxfoundation.org>
+Subject: [PATCH 5.4 36/78] can: can_dropped_invalid_skb(): ensure an initialized headroom in outgoing CAN sk_buffs
+Date:   Tue, 14 Jan 2020 11:01:10 +0100
+Message-Id: <20200114094358.465829190@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -43,75 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Faber <faber@faberman.de>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 2d77bd61a2927be8f4e00d9478fe6996c47e8d45 upstream.
+commit e7153bf70c3496bac00e7e4f395bb8d8394ac0ea upstream.
 
-Under load, the RX side of the mscan driver can get stuck while TX still
-works. Restarting the interface locks up the system. This behaviour
-could be reproduced reliably on a MPC5121e based system.
+KMSAN sysbot detected a read access to an untinitialized value in the
+headroom of an outgoing CAN related sk_buff. When using CAN sockets this
+area is filled appropriately - but when using a packet socket this
+initialization is missing.
 
-The patch fixes the return value of the NAPI polling function (should be
-the number of processed packets, not constant 1) and the condition under
-which IRQs are enabled again after polling is finished.
+The problematic read access occurs in the CAN receive path which can
+only be triggered when the sk_buff is sent through a (virtual) CAN
+interface. So we check in the sending path whether we need to perform
+the missing initializations.
 
-With this patch, no more lockups were observed over a test period of ten
-days.
-
-Fixes: afa17a500a36 ("net/can: add driver for mscan family & mpc52xx_mscan")
-Signed-off-by: Florian Faber <faber@faberman.de>
-Cc: linux-stable <stable@vger.kernel.org>
+Fixes: d3b58c47d330d ("can: replace timestamp as unique skb attribute")
+Reported-by: syzbot+b02ff0707a97e4e79ebb@syzkaller.appspotmail.com
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Cc: linux-stable <stable@vger.kernel.org> # >= v4.1
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/mscan/mscan.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ include/linux/can/dev.h |   34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
---- a/drivers/net/can/mscan/mscan.c
-+++ b/drivers/net/can/mscan/mscan.c
-@@ -381,13 +381,12 @@ static int mscan_rx_poll(struct napi_str
- 	struct net_device *dev = napi->dev;
- 	struct mscan_regs __iomem *regs = priv->reg_base;
- 	struct net_device_stats *stats = &dev->stats;
--	int npackets = 0;
--	int ret = 1;
-+	int work_done = 0;
- 	struct sk_buff *skb;
- 	struct can_frame *frame;
- 	u8 canrflg;
+--- a/include/linux/can/dev.h
++++ b/include/linux/can/dev.h
+@@ -18,6 +18,7 @@
+ #include <linux/can/error.h>
+ #include <linux/can/led.h>
+ #include <linux/can/netlink.h>
++#include <linux/can/skb.h>
+ #include <linux/netdevice.h>
  
--	while (npackets < quota) {
-+	while (work_done < quota) {
- 		canrflg = in_8(&regs->canrflg);
- 		if (!(canrflg & (MSCAN_RXF | MSCAN_ERR_IF)))
- 			break;
-@@ -408,18 +407,18 @@ static int mscan_rx_poll(struct napi_str
+ /*
+@@ -91,6 +92,36 @@ struct can_priv {
+ #define get_can_dlc(i)		(min_t(__u8, (i), CAN_MAX_DLC))
+ #define get_canfd_dlc(i)	(min_t(__u8, (i), CANFD_MAX_DLC))
  
- 		stats->rx_packets++;
- 		stats->rx_bytes += frame->can_dlc;
--		npackets++;
-+		work_done++;
- 		netif_receive_skb(skb);
- 	}
++/* Check for outgoing skbs that have not been created by the CAN subsystem */
++static inline bool can_skb_headroom_valid(struct net_device *dev,
++					  struct sk_buff *skb)
++{
++	/* af_packet creates a headroom of HH_DATA_MOD bytes which is fine */
++	if (WARN_ON_ONCE(skb_headroom(skb) < sizeof(struct can_skb_priv)))
++		return false;
++
++	/* af_packet does not apply CAN skb specific settings */
++	if (skb->ip_summed == CHECKSUM_NONE) {
++		/* init headroom */
++		can_skb_prv(skb)->ifindex = dev->ifindex;
++		can_skb_prv(skb)->skbcnt = 0;
++
++		skb->ip_summed = CHECKSUM_UNNECESSARY;
++
++		/* preform proper loopback on capable devices */
++		if (dev->flags & IFF_ECHO)
++			skb->pkt_type = PACKET_LOOPBACK;
++		else
++			skb->pkt_type = PACKET_HOST;
++
++		skb_reset_mac_header(skb);
++		skb_reset_network_header(skb);
++		skb_reset_transport_header(skb);
++	}
++
++	return true;
++}
++
+ /* Drop a given socketbuffer if it does not contain a valid CAN frame. */
+ static inline bool can_dropped_invalid_skb(struct net_device *dev,
+ 					  struct sk_buff *skb)
+@@ -108,6 +139,9 @@ static inline bool can_dropped_invalid_s
+ 	} else
+ 		goto inval_skb;
  
--	if (!(in_8(&regs->canrflg) & (MSCAN_RXF | MSCAN_ERR_IF))) {
--		napi_complete(&priv->napi);
--		clear_bit(F_RX_PROGRESS, &priv->flags);
--		if (priv->can.state < CAN_STATE_BUS_OFF)
--			out_8(&regs->canrier, priv->shadow_canrier);
--		ret = 0;
-+	if (work_done < quota) {
-+		if (likely(napi_complete_done(&priv->napi, work_done))) {
-+			clear_bit(F_RX_PROGRESS, &priv->flags);
-+			if (priv->can.state < CAN_STATE_BUS_OFF)
-+				out_8(&regs->canrier, priv->shadow_canrier);
-+		}
- 	}
--	return ret;
-+	return work_done;
- }
++	if (!can_skb_headroom_valid(dev, skb))
++		goto inval_skb;
++
+ 	return false;
  
- static irqreturn_t mscan_isr(int irq, void *dev_id)
+ inval_skb:
 
 
