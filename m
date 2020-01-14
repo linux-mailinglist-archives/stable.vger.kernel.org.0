@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE8CE13A5CB
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:23:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D97313A4DE
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:03:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729436AbgANKDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:03:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57736 "EHLO mail.kernel.org"
+        id S1729457AbgANKDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:03:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726169AbgANKDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:03:08 -0500
+        id S1726169AbgANKDL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:03:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65EA624672;
-        Tue, 14 Jan 2020 10:03:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D4042467D;
+        Tue, 14 Jan 2020 10:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996188;
-        bh=GPjj1mU/KmVcZvRN8v8L1t6ubCjdjo9O40XwnKiBc4w=;
+        s=default; t=1578996191;
+        bh=LbB7Csx7x/5VQGaUzYHoxWMPMWVZKDKqPZjC3U39p80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEFKwckbiwNy25TkXlzm9ddoMr/Lwg73t00Q82X5dbrrtvIrStfbRoR96rdDZTkAY
-         goQxMlvNRK5YacfC79ocdnjhubPo/K6VrICS0Sbpdpf6iEmaGWMd6+e9obz6Oa0sgL
-         nNcAzrYsBWSbgJPT4eLlyQO7hq9hOtyiM4Zt7Bvw=
+        b=Z5zSVDAm3168DXmXTwu1/JceN4NpWgTD+u8l4/WgM9JoJdrIOMVa6ZnULUd2d2NO7
+         nCfIp3xcpkaKtmmakGZ8zxXUK3KBsZErxl5ujeEiEv1K92B5ODWDWZGjul4wt3ctXG
+         dHbK7L3UBJJA9lmfI/CdwLHc8iIQpAWM4ANq0DpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Snitselaar <jsnitsel@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Xiaoping Zhou <xiaoping.zhou@intel.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
+        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
+        Tadeusz Struk <tadeusz.struk@intel.com>,
         Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.4 11/78] tpm: Revert "tpm_tis_core: Turn on the TPM before probing IRQs"
-Date:   Tue, 14 Jan 2020 11:00:45 +0100
-Message-Id: <20200114094354.203074177@linuxfoundation.org>
+Subject: [PATCH 5.4 12/78] tpm: Handle negative priv->response_len in tpm_common_read()
+Date:   Tue, 14 Jan 2020 11:00:46 +0100
+Message-Id: <20200114094354.348403483@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
 References: <20200114094352.428808181@linuxfoundation.org>
@@ -46,56 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Tadeusz Struk <tadeusz.struk@intel.com>
 
-commit aa4a63dd981682b1742baa01237036e48bc11923 upstream.
+commit a430e67d9a2c62a8c7b315b99e74de02018d0a96 upstream.
 
-There has been a bunch of reports (one from kernel bugzilla linked)
-reporting that when this commit is applied it causes on some machines
-boot freezes.
+The priv->response_length can hold the size of an response or an negative
+error code, and the tpm_common_read() needs to handle both cases correctly.
+Changed the type of response_length to signed and accounted for negative
+value in tpm_common_read().
 
-Unfortunately hardware where this commit causes a failure is not widely
-available (only one I'm aware is Lenovo T490), which means we cannot
-predict yet how long it will take to properly fix tpm_tis interrupt
-probing.
-
-Thus, the least worst short term action is to revert the code to the
-state before this commit. In long term we need fix the tpm_tis probing
-code to work on machines that Stefan's fix was supposed to fix.
-
-Fixes: 21df4a8b6018 ("tpm_tis: reserve chip for duration of tpm_tis_core_init")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205935
 Cc: stable@vger.kernel.org
-Cc: Jerry Snitselaar <jsnitsel@redhat.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Tested-by: Dan Williams <dan.j.williams@intel.com>
-Tested-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Fixes: d23d12484307 ("tpm: fix invalid locking in NONBLOCKING mode")
+Reported-by: Laura Abbott <labbott@redhat.com>
+Signed-off-by: Tadeusz Struk <tadeusz.struk@intel.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm_tis_core.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/char/tpm/tpm-dev-common.c |    2 +-
+ drivers/char/tpm/tpm-dev.h        |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -980,7 +980,6 @@ int tpm_tis_core_init(struct device *dev
- 			goto out_err;
- 		}
+--- a/drivers/char/tpm/tpm-dev-common.c
++++ b/drivers/char/tpm/tpm-dev-common.c
+@@ -130,7 +130,7 @@ ssize_t tpm_common_read(struct file *fil
+ 		priv->response_read = true;
  
--		tpm_chip_start(chip);
- 		if (irq) {
- 			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
- 						 irq);
-@@ -990,7 +989,6 @@ int tpm_tis_core_init(struct device *dev
- 		} else {
- 			tpm_tis_probe_irq(chip, intmask);
+ 		ret_size = min_t(ssize_t, size, priv->response_length);
+-		if (!ret_size) {
++		if (ret_size <= 0) {
+ 			priv->response_length = 0;
+ 			goto out;
  		}
--		tpm_chip_stop(chip);
- 	}
+--- a/drivers/char/tpm/tpm-dev.h
++++ b/drivers/char/tpm/tpm-dev.h
+@@ -14,7 +14,7 @@ struct file_priv {
+ 	struct work_struct timeout_work;
+ 	struct work_struct async_work;
+ 	wait_queue_head_t async_wait;
+-	size_t response_length;
++	ssize_t response_length;
+ 	bool response_read;
+ 	bool command_enqueued;
  
- 	rc = tpm_chip_register(chip);
 
 
