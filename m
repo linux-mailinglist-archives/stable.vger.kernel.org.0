@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 790C613B39A
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 21:27:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C34913B3AC
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 21:34:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727556AbgANU1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 15:27:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46184 "EHLO mail.kernel.org"
+        id S1727285AbgANUcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 15:32:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726491AbgANU1L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 15:27:11 -0500
+        id S1726839AbgANUcx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 15:32:53 -0500
 Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FA0024655;
-        Tue, 14 Jan 2020 20:27:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65EEF24655;
+        Tue, 14 Jan 2020 20:32:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579033630;
-        bh=/sDtGiNEleGcDc04+WohmWiv1Ar+jBntlN5yNz9LTCc=;
+        s=default; t=1579033972;
+        bh=BvchwnWX9uvOtszORMeobzv/JaudnIkPV66R6bjuO/E=;
         h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=o+fMEYG0pJEZ6ySI+W0aD5q1EUnmmn0ixO3oZ1+C/3rytiWrdTrIFwZf7lhwokfr7
-         6U+p/khh0F+KJ6LpKpMdwUAsJ9qyVOh0jPPng9CObjJLjJehPmlKrK4g9aKEaWwTop
-         F1yNwYvVDDuxwhvOOcvXHIYVnScpUENaCtdTt3KE=
-Subject: Re: [PATCH 4.14 00/39] 4.14.165-stable review
+        b=By0zjO5g8GDo0SDNw+apeJlpiha3PhIq6P4bYSXMB5xDDpSSi/T3RcjdrWUNeUW9I
+         jmrafwpyjAuqMsbMC8nxVT97+CoqLH8TOFfjAQ3uGbnYKcZg0D5vGnMmvkB0ZmX955
+         4QKhxDLMslhDtmhLwsSmUl7J2y0DUZ6f11Z1v3Q4=
+Subject: Re: [PATCH 4.9 00/31] 4.9.210-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20200114094336.210038037@linuxfoundation.org>
+References: <20200114094334.725604663@linuxfoundation.org>
 From:   shuah <shuah@kernel.org>
-Message-ID: <04753837-7ce1-6fc0-6018-2d5978d9dbf4@kernel.org>
-Date:   Tue, 14 Jan 2020 13:27:09 -0700
+Message-ID: <11099c2f-d807-a784-87a8-0340459a1e84@kernel.org>
+Date:   Tue, 14 Jan 2020 13:32:51 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <20200114094336.210038037@linuxfoundation.org>
+In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -47,8 +47,8 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 1/14/20 3:01 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.165 release.
-> There are 39 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.9.210 release.
+> There are 31 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -56,9 +56,9 @@ On 1/14/20 3:01 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.165-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.210-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
 > and the diffstat can be found below.
 > 
 > thanks,
