@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F38213A6DF
-	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C832313A6A8
+	for <lists+stable@lfdr.de>; Tue, 14 Jan 2020 11:25:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730312AbgANKPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 05:15:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46390 "EHLO mail.kernel.org"
+        id S1731337AbgANKMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 05:12:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731185AbgANKLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Jan 2020 05:11:22 -0500
+        id S1733104AbgANKMp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Jan 2020 05:12:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59C1824677;
-        Tue, 14 Jan 2020 10:11:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E89DF207FF;
+        Tue, 14 Jan 2020 10:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578996681;
-        bh=Pyw5wxchVN35tiTMs8UXgw3fopnjWReBFHBylqdnMyk=;
+        s=default; t=1578996765;
+        bh=y3hojQXEA8XV+d/pNvuWwQg0+T/RPwpbZaLgU7memec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ItGiZm5e2gxL67uRre4MwuXIwY04a9x9LNIVijuoHduUEMbsofev0+YjxnQ7PbxOA
-         hBUilPa++z2JJUGGoSQke86RiU3OEO2RsOFAH51hdwTW2PR3gO8vW/ohUPNDCrIkyF
-         8wyy+2/qDQJ0zYC/BlZqrSjNclUSYZUMqrTs0Fx4=
+        b=T0EtPfJSRN7mWsGIf3ZcxEcMEWkR0lybkoeTQ0oIhlSdwXdTFzO190ZZGN25+uZ/3
+         I+aWlNmZ8f6661hlvrrlyZ2emQg5HmGQdmQ0/GLhlGIQ2gpXEgs1MOWZUUqUjnX/PG
+         u5aY1qjc4pF8t9pWKvcRgizDaDZtI2byl9uFGaBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tony Lindgren <tony@atomide.com>, Bin Liu <b-liu@ti.com>
-Subject: [PATCH 4.9 18/31] usb: musb: fix idling for suspend after disconnect interrupt
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.4 08/28] HID: uhid: Fix returning EPOLLOUT from uhid_char_poll
 Date:   Tue, 14 Jan 2020 11:02:10 +0100
-Message-Id: <20200114094343.362195429@linuxfoundation.org>
+Message-Id: <20200114094341.152658288@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200114094334.725604663@linuxfoundation.org>
-References: <20200114094334.725604663@linuxfoundation.org>
+In-Reply-To: <20200114094336.845958665@linuxfoundation.org>
+References: <20200114094336.845958665@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Marcel Holtmann <marcel@holtmann.org>
 
-commit 5fbf7a2534703fd71159d3d71504b0ad01b43394 upstream.
+commit be54e7461ffdc5809b67d2aeefc1ddc9a91470c7 upstream.
 
-When disconnected as USB B-device, suspend interrupt should come before
-diconnect interrupt, because the DP/DM pins are shorter than the
-VBUS/GND pins on the USB connectors. But we sometimes get a suspend
-interrupt after disconnect interrupt. In that case we have devctl set to
-99 with VBUS still valid and musb_pm_runtime_check_session() wrongly
-thinks we have an active session. We have no other interrupts after
-disconnect coming in this case at least with the omap2430 glue.
+Always return EPOLLOUT from uhid_char_poll to allow polling /dev/uhid
+for writable state.
 
-Let's fix the issue by checking the interrupt status again with
-delayed work for the devctl 99 case. In the suspend after disconnect
-case the devctl session bit has cleared by then and musb can idle.
-For a typical USB B-device connect case we just continue with normal
-interrupts.
-
-Fixes: 467d5c980709 ("usb: musb: Implement session bit based runtime PM for musb-core")
-
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
+Fixes: 1f9dec1e0164 ("HID: uhid: allow poll()'ing on uhid devices")
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20200107152625.857-2-b-liu@ti.com
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/musb/musb_core.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/uhid.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -1832,6 +1832,9 @@ static const struct attribute_group musb
- #define MUSB_QUIRK_B_INVALID_VBUS_91	(MUSB_DEVCTL_BDEVICE | \
- 					 (2 << MUSB_DEVCTL_VBUS_SHIFT) | \
- 					 MUSB_DEVCTL_SESSION)
-+#define MUSB_QUIRK_B_DISCONNECT_99	(MUSB_DEVCTL_BDEVICE | \
-+					 (3 << MUSB_DEVCTL_VBUS_SHIFT) | \
-+					 MUSB_DEVCTL_SESSION)
- #define MUSB_QUIRK_A_DISCONNECT_19	((3 << MUSB_DEVCTL_VBUS_SHIFT) | \
- 					 MUSB_DEVCTL_SESSION)
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -26,6 +26,7 @@
+ #include <linux/uhid.h>
+ #include <linux/wait.h>
+ #include <linux/uaccess.h>
++#include <linux/eventpoll.h>
  
-@@ -1854,6 +1857,11 @@ static void musb_pm_runtime_check_sessio
- 	s = MUSB_DEVCTL_FSDEV | MUSB_DEVCTL_LSDEV |
- 		MUSB_DEVCTL_HR;
- 	switch (devctl & ~s) {
-+	case MUSB_QUIRK_B_DISCONNECT_99:
-+		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
-+		schedule_delayed_work(&musb->irq_work,
-+				      msecs_to_jiffies(1000));
-+		break;
- 	case MUSB_QUIRK_B_INVALID_VBUS_91:
- 		if (musb->quirk_retries--) {
- 			musb_dbg(musb,
+ #define UHID_NAME	"uhid"
+ #define UHID_BUFSIZE	32
+@@ -774,7 +775,7 @@ static unsigned int uhid_char_poll(struc
+ 	if (uhid->head != uhid->tail)
+ 		return POLLIN | POLLRDNORM;
+ 
+-	return 0;
++	return EPOLLOUT | EPOLLWRNORM;
+ }
+ 
+ static const struct file_operations uhid_fops = {
 
 
