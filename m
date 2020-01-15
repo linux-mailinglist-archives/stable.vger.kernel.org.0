@@ -2,113 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6684C13BD51
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 11:24:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D407F13BF34
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 13:09:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729636AbgAOKYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 05:24:10 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:46714 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729539AbgAOKYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 05:24:10 -0500
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1irfqI-0000rf-Dv; Wed, 15 Jan 2020 11:24:06 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id F37D81C0864;
-        Wed, 15 Jan 2020 11:24:05 +0100 (CET)
-Date:   Wed, 15 Jan 2020 10:24:05 -0000
-From:   "tip-bot2 for Stephen Boyd" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/core] alarmtimer: Unregister wakeup source when module get fails
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Douglas Anderson <dianders@chromium.org>,
-        stable@vger.kernel.org, x86 <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200109155910.907-2-swboyd@chromium.org>
-References: <20200109155910.907-2-swboyd@chromium.org>
+        id S1730126AbgAOMJG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 07:09:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35088 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726165AbgAOMJG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jan 2020 07:09:06 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97A9C22522;
+        Wed, 15 Jan 2020 12:09:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579090145;
+        bh=KHtRG3Gg7O4FNf0waEUewABm8XvZdRRUoKkS8bdYjz4=;
+        h=Subject:To:From:Date:From;
+        b=AYJcLwcp/5Cxyq0AY9g1oGu9uIyOK74xU2byR25jeV+b6tf7lORCXR1eA8r1Vwzn6
+         qknDPNDilQuBEH5iuTs4cO4/X7GzI5lbf8oxDzaSZDF2i3dikn+cRq7KuKSFOjgSGj
+         wP3nkclP8YSTDBmPLLGu//CH/Arw2Qw+MF7ygbPg=
+Subject: patch "usb: gadget: legacy: set max_speed to super-speed" added to usb-next
+To:     rogerq@ti.com, balbi@kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Jan 2020 13:08:44 +0100
+Message-ID: <1579090124229247@kroah.com>
 MIME-Version: 1.0
-Message-ID: <157908384579.396.18418981905772146869.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/core branch of tip:
 
-Commit-ID:     6b6d188aae79a630957aefd88ff5c42af6553ee3
-Gitweb:        https://git.kernel.org/tip/6b6d188aae79a630957aefd88ff5c42af6553ee3
-Author:        Stephen Boyd <swboyd@chromium.org>
-AuthorDate:    Thu, 09 Jan 2020 07:59:07 -08:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Wed, 15 Jan 2020 11:16:54 +01:00
+This is a note to let you know that I've just added the patch titled
 
-alarmtimer: Unregister wakeup source when module get fails
+    usb: gadget: legacy: set max_speed to super-speed
 
-The alarmtimer_rtc_add_device() function creates a wakeup source and then
-tries to grab a module reference. If that fails the function returns early
-with an error code, but fails to remove the wakeup source.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
-Cleanup this exit path so there is no dangling wakeup source, which is
-named 'alarmtime' left allocated which will conflict with another RTC
-device that may be registered later.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Fixes: 51218298a25e ("alarmtimer: Ensure RTC module is not unloaded")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200109155910.907-2-swboyd@chromium.org
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 463f67aec2837f981b0a0ce8617721ff59685c00 Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Mon, 23 Dec 2019 08:47:35 +0200
+Subject: usb: gadget: legacy: set max_speed to super-speed
+
+These interfaces do support super-speed so let's not
+limit maximum speed to high-speed.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/time/alarmtimer.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/gadget/legacy/cdc2.c  | 2 +-
+ drivers/usb/gadget/legacy/g_ffs.c | 2 +-
+ drivers/usb/gadget/legacy/multi.c | 2 +-
+ drivers/usb/gadget/legacy/ncm.c   | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
-index b51b36e..9dc7a09 100644
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -91,6 +91,7 @@ static int alarmtimer_rtc_add_device(struct device *dev,
- 	unsigned long flags;
- 	struct rtc_device *rtc = to_rtc_device(dev);
- 	struct wakeup_source *__ws;
-+	int ret = 0;
- 
- 	if (rtcdev)
- 		return -EBUSY;
-@@ -105,8 +106,8 @@ static int alarmtimer_rtc_add_device(struct device *dev,
- 	spin_lock_irqsave(&rtcdev_lock, flags);
- 	if (!rtcdev) {
- 		if (!try_module_get(rtc->owner)) {
--			spin_unlock_irqrestore(&rtcdev_lock, flags);
--			return -1;
-+			ret = -1;
-+			goto unlock;
- 		}
- 
- 		rtcdev = rtc;
-@@ -115,11 +116,12 @@ static int alarmtimer_rtc_add_device(struct device *dev,
- 		ws = __ws;
- 		__ws = NULL;
- 	}
-+unlock:
- 	spin_unlock_irqrestore(&rtcdev_lock, flags);
- 
- 	wakeup_source_unregister(__ws);
- 
--	return 0;
-+	return ret;
- }
- 
- static inline void alarmtimer_rtc_timer_init(void)
+diff --git a/drivers/usb/gadget/legacy/cdc2.c b/drivers/usb/gadget/legacy/cdc2.c
+index da1c37933ca1..8d7a556ece30 100644
+--- a/drivers/usb/gadget/legacy/cdc2.c
++++ b/drivers/usb/gadget/legacy/cdc2.c
+@@ -225,7 +225,7 @@ static struct usb_composite_driver cdc_driver = {
+ 	.name		= "g_cdc",
+ 	.dev		= &device_desc,
+ 	.strings	= dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= cdc_bind,
+ 	.unbind		= cdc_unbind,
+ };
+diff --git a/drivers/usb/gadget/legacy/g_ffs.c b/drivers/usb/gadget/legacy/g_ffs.c
+index b640ed3fcf70..ae6d8f7092b8 100644
+--- a/drivers/usb/gadget/legacy/g_ffs.c
++++ b/drivers/usb/gadget/legacy/g_ffs.c
+@@ -149,7 +149,7 @@ static struct usb_composite_driver gfs_driver = {
+ 	.name		= DRIVER_NAME,
+ 	.dev		= &gfs_dev_desc,
+ 	.strings	= gfs_dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= gfs_bind,
+ 	.unbind		= gfs_unbind,
+ };
+diff --git a/drivers/usb/gadget/legacy/multi.c b/drivers/usb/gadget/legacy/multi.c
+index 50515f9e1022..ec9749845660 100644
+--- a/drivers/usb/gadget/legacy/multi.c
++++ b/drivers/usb/gadget/legacy/multi.c
+@@ -482,7 +482,7 @@ static struct usb_composite_driver multi_driver = {
+ 	.name		= "g_multi",
+ 	.dev		= &device_desc,
+ 	.strings	= dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= multi_bind,
+ 	.unbind		= multi_unbind,
+ 	.needs_serial	= 1,
+diff --git a/drivers/usb/gadget/legacy/ncm.c b/drivers/usb/gadget/legacy/ncm.c
+index 8465f081e921..c61e71ba7045 100644
+--- a/drivers/usb/gadget/legacy/ncm.c
++++ b/drivers/usb/gadget/legacy/ncm.c
+@@ -197,7 +197,7 @@ static struct usb_composite_driver ncm_driver = {
+ 	.name		= "g_ncm",
+ 	.dev		= &device_desc,
+ 	.strings	= dev_strings,
+-	.max_speed	= USB_SPEED_HIGH,
++	.max_speed	= USB_SPEED_SUPER,
+ 	.bind		= gncm_bind,
+ 	.unbind		= gncm_unbind,
+ };
+-- 
+2.24.1
+
+
