@@ -2,91 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A115E13B972
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 07:21:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2541A13B9F0
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 07:51:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726085AbgAOGVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 01:21:12 -0500
-Received: from mx2.suse.de ([195.135.220.15]:37530 "EHLO mx2.suse.de"
+        id S1726075AbgAOGu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 01:50:59 -0500
+Received: from verein.lst.de ([213.95.11.211]:49204 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726045AbgAOGVM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 01:21:12 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 8BBA9B027;
-        Wed, 15 Jan 2020 06:21:10 +0000 (UTC)
-Subject: Re: [PATCH] bcache: back to cache all readahead I/Os
-To:     Nix <nix@esperi.org.uk>
-Cc:     Eric Wheeler <bcache@lists.ewheeler.net>,
-        linux-bcache@vger.kernel.org, stable@vger.kernel.org
-References: <20200104065802.113137-1-colyli@suse.de>
- <alpine.LRH.2.11.2001062256450.2074@mx.ewheeler.net>
- <87lfqa2p4s.fsf@esperi.org.uk>
-From:   Coly Li <colyli@suse.de>
-Organization: SUSE Labs
-Message-ID: <5af6593d-b6aa-74a7-0aae-e3c689cebc67@suse.de>
-Date:   Wed, 15 Jan 2020 14:21:05 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.4.1
+        id S1726018AbgAOGu7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jan 2020 01:50:59 -0500
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id 0255C68AFE; Wed, 15 Jan 2020 07:50:56 +0100 (CET)
+Date:   Wed, 15 Jan 2020 07:50:55 +0100
+From:   Christoph Hellwig <hch@lst.de>
+To:     Waiman Long <longman@redhat.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Will Deacon <will.deacon@arm.com>,
+        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] locking/rwsem: Fix kernel crash when spinning on
+ RWSEM_OWNER_UNKNOWN
+Message-ID: <20200115065055.GA21219@lst.de>
+References: <20200114190303.5778-1-longman@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <87lfqa2p4s.fsf@esperi.org.uk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200114190303.5778-1-longman@redhat.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/1/14 8:34 下午, Nix wrote:
-> On 6 Jan 2020, Eric Wheeler spake thusly:
+On Tue, Jan 14, 2020 at 02:03:03PM -0500, Waiman Long wrote:
+> The commit 91d2a812dfb9 ("locking/rwsem: Make handoff writer
+> optimistically spin on owner") will allow a recently woken up waiting
+> writer to spin on the owner. Unfortunately, if the owner happens to be
+> RWSEM_OWNER_UNKNOWN, the code will incorrectly spin on it leading to a
+> kernel crash. This is fixed by passing the proper non-spinnable bits
+> to rwsem_spin_on_owner() so that RWSEM_OWNER_UNKNOWN will be treated
+> as a non-spinnable target.
 > 
->> On Sat, 4 Jan 2020, Coly Li wrote:
->>
->>> In year 2007 high performance SSD was still expensive, in order to
->>> save more space for real workload or meta data, the readahead I/Os
->>> for non-meta data was bypassed and not cached on SSD.
+> Fixes: 91d2a812dfb9 ("locking/rwsem: Make handoff writer optimistically spin on owner")
 > 
-> It's also because readahead data is more likely to be useless.
-> 
->>> In now days, SSD price drops a lot and people can find larger size
->>> SSD with more comfortable price. It is unncessary to bypass normal
->>> readahead I/Os to save SSD space for now.
-> 
+> Reported-by: Christoph Hellwig <hch@lst.de>
+> Signed-off-by: Waiman Long <longman@redhat.com>
 
-Hi Nix,
+This survives all the tests that showed the problems with the original
+code:
 
-> Doesn't this reduce the utility of the cache by polluting it with
-> unnecessary content? It seems to me that we need at least a *litle*
-> evidence that this change is beneficial. (I mean, it might be beneficial
-> if on average the data that was read ahead is actually used.)
-> 
-> What happens to the cache hit rates when this change has been running
-> for a while?
-> 
+Tested-by: Christoph Hellwig <hch@lst.de>
 
-I have two reports offline and directly to me, one is from an email
-address of github and forwarded to me by Jens, one is from a China local
-storage startup.
+>  		if ((wstate == WRITER_HANDOFF) &&
+> -		    (rwsem_spin_on_owner(sem, 0) == OWNER_NULL))
+> +		    rwsem_spin_on_owner(sem, RWSEM_NONSPINNABLE) == OWNER_NULL)
 
-The first report complains the desktop-pc benchmark is about 50% down
-and the root cause is located on commit b41c9b0 ("bcache: update
-bio->bi_opf bypass/writeback REQ_ flag hints").
-
-The second report complains their small file workload (mixed read and
-write) has around 20%+ performance drop and the suspicious change is
-also focused on the readahead restriction.
-
-The second reporter verifies this patch and confirms the performance
-issue has gone. I don't know who is the first report so no response so far.
-
-I don't have exact hit rate number because the reporter does not provide
-(BTW, because the readahead request is bypassed, I feel the hit rate
-won't count on them indeed). But from the reports and one verification,
-IMHO this change makes sense.
-
-Thanks.
-
--- 
-
-Coly Li
+Nit: the inner braces in the first half of the conditional aren't required
+either.
