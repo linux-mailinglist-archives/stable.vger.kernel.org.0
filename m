@@ -2,83 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C7E913C716
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 16:12:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4596213C728
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 16:16:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728912AbgAOPLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 10:11:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50722 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726506AbgAOPLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 10:11:22 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD259222C3;
-        Wed, 15 Jan 2020 15:11:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579101081;
-        bh=3gTNlszr+LAWpyQAE9KCG1f9A2EIwYniEezh0GNli7U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LSztWCtE7OCoSmM5XihhW6xXTTQSxnf9FmQw8flyMeiHK+7qSvtL8C42FQ8Z2sc4T
-         rVPD+6bdqi4RgQxeV3urPxq0U+0+XdIyUMGeJ27mCSIQyyPyWQUfjacDJpbPCIdNja
-         gEbc9AOg+rgwKSX7+wfvUmz1E5Pn58TmLlH1nlDA=
-Date:   Wed, 15 Jan 2020 16:11:18 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Suzuki Kuruppassery Poulose <suzuki.poulose@arm.com>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, mathieu.poirier@linaro.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [stable] [PATCH 1/2] coresight: etb10: Do not call
- smp_processor_id from preemptible
-Message-ID: <20200115151118.GC3740793@kroah.com>
-References: <20200108110541.318672-1-suzuki.poulose@arm.com>
- <20200109143537.GE1706@sasha-vm>
- <a183da32-b933-6ed0-f8b8-703e27d3f15e@arm.com>
+        id S1726248AbgAOPQp convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 15 Jan 2020 10:16:45 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:24412 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726165AbgAOPQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 10:16:45 -0500
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-195-rdpLZj8NNcWC7e3ovf19mw-1; Wed, 15 Jan 2020 15:16:41 +0000
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Wed, 15 Jan 2020 15:16:41 +0000
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Wed, 15 Jan 2020 15:16:41 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Waiman Long' <longman@redhat.com>, Christoph Hellwig <hch@lst.de>
+CC:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Will Deacon <will.deacon@arm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] locking/rwsem: Fix kernel crash when spinning on
+ RWSEM_OWNER_UNKNOWN
+Thread-Topic: [PATCH] locking/rwsem: Fix kernel crash when spinning on
+ RWSEM_OWNER_UNKNOWN
+Thread-Index: AQHVy6/pULnrp2X9K02rMSrf0oH55Kfr1QMw
+Date:   Wed, 15 Jan 2020 15:16:41 +0000
+Message-ID: <45b976af3cf74555af7214993e7d614b@AcuMS.aculab.com>
+References: <20200114190303.5778-1-longman@redhat.com>
+ <20200115065055.GA21219@lst.de>
+ <021830af-fd89-50e5-ad26-6061e5abdce1@redhat.com>
+In-Reply-To: <021830af-fd89-50e5-ad26-6061e5abdce1@redhat.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a183da32-b933-6ed0-f8b8-703e27d3f15e@arm.com>
+X-MC-Unique: rdpLZj8NNcWC7e3ovf19mw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 09, 2020 at 02:36:17PM +0000, Suzuki Kuruppassery Poulose wrote:
-> On 09/01/2020 14:35, Sasha Levin wrote:
-> > On Wed, Jan 08, 2020 at 11:05:40AM +0000, Suzuki K Poulose wrote:
-> > > [ Upstream commit 730766bae3280a25d40ea76a53dc6342e84e6513 ]
-> > > 
-> > > During a perf session we try to allocate buffers on the "node" associated
-> > > with the CPU the event is bound to. If it is not bound to a CPU, we
-> > > use the current CPU node, using smp_processor_id(). However this is
-> > > unsafe
-> > > in a pre-emptible context and could generate the splats as below :
-> > > 
-> > > BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
-> > > 
-> > > Use NUMA_NO_NODE hint instead of using the current node for events
-> > > not bound to CPUs.
-> > > 
-> > > Fixes: 2997aa4063d97fdb39 ("coresight: etb10: implementing AUX API")
-> > > Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-> > > Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-> > > Cc: stable <stable@vger.kernel.org> # v4.9 to v4.19
-> > > Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-> > > Link: https://lore.kernel.org/r/20190620221237.3536-5-mathieu.poirier@linaro.org
-> > > 
-> > 
-> > I've queued this for 4.9-4.19. There was a simple conflict on 4.9 which
-> > also had to be resolved.
-> > 
+From: linux-kernel-owner@vger.kernel.org <linux-kernel-owner@vger.kernel.org> On Behalf Of Waiman Long
+> Sent: 15 January 2020 14:27
+...
+> >>  		if ((wstate == WRITER_HANDOFF) &&
+> >> -		    (rwsem_spin_on_owner(sem, 0) == OWNER_NULL))
+> >> +		    rwsem_spin_on_owner(sem, RWSEM_NONSPINNABLE) == OWNER_NULL)
+> > Nit: the inner braces in the first half of the conditional aren't required
+> > either.
 > 
-> 
-> Thanks Sasha !
+> I typically over-parenthesize the code to make it easier to read as we
+> don't need to think too much about operator precedence to see if it is
+> doing the right thing.
 
-Note, these had to all be dropped as they broke the build :(
+The problem is it actually makes it harder to read.
+It is difficult for the 'mark 1 eyeball' to follow lots of sets of brackets.
+Since == (etc) are the lowest priority operators (apart from ?:) they
+never need ().
 
-So can you please send us patches that at least build?  :)
+	David
 
-thanks,
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
-greg k-h
