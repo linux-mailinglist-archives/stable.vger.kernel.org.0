@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8CFA13CD42
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 20:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 015D013CD6F
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 20:51:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725999AbgAOTmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 14:42:06 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:39746 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726310AbgAOTmG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 14:42:06 -0500
-Received: by mail-lf1-f68.google.com with SMTP id y1so13654143lfb.6
-        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 11:42:04 -0800 (PST)
+        id S1729324AbgAOTuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 14:50:02 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:33049 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726362AbgAOTuC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 14:50:02 -0500
+Received: by mail-lj1-f194.google.com with SMTP id y6so19949349lji.0
+        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 11:50:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=IaRwIBTidRg+FeQMjaWJXF4LpWPIm2ptNeGHjO7tn9s=;
-        b=Jws/Fhg/9IKJk9+nS1RTqQGl/D/R2qUDHpS3GKFKtCU0aMrpgYvxxwk+s7k/EB3PQG
-         PvYHuYbuMYFbFlZxmS9QO1Dbd5gN7atnObLK9kI8sUR0ADxQryVnxUBd63vqDyd6qx16
-         WmkdXjfC8d3E/yNKayDZNJMSD7y4f95VjoUt4=
+        bh=b5YJji0qsgvZEhJKmEybkUMk9F7tRfYQ2btF70jS2bQ=;
+        b=Q3dtBuyAAYaVR6kphmaXQdQwAqXGs7+IXkxkA97uPulSCLsjbwLbDIpcd20aDV8CNF
+         h6zeg+gwF07nqSczDspewMKk/CFEcITv26d5UJTH0S6cCJwGyeQ1fLw049up9t2GG2tL
+         F/iGyp8+dSJcV2e9mBFerylantrs7S6j5879U=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=IaRwIBTidRg+FeQMjaWJXF4LpWPIm2ptNeGHjO7tn9s=;
-        b=U4vb7xNt5pQiSWvFmp8vmVKbDxrv9bN3fZscBZ9vvBxUEwIXpN1E2U8KL77fPDM/Aw
-         HLSMgCLm6VbPfHsrHVGSP4ltCn9dTJF/NZGNnebtZ641pG8VmS7GFBX139fIHZ1TkGP0
-         INxe7lIJLISPzmAW5UJJzjXn5SW5NMUfd+xX1QABg5Ht1A7WtJjRnE0N7swJygrflxTC
-         UI+txk9tNHVoPnVZoyReLFNgH59LD4heaOx1dY9Zx18SIYqmpVddx2NgdjdhBo5p5awj
-         7gCvF0RCDQpc5MSAR7g3uB/Vd1yVQKM2oo84PbQKXcaXvBefkGbK7emTyw/QQUiSzaMc
-         H+6Q==
-X-Gm-Message-State: APjAAAWgozmRG7BIJy9bVGoXHpD3BwNdLO314ltoWQoa0Yuz8CBF+eOH
-        L1eis/am6cfuTi/iO40x24XsKBYOy+E=
-X-Google-Smtp-Source: APXvYqxsvPs8Vav578LKpFNSSQoTZe+HLysOSZx2zB5WWNVzpv9O2mrfQrhgOu0dA0+0x4bEk56XLw==
-X-Received: by 2002:a19:5513:: with SMTP id n19mr270415lfe.205.1579117323445;
-        Wed, 15 Jan 2020 11:42:03 -0800 (PST)
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com. [209.85.167.50])
-        by smtp.gmail.com with ESMTPSA id i1sm9705814lji.71.2020.01.15.11.42.02
+        bh=b5YJji0qsgvZEhJKmEybkUMk9F7tRfYQ2btF70jS2bQ=;
+        b=Ijn6gpl8N66kGcgEVmR47gt1IYbbNZ9P36IOU7xX5mU1/7aiL2T+paDmxNxJaOBT4z
+         nvzsJJzfzPrKqhOOaqf4u0hIfLeEBBOTeNPI69h8f+yKzD/x7Pt9nhZwUxjnz94KEWDP
+         sJ7cxxFjRS/+eQoAXVp+dF9stU4H6bgKn/ZjqXIV0XnZ/wz+PEeEmq/CbOYTGO49q/9A
+         03FnGueE5ROFB/gn7WI2TnjlRsAL9MxpoOyGYD2eTpGk5znafnfx2YCeyv/7M6Ep9/Tf
+         Nw50xw7WLXx0Yep1U2kbDgHO08RsFHDe+LddblnW65ENsCJjFm/BzSgMewtK6Uzfifgu
+         oB5Q==
+X-Gm-Message-State: APjAAAUQ1z4iVTbIlrIUhWaveLyXXihBE4YJWEdvo29ekHX8uYhFtveW
+        cNu3IhEV8HuRJq8eMx3KFo/ACh2p4NM=
+X-Google-Smtp-Source: APXvYqypQwyPSGWiKtPPqpoE26/Tn8rTBX78BiloKSv3f7aLcblT+x4OQwHz+1vp9i9SkrC6hUkBig==
+X-Received: by 2002:a2e:9ad0:: with SMTP id p16mr33567ljj.111.1579117799890;
+        Wed, 15 Jan 2020 11:49:59 -0800 (PST)
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
+        by smtp.gmail.com with ESMTPSA id u18sm9928918lje.69.2020.01.15.11.49.58
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jan 2020 11:42:02 -0800 (PST)
-Received: by mail-lf1-f50.google.com with SMTP id r14so13674027lfm.5
-        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 11:42:02 -0800 (PST)
-X-Received: by 2002:a19:22cc:: with SMTP id i195mr314766lfi.148.1579117322138;
- Wed, 15 Jan 2020 11:42:02 -0800 (PST)
+        Wed, 15 Jan 2020 11:49:58 -0800 (PST)
+Received: by mail-lj1-f179.google.com with SMTP id j1so19902739lja.2
+        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 11:49:58 -0800 (PST)
+X-Received: by 2002:a05:651c:282:: with SMTP id b2mr37224ljo.41.1579117798263;
+ Wed, 15 Jan 2020 11:49:58 -0800 (PST)
 MIME-Version: 1.0
-References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
- <20200113154739.GB11244@42.do-not-panic.com> <CACMCwJL8tu+GHPeRADR_12xhcYSiDv+Yxdy=yLqMxEsn=P9zFA@mail.gmail.com>
- <20200115021545.GD11244@42.do-not-panic.com> <CACMCwJLJCA2iXS0QMKKAWQv252oUcmfsNvwDNP5+4Z_9VB-rTg@mail.gmail.com>
- <20200115185812.GH11244@42.do-not-panic.com>
-In-Reply-To: <20200115185812.GH11244@42.do-not-panic.com>
+References: <CACMCwJLJCA2iXS0QMKKAWQv252oUcmfsNvwDNP5+4Z_9VB-rTg@mail.gmail.com>
+ <5C216684-6FDF-41B5-9F51-89DC295F6DDC@amacapital.net> <CACMCwJLogOH-nG7QEMzrXK-iJPOdzCrL05y0a6yAbtPsfdRjsQ@mail.gmail.com>
+In-Reply-To: <CACMCwJLogOH-nG7QEMzrXK-iJPOdzCrL05y0a6yAbtPsfdRjsQ@mail.gmail.com>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 15 Jan 2020 11:41:46 -0800
-X-Gmail-Original-Message-ID: <CAHk-=whOC9dakUZ_BzHq2d5oKXXGnrKf+M-4gZ8U+=F_OX4+Ew@mail.gmail.com>
-Message-ID: <CAHk-=whOC9dakUZ_BzHq2d5oKXXGnrKf+M-4gZ8U+=F_OX4+Ew@mail.gmail.com>
+Date:   Wed, 15 Jan 2020 11:49:42 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiqPHc=BzSYO4N=awucq0td3s9VuBkct=m-B_xZVCgzBg@mail.gmail.com>
+Message-ID: <CAHk-=wiqPHc=BzSYO4N=awucq0td3s9VuBkct=m-B_xZVCgzBg@mail.gmail.com>
 Subject: Re: Fix built-in early-load Intel microcode alignment
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     Jari Ruusu <jari.ruusu@gmail.com>, Borislav Petkov <bp@alien8.de>,
+To:     Jari Ruusu <jari.ruusu@gmail.com>, Ashok Raj <ashok.raj@intel.com>
+Cc:     Andy Lutomirski <luto@amacapital.net>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
         Fenghua Yu <fenghua.yu@intel.com>, johannes.berg@intel.com,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         stable <stable@vger.kernel.org>,
@@ -70,35 +70,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 15, 2020 at 10:58 AM Luis Chamberlain <mcgrof@kernel.org> wrote:
+On Wed, Jan 15, 2020 at 11:15 AM Jari Ruusu <jari.ruusu@gmail.com> wrote:
 >
-> But *how? Why is there a 50/50 chance of it being aligned to
-> 16 bytes if 8 bytes are currently specified?
+> No problem at microcode load time.
+> Hard lockup after 1-2 days of use.
 
-What?
+That is "interesting".
 
-It's trivial.
+However, the most likely cause is that you have a borderline dodgy
+system, and the microcode update then just triggers a pre-existing
+problem.
 
-Address 256 is 4-byte aligned. But it's also 8-byte aligned. And
-16-byte aligned. And..
+Possibly because of how newer microcode will have things like "VERW
+now flushes CPU buffers" etc.
 
-So if you ask for 8-byte alignment, and you already had that address
-(or were just below it), you'll get 8-byte alignment. But it will
-_also_ be 16-byte aligned just by happenstance.
+But it might be worth it if the intel people could check up with their
+microcode people on this anyway - if there is _one_ report of "my
+system locks up with newer ucode", that's one thing. But if Jari isn't
+alone...
 
-And yes, exactly half of the addresses that are 8-byte aligned are
-also 16-byte aligned, so you have a 50/50 chance of getting the bigger
-alignment simply by random chance.
+I don't know who the right intel person would be. There's a couple of
+Intel people on the cc (and I added one more at random), can you try
+to see if somebody would be aware of or interested in that "ucode
+problems with i5-7200U (fam 6 model 142 step 9 pf 0x80)"
 
-In fact, often you probably have a _better_ than 50/50 chance of
-getting the bigger alignment, since many other things are aligned too,
-and the starting address likely isn't very random. So it might have
-started out with a bigger alignment even before you asked for just
-8-byte aligned data from the linker.
-
-(Of course, the reverse may be true too - there may be cases you were
-coimpletely mis-aligned, and asking for 8-byte alignment will never
-give you any more aligned memory, but I suspect aligned data is a lot
-more common than unaligned data is)
-
-              Linus
+               Linus
