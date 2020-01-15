@@ -2,148 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9FEC13BC98
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 10:41:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6684C13BD51
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 11:24:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729464AbgAOJlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 04:41:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43090 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729143AbgAOJlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 04:41:52 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8E6124671;
-        Wed, 15 Jan 2020 09:41:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579081311;
-        bh=TeuzYjlf9exAa/06UfkQ2O6mdTPJT7E/od8eGWWtpxI=;
-        h=Subject:To:From:Date:From;
-        b=cZ8RQZ0REQVNiSMy/LaPCIRZZiR4+gheE5wBm0crYUcVqJsxM0g+DOKseuQs+qVYN
-         4zLbHU9y18725768os8laxMsnCW8PFQTYYDDgrwKILWhnItPcBJbBzpHtazVr5Xsbs
-         WYZwMJX4ir95MrquWRG4vPFuqvlGo5fTlX08AK64=
-Subject: patch "usb: gadget: f_ecm: Use atomic_t to track in-flight request" added to usb-testing
-To:     bryan.odonoghue@linaro.org, balbi@kernel.org,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Jan 2020 10:41:10 +0100
-Message-ID: <157908127084130@kroah.com>
+        id S1729636AbgAOKYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 05:24:10 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:46714 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729539AbgAOKYK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 05:24:10 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1irfqI-0000rf-Dv; Wed, 15 Jan 2020 11:24:06 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id F37D81C0864;
+        Wed, 15 Jan 2020 11:24:05 +0100 (CET)
+Date:   Wed, 15 Jan 2020 10:24:05 -0000
+From:   "tip-bot2 for Stephen Boyd" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/core] alarmtimer: Unregister wakeup source when module get fails
+Cc:     Stephen Boyd <swboyd@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200109155910.907-2-swboyd@chromium.org>
+References: <20200109155910.907-2-swboyd@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Message-ID: <157908384579.396.18418981905772146869.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the timers/core branch of tip:
 
-This is a note to let you know that I've just added the patch titled
+Commit-ID:     6b6d188aae79a630957aefd88ff5c42af6553ee3
+Gitweb:        https://git.kernel.org/tip/6b6d188aae79a630957aefd88ff5c42af6553ee3
+Author:        Stephen Boyd <swboyd@chromium.org>
+AuthorDate:    Thu, 09 Jan 2020 07:59:07 -08:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Wed, 15 Jan 2020 11:16:54 +01:00
 
-    usb: gadget: f_ecm: Use atomic_t to track in-flight request
+alarmtimer: Unregister wakeup source when module get fails
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+The alarmtimer_rtc_add_device() function creates a wakeup source and then
+tries to grab a module reference. If that fails the function returns early
+with an error code, but fails to remove the wakeup source.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Cleanup this exit path so there is no dangling wakeup source, which is
+named 'alarmtime' left allocated which will conflict with another RTC
+device that may be registered later.
 
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From d710562e01c48d59be3f60d58b7a85958b39aeda Mon Sep 17 00:00:00 2001
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Date: Thu, 9 Jan 2020 13:17:22 +0000
-Subject: usb: gadget: f_ecm: Use atomic_t to track in-flight request
-
-Currently ecm->notify_req is used to flag when a request is in-flight.
-ecm->notify_req is set to NULL and when a request completes it is
-subsequently reset.
-
-This is fundamentally buggy in that the unbind logic of the ECM driver will
-unconditionally free ecm->notify_req leading to a NULL pointer dereference.
-
-Fixes: da741b8c56d6 ("usb ethernet gadget: split CDC Ethernet function")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 51218298a25e ("alarmtimer: Ensure RTC module is not unloaded")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200109155910.907-2-swboyd@chromium.org
 ---
- drivers/usb/gadget/function/f_ecm.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ kernel/time/alarmtimer.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_ecm.c b/drivers/usb/gadget/function/f_ecm.c
-index 460d5d7c984f..7f5cf488b2b1 100644
---- a/drivers/usb/gadget/function/f_ecm.c
-+++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -52,6 +52,7 @@ struct f_ecm {
- 	struct usb_ep			*notify;
- 	struct usb_request		*notify_req;
- 	u8				notify_state;
-+	atomic_t			notify_count;
- 	bool				is_open;
+diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
+index b51b36e..9dc7a09 100644
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -91,6 +91,7 @@ static int alarmtimer_rtc_add_device(struct device *dev,
+ 	unsigned long flags;
+ 	struct rtc_device *rtc = to_rtc_device(dev);
+ 	struct wakeup_source *__ws;
++	int ret = 0;
  
- 	/* FIXME is_open needs some irq-ish locking
-@@ -380,7 +381,7 @@ static void ecm_do_notify(struct f_ecm *ecm)
- 	int				status;
+ 	if (rtcdev)
+ 		return -EBUSY;
+@@ -105,8 +106,8 @@ static int alarmtimer_rtc_add_device(struct device *dev,
+ 	spin_lock_irqsave(&rtcdev_lock, flags);
+ 	if (!rtcdev) {
+ 		if (!try_module_get(rtc->owner)) {
+-			spin_unlock_irqrestore(&rtcdev_lock, flags);
+-			return -1;
++			ret = -1;
++			goto unlock;
+ 		}
  
- 	/* notification already in flight? */
--	if (!req)
-+	if (atomic_read(&ecm->notify_count))
- 		return;
- 
- 	event = req->buf;
-@@ -420,10 +421,10 @@ static void ecm_do_notify(struct f_ecm *ecm)
- 	event->bmRequestType = 0xA1;
- 	event->wIndex = cpu_to_le16(ecm->ctrl_id);
- 
--	ecm->notify_req = NULL;
-+	atomic_inc(&ecm->notify_count);
- 	status = usb_ep_queue(ecm->notify, req, GFP_ATOMIC);
- 	if (status < 0) {
--		ecm->notify_req = req;
-+		atomic_dec(&ecm->notify_count);
- 		DBG(cdev, "notify --> %d\n", status);
+ 		rtcdev = rtc;
+@@ -115,11 +116,12 @@ static int alarmtimer_rtc_add_device(struct device *dev,
+ 		ws = __ws;
+ 		__ws = NULL;
  	}
- }
-@@ -448,17 +449,19 @@ static void ecm_notify_complete(struct usb_ep *ep, struct usb_request *req)
- 	switch (req->status) {
- 	case 0:
- 		/* no fault */
-+		atomic_dec(&ecm->notify_count);
- 		break;
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
-+		atomic_set(&ecm->notify_count, 0);
- 		ecm->notify_state = ECM_NOTIFY_NONE;
- 		break;
- 	default:
- 		DBG(cdev, "event %02x --> %d\n",
- 			event->bNotificationType, req->status);
-+		atomic_dec(&ecm->notify_count);
- 		break;
- 	}
--	ecm->notify_req = req;
- 	ecm_do_notify(ecm);
++unlock:
+ 	spin_unlock_irqrestore(&rtcdev_lock, flags);
+ 
+ 	wakeup_source_unregister(__ws);
+ 
+-	return 0;
++	return ret;
  }
  
-@@ -907,6 +910,11 @@ static void ecm_unbind(struct usb_configuration *c, struct usb_function *f)
- 
- 	usb_free_all_descriptors(f);
- 
-+	if (atomic_read(&ecm->notify_count)) {
-+		usb_ep_dequeue(ecm->notify, ecm->notify_req);
-+		atomic_set(&ecm->notify_count, 0);
-+	}
-+
- 	kfree(ecm->notify_req->buf);
- 	usb_ep_free_request(ecm->notify, ecm->notify_req);
- }
--- 
-2.24.1
-
-
+ static inline void alarmtimer_rtc_timer_init(void)
