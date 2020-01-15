@@ -2,73 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 960CA13BAB6
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 09:12:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E2D13BB2D
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 09:34:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726132AbgAOIMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 03:12:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47776 "EHLO mail.kernel.org"
+        id S1726474AbgAOIey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 03:34:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726100AbgAOIMs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 03:12:48 -0500
+        id S1726472AbgAOIey (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jan 2020 03:34:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A66324671;
-        Wed, 15 Jan 2020 08:12:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAA522187F;
+        Wed, 15 Jan 2020 08:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579075968;
-        bh=nk37Yuy3ehqNqReCRqm9scpbx9tu94gE73chRFUUDFI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QPkM+mcjlqEHMQrqDspRSuC4hK//RkTdmwh5QwN0QtLbwd5a2ARrJ3NwlortMVWFE
-         XCZbdZ7TJImM+i0LJ8jOBpXwTciBu1mMiZfTKdZxnSnQfrcAcFSPMksq9/5bvGiGDE
-         rEo2DxmgHvWoM1p0FwPlNu1OVXqurh3PBgLIIsRA=
-Date:   Wed, 15 Jan 2020 09:12:45 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 00/78] 5.4.12-stable review
-Message-ID: <20200115081245.GA2977551@kroah.com>
-References: <20200114094352.428808181@linuxfoundation.org>
- <1d43091c-c7ff-ed26-c3f9-207a291ed157@linaro.org>
+        s=default; t=1579077293;
+        bh=R0LnuO3IRD5kJMz9xehsxEBCB47JfSzkYiuU7v1RCD8=;
+        h=Subject:To:From:Date:From;
+        b=zwIOIbgQ+pQsVdLSxqASq9N9/sAU+sFnD+E2iuz5m3EgMOTJK0yg1y73EFMrbE9/9
+         pkHANSURGUH0cUe8WiACrKjc1eE0EC0waaUi5xkQz/aEn/moINfM7dV1/oukJirn5a
+         NBTJU++ia/WoiVHS5ha49RhrZi8IfyKJO9v+1Gtw=
+Subject: patch "component: do not dereference opaque pointer in debugfs" added to driver-core-next
+To:     lkundrak@v3.sk, arnaud.pouliquen@st.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Jan 2020 09:34:47 +0100
+Message-ID: <157907728767111@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1d43091c-c7ff-ed26-c3f9-207a291ed157@linaro.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 14, 2020 at 08:09:11PM -0600, Daniel Díaz wrote:
-> Hello!
-> 
-> On 1/14/20 4:00 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.12 release.
-> > There are 78 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 16 Jan 2020 09:41:58 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.12-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
 
-Thanks for testing all of these and letting me know.
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    component: do not dereference opaque pointer in debugfs
+
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From ef9ffc1e5f1ac73ecd2fb3b70db2a3b2472ff2f7 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Mon, 18 Nov 2019 12:54:31 +0100
+Subject: component: do not dereference opaque pointer in debugfs
+
+The match data does not have to be a struct device pointer, and indeed
+very often is not. Attempt to treat it as such easily results in a
+crash.
+
+For the components that are not registered, we don't know which device
+is missing. Once it it is there, we can use the struct component to get
+the device and whether it's bound or not.
+
+Fixes: 59e73854b5fd ('component: add debugfs support')
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Cc: stable <stable@vger.kernel.org>
+Cc: Arnaud Pouliquen <arnaud.pouliquen@st.com>
+Link: https://lore.kernel.org/r/20191118115431.63626-1-lkundrak@v3.sk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/base/component.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/base/component.c b/drivers/base/component.c
+index 3a09036e772a..c7879f5ae2fb 100644
+--- a/drivers/base/component.c
++++ b/drivers/base/component.c
+@@ -101,11 +101,11 @@ static int component_devices_show(struct seq_file *s, void *data)
+ 	seq_printf(s, "%-40s %20s\n", "device name", "status");
+ 	seq_puts(s, "-------------------------------------------------------------\n");
+ 	for (i = 0; i < match->num; i++) {
+-		struct device *d = (struct device *)match->compare[i].data;
++		struct component *component = match->compare[i].component;
+ 
+-		seq_printf(s, "%-40s %20s\n", dev_name(d),
+-			   match->compare[i].component ?
+-			   "registered" : "not registered");
++		seq_printf(s, "%-40s %20s\n",
++			   component ? dev_name(component->dev) : "(unknown)",
++			   component ? (component->bound ? "bound" : "not bound") : "not registered");
+ 	}
+ 	mutex_unlock(&component_mutex);
+ 
+-- 
+2.24.1
+
+
