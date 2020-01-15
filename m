@@ -2,90 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83CDA13C9DF
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 17:44:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 796D613CAC2
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 18:17:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728899AbgAOQob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 11:44:31 -0500
-Received: from foss.arm.com ([217.140.110.172]:39868 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728896AbgAOQob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 11:44:31 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E9EB6328;
-        Wed, 15 Jan 2020 08:44:30 -0800 (PST)
-Received: from [10.1.197.1] (ewhatever.cambridge.arm.com [10.1.197.1])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2B5AC3F718;
-        Wed, 15 Jan 2020 08:44:30 -0800 (PST)
-Subject: Re: [stable] [PATCH 1/2] coresight: etb10: Do not call
- smp_processor_id from preemptible
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, mathieu.poirier@linaro.org,
-        linux-kernel@vger.kernel.org
-References: <20200108110541.318672-1-suzuki.poulose@arm.com>
- <20200109143537.GE1706@sasha-vm>
- <a183da32-b933-6ed0-f8b8-703e27d3f15e@arm.com>
- <20200115151118.GC3740793@kroah.com>
-From:   Suzuki Kuruppassery Poulose <suzuki.poulose@arm.com>
-Message-ID: <d3cd59e0-8fa2-9e69-534f-15f13cb14897@arm.com>
-Date:   Wed, 15 Jan 2020 16:44:29 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.1
+        id S1728896AbgAORRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 12:17:42 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:36925 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727016AbgAORRm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 12:17:42 -0500
+Received: from ip5f5bd663.dynamic.kabel-deutschland.de ([95.91.214.99] helo=localhost.localdomain)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1irmIV-0006pD-6G; Wed, 15 Jan 2020 17:17:39 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <shallyn@cisco.com>, Jann Horn <jannh@google.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Eric Paris <eparis@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH] ptrace: reintroduce usage of subjective credentials in ptrace_has_cap()
+Date:   Wed, 15 Jan 2020 18:17:36 +0100
+Message-Id: <20200115171736.16994-1-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.25.0
 MIME-Version: 1.0
-In-Reply-To: <20200115151118.GC3740793@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Commit 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
+introduced the ability to opt out of audit messages for accesses to
+various proc files since they are not violations of policy.
+While doing so it somehow switched the check from ns_capable() to
+has_ns_capability{_noaudit}(). That means it switched from checking the
+subjective credentials of the task to using the objective credentials. I
+couldn't find the original lkml thread and so I don't know why this switch
+was done. But it seems wrong since ptrace_has_cap() is currently only used
+in ptrace_may_access(). And it's used to check whether the calling task
+(subject) has the CAP_SYS_PTRACE capability in the provided user namespace
+to operate on the target task (object). According to the cred.h comments
+this would mean the subjective credentials of the calling task need to be
+used.
+This switches it to use security_capable() because we only call
+ptrace_has_cap() in ptrace_may_access() and in there we already have a
+stable reference to the calling tasks creds under cred_guard_mutex so
+there's no need to go through another series of dereferences and rcu
+locking done in ns_capable{_noaudit}().
 
-Hi Greg,
+Cc: Serge Hallyn <shallyn@cisco.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Eric Paris <eparis@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+ kernel/ptrace.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-On 15/01/2020 15:11, Greg KH wrote:
-> On Thu, Jan 09, 2020 at 02:36:17PM +0000, Suzuki Kuruppassery Poulose wrote:
->> On 09/01/2020 14:35, Sasha Levin wrote:
->>> On Wed, Jan 08, 2020 at 11:05:40AM +0000, Suzuki K Poulose wrote:
->>>> [ Upstream commit 730766bae3280a25d40ea76a53dc6342e84e6513 ]
->>>>
->>>> During a perf session we try to allocate buffers on the "node" associated
->>>> with the CPU the event is bound to. If it is not bound to a CPU, we
->>>> use the current CPU node, using smp_processor_id(). However this is
->>>> unsafe
->>>> in a pre-emptible context and could generate the splats as below :
->>>>
->>>> BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
->>>>
->>>> Use NUMA_NO_NODE hint instead of using the current node for events
->>>> not bound to CPUs.
->>>>
->>>> Fixes: 2997aa4063d97fdb39 ("coresight: etb10: implementing AUX API")
->>>> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
->>>> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
->>>> Cc: stable <stable@vger.kernel.org> # v4.9 to v4.19
->>>> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
->>>> Link: https://lore.kernel.org/r/20190620221237.3536-5-mathieu.poirier@linaro.org
->>>>
->>>
->>> I've queued this for 4.9-4.19. There was a simple conflict on 4.9 which
->>> also had to be resolved.
->>>
->>
->>
->> Thanks Sasha !
-> 
-> Note, these had to all be dropped as they broke the build :(
-> 
-> So can you please send us patches that at least build?  :)
-> 
+diff --git a/kernel/ptrace.c b/kernel/ptrace.c
+index cb9ddcc08119..b2fe800cae9a 100644
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -264,12 +264,14 @@ static int ptrace_check_attach(struct task_struct *child, bool ignore_state)
+ 	return ret;
+ }
+ 
+-static int ptrace_has_cap(struct user_namespace *ns, unsigned int mode)
++static int ptrace_has_cap(const struct cred *cred, struct user_namespace *ns,
++			  unsigned int mode)
+ {
+ 	if (mode & PTRACE_MODE_NOAUDIT)
+-		return has_ns_capability_noaudit(current, ns, CAP_SYS_PTRACE);
++		return security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NONE);
+ 	else
+-		return has_ns_capability(current, ns, CAP_SYS_PTRACE);
++		return security_capable(cred, ns, CAP_SYS_PTRACE,
++					CAP_OPT_NOAUDIT);
+ }
+ 
+ /* Returns 0 on success, -errno on denial. */
+@@ -321,7 +323,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
+ 	    gid_eq(caller_gid, tcred->sgid) &&
+ 	    gid_eq(caller_gid, tcred->gid))
+ 		goto ok;
+-	if (ptrace_has_cap(tcred->user_ns, mode))
++	if (ptrace_has_cap(cred, tcred->user_ns, mode))
+ 		goto ok;
+ 	rcu_read_unlock();
+ 	return -EPERM;
+@@ -340,7 +342,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
+ 	mm = task->mm;
+ 	if (mm &&
+ 	    ((get_dumpable(mm) != SUID_DUMP_USER) &&
+-	     !ptrace_has_cap(mm->user_ns, mode)))
++	     !ptrace_has_cap(cred, mm->user_ns, mode)))
+ 	    return -EPERM;
+ 
+ 	return security_ptrace_access_check(task, mode);
 
-Do you have a build failure log ? I did build test it before sending it 
-over. I tried it again on 4.9, 4.14 and 4.19. I don't hit any build
-failures here.
+base-commit: b3a987b0264d3ddbb24293ebff10eddfc472f653
+-- 
+2.25.0
 
-Please could you share the log if you have it handy ?
-
-Suzuki
