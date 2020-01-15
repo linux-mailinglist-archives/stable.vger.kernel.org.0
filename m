@@ -2,81 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A5013C83E
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 16:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF4213C849
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 16:47:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbgAOPoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 10:44:06 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:56137 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726132AbgAOPoG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 10:44:06 -0500
+        id S1726483AbgAOPr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 10:47:57 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:22475 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726248AbgAOPr4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 10:47:56 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579103045;
+        s=mimecast20190719; t=1579103275;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc; bh=LQyuBEEPUt70o2BZvhKw3aWFie6bEYpzPUeONtcG+Vk=;
-        b=N8WSuKE1nOviofBhPsLUzRiihRU3xpMdsgOmt3K3WQL+6GdRUzBwUh9kh+bniATPSdhvib
-        wYLKjsDerTuAtYUds/Z2c6ZkknqgR4q2NZ05L23z0Z4fVG8eGberfcKbKQOJlgYORSLO6j
-        TAU2DqXFh6O6v8yCBeBD8QSa67CflgA=
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=arRXQ/teKt7R05GOntW6gyZaqxy+Pia//dbokI8QBCI=;
+        b=BxntD6Xs8XLJn0U4CwxTvNI85jtgZ1k7tw+y0edrFKUWG+xFkAGFga8jAq/72kdyzHlQwM
+        5+aVq2e5VW1ysJQt8T31b69FXApJY0ypZ2rGiC7a5J5fuYV/keDgYn7ssmaC0+9qPKpKQX
+        nbfUru0LQxOXHup/W9VE1Qh8+YEA0Mk=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-307-O1Fb-8HuMO6jNb_7UiX61Q-1; Wed, 15 Jan 2020 10:44:02 -0500
-X-MC-Unique: O1Fb-8HuMO6jNb_7UiX61Q-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+ us-mta-58-UM_qjk9iMqyjd3A6rIoaTQ-1; Wed, 15 Jan 2020 10:47:52 -0500
+X-MC-Unique: UM_qjk9iMqyjd3A6rIoaTQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4E5F9101603C;
-        Wed, 15 Jan 2020 15:44:01 +0000 (UTC)
-Received: from llong.com (dhcp-17-59.bos.redhat.com [10.18.17.59])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3189B675AE;
-        Wed, 15 Jan 2020 15:43:58 +0000 (UTC)
-From:   Waiman Long <longman@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>,
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 46AFA113E72C;
+        Wed, 15 Jan 2020 15:47:51 +0000 (UTC)
+Received: from llong.remote.csb (dhcp-17-59.bos.redhat.com [10.18.17.59])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6FBB11001B03;
+        Wed, 15 Jan 2020 15:47:50 +0000 (UTC)
+Subject: Re: [PATCH] locking/rwsem: Fix kernel crash when spinning on
+ RWSEM_OWNER_UNKNOWN
+To:     David Laight <David.Laight@ACULAB.COM>,
+        Christoph Hellwig <hch@lst.de>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
         Ingo Molnar <mingo@redhat.com>,
-        Will Deacon <will.deacon@arm.com>
-Cc:     linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>
-Subject: [PATCH v2] locking/rwsem: Fix kernel crash when spinning on RWSEM_OWNER_UNKNOWN
-Date:   Wed, 15 Jan 2020 10:43:36 -0500
-Message-Id: <20200115154336.8679-1-longman@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+        Will Deacon <will.deacon@arm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20200114190303.5778-1-longman@redhat.com>
+ <20200115065055.GA21219@lst.de>
+ <021830af-fd89-50e5-ad26-6061e5abdce1@redhat.com>
+ <45b976af3cf74555af7214993e7d614b@AcuMS.aculab.com>
+From:   Waiman Long <longman@redhat.com>
+Organization: Red Hat
+Message-ID: <4ac00b33-5397-3c69-6cba-cf3d9d375ea9@redhat.com>
+Date:   Wed, 15 Jan 2020 10:47:49 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
+MIME-Version: 1.0
+In-Reply-To: <45b976af3cf74555af7214993e7d614b@AcuMS.aculab.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The commit 91d2a812dfb9 ("locking/rwsem: Make handoff writer
-optimistically spin on owner") will allow a recently woken up waiting
-writer to spin on the owner. Unfortunately, if the owner happens to be
-RWSEM_OWNER_UNKNOWN, the code will incorrectly spin on it leading to a
-kernel crash. This is fixed by passing the proper non-spinnable bits
-to rwsem_spin_on_owner() so that RWSEM_OWNER_UNKNOWN will be treated
-as a non-spinnable target.
+On 1/15/20 10:16 AM, David Laight wrote:
+> From: linux-kernel-owner@vger.kernel.org <linux-kernel-owner@vger.kernel.org> On Behalf Of Waiman Long
+>> Sent: 15 January 2020 14:27
+> ...
+>>>>  		if ((wstate == WRITER_HANDOFF) &&
+>>>> -		    (rwsem_spin_on_owner(sem, 0) == OWNER_NULL))
+>>>> +		    rwsem_spin_on_owner(sem, RWSEM_NONSPINNABLE) == OWNER_NULL)
+>>> Nit: the inner braces in the first half of the conditional aren't required
+>>> either.
+>> I typically over-parenthesize the code to make it easier to read as we
+>> don't need to think too much about operator precedence to see if it is
+>> doing the right thing.
+> The problem is it actually makes it harder to read.
+> It is difficult for the 'mark 1 eyeball' to follow lots of sets of brackets.
+> Since == (etc) are the lowest priority operators (apart from ?:) they
+> never need ().
+>
+> 	David
+>
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
+>
+It depends. I find it hard to read an expression with "&" and "&&"
+without parentheses. Anyway, I will admit that the above code is
+inconsistent in term of how parentheses are used. So I will change that.
 
-Fixes: 91d2a812dfb9 ("locking/rwsem: Make handoff writer optimistically spin on owner")
-
-Reported-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Waiman Long <longman@redhat.com>
----
- kernel/locking/rwsem.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
-index 44e68761f432..0d9b6be9ecc8 100644
---- a/kernel/locking/rwsem.c
-+++ b/kernel/locking/rwsem.c
-@@ -1226,8 +1226,8 @@ rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
- 		 * In this case, we attempt to acquire the lock again
- 		 * without sleeping.
- 		 */
--		if ((wstate == WRITER_HANDOFF) &&
--		    (rwsem_spin_on_owner(sem, 0) == OWNER_NULL))
-+		if (wstate == WRITER_HANDOFF &&
-+		    rwsem_spin_on_owner(sem, RWSEM_NONSPINNABLE) == OWNER_NULL)
- 			goto trylock_again;
- 
- 		/* Block until there are no active lockers. */
--- 
-2.18.1
+Cheers,
+Longman
 
