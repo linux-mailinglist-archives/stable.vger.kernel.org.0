@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F34113BF37
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 13:09:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8396113C072
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 13:18:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730190AbgAOMJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 07:09:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35842 "EHLO mail.kernel.org"
+        id S1730731AbgAOMMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 07:12:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726165AbgAOMJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 07:09:48 -0500
+        id S1730712AbgAOMMo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jan 2020 07:12:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E1592077B;
-        Wed, 15 Jan 2020 12:09:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7F03222C3;
+        Wed, 15 Jan 2020 12:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579090186;
-        bh=a6WsApunUGe8/NnRAhqT82loyTnVDnSJkSjO4YtcwZs=;
+        s=default; t=1579090363;
+        bh=kypzZpemdJKRFn2CnBNOdJSHZf4jA8Wnruk8nPQ8AHI=;
         h=Subject:To:From:Date:From;
-        b=vv1DyQqZvgc8K8XkI9VEc/J5JWOKV7cfzS+Li3fkLyFV1J1kk2aGBMyAnBi9Cc7ZW
-         M37xbOKhOelXiu5nHCJi25LLcRuOs7HkWhaN6DY2r8fpCyG98lacerzdCB0h0DHS6H
-         JWD6BDMIB6u3YqzNJY3g2TUTLQ0qEzeomiZca5sc=
-Subject: patch "usb: gadget: f_ecm: Use atomic_t to track in-flight request" added to usb-next
-To:     bryan.odonoghue@linaro.org, balbi@kernel.org,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=eYetI6YQ05RjYeSt41Ax5GXsQJsCa65XzbEljD1Fs9Q82xzCQMrj4TA1IhmRrW/ex
+         TeJH8oEjFR+voirg9Y6Axow4JO6oHhzlcQZD51tQ+z/Jq1/Tie5h4VhKnElrGYB1n+
+         IIO3v0kqidGrld0XJDhN4q8yjhst1aGeKUcO6hKE=
+Subject: patch "staging: wlan-ng: ensure error return is actually returned" added to staging-testing
+To:     colin.king@canonical.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Jan 2020 13:08:56 +0100
-Message-ID: <157909013627195@kroah.com>
+Date:   Wed, 15 Jan 2020 13:12:40 +0100
+Message-ID: <1579090360237144@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,109 +40,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: f_ecm: Use atomic_t to track in-flight request
+    staging: wlan-ng: ensure error return is actually returned
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
 If you have any questions about this process, please let me know.
 
 
-From d710562e01c48d59be3f60d58b7a85958b39aeda Mon Sep 17 00:00:00 2001
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Date: Thu, 9 Jan 2020 13:17:22 +0000
-Subject: usb: gadget: f_ecm: Use atomic_t to track in-flight request
+From 4cc41cbce536876678b35e03c4a8a7bb72c78fa9 Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@canonical.com>
+Date: Tue, 14 Jan 2020 18:16:04 +0000
+Subject: staging: wlan-ng: ensure error return is actually returned
 
-Currently ecm->notify_req is used to flag when a request is in-flight.
-ecm->notify_req is set to NULL and when a request completes it is
-subsequently reset.
+Currently when the call to prism2sta_ifst fails a netdev_err error
+is reported, error return variable result is set to -1 but the
+function always returns 0 for success.  Fix this by returning
+the error value in variable result rather than 0.
 
-This is fundamentally buggy in that the unbind logic of the ECM driver will
-unconditionally free ecm->notify_req leading to a NULL pointer dereference.
-
-Fixes: da741b8c56d6 ("usb ethernet gadget: split CDC Ethernet function")
+Addresses-Coverity: ("Unused value")
+Fixes: 00b3ed168508 ("Staging: add wlan-ng prism2 usb driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/20200114181604.390235-1-colin.king@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ecm.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/staging/wlan-ng/prism2mgmt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_ecm.c b/drivers/usb/gadget/function/f_ecm.c
-index 460d5d7c984f..7f5cf488b2b1 100644
---- a/drivers/usb/gadget/function/f_ecm.c
-+++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -52,6 +52,7 @@ struct f_ecm {
- 	struct usb_ep			*notify;
- 	struct usb_request		*notify_req;
- 	u8				notify_state;
-+	atomic_t			notify_count;
- 	bool				is_open;
- 
- 	/* FIXME is_open needs some irq-ish locking
-@@ -380,7 +381,7 @@ static void ecm_do_notify(struct f_ecm *ecm)
- 	int				status;
- 
- 	/* notification already in flight? */
--	if (!req)
-+	if (atomic_read(&ecm->notify_count))
- 		return;
- 
- 	event = req->buf;
-@@ -420,10 +421,10 @@ static void ecm_do_notify(struct f_ecm *ecm)
- 	event->bmRequestType = 0xA1;
- 	event->wIndex = cpu_to_le16(ecm->ctrl_id);
- 
--	ecm->notify_req = NULL;
-+	atomic_inc(&ecm->notify_count);
- 	status = usb_ep_queue(ecm->notify, req, GFP_ATOMIC);
- 	if (status < 0) {
--		ecm->notify_req = req;
-+		atomic_dec(&ecm->notify_count);
- 		DBG(cdev, "notify --> %d\n", status);
+diff --git a/drivers/staging/wlan-ng/prism2mgmt.c b/drivers/staging/wlan-ng/prism2mgmt.c
+index 7350fe5d96a3..a8860d2aee68 100644
+--- a/drivers/staging/wlan-ng/prism2mgmt.c
++++ b/drivers/staging/wlan-ng/prism2mgmt.c
+@@ -959,7 +959,7 @@ int prism2mgmt_flashdl_state(struct wlandevice *wlandev, void *msgp)
+ 		}
  	}
- }
-@@ -448,17 +449,19 @@ static void ecm_notify_complete(struct usb_ep *ep, struct usb_request *req)
- 	switch (req->status) {
- 	case 0:
- 		/* no fault */
-+		atomic_dec(&ecm->notify_count);
- 		break;
- 	case -ECONNRESET:
- 	case -ESHUTDOWN:
-+		atomic_set(&ecm->notify_count, 0);
- 		ecm->notify_state = ECM_NOTIFY_NONE;
- 		break;
- 	default:
- 		DBG(cdev, "event %02x --> %d\n",
- 			event->bNotificationType, req->status);
-+		atomic_dec(&ecm->notify_count);
- 		break;
- 	}
--	ecm->notify_req = req;
- 	ecm_do_notify(ecm);
+ 
+-	return 0;
++	return result;
  }
  
-@@ -907,6 +910,11 @@ static void ecm_unbind(struct usb_configuration *c, struct usb_function *f)
- 
- 	usb_free_all_descriptors(f);
- 
-+	if (atomic_read(&ecm->notify_count)) {
-+		usb_ep_dequeue(ecm->notify, ecm->notify_req);
-+		atomic_set(&ecm->notify_count, 0);
-+	}
-+
- 	kfree(ecm->notify_req->buf);
- 	usb_ep_free_request(ecm->notify, ecm->notify_req);
- }
+ /*----------------------------------------------------------------
 -- 
 2.24.1
 
