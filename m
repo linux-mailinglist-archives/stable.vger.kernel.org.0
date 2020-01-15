@@ -2,93 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F019B13C5F4
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 15:28:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41FD613C5FC
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 15:29:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726566AbgAOO1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 09:27:22 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:24549 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726472AbgAOO1W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 09:27:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579098442;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=vVwo9D//7EZc6w4rGHFygYSsWAT2K7IH/zSD8SF2614=;
-        b=M7qaDjxhlewW3RMiXKx0l2vr0GSjAW9/XwY6hAM3jfZD0mXKskTJN3trRgeUElBfPwh7uh
-        tUfOCvQe21k5U5hjPJu8uzAXtlok2AOrf7yPGOS6wrLkAtgKgDGp59BwHADGAx6ENfeCDv
-        k1AlnOX0ztZKBNw3Wgz2ax2ksYaWAn0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-375-oaRjp2R1PiWVqv_kEv8Dmg-1; Wed, 15 Jan 2020 09:27:18 -0500
-X-MC-Unique: oaRjp2R1PiWVqv_kEv8Dmg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1728915AbgAOO3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 09:29:34 -0500
+Received: from mout-p-202.mailbox.org ([80.241.56.172]:27186 "EHLO
+        mout-p-202.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726472AbgAOO3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 09:29:34 -0500
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:105:465:1:2:0])
+        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 68761101EC29;
-        Wed, 15 Jan 2020 14:27:17 +0000 (UTC)
-Received: from llong.remote.csb (dhcp-17-59.bos.redhat.com [10.18.17.59])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A5B0A60E1C;
-        Wed, 15 Jan 2020 14:27:16 +0000 (UTC)
-Subject: Re: [PATCH] locking/rwsem: Fix kernel crash when spinning on
- RWSEM_OWNER_UNKNOWN
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Will Deacon <will.deacon@arm.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20200114190303.5778-1-longman@redhat.com>
- <20200115065055.GA21219@lst.de>
-From:   Waiman Long <longman@redhat.com>
-Organization: Red Hat
-Message-ID: <021830af-fd89-50e5-ad26-6061e5abdce1@redhat.com>
-Date:   Wed, 15 Jan 2020 09:27:16 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        by mout-p-202.mailbox.org (Postfix) with ESMTPS id 47yV8B237XzQlFL;
+        Wed, 15 Jan 2020 15:29:30 +0100 (CET)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp2.mailbox.org ([80.241.60.241])
+        by hefe.heinlein-support.de (hefe.heinlein-support.de [91.198.250.172]) (amavisd-new, port 10030)
+        with ESMTP id o4BxKWcuHAkh; Wed, 15 Jan 2020 15:29:23 +0100 (CET)
+Date:   Thu, 16 Jan 2020 01:29:06 +1100
+From:   Aleksa Sarai <cyphar@cyphar.com>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        stable <stable@vger.kernel.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+Message-ID: <20200115142906.saagd2lse7i7njux@yavin>
+References: <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
+ <20200101234009.GB8904@ZenIV.linux.org.uk>
+ <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
+ <20200103014901.GC8904@ZenIV.linux.org.uk>
+ <20200108031314.GE8904@ZenIV.linux.org.uk>
+ <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
+ <20200110210719.ktg3l2kwjrdutlh6@yavin>
+ <20200114045733.GW8904@ZenIV.linux.org.uk>
+ <20200114200150.ryld4npoblns2ybe@yavin>
+ <20200115142517.GI8904@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-In-Reply-To: <20200115065055.GA21219@lst.de>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="jicj4wr2fyynqqnx"
+Content-Disposition: inline
+In-Reply-To: <20200115142517.GI8904@ZenIV.linux.org.uk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/15/20 1:50 AM, Christoph Hellwig wrote:
-> On Tue, Jan 14, 2020 at 02:03:03PM -0500, Waiman Long wrote:
->> The commit 91d2a812dfb9 ("locking/rwsem: Make handoff writer
->> optimistically spin on owner") will allow a recently woken up waiting
->> writer to spin on the owner. Unfortunately, if the owner happens to be
->> RWSEM_OWNER_UNKNOWN, the code will incorrectly spin on it leading to a
->> kernel crash. This is fixed by passing the proper non-spinnable bits
->> to rwsem_spin_on_owner() so that RWSEM_OWNER_UNKNOWN will be treated
->> as a non-spinnable target.
->>
->> Fixes: 91d2a812dfb9 ("locking/rwsem: Make handoff writer optimistically spin on owner")
->>
->> Reported-by: Christoph Hellwig <hch@lst.de>
->> Signed-off-by: Waiman Long <longman@redhat.com>
-> This survives all the tests that showed the problems with the original
-> code:
->
-> Tested-by: Christoph Hellwig <hch@lst.de>
->
->>  		if ((wstate == WRITER_HANDOFF) &&
->> -		    (rwsem_spin_on_owner(sem, 0) == OWNER_NULL))
->> +		    rwsem_spin_on_owner(sem, RWSEM_NONSPINNABLE) == OWNER_NULL)
-> Nit: the inner braces in the first half of the conditional aren't required
-> either.
 
-I typically over-parenthesize the code to make it easier to read as we
-don't need to think too much about operator precedence to see if it is
-doing the right thing. I remove the 2nd parentheses to avoid breaking
-the 80-colnum limit.
+--jicj4wr2fyynqqnx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-Longman
+On 2020-01-15, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> On Wed, Jan 15, 2020 at 07:01:50AM +1100, Aleksa Sarai wrote:
+>=20
+> > Yes, there were two patches I sent a while ago[1]. I can re-send them if
+> > you like. The second patch switches open_how->mode to a u64, but I'm
+> > still on the fence about whether that makes sense to do...
+>=20
+> IMO plain __u64 is better than games with __aligned_u64 - all sizes are
+> fixed, so...
+>=20
+> > [1]: https://lore.kernel.org/lkml/20191219105533.12508-1-cyphar@cyphar.=
+com/
+>=20
+> Do you want that series folded into "open: introduce openat2(2) syscall"
+> and "selftests: add openat2(2) selftests" or would you rather have them
+> appended at the end of the series.  Personally I'd go for "fold them in"
+> if it had been about my code, but it's really up to you.
 
+"fold them in" would probably be better to avoid making the mainline
+history confusing afterwards. Thanks.
+
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
+
+--jicj4wr2fyynqqnx
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXh8hrwAKCRCdlLljIbnQ
+Eg7QAP91xggZVGKm7aFrAM05CS20D+mj/0AuHhgnu+nz3X+6qwD9FPEQyNWth7f6
+RpocX3ojVl40GZTohTHSOJag04kTbAQ=
+=WA+D
+-----END PGP SIGNATURE-----
+
+--jicj4wr2fyynqqnx--
