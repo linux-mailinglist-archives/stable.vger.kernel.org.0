@@ -2,96 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 015D013CD6F
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 20:51:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F38D013CE5D
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 21:57:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729324AbgAOTuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 14:50:02 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:33049 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726362AbgAOTuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 14:50:02 -0500
-Received: by mail-lj1-f194.google.com with SMTP id y6so19949349lji.0
-        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 11:50:01 -0800 (PST)
+        id S1726220AbgAOU5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 15:57:01 -0500
+Received: from mail-bn8nam11on2086.outbound.protection.outlook.com ([40.107.236.86]:13732
+        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726187AbgAOU5A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jan 2020 15:57:00 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OPXdiRNq90ZQ2NhRVJq76nj4Lp60NFIG0CaNtA6PAORX8c+WNMwrqDZl6+1kPgRYKDsIHlE0IY6UqFn6Tn5fxBM1BUXdAM0ZHoMlKruRZVCL+A7ebsgxB8ia7Q3Dx/N1Cp7e8PWDsIdHRt3eDSmYlILPwS4ogtwMDUZAI52v29uNJ3hE3xyXWDUMHA6WjLeBWXEOxWuz8zxO+hTmipqUv/PfnDVM8ILdyhMRT2asxZEomQr1bg/15Z6vj4H2Q2ziA70LC2qbwhYBB9fcojvFRx7ucYLiD0hpiGA8ISv+2zCvjUf8DnunnSl07wyXCP60ikkFxm5HcxThN0CpEfa73A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=pH4gLbyDBq+mXreWpBp3+hZYozepLeXik/FCwinlK1M=;
+ b=bE6wnG48o45UZNUpRPnv7FXQdxwBPNuDoOoDBwcqXddeDxUBifvGlFy3fVV9aTiur2BjWVgzj2tPaFMiVT9VSAH5i5+G+ZEj5IzshyrTHeJ9PxThRybtUZyY2q1IOo1WJ5bl0/js0HR6PHCVnR4lQCUGzWX6Fslgl/vswbUKkoxqrZ01/JEw/7AtaoNDoSQDehN4VjtHpBTe9ZvwyVST7CeC2qCs0vGF8CTplm5nGkj44MTPPkeyhJwNbzeoX75kieOQ2zyhqUqJr+PPLYHYWRegktPh4MgjcN0iw64EX8QLYIAzd0o0NFGda/jGupIUZPMj4annkIVWwIOd+bzm4A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=b5YJji0qsgvZEhJKmEybkUMk9F7tRfYQ2btF70jS2bQ=;
-        b=Q3dtBuyAAYaVR6kphmaXQdQwAqXGs7+IXkxkA97uPulSCLsjbwLbDIpcd20aDV8CNF
-         h6zeg+gwF07nqSczDspewMKk/CFEcITv26d5UJTH0S6cCJwGyeQ1fLw049up9t2GG2tL
-         F/iGyp8+dSJcV2e9mBFerylantrs7S6j5879U=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=b5YJji0qsgvZEhJKmEybkUMk9F7tRfYQ2btF70jS2bQ=;
-        b=Ijn6gpl8N66kGcgEVmR47gt1IYbbNZ9P36IOU7xX5mU1/7aiL2T+paDmxNxJaOBT4z
-         nvzsJJzfzPrKqhOOaqf4u0hIfLeEBBOTeNPI69h8f+yKzD/x7Pt9nhZwUxjnz94KEWDP
-         sJ7cxxFjRS/+eQoAXVp+dF9stU4H6bgKn/ZjqXIV0XnZ/wz+PEeEmq/CbOYTGO49q/9A
-         03FnGueE5ROFB/gn7WI2TnjlRsAL9MxpoOyGYD2eTpGk5znafnfx2YCeyv/7M6Ep9/Tf
-         Nw50xw7WLXx0Yep1U2kbDgHO08RsFHDe+LddblnW65ENsCJjFm/BzSgMewtK6Uzfifgu
-         oB5Q==
-X-Gm-Message-State: APjAAAUQ1z4iVTbIlrIUhWaveLyXXihBE4YJWEdvo29ekHX8uYhFtveW
-        cNu3IhEV8HuRJq8eMx3KFo/ACh2p4NM=
-X-Google-Smtp-Source: APXvYqypQwyPSGWiKtPPqpoE26/Tn8rTBX78BiloKSv3f7aLcblT+x4OQwHz+1vp9i9SkrC6hUkBig==
-X-Received: by 2002:a2e:9ad0:: with SMTP id p16mr33567ljj.111.1579117799890;
-        Wed, 15 Jan 2020 11:49:59 -0800 (PST)
-Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
-        by smtp.gmail.com with ESMTPSA id u18sm9928918lje.69.2020.01.15.11.49.58
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jan 2020 11:49:58 -0800 (PST)
-Received: by mail-lj1-f179.google.com with SMTP id j1so19902739lja.2
-        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 11:49:58 -0800 (PST)
-X-Received: by 2002:a05:651c:282:: with SMTP id b2mr37224ljo.41.1579117798263;
- Wed, 15 Jan 2020 11:49:58 -0800 (PST)
-MIME-Version: 1.0
-References: <CACMCwJLJCA2iXS0QMKKAWQv252oUcmfsNvwDNP5+4Z_9VB-rTg@mail.gmail.com>
- <5C216684-6FDF-41B5-9F51-89DC295F6DDC@amacapital.net> <CACMCwJLogOH-nG7QEMzrXK-iJPOdzCrL05y0a6yAbtPsfdRjsQ@mail.gmail.com>
-In-Reply-To: <CACMCwJLogOH-nG7QEMzrXK-iJPOdzCrL05y0a6yAbtPsfdRjsQ@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 15 Jan 2020 11:49:42 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wiqPHc=BzSYO4N=awucq0td3s9VuBkct=m-B_xZVCgzBg@mail.gmail.com>
-Message-ID: <CAHk-=wiqPHc=BzSYO4N=awucq0td3s9VuBkct=m-B_xZVCgzBg@mail.gmail.com>
-Subject: Re: Fix built-in early-load Intel microcode alignment
-To:     Jari Ruusu <jari.ruusu@gmail.com>, Ashok Raj <ashok.raj@intel.com>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
-        Luis Chamberlain <mcgrof@kernel.org>,
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=pH4gLbyDBq+mXreWpBp3+hZYozepLeXik/FCwinlK1M=;
+ b=TXLO99myy+jjEY/6iRdXcNc7WRQiwkeYk3CyMQMZMXyGfJo5CKFJOX8VOVP+juL7s/BZnKUgnhpYye0MjctcpyG03A8TbYEpyUntuN4R3lc3xPqqtrTBhZRUXtvo8Q5+TUvyZ+7rS09ySni/arsY7b3Zy/SD6vSWmNwsbLKCKMg=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=kim.phillips@amd.com; 
+Received: from SN6PR12MB2845.namprd12.prod.outlook.com (52.135.106.33) by
+ SN6PR12MB2814.namprd12.prod.outlook.com (52.135.104.161) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2644.18; Wed, 15 Jan 2020 20:56:57 +0000
+Received: from SN6PR12MB2845.namprd12.prod.outlook.com
+ ([fe80::48af:8c71:edee:5bc]) by SN6PR12MB2845.namprd12.prod.outlook.com
+ ([fe80::48af:8c71:edee:5bc%7]) with mapi id 15.20.2644.015; Wed, 15 Jan 2020
+ 20:56:56 +0000
+From:   Kim Phillips <kim.phillips@amd.com>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        kim.phillips@amd.com
+Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Babu Moger <babu.moger@amd.com>,
         Borislav Petkov <bp@alien8.de>,
-        Fenghua Yu <fenghua.yu@intel.com>, johannes.berg@intel.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Frank van der Linden <fllinden@amazon.com>,
+        "H . Peter Anvin" <hpa@zytor.com>, Huang Rui <ray.huang@amd.com>,
+        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Luwei Kang <luwei.kang@intel.com>,
+        =?UTF-8?q?Martin=20Li=C5=A1ka?= <mliska@suse.cz>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 1/2 RESEND] perf/x86/amd: Add missing L2 misses event spec to AMD Family 17h's event map
+Date:   Wed, 15 Jan 2020 14:56:45 -0600
+Message-Id: <20200115205646.10678-1-kim.phillips@amd.com>
+X-Mailer: git-send-email 2.24.1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: SN4PR0201CA0066.namprd02.prod.outlook.com
+ (2603:10b6:803:20::28) To SN6PR12MB2845.namprd12.prod.outlook.com
+ (2603:10b6:805:75::33)
+MIME-Version: 1.0
+Received: from fritz.amd.com (165.204.77.1) by SN4PR0201CA0066.namprd02.prod.outlook.com (2603:10b6:803:20::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2623.13 via Frontend Transport; Wed, 15 Jan 2020 20:56:55 +0000
+X-Mailer: git-send-email 2.24.1
+X-Originating-IP: [165.204.77.1]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: f2ef0e9d-cc8f-455e-94cb-08d799fd750c
+X-MS-TrafficTypeDiagnostic: SN6PR12MB2814:|SN6PR12MB2814:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <SN6PR12MB2814341FA5D015F4F10B45D687370@SN6PR12MB2814.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Forefront-PRVS: 02830F0362
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(376002)(396003)(366004)(39860400002)(136003)(189003)(199004)(6486002)(316002)(110136005)(966005)(86362001)(66556008)(66476007)(1076003)(66946007)(54906003)(7416002)(36756003)(6666004)(2906002)(44832011)(5660300002)(2616005)(7696005)(81166006)(16526019)(81156014)(8936002)(4326008)(8676002)(186003)(26005)(956004)(52116002)(478600001);DIR:OUT;SFP:1101;SCL:1;SRVR:SN6PR12MB2814;H:SN6PR12MB2845.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+Received-SPF: None (protection.outlook.com: amd.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: SMct4pJdxsR3uwJrocIwtWkNIjmr3eZyYfu54Yea+46T+2nfmNJfR1yl2JBVrHG0X+CmKifT6G0AYujhvXAojzezxEUZz2CDbSBRNYQQft9mSDKEhuHNZmwSTe26P2FNatGIVSyVCd7k4mPhTC2UrQxilsqGJ+jB55pDlzmWi+UbKx9Mqi8YmFDwulxC2q+pG9wTRNb+pCSaw4JyyzQH8+eADOrIzr43PnyaxfDrOIgJ72s8XuUPDPiNoiFJUbk+vcu3mLaADVQXv0CcrQ7RPPfx8B00lVoSaH8rbOmZnSJu4aTr8pSl8T4E61NUkut8Hecz1UuST7nt60VCXQggIxDlmw2bdc3FJjinMMGhrICc76TQklbraH49T5ZSCRGiLGRAQfTyrqIdqJlp5pBI3d8zT+gj0fa1bG8Ij9O/KCn1sO8RJIZQobzsaxpDlAJFyDUig/bW5GTMOVM+Hw/9+t22R1bmsqKsoHI7t1JXVtw=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f2ef0e9d-cc8f-455e-94cb-08d799fd750c
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jan 2020 20:56:56.8237
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ih3QdNaqfB1fU90b4uazrSdxb1NP5r3dojvEAtB//jjErneJIRw4S3+7ni7ivRSA6/d0dbszKd5/wNbcrhKXyw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR12MB2814
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 15, 2020 at 11:15 AM Jari Ruusu <jari.ruusu@gmail.com> wrote:
->
-> No problem at microcode load time.
-> Hard lockup after 1-2 days of use.
+Commit 3fe3331bb285 ("perf/x86/amd: Add event map for AMD Family 17h"),
+claimed L2 misses were unsupported, due to them not being found in its
+referenced documentation, whose link has now moved [1].
 
-That is "interesting".
+That old documentation listed PMCx064 unit mask bit 3 as:
 
-However, the most likely cause is that you have a borderline dodgy
-system, and the microcode update then just triggers a pre-existing
-problem.
+    "LsRdBlkC: LS Read Block C S L X Change to X Miss."
 
-Possibly because of how newer microcode will have things like "VERW
-now flushes CPU buffers" etc.
+and bit 0 as:
 
-But it might be worth it if the intel people could check up with their
-microcode people on this anyway - if there is _one_ report of "my
-system locks up with newer ucode", that's one thing. But if Jari isn't
-alone...
+    "IcFillMiss: IC Fill Miss"
 
-I don't know who the right intel person would be. There's a couple of
-Intel people on the cc (and I added one more at random), can you try
-to see if somebody would be aware of or interested in that "ucode
-problems with i5-7200U (fam 6 model 142 step 9 pf 0x80)"
+We now have new public documentation [2] with improved descriptions, that
+clearly indicate what events those unit mask bits represent:
 
-               Linus
+Bit 3 now clearly states:
+
+    "LsRdBlkC: Data Cache Req Miss in L2 (all types)"
+
+and bit 0 is:
+
+    "IcFillMiss: Instruction Cache Req Miss in L2."
+
+So we can now add support for L2 misses in perf's genericised events as
+PMCx064 with both the above unit masks.
+
+[1] The commit's original documentation reference, "Processor Programming
+    Reference (PPR) for AMD Family 17h Model 01h, Revision B1 Processors",
+    originally available here:
+
+        https://www.amd.com/system/files/TechDocs/54945_PPR_Family_17h_Models_00h-0Fh.pdf
+
+    is now available here:
+
+        https://developer.amd.com/wordpress/media/2017/11/54945_PPR_Family_17h_Models_00h-0Fh.pdf
+
+[2] "Processor Programming Reference (PPR) for Family 17h Model 31h,
+    Revision B0 Processors", available here:
+
+	https://developer.amd.com/wp-content/resources/55803_0.54-PUB.pdf
+
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Babu Moger <babu.moger@amd.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Frank van der Linden <fllinden@amazon.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Huang Rui <ray.huang@amd.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
+Cc: Jan Beulich <jbeulich@suse.com>
+Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Luwei Kang <luwei.kang@intel.com>
+Cc: Martin Liška <mliska@suse.cz>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: x86@kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Reported-by: Babu Moger <babu.moger@amd.com>
+Tested-by: Babu Moger <babu.moger@amd.com>
+Fixes: 3fe3331bb285 ("perf/x86/amd: Add event map for AMD Family 17h")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+---
+RESENDing because I wasn't sure if the original version of this patch would get
+ignored because it was sent with "[PATCH internal v2]" in the subject line:
+
+	https://lkml.org/lkml/2020/1/8/894
+
+FWIW, I updated the Cc list to merge with those in patch 2/2 of this series.
+
+ arch/x86/events/amd/core.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/x86/events/amd/core.c b/arch/x86/events/amd/core.c
+index 1f22b6bbda68..39eb276d0277 100644
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -250,6 +250,7 @@ static const u64 amd_f17h_perfmon_event_map[PERF_COUNT_HW_MAX] =
+ 	[PERF_COUNT_HW_CPU_CYCLES]		= 0x0076,
+ 	[PERF_COUNT_HW_INSTRUCTIONS]		= 0x00c0,
+ 	[PERF_COUNT_HW_CACHE_REFERENCES]	= 0xff60,
++	[PERF_COUNT_HW_CACHE_MISSES]		= 0x0964,
+ 	[PERF_COUNT_HW_BRANCH_INSTRUCTIONS]	= 0x00c2,
+ 	[PERF_COUNT_HW_BRANCH_MISSES]		= 0x00c3,
+ 	[PERF_COUNT_HW_STALLED_CYCLES_FRONTEND]	= 0x0287,
+-- 
+2.24.1
+
