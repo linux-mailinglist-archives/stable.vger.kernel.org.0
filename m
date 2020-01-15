@@ -2,73 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF1F13C8A6
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 17:02:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83CDA13C9DF
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 17:44:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728986AbgAOQBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 11:01:33 -0500
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:57834 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726483AbgAOQBd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 11:01:33 -0500
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-48-aB_HKFAFOgqZVfOEL6ySEg-1; Wed, 15 Jan 2020 16:01:29 +0000
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Wed, 15 Jan 2020 16:01:28 +0000
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Wed, 15 Jan 2020 16:01:28 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Waiman Long' <longman@redhat.com>, Christoph Hellwig <hch@lst.de>
-CC:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Will Deacon <will.deacon@arm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] locking/rwsem: Fix kernel crash when spinning on
- RWSEM_OWNER_UNKNOWN
-Thread-Topic: [PATCH] locking/rwsem: Fix kernel crash when spinning on
- RWSEM_OWNER_UNKNOWN
-Thread-Index: AQHVy6/pULnrp2X9K02rMSrf0oH55Kfr1QMwgAAJ44CAAAJXgA==
-Date:   Wed, 15 Jan 2020 16:01:28 +0000
-Message-ID: <8930570b92aa435b941c99dff00c7802@AcuMS.aculab.com>
-References: <20200114190303.5778-1-longman@redhat.com>
- <20200115065055.GA21219@lst.de>
- <021830af-fd89-50e5-ad26-6061e5abdce1@redhat.com>
- <45b976af3cf74555af7214993e7d614b@AcuMS.aculab.com>
- <4ac00b33-5397-3c69-6cba-cf3d9d375ea9@redhat.com>
-In-Reply-To: <4ac00b33-5397-3c69-6cba-cf3d9d375ea9@redhat.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1728899AbgAOQob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 11:44:31 -0500
+Received: from foss.arm.com ([217.140.110.172]:39868 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728896AbgAOQob (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jan 2020 11:44:31 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E9EB6328;
+        Wed, 15 Jan 2020 08:44:30 -0800 (PST)
+Received: from [10.1.197.1] (ewhatever.cambridge.arm.com [10.1.197.1])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2B5AC3F718;
+        Wed, 15 Jan 2020 08:44:30 -0800 (PST)
+Subject: Re: [stable] [PATCH 1/2] coresight: etb10: Do not call
+ smp_processor_id from preemptible
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, mathieu.poirier@linaro.org,
+        linux-kernel@vger.kernel.org
+References: <20200108110541.318672-1-suzuki.poulose@arm.com>
+ <20200109143537.GE1706@sasha-vm>
+ <a183da32-b933-6ed0-f8b8-703e27d3f15e@arm.com>
+ <20200115151118.GC3740793@kroah.com>
+From:   Suzuki Kuruppassery Poulose <suzuki.poulose@arm.com>
+Message-ID: <d3cd59e0-8fa2-9e69-534f-15f13cb14897@arm.com>
+Date:   Wed, 15 Jan 2020 16:44:29 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.1
 MIME-Version: 1.0
-X-MC-Unique: aB_HKFAFOgqZVfOEL6ySEg-1
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+In-Reply-To: <20200115151118.GC3740793@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogV2FpbWFuIExvbmcNCj4gU2VudDogMTUgSmFudWFyeSAyMDIwIDE1OjQ4DQouLi4NCj4g
-SXQgZGVwZW5kcy4gSSBmaW5kIGl0IGhhcmQgdG8gcmVhZCBhbiBleHByZXNzaW9uIHdpdGggIiYi
-IGFuZCAiJiYiDQo+IHdpdGhvdXQgcGFyZW50aGVzZXMuIEFueXdheSwgSSB3aWxsIGFkbWl0IHRo
-YXQgdGhlIGFib3ZlIGNvZGUgaXMNCj4gaW5jb25zaXN0ZW50IGluIHRlcm0gb2YgaG93IHBhcmVu
-dGhlc2VzIGFyZSB1c2VkLiBTbyBJIHdpbGwgY2hhbmdlIHRoYXQuDQoNCkNvbmRpdGlvbmFscyBj
-b250YWluaW5nIGZyYWdtZW50cyBsaWtlIChhID09IGIgJiYgYyA9PSBkICYmIC4uLikNCmFyZSBt
-dWNoIGVhc2llciB0byByZWFkIHdpdGhvdXQgYW55IGV4dHJhICgpLg0KDQpUaGUgb25seSBwcm9i
-bGVtIHdpdGggJiYgaXMgdGhhdCB3aGVuIEsmUiBhZGRlZCBpdCB0byBDIHRoZXkgZGlkbid0DQpj
-aGFuZ2UgdGhlIHByaW9yaXR5IG9mICYgdG8gYmUgaGlnaGVyIHRoYW4gPT0gKHdoZXJlIGl0IHNo
-b3VsZCBiZSkuDQpBdCB0aGF0IHRpbWUgdGhleSBjb3VsZCBoYXZlIGNoYW5nZWQgYWxsIHRoZSBl
-eGlzdGluZyBjb2RlLi4uDQpNb2Rlcm4gY29tcGlsZXJzIGRvIHdhcm4gYWJvdXQgKGEgPT0gYiAm
-IGMpLg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5
-IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRp
-b24gTm86IDEzOTczODYgKFdhbGVzKQ0K
 
+Hi Greg,
+
+On 15/01/2020 15:11, Greg KH wrote:
+> On Thu, Jan 09, 2020 at 02:36:17PM +0000, Suzuki Kuruppassery Poulose wrote:
+>> On 09/01/2020 14:35, Sasha Levin wrote:
+>>> On Wed, Jan 08, 2020 at 11:05:40AM +0000, Suzuki K Poulose wrote:
+>>>> [ Upstream commit 730766bae3280a25d40ea76a53dc6342e84e6513 ]
+>>>>
+>>>> During a perf session we try to allocate buffers on the "node" associated
+>>>> with the CPU the event is bound to. If it is not bound to a CPU, we
+>>>> use the current CPU node, using smp_processor_id(). However this is
+>>>> unsafe
+>>>> in a pre-emptible context and could generate the splats as below :
+>>>>
+>>>> BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
+>>>>
+>>>> Use NUMA_NO_NODE hint instead of using the current node for events
+>>>> not bound to CPUs.
+>>>>
+>>>> Fixes: 2997aa4063d97fdb39 ("coresight: etb10: implementing AUX API")
+>>>> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+>>>> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+>>>> Cc: stable <stable@vger.kernel.org> # v4.9 to v4.19
+>>>> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+>>>> Link: https://lore.kernel.org/r/20190620221237.3536-5-mathieu.poirier@linaro.org
+>>>>
+>>>
+>>> I've queued this for 4.9-4.19. There was a simple conflict on 4.9 which
+>>> also had to be resolved.
+>>>
+>>
+>>
+>> Thanks Sasha !
+> 
+> Note, these had to all be dropped as they broke the build :(
+> 
+> So can you please send us patches that at least build?  :)
+> 
+
+Do you have a build failure log ? I did build test it before sending it 
+over. I tried it again on 4.9, 4.14 and 4.19. I don't hit any build
+failures here.
+
+Please could you share the log if you have it handy ?
+
+Suzuki
