@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DB813C809
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 16:38:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A663A13C80C
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 16:39:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726506AbgAOPiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 10:38:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59888 "EHLO mail.kernel.org"
+        id S1726474AbgAOPja (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 10:39:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726483AbgAOPiv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 10:38:51 -0500
+        id S1726248AbgAOPja (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jan 2020 10:39:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D5082053B;
-        Wed, 15 Jan 2020 15:38:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57038214AF;
+        Wed, 15 Jan 2020 15:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579102731;
-        bh=VfAhkaKAnkXX62rx+rVpmNr9hKaz+vBQnrH8Eb5sEB8=;
+        s=default; t=1579102769;
+        bh=Czm7O4xlrA76ORUQA4ublXLe9QTbxukNjkoQAqDJmZQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AWGat0U491gn56f4Zn/NrrYtO03jORHTmWOP7Ilf1CJt8VcyTron/QzXC0528foXg
-         v1vrML4Vg8Bn9xqhBofwHahA5viktAz35amHvJCZP0cYqq691dH0wr8pI/pCPXWIS2
-         Spglh7pUMjkoVyDYwFe8LTuYmcjLUc1pBp+YQ08k=
-Date:   Wed, 15 Jan 2020 16:38:48 +0100
+        b=Nt3sz3xJSj5mnpp9aDe3ZF+WlgSkUuOtU04kRrrZklb9nrbF5bEvQ21qvaAvnAuaA
+         vMozH967m6RHl7XHo6/gB+n9hmKmsH1rhliKianWeb6neNMgKWjICs661gHh8HIfHE
+         lz1xBdjuezfWeOHt7a80i8sysxqhkm0K+mhmIfas=
+Date:   Wed, 15 Jan 2020 16:39:27 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     David Hildenbrand <david@redhat.com>
 Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
@@ -34,40 +34,63 @@ Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
         Andrew Morton <akpm@linux-foundation.org>,
         Laurent Vivier <lvivier@redhat.com>,
         Baoquan He <bhe@redhat.com>
-Subject: Re: [PATCH for 4.19-stable 08/25] mm, memory_hotplug: update a
- comment in unregister_memory()
-Message-ID: <20200115153848.GB3881751@kroah.com>
+Subject: Re: [PATCH for 4.19-stable 00/25] mm/memory_hotplug: backport of
+ pending stable fixes
+Message-ID: <20200115153927.GC3881751@kroah.com>
 References: <20200115153339.36409-1-david@redhat.com>
- <20200115153339.36409-9-david@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200115153339.36409-9-david@redhat.com>
+In-Reply-To: <20200115153339.36409-1-david@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 15, 2020 at 04:33:22PM +0100, David Hildenbrand wrote:
-> commit 16df1456aa858a86f398dbc7d27649eb6662b0cc upstream.
+On Wed, Jan 15, 2020 at 04:33:14PM +0100, David Hildenbrand wrote:
+> This is the backport of the following fixes for 4.19-stable:
 > 
-> The remove_memory_block() function was renamed to in commit
-> cc292b0b4302 ("drivers/base/memory.c: rename remove_memory_block() to
-> remove_memory_section()").
+> - a31b264c2b41 ("mm/memory_hotplug: make
+>   unregister_memory_block_under_nodes() never fail")
+> -- Turned out to not only be a cleanup but also a fix
+> - 2c91f8fc6c99 ("mm/memory_hotplug: fix try_offline_node()")
+> -- Automatic stable backport failed due to missing dependencies.
+> - feee6b298916 ("mm/memory_hotplug: shrink zones when offlining memory")
+> -- Was marked as stable 5.0+ due to the backport complexity,, but it's also
+>    relevant for 4.19/4.14. As I have to backport quite some cleanups
+>    already ...
 > 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  drivers/base/memory.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> To minimize manual code changes, I decided to pull in quite some cleanups.
+> Still some manual code changes are necessary (indicated in the individual
+> patches). Especially missing arm64 hot(un)plug, missing sub-section hotadd
+> support, and missing unification of mm/hmm.c and kernel/memremap.c requires
+> care.
+> 
+> Due to:
+> - 4e0d2e7ef14d ("mm, sparse: pass nid instead of pgdat to
+>   sparse_add_one_section()")
+> I need:
+> - afe9b36ca890 ("mm/memunmap: don't access uninitialized memmap in
+>   memunmap_pages()")
+> 
+> Please note that:
+> - 4c4b7f9ba948 ("mm/memory_hotplug: remove memory block devices
+>   before arch_remove_memory()")
+> Makes big (e.g., 32TB) machines boot up slower (e.g., 2h vs 10m). There is
+> a performance fix in linux-next, but it does not seem to classify as a
+> fix for current RC / stable.
+> 
+> I did quite some testing with hot(un)plug, onlining/offlining of memory
+> blocks and memory-less/CPU-less NUMA nodes under x86_64 - the same set of
+> tests I run against upstream on a fairly regular basis. I compile-tested
+> on PowerPC. I did not test any ZONE_DEVICE/HMM thingies.
+> 
+> Let's see what people think - it's a lot of patches. If we want this,
+> then I can try to prepare a similar set for 4.4-stable.
 
-I just picked a random patch out of this series as an example to show
-that you lost the authorship information on these.  This was originally
-created by Dan, so that needs to be here with a "From:" line.
+What bug(s) are these trying to fix here?
 
-All of these need to be fixed up that way, I can't take them as-is,
-sorry.
+And why would 4.9 and 4.4 care about them?
 
 thanks,
 
