@@ -2,129 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D820C13C2B6
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 14:26:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D54E513C43F
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 14:57:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726501AbgAON0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 08:26:51 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:40609 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726248AbgAON0u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 08:26:50 -0500
-Received: by mail-lj1-f193.google.com with SMTP id u1so18552526ljk.7;
-        Wed, 15 Jan 2020 05:26:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:in-reply-to:references:date:message-id
-         :mime-version;
-        bh=BNgZyNR9g9I8cL/8kYFEhAhW0Tg8IwdiIKGKieeU8/c=;
-        b=m4e7OtAp+BqxAcJ9kneipNfLe8d43ZOMompiFjW3D81N6nNjfVRj0+HvPHD1hu4g5d
-         2261Hy8+9CQblWYKIRgPAf7DAWZvggO/cIOH9Jl1BBY/rXNq20/AxwnVnjxOKtY6+KNM
-         fPsGWLANYluCgrqiuOh7JeDqVC+vd15pC8+bbpXAnO4OpK2OcWdHb4RHeTqWKt83I8uh
-         ipB4p8aovM+2J53w+Ghere+/cAEuNGhWIdLkKb+5hrdMeZWI+dOdeMj5cCCQNAl8LfV5
-         vBZW3Gb6wFeEx38IBhn/eqC97ZAtTGw0La9QbPaZpAnXJV10WeVnE7EMdhL3k4gCdFaZ
-         QzXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:in-reply-to:references
-         :date:message-id:mime-version;
-        bh=BNgZyNR9g9I8cL/8kYFEhAhW0Tg8IwdiIKGKieeU8/c=;
-        b=hi0FefKcD09wEFt49sVf6Tf0mUdvHgh3Un7xOpP213x/geKv3sALJMsUqRiJVqZWZV
-         1o3zUsXvMuHvKBWpJCDsHgT01yNJCSBnGA07CJK32r1O0cWcaxXKwauN4OgXoR4a7itF
-         Hl1KqpSz+LJdxZj+m+r2GYJHX/0WuKuxtwR4ijzBUVtyHA1WP1ci/8mLaKOc+loYPbja
-         OoQ1FL4y23czsoozZC8fZvYjmxpiSO3EMfllNQxpYDMw0YGfzRCkJHLmTaOo/ECTueyM
-         FGbTaEZxfWzh4fmZ7RSk7qKdAdZGOlLM2fKzcpBXJTMbzchZFtqGO3aBDFi2p70krc6e
-         lyPw==
-X-Gm-Message-State: APjAAAXbhJfKt2nwlgoQDRYJKZpXaCMw6igIT8SPQtL8qgxdcm2Oujhk
-        EDSAOfKhI9PXx5bJTxPiNYFmcH5Mb9CQRQ==
-X-Google-Smtp-Source: APXvYqwAzbTKEsygaZSFy/vePtrF4ZK5YNQD2QFA5CxAjZZGWPNa3lIho5OBDia2qKWKeWqREXiNBw==
-X-Received: by 2002:a2e:9e16:: with SMTP id e22mr1734301ljk.220.1579094808619;
-        Wed, 15 Jan 2020 05:26:48 -0800 (PST)
-Received: from saruman (88-113-215-33.elisa-laajakaista.fi. [88.113.215.33])
-        by smtp.gmail.com with ESMTPSA id i4sm9188330ljg.102.2020.01.15.05.26.47
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 15 Jan 2020 05:26:47 -0800 (PST)
-From:   Felipe Balbi <balbi@kernel.org>
-To:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb\@vger.kernel.org" <linux-usb@vger.kernel.org>
-Cc:     John Youn <John.Youn@synopsys.com>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
-        Jack Mitchell <ml@embed.me.uk>
-Subject: Re: [PATCH v2] usb: dwc2: Fix SET/CLEAR_FEATURE and GET_STATUS flows
-In-Reply-To: <c2dd753e-d891-72f0-409e-5f23e5f170f0@synopsys.com>
-References: <38a93a8deedd76dbc22bb1e41b4fc998f3750c95.1576516371.git.hminas@synopsys.com> <c2dd753e-d891-72f0-409e-5f23e5f170f0@synopsys.com>
-Date:   Wed, 15 Jan 2020 15:27:49 +0200
-Message-ID: <87o8v46e96.fsf@kernel.org>
+        id S1729436AbgAON5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 08:57:32 -0500
+Received: from mout-p-101.mailbox.org ([80.241.56.151]:20812 "EHLO
+        mout-p-101.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729360AbgAON5b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 08:57:31 -0500
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
+        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
+        (No client certificate requested)
+        by mout-p-101.mailbox.org (Postfix) with ESMTPS id 47yTRD1PgRzKmfm;
+        Wed, 15 Jan 2020 14:57:28 +0100 (CET)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp1.mailbox.org ([80.241.60.240])
+        by gerste.heinlein-support.de (gerste.heinlein-support.de [91.198.250.173]) (amavisd-new, port 10030)
+        with ESMTP id kTcyfk68cgcH; Wed, 15 Jan 2020 14:57:21 +0100 (CET)
+Date:   Thu, 16 Jan 2020 00:57:04 +1100
+From:   Aleksa Sarai <cyphar@cyphar.com>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        David Howells <dhowells@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        stable <stable@vger.kernel.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Serge Hallyn <serge@hallyn.com>, dev@opencontainers.org,
+        Linux Containers <containers@lists.linux-foundation.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH RFC 0/1] mount: universally disallow mounting over
+ symlinks
+Message-ID: <20200115135704.eh4atya6fwnikyll@yavin>
+References: <20200101005446.GH4203@ZenIV.linux.org.uk>
+ <20200101030815.GA17593@ZenIV.linux.org.uk>
+ <20200101144407.ugjwzk7zxrucaa6a@yavin.dot.cyphar.com>
+ <20200101234009.GB8904@ZenIV.linux.org.uk>
+ <20200102035920.dsycgxnb6ba2jhz2@yavin.dot.cyphar.com>
+ <20200103014901.GC8904@ZenIV.linux.org.uk>
+ <20200108031314.GE8904@ZenIV.linux.org.uk>
+ <CAHk-=wgQ3yOBuK8mxpnntD8cfX-+10ba81f86BYg8MhvwpvOMg@mail.gmail.com>
+ <20200110210719.ktg3l2kwjrdutlh6@yavin>
+ <20200114045733.GW8904@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="3nfjay3o6o7sfgzp"
+Content-Disposition: inline
+In-Reply-To: <20200114045733.GW8904@ZenIV.linux.org.uk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
+
+--3nfjay3o6o7sfgzp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+On 2020-01-14, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> 1) do you see any problems on your testcases with the current #fixes?
+> That's commit 7a955b7363b8 as branch tip.
 
-Hi,
+I just finished testing the few cases I reported earlier and they both
+appear to be fixed with the current #work.namei branch. And I don't have
+any troubles booting whatsoever.
 
-Minas Harutyunyan <Minas.Harutyunyan@synopsys.com> writes:
->> @@ -1768,16 +1771,17 @@ static int dwc2_hsotg_process_req_feature(struct=
- dwc2_hsotg *hsotg,
->>   				return -EINVAL;
->>=20=20=20
->>   			hsotg->test_mode =3D wIndex >> 8;
->> -			ret =3D dwc2_hsotg_send_reply(hsotg, ep0, NULL, 0);
->> -			if (ret) {
->> -				dev_err(hsotg->dev,
->> -					"%s: failed to send reply\n", __func__);
->> -				return ret;
->> -			}
->>   			break;
->>   		default:
->>   			return -ENOENT;
->>   		}
->> +
->> +		ret =3D dwc2_hsotg_send_reply(hsotg, ep0, NULL, 0);
->> +		if (ret) {
->> +			dev_err(hsotg->dev,
->> +				"%s: failed to send reply\n", __func__);
->> +			return ret;
->> +		}
->>   		break;
->>=20=20=20
->>   	case USB_RECIP_ENDPOINT:
->>=20
->
-> What about this patch?
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
 
-See:
-
-https://lore.kernel.org/linux-usb/875zhd6pw0.fsf@kernel.org/T/#u
-
-=2D-=20
-balbi
-
---=-=-=
+--3nfjay3o6o7sfgzp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl4fE1UACgkQzL64meEa
-mQaSxA//TyJxirXjEnLVly2oMv56uZrZo7CWHCb2M5EDTwonJi7oMHpFTeM50R6+
-o0tz+TWvWNJge+iD9He5At8Oi/yoWI5ddo8k5f6Dct3aw8i5E0eiUPG9mnC62dNI
-aOaYzGzQKPm4cLo3g60Sxz9Xy1t9SbM63ncnHnmhIRpZrhQ72K4ac8tbzYzGdkJk
-TOWcJzJMpKBvzb6542onwvRuyUUZ9cmhPS2j9d5GCJVnmXmnBzoO6j4usvRNzNzR
-k/P3P9xlVFa7eheXyFMA+uYVtOuuRywcqvB/qZikatE0m1lESwLkpM3Y05BAoSVu
-7cnguuW0rhBZnqmevY1+KbhYodCSu3vIs9bVdzY7mAOtkO8eo1+x47yIrLYU1FDD
-Qm+s0kd5cVRoeB5G+mBp9HcdiaVImsTR6z/3q1f7uQC3E42y3fnjZUcWEUDL9P2v
-7gDiJvuNx4ZUkPG/EWQy4ZS6AnJGSgIcDl5KjHEAIOsDAh6JcMtoZ1x4x07m6ns4
-wzqz2MOT9qeiZcKboJZ1OJ8X9A5a0FvB6vi8mkE2E1zM90yJ5pb+0fFtmILYr4IS
-Ynrqj7EZ2qL0RPtEN/l3am197dk8ApRu+slRRvaB9DF5J0hKt4pJp67utBLbL6tT
-TniB1nyB5Wa4N7P4zPhJRe5429upeiZT3trpqCFsztsvuOKQtCE=
-=rpJN
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXh8aLQAKCRCdlLljIbnQ
+El7BAP4mVcB8EHkVpb1BiYmM6aGj6dmCburCpsIPyRObtfW53wD9GQvyGsKlZef1
+tVRXIsFXbnwRaq5E9oXLf8yZ1F1nuAc=
+=l76M
 -----END PGP SIGNATURE-----
---=-=-=--
+
+--3nfjay3o6o7sfgzp--
