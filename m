@@ -2,88 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7A013CC72
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 19:46:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB14613CCA5
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 19:58:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729148AbgAOSqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 13:46:07 -0500
-Received: from mail-ed1-f54.google.com ([209.85.208.54]:41063 "EHLO
-        mail-ed1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729019AbgAOSqH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 13:46:07 -0500
-Received: by mail-ed1-f54.google.com with SMTP id c26so16452348eds.8;
-        Wed, 15 Jan 2020 10:46:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-         :cc;
-        bh=a0rRgPi8qpuxt+ikgqB/GgY+ZCw2HyoB33EFPqTmGV4=;
-        b=X/z2KUJ/PVOccJqrqDgc8Ho50bVKHqCmWXiyKWMO0GB8bEVtnr57Rus0FXR0qp4skq
-         UVfAY7ua5eLk5nyP2gHgiy7HzXQeA2n8WBB+f4h7bGxYd10PhSv10EMMwORupjL6bTyM
-         32wRNV1rWftXKtBg9nM7fcqG72tBetWrR2YQVo/7OLOrhV3ul0nNG503lTuw1F1lk2Ty
-         91CmxxcbAfhKWOBY66XIhS6exFJovVg3rSJbszhr1NYVCNBBunWdApIkgIY/L8XtjX1U
-         Ggcdrjf1gYxQ0Uh8xy0JWjpg4YrAO9gOH4DVLjwBocof5Pxqvalb8oqVeUXIS2GRS+OZ
-         Hcgw==
+        id S1728921AbgAOS6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 13:58:18 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:40620 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728904AbgAOS6R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 13:58:17 -0500
+Received: by mail-pj1-f67.google.com with SMTP id bg7so335660pjb.5;
+        Wed, 15 Jan 2020 10:58:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
-         :message-id:subject:to:cc;
-        bh=a0rRgPi8qpuxt+ikgqB/GgY+ZCw2HyoB33EFPqTmGV4=;
-        b=TTS5fDcgOGG9uRONQV1GptXQ/AqD8VUM/ha/NygYKK0DkJfGKGgAL8/rHaiUW7m2t2
-         YLRLuPaBwK1LT2W+lNBuog3fK6i3l1Q2FDfXEYxPcSCmcXsYz2Z8c+tbrzss4JVZCVlA
-         YfcX19kvtCwuXaAm80z6mQebgT80bVgrh+Mf4CveoVa0EZ16M+pBY2Nvvc3Mx92voeoE
-         JTKaU6qCPQ/tQ3rAladTr+8DYGLKbGL9NkaCH+y74xN2E3vYvoSNMLpl6X62leUMSnW/
-         Y6yji9q753HPMepi+2QnbeCcmppagGKVomam7QZsug9I2KePYRPdzgzr5zj3WcMz3ZML
-         4ZDA==
-X-Gm-Message-State: APjAAAVW434GXR3GPnolOFw/u2DTqzBuR7StBwKKowNgZfww0oDXkLTc
-        cbLUW2154FDeEERznSt6bscd83BeGhJTFkuu8mzg6xhr
-X-Google-Smtp-Source: APXvYqyTrgWJ1LIzmTrqXapfgFa2R1OYqAfeJV6bZihFAyHMRXUZ3QYJpptivIqDltyoLS2yqDeHHxJCHpHlURPmTuI=
-X-Received: by 2002:a17:906:b797:: with SMTP id dt23mr29845299ejb.241.1579113965153;
- Wed, 15 Jan 2020 10:46:05 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:a05:6402:1c11:0:0:0:0 with HTTP; Wed, 15 Jan 2020 10:46:04
- -0800 (PST)
-In-Reply-To: <20200115021545.GD11244@42.do-not-panic.com>
-References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
- <20200113154739.GB11244@42.do-not-panic.com> <CACMCwJL8tu+GHPeRADR_12xhcYSiDv+Yxdy=yLqMxEsn=P9zFA@mail.gmail.com>
- <20200115021545.GD11244@42.do-not-panic.com>
-From:   Jari Ruusu <jari.ruusu@gmail.com>
-Date:   Wed, 15 Jan 2020 20:46:04 +0200
-Message-ID: <CACMCwJLJCA2iXS0QMKKAWQv252oUcmfsNvwDNP5+4Z_9VB-rTg@mail.gmail.com>
-Subject: Re: Fix built-in early-load Intel microcode alignment
-To:     Luis Chamberlain <mcgrof@kernel.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=viW5lUxcta83gnrt+PjYRxoac+oGqhs+xUeSRvnZmTQ=;
+        b=CYSt8+RNsbNv8nhdw2VzG2Im59kpDOIKJlD44SJBT+dIJ/uHz2uOIajgLTzBtm/Ggg
+         zvujyncpq9VAS6w4YTBIwx+olglDb4XAhjs2BVUeYhmctnKl36tPa0UabFy0bCWw0JJM
+         1auljMvtqzovmb0KksdNMNmnEc2CZNzyz5zhGZFuMkCP6s2EqVZUDw7LPBTTO20t2Z1h
+         I4NTVxg35dGwetuVfQxaAZ9JFtgszPLse3P1H6Tyk/HXkeM4vTodCi696JWiSIAnNQA/
+         IZuhoyYwjCSrazHZfFhYdZT3xQbDD51wE3SLyfeJFAb/iDn3TfNswGAtkb0tyiy86G2r
+         7pdQ==
+X-Gm-Message-State: APjAAAX2hMUtwAkQHf8E8Xq13JT17VNqbH383OmOuh4tln77U7lO5/nK
+        IagunJIHGPTCAJHzqTqm/qI=
+X-Google-Smtp-Source: APXvYqyek9crS8Ai2SG0u0WO2iiBAHirV2VbSsqt3LTDaCmmNae9Bi3hRdfGWwno4Yvqe/UlPABj0g==
+X-Received: by 2002:a17:90a:26ab:: with SMTP id m40mr1624578pje.42.1579114696566;
+        Wed, 15 Jan 2020 10:58:16 -0800 (PST)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id v9sm504680pja.26.2020.01.15.10.58.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jan 2020 10:58:14 -0800 (PST)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 7338E40244; Wed, 15 Jan 2020 18:58:12 +0000 (UTC)
+Date:   Wed, 15 Jan 2020 18:58:12 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Jari Ruusu <jari.ruusu@gmail.com>
 Cc:     Borislav Petkov <bp@alien8.de>, Fenghua Yu <fenghua.yu@intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         johannes.berg@intel.com, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Andy Lutomirski <luto@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: Fix built-in early-load Intel microcode alignment
+Message-ID: <20200115185812.GH11244@42.do-not-panic.com>
+References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
+ <20200113154739.GB11244@42.do-not-panic.com>
+ <CACMCwJL8tu+GHPeRADR_12xhcYSiDv+Yxdy=yLqMxEsn=P9zFA@mail.gmail.com>
+ <20200115021545.GD11244@42.do-not-panic.com>
+ <CACMCwJLJCA2iXS0QMKKAWQv252oUcmfsNvwDNP5+4Z_9VB-rTg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACMCwJLJCA2iXS0QMKKAWQv252oUcmfsNvwDNP5+4Z_9VB-rTg@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/15/20, Luis Chamberlain <mcgrof@kernel.org> wrote:
-> On Mon, Jan 13, 2020 at 09:58:25PM +0200, Jari Ruusu wrote:
->> Before that 16-byte alignment patch was applied, my only one
->> microcode built-in BLOB was "accidentally" 16-byte aligned.
->
-> How did it accidentially get 16-byte aligned?
+On Wed, Jan 15, 2020 at 08:46:04PM +0200, Jari Ruusu wrote:
+> On 1/15/20, Luis Chamberlain <mcgrof@kernel.org> wrote:
+> > On Mon, Jan 13, 2020 at 09:58:25PM +0200, Jari Ruusu wrote:
+> >> Before that 16-byte alignment patch was applied, my only one
+> >> microcode built-in BLOB was "accidentally" 16-byte aligned.
+> >
+> > How did it accidentially get 16-byte aligned?
+> 
+> Old code aligned it to 8-bytes.
+> There is 50/50-chance of it also being 16-byte aligned.
 
-Old code aligned it to 8-bytes.
-There is 50/50-chance of it also being 16-byte aligned.
-So it ended up being both 8-byte and 16-byte aligned.
+But *how? Why is there a 50/50 chance of it being aligned to
+16 bytes if 8 bytes are currently specified?
 
-> Also, how do you *know* something is broken right now?
+> So it ended up being both 8-byte and 16-byte aligned.
 
-I haven't spotted brokenness in Linux microcode loader other
-than that small alignment issue.
+What do you mean both? How can it be aligned to both?
 
-However, I can confirm that there are 2 microcode updates newer
-than what my laptop computer's latest BIOS includes. Both newer
-ones (20191115 and 20191112) are unstable on my laptop computer
-i5-7200U (fam 6 model 142 step 9 pf 0x80). Hard lockups with both
-of them. Back to BIOS microcode for now.
+> > Also, how do you *know* something is broken right now?
+> 
+> I haven't spotted brokenness in Linux microcode loader other
+> than that small alignment issue.
+> 
+> However, I can confirm that there are 2 microcode updates newer
+> than what my laptop computer's latest BIOS includes. Both newer
+> ones (20191115 and 20191112) are unstable on my laptop computer
+> i5-7200U (fam 6 model 142 step 9 pf 0x80). Hard lockups with both
+> of them. Back to BIOS microcode for now.
 
--- 
-Jari Ruusu  4096R/8132F189 12D6 4C3A DCDA 0AA4 27BD  ACDF F073 3C80 8132 F189
+I was more interested in how you are *certain*, other than manualcode
+inspection, and that a spec indicates we should use 16 bytes for Intel
+microcode -- that the 8 byte alignment *does* not allow users to
+currently update their Intel CPU microcode for built-in firmware.                                      
+
+From what I gather so far we have no case yet reported where we know for
+sure it fails right now with the 8 byte alignment on 64-bit.
+										                                                                                
+This information would just be useful for the commit log.
+
+  Luis
