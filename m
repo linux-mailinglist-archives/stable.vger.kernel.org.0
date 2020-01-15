@@ -2,173 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 725D013B787
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 03:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1071B13B796
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 03:15:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728880AbgAOCJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 21:09:17 -0500
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:38548 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728988AbgAOCJO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 21:09:14 -0500
-Received: by mail-oi1-f194.google.com with SMTP id l9so13933657oii.5
-        for <stable@vger.kernel.org>; Tue, 14 Jan 2020 18:09:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=PnhFTk7gqJDDaRK0lVEnnUphNHafM27m921+CgXfNnQ=;
-        b=TFs6jg9++wnWwlTtKX6QArUnBqNWH27qPClWUnPpLwo+7VcQWJ7mTjUkH/qvEX/Oo2
-         TKDDYs2Li6C/NXiMogqSDcsE4NhZrtyaPBTdWELsJBze5N5eKCe8xJcD0dvQ8IvKZfHq
-         8HzWH2Q9+ONGmwnJfX/uTRWqOZjQ2GrOpWR60QUUssUhpR4v2wimnFkC1GEwjyM7z+OA
-         zTHI+GNtcgP2YiS6WHEwEE0dfBMB0YUqQWyRglZ8LjhlQ2XgK5+KnYBvVsDhpWZruB5+
-         r33i0YAV0ZR9NxThGuPbti4SQ4Wh20k6hDUP9sOfx295kSuerH7bAOvrZyl2pDseGwJn
-         /w/w==
+        id S1728834AbgAOCPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 21:15:48 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:41344 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728808AbgAOCPs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 21:15:48 -0500
+Received: by mail-pf1-f196.google.com with SMTP id w62so7653085pfw.8;
+        Tue, 14 Jan 2020 18:15:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=PnhFTk7gqJDDaRK0lVEnnUphNHafM27m921+CgXfNnQ=;
-        b=LCrK/JWyJXQghSym+Pdw66igUn+4cOifx/hERQX5t8m/woOD5K3eA1sw7Au+WA1vVZ
-         dcTCl4NTBC5ASgFnmIF7l8wGQak1Iu63eAMwJBLQBMjx5M2rVQpP8J0glt0fo7DQc7Pw
-         SpSxhRxVDeVmFrsEnQzjf6sBfILyKMDiBFti16nvhYxhp9QVPDikXjY6oUeZj6hzEDwG
-         zGxLHqqZ+WV1EOphp0UZOVAy7XPrOQELI5Xw9EkPvBcr5N29A0lHQGHtx3ROV7ULaFD5
-         eEjrYQfOYjfiTqhYRAsbo+vKL+iOcT/FZ+rOnytJz0LHfGkgqmZj8ZiAUUIpZZRgp5Bw
-         aWDA==
-X-Gm-Message-State: APjAAAVD9V6y4n061Cuc9VxgzJKM7dwfryUxx/Q9XdIwkWOxcMcXH6eX
-        0I0W32wQ8gw2wT0R/Y5dItunXHFBNqlCBA==
-X-Google-Smtp-Source: APXvYqzbtLzW6cJV7emEVOUxnNItwX1hcj4AQ3DMpLQMdrVRbalXKiPd812mXutxSQHS+dvj2SUj2Q==
-X-Received: by 2002:aca:ac0d:: with SMTP id v13mr18395902oie.160.1579054153020;
-        Tue, 14 Jan 2020 18:09:13 -0800 (PST)
-Received: from [192.168.17.59] ([189.219.74.147])
-        by smtp.gmail.com with ESMTPSA id p16sm6003924otq.79.2020.01.14.18.09.11
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jan 2020 18:09:12 -0800 (PST)
-Subject: Re: [PATCH 5.4 00/78] 5.4.12-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200114094352.428808181@linuxfoundation.org>
-From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-Message-ID: <1d43091c-c7ff-ed26-c3f9-207a291ed157@linaro.org>
-Date:   Tue, 14 Jan 2020 20:09:11 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=J26ofUR3ODZFKYUwZwovSvNraObvIoktYNYuocxeBTc=;
+        b=HPJ5yfdeZd2nEm9VDPXdoiRwFsYnV1Jxhrd82+ethOxwNcxH3S+GLkFFV+6FMUD87U
+         0TTe+gQUfcsv/M/KR5YdpWlV7w7S5FjkckD0od/QIr4qHgceTDMubTJnhpRLHD0GBW7f
+         Mb30ZgDUmSJQBXO7Dk+Prq0Rds/39/sdN+UtZqWuycahDqIJhNd/GdwQgzkJGGsYrKvG
+         VM7Q9gbiQ51IaDu4mdYrEUYVj75mOvBZ6EgkpsSKTLsVN/50tW/nPSy++2y7Q48EY+1N
+         M+wXDjii4ir+y/pCqMoBDI2EI59d4kGCOL6hJXAPBqqaM+NA205okBpEoHQJ3Suve3XU
+         whBg==
+X-Gm-Message-State: APjAAAVRnBWXtHGp8EiNmRlZT6EF/ItI4/lo52dljt3Gd+RB3omF4EZp
+        FgmGU/11+PQyU8C/c/BwP4A=
+X-Google-Smtp-Source: APXvYqx+Y6MXk6p34YH4fcWpwtETUyP8vIwvAVxlDFSpQ1L1jzbu3gQ4eTFBhCslPosGq/RoLM06Gg==
+X-Received: by 2002:a62:7fcd:: with SMTP id a196mr28145031pfd.208.1579054547296;
+        Tue, 14 Jan 2020 18:15:47 -0800 (PST)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id c19sm20646838pfc.144.2020.01.14.18.15.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jan 2020 18:15:46 -0800 (PST)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 6B06A40244; Wed, 15 Jan 2020 02:15:45 +0000 (UTC)
+Date:   Wed, 15 Jan 2020 02:15:45 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Jari Ruusu <jari.ruusu@gmail.com>
+Cc:     Borislav Petkov <bp@alien8.de>, Fenghua Yu <fenghua.yu@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        johannes.berg@intel.com, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>
+Subject: Re: Fix built-in early-load Intel microcode alignment
+Message-ID: <20200115021545.GD11244@42.do-not-panic.com>
+References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
+ <20200113154739.GB11244@42.do-not-panic.com>
+ <CACMCwJL8tu+GHPeRADR_12xhcYSiDv+Yxdy=yLqMxEsn=P9zFA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200114094352.428808181@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACMCwJL8tu+GHPeRADR_12xhcYSiDv+Yxdy=yLqMxEsn=P9zFA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
-
-On 1/14/20 4:00 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.12 release.
-> There are 78 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, Jan 13, 2020 at 09:58:25PM +0200, Jari Ruusu wrote:
+> On 1/13/20, Luis Chamberlain <mcgrof@kernel.org> wrote:
+> > So what happens with you use the built-in firmware loader for
+> > the Intel microcode at this time? I am surprised this issue
+> > wasn't reported earlier, so thanks for picking it up, but to
+> > be complete such a change requires a bit more information.
+> >
+> > What exactly happens now?
 > 
-> Responses should be made by Thu, 16 Jan 2020 09:41:58 +0000.
-> Anything received after that time might be too late.
+> Before that 16-byte alignment patch was applied, my only one
+> microcode built-in BLOB was "accidentally" 16-byte aligned.
+
+How did it accidentially get 16-byte aligned?
+
+Also, how do you *know* something is broken right now? I mean
+you issued a patch for stable. I thought you hit a panic or
+some issue while loading. If we are not sure this fixes a real
+issue as of yet, I can't see the merit for propagating a fix
+to stable.
+
+> After that patch was applied, new kernel System.map file was
+> exactly same. So, for me that patch did not change anything.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.12-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> Same 16-byte alignment before and after patch:
 > 
-> thanks,
+> $  grep " _fw_.*_bin" System.map
+> ffffffff81f55e90 r _fw_intel_ucode_06_8e_09_bin
 > 
-> greg k-h
+> >> Fix this by forcing all built-in firmware BLOBs to 16-byte
+> >> alignment.
+> >
+> > That's a huge stretch, see below.
+> 
+> I understand and to some degree agree.
+> 
+> > So I'd like to determine first if we really need this.
+> 
+> We do need it. Violating Intel specs is not good. It may be that
+> some processor models require aligned and some accept less
+> aligned.
 
-Results from Linaro’s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Fair point. A fix to follow the spec is however different than to say
+without it things don't work, and we need to propagate a fix to stable
+kernels.
 
-Summary
-------------------------------------------------------------------------
+> > If set as a global new config option, we can use the same logic and
+> > allow an architecture override if the user / architecture kconfig
+> > configures it such:
+> >
+> > config ARCH_DEFAULT_FIRMWARE_ALIGNMENT
+> > 	string "Default architecture firmware aligmnent"
+> > 	"4" if 64BIT
+> > 	"3" if !64BIT
+> >
+> > config FIRMWARE_BUILTIN_ALIGN
+> > 	string "Built in firmware aligment requirement"
+> > 	default ARCH_DEFAULT_FIRMWARE_ALIGNMENT if !ARCH_CUSTOM_FIRMWARE_ALIGNMENT
+> > 	default ARCH_CUSTOM_FIRMWARE_ALIGNMENT_VAL if
+> > ARCH_CUSTOM_FIRMWARE_ALIGNMENT
+> > 	  Some good description goes here
+> >
+> > Or something like that.
+> 
+> It doesn't have to user visible config option, only default align
+> changed when selected set of options are enabled.
 
-kernel: 5.4.12-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-git branch: linux-5.4.y
-git commit: 5c903e10834dc8905bf461f15b48cceb1ee8c0d9
-git describe: v5.4.11-79-g5c903e10834d
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/build/v5.4.11-79-g5c903e10834d
+Right, I didn't intend for it to be visible really. It was just an
+example of kconfig magic how perhaps how to define this if we needed
+something configurable per arch.
 
+> My patch was intentionally minimal, without #ifdef spaghetti.
 
-No regressions (compared to build v5.4.11)
+Thanks for it. We just need to dust it off a bit now.
 
-No fixes (compared to build v5.4.11)
-
-Ran 23755 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fs-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* ssuite
-* v4l2-compliance
-
-
-Greetings!
-
-Daniel Díaz
-daniel.diaz@linaro.org
-
-
--- 
-Linaro LKFT
-https://lkft.linaro.org
+  Luis
