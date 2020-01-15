@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 452ED13BC93
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 10:41:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED20F13BC97
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 10:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729449AbgAOJlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 04:41:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42614 "EHLO mail.kernel.org"
+        id S1729462AbgAOJlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 04:41:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729143AbgAOJlW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 04:41:22 -0500
+        id S1729143AbgAOJlt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Jan 2020 04:41:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D0AB24671;
-        Wed, 15 Jan 2020 09:41:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBB0C24671;
+        Wed, 15 Jan 2020 09:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579081281;
-        bh=3+axeOl4AOGs/piRx3+Y8Ckx101v7jsMa0EeAMr2YpI=;
+        s=default; t=1579081308;
+        bh=/aX3309DkEg99Z/qlmZBeVRGZgtaUe+Zr8M2UZjMcsE=;
         h=Subject:To:From:Date:From;
-        b=g7rq3IWPo82kn3x9MdjhasmHPTIqrNMd+C2rd1xyTCSXTTzN+aRBhbDWlu4AFcHDE
-         k89dX9vE8XlI7g+b4frdEqBTlGb7A36G9r6JGWuMigPd8dKJ7vP1AusTI/h3rpIliv
-         kLt/NAhRP3GEhSVrBeBMFGOuGCqDMHJRxIuWnHkU=
-Subject: patch "usb: gadget: f_fs: set req->num_sgs as 0 for non-sg transfer" added to usb-testing
-To:     peter.chen@nxp.com, balbi@kernel.org, gregkh@linuxfoundation.org,
-        jun.li@nxp.com, stable@vger.kernel.org
+        b=Q+hi9qEBdnQJY1XVLgfx9grVR4A+WdcrrVwf9OkTbajCkijRy2mGypXUOy0juTajr
+         f42K1mll38IZCvVNWCQDljAszZ4ifjG2b9Nam6A9C9GSf8pbfV2/3NcpWXLLAFUSIT
+         ppTDvqSbzxpKtJnUcV+s/ArIPVoaSjW1IlpxwiKE=
+Subject: patch "usb: gadget: f_ncm: Use atomic_t to track in-flight request" added to usb-testing
+To:     bryan.odonoghue@linaro.org, balbi@kernel.org,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Jan 2020 10:40:58 +0100
-Message-ID: <15790812583324@kroah.com>
+Date:   Wed, 15 Jan 2020 10:41:09 +0100
+Message-ID: <15790812697392@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: f_fs: set req->num_sgs as 0 for non-sg transfer
+    usb: gadget: f_ncm: Use atomic_t to track in-flight request
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,50 +55,100 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From d2450c6937018d40d4111fe830fa48d4ddceb8d0 Mon Sep 17 00:00:00 2001
-From: Peter Chen <peter.chen@nxp.com>
-Date: Thu, 12 Dec 2019 16:35:03 +0800
-Subject: usb: gadget: f_fs: set req->num_sgs as 0 for non-sg transfer
+From 5b24c28cfe136597dc3913e1c00b119307a20c7e Mon Sep 17 00:00:00 2001
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Date: Thu, 9 Jan 2020 13:17:21 +0000
+Subject: usb: gadget: f_ncm: Use atomic_t to track in-flight request
 
-The UDC core uses req->num_sgs to judge if scatter buffer list is used.
-Eg: usb_gadget_map_request_by_dev. For f_fs sync io mode, the request
-is re-used for each request, so if the 1st request->length > PAGE_SIZE,
-and the 2nd request->length is <= PAGE_SIZE, the f_fs uses the 1st
-req->num_sgs for the 2nd request, it causes the UDC core get the wrong
-req->num_sgs value (The 2nd request doesn't use sg). For f_fs async
-io mode, it is not harm to initialize req->num_sgs as 0 either, in case,
-the UDC driver doesn't zeroed request structure.
+Currently ncm->notify_req is used to flag when a request is in-flight.
+ncm->notify_req is set to NULL and when a request completes it is
+subsequently reset.
 
-Cc: Jun Li <jun.li@nxp.com>
+This is fundamentally buggy in that the unbind logic of the NCM driver will
+unconditionally free ncm->notify_req leading to a NULL pointer dereference.
+
+Fixes: 40d133d7f542 ("usb: gadget: f_ncm: convert to new function interface with backward compatibility")
 Cc: stable <stable@vger.kernel.org>
-Fixes: 772a7a724f69 ("usb: gadget: f_fs: Allow scatter-gather buffers")
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/gadget/function/f_ncm.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 0bbccac94d6c..6f8b67e61771 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1062,6 +1062,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
- 			req->num_sgs = io_data->sgt.nents;
- 		} else {
- 			req->buf = data;
-+			req->num_sgs = 0;
- 		}
- 		req->length = data_len;
+diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
+index 2d6e76e4cffa..1d900081b1f0 100644
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -53,6 +53,7 @@ struct f_ncm {
+ 	struct usb_ep			*notify;
+ 	struct usb_request		*notify_req;
+ 	u8				notify_state;
++	atomic_t			notify_count;
+ 	bool				is_open;
  
-@@ -1105,6 +1106,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
- 			req->num_sgs = io_data->sgt.nents;
- 		} else {
- 			req->buf = data;
-+			req->num_sgs = 0;
- 		}
- 		req->length = data_len;
+ 	const struct ndp_parser_opts	*parser_opts;
+@@ -547,7 +548,7 @@ static void ncm_do_notify(struct f_ncm *ncm)
+ 	int				status;
  
+ 	/* notification already in flight? */
+-	if (!req)
++	if (atomic_read(&ncm->notify_count))
+ 		return;
+ 
+ 	event = req->buf;
+@@ -587,7 +588,8 @@ static void ncm_do_notify(struct f_ncm *ncm)
+ 	event->bmRequestType = 0xA1;
+ 	event->wIndex = cpu_to_le16(ncm->ctrl_id);
+ 
+-	ncm->notify_req = NULL;
++	atomic_inc(&ncm->notify_count);
++
+ 	/*
+ 	 * In double buffering if there is a space in FIFO,
+ 	 * completion callback can be called right after the call,
+@@ -597,7 +599,7 @@ static void ncm_do_notify(struct f_ncm *ncm)
+ 	status = usb_ep_queue(ncm->notify, req, GFP_ATOMIC);
+ 	spin_lock(&ncm->lock);
+ 	if (status < 0) {
+-		ncm->notify_req = req;
++		atomic_dec(&ncm->notify_count);
+ 		DBG(cdev, "notify --> %d\n", status);
+ 	}
+ }
+@@ -632,17 +634,19 @@ static void ncm_notify_complete(struct usb_ep *ep, struct usb_request *req)
+ 	case 0:
+ 		VDBG(cdev, "Notification %02x sent\n",
+ 		     event->bNotificationType);
++		atomic_dec(&ncm->notify_count);
+ 		break;
+ 	case -ECONNRESET:
+ 	case -ESHUTDOWN:
++		atomic_set(&ncm->notify_count, 0);
+ 		ncm->notify_state = NCM_NOTIFY_NONE;
+ 		break;
+ 	default:
+ 		DBG(cdev, "event %02x --> %d\n",
+ 			event->bNotificationType, req->status);
++		atomic_dec(&ncm->notify_count);
+ 		break;
+ 	}
+-	ncm->notify_req = req;
+ 	ncm_do_notify(ncm);
+ 	spin_unlock(&ncm->lock);
+ }
+@@ -1649,6 +1653,11 @@ static void ncm_unbind(struct usb_configuration *c, struct usb_function *f)
+ 	ncm_string_defs[0].id = 0;
+ 	usb_free_all_descriptors(f);
+ 
++	if (atomic_read(&ncm->notify_count)) {
++		usb_ep_dequeue(ncm->notify, ncm->notify_req);
++		atomic_set(&ncm->notify_count, 0);
++	}
++
+ 	kfree(ncm->notify_req->buf);
+ 	usb_ep_free_request(ncm->notify, ncm->notify_req);
+ }
 -- 
 2.24.1
 
