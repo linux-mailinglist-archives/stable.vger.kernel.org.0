@@ -2,62 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E665A13C129
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 13:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2738113C19A
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 13:48:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726506AbgAOMjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 07:39:35 -0500
-Received: from icebox.esperi.org.uk ([81.187.191.129]:52942 "EHLO
-        mail.esperi.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725999AbgAOMje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 07:39:34 -0500
-Received: from loom (nix@sidle.srvr.nix [192.168.14.8])
-        by mail.esperi.org.uk (8.15.2/8.15.2) with ESMTP id 00FCdTPb010825;
-        Wed, 15 Jan 2020 12:39:29 GMT
-From:   Nix <nix@esperi.org.uk>
-To:     Coly Li <colyli@suse.de>
-Cc:     Eric Wheeler <bcache@lists.ewheeler.net>,
-        linux-bcache@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] bcache: back to cache all readahead I/Os
-References: <20200104065802.113137-1-colyli@suse.de>
-        <alpine.LRH.2.11.2001062256450.2074@mx.ewheeler.net>
-        <87lfqa2p4s.fsf@esperi.org.uk>
-        <5af6593d-b6aa-74a7-0aae-e3c689cebc67@suse.de>
-Emacs:  because extension languages should come with the editor built in.
-Date:   Wed, 15 Jan 2020 12:39:29 +0000
-In-Reply-To: <5af6593d-b6aa-74a7-0aae-e3c689cebc67@suse.de> (Coly Li's message
-        of "Wed, 15 Jan 2020 14:21:05 +0800")
-Message-ID: <875zhc3ncu.fsf@esperi.org.uk>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.50 (gnu/linux)
+        id S1728911AbgAOMs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 07:48:26 -0500
+Received: from lb1-smtp-cloud9.xs4all.net ([194.109.24.22]:35701 "EHLO
+        lb1-smtp-cloud9.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726440AbgAOMsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 07:48:25 -0500
+Received: from cobaltpc1.rd.cisco.com
+ ([IPv6:2001:420:44c1:2577:18d8:d5d6:4408:6200])
+        by smtp-cloud9.xs4all.net with ESMTPA
+        id ri5riEH6BT6sRri5viaE9e; Wed, 15 Jan 2020 13:48:24 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s1;
+        t=1579092504; bh=RF7wGAN7RmpsusYQfekowyAxbMRJ8ThHX/8E8ptL6/M=;
+        h=From:To:Subject:Date:Message-Id:MIME-Version:From:Subject;
+        b=ECE/4WireVxHYnMTkZo1emdcXmL8SDlPQA3rHNW3ASMt2JJBLkYIvcAiYod//Z1D2
+         bqMoDGCIZpENKZMc7U5ffilb+WDRYDER0ekYHiKb5wZEL1t/bTauGUrl0BshbousC3
+         1KptR4MBPDfADNyy84ZryMP5OlZYbm9NH+l9kpfjXrYrlB4hOdfkCE6cawtFje050P
+         ad2fwEUn7SNQgOWvIOZk0U1b8XszQTRqxW0AFqjvWlSaqO5eqGTMNdTJ0GMgleNBwZ
+         L6gq+mL8z271X/azz1vcBZv23iAfrQv1Szuj//wGZF/dnZcSQQEYnxkcPBua1Vzbcj
+         fE6+dqjSxThXg==
+From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
+To:     linux-media@vger.kernel.org
+Cc:     linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Timo Kaufmann <timokau@zoho.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>, stable@vger.kernel.org
+Subject: [PATCH for v5.5 1/2] Revert "Input: synaptics-rmi4 - don't increment rmiaddr for SMBus transfers"
+Date:   Wed, 15 Jan 2020 13:48:18 +0100
+Message-Id: <20200115124819.3191024-2-hverkuil-cisco@xs4all.nl>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20200115124819.3191024-1-hverkuil-cisco@xs4all.nl>
+References: <20200115124819.3191024-1-hverkuil-cisco@xs4all.nl>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-DCC-wuwien-Metrics: loom 1290; Body=4 Fuz1=4 Fuz2=4
+Content-Transfer-Encoding: 8bit
+X-CMAE-Envelope: MS4wfCrwfkwhmKthDssy6WLiJ5HPIAldwwLU4BHSNjMRxnK9CCQEWscB0QLHf0bk+1tXNv/a1JENJ2ggRjBDlrHMXnfbd44jibhtgIPXr4cQufBuHALzgnTj
+ 1I8AGYBkSf/JPJ9lrSx6Cf39xY5+SqUcsWvFAj0Jz785E9g5tnoUqOVAdTxc+4jGSBPaFZhjWW+RSZv0ClAvZ90nJH2AoTlAHId11SZev1oeE4/Q9yGySH/K
+ 5bQh/4pnUzDA+md66dE8MklYl9p44P+SeD16Sy+UC9Zc2rdDRNXPPfedrTHwNlMe805waKOY+4+8UYvszqHISfwA3JTPxSyyXP3O6KTWCHK2wubTAllXdnbl
+ 0R/Q+x1wGQj0Q8+Ed1o//nnqIM3dHvY1MzbQwaXpGGeXVdXw0Q6sEXEfja1S5GDpYw0l871n37vaWiDlynB1fvDc1yN0dQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 15 Jan 2020, Coly Li stated:
+This reverts commit a284e11c371e446371675668d8c8120a27227339.
 
-> I have two reports offline and directly to me, one is from an email
-> address of github and forwarded to me by Jens, one is from a China local
-> storage startup.
->
-> The first report complains the desktop-pc benchmark is about 50% down
-> and the root cause is located on commit b41c9b0 ("bcache: update
-> bio->bi_opf bypass/writeback REQ_ flag hints").
->
-> The second report complains their small file workload (mixed read and
-> write) has around 20%+ performance drop and the suspicious change is
-> also focused on the readahead restriction.
->
-> The second reporter verifies this patch and confirms the performance
-> issue has gone. I don't know who is the first report so no response so far.
+This causes problems (drifting cursor) with at least the F11 function that
+reads more than 32 bytes.
 
-Hah! OK, looks like readahead is frequently-enough useful that caching
-it is better than not caching it :) I guess the problem is that if you
-don't cache it, it never gets cached at all even if it was useful, so
-the next time round you'll end up having to readahead it again :/
+The real issue is in the F54 driver, and so this should be fixed there, and
+not in rmi_smbus.c.
 
-One wonders what effect this will have on a bcache-atop-RAID: will we
-end up caching whole stripes most of the time?
+So first revert this bad commit, then fix the real problem in F54 in another
+patch.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: Timo Kaufmann <timokau@zoho.com>
+Fixes: a284e11c371e ("Input: synaptics-rmi4 - don't increment rmiaddr for SMBus transfers")
+Cc: stable@vger.kernel.org
+---
+ drivers/input/rmi4/rmi_smbus.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+index b313c579914f..2407ea43de59 100644
+--- a/drivers/input/rmi4/rmi_smbus.c
++++ b/drivers/input/rmi4/rmi_smbus.c
+@@ -163,6 +163,7 @@ static int rmi_smb_write_block(struct rmi_transport_dev *xport, u16 rmiaddr,
+ 		/* prepare to write next block of bytes */
+ 		cur_len -= SMB_MAX_COUNT;
+ 		databuff += SMB_MAX_COUNT;
++		rmiaddr += SMB_MAX_COUNT;
+ 	}
+ exit:
+ 	mutex_unlock(&rmi_smb->page_mutex);
+@@ -214,6 +215,7 @@ static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiaddr,
+ 		/* prepare to read next block of bytes */
+ 		cur_len -= SMB_MAX_COUNT;
+ 		databuff += SMB_MAX_COUNT;
++		rmiaddr += SMB_MAX_COUNT;
+ 	}
+ 
+ 	retval = 0;
+-- 
+2.24.0
+
