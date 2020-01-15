@@ -2,93 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07CE413B7A6
-	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 03:27:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC7C413B802
+	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 03:58:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbgAOC1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Jan 2020 21:27:08 -0500
-Received: from mail-pj1-f68.google.com ([209.85.216.68]:56226 "EHLO
-        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728862AbgAOC1I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 21:27:08 -0500
-Received: by mail-pj1-f68.google.com with SMTP id d5so6687230pjz.5;
-        Tue, 14 Jan 2020 18:27:07 -0800 (PST)
+        id S1728879AbgAOC6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Jan 2020 21:58:04 -0500
+Received: from mail-wm1-f46.google.com ([209.85.128.46]:54504 "EHLO
+        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728883AbgAOC6D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Jan 2020 21:58:03 -0500
+Received: by mail-wm1-f46.google.com with SMTP id b19so16164892wmj.4
+        for <stable@vger.kernel.org>; Tue, 14 Jan 2020 18:58:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=eC8mHuFRt+zDpI46tVivch5uXy6VeVGU1KYkmpUiPW0=;
+        b=dKXrxLgo+ui/Edcd1KFvo9dwf+otmw4uZkfUwb8cB222J5XuLnTf4MtWfqhi5RzARg
+         LjUzdlKPF7WpvaIXaFBtWjPtO5fxDtXjjVCInAqSbO4yeeho4HEleWMiW7jCHAyKjsEP
+         Vhpl3zD2RpmtZvW/yqxUd90lruIaSE1/OfAIaBxty3L7KmJxSchnXsJlrynXBNWhYPIY
+         3/QfLglsAXM6uS0/Qo0HC225MJ12Xsw4f53FxFForSS3+F22+AsLK9p5ZhunVfytEJoK
+         TYcwt/XOJbmJtlhrn5W8YP76O51qqRvWyLBk0w83wSdHnF0Qe1mjxJWnNxplqim5CMOU
+         v/7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=eSVEWssYTpiV5Eqi/FIfWIR/4RrREqVoEKeDwn2EhZ8=;
-        b=CIVg+EauJZpoibrMdwJkF0laAx6091v9BVb2wt0pGzRRFWQBGrcTdb8Wp6jYAUO3NW
-         ASJxCdxJhd3x8vr2qqPSdJYHjf7dRB6d4jAgL8EaoXoyo7jmWFbYVXvIfPJ52L7lvuCO
-         itbDzHA9e7dvvf3xFhg9NrmlEQeml8iR0kZo+DwuwrNrj1HLgJ9j6mRH4ssObnaU/Mq8
-         31WO/HzBxbZ2xng2ARh0XSMwJ2UOfwXg6Pq6/IbdNc5dXSp5gqR/PNKHkZY58aISJ38x
-         1xf0rM0TaN6YUgnOL4YSmpM/NlaQ+JoyVOVqSN6pjgIB1iRRsuW7hzEndqtXe5KMZZ1f
-         luCA==
-X-Gm-Message-State: APjAAAWoqWNXdIdolRG/hQyiliQkopPhF/ZII6Zny2SJ6LliHAApP9Pi
-        0IgiCqWspDud/lSLvogj30g=
-X-Google-Smtp-Source: APXvYqwA8P1UPp7Yt28VlX7Q/LJQc3K+r2Av6bWr7o29Ops23yGm6ds4EN4Xj3a8WBMC6Z0IFZUblw==
-X-Received: by 2002:a17:90a:9f04:: with SMTP id n4mr32799571pjp.76.1579055227298;
-        Tue, 14 Jan 2020 18:27:07 -0800 (PST)
-Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
-        by smtp.gmail.com with ESMTPSA id c68sm19745446pfc.156.2020.01.14.18.27.05
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=eC8mHuFRt+zDpI46tVivch5uXy6VeVGU1KYkmpUiPW0=;
+        b=m7ixKSNE1QZEiyr3LEGyLtVkhxftJeQN6wcVpBjXbraN32ZVGn6to02LH5etv1MUiC
+         FLycHwzzXo/x0Kygi3xbbOgcl31so1mPWq6RjCedaS+niM0/ULPGztOsPx5J3rYuBlZH
+         ABbfdUmwyhN/cqBPqSLx6pmigXamgSyVtHnxFQBc+RGRuHIHy4X2OU7BprIp5Pth5bNB
+         zhuYBD2FB32FjQ2crSlJrrxSR/HWhT/XY5U4amCsM0ggZ+y0kP9Wqn3vqB30QJF98iVI
+         NBvyC7q51y68XMFsBNvUVCCyJKhltsoUMPUCx53EYeVv6fnQJszVrmfkKGWTOQNc2aYM
+         60vQ==
+X-Gm-Message-State: APjAAAV8PDtzvL/39s7OvEtCeZSmCt/eEseLxMtjNtpHz/zLrfye8kOC
+        jx6QSx4AWGKATdok4qdqGUkxhhvTJiva5A==
+X-Google-Smtp-Source: APXvYqz9zrI9eDIWEdF0T6/p23I9ab/GvTS/s4PmoGC7F9TEiKIYrhpo4i5wpZLF/AXB9td5wVtYPQ==
+X-Received: by 2002:a05:600c:1103:: with SMTP id b3mr29378381wma.141.1579057082032;
+        Tue, 14 Jan 2020 18:58:02 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f1sm22912956wrp.93.2020.01.14.18.58.01
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jan 2020 18:27:06 -0800 (PST)
-Received: by 42.do-not-panic.com (Postfix, from userid 1000)
-        id 7DA3940244; Wed, 15 Jan 2020 02:27:05 +0000 (UTC)
-Date:   Wed, 15 Jan 2020 02:27:05 +0000
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Jari Ruusu <jari.ruusu@gmail.com>, Borislav Petkov <bp@alien8.de>,
-        Fenghua Yu <fenghua.yu@intel.com>, johannes.berg@intel.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        linux-remoteproc@vger.kernel.org
-Subject: Re: Fix built-in early-load Intel microcode alignment
-Message-ID: <20200115022705.GE11244@42.do-not-panic.com>
-References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
- <20200113154739.GB11244@42.do-not-panic.com>
- <CAHk-=wja2GChi_JBu0xBkQ96mqXC3TMKUp=YvRhgPy0+1m5YNw@mail.gmail.com>
+        Tue, 14 Jan 2020 18:58:01 -0800 (PST)
+Message-ID: <5e1e7fb9.1c69fb81.bbf20.f9cb@mx.google.com>
+Date:   Tue, 14 Jan 2020 18:58:01 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wja2GChi_JBu0xBkQ96mqXC3TMKUp=YvRhgPy0+1m5YNw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.95-48-gc3b4cb017658
+Subject: stable-rc/linux-4.19.y boot: 90 boots: 0 failed,
+ 89 passed with 1 untried/unknown (v4.19.95-48-gc3b4cb017658)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 13, 2020 at 11:44:25AM -0800, Linus Torvalds wrote:
-> On Mon, Jan 13, 2020 at 7:47 AM Luis Chamberlain <mcgrof@kernel.org> wrote:
-> >
-> > So I'd like to determine first if we really need this. Then if so,
-> > either add a new global config option, and worst comes to worst
-> > figure out a way to do it per driver. I don't think we'd need it
-> > per driver.
-> 
-> I really don't think we need to have a config option for some small
-> alignment. Increasing the alignment unconditionally to 16 bytes won't
-> hurt anybody.
+stable-rc/linux-4.19.y boot: 90 boots: 0 failed, 89 passed with 1 untried/u=
+nknown (v4.19.95-48-gc3b4cb017658)
 
-Since you are confident in that, then simply bumping it to 16 bytes
-seems fine by me.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.95-48-gc3b4cb017658/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.95-48-gc3b4cb017658/
 
-> Now, whether there might be other firmware loaders that need even more
-> alignment, that might be an interesting question, and if such an
-> alignment would be _huge_ we might want to worry about actual memory
-> waste.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.95-48-gc3b4cb017658
+Git Commit: c3b4cb017658a6dacd7a052ad3fabb9641c9a6ea
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 52 unique boards, 15 SoC families, 14 builds out of 206
 
-I can only envision waste being considered due to alignent for remote
-proc folks, who I *doubt* use the built-in stuff given the large size of
-their blobs... but since you never know, better poke. So I've CC'd them.
-
-> But 16-byte alignment for a fw blob? That's nothing.
-
-Fine by me if we are sure it won't break anything and we hear no
-complaints by remote proc folks.
-
-  Luis
+---
+For more info write to <info@kernelci.org>
