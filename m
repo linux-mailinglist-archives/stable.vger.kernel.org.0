@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 506C713C7D7
+	by mail.lfdr.de (Postfix) with ESMTP id EDB4E13C7D8
 	for <lists+stable@lfdr.de>; Wed, 15 Jan 2020 16:34:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728986AbgAOPeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726506AbgAOPeI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 15 Jan 2020 10:34:08 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:47283 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:31369 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726506AbgAOPeH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 10:34:07 -0500
+        with ESMTP id S1728912AbgAOPeI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 10:34:08 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1579102446;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=INvVzhvRHbCGPZfOpT7NTXDjD6ax88XI5CXkCizD/uE=;
-        b=Z+gNTM36lCxK9K3dT2uzhh9PD2TfvKTovsmIorn5S27vVQ+Cu3J5JjsMcAVDONN1IdcsyN
-        Eu80OAJREwmla1iM1gJZPbzVpkU/mwIjzO6tStmXIpKtQv+tGp7/Wm/mRyqTX6/BsAMdlS
-        gp6LpD1XvdLvYzdpB3K2yxIF8f5CDoQ=
+        bh=iqgCaZviHLl0j25ZTLpmn0A6giTT4QsPeJlLoPbLi5c=;
+        b=c1qn9TBE4Ny8PJ+UQErpmXW0+nK4ZFumfgmNx9K801ANThCxgGb3AvkwEJuHZ8HOJtf+OK
+        a13o7NuK4xM0pynb9mug9qlncMOh77oDYom7+Aq605UrPSvxZ9LwqPfJOTRnGxB2fbQf9f
+        EDW54tf6GFLIsXPVm5BLO/1/QbjaAVA=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-53--Qml65LNN6OpP0OZZLc9Dg-1; Wed, 15 Jan 2020 10:34:01 -0500
-X-MC-Unique: -Qml65LNN6OpP0OZZLc9Dg-1
+ us-mta-321-VmF-FHJAMCaT26V_ZHofcw-1; Wed, 15 Jan 2020 10:34:03 -0500
+X-MC-Unique: VmF-FHJAMCaT26V_ZHofcw-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4EE2A1132844;
-        Wed, 15 Jan 2020 15:33:59 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CE53C1109881;
+        Wed, 15 Jan 2020 15:34:01 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.36.118.7])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 26B7F86CCB;
-        Wed, 15 Jan 2020 15:33:56 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9936786CB2;
+        Wed, 15 Jan 2020 15:33:59 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-mm@kvack.org, Oscar Salvador <osalvador@suse.de>,
@@ -44,9 +44,9 @@ Cc:     linux-mm@kvack.org, Oscar Salvador <osalvador@suse.de>,
         Laurent Vivier <lvivier@redhat.com>,
         Baoquan He <bhe@redhat.com>,
         David Hildenbrand <david@redhat.com>
-Subject: [PATCH for 4.19-stable 06/25] mm/memory_hotplug: release memory resource after arch_remove_memory()
-Date:   Wed, 15 Jan 2020 16:33:20 +0100
-Message-Id: <20200115153339.36409-7-david@redhat.com>
+Subject: [PATCH for 4.19-stable 07/25] drivers/base/memory.c: clean up relics in function parameters
+Date:   Wed, 15 Jan 2020 16:33:21 +0100
+Message-Id: <20200115153339.36409-8-david@redhat.com>
 In-Reply-To: <20200115153339.36409-1-david@redhat.com>
 References: <20200115153339.36409-1-david@redhat.com>
 MIME-Version: 1.0
@@ -57,181 +57,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit d9eb1417c77df7ce19abd2e41619e9dceccbdf2a upstream.
+commit 063b8a4cee8088224bcdb79bcd08db98df16178e upstream.
 
-Patch series "mm/memory_hotplug: Better error handling when removing
-memory", v1.
+The input parameter 'phys_index' of memory_block_action() is actually the
+section number, but not the phys_index of memory_block.  This is a relic
+from the past when one memory block could only contain one section.
+Rename it to start_section_nr.
 
-Error handling when removing memory is somewhat messed up right now.  Som=
-e
-errors result in warnings, others are completely ignored.  Memory unplug
-code can essentially not deal with errors properly as of now.
-remove_memory() will never fail.
+And also in remove_memory_section(), the 'node_id' and 'phys_device'
+arguments are not used by anyone.  Remove them.
 
-We have basically two choices:
-1. Allow arch_remov_memory() and friends to fail, propagating errors via
-   remove_memory(). Might be problematic (e.g. DIMMs consisting of multip=
-le
-   pieces added/removed separately).
-2. Don't allow the functions to fail, handling errors in a nicer way.
-
-It seems like most errors that can theoretically happen are really corner
-cases and mostly theoretical (e.g.  "section not valid").  However e.g.
-aborting removal of sections while all callers simply continue in case of
-errors is not nice.
-
-If we can gurantee that removal of memory always works (and WARN/skip in
-case of theoretical errors so we can figure out what is going on), we can
-go ahead and implement better error handling when adding memory.
-
-E.g. via add_memory():
-
-arch_add_memory()
-ret =3D do_stuff()
-if (ret) {
-	arch_remove_memory();
-	goto error;
-}
-
-Handling here that arch_remove_memory() might fail is basically
-impossible.  So I suggest, let's avoid reporting errors while removing
-memory, warning on theoretical errors instead and continuing instead of
-aborting.
-
-This patch (of 4):
-
-__add_pages() doesn't add the memory resource, so __remove_pages()
-shouldn't remove it.  Let's factor it out.  Especially as it is a special
-case for memory used as system memory, added via add_memory() and friends=
-.
-
-We now remove the resource after removing the sections instead of doing i=
-t
-the other way around.  I don't think this change is problematic.
-
-add_memory()
-	register memory resource
-	arch_add_memory()
-
-remove_memory
-	arch_remove_memory()
-	release memory resource
-
-While at it, explain why we ignore errors and that it only happeny if
-we remove memory in a different granularity as we added it.
-
-[david@redhat.com: fix printk warning]
-  Link: http://lkml.kernel.org/r/20190417120204.6997-1-david@redhat.com
-Link: http://lkml.kernel.org/r/20190409100148.24703-2-david@redhat.com
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: http://lkml.kernel.org/r/20190329144250.14315-2-bhe@redhat.com
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
 Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Arun KS <arunks@codeaurora.org>
-Cc: Mathieu Malaterre <malat@debian.org>
-Cc: Andrew Banman <andrew.banman@hpe.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Mike Travis <mike.travis@hpe.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Oscar Salvador <osalvador@suse.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/memory_hotplug.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+ drivers/base/memory.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index a51e5ffdaa04..418d589552b3 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -523,20 +523,6 @@ int __remove_pages(struct zone *zone, unsigned long =
-phys_start_pfn,
- 	if (is_dev_zone(zone)) {
- 		if (altmap)
- 			map_offset =3D vmem_altmap_offset(altmap);
--	} else {
--		resource_size_t start, size;
--
--		start =3D phys_start_pfn << PAGE_SHIFT;
--		size =3D nr_pages * PAGE_SIZE;
--
--		ret =3D release_mem_region_adjustable(&iomem_resource, start,
--					size);
--		if (ret) {
--			resource_size_t endres =3D start + size - 1;
--
--			pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
--					&start, &endres, ret);
--		}
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 5fca7225f3fe..b384f01ad29d 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -230,13 +230,14 @@ static bool pages_correctly_probed(unsigned long st=
+art_pfn)
+  * OK to have direct references to sparsemem variables in here.
+  */
+ static int
+-memory_block_action(unsigned long phys_index, unsigned long action, int =
+online_type)
++memory_block_action(unsigned long start_section_nr, unsigned long action=
+,
++		    int online_type)
+ {
+ 	unsigned long start_pfn;
+ 	unsigned long nr_pages =3D PAGES_PER_SECTION * sections_per_block;
+ 	int ret;
+=20
+-	start_pfn =3D section_nr_to_pfn(phys_index);
++	start_pfn =3D section_nr_to_pfn(start_section_nr);
+=20
+ 	switch (action) {
+ 	case MEM_ONLINE:
+@@ -250,7 +251,7 @@ memory_block_action(unsigned long phys_index, unsigne=
+d long action, int online_t
+ 		break;
+ 	default:
+ 		WARN(1, KERN_WARNING "%s(%ld, %ld) unknown action: "
+-		     "%ld\n", __func__, phys_index, action, action);
++		     "%ld\n", __func__, start_section_nr, action, action);
+ 		ret =3D -EINVAL;
  	}
 =20
- 	clear_zone_contiguous(zone);
-@@ -1883,6 +1869,26 @@ void try_offline_node(int nid)
+@@ -747,8 +748,7 @@ unregister_memory(struct memory_block *memory)
+ 	device_unregister(&memory->dev);
  }
- EXPORT_SYMBOL(try_offline_node);
 =20
-+static void __release_memory_resource(resource_size_t start,
-+				      resource_size_t size)
-+{
-+	int ret;
-+
-+	/*
-+	 * When removing memory in the same granularity as it was added,
-+	 * this function never fails. It might only fail if resources
-+	 * have to be adjusted or split. We'll ignore the error, as
-+	 * removing of memory cannot fail.
-+	 */
-+	ret =3D release_mem_region_adjustable(&iomem_resource, start, size);
-+	if (ret) {
-+		resource_size_t endres =3D start + size - 1;
-+
-+		pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
-+			&start, &endres, ret);
-+	}
-+}
-+
- /**
-  * remove_memory
-  * @nid: the node ID
-@@ -1917,6 +1923,7 @@ void __ref __remove_memory(int nid, u64 start, u64 =
-size)
- 	memblock_remove(start, size);
+-static int remove_memory_section(unsigned long node_id,
+-			       struct mem_section *section, int phys_device)
++static int remove_memory_section(struct mem_section *section)
+ {
+ 	struct memory_block *mem;
 =20
- 	arch_remove_memory(nid, start, size, NULL);
-+	__release_memory_resource(start, size);
+@@ -780,7 +780,7 @@ int unregister_memory_section(struct mem_section *sec=
+tion)
+ 	if (!present_section(section))
+ 		return -EINVAL;
 =20
- 	try_offline_node(nid);
+-	return remove_memory_section(0, section, 0);
++	return remove_memory_section(section);
+ }
+ #endif /* CONFIG_MEMORY_HOTREMOVE */
 =20
 --=20
 2.24.1
