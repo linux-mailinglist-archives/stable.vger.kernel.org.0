@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB3013FE09
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:32:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 766E813FE0D
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403945AbgAPXcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:32:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41140 "EHLO mail.kernel.org"
+        id S2404014AbgAPXcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:32:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403929AbgAPXcH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:32:07 -0500
+        id S2403994AbgAPXcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:32:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28E472072E;
-        Thu, 16 Jan 2020 23:32:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95957206D9;
+        Thu, 16 Jan 2020 23:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217526;
-        bh=MZbu0iSxYP5KuS7zSwGF1a/E+EugeUL4mEMe0+pQp/U=;
+        s=default; t=1579217529;
+        bh=d7tnpAl5AppnZZy6il/7D+B7up9vWBV/emsgi/JzfOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2sjlCWexvGVY6ViUKIQxiAuclwgYTcQjQvR63DM4m3FdyzQDGtmQG7TjrcmdH4/iP
-         HCw8Pw9zWizdWd2ZbPjQLXh2kbPrFyyFR7EG+bB//gvgAXWs9SRiyBzd4OxKv3xdpb
-         FA037cBK9EaitHy9t2YGiT42LPp4LFsJhMxciwUg=
+        b=FcaCEMGpIGuGaxExoybmegQqBMNZeLcu2uF7hN+ZRNEZF9qer1dh9f6E42n8Ix0fZ
+         tfXXnIK/7JoiDpRHnBRfOLoAupjFvV/7WRpgFLfz7kQ9zSxAFMtftYAm30xsGoXGPd
+         64DCnwOgzqFznVeUKZmBPJ8uxtRylIEv6Zd1vxtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 35/71] scsi: sd: Clear sdkp->protection_type if disk is reformatted without PI
-Date:   Fri, 17 Jan 2020 00:18:33 +0100
-Message-Id: <20200116231714.676210145@linuxfoundation.org>
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Daniel Drake <drake@endlessm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.14 36/71] platform/x86: asus-wmi: Fix keyboard brightness cannot be set to 0
+Date:   Fri, 17 Jan 2020 00:18:34 +0100
+Message-Id: <20200116231714.822802644@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
 References: <20200116231709.377772748@linuxfoundation.org>
@@ -43,42 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit 465f4edaecc6c37f81349233e84d46246bcac11a upstream.
+commit 176a7fca81c5090a7240664e3002c106d296bf31 upstream.
 
-If an attached disk with protection information enabled is reformatted
-to Type 0 the revalidation code does not clear the original protection
-type and subsequent accesses will keep setting RDPROTECT/WRPROTECT.
+Some of ASUS laptops like UX431FL keyboard backlight cannot be set to
+brightness 0. According to ASUS' information, the brightness should be
+0x80 ~ 0x83. This patch fixes it by following the logic.
 
-Set the protection type to 0 if the disk reports PROT_EN=0 in READ
-CAPACITY(16).
-
-[mkp: commit desc]
-
-Fixes: fe542396da73 ("[SCSI] sd: Ensure we correctly disable devices with unknown protection type")
-Link: https://lore.kernel.org/r/1578532344-101668-1-git-send-email-chenxiang66@hisilicon.com
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: e9809c0b9670 ("asus-wmi: add keyboard backlight support")
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Reviewed-by: Daniel Drake <drake@endlessm.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/sd.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/asus-wmi.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -2206,8 +2206,10 @@ static int sd_read_protection_type(struc
- 	u8 type;
- 	int ret = 0;
+--- a/drivers/platform/x86/asus-wmi.c
++++ b/drivers/platform/x86/asus-wmi.c
+@@ -457,13 +457,7 @@ static void kbd_led_update(struct work_s
  
--	if (scsi_device_protection(sdp) == 0 || (buffer[12] & 1) == 0)
-+	if (scsi_device_protection(sdp) == 0 || (buffer[12] & 1) == 0) {
-+		sdkp->protection_type = 0;
- 		return ret;
-+	}
+ 	asus = container_of(work, struct asus_wmi, kbd_led_work);
  
- 	type = ((buffer[12] >> 1) & 7) + 1; /* P_TYPE 0 = Type 1 */
+-	/*
+-	 * bits 0-2: level
+-	 * bit 7: light on/off
+-	 */
+-	if (asus->kbd_led_wk > 0)
+-		ctrl_param = 0x80 | (asus->kbd_led_wk & 0x7F);
+-
++	ctrl_param = 0x80 | (asus->kbd_led_wk & 0x7F);
+ 	asus_wmi_set_devstate(ASUS_WMI_DEVID_KBD_BACKLIGHT, ctrl_param, NULL);
+ }
  
 
 
