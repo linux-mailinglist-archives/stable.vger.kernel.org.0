@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E85DD13FE75
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:36:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A79C13FF72
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391547AbgAPXby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:31:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40704 "EHLO mail.kernel.org"
+        id S2388984AbgAPXnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:43:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391544AbgAPXbx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:31:53 -0500
+        id S2388798AbgAPXZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:25:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2BB022522;
-        Thu, 16 Jan 2020 23:31:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B61B2072B;
+        Thu, 16 Jan 2020 23:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217512;
-        bh=uk26Je1JebfBch9yNEDF84kYvcYTlH1CZ/ZpZ9BNG2g=;
+        s=default; t=1579217151;
+        bh=7BLELcTNyCfBKHTFKFJlpFdOhdtiSw/TYEphuGMitYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jHCKvL7UQlqWcUf1TzONVbyvhBmplGnXNqwlTZYoiyewJ3LBF2JbiY4W9uYUJqGvw
-         Ey7VhLU7Tm0ij9Bp2d3OpMofLbJSB9uaGuOuFgy8eY3PHMFezqIcDgcdHWDFbnCwaO
-         5hjw0JAj0RFqjkJgQ62KJFTaiFMJ6tjiJ0G3Neqg=
+        b=UPjJbdu305z/Cymjgj82eKdi3suG0TgS64wjWfsx+VDtBvNE5Fh9149E6biRIrals
+         Nt44IOWgb/kHeFiSczrQDC4FCA2zSZdOqisnzDWLbf5gYsjxoLA190jbMxqYK1z0SZ
+         +5PlS+Whyt5ESSsQ7lWrm35VBlOD0rxANs1bRVBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Bob Picco <bob.picco@oracle.com>,
-        Kristina Martsenko <kristina.martsenko@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.14 07/71] arm64: dont open code page table entry creation
-Date:   Fri, 17 Jan 2020 00:18:05 +0100
-Message-Id: <20200116231710.452938295@linuxfoundation.org>
+        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
+        Nicolas Ferre <nicolas.ferre@atmel.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 169/203] spi: atmel: fix handling of cs_change set on non-last xfer
+Date:   Fri, 17 Jan 2020 00:18:06 +0100
+Message-Id: <20200116231759.362763989@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
-References: <20200116231709.377772748@linuxfoundation.org>
+In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
+References: <20200116231745.218684830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,118 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristina Martsenko <kristina.martsenko@arm.com>
+From: Mans Rullgard <mans@mansr.com>
 
-commit 193383043f14a398393dc18bae8380f7fe665ec3 upstream.
+commit fed8d8c7a6dc2a76d7764842853d81c770b0788e upstream.
 
-Instead of open coding the generation of page table entries, use the
-macros/functions that exist for this - pfn_p*d and p*d_populate. Most
-code in the kernel already uses these macros, this patch tries to fix
-up the few places that don't. This is useful for the next patch in this
-series, which needs to change the page table entry logic, and it's
-better to have that logic in one place.
+The driver does the wrong thing when cs_change is set on a non-last
+xfer in a message.  When cs_change is set, the driver deactivates the
+CS and leaves it off until a later xfer again has cs_change set whereas
+it should be briefly toggling CS off and on again.
 
-The KVM extended ID map is special, since we're creating a level above
-CONFIG_PGTABLE_LEVELS and the required function isn't available. Leave
-it as is and add a comment to explain it. (The normal kernel ID map code
-doesn't need this change because its page tables are created in assembly
-(__create_page_tables)).
-
-Tested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
-Tested-by: Bob Picco <bob.picco@oracle.com>
-Reviewed-by: Bob Picco <bob.picco@oracle.com>
-Signed-off-by: Kristina Martsenko <kristina.martsenko@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+This patch brings the behaviour of the driver back in line with the
+documentation and common sense.  The delay of 10 us is the same as is
+used by the default spi_transfer_one_message() function in spi.c.
+[gregory: rebased on for-5.5 from spi tree]
+Fixes: 8090d6d1a415 ("spi: atmel: Refactor spi-atmel to use SPI framework queue")
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20191018153504.4249-1-gregory.clement@bootlin.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/include/asm/kvm_mmu.h |    5 +++++
- arch/arm64/include/asm/pgtable.h |    1 +
- arch/arm64/kernel/hibernate.c    |    3 +--
- arch/arm64/mm/mmu.c              |   14 +++++++++-----
- 4 files changed, 16 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/include/asm/kvm_mmu.h
-+++ b/arch/arm64/include/asm/kvm_mmu.h
-@@ -296,6 +296,11 @@ static inline bool __kvm_cpu_uses_extend
- 	return __cpu_uses_extended_idmap();
- }
+---
+ drivers/spi/spi-atmel.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
+--- a/drivers/spi/spi-atmel.c
++++ b/drivers/spi/spi-atmel.c
+@@ -302,7 +302,6 @@ struct atmel_spi {
+ 	bool			use_cs_gpios;
  
-+/*
-+ * Can't use pgd_populate here, because the extended idmap adds an extra level
-+ * above CONFIG_PGTABLE_LEVELS (which is 2 or 3 if we're using the extended
-+ * idmap), and pgd_populate is only available if CONFIG_PGTABLE_LEVELS = 4.
-+ */
- static inline void __kvm_extend_hypmap(pgd_t *boot_hyp_pgd,
- 				       pgd_t *hyp_pgd,
- 				       pgd_t *merged_hyp_pgd,
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -343,6 +343,7 @@ static inline int pmd_protnone(pmd_t pmd
+ 	bool			keep_cs;
+-	bool			cs_active;
  
- #define pud_write(pud)		pte_write(pud_pte(pud))
- #define pud_pfn(pud)		(((pud_val(pud) & PUD_MASK) & PHYS_MASK) >> PAGE_SHIFT)
-+#define pfn_pud(pfn,prot)	(__pud(((phys_addr_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot)))
- 
- #define set_pmd_at(mm, addr, pmdp, pmd)	set_pte_at(mm, addr, (pte_t *)pmdp, pmd_pte(pmd))
- 
---- a/arch/arm64/kernel/hibernate.c
-+++ b/arch/arm64/kernel/hibernate.c
-@@ -246,8 +246,7 @@ static int create_safe_exec_page(void *s
+ 	u32			fifo_size;
+ };
+@@ -1374,11 +1373,9 @@ static int atmel_spi_one_transfer(struct
+ 				 &msg->transfers)) {
+ 			as->keep_cs = true;
+ 		} else {
+-			as->cs_active = !as->cs_active;
+-			if (as->cs_active)
+-				cs_activate(as, msg->spi);
+-			else
+-				cs_deactivate(as, msg->spi);
++			cs_deactivate(as, msg->spi);
++			udelay(10);
++			cs_activate(as, msg->spi);
+ 		}
  	}
  
- 	pte = pte_offset_kernel(pmd, dst_addr);
--	set_pte(pte, __pte(virt_to_phys((void *)dst) |
--			 pgprot_val(PAGE_KERNEL_EXEC)));
-+	set_pte(pte, pfn_pte(virt_to_pfn(dst), PAGE_KERNEL_EXEC));
+@@ -1401,7 +1398,6 @@ static int atmel_spi_transfer_one_messag
+ 	atmel_spi_lock(as);
+ 	cs_activate(as, spi);
  
- 	/*
- 	 * Load our new page tables. A strict BBM approach requires that we
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -605,8 +605,8 @@ static void __init map_kernel(pgd_t *pgd
- 		 * entry instead.
- 		 */
- 		BUG_ON(!IS_ENABLED(CONFIG_ARM64_16K_PAGES));
--		set_pud(pud_set_fixmap_offset(pgd, FIXADDR_START),
--			__pud(__pa_symbol(bm_pmd) | PUD_TYPE_TABLE));
-+		pud_populate(&init_mm, pud_set_fixmap_offset(pgd, FIXADDR_START),
-+			     lm_alias(bm_pmd));
- 		pud_clear_fixmap();
- 	} else {
- 		BUG();
-@@ -721,7 +721,7 @@ int __meminit vmemmap_populate(unsigned
- 			if (!p)
- 				return -ENOMEM;
+-	as->cs_active = true;
+ 	as->keep_cs = false;
  
--			set_pmd(pmd, __pmd(__pa(p) | PROT_SECT_NORMAL));
-+			pmd_set_huge(pmd, __pa(p), __pgprot(PROT_SECT_NORMAL));
- 		} else
- 			vmemmap_verify((pte_t *)pmd, node, addr, next);
- 	} while (addr = next, addr != end);
-@@ -915,15 +915,19 @@ int __init arch_ioremap_pmd_supported(vo
- 
- int pud_set_huge(pud_t *pud, phys_addr_t phys, pgprot_t prot)
- {
-+	pgprot_t sect_prot = __pgprot(PUD_TYPE_SECT |
-+					pgprot_val(mk_sect_prot(prot)));
- 	BUG_ON(phys & ~PUD_MASK);
--	set_pud(pud, __pud(phys | PUD_TYPE_SECT | pgprot_val(mk_sect_prot(prot))));
-+	set_pud(pud, pfn_pud(__phys_to_pfn(phys), sect_prot));
- 	return 1;
- }
- 
- int pmd_set_huge(pmd_t *pmd, phys_addr_t phys, pgprot_t prot)
- {
-+	pgprot_t sect_prot = __pgprot(PMD_TYPE_SECT |
-+					pgprot_val(mk_sect_prot(prot)));
- 	BUG_ON(phys & ~PMD_MASK);
--	set_pmd(pmd, __pmd(phys | PMD_TYPE_SECT | pgprot_val(mk_sect_prot(prot))));
-+	set_pmd(pmd, pfn_pmd(__phys_to_pfn(phys), sect_prot));
- 	return 1;
- }
- 
+ 	msg->status = 0;
 
 
