@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1185013E234
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:54:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A0C13E239
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:54:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731690AbgAPQye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:54:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39178 "EHLO mail.kernel.org"
+        id S1732415AbgAPQyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:54:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732209AbgAPQye (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:54:34 -0500
+        id S1729955AbgAPQyk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:54:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A85BB214AF;
-        Thu, 16 Jan 2020 16:54:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1A9E214AF;
+        Thu, 16 Jan 2020 16:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193673;
-        bh=6RmZS8R/qbLmC24LIgFWQHrkZAi6i9WyA++AiikMsrg=;
+        s=default; t=1579193679;
+        bh=VXkXkjK1OcAV5Ex2Khfw/MtuZoMJCOIv3Gy5tPbePYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTcUpVKza25MiwqTSTjwhfdAkU+2RfQELH7urw2KhcLnTPaxwGu61F10l7J9TjPe9
-         Wl/FVCw9FHDZuBTU/cVOi8jZm2fofbzy9U6mqIjs4ipxFhtN7aPvtdF8pX9YOH9oVq
-         AAQuZwiUm7RFrlLPSDYt+MRuGklbpjjKp0K1gG4c=
+        b=GDtFyByddKmLOOTo6UC2wf6wRYBuDIuf822H+REQ6fCIwr4LTUlhb0YoWbpQbvmBt
+         nnDzcFywUNIXyavHRpCZzWqFYbvk8HYBJyYG0Ec/sxbj4eyM+fB/ADSSw+MSxBDfry
+         UUPHkAfDEZdzdeiUgnkW7a6uV1O3xNp08aCMNbjU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        "J . Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 198/205] NFSD fixing possible null pointer derefering in copy offload
-Date:   Thu, 16 Jan 2020 11:42:53 -0500
-Message-Id: <20200116164300.6705-198-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Andrew Jeffery <andrew@aj.id.au>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 203/205] gpio: aspeed: avoid return type warning
+Date:   Thu, 16 Jan 2020 11:42:58 -0500
+Message-Id: <20200116164300.6705-203-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -45,34 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 18f428d4e2f7eff162d80b2b21689496c4e82afd ]
+[ Upstream commit 11e299de3aced4ea23a9fb1fef6c983c8d516302 ]
 
-Static checker revealed possible error path leading to possible
-NULL pointer dereferencing.
+gcc has a hard time tracking whether BUG_ON(1) ends
+execution or not:
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: e0639dc5805a: ("NFSD introduce async copy feature")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+drivers/gpio/gpio-aspeed-sgpio.c: In function 'bank_reg':
+drivers/gpio/gpio-aspeed-sgpio.c:112:1: error: control reaches end of non-void function [-Werror=return-type]
+
+Use the simpler BUG() that gcc knows cannot continue.
+
+Fixes: f8b410e3695a ("gpio: aspeed-sgpio: Rename and add Kconfig/Makefile")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpio/sgpio-aspeed.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 38c0aeda500e..4798667af647 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -1298,7 +1298,8 @@ nfsd4_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
- out:
- 	return status;
- out_err:
--	cleanup_async_copy(async_copy);
-+	if (async_copy)
-+		cleanup_async_copy(async_copy);
- 	goto out;
+diff --git a/drivers/gpio/sgpio-aspeed.c b/drivers/gpio/sgpio-aspeed.c
+index 7e99860ca447..8319812593e3 100644
+--- a/drivers/gpio/sgpio-aspeed.c
++++ b/drivers/gpio/sgpio-aspeed.c
+@@ -107,7 +107,7 @@ static void __iomem *bank_reg(struct aspeed_sgpio *gpio,
+ 		return gpio->base + bank->irq_regs + GPIO_IRQ_STATUS;
+ 	default:
+ 		/* acturally if code runs to here, it's an error case */
+-		BUG_ON(1);
++		BUG();
+ 	}
  }
  
 -- 
