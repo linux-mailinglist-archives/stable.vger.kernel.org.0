@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A6A813F46C
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:49:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FC213F468
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:49:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437036AbgAPSth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:49:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45134 "EHLO mail.kernel.org"
+        id S2389679AbgAPSta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:49:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389073AbgAPRJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:09:21 -0500
+        id S2389669AbgAPRJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45837205F4;
-        Thu, 16 Jan 2020 17:09:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CB0A24683;
+        Thu, 16 Jan 2020 17:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194561;
-        bh=d7dmRKmohAvZ7kcE70HwAppkH5lbpOz49xer5jIKRIc=;
+        s=default; t=1579194562;
+        bh=OS10Ly0yse7Nq0ijVnUrxYesgQp3yJ3HAwsBYuNPsws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yN9UDlRJ1GODHpPtJ7ilaeoJJk2vaHr9fFbE8PzQA1YnzQYBLuOqiCsM3r9oQ/K3k
-         Fhwa7Bo7Kwh7D6UXIXYAeIcvELkepujhoKqZw2gRHBxvTPp2dufmWc0klgkBtocHaT
-         U+yP9/1ZpCK5hv8B1WECx+SWqzUs4BXQdZzC6yxQ=
+        b=dZEHcVC6fgbUD6KQcH7mOU2Lf9WaSiV8v86FHzUstfT5Owg7YmcWB7a4qfSFpwOC5
+         LWd9F4PKfetWtHhFuS0PR1PyUCTNYHOXHPZG4EaW+ANd+msFqdl04Qzd5G721z3XWY
+         pBLybq8RgGoqNhRsJRol0EONNOZkCs8Ub5bxtBOw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 441/671] bnxt_en: Suppress error messages when querying DSCP DCB capabilities.
-Date:   Thu, 16 Jan 2020 12:01:19 -0500
-Message-Id: <20200116170509.12787-178-sashal@kernel.org>
+Cc:     Kevin Mitchell <kevmitch@arista.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 442/671] iommu/amd: Make iommu_disable safer
+Date:   Thu, 16 Jan 2020 12:01:20 -0500
+Message-Id: <20200116170509.12787-179-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -43,35 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Kevin Mitchell <kevmitch@arista.com>
 
-[ Upstream commit 4ca5fa39e1aea2f85eb9c4257075c4077c6531da ]
+[ Upstream commit 3ddbe913e55516d3e2165d43d4d5570761769878 ]
 
-Some firmware versions do not support this so use the silent variant
-to send the message to firmware to suppress the harmless error.  This
-error message is unnecessarily alarming the user.
+Make it safe to call iommu_disable during early init error conditions
+before mmio_base is set, but after the struct amd_iommu has been added
+to the amd_iommu_list. For example, this happens if firmware fails to
+fill in mmio_phys in the ACPI table leading to a NULL pointer
+dereference in iommu_feature_disable.
 
-Fixes: afdc8a84844a ("bnxt_en: Add DCBNL DSCP application protocol support.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2c0ae1720c09c ('iommu/amd: Convert iommu initialization to state machine')
+Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/amd_iommu_init.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c
-index a85d2be986af..0e4e0b47f5d8 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c
-@@ -396,7 +396,7 @@ static int bnxt_hwrm_queue_dscp_qcaps(struct bnxt *bp)
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index 1e9a5da562f0..465f28a7844c 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -422,6 +422,9 @@ static void iommu_enable(struct amd_iommu *iommu)
  
- 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_QUEUE_DSCP_QCAPS, -1, -1);
- 	mutex_lock(&bp->hwrm_cmd_lock);
--	rc = _hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
-+	rc = _hwrm_send_message_silent(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
- 	if (!rc) {
- 		bp->max_dscp_value = (1 << resp->num_dscp_bits) - 1;
- 		if (bp->max_dscp_value < 0x3f)
+ static void iommu_disable(struct amd_iommu *iommu)
+ {
++	if (!iommu->mmio_base)
++		return;
++
+ 	/* Disable command buffer */
+ 	iommu_feature_disable(iommu, CONTROL_CMDBUF_EN);
+ 
 -- 
 2.20.1
 
