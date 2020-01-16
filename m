@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4909813E495
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:09:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFD3C13E499
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389652AbgAPRJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:09:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44864 "EHLO mail.kernel.org"
+        id S2389678AbgAPRJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:09:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389646AbgAPRJS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:09:18 -0500
+        id S2389676AbgAPRJX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FDEB205F4;
-        Thu, 16 Jan 2020 17:09:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1B9C205F4;
+        Thu, 16 Jan 2020 17:09:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194557;
-        bh=Us2oXtdbboe0sr3+v+28oDWDxQ0tEGkRNRlLlWzXMIM=;
+        s=default; t=1579194563;
+        bh=xjgxhO45dHjd130Ym0AGnbBoCRkmzFTzfxB9a2hD2AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjAwXYZcaI0IjcJ9iLeNmboVk2M+YaDOVs0WQY9T89RJMoZssIxvY8W8iA4+fJDfb
-         MQ/p7/kz8CHV+oIheNInIqcYbpMR18r4ZcVNUuV6pey4Ts/XCbUQuy5vYY3L5RYBlL
-         oZuvDfOfYbG07RyeCx5anifSrxIMIxhb439B9CAU=
+        b=apx21vAiOVPCKu85y2G0sCn+T946FgqtTLWpP28txWTkZ8IfW82F/OY7bbCAtHRsz
+         VNMDM0H07HkFcD2WoIUueSFlQ7CN2cNy9DPI+nRnu2PV3vTthDbhSxMUXKMQLnGU4C
+         RMnO1hs+OAyB4vPKQJ8LJ8H4yI4R3bvxUq6yNdXc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthias Kaehlcke <mka@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 438/671] backlight: pwm_bl: Fix heuristic to determine number of brightness levels
-Date:   Thu, 16 Jan 2020 12:01:16 -0500
-Message-Id: <20200116170509.12787-175-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 443/671] mfd: intel-lpss: Release IDA resources
+Date:   Thu, 16 Jan 2020 12:01:21 -0500
+Message-Id: <20200116170509.12787-180-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -46,85 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 73fbfc499448455f1e1c77717040e09e25f1d976 ]
+[ Upstream commit 02f36911c1b41fcd8779fa0c135aab0554333fa5 ]
 
-With commit 88ba95bedb79 ("backlight: pwm_bl: Compute brightness of
-LED linearly to human eye") the number of set bits (aka hweight())
-in the PWM period is used in the heuristic to determine the number
-of brightness levels, when the brightness table isn't specified in
-the DT. The number of set bits doesn't provide a reliable clue about
-the length of the period, instead change the heuristic to:
+ida instances allocate some internal memory for ->free_bitmap
+in addition to the base 'struct ida'. Use ida_destroy() to release
+that memory at module_exit().
 
- nlevels = period / fls(period)
-
-Also limit the maximum number of brightness levels to 4096 to avoid
-excessively large tables.
-
-With this the number of levels increases monotonically with the PWM
-period, until the maximum of 4096 levels is reached:
-
-period (ns)    # levels
-
-100    	       16
-500	       62
-1000	       111
-5000	       416
-10000	       769
-50000	       3333
-100000	       4096
-
-Fixes: 88ba95bedb79 ("backlight: pwm_bl: Compute brightness of LED linearly to human eye")
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
-Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Fixes: 4b45efe85263 ("mfd: Add support for Intel Sunrisepoint LPSS devices")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/pwm_bl.c | 24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+ drivers/mfd/intel-lpss.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
-index 7ddc0930e98c..3a3098d4873b 100644
---- a/drivers/video/backlight/pwm_bl.c
-+++ b/drivers/video/backlight/pwm_bl.c
-@@ -199,29 +199,17 @@ int pwm_backlight_brightness_default(struct device *dev,
- 				     struct platform_pwm_backlight_data *data,
- 				     unsigned int period)
+diff --git a/drivers/mfd/intel-lpss.c b/drivers/mfd/intel-lpss.c
+index ff3fba16e735..95e217e6b6d7 100644
+--- a/drivers/mfd/intel-lpss.c
++++ b/drivers/mfd/intel-lpss.c
+@@ -545,6 +545,7 @@ module_init(intel_lpss_init);
+ 
+ static void __exit intel_lpss_exit(void)
  {
--	unsigned int counter = 0;
--	unsigned int i, n;
-+	unsigned int i;
- 	u64 retval;
- 
- 	/*
--	 * Count the number of bits needed to represent the period number. The
--	 * number of bits is used to calculate the number of levels used for the
--	 * brightness-levels table, the purpose of this calculation is have a
--	 * pre-computed table with enough levels to get linear brightness
--	 * perception. The period is divided by the number of bits so for a
--	 * 8-bit PWM we have 255 / 8 = 32 brightness levels or for a 16-bit PWM
--	 * we have 65535 / 16 = 4096 brightness levels.
--	 *
--	 * Note that this method is based on empirical testing on different
--	 * devices with PWM of 8 and 16 bits of resolution.
-+	 * Once we have 4096 levels there's little point going much higher...
-+	 * neither interactive sliders nor animation benefits from having
-+	 * more values in the table.
- 	 */
--	n = period;
--	while (n) {
--		counter += n % 2;
--		n >>= 1;
--	}
-+	data->max_brightness =
-+		min((int)DIV_ROUND_UP(period, fls(period)), 4096);
- 
--	data->max_brightness = DIV_ROUND_UP(period, counter);
- 	data->levels = devm_kcalloc(dev, data->max_brightness,
- 				    sizeof(*data->levels), GFP_KERNEL);
- 	if (!data->levels)
++	ida_destroy(&intel_lpss_devid_ida);
+ 	debugfs_remove(intel_lpss_debugfs);
+ }
+ module_exit(intel_lpss_exit);
 -- 
 2.20.1
 
