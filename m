@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEBC813F3D5
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:46:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF57113F41E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:48:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389664AbgAPSpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:45:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48942 "EHLO mail.kernel.org"
+        id S2390062AbgAPSr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:47:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390029AbgAPRKd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:10:33 -0500
+        id S2389305AbgAPRKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:10:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 423CE2467C;
-        Thu, 16 Jan 2020 17:10:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94F4424686;
+        Thu, 16 Jan 2020 17:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194633;
-        bh=ry5raxMMcK79klLj5ax/ijaAf/pwX8mblkJk85prWNU=;
+        s=default; t=1579194634;
+        bh=N6NL80NyMEmBK1Ck48h21G8o7JDmrLH68BcMhLlv+3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LXEMbRFPyRS9CDT9Z6U2eSmnNb7MMaWrKyQdys4lTvU/44dXDpXVFxauBSqcx30mL
-         YDt8wUQ/fGBwPnesDszuYTMI2uGFmmsCl0U320VRTGqDhm/f+2MSxxDlYFJ59k+Qi/
-         2Tm3nMY54Oula0lN3Fd9x0not8j/C/3CcWmS7Qw4=
+        b=OcA/O+C5FUYSxPjqn10/dlByLCN99g2uh1Vk/5Obf5FfqPqSF37rjTO2f9yFoSVX+
+         tk1iJ4HhwDM3cGqden4F5JBleKHCRfWMytKTmxkzd71wKipGR3eLEQL3eNPLEX3JjM
+         6DF0hhz4D63KGuZ77nEzqdbfkmvYIzucJZ+oSNJY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 492/671] ASoC: wm8737: Fix copy-paste error in wm8737_snd_controls
-Date:   Thu, 16 Jan 2020 12:02:10 -0500
-Message-Id: <20200116170509.12787-229-sashal@kernel.org>
+Cc:     Gerd Rausch <gerd.rausch@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com
+Subject: [PATCH AUTOSEL 4.19 493/671] net/rds: Add a few missing rds_stat_names entries
+Date:   Thu, 16 Jan 2020 12:02:11 -0500
+Message-Id: <20200116170509.12787-230-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,39 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Gerd Rausch <gerd.rausch@oracle.com>
 
-[ Upstream commit 554b75bde64bcad9662530726d1483f7ef012069 ]
+[ Upstream commit 55c70ca00c982fbc0df4c4d3e31747fb73f4ddb5 ]
 
-sound/soc/codecs/wm8737.c:112:29: warning:
- high_3d defined but not used [-Wunused-const-variable=]
+In a previous commit, fields were added to "struct rds_statistics"
+but array "rds_stat_names" was not updated accordingly.
 
-'high_3d' should be used for 3D High Cut-off.
+Please note the inconsistent naming of the string representations
+that is done in the name of compatibility
+with the Oracle internal code-base.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 2a9ae13a2641 ("ASoC: Add initial WM8737 driver")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20190815091920.64480-1-yuehaibing@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+s_recv_bytes_added_to_socket     -> "recv_bytes_added_to_sock"
+s_recv_bytes_removed_from_socket -> "recv_bytes_freed_fromsock"
+
+Fixes: 192a798f5299 ("RDS: add stat for socket recv memory usage")
+Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8737.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rds/stats.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/wm8737.c b/sound/soc/codecs/wm8737.c
-index e9ae821e7609..568b77692f5f 100644
---- a/sound/soc/codecs/wm8737.c
-+++ b/sound/soc/codecs/wm8737.c
-@@ -170,7 +170,7 @@ SOC_DOUBLE("Polarity Invert Switch", WM8737_ADC_CONTROL, 5, 6, 1, 0),
- SOC_SINGLE("3D Switch", WM8737_3D_ENHANCE, 0, 1, 0),
- SOC_SINGLE("3D Depth", WM8737_3D_ENHANCE, 1, 15, 0),
- SOC_ENUM("3D Low Cut-off", low_3d),
--SOC_ENUM("3D High Cut-off", low_3d),
-+SOC_ENUM("3D High Cut-off", high_3d),
- SOC_SINGLE_TLV("3D ADC Volume", WM8737_3D_ENHANCE, 7, 1, 1, adc_tlv),
+diff --git a/net/rds/stats.c b/net/rds/stats.c
+index 73be187d389e..6bbab4d74c4f 100644
+--- a/net/rds/stats.c
++++ b/net/rds/stats.c
+@@ -76,6 +76,8 @@ static const char *const rds_stat_names[] = {
+ 	"cong_update_received",
+ 	"cong_send_error",
+ 	"cong_send_blocked",
++	"recv_bytes_added_to_sock",
++	"recv_bytes_freed_fromsock",
+ };
  
- SOC_SINGLE("Noise Gate Switch", WM8737_NOISE_GATE, 0, 1, 0),
+ void rds_stats_info_copy(struct rds_info_iterator *iter,
 -- 
 2.20.1
 
