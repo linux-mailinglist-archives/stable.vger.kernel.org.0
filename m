@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD25A13E87A
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:32:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7FDE13E878
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:32:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392992AbgAPRa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:30:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43776 "EHLO mail.kernel.org"
+        id S2392724AbgAPRa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:30:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404590AbgAPRay (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:30:54 -0500
+        id S2404637AbgAPRaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:30:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3397E2469B;
-        Thu, 16 Jan 2020 17:30:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55B60246A9;
+        Thu, 16 Jan 2020 17:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195853;
-        bh=v5xJJ6yvSrlDbz7tmGMXlrb2kVf29Aj02dDkzuGsCA8=;
+        s=default; t=1579195855;
+        bh=sVAcU0U1Afdh1SDicf+4JPZiogWd5Q+c2pf+MC5Fx5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZugOtdGxjijF4/Sto9XlDQNe9y7jq4ICvP3AbZZPFs/sEoyf0b35sKK5xt6/7A60
-         0ZyZhtSwFJ2IkGySw47fCuRtPwjlPjJ++o9PUE+mgiHlO5VmwXtT7/4t47sX0HbRIq
-         5JWhJ44bJFgOMPMefKUUdyOz62lI186ku1UhyVQU=
+        b=m+gSBUJ86q8OS1Z0GRrqcj+4gbIpoDDGVAlexJX3OC4CxBjy4ckJ+kW2mFLdjpLrt
+         36nYAaOVJqttLiTvHFxsrH5GN25TkCrRsxU3n8lAonGud/JweSf1aeSKfl5nJly8vx
+         bxc6ZHp/ixWjSPV37SQpBoQyE0hNHwDI/DzRbH3k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 353/371] mmc: sdio: fix wl1251 vendor id
-Date:   Thu, 16 Jan 2020 12:23:45 -0500
-Message-Id: <20200116172403.18149-296-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 354/371] mmc: core: fix wl1251 sdio quirks
+Date:   Thu, 16 Jan 2020 12:23:46 -0500
+Message-Id: <20200116172403.18149-297-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,17 +45,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "H. Nikolaus Schaller" <hns@goldelico.com>
 
-[ Upstream commit e5db673e7fe2f971ec82039a28dc0811c2100e87 ]
+[ Upstream commit 16568b4a4f0c34bd35cfadac63303c7af7812764 ]
 
-v4.11-rc1 did introduce a patch series that rearranged the
-sdio quirks into a header file. Unfortunately this did forget
-to handle SDIO_VENDOR_ID_TI differently between wl1251 and
-wl1271 with the result that although the wl1251 was found on
-the sdio bus, the firmware did not load any more and there was
-no interface registration.
-
-This patch defines separate constants to be used by sdio quirks
-and drivers.
+wl1251 and wl1271 have different vendor id and device id.
+So we need to handle both with sdio quirks.
 
 Fixes: 884f38607897 ("mmc: core: move some sdio IDs out of quirks file")
 Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
@@ -63,22 +56,28 @@ Cc: <stable@vger.kernel.org> # v4.11+
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mmc/sdio_ids.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/core/quirks.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/include/linux/mmc/sdio_ids.h b/include/linux/mmc/sdio_ids.h
-index 0a7abe8a407f..68bbbd9edc08 100644
---- a/include/linux/mmc/sdio_ids.h
-+++ b/include/linux/mmc/sdio_ids.h
-@@ -67,6 +67,8 @@
+diff --git a/drivers/mmc/core/quirks.h b/drivers/mmc/core/quirks.h
+index 5153577754f0..09897abb79ed 100644
+--- a/drivers/mmc/core/quirks.h
++++ b/drivers/mmc/core/quirks.h
+@@ -119,7 +119,14 @@ static const struct mmc_fixup mmc_ext_csd_fixups[] = {
+ 	END_FIXUP
+ };
  
- #define SDIO_VENDOR_ID_TI			0x0097
- #define SDIO_DEVICE_ID_TI_WL1271		0x4076
-+#define SDIO_VENDOR_ID_TI_WL1251		0x104c
-+#define SDIO_DEVICE_ID_TI_WL1251		0x9066
++
+ static const struct mmc_fixup sdio_fixup_methods[] = {
++	SDIO_FIXUP(SDIO_VENDOR_ID_TI_WL1251, SDIO_DEVICE_ID_TI_WL1251,
++		   add_quirk, MMC_QUIRK_NONSTD_FUNC_IF),
++
++	SDIO_FIXUP(SDIO_VENDOR_ID_TI_WL1251, SDIO_DEVICE_ID_TI_WL1251,
++		   add_quirk, MMC_QUIRK_DISABLE_CD),
++
+ 	SDIO_FIXUP(SDIO_VENDOR_ID_TI, SDIO_DEVICE_ID_TI_WL1271,
+ 		   add_quirk, MMC_QUIRK_NONSTD_FUNC_IF),
  
- #define SDIO_VENDOR_ID_STE			0x0020
- #define SDIO_DEVICE_ID_STE_CW1200		0x2280
 -- 
 2.20.1
 
