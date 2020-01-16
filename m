@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0249613FD23
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:22:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4162C13FD27
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:22:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387770AbgAPXWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:22:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50208 "EHLO mail.kernel.org"
+        id S2388010AbgAPXWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:22:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388010AbgAPXWW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:22:22 -0500
+        id S1733309AbgAPXWd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:22:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE7792082F;
-        Thu, 16 Jan 2020 23:22:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FAF32072E;
+        Thu, 16 Jan 2020 23:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216942;
-        bh=q1yHEwC/VEMhllPl963JJu1jJfwfh43IvmmgiSrS8ps=;
+        s=default; t=1579216952;
+        bh=qoJiw2UXqelVfmejQw9na4k5RWtdEIUMon8F8KKTfQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+tVr2A/0Aptjzm2Yvs/A/lXllk9AODbxfVBBlEMR++Yl4tm1/DLIYjR/UQC1J0hz
-         s5p+9xGfGNW58v8OgPRnZcT5kq7j9tVONBK44I6IXMBao7W23NDrJ8A9ru5BprhxNV
-         GfT2RLvvouOQi/0bSSlnkYfJl9/JhjJQkzcSL0vo=
+        b=k1tSku9dsfQIJQ7SruDHJUTsAU0PUlDg2wmnQyEZsSepN9L3FMYhEMPMMUGDlnPeC
+         xCNKFaBFn/3bgfl4TexVb1IlGq/JWc98Pl1BO45wGF1GU9aC6vzvyNKR27m1UUE9ZK
+         wYcTSbO2IdI7fRRQjSjSHxcL5cgNE24HgU8/AVIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangyang Li <liyangyang20@huawei.com>,
-        Weihang Li <liweihang@hisilicon.com>,
-        Doug Ledford <dledford@redhat.com>
-Subject: [PATCH 5.4 067/203] RDMA/hns: Release qp resources when failed to destroy qp
-Date:   Fri, 17 Jan 2020 00:16:24 +0100
-Message-Id: <20200116231749.970453172@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.4 071/203] xprtrdma: Close window between waking RPC senders and posting Receives
+Date:   Fri, 17 Jan 2020 00:16:28 +0100
+Message-Id: <20200116231750.370321270@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -44,66 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangyang Li <liyangyang20@huawei.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit d302c6e3a6895608a5856bc708c47bda1770b24d upstream.
+commit 2ae50ad68cd79224198b525f7bd645c9da98b6ff upstream.
 
-Even if no response from hardware, we should make sure that qp related
-resources are released to avoid memory leaks.
+A recent clean up attempted to separate Receive handling and RPC
+Reply processing, in the name of clean layering.
 
-Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
-Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
-Signed-off-by: Weihang Li <liweihang@hisilicon.com>
-Link: https://lore.kernel.org/r/1570584110-3659-1-git-send-email-liweihang@hisilicon.com
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Unfortunately, we can't do this because the Receive Queue has to be
+refilled _after_ the most recent credit update from the responder
+is parsed from the transport header, but _before_ we wake up the
+next RPC sender. That is right in the middle of
+rpcrdma_reply_handler().
+
+Usually this isn't a problem because current responder
+implementations don't vary their credit grant. The one exception is
+when a connection is established: the grant goes from one to a much
+larger number on the first Receive. The requester MUST post enough
+Receives right then so that any outstanding requests can be sent
+without risking RNR and connection loss.
+
+Fixes: 6ceea36890a0 ("xprtrdma: Refactor Receive accounting")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ net/sunrpc/xprtrdma/rpc_rdma.c  |    1 +
+ net/sunrpc/xprtrdma/verbs.c     |   11 +++++++----
+ net/sunrpc/xprtrdma/xprt_rdma.h |    1 +
+ 3 files changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4650,16 +4650,14 @@ static int hns_roce_v2_destroy_qp_common
- {
- 	struct hns_roce_cq *send_cq, *recv_cq;
- 	struct ib_device *ibdev = &hr_dev->ib_dev;
--	int ret;
-+	int ret = 0;
- 
- 	if (hr_qp->ibqp.qp_type == IB_QPT_RC && hr_qp->state != IB_QPS_RESET) {
- 		/* Modify qp to reset before destroying qp */
- 		ret = hns_roce_v2_modify_qp(&hr_qp->ibqp, NULL, 0,
- 					    hr_qp->state, IB_QPS_RESET);
--		if (ret) {
-+		if (ret)
- 			ibdev_err(ibdev, "modify QP to Reset failed.\n");
--			return ret;
--		}
+--- a/net/sunrpc/xprtrdma/rpc_rdma.c
++++ b/net/sunrpc/xprtrdma/rpc_rdma.c
+@@ -1362,6 +1362,7 @@ void rpcrdma_reply_handler(struct rpcrdm
+ 		xprt->cwnd = credits << RPC_CWNDSHIFT;
+ 		spin_unlock(&xprt->transport_lock);
  	}
++	rpcrdma_post_recvs(r_xprt, false);
  
- 	send_cq = to_hr_cq(hr_qp->ibqp.send_cq);
-@@ -4715,7 +4713,7 @@ static int hns_roce_v2_destroy_qp_common
- 		kfree(hr_qp->rq_inl_buf.wqe_list);
- 	}
+ 	req = rpcr_to_rdmar(rqst);
+ 	if (req->rl_reply) {
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -84,7 +84,6 @@ rpcrdma_regbuf_alloc(size_t size, enum d
+ 		     gfp_t flags);
+ static void rpcrdma_regbuf_dma_unmap(struct rpcrdma_regbuf *rb);
+ static void rpcrdma_regbuf_free(struct rpcrdma_regbuf *rb);
+-static void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, bool temp);
  
--	return 0;
-+	return ret;
+ /* Wait for outstanding transport work to finish. ib_drain_qp
+  * handles the drains in the wrong order for us, so open code
+@@ -170,7 +169,6 @@ rpcrdma_wc_receive(struct ib_cq *cq, str
+ 				   rdmab_addr(rep->rr_rdmabuf),
+ 				   wc->byte_len, DMA_FROM_DEVICE);
+ 
+-	rpcrdma_post_recvs(r_xprt, false);
+ 	rpcrdma_reply_handler(rep);
+ 	return;
+ 
+@@ -1478,8 +1476,13 @@ rpcrdma_ep_post(struct rpcrdma_ia *ia,
+ 	return 0;
  }
  
- static int hns_roce_v2_destroy_qp(struct ib_qp *ibqp, struct ib_udata *udata)
-@@ -4725,11 +4723,9 @@ static int hns_roce_v2_destroy_qp(struct
- 	int ret;
+-static void
+-rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, bool temp)
++/**
++ * rpcrdma_post_recvs - Refill the Receive Queue
++ * @r_xprt: controlling transport instance
++ * @temp: mark Receive buffers to be deleted after use
++ *
++ */
++void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, bool temp)
+ {
+ 	struct rpcrdma_buffer *buf = &r_xprt->rx_buf;
+ 	struct rpcrdma_ep *ep = &r_xprt->rx_ep;
+--- a/net/sunrpc/xprtrdma/xprt_rdma.h
++++ b/net/sunrpc/xprtrdma/xprt_rdma.h
+@@ -474,6 +474,7 @@ void rpcrdma_ep_disconnect(struct rpcrdm
  
- 	ret = hns_roce_v2_destroy_qp_common(hr_dev, hr_qp, udata);
--	if (ret) {
-+	if (ret)
- 		ibdev_err(&hr_dev->ib_dev, "Destroy qp 0x%06lx failed(%d)\n",
- 			  hr_qp->qpn, ret);
--		return ret;
--	}
+ int rpcrdma_ep_post(struct rpcrdma_ia *, struct rpcrdma_ep *,
+ 				struct rpcrdma_req *);
++void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, bool temp);
  
- 	if (hr_qp->ibqp.qp_type == IB_QPT_GSI)
- 		kfree(hr_to_hr_sqp(hr_qp));
+ /*
+  * Buffer calls - xprtrdma/verbs.c
 
 
