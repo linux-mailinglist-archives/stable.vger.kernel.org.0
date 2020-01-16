@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA5B813EAEB
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:47:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8AB413F181
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:29:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406859AbgAPRrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:47:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40296 "EHLO mail.kernel.org"
+        id S2392206AbgAPRZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:25:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406837AbgAPRrA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:47:00 -0500
+        id S2392201AbgAPRZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5F38246DF;
-        Thu, 16 Jan 2020 17:46:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A6DA246B7;
+        Thu, 16 Jan 2020 17:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196819;
-        bh=fQJtNVaV4DsQ61t6sF1IyLdmwc8TWrk8/h8SZp53dwE=;
+        s=default; t=1579195558;
+        bh=mDixHwjOcnHctxECXlLRlUp6kSHl43tYYgYvP77bG6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CkA6S0aFhgEm91X13Oe0VtuG66eziVuNL8GN9GmvAq213JL4mmejQYsBeC9OPWHE/
-         ZIjtRFb/4GGhebfa/IOuwnNFqwN4Kn6Ti+mcR468pzHqdSFAsjxsXS8gwsXFHkaodh
-         6SfG/Sj4cJtEVjWESc18ukgWRFyFFY8dyzNAspXk=
+        b=ZJkooszGgyC2Lb7h9UAHrPcBC9yD6O9vt/leRjx475ZxMPeHr/fO8a78sTXtM6R8i
+         OgArWwzvtCr9qmZgpQuDiz0srQ3kl9I1XLWeAPKMEHngwkR34buus9Jdy8aYsB5HBP
+         dxSFmIJLkFL6ZaaXsObUlNW6JSX4X27qHSe9GSTY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 174/174] powerpc/archrandom: fix arch_get_random_seed_int()
-Date:   Thu, 16 Jan 2020 12:42:51 -0500
-Message-Id: <20200116174251.24326-174-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Paul Walmsley <paul@pwsan.com>,
+        Tero Kristo <t-kristo@ti.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 146/371] ARM: OMAP2+: Fix potentially uninitialized return value for _setup_reset()
+Date:   Thu, 16 Jan 2020 12:20:18 -0500
+Message-Id: <20200116172403.18149-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
-References: <20200116174251.24326-1-sashal@kernel.org>
+In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
+References: <20200116172403.18149-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,45 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit b6afd1234cf93aa0d71b4be4788c47534905f0be ]
+[ Upstream commit 7f0d078667a494466991aa7133f49594f32ff6a2 ]
 
-Commit 01c9348c7620ec65
+Commit 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior") made
+the call to _enable() conditional based on no oh->rst_lines_cnt. This
+caused the return value to be potentially uninitialized. Curiously we see
+no compiler warnings for this, probably as this gets inlined.
 
-  powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*
+We call _setup_reset() from _setup() and only _setup_postsetup() if the
+return value is zero. Currently the return value can be uninitialized for
+cases where oh->rst_lines_cnt is set and HWMOD_INIT_NO_RESET is not set.
 
-updated arch_get_random_[int|long]() to be NOPs, and moved the hardware
-RNG backing to arch_get_random_seed_[int|long]() instead. However, it
-failed to take into account that arch_get_random_int() was implemented
-in terms of arch_get_random_long(), and so we ended up with a version
-of the former that is essentially a NOP as well.
-
-Fix this by calling arch_get_random_seed_long() from
-arch_get_random_seed_int() instead.
-
-Fixes: 01c9348c7620ec65 ("powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191204115015.18015-1-ardb@kernel.org
+Fixes: 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior")
+Cc: Paul Walmsley <paul@pwsan.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/archrandom.h | 2 +-
+ arch/arm/mach-omap2/omap_hwmod.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
-index 85e88f7a59c0..9ff848e3c4a6 100644
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -27,7 +27,7 @@ static inline int arch_get_random_seed_int(unsigned int *v)
- 	unsigned long val;
- 	int rc;
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 45c8f2ef4e23..9274a484c6a3 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -2530,7 +2530,7 @@ static void _setup_iclk_autoidle(struct omap_hwmod *oh)
+  */
+ static int _setup_reset(struct omap_hwmod *oh)
+ {
+-	int r;
++	int r = 0;
  
--	rc = arch_get_random_long(&val);
-+	rc = arch_get_random_seed_long(&val);
- 	if (rc)
- 		*v = val;
- 
+ 	if (oh->_state != _HWMOD_STATE_INITIALIZED)
+ 		return -EINVAL;
 -- 
 2.20.1
 
