@@ -2,95 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C9EA13F99E
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:36:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F95C13F9A9
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:40:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730202AbgAPTgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:36:53 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:51748 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729285AbgAPTgx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 14:36:53 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 00GJSA7B103088;
-        Thu, 16 Jan 2020 19:33:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2019-08-05;
- bh=+3CiL8o4Ab1hWnW+Bk1R7PIglLbQpoWVfBDqitAc30E=;
- b=hjodwcHNG44e9KM05h9K83TmC2ixqR2EykHwMiDLJSgKuPJEnl4yzs62CSTa6754+8eP
- /ozW6kq4i4WUoMfzN9fb4rALlTuwRusdzplqAOPYxHMesCuCNYK9YM7edrQHZeckbldP
- 2xmyHwwRxD70cpnpWucsSPbLhzLI4pm7SUEVsyV2KJk7yqsONTnIaUuH79iKfk4eWG8T
- 6T2aQ9wYiBZsjVdd3GA2Vq1nLcloG0CQnZEPO93hG1VMKDeepdGP72Jd3h2aajioqXga
- Mg9JmC3qzuVUlwhLZddqjuWgS1Ld3vjk3Qr1KlB+3gVuNAcnvwYYisHSu1YoSjV+uW1d 3w== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 2xf73yvnej-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Jan 2020 19:33:02 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 00GJSwAN179955;
-        Thu, 16 Jan 2020 19:33:02 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3030.oracle.com with ESMTP id 2xhy23wdr8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Jan 2020 19:33:02 +0000
-Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 00GJX0Nm016627;
-        Thu, 16 Jan 2020 19:33:00 GMT
-Received: from bostrovs-us.us.oracle.com (/10.152.32.65)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 16 Jan 2020 11:33:00 -0800
-Subject: Re: [PATCH] xen/balloon: Support xend-based toolstack take two
-To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        linux-kernel@vger.kernel.org
-Cc:     Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org
-References: <20200116170004.14373-1-jgross@suse.com>
-From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <dee2ba34-c39a-9729-8136-463c0daae9d6@oracle.com>
-Date:   Thu, 16 Jan 2020 14:32:56 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        id S1727047AbgAPTkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:40:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37568 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727023AbgAPTkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 14:40:00 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93E832053B;
+        Thu, 16 Jan 2020 19:39:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579203598;
+        bh=2QH66cHzT0C/CinQat/XtLfzDC7EF7lmOncaU0WpGTg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CE11DwOsQIsNIGxHpP5wPgc1kNROytLkUB4A9giD+l31bMD3U1dyCWOID6YTfN5Nz
+         fYyrLqrWXuRoKAm04pEa7eiIQAQVGvu+fXOqVxbGcsODjpITamL+XzlzgfPrAp63BL
+         PcxMoOg3t7NOBOaYMcTtRQzHhkH1u2L43KF27z/8=
+Date:   Thu, 16 Jan 2020 20:39:55 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alistair Delva <adelva@google.com>
+Cc:     stable@vger.kernel.org, kernel-team@android.com,
+        Lingfeng Yang <lfy@google.com>, kraxel@redhat.com
+Subject: Re: Please revert "drm/virtio: switch virtio_gpu_wait_ioctl() to gem
+ helper." from 5.4-stable
+Message-ID: <20200116193955.GA1024193@kroah.com>
+References: <CANDihLFwsdpGmR5j++bLSaxGYuXOtykA-B2T0rWiXgzdfCPkJg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200116170004.14373-1-jgross@suse.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9502 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-2001160156
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9502 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-2001160156
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANDihLFwsdpGmR5j++bLSaxGYuXOtykA-B2T0rWiXgzdfCPkJg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Jan 16, 2020 at 08:20:11AM -0800, Alistair Delva wrote:
+> (Sorry if this is noise and has already been reported)
+> 
+> After updating to 5.4.7 we noticed that virtio_gpu's wait ioctl
+> stopped working correctly.
+> 
+> It looks like 29cf12394c05 ("drm/virtio: switch
+> virtio_gpu_wait_ioctl() to gem helper.") was picked up automatically,
+> but it depends on 889165ad6190 ("drm/virtio: pass gem reservation
+> object to ttm init") from earlier in Gerd's series in Linus's tree,
+> which was not picked up.
+> 
+> (This patch doesn't seem like compelling stable material so maybe we
+> should revert it.)
 
+Now reverted, thanks for the report.
 
-On 1/16/20 12:00 PM, Juergen Gross wrote:
-> Commit 3aa6c19d2f38be ("xen/balloon: Support xend-based toolstack")
-> tried to fix a regression with running on rather ancient Xen versions.
-> Unfortunately the fix was based on the assumption that xend would
-> just use another Xenstore node, but in reality only some downstream
-> versions of xend are doing that. The upstream xend does not write
-> that Xenstore node at all, so the problem must be fixed in another
-> way.
->
-> The easiest way to achieve that is to fall back to the behavior before
-> commit 5266b8e4445c ("xen: fix booting ballooned down hvm guest")
-> in case the static memory maximum can't be read.
->
-> Fixes: 3aa6c19d2f38be ("xen/balloon: Support xend-based toolstack")
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> Cc: <stable@vger.kernel.org> # 4.13
-
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-
-
-
+greg k-h
