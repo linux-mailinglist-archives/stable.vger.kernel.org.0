@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7903E13EE62
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:09:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C982C13EE4B
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:08:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394270AbgAPSIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:08:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54536 "EHLO mail.kernel.org"
+        id S2393179AbgAPRik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:38:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405078AbgAPRih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:38:37 -0500
+        id S1730736AbgAPRij (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:38:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11883246F2;
-        Thu, 16 Jan 2020 17:38:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3E6724700;
+        Thu, 16 Jan 2020 17:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196317;
-        bh=vGBL1imLSbmqR+6eJCLZvfNMR/2j+V+YokWAhVLP25k=;
+        s=default; t=1579196319;
+        bh=Co41Z/wBvzHDblLd0WWZn9h+FN45ex3ykUseQ0plszg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JacH2PLqUQIcVeoTub7XQiu88hqQlkqGLWepO6RJ6LkBDKlds9HWv8gcY+TtyZJc0
-         jTkU64Z7hanQmbMtS9S+sacAOnox7Cm0JjzIjcSvkfaUzQFcaO6GWMbW3Vxu6UPW/Z
-         O19BqKinhMqzx/LdIE9bE9HC5ObyMYiAB6jjFMK0=
+        b=jDaIfLWveEo9Xbb1ZjBlpJaqXTTvSVB/UBk3a8bYhliMT7l2afwHCtUNfYtvZMLXM
+         kBCBy4BrE1mdanXeO4hCTRZiWmO1okpWaOyhJ0gmcNxaqBkZXTaxuPQS2A74dqP5hK
+         HUhY+rgQyxW5/bs2yllfJZrKw6BYgRMdkAJbD8Y0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 122/251] ALSA: usb-audio: Handle the error from snd_usb_mixer_apply_create_quirk()
-Date:   Thu, 16 Jan 2020 12:34:31 -0500
-Message-Id: <20200116173641.22137-82-sashal@kernel.org>
+Cc:     Willem de Bruijn <willemb@google.com>,
+        David Laight <David.Laight@aculab.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 123/251] packet: in recvmsg msg_name return at least sizeof sockaddr_ll
+Date:   Thu, 16 Jan 2020 12:34:32 -0500
+Message-Id: <20200116173641.22137-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -42,36 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 328e9f6973be2ee67862cb17bf6c0c5c5918cd72 ]
+[ Upstream commit b2cf86e1563e33a14a1c69b3e508d15dc12f804c ]
 
-The error from snd_usb_mixer_apply_create_quirk() is ignored in the
-current usb-audio driver code, which will continue the probing even
-after the error.  Let's take it more serious.
+Packet send checks that msg_name is at least sizeof sockaddr_ll.
+Packet recv must return at least this length, so that its output
+can be passed unmodified to packet send.
 
-Fixes: 7b1eda223deb ("ALSA: usb-mixer: factor out quirks")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This ceased to be true since adding support for lladdr longer than
+sll_addr. Since, the return value uses true address length.
+
+Always return at least sizeof sockaddr_ll, even if address length
+is shorter. Zero the padding bytes.
+
+Change v1->v2: do not overwrite zeroed padding again. use copy_len.
+
+Fixes: 0fb375fb9b93 ("[AF_PACKET]: Allow for > 8 byte hardware addresses.")
+Suggested-by: David Laight <David.Laight@aculab.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/packet/af_packet.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index 64fa1bbf0acb..54011f8543a7 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -2626,7 +2626,9 @@ int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
- 	    (err = snd_usb_mixer_status_create(mixer)) < 0)
- 		goto _error;
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 40cade140222..47a862cc7b34 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -3404,20 +3404,29 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 	sock_recv_ts_and_drops(msg, sk, skb);
  
--	snd_usb_mixer_apply_create_quirk(mixer);
-+	err = snd_usb_mixer_apply_create_quirk(mixer);
-+	if (err < 0)
-+		goto _error;
+ 	if (msg->msg_name) {
++		int copy_len;
++
+ 		/* If the address length field is there to be filled
+ 		 * in, we fill it in now.
+ 		 */
+ 		if (sock->type == SOCK_PACKET) {
+ 			__sockaddr_check_size(sizeof(struct sockaddr_pkt));
+ 			msg->msg_namelen = sizeof(struct sockaddr_pkt);
++			copy_len = msg->msg_namelen;
+ 		} else {
+ 			struct sockaddr_ll *sll = &PACKET_SKB_CB(skb)->sa.ll;
  
- 	err = snd_device_new(chip->card, SNDRV_DEV_CODEC, mixer, &dev_ops);
- 	if (err < 0)
+ 			msg->msg_namelen = sll->sll_halen +
+ 				offsetof(struct sockaddr_ll, sll_addr);
++			copy_len = msg->msg_namelen;
++			if (msg->msg_namelen < sizeof(struct sockaddr_ll)) {
++				memset(msg->msg_name +
++				       offsetof(struct sockaddr_ll, sll_addr),
++				       0, sizeof(sll->sll_addr));
++				msg->msg_namelen = sizeof(struct sockaddr_ll);
++			}
+ 		}
+-		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa,
+-		       msg->msg_namelen);
++		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa, copy_len);
+ 	}
+ 
+ 	if (pkt_sk(sk)->auxdata) {
 -- 
 2.20.1
 
