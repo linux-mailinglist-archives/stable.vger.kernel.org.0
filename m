@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BF2913EAA9
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:45:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F16FB13EBCB
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:52:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406114AbgAPRpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:45:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36872 "EHLO mail.kernel.org"
+        id S2406395AbgAPRwd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:52:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406150AbgAPRpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:45:16 -0500
+        id S2406154AbgAPRpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:45:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C40924782;
-        Thu, 16 Jan 2020 17:45:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9891024784;
+        Thu, 16 Jan 2020 17:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196716;
-        bh=k6NqwYjkAzGyZhuFx7sYDANLh/1m695dI/1xf+8H3Ic=;
+        s=default; t=1579196717;
+        bh=ug7JTEi3OX6ZC0mTbUTh8dwpu1d6r0WXRfaBeAOuUSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJdxnSDQQFAthtjHm7QdkdWpQkuN4PRfqBu7x2PP/GNIjoSmtDhXnjv+SKvBKC1Y0
-         1cOMrh5Y/bWZ9R2woDx2V9dfdK76oAp7rbPt5dWawsjIRrkEMZfyD459f91POx4kXE
-         vPmGIzaRDPYa2sShoV4aLxti8PuOqARwAuAb02eU=
+        b=KvrlW92mnADyqIUXv6RZbDZ3Bxz0Y+nwNcc6Z6c/fRYzh5YV/wqnr8FIBtlCLGd9D
+         n2rHEXIUPacIizw1znZZcA72Jr84JWk85TmkzuUGj3g6z2ssDIpwxLby2nmSMDGfo4
+         3HyRpcBHI/Kk0Qk74uICf74H83lIvmcmTSuLgw6k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen-Yu Tsai <wens@csie.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 104/174] rtc: pcf8563: Clear event flags and disable interrupts before requesting irq
-Date:   Thu, 16 Jan 2020 12:41:41 -0500
-Message-Id: <20200116174251.24326-104-sashal@kernel.org>
+Cc:     Rob Clark <robdclark@chromium.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.4 105/174] drm/msm/a3xx: remove TPL1 regs from snapshot
+Date:   Thu, 16 Jan 2020 12:41:42 -0500
+Message-Id: <20200116174251.24326-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -43,58 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 3572e8aea3bf925dac1dbf86127657c39fe5c254 ]
+[ Upstream commit f47bee2ba447bebc304111c16ef1e1a73a9744dd ]
 
-Besides the alarm, the PCF8563 also has a timer triggered interrupt.
-In cases where the previous system left the timer and interrupts on,
-or somehow the bits got enabled, the interrupt would keep triggering
-as the kernel doesn't know about it.
+These regs are write-only, and the hw throws a hissy-fit (ie. reboots)
+when we try to read them for GPU state snapshot, in response to a GPU
+hang.  It is rather impolite when GPU recovery triggers an insta-
+reboot, so lets remove the TPL1 registers from the snapshot.
 
-Clear both the alarm and timer event flags, and disable the interrupts,
-before requesting the interrupt line.
-
-Fixes: ede3e9d47cca ("drivers/rtc/rtc-pcf8563.c: add alarm support")
-Fixes: a45d528aab8b ("rtc: pcf8563: clear expired alarm at boot time")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 7198e6b03155 drm/msm: add a3xx gpu support
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf8563.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/msm/adreno/a3xx_gpu.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 45b5a3d47ccf..1982eec0a3ea 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -568,7 +568,6 @@ static int pcf8563_probe(struct i2c_client *client,
- 	struct pcf8563 *pcf8563;
- 	int err;
- 	unsigned char buf;
--	unsigned char alm_pending;
+diff --git a/drivers/gpu/drm/msm/adreno/a3xx_gpu.c b/drivers/gpu/drm/msm/adreno/a3xx_gpu.c
+index fd266ed963b6..25a0e7d13340 100644
+--- a/drivers/gpu/drm/msm/adreno/a3xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a3xx_gpu.c
+@@ -383,19 +383,17 @@ static const unsigned int a3xx_registers[] = {
+ 	0x2200, 0x2212, 0x2214, 0x2217, 0x221a, 0x221a, 0x2240, 0x227e,
+ 	0x2280, 0x228b, 0x22c0, 0x22c0, 0x22c4, 0x22ce, 0x22d0, 0x22d8,
+ 	0x22df, 0x22e6, 0x22e8, 0x22e9, 0x22ec, 0x22ec, 0x22f0, 0x22f7,
+-	0x22ff, 0x22ff, 0x2340, 0x2343, 0x2348, 0x2349, 0x2350, 0x2356,
+-	0x2360, 0x2360, 0x2440, 0x2440, 0x2444, 0x2444, 0x2448, 0x244d,
+-	0x2468, 0x2469, 0x246c, 0x246d, 0x2470, 0x2470, 0x2472, 0x2472,
+-	0x2474, 0x2475, 0x2479, 0x247a, 0x24c0, 0x24d3, 0x24e4, 0x24ef,
+-	0x2500, 0x2509, 0x250c, 0x250c, 0x250e, 0x250e, 0x2510, 0x2511,
+-	0x2514, 0x2515, 0x25e4, 0x25e4, 0x25ea, 0x25ea, 0x25ec, 0x25ed,
+-	0x25f0, 0x25f0, 0x2600, 0x2612, 0x2614, 0x2617, 0x261a, 0x261a,
+-	0x2640, 0x267e, 0x2680, 0x268b, 0x26c0, 0x26c0, 0x26c4, 0x26ce,
+-	0x26d0, 0x26d8, 0x26df, 0x26e6, 0x26e8, 0x26e9, 0x26ec, 0x26ec,
+-	0x26f0, 0x26f7, 0x26ff, 0x26ff, 0x2740, 0x2743, 0x2748, 0x2749,
+-	0x2750, 0x2756, 0x2760, 0x2760, 0x300c, 0x300e, 0x301c, 0x301d,
+-	0x302a, 0x302a, 0x302c, 0x302d, 0x3030, 0x3031, 0x3034, 0x3036,
+-	0x303c, 0x303c, 0x305e, 0x305f,
++	0x22ff, 0x22ff, 0x2340, 0x2343, 0x2440, 0x2440, 0x2444, 0x2444,
++	0x2448, 0x244d, 0x2468, 0x2469, 0x246c, 0x246d, 0x2470, 0x2470,
++	0x2472, 0x2472, 0x2474, 0x2475, 0x2479, 0x247a, 0x24c0, 0x24d3,
++	0x24e4, 0x24ef, 0x2500, 0x2509, 0x250c, 0x250c, 0x250e, 0x250e,
++	0x2510, 0x2511, 0x2514, 0x2515, 0x25e4, 0x25e4, 0x25ea, 0x25ea,
++	0x25ec, 0x25ed, 0x25f0, 0x25f0, 0x2600, 0x2612, 0x2614, 0x2617,
++	0x261a, 0x261a, 0x2640, 0x267e, 0x2680, 0x268b, 0x26c0, 0x26c0,
++	0x26c4, 0x26ce, 0x26d0, 0x26d8, 0x26df, 0x26e6, 0x26e8, 0x26e9,
++	0x26ec, 0x26ec, 0x26f0, 0x26f7, 0x26ff, 0x26ff, 0x2740, 0x2743,
++	0x300c, 0x300e, 0x301c, 0x301d, 0x302a, 0x302a, 0x302c, 0x302d,
++	0x3030, 0x3031, 0x3034, 0x3036, 0x303c, 0x303c, 0x305e, 0x305f,
+ 	~0   /* sentinel */
+ };
  
- 	dev_dbg(&client->dev, "%s\n", __func__);
- 
-@@ -594,13 +593,13 @@ static int pcf8563_probe(struct i2c_client *client,
- 		return err;
- 	}
- 
--	err = pcf8563_get_alarm_mode(client, NULL, &alm_pending);
--	if (err) {
--		dev_err(&client->dev, "%s: read error\n", __func__);
-+	/* Clear flags and disable interrupts */
-+	buf = 0;
-+	err = pcf8563_write_block_data(client, PCF8563_REG_ST2, 1, &buf);
-+	if (err < 0) {
-+		dev_err(&client->dev, "%s: write error\n", __func__);
- 		return err;
- 	}
--	if (alm_pending)
--		pcf8563_set_alarm_mode(client, 0);
- 
- 	pcf8563->rtc = devm_rtc_device_register(&client->dev,
- 				pcf8563_driver.driver.name,
 -- 
 2.20.1
 
