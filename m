@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BED013E6B6
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:21:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C8D13E5F9
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391134AbgAPRRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:17:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42902 "EHLO mail.kernel.org"
+        id S2391236AbgAPRRe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:17:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391226AbgAPRRd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:17:33 -0500
+        id S2391231AbgAPRRe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:17:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27CF52464B;
-        Thu, 16 Jan 2020 17:17:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C938524680;
+        Thu, 16 Jan 2020 17:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195052;
-        bh=BH+UMe8kz/i8Qjt0xEQMMAUh1+STexvodu+9TBUe6fA=;
+        s=default; t=1579195053;
+        bh=OrMNX1uLlv82W6tGFkTa+kfFkYiYi9GgSKXUK6E0HIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/Gxr7a4KaZbT7BICppLGu5Exdfv2faV7tf4R2IxTHggHPLCH00i6niCq5ex99xOL
-         DHuvxjF1nIAe8oQ1nBI/4cndV2P1vE3SuiJ5FOh/bkt2bUAKKPvdBuo/iUVbcp/yH6
-         H/Nbg1VNMtfaLaYtlbWulERXirDZABafLbUv1IWw=
+        b=UtakJFb5h/VxgJ1bOTgEjDLogMDH3oe+QpKh6N17ScKEFvsWJtKe1gDxXTsmkeErZ
+         pfdXxMfiUc5iIKhgSCgwL68hkm2LBMS73yEiu69BolZM6+69KJT+aCWJRePX2MKS/c
+         C0X0+4+yu0WaW3xcVT2fIeo5y+8STkainy67lmEE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 009/371] regulator: fixed: Default enable high on DT regulators
-Date:   Thu, 16 Jan 2020 12:11:17 -0500
-Message-Id: <20200116171719.16965-9-sashal@kernel.org>
+Cc:     Nicolas Huaman <nicolas@herochao.de>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 010/371] ALSA: usb-audio: update quirk for B&W PX to remove microphone
+Date:   Thu, 16 Jan 2020 12:11:18 -0500
+Message-Id: <20200116171719.16965-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116171719.16965-1-sashal@kernel.org>
 References: <20200116171719.16965-1-sashal@kernel.org>
@@ -47,65 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Nicolas Huaman <nicolas@herochao.de>
 
-[ Upstream commit 28be5f15df2ee6882b0a122693159c96a28203c7 ]
+[ Upstream commit c369c8db15d51fa175d2ba85928f79d16af6b562 ]
 
-commit efdfeb079cc3
-("regulator: fixed: Convert to use GPIO descriptor only")
-switched to use gpiod_get() to look up the regulator from the
-gpiolib core whether that is device tree or boardfile.
+A quirk in snd-usb-audio was added to automate setting sample rate to
+4800k and remove the previously exposed nonfunctional microphone for
+the Bowers & Wilkins PX:
+commit 240a8af929c7c57dcde28682725b29cf8474e8e5
+https://lore.kernel.org/patchwork/patch/919689/
 
-This meant that we activate the code in
-a603a2b8d86e ("gpio: of: Add special quirk to parse regulator flags")
-which means the descriptors coming from the device tree already
-have the right inversion and open drain semantics set up from
-the gpiolib core.
+However the headphones where updated shortly after that to remove the
+unintentional microphone functionality. I guess because of this the
+headphones now crash when connecting them via USB while the quirk is
+active. Dmesg:
 
-As the fixed regulator was inspected again we got the
-inverted inversion and things broke.
+snd-usb-audio: probe of 2-3:1.0 failed with error -22
+usb 2-3: 2:1: cannot get min/max values for control 2 (id 2)
 
-Fix it by ignoring the config in the device tree for now: the
-later patches in the series will push all inversion handling
-over to the gpiolib core and set it up properly in the
-boardfiles for legacy devices, but I did not finish that
-for this kernel cycle.
+This patch removes the microfone and allows the headphones to connect
+and work out of the box. It is based on the current mainline kernel
+ and successfully applied an tested on my machine (4.18.10.arch1-1).
 
-Fixes: commit efdfeb079cc3 ("regulator: fixed: Convert to use GPIO descriptor only")
-Reported-by: Leonard Crestez <leonard.crestez@nxp.com>
-Reported-by: Fabio Estevam <festevam@gmail.com>
-Reported-by: John Stultz <john.stultz@linaro.org>
-Reported-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Tested-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 240a8af929c7 ("ALSA: usb-audio: Add a quirck for B&W PX headphones")
+Signed-off-by: Nicolas Huaman <nicolas@herochao.de>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/fixed.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ sound/usb/quirks-table.h | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/regulator/fixed.c b/drivers/regulator/fixed.c
-index 988a7472c2ab..d68ff65a5adc 100644
---- a/drivers/regulator/fixed.c
-+++ b/drivers/regulator/fixed.c
-@@ -84,9 +84,14 @@ of_get_fixed_voltage_config(struct device *dev,
- 
- 	of_property_read_u32(np, "startup-delay-us", &config->startup_delay);
- 
--	config->enable_high = of_property_read_bool(np, "enable-active-high");
--	config->gpio_is_open_drain = of_property_read_bool(np,
--							   "gpio-open-drain");
-+	/*
-+	 * FIXME: we pulled active low/high and open drain handling into
-+	 * gpiolib so it will be handled there. Delete this in the second
-+	 * step when we also remove the custom inversion handling for all
-+	 * legacy boardfiles.
-+	 */
-+	config->enable_high = 1;
-+	config->gpio_is_open_drain = 0;
- 
- 	if (of_find_property(np, "vin-supply", NULL))
- 		config->input_supply = "vin";
+diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
+index d32727c74a16..c892b4d1e733 100644
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3293,19 +3293,14 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
+ 				.ifnum = 0,
+ 				.type = QUIRK_AUDIO_STANDARD_MIXER,
+ 			},
+-			/* Capture */
+-			{
+-				.ifnum = 1,
+-				.type = QUIRK_IGNORE_INTERFACE,
+-			},
+ 			/* Playback */
+ 			{
+-				.ifnum = 2,
++				.ifnum = 1,
+ 				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
+ 				.data = &(const struct audioformat) {
+ 					.formats = SNDRV_PCM_FMTBIT_S16_LE,
+ 					.channels = 2,
+-					.iface = 2,
++					.iface = 1,
+ 					.altsetting = 1,
+ 					.altset_idx = 1,
+ 					.attributes = UAC_EP_CS_ATTR_FILL_MAX |
 -- 
 2.20.1
 
