@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10CCB13F430
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F25613F42E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:48:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389779AbgAPRJy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:09:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
+        id S2389912AbgAPSr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:47:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389773AbgAPRJx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:09:53 -0500
+        id S2389777AbgAPRJz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E544217F4;
-        Thu, 16 Jan 2020 17:09:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7D6724687;
+        Thu, 16 Jan 2020 17:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194593;
-        bh=joScUPhdfCP23b6S5EFY5hYk38+64+HbNEWlfegz5v4=;
+        s=default; t=1579194594;
+        bh=JgMkyUhH4t2GbX7FRMf4kH4L4nAw3+A3O18bvu3gdf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNIyg25loR56C6gni90jzFRznZjXzECZI64LY3HHPZ8NzN2AJLhYquA5rPtKf5Iy+
-         d0hQ6a+D5juvUU63l8kjNaxSxd/Ldz3kc/ImHbMwjV2SmVwAofCy/XbOMPsaN7mmXw
-         5tcvG+LMwm1vsz7kWOZySWRJ49iR/g/z4hr2iztQ=
+        b=IGBPZkdsxgGgL+tD4YQtAQew6jwp8aM591BNz6QH6kH8LQ8yYpPrwwj4+P06zwTzT
+         gWPHxpHpjGw8V+TXS+FH53W1H4V0y/Tct3/2FPtOmzSNpFCtbC5Ih4HQE5d8qnPKEA
+         AI/ne8p0e+TO2gVVO6ecznqL7F597F1iVNv+jsrY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Hannes Reinecke <hare@suse.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 463/671] scsi: libfc: fix null pointer dereference on a null lport
-Date:   Thu, 16 Jan 2020 12:01:41 -0500
-Message-Id: <20200116170509.12787-200-sashal@kernel.org>
+Cc:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 464/671] xfrm interface: ifname may be wrong in logs
+Date:   Thu, 16 Jan 2020 12:01:42 -0500
+Message-Id: <20200116170509.12787-201-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,37 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit 41a6bf6529edd10a6def42e3b2c34a7474bcc2f5 ]
+[ Upstream commit e0aaa332e6a97dae57ad59cdb19e21f83c3d081c ]
 
-Currently if lport is null then the null lport pointer is dereference when
-printing out debug via the FC_LPORT_DB macro. Fix this by using the more
-generic FC_LIBFC_DBG debug macro instead that does not use lport.
+The ifname is copied when the interface is created, but is never updated
+later. In fact, this property is used only in one error message, where the
+netdevice pointer is available, thus let's use it.
 
-Addresses-Coverity: ("Dereference after null check")
-Fixes: 7414705ea4ae ("libfc: Add runtime debugging with debug_logging module parameter")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: f203b76d7809 ("xfrm: Add virtual xfrm interfaces")
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libfc/fc_exch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/xfrm.h        |  1 -
+ net/xfrm/xfrm_interface.c | 10 +---------
+ 2 files changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
-index 42bcf7f3a0f9..6ba257cbc6d9 100644
---- a/drivers/scsi/libfc/fc_exch.c
-+++ b/drivers/scsi/libfc/fc_exch.c
-@@ -2603,7 +2603,7 @@ void fc_exch_recv(struct fc_lport *lport, struct fc_frame *fp)
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index fb9b19a3b749..48dc1ce2170d 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1054,7 +1054,6 @@ static inline void xfrm_dst_destroy(struct xfrm_dst *xdst)
+ void xfrm_dst_ifdown(struct dst_entry *dst, struct net_device *dev);
  
- 	/* lport lock ? */
- 	if (!lport || lport->state == LPORT_ST_DISABLED) {
--		FC_LPORT_DBG(lport, "Receiving frames for an lport that "
-+		FC_LIBFC_DBG("Receiving frames for an lport that "
- 			     "has not been initialized correctly\n");
- 		fc_frame_free(fp);
- 		return;
+ struct xfrm_if_parms {
+-	char name[IFNAMSIZ];	/* name of XFRM device */
+ 	int link;		/* ifindex of underlying L2 interface */
+ 	u32 if_id;		/* interface identifyer */
+ };
+diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
+index d6a3cdf7885c..4ee512622e93 100644
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -145,8 +145,6 @@ static int xfrmi_create(struct net_device *dev)
+ 	if (err < 0)
+ 		goto out;
+ 
+-	strcpy(xi->p.name, dev->name);
+-
+ 	dev_hold(dev);
+ 	xfrmi_link(xfrmn, xi);
+ 
+@@ -293,7 +291,7 @@ xfrmi_xmit2(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
+ 	if (tdev == dev) {
+ 		stats->collisions++;
+ 		net_warn_ratelimited("%s: Local routing loop detected!\n",
+-				     xi->p.name);
++				     dev->name);
+ 		goto tx_err_dst_release;
+ 	}
+ 
+@@ -648,12 +646,6 @@ static int xfrmi_newlink(struct net *src_net, struct net_device *dev,
+ 	int err;
+ 
+ 	xfrmi_netlink_parms(data, &p);
+-
+-	if (!tb[IFLA_IFNAME])
+-		return -EINVAL;
+-
+-	nla_strlcpy(p.name, tb[IFLA_IFNAME], IFNAMSIZ);
+-
+ 	xi = xfrmi_locate(net, &p);
+ 	if (xi)
+ 		return -EEXIST;
 -- 
 2.20.1
 
