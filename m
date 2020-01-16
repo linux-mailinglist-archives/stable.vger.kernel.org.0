@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19ABF13FFAC
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C679913FFC0
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:45:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391003AbgAPXXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:23:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51532 "EHLO mail.kernel.org"
+        id S1730219AbgAPXpH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:45:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390998AbgAPXXT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:23:19 -0500
+        id S2391008AbgAPXXV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:23:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F1362073A;
-        Thu, 16 Jan 2020 23:23:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70E002077C;
+        Thu, 16 Jan 2020 23:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216998;
-        bh=P7gMxpRatdfwykCDGs5mdRZOhMP7lLnF7WwhUP339Zk=;
+        s=default; t=1579217000;
+        bh=L7Azx0j8baqSXd4yPjBniGnmFyiKXO6reJH8SF9bPKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzpBCSGgV6rrnVEhsDbpIapk6L5ytRs3uThfZOp8bKc+G1YmNBvUQD/p6j0Ww1jGT
-         8/8kdie8YwcBhJh2GV0Tvi5x9y5G1HStW6qprBEpd/2K01bK1Uy2T3M0yfgJLW7++o
-         Dy3KUKkvKBuBDaLt0DYDeFaPUwlONXDAOP13Dq/4=
+        b=nd7EoW6uCZGjGpfz59IG8ZC1f8eqbumDoB/arC3MBGHA5VCRijO6ttdWDAQoPmQKt
+         no0XSNbMvojodzYNUXlVzZz7zO8rtfbgq9m8FR20OplAUN20W8K+6EBnQDkkxoknps
+         t+CqqelIc5Py3RCPkG4XBwVgxAZYUhV8huCT773U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.4 090/203] asm-generic/nds32: dont redefine cacheflush primitives
-Date:   Fri, 17 Jan 2020 00:16:47 +0100
-Message-Id: <20200116231753.554229283@linuxfoundation.org>
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 091/203] Documentation/ABI: Fix documentation inconsistency for mlxreg-io sysfs interfaces
+Date:   Fri, 17 Jan 2020 00:16:48 +0100
+Message-Id: <20200116231753.639849272@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -45,187 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Vadim Pasternak <vadimp@mellanox.com>
 
-commit 4f0bd808134d73184054ad09173821c84f31dd5d upstream.
+commit f4094826779dcafe7087e80850513b923eeefdeb upstream.
 
-The commit c296d4dc13ae ("asm-generic: fix a compilation warning") changed
-asm-generic/cachflush.h to use static inlines instead of macros and as a
-result the nds32 build with CONFIG_CPU_CACHE_ALIASING=n fails:
+Fix attribute name from "jtag_enable", which described twice to
+"cpld3_version", which is expected to be instead of second appearance
+of "jtag_enable".
 
-  CC      init/main.o
-In file included from arch/nds32/include/asm/cacheflush.h:43,
-                 from include/linux/highmem.h:12,
-                 from include/linux/pagemap.h:11,
-                 from include/linux/blkdev.h:16,
-                 from include/linux/blk-cgroup.h:23,
-                 from include/linux/writeback.h:14,
-                 from init/main.c:44:
-include/asm-generic/cacheflush.h:50:20: error: static declaration of 'flush_icache_range' follows non-static declaration
- static inline void flush_icache_range(unsigned long start, unsigned long end)
-                    ^~~~~~~~~~~~~~~~~~
-In file included from include/linux/highmem.h:12,
-                 from include/linux/pagemap.h:11,
-                 from include/linux/blkdev.h:16,
-                 from include/linux/blk-cgroup.h:23,
-                 from include/linux/writeback.h:14,
-                 from init/main.c:44:
-arch/nds32/include/asm/cacheflush.h:11:6: note: previous declaration of 'flush_icache_range' was here
- void flush_icache_range(unsigned long start, unsigned long end);
-      ^~~~~~~~~~~~~~~~~~
-
-Surround the inline functions in asm-generic/cacheflush.h by ifdef's so
-that architectures could override them and add the required overrides to
-nds32.
-
-Fixes: c296d4dc13ae ("asm-generic: fix a compilation warning")
-Link: https://lore.kernel.org/lkml/201912212139.yptX8CsV%25lkp@intel.com/
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Greentime Hu <green.hu@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 2752e34442b5 ("Documentation/ABI: Add new attribute for mlxreg-io sysfs interfaces")
+Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/nds32/include/asm/cacheflush.h |   11 +++++++----
- include/asm-generic/cacheflush.h    |   33 ++++++++++++++++++++++++++++++++-
- 2 files changed, 39 insertions(+), 5 deletions(-)
+ Documentation/ABI/stable/sysfs-driver-mlxreg-io |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/nds32/include/asm/cacheflush.h
-+++ b/arch/nds32/include/asm/cacheflush.h
-@@ -9,7 +9,11 @@
- #define PG_dcache_dirty PG_arch_1
+--- a/Documentation/ABI/stable/sysfs-driver-mlxreg-io
++++ b/Documentation/ABI/stable/sysfs-driver-mlxreg-io
+@@ -29,13 +29,13 @@ Description:	This file shows the system
  
- void flush_icache_range(unsigned long start, unsigned long end);
-+#define flush_icache_range flush_icache_range
-+
- void flush_icache_page(struct vm_area_struct *vma, struct page *page);
-+#define flush_icache_page flush_icache_page
-+
- #ifdef CONFIG_CPU_CACHE_ALIASING
- void flush_cache_mm(struct mm_struct *mm);
- void flush_cache_dup_mm(struct mm_struct *mm);
-@@ -40,12 +44,11 @@ void invalidate_kernel_vmap_range(void *
- #define flush_dcache_mmap_unlock(mapping) xa_unlock_irq(&(mapping)->i_pages)
+ 		The files are read only.
  
- #else
--#include <asm-generic/cacheflush.h>
--#undef flush_icache_range
--#undef flush_icache_page
--#undef flush_icache_user_range
- void flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
- 	                     unsigned long addr, int len);
-+#define flush_icache_user_range flush_icache_user_range
-+
-+#include <asm-generic/cacheflush.h>
- #endif
+-What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/jtag_enable
++What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld3_version
  
- #endif /* __NDS32_CACHEFLUSH_H__ */
---- a/include/asm-generic/cacheflush.h
-+++ b/include/asm-generic/cacheflush.h
-@@ -11,71 +11,102 @@
-  * The cache doesn't need to be flushed when TLB entries change when
-  * the cache is mapped to physical memory, not virtual memory
-  */
-+#ifndef flush_cache_all
- static inline void flush_cache_all(void)
- {
- }
-+#endif
+ Date:		November 2018
+ KernelVersion:	5.0
+ Contact:	Vadim Pasternak <vadimpmellanox.com>
+ Description:	These files show with which CPLD versions have been burned
+-		on LED board.
++		on LED or Gearbox board.
  
-+#ifndef flush_cache_mm
- static inline void flush_cache_mm(struct mm_struct *mm)
- {
- }
-+#endif
+ 		The files are read only.
  
-+#ifndef flush_cache_dup_mm
- static inline void flush_cache_dup_mm(struct mm_struct *mm)
- {
- }
-+#endif
- 
-+#ifndef flush_cache_range
- static inline void flush_cache_range(struct vm_area_struct *vma,
- 				     unsigned long start,
- 				     unsigned long end)
- {
- }
-+#endif
- 
-+#ifndef flush_cache_page
- static inline void flush_cache_page(struct vm_area_struct *vma,
- 				    unsigned long vmaddr,
- 				    unsigned long pfn)
- {
- }
-+#endif
- 
-+#ifndef flush_dcache_page
- static inline void flush_dcache_page(struct page *page)
- {
- }
-+#endif
- 
-+#ifndef flush_dcache_mmap_lock
- static inline void flush_dcache_mmap_lock(struct address_space *mapping)
- {
- }
-+#endif
- 
-+#ifndef flush_dcache_mmap_unlock
- static inline void flush_dcache_mmap_unlock(struct address_space *mapping)
- {
- }
-+#endif
- 
-+#ifndef flush_icache_range
- static inline void flush_icache_range(unsigned long start, unsigned long end)
- {
- }
-+#endif
- 
-+#ifndef flush_icache_page
- static inline void flush_icache_page(struct vm_area_struct *vma,
- 				     struct page *page)
- {
- }
-+#endif
- 
-+#ifndef flush_icache_user_range
- static inline void flush_icache_user_range(struct vm_area_struct *vma,
- 					   struct page *page,
- 					   unsigned long addr, int len)
- {
- }
-+#endif
- 
-+#ifndef flush_cache_vmap
- static inline void flush_cache_vmap(unsigned long start, unsigned long end)
- {
- }
-+#endif
- 
-+#ifndef flush_cache_vunmap
- static inline void flush_cache_vunmap(unsigned long start, unsigned long end)
- {
- }
-+#endif
- 
--#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
-+#ifndef copy_to_user_page
-+#define copy_to_user_page(vma, page, vaddr, dst, src, len)	\
- 	do { \
- 		memcpy(dst, src, len); \
- 		flush_icache_user_range(vma, page, vaddr, len); \
- 	} while (0)
-+#endif
-+
-+#ifndef copy_from_user_page
- #define copy_from_user_page(vma, page, vaddr, dst, src, len) \
- 	memcpy(dst, src, len)
-+#endif
- 
- #endif /* __ASM_CACHEFLUSH_H */
 
 
