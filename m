@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E27413FECB
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:38:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2F8213FE5B
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:35:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389015AbgAPXiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:38:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35372 "EHLO mail.kernel.org"
+        id S2391581AbgAPXeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:34:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391299AbgAPX3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:29:35 -0500
+        id S2404249AbgAPXdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:33:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94E482073A;
-        Thu, 16 Jan 2020 23:29:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19A5D20661;
+        Thu, 16 Jan 2020 23:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217374;
-        bh=86nBZVaHnBRLBTkGYNdIAFfTNKAAdd3MdRDuW/6K5J8=;
+        s=default; t=1579217588;
+        bh=UYFTwy/8mNp/kF5FDWrxnpyRxnkxPblHvy8mqx408r4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYlz+pgKDbJW5xK9nGHUUXRilJz72ipLXtIirEwjehiBhc9Cy9Nl1dcEAPLCKN+4I
-         8zdYQKrJKlbtb74pe3ypkxGyk71NNMDLLDUQf550H8BQFRTo59q0BZgX7F1TwhfOU8
-         /MC4gQ1ypvwesKeyc0x09Q6Y7r/uohfFxyIUyCYE=
+        b=Bd5iygsfBm1DDayRXMz3004rzB5uCXxg2bKCDTAalTeId6lSHzkHqMf7D+Ig3q5cp
+         CAcE7WPHcfCb2gAFQWqwKjnlH8//2403jDX04ZuSiuKb32SV7Qomw7BvMZUSuJgAu4
+         dksmxauGHW0ByS0G9MhFqkZYWo6VmlRBOmB3ZJNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 56/84] powerpc/powernv: Disable native PCIe port management
-Date:   Fri, 17 Jan 2020 00:18:30 +0100
-Message-Id: <20200116231720.383903951@linuxfoundation.org>
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Dirk Mueller <dmueller@suse.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Juerg Haefliger <juergh@canonical.com>
+Subject: [PATCH 4.14 33/71] arm64: Check for errata before evaluating cpu features
+Date:   Fri, 17 Jan 2020 00:18:31 +0100
+Message-Id: <20200116231714.391385773@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
-References: <20200116231713.087649517@linuxfoundation.org>
+In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
+References: <20200116231709.377772748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,76 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Dirk Mueller <dmueller@suse.com>
 
-commit 9d72dcef891030545f39ad386a30cf91df517fb2 upstream.
+commit dc0e36581eb2da1aa3c63ceeff0f10ef1e899b2a upstream.
 
-On PowerNV the PCIe topology is (currently) managed by the powernv platform
-code in Linux in cooperation with the platform firmware. Linux's native
-PCIe port service drivers operate independently of both and this can cause
-problems.
+Since commit d3aec8a28be3b8 ("arm64: capabilities: Restrict KPTI
+detection to boot-time CPUs") we rely on errata flags being already
+populated during feature enumeration. The order of errata and
+features was flipped as part of commit ed478b3f9e4a ("arm64:
+capabilities: Group handling of features and errata workarounds").
 
-The main issue is that the portbus driver will conflict with the platform
-specific hotplug driver (pnv_php) over ownership of the MSI used to notify
-the host when a hotplug event occurs. The portbus driver claims this MSI on
-behalf of the individual port services because the same interrupt is used
-for hotplug events, PMEs (on root ports), and link bandwidth change
-notifications. The portbus driver will always claim the interrupt even if
-the individual port service drivers, such as pciehp, are compiled out.
+Return to the orginal order of errata and feature evaluation to
+ensure errata flags are present during feature evaluation.
 
-The second, bigger, problem is that the hotplug port service driver
-fundamentally does not work on PowerNV. The platform assumes that all
-PCI devices have a corresponding arch-specific handle derived from the DT
-node for the device (pci_dn) and without one the platform will not allow
-a PCI device to be enabled. This problem is largely due to historical
-baggage, but it can't be resolved without significant re-factoring of the
-platform PCI support.
-
-We can fix these problems in the interim by setting the
-"pcie_ports_disabled" flag during platform initialisation. The flag
-indicates the platform owns the PCIe ports which stops the portbus driver
-from being registered.
-
-This does have the side effect of disabling all port services drivers
-that is: AER, PME, BW notifications, hotplug, and DPC. However, this is
-not a huge disadvantage on PowerNV since these services are either unused
-or handled through other means.
-
-Fixes: 66725152fb9f ("PCI/hotplug: PowerPC PowerNV PCI hotplug driver")
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191118065553.30362-1-oohall@gmail.com
+Fixes: ed478b3f9e4a ("arm64: capabilities: Group handling of
+    features and errata workarounds")
+CC: Suzuki K Poulose <suzuki.poulose@arm.com>
+CC: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Dirk Mueller <dmueller@suse.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Juerg Haefliger <juergh@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/pci.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/arm64/kernel/cpufeature.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/platforms/powernv/pci.c
-+++ b/arch/powerpc/platforms/powernv/pci.c
-@@ -1095,6 +1095,23 @@ void __init pnv_pci_init(void)
- 	if (!firmware_has_feature(FW_FEATURE_OPAL))
- 		return;
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -1278,9 +1278,9 @@ static void __update_cpu_capabilities(co
  
-+#ifdef CONFIG_PCIEPORTBUS
-+	/*
-+	 * On PowerNV PCIe devices are (currently) managed in cooperation
-+	 * with firmware. This isn't *strictly* required, but there's enough
-+	 * assumptions baked into both firmware and the platform code that
-+	 * it's unwise to allow the portbus services to be used.
-+	 *
-+	 * We need to fix this eventually, but for now set this flag to disable
-+	 * the portbus driver. The AER service isn't required since that AER
-+	 * events are handled via EEH. The pciehp hotplug driver can't work
-+	 * without kernel changes (and portbus binding breaks pnv_php). The
-+	 * other services also require some thinking about how we're going
-+	 * to integrate them.
-+	 */
-+	pcie_ports_disabled = true;
-+#endif
-+
- 	/* Look for IODA IO-Hubs. */
- 	for_each_compatible_node(np, NULL, "ibm,ioda-hub") {
- 		pnv_pci_init_ioda_hub(np);
+ static void update_cpu_capabilities(u16 scope_mask)
+ {
+-	__update_cpu_capabilities(arm64_features, scope_mask, "detected:");
+ 	__update_cpu_capabilities(arm64_errata, scope_mask,
+ 				  "enabling workaround for");
++	__update_cpu_capabilities(arm64_features, scope_mask, "detected:");
+ }
+ 
+ static int __enable_cpu_capability(void *arg)
+@@ -1335,8 +1335,8 @@ __enable_cpu_capabilities(const struct a
+ 
+ static void __init enable_cpu_capabilities(u16 scope_mask)
+ {
+-	__enable_cpu_capabilities(arm64_features, scope_mask);
+ 	__enable_cpu_capabilities(arm64_errata, scope_mask);
++	__enable_cpu_capabilities(arm64_features, scope_mask);
+ }
+ 
+ /*
 
 
