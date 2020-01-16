@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1593113E66E
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:20:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C58C13E661
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391502AbgAPRUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:20:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44768 "EHLO mail.kernel.org"
+        id S1729251AbgAPRSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:18:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391374AbgAPRSH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:18:07 -0500
+        id S2391323AbgAPRSI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:18:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9062E2192A;
-        Thu, 16 Jan 2020 17:18:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D43F2246B1;
+        Thu, 16 Jan 2020 17:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195086;
-        bh=TjEIYVguIGeCEoluMdQgCs5FU5qQPje5cqf4gNJPGko=;
+        s=default; t=1579195087;
+        bh=nmFAhrHtoLLCzhzFImZuzpAFjoAw2xKjA7eVQFApg7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0EvioWZhbDJkZ1eXkLafCKX0ZeyAYlF7Vsto1nyVhiwQud7y25upf7go4DyGfI8RQ
-         GEpabW5hiFBdt6//KSFBg75E6nqPXIO2HMakk+429T5ZtFiUZc9hRFQNrOGC7xZujM
-         XDYG1aotefl0jZZZqXDte+Jgc1YrP6x2qPbxVIxo=
+        b=AaH0vZrlXiaROd6SXyJQGFOtKvvQLDJOJmFyUvcf2XD87mNLHnuuBcJhqmx0S3SiS
+         DTOWz6h9n2uLgoDVYuD+hk7/B08utiwrUfFmEcDxqRycpHZbunOlKE3foT4BWprv2p
+         BIuaoF3oxKo/d9MtcNNFzx/S5UPpHbEOs+6roaIA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Machata <petrm@mellanox.com>,
-        Roopa Prabhu <roopa@cumulusnetworks.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 034/371] vxlan: changelink: Fix handling of default remotes
-Date:   Thu, 16 Jan 2020 12:11:42 -0500
-Message-Id: <20200116171719.16965-34-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 035/371] Input: nomadik-ske-keypad - fix a loop timeout test
+Date:   Thu, 16 Jan 2020 12:11:43 -0500
+Message-Id: <20200116171719.16965-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116171719.16965-1-sashal@kernel.org>
 References: <20200116171719.16965-1-sashal@kernel.org>
@@ -44,92 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ce5e098f7a10b4bf8e948c12fa350320c5c3afad ]
+[ Upstream commit 4d8f727b83bcd6702c2d210330872c9122d2d360 ]
 
-Default remotes are stored as FDB entries with an Ethernet address of
-00:00:00:00:00:00. When a request is made to change a remote address of
-a VXLAN device, vxlan_changelink() first deletes the existing default
-remote, and then creates a new FDB entry.
+The loop exits with "timeout" set to -1 not to 0.
 
-This works well as long as the list of default remotes matches exactly
-the configuration of a VXLAN remote address. Thus when the VXLAN device
-has a remote of X, there should be exactly one default remote FDB entry
-X. If the VXLAN device has no remote address, there should be no such
-entry.
-
-Besides using "ip link set", it is possible to manipulate the list of
-default remotes by using the "bridge fdb". It is therefore easy to break
-the above condition. Under such circumstances, the __vxlan_fdb_delete()
-call doesn't delete the FDB entry itself, but just one remote. The
-following vxlan_fdb_create() then creates a new FDB entry, leading to a
-situation where two entries exist for the address 00:00:00:00:00:00,
-each with a different subset of default remotes.
-
-An even more obvious breakage rooted in the same cause can be observed
-when a remote address is configured for a VXLAN device that did not have
-one before. In that case vxlan_changelink() doesn't remove any remote,
-and just creates a new FDB entry for the new address:
-
-$ ip link add name vx up type vxlan id 2000 dstport 4789
-$ bridge fdb ap dev vx 00:00:00:00:00:00 dst 192.0.2.20 self permanent
-$ bridge fdb ap dev vx 00:00:00:00:00:00 dst 192.0.2.30 self permanent
-$ ip link set dev vx type vxlan remote 192.0.2.30
-$ bridge fdb sh dev vx | grep 00:00:00:00:00:00
-00:00:00:00:00:00 dst 192.0.2.30 self permanent <- new entry, 1 rdst
-00:00:00:00:00:00 dst 192.0.2.20 self permanent <- orig. entry, 2 rdsts
-00:00:00:00:00:00 dst 192.0.2.30 self permanent
-
-To fix this, instead of calling vxlan_fdb_create() directly, defer to
-vxlan_fdb_update(). That has logic to handle the duplicates properly.
-Additionally, it also handles notifications, so drop that call from
-changelink as well.
-
-Fixes: 0241b836732f ("vxlan: fix default fdb entry netlink notify ordering during netdev create")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Acked-by: Roopa Prabhu <roopa@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1158f0f16224 ("Input: add support for Nomadik SKE keypad controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/nomadik-ske-keypad.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 5aa7d5091f4d..4d97a7b5fe3c 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -3494,7 +3494,6 @@ static int vxlan_changelink(struct net_device *dev, struct nlattr *tb[],
- 	struct vxlan_rdst *dst = &vxlan->default_dst;
- 	struct vxlan_rdst old_dst;
- 	struct vxlan_config conf;
--	struct vxlan_fdb *f = NULL;
- 	int err;
+diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
+index 8567ee47761e..ae3b04557074 100644
+--- a/drivers/input/keyboard/nomadik-ske-keypad.c
++++ b/drivers/input/keyboard/nomadik-ske-keypad.c
+@@ -100,7 +100,7 @@ static int __init ske_keypad_chip_init(struct ske_keypad *keypad)
+ 	while ((readl(keypad->reg_base + SKE_RIS) != 0x00000000) && timeout--)
+ 		cpu_relax();
  
- 	err = vxlan_nl2conf(tb, data,
-@@ -3520,19 +3519,19 @@ static int vxlan_changelink(struct net_device *dev, struct nlattr *tb[],
- 					   old_dst.remote_ifindex, 0);
+-	if (!timeout)
++	if (timeout == -1)
+ 		return -EINVAL;
  
- 		if (!vxlan_addr_any(&dst->remote_ip)) {
--			err = vxlan_fdb_create(vxlan, all_zeros_mac,
-+			err = vxlan_fdb_update(vxlan, all_zeros_mac,
- 					       &dst->remote_ip,
- 					       NUD_REACHABLE | NUD_PERMANENT,
-+					       NLM_F_APPEND | NLM_F_CREATE,
- 					       vxlan->cfg.dst_port,
- 					       dst->remote_vni,
- 					       dst->remote_vni,
- 					       dst->remote_ifindex,
--					       NTF_SELF, &f);
-+					       NTF_SELF);
- 			if (err) {
- 				spin_unlock_bh(&vxlan->hash_lock);
- 				return err;
- 			}
--			vxlan_fdb_notify(vxlan, f, first_remote_rtnl(f), RTM_NEWNEIGH);
- 		}
- 		spin_unlock_bh(&vxlan->hash_lock);
- 	}
+ 	/*
 -- 
 2.20.1
 
