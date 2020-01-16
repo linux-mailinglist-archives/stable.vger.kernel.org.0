@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4DAD13E958
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:37:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FBEE13E96A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:38:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405361AbgAPRh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:37:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52700 "EHLO mail.kernel.org"
+        id S2405435AbgAPRhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:37:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405355AbgAPRh0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:37:26 -0500
+        id S2405425AbgAPRhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:37:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3505246BA;
-        Thu, 16 Jan 2020 17:37:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71FC7246C6;
+        Thu, 16 Jan 2020 17:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196246;
-        bh=BvKZ6I96+ZQqq6bZdTpZ5iH+6iMFRJAM976U4XO9y/c=;
+        s=default; t=1579196259;
+        bh=vpXMA70GMULzu8hHCJ5fBHkANPQkjGgDAgfAbdUdYY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v065PX6wiVOQcl5AqsuwREPiGqljrlNdsrKJGoOP6EVaKmbd/L7mjP5JTCRosTZBS
-         dcEmRJFyHCA3YrvbF4kEPnQV2OVP638dOovyGVo433JZ1LOu0a2Ll2ReULSXW7O6Lp
-         PhdiZ0QMuDbiJ5zezXKUtiOsS5gE0upVWSClc4Pc=
+        b=uL1h02AxOeGs9imN6vDC+dpynkgmybsDV5GC4VcstE4uk4ads6+3/uLuHmCL5x93U
+         JkTWGbNkjJUqIW9A7WalPJxkU0mgDD7H9pTruDjJKuiUgnVdKddShlvDahXNPBWQIR
+         uCVC6W4XcsUhxWi101uUvnorPW2YHXAaX28rT8Ag=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        John David Anglin <dave.anglin@bell.net>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 074/251] dmaengine: mv_xor: Use correct device for DMA API
-Date:   Thu, 16 Jan 2020 12:33:43 -0500
-Message-Id: <20200116173641.22137-34-sashal@kernel.org>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 084/251] NFS: Fix a soft lockup in the delegation recovery code
+Date:   Thu, 16 Jan 2020 12:33:53 -0500
+Message-Id: <20200116173641.22137-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -45,51 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 3e5daee5ecf314da33a890fabaa2404244cd2a36 ]
+[ Upstream commit 6f9449be53f3ce383caed797708b332ede8d952c ]
 
-Using dma_dev->dev for mappings before it's assigned with the correct
-device is unlikely to work as expected, and with future dma-direct
-changes, passing a NULL device may end up crashing entirely. I don't
-know enough about this hardware or the mv_xor_prep_dma_interrupt()
-operation to implement the appropriate error-handling logic that would
-have revealed those dma_map_single() calls failing on arm64 for as long
-as the driver has been enabled there, but moving the assignment earlier
-will at least make the current code operate as intended.
+Fix a soft lockup when NFS client delegation recovery is attempted
+but the inode is in the process of being freed. When the
+igrab(inode) call fails, and we have to restart the recovery process,
+we need to ensure that we won't attempt to recover the same delegation
+again.
 
-Fixes: 22843545b200 ("dma: mv_xor: Add support for DMA_INTERRUPT")
-Reported-by: John David Anglin <dave.anglin@bell.net>
-Tested-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Tested-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 45870d6909d5a ("NFSv4.1: Test delegation stateids when server...")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/mv_xor.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/delegation.c | 20 ++++++++++++--------
+ fs/nfs/delegation.h |  1 +
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/dma/mv_xor.c b/drivers/dma/mv_xor.c
-index 23f75285a4d9..5d524f29c5f1 100644
---- a/drivers/dma/mv_xor.c
-+++ b/drivers/dma/mv_xor.c
-@@ -1044,6 +1044,7 @@ mv_xor_channel_add(struct mv_xor_device *xordev,
- 		mv_chan->op_in_desc = XOR_MODE_IN_DESC;
+diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
+index 9a8830a0f31f..014039618cff 100644
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -234,6 +234,8 @@ static struct inode *nfs_delegation_grab_inode(struct nfs_delegation *delegation
+ 	spin_lock(&delegation->lock);
+ 	if (delegation->inode != NULL)
+ 		inode = igrab(delegation->inode);
++	if (!inode)
++		set_bit(NFS_DELEGATION_INODE_FREEING, &delegation->flags);
+ 	spin_unlock(&delegation->lock);
+ 	return inode;
+ }
+@@ -867,10 +869,11 @@ void nfs_delegation_reap_unclaimed(struct nfs_client *clp)
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+ 		list_for_each_entry_rcu(delegation, &server->delegations,
+ 								super_list) {
+-			if (test_bit(NFS_DELEGATION_RETURNING,
+-						&delegation->flags))
+-				continue;
+-			if (test_bit(NFS_DELEGATION_NEED_RECLAIM,
++			if (test_bit(NFS_DELEGATION_INODE_FREEING,
++						&delegation->flags) ||
++			    test_bit(NFS_DELEGATION_RETURNING,
++						&delegation->flags) ||
++			    test_bit(NFS_DELEGATION_NEED_RECLAIM,
+ 						&delegation->flags) == 0)
+ 				continue;
+ 			if (!nfs_sb_active(server->super))
+@@ -975,10 +978,11 @@ void nfs_reap_expired_delegations(struct nfs_client *clp)
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+ 		list_for_each_entry_rcu(delegation, &server->delegations,
+ 								super_list) {
+-			if (test_bit(NFS_DELEGATION_RETURNING,
+-						&delegation->flags))
+-				continue;
+-			if (test_bit(NFS_DELEGATION_TEST_EXPIRED,
++			if (test_bit(NFS_DELEGATION_INODE_FREEING,
++						&delegation->flags) ||
++			    test_bit(NFS_DELEGATION_RETURNING,
++						&delegation->flags) ||
++			    test_bit(NFS_DELEGATION_TEST_EXPIRED,
+ 						&delegation->flags) == 0)
+ 				continue;
+ 			if (!nfs_sb_active(server->super))
+diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
+index 2c6cb7fb7d5e..f72095bf9e10 100644
+--- a/fs/nfs/delegation.h
++++ b/fs/nfs/delegation.h
+@@ -33,6 +33,7 @@ enum {
+ 	NFS_DELEGATION_RETURNING,
+ 	NFS_DELEGATION_REVOKED,
+ 	NFS_DELEGATION_TEST_EXPIRED,
++	NFS_DELEGATION_INODE_FREEING,
+ };
  
- 	dma_dev = &mv_chan->dmadev;
-+	dma_dev->dev = &pdev->dev;
- 	mv_chan->xordev = xordev;
- 
- 	/*
-@@ -1076,7 +1077,6 @@ mv_xor_channel_add(struct mv_xor_device *xordev,
- 	dma_dev->device_free_chan_resources = mv_xor_free_chan_resources;
- 	dma_dev->device_tx_status = mv_xor_status;
- 	dma_dev->device_issue_pending = mv_xor_issue_pending;
--	dma_dev->dev = &pdev->dev;
- 
- 	/* set prep routines based on capability */
- 	if (dma_has_cap(DMA_INTERRUPT, dma_dev->cap_mask))
+ int nfs_inode_set_delegation(struct inode *inode, struct rpc_cred *cred, struct nfs_openres *res);
 -- 
 2.20.1
 
