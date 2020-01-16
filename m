@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D87B13FFD5
+	by mail.lfdr.de (Postfix) with ESMTP id 9AAA013FFD6
 	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389828AbgAPXU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:20:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47876 "EHLO mail.kernel.org"
+        id S2390760AbgAPXVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:21:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390744AbgAPXU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:20:58 -0500
+        id S2390752AbgAPXVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:21:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8671D2072B;
-        Thu, 16 Jan 2020 23:20:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9C4D2077C;
+        Thu, 16 Jan 2020 23:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216858;
-        bh=yAPaM9nh2E+ncMBbb1bV6ogELDHCPONxBhXptMSGL2s=;
+        s=default; t=1579216860;
+        bh=hBl88ClmNQ5MuN49kdNckYKs40bu//qCToIj1UiJmX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wb/vgdhxp1Nck9vYS3OAcnT/V5x6BghTALBXQP6VCOgPktGUwIXnI+1hXjl37c+bg
-         sBPuOSWRW1tKxS7cEqJPGW4mjts1Y9F4YzUkclWmeD+Wldvxa/inXhHehiqQ+tZ7mb
-         r3PzwSQqOrmUMfByUqwtk78yq2zd0ngjseoL6dnE=
+        b=O6UNCH0i1eZeCGBVL9xZC83gdiLZl4/979mKJMgfZh8/3ulu52bIm9KKQtaFxL/X/
+         xcAiOsN3iPPxp6mh8B2enn4MA/H7eJ3g5leOJxBGyKbSDwVAjDMVN575KkHYUizClj
+         F8b9TP5Zici+/ACdOw/E8LsJnPzQFLSqb8d+Uuss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 032/203] hsr: reset network header when supervision frame is created
-Date:   Fri, 17 Jan 2020 00:15:49 +0100
-Message-Id: <20200116231747.058100854@linuxfoundation.org>
+Subject: [PATCH 5.4 033/203] s390/qeth: fix qdio teardown after early init error
+Date:   Fri, 17 Jan 2020 00:15:50 +0100
+Message-Id: <20200116231747.112519253@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -43,58 +43,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-commit 3ed0a1d563903bdb4b4c36c58c4d9c1bcb23a6e6 upstream.
+commit 8b5026bc16938920e4780b9094c3bf20e1e0939d upstream.
 
-The supervision frame is L2 frame.
-When supervision frame is created, hsr module doesn't set network header.
-If tap routine is enabled, dev_queue_xmit_nit() is called and it checks
-network_header. If network_header pointer wasn't set(or invalid),
-it resets network_header and warns.
-In order to avoid unnecessary warning message, resetting network_header
-is needed.
+qeth_l?_set_online() goes through a number of initialization steps, and
+on any error uses qeth_l?_stop_card() to tear down the residual state.
 
-Test commands:
-    ip netns add nst
-    ip link add veth0 type veth peer name veth1
-    ip link add veth2 type veth peer name veth3
-    ip link set veth1 netns nst
-    ip link set veth3 netns nst
-    ip link set veth0 up
-    ip link set veth2 up
-    ip link add hsr0 type hsr slave1 veth0 slave2 veth2
-    ip a a 192.168.100.1/24 dev hsr0
-    ip link set hsr0 up
-    ip netns exec nst ip link set veth1 up
-    ip netns exec nst ip link set veth3 up
-    ip netns exec nst ip link add hsr1 type hsr slave1 veth1 slave2 veth3
-    ip netns exec nst ip a a 192.168.100.2/24 dev hsr1
-    ip netns exec nst ip link set hsr1 up
-    tcpdump -nei veth0
+The first initialization step is qeth_core_hardsetup_card(). When this
+fails after having established a QDIO context on the device
+(ie. somewhere after qeth_mpc_initialize()), qeth_l?_stop_card() doesn't
+shut down this QDIO context again (since the card state hasn't
+progressed from DOWN at this stage).
 
-Splat looks like:
-[  175.852292][    C3] protocol 88fb is buggy, dev veth0
+Even worse, we then call qdio_free() as final teardown step to free the
+QDIO data structures - while some of them are still hooked into wider
+QDIO infrastructure such as the IRQ list. This is inevitably followed by
+use-after-frees and other nastyness.
 
-Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Fix this by unconditionally calling qeth_qdio_clear_card() to shut down
+the QDIO context, and also to halt/clear any pending activity on the
+various IO channels.
+Remove the naive attempt at handling the teardown in
+qeth_mpc_initialize(), it clearly doesn't suffice and we're handling it
+properly now in the wider teardown code.
+
+Fixes: 4a71df50047f ("qeth: new qeth device driver")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/hsr/hsr_device.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/net/qeth_core_main.c |   20 ++++++++------------
+ drivers/s390/net/qeth_l2_main.c   |    2 +-
+ drivers/s390/net/qeth_l3_main.c   |    2 +-
+ 3 files changed, 10 insertions(+), 14 deletions(-)
 
---- a/net/hsr/hsr_device.c
-+++ b/net/hsr/hsr_device.c
-@@ -272,6 +272,8 @@ static void send_hsr_supervision_frame(s
- 			    skb->dev->dev_addr, skb->len) <= 0)
- 		goto out;
- 	skb_reset_mac_header(skb);
-+	skb_reset_network_header(skb);
-+	skb_reset_transport_header(skb);
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2451,50 +2451,46 @@ static int qeth_mpc_initialize(struct qe
+ 	rc = qeth_cm_enable(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "2err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_cm_setup(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "3err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_ulp_enable(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "4err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_ulp_setup(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "5err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_alloc_qdio_queues(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "5err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_qdio_establish(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "6err%d", rc);
+ 		qeth_free_qdio_queues(card);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_qdio_activate(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "7err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_dm_act(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "8err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
  
- 	if (hsr_ver > 0) {
- 		hsr_tag = skb_put(skb, sizeof(struct hsr_tag));
+ 	return 0;
+-out_qdio:
+-	qeth_qdio_clear_card(card, !IS_IQD(card));
+-	qdio_free(CARD_DDEV(card));
+-	return rc;
+ }
+ 
+ void qeth_print_status_message(struct qeth_card *card)
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -287,12 +287,12 @@ static void qeth_l2_stop_card(struct qet
+ 		card->state = CARD_STATE_HARDSETUP;
+ 	}
+ 	if (card->state == CARD_STATE_HARDSETUP) {
+-		qeth_qdio_clear_card(card, 0);
+ 		qeth_drain_output_queues(card);
+ 		qeth_clear_working_pool_list(card);
+ 		card->state = CARD_STATE_DOWN;
+ 	}
+ 
++	qeth_qdio_clear_card(card, 0);
+ 	flush_workqueue(card->event_wq);
+ 	card->info.mac_bits &= ~QETH_LAYER2_MAC_REGISTERED;
+ 	card->info.promisc_mode = 0;
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1426,12 +1426,12 @@ static void qeth_l3_stop_card(struct qet
+ 		card->state = CARD_STATE_HARDSETUP;
+ 	}
+ 	if (card->state == CARD_STATE_HARDSETUP) {
+-		qeth_qdio_clear_card(card, 0);
+ 		qeth_drain_output_queues(card);
+ 		qeth_clear_working_pool_list(card);
+ 		card->state = CARD_STATE_DOWN;
+ 	}
+ 
++	qeth_qdio_clear_card(card, 0);
+ 	flush_workqueue(card->event_wq);
+ 	card->info.promisc_mode = 0;
+ }
 
 
