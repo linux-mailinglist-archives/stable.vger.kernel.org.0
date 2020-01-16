@@ -2,136 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B947413D7B5
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 11:16:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F91313D7DE
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 11:28:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730964AbgAPKPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 05:15:21 -0500
-Received: from foss.arm.com ([217.140.110.172]:47500 "EHLO foss.arm.com"
+        id S1725973AbgAPK2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 05:28:02 -0500
+Received: from mx2.suse.de ([195.135.220.15]:37176 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726832AbgAPKPU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 05:15:20 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id ED5E431B;
-        Thu, 16 Jan 2020 02:15:19 -0800 (PST)
-Received: from e110176-lin.arm.com (unknown [10.50.4.173])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6B0513F534;
-        Thu, 16 Jan 2020 02:15:18 -0800 (PST)
-From:   Gilad Ben-Yossef <gilad@benyossef.com>
-To:     Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     Ofir Drang <ofir.drang@arm.com>, Hadar Gat <hadar.gat@arm.com>,
-        stable@vger.kernel.org, linux-crypto@vger.kernel.org,
+        id S1725800AbgAPK2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 05:28:02 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 83CFFACB8;
+        Thu, 16 Jan 2020 10:27:59 +0000 (UTC)
+Date:   Thu, 16 Jan 2020 11:27:58 +0100
+From:   Libor Pechacek <lpechacek@suse.cz>
+To:     linuxppc-dev@lists.ozlabs.org,
+        Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Suchanek <msuchanek@suse.cz>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Allison Randal <allison@lohutok.net>,
+        Leonardo Bras <leonardo@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>, stable@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 07/11] crypto: ccree - fix FDE descriptor sequence
-Date:   Thu, 16 Jan 2020 12:14:42 +0200
-Message-Id: <20200116101447.20374-8-gilad@benyossef.com>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20200116101447.20374-1-gilad@benyossef.com>
-References: <20200116101447.20374-1-gilad@benyossef.com>
+Subject: [PATCH] powerpc: drmem: avoid NULL pointer dereference when drmem is
+ unavailable
+Message-ID: <20200116102758.GC25138@fm.suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Drang <ofir.drang@arm.com>
+In KVM guests drmem structure is only zero initialized. Trying to
+manipulate DLPAR parameters results in a crash in this environment.
 
-In FDE mode (xts, essiv and bitlocker) the cryptocell hardware requires
-that the the XEX key will be loaded after Key1.
+$ echo "memory add count 1" > /sys/kernel/dlpar
+Oops: Kernel access of bad area, sig: 11 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in: af_packet(E) rfkill(E) nvram(E) vmx_crypto(E)
+gf128mul(E) e1000(E) virtio_balloon(E) rtc_generic(E) crct10dif_vpmsum(E)
+btrfs(E) blake2b_generic(E) libcrc32c(E) xor(E) raid6_pq(E) virtio_rng(E)
+virtio_blk(E) ohci_pci(E) ehci_pci(E) ohci_hcd(E) ehci_hcd(E)
+crc32c_vpmsum(E) usbcore(E) virtio_pci(E) virtio_ring(E) virtio(E) sg(E)
+dm_multipath(E) dm_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E)
+scsi_mod(E)
+CPU: 1 PID: 4114 Comm: bash Kdump: loaded Tainted: G            E     5.5.0-rc6-2-default #1
+NIP:  c0000000000ff294 LR: c0000000000ff248 CTR: 0000000000000000
+REGS: c0000000fb9d3880 TRAP: 0300   Tainted: G            E      (5.5.0-rc6-2-default)
+MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28242428  XER: 20000000
+CFAR: c0000000009a6c10 DAR: 0000000000000010 DSISR: 40000000 IRQMASK: 0
+GPR00: c0000000000ff248 c0000000fb9d3b10 c000000001682e00 0000000000000033
+GPR04: c0000000ff30bf90 c0000000ff394800 0000000000005110 ffffffffffffffe8
+GPR08: 0000000000000000 0000000000000000 00000000fe1c0000 0000000000000000
+GPR12: 0000000000002200 c00000003fffee00 0000000000000000 000000011cbc37c0
+GPR16: 000000011cb27ed0 0000000000000000 000000011cb6dd10 0000000000000000
+GPR20: 000000011cb7db28 000001003ce035f0 000000011cbc7828 000000011cbc6c70
+GPR24: 000001003cf01210 0000000000000000 c0000000ffade4e0 c000000002d7216b
+GPR28: 0000000000000001 c000000002d78560 0000000000000000 c0000000015458d0
+NIP [c0000000000ff294] dlpar_memory+0x6e4/0xd00
+LR [c0000000000ff248] dlpar_memory+0x698/0xd00
+Call Trace:
+[c0000000fb9d3b10] [c0000000000ff248] dlpar_memory+0x698/0xd00 (unreliable)
+[c0000000fb9d3ba0] [c0000000000f5990] handle_dlpar_errorlog+0xc0/0x190
+[c0000000fb9d3c10] [c0000000000f5c58] dlpar_store+0x198/0x4a0
+[c0000000fb9d3cd0] [c000000000c4cb00] kobj_attr_store+0x30/0x50
+[c0000000fb9d3cf0] [c0000000005a37b4] sysfs_kf_write+0x64/0x90
+[c0000000fb9d3d10] [c0000000005a2c90] kernfs_fop_write+0x1b0/0x290
+[c0000000fb9d3d60] [c0000000004a2bec] __vfs_write+0x3c/0x70
+[c0000000fb9d3d80] [c0000000004a6560] vfs_write+0xd0/0x260
+[c0000000fb9d3dd0] [c0000000004a69ac] ksys_write+0xdc/0x130
+[c0000000fb9d3e20] [c00000000000b478] system_call+0x5c/0x68
+Instruction dump:
+ebc90000 1ce70018 38e7ffe8 7cfe3a14 7fbe3840 419dff14 fb610068 7fc9f378
+39000000 4800000c 60000000 4195fef4 <81490010> 39290018 38c80001 7ea93840
+---[ end trace cc2dd8152608c295 ]---
 
-Signed-off-by: Ofir Drang <ofir.drang@arm.com>
-Cc: stable@vger.kernel.org 
+Taking closer look at the code, I can see that for_each_drmem_lmb is a
+macro expanding into `for (lmb = &drmem_info->lmbs[0]; lmb <=
+&drmem_info->lmbs[drmem_info->n_lmbs - 1]; lmb++)`. When drmem_info->lmbs
+is NULL, the loop would iterate through the whole address range if it
+weren't stopped by the NULL pointer dereference on the next line.
+
+This patch aligns for_each_drmem_lmb and for_each_drmem_lmb_in_range macro
+behavior with the common C semantics, where the end marker does not belong
+to the scanned range, and alters get_lmb_range() semantics. As a side
+effect, the wraparound observed in the crash is prevented.
+
+Fixes: 6c6ea53725b3 ("powerpc/mm: Separate ibm, dynamic-memory data from DT format")
+Cc: Michal Suchanek <msuchanek@suse.cz>
+Cc: stable@vger.kernel.org
+Signed-off-by: Libor Pechacek <lpechacek@suse.cz>
 ---
- drivers/crypto/ccree/cc_cipher.c | 48 ++++++++++++++++++++++++++++++--
- 1 file changed, 45 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/drmem.h                | 4 ++--
+ arch/powerpc/platforms/pseries/hotplug-memory.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/ccree/cc_cipher.c b/drivers/crypto/ccree/cc_cipher.c
-index 03aa4fb8e6cb..7d6252d892d7 100644
---- a/drivers/crypto/ccree/cc_cipher.c
-+++ b/drivers/crypto/ccree/cc_cipher.c
-@@ -520,6 +520,7 @@ static void cc_setup_readiv_desc(struct crypto_tfm *tfm,
- 	}
- }
+diff --git a/arch/powerpc/include/asm/drmem.h b/arch/powerpc/include/asm/drmem.h
+index 3d76e1c388c2..28c3d936fdf3 100644
+--- a/arch/powerpc/include/asm/drmem.h
++++ b/arch/powerpc/include/asm/drmem.h
+@@ -27,12 +27,12 @@ struct drmem_lmb_info {
+ extern struct drmem_lmb_info *drmem_info;
  
-+
- static void cc_setup_state_desc(struct crypto_tfm *tfm,
- 				 struct cipher_req_ctx *req_ctx,
- 				 unsigned int ivsize, unsigned int nbytes,
-@@ -531,8 +532,6 @@ static void cc_setup_state_desc(struct crypto_tfm *tfm,
- 	int cipher_mode = ctx_p->cipher_mode;
- 	int flow_mode = ctx_p->flow_mode;
- 	int direction = req_ctx->gen_ctx.op_type;
--	dma_addr_t key_dma_addr = ctx_p->user.key_dma_addr;
--	unsigned int key_len = ctx_p->keylen;
- 	dma_addr_t iv_dma_addr = req_ctx->gen_ctx.iv_dma_addr;
- 	unsigned int du_size = nbytes;
+ #define for_each_drmem_lmb_in_range(lmb, start, end)		\
+-	for ((lmb) = (start); (lmb) <= (end); (lmb)++)
++	for ((lmb) = (start); (lmb) < (end); (lmb)++)
  
-@@ -567,6 +566,47 @@ static void cc_setup_state_desc(struct crypto_tfm *tfm,
- 		break;
- 	case DRV_CIPHER_XTS:
- 	case DRV_CIPHER_ESSIV:
-+	case DRV_CIPHER_BITLOCKER:
-+		break;
-+	default:
-+		dev_err(dev, "Unsupported cipher mode (%d)\n", cipher_mode);
-+	}
-+}
-+
-+
-+static void cc_setup_xex_state_desc(struct crypto_tfm *tfm,
-+				 struct cipher_req_ctx *req_ctx,
-+				 unsigned int ivsize, unsigned int nbytes,
-+				 struct cc_hw_desc desc[],
-+				 unsigned int *seq_size)
-+{
-+	struct cc_cipher_ctx *ctx_p = crypto_tfm_ctx(tfm);
-+	struct device *dev = drvdata_to_dev(ctx_p->drvdata);
-+	int cipher_mode = ctx_p->cipher_mode;
-+	int flow_mode = ctx_p->flow_mode;
-+	int direction = req_ctx->gen_ctx.op_type;
-+	dma_addr_t key_dma_addr = ctx_p->user.key_dma_addr;
-+	unsigned int key_len = ctx_p->keylen;
-+	dma_addr_t iv_dma_addr = req_ctx->gen_ctx.iv_dma_addr;
-+	unsigned int du_size = nbytes;
-+
-+	struct cc_crypto_alg *cc_alg =
-+		container_of(tfm->__crt_alg, struct cc_crypto_alg,
-+			     skcipher_alg.base);
-+
-+	if (cc_alg->data_unit)
-+		du_size = cc_alg->data_unit;
-+
-+	switch (cipher_mode) {
-+	case DRV_CIPHER_ECB:
-+		break;
-+	case DRV_CIPHER_CBC:
-+	case DRV_CIPHER_CBC_CTS:
-+	case DRV_CIPHER_CTR:
-+	case DRV_CIPHER_OFB:
-+		break;
-+	case DRV_CIPHER_XTS:
-+	case DRV_CIPHER_ESSIV:
- 	case DRV_CIPHER_BITLOCKER:
- 		/* load XEX key */
- 		hw_desc_init(&desc[*seq_size]);
-@@ -877,12 +917,14 @@ static int cc_cipher_process(struct skcipher_request *req,
+ #define for_each_drmem_lmb(lmb)					\
+ 	for_each_drmem_lmb_in_range((lmb),			\
+ 		&drmem_info->lmbs[0],				\
+-		&drmem_info->lmbs[drmem_info->n_lmbs - 1])
++		&drmem_info->lmbs[drmem_info->n_lmbs])
  
- 	/* STAT_PHASE_2: Create sequence */
+ /*
+  * The of_drconf_cell_v1 struct defines the layout of the LMB data
+diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/powerpc/platforms/pseries/hotplug-memory.c
+index c126b94d1943..4ea6af002e27 100644
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -236,9 +236,9 @@ static int get_lmb_range(u32 drc_index, int n_lmbs,
+ 	if (!start)
+ 		return -EINVAL;
  
--	/* Setup IV and XEX key used */
-+	/* Setup state (IV)  */
- 	cc_setup_state_desc(tfm, req_ctx, ivsize, nbytes, desc, &seq_len);
- 	/* Setup MLLI line, if needed */
- 	cc_setup_mlli_desc(tfm, req_ctx, dst, src, nbytes, req, desc, &seq_len);
- 	/* Setup key */
- 	cc_setup_key_desc(tfm, req_ctx, nbytes, desc, &seq_len);
-+	/* Setup state (IV and XEX key)  */
-+	cc_setup_xex_state_desc(tfm, req_ctx, ivsize, nbytes, desc, &seq_len);
- 	/* Data processing */
- 	cc_setup_flow_desc(tfm, req_ctx, dst, src, nbytes, desc, &seq_len);
- 	/* Read next IV */
+-	end = &start[n_lmbs - 1];
++	end = &start[n_lmbs];
+ 
+-	last_lmb = &drmem_info->lmbs[drmem_info->n_lmbs - 1];
++	last_lmb = &drmem_info->lmbs[drmem_info->n_lmbs];
+ 	if (end > last_lmb)
+ 		return -EINVAL;
+ 
 -- 
-2.23.0
+2.24.1
 
+
+-- 
+Libor Pechacek
+SUSE Labs                                Remember to have fun...
