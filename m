@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 331E613E09B
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A456413E09F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729339AbgAPQob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:44:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52654 "EHLO mail.kernel.org"
+        id S1729384AbgAPQog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:44:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728903AbgAPQob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:44:31 -0500
+        id S1729378AbgAPQof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:44:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B27E2073A;
-        Thu, 16 Jan 2020 16:44:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68118208C3;
+        Thu, 16 Jan 2020 16:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193070;
-        bh=TSXjTyQ4h4NkAXVk284+NyPmah9vtkAuJPfgQh24lB8=;
+        s=default; t=1579193075;
+        bh=43IpqdQaWzPH8hN72dXndhwU9UA/oomVVHL1K91Yszw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmE7/KQP9iZ/JsR3Gxnrwfrbfd+w98Pzb6Mk+bYIT3n8RynjD6CT55NJ+NfX4u2Hb
-         liVY8fbVGoQmO6lgGCUrkgzr7HDeUJe6pezFlIQLd4lk62hwumzPhlfFdWZXqswyhO
-         WubgYpk4s7lvNEadxw2hlvTwqke0MW9OeDV8KUy4=
+        b=VfXBe3FxWcQGdUswqAW8lqQ867j3J5QQvHuRpN5t48IzIUKnJ+3vxtwpCmr6uG2ea
+         u+smZdMrlBUh6IgWTAqdfE2YSyaDZ7F8vVc4rQmR08SLSCXCLCXT+V5NeWoZ3HCrL7
+         wSpV4BF4QK0pvPcAbG+043ToSNZPO8a2WW8JXbtQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 018/205] cw1200: Fix a signedness bug in cw1200_load_firmware()
-Date:   Thu, 16 Jan 2020 11:39:53 -0500
-Message-Id: <20200116164300.6705-18-sashal@kernel.org>
+Cc:     yu kuai <yukuai3@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 019/205] drm/amdgpu: remove excess function parameter description
+Date:   Thu, 16 Jan 2020 11:39:54 -0500
+Message-Id: <20200116164300.6705-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -44,41 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 4a50d454502f1401171ff061a5424583f91266db ]
+[ Upstream commit d0580c09c65cff211f589a40e08eabc62da463fb ]
 
-The "priv->hw_type" is an enum and in this context GCC will treat it
-as an unsigned int so the error handling will never trigger.
+Fixes gcc warning:
 
-Fixes: a910e4a94f69 ("cw1200: add driver for the ST-E CW1100 & CW1200 WLAN chipsets")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c:431: warning: Excess function
+parameter 'sw' description in 'vcn_v2_5_disable_clock_gating'
+drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c:550: warning: Excess function
+parameter 'sw' description in 'vcn_v2_5_enable_clock_gating'
+
+Fixes: cbead2bdfcf1 ("drm/amdgpu: add VCN2.5 VCPU start and stop")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/st/cw1200/fwio.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/wireless/st/cw1200/fwio.c b/drivers/net/wireless/st/cw1200/fwio.c
-index 6574e78e05ea..2a03dc533b6a 100644
---- a/drivers/net/wireless/st/cw1200/fwio.c
-+++ b/drivers/net/wireless/st/cw1200/fwio.c
-@@ -320,12 +320,12 @@ int cw1200_load_firmware(struct cw1200_common *priv)
- 		goto out;
- 	}
- 
--	priv->hw_type = cw1200_get_hw_type(val32, &major_revision);
--	if (priv->hw_type < 0) {
-+	ret = cw1200_get_hw_type(val32, &major_revision);
-+	if (ret < 0) {
- 		pr_err("Can't deduce hardware type.\n");
--		ret = -ENOTSUPP;
- 		goto out;
- 	}
-+	priv->hw_type = ret;
- 
- 	/* Set DPLL Reg value, and read back to confirm writes work */
- 	ret = cw1200_reg_write_32(priv, ST90TDS_TSET_GEN_R_W_REG_ID,
+diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
+index 395c2259f979..9d778a0b2c5e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
+@@ -423,7 +423,6 @@ static void vcn_v2_5_mc_resume(struct amdgpu_device *adev)
+  * vcn_v2_5_disable_clock_gating - disable VCN clock gating
+  *
+  * @adev: amdgpu_device pointer
+- * @sw: enable SW clock gating
+  *
+  * Disable clock gating for VCN block
+  */
+@@ -542,7 +541,6 @@ static void vcn_v2_5_disable_clock_gating(struct amdgpu_device *adev)
+  * vcn_v2_5_enable_clock_gating - enable VCN clock gating
+  *
+  * @adev: amdgpu_device pointer
+- * @sw: enable SW clock gating
+  *
+  * Enable clock gating for VCN block
+  */
 -- 
 2.20.1
 
