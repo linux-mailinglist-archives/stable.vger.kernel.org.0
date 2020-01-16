@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5384213EF45
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:14:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B09213EF37
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395205AbgAPSNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:13:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49172 "EHLO mail.kernel.org"
+        id S2393070AbgAPRfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:35:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404823AbgAPRfD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:35:03 -0500
+        id S2393035AbgAPRfE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:35:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D3F3246A1;
-        Thu, 16 Jan 2020 17:35:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF3D1246A9;
+        Thu, 16 Jan 2020 17:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196102;
-        bh=Elx75ZoziRcWQxYB+5OsFGbfB+A2fuv9iTxGFqKZcIo=;
+        s=default; t=1579196104;
+        bh=LkVTKsYdHJfdDmmYPdoTfDPNzo2Cyo3Ys6rmxdoBcPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tURNdOMMkAEIqCshP6LD33tmo8oAUultY+T77VhPJ/beSJ06531e1UMrfItKKE2IS
-         Kf+CMjKL09VPCFe1Se3GHpiUN237AY7Ow90yHLAbhrJeb2WLYSCe/i2ToGnkEnbUE3
-         8g3ZDtqJN2BKJUL6XzJ+cL0Vi6mCZRifZPsQzq4k=
+        b=QeuX2gK9dR3Eh3LdHBsjAtcxrjbvZYnZIyPgMURS6tL2phJhGY2wzd14mLeCW/nOr
+         6jzpG15Lgc0LI4Staq/oYakrrFpv8oVI0MEa2kICfncBMY2w6fgR3J04RmzO7OrDJc
+         XL6MJRw/kkC+Cvjn1i9wZYJfbqIFiDkrVtX8p2CQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 013/251] net: phy: Fix not to call phy_resume() if PHY is not attached
-Date:   Thu, 16 Jan 2020 12:30:47 -0500
-Message-Id: <20200116173445.21385-13-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 014/251] pinctrl: sh-pfc: r8a7740: Add missing REF125CK pin to gether_gmii group
+Date:   Thu, 16 Jan 2020 12:30:48 -0500
+Message-Id: <20200116173445.21385-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173445.21385-1-sashal@kernel.org>
 References: <20200116173445.21385-1-sashal@kernel.org>
@@ -43,66 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ef1b5bf506b1f0ee3edc98533e1f3ecb105eb46a ]
+[ Upstream commit 1ebc589a7786f17f97b9e87b44e0fb4d0290d8f8 ]
 
-This patch fixes an issue that mdio_bus_phy_resume() doesn't call
-phy_resume() if the PHY is not attached.
+The gether_gmii_mux[] array contains the REF125CK pin mark, but the
+gether_gmii_pins[] array lacks the corresponding pin number.
 
-Fixes: 803dd9c77ac3 ("net: phy: avoid suspending twice a PHY")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: bae11d30d0cafdc5 ("sh-pfc: r8a7740: Add GETHER pin groups and functions")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_device.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/pinctrl/sh-pfc/pfc-r8a7740.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 3289fd910c4a..487d0372a444 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -80,7 +80,7 @@ static LIST_HEAD(phy_fixup_list);
- static DEFINE_MUTEX(phy_fixup_lock);
- 
- #ifdef CONFIG_PM
--static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
-+static bool mdio_bus_phy_may_suspend(struct phy_device *phydev, bool suspend)
- {
- 	struct device_driver *drv = phydev->mdio.dev.driver;
- 	struct phy_driver *phydrv = to_phy_driver(drv);
-@@ -92,10 +92,11 @@ static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
- 	/* PHY not attached? May suspend if the PHY has not already been
- 	 * suspended as part of a prior call to phy_disconnect() ->
- 	 * phy_detach() -> phy_suspend() because the parent netdev might be the
--	 * MDIO bus driver and clock gated at this point.
-+	 * MDIO bus driver and clock gated at this point. Also may resume if
-+	 * PHY is not attached.
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7740.c b/drivers/pinctrl/sh-pfc/pfc-r8a7740.c
+index 35f436bcb849..d8077065636e 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7740.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7740.c
+@@ -1982,7 +1982,7 @@ static const unsigned int gether_gmii_pins[] = {
  	 */
- 	if (!netdev)
--		return !phydev->suspended;
-+		return suspend ? !phydev->suspended : phydev->suspended;
- 
- 	/* Don't suspend PHY if the attached netdev parent may wakeup.
- 	 * The parent may point to a PCI device, as in tg3 driver.
-@@ -125,7 +126,7 @@ static int mdio_bus_phy_suspend(struct device *dev)
- 	if (phydev->attached_dev && phydev->adjust_link)
- 		phy_stop_machine(phydev);
- 
--	if (!mdio_bus_phy_may_suspend(phydev))
-+	if (!mdio_bus_phy_may_suspend(phydev, true))
- 		return 0;
- 
- 	return phy_suspend(phydev);
-@@ -136,7 +137,7 @@ static int mdio_bus_phy_resume(struct device *dev)
- 	struct phy_device *phydev = to_phy_device(dev);
- 	int ret;
- 
--	if (!mdio_bus_phy_may_suspend(phydev))
-+	if (!mdio_bus_phy_may_suspend(phydev, false))
- 		goto no_resume;
- 
- 	ret = phy_resume(phydev);
+ 	185, 186, 187, 188, 189, 190, 191, 192, 174, 161, 204,
+ 	171, 170, 169, 168, 167, 166, 173, 172, 176, 184, 183, 203,
+-	205, 163, 206, 207,
++	205, 163, 206, 207, 158,
+ };
+ static const unsigned int gether_gmii_mux[] = {
+ 	ET_ERXD0_MARK, ET_ERXD1_MARK, ET_ERXD2_MARK, ET_ERXD3_MARK,
 -- 
 2.20.1
 
