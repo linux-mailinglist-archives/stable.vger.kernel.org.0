@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21CBF13F91F
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97B0F13F91E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394599AbgAPTXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:23:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37098 "EHLO mail.kernel.org"
+        id S1730753AbgAPQxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:53:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730742AbgAPQxT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:53:19 -0500
+        id S1730749AbgAPQxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:53:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F84820730;
-        Thu, 16 Jan 2020 16:53:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB2AD22464;
+        Thu, 16 Jan 2020 16:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193598;
-        bh=mEQ/YlD3A4QQywGbZn/iryMQxyRD6r1oKnXwOfcjIB0=;
+        s=default; t=1579193599;
+        bh=wSffEsO+b1vvjUW27LhIwKxK2Fejp0AGQVP9VscghFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XS08i3O7QuV3zGhxVSh54U5qxJ631PAJg8uDo96MCIn1qO/TW8LladCJzm5r5i97t
-         ZkXezyuQ/4ZI0YuW2qCZRfpZAbtj570oY3zIg6/YCdlz2Idq/TxoZkkcgFn9Hcre9h
-         uMnFSIOfRelXEkuos6gW3UlrnowNh1DTmi0vv88w=
+        b=HO2STl7H1/4MGm13LHw4gDcMoS6rKdPieQosykdS0ONXW8dpxMZdHvINxcwfGVFj9
+         Fl42Fjc8AncmEevIrio5EX7oBbVygrjC1FZJpPweaQtPmxgfKDHl8wtTDiUQuUZaF8
+         4+mT/itf9TDQxLQhODkIbrXKK1ytvDSVnBVGxSBM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hoang Le <hoang.h.le@dektech.com.au>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 137/205] tipc: update mon's self addr when node addr generated
-Date:   Thu, 16 Jan 2020 11:41:52 -0500
-Message-Id: <20200116164300.6705-137-sashal@kernel.org>
+Cc:     Peng Fan <peng.fan@nxp.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 138/205] tty: serial: imx: use the sg count from dma_map_sg
+Date:   Thu, 16 Jan 2020 11:41:53 -0500
+Message-Id: <20200116164300.6705-138-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -45,89 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 46cb01eeeb86fca6afe24dda1167b0cb95424e29 ]
+[ Upstream commit 596fd8dffb745afcebc0ec6968e17fe29f02044c ]
 
-In commit 25b0b9c4e835 ("tipc: handle collisions of 32-bit node address
-hash values"), the 32-bit node address only generated after one second
-trial period expired. However the self's addr in struct tipc_monitor do
-not update according to node address generated. This lead to it is
-always zero as initial value. As result, sorting algorithm using this
-value does not work as expected, neither neighbor monitoring framework.
+The dmaengine_prep_slave_sg needs to use sg count returned
+by dma_map_sg, not use sport->dma_tx_nents, because the return
+value of dma_map_sg is not always same with "nents".
 
-In this commit, we add a fix to update self's addr when 32-bit node
-address generated.
-
-Fixes: 25b0b9c4e835 ("tipc: handle collisions of 32-bit node address hash values")
-Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b4cdc8f61beb ("serial: imx: add DMA support for imx6q")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/1573108875-26530-1-git-send-email-peng.fan@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/monitor.c | 15 +++++++++++++++
- net/tipc/monitor.h |  1 +
- net/tipc/net.c     |  2 ++
- 3 files changed, 18 insertions(+)
+ drivers/tty/serial/imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/tipc/monitor.c b/net/tipc/monitor.c
-index 6a6eae88442f..58708b4c7719 100644
---- a/net/tipc/monitor.c
-+++ b/net/tipc/monitor.c
-@@ -665,6 +665,21 @@ void tipc_mon_delete(struct net *net, int bearer_id)
- 	kfree(mon);
- }
- 
-+void tipc_mon_reinit_self(struct net *net)
-+{
-+	struct tipc_monitor *mon;
-+	int bearer_id;
-+
-+	for (bearer_id = 0; bearer_id < MAX_BEARERS; bearer_id++) {
-+		mon = tipc_monitor(net, bearer_id);
-+		if (!mon)
-+			continue;
-+		write_lock_bh(&mon->lock);
-+		mon->self->addr = tipc_own_addr(net);
-+		write_unlock_bh(&mon->lock);
-+	}
-+}
-+
- int tipc_nl_monitor_set_threshold(struct net *net, u32 cluster_size)
- {
- 	struct tipc_net *tn = tipc_net(net);
-diff --git a/net/tipc/monitor.h b/net/tipc/monitor.h
-index 2a21b93e0d04..ed63d2e650b0 100644
---- a/net/tipc/monitor.h
-+++ b/net/tipc/monitor.h
-@@ -77,6 +77,7 @@ int __tipc_nl_add_monitor(struct net *net, struct tipc_nl_msg *msg,
- 			  u32 bearer_id);
- int tipc_nl_add_monitor_peer(struct net *net, struct tipc_nl_msg *msg,
- 			     u32 bearer_id, u32 *prev_node);
-+void tipc_mon_reinit_self(struct net *net);
- 
- extern const int tipc_max_domain_size;
- #endif
-diff --git a/net/tipc/net.c b/net/tipc/net.c
-index 85707c185360..2de3cec9929d 100644
---- a/net/tipc/net.c
-+++ b/net/tipc/net.c
-@@ -42,6 +42,7 @@
- #include "node.h"
- #include "bcast.h"
- #include "netlink.h"
-+#include "monitor.h"
- 
- /*
-  * The TIPC locking policy is designed to ensure a very fine locking
-@@ -136,6 +137,7 @@ static void tipc_net_finalize(struct net *net, u32 addr)
- 	tipc_set_node_addr(net, addr);
- 	tipc_named_reinit(net);
- 	tipc_sk_reinit(net);
-+	tipc_mon_reinit_self(net);
- 	tipc_nametbl_publish(net, TIPC_CFG_SRV, addr, addr,
- 			     TIPC_CLUSTER_SCOPE, 0, addr);
- }
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index 5e08f2657b90..34f602c3a882 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -619,7 +619,7 @@ static void imx_uart_dma_tx(struct imx_port *sport)
+ 		dev_err(dev, "DMA mapping error for TX.\n");
+ 		return;
+ 	}
+-	desc = dmaengine_prep_slave_sg(chan, sgl, sport->dma_tx_nents,
++	desc = dmaengine_prep_slave_sg(chan, sgl, ret,
+ 					DMA_MEM_TO_DEV, DMA_PREP_INTERRUPT);
+ 	if (!desc) {
+ 		dma_unmap_sg(dev, sgl, sport->dma_tx_nents,
 -- 
 2.20.1
 
