@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2FA313FD12
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:22:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C8013FD14
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:22:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388255AbgAPXVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:21:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49068 "EHLO mail.kernel.org"
+        id S2388086AbgAPXVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:21:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390856AbgAPXVk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:21:40 -0500
+        id S2390861AbgAPXVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:21:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F4C220684;
-        Thu, 16 Jan 2020 23:21:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F380320748;
+        Thu, 16 Jan 2020 23:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216898;
-        bh=128e+somJDcJtHvjLzOsfEVT1tUN9JSWtlTuDdHk/RY=;
+        s=default; t=1579216903;
+        bh=ry7wLXlt8FFAAbN9zf5JQ7fS9uA0DbcDOyh/j7HxtLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rjV4ezNyPJo5eyCRxAtn1HYTdE+4WviVc5e6odkHMCApVg6/mGMIEVGMdHu3tARas
-         /dbPfK9NG15RYcCXqyRR8B+Qr/EfwnAm8txChvKYjSQJVhis8GBimVTiGs9L0f+tMU
-         zI40uTotfJLC7gnQLX4FYDhNU+ADWzvSk3ZMInP0=
+        b=EUOLSIX3G1ZCs/2BuOqJQJw2LgzD5XvsCCvNfqemc8NBnBFyYfpPBRllNr4YWpe9e
+         B65TD561hJ21SqXC3PBKrKapyz8G3uvBgUvjG2fj24rMxjFjbv+1xWokypY+RFJqR7
+         5+XfjP6qPMYqJ6yjqF/E9XNBVWxhO0EI70XODuBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.4 049/203] syscalls/x86: Use the correct function type for sys_ni_syscall
-Date:   Fri, 17 Jan 2020 00:16:06 +0100
-Message-Id: <20200116231748.274095943@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+9328206518f08318a5fd@syzkaller.appspotmail.com,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 051/203] hsr: fix slab-out-of-bounds Read in hsr_debugfs_rename()
+Date:   Fri, 17 Jan 2020 00:16:08 +0100
+Message-Id: <20200116231748.443108537@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -50,117 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit f48f01a92cca09e86d46c91d8edf9d5a71c61727 upstream.
+commit 04b69426d846cd04ca9acefff1ea39e1c64d2714 upstream.
 
-Use the correct function type for sys_ni_syscall() in system
-call tables to fix indirect call mismatches with Control-Flow
-Integrity (CFI) checking.
+hsr slave interfaces don't have debugfs directory.
+So, hsr_debugfs_rename() shouldn't be called when hsr slave interface name
+is changed.
 
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H . Peter Anvin <hpa@zytor.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191008224049.115427-5-samitolvanen@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Test commands:
+    ip link add dummy0 type dummy
+    ip link add dummy1 type dummy
+    ip link add hsr0 type hsr slave1 dummy0 slave2 dummy1
+    ip link set dummy0 name ap
+
+Splat looks like:
+[21071.899367][T22666] ap: renamed from dummy0
+[21071.914005][T22666] ==================================================================
+[21071.919008][T22666] BUG: KASAN: slab-out-of-bounds in hsr_debugfs_rename+0xaa/0xb0 [hsr]
+[21071.923640][T22666] Read of size 8 at addr ffff88805febcd98 by task ip/22666
+[21071.926941][T22666]
+[21071.927750][T22666] CPU: 0 PID: 22666 Comm: ip Not tainted 5.5.0-rc2+ #240
+[21071.929919][T22666] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[21071.935094][T22666] Call Trace:
+[21071.935867][T22666]  dump_stack+0x96/0xdb
+[21071.936687][T22666]  ? hsr_debugfs_rename+0xaa/0xb0 [hsr]
+[21071.937774][T22666]  print_address_description.constprop.5+0x1be/0x360
+[21071.939019][T22666]  ? hsr_debugfs_rename+0xaa/0xb0 [hsr]
+[21071.940081][T22666]  ? hsr_debugfs_rename+0xaa/0xb0 [hsr]
+[21071.940949][T22666]  __kasan_report+0x12a/0x16f
+[21071.941758][T22666]  ? hsr_debugfs_rename+0xaa/0xb0 [hsr]
+[21071.942674][T22666]  kasan_report+0xe/0x20
+[21071.943325][T22666]  hsr_debugfs_rename+0xaa/0xb0 [hsr]
+[21071.944187][T22666]  hsr_netdev_notify+0x1fe/0x9b0 [hsr]
+[21071.945052][T22666]  ? __module_text_address+0x13/0x140
+[21071.945897][T22666]  notifier_call_chain+0x90/0x160
+[21071.946743][T22666]  dev_change_name+0x419/0x840
+[21071.947496][T22666]  ? __read_once_size_nocheck.constprop.6+0x10/0x10
+[21071.948600][T22666]  ? netdev_adjacent_rename_links+0x280/0x280
+[21071.949577][T22666]  ? __read_once_size_nocheck.constprop.6+0x10/0x10
+[21071.950672][T22666]  ? lock_downgrade+0x6e0/0x6e0
+[21071.951345][T22666]  ? do_setlink+0x811/0x2ef0
+[21071.951991][T22666]  do_setlink+0x811/0x2ef0
+[21071.952613][T22666]  ? is_bpf_text_address+0x81/0xe0
+[ ... ]
+
+Reported-by: syzbot+9328206518f08318a5fd@syzkaller.appspotmail.com
+Fixes: 4c2d5e33dcd3 ("hsr: rename debugfs file when interface name is changed")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/entry/syscall_32.c            |    8 +++-----
- arch/x86/entry/syscall_64.c            |   14 ++++++++++----
- arch/x86/entry/syscalls/syscall_32.tbl |    4 ++--
- 3 files changed, 15 insertions(+), 11 deletions(-)
+ net/hsr/hsr_main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/entry/syscall_32.c
-+++ b/arch/x86/entry/syscall_32.c
-@@ -10,13 +10,11 @@
- #ifdef CONFIG_IA32_EMULATION
- /* On X86_64, we use struct pt_regs * to pass parameters to syscalls */
- #define __SYSCALL_I386(nr, sym, qual) extern asmlinkage long sym(const struct pt_regs *);
--
--/* this is a lie, but it does not hurt as sys_ni_syscall just returns -EINVAL */
--extern asmlinkage long sys_ni_syscall(const struct pt_regs *);
--
-+#define __sys_ni_syscall __ia32_sys_ni_syscall
- #else /* CONFIG_IA32_EMULATION */
- #define __SYSCALL_I386(nr, sym, qual) extern asmlinkage long sym(unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long);
- extern asmlinkage long sys_ni_syscall(unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long);
-+#define __sys_ni_syscall sys_ni_syscall
- #endif /* CONFIG_IA32_EMULATION */
- 
- #include <asm/syscalls_32.h>
-@@ -29,6 +27,6 @@ __visible const sys_call_ptr_t ia32_sys_
- 	 * Smells like a compiler bug -- it doesn't work
- 	 * when the & below is removed.
- 	 */
--	[0 ... __NR_syscall_compat_max] = &sys_ni_syscall,
-+	[0 ... __NR_syscall_compat_max] = &__sys_ni_syscall,
- #include <asm/syscalls_32.h>
- };
---- a/arch/x86/entry/syscall_64.c
-+++ b/arch/x86/entry/syscall_64.c
-@@ -4,11 +4,17 @@
- #include <linux/linkage.h>
- #include <linux/sys.h>
- #include <linux/cache.h>
-+#include <linux/syscalls.h>
- #include <asm/asm-offsets.h>
- #include <asm/syscall.h>
- 
--/* this is a lie, but it does not hurt as sys_ni_syscall just returns -EINVAL */
--extern asmlinkage long sys_ni_syscall(const struct pt_regs *);
-+extern asmlinkage long sys_ni_syscall(void);
-+
-+SYSCALL_DEFINE0(ni_syscall)
-+{
-+	return sys_ni_syscall();
-+}
-+
- #define __SYSCALL_64(nr, sym, qual) extern asmlinkage long sym(const struct pt_regs *);
- #define __SYSCALL_X32(nr, sym, qual) __SYSCALL_64(nr, sym, qual)
- #include <asm/syscalls_64.h>
-@@ -23,7 +29,7 @@ asmlinkage const sys_call_ptr_t sys_call
- 	 * Smells like a compiler bug -- it doesn't work
- 	 * when the & below is removed.
- 	 */
--	[0 ... __NR_syscall_max] = &sys_ni_syscall,
-+	[0 ... __NR_syscall_max] = &__x64_sys_ni_syscall,
- #include <asm/syscalls_64.h>
- };
- 
-@@ -40,7 +46,7 @@ asmlinkage const sys_call_ptr_t x32_sys_
- 	 * Smells like a compiler bug -- it doesn't work
- 	 * when the & below is removed.
- 	 */
--	[0 ... __NR_syscall_x32_max] = &sys_ni_syscall,
-+	[0 ... __NR_syscall_x32_max] = &__x64_sys_ni_syscall,
- #include <asm/syscalls_64.h>
- };
- 
---- a/arch/x86/entry/syscalls/syscall_32.tbl
-+++ b/arch/x86/entry/syscalls/syscall_32.tbl
-@@ -124,7 +124,7 @@
- 110	i386	iopl			sys_iopl			__ia32_sys_iopl
- 111	i386	vhangup			sys_vhangup			__ia32_sys_vhangup
- 112	i386	idle
--113	i386	vm86old			sys_vm86old			sys_ni_syscall
-+113	i386	vm86old			sys_vm86old			__ia32_sys_ni_syscall
- 114	i386	wait4			sys_wait4			__ia32_compat_sys_wait4
- 115	i386	swapoff			sys_swapoff			__ia32_sys_swapoff
- 116	i386	sysinfo			sys_sysinfo			__ia32_compat_sys_sysinfo
-@@ -177,7 +177,7 @@
- 163	i386	mremap			sys_mremap			__ia32_sys_mremap
- 164	i386	setresuid		sys_setresuid16			__ia32_sys_setresuid16
- 165	i386	getresuid		sys_getresuid16			__ia32_sys_getresuid16
--166	i386	vm86			sys_vm86			sys_ni_syscall
-+166	i386	vm86			sys_vm86			__ia32_sys_ni_syscall
- 167	i386	query_module
- 168	i386	poll			sys_poll			__ia32_sys_poll
- 169	i386	nfsservctl
+--- a/net/hsr/hsr_main.c
++++ b/net/hsr/hsr_main.c
+@@ -46,7 +46,8 @@ static int hsr_netdev_notify(struct noti
+ 		hsr_check_carrier_and_operstate(hsr);
+ 		break;
+ 	case NETDEV_CHANGENAME:
+-		hsr_debugfs_rename(dev);
++		if (is_hsr_master(dev))
++			hsr_debugfs_rename(dev);
+ 		break;
+ 	case NETDEV_CHANGEADDR:
+ 		if (port->type == HSR_PT_MASTER) {
 
 
