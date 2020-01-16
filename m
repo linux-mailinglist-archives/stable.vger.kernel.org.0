@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEFD313F50F
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A265613F50B
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:53:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389032AbgAPRII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:08:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41168 "EHLO mail.kernel.org"
+        id S2389311AbgAPRIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:08:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389282AbgAPRIG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:06 -0500
+        id S2389287AbgAPRIH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:08:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE60A21D56;
-        Thu, 16 Jan 2020 17:08:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2C4F2467C;
+        Thu, 16 Jan 2020 17:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194485;
-        bh=o/vLIVwfHkBmhxUHbHkIUMuS1REF90EwAkADCq6Uy+k=;
+        s=default; t=1579194487;
+        bh=mpGL97m6k814QXjnL2ki81L3W3OZi3I9xyhDVPmMuY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mTOL3K605iBmV59ksAYhtuH1h/ZB4Ud9PYh5AIi5waSIxnoN4/aOL/nN1HT5m6mF8
-         PIB9NygFhMJcr2lMIhBrXpRMAwxJe4Vb/gDdWoDE+FJxH86drn8P8uLhSgdSWsMCH6
-         6RxZVjhQcnXU97XEf070ce3s6jm0yG3LHVNxSQW8=
+        b=SbaaxJ3Q+Jzm0nOtelDq9GMhzjTvOZUJg06BXlhfCkgz/SStqP2ZKyJpwLWAn8Fav
+         MTfyZ/F9b9zubMqRpCojSSbfCHd4JNESSd70INixALx1lr0j61Fydx4i77RNb2Pb/9
+         idiy7S71KaIOgSioSGeq3LWK+U9KatuXU4zoLxYk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huazhong Tan <tanhuazhong@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 386/671] net: hns3: fix a memory leak issue for hclge_map_unmap_ring_to_vf_vector
-Date:   Thu, 16 Jan 2020 12:00:24 -0500
-Message-Id: <20200116170509.12787-123-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.19 387/671] media: Staging: media: Release the correct resource in an error handling path
+Date:   Thu, 16 Jan 2020 12:00:25 -0500
+Message-Id: <20200116170509.12787-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,45 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huazhong Tan <tanhuazhong@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 49f971bd308571fe466687227130a7082b662d0e ]
+[ Upstream commit 3b6471c7becd06325eb5e701cc2602b2edbbc7b6 ]
 
-When hclge_bind_ring_with_vector() fails,
-hclge_map_unmap_ring_to_vf_vector() returns the error
-directly, so nobody will free the memory allocated by
-hclge_get_ring_chain_from_mbx().
+'res' is reassigned several times in the function and if we 'goto
+error_unmap', its value is not the returned value of 'request_mem_region()'
+anymore.
 
-So hclge_free_vector_ring_chain() should be called no matter
-hclge_bind_ring_with_vector() fails or not.
+Introduce a new 'struct resource *' variable (i.e. res2) to keep a pointer
+to the right resource, if needed in the error handling path.
 
-Fixes: 84e095d64ed9 ("net: hns3: Change PF to add ring-vect binding & resetQ to mailbox")
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4b4eda001704 ("Staging: media: Unmap and release region obtained by ioremap_nocache")
+
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/staging/media/davinci_vpfe/dm365_ipipe.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index e08e82020402..997ca79ed892 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -181,12 +181,10 @@ static int hclge_map_unmap_ring_to_vf_vector(struct hclge_vport *vport, bool en,
- 		return ret;
+diff --git a/drivers/staging/media/davinci_vpfe/dm365_ipipe.c b/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
+index 95942768639c..7bf2648affc0 100644
+--- a/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
++++ b/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
+@@ -1777,7 +1777,7 @@ vpfe_ipipe_init(struct vpfe_ipipe_device *ipipe, struct platform_device *pdev)
+ 	struct media_pad *pads = &ipipe->pads[0];
+ 	struct v4l2_subdev *sd = &ipipe->subdev;
+ 	struct media_entity *me = &sd->entity;
+-	struct resource *res, *memres;
++	struct resource *res, *res2, *memres;
  
- 	ret = hclge_bind_ring_with_vector(vport, vector_id, en, &ring_chain);
--	if (ret)
--		return ret;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 4);
+ 	if (!res)
+@@ -1791,11 +1791,11 @@ vpfe_ipipe_init(struct vpfe_ipipe_device *ipipe, struct platform_device *pdev)
+ 	if (!ipipe->base_addr)
+ 		goto error_release;
  
- 	hclge_free_vector_ring_chain(&ring_chain);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 6);
+-	if (!res)
++	res2 = platform_get_resource(pdev, IORESOURCE_MEM, 6);
++	if (!res2)
+ 		goto error_unmap;
+-	ipipe->isp5_base_addr = ioremap_nocache(res->start,
+-						resource_size(res));
++	ipipe->isp5_base_addr = ioremap_nocache(res2->start,
++						resource_size(res2));
+ 	if (!ipipe->isp5_base_addr)
+ 		goto error_unmap;
  
--	return 0;
-+	return ret;
- }
- 
- static int hclge_set_vf_promisc_mode(struct hclge_vport *vport,
 -- 
 2.20.1
 
