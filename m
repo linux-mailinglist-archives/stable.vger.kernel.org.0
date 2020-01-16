@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49DEA13FE4F
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9FC13FE51
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:35:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404451AbgAPXdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:33:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44708 "EHLO mail.kernel.org"
+        id S2391439AbgAPXd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:33:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404407AbgAPXdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:33:52 -0500
+        id S2391602AbgAPXdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:33:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BD3120661;
-        Thu, 16 Jan 2020 23:33:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCFF0206D9;
+        Thu, 16 Jan 2020 23:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217631;
-        bh=wbfoAA42oX5l4yauXATlXAMyCq6qjlKLDgmai3tPlJw=;
+        s=default; t=1579217634;
+        bh=Bytc26cznbgfOJO5vqahwn5HBiVZH1EZjk6h65vhgmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ri/3L4L98E7go1RAC5hWI9se+FbQrWy3scpHt59uD4DLSq7YjaJm+6z6Ci16+Lj9+
-         zj0MyEw9P1UJ6Gjwustknc/E0OXZRPo63DLw3pSzT6cTHEakA525k8VDffLNqzXuUv
-         RuoyVydCjbk305o7kJUige+zYB4nZFM+uYJ51gZM=
+        b=Y+aynqFBIPiRe/aVK4LzMpT6DGRY+1nrVtW955/2ieDM+Wy/fwgWr8/sBJFHHL2LT
+         qroUMACQxvcjof2BlBW+9UuFFoc4DMGCU9ezYTRp/Z3/g41c3V7Q2qy7QeazEAqPLY
+         te/NcLIcD4OABiWko1WI9ZXsnygpPxip/9pd5DbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kars de Jong <jongk@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.14 61/71] rtc: msm6242: Fix reading of 10-hour digit
-Date:   Fri, 17 Jan 2020 00:18:59 +0100
-Message-Id: <20200116231717.912765709@linuxfoundation.org>
+        stable@vger.kernel.org, Johnson Chen <johnsonch.chen@moxa.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 62/71] gpio: mpc8xxx: Add platform device to gpiochip->parent
+Date:   Fri, 17 Jan 2020 00:19:00 +0100
+Message-Id: <20200116231718.030165577@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
 References: <20200116231709.377772748@linuxfoundation.org>
@@ -44,40 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kars de Jong <jongk@linux-m68k.org>
+From: Johnson CH Chen (陳昭勳) <JohnsonCH.Chen@moxa.com>
 
-commit e34494c8df0cd96fc432efae121db3212c46ae48 upstream.
+[ Upstream commit 322f6a3182d42df18059a89c53b09d33919f755e ]
 
-The driver was reading the wrong register as the 10-hour digit due to
-a misplaced ')'. It was in fact reading the 1-second digit register due
-to this bug.
+Dear Linus Walleij,
 
-Also remove the use of a magic number for the hour mask and use the define
-for it which was already present.
+In old kernels, some APIs still try to use parent->of_node from struct gpio_chip,
+and it could be resulted in kernel panic because parent is NULL. Adding platform
+device to gpiochip->parent can fix this problem.
 
-Fixes: 4f9b9bba1dd1 ("rtc: Add an RTC driver for the Oki MSM6242")
-Tested-by: Kars de Jong <jongk@linux-m68k.org>
-Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
-Link: https://lore.kernel.org/r/20191116110548.8562-1-jongk@linux-m68k.org
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Johnson Chen <johnsonch.chen@moxa.com>
+Link: https://patchwork.kernel.org/patch/11234609
+Link: https://lore.kernel.org/r/HK0PR01MB3521489269F76467DFD7843FFA450@HK0PR01MB3521.apcprd01.prod.exchangelabs.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-msm6242.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-mpc8xxx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/rtc/rtc-msm6242.c
-+++ b/drivers/rtc/rtc-msm6242.c
-@@ -132,7 +132,8 @@ static int msm6242_read_time(struct devi
- 		      msm6242_read(priv, MSM6242_SECOND1);
- 	tm->tm_min  = msm6242_read(priv, MSM6242_MINUTE10) * 10 +
- 		      msm6242_read(priv, MSM6242_MINUTE1);
--	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10 & 3)) * 10 +
-+	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10) &
-+		       MSM6242_HOUR10_HR_MASK) * 10 +
- 		      msm6242_read(priv, MSM6242_HOUR1);
- 	tm->tm_mday = msm6242_read(priv, MSM6242_DAY10) * 10 +
- 		      msm6242_read(priv, MSM6242_DAY1);
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index e7783b852d69..d5f735ce0dd4 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -306,6 +306,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	gc = &mpc8xxx_gc->gc;
++	gc->parent = &pdev->dev;
+ 
+ 	if (of_property_read_bool(np, "little-endian")) {
+ 		ret = bgpio_init(gc, &pdev->dev, 4,
+-- 
+2.20.1
+
 
 
