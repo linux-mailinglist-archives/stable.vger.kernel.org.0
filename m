@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A8B013E095
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 418C713E099
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727008AbgAPQoW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:44:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52424 "EHLO mail.kernel.org"
+        id S1729317AbgAPQo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:44:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726892AbgAPQoW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:44:22 -0500
+        id S1727005AbgAPQo0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:44:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1819821582;
-        Thu, 16 Jan 2020 16:44:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7EA62073A;
+        Thu, 16 Jan 2020 16:44:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193061;
-        bh=J/qzRchvatYo4rQm2p9aFoDlNc1B/XCJr9PJL65azrw=;
+        s=default; t=1579193065;
+        bh=3Bu9Xt7gsNO1n4q+DjARvNjjlYwsFVTl5s/dPAEKF4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqrz0v9lwPeN20KDg6D5Dnk9WxlCySO3pf0DsBgaFW23UwcvhtsqHy7qpT7QMOOwe
-         tJ/dFuADxNEk3h3kVW+H4B0LwtHNbd/Yzd21SWEzktoj1CJCUkbcHD6bwWURlw7exZ
-         ebZpx8tplHYEkxzDC8oMqPYb2vC5CzOlddG0U8o0=
+        b=bCStoFXwZ6G1NZkIWYMgQ0RQr36K8QzKPTn8irrhXcdPUCsVq4puUURI1wFF+tNJ7
+         NgAvThgOoE9omhOSVPAhEUbgfv+VzFlw7cjTZg2+YveQKiCYme8zyS5Gpo6MI324y+
+         pAWK0HWBh3hU1DmcmN9KfFfkX1JfBtL5/ONp1+tA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Janusz Krzysztofik <jmkrzyszt@gmail.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 016/205] media: ov6650: Fix .get_fmt() V4L2_SUBDEV_FORMAT_TRY support
-Date:   Thu, 16 Jan 2020 11:39:51 -0500
-Message-Id: <20200116164300.6705-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 017/205] media: ov6650: Fix default format not applied on device probe
+Date:   Thu, 16 Jan 2020 11:39:52 -0500
+Message-Id: <20200116164300.6705-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -46,52 +46,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit 39034bb0c26b76a2c3abc54aa28c185f18b40c2f ]
+[ Upstream commit 5439fa9263cb293e41168bc03711ec18c4f11cba ]
 
-Commit da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad
-op get_fmt") converted a former ov6650_g_fmt() video operation callback
-to an ov6650_get_fmt() pad operation callback.  However, the converted
-function disregards a format->which flag that pad operations should
-obey and always returns active frame format settings.
+It is not clear what pixel format is actually configured in hardware on
+reset.  MEDIA_BUS_FMT_YUYV8_2X8, assumed on device probe since the
+driver was intiially submitted, is for sure not the one.
 
-That can be fixed by always responding to V4L2_SUBDEV_FORMAT_TRY with
--EINVAL, or providing the response from a pad config argument, likely
-updated by a former user call to V4L2_SUBDEV_FORMAT_TRY .set_fmt().
-Since implementation of the latter is trivial, go for it.
+Fix it by explicitly applying a known, driver default frame format just
+after initial device reset.
 
-Fixes: da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad op get_fmt")
+Fixes: 2f6e2404799a ("[media] SoC Camera: add driver for OV6650 sensor")
 Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov6650.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/media/i2c/ov6650.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
-index 5fa3b2088b52..bbf15644e989 100644
+index bbf15644e989..af482620f94a 100644
 --- a/drivers/media/i2c/ov6650.c
 +++ b/drivers/media/i2c/ov6650.c
-@@ -528,10 +528,16 @@ static int ov6650_get_fmt(struct v4l2_subdev *sd,
- 	*mf = ov6650_def_fmt;
- 
- 	/* update media bus format code and frame size */
--	mf->width	= priv->rect.width >> priv->half_scale;
--	mf->height	= priv->rect.height >> priv->half_scale;
--	mf->code	= priv->code;
-+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
-+		mf->width = cfg->try_fmt.width;
-+		mf->height = cfg->try_fmt.height;
-+		mf->code = cfg->try_fmt.code;
- 
-+	} else {
-+		mf->width = priv->rect.width >> priv->half_scale;
-+		mf->height = priv->rect.height >> priv->half_scale;
-+		mf->code = priv->code;
+@@ -877,6 +877,11 @@ static int ov6650_video_probe(struct v4l2_subdev *sd)
+ 	ret = ov6650_reset(client);
+ 	if (!ret)
+ 		ret = ov6650_prog_dflt(client);
++	if (!ret) {
++		struct v4l2_mbus_framefmt mf = ov6650_def_fmt;
++
++		ret = ov6650_s_fmt(sd, &mf);
 +	}
- 	return 0;
- }
+ 	if (!ret)
+ 		ret = v4l2_ctrl_handler_setup(&priv->hdl);
  
+@@ -1031,8 +1036,6 @@ static int ov6650_probe(struct i2c_client *client,
+ 	priv->rect.top	  = DEF_VSTRT << 1;
+ 	priv->rect.width  = W_CIF;
+ 	priv->rect.height = H_CIF;
+-	priv->half_scale  = false;
+-	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
+ 
+ 	/* Hardware default frame interval */
+ 	priv->tpf.numerator   = GET_CLKRC_DIV(DEF_CLKRC);
 -- 
 2.20.1
 
