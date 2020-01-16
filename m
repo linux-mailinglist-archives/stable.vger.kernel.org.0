@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC43413E910
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A38A13E900
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:36:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393105AbgAPRgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:36:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49876 "EHLO mail.kernel.org"
+        id S2405150AbgAPRfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:35:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405133AbgAPRfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:35:32 -0500
+        id S2405145AbgAPRfe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:35:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A08F624727;
-        Thu, 16 Jan 2020 17:35:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3858F246A9;
+        Thu, 16 Jan 2020 17:35:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196131;
-        bh=i5owRwERAnOiCFmbkU+ANJ+g3C6UCYGaMA8Usv0k760=;
+        s=default; t=1579196133;
+        bh=ylVJds/P9o73SzI4s7sAWE/o6yIInOgsdjpWigBNx3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nti6Bjv/vF4ohuj1mdwkY9Yday56HuA0dDg9wFRXly8c8I0YdKUme6Cl07L7bV8Hm
-         sgE053t/CbWDz8V/DspezrmbDtjJqVAsHGpLjnzFcjyUrPZv/D8K+G0FrLeMyDs/jt
-         o5nsGnYivZAlh+OMXZC8ZxdQdNlpkecZEvGdlPFo=
+        b=hL5MsKMiGF8bjnQWkENdaw+hR2biPfFQ+nHesPPaTVM+gvqaAS/qtjpJU0zJhTxuS
+         OiuKePPXv9RkyyvnK8mv1GOeRejhWqaBAHpv8JHkZ5b+Cl2w53Yq6cBn3GybnRt9gz
+         //Iv3f8TBATIuC2pklhHLGT/yLdH2j/IFrz1bIHY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yangtao Li <tiny.windzz@gmail.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 035/251] clk: dove: fix refcount leak in dove_clk_init()
-Date:   Thu, 16 Jan 2020 12:31:09 -0500
-Message-Id: <20200116173445.21385-35-sashal@kernel.org>
+Cc:     Gal Pressman <galpress@amazon.com>,
+        Parvi Kaustubhi <pkaustub@cisco.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 036/251] IB/usnic: Fix out of bounds index check in query pkey
+Date:   Thu, 16 Jan 2020 12:31:10 -0500
+Message-Id: <20200116173445.21385-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173445.21385-1-sashal@kernel.org>
 References: <20200116173445.21385-1-sashal@kernel.org>
@@ -44,45 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Gal Pressman <galpress@amazon.com>
 
-[ Upstream commit 8d726c5128298386b907963033be93407b0c4275 ]
+[ Upstream commit 4959d5da5737dd804255c75b8cea0a2929ce279a ]
 
-The of_find_compatible_node() returns a node pointer with refcount
-incremented, but there is the lack of use of the of_node_put() when
-done. Add the missing of_node_put() to release the refcount.
+The pkey table size is one element, index should be tested for > 0 instead
+of > 1.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Fixes: 8f7fc5450b64 ("clk: mvebu: dove: maintain clock init order")
-Fixes: 63b8d92c793f ("clk: add Dove PLL divider support for GPU, VMeta and AXI clocks")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: e3cf00d0a87f ("IB/usnic: Add Cisco VIC low-level hardware driver")
+Signed-off-by: Gal Pressman <galpress@amazon.com>
+Acked-by: Parvi Kaustubhi <pkaustub@cisco.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mvebu/dove.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/usnic/usnic_ib_verbs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/mvebu/dove.c b/drivers/clk/mvebu/dove.c
-index 59fad9546c84..5f258c9bb68b 100644
---- a/drivers/clk/mvebu/dove.c
-+++ b/drivers/clk/mvebu/dove.c
-@@ -190,10 +190,14 @@ static void __init dove_clk_init(struct device_node *np)
+diff --git a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
+index a5bfbba6bbac..cacb720f44a0 100644
+--- a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
++++ b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
+@@ -425,7 +425,7 @@ int usnic_ib_query_gid(struct ib_device *ibdev, u8 port, int index,
+ int usnic_ib_query_pkey(struct ib_device *ibdev, u8 port, u16 index,
+ 				u16 *pkey)
+ {
+-	if (index > 1)
++	if (index > 0)
+ 		return -EINVAL;
  
- 	mvebu_coreclk_setup(np, &dove_coreclks);
- 
--	if (ddnp)
-+	if (ddnp) {
- 		dove_divider_clk_init(ddnp);
-+		of_node_put(ddnp);
-+	}
- 
--	if (cgnp)
-+	if (cgnp) {
- 		mvebu_clk_gating_setup(cgnp, dove_gating_desc);
-+		of_node_put(cgnp);
-+	}
- }
- CLK_OF_DECLARE(dove_clk, "marvell,dove-core-clock", dove_clk_init);
+ 	*pkey = 0xffff;
 -- 
 2.20.1
 
