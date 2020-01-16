@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A9D913EF50
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:14:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3404013EF4D
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:14:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393147AbgAPSOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:14:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48924 "EHLO mail.kernel.org"
+        id S2395336AbgAPSOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:14:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393050AbgAPRe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:34:56 -0500
+        id S2393057AbgAPRe6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:34:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F19B246CC;
-        Thu, 16 Jan 2020 17:34:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89C83246A9;
+        Thu, 16 Jan 2020 17:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196096;
-        bh=5SFjfnnlGX9OravrgxsRQnyQQhbFT+ySXxAv4R06kdM=;
+        s=default; t=1579196097;
+        bh=p2vl7Mx/wmMj0nieC4rH/c5NL1D20ti+nnLoi7u/yHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qhw2WEuhvPks/bWva2i0V9lrQiy5iKjM9ztgVkkpwvRSupsN+2tzgd60c1BEWIw1K
-         jU3FQYNciSxj33mDR9whUomQLs2iX2/U3MOWU5AXZ/CEiYJmAtZFj+aa6s0ixzwrRZ
-         KnsNdZXqRLfF4W+oBUeZWydU7hBjkBalNQwlwZ9w=
+        b=O4MHospsljrHB6mDidwfuT3TLliebgnrSIm2pXdwNRLK4nxkVO3bi1rGfeHgFUWDR
+         likxh3nn/h9PLsr9e6mPBC0CPdl0d7ZRqh1x1eg3InUCrc8vxl2NKfZh/RV4Puk9nU
+         syUVJguG0X+uJCZ0UzeW9Xn36mHPMuikx15CQins=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 008/251] pwm: lpss: Release runtime-pm reference from the driver's remove callback
-Date:   Thu, 16 Jan 2020 12:30:42 -0500
-Message-Id: <20200116173445.21385-8-sashal@kernel.org>
+Cc:     Petr Machata <petrm@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 009/251] mlxsw: reg: QEEC: Add minimum shaper fields
+Date:   Thu, 16 Jan 2020 12:30:43 -0500
+Message-Id: <20200116173445.21385-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173445.21385-1-sashal@kernel.org>
 References: <20200116173445.21385-1-sashal@kernel.org>
@@ -44,42 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit 42885551cedb45961879d2fc3dc3c4dc545cc23e ]
+[ Upstream commit 8b931821aa04823e2e5df0ae93937baabbd23286 ]
 
-For each pwm output which gets enabled through pwm_lpss_apply(), we do a
-pm_runtime_get_sync().
+Add QEEC.mise (minimum shaper enable) and QEEC.min_shaper_rate to enable
+configuration of minimum shaper.
 
-This commit adds pm_runtime_put() calls to pwm_lpss_remove() to balance
-these when the driver gets removed with some of the outputs still enabled.
+Increase the QEEC length to 0x20 as well: that's the length that the
+register has had for a long time now, but with the configurations that
+mlxsw typically exercises, the firmware tolerated 0x1C-sized packets.
+With mise=true however, FW rejects packets unless they have the full
+required length.
 
-Fixes: f080be27d7d9 ("pwm: lpss: Add support for runtime PM")
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: b9b7cee40579 ("mlxsw: reg: Add QoS ETS Element Configuration register")
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpss.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/reg.h | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-lpss.c b/drivers/pwm/pwm-lpss.c
-index 5208b3f80ad8..239003807c08 100644
---- a/drivers/pwm/pwm-lpss.c
-+++ b/drivers/pwm/pwm-lpss.c
-@@ -205,6 +205,12 @@ EXPORT_SYMBOL_GPL(pwm_lpss_probe);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/reg.h b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+index b2a745b579fd..fdc69218c8ca 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/reg.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+@@ -1873,7 +1873,7 @@ static inline void mlxsw_reg_qtct_pack(char *payload, u8 local_port,
+  * Configures the ETS elements.
+  */
+ #define MLXSW_REG_QEEC_ID 0x400D
+-#define MLXSW_REG_QEEC_LEN 0x1C
++#define MLXSW_REG_QEEC_LEN 0x20
  
- int pwm_lpss_remove(struct pwm_lpss_chip *lpwm)
- {
-+	int i;
+ static const struct mlxsw_reg_info mlxsw_reg_qeec = {
+ 	.id = MLXSW_REG_QEEC_ID,
+@@ -1918,6 +1918,15 @@ MLXSW_ITEM32(reg, qeec, element_index, 0x04, 0, 8);
+  */
+ MLXSW_ITEM32(reg, qeec, next_element_index, 0x08, 0, 8);
+ 
++/* reg_qeec_mise
++ * Min shaper configuration enable. Enables configuration of the min
++ * shaper on this ETS element
++ * 0 - Disable
++ * 1 - Enable
++ * Access: RW
++ */
++MLXSW_ITEM32(reg, qeec, mise, 0x0C, 31, 1);
 +
-+	for (i = 0; i < lpwm->info->npwm; i++) {
-+		if (pwm_is_enabled(&lpwm->chip.pwms[i]))
-+			pm_runtime_put(lpwm->chip.dev);
-+	}
- 	return pwmchip_remove(&lpwm->chip);
- }
- EXPORT_SYMBOL_GPL(pwm_lpss_remove);
+ enum {
+ 	MLXSW_REG_QEEC_BYTES_MODE,
+ 	MLXSW_REG_QEEC_PACKETS_MODE,
+@@ -1934,6 +1943,17 @@ enum {
+  */
+ MLXSW_ITEM32(reg, qeec, pb, 0x0C, 28, 1);
+ 
++/* The smallest permitted min shaper rate. */
++#define MLXSW_REG_QEEC_MIS_MIN	200000		/* Kbps */
++
++/* reg_qeec_min_shaper_rate
++ * Min shaper information rate.
++ * For CPU port, can only be configured for port hierarchy.
++ * When in bytes mode, value is specified in units of 1000bps.
++ * Access: RW
++ */
++MLXSW_ITEM32(reg, qeec, min_shaper_rate, 0x0C, 0, 28);
++
+ /* reg_qeec_mase
+  * Max shaper configuration enable. Enables configuration of the max
+  * shaper on this ETS element.
 -- 
 2.20.1
 
