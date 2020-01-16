@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D9213F57D
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:56:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F19113F579
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:56:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389111AbgAPRHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:07:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38710 "EHLO mail.kernel.org"
+        id S2389124AbgAPRHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:07:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389109AbgAPRHN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:07:13 -0500
+        id S2389119AbgAPRHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:07:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F37C320663;
-        Thu, 16 Jan 2020 17:07:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3766021582;
+        Thu, 16 Jan 2020 17:07:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194432;
-        bh=BsDrq1g+bMq/8XFhrxOFkZEa6EtIzrjo52mrJdI9crs=;
+        s=default; t=1579194434;
+        bh=FyBl76UQeAz82dh9GowjxKLn307tVpqGB2q7gUGV/V8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WC2kkTov1f6/yyiNxGXGf4WdTtKn80kg4A0rJncEaX6DOrZyZyFrUSRbmfcBzrGrT
-         v+J0JSLG+Dd0mbFb2IWXPRcGzh9HRiUjEfWmKzk9RF752DF2uQ3Zz9L42JTqGqShtb
-         bKLFM3rw/rjxS8HiJDkuEP0vYA++ycj6IAGXhy/0=
+        b=GjUaKCH/h3m/sQYDgR+rPSJNxEhwsug5b4BVQA4LdmFof7/wgqa6GqdrsW2q4/+ry
+         DQh9psbfAgO4WWujpb4hX2IPf/oqvw5xC7IMhcCWGB9F9cqjC4itCGakgsY4f5Xya+
+         I2P+67swvzDYgMD12YdeS0ev0fXi5IBPUP42X25U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Iuliana Prodan <iuliana.prodan@nxp.com>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 348/671] crypto: caam - fix caam_dump_sg that iterates through scatterlist
-Date:   Thu, 16 Jan 2020 11:59:46 -0500
-Message-Id: <20200116170509.12787-85-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 349/671] netfilter: ebtables: CONFIG_COMPAT: reject trailing data after last rule
+Date:   Thu, 16 Jan 2020 11:59:47 -0500
+Message-Id: <20200116170509.12787-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,35 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iuliana Prodan <iuliana.prodan@nxp.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 8c65d35435e8cbfdf953cafe5ebe3648ee9276a2 ]
+[ Upstream commit 680f6af5337c98d116e4f127cea7845339dba8da ]
 
-Fix caam_dump_sg by correctly determining the next scatterlist
-entry in the list.
+If userspace provides a rule blob with trailing data after last target,
+we trigger a splat, then convert ruleset to 64bit format (with trailing
+data), then pass that to do_replace_finish() which then returns -EINVAL.
 
-Fixes: 5ecf8ef9103c ("crypto: caam - fix sg dump")
-Signed-off-by: Iuliana Prodan <iuliana.prodan@nxp.com>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Erroring out right away avoids the splat plus unneeded translation and
+error unwind.
+
+Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/caam/error.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/netfilter/ebtables.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/caam/error.c b/drivers/crypto/caam/error.c
-index 8da88beb1abb..832ba2afdcd5 100644
---- a/drivers/crypto/caam/error.c
-+++ b/drivers/crypto/caam/error.c
-@@ -22,7 +22,7 @@ void caam_dump_sg(const char *level, const char *prefix_str, int prefix_type,
- 	size_t len;
- 	void *buf;
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 785e19afd6aa..f59230e4fc29 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -2165,7 +2165,9 @@ static int compat_copy_entries(unsigned char *data, unsigned int size_user,
+ 	if (ret < 0)
+ 		return ret;
  
--	for (it = sg; it && tlen > 0 ; it = sg_next(sg)) {
-+	for (it = sg; it && tlen > 0 ; it = sg_next(it)) {
- 		/*
- 		 * make sure the scatterlist's page
- 		 * has a valid virtual memory mapping
+-	WARN_ON(size_remaining);
++	if (size_remaining)
++		return -EINVAL;
++
+ 	return state->buf_kern_offset;
+ }
+ 
 -- 
 2.20.1
 
