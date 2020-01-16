@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB5E113F5E0
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B21EA13F5DA
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:59:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388869AbgAPS7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:59:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36892 "EHLO mail.kernel.org"
+        id S2388954AbgAPRGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:06:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388948AbgAPRGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:06:33 -0500
+        id S2388952AbgAPRGf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:06:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29629205F4;
-        Thu, 16 Jan 2020 17:06:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADD6321D56;
+        Thu, 16 Jan 2020 17:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194393;
-        bh=G7YqXyQm0ar1eD+NyLytqEqQFhGJI9U3ct2YhRdk67A=;
+        s=default; t=1579194394;
+        bh=9HczM8KMjOh+/adQ1ElIg7yf0eKRvEpuG1TERGMTVsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mlOxgtOQchq6Ck5In4Yq9t/ZEW406OCOCtdol7+eBqG6cWb7qTAuZhNqm8ZNtzEh3
-         D5N5mr2TeGjw20RLW/jv/HxYNoA0/s0ROc55wuzAAUJW++IV4u3K+g695w4sbSlQvz
-         OhIlt+le8ajGoDjrRipWCNwfd7aGpKG/NLytLIJw=
+        b=iSrXDm60fG4ibhKWeBwnYiAtPD6gnH5Dk43R9oE+JAXUG9UPegJ+nVUjD7BWmEYst
+         aKEKjALcZ8jEH2DZQcPUSJoEuhECAX1EUjXN8xTW8TGimS/fCvGxvBfQh8fsx+JiRY
+         4H07OV9ya256uoqz2KX7VHl6WIia9BApPncQEh+k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 320/671] netfilter: nft_flow_offload: add entry to flowtable after confirmation
-Date:   Thu, 16 Jan 2020 11:59:18 -0500
-Message-Id: <20200116170509.12787-57-sashal@kernel.org>
+Cc:     Srinath Mannam <srinath.mannam@broadcom.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Ray Jui <ray.jui@broadcom.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 321/671] PCI: iproc: Enable iProc config read for PAXBv2
+Date:   Thu, 16 Jan 2020 11:59:19 -0500
+Message-Id: <20200116170509.12787-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,42 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Srinath Mannam <srinath.mannam@broadcom.com>
 
-[ Upstream commit 270a8a297f42ecff82060aaa53118361f09c1f7d ]
+[ Upstream commit 8cff995405eb0b563e7a0d2c49838611ea3f2692 ]
 
-This is fixing flow offload for UDP traffic where packets only follow
-one single direction.
+iProc config read flag has to be enabled for PAXBv2 instead of PAXB.
 
-The flow_offload_fixup_tcp() mechanism works fine in case that the
-offloaded entry remains in SYN_RECV state, given sequence tracking is
-reset and that conntrack handles syn+ack packets as a retransmission, ie.
-
-	sES + synack => sIG
-
-for reply traffic.
-
-Fixes: a3c90f7a2323 ("netfilter: nf_tables: flow offload expression")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: f78e60a29d4f ("PCI: iproc: Reject unconfigured physical functions from PAXC")
+Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Ray Jui <ray.jui@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_flow_offload.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/pci/controller/pcie-iproc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
-index 1ef8cb789c41..166edea0e452 100644
---- a/net/netfilter/nft_flow_offload.c
-+++ b/net/netfilter/nft_flow_offload.c
-@@ -103,8 +103,7 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
- 	    ct->status & IPS_SEQ_ADJUST)
- 		goto out;
- 
--	if (ctinfo == IP_CT_NEW ||
--	    ctinfo == IP_CT_RELATED)
-+	if (!nf_ct_is_confirmed(ct))
- 		goto out;
- 
- 	if (test_and_set_bit(IPS_OFFLOAD_BIT, &ct->status))
+diff --git a/drivers/pci/controller/pcie-iproc.c b/drivers/pci/controller/pcie-iproc.c
+index c20fd6bd68fd..9d5cbc75d5ae 100644
+--- a/drivers/pci/controller/pcie-iproc.c
++++ b/drivers/pci/controller/pcie-iproc.c
+@@ -1347,7 +1347,6 @@ static int iproc_pcie_rev_init(struct iproc_pcie *pcie)
+ 		break;
+ 	case IPROC_PCIE_PAXB:
+ 		regs = iproc_pcie_reg_paxb;
+-		pcie->iproc_cfg_read = true;
+ 		pcie->has_apb_err_disable = true;
+ 		if (pcie->need_ob_cfg) {
+ 			pcie->ob_map = paxb_ob_map;
+@@ -1356,6 +1355,7 @@ static int iproc_pcie_rev_init(struct iproc_pcie *pcie)
+ 		break;
+ 	case IPROC_PCIE_PAXB_V2:
+ 		regs = iproc_pcie_reg_paxb_v2;
++		pcie->iproc_cfg_read = true;
+ 		pcie->has_apb_err_disable = true;
+ 		if (pcie->need_ob_cfg) {
+ 			pcie->ob_map = paxb_v2_ob_map;
 -- 
 2.20.1
 
