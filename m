@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5A313FDEC
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EBDD13FDDF
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404156AbgAPXal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:30:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36574 "EHLO mail.kernel.org"
+        id S2391404AbgAPXaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:30:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391366AbgAPXaG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:30:06 -0500
+        id S2391398AbgAPXaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:30:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 075F52072E;
-        Thu, 16 Jan 2020 23:30:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76BD32082F;
+        Thu, 16 Jan 2020 23:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217405;
-        bh=aO7qYF9fBvj0Ws7iK4BpxtcIgvZOMDtzdIeVgfd0YsU=;
+        s=default; t=1579217407;
+        bh=wbfoAA42oX5l4yauXATlXAMyCq6qjlKLDgmai3tPlJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wq5MFaXbrn45nq/4sKRHqL8y8NCCvcWDWu2xd4r9p3IvCvqymQ7uotCznSP+RgGjD
-         beUtPWZB/bg/u9BmEyP7qHM5SeMjTPNHGa4UiHVAoGoFG9PMu0RtPI9hVVO9EWv8DF
-         T1oo873aC5FkeZFiywukxiQWf/B2aNabUHdij1M0=
+        b=hhdT7lqkkmsOfFBONYJo9pBF3x0UcIaVCH5du2uCNxx8cOwo2Vle/EF4nhdbOeFFt
+         nyt6Pnawksi5m66TFY6tLhs8EYRjcMTTWIhqtHGZo7izf690UMqtHHsQpN1tS7PCm+
+         JZc0sZI9/tf3AGvDX3VcPjFLpicWn7EC4dFufDxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 4.19 70/84] f2fs: fix potential overflow
-Date:   Fri, 17 Jan 2020 00:18:44 +0100
-Message-Id: <20200116231721.809019996@linuxfoundation.org>
+        stable@vger.kernel.org, Kars de Jong <jongk@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 4.19 71/84] rtc: msm6242: Fix reading of 10-hour digit
+Date:   Fri, 17 Jan 2020 00:18:45 +0100
+Message-Id: <20200116231721.909774423@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
 References: <20200116231713.087649517@linuxfoundation.org>
@@ -43,48 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Kars de Jong <jongk@linux-m68k.org>
 
-commit 1f0d5c911b64165c9754139a26c8c2fad352c132 upstream.
+commit e34494c8df0cd96fc432efae121db3212c46ae48 upstream.
 
-We expect 64-bit calculation result from below statement, however
-in 32-bit machine, looped left shift operation on pgoff_t type
-variable may cause overflow issue, fix it by forcing type cast.
+The driver was reading the wrong register as the 10-hour digit due to
+a misplaced ')'. It was in fact reading the 1-second digit register due
+to this bug.
 
-page->index << PAGE_SHIFT;
+Also remove the use of a magic number for the hour mask and use the define
+for it which was already present.
 
-Fixes: 26de9b117130 ("f2fs: avoid unnecessary updating inode during fsync")
-Fixes: 0a2aa8fbb969 ("f2fs: refactor __exchange_data_block for speed up")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 4f9b9bba1dd1 ("rtc: Add an RTC driver for the Oki MSM6242")
+Tested-by: Kars de Jong <jongk@linux-m68k.org>
+Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
+Link: https://lore.kernel.org/r/20191116110548.8562-1-jongk@linux-m68k.org
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/f2fs/data.c |    2 +-
- fs/f2fs/file.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-msm6242.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -1857,7 +1857,7 @@ static int __write_data_page(struct page
- 	loff_t i_size = i_size_read(inode);
- 	const pgoff_t end_index = ((unsigned long long) i_size)
- 							>> PAGE_SHIFT;
--	loff_t psize = (page->index + 1) << PAGE_SHIFT;
-+	loff_t psize = (loff_t)(page->index + 1) << PAGE_SHIFT;
- 	unsigned offset = 0;
- 	bool need_balance_fs = false;
- 	int err = 0;
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1101,7 +1101,7 @@ static int __clone_blkaddrs(struct inode
- 				}
- 				dn.ofs_in_node++;
- 				i++;
--				new_size = (dst + i) << PAGE_SHIFT;
-+				new_size = (loff_t)(dst + i) << PAGE_SHIFT;
- 				if (dst_inode->i_size < new_size)
- 					f2fs_i_size_write(dst_inode, new_size);
- 			} while (--ilen && (do_replace[i] || blkaddr[i] == NULL_ADDR));
+--- a/drivers/rtc/rtc-msm6242.c
++++ b/drivers/rtc/rtc-msm6242.c
+@@ -132,7 +132,8 @@ static int msm6242_read_time(struct devi
+ 		      msm6242_read(priv, MSM6242_SECOND1);
+ 	tm->tm_min  = msm6242_read(priv, MSM6242_MINUTE10) * 10 +
+ 		      msm6242_read(priv, MSM6242_MINUTE1);
+-	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10 & 3)) * 10 +
++	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10) &
++		       MSM6242_HOUR10_HR_MASK) * 10 +
+ 		      msm6242_read(priv, MSM6242_HOUR1);
+ 	tm->tm_mday = msm6242_read(priv, MSM6242_DAY10) * 10 +
+ 		      msm6242_read(priv, MSM6242_DAY1);
 
 
