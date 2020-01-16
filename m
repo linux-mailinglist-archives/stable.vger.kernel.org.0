@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C04913F01C
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32FAB13F05E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404133AbgAPR2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:28:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38926 "EHLO mail.kernel.org"
+        id S1729567AbgAPSUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:20:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404126AbgAPR2L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:28:11 -0500
+        id S2404131AbgAPR2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:28:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D18B8246D7;
-        Thu, 16 Jan 2020 17:28:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F5F246F2;
+        Thu, 16 Jan 2020 17:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195691;
-        bh=YLN8h777Z8NE3Opm/rAY2aVdzAenJ+dIpl9mHFPoMCY=;
+        s=default; t=1579195692;
+        bh=QTWwA5ZX57t85mu8XhxifcF7+aHq2EqsBzcSV9TS4WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0U+kzd2oK3yFao6ie/nB48mJh7DfFjgvo3Mn6OuYAuRzdX/sBmHtr3lzAa0xiCfW
-         BMG5uCt7AcUFI4O/fUwyvbHuKMkWX/3Xns8975E67I1W+c0bgMeCipZIgQfnV13iCx
-         sw7pyXawcKaNSlGAswjzc8T0kkaHRKMcv6WWVfRk=
+        b=1+Lug0EZbYsaUgfYCZUyBT2t90ydGoYqXQy03Qm4NLLsBcNqntyMP5soB+gLlzbvO
+         8Vskt9ctW0pas7+RX8c80adZDJW/r/5GpcBAToqhRTg0E9LN2Y7Y5Ad04bk7H6ilyR
+         ECN7m7p8irNDWNP/fqEE1Xx5E+SS8RxoTQTKuEfg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
-        Somasundaram Krishnasamy <somasundaram.krishnasamy@oracle.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 241/371] bnxt_en: Fix ethtool selftest crash under error conditions.
-Date:   Thu, 16 Jan 2020 12:21:53 -0500
-Message-Id: <20200116172403.18149-184-sashal@kernel.org>
+Cc:     Kevin Mitchell <kevmitch@arista.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.14 242/371] iommu/amd: Make iommu_disable safer
+Date:   Thu, 16 Jan 2020 12:21:54 -0500
+Message-Id: <20200116172403.18149-185-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,49 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Kevin Mitchell <kevmitch@arista.com>
 
-[ Upstream commit d27e2ca1166aefd54d9c48fb6647dee8115a5dfc ]
+[ Upstream commit 3ddbe913e55516d3e2165d43d4d5570761769878 ]
 
-After ethtool loopback packet tests, we re-open the nic for the next
-IRQ test.  If the open fails, we must not proceed with the IRQ test
-or we will crash with NULL pointer dereference.  Fix it by checking
-the bnxt_open_nic() return code before proceeding.
+Make it safe to call iommu_disable during early init error conditions
+before mmio_base is set, but after the struct amd_iommu has been added
+to the amd_iommu_list. For example, this happens if firmware fails to
+fill in mmio_phys in the ACPI table leading to a NULL pointer
+dereference in iommu_feature_disable.
 
-Reported-by: Somasundaram Krishnasamy <somasundaram.krishnasamy@oracle.com>
-Fixes: 67fea463fd87 ("bnxt_en: Add interrupt test to ethtool -t selftest.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2c0ae1720c09c ('iommu/amd: Convert iommu initialization to state machine')
+Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iommu/amd_iommu_init.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index fc8e185718a1..963beaa8fabb 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -2463,7 +2463,7 @@ static void bnxt_self_test(struct net_device *dev, struct ethtool_test *etest,
- 	bool offline = false;
- 	u8 test_results = 0;
- 	u8 test_mask = 0;
--	int rc, i;
-+	int rc = 0, i;
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index 6a3cf4d0bd5e..4d2920988d60 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -420,6 +420,9 @@ static void iommu_enable(struct amd_iommu *iommu)
  
- 	if (!bp->num_tests || !BNXT_SINGLE_PF(bp))
- 		return;
-@@ -2521,9 +2521,9 @@ static void bnxt_self_test(struct net_device *dev, struct ethtool_test *etest,
- 		}
- 		bnxt_hwrm_phy_loopback(bp, false);
- 		bnxt_half_close_nic(bp);
--		bnxt_open_nic(bp, false, true);
-+		rc = bnxt_open_nic(bp, false, true);
- 	}
--	if (bnxt_test_irq(bp)) {
-+	if (rc || bnxt_test_irq(bp)) {
- 		buf[BNXT_IRQ_TEST_IDX] = 1;
- 		etest->flags |= ETH_TEST_FL_FAILED;
- 	}
+ static void iommu_disable(struct amd_iommu *iommu)
+ {
++	if (!iommu->mmio_base)
++		return;
++
+ 	/* Disable command buffer */
+ 	iommu_feature_disable(iommu, CONTROL_CMDBUF_EN);
+ 
 -- 
 2.20.1
 
