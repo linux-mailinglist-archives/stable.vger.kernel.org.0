@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A40313F020
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF07E13F023
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404187AbgAPR2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:28:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39224 "EHLO mail.kernel.org"
+        id S2404199AbgAPR2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:28:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404179AbgAPR2T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:28:19 -0500
+        id S2404186AbgAPR2U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:28:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 494BB246E6;
-        Thu, 16 Jan 2020 17:28:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2A4C246EB;
+        Thu, 16 Jan 2020 17:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195698;
-        bh=rgDJbPRJVcoJSOkhpmFZCC4zEKPK4rigzmowCZomXv8=;
+        s=default; t=1579195699;
+        bh=joScUPhdfCP23b6S5EFY5hYk38+64+HbNEWlfegz5v4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkZnVzaTIfJQX2JT5aPcRKeAyBVAVAqMXQJ6y4Ow09UzWfS41mvyvnvdkqVJ77mV4
-         QaxVDSgIVuxSI3HZASCTyEbQX366TLkOKjZ/KN/pRhimqMTmzXnBIDIGtrwSYFaqEx
-         VnsMGjN1ENmntd6R/pKhNem9YnNeLmrnkcmFzRTk=
+        b=dIHaJUG+ZrMTkQL0gCzkvwnPhvPyJfpY1NUMDnuRo6N6DO3uwdaeuduefFZrpTqEb
+         2XUHJ9FnvJ3z1bupMIfRs9081um3ey+GxQmbITH/OfFhiu18wvYM59FRR9DiyuMoha
+         Ixaclaq5HcLwa6b1WuyKmhx7bKaLkEpTwJ44v/LY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Yang <wen.yang99@zte.com.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>, netdev@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 247/371] net: pasemi: fix an use-after-free in pasemi_mac_phy_init()
-Date:   Thu, 16 Jan 2020 12:21:59 -0500
-Message-Id: <20200116172403.18149-190-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Hannes Reinecke <hare@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 248/371] scsi: libfc: fix null pointer dereference on a null lport
+Date:   Thu, 16 Jan 2020 12:22:00 -0500
+Message-Id: <20200116172403.18149-191-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -46,47 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit faf5577f2498cea23011b5c785ef853ded22700b ]
+[ Upstream commit 41a6bf6529edd10a6def42e3b2c34a7474bcc2f5 ]
 
-The phy_dn variable is still being used in of_phy_connect() after the
-of_node_put() call, which may result in use-after-free.
+Currently if lport is null then the null lport pointer is dereference when
+printing out debug via the FC_LPORT_DB macro. Fix this by using the more
+generic FC_LIBFC_DBG debug macro instead that does not use lport.
 
-Fixes: 1dd2d06c0459 ("net: Rework pasemi_mac driver to use of_mdio infrastructure")
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Addresses-Coverity: ("Dereference after null check")
+Fixes: 7414705ea4ae ("libfc: Add runtime debugging with debug_logging module parameter")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pasemi/pasemi_mac.c | 2 +-
+ drivers/scsi/libfc/fc_exch.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/pasemi/pasemi_mac.c b/drivers/net/ethernet/pasemi/pasemi_mac.c
-index 49591d9c2e1b..c9b4ac9d3330 100644
---- a/drivers/net/ethernet/pasemi/pasemi_mac.c
-+++ b/drivers/net/ethernet/pasemi/pasemi_mac.c
-@@ -1053,7 +1053,6 @@ static int pasemi_mac_phy_init(struct net_device *dev)
+diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
+index 42bcf7f3a0f9..6ba257cbc6d9 100644
+--- a/drivers/scsi/libfc/fc_exch.c
++++ b/drivers/scsi/libfc/fc_exch.c
+@@ -2603,7 +2603,7 @@ void fc_exch_recv(struct fc_lport *lport, struct fc_frame *fp)
  
- 	dn = pci_device_to_OF_node(mac->pdev);
- 	phy_dn = of_parse_phandle(dn, "phy-handle", 0);
--	of_node_put(phy_dn);
- 
- 	mac->link = 0;
- 	mac->speed = 0;
-@@ -1062,6 +1061,7 @@ static int pasemi_mac_phy_init(struct net_device *dev)
- 	phydev = of_phy_connect(dev, phy_dn, &pasemi_adjust_link, 0,
- 				PHY_INTERFACE_MODE_SGMII);
- 
-+	of_node_put(phy_dn);
- 	if (!phydev) {
- 		printk(KERN_ERR "%s: Could not attach to phy\n", dev->name);
- 		return -ENODEV;
+ 	/* lport lock ? */
+ 	if (!lport || lport->state == LPORT_ST_DISABLED) {
+-		FC_LPORT_DBG(lport, "Receiving frames for an lport that "
++		FC_LIBFC_DBG("Receiving frames for an lport that "
+ 			     "has not been initialized correctly\n");
+ 		fc_frame_free(fp);
+ 		return;
 -- 
 2.20.1
 
