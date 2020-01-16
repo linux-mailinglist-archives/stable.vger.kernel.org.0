@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DC4013FFB3
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:45:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F210513FF86
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729459AbgAPXXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:23:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
+        id S1730610AbgAPXYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:24:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729770AbgAPXXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:23:48 -0500
+        id S1729409AbgAPXYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:24:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 836B020684;
-        Thu, 16 Jan 2020 23:23:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3276A2072E;
+        Thu, 16 Jan 2020 23:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217028;
-        bh=jQT+WNioAeZDY5GTweyyOO5vpR1C6KAoTQe7/C5EF3E=;
+        s=default; t=1579217093;
+        bh=86Pm6fYfDDizdEsbuHEgjTe6dYvfZcvkBZXO+WecKPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N57H+kKTsOxkI70j9SJG/G/eal5VNOKN8WyzXljQVUBMjumSSgB4pjE1mhcBzyeZS
-         abIeMCtI3rIcXxXjZ82nzjh2zdEH4u+DaCtWTOjGGzxYsOEC3nWv7+ZtZgQebCOsis
-         9gVZ2DNSrSs4KM2rn9poDQO+wWhiGKJzF4uT/UjQ=
+        b=OKhHGaNxZ2/RLOKp1dGSW1uF12B/rSFhvmKT7rs5lncJV6ir0wtYgZhzFh9Vjph5I
+         Bhl7Y1ST5P4clIPGFVHbd3abuvCJrgO26f7oPXxKvO8AWeagHPyzfNSmvy2JHMckoh
+         JNHwWIjA1+7rjXEsTcVRiPexxVBjsBnw/EjLXK64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 118/203] affs: fix a memory leak in affs_remount
-Date:   Fri, 17 Jan 2020 00:17:15 +0100
-Message-Id: <20200116231755.674843689@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 119/203] pinctl: ti: iodelay: fix error checking on pinctrl_count_index_with_args call
+Date:   Fri, 17 Jan 2020 00:17:16 +0100
+Message-Id: <20200116231755.744533697@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -44,56 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 450c3d4166837c496ebce03650c08800991f2150 upstream.
+commit 5ff8aca906f3a7a7db79fad92f2a4401107ef50d upstream.
 
-In affs_remount if data is provided it is duplicated into new_opts.  The
-allocated memory for new_opts is only released if parse_options fails.
+The call to pinctrl_count_index_with_args checks for a -EINVAL return
+however this function calls pinctrl_get_list_and_count and this can
+return -ENOENT. Rather than check for a specific error, fix this by
+checking for any error return to catch the -ENOENT case.
 
-There's a bit of history behind new_options, originally there was
-save/replace options on the VFS layer so the 'data' passed must not
-change (thus strdup), this got cleaned up in later patches. But not
-completely.
-
-There's no reason to do the strdup in cases where the filesystem does
-not need to reuse the 'data' again, because strsep would modify it
-directly.
-
-Fixes: c8f33d0bec99 ("affs: kstrdup() memory handling")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-[ update changelog ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Addresses-Coverity: ("Improper use of negative")
+Fixes: 003910ebc83b ("pinctrl: Introduce TI IOdelay configuration driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20190920122030.14340-1-colin.king@canonical.com
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/affs/super.c |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/pinctrl/ti/pinctrl-ti-iodelay.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/affs/super.c
-+++ b/fs/affs/super.c
-@@ -561,14 +561,9 @@ affs_remount(struct super_block *sb, int
- 	int			 root_block;
- 	unsigned long		 mount_flags;
- 	int			 res = 0;
--	char			*new_opts;
- 	char			 volume[32];
- 	char			*prefix = NULL;
- 
--	new_opts = kstrdup(data, GFP_KERNEL);
--	if (data && !new_opts)
--		return -ENOMEM;
--
- 	pr_debug("%s(flags=0x%x,opts=\"%s\")\n", __func__, *flags, data);
- 
- 	sync_filesystem(sb);
-@@ -579,7 +574,6 @@ affs_remount(struct super_block *sb, int
- 			   &blocksize, &prefix, volume,
- 			   &mount_flags)) {
- 		kfree(prefix);
--		kfree(new_opts);
+--- a/drivers/pinctrl/ti/pinctrl-ti-iodelay.c
++++ b/drivers/pinctrl/ti/pinctrl-ti-iodelay.c
+@@ -496,7 +496,7 @@ static int ti_iodelay_dt_node_to_map(str
  		return -EINVAL;
- 	}
  
+ 	rows = pinctrl_count_index_with_args(np, name);
+-	if (rows == -EINVAL)
++	if (rows < 0)
+ 		return rows;
+ 
+ 	*map = devm_kzalloc(iod->dev, sizeof(**map), GFP_KERNEL);
 
 
