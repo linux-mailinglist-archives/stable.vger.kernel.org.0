@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6186C13E766
+	by mail.lfdr.de (Postfix) with ESMTP id DEF9813E767
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:25:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392124AbgAPRZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:25:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33454 "EHLO mail.kernel.org"
+        id S2392140AbgAPRZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:25:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392117AbgAPRZg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:36 -0500
+        id S2392133AbgAPRZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10E40246CA;
-        Thu, 16 Jan 2020 17:25:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C8AB246DB;
+        Thu, 16 Jan 2020 17:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195535;
-        bh=RWIpyYV2IZnnvLeNB3e+att7PsbnyepJ/57t61uI6Fc=;
+        s=default; t=1579195540;
+        bh=tH7fwmpQiZPw0MyDgLkGZKtY/tukBcVLLZDmKus01K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=puucLYIkRxSJodtDQOtaDZNdDFDKlZ7GRzByUa1SpGWUdKed2bH4CMggYNJcD8PHb
-         z76lAxvutzAwo8oMABCqKPnYXuw3+luWyiqftdxEVsJy0i/57EHr+OfYrdz9uh3oZj
-         2z/IiPdurBryQzmmVqgdDDr1/NOWpzLehjgiZeiw=
+        b=dMIjYj+COwxwnp6z8sYLSGH3lWIN0guXgOMDEWWT43ZqC0JfZn8HW0MIJ5/ix3s+D
+         hUvka6jJkknEVaMfnj4PL11/nMG4Ygb328HZwvdE1YhgRgXDbj3HilkSI12p40zFGp
+         /u6ih5p2p7ekT7KD3bVRSSqhZjrZu7aD8wmO32no=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Ley Foon Tan <ley.foon.tan@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        nios2-dev@lists.rocketboards.org
-Subject: [PATCH AUTOSEL 4.14 130/371] nios2: ksyms: Add missing symbol exports
-Date:   Thu, 16 Jan 2020 12:20:02 -0500
-Message-Id: <20200116172403.18149-73-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Alexandre Bounine <alexandre.bounine@idt.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 133/371] drivers/rapidio/rio_cm.c: fix potential oops in riocm_ch_listen()
+Date:   Thu, 16 Jan 2020 12:20:05 -0500
+Message-Id: <20200116172403.18149-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,65 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 0f8ed994575429d6042cf5d7ef70081c94091587 ]
+[ Upstream commit 5ac188b12e7cbdd92dee60877d1fac913fc1d074 ]
 
-Building nios2:allmodconfig fails as follows (each symbol is only listed
-once).
+If riocm_get_channel() fails, then we should just return -EINVAL.
+Calling riocm_put_channel() will trigger a NULL dereference and
+generally we should call put() if the get() didn't succeed.
 
-ERROR: "__ashldi3" [drivers/md/dm-writecache.ko] undefined!
-ERROR: "__ashrdi3" [fs/xfs/xfs.ko] undefined!
-ERROR: "__ucmpdi2" [drivers/media/i2c/adv7842.ko] undefined!
-ERROR: "__lshrdi3" [drivers/md/dm-zoned.ko] undefined!
-ERROR: "flush_icache_range" [drivers/misc/lkdtm/lkdtm.ko] undefined!
-ERROR: "empty_zero_page" [drivers/md/dm-mod.ko] undefined!
-
-The problem is seen with gcc 7.3.0.
-
-Export the missing symbols.
-
-Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Ley Foon Tan <ley.foon.tan@intel.com>
+Link: http://lkml.kernel.org/r/20190110130230.GB27017@kadam
+Fixes: b6e8d4aa1110 ("rapidio: add RapidIO channelized messaging driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Alexandre Bounine <alexandre.bounine@idt.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nios2/kernel/nios2_ksyms.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/rapidio/rio_cm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/nios2/kernel/nios2_ksyms.c b/arch/nios2/kernel/nios2_ksyms.c
-index bf2f55d10a4d..4e704046a150 100644
---- a/arch/nios2/kernel/nios2_ksyms.c
-+++ b/arch/nios2/kernel/nios2_ksyms.c
-@@ -9,12 +9,20 @@
- #include <linux/export.h>
- #include <linux/string.h>
+diff --git a/drivers/rapidio/rio_cm.c b/drivers/rapidio/rio_cm.c
+index ef989a15aefc..b29fc258eeba 100644
+--- a/drivers/rapidio/rio_cm.c
++++ b/drivers/rapidio/rio_cm.c
+@@ -1215,7 +1215,9 @@ static int riocm_ch_listen(u16 ch_id)
+ 	riocm_debug(CHOP, "(ch_%d)", ch_id);
  
-+#include <asm/cacheflush.h>
-+#include <asm/pgtable.h>
-+
- /* string functions */
- 
- EXPORT_SYMBOL(memcpy);
- EXPORT_SYMBOL(memset);
- EXPORT_SYMBOL(memmove);
- 
-+/* memory management */
-+
-+EXPORT_SYMBOL(empty_zero_page);
-+EXPORT_SYMBOL(flush_icache_range);
-+
- /*
-  * libgcc functions - functions that are used internally by the
-  * compiler...  (prototypes are not correct though, but that
-@@ -31,3 +39,7 @@ DECLARE_EXPORT(__udivsi3);
- DECLARE_EXPORT(__umoddi3);
- DECLARE_EXPORT(__umodsi3);
- DECLARE_EXPORT(__muldi3);
-+DECLARE_EXPORT(__ucmpdi2);
-+DECLARE_EXPORT(__lshrdi3);
-+DECLARE_EXPORT(__ashldi3);
-+DECLARE_EXPORT(__ashrdi3);
+ 	ch = riocm_get_channel(ch_id);
+-	if (!ch || !riocm_cmp_exch(ch, RIO_CM_CHAN_BOUND, RIO_CM_LISTEN))
++	if (!ch)
++		return -EINVAL;
++	if (!riocm_cmp_exch(ch, RIO_CM_CHAN_BOUND, RIO_CM_LISTEN))
+ 		ret = -EINVAL;
+ 	riocm_put_channel(ch);
+ 	return ret;
 -- 
 2.20.1
 
