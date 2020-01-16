@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10A5C13F5B9
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:58:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7C213F5AF
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:58:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389019AbgAPS6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:58:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37676 "EHLO mail.kernel.org"
+        id S2389008AbgAPRGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:06:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389001AbgAPRGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:06:49 -0500
+        id S2389006AbgAPRGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:06:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 813C121582;
-        Thu, 16 Jan 2020 17:06:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC6D3205F4;
+        Thu, 16 Jan 2020 17:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194409;
-        bh=PNyrjtKhsh5j0ZJI7dAt5m/4ZFrkwxjsk9guXqwkz88=;
+        s=default; t=1579194410;
+        bh=rgGdzB4cVLt1R+ntLiKhZow3VesNrvHG1CWg4LPL2Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lLgQKF8yx0dfZQP1eTtYQytkfFOrhJrZ3Kr5soTIgw/n81PPEd0aY07mfzH6vCZ2u
-         cgbVk0LxC/3tSN4Zv4T+uxpJAPuuDmot2l5IV9WPHUII3cNAm6bQgYHTO+yX2qnUOn
-         ZXZkzvngZTBHX6H2+j6GSz/h9ur5iDSEbj0rdamc=
+        b=FOAunnuQD5J4gPd/0OTS2WFyD2mcHJpeYti0cxU2VmQQDJjqoFn4/sVNWIcBzyKs8
+         EwAYjSDgPG2uCS4UPpsCtG6fnRBpkhAQCx0OirKN13uv87fn6vJPUQ/7ksa6y+drHG
+         dvf9CW2Y8rlT//7Pp3PYRFbNT4Q84oPBmm6wogkM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Sameeh Jubran <sameehj@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
+        Netanel Belgazal <netanel@amazon.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 332/671] net: ena: fix incorrect test of supported hash function
-Date:   Thu, 16 Jan 2020 11:59:30 -0500
-Message-Id: <20200116170509.12787-69-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 333/671] net: ena: fix ena_com_fill_hash_function() implementation
+Date:   Thu, 16 Jan 2020 11:59:31 -0500
+Message-Id: <20200116170509.12787-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -46,36 +46,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sameeh Jubran <sameehj@amazon.com>
 
-[ Upstream commit d3cfe7ddbc3dfbb9b201615b7fef8fd66d1b5fe8 ]
+[ Upstream commit 11bd7a00c0d8ffe33d1e926f8e789b4aea787186 ]
 
-ena_com_set_hash_function() tests if a hash function is supported
-by the device before setting it.
-The test returns the opposite result than needed.
-Reverse the condition to return the correct value.
-Also use the BIT macro instead of inline shift.
+ena_com_fill_hash_function() didn't configure the rss->hash_func.
 
 Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: Netanel Belgazal <netanel@amazon.com>
 Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_com.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
-index 7635c38e77dd..005882c40262 100644
+index 005882c40262..92261c946e2a 100644
 --- a/drivers/net/ethernet/amazon/ena/ena_com.c
 +++ b/drivers/net/ethernet/amazon/ena/ena_com.c
-@@ -2008,7 +2008,7 @@ int ena_com_set_hash_function(struct ena_com_dev *ena_dev)
- 	if (unlikely(ret))
- 		return ret;
+@@ -2093,6 +2093,7 @@ int ena_com_fill_hash_function(struct ena_com_dev *ena_dev,
+ 		return -EINVAL;
+ 	}
  
--	if (get_resp.u.flow_hash_func.supported_func & (1 << rss->hash_func)) {
-+	if (!(get_resp.u.flow_hash_func.supported_func & BIT(rss->hash_func))) {
- 		pr_err("Func hash %d isn't supported by device, abort\n",
- 		       rss->hash_func);
- 		return -EOPNOTSUPP;
++	rss->hash_func = func;
+ 	rc = ena_com_set_hash_function(ena_dev);
+ 
+ 	/* Restore the old function */
 -- 
 2.20.1
 
