@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF5B13E904
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9EE13E935
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:36:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405009AbgAPRfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:35:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49996 "EHLO mail.kernel.org"
+        id S2405115AbgAPRgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:36:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405175AbgAPRfi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:35:38 -0500
+        id S2405114AbgAPRgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:36:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B33F524713;
-        Thu, 16 Jan 2020 17:35:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4BCD246B7;
+        Thu, 16 Jan 2020 17:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196137;
-        bh=yYjslUzdQq5c4r2jXilrCHJJ5+e34/2YaR56bnYZSbM=;
+        s=default; t=1579196206;
+        bh=tdBSwxxCeitoPSZ6ScJGChgxmx8QvubbLNKi1Z1+VLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JNFCoOx3gimaLILzzwwQnqCP/ObIMzZaqbLQ8mfIJP3AkfltIc5e9n9RYg3458sOA
-         DfhYaNQAL58mqbKofD8ArGLPLS5C2didkCPhKx9i1ROy4iA3e9bTqz4FvL5xqz7PxT
-         nuMw6DoLcXNBV8kjxUkcgo84GJLtMTSnSgqIbF18=
+        b=1J2WK9Wpn4tiGkOnvwmbOtY9vvj/P80fWOTw7c6V8S3kteToX0GLgdFYrX3QUDKiv
+         xUgjhWJcqa201SuZAZFxAC0r+JlLIBdt3pj7Sa4oDSUc4TTWtfBuOdqOHprPzibiDQ
+         BApSyJvMGDmR2CymAwsJN/3Rb9xC9T8ELlCqljc0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Loic Poulain <loic.poulain@linaro.org>,
-        Manabu Igusa <migusa@arrowjapan.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Andy Gross <andy.gross@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 039/251] arm64: dts: apq8016-sbc: Increase load on l11 for SDCARD
-Date:   Thu, 16 Jan 2020 12:31:13 -0500
-Message-Id: <20200116173445.21385-39-sashal@kernel.org>
+Cc:     Stefan Agner <stefan@agner.ch>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 043/251] ASoC: imx-sgtl5000: put of nodes if finding codec fails
+Date:   Thu, 16 Jan 2020 12:33:12 -0500
+Message-Id: <20200116173641.22137-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200116173445.21385-1-sashal@kernel.org>
-References: <20200116173445.21385-1-sashal@kernel.org>
+In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
+References: <20200116173641.22137-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,40 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit af61bef513ba179559e56908b8c465e587bc3890 ]
+[ Upstream commit d9866572486802bc598a3e8576a5231378d190de ]
 
-In the same way as for msm8974-hammerhead, l11 load, used for SDCARD
-VMMC, needs to be increased in order to prevent any voltage drop issues
-(due to limited current) happening with some SDCARDS or during specific
-operations (e.g. write).
+Make sure to properly put the of node in case finding the codec
+fails.
 
-Tested on Dragonboard-410c and DART-SD410 boards.
-
-Fixes: 4c7d53d16d77 (arm64: dts: apq8016-sbc: add regulators support)
-Reported-by: Manabu Igusa <migusa@arrowjapan.com>
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Andy Gross <andy.gross@linaro.org>
+Fixes: 81e8e4926167 ("ASoC: fsl: add sgtl5000 clock support for imx-sgtl5000")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Reviewed-by: Daniel Baluta <daniel.baluta@nxp.com>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/fsl/imx-sgtl5000.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi b/arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi
-index 601be6127628..948efff7d830 100644
---- a/arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi
-+++ b/arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi
-@@ -355,6 +355,8 @@
- 	l11 {
- 		regulator-min-microvolt = <1750000>;
- 		regulator-max-microvolt = <3337000>;
-+		regulator-allow-set-load;
-+		regulator-system-load = <200000>;
- 	};
+diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
+index 8e525f7ac08d..3d99a8579c99 100644
+--- a/sound/soc/fsl/imx-sgtl5000.c
++++ b/sound/soc/fsl/imx-sgtl5000.c
+@@ -119,7 +119,8 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 	codec_dev = of_find_i2c_device_by_node(codec_np);
+ 	if (!codec_dev) {
+ 		dev_err(&pdev->dev, "failed to find codec platform device\n");
+-		return -EPROBE_DEFER;
++		ret = -EPROBE_DEFER;
++		goto fail;
+ 	}
  
- 	l12 {
+ 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
 -- 
 2.20.1
 
