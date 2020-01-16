@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B675F13FFC2
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:45:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BE6813FFAB
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:45:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733184AbgAPXpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:45:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51310 "EHLO mail.kernel.org"
+        id S2390993AbgAPXXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:23:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387468AbgAPXXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:23:11 -0500
+        id S2390992AbgAPXXR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:23:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B21222072E;
-        Thu, 16 Jan 2020 23:23:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94709206D9;
+        Thu, 16 Jan 2020 23:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216991;
-        bh=fXOCE1yOtwONWUSYdxePJX4u1v0PlpSLXi6wqCESEoQ=;
+        s=default; t=1579216996;
+        bh=PoxcrDcGEQmUeQXGusjb3WsOfqsZeYJY0WnI1BoaYy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fKMoZbfl6WLfTPaXfX2Qlzl+E9Akp+KJmEcUhUucXep4hh3ESM27EqdcF15jWrWQt
-         h9g017rhC5faG/7hqimxe91HhZt4I1KvjwGY6cZXL+EpEiFDcMQj3Q5atP7yVTXsKa
-         Ote0uErcq5QXYzZ68NMih97xOcZrCYGUpH3PVA74=
+        b=Ha1ujjckPZb2rvz3uRfaP3MGTkBOi8A9YaFNuqKJYylioyH0NNdWloUN6Iu+ydI+3
+         e9VERzUkUvXAhd0otqViWikntkLFxn/O8UbQizBXVTL0Jw837dFGloYQL+Mf1Lq5pF
+         m1Gz0AwcB8HfsbXxMHviSh3/l/JXJp53evdWCbZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woods <dwoods@mellanox.com>,
-        Liming Sun <lsun@mellanox.com>,
+        stable@vger.kernel.org, Jason Anderson <jasona.594@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 087/203] platform/mellanox: fix potential deadlock in the tmfifo driver
-Date:   Fri, 17 Jan 2020 00:16:44 +0100
-Message-Id: <20200116231753.227083036@linuxfoundation.org>
+Subject: [PATCH 5.4 089/203] platform/x86: GPD pocket fan: Use default values when wrong modparams are given
+Date:   Fri, 17 Jan 2020 00:16:46 +0100
+Message-Id: <20200116231753.449871591@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -44,124 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liming Sun <lsun@mellanox.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 638bc4ca3d28c25986cce4cbad69d9b8abf1e434 upstream.
+commit 6ae01050e49f0080ae30575d9b45a6d4a3d7ee23 upstream.
 
-This commit fixes the potential deadlock caused by the console Rx
-and Tx processing at the same time. Rx and Tx both take the console
-and tmfifo spinlock but in different order which causes potential
-deadlock. The fix is to use different tmfifo spinlock for Rx and
-Tx since they protect different resources and it's safe to split
-the lock.
+Use our default values when wrong module-parameters are given, instead of
+refusing to load. Refusing to load leaves the fan at the BIOS default
+setting, which is "Off". The CPU's thermal throttling should protect the
+system from damage, but not-loading is really not the best fallback in this
+case.
 
-Below is the reported call trace when copying/pasting large string
-in the console.
+This commit fixes this by re-setting module-parameter values to their
+defaults if they are out of range, instead of failing the probe with
+-EINVAL.
 
-Rx:
-    _raw_spin_lock_irqsave (hvc lock)
-    __hvc_poll
-    hvc_poll
-    in_intr
-    vring_interrupt
-    mlxbf_tmfifo_rxtx_one_desc (tmfifo lock)
-    mlxbf_tmfifo_rxtx
-    mlxbf_tmfifo_work_rxtx
-Tx:
-    _raw_spin_lock_irqsave (tmfifo lock)
-    mlxbf_tmfifo_virtio_notify
-    virtqueue_notify
-    virtqueue_kick
-    put_chars
-    hvc_push
-    hvc_write (hvc lock)
-    ...
-    do_tty_write
-    tty_write
-
-Fixes: 1357dfd7261f ("platform/mellanox: Add TmFifo driver for Mellanox BlueField Soc")
-Cc: <stable@vger.kernel.org> # 5.4+
-Reviewed-by: David Woods <dwoods@mellanox.com>
-Signed-off-by: Liming Sun <lsun@mellanox.com>
+Cc: stable@vger.kernel.org
+Cc: Jason Anderson <jasona.594@gmail.com>
+Reported-by: Jason Anderson <jasona.594@gmail.com>
+Fixes: 594ce6db326e ("platform/x86: GPD pocket fan: Use a min-speed of 2 while charging")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/mellanox/mlxbf-tmfifo.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/platform/x86/gpd-pocket-fan.c |   25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
---- a/drivers/platform/mellanox/mlxbf-tmfifo.c
-+++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
-@@ -149,7 +149,7 @@ struct mlxbf_tmfifo_irq_info {
-  * @work: work struct for deferred process
-  * @timer: background timer
-  * @vring: Tx/Rx ring
-- * @spin_lock: spin lock
-+ * @spin_lock: Tx/Rx spin lock
-  * @is_ready: ready flag
-  */
- struct mlxbf_tmfifo {
-@@ -164,7 +164,7 @@ struct mlxbf_tmfifo {
- 	struct work_struct work;
- 	struct timer_list timer;
- 	struct mlxbf_tmfifo_vring *vring[2];
--	spinlock_t spin_lock;		/* spin lock */
-+	spinlock_t spin_lock[2];	/* spin lock */
- 	bool is_ready;
- };
+--- a/drivers/platform/x86/gpd-pocket-fan.c
++++ b/drivers/platform/x86/gpd-pocket-fan.c
+@@ -16,17 +16,27 @@
  
-@@ -525,7 +525,7 @@ static void mlxbf_tmfifo_console_tx(stru
- 	writeq(*(u64 *)&hdr, fifo->tx_base + MLXBF_TMFIFO_TX_DATA);
+ #define MAX_SPEED 3
  
- 	/* Use spin-lock to protect the 'cons->tx_buf'. */
--	spin_lock_irqsave(&fifo->spin_lock, flags);
-+	spin_lock_irqsave(&fifo->spin_lock[0], flags);
+-static int temp_limits[3] = { 55000, 60000, 65000 };
++#define TEMP_LIMIT0_DEFAULT	55000
++#define TEMP_LIMIT1_DEFAULT	60000
++#define TEMP_LIMIT2_DEFAULT	65000
++
++#define HYSTERESIS_DEFAULT	3000
++
++#define SPEED_ON_AC_DEFAULT	2
++
++static int temp_limits[3] = {
++	TEMP_LIMIT0_DEFAULT, TEMP_LIMIT1_DEFAULT, TEMP_LIMIT2_DEFAULT,
++};
+ module_param_array(temp_limits, int, NULL, 0444);
+ MODULE_PARM_DESC(temp_limits,
+ 		 "Millicelsius values above which the fan speed increases");
  
- 	while (size > 0) {
- 		addr = cons->tx_buf.buf + cons->tx_buf.tail;
-@@ -552,7 +552,7 @@ static void mlxbf_tmfifo_console_tx(stru
+-static int hysteresis = 3000;
++static int hysteresis = HYSTERESIS_DEFAULT;
+ module_param(hysteresis, int, 0444);
+ MODULE_PARM_DESC(hysteresis,
+ 		 "Hysteresis in millicelsius before lowering the fan speed");
+ 
+-static int speed_on_ac = 2;
++static int speed_on_ac = SPEED_ON_AC_DEFAULT;
+ module_param(speed_on_ac, int, 0444);
+ MODULE_PARM_DESC(speed_on_ac,
+ 		 "minimum fan speed to allow when system is powered by AC");
+@@ -120,18 +130,21 @@ static int gpd_pocket_fan_probe(struct p
+ 		if (temp_limits[i] < 40000 || temp_limits[i] > 70000) {
+ 			dev_err(&pdev->dev, "Invalid temp-limit %d (must be between 40000 and 70000)\n",
+ 				temp_limits[i]);
+-			return -EINVAL;
++			temp_limits[0] = TEMP_LIMIT0_DEFAULT;
++			temp_limits[1] = TEMP_LIMIT1_DEFAULT;
++			temp_limits[2] = TEMP_LIMIT2_DEFAULT;
++			break;
  		}
  	}
- 
--	spin_unlock_irqrestore(&fifo->spin_lock, flags);
-+	spin_unlock_irqrestore(&fifo->spin_lock[0], flags);
- }
- 
- /* Rx/Tx one word in the descriptor buffer. */
-@@ -731,9 +731,9 @@ static bool mlxbf_tmfifo_rxtx_one_desc(s
- 		fifo->vring[is_rx] = NULL;
- 
- 		/* Notify upper layer that packet is done. */
--		spin_lock_irqsave(&fifo->spin_lock, flags);
-+		spin_lock_irqsave(&fifo->spin_lock[is_rx], flags);
- 		vring_interrupt(0, vring->vq);
--		spin_unlock_irqrestore(&fifo->spin_lock, flags);
-+		spin_unlock_irqrestore(&fifo->spin_lock[is_rx], flags);
+ 	if (hysteresis < 1000 || hysteresis > 10000) {
+ 		dev_err(&pdev->dev, "Invalid hysteresis %d (must be between 1000 and 10000)\n",
+ 			hysteresis);
+-		return -EINVAL;
++		hysteresis = HYSTERESIS_DEFAULT;
+ 	}
+ 	if (speed_on_ac < 0 || speed_on_ac > MAX_SPEED) {
+ 		dev_err(&pdev->dev, "Invalid speed_on_ac %d (must be between 0 and 3)\n",
+ 			speed_on_ac);
+-		return -EINVAL;
++		speed_on_ac = SPEED_ON_AC_DEFAULT;
  	}
  
- mlxbf_tmfifo_desc_done:
-@@ -852,10 +852,10 @@ static bool mlxbf_tmfifo_virtio_notify(s
- 		 * worker handler.
- 		 */
- 		if (vring->vdev_id == VIRTIO_ID_CONSOLE) {
--			spin_lock_irqsave(&fifo->spin_lock, flags);
-+			spin_lock_irqsave(&fifo->spin_lock[0], flags);
- 			tm_vdev = fifo->vdev[VIRTIO_ID_CONSOLE];
- 			mlxbf_tmfifo_console_output(tm_vdev, vring);
--			spin_unlock_irqrestore(&fifo->spin_lock, flags);
-+			spin_unlock_irqrestore(&fifo->spin_lock[0], flags);
- 		} else if (test_and_set_bit(MLXBF_TM_TX_LWM_IRQ,
- 					    &fifo->pend_events)) {
- 			return true;
-@@ -1189,7 +1189,8 @@ static int mlxbf_tmfifo_probe(struct pla
- 	if (!fifo)
- 		return -ENOMEM;
- 
--	spin_lock_init(&fifo->spin_lock);
-+	spin_lock_init(&fifo->spin_lock[0]);
-+	spin_lock_init(&fifo->spin_lock[1]);
- 	INIT_WORK(&fifo->work, mlxbf_tmfifo_work_handler);
- 	mutex_init(&fifo->lock);
- 
+ 	fan = devm_kzalloc(&pdev->dev, sizeof(*fan), GFP_KERNEL);
 
 
