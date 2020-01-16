@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F7713E4BA
+	by mail.lfdr.de (Postfix) with ESMTP id 928B413E4BB
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:10:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389877AbgAPRKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:10:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47880 "EHLO mail.kernel.org"
+        id S2389898AbgAPRKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:10:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389874AbgAPRKO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:10:14 -0500
+        id S2389884AbgAPRKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:10:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EF972467E;
-        Thu, 16 Jan 2020 17:10:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8174F24683;
+        Thu, 16 Jan 2020 17:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194614;
-        bh=7rQWqqy9vB7cmNBIyVXD5ebsvNXRbNqggHGF1w89Uj8=;
+        s=default; t=1579194617;
+        bh=3wY1eNIDBl00qk/vjDIBuNUlA3VgGOqLlLdRJU7xOIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFX1nVxzB1GdDzOqBcP1Dee2bNRaL++j1QV0/8Z8XcXtQXOQBbdiWiDCWWgWCZPcs
-         AvGOffJlXwonQ06C4jqjRTOL43odLG5y1fQRTb86540ude3jiOYpo4o72qK5RSld92
-         9rhjZW4SUCpRCOLfNhphqSdEIfdf6v9QGfjOPqkI=
+        b=plbH3aQMaEjLLK/blVseJ2hZT9fL59A6jyvkxzHZpayWU77LEs4kFBZb3M7ajp/Dm
+         wIMHxp64kJ5AikJW8Qf526tcKj9BZtqDBY87FCrsD16Pgy/+DCaNau2Fjw9CLRT7XA
+         uwfLY2Kb30W4FZuFH5kjxwQ3Gq8I8+WEKO0pbVLc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 478/671] ARM: dts: stm32: add missing vdda-supply to adc on stm32h743i-eval
-Date:   Thu, 16 Jan 2020 12:01:56 -0500
-Message-Id: <20200116170509.12787-215-sashal@kernel.org>
+Cc:     Mark Zhang <markz@mellanox.com>,
+        Yishai Hadas <yishaih@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 480/671] net/mlx5: Fix mlx5_ifc_query_lag_out_bits
+Date:   Thu, 16 Jan 2020 12:01:58 -0500
+Message-Id: <20200116170509.12787-217-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,34 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Mark Zhang <markz@mellanox.com>
 
-[ Upstream commit 493e84c5dc4d703d976b5875f5db22dae08a0782 ]
+[ Upstream commit ea77388b02270b0af8dc57f668f311235ea068f0 ]
 
-Add missing vdda-supply required by STM32 ADC.
+Remove the "reserved_at_40" field to match the device specification.
 
-Fixes: 090992a9ca54 ("ARM: dts: stm32: enable ADC on stm32h743i-eval
-board")
-
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+Fixes: 84df61ebc69b ("net/mlx5: Add HW interfaces used by LAG")
+Signed-off-by: Mark Zhang <markz@mellanox.com>
+Reviewed-by: Yishai Hadas <yishaih@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32h743i-eval.dts | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/mlx5/mlx5_ifc.h | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32h743i-eval.dts b/arch/arm/boot/dts/stm32h743i-eval.dts
-index 3f8e0c4a998d..5bf64e63cdf3 100644
---- a/arch/arm/boot/dts/stm32h743i-eval.dts
-+++ b/arch/arm/boot/dts/stm32h743i-eval.dts
-@@ -79,6 +79,7 @@
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index 177f11c96187..76b76b6aa83d 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -9053,8 +9053,6 @@ struct mlx5_ifc_query_lag_out_bits {
+ 
+ 	u8         syndrome[0x20];
+ 
+-	u8         reserved_at_40[0x40];
+-
+ 	struct mlx5_ifc_lagc_bits ctx;
  };
  
- &adc_12 {
-+	vdda-supply = <&vdda>;
- 	vref-supply = <&vdda>;
- 	status = "okay";
- 	adc1: adc@0 {
 -- 
 2.20.1
 
