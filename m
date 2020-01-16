@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 312CF13ECA4
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B4C13ECA6
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393915AbgAPRnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:43:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33332 "EHLO mail.kernel.org"
+        id S2394642AbgAPR5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:57:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393912AbgAPRnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:43:18 -0500
+        id S2393917AbgAPRnU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:43:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 408DF24736;
-        Thu, 16 Jan 2020 17:43:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5B5924725;
+        Thu, 16 Jan 2020 17:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196598;
-        bh=2Gp2Tp8VnXh2eaulPPIZdAlNW2teEQGzKNx7aT491rg=;
+        s=default; t=1579196599;
+        bh=QZIDtNzQ/AjuvHVvq4bJ7PSS109X3BF+fbq1ROBalIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BrYKsEbGcsVf96M8FfuJ2yqSdV+Sa4DAgSmJRrAhYWCnaUAc0xU5SxK/QC5CemdkV
-         4pX+v+2R3stiFpB68aDWtwX3W+PQ4mFjK8UjNhBePHxEXMQbEZfkTbFpQ9GDhvL1Wa
-         +UPfRdw4n08ZH/YcXoTypFNkQECcoUT7mRcHfxqU=
+        b=Lra6cNqkqPcws2tA89OWEHwgn/9b1XJ8NcX4Sm2ZscSJg6E5ScDX1AzT6vpMV6eCl
+         U7I1I2gQbSb/QssyM+ZM4HRoeS5XsQ5IKyEbWV2nule2Yqw4KX6uhBhycj7T1Xb0PQ
+         Y8V36ottGc+w1cVA/xLuv6R588BJT8YTBTbmh2Fc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Yangtao Li <tiny.windzz@gmail.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 020/174] clk: qoriq: fix refcount leak in clockgen_init()
-Date:   Thu, 16 Jan 2020 12:40:17 -0500
-Message-Id: <20200116174251.24326-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 021/174] clk: socfpga: fix refcount leak
+Date:   Thu, 16 Jan 2020 12:40:18 -0500
+Message-Id: <20200116174251.24326-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -45,32 +45,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yangtao Li <tiny.windzz@gmail.com>
 
-[ Upstream commit 70af6c5b5270e8101f318c4b69cc98a726edfab9 ]
+[ Upstream commit 7f9705beeb3759e69165e7aff588f6488ff6c1ac ]
 
 The of_find_compatible_node() returns a node pointer with refcount
 incremented, but there is the lack of use of the of_node_put() when
 done. Add the missing of_node_put() to release the refcount.
 
 Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Fixes: 0dfc86b3173f ("clk: qoriq: Move chip-specific knowledge into driver")
+Fixes: 5343325ff3dd ("clk: socfpga: add a clock driver for the Arria 10 platform")
+Fixes: a30d27ed739b ("clk: socfpga: fix clock driver for 3.15")
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-qoriq.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/socfpga/clk-pll-a10.c | 1 +
+ drivers/clk/socfpga/clk-pll.c     | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
-index 7244a621c61b..efc9e1973295 100644
---- a/drivers/clk/clk-qoriq.c
-+++ b/drivers/clk/clk-qoriq.c
-@@ -1244,6 +1244,7 @@ static void __init clockgen_init(struct device_node *np)
- 				pr_err("%s: Couldn't map %s regs\n", __func__,
- 				       guts->full_name);
- 			}
-+			of_node_put(guts);
- 		}
+diff --git a/drivers/clk/socfpga/clk-pll-a10.c b/drivers/clk/socfpga/clk-pll-a10.c
+index 402d630bd531..623d5b77fb43 100644
+--- a/drivers/clk/socfpga/clk-pll-a10.c
++++ b/drivers/clk/socfpga/clk-pll-a10.c
+@@ -95,6 +95,7 @@ static struct __init clk * __socfpga_pll_init(struct device_node *node,
  
- 	}
+ 	clkmgr_np = of_find_compatible_node(NULL, NULL, "altr,clk-mgr");
+ 	clk_mgr_a10_base_addr = of_iomap(clkmgr_np, 0);
++	of_node_put(clkmgr_np);
+ 	BUG_ON(!clk_mgr_a10_base_addr);
+ 	pll_clk->hw.reg = clk_mgr_a10_base_addr + reg;
+ 
+diff --git a/drivers/clk/socfpga/clk-pll.c b/drivers/clk/socfpga/clk-pll.c
+index c7f463172e4b..b4b44e9b5901 100644
+--- a/drivers/clk/socfpga/clk-pll.c
++++ b/drivers/clk/socfpga/clk-pll.c
+@@ -100,6 +100,7 @@ static __init struct clk *__socfpga_pll_init(struct device_node *node,
+ 
+ 	clkmgr_np = of_find_compatible_node(NULL, NULL, "altr,clk-mgr");
+ 	clk_mgr_base_addr = of_iomap(clkmgr_np, 0);
++	of_node_put(clkmgr_np);
+ 	BUG_ON(!clk_mgr_base_addr);
+ 	pll_clk->hw.reg = clk_mgr_base_addr + reg;
+ 
 -- 
 2.20.1
 
