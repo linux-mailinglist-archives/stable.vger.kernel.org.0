@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E02013EBBE
+	by mail.lfdr.de (Postfix) with ESMTP id 0128013EBBD
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:52:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406188AbgAPRwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:52:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37058 "EHLO mail.kernel.org"
+        id S2405893AbgAPRpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:45:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729354AbgAPRpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:45:23 -0500
+        id S2405892AbgAPRpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:45:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D0BC24785;
-        Thu, 16 Jan 2020 17:45:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2703924781;
+        Thu, 16 Jan 2020 17:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196722;
-        bh=URLMyFA5OyAqy8XaRhkLkiQrA0i64bDb8l7lyFP+zeA=;
+        s=default; t=1579196724;
+        bh=VpysHlMNeAQuSTtuAMo5Vv9qefu8VwtHAnO9zZEkQh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PgXmD9l2u4t8pd3qeCzkPOVYzbmOqlPZpYg/kJfDlbs64pX2CVu0QdGJBy3223ZQj
-         S6R8EHY5r+CBLCm+7L/1nQnumVryNmOBddRmTSZa+Q8D4VUi9XkiSzNZ0vA8I/W58w
-         nx8Y6kc4dtyfhmOJlfN0u8s8Fqs9uCMRzG+37fAE=
+        b=fwdIQOE7iJ0tmKPApA3Mrz5PLjlcNN9GaSAzuXIQsg3jxrDVs9phD7G9zUkA4+gTL
+         b9rHRE+eKvk4O29+R9021MXj8ClFzvyLk12+q7U8O58KlkfYddWUCHp/p+TYCMLQPj
+         pO4wHcGHyogK0mKP0wotKE86vcKQffTTo2U04wUY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Enrico Weigelt <info@metux.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
+Cc:     Wen Yang <wen.yang99@zte.com.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>, netdev@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 108/174] devres: allow const resource arguments
-Date:   Thu, 16 Jan 2020 12:41:45 -0500
-Message-Id: <20200116174251.24326-108-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 109/174] net: pasemi: fix an use-after-free in pasemi_mac_phy_init()
+Date:   Thu, 16 Jan 2020 12:41:46 -0500
+Message-Id: <20200116174251.24326-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -45,61 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit 9dea44c91469512d346e638694c22c30a5273992 ]
+[ Upstream commit faf5577f2498cea23011b5c785ef853ded22700b ]
 
-devm_ioremap_resource() does not currently take 'const' arguments,
-which results in a warning from the first driver trying to do it
-anyway:
+The phy_dn variable is still being used in of_phy_connect() after the
+of_node_put() call, which may result in use-after-free.
 
-drivers/gpio/gpio-amd-fch.c: In function 'amd_fch_gpio_probe':
-drivers/gpio/gpio-amd-fch.c:171:49: error: passing argument 2 of 'devm_ioremap_resource' discards 'const' qualifier from pointer target type [-Werror=discarded-qualifiers]
-  priv->base = devm_ioremap_resource(&pdev->dev, &amd_fch_gpio_iores);
-                                                 ^~~~~~~~~~~~~~~~~~~
-
-Change the prototype to allow it, as there is no real reason not to.
-
-Fixes: 9bb2e0452508 ("gpio: amd: Make resource struct const")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190628150049.1108048-1-arnd@arndb.de
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviwed-By: Enrico Weigelt <info@metux.net>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 1dd2d06c0459 ("net: Rework pasemi_mac driver to use of_mdio infrastructure")
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/device.h | 3 ++-
- lib/devres.c           | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/pasemi/pasemi_mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 834000903525..eb891c9c4b62 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -677,7 +677,8 @@ extern unsigned long devm_get_free_pages(struct device *dev,
- 					 gfp_t gfp_mask, unsigned int order);
- extern void devm_free_pages(struct device *dev, unsigned long addr);
+diff --git a/drivers/net/ethernet/pasemi/pasemi_mac.c b/drivers/net/ethernet/pasemi/pasemi_mac.c
+index 57a6e6cd74fc..48106953cf64 100644
+--- a/drivers/net/ethernet/pasemi/pasemi_mac.c
++++ b/drivers/net/ethernet/pasemi/pasemi_mac.c
+@@ -1091,7 +1091,6 @@ static int pasemi_mac_phy_init(struct net_device *dev)
  
--void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res);
-+void __iomem *devm_ioremap_resource(struct device *dev,
-+				    const struct resource *res);
+ 	dn = pci_device_to_OF_node(mac->pdev);
+ 	phy_dn = of_parse_phandle(dn, "phy-handle", 0);
+-	of_node_put(phy_dn);
  
- /* allows to add/remove a custom action to devres stack */
- int devm_add_action(struct device *dev, void (*action)(void *), void *data);
-diff --git a/lib/devres.c b/lib/devres.c
-index 8c85672639d3..9d18ccd00df5 100644
---- a/lib/devres.c
-+++ b/lib/devres.c
-@@ -131,7 +131,8 @@ EXPORT_SYMBOL(devm_iounmap);
-  *	if (IS_ERR(base))
-  *		return PTR_ERR(base);
-  */
--void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res)
-+void __iomem *devm_ioremap_resource(struct device *dev,
-+				    const struct resource *res)
- {
- 	resource_size_t size;
- 	const char *name;
+ 	mac->link = 0;
+ 	mac->speed = 0;
+@@ -1100,6 +1099,7 @@ static int pasemi_mac_phy_init(struct net_device *dev)
+ 	phydev = of_phy_connect(dev, phy_dn, &pasemi_adjust_link, 0,
+ 				PHY_INTERFACE_MODE_SGMII);
+ 
++	of_node_put(phy_dn);
+ 	if (!phydev) {
+ 		printk(KERN_ERR "%s: Could not attach to phy\n", dev->name);
+ 		return -ENODEV;
 -- 
 2.20.1
 
