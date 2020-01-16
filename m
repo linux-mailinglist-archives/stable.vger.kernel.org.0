@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC07F13EB55
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:49:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D32D113EB2F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:48:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392340AbgAPRtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:49:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39002 "EHLO mail.kernel.org"
+        id S2406018AbgAPRqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:46:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406641AbgAPRqV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2406651AbgAPRqV (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Jan 2020 12:46:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3FA0246DC;
-        Thu, 16 Jan 2020 17:46:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90F0B246DE;
+        Thu, 16 Jan 2020 17:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196780;
-        bh=9XW7SWDu+KCgjzAcqzRMIf/9Nyn+7Kj2PwLiQnolGfk=;
+        s=default; t=1579196781;
+        bh=MwSgVhG+pTafHyYyuQL3MwKEqFMypOUPahmZrsashQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqGuEcquX55csfJUhWvX+VGFyC4xki3d1ib6qDMey/UvwKKHDK3PL2TahcNxEc3D1
-         JkW55f8T99O1q6m6miXp5rP1KwNnHNt85WMfwlvzyVuvYC3m3qa47WXW9jBnZRt+Dz
-         tXfg6QvSUKjIowSXAbZRQGxntRp0+kIy3kpqhuSE=
+        b=uyyuOhmADeFjifvnVXF3/EQS6Ao40c+nnccvT5cWrcGE6sbwTJD2BzAxoBgBaYA5x
+         ylPGgRFtSBe/7tJmxE2Zf5yzHzoFwnmf+el0paqdYfvznrSR6kuU082hL0YPfCY41I
+         73BGVAUrRddIuE/ojaIkeCHU5MjGGV64w0Kx3zvQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Antonio Borneo <antonio.borneo@st.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 146/174] net: stmmac: fix length of PTP clock's name string
-Date:   Thu, 16 Jan 2020 12:42:23 -0500
-Message-Id: <20200116174251.24326-146-sashal@kernel.org>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 147/174] USB: usb-skeleton: fix use-after-free after driver unbind
+Date:   Thu, 16 Jan 2020 12:42:24 -0500
+Message-Id: <20200116174251.24326-147-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -45,49 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@st.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 5da202c88f8c355ad79bc2e8eb582e6d433060e7 ]
+[ Upstream commit 6353001852776e7eeaab4da78922d4c6f2b076af ]
 
-The field "name" in struct ptp_clock_info has a fixed size of 16
-chars and is used as zero terminated string by clock_name_show()
-in drivers/ptp/ptp_sysfs.c
-The current initialization value requires 17 chars to fit also the
-null termination, and this causes overflow to the next bytes in
-the struct when the string is read as null terminated:
-	hexdump -C /sys/class/ptp/ptp0/clock_name
-	00000000  73 74 6d 6d 61 63 5f 70  74 70 5f 63 6c 6f 63 6b  |stmmac_ptp_clock|
-	00000010  a0 ac b9 03 0a                                    |.....|
-where the extra 4 bytes (excluding the newline) after the string
-represent the integer 0x03b9aca0 = 62500000 assigned to the field
-"max_adj" that follows "name" in the same struct.
+The driver failed to stop its read URB on disconnect, something which
+could lead to a use-after-free in the completion handler after driver
+unbind in case the character device has been closed.
 
-There is no strict requirement for the "name" content and in the
-comment in ptp_clock_kernel.h it's reported it should just be 'A
-short "friendly name" to identify the clock'.
-Replace it with "stmmac ptp".
-
-Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
-Fixes: 92ba6888510c ("stmmac: add the support for PTP hw clock driver")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: e7389cc9a7ff ("USB: skel_read really sucks royally")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191009170944.30057-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/usb-skeleton.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-index 170a18b61281..147c9f8cee7f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-@@ -157,7 +157,7 @@ static int stmmac_enable(struct ptp_clock_info *ptp,
- /* structure describing a PTP hardware clock */
- static struct ptp_clock_info stmmac_ptp_clock_ops = {
- 	.owner = THIS_MODULE,
--	.name = "stmmac_ptp_clock",
-+	.name = "stmmac ptp",
- 	.max_adj = 62500000,
- 	.n_alarm = 0,
- 	.n_ext_ts = 0,
+diff --git a/drivers/usb/usb-skeleton.c b/drivers/usb/usb-skeleton.c
+index 871c366d9229..efc716f26cf5 100644
+--- a/drivers/usb/usb-skeleton.c
++++ b/drivers/usb/usb-skeleton.c
+@@ -592,6 +592,7 @@ static void skel_disconnect(struct usb_interface *interface)
+ 	dev->disconnected = 1;
+ 	mutex_unlock(&dev->io_mutex);
+ 
++	usb_kill_urb(dev->bulk_in_urb);
+ 	usb_kill_anchored_urbs(&dev->submitted);
+ 
+ 	/* decrement our usage count */
 -- 
 2.20.1
 
