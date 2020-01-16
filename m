@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80B9E13FDC1
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E677613FDC4
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729632AbgAPX3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:29:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34156 "EHLO mail.kernel.org"
+        id S2391035AbgAPX3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:29:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389637AbgAPX26 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:28:58 -0500
+        id S2391215AbgAPX3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:29:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 157FD20684;
-        Thu, 16 Jan 2020 23:28:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 549682072E;
+        Thu, 16 Jan 2020 23:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217337;
-        bh=0OrMHnukN32l1tTlce+BD7S8E7gNYvNKNM/0qoVDPS8=;
+        s=default; t=1579217344;
+        bh=rZ/4iKaq8uIjgqvRUh+yZFY9mkIMBvDqMhsOuQB+H54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSL6+w1KfxfhRHTlLGJ8Fua+xN/fDdY3yOEJeKqubQV/tLkTQM0fqEd4gA3UDu7U1
-         wnJUFWWhdpHFtXoUpz/9zPpBalYxvZRpu0QCcSRwPuorNh9Pt38somCPguZHxiL8dm
-         26LG4GTwA7Wn4tL+d4gkudAytpV3+4/Q0xL10UMY=
+        b=A0uMGnyEkDmR4MVZOTtW5Bc0N5fX7gpoyQ+c//x7RrhUWZLiIRtzhkT81Uj8G1aNF
+         1e1Cj0N4VpU0I6EMEtu8p0STGKxnDM7UJaKftjtd8Wws+h1iGlZ529Hqy5jee40/tg
+         4x3aD/1ZDNK/4ZVijVSpORVh669XFYrEqpGduxS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Gonglei <arei.gonglei@huawei.com>,
-        virtualization@lists.linux-foundation.org,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 42/84] crypto: virtio - implement missing support for output IVs
-Date:   Fri, 17 Jan 2020 00:18:16 +0100
-Message-Id: <20200116231718.728089716@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 45/84] iio: imu: adis16480: assign bias value only if operation succeeded
+Date:   Fri, 17 Jan 2020 00:18:19 +0100
+Message-Id: <20200116231719.130048158@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
 References: <20200116231713.087649517@linuxfoundation.org>
@@ -47,52 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-commit 500e6807ce93b1fdc7d5b827c5cc167cc35630db upstream.
+commit 9b742763d9d4195e823ae6ece760c9ed0500c1dc upstream.
 
-In order to allow for CBC to be chained, which is something that the
-CTS template relies upon, implementations of CBC need to pass the
-IV to be used for subsequent invocations via the IV buffer. This was
-not implemented yet for virtio-crypto so implement it now.
+This was found only after the whole thing with the inline functions, but
+the compiler actually found something. The value of the `bias` (in
+adis16480_get_calibbias()) should only be set if the read operation was
+successful.
 
-Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Gonglei <arei.gonglei@huawei.com>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+No actual known problem occurs as users of this function all
+ultimately check the return value.  Hence probably not stable material.
+
+Fixes: 2f3abe6cbb6c9 ("iio:imu: Add support for the ADIS16480 and similar IMUs")
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/virtio/virtio_crypto_algs.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/iio/imu/adis16480.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/virtio/virtio_crypto_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -449,6 +449,11 @@ __virtio_crypto_ablkcipher_do_req(struct
- 		goto free;
- 	}
- 	memcpy(iv, req->info, ivsize);
-+	if (!vc_sym_req->encrypt)
-+		scatterwalk_map_and_copy(req->info, req->src,
-+					 req->nbytes - AES_BLOCK_SIZE,
-+					 AES_BLOCK_SIZE, 0);
-+
- 	sg_init_one(&iv_sg, iv, ivsize);
- 	sgs[num_out++] = &iv_sg;
- 	vc_sym_req->iv = iv;
-@@ -585,6 +590,10 @@ static void virtio_crypto_ablkcipher_fin
- 	struct ablkcipher_request *req,
- 	int err)
- {
-+	if (vc_sym_req->encrypt)
-+		scatterwalk_map_and_copy(req->info, req->dst,
-+					 req->nbytes - AES_BLOCK_SIZE,
-+					 AES_BLOCK_SIZE, 0);
- 	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
- 					   req, err);
- 	kzfree(vc_sym_req->iv);
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -376,12 +376,14 @@ static int adis16480_get_calibbias(struc
+ 	case IIO_MAGN:
+ 	case IIO_PRESSURE:
+ 		ret = adis_read_reg_16(&st->adis, reg, &val16);
+-		*bias = sign_extend32(val16, 15);
++		if (ret == 0)
++			*bias = sign_extend32(val16, 15);
+ 		break;
+ 	case IIO_ANGL_VEL:
+ 	case IIO_ACCEL:
+ 		ret = adis_read_reg_32(&st->adis, reg, &val32);
+-		*bias = sign_extend32(val32, 31);
++		if (ret == 0)
++			*bias = sign_extend32(val32, 31);
+ 		break;
+ 	default:
+ 			ret = -EINVAL;
 
 
