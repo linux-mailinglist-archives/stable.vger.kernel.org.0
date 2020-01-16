@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C6813E2F4
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:59:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34CD113E25C
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:56:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387487AbgAPQ5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:57:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40570 "EHLO mail.kernel.org"
+        id S1732652AbgAPQz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:55:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730131AbgAPQzW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:55:22 -0500
+        id S1732705AbgAPQzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:55:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E9D024656;
-        Thu, 16 Jan 2020 16:55:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7078D2464B;
+        Thu, 16 Jan 2020 16:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193722;
-        bh=HfjzakrVtLjTgqpXPzTXGJej62/144SRDCqaI5/iiDg=;
+        s=default; t=1579193723;
+        bh=PFjH3ZbA6H/pJdTWTzfP5SXvIjQF07uUkr1TpxSry/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPVN70wSSX1IXum6a59TngPbPrc+XqatkRamkGe3/kQJvshRad4stHM7buktXzc+K
-         WIeE+ZSxcynx94Oqf8wJv2WZ9JsmWwy/SYd3Jd0C696PMazlT3VNa7ZwkhFQH8RTT4
-         HQoizE50l7XWX/7k626B0hhvnE5EjecjwJJme0aw=
+        b=1528iOCwCWfLHPCqt11PdHIE93YqIzzPQdVhopacYOz78WsIPIsGZCIWLtppJV1UE
+         GMOLvluRsCUSLNvxuYE6sQwTgHixoNiVQIvKDWgKkmJStToZpEEF5j/uI9StXJRrQh
+         aFEYZU0DLif7EcDpcNhapxQ7O6avoGN678z1Z7jc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 016/671] signal/ia64: Use the force_sig(SIGSEGV,...) in ia64_rt_sigreturn
-Date:   Thu, 16 Jan 2020 11:44:07 -0500
-Message-Id: <20200116165502.8838-16-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 017/671] ASoC: wm9712: fix unused variable warning
+Date:   Thu, 16 Jan 2020 11:44:08 -0500
+Message-Id: <20200116165502.8838-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -44,62 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit b92adb74adde62d9a9780ff2977d63dcb21aeaa6 ]
+[ Upstream commit 18380dcc52cc8965e5144ce33fdfad7e168679a5 ]
 
-The ia64 handling of failure to return from a signal frame has been trying
-to set overlapping fields in struct siginfo since 2.3.43.  The si_code
-corresponds to the fields that were stomped (not the field that is
-actually written), so I can not imagine a piece of userspace code
-making sense of the signal frame if it looks closely.
+The 'ret' variable is now only used in an #ifdef, and causes a
+warning if it is declared outside of that block:
 
-In practice failure to return from a signal frame is a rare event that
-almost never happens.  Someone using an alternate signal stack to
-recover and looking in detail is even more rare.  So I presume no one
-has ever noticed and reported this ia64 nonsense.
+sound/soc/codecs/wm9712.c: In function 'wm9712_soc_probe':
+sound/soc/codecs/wm9712.c:641:6: error: unused variable 'ret' [-Werror=unused-variable]
 
-Sort this out by causing ia64 to use force_sig(SIGSEGV) like other architectures.
-
-Fixes: 2.3.43
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: linux-ia64@vger.kernel.org
-Acked-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 2ed1a8e0ce8d ("ASoC: wm9712: add ac97 new bus support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/signal.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ sound/soc/codecs/wm9712.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/ia64/kernel/signal.c b/arch/ia64/kernel/signal.c
-index 01fc133b2e4c..9a960829a01d 100644
---- a/arch/ia64/kernel/signal.c
-+++ b/arch/ia64/kernel/signal.c
-@@ -110,7 +110,6 @@ ia64_rt_sigreturn (struct sigscratch *scr)
+diff --git a/sound/soc/codecs/wm9712.c b/sound/soc/codecs/wm9712.c
+index ade34c26ad2f..e873baa9e778 100644
+--- a/sound/soc/codecs/wm9712.c
++++ b/sound/soc/codecs/wm9712.c
+@@ -638,13 +638,14 @@ static int wm9712_soc_probe(struct snd_soc_component *component)
  {
- 	extern char ia64_strace_leave_kernel, ia64_leave_kernel;
- 	struct sigcontext __user *sc;
--	struct siginfo si;
- 	sigset_t set;
- 	long retval;
+ 	struct wm9712_priv *wm9712 = snd_soc_component_get_drvdata(component);
+ 	struct regmap *regmap;
+-	int ret;
  
-@@ -153,14 +152,7 @@ ia64_rt_sigreturn (struct sigscratch *scr)
- 	return retval;
- 
-   give_sigsegv:
--	clear_siginfo(&si);
--	si.si_signo = SIGSEGV;
--	si.si_errno = 0;
--	si.si_code = SI_KERNEL;
--	si.si_pid = task_pid_vnr(current);
--	si.si_uid = from_kuid_munged(current_user_ns(), current_uid());
--	si.si_addr = sc;
--	force_sig_info(SIGSEGV, &si, current);
-+	force_sig(SIGSEGV, current);
- 	return retval;
- }
- 
+ 	if (wm9712->mfd_pdata) {
+ 		wm9712->ac97 = wm9712->mfd_pdata->ac97;
+ 		regmap = wm9712->mfd_pdata->regmap;
+ 	} else {
+ #ifdef CONFIG_SND_SOC_AC97_BUS
++		int ret;
++
+ 		wm9712->ac97 = snd_soc_new_ac97_component(component, WM9712_VENDOR_ID,
+ 						      WM9712_VENDOR_ID_MASK);
+ 		if (IS_ERR(wm9712->ac97)) {
 -- 
 2.20.1
 
