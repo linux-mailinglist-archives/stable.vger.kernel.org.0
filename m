@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 088C513F848
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:18:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A7513F845
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:18:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731810AbgAPTRW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:17:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
+        id S1731514AbgAPQz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:55:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732677AbgAPQzU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:55:20 -0500
+        id S1732792AbgAPQzZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:55:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 203882192A;
-        Thu, 16 Jan 2020 16:55:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFC6122522;
+        Thu, 16 Jan 2020 16:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193719;
-        bh=mrqyG+s5KkU79YeSwsbvGa5llda5DIJSBZQHAAEAfXM=;
+        s=default; t=1579193724;
+        bh=bbNkedQdnDzdtuUlAZ2NagqN5EXVfxVOs37adHQ4BEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guhFjWabM+V+h7WfYKpDiAInDCYY4vWr0VP1h6djzh0ellC5q6V2cjZ5Oaur23IRI
-         plkElDqBj+BK61Hq0y/Pp7WB4K56kC4YAJNt1vODjk/sNoSlEhha8em113l/S0ZCmX
-         y2skKv97CErUtRhjVhFMUl9b4msN2BdFhhLLnvqM=
+        b=nZJzo/G2HLWjfXwgiP9E493ETgx21Y3sJQQMlGULYOk0ku3sqXHLc1FULYRJhaSOk
+         GvpzDlidoGbFLCvofUxpRZsOyG8XwBh8wezrnGs4bGbAbH3dgvdo45cwofUSGJ8QDE
+         41KE4O0128ytpB0k4MmpZzNTig7sTOznomoVaOVc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>,
-        Xinliang Liu <z.liuxinliang@hisilicon.com>,
+Cc:     Houlong Wei <houlong.wei@mediatek.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 014/671] drm/hisilicon: hibmc: Don't overwrite fb helper surface depth
-Date:   Thu, 16 Jan 2020 11:44:05 -0500
-Message-Id: <20200116165502.8838-14-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 018/671] mailbox: mediatek: Add check for possible failure of kzalloc
+Date:   Thu, 16 Jan 2020 11:44:09 -0500
+Message-Id: <20200116165502.8838-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -44,40 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Houlong Wei <houlong.wei@mediatek.com>
 
-[ Upstream commit 0ff9f49646353ce31312411e7e7bd2281492a40e ]
+[ Upstream commit 9f0a0a381c5db56e7922dbeea6831f27db58372f ]
 
-Currently the driver overwrites the surface depth provided by the fb
-helper to give an invalid bpp/surface depth combination.
+The patch 623a6143a845("mailbox: mediatek: Add Mediatek CMDQ driver")
+introduce the following static checker warning:
+  drivers/mailbox/mtk-cmdq-mailbox.c:366 cmdq_mbox_send_data()
+  error: potential null dereference 'task'.  (kzalloc returns null)
 
-This has been exposed by commit 70109354fed2 ("drm: Reject unknown legacy
-bpp and depth for drm_mode_addfb ioctl"), which now causes the driver to
-fail to probe.
-
-Fix by not overwriting the surface depth.
-
-Fixes: d1667b86795a ("drm/hisilicon/hibmc: Add support for frame buffer")
-Signed-off-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Xinliang Liu <z.liuxinliang@hisilicon.com>
-Signed-off-by: Xinliang Liu <z.liuxinliang@hisilicon.com>
+Fixes: 623a6143a845 ("mailbox: mediatek: Add Mediatek CMDQ driver")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Houlong Wei <houlong.wei@mediatek.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/mailbox/mtk-cmdq-mailbox.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c
-index 8bd29075ae4e..edcca1761500 100644
---- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c
-+++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c
-@@ -71,7 +71,6 @@ static int hibmc_drm_fb_create(struct drm_fb_helper *helper,
- 	DRM_DEBUG_DRIVER("surface width(%d), height(%d) and bpp(%d)\n",
- 			 sizes->surface_width, sizes->surface_height,
- 			 sizes->surface_bpp);
--	sizes->surface_depth = 32;
+diff --git a/drivers/mailbox/mtk-cmdq-mailbox.c b/drivers/mailbox/mtk-cmdq-mailbox.c
+index aec46d5d3506..f7cc29c00302 100644
+--- a/drivers/mailbox/mtk-cmdq-mailbox.c
++++ b/drivers/mailbox/mtk-cmdq-mailbox.c
+@@ -363,6 +363,9 @@ static int cmdq_mbox_send_data(struct mbox_chan *chan, void *data)
+ 	WARN_ON(cmdq->suspended);
  
- 	bytes_per_pixel = DIV_ROUND_UP(sizes->surface_bpp, 8);
- 
+ 	task = kzalloc(sizeof(*task), GFP_ATOMIC);
++	if (!task)
++		return -ENOMEM;
++
+ 	task->cmdq = cmdq;
+ 	INIT_LIST_HEAD(&task->list_entry);
+ 	task->pa_base = pkt->pa_base;
 -- 
 2.20.1
 
