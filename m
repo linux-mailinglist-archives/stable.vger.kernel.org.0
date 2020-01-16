@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D8E13F8C7
+	by mail.lfdr.de (Postfix) with ESMTP id 1581413F8C5
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:21:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437785AbgAPTUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:20:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37812 "EHLO mail.kernel.org"
+        id S1733077AbgAPTUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:20:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731179AbgAPQxr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:53:47 -0500
+        id S1730100AbgAPQxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:53:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 748DC2176D;
-        Thu, 16 Jan 2020 16:53:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9831E21D56;
+        Thu, 16 Jan 2020 16:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193627;
-        bh=pYUCGLdMi6gDXVvxrUjAARZ0xY91qBFUik0lqrR9TTg=;
+        s=default; t=1579193628;
+        bh=Fu7OV1q2drxb3QitiI52Q3VWJ6ir4zwen08E5sQltto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dH995/4+8IWYVT/rxPyF/t4Uq6El59Hwf6S1KRacmZ+7o4GnUlKSnprMUlCjb2O7M
-         HX18UkBq84wm0E/NvNxp7MWDEHC/g+7yO6ie8pRLgCbBVL9GjEGa6CKMXzo3g/SgaY
-         KsXfSGOQstg4TSEaGCpz1B9Ph7PjyGLNKiSCE4c0=
+        b=GB1NXzmPM1zSipcC2WnosnizDUmGvtmNBvvTNYqemQted6f/dFwyJHG1bFIZ6Qxe5
+         5lNDf/uNK/cNCfFyQR9UO+Sw2gHnWLp2hpjN07L46/acg88h7doTYJjRf2l5jbIKv3
+         7OCIC+6nX6YDK2x+LYRad81v3bAQmodIg77xIjv4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.4 161/205] dma-direct: don't check swiotlb=force in dma_direct_map_resource
-Date:   Thu, 16 Jan 2020 11:42:16 -0500
-Message-Id: <20200116164300.6705-161-sashal@kernel.org>
+Cc:     Oliver O'Halloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 162/205] powerpc/powernv: Disable native PCIe port management
+Date:   Thu, 16 Jan 2020 11:42:17 -0500
+Message-Id: <20200116164300.6705-162-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -45,36 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit 4268ac6ae5870af10a7417b22990d615f72f77e2 ]
+[ Upstream commit 9d72dcef891030545f39ad386a30cf91df517fb2 ]
 
-When mapping resources we can't just use swiotlb ram for bounce
-buffering.  Switch to a direct dma_capable check instead.
+On PowerNV the PCIe topology is (currently) managed by the powernv platform
+code in Linux in cooperation with the platform firmware. Linux's native
+PCIe port service drivers operate independently of both and this can cause
+problems.
 
-Fixes: cfced786969c ("dma-mapping: remove the default map_resource implementation")
-Reported-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+The main issue is that the portbus driver will conflict with the platform
+specific hotplug driver (pnv_php) over ownership of the MSI used to notify
+the host when a hotplug event occurs. The portbus driver claims this MSI on
+behalf of the individual port services because the same interrupt is used
+for hotplug events, PMEs (on root ports), and link bandwidth change
+notifications. The portbus driver will always claim the interrupt even if
+the individual port service drivers, such as pciehp, are compiled out.
+
+The second, bigger, problem is that the hotplug port service driver
+fundamentally does not work on PowerNV. The platform assumes that all
+PCI devices have a corresponding arch-specific handle derived from the DT
+node for the device (pci_dn) and without one the platform will not allow
+a PCI device to be enabled. This problem is largely due to historical
+baggage, but it can't be resolved without significant re-factoring of the
+platform PCI support.
+
+We can fix these problems in the interim by setting the
+"pcie_ports_disabled" flag during platform initialisation. The flag
+indicates the platform owns the PCIe ports which stops the portbus driver
+from being registered.
+
+This does have the side effect of disabling all port services drivers
+that is: AER, PME, BW notifications, hotplug, and DPC. However, this is
+not a huge disadvantage on PowerNV since these services are either unused
+or handled through other means.
+
+Fixes: 66725152fb9f ("PCI/hotplug: PowerPC PowerNV PCI hotplug driver")
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191118065553.30362-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/direct.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/powernv/pci.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 8402b29c280f..867fd72cb260 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -375,7 +375,7 @@ dma_addr_t dma_direct_map_resource(struct device *dev, phys_addr_t paddr,
- {
- 	dma_addr_t dma_addr = paddr;
+diff --git a/arch/powerpc/platforms/powernv/pci.c b/arch/powerpc/platforms/powernv/pci.c
+index 2825d004dece..c0bea75ac27b 100644
+--- a/arch/powerpc/platforms/powernv/pci.c
++++ b/arch/powerpc/platforms/powernv/pci.c
+@@ -945,6 +945,23 @@ void __init pnv_pci_init(void)
+ 	if (!firmware_has_feature(FW_FEATURE_OPAL))
+ 		return;
  
--	if (unlikely(!dma_direct_possible(dev, dma_addr, size))) {
-+	if (unlikely(!dma_capable(dev, dma_addr, size))) {
- 		report_addr(dev, dma_addr, size);
- 		return DMA_MAPPING_ERROR;
- 	}
++#ifdef CONFIG_PCIEPORTBUS
++	/*
++	 * On PowerNV PCIe devices are (currently) managed in cooperation
++	 * with firmware. This isn't *strictly* required, but there's enough
++	 * assumptions baked into both firmware and the platform code that
++	 * it's unwise to allow the portbus services to be used.
++	 *
++	 * We need to fix this eventually, but for now set this flag to disable
++	 * the portbus driver. The AER service isn't required since that AER
++	 * events are handled via EEH. The pciehp hotplug driver can't work
++	 * without kernel changes (and portbus binding breaks pnv_php). The
++	 * other services also require some thinking about how we're going
++	 * to integrate them.
++	 */
++	pcie_ports_disabled = true;
++#endif
++
+ 	/* Look for IODA IO-Hubs. */
+ 	for_each_compatible_node(np, NULL, "ibm,ioda-hub") {
+ 		pnv_pci_init_ioda_hub(np);
 -- 
 2.20.1
 
