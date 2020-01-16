@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F71313F5CD
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A3E213F5D0
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388539AbgAPRGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:06:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37176 "EHLO mail.kernel.org"
+        id S2388977AbgAPS7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:59:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729545AbgAPRGi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:06:38 -0500
+        id S2388966AbgAPRGl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:06:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6BCF20663;
-        Thu, 16 Jan 2020 17:06:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4523F2192A;
+        Thu, 16 Jan 2020 17:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194398;
-        bh=KBiI/mXxZvZHLjI05KG9vEFVUmFKB4m2QAtN/vyAklQ=;
+        s=default; t=1579194401;
+        bh=NkGpowe9FnmmpR6ORNdzBt56niZjn5inrN0I8s/L6Y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIyGq3q+aJ2xHHnBIhpPOG7JOU6Wzhj49DUJ4bIZSXsrn2EIJDiN3dHwf+QzecVrp
-         XhCwBvJDiINnOyRLH1rLvdXi6FdiRP+19lqMdzqMUqXQ2mhMjuK9uvqtcxVgWcGok5
-         E4HxEo2EkUDaMr57hoDwTQDGQYhMSfoFZIaYbdr8=
+        b=DY8XlMhkTXzhWCjgwA/8kJU4mHJ2xcGz12/XjzxhPom8palkKMmSVPs5XWZAUlxGT
+         1Pt5EqXApsawyCSE6P39+L0b6xba4Gs9+VLgL+pF9vROW8DBYReLc7EMi/J3lx/MiO
+         WeAWxYvvMZhqwhXj9LkStbSfxRtfUqEfM9Xp732c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 324/671] ASoC: fix valid stream condition
-Date:   Thu, 16 Jan 2020 11:59:22 -0500
-Message-Id: <20200116170509.12787-61-sashal@kernel.org>
+Cc:     Minas Harutyunyan <minas.harutyunyan@synopsys.com>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 326/671] dwc2: gadget: Fix completed transfer size calculation in DDMA
+Date:   Thu, 16 Jan 2020 11:59:24 -0500
+Message-Id: <20200116170509.12787-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -43,38 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Minas Harutyunyan <minas.harutyunyan@synopsys.com>
 
-[ Upstream commit 6a7c59c6d9f3b280e81d7a04bbe4e55e90152dce ]
+[ Upstream commit 5acb4b970184d189d901192d075997c933b82260 ]
 
-A stream may specify a rate range using 'rate_min' and 'rate_max', so a
-stream may be valid and not specify any rates. However, as stream cannot
-be valid and not have any channel. Let's use this condition instead to
-determine if a stream is valid or not.
+Fix calculation of transfer size on completion in function
+dwc2_gadget_get_xfersize_ddma().
 
-Fixes: cde79035c6cf ("ASoC: Handle multiple codecs with split playback / capture")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Added increment of descriptor pointer to move to next descriptor in
+the loop.
+
+Fixes: aa3e8bc81311 ("usb: dwc2: gadget: DDMA transfer start and complete")
+
+Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc2/gadget.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 551bfc581fc1..53fefa7c982f 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -42,8 +42,8 @@ static bool snd_soc_dai_stream_valid(struct snd_soc_dai *dai, int stream)
- 	else
- 		codec_stream = &dai->driver->capture;
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 3f68edde0f03..f64d1cd08fb6 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -2230,6 +2230,7 @@ static unsigned int dwc2_gadget_get_xfersize_ddma(struct dwc2_hsotg_ep *hs_ep)
+ 		if (status & DEV_DMA_STS_MASK)
+ 			dev_err(hsotg->dev, "descriptor %d closed with %x\n",
+ 				i, status & DEV_DMA_STS_MASK);
++		desc++;
+ 	}
  
--	/* If the codec specifies any rate at all, it supports the stream. */
--	return codec_stream->rates;
-+	/* If the codec specifies any channels at all, it supports the stream */
-+	return codec_stream->channels_min;
- }
- 
- /**
+ 	return bytes_rem;
 -- 
 2.20.1
 
