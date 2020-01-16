@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 416AE13F4B0
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:53:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E38C13F4B9
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:53:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389170AbgAPRIw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:08:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43442 "EHLO mail.kernel.org"
+        id S2389844AbgAPSvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:51:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389512AbgAPRIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:51 -0500
+        id S2389514AbgAPRIx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:08:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0332521D56;
-        Thu, 16 Jan 2020 17:08:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6187224679;
+        Thu, 16 Jan 2020 17:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194531;
-        bh=Uzv5z87h/1y7qrqArg8niP0Nskd8r1JLkx4WiiPFa4M=;
+        s=default; t=1579194532;
+        bh=NgkfrwC0DyssXCbp8oWV3NAEiuEx3mhWhQdfEZBAqJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPnkHI9ieXdqSLvpXJjywNA2rYo9LuT+0ch+WksvL8FXTA8VWXpuGddKjoxQBWdZ9
-         J6itLK3QHNWln4i+j23M2gIqXZY05e7486SMHAGFZy9sc3gw+8zCCfXsXwX5FMxhxk
-         tWYEMUZDOyCJVpwIGDLrWWs+Rlf+XXzlwzH0aa9U=
+        b=0iJsqs1E5zxUZcZ+BAzP4TWqmZ71cRvcDaqcY1HEu7/plYiKNb9rjUoNYENxVmUBY
+         cdUA0yMGowPPyroNJNpDCYR1C+ndK3+GtPDYpaJs06Ad7ov8p/VfZurrpHhO/HYapF
+         o1ITvgj6/xtf9/NXJ/ZU0FvddzPYeqnSC3k2+l9k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 419/671] drm/msm/mdp5: Fix mdp5_cfg_init error return
-Date:   Thu, 16 Jan 2020 12:00:57 -0500
-Message-Id: <20200116170509.12787-156-sashal@kernel.org>
+Cc:     Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        netem@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 420/671] net: netem: fix backlog accounting for corrupted GSO frames
+Date:   Thu, 16 Jan 2020 12:00:58 -0500
+Message-Id: <20200116170509.12787-157-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,37 +46,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit fc19cbb785d7bbd1a1af26229b5240a3ab332744 ]
+[ Upstream commit 177b8007463c4f36c9a2c7ce7aa9875a4cad9bd5 ]
 
-If mdp5_cfg_init fails because of an unknown major version, a null pointer
-dereference occurs.  This is because the caller of init expects error
-pointers, but init returns NULL on error.  Fix this by returning the
-expected values on error.
+When GSO frame has to be corrupted netem uses skb_gso_segment()
+to produce the list of frames, and re-enqueues the segments one
+by one.  The backlog length has to be adjusted to account for
+new frames.
 
-Fixes: 2e362e1772b8 (drm/msm/mdp5: introduce mdp5_cfg module)
-Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+The current calculation is incorrect, leading to wrong backlog
+lengths in the parent qdisc (both bytes and packets), and
+incorrect packet backlog count in netem itself.
+
+Parent backlog goes negative, netem's packet backlog counts
+all non-first segments twice (thus remaining non-zero even
+after qdisc is emptied).
+
+Move the variables used to count the adjustment into local
+scope to make 100% sure they aren't used at any stage in
+backports.
+
+Fixes: 6071bd1aa13e ("netem: Segment GSO packets on enqueue")
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_netem.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
-index 824067d2d427..42f0ecb0cf35 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
-@@ -635,7 +635,7 @@ struct mdp5_cfg_handler *mdp5_cfg_init(struct mdp5_kms *mdp5_kms,
- 	if (cfg_handler)
- 		mdp5_cfg_destroy(cfg_handler);
+diff --git a/net/sched/sch_netem.c b/net/sched/sch_netem.c
+index 15f8f24c190d..1cd7266140e6 100644
+--- a/net/sched/sch_netem.c
++++ b/net/sched/sch_netem.c
+@@ -436,8 +436,7 @@ static int netem_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	struct netem_skb_cb *cb;
+ 	struct sk_buff *skb2;
+ 	struct sk_buff *segs = NULL;
+-	unsigned int len = 0, last_len, prev_len = qdisc_pkt_len(skb);
+-	int nb = 0;
++	unsigned int prev_len = qdisc_pkt_len(skb);
+ 	int count = 1;
+ 	int rc = NET_XMIT_SUCCESS;
+ 	int rc_drop = NET_XMIT_DROP;
+@@ -494,6 +493,7 @@ static int netem_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 			segs = netem_segment(skb, sch, to_free);
+ 			if (!segs)
+ 				return rc_drop;
++			qdisc_skb_cb(segs)->pkt_len = segs->len;
+ 		} else {
+ 			segs = skb;
+ 		}
+@@ -583,6 +583,11 @@ static int netem_enqueue(struct sk_buff *skb, struct Qdisc *sch,
  
--	return NULL;
-+	return ERR_PTR(ret);
+ finish_segs:
+ 	if (segs) {
++		unsigned int len, last_len;
++		int nb = 0;
++
++		len = skb->len;
++
+ 		while (segs) {
+ 			skb2 = segs->next;
+ 			segs->next = NULL;
+@@ -598,9 +603,7 @@ static int netem_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 			}
+ 			segs = skb2;
+ 		}
+-		sch->q.qlen += nb;
+-		if (nb > 1)
+-			qdisc_tree_reduce_backlog(sch, 1 - nb, prev_len - len);
++		qdisc_tree_reduce_backlog(sch, -nb, prev_len - len);
+ 	}
+ 	return NET_XMIT_SUCCESS;
  }
- 
- static struct mdp5_cfg_platform *mdp5_get_config(struct platform_device *dev)
 -- 
 2.20.1
 
