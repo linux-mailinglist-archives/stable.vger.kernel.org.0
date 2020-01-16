@@ -2,106 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA9FD13D4BC
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 07:56:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DA3213D525
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 08:41:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726278AbgAPGzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 01:55:55 -0500
-Received: from mail-ed1-f47.google.com ([209.85.208.47]:33317 "EHLO
-        mail-ed1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725973AbgAPGzz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 01:55:55 -0500
-Received: by mail-ed1-f47.google.com with SMTP id r21so17957915edq.0;
-        Wed, 15 Jan 2020 22:55:54 -0800 (PST)
+        id S1726160AbgAPHlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 02:41:32 -0500
+Received: from mail-ma1ind01hn2047.outbound.protection.outlook.com ([52.103.200.47]:9872
+        "EHLO IND01-MA1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726315AbgAPHlc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 02:41:32 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=mTRB8gPZxIP74EHS5WEKQPpsOnJPp5CNdFxaZmbUN0yBJpfeOdedEE76DIzfB3Ih1HRNDsz39AwCStKtvxpJZpYBJQ7BCCktX1GD/IaER6ZhiiHjLUJgk0u7j5ncMDADK8rj9mDxcmkVtZd50V7NlbCT/OGfOvn9kwUxVgzII+lLYue/5F2rgtkgO2NvZIvtWj6W6HQksVuCDjyIL7SajxOpE0mwuEiZ0MrMW/dWwv5ER//dEwK+7Sv7xhEe9lh0WSGLJxBcxq3/3KBVOOmf7uCDVURPc5ZA5KTzCpx3MfJYlDgFlvkpnAScVuQTVq6qda5EEpZci/Sw8/s2zXgNkA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/ZZJXMYT2pzyIeaRekzni0gCjWiXTNix98tEUdWrNhM=;
+ b=gdqfZ555+VZgRuoxQfp4L2MuCTCspB1mpG1KcoKInPtrJbEvMikdzlBOauYvjOyIdsTniOA2YgyzETz65oCfZ5BTVT93zb+l/7ukWgZ6HcNHndq1gsI/yYD8UmIqtJINuy6EZv4wslEbZhGnclNztWB6TexNQen2JtfXTXlWJqqZOXYWz8INT9PBTp0wx4eLc7BwGtDrjatO/AquXVvQTIbBzn0rnna4tUFZG1EVxLvL1gTK/WOgvpvJ7evz2Q+Gl1I3fQ20oLyAT4cVEVKl5oVihwy29A4PyihUkaPq30/kkCXbnlDFJSHQUVTxGUTPcSeQw26IWY75KCxN1U8g1w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oceanedigitaldata.com; dmarc=pass action=none
+ header.from=oceanedigitaldata.com; dkim=pass header.d=oceanedigitaldata.com;
+ arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-         :cc;
-        bh=MtnVpKpg4yme77WQSKJ0ALip8EFeD1YBGjDv6aco++Q=;
-        b=HrLyLTY38JMp/f9eq14bOZ6unkQFYufDLNo+QZ0iCm3ljF9V7b7H7HF92Jz9MKuS+C
-         /HWEJMuiMFGyzIQdVdhIjaiM7GHcAu6aNRGa/RxRs8/drjjUl/HmSuMxbFHIzCBB1jaY
-         NDhLzfBxI20lnEOhpUD4QD2vfVW0eYj5uX/+dtRf2ydlS7oeCN0kom0h1g8KKUhPFSxV
-         XpuloJ8dfYwFQYgDEWaCP395RDBy+PdAvZrc1J0JtPK/bxpb2MlHDjMrYColpPNTvJzC
-         IK1xC8OLJMME5wlOXOhadACNG2/RJIkQTU0P3jQzBAZrTrbKqwmQOz9Ry5V89XdzqpDT
-         lKug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
-         :message-id:subject:to:cc;
-        bh=MtnVpKpg4yme77WQSKJ0ALip8EFeD1YBGjDv6aco++Q=;
-        b=hBPnhLqCYoYxzAeiJqhGChF9NiFCN3aEMdH4ra+4z25vWGomY7YncLq9HsJbbLyUML
-         EnnhwFjoE/ZcNL9+a0ovkUN9xzVTgPZrgbbkY9LLu4+cfvJQ6yWq6FjZZ0hc53h8O8Ce
-         692CMFjkO3Vm5UJpNm41glP1kGrw+sv1/DfEkLXULp8AOgMVJNdpi6gLEUVVm2WD0DRw
-         5a47d+F5ur/jDeMyff2chg7X/EM3ZLQvYA0gA8Kw3cktM58jp4tc7uRuqQ9SAgnMMGAW
-         0KNZ9vPEi3lztfc9ALn2QwrnMRwBrmBODF75/CnR4ViTpEqaoHK6MYj39v/HsnPfSapk
-         hnpA==
-X-Gm-Message-State: APjAAAWpljKPUWNP7aR1w+AyacVDGbWeoaxvDuE0Hy7CzJKk7AA9eYPF
-        i/wwPy2nKqkvJ6sclWqIFXQfayln/DXG0tP82zc=
-X-Google-Smtp-Source: APXvYqyCBsj2+U8TE8b/WZd/7VuAcHu4x+AAHJ2ktOFKkjshdhxcCFyDFdP9LHvKHy+NaR3nytPkswm/I+lSVUuOf2s=
-X-Received: by 2002:a17:906:1b07:: with SMTP id o7mr1354122ejg.131.1579157753386;
- Wed, 15 Jan 2020 22:55:53 -0800 (PST)
+ d=NETORGFT5553580.onmicrosoft.com;
+ s=selector1-NETORGFT5553580-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/ZZJXMYT2pzyIeaRekzni0gCjWiXTNix98tEUdWrNhM=;
+ b=ElXF8cw71IyJprIE8SoT0gde8Aotopiu88gnzxEgbeKQffPM9pkCefDc8LeHa7WQQZasi8TWL4JDDnb+iT5Lp/YDNPg5CFKGQoSoKb3DN3wZzCnK2bB6o/qJAIH2ZO6XTsSZ3Y3ULKtlr1xMH9UZdfbXh1QMZfcM934xcYcwP04=
+Received: from BM1PR01MB3362.INDPRD01.PROD.OUTLOOK.COM (52.133.239.87) by
+ BM1PR01MB2994.INDPRD01.PROD.OUTLOOK.COM (20.178.174.144) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2644.18; Thu, 16 Jan 2020 07:41:28 +0000
+Received: from BM1PR01MB3362.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::7815:ea:4d7e:7f52]) by BM1PR01MB3362.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::7815:ea:4d7e:7f52%7]) with mapi id 15.20.2644.015; Thu, 16 Jan 2020
+ 07:41:28 +0000
+Received: from DESKTOPMPN5UI4 (106.51.17.50) by MA1PR01CA0080.INDPRD01.PROD.OUTLOOK.COM (2603:1096:a00::20) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2644.19 via Frontend Transport; Thu, 16 Jan 2020 07:41:28 +0000
+From:   Brenda Lane <brenda.lane@oceanedigitaldata.com>
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Attendees List 
+Thread-Topic: Attendees List 
+Thread-Index: AdXMQFt/ZxdkaN0iS3qB4rfN0/FKJg==
+Importance: high
+X-Priority: 1
+Date:   Thu, 16 Jan 2020 07:41:28 +0000
+Message-ID: <!&!AAAAAAAAAAAYAAAAAAAAAMeItoodLbBEhAG+Fnluak7CgAAAEAAAAGaqL1EWXkRIjdYqIhcOR/ABAAAAAA==@oceanedigitaldata.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: MA1PR01CA0080.INDPRD01.PROD.OUTLOOK.COM (2603:1096:a00::20)
+ To BM1PR01MB3362.INDPRD01.PROD.OUTLOOK.COM (2603:1096:b00:76::23)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=brenda.lane@oceanedigitaldata.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-mailer: Microsoft Outlook 15.0
+x-originating-ip: [106.51.17.50]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 2d07f2d5-2c84-4934-e87d-08d79a577f17
+x-ms-traffictypediagnostic: BM1PR01MB2994:
+x-microsoft-antispam-prvs: <BM1PR01MB299495441B351245518E94B8EA360@BM1PR01MB2994.INDPRD01.PROD.OUTLOOK.COM>
+x-ms-oob-tlc-oobclassifiers: OLM:8273;
+x-forefront-prvs: 02843AA9E0
+x-forefront-antispam-report: SFV:SPM;SFS:(10019020)(366004)(39840400004)(376002)(136003)(396003)(346002)(199004)(189003)(36756003)(4744005)(66476007)(186003)(2616005)(16526019)(4743002)(66556008)(44832011)(8936002)(66446008)(64756008)(71200400001)(3480700007)(956004)(66946007)(8676002)(81166006)(81156014)(86362001)(6916009)(26005)(508600001)(7116003)(6486002)(316002)(1006002)(6496006)(52116002)(55236004)(2906002)(5660300002)(32030200002);DIR:OUT;SFP:1501;SCL:5;SRVR:BM1PR01MB2994;H:BM1PR01MB3362.INDPRD01.PROD.OUTLOOK.COM;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: oceanedigitaldata.com does not
+ designate permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 1R58OJbYsHmwPxd1c4KkFbULqBRi8w3pOC/XkCcpaYZLTotQqVKkYuHAfrmO54ubeQj4kwrDh03+gprsTQ+5xSlxf8h+F6/4wf1OHCpHSeX2Q45mjrcm2Xqqo40T7ciI/UpxT5D6s/jxGAOvusnnPW7haD5pZwjTTS8RV3Lm+oNNgyIfJLF0SHvbq03mALG2Q5tTxkgJMdqQCcK2Q/n5nUxKZr2QdwTdJTv2I/6IOEw3fe1wDPsTFa3iPJitWhQvEuU4vBYmKKZOH8tPNJ0Y5lbgIW0KFNCHBppX4nwY/4lSZCpIZS3C1nvJnAAVMoryHSgWc5KA3mr9BdUFKR0Aaaxg/moKZbCaOA5jW+2LLRdMO1XLdbIEBLkvF+Ace8eNAbuJyaz87zLhv4C6cLxy8qCXrl6lATst1BH00U30XOT3mD7UdJ+U/q3XQqYVMppyVHyVXkzhCfSpTIW4Yd73cf/lSZ/2zyoiWxMlprKH6WLNPmxpHRiIaabTV9Kw6WWpeSpjVh94gKzWY7csac4xibXBqaYc8jjs60UaolvigCMXw8rV0dSvZqW08I3cgs9wD9bciWL8YEmf71tIHxB75qcRoy+vk6UKvtJFmlIzMCDz9hb6Bz02dTK67ZFXbQ0wswvQTh1+nLAqh/+skPzkddTa4AYpF11QjaXz+d6eCbso60KnhNfJ+KHGuRLsQHOedsOW78bXcE5mfXtJ/C0UC761RRmfnGkBOWJFQhVgkGmNoHEIwM0DmHtLw+jMcjV6SehkDq18rltPm3oq12/Pxg==
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <B93A0DC02B2BFA47BF36779A3A843AEE@INDPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Received: by 2002:a05:6402:1c11:0:0:0:0 with HTTP; Wed, 15 Jan 2020 22:55:52
- -0800 (PST)
-In-Reply-To: <CAHk-=wiqPHc=BzSYO4N=awucq0td3s9VuBkct=m-B_xZVCgzBg@mail.gmail.com>
-References: <CACMCwJLJCA2iXS0QMKKAWQv252oUcmfsNvwDNP5+4Z_9VB-rTg@mail.gmail.com>
- <5C216684-6FDF-41B5-9F51-89DC295F6DDC@amacapital.net> <CACMCwJLogOH-nG7QEMzrXK-iJPOdzCrL05y0a6yAbtPsfdRjsQ@mail.gmail.com>
- <CAHk-=wiqPHc=BzSYO4N=awucq0td3s9VuBkct=m-B_xZVCgzBg@mail.gmail.com>
-From:   Jari Ruusu <jari.ruusu@gmail.com>
-Date:   Thu, 16 Jan 2020 08:55:52 +0200
-Message-ID: <CACMCwJL+kdkJRfRhG6bt_ojU0UeipqxVL3vwS3ETqVEjnWL1ew@mail.gmail.com>
-Subject: Re: Fix built-in early-load Intel microcode alignment
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Ashok Raj <ashok.raj@intel.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Fenghua Yu <fenghua.yu@intel.com>, johannes.berg@intel.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: oceanedigitaldata.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2d07f2d5-2c84-4934-e87d-08d79a577f17
+X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Jan 2020 07:41:28.2719
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 4d88f05e-781c-4247-92e4-bd9439b8070f
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 9mTKPXSBStoR7SGIB9/DF+qjwOfSKiK2bw29bjXob6vbPtiDDdcf+vvcCXE6uBLDyTHphQnnGsY2WXKfy+d7HwdkTK8cPN5W6XGP265JyTceYbOt5KGfiS4rmMHaxdSi
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BM1PR01MB2994
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/15/20, Linus Torvalds <torvalds@linux-foundation.org> wrote:
-> However, the most likely cause is that you have a borderline dodgy
-> system, and the microcode update then just triggers a pre-existing
-> problem.
+Hi,
+ =09
+Blissful morning.
 
-For that particular processor model, there appears to be microcode
-updates for four steppings: 9 10 11 and 12. My model is stepping
-9, so it appears to be early commercially sold version of that
-model. Probably more problems on it than on later steppings.
+I just wanted to check if you are interests in Attendee Company list of
+Embedded World 2020 (International Trade Show for Electronic Systems,
+Embedded Technology, Embedded Systems, E-mobility and Distributed
+Intelligence) to reach wide range client/industry leaders to promote you
+product/services at global market.
 
-> But it might be worth it if the intel people could check up with their
-> microcode people on this anyway - if there is _one_ report of "my
-> system locks up with newer ucode", that's one thing. But if Jari isn't
-> alone...
+Venue: Nuremberg, Germany
+Information Provided: - Company name, URL, Contact name, Job title, Busines=
+s
+contact, fax number, physical address, Industry, Company size, Email addres=
+s
+etc..!
 
-I'm not alone with latest Intel microcode problems. Debian for
-example reverted microcode to older microcode version on some
-Intel processor models because of hangs on warm reboots. Those
-reverts were not for same processor model as my processor, but
-they do indicate "not everything OK" situation with latest Intel
-microcodes.
+Please confirm and feel free to reach me out for any queries. Have a great
+day.
 
-https://lists.debian.org/debian-security-announce/2019/msg00237.html
+Awaiting for your reply
 
-My laptop computer was made by Dell, and Dell has been really good
-at providing new BIOS updates (that don't require Microsoft OS to
-update). More than once they have provided new BIOS to fix some
-security flaw that was still embargoed. The information about that
-security flaw then became publically known later after embargo
-ended.
+Best Regards,
+Brenda Lane.
+Tradeshow Specialist
 
-Now that I have learned about the instability of latest two
-microcode updates for my laptop's processor, it isn't difficult to
-connect the dots why Dell is still shipping 3rd latest microcode
-in their latest BIOS update for that laptop computer.
+If you do not wish to hear from us again, please respond back with "Leave
+Out" and we will honour your request.
 
--- 
-Jari Ruusu  4096R/8132F189 12D6 4C3A DCDA 0AA4 27BD  ACDF F073 3C80 8132 F189
