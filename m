@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E96F313E47A
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:08:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C546C13E48F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:09:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389480AbgAPRIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:08:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42998 "EHLO mail.kernel.org"
+        id S2389613AbgAPRJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:09:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389473AbgAPRIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:43 -0500
+        id S2389610AbgAPRJJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6F4120663;
-        Thu, 16 Jan 2020 17:08:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B7032192A;
+        Thu, 16 Jan 2020 17:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194522;
-        bh=T+FQIVTKiTyZ3ngH8ZTMP53N4ehYF3Kts2vYdU+aX0E=;
+        s=default; t=1579194549;
+        bh=GJg5Ss8w/jtXi8ZrDM5x3sy3AcMV7TgHDv0CV5c2IoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dh9JizSbMXyvL2Nw8F8btack77CszDSjenm+OBdVk38m96Du4a2N20Aa4eC7zoU71
-         eIiVGB5odaf6m8m61oSGwdJeNkDKjCjc7pExYpHC8Xr8TKepxkwMfdczuJ7h9wqFip
-         HkYrGcwMN1428gWlTLStus0NYdnPtudViItW/XMI=
+        b=zXXs0T7CkW3xtL95/mJWNtql4aZn+HfaywEFye0AKRYuHQyBN6V3SCD+6RjSE+V3B
+         Ok05qXYxDgLH6fIGnvbz7BmWWZt6B2jkYFVuWdhnLGEdCbFZschdk1dxWjvJj4YfcV
+         A8Gm4VfHzeuLtALURN51zr8mPaS6V38u/dVPGJkc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michal Kalderon <michal.kalderon@marvell.com>,
-        Ariel Elior <ariel.elior@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 413/671] qed: iWARP - Use READ_ONCE and smp_store_release to access ep->state
-Date:   Thu, 16 Jan 2020 12:00:51 -0500
-Message-Id: <20200116170509.12787-150-sashal@kernel.org>
+Cc:     Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>, acme@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, maddy@linux.vnet.ibm.com,
+        mpe@ellerman.id.au, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 432/671] perf/ioctl: Add check for the sample_period value
+Date:   Thu, 16 Jan 2020 12:01:10 -0500
+Message-Id: <20200116170509.12787-169-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,78 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Kalderon <michal.kalderon@marvell.com>
+From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
 
-[ Upstream commit 6117561e1bb30b2fe7f51e1961f34dbedd0bec8a ]
+[ Upstream commit 913a90bc5a3a06b1f04c337320e9aeee2328dd77 ]
 
-Destroy QP waits for it's ep object state to be set to CLOSED
-before proceeding. ep->state can be updated from a different
-context. Add smp_store_release/READ_ONCE to synchronize.
+perf_event_open() limits the sample_period to 63 bits. See:
 
-Fixes: fc4c6065e661 ("qed: iWARP implement disconnect flows")
-Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  0819b2e30ccb ("perf: Limit perf_event_attr::sample_period to 63 bits")
+
+Make ioctl() consistent with it.
+
+Also on PowerPC, negative sample_period could cause a recursive
+PMIs leading to a hang (reported when running perf-fuzzer).
+
+Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: acme@kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: maddy@linux.vnet.ibm.com
+Cc: mpe@ellerman.id.au
+Fixes: 0819b2e30ccb ("perf: Limit perf_event_attr::sample_period to 63 bits")
+Link: https://lkml.kernel.org/r/20190604042953.914-1-ravi.bangoria@linux.ibm.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_iwarp.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ kernel/events/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-index 7002a660b6b4..c77babd0ef95 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-@@ -532,7 +532,8 @@ int qed_iwarp_destroy_qp(struct qed_hwfn *p_hwfn, struct qed_rdma_qp *qp)
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 751888cbed5c..16af86ab24c4 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5012,6 +5012,9 @@ static int perf_event_period(struct perf_event *event, u64 __user *arg)
+ 	if (perf_event_check_period(event, value))
+ 		return -EINVAL;
  
- 	/* Make sure ep is closed before returning and freeing memory. */
- 	if (ep) {
--		while (ep->state != QED_IWARP_EP_CLOSED && wait_count++ < 200)
-+		while (READ_ONCE(ep->state) != QED_IWARP_EP_CLOSED &&
-+		       wait_count++ < 200)
- 			msleep(100);
- 
- 		if (ep->state != QED_IWARP_EP_CLOSED)
-@@ -1023,8 +1024,6 @@ qed_iwarp_mpa_complete(struct qed_hwfn *p_hwfn,
- 
- 	params.ep_context = ep;
- 
--	ep->state = QED_IWARP_EP_CLOSED;
--
- 	switch (fw_return_code) {
- 	case RDMA_RETURN_OK:
- 		ep->qp->max_rd_atomic_req = ep->cm_info.ord;
-@@ -1084,6 +1083,10 @@ qed_iwarp_mpa_complete(struct qed_hwfn *p_hwfn,
- 		break;
- 	}
- 
-+	if (fw_return_code != RDMA_RETURN_OK)
-+		/* paired with READ_ONCE in destroy_qp */
-+		smp_store_release(&ep->state, QED_IWARP_EP_CLOSED);
++	if (!event->attr.freq && (value & (1ULL << 63)))
++		return -EINVAL;
 +
- 	ep->event_cb(ep->cb_context, &params);
+ 	event_function_call(event, __perf_event_period, &value);
  
- 	/* on passive side, if there is no associated QP (REJECT) we need to
-@@ -2828,7 +2831,9 @@ static void qed_iwarp_qp_in_error(struct qed_hwfn *p_hwfn,
- 	params.status = (fw_return_code == IWARP_QP_IN_ERROR_GOOD_CLOSE) ?
- 			 0 : -ECONNRESET;
- 
--	ep->state = QED_IWARP_EP_CLOSED;
-+	/* paired with READ_ONCE in destroy_qp */
-+	smp_store_release(&ep->state, QED_IWARP_EP_CLOSED);
-+
- 	spin_lock_bh(&p_hwfn->p_rdma_info->iwarp.iw_lock);
- 	list_del(&ep->list_entry);
- 	spin_unlock_bh(&p_hwfn->p_rdma_info->iwarp.iw_lock);
-@@ -2917,7 +2922,8 @@ qed_iwarp_tcp_connect_unsuccessful(struct qed_hwfn *p_hwfn,
- 	params.event = QED_IWARP_EVENT_ACTIVE_COMPLETE;
- 	params.ep_context = ep;
- 	params.cm_info = &ep->cm_info;
--	ep->state = QED_IWARP_EP_CLOSED;
-+	/* paired with READ_ONCE in destroy_qp */
-+	smp_store_release(&ep->state, QED_IWARP_EP_CLOSED);
- 
- 	switch (fw_return_code) {
- 	case IWARP_CONN_ERROR_TCP_CONNECT_INVALID_PACKET:
+ 	return 0;
 -- 
 2.20.1
 
