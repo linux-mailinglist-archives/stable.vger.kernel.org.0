@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F14AD13E224
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:54:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E344213E226
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:54:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731492AbgAPQyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:54:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38346 "EHLO mail.kernel.org"
+        id S1731590AbgAPQyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:54:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728921AbgAPQyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:54:04 -0500
+        id S1731575AbgAPQyK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:54:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C27220730;
-        Thu, 16 Jan 2020 16:54:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5014D24656;
+        Thu, 16 Jan 2020 16:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193644;
-        bh=H4TGDuj/IGoXsgjHYEbP9PeZK/cLYnM2Qg5WbYMX6t8=;
+        s=default; t=1579193649;
+        bh=hzYUfnj+TvROFTnB8URu/LAAbLUAone1jW+IXrnDv94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFY2y+5wVsgRnfh/grr4YpYsMtEWr/4pXQyoEV08VaOXdIFYdmn9MO0Mb2rzJ3M9w
-         5EeB1naN0O5TRqrLlC6V1VC2tnFCzHnFOJm7CA8qO5OCZkaj2UIo0ve9ibkZ0YL4nF
-         qV3qquKA7x4yvXlfN+FBRljZpV2yAbHAsKmho1is=
+        b=rIm7q0EPYvltQ9rP4MnkrxPYwItgW1IYaE4oKqRxy+XbwPl/rGMvMGgmzE2WPg0pn
+         9b2H//x6DMAviMPLRPUUMKCGNU0o2rATwOZAwrQSB0KleGoFeViD0bBnHSzsrUKXxO
+         zmg5pZ+IIBBFuagU+URstqkuNz1JaDLdJcq/c2Zc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 175/205] um: Don't trace irqflags during shutdown
-Date:   Thu, 16 Jan 2020 11:42:30 -0500
-Message-Id: <20200116164300.6705-175-sashal@kernel.org>
+Cc:     Stanislav Fomichev <sdf@google.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 179/205] bpf: Support pre-2.25-binutils objcopy for vmlinux BTF
+Date:   Thu, 16 Jan 2020 11:42:34 -0500
+Message-Id: <20200116164300.6705-179-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -43,42 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit 5c1f33e2a03c0b8710b5d910a46f1e1fb0607679 ]
+[ Upstream commit da5fb18225b49b97bb37c51bcbbb2990a507c364 ]
 
-In the main() code, we eventually enable signals just before
-exec() or exit(), in order to to not have signals pending and
-delivered *after* the exec().
+If vmlinux BTF generation fails, but CONFIG_DEBUG_INFO_BTF is set,
+.BTF section of vmlinux is empty and kernel will prohibit
+BPF loading and return "in-kernel BTF is malformed".
 
-I've observed SIGSEGV loops at this point, and the reason seems
-to be the irqflags tracing; this makes sense as the kernel is
-no longer really functional at this point. Since there's really
-no reason to use unblock_signals_trace() here (I had just done
-a global search & replace), use the plain unblock_signals() in
-this case to avoid going into the no longer functional kernel.
+--dump-section argument to binutils' objcopy was added in version 2.25.
+When using pre-2.25 binutils, BTF generation silently fails. Convert
+to --only-section which is present on pre-2.25 binutils.
 
-Fixes: 0dafcbe128d2 ("um: Implement TRACE_IRQFLAGS_SUPPORT")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Documentation/process/changes.rst states that binutils 2.21+
+is supported, not sure those standards apply to BPF subsystem.
+
+v2:
+* exit and print an error if gen_btf fails (John Fastabend)
+
+v3:
+* resend with Andrii's Acked-by/Tested-by tags
+
+Fixes: 341dfcf8d78ea ("btf: expose BTF info through sysfs")
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Tested-by: Andrii Nakryiko <andriin@fb.com>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20191127161410.57327-1-sdf@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/os-Linux/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/link-vmlinux.sh | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/um/os-Linux/main.c b/arch/um/os-Linux/main.c
-index 8014dfac644d..c8a42ecbd7a2 100644
---- a/arch/um/os-Linux/main.c
-+++ b/arch/um/os-Linux/main.c
-@@ -170,7 +170,7 @@ int __init main(int argc, char **argv, char **envp)
- 	 * that they won't be delivered after the exec, when
- 	 * they are definitely not expected.
- 	 */
--	unblock_signals_trace();
-+	unblock_signals();
+diff --git a/scripts/link-vmlinux.sh b/scripts/link-vmlinux.sh
+index 06495379fcd8..2998ddb323e3 100755
+--- a/scripts/link-vmlinux.sh
++++ b/scripts/link-vmlinux.sh
+@@ -127,7 +127,8 @@ gen_btf()
+ 		cut -d, -f1 | cut -d' ' -f2)
+ 	bin_format=$(LANG=C ${OBJDUMP} -f ${1} | grep 'file format' | \
+ 		awk '{print $4}')
+-	${OBJCOPY} --dump-section .BTF=.btf.vmlinux.bin ${1} 2>/dev/null
++	${OBJCOPY} --set-section-flags .BTF=alloc -O binary \
++		--only-section=.BTF ${1} .btf.vmlinux.bin 2>/dev/null
+ 	${OBJCOPY} -I binary -O ${bin_format} -B ${bin_arch} \
+ 		--rename-section .data=.BTF .btf.vmlinux.bin ${2}
+ }
+@@ -253,6 +254,10 @@ btf_vmlinux_bin_o=""
+ if [ -n "${CONFIG_DEBUG_INFO_BTF}" ]; then
+ 	if gen_btf .tmp_vmlinux.btf .btf.vmlinux.bin.o ; then
+ 		btf_vmlinux_bin_o=.btf.vmlinux.bin.o
++	else
++		echo >&2 "Failed to generate BTF for vmlinux"
++		echo >&2 "Try to disable CONFIG_DEBUG_INFO_BTF"
++		exit 1
+ 	fi
+ fi
  
- 	os_info("\n");
- 	/* Reboot */
 -- 
 2.20.1
 
