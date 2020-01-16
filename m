@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C58B13EEF4
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:12:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D3C13EEFB
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:12:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393089AbgAPRhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:37:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52318 "EHLO mail.kernel.org"
+        id S2393158AbgAPSMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:12:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405325AbgAPRhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:37:12 -0500
+        id S2390867AbgAPRhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:37:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E7C9246D3;
-        Thu, 16 Jan 2020 17:37:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BB292468C;
+        Thu, 16 Jan 2020 17:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196232;
-        bh=IvhLZl9OwsezdqO6p8i8hAjb0pJmYjgbg9Le9zB7u1Y=;
+        s=default; t=1579196233;
+        bh=6Gc6e52RvjlPj0J4Giu/u19t0khVdiu91vNTHGsETvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifpo52l9xi6gsIDcBKiGbASWl1LlAf6CFwuRfS0HzzrNfmEsRifkrF/lzFm75b3iB
-         RoIoPvYcDOqd1FOGaOEgDyX/CrDrfKFRogFowrN2+Wen/SPV5VbdUHmDr1QsDdax0H
-         o0XzdPh7ysi06K19Zuz6m26kOUehx0NgCJYx4g2w=
+        b=u+z7dEWLYXZhga8mesN2j+StBNadDHJTs1Ygs12l5Gtt8dCq6vdqpo47LsF7RzkVM
+         VOIpCZGBnVKg52g4wuz9sJL4RUirMdlqgH8v0nAgi5YzI6PEkIHzP6lLoUpF2MgMHr
+         Cr9+XDTeONqoWXg4cXDYgVLhyrt5BLYOr9uaeI8o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 063/251] fbdev: chipsfb: remove set but not used variable 'size'
-Date:   Thu, 16 Jan 2020 12:33:32 -0500
-Message-Id: <20200116173641.22137-23-sashal@kernel.org>
+Cc:     Steve Wise <swise@opengridcomputing.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 064/251] iw_cxgb4: use tos when importing the endpoint
+Date:   Thu, 16 Jan 2020 12:33:33 -0500
+Message-Id: <20200116173641.22137-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -47,49 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Steve Wise <swise@opengridcomputing.com>
 
-[ Upstream commit 8e71fa5e4d86bedfd26df85381d65d6b4c860020 ]
+[ Upstream commit cb3ba0bde881f0cb7e3945d2a266901e2bd18c92 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+import_ep() is passed the correct tos, but doesn't use it correctly.
 
-drivers/video/fbdev/chipsfb.c: In function 'chipsfb_pci_init':
-drivers/video/fbdev/chipsfb.c:352:22: warning:
- variable 'size' set but not used [-Wunused-but-set-variable]
-
-Fixes: 8c8709334cec ("[PATCH] ppc32: Remove CONFIG_PMAC_PBOOK").
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-[b.zolnierkie: minor commit summary and description fixups]
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Fixes: ac8e4c69a021 ("cxgb4/iw_cxgb4: TOS support")
+Signed-off-by: Steve Wise <swise@opengridcomputing.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/chipsfb.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/infiniband/hw/cxgb4/cm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/chipsfb.c b/drivers/video/fbdev/chipsfb.c
-index 59abdc6a97f6..314b7eceb81c 100644
---- a/drivers/video/fbdev/chipsfb.c
-+++ b/drivers/video/fbdev/chipsfb.c
-@@ -350,7 +350,7 @@ static void init_chips(struct fb_info *p, unsigned long addr)
- static int chipsfb_pci_init(struct pci_dev *dp, const struct pci_device_id *ent)
- {
- 	struct fb_info *p;
--	unsigned long addr, size;
-+	unsigned long addr;
- 	unsigned short cmd;
- 	int rc = -ENODEV;
- 
-@@ -362,7 +362,6 @@ static int chipsfb_pci_init(struct pci_dev *dp, const struct pci_device_id *ent)
- 	if ((dp->resource[0].flags & IORESOURCE_MEM) == 0)
- 		goto err_disable;
- 	addr = pci_resource_start(dp, 0);
--	size = pci_resource_len(dp, 0);
- 	if (addr == 0)
- 		goto err_disable;
- 
+diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
+index 605d50ad123c..a29fe11d688a 100644
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -2044,7 +2044,7 @@ static int import_ep(struct c4iw_ep *ep, int iptype, __u8 *peer_ip,
+ 	} else {
+ 		pdev = get_real_dev(n->dev);
+ 		ep->l2t = cxgb4_l2t_get(cdev->rdev.lldi.l2t,
+-					n, pdev, 0);
++					n, pdev, rt_tos2priority(tos));
+ 		if (!ep->l2t)
+ 			goto out;
+ 		ep->mtu = dst_mtu(dst);
 -- 
 2.20.1
 
