@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72C3913F1AD
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5331513F1AF
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407077AbgAPS3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388537AbgAPS3z (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 13:29:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33706 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392144AbgAPRZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:43 -0500
+        id S1732862AbgAPRZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B09CE246DD;
-        Thu, 16 Jan 2020 17:25:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F837246A7;
+        Thu, 16 Jan 2020 17:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195542;
-        bh=mAr6Zddc1rPASOuktELYGo8wqMA4ihXUJE/R/dMfsc4=;
+        s=default; t=1579195544;
+        bh=5GoVNpGh4Dr4dxWZ8reDc8lbWUTjAQH0PijjACcg4h4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0ke1dv+RQ2mf0FMLwxBZWa6oYHOlAI7dHXQVvYV2JlUmGjyIU1RqnARHYLrAsJn1
-         gTJ+hxARbKBDBlgqfEvuwNi8Y7hG4bmiJX0PbXuXBL5S6rJ3+OuRSzWJQlrzAwxGjk
-         57tWPVKyp4C8NHF1xcquMqScYZXJIr1qQnjZhNSM=
+        b=fjaQ4x/unDPoDlpaMPXY9OtmVcznT5OwYWal+8q8I2Qx6gEROYpReqQyh3NONIN8O
+         6/twWnVtJJFPpPyEkiv5OxZXGECdIm4EOi09TU194YDlyw9Baic8QoPArs5CcUKcLq
+         SbY2wM+t4wGj4OANbRKFLVomdyFPF0s74zqTkMXs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kangjie Lu <kjlu@umn.edu>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 135/371] net: sh_eth: fix a missing check of of_get_phy_mode
-Date:   Thu, 16 Jan 2020 12:20:07 -0500
-Message-Id: <20200116172403.18149-78-sashal@kernel.org>
+Cc:     Axel Lin <axel.lin@ingics.com>, Keerthy <j-keerthy@ti.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 136/371] regulator: lp87565: Fix missing register for LP87565_BUCK_0
+Date:   Thu, 16 Jan 2020 12:20:08 -0500
+Message-Id: <20200116172403.18149-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -46,47 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kangjie Lu <kjlu@umn.edu>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 035a14e71f27eefa50087963b94cbdb3580d08bf ]
+[ Upstream commit d1a6cbdf1e597917cb642c655512d91b71a35d22 ]
 
-of_get_phy_mode may fail and return a negative error code;
-the fix checks the return value of of_get_phy_mode and
-returns NULL of it fails.
+LP87565_BUCK_0 is missed, fix it.
 
-Fixes: b356e978e92f ("sh_eth: add device tree support")
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f0168a9bf ("regulator: lp87565: Add support for lp87565 PMIC regulators")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Reviewed-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/sh_eth.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/regulator/lp87565-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
-index 9b1906a65e11..25f3b2ad26e9 100644
---- a/drivers/net/ethernet/renesas/sh_eth.c
-+++ b/drivers/net/ethernet/renesas/sh_eth.c
-@@ -3046,12 +3046,16 @@ static struct sh_eth_plat_data *sh_eth_parse_dt(struct device *dev)
- 	struct device_node *np = dev->of_node;
- 	struct sh_eth_plat_data *pdata;
- 	const char *mac_addr;
-+	int ret;
+diff --git a/drivers/regulator/lp87565-regulator.c b/drivers/regulator/lp87565-regulator.c
+index cfdbe294fb6a..32d4e6ec2e19 100644
+--- a/drivers/regulator/lp87565-regulator.c
++++ b/drivers/regulator/lp87565-regulator.c
+@@ -188,7 +188,7 @@ static int lp87565_regulator_probe(struct platform_device *pdev)
+ 	struct lp87565 *lp87565 = dev_get_drvdata(pdev->dev.parent);
+ 	struct regulator_config config = { };
+ 	struct regulator_dev *rdev;
+-	int i, min_idx = LP87565_BUCK_1, max_idx = LP87565_BUCK_3;
++	int i, min_idx = LP87565_BUCK_0, max_idx = LP87565_BUCK_3;
  
- 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
- 		return NULL;
+ 	platform_set_drvdata(pdev, lp87565);
  
--	pdata->phy_interface = of_get_phy_mode(np);
-+	ret = of_get_phy_mode(np);
-+	if (ret < 0)
-+		return NULL;
-+	pdata->phy_interface = ret;
- 
- 	mac_addr = of_get_mac_address(np);
- 	if (mac_addr)
 -- 
 2.20.1
 
