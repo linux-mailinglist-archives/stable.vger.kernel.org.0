@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B72A113E0ED
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:46:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9EE13E0F1
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:46:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729809AbgAPQqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:46:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55856 "EHLO mail.kernel.org"
+        id S1729417AbgAPQqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:46:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729799AbgAPQqc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:46:32 -0500
+        id S1729078AbgAPQqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:46:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDC222081E;
-        Thu, 16 Jan 2020 16:46:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EBDE214AF;
+        Thu, 16 Jan 2020 16:46:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193191;
-        bh=4h3DkzSaclz8Yq3IfZOqDEUESWUJ+zaHTz04Uj0KSZ8=;
+        s=default; t=1579193197;
+        bh=N4rYiCfLiFPq3Jr96nV115rnHp8H/x4+c7d7Dn7Afr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r890BBkYTT7C68sCS67Hjv5sTO1J93nfb/UjISN4wr71jXhMoGHlOEhnbzLFPwMKm
-         npwpgB4ORtoobdluxbH8pYjFXMj2Pkw0kQsnHllvPuklxEOZeBw83qrQJcYwVSCr3p
-         VQaZXf6wVr2HdjSmiSy3iihs9mhsD9k/H08wvs8Q=
+        b=DO00mwYCQfPKLSGXm4lAoGXcS6DJQ4MazuRa8Lpx2ErVdvc2kOyaHszoPeon3cCf+
+         RBMg2K3tm2z2+oo7YVxDvGLlOkd4bU+PkEJ2IFGInvA/15tb9hOBJTBpfHaSiUszvD
+         ed4rguj9CeueICTjto55cFD0yGRIdxqY8DAOBl2E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Remi Pommarel <repk@triplefau.lt>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 043/205] PCI: aardvark: Fix PCI_EXP_RTCTL register configuration
-Date:   Thu, 16 Jan 2020 11:40:18 -0500
-Message-Id: <20200116164300.6705-43-sashal@kernel.org>
+Cc:     Yong Wu <yong.wu@mediatek.com>, Anan Sun <anan.sun@mediatek.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 044/205] memory: mtk-smi: Add PM suspend and resume ops
+Date:   Thu, 16 Jan 2020 11:40:19 -0500
+Message-Id: <20200116164300.6705-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -45,56 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit c0f05a6ab52535c1bf5f43272eede3e11c5701a5 ]
+[ Upstream commit fb03082a54acd66c61535edfefe96b2ff88ce7e2 ]
 
-PCI_EXP_RTCTL is used to activate PME interrupt only, so writing into it
-should not modify other interrupts' mask. The ISR mask polarity was also
-inverted, when PCI_EXP_RTCTL_PMEIE is set PCIE_MSG_PM_PME_MASK mask bit
-should actually be cleared.
+In the commit 4f0a1a1ae351 ("memory: mtk-smi: Invoke pm runtime_callback
+to enable clocks"), we use pm_runtime callback to enable/disable the smi
+larb clocks. It will cause the larb's clock may not be disabled when
+suspend. That is because device_prepare will call pm_runtime_get_noresume
+which will keep the larb's PM runtime status still is active when suspend,
+then it won't enter our pm_runtime suspend callback to disable the
+corresponding clocks.
 
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+This patch adds suspend pm_ops to force disable the clocks, Use "LATE" to
+make sure it disable the larb's clocks after the multimedia devices.
+
+Fixes: 4f0a1a1ae351 ("memory: mtk-smi: Invoke pm runtime_callback to enable clocks")
+Signed-off-by: Anan Sun <anan.sun@mediatek.com>
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/memory/mtk-smi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index fe471861f801..97245e076548 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -428,7 +428,7 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
+diff --git a/drivers/memory/mtk-smi.c b/drivers/memory/mtk-smi.c
+index 439d7d886873..a113e811faab 100644
+--- a/drivers/memory/mtk-smi.c
++++ b/drivers/memory/mtk-smi.c
+@@ -366,6 +366,8 @@ static int __maybe_unused mtk_smi_larb_suspend(struct device *dev)
  
- 	case PCI_EXP_RTCTL: {
- 		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
--		*value = (val & PCIE_MSG_PM_PME_MASK) ? PCI_EXP_RTCTL_PMEIE : 0;
-+		*value = (val & PCIE_MSG_PM_PME_MASK) ? 0 : PCI_EXP_RTCTL_PMEIE;
- 		return PCI_BRIDGE_EMUL_HANDLED;
- 	}
+ static const struct dev_pm_ops smi_larb_pm_ops = {
+ 	SET_RUNTIME_PM_OPS(mtk_smi_larb_suspend, mtk_smi_larb_resume, NULL)
++	SET_LATE_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
++				     pm_runtime_force_resume)
+ };
  
-@@ -478,10 +478,15 @@ advk_pci_bridge_emul_pcie_conf_write(struct pci_bridge_emul *bridge,
- 			advk_pcie_wait_for_retrain(pcie);
- 		break;
+ static struct platform_driver mtk_smi_larb_driver = {
+@@ -507,6 +509,8 @@ static int __maybe_unused mtk_smi_common_suspend(struct device *dev)
  
--	case PCI_EXP_RTCTL:
--		new = (new & PCI_EXP_RTCTL_PMEIE) << 3;
--		advk_writel(pcie, new, PCIE_ISR0_MASK_REG);
-+	case PCI_EXP_RTCTL: {
-+		/* Only mask/unmask PME interrupt */
-+		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG) &
-+			~PCIE_MSG_PM_PME_MASK;
-+		if ((new & PCI_EXP_RTCTL_PMEIE) == 0)
-+			val |= PCIE_MSG_PM_PME_MASK;
-+		advk_writel(pcie, val, PCIE_ISR0_MASK_REG);
- 		break;
-+	}
+ static const struct dev_pm_ops smi_common_pm_ops = {
+ 	SET_RUNTIME_PM_OPS(mtk_smi_common_suspend, mtk_smi_common_resume, NULL)
++	SET_LATE_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
++				     pm_runtime_force_resume)
+ };
  
- 	case PCI_EXP_RTSTA:
- 		new = (new & PCI_EXP_RTSTA_PME) >> 9;
+ static struct platform_driver mtk_smi_common_driver = {
 -- 
 2.20.1
 
