@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C8013FD14
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:22:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 483A113FD17
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:22:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388086AbgAPXVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:21:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49246 "EHLO mail.kernel.org"
+        id S2388960AbgAPXVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:21:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390861AbgAPXVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:21:44 -0500
+        id S2390871AbgAPXVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:21:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F380320748;
-        Thu, 16 Jan 2020 23:21:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 404B920684;
+        Thu, 16 Jan 2020 23:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216903;
-        bh=ry7wLXlt8FFAAbN9zf5JQ7fS9uA0DbcDOyh/j7HxtLw=;
+        s=default; t=1579216910;
+        bh=61VitoPadF4A60mPrF3DScQka7MkLp7FTs3+jQ0LYX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUOLSIX3G1ZCs/2BuOqJQJw2LgzD5XvsCCvNfqemc8NBnBFyYfpPBRllNr4YWpe9e
-         B65TD561hJ21SqXC3PBKrKapyz8G3uvBgUvjG2fj24rMxjFjbv+1xWokypY+RFJqR7
-         5+XfjP6qPMYqJ6yjqF/E9XNBVWxhO0EI70XODuBI=
+        b=kRvAp5ZhVJRiAPDClkvIqlixu+gaVPq41PI1pOAxeI3jtGsDkBxa+FW/V/YVw3aC/
+         FJOyaVZFeRWAbL7D5etv+UC3L1MOHDqe4ScMfTdcbWHLMoSTTCbIa1UkAxSqzlmlMk
+         p4V/RuMdj0Js+0+IM7kZ+ig3Smn9aSyDCSh4RzCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9328206518f08318a5fd@syzkaller.appspotmail.com,
-        Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 051/203] hsr: fix slab-out-of-bounds Read in hsr_debugfs_rename()
-Date:   Fri, 17 Jan 2020 00:16:08 +0100
-Message-Id: <20200116231748.443108537@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Phil Sutter <phil@nwl.cc>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 054/203] netfilter: nft_meta: use 64-bit time arithmetic
+Date:   Fri, 17 Jan 2020 00:16:11 +0100
+Message-Id: <20200116231748.691052760@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -45,72 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 04b69426d846cd04ca9acefff1ea39e1c64d2714 upstream.
+commit 6408c40c39d8eee5caaf97f5219b7dd4e041cc59 upstream.
 
-hsr slave interfaces don't have debugfs directory.
-So, hsr_debugfs_rename() shouldn't be called when hsr slave interface name
-is changed.
+On 32-bit architectures, get_seconds() returns an unsigned 32-bit
+time value, which also matches the type used in the nft_meta
+code. This will not overflow in year 2038 as a time_t would, but
+it still suffers from the overflow problem later on in year 2106.
 
-Test commands:
-    ip link add dummy0 type dummy
-    ip link add dummy1 type dummy
-    ip link add hsr0 type hsr slave1 dummy0 slave2 dummy1
-    ip link set dummy0 name ap
+Change this instance to use the time64_t type consistently
+and avoid the deprecated get_seconds().
 
-Splat looks like:
-[21071.899367][T22666] ap: renamed from dummy0
-[21071.914005][T22666] ==================================================================
-[21071.919008][T22666] BUG: KASAN: slab-out-of-bounds in hsr_debugfs_rename+0xaa/0xb0 [hsr]
-[21071.923640][T22666] Read of size 8 at addr ffff88805febcd98 by task ip/22666
-[21071.926941][T22666]
-[21071.927750][T22666] CPU: 0 PID: 22666 Comm: ip Not tainted 5.5.0-rc2+ #240
-[21071.929919][T22666] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[21071.935094][T22666] Call Trace:
-[21071.935867][T22666]  dump_stack+0x96/0xdb
-[21071.936687][T22666]  ? hsr_debugfs_rename+0xaa/0xb0 [hsr]
-[21071.937774][T22666]  print_address_description.constprop.5+0x1be/0x360
-[21071.939019][T22666]  ? hsr_debugfs_rename+0xaa/0xb0 [hsr]
-[21071.940081][T22666]  ? hsr_debugfs_rename+0xaa/0xb0 [hsr]
-[21071.940949][T22666]  __kasan_report+0x12a/0x16f
-[21071.941758][T22666]  ? hsr_debugfs_rename+0xaa/0xb0 [hsr]
-[21071.942674][T22666]  kasan_report+0xe/0x20
-[21071.943325][T22666]  hsr_debugfs_rename+0xaa/0xb0 [hsr]
-[21071.944187][T22666]  hsr_netdev_notify+0x1fe/0x9b0 [hsr]
-[21071.945052][T22666]  ? __module_text_address+0x13/0x140
-[21071.945897][T22666]  notifier_call_chain+0x90/0x160
-[21071.946743][T22666]  dev_change_name+0x419/0x840
-[21071.947496][T22666]  ? __read_once_size_nocheck.constprop.6+0x10/0x10
-[21071.948600][T22666]  ? netdev_adjacent_rename_links+0x280/0x280
-[21071.949577][T22666]  ? __read_once_size_nocheck.constprop.6+0x10/0x10
-[21071.950672][T22666]  ? lock_downgrade+0x6e0/0x6e0
-[21071.951345][T22666]  ? do_setlink+0x811/0x2ef0
-[21071.951991][T22666]  do_setlink+0x811/0x2ef0
-[21071.952613][T22666]  ? is_bpf_text_address+0x81/0xe0
-[ ... ]
+The nft_meta_weekday() calculation potentially gets a little slower
+on 32-bit architectures, but now it has the same behavior as on
+64-bit architectures and does not overflow.
 
-Reported-by: syzbot+9328206518f08318a5fd@syzkaller.appspotmail.com
-Fixes: 4c2d5e33dcd3 ("hsr: rename debugfs file when interface name is changed")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 63d10e12b00d ("netfilter: nft_meta: support for time matching")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/hsr/hsr_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netfilter/nft_meta.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/net/hsr/hsr_main.c
-+++ b/net/hsr/hsr_main.c
-@@ -46,7 +46,8 @@ static int hsr_netdev_notify(struct noti
- 		hsr_check_carrier_and_operstate(hsr);
+--- a/net/netfilter/nft_meta.c
++++ b/net/netfilter/nft_meta.c
+@@ -33,19 +33,19 @@
+ 
+ static DEFINE_PER_CPU(struct rnd_state, nft_prandom_state);
+ 
+-static u8 nft_meta_weekday(unsigned long secs)
++static u8 nft_meta_weekday(time64_t secs)
+ {
+ 	unsigned int dse;
+ 	u8 wday;
+ 
+ 	secs -= NFT_META_SECS_PER_MINUTE * sys_tz.tz_minuteswest;
+-	dse = secs / NFT_META_SECS_PER_DAY;
++	dse = div_u64(secs, NFT_META_SECS_PER_DAY);
+ 	wday = (4 + dse) % NFT_META_DAYS_PER_WEEK;
+ 
+ 	return wday;
+ }
+ 
+-static u32 nft_meta_hour(unsigned long secs)
++static u32 nft_meta_hour(time64_t secs)
+ {
+ 	struct tm tm;
+ 
+@@ -250,10 +250,10 @@ void nft_meta_get_eval(const struct nft_
+ 		nft_reg_store64(dest, ktime_get_real_ns());
  		break;
- 	case NETDEV_CHANGENAME:
--		hsr_debugfs_rename(dev);
-+		if (is_hsr_master(dev))
-+			hsr_debugfs_rename(dev);
+ 	case NFT_META_TIME_DAY:
+-		nft_reg_store8(dest, nft_meta_weekday(get_seconds()));
++		nft_reg_store8(dest, nft_meta_weekday(ktime_get_real_seconds()));
  		break;
- 	case NETDEV_CHANGEADDR:
- 		if (port->type == HSR_PT_MASTER) {
+ 	case NFT_META_TIME_HOUR:
+-		*dest = nft_meta_hour(get_seconds());
++		*dest = nft_meta_hour(ktime_get_real_seconds());
+ 		break;
+ 	default:
+ 		WARN_ON(1);
 
 
