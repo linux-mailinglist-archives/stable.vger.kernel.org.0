@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FAFA13F116
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:27:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB03013F111
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:27:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731019AbgAPS0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:26:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35852 "EHLO mail.kernel.org"
+        id S2392327AbgAPS0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:26:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403988AbgAPR0q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:26:46 -0500
+        id S2391223AbgAPR0r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:26:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2C9C246BE;
-        Thu, 16 Jan 2020 17:26:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08CF9246D0;
+        Thu, 16 Jan 2020 17:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195605;
-        bh=7tfVyXX4bFsIsuLvzod+ayf9c7B7NeaPg52+j0naU1Q=;
+        s=default; t=1579195607;
+        bh=ieJkzsq2/84pTU3c/SVOjaz3uB2wVQvR8Wq0qMkdhtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EAf+K7eV5Lv+pRZ7gOPvQZHPOICyTFwVHGjv4INJP821uU9OTsZNuGR8rNczdR9oi
-         t7uxn36gBSoAlIeNw6B6Pl3+6TXvG6kXNFwAseC6CHUgeq85Omp36GojVOUpquq+Wa
-         vXyBkwc+7vSVE9Md4F5sYDlrX3JoCvADFlvpiei0=
+        b=nHB+UJD7ho6lM7AqcVmWXSrdXOZtcOewnnUV/Yml9rVgkDYNCBibzoyIBcTC3LVZd
+         KFndUBqF4+VYF3zn3H3Q3E771+4lBJpwSUdCQBZP9eW1RYmj6jHZn1Yjba70sG+UR+
+         diUypcyhRnKTxF4zXvYdH4soSvT1ywZhXYG+kj28=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Morgenstein <jackm@dev.mellanox.co.il>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 180/371] IB/mlx5: Add missing XRC options to QP optional params mask
-Date:   Thu, 16 Jan 2020 12:20:52 -0500
-Message-Id: <20200116172403.18149-123-sashal@kernel.org>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Ashok Raj <ashok.raj@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.14 181/371] iommu/vt-d: Make kernel parameter igfx_off work with vIOMMU
+Date:   Thu, 16 Jan 2020 12:20:53 -0500
+Message-Id: <20200116172403.18149-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,88 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Morgenstein <jackm@dev.mellanox.co.il>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit 8f4426aa19fcdb9326ac44154a117b1a3a5ae126 ]
+[ Upstream commit 5daab58043ee2bca861068e2595564828f3bc663 ]
 
-The QP transition optional parameters for the various transition for XRC
-QPs are identical to those for RC QPs.
+The kernel parameter igfx_off is used by users to disable
+DMA remapping for the Intel integrated graphic device. It
+was designed for bare metal cases where a dedicated IOMMU
+is used for graphic. This doesn't apply to virtual IOMMU
+case where an include-all IOMMU is used.  This makes the
+kernel parameter work with virtual IOMMU as well.
 
-Many of the XRC QP transition optional parameter bits are missing from the
-QP optional mask table.  These omissions caused failures when doing XRC QP
-state transitions.
-
-For example, when trying to change the response timer of an XRC receive QP
-via the RTS2RTS transition, the new timer value was ignored because
-MLX5_QP_OPTPAR_RNR_TIMEOUT bit was missing from the optional params mask
-for XRC qps for the RTS2RTS transition.
-
-Fix this by adding the missing XRC optional parameters for all QP
-transitions to the opt_mask table.
-
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Fixes: a4774e9095de ("IB/mlx5: Fix opt param mask according to firmware spec")
-Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Suggested-by: Kevin Tian <kevin.tian@intel.com>
+Fixes: c0771df8d5297 ("intel-iommu: Export a flag indicating that the IOMMU is used for iGFX.")
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Tested-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/qp.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/iommu/intel-iommu.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
-index 5a7dcb5afe6e..84c962820aa2 100644
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -2357,6 +2357,11 @@ static enum mlx5_qp_optpar opt_mask[MLX5_QP_NUM_STATE][MLX5_QP_NUM_STATE][MLX5_Q
- 			[MLX5_QP_ST_UD] = MLX5_QP_OPTPAR_PKEY_INDEX	|
- 					  MLX5_QP_OPTPAR_Q_KEY		|
- 					  MLX5_QP_OPTPAR_PRI_PORT,
-+			[MLX5_QP_ST_XRC] = MLX5_QP_OPTPAR_RRE		|
-+					  MLX5_QP_OPTPAR_RAE		|
-+					  MLX5_QP_OPTPAR_RWE		|
-+					  MLX5_QP_OPTPAR_PKEY_INDEX	|
-+					  MLX5_QP_OPTPAR_PRI_PORT,
- 		},
- 		[MLX5_QP_STATE_RTR] = {
- 			[MLX5_QP_ST_RC] = MLX5_QP_OPTPAR_ALT_ADDR_PATH  |
-@@ -2390,6 +2395,12 @@ static enum mlx5_qp_optpar opt_mask[MLX5_QP_NUM_STATE][MLX5_QP_NUM_STATE][MLX5_Q
- 					  MLX5_QP_OPTPAR_RWE		|
- 					  MLX5_QP_OPTPAR_PM_STATE,
- 			[MLX5_QP_ST_UD] = MLX5_QP_OPTPAR_Q_KEY,
-+			[MLX5_QP_ST_XRC] = MLX5_QP_OPTPAR_ALT_ADDR_PATH	|
-+					  MLX5_QP_OPTPAR_RRE		|
-+					  MLX5_QP_OPTPAR_RAE		|
-+					  MLX5_QP_OPTPAR_RWE		|
-+					  MLX5_QP_OPTPAR_PM_STATE	|
-+					  MLX5_QP_OPTPAR_RNR_TIMEOUT,
- 		},
- 	},
- 	[MLX5_QP_STATE_RTS] = {
-@@ -2406,6 +2417,12 @@ static enum mlx5_qp_optpar opt_mask[MLX5_QP_NUM_STATE][MLX5_QP_NUM_STATE][MLX5_Q
- 			[MLX5_QP_ST_UD] = MLX5_QP_OPTPAR_Q_KEY		|
- 					  MLX5_QP_OPTPAR_SRQN		|
- 					  MLX5_QP_OPTPAR_CQN_RCV,
-+			[MLX5_QP_ST_XRC] = MLX5_QP_OPTPAR_RRE		|
-+					  MLX5_QP_OPTPAR_RAE		|
-+					  MLX5_QP_OPTPAR_RWE		|
-+					  MLX5_QP_OPTPAR_RNR_TIMEOUT	|
-+					  MLX5_QP_OPTPAR_PM_STATE	|
-+					  MLX5_QP_OPTPAR_ALT_ADDR_PATH,
- 		},
- 	},
- 	[MLX5_QP_STATE_SQER] = {
-@@ -2417,6 +2434,10 @@ static enum mlx5_qp_optpar opt_mask[MLX5_QP_NUM_STATE][MLX5_QP_NUM_STATE][MLX5_Q
- 					   MLX5_QP_OPTPAR_RWE		|
- 					   MLX5_QP_OPTPAR_RAE		|
- 					   MLX5_QP_OPTPAR_RRE,
-+			[MLX5_QP_ST_XRC]  = MLX5_QP_OPTPAR_RNR_TIMEOUT	|
-+					   MLX5_QP_OPTPAR_RWE		|
-+					   MLX5_QP_OPTPAR_RAE		|
-+					   MLX5_QP_OPTPAR_RRE,
- 		},
- 	},
- };
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 523d0889c2a4..4fbd183d973a 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -3361,9 +3361,12 @@ static int __init init_dmars(void)
+ 		iommu_identity_mapping |= IDENTMAP_ALL;
+ 
+ #ifdef CONFIG_INTEL_IOMMU_BROKEN_GFX_WA
+-	iommu_identity_mapping |= IDENTMAP_GFX;
++	dmar_map_gfx = 0;
+ #endif
+ 
++	if (!dmar_map_gfx)
++		iommu_identity_mapping |= IDENTMAP_GFX;
++
+ 	check_tylersburg_isoch();
+ 
+ 	if (iommu_identity_mapping) {
 -- 
 2.20.1
 
