@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9EEA13EC00
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:54:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9395D13EA8F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:45:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391455AbgAPRyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:54:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36250 "EHLO mail.kernel.org"
+        id S2406030AbgAPRo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:44:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406012AbgAPRo5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:44:57 -0500
+        id S2406022AbgAPRo6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:44:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A90D42476A;
-        Thu, 16 Jan 2020 17:44:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFC142474F;
+        Thu, 16 Jan 2020 17:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196696;
-        bh=SdRVim0Vj/KNpASzwZRjnWoFpu17oNX69dqvLIkzFMs=;
+        s=default; t=1579196697;
+        bh=yp0F98OmhMsKsx1f6hdNCNK4M6cdG4rAL/11lR/bv5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2GI+muUGD5xFwZzSzXSqOBkwA+PjwU+H9V3xopMbLf8FW55rs/9Dyoh3BmLLUoVY
-         hHKcFIasQArhG+drnLb4n2Zp8Ihxefspe/hdoUyS0xIv+l/fGB+FlzzrVU8jZMRhMG
-         2Y3jQIR50HdOalNWjxI2Jt0e8LDXEFbbWMPhq4p0=
+        b=SK9q/vvS7DD20dz7TMkcAn/HKWXxgVV7TcQMd5mq2OSCjTYTXgQWx49zCEfEbSbFv
+         8NgV0CncQ1ycrjDf2EKdIIpk35DmhYkoewDZK+nPWnK3iSh4CccieTFTu+2BwCJoIV
+         tBdHeU/Xzm7mc7Y0dX4C7MdI5r4jiYXyfcFJXCFk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 090/174] ARM: riscpc: fix lack of keyboard interrupts after irq conversion
-Date:   Thu, 16 Jan 2020 12:41:27 -0500
-Message-Id: <20200116174251.24326-90-sashal@kernel.org>
+        kgdb-bugreport@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.4 091/174] kdb: do a sanity check on the cpu in kdb_per_cpu()
+Date:   Thu, 16 Jan 2020 12:41:28 -0500
+Message-Id: <20200116174251.24326-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -43,40 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 63a0666bca9311f35017be454587f3ba903644b8 ]
+[ Upstream commit b586627e10f57ee3aa8f0cfab0d6f7dc4ae63760 ]
 
-Fix lack of keyboard interrupts for RiscPC due to incorrect conversion.
+The "whichcpu" comes from argv[3].  The cpu_online() macro looks up the
+cpu in a bitmap of online cpus, but if the value is too high then it
+could read beyond the end of the bitmap and possibly Oops.
 
-Fixes: e8d36d5dbb6a ("ARM: kill off set_irq_flags usage")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: 5d5314d6795f ("kdb: core for kgdb back end (1 of 2)")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-rpc/irq.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/debug/kdb/kdb_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-rpc/irq.c b/arch/arm/mach-rpc/irq.c
-index 66502e6207fe..fce7fecbd8fa 100644
---- a/arch/arm/mach-rpc/irq.c
-+++ b/arch/arm/mach-rpc/irq.c
-@@ -117,7 +117,7 @@ extern unsigned char rpc_default_fiq_start, rpc_default_fiq_end;
- 
- void __init rpc_init_irq(void)
- {
--	unsigned int irq, clr, set = 0;
-+	unsigned int irq, clr, set;
- 
- 	iomd_writeb(0, IOMD_IRQMASKA);
- 	iomd_writeb(0, IOMD_IRQMASKB);
-@@ -129,6 +129,7 @@ void __init rpc_init_irq(void)
- 
- 	for (irq = 0; irq < NR_IRQS; irq++) {
- 		clr = IRQ_NOREQUEST;
-+		set = 0;
- 
- 		if (irq <= 6 || (irq >= 9 && irq <= 15))
- 			clr |= IRQ_NOPROBE;
+diff --git a/kernel/debug/kdb/kdb_main.c b/kernel/debug/kdb/kdb_main.c
+index ebc52c7bd8a6..cba287a5c976 100644
+--- a/kernel/debug/kdb/kdb_main.c
++++ b/kernel/debug/kdb/kdb_main.c
+@@ -2632,7 +2632,7 @@ static int kdb_per_cpu(int argc, const char **argv)
+ 		diag = kdbgetularg(argv[3], &whichcpu);
+ 		if (diag)
+ 			return diag;
+-		if (!cpu_online(whichcpu)) {
++		if (whichcpu >= nr_cpu_ids || !cpu_online(whichcpu)) {
+ 			kdb_printf("cpu %ld is not online\n", whichcpu);
+ 			return KDB_BADCPUNUM;
+ 		}
 -- 
 2.20.1
 
