@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A0C13E239
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:54:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68B4713E23B
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732415AbgAPQyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:54:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39360 "EHLO mail.kernel.org"
+        id S1729934AbgAPQym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:54:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729955AbgAPQyk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:54:40 -0500
+        id S1730776AbgAPQyl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:54:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1A9E214AF;
-        Thu, 16 Jan 2020 16:54:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F095C2176D;
+        Thu, 16 Jan 2020 16:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193679;
-        bh=VXkXkjK1OcAV5Ex2Khfw/MtuZoMJCOIv3Gy5tPbePYs=;
+        s=default; t=1579193680;
+        bh=pVmR2uthoKLDfspvx7wxCvETNXMl8k1lcP38v1hsNyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDtFyByddKmLOOTo6UC2wf6wRYBuDIuf822H+REQ6fCIwr4LTUlhb0YoWbpQbvmBt
-         nnDzcFywUNIXyavHRpCZzWqFYbvk8HYBJyYG0Ec/sxbj4eyM+fB/ADSSw+MSxBDfry
-         UUPHkAfDEZdzdeiUgnkW7a6uV1O3xNp08aCMNbjU=
+        b=YNVK5fRUJA4cT/CqhYY6CGJeWP8PRjN15R7rJhEdSn2qZp0svvM9bW8Z5vqTf14Bi
+         9HSUsi+PCbiaTSoIa8/DPfaCHwTJzhZn9wRqeiS0belC2Jcj50e2nCiD5u3ztJnfjY
+         OE5rZWww+6XZU/FOkazHAZiYPkGuSOupm6o+Mg7o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Andrew Jeffery <andrew@aj.id.au>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 203/205] gpio: aspeed: avoid return type warning
-Date:   Thu, 16 Jan 2020 11:42:58 -0500
-Message-Id: <20200116164300.6705-203-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 204/205] scsi: mpt3sas: Fix double free in attach error handling
+Date:   Thu, 16 Jan 2020 11:42:59 -0500
+Message-Id: <20200116164300.6705-204-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -44,40 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 11e299de3aced4ea23a9fb1fef6c983c8d516302 ]
+[ Upstream commit ee560e7bbab0c10cf3f0e71997fbc354ab2ee5cb ]
 
-gcc has a hard time tracking whether BUG_ON(1) ends
-execution or not:
+The caller also calls _base_release_memory_pools() on error so it leads to
+a number of double frees:
 
-drivers/gpio/gpio-aspeed-sgpio.c: In function 'bank_reg':
-drivers/gpio/gpio-aspeed-sgpio.c:112:1: error: control reaches end of non-void function [-Werror=return-type]
+drivers/scsi/mpt3sas/mpt3sas_base.c:7207 mpt3sas_base_attach() warn: 'ioc->chain_dma_pool' double freed
+drivers/scsi/mpt3sas/mpt3sas_base.c:7207 mpt3sas_base_attach() warn: 'ioc->hpr_lookup' double freed
+drivers/scsi/mpt3sas/mpt3sas_base.c:7207 mpt3sas_base_attach() warn: 'ioc->internal_lookup' double freed
+drivers/scsi/mpt3sas/mpt3sas_base.c:7207 mpt3sas_base_attach() warn: 'ioc->pcie_sgl_dma_pool' double freed
+drivers/scsi/mpt3sas/mpt3sas_base.c:7207 mpt3sas_base_attach() warn: 'ioc->reply_dma_pool' double freed
+drivers/scsi/mpt3sas/mpt3sas_base.c:7207 mpt3sas_base_attach() warn: 'ioc->reply_free_dma_pool' double freed
+drivers/scsi/mpt3sas/mpt3sas_base.c:7207 mpt3sas_base_attach() warn: 'ioc->reply_post_free_array_dma_pool' double freed
+drivers/scsi/mpt3sas/mpt3sas_base.c:7207 mpt3sas_base_attach() warn: 'ioc->reply_post_free_dma_pool' double freed
+drivers/scsi/mpt3sas/mpt3sas_base.c:7207 mpt3sas_base_attach() warn: 'ioc->sense_dma_pool' double freed
 
-Use the simpler BUG() that gcc knows cannot continue.
-
-Fixes: f8b410e3695a ("gpio: aspeed-sgpio: Rename and add Kconfig/Makefile")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Andrew Jeffery <andrew@aj.id.au>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: 74522a92bbf0 ("scsi: mpt3sas: Optimize I/O memory consumption in driver.")
+Link: https://lore.kernel.org/r/20191203093652.gyntgvnkw2udatyc@kili.mountain
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/sgpio-aspeed.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpio/sgpio-aspeed.c b/drivers/gpio/sgpio-aspeed.c
-index 7e99860ca447..8319812593e3 100644
---- a/drivers/gpio/sgpio-aspeed.c
-+++ b/drivers/gpio/sgpio-aspeed.c
-@@ -107,7 +107,7 @@ static void __iomem *bank_reg(struct aspeed_sgpio *gpio,
- 		return gpio->base + bank->irq_regs + GPIO_IRQ_STATUS;
- 	default:
- 		/* acturally if code runs to here, it's an error case */
--		BUG_ON(1);
-+		BUG();
- 	}
- }
- 
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index fea3cb6a090b..752b71cfbe12 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -5234,7 +5234,6 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc)
+ 					&ct->chain_buffer_dma);
+ 			if (!ct->chain_buffer) {
+ 				ioc_err(ioc, "chain_lookup: pci_pool_alloc failed\n");
+-				_base_release_memory_pools(ioc);
+ 				goto out;
+ 			}
+ 		}
 -- 
 2.20.1
 
