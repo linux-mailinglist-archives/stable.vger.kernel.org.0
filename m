@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2587B13FF42
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CABA13FE24
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:34:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731151AbgAPXlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:41:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59254 "EHLO mail.kernel.org"
+        id S2403928AbgAPXc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:32:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390123AbgAPX10 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:27:26 -0500
+        id S2404235AbgAPXc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:32:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D7D820684;
-        Thu, 16 Jan 2020 23:27:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F2F72072B;
+        Thu, 16 Jan 2020 23:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217245;
-        bh=heSSPlgUmAbexyzw0wI8y/0NCsNoYvE9fmtUfYhOM7E=;
+        s=default; t=1579217575;
+        bh=lNwvgoE/PBtC0RiZuyLt2rKFKfMXnJYmrTD/qeV7Iio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HDbDU895p/OJXsMEePtaTRNGMP0MLA+HvNX4qC4E4aMmwtfnsy15tlF7GkcyA0spR
-         7hPKWIs0if8tzWuiWyofzzLg4y2+l4CqnS5x3nHRVyErHkoOtcOj2sQOk96cxXqS9p
-         ApaCS5fFq9Mw8+y9t39tUi/aJzaV9U8ucfgyr35E=
+        b=Ns1N//zlAnDtiCXz7zbKDIh/LmzGkoYeNMQ7+Qp0gmUp2BT3y2Wp4xxOZGTFypHWZ
+         2XbA3FHM5wgM6i/7OI4d81+ufFJgLTbCc6WgMKmFF4dQhc1MYesTd1kMe342A3gW7a
+         2QK6QM798BC/tOW4UE96/va6tM7gTHoIROIdOYBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Sasha Levin <sashal@kernel.org>,
-        John Garry <john.garry@huawei.com>
-Subject: [PATCH 5.4 189/203] tomoyo: Suppress RCU warning at list_for_each_entry_rcu().
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.14 28/71] cifs: Adjust indentation in smb2_open_file
 Date:   Fri, 17 Jan 2020 00:18:26 +0100
-Message-Id: <20200116231800.796145213@linuxfoundation.org>
+Message-Id: <20200116231713.551353359@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
-References: <20200116231745.218684830@linuxfoundation.org>
+In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
+References: <20200116231709.377772748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,174 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 6bd5ce6089b561f5392460bfb654dea89356ab1b ]
+commit 7935799e041ae10d380d04ea23868240f082bd11 upstream.
 
-John Garry has reported that allmodconfig kernel on arm64 causes flood of
-"RCU-list traversed in non-reader section!!" warning. I don't know what
-change caused this warning, but this warning is safe because TOMOYO uses
-SRCU lock instead. Let's suppress this warning by explicitly telling that
-the caller is holding SRCU lock.
+Clang warns:
 
-Reported-and-tested-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+../fs/cifs/smb2file.c:70:3: warning: misleading indentation; statement
+is not part of the previous 'if' [-Wmisleading-indentation]
+         if (oparms->tcon->use_resilient) {
+         ^
+../fs/cifs/smb2file.c:66:2: note: previous statement is here
+        if (rc)
+        ^
+1 warning generated.
+
+This warning occurs because there is a space after the tab on this line.
+Remove it so that the indentation is consistent with the Linux kernel
+coding style and clang no longer warns.
+
+Fixes: 592fafe644bf ("Add resilienthandles mount parm")
+Link: https://github.com/ClangBuiltLinux/linux/issues/826
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- security/tomoyo/common.c |  9 ++++++---
- security/tomoyo/domain.c | 15 ++++++++++-----
- security/tomoyo/group.c  |  9 ++++++---
- security/tomoyo/util.c   |  6 ++++--
- 4 files changed, 26 insertions(+), 13 deletions(-)
+ fs/cifs/smb2file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/tomoyo/common.c b/security/tomoyo/common.c
-index dd3d5942e669..c36bafbcd77e 100644
---- a/security/tomoyo/common.c
-+++ b/security/tomoyo/common.c
-@@ -951,7 +951,8 @@ static bool tomoyo_manager(void)
- 	exe = tomoyo_get_exe();
- 	if (!exe)
- 		return false;
--	list_for_each_entry_rcu(ptr, &tomoyo_kernel_namespace.policy_list[TOMOYO_ID_MANAGER], head.list) {
-+	list_for_each_entry_rcu(ptr, &tomoyo_kernel_namespace.policy_list[TOMOYO_ID_MANAGER], head.list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		if (!ptr->head.is_deleted &&
- 		    (!tomoyo_pathcmp(domainname, ptr->manager) ||
- 		     !strcmp(exe, ptr->manager->name))) {
-@@ -1095,7 +1096,8 @@ static int tomoyo_delete_domain(char *domainname)
- 	if (mutex_lock_interruptible(&tomoyo_policy_lock))
- 		return -EINTR;
- 	/* Is there an active domain? */
--	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list) {
-+	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		/* Never delete tomoyo_kernel_domain */
- 		if (domain == &tomoyo_kernel_domain)
- 			continue;
-@@ -2778,7 +2780,8 @@ void tomoyo_check_profile(void)
- 
- 	tomoyo_policy_loaded = true;
- 	pr_info("TOMOYO: 2.6.0\n");
--	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list) {
-+	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		const u8 profile = domain->profile;
- 		struct tomoyo_policy_namespace *ns = domain->ns;
- 
-diff --git a/security/tomoyo/domain.c b/security/tomoyo/domain.c
-index 8526a0a74023..7869d6a9980b 100644
---- a/security/tomoyo/domain.c
-+++ b/security/tomoyo/domain.c
-@@ -41,7 +41,8 @@ int tomoyo_update_policy(struct tomoyo_acl_head *new_entry, const int size,
- 
- 	if (mutex_lock_interruptible(&tomoyo_policy_lock))
- 		return -ENOMEM;
--	list_for_each_entry_rcu(entry, list, list) {
-+	list_for_each_entry_rcu(entry, list, list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		if (entry->is_deleted == TOMOYO_GC_IN_PROGRESS)
- 			continue;
- 		if (!check_duplicate(entry, new_entry))
-@@ -119,7 +120,8 @@ int tomoyo_update_domain(struct tomoyo_acl_info *new_entry, const int size,
- 	}
- 	if (mutex_lock_interruptible(&tomoyo_policy_lock))
+--- a/fs/cifs/smb2file.c
++++ b/fs/cifs/smb2file.c
+@@ -69,7 +69,7 @@ smb2_open_file(const unsigned int xid, s
  		goto out;
--	list_for_each_entry_rcu(entry, list, list) {
-+	list_for_each_entry_rcu(entry, list, list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		if (entry->is_deleted == TOMOYO_GC_IN_PROGRESS)
- 			continue;
- 		if (!tomoyo_same_acl_head(entry, new_entry) ||
-@@ -166,7 +168,8 @@ void tomoyo_check_acl(struct tomoyo_request_info *r,
- 	u16 i = 0;
  
- retry:
--	list_for_each_entry_rcu(ptr, list, list) {
-+	list_for_each_entry_rcu(ptr, list, list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		if (ptr->is_deleted || ptr->type != r->param_type)
- 			continue;
- 		if (!check_entry(r, ptr))
-@@ -298,7 +301,8 @@ static inline bool tomoyo_scan_transition
- {
- 	const struct tomoyo_transition_control *ptr;
  
--	list_for_each_entry_rcu(ptr, list, head.list) {
-+	list_for_each_entry_rcu(ptr, list, head.list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		if (ptr->head.is_deleted || ptr->type != type)
- 			continue;
- 		if (ptr->domainname) {
-@@ -735,7 +739,8 @@ retry:
- 
- 		/* Check 'aggregator' directive. */
- 		candidate = &exename;
--		list_for_each_entry_rcu(ptr, list, head.list) {
-+		list_for_each_entry_rcu(ptr, list, head.list,
-+					srcu_read_lock_held(&tomoyo_ss)) {
- 			if (ptr->head.is_deleted ||
- 			    !tomoyo_path_matches_pattern(&exename,
- 							 ptr->original_name))
-diff --git a/security/tomoyo/group.c b/security/tomoyo/group.c
-index a37c7dc66e44..1cecdd797597 100644
---- a/security/tomoyo/group.c
-+++ b/security/tomoyo/group.c
-@@ -133,7 +133,8 @@ tomoyo_path_matches_group(const struct tomoyo_path_info *pathname,
- {
- 	struct tomoyo_path_group *member;
- 
--	list_for_each_entry_rcu(member, &group->member_list, head.list) {
-+	list_for_each_entry_rcu(member, &group->member_list, head.list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		if (member->head.is_deleted)
- 			continue;
- 		if (!tomoyo_path_matches_pattern(pathname, member->member_name))
-@@ -161,7 +162,8 @@ bool tomoyo_number_matches_group(const unsigned long min,
- 	struct tomoyo_number_group *member;
- 	bool matched = false;
- 
--	list_for_each_entry_rcu(member, &group->member_list, head.list) {
-+	list_for_each_entry_rcu(member, &group->member_list, head.list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		if (member->head.is_deleted)
- 			continue;
- 		if (min > member->number.values[1] ||
-@@ -191,7 +193,8 @@ bool tomoyo_address_matches_group(const bool is_ipv6, const __be32 *address,
- 	bool matched = false;
- 	const u8 size = is_ipv6 ? 16 : 4;
- 
--	list_for_each_entry_rcu(member, &group->member_list, head.list) {
-+	list_for_each_entry_rcu(member, &group->member_list, head.list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		if (member->head.is_deleted)
- 			continue;
- 		if (member->address.is_ipv6 != is_ipv6)
-diff --git a/security/tomoyo/util.c b/security/tomoyo/util.c
-index 52752e1a84ed..eba0b3395851 100644
---- a/security/tomoyo/util.c
-+++ b/security/tomoyo/util.c
-@@ -594,7 +594,8 @@ struct tomoyo_domain_info *tomoyo_find_domain(const char *domainname)
- 
- 	name.name = domainname;
- 	tomoyo_fill_path_info(&name);
--	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list) {
-+	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		if (!domain->is_deleted &&
- 		    !tomoyo_pathcmp(&name, domain->domainname))
- 			return domain;
-@@ -1028,7 +1029,8 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
- 		return false;
- 	if (!domain)
- 		return true;
--	list_for_each_entry_rcu(ptr, &domain->acl_info_list, list) {
-+	list_for_each_entry_rcu(ptr, &domain->acl_info_list, list,
-+				srcu_read_lock_held(&tomoyo_ss)) {
- 		u16 perm;
- 		u8 i;
- 
--- 
-2.20.1
-
+-	 if (oparms->tcon->use_resilient) {
++	if (oparms->tcon->use_resilient) {
+ 		nr_ioctl_req.Timeout = 0; /* use server default (120 seconds) */
+ 		nr_ioctl_req.Reserved = 0;
+ 		rc = SMB2_ioctl(xid, oparms->tcon, fid->persistent_fid,
 
 
