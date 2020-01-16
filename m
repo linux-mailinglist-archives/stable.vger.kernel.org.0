@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5419413E0CC
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D18613E0D2
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:46:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729662AbgAPQpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:45:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54782 "EHLO mail.kernel.org"
+        id S1729299AbgAPQp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:45:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729652AbgAPQps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:45:48 -0500
+        id S1726928AbgAPQpz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:45:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A22920663;
-        Thu, 16 Jan 2020 16:45:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CA4C2081E;
+        Thu, 16 Jan 2020 16:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193147;
-        bh=XE2klW2Xr95+dG2ep4W7epYAmE+ecpW6fcCc9rcxbBU=;
+        s=default; t=1579193154;
+        bh=zrtug52BmZXPYpKd1XK968zeRSRJc2alCuFgpYu/tK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQCZjiTiE6M8wGsqd+Km871d8geYdviEvQ2bWqdb5bCgBCK9FcdPLH6r9Vfuqf+Rn
-         yh0oQrk3VbMrU4T+T7ho5Ydsadj94wU4z0holo5351flDWTPyleMUL2dN8l186ihQ2
-         DP43sY08nyK6Ewy2sDAxQTxyAVvdjKyjIDI4HeOs=
+        b=qZ80nJes95A0EtwUVl+xtYVbbnV5p9bwEE/invClvQmw2/JJzonV5epPJ7E/ChVuq
+         gte70akMowggxXPPrm387o8wwyJ2+94tANP3NvJ5FtX7SxCJuJaUCgVUWLCxPyfFNp
+         5i5xSKHhtDc4Qg60lc0CRI8QrR6BMHf/ruhDutyE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>,
-        Evan Green <evgreen@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 034/205] soc: qcom: llcc: Name regmaps to avoid collisions
-Date:   Thu, 16 Jan 2020 11:40:09 -0500
-Message-Id: <20200116164300.6705-34-sashal@kernel.org>
+Cc:     Douglas Anderson <dianders@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 035/205] drm/rockchip: Round up _before_ giving to the clock framework
+Date:   Thu, 16 Jan 2020 11:40:10 -0500
+Message-Id: <20200116164300.6705-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -45,45 +46,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 2bfd3e7651addcaf48f12d4f11ea9d8fca6c3aa8 ]
+[ Upstream commit 287422a95fe28e05c1952de0472e0dfdffa6caae ]
 
-We'll end up with debugfs collisions if we don't give names to the
-regmaps created by this driver. Change the name of the config before
-registering it so we don't collide in debugfs.
+I'm embarassed to say that even though I've touched
+vop_crtc_mode_fixup() twice and I swear I tested it, there's still a
+stupid glaring bug in it.  Specifically, on veyron_minnie (with all
+the latest display timings) we want to be setting our pixel clock to
+66,666,666.67 Hz and we tell userspace that's what we set, but we're
+actually choosing 66,000,000 Hz.  This is confirmed by looking at the
+clock tree.
 
-Fixes: 7f9c136216c7 ("soc: qcom: Add broadcast base for Last Level Cache Controller (LLCC)")
-Cc: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
-Reviewed-by: Evan Green <evgreen@chromium.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+The problem is that in drm_display_mode_from_videomode() we convert
+from Hz to kHz with:
+
+  dmode->clock = vm->pixelclock / 1000;
+
+...and drm_display_mode_from_videomode() is called from panel-simple
+when we have an "override_mode" like we do on veyron_minnie.  See
+commit 123643e5c40a ("ARM: dts: rockchip: Specify
+rk3288-veyron-minnie's display timings").
+
+...so when the device tree specifies a clock of 66666667 for the panel
+then DRM translates that to 66666000.  The clock framework will always
+pick a clock that is _lower_ than the one requested, so it will refuse
+to pick 66666667 and we'll end up at 66000000.
+
+While we could try to fix drm_display_mode_from_videomode() to round
+to the nearest kHz and it would fix our problem, it wouldn't help if
+the clock we actually needed was 60,000,001 Hz.  We could
+alternatively have DRM always round up, but maybe this would break
+someone else who already baked in the assumption that DRM rounds down.
+Specifically note that clock drivers are not consistent about whether
+they round up or round down when you call clk_set_rate().  We know how
+Rockchip's clock driver works, but (for instance) you can see that on
+most Qualcomm clocks the default is clk_rcg2_ops which rounds up.
+
+Let's solve this by just adding 999 Hz before calling
+clk_round_rate().  This should be safe and work everywhere.  As
+discussed in more detail in comments in the commit, Rockchip's PLLs
+are configured in a way that there shouldn't be another PLL setting
+that is only a few kHz off so we won't get mixed up.
+
+NOTE: if this is picked to stable, it's probably easiest to first pick
+commit 527e4ca3b6d1 ("drm/rockchip: Base adjustments of the mode based
+on prev adjustments") which shouldn't hurt in stable.
+
+Fixes: b59b8de31497 ("drm/rockchip: return a true clock rate to adjusted_mode")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191003114726.v2.1.Ib233b3e706cf6317858384264d5b0ed35657456e@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/llcc-slice.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 37 +++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soc/qcom/llcc-slice.c b/drivers/soc/qcom/llcc-slice.c
-index 9090ea12eaf3..4a6111635f82 100644
---- a/drivers/soc/qcom/llcc-slice.c
-+++ b/drivers/soc/qcom/llcc-slice.c
-@@ -48,7 +48,7 @@
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+index 613404f86668..84e3decb17b1 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+@@ -1040,10 +1040,41 @@ static bool vop_crtc_mode_fixup(struct drm_crtc *crtc,
+ 				struct drm_display_mode *adjusted_mode)
+ {
+ 	struct vop *vop = to_vop(crtc);
++	unsigned long rate;
  
- static struct llcc_drv_data *drv_data = (void *) -EPROBE_DEFER;
+-	adjusted_mode->clock =
+-		DIV_ROUND_UP(clk_round_rate(vop->dclk,
+-					    adjusted_mode->clock * 1000), 1000);
++	/*
++	 * Clock craziness.
++	 *
++	 * Key points:
++	 *
++	 * - DRM works in in kHz.
++	 * - Clock framework works in Hz.
++	 * - Rockchip's clock driver picks the clock rate that is the
++	 *   same _OR LOWER_ than the one requested.
++	 *
++	 * Action plan:
++	 *
++	 * 1. When DRM gives us a mode, we should add 999 Hz to it.  That way
++	 *    if the clock we need is 60000001 Hz (~60 MHz) and DRM tells us to
++	 *    make 60000 kHz then the clock framework will actually give us
++	 *    the right clock.
++	 *
++	 *    NOTE: if the PLL (maybe through a divider) could actually make
++	 *    a clock rate 999 Hz higher instead of the one we want then this
++	 *    could be a problem.  Unfortunately there's not much we can do
++	 *    since it's baked into DRM to use kHz.  It shouldn't matter in
++	 *    practice since Rockchip PLLs are controlled by tables and
++	 *    even if there is a divider in the middle I wouldn't expect PLL
++	 *    rates in the table that are just a few kHz different.
++	 *
++	 * 2. Get the clock framework to round the rate for us to tell us
++	 *    what it will actually make.
++	 *
++	 * 3. Store the rounded up rate so that we don't need to worry about
++	 *    this in the actual clk_set_rate().
++	 */
++	rate = clk_round_rate(vop->dclk, adjusted_mode->clock * 1000 + 999);
++	adjusted_mode->clock = DIV_ROUND_UP(rate, 1000);
  
--static const struct regmap_config llcc_regmap_config = {
-+static struct regmap_config llcc_regmap_config = {
- 	.reg_bits = 32,
- 	.reg_stride = 4,
- 	.val_bits = 32,
-@@ -323,6 +323,7 @@ static struct regmap *qcom_llcc_init_mmio(struct platform_device *pdev,
- 	if (IS_ERR(base))
- 		return ERR_CAST(base);
- 
-+	llcc_regmap_config.name = name;
- 	return devm_regmap_init_mmio(&pdev->dev, base, &llcc_regmap_config);
+ 	return true;
  }
- 
 -- 
 2.20.1
 
