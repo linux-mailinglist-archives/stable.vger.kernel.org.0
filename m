@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DBDA13F73C
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:10:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40EA613F73A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:10:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726973AbgAPTKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:10:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50238 "EHLO mail.kernel.org"
+        id S2387844AbgAPRAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:00:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387837AbgAPRAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:00:30 -0500
+        id S2387839AbgAPRAb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:00:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 268842467C;
-        Thu, 16 Jan 2020 17:00:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A68E24681;
+        Thu, 16 Jan 2020 17:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194029;
-        bh=3eSdQKBCKCZUZxrA8ohD1vqLNUjmacg3tdsdP3Ld41c=;
+        s=default; t=1579194030;
+        bh=gmmjYdhVeD7er2tUkAkAiRFI6JSPKXZj5K+epVd+gqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XjuTvFYeuxqI2R2WefEkXbdUzsg/JyYnCPp5ZXMgRh/xdfWFCA47U6cqE6T68Lhi+
-         WSkiqVTQLrUgWnuhn5oo6Fl1IvjEklhrVHqTW9mBKeXpQzLlfJWG+BCLZOwmeRu7CP
-         Z9Y7IR0Kv9hOfUdHdUPQ4JIVLPHo+T+HmcKDgKBA=
+        b=2AbJg6Z/Fv9fQF23X0Z+fBQM2/zqA/G+ScwVg0cZOHzJOcBnCKpZQ3dAMw/RJpOO8
+         Fxu6ZNjjsTAf49+LT6zS8j/shgrI8qRlHwo+5hzKX82jfxTuOw75Fwp77x86qFT8YY
+         OYfJu1+o6lJWi9NBUodIaCDcqM+8Otzjm6DeGjto=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vladimir Zapolskiy <vz@mleia.com>, Sasha Levin <sashal@kernel.org>,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 149/671] ARM: dts: lpc32xx: fix ARM PrimeCell LCD controller variant
-Date:   Thu, 16 Jan 2020 11:50:58 -0500
-Message-Id: <20200116165940.10720-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 150/671] ARM: dts: lpc32xx: fix ARM PrimeCell LCD controller clocks property
+Date:   Thu, 16 Jan 2020 11:50:59 -0500
+Message-Id: <20200116165940.10720-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -44,32 +44,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vladimir Zapolskiy <vz@mleia.com>
 
-[ Upstream commit 7a0790a4121cbcd111cc537cdc801c46ccb789ee ]
+[ Upstream commit 30fc01bae3cda747e7d9c352b1aa51ca113c8a9d ]
 
-ARM PrimeCell PL111 LCD controller is found on On NXP LPC3230
-and LPC3250 SoCs variants, the original reference in compatible
-property to an older one ARM PrimeCell PL110 is invalid.
+The originally added ARM PrimeCell PL111 clocks property misses
+the required "clcdclk" clock, which is the same as a clock to enable
+the LCD controller on NXP LPC3230 and NXP LPC3250 SoCs.
 
-Fixes: e04920d9efcb3 ("ARM: LPC32xx: DTS files for device tree conversion")
+Fixes: 93898eb775e5 ("arm: dts: lpc32xx: add clock properties to device nodes")
 Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/lpc32xx.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/lpc32xx.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/boot/dts/lpc32xx.dtsi b/arch/arm/boot/dts/lpc32xx.dtsi
-index 4f8f671c3343..cfd422e7f774 100644
+index cfd422e7f774..9ad3df11db0d 100644
 --- a/arch/arm/boot/dts/lpc32xx.dtsi
 +++ b/arch/arm/boot/dts/lpc32xx.dtsi
-@@ -139,7 +139,7 @@
- 		};
- 
- 		clcd: clcd@31040000 {
--			compatible = "arm,pl110", "arm,primecell";
-+			compatible = "arm,pl111", "arm,primecell";
+@@ -142,8 +142,8 @@
+ 			compatible = "arm,pl111", "arm,primecell";
  			reg = <0x31040000 0x1000>;
  			interrupts = <14 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&clk LPC32XX_CLK_LCD>;
+-			clocks = <&clk LPC32XX_CLK_LCD>;
+-			clock-names = "apb_pclk";
++			clocks = <&clk LPC32XX_CLK_LCD>, <&clk LPC32XX_CLK_LCD>;
++			clock-names = "clcdclk", "apb_pclk";
+ 			status = "disabled";
+ 		};
+ 
 -- 
 2.20.1
 
