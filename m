@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEC2A13E9C4
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:40:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1D713E9CD
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:40:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393561AbgAPRj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:39:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56756 "EHLO mail.kernel.org"
+        id S2393588AbgAPRkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:40:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387950AbgAPRj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:39:58 -0500
+        id S2389326AbgAPRkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:40:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B93012470B;
-        Thu, 16 Jan 2020 17:39:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7BBC246FC;
+        Thu, 16 Jan 2020 17:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196397;
-        bh=k9k1upsn1p+uXZi8guLsNkJjkMkBN4Xwc9p6+wuw4Qc=;
+        s=default; t=1579196405;
+        bh=WyWH7LNQJ0NSwvH5kHYfLW+98iJEQECuZ3jEX0WehT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9hUym4NhuhOg69Ntci9sYN/tE2ZCN4vZOoNSKqnW8vntuF9jfShqZHARKvFKGDKv
-         0rXTDPcn3le4ay896UoGj0pg3FqCn56M6LA27f4FbBX61wd/c481cTss1XI59ZKcWW
-         1xKV6wiiK8bQF+7rcPMJEgOWP8RftHovwBrIXavc=
+        b=UQk7Pfqqpx7QdJzoOMJwxk1mYf96oPmPy+C5CnFEqfVKHX2i+Nsh+AMmaHJDjvVaF
+         kfbI8EirTrZbr4REXG5AutFQPyd4/DlFQCcmRNRDDS2s+5BB3Ltqnji/WdoIfV+Y58
+         Hnd8dTElYVKdG86jNrHNZCWonGV4xNw1v8p4zvg4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Wise <pabs3@bonedaddy.net>, Jakub Wilk <jwilk@jwilk.net>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 175/251] coredump: split pipe command whitespace before expanding template
-Date:   Thu, 16 Jan 2020 12:35:24 -0500
-Message-Id: <20200116173641.22137-135-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.9 181/251] ASoC: cs4349: Use PM ops 'cs4349_runtime_pm'
+Date:   Thu, 16 Jan 2020 12:35:30 -0500
+Message-Id: <20200116173641.22137-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -45,196 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Wise <pabs3@bonedaddy.net>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 315c69261dd3fa12dbc830d4fa00d1fad98d3b03 ]
+[ Upstream commit 9b4275c415acca6264a3d7f1182589959c93d530 ]
 
-Save the offsets of the start of each argument to avoid having to update
-pointers to each argument after every corename krealloc and to avoid
-having to duplicate the memory for the dump command.
+sound/soc/codecs/cs4349.c:358:32: warning:
+ cs4349_runtime_pm defined but not used [-Wunused-const-variable=]
 
-Executable names containing spaces were previously being expanded from
-%e or %E and then split in the middle of the filename.  This is
-incorrect behaviour since an argument list can represent arguments with
-spaces.
+cs4349_runtime_pm ops already defined, it seems
+we should enable it.
 
-The splitting could lead to extra arguments being passed to the core
-dump handler that it might have interpreted as options or ignored
-completely.
-
-Core dump handlers that are not aware of this Linux kernel issue will be
-using %e or %E without considering that it may be split and so they will
-be vulnerable to processes with spaces in their names breaking their
-argument list.  If their internals are otherwise well written, such as
-if they are written in shell but quote arguments, they will work better
-after this change than before.  If they are not well written, then there
-is a slight chance of breakage depending on the details of the code but
-they will already be fairly broken by the split filenames.
-
-Core dump handlers that are aware of this Linux kernel issue will be
-placing %e or %E as the last item in their core_pattern and then
-aggregating all of the remaining arguments into one, separated by
-spaces.  Alternatively they will be obtaining the filename via other
-methods.  Both of these will be compatible with the new arrangement.
-
-A side effect from this change is that unknown template types (for
-example %z) result in an empty argument to the dump handler instead of
-the argument being dropped.  This is a desired change as:
-
-It is easier for dump handlers to process empty arguments than dropped
-ones, especially if they are written in shell or don't pass each
-template item with a preceding command-line option in order to
-differentiate between individual template types.  Most core_patterns in
-the wild do not use options so they can confuse different template types
-(especially numeric ones) if an earlier one gets dropped in old kernels.
-If the kernel introduces a new template type and a core_pattern uses it,
-the core dump handler might not expect that the argument can be dropped
-in old kernels.
-
-For example, this can result in security issues when %d is dropped in
-old kernels.  This happened with the corekeeper package in Debian and
-resulted in the interface between corekeeper and Linux having to be
-rewritten to use command-line options to differentiate between template
-types.
-
-The core_pattern for most core dump handlers is written by the handler
-author who would generally not insert unknown template types so this
-change should be compatible with all the core dump handlers that exist.
-
-Link: http://lkml.kernel.org/r/20190528051142.24939-1-pabs3@bonedaddy.net
-Fixes: 74aadce98605 ("core_pattern: allow passing of arguments to user mode helper when core_pattern is a pipe")
-Signed-off-by: Paul Wise <pabs3@bonedaddy.net>
-Reported-by: Jakub Wilk <jwilk@jwilk.net> [https://bugs.debian.org/924398]
-Reported-by: Paul Wise <pabs3@bonedaddy.net> [https://lore.kernel.org/linux-fsdevel/c8b7ecb8508895bf4adb62a748e2ea2c71854597.camel@bonedaddy.net/]
-Suggested-by: Jakub Wilk <jwilk@jwilk.net>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: e40da86 ("ASoC: cs4349: Add support for Cirrus Logic CS4349")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20190815090157.70036-1-yuehaibing@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/coredump.c | 44 +++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 39 insertions(+), 5 deletions(-)
+ sound/soc/codecs/cs4349.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/coredump.c b/fs/coredump.c
-index 4407e27beca9..98a45a727eb8 100644
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -6,6 +6,7 @@
- #include <linux/stat.h>
- #include <linux/fcntl.h>
- #include <linux/swap.h>
-+#include <linux/ctype.h>
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/pagemap.h>
-@@ -184,11 +185,13 @@ static int cn_print_exe_file(struct core_name *cn)
-  * name into corename, which must have space for at least
-  * CORENAME_MAX_SIZE bytes plus one byte for the zero terminator.
-  */
--static int format_corename(struct core_name *cn, struct coredump_params *cprm)
-+static int format_corename(struct core_name *cn, struct coredump_params *cprm,
-+			   size_t **argv, int *argc)
- {
- 	const struct cred *cred = current_cred();
- 	const char *pat_ptr = core_pattern;
- 	int ispipe = (*pat_ptr == '|');
-+	bool was_space = false;
- 	int pid_in_pattern = 0;
- 	int err = 0;
- 
-@@ -198,12 +201,35 @@ static int format_corename(struct core_name *cn, struct coredump_params *cprm)
- 		return -ENOMEM;
- 	cn->corename[0] = '\0';
- 
--	if (ispipe)
-+	if (ispipe) {
-+		int argvs = sizeof(core_pattern) / 2;
-+		(*argv) = kmalloc_array(argvs, sizeof(**argv), GFP_KERNEL);
-+		if (!(*argv))
-+			return -ENOMEM;
-+		(*argv)[(*argc)++] = 0;
- 		++pat_ptr;
-+	}
- 
- 	/* Repeat as long as we have more pattern to process and more output
- 	   space */
- 	while (*pat_ptr) {
-+		/*
-+		 * Split on spaces before doing template expansion so that
-+		 * %e and %E don't get split if they have spaces in them
-+		 */
-+		if (ispipe) {
-+			if (isspace(*pat_ptr)) {
-+				was_space = true;
-+				pat_ptr++;
-+				continue;
-+			} else if (was_space) {
-+				was_space = false;
-+				err = cn_printf(cn, "%c", '\0');
-+				if (err)
-+					return err;
-+				(*argv)[(*argc)++] = cn->used;
-+			}
-+		}
- 		if (*pat_ptr != '%') {
- 			err = cn_printf(cn, "%c", *pat_ptr++);
- 		} else {
-@@ -543,6 +569,8 @@ void do_coredump(const siginfo_t *siginfo)
- 	struct cred *cred;
- 	int retval = 0;
- 	int ispipe;
-+	size_t *argv = NULL;
-+	int argc = 0;
- 	struct files_struct *displaced;
- 	/* require nonrelative corefile path and be extra careful */
- 	bool need_suid_safe = false;
-@@ -589,9 +617,10 @@ void do_coredump(const siginfo_t *siginfo)
- 
- 	old_cred = override_creds(cred);
- 
--	ispipe = format_corename(&cn, &cprm);
-+	ispipe = format_corename(&cn, &cprm, &argv, &argc);
- 
- 	if (ispipe) {
-+		int argi;
- 		int dump_count;
- 		char **helper_argv;
- 		struct subprocess_info *sub_info;
-@@ -634,12 +663,16 @@ void do_coredump(const siginfo_t *siginfo)
- 			goto fail_dropcount;
- 		}
- 
--		helper_argv = argv_split(GFP_KERNEL, cn.corename, NULL);
-+		helper_argv = kmalloc_array(argc + 1, sizeof(*helper_argv),
-+					    GFP_KERNEL);
- 		if (!helper_argv) {
- 			printk(KERN_WARNING "%s failed to allocate memory\n",
- 			       __func__);
- 			goto fail_dropcount;
- 		}
-+		for (argi = 0; argi < argc; argi++)
-+			helper_argv[argi] = cn.corename + argv[argi];
-+		helper_argv[argi] = NULL;
- 
- 		retval = -ENOMEM;
- 		sub_info = call_usermodehelper_setup(helper_argv[0],
-@@ -649,7 +682,7 @@ void do_coredump(const siginfo_t *siginfo)
- 			retval = call_usermodehelper_exec(sub_info,
- 							  UMH_WAIT_EXEC);
- 
--		argv_free(helper_argv);
-+		kfree(helper_argv);
- 		if (retval) {
- 			printk(KERN_INFO "Core dump to |%s pipe failed\n",
- 			       cn.corename);
-@@ -768,6 +801,7 @@ void do_coredump(const siginfo_t *siginfo)
- 	if (ispipe)
- 		atomic_dec(&core_dump_count);
- fail_unlock:
-+	kfree(argv);
- 	kfree(cn.corename);
- 	coredump_finish(mm, core_dumped);
- 	revert_creds(old_cred);
+diff --git a/sound/soc/codecs/cs4349.c b/sound/soc/codecs/cs4349.c
+index 231ca935cdf3..c232c42ccead 100644
+--- a/sound/soc/codecs/cs4349.c
++++ b/sound/soc/codecs/cs4349.c
+@@ -380,6 +380,7 @@ static struct i2c_driver cs4349_i2c_driver = {
+ 	.driver = {
+ 		.name		= "cs4349",
+ 		.of_match_table	= cs4349_of_match,
++		.pm = &cs4349_runtime_pm,
+ 	},
+ 	.id_table	= cs4349_i2c_id,
+ 	.probe		= cs4349_i2c_probe,
 -- 
 2.20.1
 
