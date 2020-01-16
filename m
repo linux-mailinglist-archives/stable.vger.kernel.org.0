@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF1D13F690
+	by mail.lfdr.de (Postfix) with ESMTP id 5AC7B13F68F
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:05:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388220AbgAPRB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:01:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53782 "EHLO mail.kernel.org"
+        id S2387769AbgAPRB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:01:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733180AbgAPRBz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:01:55 -0500
+        id S2388175AbgAPRB5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:01:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02CEE21582;
-        Thu, 16 Jan 2020 17:01:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ACC82081E;
+        Thu, 16 Jan 2020 17:01:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194114;
-        bh=YQ/Hcyv+U1F9awMquJDtHPpWKxuAbPdy3YF5Mp56J9o=;
+        s=default; t=1579194116;
+        bh=tTcpS4fMweFGPuF73zO73l//c04F/MWl1fevjg/SfZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=okHWbA6wXlGlsJ4rqusMjuzWgrtmD2JPeVrc6MGyVmdRYcbtPmJ+GY7DrkzIlgxuF
-         EI7B+PMmDs3wkQ1kGJSNCt/rMMJsHhoao5qzitdMofd+QXXXVoL4z0I8EobcrcnL6w
-         TdqjHTloCOr9O9n8MnMsKO2+QCW7MMrICWYch4vE=
+        b=VeHfksrCWMzIkoMH6oLELtmrt/KmIiYfL5duZEVAPSHTKkFy3nqeFpbqtZnFBgXQk
+         y4tZ3N7Av84QyqSS/T/HhXkm+u7zaI0xJ73nb+OB0Blzva02Tcv7AxUv0rov2Lsn8L
+         HnEg8HNJGdiYeNm+mb/7kYhRgqR0zXBGDnvW1lCE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Andrew Donnellan <andrew.donnellan@au1.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 210/671] powerpc/64s: Fix logic when handling unknown CPU features
-Date:   Thu, 16 Jan 2020 11:51:59 -0500
-Message-Id: <20200116165940.10720-93-sashal@kernel.org>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 211/671] NFS: Fix a soft lockup in the delegation recovery code
+Date:   Thu, 16 Jan 2020 11:52:00 -0500
+Message-Id: <20200116165940.10720-94-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,78 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 8cfaf106918a8c13abb24c641556172afbb9545c ]
+[ Upstream commit 6f9449be53f3ce383caed797708b332ede8d952c ]
 
-In cpufeatures_process_feature(), if a provided CPU feature is unknown and
-enable_unknown is false, we erroneously print that the feature is being
-enabled and return true, even though no feature has been enabled, and
-may also set feature bits based on the last entry in the match table.
+Fix a soft lockup when NFS client delegation recovery is attempted
+but the inode is in the process of being freed. When the
+igrab(inode) call fails, and we have to restart the recovery process,
+we need to ensure that we won't attempt to recover the same delegation
+again.
 
-Fix this so that we only set feature bits from the match table if we have
-actually enabled a feature from that table, and when failing to enable an
-unknown feature, always print the "not enabling" message and return false.
-
-Coincidentally, some older gccs (<GCC 7), when invoked with
--fsanitize-coverage=trace-pc, cause a spurious uninitialised variable
-warning in this function:
-
-  arch/powerpc/kernel/dt_cpu_ftrs.c: In function ‘cpufeatures_process_feature’:
-  arch/powerpc/kernel/dt_cpu_ftrs.c:686:7: warning: ‘m’ may be used uninitialized in this function [-Wmaybe-uninitialized]
-    if (m->cpu_ftr_bit_mask)
-
-An upcoming patch will enable support for kcov, which requires this option.
-This patch avoids the warning.
-
-Fixes: 5a61ef74f269 ("powerpc/64s: Support new device tree binding for discovering CPU features")
-Reported-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-[ajd: add commit message]
-Signed-off-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
+Fixes: 45870d6909d5a ("NFSv4.1: Test delegation stateids when server...")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/dt_cpu_ftrs.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ fs/nfs/delegation.c | 20 ++++++++++++--------
+ fs/nfs/delegation.h |  1 +
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/kernel/dt_cpu_ftrs.c b/arch/powerpc/kernel/dt_cpu_ftrs.c
-index c6f41907f0d7..a4b31e17492d 100644
---- a/arch/powerpc/kernel/dt_cpu_ftrs.c
-+++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
-@@ -666,8 +666,10 @@ static bool __init cpufeatures_process_feature(struct dt_cpu_feature *f)
- 		m = &dt_cpu_feature_match_table[i];
- 		if (!strcmp(f->name, m->name)) {
- 			known = true;
--			if (m->enable(f))
-+			if (m->enable(f)) {
-+				cur_cpu_spec->cpu_features |= m->cpu_ftr_bit_mask;
- 				break;
-+			}
+diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
+index 74ff459b75ef..b0c0c2fc2fba 100644
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -240,6 +240,8 @@ static struct inode *nfs_delegation_grab_inode(struct nfs_delegation *delegation
+ 	spin_lock(&delegation->lock);
+ 	if (delegation->inode != NULL)
+ 		inode = igrab(delegation->inode);
++	if (!inode)
++		set_bit(NFS_DELEGATION_INODE_FREEING, &delegation->flags);
+ 	spin_unlock(&delegation->lock);
+ 	return inode;
+ }
+@@ -955,10 +957,11 @@ void nfs_delegation_reap_unclaimed(struct nfs_client *clp)
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+ 		list_for_each_entry_rcu(delegation, &server->delegations,
+ 								super_list) {
+-			if (test_bit(NFS_DELEGATION_RETURNING,
+-						&delegation->flags))
+-				continue;
+-			if (test_bit(NFS_DELEGATION_NEED_RECLAIM,
++			if (test_bit(NFS_DELEGATION_INODE_FREEING,
++						&delegation->flags) ||
++			    test_bit(NFS_DELEGATION_RETURNING,
++						&delegation->flags) ||
++			    test_bit(NFS_DELEGATION_NEED_RECLAIM,
+ 						&delegation->flags) == 0)
+ 				continue;
+ 			if (!nfs_sb_active(server->super))
+@@ -1064,10 +1067,11 @@ void nfs_reap_expired_delegations(struct nfs_client *clp)
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+ 		list_for_each_entry_rcu(delegation, &server->delegations,
+ 								super_list) {
+-			if (test_bit(NFS_DELEGATION_RETURNING,
+-						&delegation->flags))
+-				continue;
+-			if (test_bit(NFS_DELEGATION_TEST_EXPIRED,
++			if (test_bit(NFS_DELEGATION_INODE_FREEING,
++						&delegation->flags) ||
++			    test_bit(NFS_DELEGATION_RETURNING,
++						&delegation->flags) ||
++			    test_bit(NFS_DELEGATION_TEST_EXPIRED,
+ 						&delegation->flags) == 0)
+ 				continue;
+ 			if (!nfs_sb_active(server->super))
+diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
+index dd0f3eed3890..f09b153ac82f 100644
+--- a/fs/nfs/delegation.h
++++ b/fs/nfs/delegation.h
+@@ -34,6 +34,7 @@ enum {
+ 	NFS_DELEGATION_RETURNING,
+ 	NFS_DELEGATION_REVOKED,
+ 	NFS_DELEGATION_TEST_EXPIRED,
++	NFS_DELEGATION_INODE_FREEING,
+ };
  
- 			pr_info("not enabling: %s (disabled or unsupported by kernel)\n",
- 				f->name);
-@@ -675,17 +677,12 @@ static bool __init cpufeatures_process_feature(struct dt_cpu_feature *f)
- 		}
- 	}
- 
--	if (!known && enable_unknown) {
--		if (!feat_try_enable_unknown(f)) {
--			pr_info("not enabling: %s (unknown and unsupported by kernel)\n",
--				f->name);
--			return false;
--		}
-+	if (!known && (!enable_unknown || !feat_try_enable_unknown(f))) {
-+		pr_info("not enabling: %s (unknown and unsupported by kernel)\n",
-+			f->name);
-+		return false;
- 	}
- 
--	if (m->cpu_ftr_bit_mask)
--		cur_cpu_spec->cpu_features |= m->cpu_ftr_bit_mask;
--
- 	if (known)
- 		pr_debug("enabling: %s\n", f->name);
- 	else
+ int nfs_inode_set_delegation(struct inode *inode, struct rpc_cred *cred,
 -- 
 2.20.1
 
