@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4387913F6FD
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:08:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE76313F6FA
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:08:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733234AbgAPTIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:08:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51302 "EHLO mail.kernel.org"
+        id S2387956AbgAPRA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:00:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387603AbgAPRAz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:00:55 -0500
+        id S2387949AbgAPRA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:00:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A65EC24681;
-        Thu, 16 Jan 2020 17:00:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22E732073A;
+        Thu, 16 Jan 2020 17:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194054;
-        bh=6tbWse5YIad23UlpSnJKpX5qDdf3DTWQozuulfx/+RI=;
+        s=default; t=1579194055;
+        bh=dBLPW9njnuUVOoAFzsSRiHy03VMXVhY5zLhOEo4mUIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXOQx+1TaY3M7t7QrcrC8LKk5ajh/WMPJCSf48zLFPFOvRhIq6JKJ7ebpXrIEt2/8
-         Pt7YH9S/d1B55BO0mTEhExHVbl1kEIi+MH+g+78Co5k0+dAHKBdF7XK32jDOYwv2F1
-         tXrd/BwOGlUGUIZa2amfc/M2fKUKg79+YBzgwuKw=
+        b=BB7LVwrAb8dEGrOW4jN3LMJigL2SC/Fm8e58SG7GoRkLvEShwsETYMpWUjsAyJFFt
+         0/A3KZqxC22RnIp/sDYLdBv3hZ6V9yM/qUdoo0FkCu5zKeBlpHns/Xk3v9qSC2ivdc
+         9CCV9AonO2kLEfjdGRqwQO+jcjAmAA0qCQVZw2+w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve Wise <swise@opengridcomputing.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 168/671] iw_cxgb4: use tos when finding ipv6 routes
-Date:   Thu, 16 Jan 2020 11:51:17 -0500
-Message-Id: <20200116165940.10720-51-sashal@kernel.org>
+Cc:     Nicholas Mc Guire <hofrat@osadl.org>,
+        Corey Minyard <cminyard@mvista.com>,
+        Haiyue Wang <haiyue.wang@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        openipmi-developer@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.19 169/671] ipmi: kcs_bmc: handle devm_kasprintf() failure case
+Date:   Thu, 16 Jan 2020 11:51:18 -0500
+Message-Id: <20200116165940.10720-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -43,44 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Wise <swise@opengridcomputing.com>
+From: Nicholas Mc Guire <hofrat@osadl.org>
 
-[ Upstream commit c8a7eb554a83214c3d8ee5cb322da8c72810d2dc ]
+[ Upstream commit 42c7c6ef1e6fa5fc0425120f06f045190b1dda2d ]
 
-When IPv6 support was added, the correct tos was not passed to
-cxgb_find_route6(). This potentially results in the wrong route entry.
+devm_kasprintf() may return NULL if internal allocation failed so this
+assignment is not safe. Moved the error exit path and added the !NULL
+which then allows the devres manager to take care of cleanup.
 
-Fixes: 830662f6f032 ("RDMA/cxgb4: Add support for active and passive open connection with IPv6 address")
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+Fixes: cd2315d471f4 ("ipmi: kcs_bmc: don't change device name")
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Reviewed-by: Haiyue Wang <haiyue.wang@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 5 +++--
+ drivers/char/ipmi/kcs_bmc.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 3c8b7eae918c..16145b0a1458 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -2166,7 +2166,8 @@ static int c4iw_reconnect(struct c4iw_ep *ep)
- 					   laddr6->sin6_addr.s6_addr,
- 					   raddr6->sin6_addr.s6_addr,
- 					   laddr6->sin6_port,
--					   raddr6->sin6_port, 0,
-+					   raddr6->sin6_port,
-+					   ep->com.cm_id->tos,
- 					   raddr6->sin6_scope_id);
- 		iptype = 6;
- 		ra = (__u8 *)&raddr6->sin6_addr;
-@@ -3326,7 +3327,7 @@ int c4iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
- 					   laddr6->sin6_addr.s6_addr,
- 					   raddr6->sin6_addr.s6_addr,
- 					   laddr6->sin6_port,
--					   raddr6->sin6_port, 0,
-+					   raddr6->sin6_port, cm_id->tos,
- 					   raddr6->sin6_scope_id);
- 	}
- 	if (!ep->dst) {
+diff --git a/drivers/char/ipmi/kcs_bmc.c b/drivers/char/ipmi/kcs_bmc.c
+index e6124bd548df..ed4dc3b1843e 100644
+--- a/drivers/char/ipmi/kcs_bmc.c
++++ b/drivers/char/ipmi/kcs_bmc.c
+@@ -440,12 +440,13 @@ struct kcs_bmc *kcs_bmc_alloc(struct device *dev, int sizeof_priv, u32 channel)
+ 	kcs_bmc->data_in = devm_kmalloc(dev, KCS_MSG_BUFSIZ, GFP_KERNEL);
+ 	kcs_bmc->data_out = devm_kmalloc(dev, KCS_MSG_BUFSIZ, GFP_KERNEL);
+ 	kcs_bmc->kbuffer = devm_kmalloc(dev, KCS_MSG_BUFSIZ, GFP_KERNEL);
+-	if (!kcs_bmc->data_in || !kcs_bmc->data_out || !kcs_bmc->kbuffer)
+-		return NULL;
+ 
+ 	kcs_bmc->miscdev.minor = MISC_DYNAMIC_MINOR;
+ 	kcs_bmc->miscdev.name = devm_kasprintf(dev, GFP_KERNEL, "%s%u",
+ 					       DEVICE_NAME, channel);
++	if (!kcs_bmc->data_in || !kcs_bmc->data_out || !kcs_bmc->kbuffer ||
++	    !kcs_bmc->miscdev.name)
++		return NULL;
+ 	kcs_bmc->miscdev.fops = &kcs_bmc_fops;
+ 
+ 	return kcs_bmc;
 -- 
 2.20.1
 
