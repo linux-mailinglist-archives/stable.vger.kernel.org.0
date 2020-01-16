@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B332313F841
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:18:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F87213F7DA
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733241AbgAPTRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:17:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
+        id S1733043AbgAPQze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:55:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732955AbgAPQz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:55:29 -0500
+        id S1732974AbgAPQzd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:55:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99BD420730;
-        Thu, 16 Jan 2020 16:55:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1765C214AF;
+        Thu, 16 Jan 2020 16:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193729;
-        bh=aX7ifRBNjLV4P2WSjgKpSySenyZPKe/92qia74ikSpM=;
+        s=default; t=1579193733;
+        bh=BH+UMe8kz/i8Qjt0xEQMMAUh1+STexvodu+9TBUe6fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=REESr598VvRipbs6BUyv2+jkx4T+ZuYc7TQap51G9srO4pj5GzjEVjLDxdjk5iXFM
-         cpqAtuOFaTzrUoO7Np85+BvyoqOlbeKJRajm7Cw47EGAxuFXTcZ4S+0mbySHC12hTI
-         xbipoPb+Ne3cRV0zezS+kVAC2e6sCV83eww7JvVA=
+        b=sF+NTYVZm0HYVsSaGEt5m99QqXbI2LAYPy62ljfyhZoCTCk8gJPFI3tVZP6FrdxSw
+         E37AA8fgDb/+dfPzxbciIpnjgvBBUhsJ1/EzqcP00wTR3kDD0ukDe8tv/TI4rbwhah
+         cxYWgQJFhytsXAqFXwNgt5C3aPW6mqNbiqVI0Ed4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 022/671] usb: dwc3: add EXTCON dependency for qcom
-Date:   Thu, 16 Jan 2020 11:44:13 -0500
-Message-Id: <20200116165502.8838-22-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 025/671] regulator: fixed: Default enable high on DT regulators
+Date:   Thu, 16 Jan 2020 11:44:16 -0500
+Message-Id: <20200116165502.8838-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -43,42 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 3def4031b3e3fbb524cbd01555b057a6cef0d5e6 ]
+[ Upstream commit 28be5f15df2ee6882b0a122693159c96a28203c7 ]
 
-Like the omap back-end, we get a link error with CONFIG_EXTCON=m
-when building the qcom back-end into the kernel:
+commit efdfeb079cc3
+("regulator: fixed: Convert to use GPIO descriptor only")
+switched to use gpiod_get() to look up the regulator from the
+gpiolib core whether that is device tree or boardfile.
 
-drivers/usb/dwc3/dwc3-qcom.o: In function `dwc3_qcom_probe':
-dwc3-qcom.c:(.text+0x13dc): undefined reference to `extcon_get_edev_by_phandle'
-dwc3-qcom.c:(.text+0x1b18): undefined reference to `devm_extcon_register_notifier'
-dwc3-qcom.c:(.text+0x1b9c): undefined reference to `extcon_get_state'
+This meant that we activate the code in
+a603a2b8d86e ("gpio: of: Add special quirk to parse regulator flags")
+which means the descriptors coming from the device tree already
+have the right inversion and open drain semantics set up from
+the gpiolib core.
 
-Do the same thing as OMAP and add an explicit dependency on
-EXTCON.
+As the fixed regulator was inspected again we got the
+inverted inversion and things broke.
 
-Fixes: a4333c3a6ba9 ("usb: dwc3: Add Qualcomm DWC3 glue driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fix it by ignoring the config in the device tree for now: the
+later patches in the series will push all inversion handling
+over to the gpiolib core and set it up properly in the
+boardfiles for legacy devices, but I did not finish that
+for this kernel cycle.
+
+Fixes: commit efdfeb079cc3 ("regulator: fixed: Convert to use GPIO descriptor only")
+Reported-by: Leonard Crestez <leonard.crestez@nxp.com>
+Reported-by: Fabio Estevam <festevam@gmail.com>
+Reported-by: John Stultz <john.stultz@linaro.org>
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Tested-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/fixed.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/dwc3/Kconfig b/drivers/usb/dwc3/Kconfig
-index 518ead12458d..1a0404fda596 100644
---- a/drivers/usb/dwc3/Kconfig
-+++ b/drivers/usb/dwc3/Kconfig
-@@ -113,7 +113,7 @@ config USB_DWC3_ST
+diff --git a/drivers/regulator/fixed.c b/drivers/regulator/fixed.c
+index 988a7472c2ab..d68ff65a5adc 100644
+--- a/drivers/regulator/fixed.c
++++ b/drivers/regulator/fixed.c
+@@ -84,9 +84,14 @@ of_get_fixed_voltage_config(struct device *dev,
  
- config USB_DWC3_QCOM
- 	tristate "Qualcomm Platform"
--	depends on ARCH_QCOM || COMPILE_TEST
-+	depends on EXTCON && (ARCH_QCOM || COMPILE_TEST)
- 	depends on OF
- 	default USB_DWC3
- 	help
+ 	of_property_read_u32(np, "startup-delay-us", &config->startup_delay);
+ 
+-	config->enable_high = of_property_read_bool(np, "enable-active-high");
+-	config->gpio_is_open_drain = of_property_read_bool(np,
+-							   "gpio-open-drain");
++	/*
++	 * FIXME: we pulled active low/high and open drain handling into
++	 * gpiolib so it will be handled there. Delete this in the second
++	 * step when we also remove the custom inversion handling for all
++	 * legacy boardfiles.
++	 */
++	config->enable_high = 1;
++	config->gpio_is_open_drain = 0;
+ 
+ 	if (of_find_property(np, "vin-supply", NULL))
+ 		config->input_supply = "vin";
 -- 
 2.20.1
 
