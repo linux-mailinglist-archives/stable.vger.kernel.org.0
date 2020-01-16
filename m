@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDCA213FDE9
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E052E13FDEB
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404138AbgAPXai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:30:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37240 "EHLO mail.kernel.org"
+        id S2404149AbgAPXak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:30:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403886AbgAPXaZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:30:25 -0500
+        id S2403924AbgAPXa1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:30:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71B9C2087E;
-        Thu, 16 Jan 2020 23:30:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1F372072B;
+        Thu, 16 Jan 2020 23:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217424;
-        bh=hNUI5rCXY/JGwB+H+BOV4HGykXp69tf62roWzp9ofdo=;
+        s=default; t=1579217427;
+        bh=7SrXtY3zhTAIs5OpgjwMMDDZzdGmV1xifK4ax0OnMDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qglhAIjR9xNwyxaClz1jfrSrb/uUhuR2bLuLvpGHuYBOMGBedCVtW/4RbZf/pAksQ
-         l+3LCsFBexYjml+SxaYQDEl4Mfsj5h/NwbUl24tAFNdd3cf5CGd0PufLU8qAJ/ybp6
-         MkIc8ZTtrQeOKvykmwQPvP3YLTGyAiY/KC+Behmg=
+        b=DQoCpW/x9fREcrz7GcKC33WwKl/plsl5S123mapuGSVtJFTe4SalJt9jkFTumy3De
+         29TRAloAvrcW5hMvownm8zaX/q0tAaRBjWrLsh5zKr1SeabZ8mfIB7kXF/7YLMPgLT
+         oyqTTEVAZH1AulSNMzzUGekMYs9zY3jZxdG4Gpe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
+        stable@vger.kernel.org, Jouni Hogander <jouni.hogander@unikie.com>,
         Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 77/84] mips: cacheinfo: report shared CPU map
-Date:   Fri, 17 Jan 2020 00:18:51 +0100
-Message-Id: <20200116231722.592602605@linuxfoundation.org>
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 78/84] MIPS: Prevent link failure with kcov instrumentation
+Date:   Fri, 17 Jan 2020 00:18:52 +0100
+Message-Id: <20200116231722.693197398@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
 References: <20200116231713.087649517@linuxfoundation.org>
@@ -47,81 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-[ Upstream commit 3b1313eb32c499d46dc4c3e896d19d9564c879c4 ]
+[ Upstream commit a4a3893114a41e365274d5fab5d9ff5acc235ff0 ]
 
-Report L1 caches as shared per core; L2 - per cluster.
+__sanitizer_cov_trace_pc() is not linked in and causing link
+failure if KCOV_INSTRUMENT is enabled. Fix this by disabling
+instrumentation for compressed image.
 
-This fixes "perf" that went crazy if shared_cpu_map attribute not
-reported on sysfs, in form of
-
-/sys/devices/system/cpu/cpu*/cache/index*/shared_cpu_list
-/sys/devices/system/cpu/cpu*/cache/index*/shared_cpu_map
-
-Signed-off-by: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
 Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/cacheinfo.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ arch/mips/boot/compressed/Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/mips/kernel/cacheinfo.c b/arch/mips/kernel/cacheinfo.c
-index 428ef2189203..3ea95568ece4 100644
---- a/arch/mips/kernel/cacheinfo.c
-+++ b/arch/mips/kernel/cacheinfo.c
-@@ -61,6 +61,25 @@ static int __init_cache_level(unsigned int cpu)
- 	return 0;
- }
+diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
+index 172801ed35b8..d859f079b771 100644
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -29,6 +29,9 @@ KBUILD_AFLAGS := $(KBUILD_AFLAGS) -D__ASSEMBLY__ \
+ 	-DBOOT_HEAP_SIZE=$(BOOT_HEAP_SIZE) \
+ 	-DKERNEL_ENTRY=$(VMLINUX_ENTRY_ADDRESS)
  
-+static void fill_cpumask_siblings(int cpu, cpumask_t *cpu_map)
-+{
-+	int cpu1;
++# Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
++KCOV_INSTRUMENT		:= n
 +
-+	for_each_possible_cpu(cpu1)
-+		if (cpus_are_siblings(cpu, cpu1))
-+			cpumask_set_cpu(cpu1, cpu_map);
-+}
-+
-+static void fill_cpumask_cluster(int cpu, cpumask_t *cpu_map)
-+{
-+	int cpu1;
-+	int cluster = cpu_cluster(&cpu_data[cpu]);
-+
-+	for_each_possible_cpu(cpu1)
-+		if (cpu_cluster(&cpu_data[cpu1]) == cluster)
-+			cpumask_set_cpu(cpu1, cpu_map);
-+}
-+
- static int __populate_cache_leaves(unsigned int cpu)
- {
- 	struct cpuinfo_mips *c = &current_cpu_data;
-@@ -68,14 +87,20 @@ static int __populate_cache_leaves(unsigned int cpu)
- 	struct cacheinfo *this_leaf = this_cpu_ci->info_list;
+ # decompressor objects (linked with vmlinuz)
+ vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o
  
- 	if (c->icache.waysize) {
-+		/* L1 caches are per core */
-+		fill_cpumask_siblings(cpu, &this_leaf->shared_cpu_map);
- 		populate_cache(dcache, this_leaf, 1, CACHE_TYPE_DATA);
-+		fill_cpumask_siblings(cpu, &this_leaf->shared_cpu_map);
- 		populate_cache(icache, this_leaf, 1, CACHE_TYPE_INST);
- 	} else {
- 		populate_cache(dcache, this_leaf, 1, CACHE_TYPE_UNIFIED);
- 	}
- 
--	if (c->scache.waysize)
-+	if (c->scache.waysize) {
-+		/* L2 cache is per cluster */
-+		fill_cpumask_cluster(cpu, &this_leaf->shared_cpu_map);
- 		populate_cache(scache, this_leaf, 2, CACHE_TYPE_UNIFIED);
-+	}
- 
- 	if (c->tcache.waysize)
- 		populate_cache(tcache, this_leaf, 3, CACHE_TYPE_UNIFIED);
 -- 
 2.20.1
 
