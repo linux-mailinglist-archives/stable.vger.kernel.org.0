@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1D1013F49F
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:53:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B34513F4A0
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:53:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389376AbgAPRIY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:08:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41886 "EHLO mail.kernel.org"
+        id S2389409AbgAPRI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:08:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389393AbgAPRIW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:22 -0500
+        id S2389404AbgAPRI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:08:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 703802192A;
-        Thu, 16 Jan 2020 17:08:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0191B24680;
+        Thu, 16 Jan 2020 17:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194502;
-        bh=ktKayj4vR4a5/DigIu8znMV+M/E0kYyG1sE7OYTItto=;
+        s=default; t=1579194505;
+        bh=URb5oi0uii864bHDgX1XC/e4s9mgbrlqdK3in4NId6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGdjIggqI02Ejhe6q+fGX2YIspoNw7A3iFLNkw2eBBFXtQ9p6iyXafW8POH+YHnEB
-         mV4zUDBNhiQTHf95Uw1exl0lukzbr78Y8Blyf9hbC0+fOEg1fkcEueBirwq+df50rW
-         9VuPBaApoTq4MAGvYrIbyIbRcy0q2df6VCZ/IrwY=
+        b=R5eeg/9UqOq/uNs2OVQGZ+yQ1Lj+/6Tp+PjxHhk50jblnl7cTW3YSgBWUEd8q+82x
+         xpSuCLOL3FzR1kCa78K8XGZVDqFaxHrAkBDI5NuFCZYGYULhkh4R80vBThcJCPbZ+C
+         wtc/Lj2c0yS6sXOyVAucjamWo7M73l4DYeId84c8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Antoine Tenart <antoine.tenart@bootlin.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 398/671] crypto: inside-secure - fix zeroing of the request in ahash_exit_inv
-Date:   Thu, 16 Jan 2020 12:00:36 -0500
-Message-Id: <20200116170509.12787-135-sashal@kernel.org>
+Cc:     George Wilkie <gwilkie@vyatta.att-mail.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 401/671] mpls: fix warning with multi-label encap
+Date:   Thu, 16 Jan 2020 12:00:39 -0500
+Message-Id: <20200116170509.12787-138-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -43,36 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <antoine.tenart@bootlin.com>
+From: George Wilkie <gwilkie@vyatta.att-mail.com>
 
-[ Upstream commit b926213d6fede9c9427d7c12eaf7d9f0895deb4e ]
+[ Upstream commit 2f3f7d1fa0d1039b24a55d127ed190f196fc3e79 ]
 
-A request is zeroed in safexcel_ahash_exit_inv(). This request total
-size is EIP197_AHASH_REQ_SIZE while the memset zeroing it uses
-sizeof(struct ahash_request), which happens to be less than
-EIP197_AHASH_REQ_SIZE. This patch fixes it.
+If you configure a route with multiple labels, e.g.
+  ip route add 10.10.3.0/24 encap mpls 16/100 via 10.10.2.2 dev ens4
+A warning is logged:
+  kernel: [  130.561819] netlink: 'ip': attribute type 1 has an invalid
+  length.
 
-Fixes: f6beaea30487 ("crypto: inside-secure - authenc(hmac(sha256), cbc(aes)) support")
-Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This happens because mpls_iptunnel_policy has set the type of
+MPLS_IPTUNNEL_DST to fixed size NLA_U32.
+Change it to a minimum size.
+nla_get_labels() does the remaining validation.
+
+Fixes: e3e4712ec096 ("mpls: ip tunnel support")
+Signed-off-by: George Wilkie <gwilkie@vyatta.att-mail.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/inside-secure/safexcel_hash.c | 2 +-
+ net/mpls/mpls_iptunnel.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/inside-secure/safexcel_hash.c b/drivers/crypto/inside-secure/safexcel_hash.c
-index ac9282c1a5ec..9a02f64a45b9 100644
---- a/drivers/crypto/inside-secure/safexcel_hash.c
-+++ b/drivers/crypto/inside-secure/safexcel_hash.c
-@@ -486,7 +486,7 @@ static int safexcel_ahash_exit_inv(struct crypto_tfm *tfm)
- 	struct safexcel_inv_result result = {};
- 	int ring = ctx->base.ring;
+diff --git a/net/mpls/mpls_iptunnel.c b/net/mpls/mpls_iptunnel.c
+index 94f53a9b7d1a..faf6ef1b6a45 100644
+--- a/net/mpls/mpls_iptunnel.c
++++ b/net/mpls/mpls_iptunnel.c
+@@ -28,7 +28,7 @@
+ #include "internal.h"
  
--	memset(req, 0, sizeof(struct ahash_request));
-+	memset(req, 0, EIP197_AHASH_REQ_SIZE);
+ static const struct nla_policy mpls_iptunnel_policy[MPLS_IPTUNNEL_MAX + 1] = {
+-	[MPLS_IPTUNNEL_DST]	= { .type = NLA_U32 },
++	[MPLS_IPTUNNEL_DST]	= { .len = sizeof(u32) },
+ 	[MPLS_IPTUNNEL_TTL]	= { .type = NLA_U8 },
+ };
  
- 	/* create invalidation request */
- 	init_completion(&result.completion);
 -- 
 2.20.1
 
