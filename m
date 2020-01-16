@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1003C13E61B
+	by mail.lfdr.de (Postfix) with ESMTP id 831DC13E61C
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:18:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391508AbgAPRSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:18:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46320 "EHLO mail.kernel.org"
+        id S2390752AbgAPRSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:18:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391500AbgAPRSe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:18:34 -0500
+        id S2391511AbgAPRSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:18:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55CED246B1;
-        Thu, 16 Jan 2020 17:18:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56B0D246BF;
+        Thu, 16 Jan 2020 17:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195113;
-        bh=sWpa2y8fHyk6ekBEo3VUHiD0FLbIa44FyJCC4qslH4c=;
+        s=default; t=1579195115;
+        bh=0xobRyoduVI+vbV4RQEXgdcoSC69M+uVlzQ0t7y5Dqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABxzw8WGyP/1vjT4tMxq33Kq8BE6X1Z4NEeotdy5sFcqRrCdr6Q8Cb3F/PFavSAO3
-         aIfIgo8EPy4s6d5svL2AhoBD7CMd+uL6BxSQnxTChfLeTGFPTG3ceohYjBxSEGTygS
-         KVmGUypB77kL1hccKphXrDZx9SSDtAll1TfJW390=
+        b=0Z0g2TYriHChNLPFTE0QsRy+nn3PpzqhSIk8vHDSQtGwwMuX0lOphOzw6AQlSLkub
+         CWFo/KE2ng3F3nNoWWAtDj6ADRjVEJFINY2egUotO02aDgza0mw8d8NA0vuN9j7Wwf
+         pxVYK9MIdfRsPaU4HmjRQkPpqdaSi6hYBNlMfBh4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Loic Poulain <loic.poulain@linaro.org>,
-        Manabu Igusa <migusa@arrowjapan.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Andy Gross <andy.gross@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 054/371] arm64: dts: apq8016-sbc: Increase load on l11 for SDCARD
-Date:   Thu, 16 Jan 2020 12:12:02 -0500
-Message-Id: <20200116171719.16965-54-sashal@kernel.org>
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 055/371] spi: cadence: Correct initialisation of runtime PM
+Date:   Thu, 16 Jan 2020 12:12:03 -0500
+Message-Id: <20200116171719.16965-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116171719.16965-1-sashal@kernel.org>
 References: <20200116171719.16965-1-sashal@kernel.org>
@@ -46,40 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit af61bef513ba179559e56908b8c465e587bc3890 ]
+[ Upstream commit 734882a8bf984c2ac8a57d8ac3ee53230bd0bed8 ]
 
-In the same way as for msm8974-hammerhead, l11 load, used for SDCARD
-VMMC, needs to be increased in order to prevent any voltage drop issues
-(due to limited current) happening with some SDCARDS or during specific
-operations (e.g. write).
+Currently the driver calls pm_runtime_put_autosuspend but without ever
+having done a pm_runtime_get, this causes the reference count in the pm
+runtime core to become -1. The bad reference count causes the core to
+sometimes suspend whilst an active SPI transfer is in progress.
 
-Tested on Dragonboard-410c and DART-SD410 boards.
+arizona spi0.1: SPI transfer timed out
+spi_master spi0: failed to transfer one message from queue
 
-Fixes: 4c7d53d16d77 (arm64: dts: apq8016-sbc: add regulators support)
-Reported-by: Manabu Igusa <migusa@arrowjapan.com>
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Andy Gross <andy.gross@linaro.org>
+The correct proceedure is to do all the initialisation that requires the
+hardware to be powered up before enabling the PM runtime, then enable
+the PM runtime having called pm_runtime_set_active to inform it that the
+hardware is currently powered up. The core will then power it down at
+it's leisure and no explicit pm_runtime_put is required.
+
+Fixes: d36ccd9f7ea4 ("spi: cadence: Runtime pm adaptation")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-cadence.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi b/arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi
-index b6b44fdf7fac..c1028b47edde 100644
---- a/arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi
-+++ b/arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi
-@@ -458,6 +458,8 @@
- 	l11 {
- 		regulator-min-microvolt = <1750000>;
- 		regulator-max-microvolt = <3337000>;
-+		regulator-allow-set-load;
-+		regulator-system-load = <200000>;
- 	};
+diff --git a/drivers/spi/spi-cadence.c b/drivers/spi/spi-cadence.c
+index 02bd1eba045b..d08ad93d97a1 100644
+--- a/drivers/spi/spi-cadence.c
++++ b/drivers/spi/spi-cadence.c
+@@ -584,11 +584,6 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 		goto clk_dis_apb;
+ 	}
  
- 	l12 {
+-	pm_runtime_use_autosuspend(&pdev->dev);
+-	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
+-	pm_runtime_set_active(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	ret = of_property_read_u32(pdev->dev.of_node, "num-cs", &num_cs);
+ 	if (ret < 0)
+ 		master->num_chipselect = CDNS_SPI_DEFAULT_NUM_CS;
+@@ -603,8 +598,10 @@ static int cdns_spi_probe(struct platform_device *pdev)
+ 	/* SPI controller initializations */
+ 	cdns_spi_init_hw(xspi);
+ 
+-	pm_runtime_mark_last_busy(&pdev->dev);
+-	pm_runtime_put_autosuspend(&pdev->dev);
++	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_use_autosuspend(&pdev->dev);
++	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq <= 0) {
 -- 
 2.20.1
 
