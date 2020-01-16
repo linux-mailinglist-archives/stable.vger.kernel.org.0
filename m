@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1402613F6B4
+	by mail.lfdr.de (Postfix) with ESMTP id 9029213F6B5
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:06:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437293AbgAPTGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2437284AbgAPTGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 14:06:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52894 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729199AbgAPRBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:01:36 -0500
+        id S2388130AbgAPRBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:01:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 058B621582;
-        Thu, 16 Jan 2020 17:01:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B19224653;
+        Thu, 16 Jan 2020 17:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194095;
-        bh=KT9eY9teyu9DbO7QxqE4c0V0TOwHiCWLRLe30T59hJU=;
+        s=default; t=1579194096;
+        bh=Mh2Tn7eWn8y9bDcNeYvSE7du4a5ckL384vsDHsccghA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIpl0DJZfnCD5/jbaWkYTL+eu/qfx7CuLMbMpuluyAgRPb631oSF93FUwJDJ/clgJ
-         32ompYu8bqFxuo9JxYT5Up0WO8QE+s8mZgTU0aKB1/3oIbC/PJ+kKJ5YVz5f6Y87s0
-         yaxN1h+4J2geJqQDxRtlHS9lniLopRh0LTRoQilo=
+        b=geBdrNP3wrrby3H8c4GuKC4gJsJxmeX1V4jPv4fJYWDSqLF6YHdZf85kBXVotntAQ
+         5ioVUk+GTHmlmPTOKSFuC5Kd80hJDNF8ehYPpGE8s3Lgz0d1NYKTs1+H8SF4la6F3r
+         GkcKFkUKn92kzZ7kc9LMeTllYCZhcgfZU+2bflG0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 197/671] regulator: pv88060: Fix array out-of-bounds access
-Date:   Thu, 16 Jan 2020 11:51:46 -0500
-Message-Id: <20200116165940.10720-80-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 198/671] regulator: pv88080: Fix array out-of-bounds access
+Date:   Thu, 16 Jan 2020 11:51:47 -0500
+Message-Id: <20200116165940.10720-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -44,24 +44,24 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 7cd415f875591bc66c5ecb49bf84ef97e80d7b0e ]
+[ Upstream commit 3c413f594c4f9df40061445667ca11a12bc8ee34 ]
 
 Fix off-by-one while iterating current_limits array.
 The valid index should be 0 ~ n_current_limits -1.
 
-Fixes: f307a7e9b7af ("regulator: pv88060: new regulator driver")
+Fixes: 99cf3af5e2d5 ("regulator: pv88080: new regulator driver")
 Signed-off-by: Axel Lin <axel.lin@ingics.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pv88060-regulator.c | 2 +-
+ drivers/regulator/pv88080-regulator.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/pv88060-regulator.c b/drivers/regulator/pv88060-regulator.c
-index a9446056435f..1f2d8180506b 100644
---- a/drivers/regulator/pv88060-regulator.c
-+++ b/drivers/regulator/pv88060-regulator.c
-@@ -135,7 +135,7 @@ static int pv88060_set_current_limit(struct regulator_dev *rdev, int min,
+diff --git a/drivers/regulator/pv88080-regulator.c b/drivers/regulator/pv88080-regulator.c
+index 9a08cb2de501..6770e4de2097 100644
+--- a/drivers/regulator/pv88080-regulator.c
++++ b/drivers/regulator/pv88080-regulator.c
+@@ -279,7 +279,7 @@ static int pv88080_set_current_limit(struct regulator_dev *rdev, int min,
  	int i;
  
  	/* search for closest to maximum */
@@ -69,7 +69,7 @@ index a9446056435f..1f2d8180506b 100644
 +	for (i = info->n_current_limits - 1; i >= 0; i--) {
  		if (min <= info->current_limits[i]
  			&& max >= info->current_limits[i]) {
- 			return regmap_update_bits(rdev->regmap,
+ 				return regmap_update_bits(rdev->regmap,
 -- 
 2.20.1
 
