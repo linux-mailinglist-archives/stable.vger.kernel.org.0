@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D56A613FD3C
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:24:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB1B13FD3D
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387907AbgAPXXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:23:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51952 "EHLO mail.kernel.org"
+        id S1729972AbgAPXXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:23:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729342AbgAPXXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:23:33 -0500
+        id S2391044AbgAPXXg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:23:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86AE92072B;
-        Thu, 16 Jan 2020 23:23:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 664012072B;
+        Thu, 16 Jan 2020 23:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217013;
-        bh=/tMsTo/oT215hjzh8eb0XtXBCFW3sjzqs2fUAmL6W9U=;
+        s=default; t=1579217015;
+        bh=wOWp9MgWg9YkFkHNl2ETiM5sFaQrBjkSp/k2yidDicg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPQbWsAxJdpCuKxw+vAz/aFjd8Uylwl8xM3i9ub2hX8oZ1Ecqr91fbFANiSdZmrwy
-         jb31rAevGqeQoQMMO72dKfoKpJ0YrhQUXNo60iGRgx2w2arInoyzxOsBgHjOAFetqP
-         wadj5Hv36nb/6f2DkQ9rr1ASfB+4acLr3KN3OefM=
+        b=DAwnM0APNyY3MXlEfwRXrGKS65V//VdKq0bSv6LDSZxyq8DSg8x6Lt11S+oYJuFri
+         /lq99bcJYjdQZslCJYOsjNDd8LtDBuv+Q4lSMINagI1ikQJSmxschhBob47hBZ/NKU
+         kpHJXCnwSXw/Oy12iyn/RKEuoCeKdJkyT2iH7l0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>
-Subject: [PATCH 5.4 112/203] clk: meson: axg-audio: fix regmap last register
-Date:   Fri, 17 Jan 2020 00:17:09 +0100
-Message-Id: <20200116231755.253573192@linuxfoundation.org>
+        stable@vger.kernel.org, Marian Mihailescu <mihailescu2m@gmail.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>
+Subject: [PATCH 5.4 113/203] clk: samsung: exynos5420: Preserve CPU clocks configuration during suspend/resume
+Date:   Fri, 17 Jan 2020 00:17:10 +0100
+Message-Id: <20200116231755.324704601@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -43,32 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Marian Mihailescu <mihailescu2m@gmail.com>
 
-commit 255cab9d27d78703f7450d720859ee146d0ee6e1 upstream.
+commit e21be0d1d7bd7f78a77613f6bcb6965e72b22fc1 upstream.
 
-Since the addition of the g12a, the last register is
-AUDIO_CLK_SPDIFOUT_B_CTRL.
+Save and restore top PLL related configuration registers for big (APLL)
+and LITTLE (KPLL) cores during suspend/resume cycle. So far, CPU clocks
+were reset to default values after suspend/resume cycle and performance
+after system resume was affected when performance governor has been selected.
 
-Fixes: 075001385c66 ("clk: meson: axg-audio: add g12a support")
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Fixes: 773424326b51 ("clk: samsung: exynos5420: add more registers to restore list")
+Signed-off-by: Marian Mihailescu <mihailescu2m@gmail.com>
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/meson/axg-audio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/samsung/clk-exynos5420.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/clk/meson/axg-audio.c
-+++ b/drivers/clk/meson/axg-audio.c
-@@ -1001,7 +1001,7 @@ static const struct regmap_config axg_au
- 	.reg_bits	= 32,
- 	.val_bits	= 32,
- 	.reg_stride	= 4,
--	.max_register	= AUDIO_CLK_PDMIN_CTRL1,
-+	.max_register	= AUDIO_CLK_SPDIFOUT_B_CTRL,
- };
- 
- struct audioclk_data {
+--- a/drivers/clk/samsung/clk-exynos5420.c
++++ b/drivers/clk/samsung/clk-exynos5420.c
+@@ -165,6 +165,8 @@ static const unsigned long exynos5x_clk_
+ 	GATE_BUS_CPU,
+ 	GATE_SCLK_CPU,
+ 	CLKOUT_CMU_CPU,
++	APLL_CON0,
++	KPLL_CON0,
+ 	CPLL_CON0,
+ 	DPLL_CON0,
+ 	EPLL_CON0,
 
 
