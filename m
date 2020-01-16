@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC1013E5BF
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:16:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F2E413E5BB
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730682AbgAPRQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:16:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60590 "EHLO mail.kernel.org"
+        id S2390887AbgAPRQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:16:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390862AbgAPROF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:14:05 -0500
+        id S2389686AbgAPROG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:14:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FBCC246B0;
-        Thu, 16 Jan 2020 17:14:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55B65246B8;
+        Thu, 16 Jan 2020 17:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194843;
-        bh=Ysv8L239get3oPhx1o8qSrierBPs9oAoNclaPkJv/K4=;
+        s=default; t=1579194845;
+        bh=uuGNeJ84tj3vKL1hOiXrjSINcWLgGHxFYDVBn4t2+3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwX9HGoqDZcsOq942tgFMQo6Ro8Jh1uVWAsGwUTq6vFzwk6abEE158KJuQOTLMP4I
-         ySwcBPuz5J5fKawVxtldaMtjsPqBp+X68n++ZjS+jDI8dPoAMsLNRlNzke3HuHQ4VY
-         NnEXtQhw5QcR1XpucMfZ57WOx61LpzAaq1rmEXCs=
+        b=UYgEdbjuAnjKzCukJwtEqmFa1qOmv6E7qbiYeOxQb4MYhJOMWQ28zjx1s4iUxUm6/
+         4i/S96Q57fYLBZxCA4YnfH6n1zAU81Mn13r2ZenSio8W0sdSxVireRvqf3s5DwWlaM
+         ULH1TWqdfH7MNLbSdr2+lsNfig2EEwJPtwSovYDs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Chris Chiu <chiu@endlessm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 642/671] mfd: intel-lpss: Add default I2C device properties for Gemini Lake
-Date:   Thu, 16 Jan 2020 12:04:40 -0500
-Message-Id: <20200116170509.12787-379-sashal@kernel.org>
+Cc:     Alain Volmat <alain.volmat@st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 643/671] i2c: stm32f7: report dma error during probe
+Date:   Thu, 16 Jan 2020 12:04:41 -0500
+Message-Id: <20200116170509.12787-380-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,73 +46,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Alain Volmat <alain.volmat@st.com>
 
-[ Upstream commit 3f31bc67e4dc6a555341dffefe328ddd58e8b431 ]
+[ Upstream commit d77eceb2de99f5d7e0c645bad15511fe1af59e09 ]
 
-It turned out Intel Gemini Lake doesn't use the same I2C timing
-parameters as Broxton.
+Distinguish between the case where dma information is not provided
+within the DT and the case of an error during the dma init.
+Exit the probe with error in case of an error during dma init.
 
-I got confirmation from the Windows team that Gemini Lake systems should
-use updated timing parameters that differ from those used in Broxton
-based systems.
-
-Fixes: f80e78aa11ad ("mfd: intel-lpss: Add Intel Gemini Lake PCI IDs")
-Tested-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: bb8822cbbc53 ("i2c: i2c-stm32: Add generic DMA API")
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel-lpss-pci.c | 28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-stm32.c   | 16 ++++++++--------
+ drivers/i2c/busses/i2c-stm32f7.c |  9 +++++++++
+ 2 files changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index c37c8bb86068..742d6c1973f4 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -126,6 +126,18 @@ static const struct intel_lpss_platform_info apl_i2c_info = {
- 	.properties = apl_i2c_properties,
- };
+diff --git a/drivers/i2c/busses/i2c-stm32.c b/drivers/i2c/busses/i2c-stm32.c
+index d75fbcbf02ef..667f8032f8ef 100644
+--- a/drivers/i2c/busses/i2c-stm32.c
++++ b/drivers/i2c/busses/i2c-stm32.c
+@@ -21,13 +21,13 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
  
-+static struct property_entry glk_i2c_properties[] = {
-+	PROPERTY_ENTRY_U32("i2c-sda-hold-time-ns", 313),
-+	PROPERTY_ENTRY_U32("i2c-sda-falling-time-ns", 171),
-+	PROPERTY_ENTRY_U32("i2c-scl-falling-time-ns", 290),
-+	{ },
-+};
-+
-+static const struct intel_lpss_platform_info glk_i2c_info = {
-+	.clk_rate = 133000000,
-+	.properties = glk_i2c_properties,
-+};
-+
- static const struct intel_lpss_platform_info cnl_i2c_info = {
- 	.clk_rate = 216000000,
- 	.properties = spt_i2c_properties,
-@@ -165,14 +177,14 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0x1ac6), (kernel_ulong_t)&bxt_info },
- 	{ PCI_VDEVICE(INTEL, 0x1aee), (kernel_ulong_t)&bxt_uart_info },
- 	/* GLK */
--	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b0), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b2), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b4), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b6), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31b8), (kernel_ulong_t)&bxt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x31ba), (kernel_ulong_t)&bxt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31ac), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31ae), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b0), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b2), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b4), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b6), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31b8), (kernel_ulong_t)&glk_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x31ba), (kernel_ulong_t)&glk_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x31bc), (kernel_ulong_t)&bxt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0x31be), (kernel_ulong_t)&bxt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0x31c0), (kernel_ulong_t)&bxt_uart_info },
+ 	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
+ 	if (!dma)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	/* Request and configure I2C TX dma channel */
+-	dma->chan_tx = dma_request_slave_channel(dev, "tx");
+-	if (!dma->chan_tx) {
++	dma->chan_tx = dma_request_chan(dev, "tx");
++	if (IS_ERR(dma->chan_tx)) {
+ 		dev_dbg(dev, "can't request DMA tx channel\n");
+-		ret = -EINVAL;
++		ret = PTR_ERR(dma->chan_tx);
+ 		goto fail_al;
+ 	}
+ 
+@@ -43,10 +43,10 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
+ 	}
+ 
+ 	/* Request and configure I2C RX dma channel */
+-	dma->chan_rx = dma_request_slave_channel(dev, "rx");
+-	if (!dma->chan_rx) {
++	dma->chan_rx = dma_request_chan(dev, "rx");
++	if (IS_ERR(dma->chan_rx)) {
+ 		dev_err(dev, "can't request DMA rx channel\n");
+-		ret = -EINVAL;
++		ret = PTR_ERR(dma->chan_rx);
+ 		goto fail_tx;
+ 	}
+ 
+@@ -76,7 +76,7 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
+ 	devm_kfree(dev, dma);
+ 	dev_info(dev, "can't use DMA\n");
+ 
+-	return NULL;
++	return ERR_PTR(ret);
+ }
+ 
+ void stm32_i2c_dma_free(struct stm32_i2c_dma *dma)
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index f4e3613f9361..af32a14550de 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1914,6 +1914,15 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->dma = stm32_i2c_dma_request(i2c_dev->dev, phy_addr,
+ 					     STM32F7_I2C_TXDR,
+ 					     STM32F7_I2C_RXDR);
++	if (PTR_ERR(i2c_dev->dma) == -ENODEV)
++		i2c_dev->dma = NULL;
++	else if (IS_ERR(i2c_dev->dma)) {
++		ret = PTR_ERR(i2c_dev->dma);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev,
++				"Failed to request dma error %i\n", ret);
++		goto clk_free;
++	}
+ 
+ 	ret = i2c_add_adapter(adap);
+ 	if (ret)
 -- 
 2.20.1
 
