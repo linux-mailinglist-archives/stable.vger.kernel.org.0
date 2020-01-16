@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87D7C13E0C3
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 954D413E0C7
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729221AbgAPQpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:45:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54450 "EHLO mail.kernel.org"
+        id S1729164AbgAPQpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:45:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729225AbgAPQpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:45:33 -0500
+        id S1729206AbgAPQph (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:45:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCA8921D7D;
-        Thu, 16 Jan 2020 16:45:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13D202081E;
+        Thu, 16 Jan 2020 16:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193133;
-        bh=iVaJF59sRje1+OIG8QjypzCfAKhVib/wLh/CAWkDX6E=;
+        s=default; t=1579193137;
+        bh=0DFAupzXdgEWbk2BQFDxOnnQLwkqnZ8OV7Swv5YwVrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZP6c9Z8KoTPlV5LvfDR+jehHip1oa2BKhSoZc5nzhmJY08JpToLxKfi56sTl27+Qg
-         2HlR3U+1jHSnqq/fihAhzRjRy4oCCyRJzBZO7dYG2D566gBV+wXPaTeCn+BJmPh28/
-         vIscQEZga3Odcbs6d2A0Ett4lVMVbPejPlARj7SM=
+        b=kzdkPVqpAyIamSpSXzB5sEMsQQsiW1gfscqX/nWtX5zFmb75Ju+QpDT8X4QWL4THa
+         ayRhSrY/WmfeqyheUVEDPrDRh+GJbSC+o7TqvuVoxzhysJTVo0TjRzxd76Hj4+KniW
+         4KNEzkeUZkNY5l7uMi4V5e+oGWv0OIiBLtJjjHdM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Hewitt <christianshewitt@gmail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 031/205] arm64: dts: meson-gxl-s905x-khadas-vim: fix gpio-keys-polled node
-Date:   Thu, 16 Jan 2020 11:40:06 -0500
-Message-Id: <20200116164300.6705-31-sashal@kernel.org>
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-amlogic@lists.infradead.org, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 032/205] clk: meson: axg-audio: fix regmap last register
+Date:   Thu, 16 Jan 2020 11:40:07 -0500
+Message-Id: <20200116164300.6705-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -45,42 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit d5f6fa904ecbadbb8e9fa6302b0fc165bec0559a ]
+[ Upstream commit 255cab9d27d78703f7450d720859ee146d0ee6e1 ]
 
-Fix DTC warnings:
+Since the addition of the g12a, the last register is
+AUDIO_CLK_SPDIFOUT_B_CTRL.
 
-arch/arm/dts/meson-gxl-s905x-khadas-vim.dtb: Warning (avoid_unnecessary_addr_size):
-   /gpio-keys-polled: unnecessary #address-cells/#size-cells
-      without "ranges" or child "reg" property
-
-Fixes: e15d2774b8c0 ("ARM64: dts: meson-gxl: add support for the Khadas VIM board")
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Fixes: 075001385c66 ("clk: meson: axg-audio: add g12a support")
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/clk/meson/axg-audio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-index 8d6f316a5c7b..440bc23c7342 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-@@ -33,11 +33,9 @@
+diff --git a/drivers/clk/meson/axg-audio.c b/drivers/clk/meson/axg-audio.c
+index 18b23cdf679c..aa2522624fd3 100644
+--- a/drivers/clk/meson/axg-audio.c
++++ b/drivers/clk/meson/axg-audio.c
+@@ -1001,7 +1001,7 @@ static const struct regmap_config axg_audio_regmap_cfg = {
+ 	.reg_bits	= 32,
+ 	.val_bits	= 32,
+ 	.reg_stride	= 4,
+-	.max_register	= AUDIO_CLK_PDMIN_CTRL1,
++	.max_register	= AUDIO_CLK_SPDIFOUT_B_CTRL,
+ };
  
- 	gpio-keys-polled {
- 		compatible = "gpio-keys-polled";
--		#address-cells = <1>;
--		#size-cells = <0>;
- 		poll-interval = <100>;
- 
--		button@0 {
-+		power-button {
- 			label = "power";
- 			linux,code = <KEY_POWER>;
- 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_LOW>;
+ struct audioclk_data {
 -- 
 2.20.1
 
