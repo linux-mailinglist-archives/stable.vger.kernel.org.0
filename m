@@ -2,76 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0FFB13D2EE
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 04:55:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 815C213D305
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 05:06:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729025AbgAPDzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 22:55:08 -0500
-Received: from mail-pg1-f176.google.com ([209.85.215.176]:41536 "EHLO
-        mail-pg1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728925AbgAPDzI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 22:55:08 -0500
-Received: by mail-pg1-f176.google.com with SMTP id x8so9202148pgk.8
-        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 19:55:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=j3nHEu1DU/xMbec55Y07qbW5B/4W1nCMQUwpX2IVI74=;
-        b=Jqw6oHzrsJJO4jHPliq4gkZ1Zo5LW9KWwgCbcyVCWOduILa4LKi7vHAP5aDDVHk99Z
-         CjjZAj1StWn6uaMMrlm3O4XtgoBGy6shhpruZTuAIXTw+/De1QsrHGtUP1wkpkBk9hcq
-         ExXc8cMQ/pcBTU9NcYTWUKkY8Q95MeJ0zl1aM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=j3nHEu1DU/xMbec55Y07qbW5B/4W1nCMQUwpX2IVI74=;
-        b=Yz10J+vu/LzhM/3JGFEoopMGuxgV0FFGznVmFRQL+Pb1UN7ApVGsbu5/qx3Xsgn9J8
-         PdmIi7jxIL2GVJEyh3x2vUfrzBqcn5yIVLb4nfACTW6XF8H7vNqf90TTysQ8C/muEQqU
-         mJLmUkEYDPizWuVSh9cZvdCbuCZ13wncyb70f+WN3U5CI3ofmBJkLPfrFLobo20yTN3n
-         g+tT+OEj+CPH4xOXxWl1KZJ5jSGR76vYnPTyEpM9m+12+VHKW/ZYRxpijuHkrryIao4I
-         FtFo32fh5sku15oXEhSLDHHEc1aPaWCzk/U6WcuDtcEnRlCoWB6RZZc4SoPqmpaMYk65
-         h1uw==
-X-Gm-Message-State: APjAAAUBfZUs7SXMP4opv6ONqKkxQBsLQTAHj1DPFE5px905lxtin1jw
-        ph4IMrWvdulQ6d87GHBt1egCUovjgYFzCw==
-X-Google-Smtp-Source: APXvYqzHg6+U/fMUvdmA6pMLptZKXSE7mpJ3WfvjU9KOIkqNUAoy+kqfI9oS3zVI9pbvDCAsR/i9Yg==
-X-Received: by 2002:a63:6d8d:: with SMTP id i135mr36926733pgc.90.1579146907396;
-        Wed, 15 Jan 2020 19:55:07 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:49ea:b78f:4f04:4d25])
-        by smtp.googlemail.com with ESMTPSA id g24sm24140650pfk.92.2020.01.15.19.55.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jan 2020 19:55:06 -0800 (PST)
-Date:   Wed, 15 Jan 2020 19:55:02 -0800
-From:   Zubin Mithra <zsm@chromium.org>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, groeck@chromium.org,
-        christian.koenig@amd.com, michel.daenzer@amd.com,
-        Jerry.Zhang@amd.com, ray.huang@amd.com, alexander.deucher@amd.com
-Subject: ac1e516d5a4c ("drm/ttm: fix start page for huge page check in
- ttm_put_pages()")
-Message-ID: <20200116035501.GA39586@google.com>
+        id S1729110AbgAPEG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 23:06:29 -0500
+Received: from userp2120.oracle.com ([156.151.31.85]:57878 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729048AbgAPEG2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 23:06:28 -0500
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 00G3xQ1v124597;
+        Thu, 16 Jan 2020 04:01:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
+ from : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=corp-2019-08-05;
+ bh=uKDNCB63FyMaskGVot3YarGxZwgjqh7FukgNd7alg8A=;
+ b=LI85uRZyi8UFbncNHRWnlG+OHXGlk5Mcl50KED7wwNhWSv8KS838yoDQCbtqIw/CG+CQ
+ 81qjagYHkmFAvfbezJ3/7ZrmnHG9wtxFs6yObz9/ps7EPtU4AbcxKfQbIkKE+u9qhBr+
+ gJvzNck2qf1jaWQmEkH/8uizlS50FWHBJe0UY4ps6FeJSt0ZGcp3ssQp5OsGQ0Pb311l
+ N8yFMFkvO+avJY/lZOotuMy8Mj9itZhbzsiAOd4RUSegNJ8PSh6xXWhjejmGp8CoOyRX
+ SQ02dQ1Yg+UPssyrMyUJuDBHjMuohvp+acCo9kiUOFJQUs62VHely7XWsZQ642yG0Xk0 nQ== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by userp2120.oracle.com with ESMTP id 2xf73yr1tg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Jan 2020 04:01:47 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id 00G3wWa8175503;
+        Thu, 16 Jan 2020 04:01:46 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by aserp3030.oracle.com with ESMTP id 2xj61kusae-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Jan 2020 04:01:46 +0000
+Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 00G41Z9l011886;
+        Thu, 16 Jan 2020 04:01:35 GMT
+Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Wed, 15 Jan 2020 20:01:34 -0800
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Satish Kharat <satishkh@cisco.com>,
+        Sesidhar Baddela <sebaddel@cisco.com>,
+        Karan Tilak Kumar <kartilak@cisco.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Oleksandr Natalenko <oleksandr@redhat.com>,
+        stable@vger.kernel.org, Joe Eykholt <jeykholt@cisco.com>,
+        Mike Christie <michaelc@cs.wisc.edu>,
+        Abhijeet Joglekar <abjoglek@cisco.com>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fnic: fix invalid stack access
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+Organization: Oracle Corporation
+References: <20200107201602.4096790-1-arnd@arndb.de>
+Date:   Wed, 15 Jan 2020 23:01:31 -0500
+In-Reply-To: <20200107201602.4096790-1-arnd@arndb.de> (Arnd Bergmann's message
+        of "Tue, 7 Jan 2020 21:15:49 +0100")
+Message-ID: <yq1lfq8nj6s.fsf@oracle.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9501 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=920
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1911140001 definitions=main-2001160031
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9501 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=971 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
+ definitions=main-2001160031
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-The patch :
-a66477b0efe5 ("drm/ttm: fix out-of-bounds read in ttm_put_pages() v2")
+Arnd,
 
-has been applied to linux-4.19.y. However, 2 follow-up fixes have not been applied.
+> gcc -O3 warns that some local variables are not properly initialized:
+>
+> drivers/scsi/fnic/vnic_dev.c: In function 'fnic_dev_hang_notify':
+> drivers/scsi/fnic/vnic_dev.c:511:16: error: 'a0' is used uninitialized
+> in this function [-Werror=uninitialized] vdev->args[0] = *a0;
 
-Could the following two fixes be applied to linux-4.19.y? These commits are present
-in linux-5.4.y. These patches do not have to be applied to linux-4.14.y.
+Applied to 5.5/scsi-fixes, thanks!
 
-ac1e516d5a4c ("drm/ttm: fix start page for huge page check in ttm_put_pages()")
-453393369dc9 ("drm/ttm: fix incrementing the page pointer for huge pages")
-
-
-Thanks,
-- Zubin
+-- 
+Martin K. Petersen	Oracle Linux Engineering
