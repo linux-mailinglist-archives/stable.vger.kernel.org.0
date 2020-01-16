@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F2913FE15
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:32:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3A213FDDB
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391565AbgAPXcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:32:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41770 "EHLO mail.kernel.org"
+        id S2403761AbgAPXaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:30:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391561AbgAPXcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:32:24 -0500
+        id S2403757AbgAPX36 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:29:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D73C2072E;
-        Thu, 16 Jan 2020 23:32:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECF962072E;
+        Thu, 16 Jan 2020 23:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217543;
-        bh=86Pm6fYfDDizdEsbuHEgjTe6dYvfZcvkBZXO+WecKPA=;
+        s=default; t=1579217398;
+        bh=0hx9zLr1soFZ6KCFtZjRXev2DOjnQHSiFK1xACajxcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rf+rQZNaaR+bsi94JeaZS5A9nY2Ognjq/2BtUZl2d6vpdNo5Y1n5fHKfw7BZk60MY
-         5BV/SMaseLj/ilGRygKb4e2Zsp8U0DmlYtbGMMIx9Z+yzF8GYQr5uUT1PYD07WqiQ6
-         e6efcR9pNmAnV6Rf9C3x0ECVsNfsaHYOsCdx16io=
+        b=N/XjpTKW4ho6n0bQmBMYoDChc1WPakROkdeRXLYsTtbsmKzfp2a6ZjEzRL8Uc7M+x
+         c9sXxBXkQHVpZS70/D4gF32b3ZrSElT5CrkxSkhz5dSGP1k2cGVyUv1ktiGM5L/njg
+         HZFg66YXzGLer4XsXpb4yXmq4ZtmKhbmtB1v3GQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 42/71] pinctl: ti: iodelay: fix error checking on pinctrl_count_index_with_args call
-Date:   Fri, 17 Jan 2020 00:18:40 +0100
-Message-Id: <20200116231715.588419555@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 4.19 67/84] mtd: spi-nor: fix silent truncation in spi_nor_read_raw()
+Date:   Fri, 17 Jan 2020 00:18:41 +0100
+Message-Id: <20200116231721.474170258@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
-References: <20200116231709.377772748@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
-commit 5ff8aca906f3a7a7db79fad92f2a4401107ef50d upstream.
+commit 3d63ee5deb466fd66ed6ffb164a87ce36425cf36 upstream.
 
-The call to pinctrl_count_index_with_args checks for a -EINVAL return
-however this function calls pinctrl_get_list_and_count and this can
-return -ENOENT. Rather than check for a specific error, fix this by
-checking for any error return to catch the -ENOENT case.
+spi_nor_read_raw() assigns the result of 'ssize_t spi_nor_read_data()'
+to the 'int ret' variable, while 'ssize_t' is a 64-bit type and *int*
+is a 32-bit type on the 64-bit machines. This silent truncation isn't
+really valid, so fix up the variable's type.
 
-Addresses-Coverity: ("Improper use of negative")
-Fixes: 003910ebc83b ("pinctrl: Introduce TI IOdelay configuration driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20190920122030.14340-1-colin.king@canonical.com
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: f384b352cbf0 ("mtd: spi-nor: parse Serial Flash Discoverable Parameters (SFDP) tables")
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/ti/pinctrl-ti-iodelay.c |    2 +-
+ drivers/mtd/spi-nor/spi-nor.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/ti/pinctrl-ti-iodelay.c
-+++ b/drivers/pinctrl/ti/pinctrl-ti-iodelay.c
-@@ -496,7 +496,7 @@ static int ti_iodelay_dt_node_to_map(str
- 		return -EINVAL;
+--- a/drivers/mtd/spi-nor/spi-nor.c
++++ b/drivers/mtd/spi-nor/spi-nor.c
+@@ -1523,7 +1523,7 @@ static int macronix_quad_enable(struct s
+  */
+ static int write_sr_cr(struct spi_nor *nor, u8 *sr_cr)
+ {
+-	int ret;
++	ssize_t ret;
  
- 	rows = pinctrl_count_index_with_args(np, name);
--	if (rows == -EINVAL)
-+	if (rows < 0)
- 		return rows;
+ 	write_enable(nor);
  
- 	*map = devm_kzalloc(iod->dev, sizeof(**map), GFP_KERNEL);
 
 
