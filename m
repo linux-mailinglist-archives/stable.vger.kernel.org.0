@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7261D13E208
+	by mail.lfdr.de (Postfix) with ESMTP id E5AC813E209
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:54:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729728AbgAPQxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:53:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36574 "EHLO mail.kernel.org"
+        id S1729214AbgAPQxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:53:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730639AbgAPQxE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:53:04 -0500
+        id S1730661AbgAPQxH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:53:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 332462073A;
-        Thu, 16 Jan 2020 16:53:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97C5220730;
+        Thu, 16 Jan 2020 16:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193584;
-        bh=Tnd+SAke6nIVxhIP5axtAjn7GdI/o/v7fMl1nJaRVNs=;
+        s=default; t=1579193586;
+        bh=ViTdC+sbQT1UM8OUGMtOmel1qE2swUvEeqsuUj1+HQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgcd8RxBJumX0/yNtan2KKToa+Lrfl/tOOjQYGWHifF89aakOk49IPTxeFH26ywZw
-         02jZjsYiA/gFwk1/DqCmPOU5oq7iC0fzlmzgUb+Z1jScL1p8DYqRne8BxfwW5jUFrz
-         I0q9tWpXx4KD4QoRxzhZzv3311/GStToFFHveLCE=
+        b=w/k1U4HzV4SlFiIAII2jp4ma78a43t45LjdFqgdjb6fu+YXBFanKKloIUFiPR3M+y
+         o4Cyww2L6qSbXfn6YRKnWLqmxfXgy5dM6QxIQjX23/cyuLti2vb7sn0kgHsQ6bBEXg
+         KK9bTgZbn3YOoMH9EoCL/oYDpQuZ3FmCA7rB8f4A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonas Karlman <jonas@kwiboo.se>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.4 125/205] media: hantro: Set H264 FIELDPIC_FLAG_E flag correctly
-Date:   Thu, 16 Jan 2020 11:41:40 -0500
-Message-Id: <20200116164300.6705-125-sashal@kernel.org>
+Cc:     Yong Wu <yong.wu@mediatek.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 127/205] iommu/mediatek: Correct the flush_iotlb_all callback
+Date:   Thu, 16 Jan 2020 11:41:42 -0500
+Message-Id: <20200116164300.6705-127-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -46,39 +47,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Karlman <jonas@kwiboo.se>
+From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit a2cbf80a842add9663522bf898cf13cb2ac4e423 ]
+[ Upstream commit 2009122f1d83dd8375572661961eab1e7e86bffe ]
 
-The FIELDPIC_FLAG_E bit should be set when field_pic_flag exists in stream,
-it is currently set based on field_pic_flag of current frame.
-The PIC_FIELDMODE_E bit is correctly set based on the field_pic_flag.
+Use the correct tlb_flush_all instead of the original one.
 
-Fix this by setting the FIELDPIC_FLAG_E bit when frame_mbs_only is not set.
-
-Fixes: dea0a82f3d22 ("media: hantro: Add support for H264 decoding on G1")
-Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 4d689b619445 ("iommu/io-pgtable-arm-v7s: Convert to IOMMU API TLB sync")
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_g1_h264_dec.c | 2 +-
+ drivers/iommu/mtk_iommu.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/hantro/hantro_g1_h264_dec.c b/drivers/staging/media/hantro/hantro_g1_h264_dec.c
-index 636bf972adcf..5f29b7a836db 100644
---- a/drivers/staging/media/hantro/hantro_g1_h264_dec.c
-+++ b/drivers/staging/media/hantro/hantro_g1_h264_dec.c
-@@ -63,7 +63,7 @@ static void set_params(struct hantro_ctx *ctx)
- 	/* always use the matrix sent from userspace */
- 	reg |= G1_REG_DEC_CTRL2_TYPE1_QUANT_E;
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index 67a483c1a935..76b9388cf689 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -447,7 +447,7 @@ static size_t mtk_iommu_unmap(struct iommu_domain *domain,
  
--	if (slices[0].flags &  V4L2_H264_SLICE_FLAG_FIELD_PIC)
-+	if (!(sps->flags & V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY))
- 		reg |= G1_REG_DEC_CTRL2_FIELDPIC_FLAG_E;
- 	vdpu_write_relaxed(vpu, reg, G1_REG_DEC_CTRL2);
+ static void mtk_iommu_flush_iotlb_all(struct iommu_domain *domain)
+ {
+-	mtk_iommu_tlb_sync(mtk_iommu_get_m4u_data());
++	mtk_iommu_tlb_flush_all(mtk_iommu_get_m4u_data());
+ }
  
+ static void mtk_iommu_iotlb_sync(struct iommu_domain *domain,
 -- 
 2.20.1
 
