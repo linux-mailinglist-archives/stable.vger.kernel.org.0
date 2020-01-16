@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D30713FFE1
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A5113FFE7
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388340AbgAPXWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:22:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49712 "EHLO mail.kernel.org"
+        id S2389142AbgAPXW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:22:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731091AbgAPXWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:22:01 -0500
+        id S1728249AbgAPXWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:22:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E78D8206D9;
-        Thu, 16 Jan 2020 23:21:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 360862087E;
+        Thu, 16 Jan 2020 23:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216920;
-        bh=5bcddGU/Va4SZO+m0ROMNEmaa/9dzkcl53QDbDcLyJQ=;
+        s=default; t=1579216944;
+        bh=COuWNv7K28EFP5mFwnIlHQd+fYQXwF09BHhodM8sLDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v915p1OIvnBe/EIq+mvM8PUwpv7xudOeDkWpx5++0kCHAibKotTwfIDRKcEc85Uen
-         zb559z8MFBTkDMUvyWRsuOlWl/MLGYNXjR9+xBt0pENnhOSBJnoWUXWpzZWyKiMNwl
-         vMGzyeTLl67YV7SzOBDp7lWwEiG86oSiLq9JbCp0=
+        b=KI1Etwz/bLGgFWORZGTMkt0wUw3mBZquZfJd/B+0mOH9OSWNxtBTaDETFSDKx5rnr
+         xLuzGnyEyrrDvOMmUUYx0mIf8bi8dolZA7Q+Gg1Iu89Sxdf6cjq43DwyF+cTIOan3a
+         9XejxQIi2nJYJBPg/Z/q3bnB4khaR/CxWvZ3YD1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 066/203] RDMA/hns: Fix build error again
-Date:   Fri, 17 Jan 2020 00:16:23 +0100
-Message-Id: <20200116231749.868494985@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Bill Baker <bill.baker@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.4 068/203] xprtrdma: Add unique trace points for posting Local Invalidate WRs
+Date:   Fri, 17 Jan 2020 00:16:25 +0100
+Message-Id: <20200116231750.078216614@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -43,94 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit d5b60e26e86a463ca83bb5ec502dda6ea685159e upstream.
+commit 4b93dab36f28e673725e5e6123ebfccf7697f96a upstream.
 
-This is not the first attempt to fix building random configurations,
-unfortunately the attempt in commit a07fc0bb483e ("RDMA/hns: Fix build
-error") caused a new problem when CONFIG_INFINIBAND_HNS_HIP06=m and
-CONFIG_INFINIBAND_HNS_HIP08=y:
+When adding frwr_unmap_async way back when, I re-used the existing
+trace_xprtrdma_post_send() trace point to record the return code
+of ib_post_send.
 
-drivers/infiniband/hw/hns/hns_roce_main.o:(.rodata+0xe60): undefined reference to `__this_module'
+Unfortunately there are some cases where re-using that trace point
+causes a crash. Instead, construct a trace point specific to posting
+Local Invalidate WRs that will always be safe to use in that context,
+and will act as a trace log eye-catcher for Local Invalidation.
 
-Revert commits a07fc0bb483e ("RDMA/hns: Fix build error") and
-a3e2d4c7e766 ("RDMA/hns: remove obsolete Kconfig comment") to get back to
-the previous state, then fix the issues described there differently, by
-adding more specific dependencies: INFINIBAND_HNS can now only be built-in
-if at least one of HNS or HNS3 are built-in, and the individual back-ends
-are only available if that code is reachable from the main driver.
-
-Fixes: a07fc0bb483e ("RDMA/hns: Fix build error")
-Fixes: a3e2d4c7e766 ("RDMA/hns: remove obsolete Kconfig comment")
-Fixes: dd74282df573 ("RDMA/hns: Initialize the PCI device for hip08 RoCE")
-Fixes: 08805fdbeb2d ("RDMA/hns: Split hw v1 driver from hns roce driver")
-Link: https://lore.kernel.org/r/20191007211826.3361202-1-arnd@arndb.de
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 847568942f93 ("xprtrdma: Remove fr_state")
+Fixes: d8099feda483 ("xprtrdma: Reduce context switching due ... ")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Tested-by: Bill Baker <bill.baker@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hns/Kconfig  |   17 ++++++++++++++---
- drivers/infiniband/hw/hns/Makefile |    8 ++++++--
- 2 files changed, 20 insertions(+), 5 deletions(-)
+ include/trace/events/rpcrdma.h |   25 +++++++++++++++++++++++++
+ net/sunrpc/xprtrdma/frwr_ops.c |    4 ++--
+ 2 files changed, 27 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/hns/Kconfig
-+++ b/drivers/infiniband/hw/hns/Kconfig
-@@ -1,23 +1,34 @@
- # SPDX-License-Identifier: GPL-2.0-only
- config INFINIBAND_HNS
--	bool "HNS RoCE Driver"
-+	tristate "HNS RoCE Driver"
- 	depends on NET_VENDOR_HISILICON
- 	depends on ARM64 || (COMPILE_TEST && 64BIT)
-+	depends on (HNS_DSAF && HNS_ENET) || HNS3
- 	---help---
- 	  This is a RoCE/RDMA driver for the Hisilicon RoCE engine. The engine
- 	  is used in Hisilicon Hip06 and more further ICT SoC based on
- 	  platform device.
+--- a/include/trace/events/rpcrdma.h
++++ b/include/trace/events/rpcrdma.h
+@@ -735,6 +735,31 @@ TRACE_EVENT(xprtrdma_post_recvs,
+ 	)
+ );
  
-+	  To compile HIP06 or HIP08 driver as module, choose M here.
++TRACE_EVENT(xprtrdma_post_linv,
++	TP_PROTO(
++		const struct rpcrdma_req *req,
++		int status
++	),
 +
- config INFINIBAND_HNS_HIP06
--	tristate "Hisilicon Hip06 Family RoCE support"
-+	bool "Hisilicon Hip06 Family RoCE support"
- 	depends on INFINIBAND_HNS && HNS && HNS_DSAF && HNS_ENET
-+	depends on INFINIBAND_HNS=m || (HNS_DSAF=y && HNS_ENET=y)
- 	---help---
- 	  RoCE driver support for Hisilicon RoCE engine in Hisilicon Hip06 and
- 	  Hip07 SoC. These RoCE engines are platform devices.
- 
-+	  To compile this driver, choose Y here: if INFINIBAND_HNS is m, this
-+	  module will be called hns-roce-hw-v1
++	TP_ARGS(req, status),
 +
- config INFINIBAND_HNS_HIP08
--	tristate "Hisilicon Hip08 Family RoCE support"
-+	bool "Hisilicon Hip08 Family RoCE support"
- 	depends on INFINIBAND_HNS && PCI && HNS3
-+	depends on INFINIBAND_HNS=m || HNS3=y
- 	---help---
- 	  RoCE driver support for Hisilicon RoCE engine in Hisilicon Hip08 SoC.
- 	  The RoCE engine is a PCI device.
++	TP_STRUCT__entry(
++		__field(const void *, req)
++		__field(int, status)
++		__field(u32, xid)
++	),
 +
-+	  To compile this driver, choose Y here: if INFINIBAND_HNS is m, this
-+	  module will be called hns-roce-hw-v2.
---- a/drivers/infiniband/hw/hns/Makefile
-+++ b/drivers/infiniband/hw/hns/Makefile
-@@ -9,8 +9,12 @@ hns-roce-objs := hns_roce_main.o hns_roc
- 	hns_roce_ah.o hns_roce_hem.o hns_roce_mr.o hns_roce_qp.o \
- 	hns_roce_cq.o hns_roce_alloc.o hns_roce_db.o hns_roce_srq.o hns_roce_restrack.o
++	TP_fast_assign(
++		__entry->req = req;
++		__entry->status = status;
++		__entry->xid = be32_to_cpu(req->rl_slot.rq_xid);
++	),
++
++	TP_printk("req=%p xid=0x%08x status=%d",
++		__entry->req, __entry->xid, __entry->status
++	)
++);
++
+ /**
+  ** Completion events
+  **/
+--- a/net/sunrpc/xprtrdma/frwr_ops.c
++++ b/net/sunrpc/xprtrdma/frwr_ops.c
+@@ -570,7 +570,6 @@ void frwr_unmap_sync(struct rpcrdma_xprt
+ 	 */
+ 	bad_wr = NULL;
+ 	rc = ib_post_send(r_xprt->rx_ia.ri_id->qp, first, &bad_wr);
+-	trace_xprtrdma_post_send(req, rc);
  
-+ifdef CONFIG_INFINIBAND_HNS_HIP06
- hns-roce-hw-v1-objs := hns_roce_hw_v1.o $(hns-roce-objs)
--obj-$(CONFIG_INFINIBAND_HNS_HIP06) += hns-roce-hw-v1.o
-+obj-$(CONFIG_INFINIBAND_HNS) += hns-roce-hw-v1.o
-+endif
+ 	/* The final LOCAL_INV WR in the chain is supposed to
+ 	 * do the wake. If it was never posted, the wake will
+@@ -583,6 +582,7 @@ void frwr_unmap_sync(struct rpcrdma_xprt
  
-+ifdef CONFIG_INFINIBAND_HNS_HIP08
- hns-roce-hw-v2-objs := hns_roce_hw_v2.o hns_roce_hw_v2_dfx.o $(hns-roce-objs)
--obj-$(CONFIG_INFINIBAND_HNS_HIP08) += hns-roce-hw-v2.o
-+obj-$(CONFIG_INFINIBAND_HNS) += hns-roce-hw-v2.o
-+endif
+ 	/* Recycle MRs in the LOCAL_INV chain that did not get posted.
+ 	 */
++	trace_xprtrdma_post_linv(req, rc);
+ 	while (bad_wr) {
+ 		frwr = container_of(bad_wr, struct rpcrdma_frwr,
+ 				    fr_invwr);
+@@ -673,12 +673,12 @@ void frwr_unmap_async(struct rpcrdma_xpr
+ 	 */
+ 	bad_wr = NULL;
+ 	rc = ib_post_send(r_xprt->rx_ia.ri_id->qp, first, &bad_wr);
+-	trace_xprtrdma_post_send(req, rc);
+ 	if (!rc)
+ 		return;
+ 
+ 	/* Recycle MRs in the LOCAL_INV chain that did not get posted.
+ 	 */
++	trace_xprtrdma_post_linv(req, rc);
+ 	while (bad_wr) {
+ 		frwr = container_of(bad_wr, struct rpcrdma_frwr, fr_invwr);
+ 		mr = container_of(frwr, struct rpcrdma_mr, frwr);
 
 
