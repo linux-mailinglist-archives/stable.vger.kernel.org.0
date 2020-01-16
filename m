@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D6113F245
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:34:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5A113F247
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:34:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391799AbgAPRYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:24:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59518 "EHLO mail.kernel.org"
+        id S2391905AbgAPSeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:34:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391791AbgAPRYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:24:38 -0500
+        id S2391795AbgAPRYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:24:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58E72246BD;
-        Thu, 16 Jan 2020 17:24:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC4802467E;
+        Thu, 16 Jan 2020 17:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195478;
-        bh=irA/cM1vWOhJmBs2PD0tW5ZUlPA/Ji3OJu6aU8hDEuU=;
+        s=default; t=1579195479;
+        bh=54xeeJt3oi2IZTScEVdGI/xjrie/0xH7YLIooRyhRns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfv7Lzr8ezbvpiBB+Zm+NGQFEIuZlcaX8Lxj90nmTjzYRXuo0Y4ZUv7ROBRDb9HGH
-         3g3ZnU3dzcCrMkH9kGSE+E7xSXnOLndynfKp0GWwNpP3LKRhN/Rkv0egqE1FiBkZzY
-         vu7XlzHoHJrFNCpxkk8s6wEBTOv/DAXmAMhHRevQ=
+        b=lzNkKlrajAXHm292GoHwes/J+3sWQU6raqG2BXm1P5y1VnJJ+0KX3zpPIIRNe0gVG
+         sNNAXrx2F51TuZ6VQh1yKCKEIL5h+NaPfcaJ8mTM7TtZUF+MrbhORRRllp0EpSmPpZ
+         NATObyyMeleMhrH+sRU1I8PAa4aNm3O+YtNlAQrE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Kao <michael.kao@mediatek.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 083/371] thermal: mediatek: fix register index error
-Date:   Thu, 16 Jan 2020 12:19:15 -0500
-Message-Id: <20200116172403.18149-26-sashal@kernel.org>
+Cc:     Moritz Fischer <mdf@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 084/371] net: phy: fixed_phy: Fix fixed_phy not checking GPIO
+Date:   Thu, 16 Jan 2020 12:19:16 -0500
+Message-Id: <20200116172403.18149-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,45 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kao <michael.kao@mediatek.com>
+From: Moritz Fischer <mdf@kernel.org>
 
-[ Upstream commit eb9aecd90d1a39601e91cd08b90d5fee51d321a6 ]
+[ Upstream commit 8f289805616e81f7c1690931aa8a586c76f4fa88 ]
 
-The index of msr and adcpnp should match the sensor
-which belongs to the selected bank in the for loop.
+Fix fixed_phy not checking GPIO if no link_update callback
+is registered.
 
-Fixes: b7cf0053738c ("thermal: Add Mediatek thermal driver for mt2701.")
-Signed-off-by: Michael Kao <michael.kao@mediatek.com>
-Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+In the original version all users registered a link_update
+callback so the issue was masked.
+
+Fixes: a5597008dbc2 ("phy: fixed_phy: Add gpio to determine link up/down.")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/mtk_thermal.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/phy/fixed_phy.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/thermal/mtk_thermal.c b/drivers/thermal/mtk_thermal.c
-index 1e61c09153c9..76b92083744c 100644
---- a/drivers/thermal/mtk_thermal.c
-+++ b/drivers/thermal/mtk_thermal.c
-@@ -407,7 +407,8 @@ static int mtk_thermal_bank_temperature(struct mtk_thermal_bank *bank)
- 	u32 raw;
+diff --git a/drivers/net/phy/fixed_phy.c b/drivers/net/phy/fixed_phy.c
+index eb5167210681..3ab2eb677a59 100644
+--- a/drivers/net/phy/fixed_phy.c
++++ b/drivers/net/phy/fixed_phy.c
+@@ -67,11 +67,11 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_addr, int reg_num)
+ 			do {
+ 				s = read_seqcount_begin(&fp->seqcount);
+ 				/* Issue callback if user registered it. */
+-				if (fp->link_update) {
++				if (fp->link_update)
+ 					fp->link_update(fp->phydev->attached_dev,
+ 							&fp->status);
+-					fixed_phy_update(fp);
+-				}
++				/* Check the GPIO for change in status */
++				fixed_phy_update(fp);
+ 				state = fp->status;
+ 			} while (read_seqcount_retry(&fp->seqcount, s));
  
- 	for (i = 0; i < conf->bank_data[bank->id].num_sensors; i++) {
--		raw = readl(mt->thermal_base + conf->msr[i]);
-+		raw = readl(mt->thermal_base +
-+			    conf->msr[conf->bank_data[bank->id].sensors[i]]);
- 
- 		temp = raw_to_mcelsius(mt,
- 				       conf->bank_data[bank->id].sensors[i],
-@@ -544,7 +545,8 @@ static void mtk_thermal_init_bank(struct mtk_thermal *mt, int num,
- 
- 	for (i = 0; i < conf->bank_data[num].num_sensors; i++)
- 		writel(conf->sensor_mux_values[conf->bank_data[num].sensors[i]],
--		       mt->thermal_base + conf->adcpnp[i]);
-+		       mt->thermal_base +
-+		       conf->adcpnp[conf->bank_data[num].sensors[i]]);
- 
- 	writel((1 << conf->bank_data[num].num_sensors) - 1,
- 	       mt->thermal_base + TEMP_MONCTL0);
 -- 
 2.20.1
 
