@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1B6713F025
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B49513F03E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392563AbgAPR20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:28:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
+        id S2392575AbgAPSTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:19:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387463AbgAPR20 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:28:26 -0500
+        id S2392559AbgAPR21 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:28:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86CD1246F4;
-        Thu, 16 Jan 2020 17:28:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B511B246F5;
+        Thu, 16 Jan 2020 17:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195705;
-        bh=egfrRyEG4PVI4kEA7aq+1gPEUDIvHB0JAwYwISaADu8=;
+        s=default; t=1579195706;
+        bh=4njscMVRamwTD/3+ApG2GUvE64k++H3GsbZ2/ieNP3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x4hR1h1pCHMK6alFA5G+P5OSDJVC5AXDloIwDxjVRXnsmLmmZRua6MVYVitv+PL/9
-         ZisDEGrY0dqJoMksENsXlwVTgUEsO1Lk6hMljzqVtMLYI5seyygagOGM/yOBetUWwx
-         jpf9TXISm/ODmR53ogaeHpCq0h4BnOWRx4QAqtc4=
+        b=ihIIAoh+zJKDMzPDs7yZhR6bQkSdDRHErvU43/MAhJ5lp0QxmjcmI/fOfuMqK0hqV
+         D+VDFr2dGqKX7PdYtA8tFFL/+Mv4kTpQljiJVDFLNZNl514dD+EpVf8LUN/V/Styat
+         kLWtpVTCzt9iWuT1pU1qEOUt2duqVrW9crttPTqI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 252/371] qed: reduce maximum stack frame size
-Date:   Thu, 16 Jan 2020 12:22:04 -0500
-Message-Id: <20200116172403.18149-195-sashal@kernel.org>
+Cc:     Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 253/371] usb: host: xhci-hub: fix extra endianness conversion
+Date:   Thu, 16 Jan 2020 12:22:05 -0500
+Message-Id: <20200116172403.18149-196-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,101 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-[ Upstream commit 7c116e02a4a7575c8c62bfd2106e3e3ec8fb99dc ]
+[ Upstream commit 6269e4c76eacabaea0d0099200ae1a455768d208 ]
 
-clang warns about an overly large stack frame in one function
-when it decides to inline all __qed_get_vport_*() functions into
-__qed_get_vport_stats():
+Don't do extra cpu_to_le32 conversion for
+put_unaligned_le32 because it is already implemented
+in this function.
 
-drivers/net/ethernet/qlogic/qed/qed_l2.c:1889:13: error: stack frame size of 1128 bytes in function '_qed_get_vport_stats' [-Werror,-Wframe-larger-than=]
+Fixes sparse error:
+xhci-hub.c:1152:44: warning: incorrect type in argument 1 (different base types)
+xhci-hub.c:1152:44:    expected unsigned int [usertype] val
+xhci-hub.c:1152:44:    got restricted __le32 [usertype]
 
-Use a noinline_for_stack annotation to prevent clang from inlining
-these, which keeps the maximum stack usage at around half of that
-in the worst case, similar to what we get with gcc.
-
-Fixes: 86622ee75312 ("qed: Move statistics to L2 code")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 395f540 "xhci: support new USB 3.1 hub request to get extended port status"
+Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/1562501839-26522-1-git-send-email-ruslan.bilovol@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_l2.c | 34 +++++++++++-------------
- 1 file changed, 15 insertions(+), 19 deletions(-)
+ drivers/usb/host/xhci-hub.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_l2.c b/drivers/net/ethernet/qlogic/qed/qed_l2.c
-index 62cde3854a5c..5d7adedac68d 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_l2.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_l2.c
-@@ -1629,10 +1629,9 @@ static void __qed_get_vport_pstats_addrlen(struct qed_hwfn *p_hwfn,
- 	}
- }
- 
--static void __qed_get_vport_pstats(struct qed_hwfn *p_hwfn,
--				   struct qed_ptt *p_ptt,
--				   struct qed_eth_stats *p_stats,
--				   u16 statistics_bin)
-+static noinline_for_stack void
-+__qed_get_vport_pstats(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
-+		       struct qed_eth_stats *p_stats, u16 statistics_bin)
- {
- 	struct eth_pstorm_per_queue_stat pstats;
- 	u32 pstats_addr = 0, pstats_len = 0;
-@@ -1659,10 +1658,9 @@ static void __qed_get_vport_pstats(struct qed_hwfn *p_hwfn,
- 	    HILO_64_REGPAIR(pstats.error_drop_pkts);
- }
- 
--static void __qed_get_vport_tstats(struct qed_hwfn *p_hwfn,
--				   struct qed_ptt *p_ptt,
--				   struct qed_eth_stats *p_stats,
--				   u16 statistics_bin)
-+static noinline_for_stack void
-+__qed_get_vport_tstats(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
-+		       struct qed_eth_stats *p_stats, u16 statistics_bin)
- {
- 	struct tstorm_per_port_stat tstats;
- 	u32 tstats_addr, tstats_len;
-@@ -1705,10 +1703,9 @@ static void __qed_get_vport_ustats_addrlen(struct qed_hwfn *p_hwfn,
- 	}
- }
- 
--static void __qed_get_vport_ustats(struct qed_hwfn *p_hwfn,
--				   struct qed_ptt *p_ptt,
--				   struct qed_eth_stats *p_stats,
--				   u16 statistics_bin)
-+static noinline_for_stack
-+void __qed_get_vport_ustats(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
-+			    struct qed_eth_stats *p_stats, u16 statistics_bin)
- {
- 	struct eth_ustorm_per_queue_stat ustats;
- 	u32 ustats_addr = 0, ustats_len = 0;
-@@ -1747,10 +1744,9 @@ static void __qed_get_vport_mstats_addrlen(struct qed_hwfn *p_hwfn,
- 	}
- }
- 
--static void __qed_get_vport_mstats(struct qed_hwfn *p_hwfn,
--				   struct qed_ptt *p_ptt,
--				   struct qed_eth_stats *p_stats,
--				   u16 statistics_bin)
-+static noinline_for_stack void
-+__qed_get_vport_mstats(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
-+		       struct qed_eth_stats *p_stats, u16 statistics_bin)
- {
- 	struct eth_mstorm_per_queue_stat mstats;
- 	u32 mstats_addr = 0, mstats_len = 0;
-@@ -1776,9 +1772,9 @@ static void __qed_get_vport_mstats(struct qed_hwfn *p_hwfn,
- 	    HILO_64_REGPAIR(mstats.tpa_coalesced_bytes);
- }
- 
--static void __qed_get_vport_port_stats(struct qed_hwfn *p_hwfn,
--				       struct qed_ptt *p_ptt,
--				       struct qed_eth_stats *p_stats)
-+static noinline_for_stack void
-+__qed_get_vport_port_stats(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
-+			   struct qed_eth_stats *p_stats)
- {
- 	struct qed_eth_stats_common *p_common = &p_stats->common;
- 	struct port_stats port_stats;
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index d1363f3fabfa..3bb38d9dc45b 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1118,7 +1118,7 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 			}
+ 			port_li = readl(port_array[wIndex] + PORTLI);
+ 			status = xhci_get_ext_port_status(temp, port_li);
+-			put_unaligned_le32(cpu_to_le32(status), &buf[4]);
++			put_unaligned_le32(status, &buf[4]);
+ 		}
+ 		break;
+ 	case SetPortFeature:
 -- 
 2.20.1
 
