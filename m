@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 703E613E9DE
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:40:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EDA913E9FB
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:41:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391206AbgAPRki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:40:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57856 "EHLO mail.kernel.org"
+        id S2405618AbgAPRlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:41:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393643AbgAPRkh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:40:37 -0500
+        id S2405614AbgAPRlP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:41:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAAC82473C;
-        Thu, 16 Jan 2020 17:40:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4DCC246AE;
+        Thu, 16 Jan 2020 17:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196437;
-        bh=qljT4y/A3k246iseBZPFaMQAh1Y9qLsRf7BctsBuqKE=;
+        s=default; t=1579196474;
+        bh=V3GbiHcfk6BfHbV+lS0V0Esc5dLq3FYLB6Xqf/5iltk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nnONuHuR5IWr8X/cMTSdSQ7hwMzAz8jzuVRrMfXV5oy2s8+7iFqQY1TlODQ4oxFpV
-         NXQoaE/Pjgmka0xermbvndzgvZOioNNO0kA1O5MwnS78LYLL+DnZemgMaGyPIJK8/H
-         9STpOFE/wRD2CNyrOqwyv4Lr7Tz74rK0qf+Lm4NU=
+        b=cRtmCXPrXBbQbDSKBbV3zGaN96SWAIiROzYjRp7CcUx66LdJGO5XMPvY1crZfHJJm
+         lRXCP7Yv0NyK4Aiif89TLtpNDnskq46F1YF+W+Xba1h5MsHs4rNwM1y3A4+Wg6FeZ9
+         +k8VI0+QaKrFotEylE8d3wJnLN8NLs5mRqC+QAJY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Filippo Sironi <sironi@amazon.de>, Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.9 202/251] iommu/amd: Wait for completion of IOTLB flush in attach_device
-Date:   Thu, 16 Jan 2020 12:35:51 -0500
-Message-Id: <20200116173641.22137-162-sashal@kernel.org>
+Cc:     "Alexander.Barabash@dell.com" <Alexander.Barabash@dell.com>,
+        Alexander Barabash <alexander.barabash@dell.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 223/251] ioat: ioat_alloc_ring() failure handling.
+Date:   Thu, 16 Jan 2020 12:36:12 -0500
+Message-Id: <20200116173641.22137-183-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -43,35 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filippo Sironi <sironi@amazon.de>
+From: "Alexander.Barabash@dell.com" <Alexander.Barabash@dell.com>
 
-[ Upstream commit 0b15e02f0cc4fb34a9160de7ba6db3a4013dc1b7 ]
+[ Upstream commit b0b5ce1010ffc50015eaec72b0028aaae3f526bb ]
 
-To make sure the domain tlb flush completes before the
-function returns, explicitly wait for its completion.
+If dma_alloc_coherent() returns NULL in ioat_alloc_ring(), ring
+allocation must not proceed.
 
-Signed-off-by: Filippo Sironi <sironi@amazon.de>
-Fixes: 42a49f965a8d ("amd-iommu: flush domain tlb when attaching a new device")
-[joro: Added commit message and fixes tag]
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Until now, if the first call to dma_alloc_coherent() in
+ioat_alloc_ring() returned NULL, the processing could proceed, failing
+with NULL-pointer dereferencing further down the line.
+
+Signed-off-by: Alexander Barabash <alexander.barabash@dell.com>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/75e9c0e84c3345d693c606c64f8b9ab5@x13pwhopdag1307.AMER.DELL.COM
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dma/ioat/dma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index c898c70472bb..bb0448c91f67 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2113,6 +2113,8 @@ static int attach_device(struct device *dev,
- 	 */
- 	domain_flush_tlb_pde(domain);
+diff --git a/drivers/dma/ioat/dma.c b/drivers/dma/ioat/dma.c
+index 49386ce04bf5..1389f0582e29 100644
+--- a/drivers/dma/ioat/dma.c
++++ b/drivers/dma/ioat/dma.c
+@@ -394,10 +394,11 @@ ioat_alloc_ring(struct dma_chan *c, int order, gfp_t flags)
  
-+	domain_flush_complete(domain);
-+
- 	return ret;
- }
+ 		descs->virt = dma_alloc_coherent(to_dev(ioat_chan),
+ 						 SZ_2M, &descs->hw, flags);
+-		if (!descs->virt && (i > 0)) {
++		if (!descs->virt) {
+ 			int idx;
  
+ 			for (idx = 0; idx < i; idx++) {
++				descs = &ioat_chan->descs[idx];
+ 				dma_free_coherent(to_dev(ioat_chan), SZ_2M,
+ 						  descs->virt, descs->hw);
+ 				descs->virt = NULL;
 -- 
 2.20.1
 
