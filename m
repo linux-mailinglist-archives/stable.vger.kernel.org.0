@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B4813E373
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:02:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FCC13E376
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:02:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729263AbgAPRCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:02:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
+        id S2388306AbgAPRCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:02:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388276AbgAPRCJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:02:09 -0500
+        id S2388303AbgAPRCO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:02:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B15E21D56;
-        Thu, 16 Jan 2020 17:02:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44EF72081E;
+        Thu, 16 Jan 2020 17:02:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194128;
-        bh=+2g8YbRkKj4/ek6gIMPpD8fSakK9WKulrjtOujpsfPQ=;
+        s=default; t=1579194134;
+        bh=0JFl9aWLKC71Gk5dPOObiZY7H/47oVRdIQLA7yf0cs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KkPLUsO51UWJ4wdD1bJU6qkmUXqER31E1miB0OYTybhJ9Amkm+3ZpJjhIEjwW2Sjk
-         Fv6kVJ9DKltMHEcaOIJKuuEFNdl052ZqbUoFx9lMuhqxgDj9dWJmDb/vF/xle8lO4u
-         NXqbDecvwr/brunVztAjFFomVhrmdDqiJnYrR8Xk=
+        b=1Nix6HeXk53lSTHlxPtFU55tlS2IAdeVmmYQHKKcMz4C1WYK3o+s8n5WvJbwFIZCt
+         r0bu8RjOzoThSATFpG3YqVu+KViO9WxDbTu6YgU0r8hR5N24mLBTXrjqQkzQ5ZYKxb
+         tlGbKzqJHAWqJOUb6SF25mJSjW88aq0aQIql+RXc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Gary R Hook <gary.hook@amd.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.19 219/671] iommu: Fix IOMMU debugfs fallout
-Date:   Thu, 16 Jan 2020 11:52:08 -0500
-Message-Id: <20200116165940.10720-102-sashal@kernel.org>
+Cc:     Axel Lin <axel.lin@ingics.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 4.19 223/671] regulator: wm831x-dcdc: Fix list of wm831x_dcdc_ilim from mA to uA
+Date:   Thu, 16 Jan 2020 11:52:12 -0500
+Message-Id: <20200116165940.10720-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -45,72 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 18b3af4492a0aa6046b86d712f6ba4cbb66100fb ]
+[ Upstream commit c25d47888f0fb3d836d68322d4aea2caf31a75a6 ]
 
-A change made in the final version of IOMMU debugfs support replaced the
-public function iommu_debugfs_new_driver_dir() by the public dentry
-iommu_debugfs_dir in <linux/iommu.h>, but forgot to update both the
-implementation in iommu-debugfs.c, and the patch description.
+The wm831x_dcdc_ilim entries needs to be uA because it is used to compare
+with min_uA and max_uA.
+While at it also make the array const and change to use unsigned int.
 
-Fix this by exporting iommu_debugfs_dir, and removing the reference to
-and implementation of iommu_debugfs_new_driver_dir().
-
-Fixes: bad614b24293ae46 ("iommu: Enable debugfs exposure of IOMMU driver internals")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Gary R Hook <gary.hook@amd.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: e4ee831f949a ("regulator: Add WM831x DC-DC buck convertor support")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu-debugfs.c | 23 ++++-------------------
- 1 file changed, 4 insertions(+), 19 deletions(-)
+ drivers/regulator/wm831x-dcdc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/iommu-debugfs.c b/drivers/iommu/iommu-debugfs.c
-index 3b1bf88fd1b0..f03548942096 100644
---- a/drivers/iommu/iommu-debugfs.c
-+++ b/drivers/iommu/iommu-debugfs.c
-@@ -12,6 +12,7 @@
- #include <linux/debugfs.h>
- 
- struct dentry *iommu_debugfs_dir;
-+EXPORT_SYMBOL_GPL(iommu_debugfs_dir);
- 
- /**
-  * iommu_debugfs_setup - create the top-level iommu directory in debugfs
-@@ -23,9 +24,9 @@ struct dentry *iommu_debugfs_dir;
-  * Emit a strong warning at boot time to indicate that this feature is
-  * enabled.
-  *
-- * This function is called from iommu_init; drivers may then call
-- * iommu_debugfs_new_driver_dir() to instantiate a vendor-specific
-- * directory to be used to expose internal data.
-+ * This function is called from iommu_init; drivers may then use
-+ * iommu_debugfs_dir to instantiate a vendor-specific directory to be used
-+ * to expose internal data.
-  */
- void iommu_debugfs_setup(void)
- {
-@@ -48,19 +49,3 @@ void iommu_debugfs_setup(void)
- 		pr_warn("*************************************************************\n");
- 	}
+diff --git a/drivers/regulator/wm831x-dcdc.c b/drivers/regulator/wm831x-dcdc.c
+index 5a5bc4bb08d2..df591435d12a 100644
+--- a/drivers/regulator/wm831x-dcdc.c
++++ b/drivers/regulator/wm831x-dcdc.c
+@@ -327,8 +327,8 @@ static int wm831x_buckv_get_voltage_sel(struct regulator_dev *rdev)
  }
--
--/**
-- * iommu_debugfs_new_driver_dir - create a vendor directory under debugfs/iommu
-- * @vendor: name of the vendor-specific subdirectory to create
-- *
-- * This function is called by an IOMMU driver to create the top-level debugfs
-- * directory for that driver.
-- *
-- * Return: upon success, a pointer to the dentry for the new directory.
-- *         NULL in case of failure.
-- */
--struct dentry *iommu_debugfs_new_driver_dir(const char *vendor)
--{
--	return debugfs_create_dir(vendor, iommu_debugfs_dir);
--}
--EXPORT_SYMBOL_GPL(iommu_debugfs_new_driver_dir);
+ 
+ /* Current limit options */
+-static u16 wm831x_dcdc_ilim[] = {
+-	125, 250, 375, 500, 625, 750, 875, 1000
++static const unsigned int wm831x_dcdc_ilim[] = {
++	125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000
+ };
+ 
+ static int wm831x_buckv_set_current_limit(struct regulator_dev *rdev,
 -- 
 2.20.1
 
