@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FBEE13E96A
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:38:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3558713E96F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:38:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405435AbgAPRhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:37:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53076 "EHLO mail.kernel.org"
+        id S2405369AbgAPRhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:37:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405425AbgAPRhk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:37:40 -0500
+        id S2393207AbgAPRhr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:37:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71FC7246C6;
-        Thu, 16 Jan 2020 17:37:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E905246DC;
+        Thu, 16 Jan 2020 17:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196259;
-        bh=vpXMA70GMULzu8hHCJ5fBHkANPQkjGgDAgfAbdUdYY0=;
+        s=default; t=1579196267;
+        bh=0JFl9aWLKC71Gk5dPOObiZY7H/47oVRdIQLA7yf0cs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uL1h02AxOeGs9imN6vDC+dpynkgmybsDV5GC4VcstE4uk4ads6+3/uLuHmCL5x93U
-         JkTWGbNkjJUqIW9A7WalPJxkU0mgDD7H9pTruDjJKuiUgnVdKddShlvDahXNPBWQIR
-         uCVC6W4XcsUhxWi101uUvnorPW2YHXAaX28rT8Ag=
+        b=R3km5Y5OAfwX7PhZ0QvUTvjQTV+DLTPa6+jYqGFjlnJdK4Ox5ggh4A9xc8TA+si0P
+         JK8puC2/Ikq4tokEz0TkoKaUB1nfAkQKMzxlG/mBKMjOO6m/cfXckhfiQpGaVUtcZW
+         I1sqgWl9kQ8WjIBr4c6WhpxiIZh030UroRyDz+yY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 084/251] NFS: Fix a soft lockup in the delegation recovery code
-Date:   Thu, 16 Jan 2020 12:33:53 -0500
-Message-Id: <20200116173641.22137-44-sashal@kernel.org>
+Cc:     Axel Lin <axel.lin@ingics.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 4.9 090/251] regulator: wm831x-dcdc: Fix list of wm831x_dcdc_ilim from mA to uA
+Date:   Thu, 16 Jan 2020 12:33:59 -0500
+Message-Id: <20200116173641.22137-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -42,81 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 6f9449be53f3ce383caed797708b332ede8d952c ]
+[ Upstream commit c25d47888f0fb3d836d68322d4aea2caf31a75a6 ]
 
-Fix a soft lockup when NFS client delegation recovery is attempted
-but the inode is in the process of being freed. When the
-igrab(inode) call fails, and we have to restart the recovery process,
-we need to ensure that we won't attempt to recover the same delegation
-again.
+The wm831x_dcdc_ilim entries needs to be uA because it is used to compare
+with min_uA and max_uA.
+While at it also make the array const and change to use unsigned int.
 
-Fixes: 45870d6909d5a ("NFSv4.1: Test delegation stateids when server...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: e4ee831f949a ("regulator: Add WM831x DC-DC buck convertor support")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/delegation.c | 20 ++++++++++++--------
- fs/nfs/delegation.h |  1 +
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/regulator/wm831x-dcdc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index 9a8830a0f31f..014039618cff 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -234,6 +234,8 @@ static struct inode *nfs_delegation_grab_inode(struct nfs_delegation *delegation
- 	spin_lock(&delegation->lock);
- 	if (delegation->inode != NULL)
- 		inode = igrab(delegation->inode);
-+	if (!inode)
-+		set_bit(NFS_DELEGATION_INODE_FREEING, &delegation->flags);
- 	spin_unlock(&delegation->lock);
- 	return inode;
+diff --git a/drivers/regulator/wm831x-dcdc.c b/drivers/regulator/wm831x-dcdc.c
+index 5a5bc4bb08d2..df591435d12a 100644
+--- a/drivers/regulator/wm831x-dcdc.c
++++ b/drivers/regulator/wm831x-dcdc.c
+@@ -327,8 +327,8 @@ static int wm831x_buckv_get_voltage_sel(struct regulator_dev *rdev)
  }
-@@ -867,10 +869,11 @@ void nfs_delegation_reap_unclaimed(struct nfs_client *clp)
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
- 		list_for_each_entry_rcu(delegation, &server->delegations,
- 								super_list) {
--			if (test_bit(NFS_DELEGATION_RETURNING,
--						&delegation->flags))
--				continue;
--			if (test_bit(NFS_DELEGATION_NEED_RECLAIM,
-+			if (test_bit(NFS_DELEGATION_INODE_FREEING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_RETURNING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_NEED_RECLAIM,
- 						&delegation->flags) == 0)
- 				continue;
- 			if (!nfs_sb_active(server->super))
-@@ -975,10 +978,11 @@ void nfs_reap_expired_delegations(struct nfs_client *clp)
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
- 		list_for_each_entry_rcu(delegation, &server->delegations,
- 								super_list) {
--			if (test_bit(NFS_DELEGATION_RETURNING,
--						&delegation->flags))
--				continue;
--			if (test_bit(NFS_DELEGATION_TEST_EXPIRED,
-+			if (test_bit(NFS_DELEGATION_INODE_FREEING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_RETURNING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_TEST_EXPIRED,
- 						&delegation->flags) == 0)
- 				continue;
- 			if (!nfs_sb_active(server->super))
-diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
-index 2c6cb7fb7d5e..f72095bf9e10 100644
---- a/fs/nfs/delegation.h
-+++ b/fs/nfs/delegation.h
-@@ -33,6 +33,7 @@ enum {
- 	NFS_DELEGATION_RETURNING,
- 	NFS_DELEGATION_REVOKED,
- 	NFS_DELEGATION_TEST_EXPIRED,
-+	NFS_DELEGATION_INODE_FREEING,
+ 
+ /* Current limit options */
+-static u16 wm831x_dcdc_ilim[] = {
+-	125, 250, 375, 500, 625, 750, 875, 1000
++static const unsigned int wm831x_dcdc_ilim[] = {
++	125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000
  };
  
- int nfs_inode_set_delegation(struct inode *inode, struct rpc_cred *cred, struct nfs_openres *res);
+ static int wm831x_buckv_set_current_limit(struct regulator_dev *rdev,
 -- 
 2.20.1
 
