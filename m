@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BA0013FE7A
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:36:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69C3713FF51
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404224AbgAPXfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:35:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41046 "EHLO mail.kernel.org"
+        id S2389651AbgAPX0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:26:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404188AbgAPXcE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:32:04 -0500
+        id S2389616AbgAPX0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:26:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B15472077C;
-        Thu, 16 Jan 2020 23:32:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3579120684;
+        Thu, 16 Jan 2020 23:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217524;
-        bh=2WNeRsDryRBzpXQN44EbufOyKvzcVAspZ6zfgL6yVVw=;
+        s=default; t=1579217214;
+        bh=uPUy8SKeR3KTC7Y2sKB4khJaHsZIJ/WlclQs0lehUJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ShMSfBE/g4JfKIShNvTicIqVUn5Hc3MUm+0eLIw215p7dCq3FoD/I3OmZ+FoFYALZ
-         T4zynwZ1Xf0TfhiHzxtjTZOMHNCgquNGk50sOWgnwQq3LkV+VKjenSLXRDoswgk1uf
-         qDL7Zb2B9vv8JO8GJgsbqnVFQwbbHGR3hUMkRZjw=
+        b=rb6Luem2lU9ajXm585cy4prz1EsXrWMyP2UJeeu25Fg7R3Idwdv6aPdVYzUHG07sB
+         xuQ/wxg5fjD04EPMtGexn2CFkcNiXuTz5krLj6m0qpA1KXsfvZ4t80umt4wQWBe3G7
+         N9sJ2xQTmG96BR/vTPJp+3E21WmhT9QI7UPWJG28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Luo Jiaxing <luojiaxing@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 34/71] scsi: enclosure: Fix stale device oops with hot replug
+        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 195/203] dmaengine: k3dma: Avoid null pointer traversal
 Date:   Fri, 17 Jan 2020 00:18:32 +0100
-Message-Id: <20200116231714.528012331@linuxfoundation.org>
+Message-Id: <20200116231801.223309821@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
-References: <20200116231709.377772748@linuxfoundation.org>
+In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
+References: <20200116231745.218684830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: John Stultz <john.stultz@linaro.org>
 
-commit 529244bd1afc102ab164429d338d310d5d65e60d upstream.
+[ Upstream commit 2f42e05b942fe2fbfb9bbc6e34e1dd8c3ce4f3a4 ]
 
-Doing an add/remove/add on a SCSI device in an enclosure leads to an oops
-caused by poisoned values in the enclosure device list pointers.  The
-reason is because we are keeping the enclosure device across the enclosed
-device add/remove/add but the current code is doing a
-device_add/device_del/device_add on it.  This is the wrong thing to do in
-sysfs, so fix it by not doing a device_del on the enclosure device simply
-because of a hot remove of the drive in the slot.
+In some cases we seem to submit two transactions in a row, which
+causes us to lose track of the first. If we then cancel the
+request, we may still get an interrupt, which traverses a null
+ds_run value.
 
-[mkp: added missing email addresses]
+So try to avoid starting a new transaction if the ds_run value
+is set.
 
-Fixes: 43d8eb9cfd0a ("[SCSI] ses: add support for enclosure component hot removal")
-Link: https://lore.kernel.org/r/1578532892.3852.10.camel@HansenPartnership.com
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Reported-by: Luo Jiaxing <luojiaxing@huawei.com>
-Tested-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While this patch avoids the null pointer crash, I've had some
+reports of the k3dma driver still getting confused, which
+suggests the ds_run/ds_done value handling still isn't quite
+right. However, I've not run into an issue recently with it
+so I think this patch is worth pushing upstream to avoid the
+crash.
 
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+[add ss tag]
+Link: https://lore.kernel.org/r/20191218190906.6641-1-john.stultz@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/enclosure.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/dma/k3dma.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/misc/enclosure.c
-+++ b/drivers/misc/enclosure.c
-@@ -419,10 +419,9 @@ int enclosure_remove_device(struct enclo
- 		cdev = &edev->component[i];
- 		if (cdev->dev == dev) {
- 			enclosure_remove_links(cdev);
--			device_del(&cdev->cdev);
- 			put_device(dev);
- 			cdev->dev = NULL;
--			return device_add(&cdev->cdev);
-+			return 0;
- 		}
- 	}
- 	return -ENODEV;
+diff --git a/drivers/dma/k3dma.c b/drivers/dma/k3dma.c
+index 4b36c8810517..d05471653224 100644
+--- a/drivers/dma/k3dma.c
++++ b/drivers/dma/k3dma.c
+@@ -229,9 +229,11 @@ static irqreturn_t k3_dma_int_handler(int irq, void *dev_id)
+ 			c = p->vchan;
+ 			if (c && (tc1 & BIT(i))) {
+ 				spin_lock_irqsave(&c->vc.lock, flags);
+-				vchan_cookie_complete(&p->ds_run->vd);
+-				p->ds_done = p->ds_run;
+-				p->ds_run = NULL;
++				if (p->ds_run != NULL) {
++					vchan_cookie_complete(&p->ds_run->vd);
++					p->ds_done = p->ds_run;
++					p->ds_run = NULL;
++				}
+ 				spin_unlock_irqrestore(&c->vc.lock, flags);
+ 			}
+ 			if (c && (tc2 & BIT(i))) {
+@@ -271,6 +273,10 @@ static int k3_dma_start_txd(struct k3_dma_chan *c)
+ 	if (BIT(c->phy->idx) & k3_dma_get_chan_stat(d))
+ 		return -EAGAIN;
+ 
++	/* Avoid losing track of  ds_run if a transaction is in flight */
++	if (c->phy->ds_run)
++		return -EAGAIN;
++
+ 	if (vd) {
+ 		struct k3_dma_desc_sw *ds =
+ 			container_of(vd, struct k3_dma_desc_sw, vd);
+-- 
+2.20.1
+
 
 
