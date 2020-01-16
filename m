@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5D0F13EFCE
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:18:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCFAF13EFD0
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:18:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404268AbgAPR3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:29:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40620 "EHLO mail.kernel.org"
+        id S2404273AbgAPR3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:29:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404263AbgAPR3D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:29:03 -0500
+        id S2404271AbgAPR3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:29:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82202246F3;
-        Thu, 16 Jan 2020 17:29:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8EBC246EE;
+        Thu, 16 Jan 2020 17:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195743;
-        bh=JgI2roxLOmy0H3SjGoq12s9tb2vfddbZ6GGbCTxrDAA=;
+        s=default; t=1579195744;
+        bh=NH7YmaENed7733PiOVCPiTH7DV/SfeLsD2y7DmbM7Ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1mI+dsYFfgN4N3Oh4xmu2ySFgDww628yTsk86ViSRpFa6Bn4tjrPAvmgHLkCxEXbG
-         NOktxlKDjaCsUd/IpED1swOyjP7EES5f8E/rzNw3KignRzDfRDjPY9cfGtCku8I+/w
-         Sb6vT0rswbx/X/Tl/VXCV0XwqdoJsqconeEDgAU0=
+        b=V53zVZv7lWpgdqIDY4Hl2WkI8a37SzzcG4pgDZe2ex7HvoULkiyM1HYaWOerEeKjo
+         yrTPPSItEFXT1/pKlxm4tEMKETS8uOY6nrk7EExwMgWCvDL7sc1YVl89FXK8Ibanof
+         XFanbJuTmO2ujH9GHd07SYZqKsagzrPl9M4W7QT8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Chuansheng Liu <chuansheng.liu@intel.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 278/371] ahci: Do not export local variable ahci_em_messages
-Date:   Thu, 16 Jan 2020 12:22:30 -0500
-Message-Id: <20200116172403.18149-221-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        laokz <laokz@foxmail.com>, Stefani Seibold <stefani@seibold.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Greg KH <greg@kroah.com>, Kees Cook <keescook@chromium.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 279/371] Partially revert "kfifo: fix kfifo_alloc() and kfifo_init()"
+Date:   Thu, 16 Jan 2020 12:22:31 -0500
+Message-Id: <20200116172403.18149-222-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,39 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 60fc35f327e0a9e60b955c0f3c3ed623608d1baa ]
+[ Upstream commit ab9bb6318b0967671e0c9b6537c1537d51ca4f45 ]
 
-The commit ed08d40cdec4
-  ("ahci: Changing two module params with static and __read_mostly")
-moved ahci_em_messages to be static while missing the fact of exporting it.
+Commit dfe2a77fd243 ("kfifo: fix kfifo_alloc() and kfifo_init()") made
+the kfifo code round the number of elements up.  That was good for
+__kfifo_alloc(), but it's actually wrong for __kfifo_init().
 
-WARNING: "ahci_em_messages" [vmlinux] is a static EXPORT_SYMBOL_GPL
+The difference? __kfifo_alloc() will allocate the rounded-up number of
+elements, but __kfifo_init() uses an allocation done by the caller.  We
+can't just say "use more elements than the caller allocated", and have
+to round down.
 
-Drop export for the local variable ahci_em_messages.
+The good news? All the normal cases will be using power-of-two arrays
+anyway, and most users of kfifo's don't use kfifo_init() at all, but one
+of the helper macros to declare a KFIFO that enforce the proper
+power-of-two behavior.  But it looks like at least ibmvscsis might be
+affected.
 
-Fixes: ed08d40cdec4 ("ahci: Changing two module params with static and __read_mostly")
-Cc: Chuansheng Liu <chuansheng.liu@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The bad news? Will Deacon refers to an old thread and points points out
+that the memory ordering in kfifo's is questionable.  See
+
+  https://lore.kernel.org/lkml/20181211034032.32338-1-yuleixzhang@tencent.com/
+
+for more.
+
+Fixes: dfe2a77fd243 ("kfifo: fix kfifo_alloc() and kfifo_init()")
+Reported-by: laokz <laokz@foxmail.com>
+Cc: Stefani Seibold <stefani@seibold.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Greg KH <greg@kroah.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Will Deacon <will@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libahci.c | 1 -
- 1 file changed, 1 deletion(-)
+ lib/kfifo.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ata/libahci.c b/drivers/ata/libahci.c
-index cda9a0b5bdaa..7473ff46de66 100644
---- a/drivers/ata/libahci.c
-+++ b/drivers/ata/libahci.c
-@@ -191,7 +191,6 @@ struct ata_port_operations ahci_pmp_retry_srst_ops = {
- EXPORT_SYMBOL_GPL(ahci_pmp_retry_srst_ops);
+diff --git a/lib/kfifo.c b/lib/kfifo.c
+index 90ba1eb1df06..a94227c55551 100644
+--- a/lib/kfifo.c
++++ b/lib/kfifo.c
+@@ -82,7 +82,8 @@ int __kfifo_init(struct __kfifo *fifo, void *buffer,
+ {
+ 	size /= esize;
  
- static bool ahci_em_messages __read_mostly = true;
--EXPORT_SYMBOL_GPL(ahci_em_messages);
- module_param(ahci_em_messages, bool, 0444);
- /* add other LED protocol types when they become supported */
- MODULE_PARM_DESC(ahci_em_messages,
+-	size = roundup_pow_of_two(size);
++	if (!is_power_of_2(size))
++		size = rounddown_pow_of_two(size);
+ 
+ 	fifo->in = 0;
+ 	fifo->out = 0;
 -- 
 2.20.1
 
