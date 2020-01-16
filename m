@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5331513F1AF
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54D9113F191
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388537AbgAPS3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:29:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
+        id S2392158AbgAPRZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:25:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732862AbgAPRZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:44 -0500
+        id S2392153AbgAPRZp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F837246A7;
-        Thu, 16 Jan 2020 17:25:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 709262053B;
+        Thu, 16 Jan 2020 17:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195544;
-        bh=5GoVNpGh4Dr4dxWZ8reDc8lbWUTjAQH0PijjACcg4h4=;
+        s=default; t=1579195545;
+        bh=Er9b+hegv+QekdwOFBDM4vu7+PTEEUZ/66FnFh24PYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjaQ4x/unDPoDlpaMPXY9OtmVcznT5OwYWal+8q8I2Qx6gEROYpReqQyh3NONIN8O
-         6/twWnVtJJFPpPyEkiv5OxZXGECdIm4EOi09TU194YDlyw9Baic8QoPArs5CcUKcLq
-         SbY2wM+t4wGj4OANbRKFLVomdyFPF0s74zqTkMXs=
+        b=q8ciJSxw8T6ndVSKFL7k1QZLSfQtAShW25VqUgH68UPB7eZWmIHygweCX/Mk5HQ9F
+         QDEP/zCCm7Tysy6y8zLxZc2WU8PvE2RFamLSccNCQfePI1bDbGu2qZrWfendp0xIzd
+         Ee1ch0C4iVqjxiPzzFpPGI1o+ZIViglTQCrfoMNQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>, Keerthy <j-keerthy@ti.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 136/371] regulator: lp87565: Fix missing register for LP87565_BUCK_0
-Date:   Thu, 16 Jan 2020 12:20:08 -0500
-Message-Id: <20200116172403.18149-79-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 137/371] media: ivtv: update *pos correctly in ivtv_read_pos()
+Date:   Thu, 16 Jan 2020 12:20:09 -0500
+Message-Id: <20200116172403.18149-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -43,33 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d1a6cbdf1e597917cb642c655512d91b71a35d22 ]
+[ Upstream commit f8e579f3ca0973daef263f513da5edff520a6c0d ]
 
-LP87565_BUCK_0 is missed, fix it.
+We had intended to update *pos, but the current code is a no-op.
 
-Fixes: f0168a9bf ("regulator: lp87565: Add support for lp87565 PMIC regulators")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: Keerthy <j-keerthy@ti.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 1a0adaf37c30 ("V4L/DVB (5345): ivtv driver for Conexant cx23416/cx23415 MPEG encoder/decoder")
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/lp87565-regulator.c | 2 +-
+ drivers/media/pci/ivtv/ivtv-fileops.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/lp87565-regulator.c b/drivers/regulator/lp87565-regulator.c
-index cfdbe294fb6a..32d4e6ec2e19 100644
---- a/drivers/regulator/lp87565-regulator.c
-+++ b/drivers/regulator/lp87565-regulator.c
-@@ -188,7 +188,7 @@ static int lp87565_regulator_probe(struct platform_device *pdev)
- 	struct lp87565 *lp87565 = dev_get_drvdata(pdev->dev.parent);
- 	struct regulator_config config = { };
- 	struct regulator_dev *rdev;
--	int i, min_idx = LP87565_BUCK_1, max_idx = LP87565_BUCK_3;
-+	int i, min_idx = LP87565_BUCK_0, max_idx = LP87565_BUCK_3;
+diff --git a/drivers/media/pci/ivtv/ivtv-fileops.c b/drivers/media/pci/ivtv/ivtv-fileops.c
+index c9bd018e53de..e2b19c3eaa87 100644
+--- a/drivers/media/pci/ivtv/ivtv-fileops.c
++++ b/drivers/media/pci/ivtv/ivtv-fileops.c
+@@ -420,7 +420,7 @@ static ssize_t ivtv_read_pos(struct ivtv_stream *s, char __user *ubuf, size_t co
  
- 	platform_set_drvdata(pdev, lp87565);
+ 	IVTV_DEBUG_HI_FILE("read %zd from %s, got %zd\n", count, s->name, rc);
+ 	if (rc > 0)
+-		pos += rc;
++		*pos += rc;
+ 	return rc;
+ }
  
 -- 
 2.20.1
