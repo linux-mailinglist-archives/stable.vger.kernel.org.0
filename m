@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D56F13F3E1
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:46:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EB0D13F3DC
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:46:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732461AbgAPSqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:46:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48538 "EHLO mail.kernel.org"
+        id S2390089AbgAPSqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:46:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389931AbgAPRKZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:10:25 -0500
+        id S2389937AbgAPRK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:10:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A22324684;
-        Thu, 16 Jan 2020 17:10:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D87024685;
+        Thu, 16 Jan 2020 17:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194625;
-        bh=4a7Sk8SWFDzfmkMN30hHFPwBDh9o5W9TF2o7WnL/dco=;
+        s=default; t=1579194626;
+        bh=cCRaRvBuPhcQPa9+/4rPGVxmyznYiXD4RfIyjgTKUb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tD22/1xzrGP//aTgHVdcZIihYdesZpZU0JdVUauRDUqGHTnXnukJViigSAy+fF1dk
-         eaE4aMRJBIQ/BlA2Qq1nVGLsKoni8QsB/d4iN1cJ20pFGkH2injtHtqEacKaffxk1Q
-         V5XFuvmr49Hk/Oj6AdkJH2rGh6gsZdgBZsgAMWDQ=
+        b=lcdfoAGtXESZDa7KJbinyTKb7R7QzEvHwrMvq3255bu0Bfe60jQP/1CImlgADuO0h
+         /muKMGnB2giK9eA8JpzfpOkxVA5NVz+64W0kw71Ps6m8HcdQ5I1AO4M8HzLMxrJjGC
+         AbCeXf4aFtjdVk2DwKIw/OHEJk2fE/CKSfFFGCBs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 485/671] cxgb4: smt: Add lock for atomic_dec_and_test
-Date:   Thu, 16 Jan 2020 12:02:03 -0500
-Message-Id: <20200116170509.12787-222-sashal@kernel.org>
+Cc:     Iuliana Prodan <iuliana.prodan@nxp.com>,
+        Horia Geanta <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 486/671] crypto: caam - free resources in case caam_rng registration failed
+Date:   Thu, 16 Jan 2020 12:02:04 -0500
+Message-Id: <20200116170509.12787-223-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -43,50 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Iuliana Prodan <iuliana.prodan@nxp.com>
 
-[ Upstream commit 4a8937b83892cb69524291cae6cdabad4a8be033 ]
+[ Upstream commit c59a1d41672a89b5cac49db1a472ff889e35a2d2 ]
 
-The atomic_dec_and_test() is not safe because it is
-outside of locks.
-Move the locks of t4_smte_free() to its caller,
-cxgb4_smt_release() to protect the atomic decrement.
+Check the return value of the hardware registration for caam_rng and free
+resources in case of failure.
 
-Fixes: 3bdb376e6944 ("cxgb4: introduce SMT ops to prepare for SMAC rewrite support")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e24f7c9e87d4 ("crypto: caam - hwrng support")
+Signed-off-by: Iuliana Prodan <iuliana.prodan@nxp.com>
+Reviewed-by: Horia Geanta <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/smt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/caam/caamrng.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/smt.c b/drivers/net/ethernet/chelsio/cxgb4/smt.c
-index 7b2207a2a130..9b3f4205cb4d 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/smt.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/smt.c
-@@ -98,11 +98,9 @@ static struct smt_entry *find_or_alloc_smte(struct smt_data *s, u8 *smac)
+diff --git a/drivers/crypto/caam/caamrng.c b/drivers/crypto/caam/caamrng.c
+index fde07d4ff019..ff6718a11e9e 100644
+--- a/drivers/crypto/caam/caamrng.c
++++ b/drivers/crypto/caam/caamrng.c
+@@ -353,7 +353,10 @@ static int __init caam_rng_init(void)
+ 		goto free_rng_ctx;
  
- static void t4_smte_free(struct smt_entry *e)
- {
--	spin_lock_bh(&e->lock);
- 	if (atomic_read(&e->refcnt) == 0) {  /* hasn't been recycled */
- 		e->state = SMT_STATE_UNUSED;
- 	}
--	spin_unlock_bh(&e->lock);
- }
+ 	dev_info(dev, "registering rng-caam\n");
+-	return hwrng_register(&caam_rng);
++
++	err = hwrng_register(&caam_rng);
++	if (!err)
++		return err;
  
- /**
-@@ -112,8 +110,10 @@ static void t4_smte_free(struct smt_entry *e)
-  */
- void cxgb4_smt_release(struct smt_entry *e)
- {
-+	spin_lock_bh(&e->lock);
- 	if (atomic_dec_and_test(&e->refcnt))
- 		t4_smte_free(e);
-+	spin_unlock_bh(&e->lock);
- }
- EXPORT_SYMBOL(cxgb4_smt_release);
- 
+ free_rng_ctx:
+ 	kfree(rng_ctx);
 -- 
 2.20.1
 
