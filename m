@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F00E13FFF6
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3BEB13FFE0
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731041AbgAPXqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:46:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49124 "EHLO mail.kernel.org"
+        id S2390856AbgAPXVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:21:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390857AbgAPXVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:21:41 -0500
+        id S2388978AbgAPXVq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:21:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95F35206D9;
-        Thu, 16 Jan 2020 23:21:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6143420748;
+        Thu, 16 Jan 2020 23:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216901;
-        bh=uCgsCD/PC8upsUFz8l4cub7gwgwpAiMz3Y8qPsgJln0=;
+        s=default; t=1579216905;
+        bh=JSuBphsjuh0+PpEiMvHb+bCx5t9x0cjW3CLELLPZeHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+nRt6OMvuiakbes7GAgo/rVURrJaR4DKaKJbJQjXB+VVaPE0/I/9MZNkY7Fp0Mg/
-         4hWyRxAVAjEZrgvt5O+INKAeoJ/MJHaATQZWrM0RbqjfgcQ/XEGnQbex6eJ3G79xnI
-         QoDCIWdnsTkfEMAjDHxgYbRJr+ion51+256VuluY=
+        b=b4kQJbPuUkGdH9MflN/Y+AaeNB6Yhw8GqhrgOhC/RsYmdabTzk+Nx6I5O/c0AxVR5
+         OGeiE5po1Ib/UF1E5/Xlr1bmGqpVtxjjndn3V6GWtC3g4zXllfFHHRrEhZWLO0KBf5
+         P+NrBl1RtT7AVWiTvj2Tngn+e8RVI1b6iRSzrc4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.4 050/203] syscalls/x86: Fix function types in COND_SYSCALL
-Date:   Fri, 17 Jan 2020 00:16:07 +0100
-Message-Id: <20200116231748.356024867@linuxfoundation.org>
+        stable@vger.kernel.org, Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 052/203] btrfs: simplify inode locking for RWF_NOWAIT
+Date:   Fri, 17 Jan 2020 00:16:09 +0100
+Message-Id: <20200116231748.526335217@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -50,80 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Goldwyn Rodrigues <rgoldwyn@suse.com>
 
-commit 6e4847640c6aebcaa2d9b3686cecc91b41f09269 upstream.
+commit 9cf35f673583ccc9f3e2507498b3079d56614ad3 upstream.
 
-Define a weak function in COND_SYSCALL instead of a weak alias to
-sys_ni_syscall(), which has an incompatible type. This fixes indirect
-call mismatches with Control-Flow Integrity (CFI) checking.
+This is similar to 942491c9e6d6 ("xfs: fix AIM7 regression"). Apparently
+our current rwsem code doesn't like doing the trylock, then lock for
+real scheme. This causes extra contention on the lock and can be
+measured eg. by AIM7 benchmark.  So change our read/write methods to
+just do the trylock for the RWF_NOWAIT case.
 
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H . Peter Anvin <hpa@zytor.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191008224049.115427-6-samitolvanen@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: edf064e7c6fe ("btrfs: nowait aio support")
+Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ update changelog ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/syscall_wrapper.h |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ fs/btrfs/file.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/syscall_wrapper.h
-+++ b/arch/x86/include/asm/syscall_wrapper.h
-@@ -6,6 +6,8 @@
- #ifndef _ASM_X86_SYSCALL_WRAPPER_H
- #define _ASM_X86_SYSCALL_WRAPPER_H
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1903,9 +1903,10 @@ static ssize_t btrfs_file_write_iter(str
+ 	    (iocb->ki_flags & IOCB_NOWAIT))
+ 		return -EOPNOTSUPP;
  
-+struct pt_regs;
-+
- /* Mapping of registers to parameters for syscalls on x86-64 and x32 */
- #define SC_X86_64_REGS_TO_ARGS(x, ...)					\
- 	__MAP(x,__SC_ARGS						\
-@@ -64,9 +66,15 @@
- 	SYSCALL_ALIAS(__ia32_sys_##sname, __x64_sys_##sname);		\
- 	asmlinkage long __x64_sys_##sname(const struct pt_regs *__unused)
+-	if (!inode_trylock(inode)) {
+-		if (iocb->ki_flags & IOCB_NOWAIT)
++	if (iocb->ki_flags & IOCB_NOWAIT) {
++		if (!inode_trylock(inode))
+ 			return -EAGAIN;
++	} else {
+ 		inode_lock(inode);
+ 	}
  
--#define COND_SYSCALL(name)						\
--	cond_syscall(__x64_sys_##name);					\
--	cond_syscall(__ia32_sys_##name)
-+#define COND_SYSCALL(name)							\
-+	asmlinkage __weak long __x64_sys_##name(const struct pt_regs *__unused)	\
-+	{									\
-+		return sys_ni_syscall();					\
-+	}									\
-+	asmlinkage __weak long __ia32_sys_##name(const struct pt_regs *__unused)\
-+	{									\
-+		return sys_ni_syscall();					\
-+	}
- 
- #define SYS_NI(name)							\
- 	SYSCALL_ALIAS(__x64_sys_##name, sys_ni_posix_timers);		\
-@@ -218,7 +226,11 @@
- #endif
- 
- #ifndef COND_SYSCALL
--#define COND_SYSCALL(name) cond_syscall(__x64_sys_##name)
-+#define COND_SYSCALL(name) 							\
-+	asmlinkage __weak long __x64_sys_##name(const struct pt_regs *__unused)	\
-+	{									\
-+		return sys_ni_syscall();					\
-+	}
- #endif
- 
- #ifndef SYS_NI
-@@ -230,7 +242,6 @@
-  * For VSYSCALLS, we need to declare these three syscalls with the new
-  * pt_regs-based calling convention for in-kernel use.
-  */
--struct pt_regs;
- asmlinkage long __x64_sys_getcpu(const struct pt_regs *regs);
- asmlinkage long __x64_sys_gettimeofday(const struct pt_regs *regs);
- asmlinkage long __x64_sys_time(const struct pt_regs *regs);
 
 
