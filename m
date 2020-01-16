@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A88C13FD19
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:22:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C3613FD0D
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:22:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387932AbgAPXV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:21:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49558 "EHLO mail.kernel.org"
+        id S2390817AbgAPXVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:21:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731984AbgAPXVz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:21:55 -0500
+        id S2390810AbgAPXVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:21:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12C9220684;
-        Thu, 16 Jan 2020 23:21:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CEAD20684;
+        Thu, 16 Jan 2020 23:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216915;
-        bh=+NWel1XDc0nVhEjZEKuLMD5HJ5Mm8G7/Xz0caA0IHO8=;
+        s=default; t=1579216884;
+        bh=CODGFaDMfu5utrqevmW4YohwWqC+gBcwGWeVRKV/k6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8RbaMF/gWoCFzeG8PCVZDF+yK36JqfzfLzMwpzwsiWzQXHHnYTwvV0/mBNWaUVL/
-         0zm4QGagiD+V8/a42X3MYfgpzDD+egJEH4YXsV7f9I5Ilf7LXr6MN5hz3/Ehmtu5u2
-         tXFL8wnU2OZNJqd1IVMmh38mfBus91Q+hauvJOF8=
+        b=hvqVsAzpTS9QylhXNWO34Pft9l5hoEq0/JWZnKqKeeAgVhZxBNrbx/9dGMJQdVb2L
+         rv1bNT5iWQXLo6Mwwpr0ClRW62MXY6AXMSmndkyz9PEIWTXVQGJxe5hpaQ69svryOX
+         H6fzMCqrQ9mN3lHmAZoEPZXrGWXU9/kP02ef7VYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 056/203] ASoC: simple_card_utils.h: Add missing include
-Date:   Fri, 17 Jan 2020 00:16:13 +0100
-Message-Id: <20200116231748.878130122@linuxfoundation.org>
+Subject: [PATCH 5.4 059/203] ASoC: core: Fix compile warning with CONFIG_DEBUG_FS=n
+Date:   Fri, 17 Jan 2020 00:16:16 +0100
+Message-Id: <20200116231749.178483016@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -43,41 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Baluta <daniel.baluta@nxp.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 4bbee14d8e5487e3d2662138e3767cf4678cdf57 upstream.
+commit bd0b609e0c3362cb167c51d4bd4330d79fc00987 upstream.
 
-When debug is enabled compiler cannot find the definition of
-clk_get_rate resulting in the following error:
+Paper over a compile warning:
+  sound/soc/soc-pcm.c:1185:8: warning: unused variable ‘name’
 
-./include/sound/simple_card_utils.h:168:40: note: previous implicit
-declaration of ‘clk_get_rate’ was here
-   dev_dbg(dev, "%s clk %luHz\n", name, clk_get_rate(dai->clk));
-./include/sound/simple_card_utils.h:168:3: note: in expansion of macro
-‘dev_dbg’
-   dev_dbg(dev, "%s clk %luHz\n", name, clk_get_rate(dai->clk));
-
-Fix this by including the appropriate header.
-
-Fixes: 0580dde59438686d ("ASoC: simple-card-utils: add asoc_simple_debug_info()")
-Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
-Link: https://lore.kernel.org/r/20191009153615.32105-2-daniel.baluta@nxp.com
+Fixes: 0632fa042541 ("ASoC: core: Fix pcm code debugfs error")
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20191107134833.1502-1-tiwai@suse.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/sound/simple_card_utils.h |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-pcm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/sound/simple_card_utils.h
-+++ b/include/sound/simple_card_utils.h
-@@ -8,6 +8,7 @@
- #ifndef __SIMPLE_CARD_UTILS_H
- #define __SIMPLE_CARD_UTILS_H
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -1148,7 +1148,9 @@ static int dpcm_be_connect(struct snd_so
+ {
+ 	struct snd_soc_dpcm *dpcm;
+ 	unsigned long flags;
++#ifdef CONFIG_DEBUG_FS
+ 	char *name;
++#endif
  
-+#include <linux/clk.h>
- #include <sound/soc.h>
- 
- #define asoc_simple_init_hp(card, sjack, prefix) \
+ 	/* only add new dpcms */
+ 	for_each_dpcm_be(fe, stream, dpcm) {
 
 
