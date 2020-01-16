@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 110C813E7F2
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75E8613E7F7
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:29:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404301AbgAPR3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:29:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40904 "EHLO mail.kernel.org"
+        id S2392539AbgAPR3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:29:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404293AbgAPR3L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:29:11 -0500
+        id S2392096AbgAPR3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:29:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5172246F9;
-        Thu, 16 Jan 2020 17:29:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1719724717;
+        Thu, 16 Jan 2020 17:29:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195751;
-        bh=gKfMirSXY4Hz5bEhg0xMWQubzmrFf7IxaE0FqOAsBck=;
+        s=default; t=1579195758;
+        bh=hGXAPjRYX+PfQxxPC5AnpLhJyztc0IJVCL33HvY/ugE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VT/KicY4iFAk8oq9Wi5GSwO5ctgtxU4sM4qnQFq08pt199uGpq+wIGU1WBrhSK9mn
-         FmtQvSslEpylS/d6LBY/1RRrhAaukwnVH1Ntf0Il9X30DCQmaUc5vvdiHF1Wlgyd1J
-         hkJ0IJuijMdBdaLOcvRO5gHSmgRT9bbDSHiwlTIY=
+        b=2Eq6oLKM7i+DS3Wbg4bc//YasSgBZZCJBUGVaLYM7t53al+rGg1H9nRkAERAeLJq4
+         gpSU8Dei1NmzsnghMEUI2j9bvQa+qs2hAaw7Oz05g6Hte4YTN4j2r5RcFhWITLvKRE
+         iXQJnOWTIjZc+WV/jieV8JCxCjbSoVslybeAt7RA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
+Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Bhuvanchandra DV <bhuvanchandra.dv@toradex.com>,
+        Chris Healy <cphealy@gmail.com>,
+        Cory Tusar <cory.tusar@zii.aero>,
+        Lucas Stach <l.stach@pengutronix.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, greybus-dev@lists.linaro.org,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.14 283/371] staging: greybus: light: fix a couple double frees
-Date:   Thu, 16 Jan 2020 12:22:35 -0500
-Message-Id: <20200116172403.18149-226-sashal@kernel.org>
+        Jiri Slaby <jslaby@suse.com>, linux-imx@nxp.com,
+        linux-serial@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 288/371] tty: serial: fsl_lpuart: Use appropriate lpuart32_* I/O funcs
+Date:   Thu, 16 Jan 2020 12:22:40 -0500
+Message-Id: <20200116172403.18149-231-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,67 +49,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-[ Upstream commit 329101244f214952606359d254ae883b7109e1a5 ]
+[ Upstream commit 1da17d7cf8e2c4b60163d54300f72c02f510327c ]
 
-The problem is in gb_lights_request_handler().  If we get a request to
-change the config then we release the light with gb_lights_light_release()
-and re-allocated it.  However, if the allocation fails part way through
-then we call gb_lights_light_release() again.  This can lead to a couple
-different double frees where we haven't cleared out the original values:
+When dealing with 32-bit variant of LPUART IP block appropriate I/O
+helpers have to be used to properly deal with endianness
+differences. Change all of the offending code to do that.
 
-	gb_lights_light_v4l2_unregister(light);
-	...
-	kfree(light->channels);
-	kfree(light->name);
-
-I also made a small change to how we set "light->channels_count = 0;".
-The original code handled this part fine and did not cause a use after
-free but it was sort of complicated to read.
-
-Fixes: 2870b52bae4c ("greybus: lights: add lights implementation")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Link: https://lore.kernel.org/r/20190829122839.GA20116@mwanda
+Fixes: a5fa2660d787 ("tty/serial/fsl_lpuart: Add CONSOLE_POLL support
+for lpuart32.")
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Bhuvanchandra DV <bhuvanchandra.dv@toradex.com>
+Cc: Chris Healy <cphealy@gmail.com>
+Cc: Cory Tusar <cory.tusar@zii.aero>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jslaby@suse.com>
+Cc: linux-imx@nxp.com
+Cc: linux-serial@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/20190729195226.8862-14-andrew.smirnov@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/light.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/staging/greybus/light.c b/drivers/staging/greybus/light.c
-index 0f538b8c3a07..4e7575147775 100644
---- a/drivers/staging/greybus/light.c
-+++ b/drivers/staging/greybus/light.c
-@@ -1103,21 +1103,21 @@ static void gb_lights_channel_release(struct gb_channel *channel)
- static void gb_lights_light_release(struct gb_light *light)
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index fb2dcb3f8591..16422987ab0f 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -532,26 +532,26 @@ static int lpuart32_poll_init(struct uart_port *port)
+ 	spin_lock_irqsave(&sport->port.lock, flags);
+ 
+ 	/* Disable Rx & Tx */
+-	writel(0, sport->port.membase + UARTCTRL);
++	lpuart32_write(&sport->port, UARTCTRL, 0);
+ 
+-	temp = readl(sport->port.membase + UARTFIFO);
++	temp = lpuart32_read(&sport->port, UARTFIFO);
+ 
+ 	/* Enable Rx and Tx FIFO */
+-	writel(temp | UARTFIFO_RXFE | UARTFIFO_TXFE,
+-		   sport->port.membase + UARTFIFO);
++	lpuart32_write(&sport->port, UARTFIFO,
++		       temp | UARTFIFO_RXFE | UARTFIFO_TXFE);
+ 
+ 	/* flush Tx and Rx FIFO */
+-	writel(UARTFIFO_TXFLUSH | UARTFIFO_RXFLUSH,
+-			sport->port.membase + UARTFIFO);
++	lpuart32_write(&sport->port, UARTFIFO,
++		       UARTFIFO_TXFLUSH | UARTFIFO_RXFLUSH);
+ 
+ 	/* explicitly clear RDRF */
+-	if (readl(sport->port.membase + UARTSTAT) & UARTSTAT_RDRF) {
+-		readl(sport->port.membase + UARTDATA);
+-		writel(UARTFIFO_RXUF, sport->port.membase + UARTFIFO);
++	if (lpuart32_read(&sport->port, UARTSTAT) & UARTSTAT_RDRF) {
++		lpuart32_read(&sport->port, UARTDATA);
++		lpuart32_write(&sport->port, UARTFIFO, UARTFIFO_RXUF);
+ 	}
+ 
+ 	/* Enable Rx and Tx */
+-	writel(UARTCTRL_RE | UARTCTRL_TE, sport->port.membase + UARTCTRL);
++	lpuart32_write(&sport->port, UARTCTRL, UARTCTRL_RE | UARTCTRL_TE);
+ 	spin_unlock_irqrestore(&sport->port.lock, flags);
+ 
+ 	return 0;
+@@ -559,18 +559,18 @@ static int lpuart32_poll_init(struct uart_port *port)
+ 
+ static void lpuart32_poll_put_char(struct uart_port *port, unsigned char c)
  {
- 	int i;
--	int count;
+-	while (!(readl(port->membase + UARTSTAT) & UARTSTAT_TDRE))
++	while (!(lpuart32_read(port, UARTSTAT) & UARTSTAT_TDRE))
+ 		barrier();
  
- 	light->ready = false;
- 
--	count = light->channels_count;
--
- 	if (light->has_flash)
- 		gb_lights_light_v4l2_unregister(light);
-+	light->has_flash = false;
- 
--	for (i = 0; i < count; i++) {
-+	for (i = 0; i < light->channels_count; i++)
- 		gb_lights_channel_release(&light->channels[i]);
--		light->channels_count--;
--	}
-+	light->channels_count = 0;
-+
- 	kfree(light->channels);
-+	light->channels = NULL;
- 	kfree(light->name);
-+	light->name = NULL;
+-	writel(c, port->membase + UARTDATA);
++	lpuart32_write(port, UARTDATA, c);
  }
  
- static void gb_lights_release(struct gb_lights *glights)
+ static int lpuart32_poll_get_char(struct uart_port *port)
+ {
+-	if (!(readl(port->membase + UARTSTAT) & UARTSTAT_RDRF))
++	if (!(lpuart32_read(port, UARTSTAT) & UARTSTAT_RDRF))
+ 		return NO_POLL_CHAR;
+ 
+-	return readl(port->membase + UARTDATA);
++	return lpuart32_read(port, UARTDATA);
+ }
+ #endif
+ 
 -- 
 2.20.1
 
