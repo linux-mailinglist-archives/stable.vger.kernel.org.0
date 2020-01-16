@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 551AF13EC3D
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:56:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E9F13EA6D
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:44:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394043AbgAPRzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:55:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35056 "EHLO mail.kernel.org"
+        id S2394121AbgAPRoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:44:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394112AbgAPRoP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:44:15 -0500
+        id S2394115AbgAPRoQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:44:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12CEC2475E;
-        Thu, 16 Jan 2020 17:44:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9068D24764;
+        Thu, 16 Jan 2020 17:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196655;
-        bh=PkaWdYxqxdWMRUsmEVtqI7yY+n4bIU56XI/NRCZjYLc=;
+        s=default; t=1579196656;
+        bh=Cq8Wtn2reVxGdiGtTvpmp9TfpUrvmzek3sU2F8MwtBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z2Yv6oGDu/73qL1wVyB2YgBOUSu9qrutu64Xugk+hjVJwpVzclGdqHX9VW4/w89Wt
-         /6eYqcj7fEWC4PdL8kzdTW3lVf7CvCoKeoNdzBAnHyZmpR9mHyCYlUE0H5qQ4bfSM2
-         wkrgCqUCOcQekad6of2OQNfiUBrPGoLMnMAKtNuQ=
+        b=LKvDpKbfI5EpGgSHnidQMcQfbf8PQuks/Xl3kd8+lySyf1Jov7vpHUo8UKOZ/m/mP
+         Wjw1KtIJR8qS9a/KuEpDtN1Ahs181SZmDQK3cmzmpyNlUx69OTHmtyoKJp5ZRum/U4
+         aPoOtM0q4iEeJ1E5yiXpy5hi3U33vCk5kx8d+GE4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Mc Guire <hofrat@osadl.org>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 062/174] media: cx23885: check allocation return
-Date:   Thu, 16 Jan 2020 12:40:59 -0500
-Message-Id: <20200116174251.24326-62-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.4 063/174] jfs: fix bogus variable self-initialization
+Date:   Thu, 16 Jan 2020 12:41:00 -0500
+Message-Id: <20200116174251.24326-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -43,41 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Mc Guire <hofrat@osadl.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit a3d7f22ef34ec4206b50ee121384d5c8bebd5591 ]
+[ Upstream commit a5fdd713d256887b5f012608701149fa939e5645 ]
 
-Checking of kmalloc() seems to have been committed - as
-cx23885_dvb_register() is checking for != 0 return, returning
--ENOMEM should be fine here.  While at it address the coccicheck
-suggestion to move to kmemdup rather than using kmalloc+memcpy.
+A statement was originally added in 2006 to shut up a gcc warning,
+now but now clang warns about it:
 
-Fixes: 46b21bbaa8a8 ("[media] Add support for DViCO FusionHDTV DVB-T Dual Express2")
+fs/jfs/jfs_txnmgr.c:1932:15: error: variable 'pxd' is uninitialized when used within its own initialization
+      [-Werror,-Wuninitialized]
+                pxd_t pxd = pxd;        /* truncated extent of xad */
+                      ~~~   ^~~
 
-Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Modern versions of gcc are fine without the silly assignment, so just
+drop it. Tested with gcc-4.6 (released 2011), 4.7, 4.8, and 4.9.
+
+Fixes: c9e3ad6021e5 ("JFS: Get rid of "may be used uninitialized" warnings")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx23885/cx23885-dvb.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/jfs/jfs_txnmgr.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/cx23885/cx23885-dvb.c b/drivers/media/pci/cx23885/cx23885-dvb.c
-index e543cbbf2ec4..8fe78b8b1c25 100644
---- a/drivers/media/pci/cx23885/cx23885-dvb.c
-+++ b/drivers/media/pci/cx23885/cx23885-dvb.c
-@@ -1452,8 +1452,9 @@ static int dvb_register(struct cx23885_tsport *port)
- 		if (fe0->dvb.frontend != NULL) {
- 			struct i2c_adapter *tun_i2c;
+diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
+index d595856453b2..de6351c1c8db 100644
+--- a/fs/jfs/jfs_txnmgr.c
++++ b/fs/jfs/jfs_txnmgr.c
+@@ -1928,8 +1928,7 @@ static void xtLog(struct jfs_log * log, struct tblock * tblk, struct lrd * lrd,
+ 	 * header ?
+ 	 */
+ 	if (tlck->type & tlckTRUNCATE) {
+-		/* This odd declaration suppresses a bogus gcc warning */
+-		pxd_t pxd = pxd;	/* truncated extent of xad */
++		pxd_t pxd;	/* truncated extent of xad */
+ 		int twm;
  
--			fe0->dvb.frontend->sec_priv = kmalloc(sizeof(dib7000p_ops), GFP_KERNEL);
--			memcpy(fe0->dvb.frontend->sec_priv, &dib7000p_ops, sizeof(dib7000p_ops));
-+			fe0->dvb.frontend->sec_priv = kmemdup(&dib7000p_ops, sizeof(dib7000p_ops), GFP_KERNEL);
-+			if (!fe0->dvb.frontend->sec_priv)
-+				return -ENOMEM;
- 			tun_i2c = dib7000p_ops.get_i2c_master(fe0->dvb.frontend, DIBX000_I2C_INTERFACE_TUNER, 1);
- 			if (!dvb_attach(dib0070_attach, fe0->dvb.frontend, tun_i2c, &dib7070p_dib0070_config))
- 				return -ENODEV;
+ 		/*
 -- 
 2.20.1
 
