@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DFB913E6AA
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:21:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D60CB13E693
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:21:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391456AbgAPRVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:21:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
+        id S1733238AbgAPRVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:21:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391249AbgAPRRs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:17:48 -0500
+        id S2391280AbgAPRRt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:17:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7509822522;
-        Thu, 16 Jan 2020 17:17:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D184E2075B;
+        Thu, 16 Jan 2020 17:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195067;
-        bh=pVwNJTS267s0DwV6idTs9NtxVWaFw9mF8KkJysJqDvQ=;
+        s=default; t=1579195069;
+        bh=1HtmT7m+kFaRKNM2WgnRVGCCkcls9ULYbGmvbiUNWpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vF5LgtYKaVoZQhUUikUtq3Bs+zc3ci3wcvAqwnm3Ff8X/NaJv7PmOqO9b3varnS2E
-         kjdvPVjgrTqK3h5NxtyTxIsIZVBx2xHAWbux026+MUrw0VTibMSvgPNXfvlVO2BuA0
-         4d5KeI8iyhzObv0OIxs5zmT9lX6+0bdSKexxLY8s=
+        b=sgWMjhZUr6V1iPCupAmP4er6NOv76X8/hGz2qRqruqEMuAgQbJSFfiXjUFmWhunZd
+         65WluACAqaUr3KB6ykIL00YF26TGzNg8Nx0mDbUTMxJVZeYXzhhGlODtnxH/lBUSYn
+         OhgYeMWBZYhKyK2M3hH6WtnePN4RR7F13iudxfvc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yuval Shaia <yuval.shaia@oracle.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Zhu Yanjun <yanjun.zhu@oracle.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 021/371] IB/rxe: Fix incorrect cache cleanup in error flow
-Date:   Thu, 16 Jan 2020 12:11:29 -0500
-Message-Id: <20200116171719.16965-21-sashal@kernel.org>
+Cc:     Stefan Wahren <stefan.wahren@i2se.com>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.14 022/371] staging: bcm2835-camera: Abort probe if there is no camera
+Date:   Thu, 16 Jan 2020 12:11:30 -0500
+Message-Id: <20200116171719.16965-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116171719.16965-1-sashal@kernel.org>
 References: <20200116171719.16965-1-sashal@kernel.org>
@@ -46,73 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuval Shaia <yuval.shaia@oracle.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 6db21d8986e14e2e86573a3b055b05296188bd2c ]
+[ Upstream commit 7566f39dfdc11f8a97d5810c6e6295a88f97ef91 ]
 
-Array iterator stays at the same slot, fix it.
+Abort the probing of the camera driver in case there isn't a camera
+actually connected to the Raspberry Pi. This solution also avoids a
+NULL ptr dereference of mmal instance on driver unload.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Signed-off-by: Yuval Shaia <yuval.shaia@oracle.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Zhu Yanjun <yanjun.zhu@oracle.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 7b3ad5abf027 ("staging: Import the BCM2835 MMAL-based V4L2 camera driver.")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_pool.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ .../vc04_services/bcm2835-camera/bcm2835-camera.c        | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_pool.c b/drivers/infiniband/sw/rxe/rxe_pool.c
-index b4a8acc7bb7d..0e2425f28233 100644
---- a/drivers/infiniband/sw/rxe/rxe_pool.c
-+++ b/drivers/infiniband/sw/rxe/rxe_pool.c
-@@ -112,6 +112,18 @@ static inline struct kmem_cache *pool_cache(struct rxe_pool *pool)
- 	return rxe_type_info[pool->type].cache;
- }
- 
-+static void rxe_cache_clean(size_t cnt)
-+{
-+	int i;
-+	struct rxe_type_info *type;
+diff --git a/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c b/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
+index 377da037f31c..b521752d9aa0 100644
+--- a/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
++++ b/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
+@@ -1849,6 +1849,12 @@ static int __init bm2835_mmal_init(void)
+ 	num_cameras = get_num_cameras(instance,
+ 				      resolutions,
+ 				      MAX_BCM2835_CAMERAS);
 +
-+	for (i = 0; i < cnt; i++) {
-+		type = &rxe_type_info[i];
-+		kmem_cache_destroy(type->cache);
-+		type->cache = NULL;
++	if (num_cameras < 1) {
++		ret = -ENODEV;
++		goto cleanup_mmal;
 +	}
-+}
 +
- int rxe_cache_init(void)
- {
- 	int err;
-@@ -136,24 +148,14 @@ int rxe_cache_init(void)
- 	return 0;
+ 	if (num_cameras > MAX_BCM2835_CAMERAS)
+ 		num_cameras = MAX_BCM2835_CAMERAS;
  
- err1:
--	while (--i >= 0) {
--		kmem_cache_destroy(type->cache);
--		type->cache = NULL;
--	}
-+	rxe_cache_clean(i);
+@@ -1948,6 +1954,9 @@ static int __init bm2835_mmal_init(void)
+ 	pr_info("%s: error %d while loading driver\n",
+ 		BM2835_MMAL_MODULE_NAME, ret);
  
- 	return err;
++cleanup_mmal:
++	vchiq_mmal_finalise(instance);
++
+ 	return ret;
  }
  
- void rxe_cache_exit(void)
- {
--	int i;
--	struct rxe_type_info *type;
--
--	for (i = 0; i < RXE_NUM_TYPES; i++) {
--		type = &rxe_type_info[i];
--		kmem_cache_destroy(type->cache);
--		type->cache = NULL;
--	}
-+	rxe_cache_clean(RXE_NUM_TYPES);
- }
- 
- static int rxe_pool_init_index(struct rxe_pool *pool, u32 max, u32 min)
 -- 
 2.20.1
 
