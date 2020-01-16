@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F87213F7DA
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AE313F83F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:18:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733043AbgAPQze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:55:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40888 "EHLO mail.kernel.org"
+        id S1731931AbgAPTRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:17:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732974AbgAPQzd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:55:33 -0500
+        id S1731157AbgAPQze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:55:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1765C214AF;
-        Thu, 16 Jan 2020 16:55:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 725B820730;
+        Thu, 16 Jan 2020 16:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193733;
-        bh=BH+UMe8kz/i8Qjt0xEQMMAUh1+STexvodu+9TBUe6fA=;
+        s=default; t=1579193734;
+        bh=IhmIzIYtYHMkpRqwuhLe6N2owPqBPXz9JzK9F0v1bPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sF+NTYVZm0HYVsSaGEt5m99QqXbI2LAYPy62ljfyhZoCTCk8gJPFI3tVZP6FrdxSw
-         E37AA8fgDb/+dfPzxbciIpnjgvBBUhsJ1/EzqcP00wTR3kDD0ukDe8tv/TI4rbwhah
-         cxYWgQJFhytsXAqFXwNgt5C3aPW6mqNbiqVI0Ed4=
+        b=Mg26bi+I+yUldOKTgvmjn7SkvKF99xjj9G91zrUYjAiiv5fgQ9A+SSWIry66G6qrf
+         FkOjPpDD1CnsnfEihI9ll1HJ09Wv/JeQnsPQyt1+DKYsrqhdkteKWD8wI6uN1Ij3bo
+         5aAV0IcrrGgAC61pt6/ASe28qJ48YXbJtCcteg9E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Tomas Winkler <tomas.winkler@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 025/671] regulator: fixed: Default enable high on DT regulators
-Date:   Thu, 16 Jan 2020 11:44:16 -0500
-Message-Id: <20200116165502.8838-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 026/671] mei: replace POLL* with EPOLL* for write queues.
+Date:   Thu, 16 Jan 2020 11:44:17 -0500
+Message-Id: <20200116165502.8838-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -47,65 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Tomas Winkler <tomas.winkler@intel.com>
 
-[ Upstream commit 28be5f15df2ee6882b0a122693159c96a28203c7 ]
+[ Upstream commit 03b2cbb6ea3c73e08fcf72d9ef8e286c4dcbd1fe ]
 
-commit efdfeb079cc3
-("regulator: fixed: Convert to use GPIO descriptor only")
-switched to use gpiod_get() to look up the regulator from the
-gpiolib core whether that is device tree or boardfile.
+Looks like during merging the bulk POLL* -> EPOLL* replacement
+missed the patch
+'commit af336cabe083 ("mei: limit the number of queued writes")'
 
-This meant that we activate the code in
-a603a2b8d86e ("gpio: of: Add special quirk to parse regulator flags")
-which means the descriptors coming from the device tree already
-have the right inversion and open drain semantics set up from
-the gpiolib core.
+Fix sparse warning:
+drivers/misc/mei/main.c:602:13: warning: restricted __poll_t degrades to integer
+drivers/misc/mei/main.c:605:30: warning: invalid assignment: |=
+drivers/misc/mei/main.c:605:30:    left side has type restricted __poll_t
+drivers/misc/mei/main.c:605:30:    right side has type int
 
-As the fixed regulator was inspected again we got the
-inverted inversion and things broke.
-
-Fix it by ignoring the config in the device tree for now: the
-later patches in the series will push all inversion handling
-over to the gpiolib core and set it up properly in the
-boardfiles for legacy devices, but I did not finish that
-for this kernel cycle.
-
-Fixes: commit efdfeb079cc3 ("regulator: fixed: Convert to use GPIO descriptor only")
-Reported-by: Leonard Crestez <leonard.crestez@nxp.com>
-Reported-by: Fabio Estevam <festevam@gmail.com>
-Reported-by: John Stultz <john.stultz@linaro.org>
-Reported-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Tested-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: af336cabe083 ("mei: limit the number of queued writes")
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/fixed.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/misc/mei/main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/fixed.c b/drivers/regulator/fixed.c
-index 988a7472c2ab..d68ff65a5adc 100644
---- a/drivers/regulator/fixed.c
-+++ b/drivers/regulator/fixed.c
-@@ -84,9 +84,14 @@ of_get_fixed_voltage_config(struct device *dev,
+diff --git a/drivers/misc/mei/main.c b/drivers/misc/mei/main.c
+index 4d77a6ae183a..87281b3695e6 100644
+--- a/drivers/misc/mei/main.c
++++ b/drivers/misc/mei/main.c
+@@ -599,10 +599,10 @@ static __poll_t mei_poll(struct file *file, poll_table *wait)
+ 			mei_cl_read_start(cl, mei_cl_mtu(cl), file);
+ 	}
  
- 	of_property_read_u32(np, "startup-delay-us", &config->startup_delay);
+-	if (req_events & (POLLOUT | POLLWRNORM)) {
++	if (req_events & (EPOLLOUT | EPOLLWRNORM)) {
+ 		poll_wait(file, &cl->tx_wait, wait);
+ 		if (cl->tx_cb_queued < dev->tx_queue_limit)
+-			mask |= POLLOUT | POLLWRNORM;
++			mask |= EPOLLOUT | EPOLLWRNORM;
+ 	}
  
--	config->enable_high = of_property_read_bool(np, "enable-active-high");
--	config->gpio_is_open_drain = of_property_read_bool(np,
--							   "gpio-open-drain");
-+	/*
-+	 * FIXME: we pulled active low/high and open drain handling into
-+	 * gpiolib so it will be handled there. Delete this in the second
-+	 * step when we also remove the custom inversion handling for all
-+	 * legacy boardfiles.
-+	 */
-+	config->enable_high = 1;
-+	config->gpio_is_open_drain = 0;
- 
- 	if (of_find_property(np, "vin-supply", NULL))
- 		config->input_supply = "vin";
+ out:
 -- 
 2.20.1
 
