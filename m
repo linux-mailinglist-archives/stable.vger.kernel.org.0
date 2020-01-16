@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E85AF13F1B5
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15CBB13F18C
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391753AbgAPSae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:30:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33316 "EHLO mail.kernel.org"
+        id S2391232AbgAPRZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:25:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391990AbgAPRZb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:31 -0500
+        id S2392039AbgAPRZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CB47246DC;
-        Thu, 16 Jan 2020 17:25:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 632BB246CA;
+        Thu, 16 Jan 2020 17:25:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195531;
-        bh=USVgftlGwiLXXi5/H+/NWK1w91iAaWxgSLPLjyHHRn8=;
+        s=default; t=1579195532;
+        bh=rDly9D/e2MKcATx3KbDgv+EbQlDIJgBWs1wyKJxdJKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iCtmNUd5wmY/ESVpu5SoLK8QS0X2M3wZDf+x0Wd3rpdSxw5HqC6Hkyv386Gotn4We
-         RKCdYzOyI/vyghcKf4ZYdgGEskN+8Qu6J0ESAfygW36C0iAOfgWdOMUh+RbGSAkxem
-         ro5i/+LFyQnBTsSCPV4+Q7DtXObX4ZFl/UFSCGnk=
+        b=HUmaK5A7uPGqrJhr1CPr+ORlc38a+iHwMinBUtqHN6M01vM7RT/cGoosxD/+IMH8Q
+         byMFb7xNL0urX7V1YkaQQ36lgKr40aCYzNTuPkOxd5Xz9bea1gM25xqAJnzoTBqDxG
+         pEEEYB6VODpQays6/ngSytZKSW7X0z/QksO1Y9bU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 126/371] netfilter: nft_set_hash: fix lookups with fixed size hash on big endian
-Date:   Thu, 16 Jan 2020 12:19:58 -0500
-Message-Id: <20200116172403.18149-69-sashal@kernel.org>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 127/371] NFSv4/flexfiles: Fix invalid deref in FF_LAYOUT_DEVID_NODE()
+Date:   Thu, 16 Jan 2020 12:19:59 -0500
+Message-Id: <20200116172403.18149-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,70 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 3b02b0adc242a72b5e46019b6a9e4f84823592f6 ]
+[ Upstream commit 108bb4afd351d65826648a47f11fa3104e250d9b ]
 
-Call jhash_1word() for the 4-bytes key case from the insertion and
-deactivation path, otherwise big endian arch set lookups fail.
+If the attempt to instantiate the mirror's layout DS pointer failed,
+then that pointer may hold a value of type ERR_PTR(), so we need
+to check that before we dereference it.
 
-Fixes: 446a8268b7f5 ("netfilter: nft_set_hash: add lookup variant for fixed size hashtable")
-Reported-by: Florian Westphal <fw@strlen.de>
-Tested-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 65990d1afbd2d ("pNFS/flexfiles: Fix a deadlock on LAYOUTGET")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_hash.c | 23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ fs/nfs/flexfilelayout/flexfilelayout.h | 32 +++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
 
-diff --git a/net/netfilter/nft_set_hash.c b/net/netfilter/nft_set_hash.c
-index 33aa2ac3a62e..73f8f99b1193 100644
---- a/net/netfilter/nft_set_hash.c
-+++ b/net/netfilter/nft_set_hash.c
-@@ -442,6 +442,23 @@ static bool nft_hash_lookup_fast(const struct net *net,
- 	return false;
+diff --git a/fs/nfs/flexfilelayout/flexfilelayout.h b/fs/nfs/flexfilelayout/flexfilelayout.h
+index d6515f1584f3..d78ec99b6c4c 100644
+--- a/fs/nfs/flexfilelayout/flexfilelayout.h
++++ b/fs/nfs/flexfilelayout/flexfilelayout.h
+@@ -131,16 +131,6 @@ FF_LAYOUT_LSEG(struct pnfs_layout_segment *lseg)
+ 			    generic_hdr);
  }
  
-+static u32 nft_jhash(const struct nft_set *set, const struct nft_hash *priv,
-+		     const struct nft_set_ext *ext)
-+{
-+	const struct nft_data *key = nft_set_ext_key(ext);
-+	u32 hash, k1;
+-static inline struct nfs4_deviceid_node *
+-FF_LAYOUT_DEVID_NODE(struct pnfs_layout_segment *lseg, u32 idx)
+-{
+-	if (idx >= FF_LAYOUT_LSEG(lseg)->mirror_array_cnt ||
+-	    FF_LAYOUT_LSEG(lseg)->mirror_array[idx] == NULL ||
+-	    FF_LAYOUT_LSEG(lseg)->mirror_array[idx]->mirror_ds == NULL)
+-		return NULL;
+-	return &FF_LAYOUT_LSEG(lseg)->mirror_array[idx]->mirror_ds->id_node;
+-}
+-
+ static inline struct nfs4_ff_layout_ds *
+ FF_LAYOUT_MIRROR_DS(struct nfs4_deviceid_node *node)
+ {
+@@ -150,9 +140,25 @@ FF_LAYOUT_MIRROR_DS(struct nfs4_deviceid_node *node)
+ static inline struct nfs4_ff_layout_mirror *
+ FF_LAYOUT_COMP(struct pnfs_layout_segment *lseg, u32 idx)
+ {
+-	if (idx >= FF_LAYOUT_LSEG(lseg)->mirror_array_cnt)
+-		return NULL;
+-	return FF_LAYOUT_LSEG(lseg)->mirror_array[idx];
++	struct nfs4_ff_layout_segment *fls = FF_LAYOUT_LSEG(lseg);
 +
-+	if (set->klen == 4) {
-+		k1 = *(u32 *)key;
-+		hash = jhash_1word(k1, priv->seed);
-+	} else {
-+		hash = jhash(key, set->klen, priv->seed);
-+	}
-+	hash = reciprocal_scale(hash, priv->buckets);
-+
-+	return hash;
++	if (idx < fls->mirror_array_cnt)
++		return fls->mirror_array[idx];
++	return NULL;
 +}
 +
- static int nft_hash_insert(const struct net *net, const struct nft_set *set,
- 			   const struct nft_set_elem *elem,
- 			   struct nft_set_ext **ext)
-@@ -451,8 +468,7 @@ static int nft_hash_insert(const struct net *net, const struct nft_set *set,
- 	u8 genmask = nft_genmask_next(net);
- 	u32 hash;
++static inline struct nfs4_deviceid_node *
++FF_LAYOUT_DEVID_NODE(struct pnfs_layout_segment *lseg, u32 idx)
++{
++	struct nfs4_ff_layout_mirror *mirror = FF_LAYOUT_COMP(lseg, idx);
++
++	if (mirror != NULL) {
++		struct nfs4_ff_layout_ds *mirror_ds = mirror->mirror_ds;
++
++		if (!IS_ERR_OR_NULL(mirror_ds))
++			return &mirror_ds->id_node;
++	}
++	return NULL;
+ }
  
--	hash = jhash(nft_set_ext_key(&this->ext), set->klen, priv->seed);
--	hash = reciprocal_scale(hash, priv->buckets);
-+	hash = nft_jhash(set, priv, &this->ext);
- 	hlist_for_each_entry(he, &priv->table[hash], node) {
- 		if (!memcmp(nft_set_ext_key(&this->ext),
- 			    nft_set_ext_key(&he->ext), set->klen) &&
-@@ -491,8 +507,7 @@ static void *nft_hash_deactivate(const struct net *net,
- 	u8 genmask = nft_genmask_next(net);
- 	u32 hash;
- 
--	hash = jhash(nft_set_ext_key(&this->ext), set->klen, priv->seed);
--	hash = reciprocal_scale(hash, priv->buckets);
-+	hash = nft_jhash(set, priv, &this->ext);
- 	hlist_for_each_entry(he, &priv->table[hash], node) {
- 		if (!memcmp(nft_set_ext_key(&this->ext), &elem->key.val,
- 			    set->klen) ||
+ static inline u32
 -- 
 2.20.1
 
