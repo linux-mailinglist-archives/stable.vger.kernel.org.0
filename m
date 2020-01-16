@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A33C513E1A1
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:50:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D7C13E0C3
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729606AbgAPQp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:45:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54334 "EHLO mail.kernel.org"
+        id S1729221AbgAPQpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:45:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729214AbgAPQp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:45:29 -0500
+        id S1729225AbgAPQpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:45:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 301BF21582;
-        Thu, 16 Jan 2020 16:45:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCA8921D7D;
+        Thu, 16 Jan 2020 16:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193128;
-        bh=Xghdmv/I0g1bp8H5pEaFYmz+Bno1uviWEA0OHUUBcRg=;
+        s=default; t=1579193133;
+        bh=iVaJF59sRje1+OIG8QjypzCfAKhVib/wLh/CAWkDX6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbNrzMPVIFy4rHoNcrvYObg0Snv1DSlwmHrU7BFxBi74nUMQJbijeU3wt1wZoha/N
-         3OCpHVTiO+/KNDjzJXlQikKQToz2nn/3F5DEj4dfsQ78U/v/GncDMCvUF+S5djXlr0
-         MnSkVNNQWHwcNzyYX0/8j5pXZhnrkgkcPNF5CkBw=
+        b=ZP6c9Z8KoTPlV5LvfDR+jehHip1oa2BKhSoZc5nzhmJY08JpToLxKfi56sTl27+Qg
+         2HlR3U+1jHSnqq/fihAhzRjRy4oCCyRJzBZO7dYG2D566gBV+wXPaTeCn+BJmPh28/
+         vIscQEZga3Odcbs6d2A0Ett4lVMVbPejPlARj7SM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ioana Radulescu <ruxandra.radulescu@nxp.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 030/205] dpaa2-eth: Fix minor bug in ethtool stats reporting
-Date:   Thu, 16 Jan 2020 11:40:05 -0500
-Message-Id: <20200116164300.6705-30-sashal@kernel.org>
+Cc:     Christian Hewitt <christianshewitt@gmail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 031/205] arm64: dts: meson-gxl-s905x-khadas-vim: fix gpio-keys-polled node
+Date:   Thu, 16 Jan 2020 11:40:06 -0500
+Message-Id: <20200116164300.6705-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -44,35 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioana Radulescu <ruxandra.radulescu@nxp.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit 4b177f065e7ec37399b18e18412a8c7b75f8f299 ]
+[ Upstream commit d5f6fa904ecbadbb8e9fa6302b0fc165bec0559a ]
 
-Don't print error message for a successful return value.
+Fix DTC warnings:
 
-Fixes: d84c3a4ded96 ("dpaa2-eth: Add new DPNI statistics counters")
+arch/arm/dts/meson-gxl-s905x-khadas-vim.dtb: Warning (avoid_unnecessary_addr_size):
+   /gpio-keys-polled: unnecessary #address-cells/#size-cells
+      without "ranges" or child "reg" property
 
-Signed-off-by: Ioana Radulescu <ruxandra.radulescu@nxp.com>
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e15d2774b8c0 ("ARM64: dts: meson-gxl: add support for the Khadas VIM board")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c
-index 0aa1c34019bb..dc9a6c36cac0 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c
-@@ -216,7 +216,7 @@ static void dpaa2_eth_get_ethtool_stats(struct net_device *net_dev,
- 		if (err == -EINVAL)
- 			/* Older firmware versions don't support all pages */
- 			memset(&dpni_stats, 0, sizeof(dpni_stats));
--		else
-+		else if (err)
- 			netdev_warn(net_dev, "dpni_get_stats(%d) failed\n", j);
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
+index 8d6f316a5c7b..440bc23c7342 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
+@@ -33,11 +33,9 @@
  
- 		num_cnt = dpni_stats_page_size[j] / sizeof(u64);
+ 	gpio-keys-polled {
+ 		compatible = "gpio-keys-polled";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+ 		poll-interval = <100>;
+ 
+-		button@0 {
++		power-button {
+ 			label = "power";
+ 			linux,code = <KEY_POWER>;
+ 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_LOW>;
 -- 
 2.20.1
 
