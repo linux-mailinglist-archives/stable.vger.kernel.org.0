@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6F413E734
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 133DD13E737
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:24:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391698AbgAPRYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:24:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58350 "EHLO mail.kernel.org"
+        id S1733301AbgAPRYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:24:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391693AbgAPRYO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:24:14 -0500
+        id S2391748AbgAPRYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:24:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8599E2468E;
-        Thu, 16 Jan 2020 17:24:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6DA324690;
+        Thu, 16 Jan 2020 17:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195453;
-        bh=OvR6d+GuurWj3pV1jLo6SNT47v2bz6Kyw8Ptl/ssFBE=;
+        s=default; t=1579195463;
+        bh=dzy2KhL75lDoksND+HhzTxU0ZmtY+fAKEeJElGLiyFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZlMex3M1vYNkcbd5Y5tA4vIlW6w1K52Ud0pYUr7azPzgjIUjX3npzCg+Xubx/ZMv5
-         F+ZyzuMG59TpFJdYFFtOHUBaYOVT7WoE64a5REZC1GaOJ47CrO0qi5mBgIwNdbCf2P
-         JlyRzg+HR608yxui7JPB7b465w0nL02zJcfCJbN0=
+        b=JXNqFbhqzN6N2aMhQVIA3PLsNCnEHKTkCvjvDmX7WRK7bUNVfNbcb5cHreVdxl2IT
+         axasoSPsEwdih+zcp23EVd3hLKDnUDShXaud6dGX/NOfOvc9974Zgb/DT3gw269vcb
+         keHR3zqAV6XC7wI5N9WSOkl98+3d8bHxeE9rhRBY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Israel Rukshin <israelr@mellanox.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 063/371] IB/iser: Pass the correct number of entries for dma mapped SGL
-Date:   Thu, 16 Jan 2020 12:18:55 -0500
-Message-Id: <20200116172403.18149-6-sashal@kernel.org>
+Cc:     Liu Jian <liujian56@huawei.com>,
+        Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 071/371] driver: uio: fix possible memory leak in __uio_register_device
+Date:   Thu, 16 Jan 2020 12:19:03 -0500
+Message-Id: <20200116172403.18149-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,59 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Israel Rukshin <israelr@mellanox.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit 57b26497fabe1b9379b59fbc7e35e608e114df16 ]
+[ Upstream commit 1a392b3de7c5747506b38fc14b2e79977d3c7770 ]
 
-ib_dma_map_sg() augments the SGL into a 'dma mapped SGL'. This process may
-change the number of entries and the lengths of each entry.
+'idev' is malloced in __uio_register_device() and leak free it before
+leaving from the uio_get_minor() error handing case, it will cause
+memory leak.
 
-Code that touches dma_address is iterating over the 'dma mapped SGL' and
-must use dma_nents which returned from ib_dma_map_sg().
-
-ib_sg_to_pages() and ib_map_mr_sg() are using dma_address so they must use
-dma_nents.
-
-Fixes: 39405885005a ("IB/iser: Port to new fast registration API")
-Fixes: bfe066e256d5 ("IB/iser: Reuse ib_sg_to_pages")
-Signed-off-by: Israel Rukshin <israelr@mellanox.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Acked-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: a93e7b331568 ("uio: Prevent device destruction while fds are open")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Reviewed-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/iser/iser_memory.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/uio/uio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/iser/iser_memory.c b/drivers/infiniband/ulp/iser/iser_memory.c
-index 322209d5ff58..19883169e7b7 100644
---- a/drivers/infiniband/ulp/iser/iser_memory.c
-+++ b/drivers/infiniband/ulp/iser/iser_memory.c
-@@ -240,8 +240,8 @@ int iser_fast_reg_fmr(struct iscsi_iser_task *iser_task,
- 	page_vec->npages = 0;
- 	page_vec->fake_mr.page_size = SIZE_4K;
- 	plen = ib_sg_to_pages(&page_vec->fake_mr, mem->sg,
--			      mem->size, NULL, iser_set_page);
--	if (unlikely(plen < mem->size)) {
-+			      mem->dma_nents, NULL, iser_set_page);
-+	if (unlikely(plen < mem->dma_nents)) {
- 		iser_err("page vec too short to hold this SG\n");
- 		iser_data_buf_dump(mem, device->ib_device);
- 		iser_dump_page_vec(page_vec);
-@@ -450,10 +450,10 @@ static int iser_fast_reg_mr(struct iscsi_iser_task *iser_task,
+diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
+index fb5c9701b1fb..4e9b0ff79b13 100644
+--- a/drivers/uio/uio.c
++++ b/drivers/uio/uio.c
+@@ -939,8 +939,10 @@ int __uio_register_device(struct module *owner,
+ 	atomic_set(&idev->event, 0);
  
- 	ib_update_fast_reg_key(mr, ib_inc_rkey(mr->rkey));
+ 	ret = uio_get_minor(idev);
+-	if (ret)
++	if (ret) {
++		kfree(idev);
+ 		return ret;
++	}
  
--	n = ib_map_mr_sg(mr, mem->sg, mem->size, NULL, SIZE_4K);
--	if (unlikely(n != mem->size)) {
-+	n = ib_map_mr_sg(mr, mem->sg, mem->dma_nents, NULL, SIZE_4K);
-+	if (unlikely(n != mem->dma_nents)) {
- 		iser_err("failed to map sg (%d/%d)\n",
--			 n, mem->size);
-+			 n, mem->dma_nents);
- 		return n < 0 ? n : -EINVAL;
- 	}
- 
+ 	idev->dev.devt = MKDEV(uio_major, idev->minor);
+ 	idev->dev.class = &uio_class;
 -- 
 2.20.1
 
