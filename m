@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B34513F4A0
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:53:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D749D13F4E2
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389409AbgAPRI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:08:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42076 "EHLO mail.kernel.org"
+        id S2389416AbgAPSwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:52:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389404AbgAPRI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:26 -0500
+        id S1729151AbgAPRI1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:08:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0191B24680;
-        Thu, 16 Jan 2020 17:08:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3629C206D9;
+        Thu, 16 Jan 2020 17:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194505;
-        bh=URb5oi0uii864bHDgX1XC/e4s9mgbrlqdK3in4NId6o=;
+        s=default; t=1579194507;
+        bh=FD8ZedaDnpHepCcE3/KmJTfI3S/G7ueYrQti2ixlsvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5eeg/9UqOq/uNs2OVQGZ+yQ1Lj+/6Tp+PjxHhk50jblnl7cTW3YSgBWUEd8q+82x
-         xpSuCLOL3FzR1kCa78K8XGZVDqFaxHrAkBDI5NuFCZYGYULhkh4R80vBThcJCPbZ+C
-         wtc/Lj2c0yS6sXOyVAucjamWo7M73l4DYeId84c8=
+        b=LcsTXLbvAAnLNTVe6sXeVOOAM1U72oE23z5jLm+ewsuT6ilf4tP3FtJmIV699ZJyK
+         acHVuK2KUaRbQCkwGdZO/OAfZ2Kg186h+e1ikvuQJwIcbViZzs1l9QZp8BaHhJgIG0
+         MPQDCjUoC156p0Rk2LgnNKL7H929CFX18xGs6glU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     George Wilkie <gwilkie@vyatta.att-mail.com>,
-        David Ahern <dsahern@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 401/671] mpls: fix warning with multi-label encap
-Date:   Thu, 16 Jan 2020 12:00:39 -0500
-Message-Id: <20200116170509.12787-138-sashal@kernel.org>
+Cc:     Borut Seljak <borut.seljak@t-2.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 402/671] serial: stm32: fix a recursive locking in stm32_config_rs485
+Date:   Thu, 16 Jan 2020 12:00:40 -0500
+Message-Id: <20200116170509.12787-139-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,43 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Wilkie <gwilkie@vyatta.att-mail.com>
+From: Borut Seljak <borut.seljak@t-2.net>
 
-[ Upstream commit 2f3f7d1fa0d1039b24a55d127ed190f196fc3e79 ]
+[ Upstream commit 707aeea13a9c85520262e11899d86df3c4b48262 ]
 
-If you configure a route with multiple labels, e.g.
-  ip route add 10.10.3.0/24 encap mpls 16/100 via 10.10.2.2 dev ens4
-A warning is logged:
-  kernel: [  130.561819] netlink: 'ip': attribute type 1 has an invalid
-  length.
+Remove spin_lock_irqsave in stm32_config_rs485, it cause recursive locking.
+Already locked in uart_set_rs485_config.
 
-This happens because mpls_iptunnel_policy has set the type of
-MPLS_IPTUNNEL_DST to fixed size NLA_U32.
-Change it to a minimum size.
-nla_get_labels() does the remaining validation.
-
-Fixes: e3e4712ec096 ("mpls: ip tunnel support")
-Signed-off-by: George Wilkie <gwilkie@vyatta.att-mail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1bcda09d291081 ("serial: stm32: add support for RS485 hardware control mode")
+Signed-off-by: Borut Seljak <borut.seljak@t-2.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mpls/mpls_iptunnel.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/stm32-usart.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/net/mpls/mpls_iptunnel.c b/net/mpls/mpls_iptunnel.c
-index 94f53a9b7d1a..faf6ef1b6a45 100644
---- a/net/mpls/mpls_iptunnel.c
-+++ b/net/mpls/mpls_iptunnel.c
-@@ -28,7 +28,7 @@
- #include "internal.h"
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 1334e4293977..d096e552176c 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -105,9 +105,7 @@ static int stm32_config_rs485(struct uart_port *port,
+ 	struct stm32_usart_config *cfg = &stm32_port->info->cfg;
+ 	u32 usartdiv, baud, cr1, cr3;
+ 	bool over8;
+-	unsigned long flags;
  
- static const struct nla_policy mpls_iptunnel_policy[MPLS_IPTUNNEL_MAX + 1] = {
--	[MPLS_IPTUNNEL_DST]	= { .type = NLA_U32 },
-+	[MPLS_IPTUNNEL_DST]	= { .len = sizeof(u32) },
- 	[MPLS_IPTUNNEL_TTL]	= { .type = NLA_U8 },
- };
+-	spin_lock_irqsave(&port->lock, flags);
+ 	stm32_clr_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
  
+ 	port->rs485 = *rs485conf;
+@@ -147,7 +145,6 @@ static int stm32_config_rs485(struct uart_port *port,
+ 	}
+ 
+ 	stm32_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+-	spin_unlock_irqrestore(&port->lock, flags);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
