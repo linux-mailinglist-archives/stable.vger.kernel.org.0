@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33D0213F7F4
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2613A13F7F6
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733165AbgAPQ4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:56:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42118 "EHLO mail.kernel.org"
+        id S1733174AbgAPQ4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:56:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731212AbgAPQ4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:56:07 -0500
+        id S1733171AbgAPQ4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:56:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 708E92467C;
-        Thu, 16 Jan 2020 16:56:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A63224686;
+        Thu, 16 Jan 2020 16:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193766;
-        bh=hNy3boOg+1eisdfY1RLRrbaW7xZyuFkEyITg3X1ViSw=;
+        s=default; t=1579193769;
+        bh=RIPQ/q5w8QJUc7C++E2s9w8BI6DlcJ5VsmgrPh46V6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRHKbo4+2MVWl2OmhxQD8t1k8J07ZQb+6u1op+xPU0UIT/dJZFZJLGSWc4Uujhl/Y
-         Vo07d0VySvh/gWt223ueBIkwUFL4IH99bJvcNlXb/wSYLnV9JAowI1h09CAVDfUkUa
-         XymizwCLPbF1rv1LAO5ceTr1oZZvTZLf56V3LhVA=
+        b=EHIpG+AmDsudX1Hz9Pt/lmSD2oy4xRhM+QkiOE5wLBmUIzhE/OOg6XUeXIcbF1TiO
+         6Te3ZIViGyxPhh4YP7F/gzUPPfWPoeRKe3uruS1dAuVkhfBFwZsuUOZ6a5CDNyAPLZ
+         eRgMJAnvRc9hFjKjlwEuyXHpZFpMx1Ga7LjOoIkU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 051/671] bus: ti-sysc: Add mcasp optional clocks flag
-Date:   Thu, 16 Jan 2020 11:44:42 -0500
-Message-Id: <20200116165502.8838-51-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 053/671] drm: rcar-du: Fix the return value in case of error in 'rcar_du_crtc_set_crc_source()'
+Date:   Thu, 16 Jan 2020 11:44:44 -0500
+Message-Id: <20200116165502.8838-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -45,69 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 2c63a833e4500b341a62bf97e67488909ae12086 ]
+[ Upstream commit 4d486f18d91b1876040bf87e9ad78981a08b15a6 ]
 
-We have OPT_CLKS_NEEDED in legacy platform data, but it's missing
-from the ti-sysc driver for device tree based configuration.
+We return 0 unconditionally in 'rcar_du_crtc_set_crc_source()'.
+However, 'ret' is set to some error codes if some function calls fail.
 
-In order to pass OPT_CLKS_NEEDED quirk flag we need to update omap4 module
-data and add a new compatible for dra7 as the module layout is different
-from sysc_regbits_omap4_mcasp.
+Return 'ret' instead to propagate the error code.
 
-Fixes: 70a65240efb1 ("bus: ti-sysc: Add register bits for interconnect
-target modules")
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 47a52d024e89 ("media: drm: rcar-du: Add support for CRC computation")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/bus/ti-sysc.txt |  1 +
- drivers/bus/ti-sysc.c                             | 11 +++++++++++
- 2 files changed, 12 insertions(+)
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/bus/ti-sysc.txt b/Documentation/devicetree/bindings/bus/ti-sysc.txt
-index 91dc2333af01..85a23f551f02 100644
---- a/Documentation/devicetree/bindings/bus/ti-sysc.txt
-+++ b/Documentation/devicetree/bindings/bus/ti-sysc.txt
-@@ -35,6 +35,7 @@ Required standard properties:
- 		"ti,sysc-omap3-sham"
- 		"ti,sysc-omap-aes"
- 		"ti,sysc-mcasp"
-+		"ti,sysc-dra7-mcasp"
- 		"ti,sysc-usb-host-fs"
- 		"ti,sysc-dra7-mcan"
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index 15dc9caa128b..212e5e11e4b7 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -837,7 +837,7 @@ static int rcar_du_crtc_set_crc_source(struct drm_crtc *crtc,
+ 	drm_modeset_drop_locks(&ctx);
+ 	drm_modeset_acquire_fini(&ctx);
  
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index b6f63e762021..926c83398b27 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -1593,6 +1593,16 @@ static const struct sysc_regbits sysc_regbits_omap4_mcasp = {
- static const struct sysc_capabilities sysc_omap4_mcasp = {
- 	.type = TI_SYSC_OMAP4_MCASP,
- 	.regbits = &sysc_regbits_omap4_mcasp,
-+	.mod_quirks = SYSC_QUIRK_OPT_CLKS_NEEDED,
-+};
-+
-+/*
-+ * McASP found on dra7 and later
-+ */
-+static const struct sysc_capabilities sysc_dra7_mcasp = {
-+	.type = TI_SYSC_OMAP4_SIMPLE,
-+	.regbits = &sysc_regbits_omap4_simple,
-+	.mod_quirks = SYSC_QUIRK_OPT_CLKS_NEEDED,
- };
+-	return 0;
++	return ret;
+ }
  
- /*
-@@ -1821,6 +1831,7 @@ static const struct of_device_id sysc_match[] = {
- 	{ .compatible = "ti,sysc-omap3-sham", .data = &sysc_omap3_sham, },
- 	{ .compatible = "ti,sysc-omap-aes", .data = &sysc_omap3_aes, },
- 	{ .compatible = "ti,sysc-mcasp", .data = &sysc_omap4_mcasp, },
-+	{ .compatible = "ti,sysc-dra7-mcasp", .data = &sysc_dra7_mcasp, },
- 	{ .compatible = "ti,sysc-usb-host-fs",
- 	  .data = &sysc_omap4_usb_host_fs, },
- 	{ .compatible = "ti,sysc-dra7-mcan", .data = &sysc_dra7_mcan, },
+ static const struct drm_crtc_funcs crtc_funcs_gen2 = {
 -- 
 2.20.1
 
