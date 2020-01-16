@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B6813FF80
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC01913FEDD
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:40:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730135AbgAPXnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:43:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54610 "EHLO mail.kernel.org"
+        id S2390365AbgAPX14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:27:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388511AbgAPXZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:25:09 -0500
+        id S2390363AbgAPX1z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:27:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 930B02072E;
-        Thu, 16 Jan 2020 23:25:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 147EC20684;
+        Thu, 16 Jan 2020 23:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217108;
-        bh=iy/FhOwW8i7hvAPIZkBeCbhX0fNxYuc3TkzeIZDcIrE=;
+        s=default; t=1579217274;
+        bh=BthoY7cBT+8JYlgXSawoQEjQkU4RYH/k7PQnhlSHTLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twTKR57NNkoev+iZEVwk8Tr166APDrorqBdrnVsiZ8Rd5KzRo2BTvodhbhNvVK7i7
-         9rMx81mob2DeHYyqsOWqLa2SU6rWpH4w4XJ2tZr1vY44DO3x4V+8JOcMCMzmbQsTeA
-         j3gB5cPk6Zffk2ergJOgf7RqQWbPtP96OZlzRvnk=
+        b=rw40zoDW3TumsWjPPZlFu5zWhW4ni6tb/gV/4fekUxHA2dzmKqW+7X/vYU4IwCZBZ
+         80k/tA2hxze4P8r++g7WYHrf7LavwhEEiLuiGLzb37Sr467H4eZ2KHmQ/z+miQ0RdN
+         XCVhu300kQd/zkCQ2lQPyH+pyKgtXTJk++h1afvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Francois Buergisser <fbuergisser@google.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Francois Buergisser <fbuergisser@chromium.org>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.4 151/203] media: hantro: h264: Fix the frame_num wraparound case
-Date:   Fri, 17 Jan 2020 00:17:48 +0100
-Message-Id: <20200116231758.077259817@linuxfoundation.org>
+        =?UTF-8?q?=E7=BD=97=E6=9D=83?= <luoquan@qianxin.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Jon Bloomfield <jon.bloomfield@intel.com>,
+        Tyler Hicks <tyhicks@canonical.com>
+Subject: [PATCH 4.19 16/84] drm/i915: Fix use-after-free when destroying GEM context
+Date:   Fri, 17 Jan 2020 00:17:50 +0100
+Message-Id: <20200116231715.550710759@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
-References: <20200116231745.218684830@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,87 +45,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@collabora.com>
+From: Tyler Hicks <tyhicks@canonical.com>
 
-commit 9db5f87f6723678a7e7e5e3165439c5c4378edbb upstream.
+This patch is a simplified fix to address a use-after-free in 4.14.x and
+4.19.x stable kernels. The flaw is already fixed upstream, starting in
+5.2, by commit 7dc40713618c ("drm/i915: Introduce a mutex for
+file_priv->context_idr") as part of a more complex patch series that
+isn't appropriate for backporting to stable kernels.
 
-Step '8.2.4.1 Decoding process for picture numbers' was missing in the
-reflist creation logic, leading to invalid P reflists when a
-->frame_num wraparound happens.
+Expand mutex coverage, while destroying the GEM context, to include the
+GEM context lookup step. This fixes a use-after-free detected by KASAN:
 
-Fixes: a9471e25629b ("media: hantro: Add core bits to support H264 decoding")
-Reported-by: Francois Buergisser <fbuergisser@google.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Tested-by: Philipp Zabel <p.zabel@pengutronix.de>
-Tested-by: Francois Buergisser <fbuergisser@chromium.org>
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+ ==================================================================
+ BUG: KASAN: use-after-free in i915_ppgtt_close+0x2ca/0x2f0
+ Write of size 1 at addr ffff8881368a8368 by task i915-poc/3124
+
+ CPU: 0 PID: 3124 Comm: i915-poc Not tainted 4.14.164 #1
+ Hardware name: HP HP Elite x2 1012 G1 /80FC, BIOS N85 Ver. 01.20 04/05/2017
+ Call Trace:
+  dump_stack+0xcd/0x12e
+  ? _atomic_dec_and_lock+0x1b2/0x1b2
+  ? i915_ppgtt_close+0x2ca/0x2f0
+  ? printk+0x8f/0xab
+  ? show_regs_print_info+0x53/0x53
+  ? i915_ppgtt_close+0x2ca/0x2f0
+  print_address_description+0x65/0x270
+  ? i915_ppgtt_close+0x2ca/0x2f0
+  kasan_report+0x251/0x340
+  i915_ppgtt_close+0x2ca/0x2f0
+  ? __radix_tree_insert+0x3f0/0x3f0
+  ? i915_ppgtt_init_hw+0x7c0/0x7c0
+  context_close+0x42e/0x680
+  ? i915_gem_context_release+0x230/0x230
+  ? kasan_kmalloc+0xa0/0xd0
+  ? radix_tree_delete_item+0x1d4/0x250
+  ? radix_tree_lookup+0x10/0x10
+  ? inet_recvmsg+0x4b0/0x4b0
+  ? kasan_slab_free+0x88/0xc0
+  i915_gem_context_destroy_ioctl+0x236/0x300
+  ? i915_gem_context_create_ioctl+0x360/0x360
+  ? drm_dev_printk+0x1d0/0x1d0
+  ? memcpy+0x34/0x50
+  ? i915_gem_context_create_ioctl+0x360/0x360
+  drm_ioctl_kernel+0x1b0/0x2b0
+  ? drm_ioctl_permit+0x2a0/0x2a0
+  ? avc_ss_reset+0xd0/0xd0
+  drm_ioctl+0x6fe/0xa20
+  ? i915_gem_context_create_ioctl+0x360/0x360
+  ? drm_getstats+0x20/0x20
+  ? put_unused_fd+0x260/0x260
+  do_vfs_ioctl+0x189/0x12d0
+  ? ioctl_preallocate+0x280/0x280
+  ? selinux_file_ioctl+0x3a7/0x680
+  ? selinux_bprm_set_creds+0xe30/0xe30
+  ? security_file_ioctl+0x69/0xa0
+  ? selinux_bprm_set_creds+0xe30/0xe30
+  SyS_ioctl+0x6f/0x80
+  ? __sys_sendmmsg+0x4a0/0x4a0
+  ? do_vfs_ioctl+0x12d0/0x12d0
+  do_syscall_64+0x214/0x5f0
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x25/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? syscall_return_slowpath+0x2c0/0x2c0
+  ? copy_overflow+0x20/0x20
+  ? __switch_to_asm+0x25/0x60
+  ? syscall_return_via_sysret+0x2a/0x7a
+  ? prepare_exit_to_usermode+0x200/0x200
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x25/0x60
+  ? __switch_to_asm+0x25/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x25/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x31/0x60
+  ? __switch_to_asm+0x25/0x60
+  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+ RIP: 0033:0x7f7fda5115d7
+ RSP: 002b:00007f7eec317ec8 EFLAGS: 00000286 ORIG_RAX: 0000000000000010
+ RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7fda5115d7
+ RDX: 000055b306db9188 RSI: 000000004008646e RDI: 0000000000000003
+ RBP: 00007f7eec317ef0 R08: 00007f7eec318700 R09: 0000000000000000
+ R10: 0000000000000000 R11: 0000000000000286 R12: 00007f7eec317fc0
+ R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffd8007ade0
+
+ Allocated by task 2898:
+  save_stack+0x32/0xb0
+  kasan_kmalloc+0xa0/0xd0
+  kmem_cache_alloc_trace+0x5e/0x180
+  i915_ppgtt_create+0xab/0x2510
+  i915_gem_create_context+0x981/0xf90
+  i915_gem_context_create_ioctl+0x1d7/0x360
+  drm_ioctl_kernel+0x1b0/0x2b0
+  drm_ioctl+0x6fe/0xa20
+  do_vfs_ioctl+0x189/0x12d0
+  SyS_ioctl+0x6f/0x80
+  do_syscall_64+0x214/0x5f0
+  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+
+ Freed by task 104:
+  save_stack+0x32/0xb0
+  kasan_slab_free+0x72/0xc0
+  kfree+0x88/0x190
+  i915_ppgtt_release+0x24e/0x460
+  i915_gem_context_free+0x90/0x480
+  contexts_free_worker+0x54/0x80
+  process_one_work+0x876/0x14e0
+  worker_thread+0x1b8/0xfd0
+  kthread+0x2f8/0x3c0
+  ret_from_fork+0x35/0x40
+
+ The buggy address belongs to the object at ffff8881368a8000
+  which belongs to the cache kmalloc-8192 of size 8192
+ The buggy address is located 872 bytes inside of
+  8192-byte region [ffff8881368a8000, ffff8881368aa000)
+ The buggy address belongs to the page:
+ page:ffffea0004da2a00 count:1 mapcount:0 mapping:          (null) index:0x0 compound_mapcount: 0
+ flags: 0x200000000008100(slab|head)
+ raw: 0200000000008100 0000000000000000 0000000000000000 0000000100030003
+ raw: dead000000000100 dead000000000200 ffff88822a002280 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  ffff8881368a8200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8881368a8280: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ >ffff8881368a8300: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                                           ^
+  ffff8881368a8380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8881368a8400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ==================================================================
+
+Fixes: 1acfc104cdf8 ("drm/i915: Enable rcu-only context lookups")
+Reported-by: 罗权 <luoquan@qianxin.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Jon Bloomfield <jon.bloomfield@intel.com>
+Cc: stable@vger.kernel.org # 4.14.x
+Cc: stable@vger.kernel.org # 4.19.x
+Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/media/hantro/hantro_h264.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/i915_gem_context.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/staging/media/hantro/hantro_h264.c
-+++ b/drivers/staging/media/hantro/hantro_h264.c
-@@ -271,6 +271,7 @@ struct hantro_h264_reflist_builder {
- 	const struct v4l2_h264_dpb_entry *dpb;
- 	s32 pocs[HANTRO_H264_DPB_SIZE];
- 	u8 unordered_reflist[HANTRO_H264_DPB_SIZE];
-+	int frame_nums[HANTRO_H264_DPB_SIZE];
- 	s32 curpoc;
- 	u8 num_valid;
- };
-@@ -294,13 +295,20 @@ static void
- init_reflist_builder(struct hantro_ctx *ctx,
- 		     struct hantro_h264_reflist_builder *b)
- {
-+	const struct v4l2_ctrl_h264_slice_params *slice_params;
- 	const struct v4l2_ctrl_h264_decode_params *dec_param;
-+	const struct v4l2_ctrl_h264_sps *sps;
- 	struct vb2_v4l2_buffer *buf = hantro_get_dst_buf(ctx);
- 	const struct v4l2_h264_dpb_entry *dpb = ctx->h264_dec.dpb;
- 	struct vb2_queue *cap_q = &ctx->fh.m2m_ctx->cap_q_ctx.q;
-+	int cur_frame_num, max_frame_num;
- 	unsigned int i;
+--- a/drivers/gpu/drm/i915/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/i915_gem_context.c
+@@ -770,18 +770,19 @@ int i915_gem_context_destroy_ioctl(struc
+ 	if (args->ctx_id == DEFAULT_CONTEXT_HANDLE)
+ 		return -ENOENT;
  
- 	dec_param = ctx->h264_dec.ctrls.decode;
-+	slice_params = &ctx->h264_dec.ctrls.slices[0];
-+	sps = ctx->h264_dec.ctrls.sps;
-+	max_frame_num = 1 << (sps->log2_max_frame_num_minus4 + 4);
-+	cur_frame_num = slice_params->frame_num;
- 
- 	memset(b, 0, sizeof(*b));
- 	b->dpb = dpb;
-@@ -318,6 +326,18 @@ init_reflist_builder(struct hantro_ctx *
- 			continue;
- 
- 		buf = to_vb2_v4l2_buffer(vb2_get_buffer(cap_q, buf_idx));
++	ret = i915_mutex_lock_interruptible(dev);
++	if (ret)
++		return ret;
 +
-+		/*
-+		 * Handle frame_num wraparound as described in section
-+		 * '8.2.4.1 Decoding process for picture numbers' of the spec.
-+		 * TODO: This logic will have to be adjusted when we start
-+		 * supporting interlaced content.
-+		 */
-+		if (dpb[i].frame_num > cur_frame_num)
-+			b->frame_nums[i] = (int)dpb[i].frame_num - max_frame_num;
-+		else
-+			b->frame_nums[i] = dpb[i].frame_num;
-+
- 		b->pocs[i] = get_poc(buf->field, dpb[i].top_field_order_cnt,
- 				     dpb[i].bottom_field_order_cnt);
- 		b->unordered_reflist[b->num_valid] = i;
-@@ -353,7 +373,7 @@ static int p_ref_list_cmp(const void *pt
- 	 * ascending order.
- 	 */
- 	if (!(a->flags & V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM))
--		return b->frame_num - a->frame_num;
-+		return builder->frame_nums[idxb] - builder->frame_nums[idxa];
+ 	ctx = i915_gem_context_lookup(file_priv, args->ctx_id);
+-	if (!ctx)
++	if (!ctx) {
++		mutex_unlock(&dev->struct_mutex);
+ 		return -ENOENT;
+-
+-	ret = mutex_lock_interruptible(&dev->struct_mutex);
+-	if (ret)
+-		goto out;
++	}
  
- 	return a->pic_num - b->pic_num;
+ 	__destroy_hw_context(ctx, file_priv);
+ 	mutex_unlock(&dev->struct_mutex);
+ 
+-out:
+ 	i915_gem_context_put(ctx);
+ 	return 0;
  }
 
 
