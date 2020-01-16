@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8106913EB8B
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:50:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FC013EAB4
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:45:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388500AbgAPRuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:50:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37492 "EHLO mail.kernel.org"
+        id S2406321AbgAPRpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:45:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406039AbgAPRph (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:45:37 -0500
+        id S2406125AbgAPRpi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:45:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 474E924781;
-        Thu, 16 Jan 2020 17:45:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0A0924765;
+        Thu, 16 Jan 2020 17:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196736;
-        bh=OPa98pr8229ebjPXj4IhS5LOxf8G/Y4/ZXRc9zvSDi0=;
+        s=default; t=1579196737;
+        bh=terYlf6LZ4zVfnn7QrhYUSK0XOj0A4n4+/9JO6jJDuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LvJ2aYs9sfbWJS1qOY+xN4Aze/acYGFDkaFSbhR7HcuiBi7BSF66joNRVT6ZqUzgx
-         McvWN/9i4qVn5QxXWUDoO0g19iFDbRiAc8o0Ym/nDSXKlns3dfHAiiA0qanufjSYGG
-         4GIRnru4LE1tiiwsWlf1Fi2NwOUp0Od9d+n19Q0s=
+        b=KKK7SfuCJ/wI+AbwvdSt+hhWD0dUKhcTctEnnNpdUONQ2S6JEyoNeAzWXyCN9Va6I
+         nfy7iP2sNKfxNO4+Daxd6sDMIMDta1TLKHBLpRL0S+8BKqGVo1Q7VHtlX38+ZX+N8R
+         PBlH+b/iZTl8rt1KOs/wPgUEhvmemuYsumPXBRgo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Iuliana Prodan <iuliana.prodan@nxp.com>,
-        Horia Geanta <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 118/174] crypto: caam - free resources in case caam_rng registration failed
-Date:   Thu, 16 Jan 2020 12:41:55 -0500
-Message-Id: <20200116174251.24326-118-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 119/174] ext4: set error return correctly when ext4_htree_store_dirent fails
+Date:   Thu, 16 Jan 2020 12:41:56 -0500
+Message-Id: <20200116174251.24326-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -44,38 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iuliana Prodan <iuliana.prodan@nxp.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit c59a1d41672a89b5cac49db1a472ff889e35a2d2 ]
+[ Upstream commit 7a14826ede1d714f0bb56de8167c0e519041eeda ]
 
-Check the return value of the hardware registration for caam_rng and free
-resources in case of failure.
+Currently when the call to ext4_htree_store_dirent fails the error return
+variable 'ret' is is not being set to the error code and variable count is
+instead, hence the error code is not being returned.  Fix this by assigning
+ret to the error return code.
 
-Fixes: e24f7c9e87d4 ("crypto: caam - hwrng support")
-Signed-off-by: Iuliana Prodan <iuliana.prodan@nxp.com>
-Reviewed-by: Horia Geanta <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Addresses-Coverity: ("Unused value")
+Fixes: 8af0f0822797 ("ext4: fix readdir error in the case of inline_data+dir_index")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/caam/caamrng.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/ext4/inline.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/caam/caamrng.c b/drivers/crypto/caam/caamrng.c
-index 9b92af2c7241..a77319bf221d 100644
---- a/drivers/crypto/caam/caamrng.c
-+++ b/drivers/crypto/caam/caamrng.c
-@@ -361,7 +361,10 @@ static int __init caam_rng_init(void)
- 		goto free_rng_ctx;
- 
- 	dev_info(dev, "registering rng-caam\n");
--	return hwrng_register(&caam_rng);
-+
-+	err = hwrng_register(&caam_rng);
-+	if (!err)
-+		return err;
- 
- free_rng_ctx:
- 	kfree(rng_ctx);
+diff --git a/fs/ext4/inline.c b/fs/ext4/inline.c
+index 0dcd33f62637..00f9433eea23 100644
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -1418,7 +1418,7 @@ int htree_inlinedir_to_tree(struct file *dir_file,
+ 		err = ext4_htree_store_dirent(dir_file, hinfo->hash,
+ 					      hinfo->minor_hash, de, &tmp_str);
+ 		if (err) {
+-			count = err;
++			ret = err;
+ 			goto out;
+ 		}
+ 		count++;
 -- 
 2.20.1
 
