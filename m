@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 340DF13E9B5
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:39:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CBF13E9B8
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393488AbgAPRji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:39:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56064 "EHLO mail.kernel.org"
+        id S2393492AbgAPRjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:39:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393482AbgAPRji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:39:38 -0500
+        id S2393490AbgAPRjj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:39:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADBC724711;
-        Thu, 16 Jan 2020 17:39:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA3DB246D3;
+        Thu, 16 Jan 2020 17:39:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196377;
-        bh=/h5KKh0FaMOcNIptFlnTN8pMSkPfcLqnDrtEjP9xmfg=;
+        s=default; t=1579196378;
+        bh=V+XzVa+AJikBr7Z2GJK4sPMp7Mea5rGKpfqLW5wffig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mt3SamIkfJJnCGSXcs0A8IpdIsoaT+m2ndcPBSSUpFZHDQff/ztaSPVcUR8OhMOoL
-         vf9UdMt+ylEUh2cKCVH3h/jte5QmknyYpgQOdZC7aWsygSVITqO6BmrPlCT7yNPNxc
-         vkpBWXbJlJn6i78CRFbKYQssGrW18fsDrJy+XAqc=
+        b=NIt4CQZQUwvPA4CmMMlqzw5ySfSy1ifA5x/0N8BM6odICs+GISaoyTpM4boyXesYx
+         MSJWPDa3Zup3Ste70DXjW4ux5d/1n0YhK8tRpbSebp91a+9hBOchxudNkMkmTVfEI6
+         7e4wybs23wFvSXBVcXoWepDc0FO4ryIs6T5Hh//E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Huckleberry <nhuck@google.com>,
-        clang-built-linux@googlegroups.com,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 161/251] clk: qcom: Fix -Wunused-const-variable
-Date:   Thu, 16 Jan 2020 12:35:10 -0500
-Message-Id: <20200116173641.22137-121-sashal@kernel.org>
+Cc:     Kevin Mitchell <kevmitch@arista.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.9 162/251] iommu/amd: Make iommu_disable safer
+Date:   Thu, 16 Jan 2020 12:35:11 -0500
+Message-Id: <20200116173641.22137-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -46,96 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Kevin Mitchell <kevmitch@arista.com>
 
-[ Upstream commit da642427bd7710ec4f4140f693f59aa8521a358c ]
+[ Upstream commit 3ddbe913e55516d3e2165d43d4d5570761769878 ]
 
-Clang produces the following warning
+Make it safe to call iommu_disable during early init error conditions
+before mmio_base is set, but after the struct amd_iommu has been added
+to the amd_iommu_list. For example, this happens if firmware fails to
+fill in mmio_phys in the ACPI table leading to a NULL pointer
+dereference in iommu_feature_disable.
 
-drivers/clk/qcom/gcc-msm8996.c:133:32: warning: unused variable
-'gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div_map' [-Wunused-const-variable]
-static const struct
-parent_map gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div_map[] =
-{ ^drivers/clk/qcom/gcc-msm8996.c:141:27: warning: unused variable
-'gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div' [-Wunused-const-variable] static
-const char * const gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div[] = { ^
-drivers/clk/qcom/gcc-msm8996.c:187:32: warning: unused variable
-'gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div_map'
-[-Wunused-const-variable] static const struct parent_map
-gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div_map[] = { ^
-drivers/clk/qcom/gcc-msm8996.c:197:27: warning: unused variable
-'gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div'
-[-Wunused-const-variable] static const char * const
-gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div[] = {
-
-It looks like these were never used.
-
-Fixes: b1e010c0730a ("clk: qcom: Add MSM8996 Global Clock Control (GCC) driver")
-Cc: clang-built-linux@googlegroups.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/518
-Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 2c0ae1720c09c ('iommu/amd: Convert iommu initialization to state machine')
+Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8996.c | 36 ----------------------------------
- 1 file changed, 36 deletions(-)
+ drivers/iommu/amd_iommu_init.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clk/qcom/gcc-msm8996.c b/drivers/clk/qcom/gcc-msm8996.c
-index fe03e6fbc7df..ea6c227331fc 100644
---- a/drivers/clk/qcom/gcc-msm8996.c
-+++ b/drivers/clk/qcom/gcc-msm8996.c
-@@ -140,22 +140,6 @@ static const char * const gcc_xo_gpll0_gpll4_gpll0_early_div[] = {
- 	"gpll0_early_div"
- };
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index 9bb8d64b6f94..c113e46fdc3a 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -383,6 +383,9 @@ static void iommu_enable(struct amd_iommu *iommu)
  
--static const struct parent_map gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div_map[] = {
--	{ P_XO, 0 },
--	{ P_GPLL0, 1 },
--	{ P_GPLL2, 2 },
--	{ P_GPLL3, 3 },
--	{ P_GPLL0_EARLY_DIV, 6 }
--};
--
--static const char * const gcc_xo_gpll0_gpll2_gpll3_gpll0_early_div[] = {
--	"xo",
--	"gpll0",
--	"gpll2",
--	"gpll3",
--	"gpll0_early_div"
--};
--
- static const struct parent_map gcc_xo_gpll0_gpll1_early_div_gpll1_gpll4_gpll0_early_div_map[] = {
- 	{ P_XO, 0 },
- 	{ P_GPLL0, 1 },
-@@ -194,26 +178,6 @@ static const char * const gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll2_early_gpll0_early
- 	"gpll0_early_div"
- };
+ static void iommu_disable(struct amd_iommu *iommu)
+ {
++	if (!iommu->mmio_base)
++		return;
++
+ 	/* Disable command buffer */
+ 	iommu_feature_disable(iommu, CONTROL_CMDBUF_EN);
  
--static const struct parent_map gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div_map[] = {
--	{ P_XO, 0 },
--	{ P_GPLL0, 1 },
--	{ P_GPLL2, 2 },
--	{ P_GPLL3, 3 },
--	{ P_GPLL1, 4 },
--	{ P_GPLL4, 5 },
--	{ P_GPLL0_EARLY_DIV, 6 }
--};
--
--static const char * const gcc_xo_gpll0_gpll2_gpll3_gpll1_gpll4_gpll0_early_div[] = {
--	"xo",
--	"gpll0",
--	"gpll2",
--	"gpll3",
--	"gpll1",
--	"gpll4",
--	"gpll0_early_div"
--};
--
- static struct clk_fixed_factor xo = {
- 	.mult = 1,
- 	.div = 1,
 -- 
 2.20.1
 
