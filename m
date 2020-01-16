@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E25113E8D7
+	by mail.lfdr.de (Postfix) with ESMTP id A11E813E8D8
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392945AbgAPRaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:30:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42178 "EHLO mail.kernel.org"
+        id S2392886AbgAPRen (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:34:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392926AbgAPRaC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:30:02 -0500
+        id S2392946AbgAPRaE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:30:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FC6724715;
-        Thu, 16 Jan 2020 17:30:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56E7424714;
+        Thu, 16 Jan 2020 17:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195801;
-        bh=+R0bIKk6cHujaaucd3ZQ55+sch9kQbp2rR6EJMfpN54=;
+        s=default; t=1579195804;
+        bh=tO9+NvN2CHz+pMQCJlzm6srVxp0TIkGcSiB03L9otBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AErVBMhOse48gwot0UmKs4YFzTRyLQI1rrTa1ySyhsUb6mP2YbbYF/XN5Ky2MI2mh
-         J/6v5G5hbkOtDaYsPYUsJCK1x8Fz31vOyBZ4tWfGonfSOd1O7jJLztuB5gUIty6t14
-         y4PGT+p/r568M4VcXqNsbGPoa1ZdgMu5uZrdj8UU=
+        b=ZBnNZQ9cAKG0BNNHU6cItUbCcKa8wO0YS4gNDDH2hfF/lTxCrlp0G4cUdhpDA/NGG
+         Om4efV2xfN5nDRuCI4ZTAugI48UC1eWn9jZTPHa+75C7nMf9aAb67Ph1ryNkg6X7eW
+         lvBCIxJxKu052ePwfTT9PEFovjKw7gY/6OC2vBC0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Antonio Borneo <antonio.borneo@st.com>,
+Cc:     Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 316/371] net: stmmac: fix length of PTP clock's name string
-Date:   Thu, 16 Jan 2020 12:23:08 -0500
-Message-Id: <20200116172403.18149-259-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 318/371] net: avoid possible false sharing in sk_leave_memory_pressure()
+Date:   Thu, 16 Jan 2020 12:23:10 -0500
+Message-Id: <20200116172403.18149-261-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,49 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@st.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5da202c88f8c355ad79bc2e8eb582e6d433060e7 ]
+[ Upstream commit 503978aca46124cd714703e180b9c8292ba50ba7 ]
 
-The field "name" in struct ptp_clock_info has a fixed size of 16
-chars and is used as zero terminated string by clock_name_show()
-in drivers/ptp/ptp_sysfs.c
-The current initialization value requires 17 chars to fit also the
-null termination, and this causes overflow to the next bytes in
-the struct when the string is read as null terminated:
-	hexdump -C /sys/class/ptp/ptp0/clock_name
-	00000000  73 74 6d 6d 61 63 5f 70  74 70 5f 63 6c 6f 63 6b  |stmmac_ptp_clock|
-	00000010  a0 ac b9 03 0a                                    |.....|
-where the extra 4 bytes (excluding the newline) after the string
-represent the integer 0x03b9aca0 = 62500000 assigned to the field
-"max_adj" that follows "name" in the same struct.
+As mentioned in https://github.com/google/ktsan/wiki/READ_ONCE-and-WRITE_ONCE#it-may-improve-performance
+a C compiler can legally transform :
 
-There is no strict requirement for the "name" content and in the
-comment in ptp_clock_kernel.h it's reported it should just be 'A
-short "friendly name" to identify the clock'.
-Replace it with "stmmac ptp".
+if (memory_pressure && *memory_pressure)
+        *memory_pressure = 0;
 
-Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
-Fixes: 92ba6888510c ("stmmac: add the support for PTP hw clock driver")
+to :
+
+if (memory_pressure)
+        *memory_pressure = 0;
+
+Fixes: 0604475119de ("tcp: add TCPMemoryPressuresChrono counter")
+Fixes: 180d8cd942ce ("foundations of per-cgroup memory pressure controlling.")
+Fixes: 3ab224be6d69 ("[NET] CORE: Introducing new memory accounting interface.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/sock.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-index e471a903c654..1c1d6a942822 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-@@ -154,7 +154,7 @@ static int stmmac_enable(struct ptp_clock_info *ptp,
- /* structure describing a PTP hardware clock */
- static const struct ptp_clock_info stmmac_ptp_clock_ops = {
- 	.owner = THIS_MODULE,
--	.name = "stmmac_ptp_clock",
-+	.name = "stmmac ptp",
- 	.max_adj = 62500000,
- 	.n_alarm = 0,
- 	.n_ext_ts = 0,
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 90ccbbf9e6b0..03ca2f638eb4 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2165,8 +2165,8 @@ static void sk_leave_memory_pressure(struct sock *sk)
+ 	} else {
+ 		unsigned long *memory_pressure = sk->sk_prot->memory_pressure;
+ 
+-		if (memory_pressure && *memory_pressure)
+-			*memory_pressure = 0;
++		if (memory_pressure && READ_ONCE(*memory_pressure))
++			WRITE_ONCE(*memory_pressure, 0);
+ 	}
+ }
+ 
 -- 
 2.20.1
 
