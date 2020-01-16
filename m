@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C42413FDF1
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:31:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A5013FE13
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:32:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391437AbgAPXaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:30:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38402 "EHLO mail.kernel.org"
+        id S2404066AbgAPXcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:32:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391429AbgAPXay (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:30:54 -0500
+        id S2403799AbgAPXcV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:32:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9221A20661;
-        Thu, 16 Jan 2020 23:30:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D847020684;
+        Thu, 16 Jan 2020 23:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217454;
-        bh=J2Uu6xeW8tRMtlFYFag5dwkPExafMGRmGM8omqTSyzI=;
+        s=default; t=1579217541;
+        bh=81KNmZ9DMcJBn4j49ZbLc7k8abGhSloqgZBSa4l0Wp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LfZ0d9nkjxcW9ehfOB9vN+xsESxoO59ZMaY0weISPar25xQBPD3jTfVO91Mu0yi1x
-         HN+WWWWFjWfRS/DEY3BmDxI2NGG8nlyG1ZEvtOxRLvRKa70MW0K+YucwSPHw94ayra
-         Ax7a1uxaK5jwqi5NNsPG4OSi/1qUiGxAPw4dKBik=
+        b=mXY2g8ztMjkHfttt3pZ/ULMMlv+E5smkE1fPAdiHOTVFMIDcCVYdkfztxUWSMoDb3
+         iI8xaOOj9ZdUh70R2T8/ESEczpMdf70WqYJfagmeWs4BUUuhdqPcdjKh3c/d+909VQ
+         b1HeorZCTBuoddnTPkWqh6NKaFcS04pBwku+k/gM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seung-Woo Kim <sw0312.kim@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.19 64/84] media: exynos4-is: Fix recursive locking in isp_video_release()
-Date:   Fri, 17 Jan 2020 00:18:38 +0100
-Message-Id: <20200116231721.169640544@linuxfoundation.org>
+        stable@vger.kernel.org, Marian Mihailescu <mihailescu2m@gmail.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>
+Subject: [PATCH 4.14 41/71] clk: samsung: exynos5420: Preserve CPU clocks configuration during suspend/resume
+Date:   Fri, 17 Jan 2020 00:18:39 +0100
+Message-Id: <20200116231715.455460576@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
-References: <20200116231713.087649517@linuxfoundation.org>
+In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
+References: <20200116231709.377772748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seung-Woo Kim <sw0312.kim@samsung.com>
+From: Marian Mihailescu <mihailescu2m@gmail.com>
 
-commit 704c6c80fb471d1bb0ef0d61a94617d1d55743cd upstream.
+commit e21be0d1d7bd7f78a77613f6bcb6965e72b22fc1 upstream.
 
->From isp_video_release(), &isp->video_lock is held and subsequent
-vb2_fop_release() tries to lock vdev->lock which is same with the
-previous one. Replace vb2_fop_release() with _vb2_fop_release() to
-fix the recursive locking.
+Save and restore top PLL related configuration registers for big (APLL)
+and LITTLE (KPLL) cores during suspend/resume cycle. So far, CPU clocks
+were reset to default values after suspend/resume cycle and performance
+after system resume was affected when performance governor has been selected.
 
-Fixes: 1380f5754cb0 ("[media] videobuf2: Add missing lock held on vb2_fop_release")
-Signed-off-by: Seung-Woo Kim <sw0312.kim@samsung.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 773424326b51 ("clk: samsung: exynos5420: add more registers to restore list")
+Signed-off-by: Marian Mihailescu <mihailescu2m@gmail.com>
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/exynos4-is/fimc-isp-video.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/samsung/clk-exynos5420.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/media/platform/exynos4-is/fimc-isp-video.c
-+++ b/drivers/media/platform/exynos4-is/fimc-isp-video.c
-@@ -316,7 +316,7 @@ static int isp_video_release(struct file
- 		ivc->streaming = 0;
- 	}
- 
--	vb2_fop_release(file);
-+	_vb2_fop_release(file, NULL);
- 
- 	if (v4l2_fh_is_singular_file(file)) {
- 		fimc_pipeline_call(&ivc->ve, close);
+--- a/drivers/clk/samsung/clk-exynos5420.c
++++ b/drivers/clk/samsung/clk-exynos5420.c
+@@ -170,6 +170,8 @@ static const unsigned long exynos5x_clk_
+ 	GATE_BUS_CPU,
+ 	GATE_SCLK_CPU,
+ 	CLKOUT_CMU_CPU,
++	APLL_CON0,
++	KPLL_CON0,
+ 	CPLL_CON0,
+ 	DPLL_CON0,
+ 	EPLL_CON0,
 
 
