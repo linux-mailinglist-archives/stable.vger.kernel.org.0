@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E4413E412
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:06:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC95313E41C
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:06:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388802AbgAPRFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:05:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35358 "EHLO mail.kernel.org"
+        id S2388863AbgAPRGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:06:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388668AbgAPRFy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:05:54 -0500
+        id S2388856AbgAPRGL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:06:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D805217F4;
-        Thu, 16 Jan 2020 17:05:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C26122464;
+        Thu, 16 Jan 2020 17:06:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194353;
-        bh=nPZ1XTnaEG3wsEn3/9GneQYMObYjOmeffnxVFFkkbUg=;
+        s=default; t=1579194370;
+        bh=hoAeHIin1PajjGGMU+rPtuGTtkB/3qcEtajll6KHLEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCaTg6b06C8KN3Qmb0E9olqbC8JMT6V2z6zvw+g9BPtqdJFAGMJawTUgsVS64CZtO
-         LcFmBwLDU3PTcii4PpN9Lz/o0ipKfaRWQrnI5SKkXoeX6ILkxH5uG4mOP5idOuZt4X
-         Rt/grCc9LZGu+9yWtecoT2h0KZpDZcoo6a5cdUSI=
+        b=PAKkcPX+IIpHcW5zz9L3xyOec+vxJ9oDjidgIQtoStG8mdb9NLCJuFXS36P60f09x
+         mZESbGWDLtHE1UaIIxz3/JW29W81M/NB5zw50pTdw7SMhFEHjs4omZfNu+nWXcxK3/
+         jUaWyhnjQfG0HhGBF2ei6l90xn/y0KZh95ctLvq8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-rockchip@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 292/671] PCI: rockchip: Fix rockchip_pcie_ep_assert_intx() bitwise operations
-Date:   Thu, 16 Jan 2020 11:58:50 -0500
-Message-Id: <20200116170509.12787-29-sashal@kernel.org>
+Cc:     Ben Hutchings <ben@decadent.org.uk>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 304/671] powerpc: vdso: Make vdso32 installation conditional in vdso_install
+Date:   Thu, 16 Jan 2020 11:59:02 -0500
+Message-Id: <20200116170509.12787-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -47,40 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-[ Upstream commit c577f4a5a08bb9677e12ddafb62e2f3a901de87f ]
+[ Upstream commit ff6d27823f619892ab96f7461764840e0d786b15 ]
 
-Currently the bitwise operations on the u16 variable 'status' with
-the setting ROCKCHIP_PCIE_EP_CMD_STATUS_IS are incorrect because
-ROCKCHIP_PCIE_EP_CMD_STATUS_IS is 1UL<<19 which is wider than the
-u16 variable.
+The 32-bit vDSO is not needed and not normally built for 64-bit
+little-endian configurations.  However, the vdso_install target still
+builds and installs it.  Add the same config condition as is normally
+used for the build.
 
-Fix this by making status a u32.
-
-Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Acked-by: Shawn Lin <shawn.lin@rock-chips.com>
+Fixes: e0d005916994 ("powerpc/vdso: Disable building the 32-bit VDSO ...")
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-rockchip-ep.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/controller/pcie-rockchip-ep.c
-index b8163c56a142..caf34661d38d 100644
---- a/drivers/pci/controller/pcie-rockchip-ep.c
-+++ b/drivers/pci/controller/pcie-rockchip-ep.c
-@@ -350,7 +350,7 @@ static void rockchip_pcie_ep_assert_intx(struct rockchip_pcie_ep *ep, u8 fn,
- 	struct rockchip_pcie *rockchip = &ep->rockchip;
- 	u32 r = ep->max_regions - 1;
- 	u32 offset;
--	u16 status;
-+	u32 status;
- 	u8 msg_code;
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index e43321f46a3b..8954108df457 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -412,7 +412,9 @@ vdso_install:
+ ifdef CONFIG_PPC64
+ 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso64 $@
+ endif
++ifdef CONFIG_VDSO32
+ 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso32 $@
++endif
  
- 	if (unlikely(ep->irq_pci_addr != ROCKCHIP_PCIE_EP_PCI_LEGACY_IRQ_ADDR ||
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=$(boot)
 -- 
 2.20.1
 
