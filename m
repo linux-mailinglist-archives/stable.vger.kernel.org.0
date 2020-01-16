@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81F6313E812
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 883A913E817
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:30:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392970AbgAPRaI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:30:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42348 "EHLO mail.kernel.org"
+        id S2404388AbgAPRaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:30:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392960AbgAPRaG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:30:06 -0500
+        id S2404382AbgAPRaT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:30:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D303324721;
-        Thu, 16 Jan 2020 17:30:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AB982471F;
+        Thu, 16 Jan 2020 17:30:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195805;
-        bh=GqT+VFCz0fjwLD0nspadbZFk3K0CQrDFdoHxecWoKJY=;
+        s=default; t=1579195819;
+        bh=FxsYeHbvVHhXDBAITpUyBvM4jofjFoqztnTRndX9JTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PeIDTAum8YvyOGvNSCbuMlKUy5AFa40ICcUYOI67uU4Q84F0BEKzwXfbq9iJoX1jM
-         +Rg78qkTTtdpyKDSG/yy0DL+lJFwR8pdH3f7F40GHXUo4vQgt0DzwDQu/0vk87cQ8S
-         Ob1AtOQcePEfcsb0fc2blqrN8moiXuigs+XD6BGE=
+        b=Vkr6qvkYW9McItShC4l+Y6z43lsq0abaGGAYNlUgLfFzIU5CUyogy6aBtZUJakSC2
+         I1ZK3KkwBMrtjjRHPCtdQdSxi6BejsS1VlXkfd6+ZWKebuvmKIl3wsIos9UOTm7sqR
+         y0cUahP55zkqlUnw6ONNHyKuSvwx037CFFRNVOrk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>,
-        xen-devel@lists.xenproject.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 319/371] net: add {READ|WRITE}_ONCE() annotations on ->rskq_accept_head
-Date:   Thu, 16 Jan 2020 12:23:11 -0500
-Message-Id: <20200116172403.18149-262-sashal@kernel.org>
+Cc:     "Alexander.Barabash@dell.com" <Alexander.Barabash@dell.com>,
+        Alexander Barabash <alexander.barabash@dell.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 328/371] ioat: ioat_alloc_ring() failure handling.
+Date:   Thu, 16 Jan 2020 12:23:20 -0500
+Message-Id: <20200116172403.18149-271-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,74 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: "Alexander.Barabash@dell.com" <Alexander.Barabash@dell.com>
 
-[ Upstream commit 60b173ca3d1cd1782bd0096dc17298ec242f6fb1 ]
+[ Upstream commit b0b5ce1010ffc50015eaec72b0028aaae3f526bb ]
 
-reqsk_queue_empty() is called from inet_csk_listen_poll() while
-other cpus might write ->rskq_accept_head value.
+If dma_alloc_coherent() returns NULL in ioat_alloc_ring(), ring
+allocation must not proceed.
 
-Use {READ|WRITE}_ONCE() to avoid compiler tricks
-and potential KCSAN splats.
+Until now, if the first call to dma_alloc_coherent() in
+ioat_alloc_ring() returned NULL, the processing could proceed, failing
+with NULL-pointer dereferencing further down the line.
 
-Fixes: fff1f3001cc5 ("tcp: add a spinlock to protect struct request_sock_queue")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Alexander Barabash <alexander.barabash@dell.com>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/75e9c0e84c3345d693c606c64f8b9ab5@x13pwhopdag1307.AMER.DELL.COM
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/pvcalls-back.c      | 2 +-
- include/net/request_sock.h      | 4 ++--
- net/ipv4/inet_connection_sock.c | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/dma/ioat/dma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/xen/pvcalls-back.c b/drivers/xen/pvcalls-back.c
-index abd6dbc29ac2..58be15c27b6d 100644
---- a/drivers/xen/pvcalls-back.c
-+++ b/drivers/xen/pvcalls-back.c
-@@ -792,7 +792,7 @@ static int pvcalls_back_poll(struct xenbus_device *dev,
- 	mappass->reqcopy = *req;
- 	icsk = inet_csk(mappass->sock->sk);
- 	queue = &icsk->icsk_accept_queue;
--	data = queue->rskq_accept_head != NULL;
-+	data = READ_ONCE(queue->rskq_accept_head) != NULL;
- 	if (data) {
- 		mappass->reqcopy.cmd = 0;
- 		ret = 0;
-diff --git a/include/net/request_sock.h b/include/net/request_sock.h
-index 23e22054aa60..04aa2c7d35c4 100644
---- a/include/net/request_sock.h
-+++ b/include/net/request_sock.h
-@@ -181,7 +181,7 @@ void reqsk_fastopen_remove(struct sock *sk, struct request_sock *req,
+diff --git a/drivers/dma/ioat/dma.c b/drivers/dma/ioat/dma.c
+index f70cc74032ea..e3899ae429e0 100644
+--- a/drivers/dma/ioat/dma.c
++++ b/drivers/dma/ioat/dma.c
+@@ -388,10 +388,11 @@ ioat_alloc_ring(struct dma_chan *c, int order, gfp_t flags)
  
- static inline bool reqsk_queue_empty(const struct request_sock_queue *queue)
- {
--	return queue->rskq_accept_head == NULL;
-+	return READ_ONCE(queue->rskq_accept_head) == NULL;
- }
+ 		descs->virt = dma_alloc_coherent(to_dev(ioat_chan),
+ 						 SZ_2M, &descs->hw, flags);
+-		if (!descs->virt && (i > 0)) {
++		if (!descs->virt) {
+ 			int idx;
  
- static inline struct request_sock *reqsk_queue_remove(struct request_sock_queue *queue,
-@@ -193,7 +193,7 @@ static inline struct request_sock *reqsk_queue_remove(struct request_sock_queue
- 	req = queue->rskq_accept_head;
- 	if (req) {
- 		sk_acceptq_removed(parent);
--		queue->rskq_accept_head = req->dl_next;
-+		WRITE_ONCE(queue->rskq_accept_head, req->dl_next);
- 		if (queue->rskq_accept_head == NULL)
- 			queue->rskq_accept_tail = NULL;
- 	}
-diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-index f7224c4fc30f..da55ce62fe50 100644
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -936,7 +936,7 @@ struct sock *inet_csk_reqsk_queue_add(struct sock *sk,
- 		req->sk = child;
- 		req->dl_next = NULL;
- 		if (queue->rskq_accept_head == NULL)
--			queue->rskq_accept_head = req;
-+			WRITE_ONCE(queue->rskq_accept_head, req);
- 		else
- 			queue->rskq_accept_tail->dl_next = req;
- 		queue->rskq_accept_tail = req;
+ 			for (idx = 0; idx < i; idx++) {
++				descs = &ioat_chan->descs[idx];
+ 				dma_free_coherent(to_dev(ioat_chan), SZ_2M,
+ 						  descs->virt, descs->hw);
+ 				descs->virt = NULL;
 -- 
 2.20.1
 
