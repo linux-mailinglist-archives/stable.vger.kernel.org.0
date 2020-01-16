@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECDEA13F490
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 340F213F48A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:50:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389254AbgAPSuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:50:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43864 "EHLO mail.kernel.org"
+        id S2389220AbgAPRJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:09:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389551AbgAPRI7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:59 -0500
+        id S2389559AbgAPRJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04B0421D56;
-        Thu, 16 Jan 2020 17:08:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1523324685;
+        Thu, 16 Jan 2020 17:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194538;
-        bh=OI/m1Gx2TY/Qme7Qza/LH9tOD5k0vJmo+OSFylDlFdg=;
+        s=default; t=1579194539;
+        bh=nXH/IXtDlzIt6tW+/XPFdnZxULj6NHCbJTAbXTNAj/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOTzAaYAs3JeVxcLbL5Y7I4eqnY6PCMFxVhEMeulwpSjnSdq1uRvSpjaDeVowsDzn
-         oQhEN+Iyhan9QvtGAgLLWByX+qjLvudSNQj16/NnWQ6K6eCXb86DQ/V+BqaUZr6Ff8
-         /iVaHfyCNyG2JWIbMocUXVWCT/NkF/YIqGb8NAYo=
+        b=Ia1PFcj9QBbapLu1oMNPpXhut1LNsTrVGF5UqaJlhpsuqHLZcCEAvqzjWPxzqecm6
+         psfYzmsqaxNUV58piHRABKImfdxExHkmlIIXLA0GOpZIZe3HqtsqoZQ8mbRniCy1dK
+         1jgPtm8G6ew+5k3+GPCr1dTGiqDg/2ziH6JaAYKA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chen-Yu Tsai <wens@csie.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 425/671] rtc: pcf8563: Fix interrupt trigger method
-Date:   Thu, 16 Jan 2020 12:01:03 -0500
-Message-Id: <20200116170509.12787-162-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 426/671] rtc: pcf8563: Clear event flags and disable interrupts before requesting irq
+Date:   Thu, 16 Jan 2020 12:01:04 -0500
+Message-Id: <20200116170509.12787-163-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,34 +45,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 65f662cbf829834fa4d94190eb7691e5a9cb92d8 ]
+[ Upstream commit 3572e8aea3bf925dac1dbf86127657c39fe5c254 ]
 
-The PCF8563 datasheet says the interrupt line is active low and stays
-active until the events are cleared, i.e. a level trigger interrupt.
+Besides the alarm, the PCF8563 also has a timer triggered interrupt.
+In cases where the previous system left the timer and interrupts on,
+or somehow the bits got enabled, the interrupt would keep triggering
+as the kernel doesn't know about it.
 
-Fix the flags used to request the interrupt.
+Clear both the alarm and timer event flags, and disable the interrupts,
+before requesting the interrupt line.
 
 Fixes: ede3e9d47cca ("drivers/rtc/rtc-pcf8563.c: add alarm support")
+Fixes: a45d528aab8b ("rtc: pcf8563: clear expired alarm at boot time")
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf8563.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-pcf8563.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 3efc86c25d27..e358313466f1 100644
+index e358313466f1..d8adf69b6697 100644
 --- a/drivers/rtc/rtc-pcf8563.c
 +++ b/drivers/rtc/rtc-pcf8563.c
-@@ -605,7 +605,7 @@ static int pcf8563_probe(struct i2c_client *client,
- 	if (client->irq > 0) {
- 		err = devm_request_threaded_irq(&client->dev, client->irq,
- 				NULL, pcf8563_irq,
--				IRQF_SHARED|IRQF_ONESHOT|IRQF_TRIGGER_FALLING,
-+				IRQF_SHARED | IRQF_ONESHOT | IRQF_TRIGGER_LOW,
- 				pcf8563_driver.driver.name, client);
- 		if (err) {
- 			dev_err(&client->dev, "unable to request IRQ %d\n",
+@@ -563,7 +563,6 @@ static int pcf8563_probe(struct i2c_client *client,
+ 	struct pcf8563 *pcf8563;
+ 	int err;
+ 	unsigned char buf;
+-	unsigned char alm_pending;
+ 
+ 	dev_dbg(&client->dev, "%s\n", __func__);
+ 
+@@ -587,13 +586,13 @@ static int pcf8563_probe(struct i2c_client *client,
+ 		return err;
+ 	}
+ 
+-	err = pcf8563_get_alarm_mode(client, NULL, &alm_pending);
+-	if (err) {
+-		dev_err(&client->dev, "%s: read error\n", __func__);
++	/* Clear flags and disable interrupts */
++	buf = 0;
++	err = pcf8563_write_block_data(client, PCF8563_REG_ST2, 1, &buf);
++	if (err < 0) {
++		dev_err(&client->dev, "%s: write error\n", __func__);
+ 		return err;
+ 	}
+-	if (alm_pending)
+-		pcf8563_set_alarm_mode(client, 0);
+ 
+ 	pcf8563->rtc = devm_rtc_device_register(&client->dev,
+ 				pcf8563_driver.driver.name,
 -- 
 2.20.1
 
