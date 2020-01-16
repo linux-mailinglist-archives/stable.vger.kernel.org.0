@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A456413E09F
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A0CB13E0A2
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729384AbgAPQog (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:44:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52780 "EHLO mail.kernel.org"
+        id S1728928AbgAPQom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:44:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729378AbgAPQof (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:44:35 -0500
+        id S1728927AbgAPQom (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:44:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68118208C3;
-        Thu, 16 Jan 2020 16:44:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFB2D217F4;
+        Thu, 16 Jan 2020 16:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193075;
-        bh=43IpqdQaWzPH8hN72dXndhwU9UA/oomVVHL1K91Yszw=;
+        s=default; t=1579193081;
+        bh=FpYL53Dj7ISOj370RYGF//iYufuzQ/MPLCM/sYKfHNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfXBe3FxWcQGdUswqAW8lqQ867j3J5QQvHuRpN5t48IzIUKnJ+3vxtwpCmr6uG2ea
-         u+smZdMrlBUh6IgWTAqdfE2YSyaDZ7F8vVc4rQmR08SLSCXCLCXT+V5NeWoZ3HCrL7
-         wSpV4BF4QK0pvPcAbG+043ToSNZPO8a2WW8JXbtQ=
+        b=2SMfKJvb7MCUwSJcYATMpfkOkrKfkjzygSB3wJY2VXpWOs33Nppkw1WyB6HItjj5Z
+         8iqspO8qFx5TDbpOrcn8ku8Gz0X0ipPuEsr2HgKkrIWtpk+GpGzEOKLKaFNLz8sJwd
+         JvLz/swmib8UcmCuDO9jNFGqauz83dAVQvnUeeSU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 019/205] drm/amdgpu: remove excess function parameter description
-Date:   Thu, 16 Jan 2020 11:39:54 -0500
-Message-Id: <20200116164300.6705-19-sashal@kernel.org>
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 020/205] arm64: dts: meson: axg: fix audio fifo reg size
+Date:   Thu, 16 Jan 2020 11:39:55 -0500
+Message-Id: <20200116164300.6705-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -44,45 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit d0580c09c65cff211f589a40e08eabc62da463fb ]
+[ Upstream commit 301b94d434ac3a3cd576a4bc1053cc243d6bd841 ]
 
-Fixes gcc warning:
+The register region size initially is too small to access all
+the fifo registers.
 
-drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c:431: warning: Excess function
-parameter 'sw' description in 'vcn_v2_5_disable_clock_gating'
-drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c:550: warning: Excess function
-parameter 'sw' description in 'vcn_v2_5_enable_clock_gating'
-
-Fixes: cbead2bdfcf1 ("drm/amdgpu: add VCN2.5 VCPU start and stop")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: f2b8f6a93357 ("arm64: dts: meson-axg: add audio fifos")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-axg.dtsi | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-index 395c2259f979..9d778a0b2c5e 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-@@ -423,7 +423,6 @@ static void vcn_v2_5_mc_resume(struct amdgpu_device *adev)
-  * vcn_v2_5_disable_clock_gating - disable VCN clock gating
-  *
-  * @adev: amdgpu_device pointer
-- * @sw: enable SW clock gating
-  *
-  * Disable clock gating for VCN block
-  */
-@@ -542,7 +541,6 @@ static void vcn_v2_5_disable_clock_gating(struct amdgpu_device *adev)
-  * vcn_v2_5_enable_clock_gating - enable VCN clock gating
-  *
-  * @adev: amdgpu_device pointer
-- * @sw: enable SW clock gating
-  *
-  * Enable clock gating for VCN block
-  */
+diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+index 82919b106010..bb4a2acb9970 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+@@ -1162,7 +1162,7 @@
+ 
+ 			toddr_a: audio-controller@100 {
+ 				compatible = "amlogic,axg-toddr";
+-				reg = <0x0 0x100 0x0 0x1c>;
++				reg = <0x0 0x100 0x0 0x2c>;
+ 				#sound-dai-cells = <0>;
+ 				sound-name-prefix = "TODDR_A";
+ 				interrupts = <GIC_SPI 84 IRQ_TYPE_EDGE_RISING>;
+@@ -1173,7 +1173,7 @@
+ 
+ 			toddr_b: audio-controller@140 {
+ 				compatible = "amlogic,axg-toddr";
+-				reg = <0x0 0x140 0x0 0x1c>;
++				reg = <0x0 0x140 0x0 0x2c>;
+ 				#sound-dai-cells = <0>;
+ 				sound-name-prefix = "TODDR_B";
+ 				interrupts = <GIC_SPI 85 IRQ_TYPE_EDGE_RISING>;
+@@ -1184,7 +1184,7 @@
+ 
+ 			toddr_c: audio-controller@180 {
+ 				compatible = "amlogic,axg-toddr";
+-				reg = <0x0 0x180 0x0 0x1c>;
++				reg = <0x0 0x180 0x0 0x2c>;
+ 				#sound-dai-cells = <0>;
+ 				sound-name-prefix = "TODDR_C";
+ 				interrupts = <GIC_SPI 86 IRQ_TYPE_EDGE_RISING>;
+@@ -1195,7 +1195,7 @@
+ 
+ 			frddr_a: audio-controller@1c0 {
+ 				compatible = "amlogic,axg-frddr";
+-				reg = <0x0 0x1c0 0x0 0x1c>;
++				reg = <0x0 0x1c0 0x0 0x2c>;
+ 				#sound-dai-cells = <0>;
+ 				sound-name-prefix = "FRDDR_A";
+ 				interrupts = <GIC_SPI 88 IRQ_TYPE_EDGE_RISING>;
+@@ -1206,7 +1206,7 @@
+ 
+ 			frddr_b: audio-controller@200 {
+ 				compatible = "amlogic,axg-frddr";
+-				reg = <0x0 0x200 0x0 0x1c>;
++				reg = <0x0 0x200 0x0 0x2c>;
+ 				#sound-dai-cells = <0>;
+ 				sound-name-prefix = "FRDDR_B";
+ 				interrupts = <GIC_SPI 89 IRQ_TYPE_EDGE_RISING>;
+@@ -1217,7 +1217,7 @@
+ 
+ 			frddr_c: audio-controller@240 {
+ 				compatible = "amlogic,axg-frddr";
+-				reg = <0x0 0x240 0x0 0x1c>;
++				reg = <0x0 0x240 0x0 0x2c>;
+ 				#sound-dai-cells = <0>;
+ 				sound-name-prefix = "FRDDR_C";
+ 				interrupts = <GIC_SPI 90 IRQ_TYPE_EDGE_RISING>;
 -- 
 2.20.1
 
