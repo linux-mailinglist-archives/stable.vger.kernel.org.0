@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BBCE13EC03
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:54:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B8513EBEC
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:54:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405989AbgAPRyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:54:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35966 "EHLO mail.kernel.org"
+        id S2405987AbgAPRow (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:44:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405975AbgAPRou (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:44:50 -0500
+        id S2405980AbgAPRov (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:44:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 698BE24748;
-        Thu, 16 Jan 2020 17:44:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2697A2476A;
+        Thu, 16 Jan 2020 17:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196689;
-        bh=z1Lm0m6hZt5Ni8VOOKt1Tc2c5NPYc2/KfoYNtSoyMb0=;
+        s=default; t=1579196690;
+        bh=GoHBoKx3RUqZ8FJbrRymDvYTYhD8iWnMrAGonitZ8t8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vr49aP7XD5GquUNkHF+d8Po03Y7MIEMNHoMgSJ5UO040a8q/KA1Ph+12AvAWjYJu3
-         Se/QtUrlGDAUIoCwpgynr6LMGkGsYU4/vX4rclrD9zzcQLKkCgatAHGcaowzXweuFC
-         uD5JUDN56S0Q9kY+7Db5WQpuOy2j2egBjIpWRss8=
+        b=iYMzMocpNCNJf5TdhyTbYWNpNcdWuRh5J/aeC3slbFTfgWu+F0KAA3DvJXphvY9zf
+         mikGI3q4fHEMxc6SdNuOrxLEt1WqFrc65gx4Yg4ERoj2SY5P4ApxdOKS/Qam3bCaMZ
+         NRdSOGSQHR/WfqetApe0VsOtZ2TJQrTYrZgacjVQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.4 085/174] iommu/vt-d: Make kernel parameter igfx_off work with vIOMMU
-Date:   Thu, 16 Jan 2020 12:41:22 -0500
-Message-Id: <20200116174251.24326-85-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 086/174] media: omap_vout: potential buffer overflow in vidioc_dqbuf()
+Date:   Thu, 16 Jan 2020 12:41:23 -0500
+Message-Id: <20200116174251.24326-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -48,47 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5daab58043ee2bca861068e2595564828f3bc663 ]
+[ Upstream commit dd6e2a981bfe83aa4a493143fd8cf1edcda6c091 ]
 
-The kernel parameter igfx_off is used by users to disable
-DMA remapping for the Intel integrated graphic device. It
-was designed for bare metal cases where a dedicated IOMMU
-is used for graphic. This doesn't apply to virtual IOMMU
-case where an include-all IOMMU is used.  This makes the
-kernel parameter work with virtual IOMMU as well.
+The "b->index" is a u32 the comes from the user in the ioctl.  It hasn't
+been checked.  We aren't supposed to use it but we're instead supposed
+to use the value that gets written to it when we call videobuf_dqbuf().
 
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Suggested-by: Kevin Tian <kevin.tian@intel.com>
-Fixes: c0771df8d5297 ("intel-iommu: Export a flag indicating that the IOMMU is used for iGFX.")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Tested-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+The videobuf_dqbuf() first memsets it to zero and then re-initializes it
+inside the videobuf_status() function.  It's this final value which we
+want.
+
+Hans Verkuil pointed out that we need to check the return from
+videobuf_dqbuf().  I ended up doing a little cleanup related to that as
+well.
+
+Fixes: 72915e851da9 ("[media] V4L2: OMAP: VOUT: dma map and unmap v4l2 buffers in qbuf and dqbuf")
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/platform/omap/omap_vout.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index b965561a4162..a2005b82ec8f 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3259,9 +3259,12 @@ static int __init init_dmars(void)
- 		iommu_identity_mapping |= IDENTMAP_ALL;
+diff --git a/drivers/media/platform/omap/omap_vout.c b/drivers/media/platform/omap/omap_vout.c
+index 596359576109..cf015bfc559b 100644
+--- a/drivers/media/platform/omap/omap_vout.c
++++ b/drivers/media/platform/omap/omap_vout.c
+@@ -1580,23 +1580,20 @@ static int vidioc_dqbuf(struct file *file, void *fh, struct v4l2_buffer *b)
+ 	unsigned long size;
+ 	struct videobuf_buffer *vb;
  
- #ifdef CONFIG_INTEL_IOMMU_BROKEN_GFX_WA
--	iommu_identity_mapping |= IDENTMAP_GFX;
-+	dmar_map_gfx = 0;
- #endif
+-	vb = q->bufs[b->index];
+-
+ 	if (!vout->streaming)
+ 		return -EINVAL;
  
-+	if (!dmar_map_gfx)
-+		iommu_identity_mapping |= IDENTMAP_GFX;
+-	if (file->f_flags & O_NONBLOCK)
+-		/* Call videobuf_dqbuf for non blocking mode */
+-		ret = videobuf_dqbuf(q, (struct v4l2_buffer *)b, 1);
+-	else
+-		/* Call videobuf_dqbuf for  blocking mode */
+-		ret = videobuf_dqbuf(q, (struct v4l2_buffer *)b, 0);
++	ret = videobuf_dqbuf(q, b, !!(file->f_flags & O_NONBLOCK));
++	if (ret)
++		return ret;
 +
- 	check_tylersburg_isoch();
++	vb = q->bufs[b->index];
  
- 	if (iommu_identity_mapping) {
+ 	addr = (unsigned long) vout->buf_phy_addr[vb->i];
+ 	size = (unsigned long) vb->size;
+ 	dma_unmap_single(vout->vid_dev->v4l2_dev.dev,  addr,
+ 				size, DMA_TO_DEVICE);
+-	return ret;
++	return 0;
+ }
+ 
+ static int vidioc_streamon(struct file *file, void *fh, enum v4l2_buf_type i)
 -- 
 2.20.1
 
