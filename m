@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CA9213E6DE
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E9B513E6DC
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391494AbgAPRVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:21:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42472 "EHLO mail.kernel.org"
+        id S2391397AbgAPRVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:21:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391200AbgAPRR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:17:26 -0500
+        id S2391206AbgAPRR1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:17:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C71E21582;
-        Thu, 16 Jan 2020 17:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D76EC20730;
+        Thu, 16 Jan 2020 17:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195045;
-        bh=sUEmpbvttt0S4MWyiKJbNj8b+VkU2b5Kh+cieFdT378=;
+        s=default; t=1579195046;
+        bh=eCsheN5nJfhPWN/zVSO0BJvoRocn6ZHygXATnnbqHTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z30zkRLj1VVOTkOOT8Lko9JuuA+kD9FEAMZlLISnv6iGM+jd5OXVqvLPHe8+dbjRA
-         iqINVjF/+xa9AUkJwlu7zlipNfXuYnhi5DfRF2Xh68hjopnzTU1J7NJ/nnI1LS5eAs
-         DYRs8pq67j7olWgtMthvvD7HTHf4x0u/aTKBdJq0=
+        b=cpDI7WqCM3WwGcXzA6HnGt+Rz2xuCmpz33NCOijxGirWt/lnK38fz+Cps93f+wMjh
+         1ksDZNxZOoh5HbyfpVKFVwRBrpiVzRJhlvEzIK/q5mz2pHmdc28FfxhYk6WZbXi1Fk
+         U0+sTfj60bq/o4iTS2NNtqIFHE+aE/F0UIPw5MOQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jann Horn <jannh@google.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 004/371] apparmor: don't try to replace stale label in ptrace access check
-Date:   Thu, 16 Jan 2020 12:11:12 -0500
-Message-Id: <20200116171719.16965-4-sashal@kernel.org>
+Cc:     Jitendra Bhivare <jitendra.bhivare@broadcom.com>,
+        Ray Jui <ray.jui@broadcom.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 005/371] PCI: iproc: Remove PAXC slot check to allow VF support
+Date:   Thu, 16 Jan 2020 12:11:13 -0500
+Message-Id: <20200116171719.16965-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116171719.16965-1-sashal@kernel.org>
 References: <20200116171719.16965-1-sashal@kernel.org>
@@ -44,61 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Jitendra Bhivare <jitendra.bhivare@broadcom.com>
 
-[ Upstream commit 1f8266ff58840d698a1e96d2274189de1bdf7969 ]
+[ Upstream commit 4da6b4480766e5bc9c4d7bc14bf1d0939a1a5fa7 ]
 
-As a comment above begin_current_label_crit_section() explains,
-begin_current_label_crit_section() must run in sleepable context because
-when label_is_stale() is true, aa_replace_current_label() runs, which uses
-prepare_creds(), which can sleep.
-Until now, the ptrace access check (which runs with a task lock held)
-violated this rule.
+Fix previous incorrect logic that limits PAXC slot number to zero only.
+In order for SRIOV/VF to work, we need to allow the slot number to be
+greater than zero.
 
-Also add a might_sleep() assertion to begin_current_label_crit_section(),
-because asserts are less likely to be ignored than comments.
-
-Fixes: b2d09ae449ced ("apparmor: move ptrace checks to using labels")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fixes: 46560388c476c ("PCI: iproc: Allow multiple devices except on PAXC")
+Signed-off-by: Jitendra Bhivare <jitendra.bhivare@broadcom.com>
+Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/include/context.h | 2 ++
- security/apparmor/lsm.c             | 4 ++--
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/pci/host/pcie-iproc.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/security/apparmor/include/context.h b/security/apparmor/include/context.h
-index 6ae07e9aaa17..812cdec9dd3b 100644
---- a/security/apparmor/include/context.h
-+++ b/security/apparmor/include/context.h
-@@ -191,6 +191,8 @@ static inline struct aa_label *begin_current_label_crit_section(void)
- {
- 	struct aa_label *label = aa_current_raw_label();
+diff --git a/drivers/pci/host/pcie-iproc.c b/drivers/pci/host/pcie-iproc.c
+index c0ecc9f35667..8f8dac0155d6 100644
+--- a/drivers/pci/host/pcie-iproc.c
++++ b/drivers/pci/host/pcie-iproc.c
+@@ -573,14 +573,6 @@ static void __iomem *iproc_pcie_map_cfg_bus(struct iproc_pcie *pcie,
+ 			return (pcie->base + offset);
+ 	}
  
-+	might_sleep();
-+
- 	if (label_is_stale(label)) {
- 		label = aa_get_newest_label(label);
- 		if (aa_replace_current_label(label) == 0)
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 1346ee5be04f..4f08023101f3 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -108,12 +108,12 @@ static int apparmor_ptrace_access_check(struct task_struct *child,
- 	struct aa_label *tracer, *tracee;
- 	int error;
- 
--	tracer = begin_current_label_crit_section();
-+	tracer = __begin_current_label_crit_section();
- 	tracee = aa_get_task_label(child);
- 	error = aa_may_ptrace(tracer, tracee,
- 		  mode == PTRACE_MODE_READ ? AA_PTRACE_READ : AA_PTRACE_TRACE);
- 	aa_put_label(tracee);
--	end_current_label_crit_section(tracer);
-+	__end_current_label_crit_section(tracer);
- 
- 	return error;
+-	/*
+-	 * PAXC is connected to an internally emulated EP within the SoC.  It
+-	 * allows only one device.
+-	 */
+-	if (pcie->ep_is_internal)
+-		if (slot > 0)
+-			return NULL;
+-
+ 	return iproc_pcie_map_ep_cfg_reg(pcie, busno, slot, fn, where);
  }
+ 
 -- 
 2.20.1
 
