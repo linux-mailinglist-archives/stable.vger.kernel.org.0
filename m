@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC7B13F68F
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:05:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 237CE13F68A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:05:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387769AbgAPRB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:01:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53848 "EHLO mail.kernel.org"
+        id S2388257AbgAPRCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:02:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388175AbgAPRB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:01:57 -0500
+        id S2388252AbgAPRCE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:02:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3ACC82081E;
-        Thu, 16 Jan 2020 17:01:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9FBC2467E;
+        Thu, 16 Jan 2020 17:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194116;
-        bh=tTcpS4fMweFGPuF73zO73l//c04F/MWl1fevjg/SfZ8=;
+        s=default; t=1579194124;
+        bh=K01wSvsQAwkygxhcrxNqXKveyTlHnvIRavqzWTKFLLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VeHfksrCWMzIkoMH6oLELtmrt/KmIiYfL5duZEVAPSHTKkFy3nqeFpbqtZnFBgXQk
-         y4tZ3N7Av84QyqSS/T/HhXkm+u7zaI0xJ73nb+OB0Blzva02Tcv7AxUv0rov2Lsn8L
-         HnEg8HNJGdiYeNm+mb/7kYhRgqR0zXBGDnvW1lCE=
+        b=jl/Bw9+vL8elnCP4O5OG1mSDqjKqp1PLoC5sf9lt6PSPVSy6CyNMT9iQPKenM+l7C
+         C4w012RWUDoJw66+d3/k1JM+9Ws1+5xVc0/PVoZ7xmYCIFq10rzuJfDTgzASC6/qje
+         /jcGiXNyUPd3tKUxieHiEcg7Jmr2i79SNtHZGp2g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 211/671] NFS: Fix a soft lockup in the delegation recovery code
-Date:   Thu, 16 Jan 2020 11:52:00 -0500
-Message-Id: <20200116165940.10720-94-sashal@kernel.org>
+Cc:     Mattias Jacobsson <2pi@mok.nu>, Darren Hart <dvhart@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 216/671] platform/x86: wmi: fix potential null pointer dereference
+Date:   Thu, 16 Jan 2020 11:52:05 -0500
+Message-Id: <20200116165940.10720-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -42,81 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Mattias Jacobsson <2pi@mok.nu>
 
-[ Upstream commit 6f9449be53f3ce383caed797708b332ede8d952c ]
+[ Upstream commit c355ec651a8941864549f2586f969d0eb7bf499a ]
 
-Fix a soft lockup when NFS client delegation recovery is attempted
-but the inode is in the process of being freed. When the
-igrab(inode) call fails, and we have to restart the recovery process,
-we need to ensure that we won't attempt to recover the same delegation
-again.
+In the function wmi_dev_match() the variable id is dereferenced without
+first performing a NULL check. The variable can for example be NULL if
+a WMI driver is registered without specifying the id_table field in
+struct wmi_driver.
 
-Fixes: 45870d6909d5a ("NFSv4.1: Test delegation stateids when server...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Add a NULL check and return that the driver can't handle the device if
+the variable is NULL.
+
+Fixes: 844af950da94 ("platform/x86: wmi: Turn WMI into a bus driver")
+Signed-off-by: Mattias Jacobsson <2pi@mok.nu>
+Signed-off-by: Darren Hart (VMware) <dvhart@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/delegation.c | 20 ++++++++++++--------
- fs/nfs/delegation.h |  1 +
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/platform/x86/wmi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index 74ff459b75ef..b0c0c2fc2fba 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -240,6 +240,8 @@ static struct inode *nfs_delegation_grab_inode(struct nfs_delegation *delegation
- 	spin_lock(&delegation->lock);
- 	if (delegation->inode != NULL)
- 		inode = igrab(delegation->inode);
-+	if (!inode)
-+		set_bit(NFS_DELEGATION_INODE_FREEING, &delegation->flags);
- 	spin_unlock(&delegation->lock);
- 	return inode;
- }
-@@ -955,10 +957,11 @@ void nfs_delegation_reap_unclaimed(struct nfs_client *clp)
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
- 		list_for_each_entry_rcu(delegation, &server->delegations,
- 								super_list) {
--			if (test_bit(NFS_DELEGATION_RETURNING,
--						&delegation->flags))
--				continue;
--			if (test_bit(NFS_DELEGATION_NEED_RECLAIM,
-+			if (test_bit(NFS_DELEGATION_INODE_FREEING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_RETURNING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_NEED_RECLAIM,
- 						&delegation->flags) == 0)
- 				continue;
- 			if (!nfs_sb_active(server->super))
-@@ -1064,10 +1067,11 @@ void nfs_reap_expired_delegations(struct nfs_client *clp)
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
- 		list_for_each_entry_rcu(delegation, &server->delegations,
- 								super_list) {
--			if (test_bit(NFS_DELEGATION_RETURNING,
--						&delegation->flags))
--				continue;
--			if (test_bit(NFS_DELEGATION_TEST_EXPIRED,
-+			if (test_bit(NFS_DELEGATION_INODE_FREEING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_RETURNING,
-+						&delegation->flags) ||
-+			    test_bit(NFS_DELEGATION_TEST_EXPIRED,
- 						&delegation->flags) == 0)
- 				continue;
- 			if (!nfs_sb_active(server->super))
-diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
-index dd0f3eed3890..f09b153ac82f 100644
---- a/fs/nfs/delegation.h
-+++ b/fs/nfs/delegation.h
-@@ -34,6 +34,7 @@ enum {
- 	NFS_DELEGATION_RETURNING,
- 	NFS_DELEGATION_REVOKED,
- 	NFS_DELEGATION_TEST_EXPIRED,
-+	NFS_DELEGATION_INODE_FREEING,
- };
+diff --git a/drivers/platform/x86/wmi.c b/drivers/platform/x86/wmi.c
+index 04791ea5d97b..35cdc3998eb5 100644
+--- a/drivers/platform/x86/wmi.c
++++ b/drivers/platform/x86/wmi.c
+@@ -768,6 +768,9 @@ static int wmi_dev_match(struct device *dev, struct device_driver *driver)
+ 	struct wmi_block *wblock = dev_to_wblock(dev);
+ 	const struct wmi_device_id *id = wmi_driver->id_table;
  
- int nfs_inode_set_delegation(struct inode *inode, struct rpc_cred *cred,
++	if (id == NULL)
++		return 0;
++
+ 	while (id->guid_string) {
+ 		uuid_le driver_guid;
+ 
 -- 
 2.20.1
 
