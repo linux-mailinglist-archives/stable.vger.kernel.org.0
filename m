@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC66F13FCD9
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C18DF13FCDD
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:19:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729351AbgAPXTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:19:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45134 "EHLO mail.kernel.org"
+        id S2390402AbgAPXTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:19:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729300AbgAPXTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:19:24 -0500
+        id S1729300AbgAPXTb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:19:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C396F2073A;
-        Thu, 16 Jan 2020 23:19:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E999B2073A;
+        Thu, 16 Jan 2020 23:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216763;
-        bh=7Aqib8JCONQVzpqSk85YgURpZfClIXobDqC47p+rDhw=;
+        s=default; t=1579216770;
+        bh=IX/cPDOakdeiFjMrTgtNzPjJuBZ35xpG7WXIjxZz/dE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vZEM/z9jec+jbpldQsdOdsDY1ftSadY8qcYeekJjqgOP4D34v3uRqz3LZLQyWyik1
-         DswHL0wgdS9+bEGZvXey7/zSmcP2ruclXSjw2WAOIoKGKYe1cwxVtPcs/kxp+tEuDB
-         pe0RhBZwPMwhoQJMWHvqjXYPj+l1d1KngUsgASyI=
+        b=QgddeGGZKv2vwi1ayAgBmmB7UlBBTEpWZOrh0X/QQ9YNWLILjrBPWyR+f25gultOK
+         sWEyNIyxLOdc6bjtevdLhsvPycgFLIsHlH1IcLEi2AuL6z60t0IqDLlbBxCmoBIF3m
+         iTnJiG7eNAvZUdJT/WM8Hvw/O18rZ7S+fxstkfHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 001/203] HID: hidraw, uhid: Always report EPOLLOUT
-Date:   Fri, 17 Jan 2020 00:15:18 +0100
-Message-Id: <20200116231745.317249555@linuxfoundation.org>
+        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.4 004/203] RDMA/bnxt_re: Avoid freeing MR resources if dereg fails
+Date:   Fri, 17 Jan 2020 00:15:21 +0100
+Message-Id: <20200116231745.488375002@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,62 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Selvin Xavier <selvin.xavier@broadcom.com>
 
-[ Upstream commit 9e635c2851df6caee651e589fbf937b637973c91 ]
+commit 9a4467a6b282a299b932608ac2c9034f8415359f upstream.
 
-hidraw and uhid device nodes are always available for writing so we should
-always report EPOLLOUT and EPOLLWRNORM bits, not only in the cases when
-there is nothing to read.
+The driver returns an error code for MR dereg, but frees the MR structure.
+When the MR dereg is retried due to previous error, the system crashes as
+the structure is already freed.
 
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Fixes: be54e7461ffdc ("HID: uhid: Fix returning EPOLLOUT from uhid_char_poll")
-Fixes: 9f3b61dc1dd7b ("HID: hidraw: Fix returning EPOLLOUT from hidraw_poll")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  BUG: unable to handle kernel NULL pointer dereference at 00000000000001b8
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  CPU: 7 PID: 12178 Comm: ib_send_bw Kdump: loaded Not tainted 4.18.0-124.el8.x86_64 #1
+  Hardware name: Dell Inc. PowerEdge R430/03XKDV, BIOS 1.1.10 03/10/2015
+  RIP: 0010:__dev_printk+0x2a/0x70
+  Code: 0f 1f 44 00 00 49 89 d1 48 85 f6 0f 84 f6 2b 00 00 4c 8b 46 70 4d 85 c0 75 04 4c 8b
+46 10 48 8b 86 a8 00 00 00 48 85 c0 74 16 <48> 8b 08 0f be 7f 01 48 c7 c2 13 ac ac 83 83 ef 30 e9 10 fe ff ff
+  RSP: 0018:ffffaf7c04607a60 EFLAGS: 00010006
+  RAX: 00000000000001b8 RBX: ffffa0010c91c488 RCX: 0000000000000246
+  RDX: ffffaf7c04607a68 RSI: ffffa0010c91caa8 RDI: ffffffff83a788eb
+  RBP: ffffaf7c04607ac8 R08: 0000000000000000 R09: ffffaf7c04607a68
+  R10: 0000000000000000 R11: 0000000000000001 R12: ffffaf7c04607b90
+  R13: 000000000000000e R14: 0000000000000000 R15: 00000000ffffa001
+  FS:  0000146fa1f1cdc0(0000) GS:ffffa0012fac0000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00000000000001b8 CR3: 000000007680a003 CR4: 00000000001606e0
+  Call Trace:
+   dev_err+0x6c/0x90
+   ? dev_printk_emit+0x4e/0x70
+   bnxt_qplib_rcfw_send_message+0x594/0x660 [bnxt_re]
+   ? dev_err+0x6c/0x90
+   bnxt_qplib_free_mrw+0x80/0xe0 [bnxt_re]
+   bnxt_re_dereg_mr+0x2e/0xd0 [bnxt_re]
+   ib_dereg_mr+0x2f/0x50 [ib_core]
+   destroy_hw_idr_uobject+0x20/0x70 [ib_uverbs]
+   uverbs_destroy_uobject+0x2e/0x170 [ib_uverbs]
+   __uverbs_cleanup_ufile+0x6e/0x90 [ib_uverbs]
+   uverbs_destroy_ufile_hw+0x61/0x130 [ib_uverbs]
+   ib_uverbs_close+0x1f/0x80 [ib_uverbs]
+   __fput+0xb7/0x230
+   task_work_run+0x8a/0xb0
+   do_exit+0x2da/0xb40
+...
+  RIP: 0033:0x146fa113a387
+  Code: Bad RIP value.
+  RSP: 002b:00007fff945d1478 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff02
+  RAX: 0000000000000000 RBX: 000055a248908d70 RCX: 0000000000000000
+  RDX: 0000146fa1f2b000 RSI: 0000000000000001 RDI: 000055a248906488
+  RBP: 000055a248909630 R08: 0000000000010000 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000000 R12: 000055a248906488
+  R13: 0000000000000001 R14: 0000000000000000 R15: 000055a2489095f0
+
+Do not free the MR structures, when driver returns error to the stack.
+
+Fixes: 872f3578241d ("RDMA/bnxt_re: Add support for MRs with Huge pages")
+Link: https://lore.kernel.org/r/1574671174-5064-2-git-send-email-selvin.xavier@broadcom.com
+Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hid/hidraw.c |    7 ++++---
- drivers/hid/uhid.c   |    5 +++--
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/bnxt_re/ib_verbs.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -249,13 +249,14 @@ out:
- static __poll_t hidraw_poll(struct file *file, poll_table *wait)
- {
- 	struct hidraw_list *list = file->private_data;
-+	__poll_t mask = EPOLLOUT | EPOLLWRNORM; /* hidraw is always writable */
+--- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
++++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+@@ -3323,8 +3323,10 @@ int bnxt_re_dereg_mr(struct ib_mr *ib_mr
+ 	int rc;
  
- 	poll_wait(file, &list->hidraw->wait, wait);
- 	if (list->head != list->tail)
--		return EPOLLIN | EPOLLRDNORM;
-+		mask |= EPOLLIN | EPOLLRDNORM;
- 	if (!list->hidraw->exist)
--		return EPOLLERR | EPOLLHUP;
--	return EPOLLOUT | EPOLLWRNORM;
-+		mask |= EPOLLERR | EPOLLHUP;
-+	return mask;
- }
+ 	rc = bnxt_qplib_free_mrw(&rdev->qplib_res, &mr->qplib_mr);
+-	if (rc)
++	if (rc) {
+ 		dev_err(rdev_to_dev(rdev), "Dereg MR failed: %#x\n", rc);
++		return rc;
++	}
  
- static int hidraw_open(struct inode *inode, struct file *file)
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -766,13 +766,14 @@ unlock:
- static __poll_t uhid_char_poll(struct file *file, poll_table *wait)
- {
- 	struct uhid_device *uhid = file->private_data;
-+	__poll_t mask = EPOLLOUT | EPOLLWRNORM; /* uhid is always writable */
- 
- 	poll_wait(file, &uhid->waitq, wait);
- 
- 	if (uhid->head != uhid->tail)
--		return EPOLLIN | EPOLLRDNORM;
-+		mask |= EPOLLIN | EPOLLRDNORM;
- 
--	return EPOLLOUT | EPOLLWRNORM;
-+	return mask;
- }
- 
- static const struct file_operations uhid_fops = {
+ 	if (mr->pages) {
+ 		rc = bnxt_qplib_free_fast_reg_page_list(&rdev->qplib_res,
 
 
