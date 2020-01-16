@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F36013F638
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BEDE13F650
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:03:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388579AbgAPRFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:05:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34132 "EHLO mail.kernel.org"
+        id S2391697AbgAPTC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:02:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388668AbgAPRF0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:05:26 -0500
+        id S2387809AbgAPRFa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:05:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CE0F20728;
-        Thu, 16 Jan 2020 17:05:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE131207FF;
+        Thu, 16 Jan 2020 17:05:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194326;
-        bh=jhZBndIEXfFfqNHQqvIk54IIrJOpLd4mLt31hke5ZfQ=;
+        s=default; t=1579194329;
+        bh=JJoNUAn5XTcRHAbd/GoL60h9POSWMI/lFT0ZqauAsxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQvC+2KN0yDUYgXDRpUSjUxHmSJAJQmVHpLgOrTu8AXQSjJ8/XlLlMJV46xeZo9Yb
-         yOolaBniftDebZvAI06AlLIQP7yzLK6qr9M6+Rroq64gBTXiZfuqERwNOYaG/ixG7N
-         5j8Ej9hceVsoJrvvMY/CeTnqhV3Q4RLmFqBG6zgQ=
+        b=HOtrOjyYhMCsayaCVl0LO8Ma6XUWggxBsR/isGZgtQ6KTcDHieZjJLWYZFryvRXR4
+         KhBVTx6KQqM4bxz1jYo6zDD45586Ekhdg4en2tRiOa5LLIkSsqcJJAw5Folt8moZNq
+         gjQllMedGH07lYdhHXarcPaZz9dsa+CKtNDEXeVY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Sperl <kernel@martin.sperl.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 274/671] spi: bcm2835aux: fix driver to not allow 65535 (=-1) cs-gpios
-Date:   Thu, 16 Jan 2020 11:58:32 -0500
-Message-Id: <20200116170509.12787-11-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 277/671] rtc: Fix timestamp value for RTC_TIMESTAMP_BEGIN_1900
+Date:   Thu, 16 Jan 2020 11:58:35 -0500
+Message-Id: <20200116170509.12787-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -47,59 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Sperl <kernel@martin.sperl.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 509c583620e9053e43d611bf1614fc3d3abafa96 ]
+[ Upstream commit d3062d1d7415cb5a37777220357aca51a491c3d7 ]
 
-The original driver by default defines num_chipselects as -1.
-This actually allicates an array of 65535 entries in
-of_spi_register_master.
+Printing "mktime64(1900, 1, 1, 0, 0, 0)" gives -2208988800.
 
-There is a side-effect for buggy device trees that (contrary to
-dt-binding documentation) have no cs-gpio defined.
-
-This mode was never supported by the driver due to limitations
-of native cs and additional code complexity and is explicitly
-not stated to be implemented.
-
-To keep backwards compatibility with such buggy DTs we limit
-the number of chip_selects to 1, as for all practical purposes
-it is only ever realistic to use a single chip select in
-native cs mode without negative side-effects.
-
-Fixes: 1ea29b39f4c812ec ("spi: bcm2835aux: add bcm2835 auxiliary spi device...")
-Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
-Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 83bbc5ac63326433 ("rtc: Add useful timestamp definitions")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm2835aux.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ include/linux/rtc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
-index 12c1fa5b06c5..c63ed402cf86 100644
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -416,7 +416,18 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, master);
- 	master->mode_bits = (SPI_CPOL | SPI_CS_HIGH | SPI_NO_CS);
- 	master->bits_per_word_mask = SPI_BPW_MASK(8);
--	master->num_chipselect = -1;
-+	/* even though the driver never officially supported native CS
-+	 * allow a single native CS for legacy DT support purposes when
-+	 * no cs-gpio is configured.
-+	 * Known limitations for native cs are:
-+	 * * multiple chip-selects: cs0-cs2 are all simultaniously asserted
-+	 *     whenever there is a transfer -  this even includes SPI_NO_CS
-+	 * * SPI_CS_HIGH: is ignores - cs are always asserted low
-+	 * * cs_change: cs is deasserted after each spi_transfer
-+	 * * cs_delay_usec: cs is always deasserted one SCK cycle after
-+	 *     a spi_transfer
-+	 */
-+	master->num_chipselect = 1;
- 	master->transfer_one = bcm2835aux_spi_transfer_one;
- 	master->handle_err = bcm2835aux_spi_handle_err;
- 	master->prepare_message = bcm2835aux_spi_prepare_message;
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 6aedc30003e7..5a34f59941fb 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -163,7 +163,7 @@ struct rtc_device {
+ #define to_rtc_device(d) container_of(d, struct rtc_device, dev)
+ 
+ /* useful timestamps */
+-#define RTC_TIMESTAMP_BEGIN_1900	-2208989361LL /* 1900-01-01 00:00:00 */
++#define RTC_TIMESTAMP_BEGIN_1900	-2208988800LL /* 1900-01-01 00:00:00 */
+ #define RTC_TIMESTAMP_BEGIN_2000	946684800LL /* 2000-01-01 00:00:00 */
+ #define RTC_TIMESTAMP_END_2099		4102444799LL /* 2099-12-31 23:59:59 */
+ 
 -- 
 2.20.1
 
