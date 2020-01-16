@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA55E13E595
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:15:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D1FF13E58E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:15:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387729AbgAPRPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:15:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33718 "EHLO mail.kernel.org"
+        id S2391004AbgAPROb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:14:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390994AbgAPRO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:14:29 -0500
+        id S2391000AbgAPROb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:14:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5ADB72469C;
-        Thu, 16 Jan 2020 17:14:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 501962468C;
+        Thu, 16 Jan 2020 17:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194868;
-        bh=E86M/yB9LlwscpjTS9a3Gyhc0HS7U3WsZg2MvJo/zMY=;
+        s=default; t=1579194870;
+        bh=lcTiAEvzIShJAp1ngOzxx7JrTfacetc6LMI336VAZa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHle893fGGQJH7RG/0BC5VGqUhHMAyoOAaI/uBF2kbjF83X4/cAOywVjYYvddoaue
-         N5TvKKpGmV7bkDzipPU9NlO9qftYk7z5dg2nVKr4YzPLQCEG2ENhknkTlL1PeyxBK6
-         9JfnGVljXMN0RusewRSabOGSu23KOY28z4X5a3nw=
+        b=uw2gkZsaCdMEfsKQu4LgEnW89lUbqJ1Ul0T3au0md7QfnIhHir8vtB6mpho17GLMP
+         gLp3FhqfEkdpttWbfau0k7F6nZDfP0UZT+ko9BFVff03rvQp1hvWvx+oCYneLTY2zd
+         6fpnr8JSl5nECwnWZhNtNWgyxuKAaj7lONhCy/o4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Wilck <mwilck@suse.com>, David Bond <dbond@suse.com>,
+Cc:     Huacai Chen <chenhc@lemote.com>,
+        Michael Hernandez <michael.hernandez@cavium.com>,
         Himanshu Madhani <hmadhani@marvell.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 661/671] scsi: qla2xxx: fix rports not being mark as lost in sync fabric scan
-Date:   Thu, 16 Jan 2020 12:04:59 -0500
-Message-Id: <20200116170509.12787-398-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 662/671] scsi: qla2xxx: Fix qla2x00_request_irqs() for MSI
+Date:   Thu, 16 Jan 2020 12:05:00 -0500
+Message-Id: <20200116170509.12787-399-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,49 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-[ Upstream commit d341e9a8f2cffe4000c610225c629f62c7489c74 ]
+[ Upstream commit 45dc8f2d9c94ed74a5e31e63e9136a19a7e16081 ]
 
-In qla2x00_find_all_fabric_devs(), fcport->flags & FCF_LOGIN_NEEDED is a
-necessary condition for logging into new rports, but not for dropping lost
-ones.
+Commit 4fa183455988 ("scsi: qla2xxx: Utilize pci_alloc_irq_vectors/
+pci_free_irq_vectors calls.") use pci_alloc_irq_vectors() to replace
+pci_enable_msi() but it didn't handle the return value correctly. This bug
+make qla2x00 always fail to setup MSI if MSI-X fail, so fix it.
 
-Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery")
-Link: https://lore.kernel.org/r/20191122221912.20100-2-martin.wilck@suse.com
-Tested-by: David Bond <dbond@suse.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
+BTW, improve the log message of return value in qla2x00_request_irqs() to
+avoid confusion.
+
+Fixes: 4fa183455988 ("scsi: qla2xxx: Utilize pci_alloc_irq_vectors/pci_free_irq_vectors calls.")
+Cc: Michael Hernandez <michael.hernandez@cavium.com>
+Link: https://lore.kernel.org/r/1574314847-14280-1-git-send-email-chenhc@lemote.com
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
 Acked-by: Himanshu Madhani <hmadhani@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c | 6 +++---
+ drivers/scsi/qla2xxx/qla_isr.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index 851f75b12216..f45759b353be 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -5710,8 +5710,7 @@ qla2x00_find_all_fabric_devs(scsi_qla_host_t *vha)
- 		if (test_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags))
- 			break;
+diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
+index e6d162945f5d..01ded6c6ad38 100644
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -3573,7 +3573,7 @@ qla2x00_request_irqs(struct qla_hw_data *ha, struct rsp_que *rsp)
+ skip_msix:
  
--		if ((fcport->flags & FCF_FABRIC_DEVICE) == 0 ||
--		    (fcport->flags & FCF_LOGIN_NEEDED) == 0)
-+		if ((fcport->flags & FCF_FABRIC_DEVICE) == 0)
- 			continue;
+ 	ql_log(ql_log_info, vha, 0x0037,
+-	    "Falling back-to MSI mode -%d.\n", ret);
++	    "Falling back-to MSI mode -- ret=%d.\n", ret);
  
- 		if (fcport->scan_state == QLA_FCPORT_SCAN) {
-@@ -5734,7 +5733,8 @@ qla2x00_find_all_fabric_devs(scsi_qla_host_t *vha)
- 			}
- 		}
+ 	if (!IS_QLA24XX(ha) && !IS_QLA2532(ha) && !IS_QLA8432(ha) &&
+ 	    !IS_QLA8001(ha) && !IS_P3P_TYPE(ha) && !IS_QLAFX00(ha) &&
+@@ -3581,13 +3581,13 @@ qla2x00_request_irqs(struct qla_hw_data *ha, struct rsp_que *rsp)
+ 		goto skip_msi;
  
--		if (fcport->scan_state == QLA_FCPORT_FOUND)
-+		if (fcport->scan_state == QLA_FCPORT_FOUND &&
-+		    (fcport->flags & FCF_LOGIN_NEEDED) != 0)
- 			qla24xx_fcport_handle_login(vha, fcport);
- 	}
- 	return (rval);
+ 	ret = pci_alloc_irq_vectors(ha->pdev, 1, 1, PCI_IRQ_MSI);
+-	if (!ret) {
++	if (ret > 0) {
+ 		ql_dbg(ql_dbg_init, vha, 0x0038,
+ 		    "MSI: Enabled.\n");
+ 		ha->flags.msi_enabled = 1;
+ 	} else
+ 		ql_log(ql_log_warn, vha, 0x0039,
+-		    "Falling back-to INTa mode -- %d.\n", ret);
++		    "Falling back-to INTa mode -- ret=%d.\n", ret);
+ skip_msi:
+ 
+ 	/* Skip INTx on ISP82xx. */
 -- 
 2.20.1
 
