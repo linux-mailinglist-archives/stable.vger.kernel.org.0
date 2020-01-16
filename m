@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 296D713EE6F
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:09:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1DE013EE68
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:09:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387484AbgAPSJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:09:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54472 "EHLO mail.kernel.org"
+        id S2405057AbgAPRif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:38:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405041AbgAPRic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:38:32 -0500
+        id S2405052AbgAPRie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:38:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A97F246D5;
-        Thu, 16 Jan 2020 17:38:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D10CB246E5;
+        Thu, 16 Jan 2020 17:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196312;
-        bh=IJMGW8gLWsyyTQNqcA+b0r72ujTF6o/zNtEEivEBwGU=;
+        s=default; t=1579196313;
+        bh=JBhNtFJ94R8C17PryEob3YDZloOshI0//2W6ZOtVMxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AewYDxpR//30uo/k1I63fylpx0T9p2kqsEBLJ1MA2cjusMIhr3BtbS3aLVlkgyYxt
-         nuzSWQpud6f1SXgWoM94C2287ItjUFw88LPdbq/KHnnoDNSIV1S2p50kkBwzFeUVDe
-         JY/8qSaY+0nEAQ+KZVdLXkkMYM2Hk7soWIqHQCTQ=
+        b=CcvSwro7mZVaF4YBp5UTl+yAmevumFoe6prviOBHBluh768D9O0gf44FJvM2LF032
+         fyId3QWfCb+Jzz5FBSBqjWDAYNYZR9JB87V9rE6bZM1hbFH0b5eRCEJ+k3UkRcvxHo
+         Pfp8BlnxYIx8RxBppWTb0iI8Ng3wRmatUuWVThnM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Akinobu Mita <akinobu.mita@gmail.com>,
-        "Lad Prabhakar" <prabhakar.csengg@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 119/251] media: ov2659: fix unbalanced mutex_lock/unlock
-Date:   Thu, 16 Jan 2020 12:34:28 -0500
-Message-Id: <20200116173641.22137-79-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Jukka Rissanen <jukka.rissanen@linux.intel.com>,
+        Alexander Aring <aring@mojatatu.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, linux-wpan@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 120/251] 6lowpan: Off by one handling ->nexthdr
+Date:   Thu, 16 Jan 2020 12:34:29 -0500
+Message-Id: <20200116173641.22137-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -45,37 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 384538bda10913e5c94ec5b5d34bd3075931bcf4 ]
+[ Upstream commit f57c4bbf34439531adccd7d3a4ecc14f409c1399 ]
 
-Avoid returning with mutex locked.
+NEXTHDR_MAX is 255.  What happens here is that we take a u8 value
+"hdr->nexthdr" from the network and then look it up in
+lowpan_nexthdr_nhcs[].  The problem is that if hdr->nexthdr is 0xff then
+we read one element beyond the end of the array so the array needs to
+be one element larger.
 
-Fixes: fa8cb6444c32 ("[media] ov2659: Don't depend on subdev API")
-
-Cc: "Lad Prabhakar" <prabhakar.csengg@gmail.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Acked-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: 92aa7c65d295 ("6lowpan: add generic nhc layer interface")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Jukka Rissanen <jukka.rissanen@linux.intel.com>
+Acked-by: Alexander Aring <aring@mojatatu.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov2659.c | 2 +-
+ net/6lowpan/nhc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
-index ade3c48e2e0c..18546f950d79 100644
---- a/drivers/media/i2c/ov2659.c
-+++ b/drivers/media/i2c/ov2659.c
-@@ -1137,7 +1137,7 @@ static int ov2659_set_fmt(struct v4l2_subdev *sd,
- 		mf = v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
- 		*mf = fmt->format;
- #else
--		return -ENOTTY;
-+		ret = -ENOTTY;
- #endif
- 	} else {
- 		s64 val;
+diff --git a/net/6lowpan/nhc.c b/net/6lowpan/nhc.c
+index 7008d53e455c..e61679bf0908 100644
+--- a/net/6lowpan/nhc.c
++++ b/net/6lowpan/nhc.c
+@@ -18,7 +18,7 @@
+ #include "nhc.h"
+ 
+ static struct rb_root rb_root = RB_ROOT;
+-static struct lowpan_nhc *lowpan_nexthdr_nhcs[NEXTHDR_MAX];
++static struct lowpan_nhc *lowpan_nexthdr_nhcs[NEXTHDR_MAX + 1];
+ static DEFINE_SPINLOCK(lowpan_nhc_lock);
+ 
+ static int lowpan_nhc_insert(struct lowpan_nhc *nhc)
 -- 
 2.20.1
 
