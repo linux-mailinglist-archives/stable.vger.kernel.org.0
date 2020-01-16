@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EA8613F787
+	by mail.lfdr.de (Postfix) with ESMTP id AB85513F788
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:12:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729253AbgAPQ7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:59:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48816 "EHLO mail.kernel.org"
+        id S1733083AbgAPQ7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:59:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387553AbgAPQ7p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:59:45 -0500
+        id S2387562AbgAPQ7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:59:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA4DC20728;
-        Thu, 16 Jan 2020 16:59:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6B7E2192A;
+        Thu, 16 Jan 2020 16:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193985;
-        bh=QrGStWXLRGtV0dW5HjUA+rWs8Ry45kt+M4hNFi79nmg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Xy/mm0BNHP9Htuc7RNiB+ZzO3p+iCwHUTN6fRVkrV+oOmse717QfVXdihMvBwiG6h
-         t5lK0rs0JUWGQPLAm1sJjozmSL7ZSj2WEwWT8+Uz02IY2jz8LVg/8ITbjU/1D16sx1
-         U+aif0Nwi7GE8RlE85kK7VLT9sNH2OMVUlZu02Uk=
+        s=default; t=1579193987;
+        bh=hZZmyq3Wa/MfViE7LfEFeQVmtZnWTDwEPeNqkljtXQU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DmIjlCF7t6OE/pPzXKUdUfObyaXsql3nWRyzrz2RX8RbfNmW/6KlybltswWZfGkbn
+         DJUvCJewE5j/L3Ea3o83PIx2mbSCecvEkIoDtlSPWBfsAVsjVbZtA+kXrNnTMeHHiB
+         ZuMQMSs+ubKs4QWgFayG4C1lt5W/2v4zQye/rcAE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 118/671] media: s5p-jpeg: Correct step and max values for V4L2_CID_JPEG_RESTART_INTERVAL
-Date:   Thu, 16 Jan 2020 11:50:27 -0500
-Message-Id: <20200116165940.10720-1-sashal@kernel.org>
+Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 119/671] kbuild: mark prepare0 as PHONY to fix external module build
+Date:   Thu, 16 Jan 2020 11:50:28 -0500
+Message-Id: <20200116165940.10720-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
+References: <20200116165940.10720-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,42 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 19c624c6b29e244c418f8b44a711cbf5e82e3cd4 ]
+[ Upstream commit e00d8880481497474792d28c14479a9fb6752046 ]
 
-This commit corrects max and step values for v4l2 control for
-V4L2_CID_JPEG_RESTART_INTERVAL. Max should be 0xffff and step should be 1.
-It was found by using v4l2-compliance tool and checking result of
-VIDIOC_QUERY_EXT_CTRL/QUERYMENU test.
-Previously it was complaining that step was bigger than difference
-between max and min.
+Commit c3ff2a5193fa ("powerpc/32: add stack protector support")
+caused kernel panic on PowerPC when an external module is used with
+CONFIG_STACKPROTECTOR because the 'prepare' target was not executed
+for the external module build.
 
-Fixes: 15f4bc3b1f42 ("[media] s5p-jpeg: Add JPEG controls support")
+Commit e07db28eea38 ("kbuild: fix single target build for external
+module") turned it into a build error because the 'prepare' target is
+now executed but the 'prepare0' target is missing for the external
+module build.
 
-Signed-off-by: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Reviewed-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+External module on arm/arm64 with CONFIG_STACKPROTECTOR_PER_TASK is
+also broken in the same way.
+
+Move 'PHONY += prepare0' to the common place. GNU Make is fine with
+missing rule for phony targets. I also removed the comment which is
+wrong irrespective of this commit.
+
+I minimize the change so it can be easily backported to 4.20.x
+
+To fix v4.20, please backport e07db28eea38 ("kbuild: fix single target
+build for external module"), and then this commit.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=201891
+Fixes: e07db28eea38 ("kbuild: fix single target build for external module")
+Fixes: c3ff2a5193fa ("powerpc/32: add stack protector support")
+Fixes: 189af4657186 ("ARM: smp: add support for per-task stack canaries")
+Fixes: 0a1213fa7432 ("arm64: enable per-task stack canaries")
+Cc: linux-stable <stable@vger.kernel.org> # v4.20
+Reported-by: Samuel Holland <samuel@sholland.org>
+Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-jpeg/jpeg-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-jpeg/jpeg-core.c b/drivers/media/platform/s5p-jpeg/jpeg-core.c
-index 350afaa29a62..fa7c42cf4b4e 100644
---- a/drivers/media/platform/s5p-jpeg/jpeg-core.c
-+++ b/drivers/media/platform/s5p-jpeg/jpeg-core.c
-@@ -2005,7 +2005,7 @@ static int s5p_jpeg_controls_create(struct s5p_jpeg_ctx *ctx)
+diff --git a/Makefile b/Makefile
+index 3b836cc8b22d..bf77bc0b92d9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -964,6 +964,7 @@ ifdef CONFIG_STACK_VALIDATION
+   endif
+ endif
  
- 		v4l2_ctrl_new_std(&ctx->ctrl_handler, &s5p_jpeg_ctrl_ops,
- 				  V4L2_CID_JPEG_RESTART_INTERVAL,
--				  0, 3, 0xffff, 0);
-+				  0, 0xffff, 1, 0);
- 		if (ctx->jpeg->variant->version == SJPEG_S5P)
- 			mask = ~0x06; /* 422, 420 */
- 	}
++PHONY += prepare0
+ 
+ ifeq ($(KBUILD_EXTMOD),)
+ core-y		+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/ block/
+@@ -1072,8 +1073,7 @@ scripts: scripts_basic asm-generic gcc-plugins $(autoksyms_h)
+ # archprepare is used in arch Makefiles and when processed asm symlink,
+ # version.h and scripts_basic is processed / created.
+ 
+-# Listed in dependency order
+-PHONY += prepare archprepare prepare0 prepare1 prepare2 prepare3
++PHONY += prepare archprepare prepare1 prepare2 prepare3
+ 
+ # prepare3 is used to check if we are building in a separate output directory,
+ # and if so do:
 -- 
 2.20.1
 
