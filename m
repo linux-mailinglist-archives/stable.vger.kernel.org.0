@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E553413F071
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:22:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 457AE13F069
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395369AbgAPSVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:21:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37870 "EHLO mail.kernel.org"
+        id S2392075AbgAPR1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:27:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392509AbgAPR1p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:27:45 -0500
+        id S2392072AbgAPR1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:27:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFAE6246E6;
-        Thu, 16 Jan 2020 17:27:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5493A246D0;
+        Thu, 16 Jan 2020 17:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195664;
-        bh=xj46LUX8pWHd9qD70lWYOaExu6TVlptWMRSBikZc2YQ=;
+        s=default; t=1579195666;
+        bh=NAW0lDxZxbdXmUcJNQfaYox57i6EhRso58SUUQPAoK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztPIExW0hqpj2QFTEbSRhzRI0sev9kMXE5wusLOGRboF5LYmoseSi2kDSc8ynlKhn
-         XIeRExPOYlX2eZeEDm9kfNvL1yELa0BV2SqKS8uMm9vBmCrwebXpYEGaouyuDt6949
-         Is/ZRCk7KIAkjcvHOiZRnRh5WJyqUt7kNu0bel98=
+        b=b6UQ89fqFHzkaP4zwBN3nQZpUFWT2+FOtQagphdzVa4d+KRz2CoHKAGPBWNL7neFo
+         vQJGczKs4NTEF9iEzBODSHVfZSxHUZXTFKxAP0BHyZZbe53thVKPDDe6TrvB21j0wr
+         oXx4D6e/aiJpiOqHHWa04Bn2raC2ZFokStg/IEtc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Markus Mayer <mmayer@broadcom.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 223/371] cpufreq: brcmstb-avs-cpufreq: Fix types for voltage/frequency
-Date:   Thu, 16 Jan 2020 12:21:35 -0500
-Message-Id: <20200116172403.18149-166-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 224/371] media: vivid: fix incorrect assignment operation when setting video mode
+Date:   Thu, 16 Jan 2020 12:21:36 -0500
+Message-Id: <20200116172403.18149-167-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,59 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 4c5681fcc684c762b09435de3e82ffeee7769d21 ]
+[ Upstream commit d4ec9550e4b2d2e357a46fdc65d8ef3d4d15984c ]
 
-What we read back from the register is going to be capped at 32-bits,
-and cpufreq_freq_table.frequency is an unsigned int. Avoid any possible
-value truncation by using the appropriate return value.
+The assigment of FB_VMODE_NONINTERLACE to var->vmode should be a
+bit-wise or of FB_VMODE_NONINTERLACE instead of an assignment,
+otherwise the previous clearing of the FB_VMODE_MASK bits of
+var->vmode makes no sense and is redundant.
 
-Fixes: de322e085995 ("cpufreq: brcmstb-avs-cpufreq: AVS CPUfreq driver for Broadcom STB SoCs")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Markus Mayer <mmayer@broadcom.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Addresses-Coverity: ("Unused value")
+Fixes: ad4e02d5081d ("[media] vivid: add a simple framebuffer device for overlay testing")
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/brcmstb-avs-cpufreq.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/platform/vivid/vivid-osd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/brcmstb-avs-cpufreq.c b/drivers/cpufreq/brcmstb-avs-cpufreq.c
-index bae319037658..39c462711eae 100644
---- a/drivers/cpufreq/brcmstb-avs-cpufreq.c
-+++ b/drivers/cpufreq/brcmstb-avs-cpufreq.c
-@@ -468,12 +468,12 @@ static int brcm_avs_set_pstate(struct private_data *priv, unsigned int pstate)
- 	return __issue_avs_command(priv, AVS_CMD_SET_PSTATE, true, args);
- }
+diff --git a/drivers/media/platform/vivid/vivid-osd.c b/drivers/media/platform/vivid/vivid-osd.c
+index bdc380b14e0c..a95b7c56569e 100644
+--- a/drivers/media/platform/vivid/vivid-osd.c
++++ b/drivers/media/platform/vivid/vivid-osd.c
+@@ -167,7 +167,7 @@ static int _vivid_fb_check_var(struct fb_var_screeninfo *var, struct vivid_dev *
+ 	var->nonstd = 0;
  
--static unsigned long brcm_avs_get_voltage(void __iomem *base)
-+static u32 brcm_avs_get_voltage(void __iomem *base)
- {
- 	return readl(base + AVS_MBOX_VOLTAGE1);
- }
+ 	var->vmode &= ~FB_VMODE_MASK;
+-	var->vmode = FB_VMODE_NONINTERLACED;
++	var->vmode |= FB_VMODE_NONINTERLACED;
  
--static unsigned long brcm_avs_get_frequency(void __iomem *base)
-+static u32 brcm_avs_get_frequency(void __iomem *base)
- {
- 	return readl(base + AVS_MBOX_FREQUENCY) * 1000;	/* in kHz */
- }
-@@ -973,14 +973,14 @@ static ssize_t show_brcm_avs_voltage(struct cpufreq_policy *policy, char *buf)
- {
- 	struct private_data *priv = policy->driver_data;
- 
--	return sprintf(buf, "0x%08lx\n", brcm_avs_get_voltage(priv->base));
-+	return sprintf(buf, "0x%08x\n", brcm_avs_get_voltage(priv->base));
- }
- 
- static ssize_t show_brcm_avs_frequency(struct cpufreq_policy *policy, char *buf)
- {
- 	struct private_data *priv = policy->driver_data;
- 
--	return sprintf(buf, "0x%08lx\n", brcm_avs_get_frequency(priv->base));
-+	return sprintf(buf, "0x%08x\n", brcm_avs_get_frequency(priv->base));
- }
- 
- cpufreq_freq_attr_ro(brcm_avs_pstate);
+ 	/* Dummy values */
+ 	var->hsync_len = 24;
 -- 
 2.20.1
 
