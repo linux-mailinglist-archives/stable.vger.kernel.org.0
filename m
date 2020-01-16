@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D1F013F05A
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CD713F062
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392037AbgAPR1w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:27:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38092 "EHLO mail.kernel.org"
+        id S2391835AbgAPSVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:21:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404052AbgAPR1v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:27:51 -0500
+        id S2392072AbgAPR1w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:27:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EB98246E4;
-        Thu, 16 Jan 2020 17:27:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8142246E0;
+        Thu, 16 Jan 2020 17:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195670;
-        bh=tSUlR4tPDzSqua/yvIuaf3Ye6cFWN6b1St9+UreSkGU=;
+        s=default; t=1579195671;
+        bh=qXcDlE2DPQQ8J4GRdU74EnWdqMEs2DTcyMuubdAScgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nojWxQOABPwnfGbRct44E9sGN2KLiiR/WIGxesvDelBkqeYn+B2MyHTiYtrFGrp/u
-         HW+k3E8nEz5ye7epX4mPZpz4fIJTjjCyX0Lr2jP5cd5P47JByJpDNcM8y4MGLBJQ7a
-         QtdhMN5n5iYvkSY9sB9loGu0X1zyXOkijAGWDwtc=
+        b=LiXsggka+upDFG1YA+0Iv+xPlGlPuvsmyB1CvQxAkaTtrrvekgIXkEmnMXzKaJGrJ
+         29iS67qKJeupV6TMMFtQUYCF4WTH9+XtbCi7L8Ygk85/aIuWoAt3kjL8kmBAH+t2PI
+         t4jveDVktkOYM8D8DUHwMpLF5iADwt9Flygw2544=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michal Kalderon <michal.kalderon@marvell.com>,
-        Ariel Elior <ariel.elior@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 227/371] qed: iWARP - Use READ_ONCE and smp_store_release to access ep->state
-Date:   Thu, 16 Jan 2020 12:21:39 -0500
-Message-Id: <20200116172403.18149-170-sashal@kernel.org>
+Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
+        "Gautham R . Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 228/371] powerpc/cacheinfo: add cacheinfo_teardown, cacheinfo_rebuild
+Date:   Thu, 16 Jan 2020 12:21:40 -0500
+Message-Id: <20200116172403.18149-171-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,78 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Kalderon <michal.kalderon@marvell.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit 6117561e1bb30b2fe7f51e1961f34dbedd0bec8a ]
+[ Upstream commit d4aa219a074a5abaf95a756b9f0d190b5c03a945 ]
 
-Destroy QP waits for it's ep object state to be set to CLOSED
-before proceeding. ep->state can be updated from a different
-context. Add smp_store_release/READ_ONCE to synchronize.
+Allow external callers to force the cacheinfo code to release all its
+references to cache nodes, e.g. before processing device tree updates
+post-migration, and to rebuild the hierarchy afterward.
 
-Fixes: fc4c6065e661 ("qed: iWARP implement disconnect flows")
-Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+CPU online/offline must be blocked by callers; enforce this.
+
+Fixes: 410bccf97881 ("powerpc/pseries: Partition migration in the kernel")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_iwarp.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ arch/powerpc/kernel/cacheinfo.c | 21 +++++++++++++++++++++
+ arch/powerpc/kernel/cacheinfo.h |  4 ++++
+ 2 files changed, 25 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-index bb09f5a9846f..38d0f62bf037 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-@@ -509,7 +509,8 @@ int qed_iwarp_destroy_qp(struct qed_hwfn *p_hwfn, struct qed_rdma_qp *qp)
- 
- 	/* Make sure ep is closed before returning and freeing memory. */
- 	if (ep) {
--		while (ep->state != QED_IWARP_EP_CLOSED && wait_count++ < 200)
-+		while (READ_ONCE(ep->state) != QED_IWARP_EP_CLOSED &&
-+		       wait_count++ < 200)
- 			msleep(100);
- 
- 		if (ep->state != QED_IWARP_EP_CLOSED)
-@@ -991,8 +992,6 @@ qed_iwarp_mpa_complete(struct qed_hwfn *p_hwfn,
- 
- 	params.ep_context = ep;
- 
--	ep->state = QED_IWARP_EP_CLOSED;
--
- 	switch (fw_return_code) {
- 	case RDMA_RETURN_OK:
- 		ep->qp->max_rd_atomic_req = ep->cm_info.ord;
-@@ -1052,6 +1051,10 @@ qed_iwarp_mpa_complete(struct qed_hwfn *p_hwfn,
- 		break;
- 	}
- 
-+	if (fw_return_code != RDMA_RETURN_OK)
-+		/* paired with READ_ONCE in destroy_qp */
-+		smp_store_release(&ep->state, QED_IWARP_EP_CLOSED);
+diff --git a/arch/powerpc/kernel/cacheinfo.c b/arch/powerpc/kernel/cacheinfo.c
+index a8f20e5928e1..9edb45430133 100644
+--- a/arch/powerpc/kernel/cacheinfo.c
++++ b/arch/powerpc/kernel/cacheinfo.c
+@@ -865,4 +865,25 @@ void cacheinfo_cpu_offline(unsigned int cpu_id)
+ 	if (cache)
+ 		cache_cpu_clear(cache, cpu_id);
+ }
 +
- 	ep->event_cb(ep->cb_context, &params);
- 
- 	/* on passive side, if there is no associated QP (REJECT) we need to
-@@ -2069,7 +2072,9 @@ void qed_iwarp_qp_in_error(struct qed_hwfn *p_hwfn,
- 	params.status = (fw_return_code == IWARP_QP_IN_ERROR_GOOD_CLOSE) ?
- 			 0 : -ECONNRESET;
- 
--	ep->state = QED_IWARP_EP_CLOSED;
-+	/* paired with READ_ONCE in destroy_qp */
-+	smp_store_release(&ep->state, QED_IWARP_EP_CLOSED);
++void cacheinfo_teardown(void)
++{
++	unsigned int cpu;
 +
- 	spin_lock_bh(&p_hwfn->p_rdma_info->iwarp.iw_lock);
- 	list_del(&ep->list_entry);
- 	spin_unlock_bh(&p_hwfn->p_rdma_info->iwarp.iw_lock);
-@@ -2157,7 +2162,8 @@ qed_iwarp_tcp_connect_unsuccessful(struct qed_hwfn *p_hwfn,
- 	params.event = QED_IWARP_EVENT_ACTIVE_COMPLETE;
- 	params.ep_context = ep;
- 	params.cm_info = &ep->cm_info;
--	ep->state = QED_IWARP_EP_CLOSED;
-+	/* paired with READ_ONCE in destroy_qp */
-+	smp_store_release(&ep->state, QED_IWARP_EP_CLOSED);
++	lockdep_assert_cpus_held();
++
++	for_each_online_cpu(cpu)
++		cacheinfo_cpu_offline(cpu);
++}
++
++void cacheinfo_rebuild(void)
++{
++	unsigned int cpu;
++
++	lockdep_assert_cpus_held();
++
++	for_each_online_cpu(cpu)
++		cacheinfo_cpu_online(cpu);
++}
++
+ #endif /* (CONFIG_PPC_PSERIES && CONFIG_SUSPEND) || CONFIG_HOTPLUG_CPU */
+diff --git a/arch/powerpc/kernel/cacheinfo.h b/arch/powerpc/kernel/cacheinfo.h
+index 955f5e999f1b..52bd3fc6642d 100644
+--- a/arch/powerpc/kernel/cacheinfo.h
++++ b/arch/powerpc/kernel/cacheinfo.h
+@@ -6,4 +6,8 @@
+ extern void cacheinfo_cpu_online(unsigned int cpu_id);
+ extern void cacheinfo_cpu_offline(unsigned int cpu_id);
  
- 	switch (fw_return_code) {
- 	case IWARP_CONN_ERROR_TCP_CONNECT_INVALID_PACKET:
++/* Allow migration/suspend to tear down and rebuild the hierarchy. */
++extern void cacheinfo_teardown(void);
++extern void cacheinfo_rebuild(void);
++
+ #endif /* _PPC_CACHEINFO_H */
 -- 
 2.20.1
 
