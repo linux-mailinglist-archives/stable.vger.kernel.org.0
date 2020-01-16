@@ -2,114 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BAF413FC60
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 23:46:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9989D13FC64
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 23:47:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730051AbgAPWqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 17:46:53 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:52793 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729261AbgAPWqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 17:46:53 -0500
-Received: from ip5f5bd663.dynamic.kabel-deutschland.de ([95.91.214.99] helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1isDud-0002el-3a; Thu, 16 Jan 2020 22:46:51 +0000
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>, Oleg Nesterov <oleg@redhat.com>
-Cc:     stable@vger.kernel.org, Serge Hallyn <serge@hallyn.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Eric Paris <eparis@redhat.com>
-Subject: [REVIEW PATCH v2] ptrace: reintroduce usage of subjective credentials in ptrace_has_cap()
-Date:   Thu, 16 Jan 2020 23:45:18 +0100
-Message-Id: <20200116224518.30598-1-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.25.0
+        id S2387527AbgAPWrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 17:47:17 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:43135 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729261AbgAPWrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 17:47:17 -0500
+Received: by mail-wr1-f68.google.com with SMTP id d16so20840212wre.10
+        for <stable@vger.kernel.org>; Thu, 16 Jan 2020 14:47:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zz0v2Mo/daZYkZwGjb2xSqQ1lz9vMHmlSDOGKHldj+Q=;
+        b=pfWmSxJlOau+G4lzYR0qQdksl5kLiV3NZgjFVaNi79FMAsGsNHNYKFHVEk1ZCkEnwJ
+         OsMOXndSVH9wXc9bvMc8F1BNNWCfkr3eiCozpWzc+2NDtMKouv2sBlLUrx6G7hETgso1
+         f8TublLo+iNwAQOxA7sskIJaxCF+qUJtC0Z/QPjvbGkxF7JXIk5hOEwqv55wLQalmiJl
+         8Y4gidbVTFZ8K8oQeEVoGr4G1ZXhiI08NFuK/PDGvlfVT+rcXJn95vlTrHNEmjVvlJCA
+         D9IWRrRO0ax/q5Txe4dYTBsyaK+y2YvCbfCVEfhNRs43MBMCM2NL3hOU2wVJ1UDtbP1o
+         urqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zz0v2Mo/daZYkZwGjb2xSqQ1lz9vMHmlSDOGKHldj+Q=;
+        b=Z4PBFH+6oZoyqhPzgPcc8PWdC5nqIR2Ou5A4jnt4tf4sYiZ3Mmk3dj6CBlVYefQqjm
+         lbd/IeRIEMXnECGx8i75iG1nv4apIz0pr/0TMbucJZS1I8BIStFFEO3TIqZYA3jtLM86
+         k+GSaIMrG44b8j3JvXSvgs7Ce5+sP0KL+H9a/wmklMBXj8nfUCAcf+s9Esp766KV/sg1
+         PQpAxaEPIXeJFXsNlhE0FmJUD1d1J/2zb9NUd1uocW0qEfnBAdCcni5ARv2Ky0cIqBQB
+         L3Ha4zIH7G0k4FqJhabQYzmAdxH57N7/sdzf25e+xQm33qLIPvq9MyhJllvrx/t67anx
+         x6xQ==
+X-Gm-Message-State: APjAAAWvoku2dijY8jVbixizntFx329LN9P/bW63SR8ytjriTU7mCE0Z
+        BPEZPdNOl2pRlLekSv8Rjg7HNwsEoEerEZmZ2zU=
+X-Google-Smtp-Source: APXvYqxEyiwgWRg2PdTKpSKjsE3Jpbm2McamfODiL0fmySi+CP0lnBCpevOuK8C6S+ih4FSkHlNJrZ5gP+JBOo2Y/D0=
+X-Received: by 2002:a5d:6441:: with SMTP id d1mr5589794wrw.93.1579214835154;
+ Thu, 16 Jan 2020 14:47:15 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191204100958.19938-1-s.hauer@pengutronix.de>
+In-Reply-To: <20191204100958.19938-1-s.hauer@pengutronix.de>
+From:   Richard Weinberger <richard.weinberger@gmail.com>
+Date:   Thu, 16 Jan 2020 23:47:04 +0100
+Message-ID: <CAFLxGvyv=OMOSQSymMo0NTWpgGq_xnhGZgjyaXHeGtDsrwsYFQ@mail.gmail.com>
+Subject: Re: [PATCH] ubifs: Fix wrong memory allocation
+To:     Sascha Hauer <s.hauer@pengutronix.de>
+Cc:     linux-mtd@lists.infradead.org, Richard Weinberger <richard@nod.at>,
+        Naga Sureshkumar Relli <nagasure@xilinx.com>,
+        stable <stable@vger.kernel.org>, kernel@pengutronix.de
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
-introduced the ability to opt out of audit messages for accesses to
-various proc files since they are not violations of policy.
-While doing so it somehow switched the check from ns_capable() to
-has_ns_capability{_noaudit}(). That means it switched from checking the
-subjective credentials of the task to using the objective credentials. I
-couldn't find the original lkml thread and so I don't know why this switch
-was done. But it seems wrong since ptrace_has_cap() is currently only used
-in ptrace_may_access(). And it's used to check whether the calling task
-(subject) has the CAP_SYS_PTRACE capability in the provided user namespace
-to operate on the target task (object). According to the cred.h comments
-this would mean the subjective credentials of the calling task need to be
-used.
-This switches it to use security_capable() because we only call
-ptrace_has_cap() in ptrace_may_access() and in there we already have a
-stable reference to the calling tasks creds under cred_guard_mutex so
-there's no need to go through another series of dereferences and rcu
-locking done in ns_capable{_noaudit}().
+On Wed, Dec 4, 2019 at 11:10 AM Sascha Hauer <s.hauer@pengutronix.de> wrote:
+>
+> In create_default_filesystem() when we allocate the idx node we must use
+> the idx_node_size we calculated just one line before, not tmp, which
+> contains completely other data.
+>
+> Fixes: c4de6d7e4319 ("ubifs: Refactor create_default_filesystem()")
+> Cc: stable@vger.kernel.org # v4.20+
+> Reported-by: Naga Sureshkumar Relli <nagasure@xilinx.com>
+> Tested-by: Naga Sureshkumar Relli <nagasure@xilinx.com>
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> ---
+>  fs/ubifs/sb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-As one example where this might be particularly problematic, Jann pointed
-out that in combination with the upcoming IORING_OP_OPENAT feature, this
-bug might allow unprivileged users to bypass the capability checks while
-asynchronously opening files like /proc/*/mem, because the capability
-checks for this would be performed against kernel credentials.
+Applied. Thank you, Sascha!
 
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Eric Paris <eparis@redhat.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Serge Hallyn <serge@hallyn.com>
-Reviewed-by: Jann Horn <jannh@google.com>
-Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
----
- kernel/ptrace.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index cb9ddcc08119..d146133e97f1 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -264,12 +264,13 @@ static int ptrace_check_attach(struct task_struct *child, bool ignore_state)
- 	return ret;
- }
- 
--static int ptrace_has_cap(struct user_namespace *ns, unsigned int mode)
-+static int ptrace_has_cap(const struct cred *cred, struct user_namespace *ns,
-+			  unsigned int mode)
- {
- 	if (mode & PTRACE_MODE_NOAUDIT)
--		return has_ns_capability_noaudit(current, ns, CAP_SYS_PTRACE);
-+		return security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NOAUDIT);
- 	else
--		return has_ns_capability(current, ns, CAP_SYS_PTRACE);
-+		return security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NONE);
- }
- 
- /* Returns 0 on success, -errno on denial. */
-@@ -321,7 +322,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
- 	    gid_eq(caller_gid, tcred->sgid) &&
- 	    gid_eq(caller_gid, tcred->gid))
- 		goto ok;
--	if (ptrace_has_cap(tcred->user_ns, mode))
-+	if (ptrace_has_cap(cred, tcred->user_ns, mode))
- 		goto ok;
- 	rcu_read_unlock();
- 	return -EPERM;
-@@ -340,7 +341,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
- 	mm = task->mm;
- 	if (mm &&
- 	    ((get_dumpable(mm) != SUID_DUMP_USER) &&
--	     !ptrace_has_cap(mm->user_ns, mode)))
-+	     !ptrace_has_cap(cred, mm->user_ns, mode)))
- 	    return -EPERM;
- 
- 	return security_ptrace_access_check(task, mode);
-
-base-commit: b3a987b0264d3ddbb24293ebff10eddfc472f653
 -- 
-2.25.0
-
+Thanks,
+//richard
