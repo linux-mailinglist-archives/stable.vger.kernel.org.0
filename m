@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B51113E31D
+	by mail.lfdr.de (Postfix) with ESMTP id CFAB613E31E
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:00:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387640AbgAPRAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387643AbgAPRAC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 12:00:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49288 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733287AbgAPRAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:00:00 -0500
+        id S2387618AbgAPRAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:00:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC8AB2192A;
-        Thu, 16 Jan 2020 16:59:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 643E622525;
+        Thu, 16 Jan 2020 17:00:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193999;
-        bh=DD5b3OtEOuYFjYuUz0V1Ew0UTKdSxEIPHB7MzvFpuk4=;
+        s=default; t=1579194001;
+        bh=i/V3gk9PEcJrPo97JdmBI9EBn/+Wp7cEy9/qDwLVC2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c3X2VsQn9VyHoxn0z9YVEelw3CWM2EmTGNdJc9YdBQgtssMYS3OufUbNYaXO5wm6l
-         YS+2nKmYALZ8WEhzl4qONZLvNY8TFBYbWP8gUwfEmv1x2pCYXZ2+lhu8mSt3ZKREqm
-         r4ItZuXwGb3vMDdJmLdC273HJAcce850vyIi7HaM=
+        b=gIHpmzlcKdhCPKt9LXfo/JPdNE7TMSTVqcABQqGMri18I+5KBx+Wx9VA/XZgcqCE8
+         4EAOvzs7T5EA4UZud7lgWbuGPiq0wmYHOYBS0jjqiDryCVbQb4R7vqjlfvtvKCnKbD
+         Y5TlloBzqSumcB1px5jIb4JtZS2OInRpdHzQrA1E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Wong <e@80x24.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Sylvain Chouleur <sylvain.chouleur@intel.com>,
-        Patrick McDermott <patrick.mcdermott@libiquity.com>,
-        linux-rtc@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 127/671] rtc: cmos: ignore bogus century byte
-Date:   Thu, 16 Jan 2020 11:50:36 -0500
-Message-Id: <20200116165940.10720-10-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 128/671] spi/topcliff_pch: Fix potential NULL dereference on allocation error
+Date:   Thu, 16 Jan 2020 11:50:37 -0500
+Message-Id: <20200116165940.10720-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -46,43 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Wong <e@80x24.org>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 2a4daadd4d3e507138f8937926e6a4df49c6bfdc ]
+[ Upstream commit e902cdcb5112b89ee445588147964723fd69ffb4 ]
 
-Older versions of Libreboot and Coreboot had an invalid value
-(`3' in my case) in the century byte affecting the GM45 in
-the Thinkpad X200.  Not everybody's updated their firmwares,
-and Linux <= 4.2 was able to read the RTC without problems,
-so workaround this by ignoring invalid values.
+In pch_spi_handle_dma, it doesn't check for NULL returns of kcalloc
+so it would result in an Oops.
 
-Fixes: 3c217e51d8a272b9 ("rtc: cmos: century support")
-
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Sylvain Chouleur <sylvain.chouleur@intel.com>
-Cc: Patrick McDermott <patrick.mcdermott@libiquity.com>
-Cc: linux-rtc@vger.kernel.org
-Signed-off-by: Eric Wong <e@80x24.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: c37f3c2749b5 ("spi/topcliff_pch: DMA support")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mc146818-lib.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-topcliff-pch.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index 2f1772a358ca..18a6f15e313d 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -82,7 +82,7 @@ unsigned int mc146818_get_time(struct rtc_time *time)
- 	time->tm_year += real_year - 72;
- #endif
+diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
+index 4389ab80c23e..fa730a871d25 100644
+--- a/drivers/spi/spi-topcliff-pch.c
++++ b/drivers/spi/spi-topcliff-pch.c
+@@ -1008,6 +1008,9 @@ static void pch_spi_handle_dma(struct pch_spi_data *data, int *bpw)
  
--	if (century)
-+	if (century > 20)
- 		time->tm_year += (century - 19) * 100;
+ 	/* RX */
+ 	dma->sg_rx_p = kcalloc(num, sizeof(*dma->sg_rx_p), GFP_ATOMIC);
++	if (!dma->sg_rx_p)
++		return;
++
+ 	sg_init_table(dma->sg_rx_p, num); /* Initialize SG table */
+ 	/* offset, length setting */
+ 	sg = dma->sg_rx_p;
+@@ -1068,6 +1071,9 @@ static void pch_spi_handle_dma(struct pch_spi_data *data, int *bpw)
+ 	}
  
- 	/*
+ 	dma->sg_tx_p = kcalloc(num, sizeof(*dma->sg_tx_p), GFP_ATOMIC);
++	if (!dma->sg_tx_p)
++		return;
++
+ 	sg_init_table(dma->sg_tx_p, num); /* Initialize SG table */
+ 	/* offset, length setting */
+ 	sg = dma->sg_tx_p;
 -- 
 2.20.1
 
