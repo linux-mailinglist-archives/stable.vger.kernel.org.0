@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D85513F3EF
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:46:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A8513F3E3
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:46:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389887AbgAPRKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:10:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47972 "EHLO mail.kernel.org"
+        id S2389909AbgAPRKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:10:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389873AbgAPRKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:10:17 -0500
+        id S2389905AbgAPRKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:10:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98418206D9;
-        Thu, 16 Jan 2020 17:10:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1A1324684;
+        Thu, 16 Jan 2020 17:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194615;
-        bh=ScyiF+22+KZGBai3/Dy2IRi/6iN1ai5lZkYsHKgZ2Bk=;
+        s=default; t=1579194620;
+        bh=2oal85QJQmFK27RIhexDkWAXpYE3elUidpuhTil+uP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WT4ksQ1Y6tej0T6Jj8nyGGZrActypMrkqA2NkFAqEQ0Y+o+fBlSvK/e15zQRznVpo
-         N3oPbHJrQq4KzB0iP5VyS66ZaK5Xsr/LoKMt1Svptzaiz/WY8Z2bHT8uvKf8TGqO9c
-         gUj6uNCDo9aAvSvt4I2cURQqnSHlgb7rJ4yT4NiA=
+        b=oSr4kwOxfqPfZ/WYzBaNSfAC7vHrRBYZo8wtIzjDU82FXRR1vaMmU/jf3Ier0YxK1
+         xmyaYlNouynMauaEHrYMZSqWd930APeYcZ9tV2o7YMUnfzmy0VcoCRGT4o/RR5+zkP
+         9dpAJfNvpqfjtPlaXlIvpFqJUhqRGA+I/6OShuDk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Wise <pabs3@bonedaddy.net>, Jakub Wilk <jwilk@jwilk.net>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 479/671] coredump: split pipe command whitespace before expanding template
-Date:   Thu, 16 Jan 2020 12:01:57 -0500
-Message-Id: <20200116170509.12787-216-sashal@kernel.org>
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Brian Masney <masneyb@onstation.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 482/671] iio: tsl2772: Use devm_add_action_or_reset for tsl2772_chip_off
+Date:   Thu, 16 Jan 2020 12:02:00 -0500
+Message-Id: <20200116170509.12787-219-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,196 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Wise <pabs3@bonedaddy.net>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 315c69261dd3fa12dbc830d4fa00d1fad98d3b03 ]
+[ Upstream commit 338084135aeddb103624a6841972fb8588295cc6 ]
 
-Save the offsets of the start of each argument to avoid having to update
-pointers to each argument after every corename krealloc and to avoid
-having to duplicate the memory for the dump command.
+Use devm_add_action_or_reset to call tsl2772_chip_off
+when the device is removed.
+This also fixes the issue that the chip is turned off
+before the device is unregistered.
 
-Executable names containing spaces were previously being expanded from
-%e or %E and then split in the middle of the filename.  This is
-incorrect behaviour since an argument list can represent arguments with
-spaces.
+Not marked for stable as fairly hard to hit the bug and
+this is in the middle of a set making other cleanups
+to the driver.  Hence will probably need explicit backporting.
 
-The splitting could lead to extra arguments being passed to the core
-dump handler that it might have interpreted as options or ignored
-completely.
-
-Core dump handlers that are not aware of this Linux kernel issue will be
-using %e or %E without considering that it may be split and so they will
-be vulnerable to processes with spaces in their names breaking their
-argument list.  If their internals are otherwise well written, such as
-if they are written in shell but quote arguments, they will work better
-after this change than before.  If they are not well written, then there
-is a slight chance of breakage depending on the details of the code but
-they will already be fairly broken by the split filenames.
-
-Core dump handlers that are aware of this Linux kernel issue will be
-placing %e or %E as the last item in their core_pattern and then
-aggregating all of the remaining arguments into one, separated by
-spaces.  Alternatively they will be obtaining the filename via other
-methods.  Both of these will be compatible with the new arrangement.
-
-A side effect from this change is that unknown template types (for
-example %z) result in an empty argument to the dump handler instead of
-the argument being dropped.  This is a desired change as:
-
-It is easier for dump handlers to process empty arguments than dropped
-ones, especially if they are written in shell or don't pass each
-template item with a preceding command-line option in order to
-differentiate between individual template types.  Most core_patterns in
-the wild do not use options so they can confuse different template types
-(especially numeric ones) if an earlier one gets dropped in old kernels.
-If the kernel introduces a new template type and a core_pattern uses it,
-the core dump handler might not expect that the argument can be dropped
-in old kernels.
-
-For example, this can result in security issues when %d is dropped in
-old kernels.  This happened with the corekeeper package in Debian and
-resulted in the interface between corekeeper and Linux having to be
-rewritten to use command-line options to differentiate between template
-types.
-
-The core_pattern for most core dump handlers is written by the handler
-author who would generally not insert unknown template types so this
-change should be compatible with all the core dump handlers that exist.
-
-Link: http://lkml.kernel.org/r/20190528051142.24939-1-pabs3@bonedaddy.net
-Fixes: 74aadce98605 ("core_pattern: allow passing of arguments to user mode helper when core_pattern is a pipe")
-Signed-off-by: Paul Wise <pabs3@bonedaddy.net>
-Reported-by: Jakub Wilk <jwilk@jwilk.net> [https://bugs.debian.org/924398]
-Reported-by: Paul Wise <pabs3@bonedaddy.net> [https://lore.kernel.org/linux-fsdevel/c8b7ecb8508895bf4adb62a748e2ea2c71854597.camel@bonedaddy.net/]
-Suggested-by: Jakub Wilk <jwilk@jwilk.net>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Fixes: c06c4d793584 ("staging: iio: tsl2x7x/tsl2772: move out of staging")
+Reviewed-by: Brian Masney <masneyb@onstation.org>
+Tested-by: Brian Masney <masneyb@onstation.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/coredump.c | 44 +++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 39 insertions(+), 5 deletions(-)
+ drivers/iio/light/tsl2772.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/fs/coredump.c b/fs/coredump.c
-index 1e2c87acac9b..a49acb49dce0 100644
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -7,6 +7,7 @@
- #include <linux/stat.h>
- #include <linux/fcntl.h>
- #include <linux/swap.h>
-+#include <linux/ctype.h>
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/pagemap.h>
-@@ -187,11 +188,13 @@ static int cn_print_exe_file(struct core_name *cn)
-  * name into corename, which must have space for at least
-  * CORENAME_MAX_SIZE bytes plus one byte for the zero terminator.
-  */
--static int format_corename(struct core_name *cn, struct coredump_params *cprm)
-+static int format_corename(struct core_name *cn, struct coredump_params *cprm,
-+			   size_t **argv, int *argc)
+diff --git a/drivers/iio/light/tsl2772.c b/drivers/iio/light/tsl2772.c
+index df5b2a0da96c..f2e308c6d6d7 100644
+--- a/drivers/iio/light/tsl2772.c
++++ b/drivers/iio/light/tsl2772.c
+@@ -716,6 +716,13 @@ static int tsl2772_chip_off(struct iio_dev *indio_dev)
+ 	return tsl2772_write_control_reg(chip, 0x00);
+ }
+ 
++static void tsl2772_chip_off_action(void *data)
++{
++	struct iio_dev *indio_dev = data;
++
++	tsl2772_chip_off(indio_dev);
++}
++
+ /**
+  * tsl2772_invoke_change - power cycle the device to implement the user
+  *                         parameters
+@@ -1711,9 +1718,14 @@ static int tsl2772_probe(struct i2c_client *clientp,
+ 	if (ret < 0)
+ 		return ret;
+ 
++	ret = devm_add_action_or_reset(&clientp->dev,
++					tsl2772_chip_off_action,
++					indio_dev);
++	if (ret < 0)
++		return ret;
++
+ 	ret = iio_device_register(indio_dev);
+ 	if (ret) {
+-		tsl2772_chip_off(indio_dev);
+ 		dev_err(&clientp->dev,
+ 			"%s: iio registration failed\n", __func__);
+ 		return ret;
+@@ -1740,8 +1752,6 @@ static int tsl2772_remove(struct i2c_client *client)
  {
- 	const struct cred *cred = current_cred();
- 	const char *pat_ptr = core_pattern;
- 	int ispipe = (*pat_ptr == '|');
-+	bool was_space = false;
- 	int pid_in_pattern = 0;
- 	int err = 0;
+ 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
  
-@@ -201,12 +204,35 @@ static int format_corename(struct core_name *cn, struct coredump_params *cprm)
- 		return -ENOMEM;
- 	cn->corename[0] = '\0';
+-	tsl2772_chip_off(indio_dev);
+-
+ 	iio_device_unregister(indio_dev);
  
--	if (ispipe)
-+	if (ispipe) {
-+		int argvs = sizeof(core_pattern) / 2;
-+		(*argv) = kmalloc_array(argvs, sizeof(**argv), GFP_KERNEL);
-+		if (!(*argv))
-+			return -ENOMEM;
-+		(*argv)[(*argc)++] = 0;
- 		++pat_ptr;
-+	}
- 
- 	/* Repeat as long as we have more pattern to process and more output
- 	   space */
- 	while (*pat_ptr) {
-+		/*
-+		 * Split on spaces before doing template expansion so that
-+		 * %e and %E don't get split if they have spaces in them
-+		 */
-+		if (ispipe) {
-+			if (isspace(*pat_ptr)) {
-+				was_space = true;
-+				pat_ptr++;
-+				continue;
-+			} else if (was_space) {
-+				was_space = false;
-+				err = cn_printf(cn, "%c", '\0');
-+				if (err)
-+					return err;
-+				(*argv)[(*argc)++] = cn->used;
-+			}
-+		}
- 		if (*pat_ptr != '%') {
- 			err = cn_printf(cn, "%c", *pat_ptr++);
- 		} else {
-@@ -546,6 +572,8 @@ void do_coredump(const siginfo_t *siginfo)
- 	struct cred *cred;
- 	int retval = 0;
- 	int ispipe;
-+	size_t *argv = NULL;
-+	int argc = 0;
- 	struct files_struct *displaced;
- 	/* require nonrelative corefile path and be extra careful */
- 	bool need_suid_safe = false;
-@@ -592,9 +620,10 @@ void do_coredump(const siginfo_t *siginfo)
- 
- 	old_cred = override_creds(cred);
- 
--	ispipe = format_corename(&cn, &cprm);
-+	ispipe = format_corename(&cn, &cprm, &argv, &argc);
- 
- 	if (ispipe) {
-+		int argi;
- 		int dump_count;
- 		char **helper_argv;
- 		struct subprocess_info *sub_info;
-@@ -637,12 +666,16 @@ void do_coredump(const siginfo_t *siginfo)
- 			goto fail_dropcount;
- 		}
- 
--		helper_argv = argv_split(GFP_KERNEL, cn.corename, NULL);
-+		helper_argv = kmalloc_array(argc + 1, sizeof(*helper_argv),
-+					    GFP_KERNEL);
- 		if (!helper_argv) {
- 			printk(KERN_WARNING "%s failed to allocate memory\n",
- 			       __func__);
- 			goto fail_dropcount;
- 		}
-+		for (argi = 0; argi < argc; argi++)
-+			helper_argv[argi] = cn.corename + argv[argi];
-+		helper_argv[argi] = NULL;
- 
- 		retval = -ENOMEM;
- 		sub_info = call_usermodehelper_setup(helper_argv[0],
-@@ -652,7 +685,7 @@ void do_coredump(const siginfo_t *siginfo)
- 			retval = call_usermodehelper_exec(sub_info,
- 							  UMH_WAIT_EXEC);
- 
--		argv_free(helper_argv);
-+		kfree(helper_argv);
- 		if (retval) {
- 			printk(KERN_INFO "Core dump to |%s pipe failed\n",
- 			       cn.corename);
-@@ -766,6 +799,7 @@ void do_coredump(const siginfo_t *siginfo)
- 	if (ispipe)
- 		atomic_dec(&core_dump_count);
- fail_unlock:
-+	kfree(argv);
- 	kfree(cn.corename);
- 	coredump_finish(mm, core_dumped);
- 	revert_creds(old_cred);
+ 	return 0;
 -- 
 2.20.1
 
