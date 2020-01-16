@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4604513F29B
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:36:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D01DE13F29A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391518AbgAPRYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:24:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58156 "EHLO mail.kernel.org"
+        id S2391684AbgAPRYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:24:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391228AbgAPRYJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:24:09 -0500
+        id S2391682AbgAPRYK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:24:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA56D24684;
-        Thu, 16 Jan 2020 17:24:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46F1124688;
+        Thu, 16 Jan 2020 17:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195448;
-        bh=8JNZbyGhx3IWm4yjWkvDnV+8UHOchZf0Zt+UWJSIZgc=;
+        s=default; t=1579195450;
+        bh=tdZMzdbq4gVQ5twnlrKuGhiga9ypKlA/c7vC+XIRG1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DgXiShcBKhUMqtjaFnA8y5+5E/U7ynppYAz4yIvdbcxKf4ywuHdJ6KOfBlBToqu2d
-         vMGki43iN1KApn2qL/JkDyUuNSio/Xhb+loOB0F+AUu1xqHMOIeRnftoWrM3JMnh5N
-         KwsZSQOU5yejyu939Cg/Pp6U7rcACNnTm7/HHsl0=
+        b=F+4fsOLzYRPeRL2inLGArit2Tlhsrgjp5dCj1R+81zlOj2iV+2y/4/GN73OQWW0Wk
+         R+8O3xX/AT56SvjznkAMczOKOK5/YnopW1IyVxHz9EuDOQtaSll0rM1OEuEguHtPl+
+         1+Qguq4Gwg+c3QAOzm6cF4e3MQ3IGHQQPcVEqlq8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>,
+Cc:     Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 060/371] crypto: brcm - Fix some set-but-not-used warning
-Date:   Thu, 16 Jan 2020 12:18:52 -0500
-Message-Id: <20200116172403.18149-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 061/371] crypto: tgr192 - fix unaligned memory access
+Date:   Thu, 16 Jan 2020 12:18:53 -0500
+Message-Id: <20200116172403.18149-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,63 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 707d0cf8f7cff6dfee9197002859912310532c4f ]
+[ Upstream commit f990f7fb58ac8ac9a43316f09a48cff1a49dda42 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+Fix an unaligned memory access in tgr192_transform() by using the
+unaligned access helpers.
 
-drivers/crypto/bcm/cipher.c: In function 'handle_ahash_req':
-drivers/crypto/bcm/cipher.c:720:15: warning:
- variable 'chunk_start' set but not used [-Wunused-but-set-variable]
-
-drivers/crypto/bcm/cipher.c: In function 'spu_rx_callback':
-drivers/crypto/bcm/cipher.c:1679:31: warning:
- variable 'areq' set but not used [-Wunused-but-set-variable]
-
-drivers/crypto/bcm/cipher.c:1678:22: warning:
- variable 'ctx' set but not used [-Wunused-but-set-variable]
-
-Fixes: 9d12ba86f818 ("crypto: brcm - Add Broadcom SPU driver")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+Fixes: 06ace7a9bafe ("[CRYPTO] Use standard byte order macros wherever possible")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/bcm/cipher.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ crypto/tgr192.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
-index 84422435f39b..279e907590e9 100644
---- a/drivers/crypto/bcm/cipher.c
-+++ b/drivers/crypto/bcm/cipher.c
-@@ -718,7 +718,7 @@ static int handle_ahash_req(struct iproc_reqctx_s *rctx)
- 	 */
- 	unsigned int new_data_len;
+diff --git a/crypto/tgr192.c b/crypto/tgr192.c
+index 321bc6ff2a9d..904c8444aa0a 100644
+--- a/crypto/tgr192.c
++++ b/crypto/tgr192.c
+@@ -25,8 +25,9 @@
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/mm.h>
+-#include <asm/byteorder.h>
+ #include <linux/types.h>
++#include <asm/byteorder.h>
++#include <asm/unaligned.h>
  
--	unsigned int chunk_start = 0;
-+	unsigned int __maybe_unused chunk_start = 0;
- 	u32 db_size;	 /* Length of data field, incl gcm and hash padding */
- 	int pad_len = 0; /* total pad len, including gcm, hash, stat padding */
- 	u32 data_pad_len = 0;	/* length of GCM/CCM padding */
-@@ -1676,8 +1676,6 @@ static void spu_rx_callback(struct mbox_client *cl, void *msg)
- 	struct spu_hw *spu = &iproc_priv.spu;
- 	struct brcm_message *mssg = msg;
- 	struct iproc_reqctx_s *rctx;
--	struct iproc_ctx_s *ctx;
--	struct crypto_async_request *areq;
- 	int err = 0;
+ #define TGR192_DIGEST_SIZE 24
+ #define TGR160_DIGEST_SIZE 20
+@@ -468,10 +469,9 @@ static void tgr192_transform(struct tgr192_ctx *tctx, const u8 * data)
+ 	u64 a, b, c, aa, bb, cc;
+ 	u64 x[8];
+ 	int i;
+-	const __le64 *ptr = (const __le64 *)data;
  
- 	rctx = mssg->ctx;
-@@ -1687,8 +1685,6 @@ static void spu_rx_callback(struct mbox_client *cl, void *msg)
- 		err = -EFAULT;
- 		goto cb_finish;
- 	}
--	areq = rctx->parent;
--	ctx = rctx->ctx;
+ 	for (i = 0; i < 8; i++)
+-		x[i] = le64_to_cpu(ptr[i]);
++		x[i] = get_unaligned_le64(data + i * sizeof(__le64));
  
- 	/* process the SPU status */
- 	err = spu->spu_status_process(rctx->msg_buf.rx_stat);
+ 	/* save */
+ 	a = aa = tctx->a;
 -- 
 2.20.1
 
