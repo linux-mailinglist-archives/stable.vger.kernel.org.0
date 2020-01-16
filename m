@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D0213ED1A
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:01:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF5313ED0F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:00:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729626AbgAPSAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:00:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59376 "EHLO mail.kernel.org"
+        id S2394684AbgAPSAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:00:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405753AbgAPRlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:41:39 -0500
+        id S2405768AbgAPRll (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:41:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6809A2471D;
-        Thu, 16 Jan 2020 17:41:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A20524695;
+        Thu, 16 Jan 2020 17:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196499;
-        bh=HGo+U+ogJpVRuXT1c7a3oxJehkn6r3qSGfllVuEN8IY=;
+        s=default; t=1579196500;
+        bh=66Uh4hQFwl8UL/i/f+/bSnuAUf2QPxZlPm6iSXIho1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AtTMGF72qLY+1qmyAu75dlvfkJHjZFeBY0GWlXd9nLU4OBqhwukxQqJsQd6DrnwZX
-         o8vlHImgWvVNaXKgQbcNOedWi4JagC4fr8brOIUmvCWaPN3UnA5cnABIxzuwg78DZ+
-         7Kt/qzhYyb4sxVTlrtE7MM7H705QIcpnpdxvOApE=
+        b=V97JIN6P8o84+RSqS9SbRQBYtCojBbLueZy2s3wBsZZDpXrBxnO+s0r9rVhikezya
+         ssCDrHLyndQkseZ56bKjo65S6KJI9x8FnZ66ObnjgbZkA8iH6u/UFljqTZUi9w0UNA
+         48TK6lqyDEWKwEz1rIfxbiz7IoQnWNi4KAmevb8I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Fan <peng.fan@nxp.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 241/251] tty: serial: pch_uart: correct usage of dma_unmap_sg
-Date:   Thu, 16 Jan 2020 12:36:30 -0500
-Message-Id: <20200116173641.22137-201-sashal@kernel.org>
+Cc:     Kars de Jong <jongk@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 242/251] rtc: msm6242: Fix reading of 10-hour digit
+Date:   Thu, 16 Jan 2020 12:36:31 -0500
+Message-Id: <20200116173641.22137-202-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -43,68 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Kars de Jong <jongk@linux-m68k.org>
 
-[ Upstream commit 74887542fdcc92ad06a48c0cca17cdf09fc8aa00 ]
+[ Upstream commit e34494c8df0cd96fc432efae121db3212c46ae48 ]
 
-Per Documentation/DMA-API-HOWTO.txt,
-To unmap a scatterlist, just call:
-	dma_unmap_sg(dev, sglist, nents, direction);
+The driver was reading the wrong register as the 10-hour digit due to
+a misplaced ')'. It was in fact reading the 1-second digit register due
+to this bug.
 
-.. note::
+Also remove the use of a magic number for the hour mask and use the define
+for it which was already present.
 
-	The 'nents' argument to the dma_unmap_sg call must be
-	the _same_ one you passed into the dma_map_sg call,
-	it should _NOT_ be the 'count' value _returned_ from the
-	dma_map_sg call.
-
-However in the driver, priv->nent is directly assigned with value
-returned from dma_map_sg, and dma_unmap_sg use priv->nent for unmap,
-this breaks the API usage.
-
-So introduce a new entry orig_nent to remember 'nents'.
-
-Fixes: da3564ee027e ("pch_uart: add multi-scatter processing")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1573623259-6339-1-git-send-email-peng.fan@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4f9b9bba1dd1 ("rtc: Add an RTC driver for the Oki MSM6242")
+Tested-by: Kars de Jong <jongk@linux-m68k.org>
+Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
+Link: https://lore.kernel.org/r/20191116110548.8562-1-jongk@linux-m68k.org
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/pch_uart.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-msm6242.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
-index 42caccb5e87e..30b577384a1d 100644
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -252,6 +252,7 @@ struct eg20t_port {
- 	struct dma_chan			*chan_rx;
- 	struct scatterlist		*sg_tx_p;
- 	int				nent;
-+	int				orig_nent;
- 	struct scatterlist		sg_rx;
- 	int				tx_dma_use;
- 	void				*rx_buf_virt;
-@@ -806,9 +807,10 @@ static void pch_dma_tx_complete(void *arg)
- 	}
- 	xmit->tail &= UART_XMIT_SIZE - 1;
- 	async_tx_ack(priv->desc_tx);
--	dma_unmap_sg(port->dev, sg, priv->nent, DMA_TO_DEVICE);
-+	dma_unmap_sg(port->dev, sg, priv->orig_nent, DMA_TO_DEVICE);
- 	priv->tx_dma_use = 0;
- 	priv->nent = 0;
-+	priv->orig_nent = 0;
- 	kfree(priv->sg_tx_p);
- 	pch_uart_hal_enable_interrupt(priv, PCH_UART_HAL_TX_INT);
- }
-@@ -1033,6 +1035,7 @@ static unsigned int dma_handle_tx(struct eg20t_port *priv)
- 		dev_err(priv->port.dev, "%s:dma_map_sg Failed\n", __func__);
- 		return 0;
- 	}
-+	priv->orig_nent = num;
- 	priv->nent = nent;
- 
- 	for (i = 0; i < nent; i++, sg++) {
+diff --git a/drivers/rtc/rtc-msm6242.c b/drivers/rtc/rtc-msm6242.c
+index c1c5c4e3b3b4..c981301efbe5 100644
+--- a/drivers/rtc/rtc-msm6242.c
++++ b/drivers/rtc/rtc-msm6242.c
+@@ -132,7 +132,8 @@ static int msm6242_read_time(struct device *dev, struct rtc_time *tm)
+ 		      msm6242_read(priv, MSM6242_SECOND1);
+ 	tm->tm_min  = msm6242_read(priv, MSM6242_MINUTE10) * 10 +
+ 		      msm6242_read(priv, MSM6242_MINUTE1);
+-	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10 & 3)) * 10 +
++	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10) &
++		       MSM6242_HOUR10_HR_MASK) * 10 +
+ 		      msm6242_read(priv, MSM6242_HOUR1);
+ 	tm->tm_mday = msm6242_read(priv, MSM6242_DAY10) * 10 +
+ 		      msm6242_read(priv, MSM6242_DAY1);
 -- 
 2.20.1
 
