@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C9EE13E935
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:36:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C460613E938
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:36:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405115AbgAPRgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:36:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51640 "EHLO mail.kernel.org"
+        id S2405219AbgAPRgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:36:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405114AbgAPRgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:36:46 -0500
+        id S2405218AbgAPRgx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:36:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4BCD246B7;
-        Thu, 16 Jan 2020 17:36:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F37B246C9;
+        Thu, 16 Jan 2020 17:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196206;
-        bh=tdBSwxxCeitoPSZ6ScJGChgxmx8QvubbLNKi1Z1+VLQ=;
+        s=default; t=1579196212;
+        bh=G80E6DG/Xdhyn3QL8jhCTGhx/edP9krCWxwJu0H8Ch4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1J2WK9Wpn4tiGkOnvwmbOtY9vvj/P80fWOTw7c6V8S3kteToX0GLgdFYrX3QUDKiv
-         xUgjhWJcqa201SuZAZFxAC0r+JlLIBdt3pj7Sa4oDSUc4TTWtfBuOdqOHprPzibiDQ
-         BApSyJvMGDmR2CymAwsJN/3Rb9xC9T8ELlCqljc0=
+        b=DmGCfBzSKnlSxXSWopw4sovhvZU7lGaZy8DbdzJZIefVSqdkUuA6lOgl3MgPAwrjs
+         uNHiVZlDPKhdFtTbh+//6qY4hQSG1m95JOaiJVOkKbWWkOf31q++ZBRshZEQ/24n7d
+         o9DjO6AR4nhsgujG7xbU9NLX/+jiJ6KqyHXEYi7o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Agner <stefan@agner.ch>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 043/251] ASoC: imx-sgtl5000: put of nodes if finding codec fails
-Date:   Thu, 16 Jan 2020 12:33:12 -0500
-Message-Id: <20200116173641.22137-3-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 048/251] tty: ipwireless: Fix potential NULL pointer dereference
+Date:   Thu, 16 Jan 2020 12:33:17 -0500
+Message-Id: <20200116173641.22137-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -47,38 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit d9866572486802bc598a3e8576a5231378d190de ]
+[ Upstream commit 7dd50e205b3348dc7784efbdf85723551de64a25 ]
 
-Make sure to properly put the of node in case finding the codec
-fails.
+There is a potential NULL pointer dereference in case
+alloc_ctrl_packet() fails and returns NULL.
 
-Fixes: 81e8e4926167 ("ASoC: fsl: add sgtl5000 clock support for imx-sgtl5000")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Reviewed-by: Daniel Baluta <daniel.baluta@nxp.com>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 099dc4fb6265 ("ipwireless: driver for PC Card 3G/UMTS modem")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-sgtl5000.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/ipwireless/hardware.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
-index 8e525f7ac08d..3d99a8579c99 100644
---- a/sound/soc/fsl/imx-sgtl5000.c
-+++ b/sound/soc/fsl/imx-sgtl5000.c
-@@ -119,7 +119,8 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
- 	codec_dev = of_find_i2c_device_by_node(codec_np);
- 	if (!codec_dev) {
- 		dev_err(&pdev->dev, "failed to find codec platform device\n");
--		return -EPROBE_DEFER;
-+		ret = -EPROBE_DEFER;
-+		goto fail;
- 	}
+diff --git a/drivers/tty/ipwireless/hardware.c b/drivers/tty/ipwireless/hardware.c
+index df0204b6148f..4417f7568422 100644
+--- a/drivers/tty/ipwireless/hardware.c
++++ b/drivers/tty/ipwireless/hardware.c
+@@ -1515,6 +1515,8 @@ static void ipw_send_setup_packet(struct ipw_hardware *hw)
+ 			sizeof(struct ipw_setup_get_version_query_packet),
+ 			ADDR_SETUP_PROT, TL_PROTOCOLID_SETUP,
+ 			TL_SETUP_SIGNO_GET_VERSION_QRY);
++	if (!ver_packet)
++		return;
+ 	ver_packet->header.length = sizeof(struct tl_setup_get_version_qry);
  
- 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+ 	/*
 -- 
 2.20.1
 
