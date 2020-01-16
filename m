@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2356D13F6D5
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:07:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9326013F6D2
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:07:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388289AbgAPTHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:07:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52058 "EHLO mail.kernel.org"
+        id S2388055AbgAPRBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:01:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388049AbgAPRBP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:01:15 -0500
+        id S2388052AbgAPRBQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:01:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C806520730;
-        Thu, 16 Jan 2020 17:01:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6253D21582;
+        Thu, 16 Jan 2020 17:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194075;
-        bh=VH6Ot6iZUhwLCZjJgw6dRkJxF8WjyXnJUUWjVLlB6WM=;
+        s=default; t=1579194076;
+        bh=jfKaQK6oorn73ILJscVNgFsNVYW8RJniFtv+6mkiZ2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1fG0Y0vF60f94ebjswDzcvAHvcknAN8jiF0vHmCB/Qz6y5w9WpZPi0tLE9GMcj6u
-         40ny+6XWbBIfXDzcZT+aDAi2tICToAltw6xgx/ZeNOzcIE9YDWXnZyw669V9nv77XK
-         N8Xdr+SNe7mlGfzvICElV1jo6wCzr+csG9uZOhyY=
+        b=WECuV9odcAcD28DRWmR4ehhVcSg6BpbxLUGCw+bIJQkz0LsGGXBU4obG9ZlSlXfxK
+         j52qJeEll7hTKxFzu+dqM/Uxfcv5JP5spkyiP96MVjx1j8l9/wuCdYE6bPhIPNx4/o
+         qRF5LeRWmjrKdU8VuZPAbM/rklzagX4KWbtF9bpw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ming Lei <ming.lei@redhat.com>, Omar Sandoval <osandov@fb.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 182/671] block: don't use bio->bi_vcnt to figure out segment number
-Date:   Thu, 16 Jan 2020 11:51:31 -0500
-Message-Id: <20200116165940.10720-65-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        James Morris <james.morris@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 183/671] keys: Timestamp new keys
+Date:   Thu, 16 Jan 2020 11:51:32 -0500
+Message-Id: <20200116165940.10720-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -43,48 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 1a67356e9a4829da2935dd338630a550c59c8489 ]
+[ Upstream commit 7c1857bdbdf1e4c541e45eab477ee23ed4333ea4 ]
 
-It is wrong to use bio->bi_vcnt to figure out how many segments
-there are in the bio even though CLONED flag isn't set on this bio,
-because this bio may be splitted or advanced.
+Set the timestamp on new keys rather than leaving it unset.
 
-So always use bio_segments() in blk_recount_segments(), and it shouldn't
-cause any performance loss now because the physical segment number is figured
-out in blk_queue_split() and BIO_SEG_VALID is set meantime since
-bdced438acd83ad83a6c ("block: setup bi_phys_segments after splitting").
-
-Reviewed-by: Omar Sandoval <osandov@fb.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Fixes: 76d8137a3113 ("blk-merge: recaculate segment if it isn't less than max segments")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 31d5a79d7f3d ("KEYS: Do LRU discard in full keyrings")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: James Morris <james.morris@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-merge.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ security/keys/key.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index 2776ee6c5c3d..7efa8c3e2b72 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -309,13 +309,7 @@ void blk_recalc_rq_segments(struct request *rq)
+diff --git a/security/keys/key.c b/security/keys/key.c
+index 249a6da4d277..749a5cf27a19 100644
+--- a/security/keys/key.c
++++ b/security/keys/key.c
+@@ -297,6 +297,7 @@ struct key *key_alloc(struct key_type *type, const char *desc,
+ 	key->gid = gid;
+ 	key->perm = perm;
+ 	key->restrict_link = restrict_link;
++	key->last_used_at = ktime_get_real_seconds();
  
- void blk_recount_segments(struct request_queue *q, struct bio *bio)
- {
--	unsigned short seg_cnt;
--
--	/* estimate segment number by bi_vcnt for non-cloned bio */
--	if (bio_flagged(bio, BIO_CLONED))
--		seg_cnt = bio_segments(bio);
--	else
--		seg_cnt = bio->bi_vcnt;
-+	unsigned short seg_cnt = bio_segments(bio);
- 
- 	if (test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags) &&
- 			(seg_cnt < queue_max_segments(q)))
+ 	if (!(flags & KEY_ALLOC_NOT_IN_QUOTA))
+ 		key->flags |= 1 << KEY_FLAG_IN_QUOTA;
 -- 
 2.20.1
 
