@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6D2B13EB71
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:50:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 260C713EAB8
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:45:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406503AbgAPRpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:45:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37972 "EHLO mail.kernel.org"
+        id S2406506AbgAPRpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:45:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406499AbgAPRpq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:45:46 -0500
+        id S2406502AbgAPRpr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:45:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A92E6246B4;
-        Thu, 16 Jan 2020 17:45:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FC32246CC;
+        Thu, 16 Jan 2020 17:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196745;
-        bh=Far1l6FBcITxkqYTiN4udmvQ1ScXJJri15fuO7+3QN8=;
+        s=default; t=1579196746;
+        bh=GeZ9ahrBvtnGjnoLOWwGp21KkJjxM/ixIF8ZuTMK604=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JitKB3SqnFqU42Au+gTAPbUWpKdmFhI0Je9X4LI4iTYn1P0yhZHIKkuaFZYaZdczZ
-         KybJ+qHa8K7yPDJXNDZn+11NNUW4s+yi2CyqC3neb5B6jozpp4E8gqoAdnmOsxMRtY
-         LqaQEevtCnaJiNNqomudVx1VrfHRdsD4rbJvqJs4=
+        b=BSW4BpNLLRVoyEVpGmITrkcVd14CSshEow+A5ZCkqWs+Oah6XKk9+Q9RwjGRSvREf
+         4XGGdjrNnjTb5eKcOFPWeUNN3e63D2AmBA146a4jsOTyfNhtxYKFKFVME9e54Su+FP
+         FTspr9lIyORYfeOsTnWOzRwx35TNSqXRLEpakv0E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 124/174] dmaengine: dw: platform: Switch to acpi_dma_controller_register()
-Date:   Thu, 16 Jan 2020 12:42:01 -0500
-Message-Id: <20200116174251.24326-124-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 125/174] mac80211: minstrel_ht: fix per-group max throughput rate initialization
+Date:   Thu, 16 Jan 2020 12:42:02 -0500
+Message-Id: <20200116174251.24326-125-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -43,62 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit e7b8514e4d68bec21fc6385fa0a66797ddc34ac9 ]
+[ Upstream commit 56dd918ff06e3ee24d8067e93ed12b2a39e71394 ]
 
-There is a possibility to have registered ACPI DMA controller
-while it has been gone already.
+The group number needs to be multiplied by the number of rates per group
+to get the full rate index
 
-To avoid the potential crash, move to non-managed
-acpi_dma_controller_register().
-
-Fixes: 42c91ee71d6d ("dw_dmac: add ACPI support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20190820131546.75744-8-andriy.shevchenko@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 5935839ad735 ("mac80211: improve minstrel_ht rate sorting by throughput & probability")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20190820095449.45255-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw/platform.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ net/mac80211/rc80211_minstrel_ht.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dw/platform.c b/drivers/dma/dw/platform.c
-index 68a4815750b5..22d0cc1855b5 100644
---- a/drivers/dma/dw/platform.c
-+++ b/drivers/dma/dw/platform.c
-@@ -87,13 +87,20 @@ static void dw_dma_acpi_controller_register(struct dw_dma *dw)
- 	dma_cap_set(DMA_SLAVE, info->dma_cap);
- 	info->filter_fn = dw_dma_acpi_filter;
+diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
+index ff3b28e7dbce..fb44f0107da1 100644
+--- a/net/mac80211/rc80211_minstrel_ht.c
++++ b/net/mac80211/rc80211_minstrel_ht.c
+@@ -546,7 +546,7 @@ minstrel_ht_update_stats(struct minstrel_priv *mp, struct minstrel_ht_sta *mi)
  
--	ret = devm_acpi_dma_controller_register(dev, acpi_dma_simple_xlate,
--						info);
-+	ret = acpi_dma_controller_register(dev, acpi_dma_simple_xlate, info);
- 	if (ret)
- 		dev_err(dev, "could not register acpi_dma_controller\n");
- }
-+
-+static void dw_dma_acpi_controller_free(struct dw_dma *dw)
-+{
-+	struct device *dev = dw->dma.dev;
-+
-+	acpi_dma_controller_free(dev);
-+}
- #else /* !CONFIG_ACPI */
- static inline void dw_dma_acpi_controller_register(struct dw_dma *dw) {}
-+static inline void dw_dma_acpi_controller_free(struct dw_dma *dw) {}
- #endif /* !CONFIG_ACPI */
+ 		/* (re)Initialize group rate indexes */
+ 		for(j = 0; j < MAX_THR_RATES; j++)
+-			tmp_group_tp_rate[j] = group;
++			tmp_group_tp_rate[j] = MCS_GROUP_RATES * group;
  
- #ifdef CONFIG_OF
-@@ -225,6 +232,9 @@ static int dw_remove(struct platform_device *pdev)
- {
- 	struct dw_dma_chip *chip = platform_get_drvdata(pdev);
- 
-+	if (ACPI_HANDLE(&pdev->dev))
-+		dw_dma_acpi_controller_free(chip->dw);
-+
- 	if (pdev->dev.of_node)
- 		of_dma_controller_free(pdev->dev.of_node);
- 
+ 		for (i = 0; i < MCS_GROUP_RATES; i++) {
+ 			if (!(mg->supported & BIT(i)))
 -- 
 2.20.1
 
