@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B810613EAE9
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:47:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA5B813EAEB
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:47:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406830AbgAPRq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:46:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40244 "EHLO mail.kernel.org"
+        id S2406859AbgAPRrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:47:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406849AbgAPRq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:46:58 -0500
+        id S2406837AbgAPRrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:47:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 199C4246B4;
-        Thu, 16 Jan 2020 17:46:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5F38246DF;
+        Thu, 16 Jan 2020 17:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196818;
-        bh=sgOoolRsRLW4pkiLoqF6nOV5AmgG6FrkopMUr9rx9Co=;
+        s=default; t=1579196819;
+        bh=fQJtNVaV4DsQ61t6sF1IyLdmwc8TWrk8/h8SZp53dwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w4VxprzXG/WNk5RZUe3kH+jrFaf8PC3DF/4xhUebXipGKO9a0etkRf7XVmj0FCFr3
-         NcJTJ3/bP03e71RWNYl1O7+0tCgZTHAoNjwlsyaL4uq14tWgPFIALb75SvjQi2MvFJ
-         qilX860Bpzotg6M1pi44nAb1hc+8DdDn9erDbiqw=
+        b=CkA6S0aFhgEm91X13Oe0VtuG66eziVuNL8GN9GmvAq213JL4mmejQYsBeC9OPWHE/
+         ZIjtRFb/4GGhebfa/IOuwnNFqwN4Kn6Ti+mcR468pzHqdSFAsjxsXS8gwsXFHkaodh
+         6SfG/Sj4cJtEVjWESc18ukgWRFyFFY8dyzNAspXk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andre Przywara <andre.przywara@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 173/174] arm64: dts: juno: Fix UART frequency
-Date:   Thu, 16 Jan 2020 12:42:50 -0500
-Message-Id: <20200116174251.24326-173-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.4 174/174] powerpc/archrandom: fix arch_get_random_seed_int()
+Date:   Thu, 16 Jan 2020 12:42:51 -0500
+Message-Id: <20200116174251.24326-174-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -45,51 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 39a1a8941b27c37f79508426e27a2ec29829d66c ]
+[ Upstream commit b6afd1234cf93aa0d71b4be4788c47534905f0be ]
 
-Older versions of the Juno *SoC* TRM [1] recommended that the UART clock
-source should be 7.2738 MHz, whereas the *system* TRM [2] stated a more
-correct value of 7.3728 MHz. Somehow the wrong value managed to end up in
-our DT.
+Commit 01c9348c7620ec65
 
-Doing a prime factorisation, a modulo divide by 115200 and trying
-to buy a 7.2738 MHz crystal at your favourite electronics dealer suggest
-that the old value was actually a typo. The actual UART clock is driven
-by a PLL, configured via a parameter in some board.txt file in the
-firmware, which reads 7.37 MHz (sic!).
+  powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*
 
-Fix this to correct the baud rate divisor calculation on the Juno board.
+updated arch_get_random_[int|long]() to be NOPs, and moved the hardware
+RNG backing to arch_get_random_seed_[int|long]() instead. However, it
+failed to take into account that arch_get_random_int() was implemented
+in terms of arch_get_random_long(), and so we ended up with a version
+of the former that is essentially a NOP as well.
 
-[1] http://infocenter.arm.com/help/topic/com.arm.doc.ddi0515b.b/DDI0515B_b_juno_arm_development_platform_soc_trm.pdf
-[2] http://infocenter.arm.com/help/topic/com.arm.doc.100113_0000_07_en/arm_versatile_express_juno_development_platform_(v2m_juno)_technical_reference_manual_100113_0000_07_en.pdf
+Fix this by calling arch_get_random_seed_long() from
+arch_get_random_seed_int() instead.
 
-Fixes: 71f867ec130e ("arm64: Add Juno board device tree.")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: 01c9348c7620ec65 ("powerpc: Use hardware RNG for arch_get_random_seed_* not arch_get_random_*")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191204115015.18015-1-ardb@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/arm/juno-clocks.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/archrandom.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/arm/juno-clocks.dtsi b/arch/arm64/boot/dts/arm/juno-clocks.dtsi
-index 25352ed943e6..00bcbf7688c7 100644
---- a/arch/arm64/boot/dts/arm/juno-clocks.dtsi
-+++ b/arch/arm64/boot/dts/arm/juno-clocks.dtsi
-@@ -8,10 +8,10 @@
-  */
+diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
+index 85e88f7a59c0..9ff848e3c4a6 100644
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -27,7 +27,7 @@ static inline int arch_get_random_seed_int(unsigned int *v)
+ 	unsigned long val;
+ 	int rc;
  
- 	/* SoC fixed clocks */
--	soc_uartclk: refclk7273800hz {
-+	soc_uartclk: refclk7372800hz {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
--		clock-frequency = <7273800>;
-+		clock-frequency = <7372800>;
- 		clock-output-names = "juno:uartclk";
- 	};
+-	rc = arch_get_random_long(&val);
++	rc = arch_get_random_seed_long(&val);
+ 	if (rc)
+ 		*v = val;
  
 -- 
 2.20.1
