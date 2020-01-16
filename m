@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF5E413E2BF
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:58:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D1B213E319
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730807AbgAPQ6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:58:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45446 "EHLO mail.kernel.org"
+        id S2387623AbgAPQ74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:59:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387571AbgAPQ5x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:57:53 -0500
+        id S1732814AbgAPQ7z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:59:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2763721D56;
-        Thu, 16 Jan 2020 16:57:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCB2824673;
+        Thu, 16 Jan 2020 16:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193872;
-        bh=OO7qNgfWUdL2yUx7xNELD5Y0EfU2kzdT9hP26SbfvUk=;
+        s=default; t=1579193995;
+        bh=U8xF5rETI1YMWglzEq/+RoBuIlqMzvNVf2Rjjzx3z5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xdD1TOHAgQcyAj8PouPgIfZr3BigbPpkDS4jCnHNIDgPUxSW1Ryxc5HYzXDfYGHl1
-         /hyddCyFDzaKHknolSgEdSQ8+rTO0ZshP9otxnd0s0SU6LXernjFWy6rOXkEoFyj9/
-         qye5yGtrLR990119I2NO8CQ61sgrHKLEV2lPPEVQ=
+        b=WewXDdxbK61rdSx6sPmYXuvZV4625iVVJ+inWqPEON8Gw5qi+ltwaATbhlg7Oge2/
+         agiGpTTTg5ukZZQQ/eLMRyK4sIkNpFcK/KzlfVMB5JZfhEJgSO3UdLmxTQEX3JRVVy
+         87R4rysTJtYbJiDeBnODpionj3MpyRKuslLvGEpE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 116/671] memory: tegra: Don't invoke Tegra30+ specific memory timing setup on Tegra20
-Date:   Thu, 16 Jan 2020 11:45:47 -0500
-Message-Id: <20200116165502.8838-116-sashal@kernel.org>
+Cc:     Huazhong Tan <tanhuazhong@huawei.com>,
+        Yunsheng Lin <linyunsheng@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 124/671] net: hns3: fix wrong combined count returned by ethtool -l
+Date:   Thu, 16 Jan 2020 11:50:33 -0500
+Message-Id: <20200116165940.10720-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
-References: <20200116165502.8838-1-sashal@kernel.org>
+In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
+References: <20200116165940.10720-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,47 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Huazhong Tan <tanhuazhong@huawei.com>
 
-[ Upstream commit be4dbdec2bab8635c7a41573668624ee13d83022 ]
+[ Upstream commit c3b9c50d1567aa12be4448fe85b09626eba2499c ]
 
-This fixes irrelevant "tegra-mc 7000f000.memory-controller: no memory
-timings for RAM code 0 registered" warning message during of kernels
-boot-up on Tegra20.
+The current code returns the number of all queues that can be used and
+the number of queues that have been allocated, which is incorrect.
+What should be returned is the number of queues allocated for each enabled
+TC and the number of queues that can be allocated.
 
-Fixes: a8d502fd3348 ("memory: tegra: Squash tegra20-mc into common tegra-mc driver")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+This patch fixes it.
+
+Fixes: 482d2e9c1cc7 ("net: hns3: add support to query tqps number")
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/tegra/mc.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/memory/tegra/mc.c b/drivers/memory/tegra/mc.c
-index c8f16666256c..346d8eadb44b 100644
---- a/drivers/memory/tegra/mc.c
-+++ b/drivers/memory/tegra/mc.c
-@@ -664,12 +664,13 @@ static int tegra_mc_probe(struct platform_device *pdev)
- 		}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index f8cc8d1f0b20..4b9f898a1620 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -5922,18 +5922,17 @@ static u32 hclge_get_max_channels(struct hnae3_handle *handle)
+ 	struct hclge_vport *vport = hclge_get_vport(handle);
+ 	struct hclge_dev *hdev = vport->back;
  
- 		isr = tegra_mc_irq;
--	}
+-	return min_t(u32, hdev->rss_size_max * kinfo->num_tc, hdev->num_tqps);
++	return min_t(u32, hdev->rss_size_max,
++		     vport->alloc_tqps / kinfo->num_tc);
+ }
  
--	err = tegra_mc_setup_timings(mc);
--	if (err < 0) {
--		dev_err(&pdev->dev, "failed to setup timings: %d\n", err);
--		return err;
-+		err = tegra_mc_setup_timings(mc);
-+		if (err < 0) {
-+			dev_err(&pdev->dev, "failed to setup timings: %d\n",
-+				err);
-+			return err;
-+		}
- 	}
+ static void hclge_get_channels(struct hnae3_handle *handle,
+ 			       struct ethtool_channels *ch)
+ {
+-	struct hclge_vport *vport = hclge_get_vport(handle);
+-
+ 	ch->max_combined = hclge_get_max_channels(handle);
+ 	ch->other_count = 1;
+ 	ch->max_other = 1;
+-	ch->combined_count = vport->alloc_tqps;
++	ch->combined_count = handle->kinfo.rss_size;
+ }
  
- 	mc->irq = platform_get_irq(pdev, 0);
+ static void hclge_get_tqps_and_rss_info(struct hnae3_handle *handle,
 -- 
 2.20.1
 
