@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C546C13E48F
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:09:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4909813E495
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:09:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389613AbgAPRJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:09:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44394 "EHLO mail.kernel.org"
+        id S2389652AbgAPRJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:09:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389610AbgAPRJJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:09:09 -0500
+        id S2389646AbgAPRJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B7032192A;
-        Thu, 16 Jan 2020 17:09:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FDEB205F4;
+        Thu, 16 Jan 2020 17:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194549;
-        bh=GJg5Ss8w/jtXi8ZrDM5x3sy3AcMV7TgHDv0CV5c2IoM=;
+        s=default; t=1579194557;
+        bh=Us2oXtdbboe0sr3+v+28oDWDxQ0tEGkRNRlLlWzXMIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zXXs0T7CkW3xtL95/mJWNtql4aZn+HfaywEFye0AKRYuHQyBN6V3SCD+6RjSE+V3B
-         Ok05qXYxDgLH6fIGnvbz7BmWWZt6B2jkYFVuWdhnLGEdCbFZschdk1dxWjvJj4YfcV
-         A8Gm4VfHzeuLtALURN51zr8mPaS6V38u/dVPGJkc=
+        b=KjAwXYZcaI0IjcJ9iLeNmboVk2M+YaDOVs0WQY9T89RJMoZssIxvY8W8iA4+fJDfb
+         MQ/p7/kz8CHV+oIheNInIqcYbpMR18r4ZcVNUuV6pey4Ts/XCbUQuy5vYY3L5RYBlL
+         oZuvDfOfYbG07RyeCx5anifSrxIMIxhb439B9CAU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>, acme@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, maddy@linux.vnet.ibm.com,
-        mpe@ellerman.id.au, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 432/671] perf/ioctl: Add check for the sample_period value
-Date:   Thu, 16 Jan 2020 12:01:10 -0500
-Message-Id: <20200116170509.12787-169-sashal@kernel.org>
+Cc:     Matthias Kaehlcke <mka@chromium.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 438/671] backlight: pwm_bl: Fix heuristic to determine number of brightness levels
+Date:   Thu, 16 Jan 2020 12:01:16 -0500
+Message-Id: <20200116170509.12787-175-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -52,55 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-[ Upstream commit 913a90bc5a3a06b1f04c337320e9aeee2328dd77 ]
+[ Upstream commit 73fbfc499448455f1e1c77717040e09e25f1d976 ]
 
-perf_event_open() limits the sample_period to 63 bits. See:
+With commit 88ba95bedb79 ("backlight: pwm_bl: Compute brightness of
+LED linearly to human eye") the number of set bits (aka hweight())
+in the PWM period is used in the heuristic to determine the number
+of brightness levels, when the brightness table isn't specified in
+the DT. The number of set bits doesn't provide a reliable clue about
+the length of the period, instead change the heuristic to:
 
-  0819b2e30ccb ("perf: Limit perf_event_attr::sample_period to 63 bits")
+ nlevels = period / fls(period)
 
-Make ioctl() consistent with it.
+Also limit the maximum number of brightness levels to 4096 to avoid
+excessively large tables.
 
-Also on PowerPC, negative sample_period could cause a recursive
-PMIs leading to a hang (reported when running perf-fuzzer).
+With this the number of levels increases monotonically with the PWM
+period, until the maximum of 4096 levels is reached:
 
-Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: acme@kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: maddy@linux.vnet.ibm.com
-Cc: mpe@ellerman.id.au
-Fixes: 0819b2e30ccb ("perf: Limit perf_event_attr::sample_period to 63 bits")
-Link: https://lkml.kernel.org/r/20190604042953.914-1-ravi.bangoria@linux.ibm.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+period (ns)    # levels
+
+100    	       16
+500	       62
+1000	       111
+5000	       416
+10000	       769
+50000	       3333
+100000	       4096
+
+Fixes: 88ba95bedb79 ("backlight: pwm_bl: Compute brightness of LED linearly to human eye")
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/video/backlight/pwm_bl.c | 24 ++++++------------------
+ 1 file changed, 6 insertions(+), 18 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 751888cbed5c..16af86ab24c4 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5012,6 +5012,9 @@ static int perf_event_period(struct perf_event *event, u64 __user *arg)
- 	if (perf_event_check_period(event, value))
- 		return -EINVAL;
+diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
+index 7ddc0930e98c..3a3098d4873b 100644
+--- a/drivers/video/backlight/pwm_bl.c
++++ b/drivers/video/backlight/pwm_bl.c
+@@ -199,29 +199,17 @@ int pwm_backlight_brightness_default(struct device *dev,
+ 				     struct platform_pwm_backlight_data *data,
+ 				     unsigned int period)
+ {
+-	unsigned int counter = 0;
+-	unsigned int i, n;
++	unsigned int i;
+ 	u64 retval;
  
-+	if (!event->attr.freq && (value & (1ULL << 63)))
-+		return -EINVAL;
-+
- 	event_function_call(event, __perf_event_period, &value);
+ 	/*
+-	 * Count the number of bits needed to represent the period number. The
+-	 * number of bits is used to calculate the number of levels used for the
+-	 * brightness-levels table, the purpose of this calculation is have a
+-	 * pre-computed table with enough levels to get linear brightness
+-	 * perception. The period is divided by the number of bits so for a
+-	 * 8-bit PWM we have 255 / 8 = 32 brightness levels or for a 16-bit PWM
+-	 * we have 65535 / 16 = 4096 brightness levels.
+-	 *
+-	 * Note that this method is based on empirical testing on different
+-	 * devices with PWM of 8 and 16 bits of resolution.
++	 * Once we have 4096 levels there's little point going much higher...
++	 * neither interactive sliders nor animation benefits from having
++	 * more values in the table.
+ 	 */
+-	n = period;
+-	while (n) {
+-		counter += n % 2;
+-		n >>= 1;
+-	}
++	data->max_brightness =
++		min((int)DIV_ROUND_UP(period, fls(period)), 4096);
  
- 	return 0;
+-	data->max_brightness = DIV_ROUND_UP(period, counter);
+ 	data->levels = devm_kcalloc(dev, data->max_brightness,
+ 				    sizeof(*data->levels), GFP_KERNEL);
+ 	if (!data->levels)
 -- 
 2.20.1
 
