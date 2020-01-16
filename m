@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA1A13EFB3
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:17:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB35B13EFBC
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:17:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404313AbgAPR3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:29:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40984 "EHLO mail.kernel.org"
+        id S2407021AbgAPSRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:17:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404306AbgAPR3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:29:14 -0500
+        id S2404310AbgAPR3P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:29:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D143724709;
-        Thu, 16 Jan 2020 17:29:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 815AE246F4;
+        Thu, 16 Jan 2020 17:29:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195754;
-        bh=JYnzlzmlOi8zxfkZ3gNkyag99DW/iJIorNEPxenw/wA=;
+        s=default; t=1579195755;
+        bh=Nl/4LuWz6wnqaAMRmetzu5XfYYSDKGkIzi00bNh4lHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GlNGfiN2Fn+WIZjKKCtnVQ0w/x390ABNcHHglx47Vmt4MIh75odRGCBBZWXABU3p0
-         OUOl+XWzuUrK3BnQ/huHJYh66gLSLNlFJRAezDlSNz73r2EdN7xPLr6tMXdz9za6KT
-         QMOeSXTRIXI+XNMxdoNrr1+WuInKqVAUu6x4Je4s=
+        b=hKWPGRdO4AoaH5tyfjG9FMGC2LMR3zFkiT4iaP8/5yKi/uxURBOjgHyO0CIU8lBdu
+         AAqTfbTIYHikHDnscNEUOsL0u0UHqZg4pMBWw37n7cWOlTJ8PfDS1d1TosacQ4bFHv
+         il3NjhKnDrfT272fJzD5F9WMZ1MAz8nW9HfN8JBA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Colin Ian King <colin.king@canonical.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, linux-wireless@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 285/371] bcma: fix incorrect update of BCMA_CORE_PCI_MDIO_DATA
-Date:   Thu, 16 Jan 2020 12:22:37 -0500
-Message-Id: <20200116172403.18149-228-sashal@kernel.org>
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 286/371] iio: dac: ad5380: fix incorrect assignment to val
+Date:   Thu, 16 Jan 2020 12:22:38 -0500
+Message-Id: <20200116172403.18149-229-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,44 +46,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 420c20be08a4597404d272ae9793b642401146eb ]
+[ Upstream commit b1e18768ef1214c0a8048327918a182cabe09f9d ]
 
-An earlier commit re-worked the setting of the bitmask and is now
-assigning v with some bit flags rather than bitwise or-ing them
-into v, consequently the earlier bit-settings of v are being lost.
-Fix this by replacing an assignment with the bitwise or instead.
+Currently the pointer val is being incorrectly incremented
+instead of the value pointed to by val. Fix this by adding
+in the missing * indirection operator.
 
 Addresses-Coverity: ("Unused value")
-Fixes: 2be25cac8402 ("bcma: add constants for PCI and use them")
+Fixes: c03f2c536818 ("staging:iio:dac: Add AD5380 driver")
 Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bcma/driver_pci.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/dac/ad5380.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bcma/driver_pci.c b/drivers/bcma/driver_pci.c
-index f499a469e66d..12b2cc9a3fbe 100644
---- a/drivers/bcma/driver_pci.c
-+++ b/drivers/bcma/driver_pci.c
-@@ -78,7 +78,7 @@ static u16 bcma_pcie_mdio_read(struct bcma_drv_pci *pc, u16 device, u8 address)
- 		v |= (address << BCMA_CORE_PCI_MDIODATA_REGADDR_SHF_OLD);
- 	}
- 
--	v = BCMA_CORE_PCI_MDIODATA_START;
-+	v |= BCMA_CORE_PCI_MDIODATA_START;
- 	v |= BCMA_CORE_PCI_MDIODATA_READ;
- 	v |= BCMA_CORE_PCI_MDIODATA_TA;
- 
-@@ -121,7 +121,7 @@ static void bcma_pcie_mdio_write(struct bcma_drv_pci *pc, u16 device,
- 		v |= (address << BCMA_CORE_PCI_MDIODATA_REGADDR_SHF_OLD);
- 	}
- 
--	v = BCMA_CORE_PCI_MDIODATA_START;
-+	v |= BCMA_CORE_PCI_MDIODATA_START;
- 	v |= BCMA_CORE_PCI_MDIODATA_WRITE;
- 	v |= BCMA_CORE_PCI_MDIODATA_TA;
- 	v |= data;
+diff --git a/drivers/iio/dac/ad5380.c b/drivers/iio/dac/ad5380.c
+index 97d2c5111f43..8bf7fc626a9d 100644
+--- a/drivers/iio/dac/ad5380.c
++++ b/drivers/iio/dac/ad5380.c
+@@ -221,7 +221,7 @@ static int ad5380_read_raw(struct iio_dev *indio_dev,
+ 		if (ret)
+ 			return ret;
+ 		*val >>= chan->scan_type.shift;
+-		val -= (1 << chan->scan_type.realbits) / 2;
++		*val -= (1 << chan->scan_type.realbits) / 2;
+ 		return IIO_VAL_INT;
+ 	case IIO_CHAN_INFO_SCALE:
+ 		*val = 2 * st->vref;
 -- 
 2.20.1
 
