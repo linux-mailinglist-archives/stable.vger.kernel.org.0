@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88B2C13FEDA
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:38:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E85DD13FE75
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:36:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391238AbgAPX3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:29:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34666 "EHLO mail.kernel.org"
+        id S2391547AbgAPXby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:31:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389191AbgAPX3M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:29:12 -0500
+        id S2391544AbgAPXbx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:31:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A02142072E;
-        Thu, 16 Jan 2020 23:29:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2BB022522;
+        Thu, 16 Jan 2020 23:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217352;
-        bh=AYrrjajashVILVcw4LRRvqc3zeVs4tG/2WfuTQkxp74=;
+        s=default; t=1579217512;
+        bh=uk26Je1JebfBch9yNEDF84kYvcYTlH1CZ/ZpZ9BNG2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVr50ibTXadI7DbHWd2A4HsX9iWlE9YiLs8LZIVNkLbz0+rrKwS6aikUuhqsCdmPe
-         mi0tAp0aihK3jkiePaVwHNj6dDieEvOZba2PRt9iBOGNS5x1aF6/J7ti7jvnbkvu5F
-         47xSRmHHK8Xyt+9IuFK6BCtBXwDTKJTKok4mQsZw=
+        b=jHCKvL7UQlqWcUf1TzONVbyvhBmplGnXNqwlTZYoiyewJ3LBF2JbiY4W9uYUJqGvw
+         Ey7VhLU7Tm0ij9Bp2d3OpMofLbJSB9uaGuOuFgy8eY3PHMFezqIcDgcdHWDFbnCwaO
+         5hjw0JAj0RFqjkJgQ62KJFTaiFMJ6tjiJ0G3Neqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.19 30/84] cifs: Adjust indentation in smb2_open_file
-Date:   Fri, 17 Jan 2020 00:18:04 +0100
-Message-Id: <20200116231717.245025122@linuxfoundation.org>
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Bob Picco <bob.picco@oracle.com>,
+        Kristina Martsenko <kristina.martsenko@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.14 07/71] arm64: dont open code page table entry creation
+Date:   Fri, 17 Jan 2020 00:18:05 +0100
+Message-Id: <20200116231710.452938295@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
-References: <20200116231713.087649517@linuxfoundation.org>
+In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
+References: <20200116231709.377772748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +47,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Kristina Martsenko <kristina.martsenko@arm.com>
 
-commit 7935799e041ae10d380d04ea23868240f082bd11 upstream.
+commit 193383043f14a398393dc18bae8380f7fe665ec3 upstream.
 
-Clang warns:
+Instead of open coding the generation of page table entries, use the
+macros/functions that exist for this - pfn_p*d and p*d_populate. Most
+code in the kernel already uses these macros, this patch tries to fix
+up the few places that don't. This is useful for the next patch in this
+series, which needs to change the page table entry logic, and it's
+better to have that logic in one place.
 
-../fs/cifs/smb2file.c:70:3: warning: misleading indentation; statement
-is not part of the previous 'if' [-Wmisleading-indentation]
-         if (oparms->tcon->use_resilient) {
-         ^
-../fs/cifs/smb2file.c:66:2: note: previous statement is here
-        if (rc)
-        ^
-1 warning generated.
+The KVM extended ID map is special, since we're creating a level above
+CONFIG_PGTABLE_LEVELS and the required function isn't available. Leave
+it as is and add a comment to explain it. (The normal kernel ID map code
+doesn't need this change because its page tables are created in assembly
+(__create_page_tables)).
 
-This warning occurs because there is a space after the tab on this line.
-Remove it so that the indentation is consistent with the Linux kernel
-coding style and clang no longer warns.
-
-Fixes: 592fafe644bf ("Add resilienthandles mount parm")
-Link: https://github.com/ClangBuiltLinux/linux/issues/826
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Tested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
+Tested-by: Bob Picco <bob.picco@oracle.com>
+Reviewed-by: Bob Picco <bob.picco@oracle.com>
+Signed-off-by: Kristina Martsenko <kristina.martsenko@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/cifs/smb2file.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/kvm_mmu.h |    5 +++++
+ arch/arm64/include/asm/pgtable.h |    1 +
+ arch/arm64/kernel/hibernate.c    |    3 +--
+ arch/arm64/mm/mmu.c              |   14 +++++++++-----
+ 4 files changed, 16 insertions(+), 7 deletions(-)
 
---- a/fs/cifs/smb2file.c
-+++ b/fs/cifs/smb2file.c
-@@ -67,7 +67,7 @@ smb2_open_file(const unsigned int xid, s
- 		goto out;
+--- a/arch/arm64/include/asm/kvm_mmu.h
++++ b/arch/arm64/include/asm/kvm_mmu.h
+@@ -296,6 +296,11 @@ static inline bool __kvm_cpu_uses_extend
+ 	return __cpu_uses_extended_idmap();
+ }
  
++/*
++ * Can't use pgd_populate here, because the extended idmap adds an extra level
++ * above CONFIG_PGTABLE_LEVELS (which is 2 or 3 if we're using the extended
++ * idmap), and pgd_populate is only available if CONFIG_PGTABLE_LEVELS = 4.
++ */
+ static inline void __kvm_extend_hypmap(pgd_t *boot_hyp_pgd,
+ 				       pgd_t *hyp_pgd,
+ 				       pgd_t *merged_hyp_pgd,
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -343,6 +343,7 @@ static inline int pmd_protnone(pmd_t pmd
  
--	 if (oparms->tcon->use_resilient) {
-+	if (oparms->tcon->use_resilient) {
- 		nr_ioctl_req.Timeout = 0; /* use server default (120 seconds) */
- 		nr_ioctl_req.Reserved = 0;
- 		rc = SMB2_ioctl(xid, oparms->tcon, fid->persistent_fid,
+ #define pud_write(pud)		pte_write(pud_pte(pud))
+ #define pud_pfn(pud)		(((pud_val(pud) & PUD_MASK) & PHYS_MASK) >> PAGE_SHIFT)
++#define pfn_pud(pfn,prot)	(__pud(((phys_addr_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot)))
+ 
+ #define set_pmd_at(mm, addr, pmdp, pmd)	set_pte_at(mm, addr, (pte_t *)pmdp, pmd_pte(pmd))
+ 
+--- a/arch/arm64/kernel/hibernate.c
++++ b/arch/arm64/kernel/hibernate.c
+@@ -246,8 +246,7 @@ static int create_safe_exec_page(void *s
+ 	}
+ 
+ 	pte = pte_offset_kernel(pmd, dst_addr);
+-	set_pte(pte, __pte(virt_to_phys((void *)dst) |
+-			 pgprot_val(PAGE_KERNEL_EXEC)));
++	set_pte(pte, pfn_pte(virt_to_pfn(dst), PAGE_KERNEL_EXEC));
+ 
+ 	/*
+ 	 * Load our new page tables. A strict BBM approach requires that we
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -605,8 +605,8 @@ static void __init map_kernel(pgd_t *pgd
+ 		 * entry instead.
+ 		 */
+ 		BUG_ON(!IS_ENABLED(CONFIG_ARM64_16K_PAGES));
+-		set_pud(pud_set_fixmap_offset(pgd, FIXADDR_START),
+-			__pud(__pa_symbol(bm_pmd) | PUD_TYPE_TABLE));
++		pud_populate(&init_mm, pud_set_fixmap_offset(pgd, FIXADDR_START),
++			     lm_alias(bm_pmd));
+ 		pud_clear_fixmap();
+ 	} else {
+ 		BUG();
+@@ -721,7 +721,7 @@ int __meminit vmemmap_populate(unsigned
+ 			if (!p)
+ 				return -ENOMEM;
+ 
+-			set_pmd(pmd, __pmd(__pa(p) | PROT_SECT_NORMAL));
++			pmd_set_huge(pmd, __pa(p), __pgprot(PROT_SECT_NORMAL));
+ 		} else
+ 			vmemmap_verify((pte_t *)pmd, node, addr, next);
+ 	} while (addr = next, addr != end);
+@@ -915,15 +915,19 @@ int __init arch_ioremap_pmd_supported(vo
+ 
+ int pud_set_huge(pud_t *pud, phys_addr_t phys, pgprot_t prot)
+ {
++	pgprot_t sect_prot = __pgprot(PUD_TYPE_SECT |
++					pgprot_val(mk_sect_prot(prot)));
+ 	BUG_ON(phys & ~PUD_MASK);
+-	set_pud(pud, __pud(phys | PUD_TYPE_SECT | pgprot_val(mk_sect_prot(prot))));
++	set_pud(pud, pfn_pud(__phys_to_pfn(phys), sect_prot));
+ 	return 1;
+ }
+ 
+ int pmd_set_huge(pmd_t *pmd, phys_addr_t phys, pgprot_t prot)
+ {
++	pgprot_t sect_prot = __pgprot(PMD_TYPE_SECT |
++					pgprot_val(mk_sect_prot(prot)));
+ 	BUG_ON(phys & ~PMD_MASK);
+-	set_pmd(pmd, __pmd(phys | PMD_TYPE_SECT | pgprot_val(mk_sect_prot(prot))));
++	set_pmd(pmd, pfn_pmd(__phys_to_pfn(phys), sect_prot));
+ 	return 1;
+ }
+ 
 
 
