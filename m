@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8411913FF82
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4258913FF0A
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:40:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729990AbgAPXZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:25:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54300 "EHLO mail.kernel.org"
+        id S2388879AbgAPXkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:40:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387705AbgAPXY7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:24:59 -0500
+        id S2390229AbgAPX1k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:27:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0640F20748;
-        Thu, 16 Jan 2020 23:24:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C87020684;
+        Thu, 16 Jan 2020 23:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217098;
-        bh=Rgu0CM3dCYRiyWzMm1lyZZjA+gpZ6G8TmMMTDSWG+IY=;
+        s=default; t=1579217260;
+        bh=Q38lxsXrd6RMZPU5R2oxnuqAMgrL9i1BFETIT3lzb5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOqKuHQKpwajwirl1QGfYcXZZkpw07QKbM9LrOT4IdX9uBXhE84PNMOZngAkXdXKH
-         2vppeZ5xRltukJGAyWtg7ZwTyM+CsGB3ROb2mFl/tTCn6gjjtkiHC3WgALyx+yypxa
-         XdQUd1+JQ3ijO602J+zuC7V/7/vWMvkSVbbZYhqs=
+        b=IxDdSx8Y/USCSdcgzw9vGi25FRU+Hn8FJCBmuFH+zA34tqNbTcB35pKHzb+OeiBXx
+         Fm4H4LNKqxTtzViCCoQk1KvhxBORZ8kNyh/ZFoutbCz6YUDU/zz6Zi37XGuwdCkg51
+         UdhEqnYNERsB57GZ87ZsabqiDnF1C6aSzONIfVOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.4 147/203] media: ov6650: Fix some format attributes not under control
+        stable@vger.kernel.org, Gong Chen <gongchen4@huawei.com>,
+        Sheng Yong <shengyong1@huawei.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.19 10/84] f2fs: check if file namelen exceeds max value
 Date:   Fri, 17 Jan 2020 00:17:44 +0100
-Message-Id: <20200116231757.773908129@linuxfoundation.org>
+Message-Id: <20200116231714.780541022@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
-References: <20200116231745.218684830@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,128 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Sheng Yong <shengyong1@huawei.com>
 
-commit 1c6a2b63095154bbf9e8f38d79487a728331bf65 upstream.
+commit 720db068634c91553a8e1d9a0fcd8c7050e06d2b upstream.
 
-User arguments passed to .get/set_fmt() pad operation callbacks may
-contain unsupported values.  The driver takes control over frame size
-and pixel code as well as colorspace and field attributes but has never
-cared for remainig format attributes, i.e., ycbcr_enc, quantization
-and xfer_func, introduced by commit 11ff030c7365 ("[media]
-v4l2-mediabus: improve colorspace support").  Fix it.
+Dentry bitmap is not enough to detect incorrect dentries. So this patch
+also checks the namelen value of a dentry.
 
-Set up a static v4l2_mbus_framefmt structure with attributes
-initialized to reasonable defaults and use it for updating content of
-user provided arguments.  In case of V4L2_SUBDEV_FORMAT_ACTIVE,
-postpone frame size update, now performed from inside ov6650_s_fmt()
-helper, util the user argument is first updated in ov6650_set_fmt() with
-default frame format content.  For V4L2_SUBDEV_FORMAT_TRY, don't copy
-all attributes to pad config, only those handled by the driver, then
-fill the response with the default frame format updated with resulting
-pad config format code and frame size.
-
-Fixes: 11ff030c7365 ("[media] v4l2-mediabus: improve colorspace support")
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Gong Chen <gongchen4@huawei.com>
+Signed-off-by: Sheng Yong <shengyong1@huawei.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/media/i2c/ov6650.c |   51 ++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 39 insertions(+), 12 deletions(-)
+ fs/f2fs/dir.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/media/i2c/ov6650.c
-+++ b/drivers/media/i2c/ov6650.c
-@@ -213,6 +213,17 @@ static u32 ov6650_codes[] = {
- 	MEDIA_BUS_FMT_Y8_1X8,
- };
+--- a/fs/f2fs/dir.c
++++ b/fs/f2fs/dir.c
+@@ -808,7 +808,8 @@ int f2fs_fill_dentries(struct dir_contex
  
-+static const struct v4l2_mbus_framefmt ov6650_def_fmt = {
-+	.width		= W_CIF,
-+	.height		= H_CIF,
-+	.code		= MEDIA_BUS_FMT_SBGGR8_1X8,
-+	.colorspace	= V4L2_COLORSPACE_SRGB,
-+	.field		= V4L2_FIELD_NONE,
-+	.ycbcr_enc	= V4L2_YCBCR_ENC_DEFAULT,
-+	.quantization	= V4L2_QUANTIZATION_DEFAULT,
-+	.xfer_func	= V4L2_XFER_FUNC_DEFAULT,
-+};
-+
- /* read a register */
- static int ov6650_reg_read(struct i2c_client *client, u8 reg, u8 *val)
- {
-@@ -513,11 +524,13 @@ static int ov6650_get_fmt(struct v4l2_su
- 	if (format->pad)
- 		return -EINVAL;
- 
-+	/* initialize response with default media bus frame format */
-+	*mf = ov6650_def_fmt;
-+
-+	/* update media bus format code and frame size */
- 	mf->width	= priv->rect.width >> priv->half_scale;
- 	mf->height	= priv->rect.height >> priv->half_scale;
- 	mf->code	= priv->code;
--	mf->colorspace	= V4L2_COLORSPACE_SRGB;
--	mf->field	= V4L2_FIELD_NONE;
- 
- 	return 0;
- }
-@@ -656,10 +669,6 @@ static int ov6650_s_fmt(struct v4l2_subd
- 	if (!ret)
- 		priv->code = code;
- 
--	if (!ret) {
--		mf->width = priv->rect.width >> half_scale;
--		mf->height = priv->rect.height >> half_scale;
--	}
- 	return ret;
- }
- 
-@@ -678,9 +687,6 @@ static int ov6650_set_fmt(struct v4l2_su
- 		v4l_bound_align_image(&mf->width, 2, W_CIF, 1,
- 				&mf->height, 2, H_CIF, 1, 0);
- 
--	mf->field = V4L2_FIELD_NONE;
--	mf->colorspace = V4L2_COLORSPACE_SRGB;
--
- 	switch (mf->code) {
- 	case MEDIA_BUS_FMT_Y10_1X10:
- 		mf->code = MEDIA_BUS_FMT_Y8_1X8;
-@@ -698,10 +704,31 @@ static int ov6650_set_fmt(struct v4l2_su
- 		break;
- 	}
- 
--	if (format->which == V4L2_SUBDEV_FORMAT_ACTIVE)
--		return ov6650_s_fmt(sd, mf);
--	cfg->try_fmt = *mf;
-+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
-+		/* store media bus format code and frame size in pad config */
-+		cfg->try_fmt.width = mf->width;
-+		cfg->try_fmt.height = mf->height;
-+		cfg->try_fmt.code = mf->code;
-+
-+		/* return default mbus frame format updated with pad config */
-+		*mf = ov6650_def_fmt;
-+		mf->width = cfg->try_fmt.width;
-+		mf->height = cfg->try_fmt.height;
-+		mf->code = cfg->try_fmt.code;
-+
-+	} else {
-+		/* apply new media bus format code and frame size */
-+		int ret = ov6650_s_fmt(sd, mf);
- 
-+		if (ret)
-+			return ret;
-+
-+		/* return default format updated with active size and code */
-+		*mf = ov6650_def_fmt;
-+		mf->width = priv->rect.width >> priv->half_scale;
-+		mf->height = priv->rect.height >> priv->half_scale;
-+		mf->code = priv->code;
-+	}
- 	return 0;
- }
- 
+ 		/* check memory boundary before moving forward */
+ 		bit_pos += GET_DENTRY_SLOTS(le16_to_cpu(de->name_len));
+-		if (unlikely(bit_pos > d->max)) {
++		if (unlikely(bit_pos > d->max ||
++				le16_to_cpu(de->name_len) > F2FS_NAME_LEN)) {
+ 			f2fs_msg(sbi->sb, KERN_WARNING,
+ 				"%s: corrupted namelen=%d, run fsck to fix.",
+ 				__func__, le16_to_cpu(de->name_len));
 
 
