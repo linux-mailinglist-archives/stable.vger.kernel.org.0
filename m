@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7907013F3E8
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:46:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D56F13F3E1
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:46:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389932AbgAPRKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:10:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48480 "EHLO mail.kernel.org"
+        id S1732461AbgAPSqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:46:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389925AbgAPRKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:10:24 -0500
+        id S2389931AbgAPRKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:10:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22F2624685;
-        Thu, 16 Jan 2020 17:10:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A22324684;
+        Thu, 16 Jan 2020 17:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194623;
-        bh=w1jX+ttb2O1VrMqXuDjPtF6jrBRp+Hy3JQ3mwfxfj/I=;
+        s=default; t=1579194625;
+        bh=4a7Sk8SWFDzfmkMN30hHFPwBDh9o5W9TF2o7WnL/dco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/B2fNxaEO8MFblqCSQ0idG3j6BvFzEKjn8m7185f6exYBJG9SNh/r3QCbvhUE3qo
-         OJ8wZ3ZFOfQTf9nN5Fhbj3qqlYXDI3glwH7dVvb4E5+AXcDr2rHcZCO8Tq/0YtB4YF
-         9WTFG2phXIMgDuhJ2JmFEx4mmzN/jOo/RT6fOn3U=
+        b=tD22/1xzrGP//aTgHVdcZIihYdesZpZU0JdVUauRDUqGHTnXnukJViigSAy+fF1dk
+         eaE4aMRJBIQ/BlA2Qq1nVGLsKoni8QsB/d4iN1cJ20pFGkH2injtHtqEacKaffxk1Q
+         V5XFuvmr49Hk/Oj6AdkJH2rGh6gsZdgBZsgAMWDQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 484/671] spi: bcm-qspi: Fix BSPI QUAD and DUAL mode support when using flex mode
-Date:   Thu, 16 Jan 2020 12:02:02 -0500
-Message-Id: <20200116170509.12787-221-sashal@kernel.org>
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 485/671] cxgb4: smt: Add lock for atomic_dec_and_test
+Date:   Thu, 16 Jan 2020 12:02:03 -0500
+Message-Id: <20200116170509.12787-222-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -43,46 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 79629d0f7ce5b38515c1716911a0181f01b91102 ]
+[ Upstream commit 4a8937b83892cb69524291cae6cdabad4a8be033 ]
 
-Fix data transfer width settings based on DT field 'spi-rx-bus-width'
-to configure BSPI in single, dual or quad mode by using data width
-and not the command width.
+The atomic_dec_and_test() is not safe because it is
+outside of locks.
+Move the locks of t4_smte_free() to its caller,
+cxgb4_smt_release() to protect the atomic decrement.
 
-Fixes: 5f195ee7d830c ("spi: bcm-qspi: Implement the spi_mem interface")
-
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Link: https://lore.kernel.org/r/1565086070-28451-1-git-send-email-rayagonda.kokatanur@broadcom.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 3bdb376e6944 ("cxgb4: introduce SMT ops to prepare for SMAC rewrite support")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm-qspi.c | 4 ++--
+ drivers/net/ethernet/chelsio/cxgb4/smt.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
-index 584bcb018a62..285a6f463013 100644
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -354,7 +354,7 @@ static int bcm_qspi_bspi_set_flex_mode(struct bcm_qspi *qspi,
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/smt.c b/drivers/net/ethernet/chelsio/cxgb4/smt.c
+index 7b2207a2a130..9b3f4205cb4d 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/smt.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/smt.c
+@@ -98,11 +98,9 @@ static struct smt_entry *find_or_alloc_smte(struct smt_data *s, u8 *smac)
+ 
+ static void t4_smte_free(struct smt_entry *e)
  {
- 	int bpc = 0, bpp = 0;
- 	u8 command = op->cmd.opcode;
--	int width  = op->cmd.buswidth ? op->cmd.buswidth : SPI_NBITS_SINGLE;
-+	int width = op->data.buswidth ? op->data.buswidth : SPI_NBITS_SINGLE;
- 	int addrlen = op->addr.nbytes;
- 	int flex_mode = 1;
+-	spin_lock_bh(&e->lock);
+ 	if (atomic_read(&e->refcnt) == 0) {  /* hasn't been recycled */
+ 		e->state = SMT_STATE_UNUSED;
+ 	}
+-	spin_unlock_bh(&e->lock);
+ }
  
-@@ -992,7 +992,7 @@ static int bcm_qspi_exec_mem_op(struct spi_mem *mem,
- 	if (mspi_read)
- 		return bcm_qspi_mspi_exec_mem_op(spi, op);
+ /**
+@@ -112,8 +110,10 @@ static void t4_smte_free(struct smt_entry *e)
+  */
+ void cxgb4_smt_release(struct smt_entry *e)
+ {
++	spin_lock_bh(&e->lock);
+ 	if (atomic_dec_and_test(&e->refcnt))
+ 		t4_smte_free(e);
++	spin_unlock_bh(&e->lock);
+ }
+ EXPORT_SYMBOL(cxgb4_smt_release);
  
--	ret = bcm_qspi_bspi_set_mode(qspi, op, -1);
-+	ret = bcm_qspi_bspi_set_mode(qspi, op, 0);
- 
- 	if (!ret)
- 		ret = bcm_qspi_bspi_exec_mem_op(spi, op);
 -- 
 2.20.1
 
