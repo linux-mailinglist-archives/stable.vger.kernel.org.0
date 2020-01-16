@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A719613F43C
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:48:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C0713F43A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:48:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389749AbgAPRJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:09:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46472 "EHLO mail.kernel.org"
+        id S2390169AbgAPSsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:48:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389743AbgAPRJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:09:48 -0500
+        id S2389752AbgAPRJt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DEE024690;
-        Thu, 16 Jan 2020 17:09:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 231B8206D9;
+        Thu, 16 Jan 2020 17:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194587;
-        bh=ndoE0vtiw44UxpP7RJFkZ4ATAyIcKw/7d2h5EyFh7Hk=;
+        s=default; t=1579194588;
+        bh=ds3K/+Shpqm/cw3bLKGdAoAuyM1oYw+f5Ag3IkVPWAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CAfpHZJLL2VfkjU9Xyia7L+Haqvg5YNd9YeuQXEUoVVQcziT9MDnCHwpF7lCS62Ec
-         lVmzQ3lupJyRPIS+yK6HeMNLVkCwL8a9x5nZLXQy1QcpFnofd1DiW+4uAi1Y0G0KXJ
-         d93jfZmspjqS8ZzwoTHPnzKASyH1y1JXcR3u+NxI=
+        b=quaA4PiILbj4XbPKVWBigMMPc08Pe4KpkTeztuF/UZu3Az989FRY4eWyJsvdY0uNY
+         P2wL9OIZ/X9ZqPyoG4jRZ767Cy9SwVJ7xjlZk+uDkyF436qk0d92QD6yh2luylNMEZ
+         VY9MtUFpTMyNBFv8CjYWixWRdYGi/759EmUqGwBg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 459/671] net/tls: fix socket wmem accounting on fallback with netem
-Date:   Thu, 16 Jan 2020 12:01:37 -0500
-Message-Id: <20200116170509.12787-196-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.19 460/671] x86/pgtable/32: Fix LOWMEM_PAGES constant
+Date:   Thu, 16 Jan 2020 12:01:38 -0500
+Message-Id: <20200116170509.12787-197-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,38 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 5c4b4608fe100838c62591877101128467e56c00 ]
+[ Upstream commit 26515699863d68058e290e18e83f444925920be5 ]
 
-netem runs skb_orphan_partial() which "disconnects" the skb
-from normal TCP write memory accounting.  We should not adjust
-sk->sk_wmem_alloc on the fallback path for such skbs.
+clang points out that the computation of LOWMEM_PAGES causes a signed
+integer overflow on 32-bit x86:
 
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+arch/x86/kernel/head32.c:83:20: error: signed shift result (0x100000000) requires 34 bits to represent, but 'int' only has 32 bits [-Werror,-Wshift-overflow]
+                (PAGE_TABLE_SIZE(LOWMEM_PAGES) << PAGE_SHIFT);
+                                 ^~~~~~~~~~~~
+arch/x86/include/asm/pgtable_32.h:109:27: note: expanded from macro 'LOWMEM_PAGES'
+ #define LOWMEM_PAGES ((((2<<31) - __PAGE_OFFSET) >> PAGE_SHIFT))
+                         ~^ ~~
+arch/x86/include/asm/pgtable_32.h:98:34: note: expanded from macro 'PAGE_TABLE_SIZE'
+ #define PAGE_TABLE_SIZE(pages) ((pages) / PTRS_PER_PGD)
+
+Use the _ULL() macro to make it a 64-bit constant.
+
+Fixes: 1e620f9b23e5 ("x86/boot/32: Convert the 32-bit pgtable setup code from assembly to C")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190710130522.1802800-1-arnd@arndb.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_device_fallback.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/include/asm/pgtable_32.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/tls/tls_device_fallback.c b/net/tls/tls_device_fallback.c
-index 426dd97725e4..6cf832891b53 100644
---- a/net/tls/tls_device_fallback.c
-+++ b/net/tls/tls_device_fallback.c
-@@ -208,6 +208,10 @@ static void complete_skb(struct sk_buff *nskb, struct sk_buff *skb, int headln)
+diff --git a/arch/x86/include/asm/pgtable_32.h b/arch/x86/include/asm/pgtable_32.h
+index b3ec519e3982..71e1df860176 100644
+--- a/arch/x86/include/asm/pgtable_32.h
++++ b/arch/x86/include/asm/pgtable_32.h
+@@ -106,6 +106,6 @@ do {						\
+  * with only a host target support using a 32-bit type for internal
+  * representation.
+  */
+-#define LOWMEM_PAGES ((((2<<31) - __PAGE_OFFSET) >> PAGE_SHIFT))
++#define LOWMEM_PAGES ((((_ULL(2)<<31) - __PAGE_OFFSET) >> PAGE_SHIFT))
  
- 	update_chksum(nskb, headln);
- 
-+	/* sock_efree means skb must gone through skb_orphan_partial() */
-+	if (nskb->destructor == sock_efree)
-+		return;
-+
- 	delta = nskb->truesize - skb->truesize;
- 	if (likely(delta < 0))
- 		WARN_ON_ONCE(refcount_sub_and_test(-delta, &sk->sk_wmem_alloc));
+ #endif /* _ASM_X86_PGTABLE_32_H */
 -- 
 2.20.1
 
