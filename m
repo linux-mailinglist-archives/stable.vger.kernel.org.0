@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C399813EB81
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:50:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D152513EB7F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:50:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394301AbgAPRuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:50:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38224 "EHLO mail.kernel.org"
+        id S2394277AbgAPRuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:50:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406545AbgAPRpy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:45:54 -0500
+        id S2406190AbgAPRpz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:45:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45991246BA;
-        Thu, 16 Jan 2020 17:45:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2E35246C4;
+        Thu, 16 Jan 2020 17:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196753;
-        bh=tHbXqPODKuv/f1Ix3yAK8rhbDEop+L2eGk+J9IV9Beg=;
+        s=default; t=1579196755;
+        bh=A1N8eTJy0wfQbLoi57GZ4ERDw7BhnmsCr0Z6pNY66RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdE1lkpHLVFiZ0eNwq/T8jsPi+Ehkvd88QfQku5YRsMq2P2qvvWbbR1nhEGsOAXsT
-         iwDUi/c9TTPrj0ZU9z9o7ccO/8p2xONHwmrJKudNq/QHpG9vaCbepHDHnNJbWDlS7u
-         XT10KZ5wS1lHt3S50EdYgSSvRmz+JLBKUlXhtoTY=
+        b=UjMLgBrJ98s24A0Z3F9KxM5gGbQXkZe/5gz6fsOl1ofXkwMnh1ARLly4KX6gOG6ef
+         XdS6gz4sPLVPf3kvp6Wk1nJ2NcREC0hi342tTBL3FE+ZNmnhOWbK+PXRh5jfqNCyuA
+         eLOG2v2rLQqrLuHW9XwI1uj+i/oS89drXNxwDE7c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Tri Vo <trong@android.com>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        Ravi Chandra Sadineni <ravisadineni@chromium.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 129/174] power: supply: Init device wakeup after device_add()
-Date:   Thu, 16 Jan 2020 12:42:06 -0500
-Message-Id: <20200116174251.24326-129-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 130/174] x86, perf: Fix the dependency of the x86 insn decoder selftest
+Date:   Thu, 16 Jan 2020 12:42:07 -0500
+Message-Id: <20200116174251.24326-130-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -49,67 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 8288022284859acbcc3cf1a073a1e2692d6c2543 ]
+[ Upstream commit 7720804a2ae46c90265a32c81c45fb6f8d2f4e8b ]
 
-We may want to use the device pointer in device_init_wakeup() with
-functions that expect the device to already be added with device_add().
-For example, if we were to link the device initializing wakeup to
-something in sysfs such as a class for wakeups we'll run into an error.
-It looks like this code was written with the assumption that the device
-would be added before initializing wakeup due to the order of operations
-in power_supply_unregister().
+Since x86 instruction decoder is not only for kprobes,
+it should be tested when the insn.c is compiled.
+(e.g. perf is enabled but kprobes is disabled)
 
-Let's change the order of operations so we don't run into problems here.
-
-Fixes: 948dcf966228 ("power_supply: Prevent suspend until power supply events are processed")
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Tri Vo <trong@android.com>
-Cc: Kalesh Singh <kaleshsingh@google.com>
-Cc: Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: cbe5c34c8c1f ("x86: Compile insn.c and inat.c only for KPROBES")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/power_supply_core.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/x86/Kconfig.debug | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/power_supply_core.c b/drivers/power/power_supply_core.c
-index b13cd074c52a..9281e42c9ed5 100644
---- a/drivers/power/power_supply_core.c
-+++ b/drivers/power/power_supply_core.c
-@@ -755,14 +755,14 @@ __power_supply_register(struct device *parent,
- 	}
+diff --git a/arch/x86/Kconfig.debug b/arch/x86/Kconfig.debug
+index 2aa212fb0faf..31c191a08bb1 100644
+--- a/arch/x86/Kconfig.debug
++++ b/arch/x86/Kconfig.debug
+@@ -221,7 +221,7 @@ config HAVE_MMIOTRACE_SUPPORT
  
- 	spin_lock_init(&psy->changed_lock);
--	rc = device_init_wakeup(dev, ws);
--	if (rc)
--		goto wakeup_init_failed;
--
- 	rc = device_add(dev);
- 	if (rc)
- 		goto device_add_failed;
- 
-+	rc = device_init_wakeup(dev, ws);
-+	if (rc)
-+		goto wakeup_init_failed;
-+
- 	rc = psy_register_thermal(psy);
- 	if (rc)
- 		goto register_thermal_failed;
-@@ -798,8 +798,8 @@ __power_supply_register(struct device *parent,
- 	psy_unregister_thermal(psy);
- register_thermal_failed:
- 	device_del(dev);
--device_add_failed:
- wakeup_init_failed:
-+device_add_failed:
- check_supplies_failed:
- dev_set_name_failed:
- 	put_device(dev);
+ config X86_DECODER_SELFTEST
+ 	bool "x86 instruction decoder selftest"
+-	depends on DEBUG_KERNEL && KPROBES
++	depends on DEBUG_KERNEL && INSTRUCTION_DECODER
+ 	depends on !COMPILE_TEST
+ 	---help---
+ 	 Perform x86 instruction decoder selftests at build time.
 -- 
 2.20.1
 
