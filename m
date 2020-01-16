@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC16813F7D2
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:14:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB55813F7CF
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733254AbgAPQ4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:56:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43142 "EHLO mail.kernel.org"
+        id S1733268AbgAPQ4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:56:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729634AbgAPQ4j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:56:39 -0500
+        id S1733075AbgAPQ4l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:56:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D10F22192A;
-        Thu, 16 Jan 2020 16:56:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1475F24656;
+        Thu, 16 Jan 2020 16:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193798;
-        bh=pIaYyaxHpbQT38MmLmafgubNEt7PRUb/LGjMRMvir50=;
+        s=default; t=1579193800;
+        bh=LkVTKsYdHJfdDmmYPdoTfDPNzo2Cyo3Ys6rmxdoBcPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SH5WzASer0LXJL2v6VoKeEngzlP4iYquEC+QqCgaFru1+fjx/AIOREIUqWocfHqwQ
-         4+Rkwe7KF4l/16zWZF7zx1Y6sevHK0g70SuJAIHQW/kNtCWFt3yWEn1pzaW6LxrKoG
-         07MmL4d2YiE8R8igACGkgtiKKRBkeo/B5TWnfazc=
+        b=pEmnUOlLTOrfXTgkKEXLWdfLXPgU4pZOUqoTnHZhg1ddbrzdXapMG+b4+GNKtHo8l
+         vwSsOsdeNBYqdLako0GzOZLoGOfCbI1n0wHCwAEGjuSsDA1hQblc+cStkRluzsn4wV
+         eEZ6lgxt3twlOI5TMgKO8k0UBoNKpwumjTHZ8gkQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Willem de Bruijn <willemb@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 067/671] ipv6: add missing tx timestamping on IPPROTO_RAW
-Date:   Thu, 16 Jan 2020 11:44:58 -0500
-Message-Id: <20200116165502.8838-67-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 068/671] pinctrl: sh-pfc: r8a7740: Add missing REF125CK pin to gether_gmii group
+Date:   Thu, 16 Jan 2020 11:44:59 -0500
+Message-Id: <20200116165502.8838-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -44,38 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit fbfb2321e950918b430e7225546296b2dcadf725 ]
+[ Upstream commit 1ebc589a7786f17f97b9e87b44e0fb4d0290d8f8 ]
 
-Raw sockets support tx timestamping, but one case is missing.
+The gether_gmii_mux[] array contains the REF125CK pin mark, but the
+gether_gmii_pins[] array lacks the corresponding pin number.
 
-IPPROTO_RAW takes a separate packet construction path. raw_send_hdrinc
-has an explicit call to sock_tx_timestamp, but rawv6_send_hdrinc does
-not. Add it.
-
-Fixes: 11878b40ed5c ("net-timestamp: SOCK_RAW and PING timestamping")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: bae11d30d0cafdc5 ("sh-pfc: r8a7740: Add GETHER pin groups and functions")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/raw.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/sh-pfc/pfc-r8a7740.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
-index 4856d9320b28..a41156a00dd4 100644
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -660,6 +660,8 @@ static int rawv6_send_hdrinc(struct sock *sk, struct msghdr *msg, int length,
- 
- 	skb->ip_summed = CHECKSUM_NONE;
- 
-+	sock_tx_timestamp(sk, sockc->tsflags, &skb_shinfo(skb)->tx_flags);
-+
- 	if (flags & MSG_CONFIRM)
- 		skb_set_dst_pending_confirm(skb, 1);
- 
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7740.c b/drivers/pinctrl/sh-pfc/pfc-r8a7740.c
+index 35f436bcb849..d8077065636e 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7740.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7740.c
+@@ -1982,7 +1982,7 @@ static const unsigned int gether_gmii_pins[] = {
+ 	 */
+ 	185, 186, 187, 188, 189, 190, 191, 192, 174, 161, 204,
+ 	171, 170, 169, 168, 167, 166, 173, 172, 176, 184, 183, 203,
+-	205, 163, 206, 207,
++	205, 163, 206, 207, 158,
+ };
+ static const unsigned int gether_gmii_mux[] = {
+ 	ET_ERXD0_MARK, ET_ERXD1_MARK, ET_ERXD2_MARK, ET_ERXD3_MARK,
 -- 
 2.20.1
 
