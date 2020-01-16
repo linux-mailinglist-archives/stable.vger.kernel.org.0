@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 110EB13F003
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:19:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE5BA13EFFD
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:19:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388424AbgAPSS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:18:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39900 "EHLO mail.kernel.org"
+        id S2436490AbgAPSSu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:18:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732838AbgAPR2j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:28:39 -0500
+        id S2392623AbgAPR2l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:28:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CA94246FC;
-        Thu, 16 Jan 2020 17:28:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 030FB246EE;
+        Thu, 16 Jan 2020 17:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195719;
-        bh=RHts6TZLuIo0/HW1Ip3FqLUieOiVD/q8uDmfYAJqYhs=;
+        s=default; t=1579195720;
+        bh=cCRaRvBuPhcQPa9+/4rPGVxmyznYiXD4RfIyjgTKUb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f2Bb0rKhVfAQjNe3+9KYOVmbW9YrFLloh1rYtJrZtQWvvnyn74xH27prvoO4L9xOQ
-         rhgSOrvkM0JtP7qNosvVUlSOKjIbYttqPqBfJ6IptY92QrjpLzZJj0FUWTtMB/5M48
-         ZMhxZqVi89m6G5KB6YjxVymbFhJL07PQsXlykAT0=
+        b=gUzFDEss1UscarPo0kM0AVLS71i7dEzpGsMrCByepFI4ULV3pdmVfGdVPiXUhvrLI
+         xh7wW8kJHh1icSQFTSOzU0aeJqEvZRrbixGd87Pb03y5C4OBDmXtaBaD01snbO2l/i
+         GXYy+ntUJvPgKiOBMwJIYt2mlpUtUcun7ZoKcEBQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.14 262/371] cifs: fix rmmod regression in cifs.ko caused by force_sig changes
-Date:   Thu, 16 Jan 2020 12:22:14 -0500
-Message-Id: <20200116172403.18149-205-sashal@kernel.org>
+Cc:     Iuliana Prodan <iuliana.prodan@nxp.com>,
+        Horia Geanta <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 263/371] crypto: caam - free resources in case caam_rng registration failed
+Date:   Thu, 16 Jan 2020 12:22:15 -0500
+Message-Id: <20200116172403.18149-206-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,36 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Iuliana Prodan <iuliana.prodan@nxp.com>
 
-[ Upstream commit 247bc9470b1eeefc7b58cdf2c39f2866ba651509 ]
+[ Upstream commit c59a1d41672a89b5cac49db1a472ff889e35a2d2 ]
 
-Fixes: 72abe3bcf091 ("signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig")
+Check the return value of the hardware registration for caam_rng and free
+resources in case of failure.
 
-The global change from force_sig caused module unloading of cifs.ko
-to fail (since the cifsd process could not be killed, "rmmod cifs"
-now would always fail)
-
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-CC: Eric W. Biederman <ebiederm@xmission.com>
+Fixes: e24f7c9e87d4 ("crypto: caam - hwrng support")
+Signed-off-by: Iuliana Prodan <iuliana.prodan@nxp.com>
+Reviewed-by: Horia Geanta <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/caam/caamrng.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 51bbb1c0b71a..ed4a0352ea90 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -921,6 +921,7 @@ cifs_demultiplex_thread(void *p)
- 		mempool_resize(cifs_req_poolp, length + cifs_min_rcv);
+diff --git a/drivers/crypto/caam/caamrng.c b/drivers/crypto/caam/caamrng.c
+index fde07d4ff019..ff6718a11e9e 100644
+--- a/drivers/crypto/caam/caamrng.c
++++ b/drivers/crypto/caam/caamrng.c
+@@ -353,7 +353,10 @@ static int __init caam_rng_init(void)
+ 		goto free_rng_ctx;
  
- 	set_freezable();
-+	allow_signal(SIGKILL);
- 	while (server->tcpStatus != CifsExiting) {
- 		if (try_to_freeze())
- 			continue;
+ 	dev_info(dev, "registering rng-caam\n");
+-	return hwrng_register(&caam_rng);
++
++	err = hwrng_register(&caam_rng);
++	if (!err)
++		return err;
+ 
+ free_rng_ctx:
+ 	kfree(rng_ctx);
 -- 
 2.20.1
 
