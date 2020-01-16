@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E6B113ECFE
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:00:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D65813ECED
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:59:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405818AbgAPRly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:41:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59796 "EHLO mail.kernel.org"
+        id S2405843AbgAPRmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:42:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405813AbgAPRly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:41:54 -0500
+        id S2405855AbgAPRmy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:42:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57C95246A4;
-        Thu, 16 Jan 2020 17:41:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C14020728;
+        Thu, 16 Jan 2020 17:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196513;
-        bh=iaYM8yr6l8gDQemWgAjVPFMFQoyPaBfA/0vFKhM6ELY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZqRovVXZNK7KSBjGDF0P+oXin15069m5aK7EHb3h5ATyKSKanKD4L6nL9ore9m/z
-         +VC3x24kM+Am+34FjDquWyqFSudLzVsR8WNx79NoEb0NthLt/6ggC/QFOls3luiRe8
-         e+sSP2tUUnGZMO+dsZWwKUKHgXOkdRW1l7Uhpp4M=
+        s=default; t=1579196573;
+        bh=SjvVj+je/HMlB1NOEWTRrKGFRifaS0pbyWGdTMOoztQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=B2B8Az3+sDeZ9fW1Jnz/IhYHzHvoqrauzA27Wrma3JznGfVnBFEPuGMLJAltD0166
+         qPAcU2XtFF8vI++qoZZcy9bRKgzW1/tLob+4cPCpHz5sNGLFR/Z8RYcozgt+MCFD4N
+         Jt+wpTTKe/11r7Woqa/T2YgOtSrE8zs/9JhS76I8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Max Gurtovoy <maxg@mellanox.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Israel Rukshin <israelr@mellanox.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 251/251] IB/iser: Fix dma_nents type definition
-Date:   Thu, 16 Jan 2020 12:36:40 -0500
-Message-Id: <20200116173641.22137-211-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.4 001/174] drm/virtio: fix bounds check in virtio_gpu_cmd_get_capset()
+Date:   Thu, 16 Jan 2020 12:39:58 -0500
+Message-Id: <20200116174251.24326-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
-References: <20200116173641.22137-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,39 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Gurtovoy <maxg@mellanox.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c1545f1a200f4adc4ef8dd534bf33e2f1aa22c2f ]
+[ Upstream commit 09c4b49457434fa74749ad6194ef28464d9f5df9 ]
 
-The retured value from ib_dma_map_sg saved in dma_nents variable. To avoid
-future mismatch between types, define dma_nents as an integer instead of
-unsigned.
+This doesn't affect runtime because in the current code "idx" is always
+valid.
 
-Fixes: 57b26497fabe ("IB/iser: Pass the correct number of entries for dma mapped SGL")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Israel Rukshin <israelr@mellanox.com>
-Signed-off-by: Max Gurtovoy <maxg@mellanox.com>
-Acked-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+First, we read from "vgdev->capsets[idx].max_size" before checking
+whether "idx" is within bounds.  And secondly the bounds check is off by
+one so we could end up reading one element beyond the end of the
+vgdev->capsets[] array.
+
+Fixes: 62fb7a5e1096 ("virtio-gpu: add 3d/virgl support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20180704094250.m7sgvvzg3dhcvv3h@kili.mountain
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/iser/iscsi_iser.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/iser/iscsi_iser.h b/drivers/infiniband/ulp/iser/iscsi_iser.h
-index cb48e22afff7..a3614f7f0007 100644
---- a/drivers/infiniband/ulp/iser/iscsi_iser.h
-+++ b/drivers/infiniband/ulp/iser/iscsi_iser.h
-@@ -197,7 +197,7 @@ struct iser_data_buf {
- 	struct scatterlist *sg;
- 	int                size;
- 	unsigned long      data_len;
--	unsigned int       dma_nents;
-+	int                dma_nents;
- };
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index a1b3ea1ccb65..772a5a3b0ce1 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -681,11 +681,11 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
+ {
+ 	struct virtio_gpu_get_capset *cmd_p;
+ 	struct virtio_gpu_vbuffer *vbuf;
+-	int max_size = vgdev->capsets[idx].max_size;
++	int max_size;
+ 	struct virtio_gpu_drv_cap_cache *cache_ent;
+ 	void *resp_buf;
  
- /* fwd declarations */
+-	if (idx > vgdev->num_capsets)
++	if (idx >= vgdev->num_capsets)
+ 		return -EINVAL;
+ 
+ 	if (version > vgdev->capsets[idx].max_version)
+@@ -695,6 +695,7 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
+ 	if (!cache_ent)
+ 		return -ENOMEM;
+ 
++	max_size = vgdev->capsets[idx].max_size;
+ 	cache_ent->caps_cache = kmalloc(max_size, GFP_KERNEL);
+ 	if (!cache_ent->caps_cache) {
+ 		kfree(cache_ent);
 -- 
 2.20.1
 
