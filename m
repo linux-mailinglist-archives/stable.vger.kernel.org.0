@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 691A113EC61
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:56:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5FB13EC60
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:56:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406139AbgAPR4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:56:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34420 "EHLO mail.kernel.org"
+        id S2394025AbgAPRnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:43:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394018AbgAPRnx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:43:53 -0500
+        id S2394021AbgAPRny (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:43:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B0F62469C;
-        Thu, 16 Jan 2020 17:43:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FE2E2473E;
+        Thu, 16 Jan 2020 17:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196633;
-        bh=rO9MRv8YhSyyoMyG5psAWUEUdC5BhENMela2iZyySFM=;
+        s=default; t=1579196634;
+        bh=g/YGBqeroqkxDgUBykYtK8KfBGkUxXI54w48aAXNL9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OdW3audGyD4SAepaIpUtVm8seXjSXCMX7pRabt5ri8HWERWHErCHAYXtt43f1+UHK
-         BaZHmN7K0D0rYkA3bt4AuvSX3eaklx2h3JNJwi1K6tCZWTMJIa3nK5qfwntQZ2OnH+
-         Ab2wu9dWGZmFdheMM7Fqf8TwtnJZgQ2sfJ/1fs7c=
+        b=CPhqVmQfSRl187lAE/y/KhDHhgQb8VRFGN/8tdifhGKGn5jJR1hggtbaVZMREu+qr
+         iD5nSHLPB4C/IXxtFTXzZ0IlP93rSJ1362hYA9D4E/uvyO7sg9dWEKGAP/HOxchfdK
+         MiZhsokifNEXfrMkFzCOJCEYtfvnR0iQ9yAs+Ig4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Auger <eric.auger@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 046/174] vfio_pci: Enable memory accesses before calling pci_map_rom
-Date:   Thu, 16 Jan 2020 12:40:43 -0500
-Message-Id: <20200116174251.24326-46-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 047/174] cdc-wdm: pass return value of recover_from_urb_loss
+Date:   Thu, 16 Jan 2020 12:40:44 -0500
+Message-Id: <20200116174251.24326-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -43,67 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 0cfd027be1d6def4a462cdc180c055143af24069 ]
+[ Upstream commit 0742a338f5b3446a26de551ad8273fb41b2787f2 ]
 
-pci_map_rom/pci_get_rom_size() performs memory access in the ROM.
-In case the Memory Space accesses were disabled, readw() is likely
-to trigger a synchronous external abort on some platforms.
+'rv' is the correct return value, pass it upstream instead of 0
 
-In case memory accesses were disabled, re-enable them before the
-call and disable them back again just after.
-
-Fixes: 89e1f7d4c66d ("vfio: Add PCI device driver")
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Suggested-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 17d80d562fd7 ("USB: autosuspend for cdc-wdm")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/usb/class/cdc-wdm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 4b62eb3b5923..7a82735d5308 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -496,6 +496,7 @@ static long vfio_pci_ioctl(void *device_data,
- 		{
- 			void __iomem *io;
- 			size_t size;
-+			u16 orig_cmd;
+diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+index 71ad04d54212..1a1d1cfc3704 100644
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -1098,7 +1098,7 @@ static int wdm_post_reset(struct usb_interface *intf)
+ 	rv = recover_from_urb_loss(desc);
+ 	mutex_unlock(&desc->wlock);
+ 	mutex_unlock(&desc->rlock);
+-	return 0;
++	return rv;
+ }
  
- 			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
- 			info.flags = 0;
-@@ -505,15 +506,23 @@ static long vfio_pci_ioctl(void *device_data,
- 			if (!info.size)
- 				break;
- 
--			/* Is it really there? */
-+			/*
-+			 * Is it really there?  Enable memory decode for
-+			 * implicit access in pci_map_rom().
-+			 */
-+			pci_read_config_word(pdev, PCI_COMMAND, &orig_cmd);
-+			pci_write_config_word(pdev, PCI_COMMAND,
-+					      orig_cmd | PCI_COMMAND_MEMORY);
-+
- 			io = pci_map_rom(pdev, &size);
--			if (!io || !size) {
-+			if (io) {
-+				info.flags = VFIO_REGION_INFO_FLAG_READ;
-+				pci_unmap_rom(pdev, io);
-+			} else {
- 				info.size = 0;
--				break;
- 			}
--			pci_unmap_rom(pdev, io);
- 
--			info.flags = VFIO_REGION_INFO_FLAG_READ;
-+			pci_write_config_word(pdev, PCI_COMMAND, orig_cmd);
- 			break;
- 		}
- 		case VFIO_PCI_VGA_REGION_INDEX:
+ static struct usb_driver wdm_driver = {
 -- 
 2.20.1
 
