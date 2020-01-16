@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87FFC13EF23
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:13:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 060F813EF24
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:13:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405201AbgAPRgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:36:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51752 "EHLO mail.kernel.org"
+        id S2387851AbgAPSNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:13:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405175AbgAPRgt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:36:49 -0500
+        id S2405202AbgAPRgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:36:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3214246C6;
-        Thu, 16 Jan 2020 17:36:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CA66246B8;
+        Thu, 16 Jan 2020 17:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196208;
-        bh=DD5b3OtEOuYFjYuUz0V1Ew0UTKdSxEIPHB7MzvFpuk4=;
+        s=default; t=1579196210;
+        bh=ZGJmYlRjr2H0cz1pgfoxuIs7wu9sOSTq74J+NGGbjRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kYQhNQxJ6UfgZpJmQoY87xwJTY5r7K9Z8WCb5lV5VEjcNQayKsB3Kl7xPT9efVrp5
-         XXi+ag+eiJhDd92zzqBVyOFwvhHyyRkBbRwS4c/ZFIrkQksFtDY39zsgWhS/O1uBHT
-         O6G6/pE2Li3DXgfAJhc5gf/gKNcLUZR4yZag+Ho4=
+        b=Dgn3RykfLEIcnLGf/6LMjzLGB+c2eak+Tu3H/7mVKlCoDza3Nzos1rLMTJg0YvODD
+         m1G2ZAwUaN9c5ZGb9C/JwCaJNnuxNCJVGJDrG22MumMWZ4o5CXcXDsPSSBtG0TMkdy
+         McF1V50+FRNGAmPupAbZPcGJMInX15kyRVqHYRcw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Wong <e@80x24.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Sylvain Chouleur <sylvain.chouleur@intel.com>,
-        Patrick McDermott <patrick.mcdermott@libiquity.com>,
-        linux-rtc@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 045/251] rtc: cmos: ignore bogus century byte
-Date:   Thu, 16 Jan 2020 12:33:14 -0500
-Message-Id: <20200116173641.22137-5-sashal@kernel.org>
+Cc:     Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 046/251] clk: sunxi-ng: sun8i-a23: Enable PLL-MIPI LDOs when ungating it
+Date:   Thu, 16 Jan 2020 12:33:15 -0500
+Message-Id: <20200116173641.22137-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -46,43 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Wong <e@80x24.org>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 2a4daadd4d3e507138f8937926e6a4df49c6bfdc ]
+[ Upstream commit 108a459ef4cd17a28711d81092044e597b5c7618 ]
 
-Older versions of Libreboot and Coreboot had an invalid value
-(`3' in my case) in the century byte affecting the GM45 in
-the Thinkpad X200.  Not everybody's updated their firmwares,
-and Linux <= 4.2 was able to read the RTC without problems,
-so workaround this by ignoring invalid values.
+The PLL-MIPI clock is somewhat special as it has its own LDOs which
+need to be turned on for this PLL to actually work and output a clock
+signal.
 
-Fixes: 3c217e51d8a272b9 ("rtc: cmos: century support")
+Add the 2 LDO enable bits to the gate bits.
 
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Sylvain Chouleur <sylvain.chouleur@intel.com>
-Cc: Patrick McDermott <patrick.mcdermott@libiquity.com>
-Cc: linux-rtc@vger.kernel.org
-Signed-off-by: Eric Wong <e@80x24.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 5690879d93e8 ("clk: sunxi-ng: Add A23 CCU")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mc146818-lib.c | 2 +-
+ drivers/clk/sunxi-ng/ccu-sun8i-a23.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index 2f1772a358ca..18a6f15e313d 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -82,7 +82,7 @@ unsigned int mc146818_get_time(struct rtc_time *time)
- 	time->tm_year += real_year - 72;
- #endif
+diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-a23.c b/drivers/clk/sunxi-ng/ccu-sun8i-a23.c
+index 5c6d37bdf247..765c6977484e 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun8i-a23.c
++++ b/drivers/clk/sunxi-ng/ccu-sun8i-a23.c
+@@ -132,7 +132,7 @@ static SUNXI_CCU_NKM_WITH_GATE_LOCK(pll_mipi_clk, "pll-mipi",
+ 				    8, 4,		/* N */
+ 				    4, 2,		/* K */
+ 				    0, 4,		/* M */
+-				    BIT(31),		/* gate */
++				    BIT(31) | BIT(23) | BIT(22), /* gate */
+ 				    BIT(28),		/* lock */
+ 				    CLK_SET_RATE_UNGATE);
  
--	if (century)
-+	if (century > 20)
- 		time->tm_year += (century - 19) * 100;
- 
- 	/*
 -- 
 2.20.1
 
