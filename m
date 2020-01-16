@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F2613F75C
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:11:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 045F613F750
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:11:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388023AbgAPTLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:11:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49816 "EHLO mail.kernel.org"
+        id S2387722AbgAPTLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:11:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387480AbgAPRAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:00:18 -0500
+        id S2387730AbgAPRAV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:00:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B9062467C;
-        Thu, 16 Jan 2020 17:00:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A97622467E;
+        Thu, 16 Jan 2020 17:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194018;
-        bh=+JWYpikP2XfRGIZwTlxZ+tio/c4gA2u4kGxorWRvbMU=;
+        s=default; t=1579194020;
+        bh=iXlGhkD+iPp8vh7EEoCYUfHQYjiFUHCq17Z2sMpPylM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GW5AEPoU4PB5+Osfvgh6lfn77COFSJNSOjBYt/hMBwpA8o0fe46j6Vkj6JqB40ZNN
-         reG3aUirjTzARZxhqIH/xhkGMEN7ypOCl3P0auv82JpWBQF2/m/uPzNwaZ/N6TYkvx
-         bI43CETeGJHDOFAM44nKszkUq/sD6YrDJFwsWa/8=
+        b=cCF82wdt6b+OfEXw9/4Zt9fETmnNEVLEbB07hJugw20CnWLDVKqff07lhJyUvuYGs
+         e1M0ghpfTAgj21BP7FfvJPPG9bFzSiuhUUjxCQDk5//kZTYfFnYIbQDWL06G+tLPFa
+         r3SYcOyB5Koeaz+vrEZjqCAc6CSevSPNGWCmOPJA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liu Jian <liujian56@huawei.com>,
-        Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 139/671] driver: uio: fix possible memory leak in __uio_register_device
-Date:   Thu, 16 Jan 2020 11:50:48 -0500
-Message-Id: <20200116165940.10720-22-sashal@kernel.org>
+Cc:     Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 141/671] crypto: crypto4xx - Fix wrong ppc4xx_trng_probe()/ppc4xx_trng_remove() arguments
+Date:   Thu, 16 Jan 2020 11:50:50 -0500
+Message-Id: <20200116165940.10720-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -44,39 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 1a392b3de7c5747506b38fc14b2e79977d3c7770 ]
+[ Upstream commit 6e88098ca43a3d80ae86908f7badba683c8a0d84 ]
 
-'idev' is malloced in __uio_register_device() and leak free it before
-leaving from the uio_get_minor() error handing case, it will cause
-memory leak.
+When building without CONFIG_HW_RANDOM_PPC4XX, I hit the following build failure:
+drivers/crypto/amcc/crypto4xx_core.c: In function 'crypto4xx_probe':
+drivers/crypto/amcc/crypto4xx_core.c:1407:20: error: passing argument 1 of 'ppc4xx_trng_probe' from incompatible pointer type [-Werror=incompatible-pointer-types]
+In file included from drivers/crypto/amcc/crypto4xx_core.c:50:0:
+drivers/crypto/amcc/crypto4xx_trng.h:28:20: note: expected 'struct crypto4xx_device *' but argument is of type 'struct crypto4xx_core_device *'
+drivers/crypto/amcc/crypto4xx_core.c: In function 'crypto4xx_remove':
+drivers/crypto/amcc/crypto4xx_core.c:1434:21: error: passing argument 1 of 'ppc4xx_trng_remove' from incompatible pointer type [-Werror=incompatible-pointer-types]
+In file included from drivers/crypto/amcc/crypto4xx_core.c:50:0:
+drivers/crypto/amcc/crypto4xx_trng.h:30:20: note: expected 'struct crypto4xx_device *' but argument is of type 'struct crypto4xx_core_device *'
 
-Fixes: a93e7b331568 ("uio: Prevent device destruction while fds are open")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Reviewed-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch fix the needed argument of ppc4xx_trng_probe()/ppc4xx_trng_remove() in that case.
+
+Fixes: 5343e674f32f ("crypto4xx: integrate ppc4xx-rng into crypto4xx")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/uio/uio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/crypto/amcc/crypto4xx_trng.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
-index 2762148c169d..e4b418757017 100644
---- a/drivers/uio/uio.c
-+++ b/drivers/uio/uio.c
-@@ -938,8 +938,10 @@ int __uio_register_device(struct module *owner,
- 	atomic_set(&idev->event, 0);
+diff --git a/drivers/crypto/amcc/crypto4xx_trng.h b/drivers/crypto/amcc/crypto4xx_trng.h
+index 931d22531f51..7bbda51b7337 100644
+--- a/drivers/crypto/amcc/crypto4xx_trng.h
++++ b/drivers/crypto/amcc/crypto4xx_trng.h
+@@ -26,9 +26,9 @@ void ppc4xx_trng_probe(struct crypto4xx_core_device *core_dev);
+ void ppc4xx_trng_remove(struct crypto4xx_core_device *core_dev);
+ #else
+ static inline void ppc4xx_trng_probe(
+-	struct crypto4xx_device *dev __maybe_unused) { }
++	struct crypto4xx_core_device *dev __maybe_unused) { }
+ static inline void ppc4xx_trng_remove(
+-	struct crypto4xx_device *dev __maybe_unused) { }
++	struct crypto4xx_core_device *dev __maybe_unused) { }
+ #endif
  
- 	ret = uio_get_minor(idev);
--	if (ret)
-+	if (ret) {
-+		kfree(idev);
- 		return ret;
-+	}
- 
- 	idev->dev.devt = MKDEV(uio_major, idev->minor);
- 	idev->dev.class = &uio_class;
+ #endif
 -- 
 2.20.1
 
