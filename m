@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB6B13F860
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:18:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C68E13F85E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:18:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731048AbgAPQzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:55:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40070 "EHLO mail.kernel.org"
+        id S1731173AbgAPQzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:55:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730682AbgAPQzH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:55:07 -0500
+        id S1730038AbgAPQzI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:55:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5175824656;
-        Thu, 16 Jan 2020 16:55:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7523B2467A;
+        Thu, 16 Jan 2020 16:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193707;
-        bh=MjlK7QQIMLtiwZMtfGCJVeq9TdAvUUqsvkIw//F19u4=;
+        s=default; t=1579193708;
+        bh=Dslocvm6ODpusPCVvet1wWvSZrEl0x0UXS983L8p52U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3M2P9jzaa7mcugPnfOPRFF9X8/u49Ud+/aiXknYZw7HKRJLJ4Ubrooxt1ae1U7zX
-         kgFPpNwxY4BN/6py4PNSBFXxHLfsZq+WXSRnK8ClU77BiG4fAlgcBj3kRmvvALmKuV
-         XVMIxe6TDo72wJxE4wGRZJTvexy2R+i9O2cxL7+A=
+        b=PqPgYqASOvF6IIgaCAHfqQrhQ39plW94jdAYRPgAzesgXzJB/n1sW2N6V1FJA2r3X
+         92Yy2tLfcO0mwNVZ73Xh+5DHjBzu4fjsVcKdVrjZ2oT+0OqaRa+a9a4OHhCUHJt8oW
+         M6xfq5gnpL3aq4km1LrvQw5dqPgsSnNZSvSdpU40=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Rosin <peda@axentia.se>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+Cc:     Shannon Nelson <shannon.nelson@oracle.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 003/671] ARM: dts: at91: nattis: make the SD-card slot work
-Date:   Thu, 16 Jan 2020 11:43:54 -0500
-Message-Id: <20200116165502.8838-3-sashal@kernel.org>
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 004/671] ixgbe: don't clear IPsec sa counters on HW clearing
+Date:   Thu, 16 Jan 2020 11:43:55 -0500
+Message-Id: <20200116165502.8838-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -44,34 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Rosin <peda@axentia.se>
+From: Shannon Nelson <shannon.nelson@oracle.com>
 
-[ Upstream commit f52eb2067929d533babe106fbc131c88db3eff3d ]
+[ Upstream commit 9e3f2f5ecee69b0f70003fb3e07639151e91de73 ]
 
-The cd-gpios signal is assumed active-low by the driver, and the
-cd-inverted property is needed if it is, in fact, active-high. Fix
-this oversight.
+The software SA record counters should not be cleared when clearing
+the hardware tables.  This causes the counters to be out of sync
+after a driver reset.
 
-Fixes: 0e4323899973 ("ARM: dts: at91: add devicetree for the Axentia Nattis with Natte power")
-Signed-off-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 63a67fe229ea ("ixgbe: add ipsec offload add and remove SA")
+Signed-off-by: Shannon Nelson <shannon.nelson@oracle.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-nattis-2-natte-2.dts | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-nattis-2-natte-2.dts b/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
-index bfa5815a0721..4308a07b792e 100644
---- a/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
-+++ b/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
-@@ -221,6 +221,7 @@
- 		reg = <0>;
- 		bus-width = <4>;
- 		cd-gpios = <&pioD 5 GPIO_ACTIVE_HIGH>;
-+		cd-inverted;
- 	};
- };
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
+index b27f7a968820..49e6d66ccf80 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
+@@ -114,7 +114,6 @@ static void ixgbe_ipsec_set_rx_ip(struct ixgbe_hw *hw, u16 idx, __be32 addr[])
+  **/
+ static void ixgbe_ipsec_clear_hw_tables(struct ixgbe_adapter *adapter)
+ {
+-	struct ixgbe_ipsec *ipsec = adapter->ipsec;
+ 	struct ixgbe_hw *hw = &adapter->hw;
+ 	u32 buf[4] = {0, 0, 0, 0};
+ 	u16 idx;
+@@ -133,9 +132,6 @@ static void ixgbe_ipsec_clear_hw_tables(struct ixgbe_adapter *adapter)
+ 		ixgbe_ipsec_set_tx_sa(hw, idx, buf, 0);
+ 		ixgbe_ipsec_set_rx_sa(hw, idx, 0, buf, 0, 0, 0);
+ 	}
+-
+-	ipsec->num_rx_sa = 0;
+-	ipsec->num_tx_sa = 0;
+ }
  
+ /**
 -- 
 2.20.1
 
