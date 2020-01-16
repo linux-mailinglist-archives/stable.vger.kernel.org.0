@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B010D13F912
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:22:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACCF413F914
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729394AbgAPQxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:53:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37214 "EHLO mail.kernel.org"
+        id S2389477AbgAPTWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:22:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729889AbgAPQxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:53:23 -0500
+        id S1730878AbgAPQxY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:53:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E965214AF;
-        Thu, 16 Jan 2020 16:53:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 343BC2176D;
+        Thu, 16 Jan 2020 16:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193602;
-        bh=7+gjoVYPKPnT4tj9n23NpvKEumOwWVHOE8EGjGny3z8=;
+        s=default; t=1579193603;
+        bh=F9CnNPMiYGhc4/q6hw9QUNtDZtY/v7pM+nnOx9qb4BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zEdj61yc2t+ravsvf4LnqutfwIn7003h+nn8QnF8aEC0+V5/Pc0A6xc5s+wMMhqwM
-         4+k0t/kHKCvnTPW7Css+TMYUhl3FWQV8afR66RPeO6/PhlTHfyM6Mdyl+CzJS6S0IN
-         aDSROM5cQyHuiPuZrIwH2inIsZ6KyFNv1WjbrgEc=
+        b=VGAK2YEjv7J6ltKm/5XP1QQDEMUhU1/Zxg4EhcAxi9HWMZfZ/9efR5JrOP9vSnzJx
+         36NK2tHMFxE5ZIrm6Q7zkNXGaGqIcxq8OvG7b24J8S+yaoMybjXsySPzWg7ptJ6jXg
+         uXRZjN1HrPQLR1NI/YR38UdVedUwlE1SFkMVa5e8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Zheng Yongjun <zhengyongjun3@huawei.com>,
+Cc:     Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 141/205] firmware: arm_scmi: Fix doorbell ring logic for !CONFIG_64BIT
-Date:   Thu, 16 Jan 2020 11:41:56 -0500
-Message-Id: <20200116164300.6705-141-sashal@kernel.org>
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 142/205] iwlwifi: mvm: fix support for single antenna diversity
+Date:   Thu, 16 Jan 2020 11:41:57 -0500
+Message-Id: <20200116164300.6705-142-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -45,44 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit 7bd39bc6bfdf96f5df0f92199bbc1a3ee2f2adb8 ]
+[ Upstream commit bb99ff9baa02beb9216c86678999342197c849cc ]
 
-The logic to ring the scmi performance fastchannel ignores the
-value read from the doorbell register in case of !CONFIG_64BIT.
-This bug also shows up as warning with '-Wunused-but-set-variable' gcc
-flag:
+When the single antenna diversity support was sent upstream, only some
+definitions were sent, due to a bad revert.
 
-drivers/firmware/arm_scmi/perf.c: In function scmi_perf_fc_ring_db:
-drivers/firmware/arm_scmi/perf.c:323:7: warning: variable val set but
-			not used [-Wunused-but-set-variable]
+Fix this by adding the actual code.
 
-Fix the same by aligning the logic with CONFIG_64BIT as used in the
-macro SCMI_PERF_FC_RING_DB().
-
-Fixes: 823839571d76 ("firmware: arm_scmi: Make use SCMI v2.0 fastchannel for performance protocol")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reported-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: 5952e0ec3f05 ("iwlwifi: mvm: add support for single antenna diversity")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/perf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/perf.c b/drivers/firmware/arm_scmi/perf.c
-index 4a8012e3cb8c..601af4edad5e 100644
---- a/drivers/firmware/arm_scmi/perf.c
-+++ b/drivers/firmware/arm_scmi/perf.c
-@@ -323,7 +323,7 @@ static void scmi_perf_fc_ring_db(struct scmi_fc_db_info *db)
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index d9eb2b286438..c59cbb8cbdd7 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -514,6 +514,18 @@ static int iwl_send_phy_cfg_cmd(struct iwl_mvm *mvm)
+ 	struct iwl_phy_cfg_cmd phy_cfg_cmd;
+ 	enum iwl_ucode_type ucode_type = mvm->fwrt.cur_fw_img;
  
- 		if (db->mask)
- 			val = ioread64_hi_lo(db->addr) & db->mask;
--		iowrite64_hi_lo(db->set, db->addr);
-+		iowrite64_hi_lo(db->set | val, db->addr);
++	if (iwl_mvm_has_unified_ucode(mvm) &&
++	    !mvm->trans->cfg->tx_with_siso_diversity) {
++		return 0;
++	} else if (mvm->trans->cfg->tx_with_siso_diversity) {
++		/*
++		 * TODO: currently we don't set the antenna but letting the NIC
++		 * to decide which antenna to use. This should come from BIOS.
++		 */
++		phy_cfg_cmd.phy_cfg =
++			cpu_to_le32(FW_PHY_CFG_CHAIN_SAD_ENABLED);
++	}
++
+ 	/* Set parameters */
+ 	phy_cfg_cmd.phy_cfg = cpu_to_le32(iwl_mvm_get_phy_config(mvm));
+ 
+@@ -1344,12 +1356,12 @@ int iwl_mvm_up(struct iwl_mvm *mvm)
+ 		ret = iwl_send_phy_db_data(mvm->phy_db);
+ 		if (ret)
+ 			goto error;
+-
+-		ret = iwl_send_phy_cfg_cmd(mvm);
+-		if (ret)
+-			goto error;
  	}
- #endif
- }
+ 
++	ret = iwl_send_phy_cfg_cmd(mvm);
++	if (ret)
++		goto error;
++
+ 	ret = iwl_mvm_send_bt_init_conf(mvm);
+ 	if (ret)
+ 		goto error;
 -- 
 2.20.1
 
