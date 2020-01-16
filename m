@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D285F13F799
+	by mail.lfdr.de (Postfix) with ESMTP id 6063513F798
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387448AbgAPTM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:12:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43974 "EHLO mail.kernel.org"
+        id S2387444AbgAPQ5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:57:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387435AbgAPQ5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:57:08 -0500
+        id S2387439AbgAPQ5J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:57:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4758921D56;
-        Thu, 16 Jan 2020 16:57:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70EDD24681;
+        Thu, 16 Jan 2020 16:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193828;
-        bh=avXqc5KA2Ev0UHhePAXgSI1BiUN8Gtq0LGx8b4d8lvQ=;
+        s=default; t=1579193829;
+        bh=LHdU43H2Tr//VSt9UKxgsbBuqAgJVBpuTORBTKsdp9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fQuu39//UnvNtYgGNrcYIKUJdRjZ2X46YRQRbeGxzotjB63gURHJ4eFvXCqSAj3is
-         zIpyiWZLpSqdzoI150rSsSBaqP2rJZMiDXVGmuYyor9WzWituPdRCq0JS3oTrcp0+a
-         JNh18Gru/vH3Xcpc4R1zEwiMU0fnzv5MaaaVuOx4=
+        b=c6NjOXpz3bgeZ39SuGvh4B2YgOHXQSLCeaRBr04QGtSUTDnrdh+USRivJ0LQhJeDq
+         BEDgk6HZedaQBB5XucWkD/MqOE2raslXe56MqCZrRAArdTqIWCGqkl/FF4+LCADyuI
+         n+V1ep+KI028/ZIqfiexUvz69QfeGpfyx9tgXJRI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Yangtao Li <tiny.windzz@gmail.com>,
         Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 085/671] clk: qoriq: fix refcount leak in clockgen_init()
-Date:   Thu, 16 Jan 2020 11:45:16 -0500
-Message-Id: <20200116165502.8838-85-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 086/671] clk: ti: fix refcount leak in ti_dt_clocks_register()
+Date:   Thu, 16 Jan 2020 11:45:17 -0500
+Message-Id: <20200116165502.8838-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -45,32 +46,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yangtao Li <tiny.windzz@gmail.com>
 
-[ Upstream commit 70af6c5b5270e8101f318c4b69cc98a726edfab9 ]
+[ Upstream commit 2274d8001fbb5e1942fbcab5ad2eb15553b09ed2 ]
 
 The of_find_compatible_node() returns a node pointer with refcount
 incremented, but there is the lack of use of the of_node_put() when
 done. Add the missing of_node_put() to release the refcount.
 
 Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Fixes: 0dfc86b3173f ("clk: qoriq: Move chip-specific knowledge into driver")
+Fixes: 5b385a45e001 ("clk: ti: add support for clkctrl aliases")
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-qoriq.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/ti/clk.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
-index 8abc5c8cb8b8..a0713b2a12f3 100644
---- a/drivers/clk/clk-qoriq.c
-+++ b/drivers/clk/clk-qoriq.c
-@@ -1389,6 +1389,7 @@ static void __init clockgen_init(struct device_node *np)
- 				pr_err("%s: Couldn't map %pOF regs\n", __func__,
- 				       guts);
- 			}
-+			of_node_put(guts);
- 		}
+diff --git a/drivers/clk/ti/clk.c b/drivers/clk/ti/clk.c
+index 27e0979b3158..0cc87c6ae91c 100644
+--- a/drivers/clk/ti/clk.c
++++ b/drivers/clk/ti/clk.c
+@@ -188,9 +188,13 @@ void __init ti_dt_clocks_register(struct ti_dt_clk oclks[])
+ 			clkdev_add(&c->lk);
+ 		} else {
+ 			if (num_args && !has_clkctrl_data) {
+-				if (of_find_compatible_node(NULL, NULL,
+-							    "ti,clkctrl")) {
++				struct device_node *np;
++
++				np = of_find_compatible_node(NULL, NULL,
++							     "ti,clkctrl");
++				if (np) {
+ 					has_clkctrl_data = true;
++					of_node_put(np);
+ 				} else {
+ 					clkctrl_nodes_missing = true;
  
- 	}
 -- 
 2.20.1
 
