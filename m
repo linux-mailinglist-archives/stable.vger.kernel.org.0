@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D83713F39E
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:45:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E8B13F399
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:45:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390365AbgAPSnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:43:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51574 "EHLO mail.kernel.org"
+        id S2390307AbgAPSnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:43:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390198AbgAPRLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:11:17 -0500
+        id S2390208AbgAPRLS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:11:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2351A21D56;
-        Thu, 16 Jan 2020 17:11:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56DF424684;
+        Thu, 16 Jan 2020 17:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194676;
-        bh=hHuk0naSNm8WN8GbfxGfbUUDOXEIo3+eCFwDtWGPcrI=;
+        s=default; t=1579194678;
+        bh=kXYFtzZ7Jo9HiBRkiyJef9DuaeLL7xEDvE6uQnuvpK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQNj0SVAfNhrDTwZDm8DDntsxSIt9gBoDkUoX75FsMAGRPcHA32MGb+fkf7P/yMFw
-         XSGGnDOwclvHT+FKQmPiweiMCGM9Mh1bwrmIrVjqFxwNpZ0rJABUGxMs9mbA+fw6Lk
-         0hob0VT/+KbnQz0HHYp2PJLtFegD4f2Awp87h9CU=
+        b=1CHIzVyiS3g9wXhrOnz0XXX+ufeSspC+TZjJqPhvqNKlrThro5t4gKG2oNuruoBdj
+         TA7O6aXIhqQ4Q07StB7F8JlqOeA4iQUqHt/hKbxkshRL8Nm+JO4VXd/AGTVZeueljf
+         C37WBbIwpUFBc/via7G31XT9I6TbgB+RXb6BUFdM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 523/671] iio: dac: ad5380: fix incorrect assignment to val
-Date:   Thu, 16 Jan 2020 12:02:41 -0500
-Message-Id: <20200116170509.12787-260-sashal@kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 524/671] netfilter: ctnetlink: honor IPS_OFFLOAD flag
+Date:   Thu, 16 Jan 2020 12:02:42 -0500
+Message-Id: <20200116170509.12787-261-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,37 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit b1e18768ef1214c0a8048327918a182cabe09f9d ]
+[ Upstream commit b067fa009c884401d23846251031c1f14d8a9c77 ]
 
-Currently the pointer val is being incorrectly incremented
-instead of the value pointed to by val. Fix this by adding
-in the missing * indirection operator.
+If this flag is set, timeout and state are irrelevant to userspace.
 
-Addresses-Coverity: ("Unused value")
-Fixes: c03f2c536818 ("staging:iio:dac: Add AD5380 driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 90964016e5d3 ("netfilter: nf_conntrack: add IPS_OFFLOAD status bit")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad5380.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_netlink.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/dac/ad5380.c b/drivers/iio/dac/ad5380.c
-index 873c2bf637c0..617c9f7fe59a 100644
---- a/drivers/iio/dac/ad5380.c
-+++ b/drivers/iio/dac/ad5380.c
-@@ -221,7 +221,7 @@ static int ad5380_read_raw(struct iio_dev *indio_dev,
- 		if (ret)
- 			return ret;
- 		*val >>= chan->scan_type.shift;
--		val -= (1 << chan->scan_type.realbits) / 2;
-+		*val -= (1 << chan->scan_type.realbits) / 2;
- 		return IIO_VAL_INT;
- 	case IIO_CHAN_INFO_SCALE:
- 		*val = 2 * st->vref;
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index 7ba9ea55816a..31fa94064a62 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -555,10 +555,8 @@ ctnetlink_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
+ 		goto nla_put_failure;
+ 
+ 	if (ctnetlink_dump_status(skb, ct) < 0 ||
+-	    ctnetlink_dump_timeout(skb, ct) < 0 ||
+ 	    ctnetlink_dump_acct(skb, ct, type) < 0 ||
+ 	    ctnetlink_dump_timestamp(skb, ct) < 0 ||
+-	    ctnetlink_dump_protoinfo(skb, ct) < 0 ||
+ 	    ctnetlink_dump_helpinfo(skb, ct) < 0 ||
+ 	    ctnetlink_dump_mark(skb, ct) < 0 ||
+ 	    ctnetlink_dump_secctx(skb, ct) < 0 ||
+@@ -570,6 +568,11 @@ ctnetlink_fill_info(struct sk_buff *skb, u32 portid, u32 seq, u32 type,
+ 	    ctnetlink_dump_ct_synproxy(skb, ct) < 0)
+ 		goto nla_put_failure;
+ 
++	if (!test_bit(IPS_OFFLOAD_BIT, &ct->status) &&
++	    (ctnetlink_dump_timeout(skb, ct) < 0 ||
++	     ctnetlink_dump_protoinfo(skb, ct) < 0))
++		goto nla_put_failure;
++
+ 	nlmsg_end(skb, nlh);
+ 	return skb->len;
+ 
 -- 
 2.20.1
 
