@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A937513F7D1
+	by mail.lfdr.de (Postfix) with ESMTP id BC16813F7D2
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731270AbgAPQ4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:56:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43066 "EHLO mail.kernel.org"
+        id S1733254AbgAPQ4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:56:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733255AbgAPQ4g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:56:36 -0500
+        id S1729634AbgAPQ4j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:56:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84EFB20730;
-        Thu, 16 Jan 2020 16:56:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D10F22192A;
+        Thu, 16 Jan 2020 16:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193796;
-        bh=OZl7IZgkwyMRmVRuwE0X41/L3zEhmaK/dbmjNhpb7nY=;
+        s=default; t=1579193798;
+        bh=pIaYyaxHpbQT38MmLmafgubNEt7PRUb/LGjMRMvir50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RejDn44MhvciSExXVIx4y3NH4OE7S+keTf+kJnUcJr8Q/ZByrqGtxae5twH3cuPfZ
-         6DHFQ4QuPL9D6QfmEwksZnRhlL5uy+/NEfME/Zy3poxOe2nTmuL2tRWET/ly3ZBvx7
-         PZn3akPj9zaHzHkKCez+QRhH41hUdF1+qFhBMW6c=
+        b=SH5WzASer0LXJL2v6VoKeEngzlP4iYquEC+QqCgaFru1+fjx/AIOREIUqWocfHqwQ
+         4+Rkwe7KF4l/16zWZF7zx1Y6sevHK0g70SuJAIHQW/kNtCWFt3yWEn1pzaW6LxrKoG
+         07MmL4d2YiE8R8igACGkgtiKKRBkeo/B5TWnfazc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kelvin Cao <kelvin.cao@microchip.com>,
-        Wesley Sheng <wesley.sheng@microchip.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 066/671] switchtec: Remove immediate status check after submitting MRPC command
-Date:   Thu, 16 Jan 2020 11:44:57 -0500
-Message-Id: <20200116165502.8838-66-sashal@kernel.org>
+Cc:     Willem de Bruijn <willemb@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 067/671] ipv6: add missing tx timestamping on IPPROTO_RAW
+Date:   Thu, 16 Jan 2020 11:44:58 -0500
+Message-Id: <20200116165502.8838-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -45,50 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kelvin Cao <kelvin.cao@microchip.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 526180408b815aa7b96fd48bd23cdd33ef04e38e ]
+[ Upstream commit fbfb2321e950918b430e7225546296b2dcadf725 ]
 
-After submitting a Firmware Download MRPC command, Switchtec firmware will
-delay Management EP BAR MemRd TLP responses by more than 10ms.  This is a
-firmware limitation.  Delayed MemRd completions are a problem for systems
-with a low Completion Timeout (CTO).
+Raw sockets support tx timestamping, but one case is missing.
 
-The current driver checks the MRPC status immediately after submitting an
-MRPC command, which results in a delayed MemRd completion that may cause a
-Completion Timeout.
+IPPROTO_RAW takes a separate packet construction path. raw_send_hdrinc
+has an explicit call to sock_tx_timestamp, but rawv6_send_hdrinc does
+not. Add it.
 
-Remove the immediate status check and rely on the check after receiving an
-interrupt or timing out.
-
-This is only a software workaround to the READ issue and a proper fix of
-this should be done in firmware.
-
-Fixes: 080b47def5e5 ("MicroSemi Switchtec management interface driver")
-Signed-off-by: Kelvin Cao <kelvin.cao@microchip.com>
-Signed-off-by: Wesley Sheng <wesley.sheng@microchip.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Fixes: 11878b40ed5c ("net-timestamp: SOCK_RAW and PING timestamping")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/switch/switchtec.c | 4 ----
- 1 file changed, 4 deletions(-)
+ net/ipv6/raw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
-index 5aaa4ce04ec3..ceb7ab3ba3d0 100644
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -134,10 +134,6 @@ static void mrpc_cmd_submit(struct switchtec_dev *stdev)
- 		    stuser->data, stuser->data_len);
- 	iowrite32(stuser->cmd, &stdev->mmio_mrpc->cmd);
+diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
+index 4856d9320b28..a41156a00dd4 100644
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -660,6 +660,8 @@ static int rawv6_send_hdrinc(struct sock *sk, struct msghdr *msg, int length,
  
--	stuser->status = ioread32(&stdev->mmio_mrpc->status);
--	if (stuser->status != SWITCHTEC_MRPC_STATUS_INPROGRESS)
--		mrpc_complete_cmd(stdev);
--
- 	schedule_delayed_work(&stdev->mrpc_timeout,
- 			      msecs_to_jiffies(500));
- }
+ 	skb->ip_summed = CHECKSUM_NONE;
+ 
++	sock_tx_timestamp(sk, sockc->tsflags, &skb_shinfo(skb)->tx_flags);
++
+ 	if (flags & MSG_CONFIRM)
+ 		skb_set_dst_pending_confirm(skb, 1);
+ 
 -- 
 2.20.1
 
