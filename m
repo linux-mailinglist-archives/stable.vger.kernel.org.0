@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D652613EF59
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:14:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA8A13EF2F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:14:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393050AbgAPSOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:14:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48758 "EHLO mail.kernel.org"
+        id S2393036AbgAPRex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:34:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393027AbgAPRev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:34:51 -0500
+        id S2393030AbgAPRew (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:34:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA93524683;
-        Thu, 16 Jan 2020 17:34:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BCFE246C0;
+        Thu, 16 Jan 2020 17:34:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196090;
-        bh=YjIDkagu2Kjrfvvq4dv7nIQnTBUOitovsfwiIT4GZvg=;
+        s=default; t=1579196092;
+        bh=BH+UMe8kz/i8Qjt0xEQMMAUh1+STexvodu+9TBUe6fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBTcagQys3ANPmkJrob8WnAabBr+O71Ug0vrXOuo9GL5dkJTSPce1E1veC2ENwH5g
-         Zopj38gnQzE6qHVQYRynJyXHkYKSvelqqs0+XdgA3THeaAAVsa3IiR+hY4IKQujHKn
-         mTgM2sxswvpWtYByh0RvxiMRTdGh0QkgcsLE3FF4=
+        b=G/1YMsynKB6MUws7dcPWBwDpa+gD7XNT6OhQIO6g35i/hoY/jxWTY5VbcbsypMk+I
+         qamIDioHFpvVOT8SBmR0QZjZ7lcaX9jaag2fbwcYRIyOp/bk/iTWMXbGeCCViZ+k+5
+         7jFGdU8LWYBgRlOJ7gKITVQgKvdUnNfUMcuUaXeg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhu Yanjun <yanjun.zhu@oracle.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 004/251] IB/rxe: replace kvfree with vfree
-Date:   Thu, 16 Jan 2020 12:30:38 -0500
-Message-Id: <20200116173445.21385-4-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 005/251] regulator: fixed: Default enable high on DT regulators
+Date:   Thu, 16 Jan 2020 12:30:39 -0500
+Message-Id: <20200116173445.21385-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173445.21385-1-sashal@kernel.org>
 References: <20200116173445.21385-1-sashal@kernel.org>
@@ -44,75 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjun.zhu@oracle.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 721ad7e643f7002efa398838693f90284ea216d1 ]
+[ Upstream commit 28be5f15df2ee6882b0a122693159c96a28203c7 ]
 
-The buf is allocated by vmalloc_user in the function rxe_queue_init.
-So it is better to free it by vfree.
+commit efdfeb079cc3
+("regulator: fixed: Convert to use GPIO descriptor only")
+switched to use gpiod_get() to look up the regulator from the
+gpiolib core whether that is device tree or boardfile.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Zhu Yanjun <yanjun.zhu@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+This meant that we activate the code in
+a603a2b8d86e ("gpio: of: Add special quirk to parse regulator flags")
+which means the descriptors coming from the device tree already
+have the right inversion and open drain semantics set up from
+the gpiolib core.
+
+As the fixed regulator was inspected again we got the
+inverted inversion and things broke.
+
+Fix it by ignoring the config in the device tree for now: the
+later patches in the series will push all inversion handling
+over to the gpiolib core and set it up properly in the
+boardfiles for legacy devices, but I did not finish that
+for this kernel cycle.
+
+Fixes: commit efdfeb079cc3 ("regulator: fixed: Convert to use GPIO descriptor only")
+Reported-by: Leonard Crestez <leonard.crestez@nxp.com>
+Reported-by: Fabio Estevam <festevam@gmail.com>
+Reported-by: John Stultz <john.stultz@linaro.org>
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Tested-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_cq.c | 4 ++--
- drivers/infiniband/sw/rxe/rxe_qp.c | 5 +++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/regulator/fixed.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_cq.c b/drivers/infiniband/sw/rxe/rxe_cq.c
-index e5e6a5e7dee9..5ac88412f1ff 100644
---- a/drivers/infiniband/sw/rxe/rxe_cq.c
-+++ b/drivers/infiniband/sw/rxe/rxe_cq.c
-@@ -30,7 +30,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  */
--
-+#include <linux/vmalloc.h>
- #include "rxe.h"
- #include "rxe_loc.h"
- #include "rxe_queue.h"
-@@ -89,7 +89,7 @@ int rxe_cq_from_init(struct rxe_dev *rxe, struct rxe_cq *cq, int cqe,
- 	err = do_mmap_info(rxe, udata, false, context, cq->queue->buf,
- 			   cq->queue->buf_size, &cq->queue->ip);
- 	if (err) {
--		kvfree(cq->queue->buf);
-+		vfree(cq->queue->buf);
- 		kfree(cq->queue);
- 		return err;
- 	}
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 44b2108253bd..d6672127808b 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -34,6 +34,7 @@
- #include <linux/skbuff.h>
- #include <linux/delay.h>
- #include <linux/sched.h>
-+#include <linux/vmalloc.h>
+diff --git a/drivers/regulator/fixed.c b/drivers/regulator/fixed.c
+index 988a7472c2ab..d68ff65a5adc 100644
+--- a/drivers/regulator/fixed.c
++++ b/drivers/regulator/fixed.c
+@@ -84,9 +84,14 @@ of_get_fixed_voltage_config(struct device *dev,
  
- #include "rxe.h"
- #include "rxe_loc.h"
-@@ -255,7 +256,7 @@ static int rxe_qp_init_req(struct rxe_dev *rxe, struct rxe_qp *qp,
- 			   qp->sq.queue->buf_size, &qp->sq.queue->ip);
+ 	of_property_read_u32(np, "startup-delay-us", &config->startup_delay);
  
- 	if (err) {
--		kvfree(qp->sq.queue->buf);
-+		vfree(qp->sq.queue->buf);
- 		kfree(qp->sq.queue);
- 		return err;
- 	}
-@@ -312,7 +313,7 @@ static int rxe_qp_init_resp(struct rxe_dev *rxe, struct rxe_qp *qp,
- 				   qp->rq.queue->buf_size,
- 				   &qp->rq.queue->ip);
- 		if (err) {
--			kvfree(qp->rq.queue->buf);
-+			vfree(qp->rq.queue->buf);
- 			kfree(qp->rq.queue);
- 			return err;
- 		}
+-	config->enable_high = of_property_read_bool(np, "enable-active-high");
+-	config->gpio_is_open_drain = of_property_read_bool(np,
+-							   "gpio-open-drain");
++	/*
++	 * FIXME: we pulled active low/high and open drain handling into
++	 * gpiolib so it will be handled there. Delete this in the second
++	 * step when we also remove the custom inversion handling for all
++	 * legacy boardfiles.
++	 */
++	config->enable_high = 1;
++	config->gpio_is_open_drain = 0;
+ 
+ 	if (of_find_property(np, "vin-supply", NULL))
+ 		config->input_supply = "vin";
 -- 
 2.20.1
 
