@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F91813FECD
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:38:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B98913FF12
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:40:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403877AbgAPXiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:38:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35198 "EHLO mail.kernel.org"
+        id S2391762AbgAPXkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:40:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391272AbgAPX33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:29:29 -0500
+        id S2390243AbgAPX1d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:27:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA60F2082F;
-        Thu, 16 Jan 2020 23:29:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A2B8206D9;
+        Thu, 16 Jan 2020 23:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217369;
-        bh=CS1XRDACWBXXeycLKvho87XDFgutnA8XGJnE6lEdYBg=;
+        s=default; t=1579217252;
+        bh=3njkAxnNMx7xguEaAvRZU4TqOQELfCj4I94y4SfPoAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NhyNopf76GBSL2K6yTZbdxGtQTFKI/5gA61g81YuIysvqLOy8yOcUJFBkG0/Jhske
-         INuFNZoa7AK4fdAMk37LKShvzQ1iLv2WcZqM6ICrGtM/OTHXw1sgjGeMmBy/kzQDVd
-         aSila0Byoe9YZKxQiTmcL5SNWO5ENJz+y+0Wnfnc=
+        b=B66uSBHCOmv65U4hTGeL17bxmwOgtPr9bPCJIrR9eHBvJjPVOlJOmjwyZksjSrDeA
+         bxaej5nNQhXwo8cZ5qlS1T+TtEKITfUNjA4+poXN0j6IlWImHqhZkH9bge/J5iQfCF
+         lbFo8XHOWsPPmwf2ZJGKGgIC94JDfaTMuLTDDMZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Niklas Cassel <niklas.cassel@linaro.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Gustavo Pimentel <gustavo.pimentel@synopsys.com>
-Subject: [PATCH 4.19 54/84] PCI: dwc: Fix find_next_bit() usage
-Date:   Fri, 17 Jan 2020 00:18:28 +0100
-Message-Id: <20200116231720.175036407@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        David Howells <dhowells@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 192/203] rxrpc: Unlock new call in rxrpc_new_incoming_call() rather than the caller
+Date:   Fri, 17 Jan 2020 00:18:29 +0100
+Message-Id: <20200116231801.009945367@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
-References: <20200116231713.087649517@linuxfoundation.org>
+In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
+References: <20200116231745.218684830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,59 +46,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@linaro.org>
+From: David Howells <dhowells@redhat.com>
 
-commit 1137e61dcb99f7f8b54e77ed83f68b5b485a3e34 upstream.
+[ Upstream commit f33121cbe91973a08e68e4bde8c3f7e6e4e351c1 ]
 
-find_next_bit() takes a parameter of size long, and performs arithmetic
-that assumes that the argument is of size long.
+Move the unlock and the ping transmission for a new incoming call into
+rxrpc_new_incoming_call() rather than doing it in the caller.  This makes
+it clearer to see what's going on.
 
-Therefore we cannot pass a u32, since this will cause find_next_bit()
-to read outside the stack buffer and will produce the following print:
-BUG: KASAN: stack-out-of-bounds in find_next_bit+0x38/0xb0
-
-Fixes: 1b497e6493c4 ("PCI: dwc: Fix uninitialized variable in dw_handle_msi_irq()")
-Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Acked-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+cc: Ingo Molnar <mingo@redhat.com>
+cc: Will Deacon <will@kernel.org>
+cc: Davidlohr Bueso <dave@stgolabs.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-designware-host.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/rxrpc/call_accept.c | 36 ++++++++++++++++++++++++++++--------
+ net/rxrpc/input.c       | 18 ------------------
+ 2 files changed, 28 insertions(+), 26 deletions(-)
 
---- a/drivers/pci/controller/dwc/pcie-designware-host.c
-+++ b/drivers/pci/controller/dwc/pcie-designware-host.c
-@@ -78,7 +78,8 @@ static struct msi_domain_info dw_pcie_ms
- irqreturn_t dw_handle_msi_irq(struct pcie_port *pp)
- {
- 	int i, pos, irq;
--	u32 val, num_ctrls;
-+	unsigned long val;
-+	u32 status, num_ctrls;
- 	irqreturn_t ret = IRQ_NONE;
+diff --git a/net/rxrpc/call_accept.c b/net/rxrpc/call_accept.c
+index 135bf5cd8dd5..3685b1732f65 100644
+--- a/net/rxrpc/call_accept.c
++++ b/net/rxrpc/call_accept.c
+@@ -239,6 +239,22 @@ void rxrpc_discard_prealloc(struct rxrpc_sock *rx)
+ 	kfree(b);
+ }
  
- 	num_ctrls = pp->num_vectors / MAX_MSI_IRQS_PER_CTRL;
-@@ -86,14 +87,14 @@ irqreturn_t dw_handle_msi_irq(struct pci
- 	for (i = 0; i < num_ctrls; i++) {
- 		dw_pcie_rd_own_conf(pp, PCIE_MSI_INTR0_STATUS +
- 					(i * MSI_REG_CTRL_BLOCK_SIZE),
--				    4, &val);
--		if (!val)
-+				    4, &status);
-+		if (!status)
- 			continue;
++/*
++ * Ping the other end to fill our RTT cache and to retrieve the rwind
++ * and MTU parameters.
++ */
++static void rxrpc_send_ping(struct rxrpc_call *call, struct sk_buff *skb)
++{
++	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
++	ktime_t now = skb->tstamp;
++
++	if (call->peer->rtt_usage < 3 ||
++	    ktime_before(ktime_add_ms(call->peer->rtt_last_req, 1000), now))
++		rxrpc_propose_ACK(call, RXRPC_ACK_PING, sp->hdr.serial,
++				  true, true,
++				  rxrpc_propose_ack_ping_for_params);
++}
++
+ /*
+  * Allocate a new incoming call from the prealloc pool, along with a connection
+  * and a peer as necessary.
+@@ -346,9 +362,7 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
+ 				  sp->hdr.seq, RX_INVALID_OPERATION, ESHUTDOWN);
+ 		skb->mark = RXRPC_SKB_MARK_REJECT_ABORT;
+ 		skb->priority = RX_INVALID_OPERATION;
+-		_leave(" = NULL [close]");
+-		call = NULL;
+-		goto out;
++		goto no_call;
+ 	}
  
- 		ret = IRQ_HANDLED;
-+		val = status;
- 		pos = 0;
--		while ((pos = find_next_bit((unsigned long *) &val,
--					    MAX_MSI_IRQS_PER_CTRL,
-+		while ((pos = find_next_bit(&val, MAX_MSI_IRQS_PER_CTRL,
- 					    pos)) != MAX_MSI_IRQS_PER_CTRL) {
- 			irq = irq_find_mapping(pp->irq_domain,
- 					       (i * MAX_MSI_IRQS_PER_CTRL) +
+ 	/* The peer, connection and call may all have sprung into existence due
+@@ -361,9 +375,7 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
+ 	call = rxrpc_alloc_incoming_call(rx, local, peer, conn, skb);
+ 	if (!call) {
+ 		skb->mark = RXRPC_SKB_MARK_REJECT_BUSY;
+-		_leave(" = NULL [busy]");
+-		call = NULL;
+-		goto out;
++		goto no_call;
+ 	}
+ 
+ 	trace_rxrpc_receive(call, rxrpc_receive_incoming,
+@@ -432,10 +444,18 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
+ 	 */
+ 	rxrpc_put_call(call, rxrpc_call_put);
+ 
+-	_leave(" = %p{%d}", call, call->debug_id);
+-out:
+ 	spin_unlock(&rx->incoming_lock);
++
++	rxrpc_send_ping(call, skb);
++	mutex_unlock(&call->user_mutex);
++
++	_leave(" = %p{%d}", call, call->debug_id);
+ 	return call;
++
++no_call:
++	spin_unlock(&rx->incoming_lock);
++	_leave(" = NULL [%u]", skb->mark);
++	return NULL;
+ }
+ 
+ /*
+diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
+index 157be1ff8697..86bd133b4fa0 100644
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -192,22 +192,6 @@ send_extra_data:
+ 	goto out_no_clear_ca;
+ }
+ 
+-/*
+- * Ping the other end to fill our RTT cache and to retrieve the rwind
+- * and MTU parameters.
+- */
+-static void rxrpc_send_ping(struct rxrpc_call *call, struct sk_buff *skb)
+-{
+-	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
+-	ktime_t now = skb->tstamp;
+-
+-	if (call->peer->rtt_usage < 3 ||
+-	    ktime_before(ktime_add_ms(call->peer->rtt_last_req, 1000), now))
+-		rxrpc_propose_ACK(call, RXRPC_ACK_PING, sp->hdr.serial,
+-				  true, true,
+-				  rxrpc_propose_ack_ping_for_params);
+-}
+-
+ /*
+  * Apply a hard ACK by advancing the Tx window.
+  */
+@@ -1396,8 +1380,6 @@ int rxrpc_input_packet(struct sock *udp_sk, struct sk_buff *skb)
+ 		call = rxrpc_new_incoming_call(local, rx, skb);
+ 		if (!call)
+ 			goto reject_packet;
+-		rxrpc_send_ping(call, skb);
+-		mutex_unlock(&call->user_mutex);
+ 	}
+ 
+ 	/* Process a call packet; this either discards or passes on the ref
+-- 
+2.20.1
+
 
 
