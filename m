@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 766E813FE0D
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:32:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D1F13FDEE
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404014AbgAPXcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:32:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41230 "EHLO mail.kernel.org"
+        id S2391413AbgAPXas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:30:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403994AbgAPXcK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:32:10 -0500
+        id S2391409AbgAPXar (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:30:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95957206D9;
-        Thu, 16 Jan 2020 23:32:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EBCE2073A;
+        Thu, 16 Jan 2020 23:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217529;
-        bh=d7tnpAl5AppnZZy6il/7D+B7up9vWBV/emsgi/JzfOY=;
+        s=default; t=1579217446;
+        bh=qU0crJkjUsiWg2s1LzViuusnKuh8XR8514gpeOXXGK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FcaCEMGpIGuGaxExoybmegQqBMNZeLcu2uF7hN+ZRNEZF9qer1dh9f6E42n8Ix0fZ
-         tfXXnIK/7JoiDpRHnBRfOLoAupjFvV/7WRpgFLfz7kQ9zSxAFMtftYAm30xsGoXGPd
-         64DCnwOgzqFznVeUKZmBPJ8uxtRylIEv6Zd1vxtc=
+        b=LkS7w93chAj0r2LH4UFnkxGPGC4Qlkdf7Vte4RUtOd9wZvGt4QmTpsm90XmjiRZ/P
+         rFO7U1pc9sDwM/3buUXHp1KyYCS1Up6t6tJy5ru3ivqEoI4UcD9ouRqxmMkhviErV/
+         J8lzZpPmFUFmpJtnaiL6UDczHrw4uuDHDpc8jkHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
-        Daniel Drake <drake@endlessm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 36/71] platform/x86: asus-wmi: Fix keyboard brightness cannot be set to 0
-Date:   Fri, 17 Jan 2020 00:18:34 +0100
-Message-Id: <20200116231714.822802644@linuxfoundation.org>
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.19 61/84] media: ov6650: Fix .get_fmt() V4L2_SUBDEV_FORMAT_TRY support
+Date:   Fri, 17 Jan 2020 00:18:35 +0100
+Message-Id: <20200116231720.884020396@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
-References: <20200116231709.377772748@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jian-hong@endlessm.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-commit 176a7fca81c5090a7240664e3002c106d296bf31 upstream.
+commit 39034bb0c26b76a2c3abc54aa28c185f18b40c2f upstream.
 
-Some of ASUS laptops like UX431FL keyboard backlight cannot be set to
-brightness 0. According to ASUS' information, the brightness should be
-0x80 ~ 0x83. This patch fixes it by following the logic.
+Commit da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad
+op get_fmt") converted a former ov6650_g_fmt() video operation callback
+to an ov6650_get_fmt() pad operation callback.  However, the converted
+function disregards a format->which flag that pad operations should
+obey and always returns active frame format settings.
 
-Fixes: e9809c0b9670 ("asus-wmi: add keyboard backlight support")
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Reviewed-by: Daniel Drake <drake@endlessm.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+That can be fixed by always responding to V4L2_SUBDEV_FORMAT_TRY with
+-EINVAL, or providing the response from a pad config argument, likely
+updated by a former user call to V4L2_SUBDEV_FORMAT_TRY .set_fmt().
+Since implementation of the latter is trivial, go for it.
+
+Fixes: da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad op get_fmt")
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/asus-wmi.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/media/i2c/ov6650.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -457,13 +457,7 @@ static void kbd_led_update(struct work_s
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -531,10 +531,16 @@ static int ov6650_get_fmt(struct v4l2_su
+ 	*mf = ov6650_def_fmt;
  
- 	asus = container_of(work, struct asus_wmi, kbd_led_work);
+ 	/* update media bus format code and frame size */
+-	mf->width	= priv->rect.width >> priv->half_scale;
+-	mf->height	= priv->rect.height >> priv->half_scale;
+-	mf->code	= priv->code;
++	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
++		mf->width = cfg->try_fmt.width;
++		mf->height = cfg->try_fmt.height;
++		mf->code = cfg->try_fmt.code;
  
--	/*
--	 * bits 0-2: level
--	 * bit 7: light on/off
--	 */
--	if (asus->kbd_led_wk > 0)
--		ctrl_param = 0x80 | (asus->kbd_led_wk & 0x7F);
--
-+	ctrl_param = 0x80 | (asus->kbd_led_wk & 0x7F);
- 	asus_wmi_set_devstate(ASUS_WMI_DEVID_KBD_BACKLIGHT, ctrl_param, NULL);
++	} else {
++		mf->width = priv->rect.width >> priv->half_scale;
++		mf->height = priv->rect.height >> priv->half_scale;
++		mf->code = priv->code;
++	}
+ 	return 0;
  }
  
 
