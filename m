@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3118F13E4C2
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:10:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3912713E4C9
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389562AbgAPRKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:10:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48882 "EHLO mail.kernel.org"
+        id S2390043AbgAPRKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:10:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390024AbgAPRKc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:10:32 -0500
+        id S2390020AbgAPRKr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:10:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12E262468A;
-        Thu, 16 Jan 2020 17:10:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9926D24681;
+        Thu, 16 Jan 2020 17:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194631;
-        bh=NGYOXAqlPS4bqo7xOtMaITDjIpO5eesQycQgJxxykAU=;
+        s=default; t=1579194647;
+        bh=2/wvCZSZdoE3p4fHJ4Le/4J8A/f3Y1RdJ0mrcMPZnps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HE5jKCIj4N60r7Jbjo1LoFpnowUo98mUbYtWg/O726OHbsicOSUwjhXd4EGtKPK83
-         TeTjth5TRcjrZOyYyVVlK4eUI80OuuWKSI2fz9Cd8JWk7p8diH1p/PHnzk8G1xseVD
-         2jZDDgJ+f+AtmgIenzHgHCCrY9iAT0lVIQ31Hoi0=
+        b=i8Ew2o6bqnYROGkqZ9XLXOR0bgDstcBXS2HKB9aCvUGTSQqWVEaXb78D5qL/riqn6
+         r6dvdaJhes0yYpIKpzHwofa0YH9k77krLP+swiyCOhZOBGrURPiETLUn9ZXXbgbTe4
+         gfoeY2R9mM5kYyUd+pz2dakQ9+xdKGVapzPaTOPU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 491/671] ASoC: cs4349: Use PM ops 'cs4349_runtime_pm'
-Date:   Thu, 16 Jan 2020 12:02:09 -0500
-Message-Id: <20200116170509.12787-228-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 503/671] mac80211: minstrel_ht: fix per-group max throughput rate initialization
+Date:   Thu, 16 Jan 2020 12:02:21 -0500
+Message-Id: <20200116170509.12787-240-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -43,38 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 9b4275c415acca6264a3d7f1182589959c93d530 ]
+[ Upstream commit 56dd918ff06e3ee24d8067e93ed12b2a39e71394 ]
 
-sound/soc/codecs/cs4349.c:358:32: warning:
- cs4349_runtime_pm defined but not used [-Wunused-const-variable=]
+The group number needs to be multiplied by the number of rates per group
+to get the full rate index
 
-cs4349_runtime_pm ops already defined, it seems
-we should enable it.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: e40da86 ("ASoC: cs4349: Add support for Cirrus Logic CS4349")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20190815090157.70036-1-yuehaibing@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 5935839ad735 ("mac80211: improve minstrel_ht rate sorting by throughput & probability")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20190820095449.45255-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs4349.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/mac80211/rc80211_minstrel_ht.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs4349.c b/sound/soc/codecs/cs4349.c
-index bee0e343723f..f08d7a296c0c 100644
---- a/sound/soc/codecs/cs4349.c
-+++ b/sound/soc/codecs/cs4349.c
-@@ -381,6 +381,7 @@ static struct i2c_driver cs4349_i2c_driver = {
- 	.driver = {
- 		.name		= "cs4349",
- 		.of_match_table	= cs4349_of_match,
-+		.pm = &cs4349_runtime_pm,
- 	},
- 	.id_table	= cs4349_i2c_id,
- 	.probe		= cs4349_i2c_probe,
+diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
+index 3d5520776655..0b60e330c115 100644
+--- a/net/mac80211/rc80211_minstrel_ht.c
++++ b/net/mac80211/rc80211_minstrel_ht.c
+@@ -529,7 +529,7 @@ minstrel_ht_update_stats(struct minstrel_priv *mp, struct minstrel_ht_sta *mi)
+ 
+ 		/* (re)Initialize group rate indexes */
+ 		for(j = 0; j < MAX_THR_RATES; j++)
+-			tmp_group_tp_rate[j] = group;
++			tmp_group_tp_rate[j] = MCS_GROUP_RATES * group;
+ 
+ 		for (i = 0; i < MCS_GROUP_RATES; i++) {
+ 			if (!(mi->supported[group] & BIT(i)))
 -- 
 2.20.1
 
