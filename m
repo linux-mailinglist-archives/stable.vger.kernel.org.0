@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE23813EE98
+	by mail.lfdr.de (Postfix) with ESMTP id 4B38B13EE97
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:11:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393406AbgAPSJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388680AbgAPSJs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 13:09:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53790 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393263AbgAPRiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:38:04 -0500
+        id S2393279AbgAPRiI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:38:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F178246D6;
-        Thu, 16 Jan 2020 17:38:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D7A3246DA;
+        Thu, 16 Jan 2020 17:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196283;
-        bh=N5aaNo4Zng70FBypG1Qc1xi1L5HJFoomh2aZrmH0VRo=;
+        s=default; t=1579196287;
+        bh=h0/3iljzW0rYzzvQoCv8z9SKBKD3/Vi8vYokNesmrYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+4rR/2mBD6cC4s7Isc3n+RfMzMNCc+ePVtFi9JeFvktbrGFpvzI60lYxC3JGKR1L
-         VjAR2E1fGLz7KGO9gwiSjITzcbPExk+qsCVecah3B2HgYxNNMGoM7si7E12njYDuGV
-         5uc/Hp8HjNskDxa+D+NnP4WdS8q2Wdw6K0pEBG68=
+        b=bwmO+qy/g5NA63w4IK3jFjmLzntHwkQALec0ubFhSER93fv8FDmZO/0JAay8a+VGq
+         2OHEVduaf7IDBUr7fdfaRR7vK9x+mQ+1uU78bW5rE7UWFK9b/SWiQXeeuwXBQYQjfr
+         yKufbeuBF5ZEIEI8JB07D/H3JVwa0r6CsG6IsljE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jon Maloy <jon.maloy@ericsson.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.9 102/251] tipc: tipc clang warning
-Date:   Thu, 16 Jan 2020 12:34:11 -0500
-Message-Id: <20200116173641.22137-62-sashal@kernel.org>
+Cc:     Finn Thain <fthain@telegraphics.com.au>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 4.9 103/251] m68k: mac: Fix VIA timer counter accesses
+Date:   Thu, 16 Jan 2020 12:34:12 -0500
+Message-Id: <20200116173641.22137-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -46,67 +44,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Maloy <jon.maloy@ericsson.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 737889efe9713a0f20a75fd0de952841d9275e6b ]
+[ Upstream commit 0ca7ce7db771580433bf24454f7a1542bd326078 ]
 
-When checking the code with clang -Wsometimes-uninitialized we get the
-following warning:
+This resolves some bugs that affect VIA timer counter accesses.
+Avoid lost interrupts caused by reading the counter low byte register.
+Make allowance for the fact that the counter will be decremented to
+0xFFFF before being reloaded.
 
-if (!tipc_link_is_establishing(l)) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-net/tipc/node.c:847:46: note: uninitialized use occurs here
-      tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
-
-net/tipc/node.c:831:2: note: remove the 'if' if its condition is always
-true
-if (!tipc_link_is_establishing(l)) {
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-net/tipc/node.c:821:31: note: initialize the variable 'maddr' to silence
-this warning
-struct tipc_media_addr *maddr;
-
-We fix this by initializing 'maddr' to NULL. For the matter of clarity,
-we also test if 'xmitq' is non-empty before we use it and 'maddr'
-further down in the  function. It will never happen that 'xmitq' is non-
-empty at the same time as 'maddr' is NULL, so this is a sufficient test.
-
-Fixes: 598411d70f85 ("tipc: make resetting of links non-atomic")
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/node.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/m68k/mac/via.c | 102 +++++++++++++++++++++++---------------------
+ 1 file changed, 53 insertions(+), 49 deletions(-)
 
-diff --git a/net/tipc/node.c b/net/tipc/node.c
-index db8fbc076e1a..fe7b0ad1d6f3 100644
---- a/net/tipc/node.c
-+++ b/net/tipc/node.c
-@@ -688,10 +688,10 @@ static void __tipc_node_link_down(struct tipc_node *n, int *bearer_id,
- static void tipc_node_link_down(struct tipc_node *n, int bearer_id, bool delete)
- {
- 	struct tipc_link_entry *le = &n->links[bearer_id];
-+	struct tipc_media_addr *maddr = NULL;
- 	struct tipc_link *l = le->link;
--	struct tipc_media_addr *maddr;
--	struct sk_buff_head xmitq;
- 	int old_bearer_id = bearer_id;
-+	struct sk_buff_head xmitq;
+diff --git a/arch/m68k/mac/via.c b/arch/m68k/mac/via.c
+index 920ff63d4a81..c27bf9a906be 100644
+--- a/arch/m68k/mac/via.c
++++ b/arch/m68k/mac/via.c
+@@ -53,16 +53,6 @@ static __u8 rbv_clear;
  
- 	if (!l)
- 		return;
-@@ -713,7 +713,8 @@ static void tipc_node_link_down(struct tipc_node *n, int bearer_id, bool delete)
- 	tipc_node_write_unlock(n);
- 	if (delete)
- 		tipc_mon_remove_peer(n->net, n->addr, old_bearer_id);
--	tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
-+	if (!skb_queue_empty(&xmitq))
-+		tipc_bearer_xmit(n->net, bearer_id, &xmitq, maddr);
- 	tipc_sk_rcv(n->net, &le->inputq);
+ static int gIER,gIFR,gBufA,gBufB;
+ 
+-/*
+- * Timer defs.
+- */
+-
+-#define TICK_SIZE		10000
+-#define MAC_CLOCK_TICK		(783300/HZ)		/* ticks per HZ */
+-#define MAC_CLOCK_LOW		(MAC_CLOCK_TICK&0xFF)
+-#define MAC_CLOCK_HIGH		(MAC_CLOCK_TICK>>8)
+-
+-
+ /*
+  * On Macs with a genuine VIA chip there is no way to mask an individual slot
+  * interrupt. This limitation also seems to apply to VIA clone logic cores in
+@@ -277,22 +267,6 @@ void __init via_init(void)
+ 	}
  }
  
+-/*
+- * Start the 100 Hz clock
+- */
+-
+-void __init via_init_clock(irq_handler_t func)
+-{
+-	via1[vACR] |= 0x40;
+-	via1[vT1LL] = MAC_CLOCK_LOW;
+-	via1[vT1LH] = MAC_CLOCK_HIGH;
+-	via1[vT1CL] = MAC_CLOCK_LOW;
+-	via1[vT1CH] = MAC_CLOCK_HIGH;
+-
+-	if (request_irq(IRQ_MAC_TIMER_1, func, 0, "timer", func))
+-		pr_err("Couldn't register %s interrupt\n", "timer");
+-}
+-
+ /*
+  * Debugging dump, used in various places to see what's going on.
+  */
+@@ -320,29 +294,6 @@ void via_debug_dump(void)
+ 	}
+ }
+ 
+-/*
+- * This is always executed with interrupts disabled.
+- *
+- * TBI: get time offset between scheduling timer ticks
+- */
+-
+-u32 mac_gettimeoffset(void)
+-{
+-	unsigned long ticks, offset = 0;
+-
+-	/* read VIA1 timer 2 current value */
+-	ticks = via1[vT1CL] | (via1[vT1CH] << 8);
+-	/* The probability of underflow is less than 2% */
+-	if (ticks > MAC_CLOCK_TICK - MAC_CLOCK_TICK / 50)
+-		/* Check for pending timer interrupt in VIA1 IFR */
+-		if (via1[vIFR] & 0x40) offset = TICK_SIZE;
+-
+-	ticks = MAC_CLOCK_TICK - ticks;
+-	ticks = ticks * 10000L / MAC_CLOCK_TICK;
+-
+-	return (ticks + offset) * 1000;
+-}
+-
+ /*
+  * Flush the L2 cache on Macs that have it by flipping
+  * the system into 24-bit mode for an instant.
+@@ -619,3 +570,56 @@ int via2_scsi_drq_pending(void)
+ 	return via2[gIFR] & (1 << IRQ_IDX(IRQ_MAC_SCSIDRQ));
+ }
+ EXPORT_SYMBOL(via2_scsi_drq_pending);
++
++/* timer and clock source */
++
++#define VIA_CLOCK_FREQ     783360                /* VIA "phase 2" clock in Hz */
++#define VIA_TIMER_INTERVAL (1000000 / HZ)        /* microseconds per jiffy */
++#define VIA_TIMER_CYCLES   (VIA_CLOCK_FREQ / HZ) /* clock cycles per jiffy */
++
++#define VIA_TC             (VIA_TIMER_CYCLES - 2) /* including 0 and -1 */
++#define VIA_TC_LOW         (VIA_TC & 0xFF)
++#define VIA_TC_HIGH        (VIA_TC >> 8)
++
++void __init via_init_clock(irq_handler_t timer_routine)
++{
++	if (request_irq(IRQ_MAC_TIMER_1, timer_routine, 0, "timer", NULL)) {
++		pr_err("Couldn't register %s interrupt\n", "timer");
++		return;
++	}
++
++	via1[vT1LL] = VIA_TC_LOW;
++	via1[vT1LH] = VIA_TC_HIGH;
++	via1[vT1CL] = VIA_TC_LOW;
++	via1[vT1CH] = VIA_TC_HIGH;
++	via1[vACR] |= 0x40;
++}
++
++u32 mac_gettimeoffset(void)
++{
++	unsigned long flags;
++	u8 count_high;
++	u16 count, offset = 0;
++
++	/*
++	 * Timer counter wrap-around is detected with the timer interrupt flag
++	 * but reading the counter low byte (vT1CL) would reset the flag.
++	 * Also, accessing both counter registers is essentially a data race.
++	 * These problems are avoided by ignoring the low byte. Clock accuracy
++	 * is 256 times worse (error can reach 0.327 ms) but CPU overhead is
++	 * reduced by avoiding slow VIA register accesses.
++	 */
++
++	local_irq_save(flags);
++	count_high = via1[vT1CH];
++	if (count_high == 0xFF)
++		count_high = 0;
++	if (count_high > 0 && (via1[vIFR] & VIA_TIMER_1_INT))
++		offset = VIA_TIMER_CYCLES;
++	local_irq_restore(flags);
++
++	count = count_high << 8;
++	count = VIA_TIMER_CYCLES - count + offset;
++
++	return ((count * VIA_TIMER_INTERVAL) / VIA_TIMER_CYCLES) * 1000;
++}
 -- 
 2.20.1
 
