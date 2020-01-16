@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2322813EEAF
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:11:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3104913EEAD
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405441AbgAPRhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:37:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53228 "EHLO mail.kernel.org"
+        id S2393203AbgAPSKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:10:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404926AbgAPRhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:37:45 -0500
+        id S2393125AbgAPRhq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:37:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B605E246CD;
-        Thu, 16 Jan 2020 17:37:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7859A246DB;
+        Thu, 16 Jan 2020 17:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196265;
-        bh=7Ib8Ng+ghXxuvkABsdz66tKXJ5t4d1VzFvS70GhBrfI=;
+        s=default; t=1579196266;
+        bh=FeTWHdpvBDTIIq6Cc4JwoyeiwKCZmDFPfiY6d1lavtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3wfLsuvuYRbGtAGYQOKQWeLo3rB9/HdBrUJRIm7XyTZC/1XPv7vDK8CQVfJ3oSrg
-         uR11SRWWgAeYd15fbAKqDaBv35fO9YmP4QXQgPHpG1XL1z1FVOecWh17tZIHQmIxOh
-         BgrflICL0Epabr4I3ezr65wqdy6psoLg7PxUKrus=
+        b=XHxl9FtcgP9218af1ZFmAFN90WICjE5OvCdmfe79RlQd9fhtn/BBucYRg75EMi+00
+         YbmB11Epz89MsWNtnis5NPD3KxL52lRKagVzRidpFAsgj9z7/v2D6sl1Ln4kOCHawz
+         tCfi/f5gl8Ic6KzN/8Oc9Baj+CMwFMGnTxIKx+jw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolas Pitre <nico@linaro.org>,
-        Anand Moon <linux.amoon@gmail.com>,
+Cc:     Vladimir Murzin <vladimir.murzin@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 088/251] ARM: 8847/1: pm: fix HYP/SVC mode mismatch when MCPM is used
-Date:   Thu, 16 Jan 2020 12:33:57 -0500
-Message-Id: <20200116173641.22137-48-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 089/251] ARM: 8848/1: virt: Align GIC version check with arm64 counterpart
+Date:   Thu, 16 Jan 2020 12:33:58 -0500
+Message-Id: <20200116173641.22137-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -46,95 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Vladimir Murzin <vladimir.murzin@arm.com>
 
-[ Upstream commit ca70ea43f80c98582f5ffbbd1e6f4da2742da0c4 ]
+[ Upstream commit 9db043d36bd379f4cc99054c079de0dabfc38d03 ]
 
-MCPM does a soft reset of the CPUs and uses common cpu_resume() routine to
-perform low-level platform initialization. This results in a try to install
-HYP stubs for the second time for each CPU and results in false HYP/SVC
-mode mismatch detection. The HYP stubs are already installed at the
-beginning of the kernel initialization on the boot CPU (head.S) or in the
-secondary_startup() for other CPUs. To fix this issue MCPM code should use
-a cpu_resume() routine without HYP stubs installation.
+arm64 has got relaxation on GIC version check at early boot stage due
+to update of the GIC architecture let's align ARM with that.
 
-This change fixes HYP/SVC mode mismatch on Samsung Exynos5422-based Odroid
-XU3/XU4/HC1 boards.
-
-Fixes: 3721924c8154 ("ARM: 8081/1: MCPM: provide infrastructure to allow for MCPM loopback")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Tested-by: Anand Moon <linux.amoon@gmail.com>
+To help backports (even though the code was correct at the time of writing)
+Fixes: e59941b9b381 ("ARM: 8527/1: virt: enable GICv3 system registers")
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/common/mcpm_entry.c   |  2 +-
- arch/arm/include/asm/suspend.h |  1 +
- arch/arm/kernel/sleep.S        | 12 ++++++++++++
- 3 files changed, 14 insertions(+), 1 deletion(-)
+ arch/arm/kernel/hyp-stub.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/common/mcpm_entry.c b/arch/arm/common/mcpm_entry.c
-index a923524d1040..8617323eb273 100644
---- a/arch/arm/common/mcpm_entry.c
-+++ b/arch/arm/common/mcpm_entry.c
-@@ -379,7 +379,7 @@ static int __init nocache_trampoline(unsigned long _arg)
- 	unsigned int cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
- 	phys_reset_t phys_reset;
+diff --git a/arch/arm/kernel/hyp-stub.S b/arch/arm/kernel/hyp-stub.S
+index 15d073ae5da2..f5e5e3e19659 100644
+--- a/arch/arm/kernel/hyp-stub.S
++++ b/arch/arm/kernel/hyp-stub.S
+@@ -179,8 +179,8 @@ ARM_BE8(orr	r7, r7, #(1 << 25))     @ HSCTLR.EE
+ 	@ Check whether GICv3 system registers are available
+ 	mrc	p15, 0, r7, c0, c1, 1	@ ID_PFR1
+ 	ubfx	r7, r7, #28, #4
+-	cmp	r7, #1
+-	bne	2f
++	teq	r7, #0
++	beq	2f
  
--	mcpm_set_entry_vector(cpu, cluster, cpu_resume);
-+	mcpm_set_entry_vector(cpu, cluster, cpu_resume_no_hyp);
- 	setup_mm_for_reboot();
- 
- 	__mcpm_cpu_going_down(cpu, cluster);
-diff --git a/arch/arm/include/asm/suspend.h b/arch/arm/include/asm/suspend.h
-index 6c7182f32cef..e6c2f426f8c8 100644
---- a/arch/arm/include/asm/suspend.h
-+++ b/arch/arm/include/asm/suspend.h
-@@ -7,6 +7,7 @@ struct sleep_save_sp {
- };
- 
- extern void cpu_resume(void);
-+extern void cpu_resume_no_hyp(void);
- extern void cpu_resume_arm(void);
- extern int cpu_suspend(unsigned long, int (*)(unsigned long));
- 
-diff --git a/arch/arm/kernel/sleep.S b/arch/arm/kernel/sleep.S
-index 0f6c1000582c..c8569390e7e7 100644
---- a/arch/arm/kernel/sleep.S
-+++ b/arch/arm/kernel/sleep.S
-@@ -119,6 +119,14 @@ ENDPROC(cpu_resume_after_mmu)
- 	.text
- 	.align
- 
-+#ifdef CONFIG_MCPM
-+	.arm
-+THUMB(	.thumb			)
-+ENTRY(cpu_resume_no_hyp)
-+ARM_BE8(setend be)			@ ensure we are in BE mode
-+	b	no_hyp
-+#endif
-+
- #ifdef CONFIG_MMU
- 	.arm
- ENTRY(cpu_resume_arm)
-@@ -134,6 +142,7 @@ ARM_BE8(setend be)			@ ensure we are in BE mode
- 	bl	__hyp_stub_install_secondary
- #endif
- 	safe_svcmode_maskall r1
-+no_hyp:
- 	mov	r1, #0
- 	ALT_SMP(mrc p15, 0, r0, c0, c0, 5)
- 	ALT_UP_B(1f)
-@@ -162,6 +171,9 @@ ENDPROC(cpu_resume)
- 
- #ifdef CONFIG_MMU
- ENDPROC(cpu_resume_arm)
-+#endif
-+#ifdef CONFIG_MCPM
-+ENDPROC(cpu_resume_no_hyp)
- #endif
- 
- 	.align 2
+ 	@ Enable system register accesses
+ 	mrc	p15, 4, r7, c12, c9, 5	@ ICC_HSRE
 -- 
 2.20.1
 
