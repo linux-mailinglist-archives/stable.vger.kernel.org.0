@@ -2,97 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C55F613E630
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:19:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0315013E674
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:20:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391522AbgAPRSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:18:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46452 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391515AbgAPRSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:18:36 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71418246B1;
-        Thu, 16 Jan 2020 17:18:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195116;
-        bh=KPnjpl96N2d7rCs0uOIvKJYlAl/Kz6G527NiVyU+Zlg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUVs8Kr5pijvoV+Sz2eqpm7DraNWkDrU7Cj7Dp1fBKV+1/kV+rBhVAQPF7GYhPZR7
-         0UWsSYYDaWmdRI2BI4MuyIe5/JqVn3M7ffnqTAvb32WhHRvl9aeDX0EEO4SV0R26kV
-         CrFYg5Tq42AH2ygLzoZx1lOIn9LSpGMSzfK/PT1E=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Raju Rangoju <rajur@chelsio.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 056/371] RDMA/iw_cxgb4: Fix the unchecked ep dereference
-Date:   Thu, 16 Jan 2020 12:12:04 -0500
-Message-Id: <20200116171719.16965-56-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200116171719.16965-1-sashal@kernel.org>
-References: <20200116171719.16965-1-sashal@kernel.org>
+        id S2391288AbgAPRU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:20:27 -0500
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:38026 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391362AbgAPRSF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 12:18:05 -0500
+Received: by mail-qk1-f194.google.com with SMTP id k6so19822239qki.5;
+        Thu, 16 Jan 2020 09:18:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ZHJNJzAFrt0uyyRdNsMrWMrSY7FsAQZj36UJfWF2nQU=;
+        b=uKE/aGAqqXGSN8s+eDE4CAzAzR2AtXW9tzd+k5XeRXKQcW+eaNJZvBZZwrFIGWJRyu
+         3hjiIr8ru5Dlc1QYU2Z0YYBb7lAlosZetIUrC/lFZQzqKja0FGSUxSI1QRBUUeczFPfh
+         nPPW1XUE4qVgUcvYBpN8380/wdXR+xV1BA29a9I+JfXI0H0Hbw5HoJGuSuHrq/FZ2+Or
+         ue7zj0GyFEKbPP/vbtcGVCwc0lanVffQuHrz8j+0NLBH9kKuK9Qsomi0Gn/Y/to+lHAx
+         4CBLsBM5pmJ85IL5FstHN1P+pJSfJw4DWdfTGTHgQFcAmk+5ONRgSjJfkEuNahVYuhbZ
+         EoLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ZHJNJzAFrt0uyyRdNsMrWMrSY7FsAQZj36UJfWF2nQU=;
+        b=FshGpK11LIM1rgRINmc3mIT0JQRzeZVaeUaGAn5mcLgYKeiig/FGNQnn/AuSxRMSl2
+         DO3GVYHWXRvcTZKKwkkhE9h8LjNfyObuUhua2PKpyq7BemzvMJAIkwJq3cmpUTKuKStQ
+         xXmdOA6P0GE0vXcsyjyKFMaR4o9hpIDKRuHFbxlQi7voD3JzmujP1FLnA0sk7f8l1nk8
+         /vqwy0sHBZGJlnVb36LoGHgAG4PQSPdQ1AgxSk05vvJplxNT/tRKTTZhqTsDkvSMo0cu
+         px4NDhH2qNgT311MASkoRIx1Hfz3EcJ1CLSe2nfAK89uwwt/RQcdeF66Pjw6xCQYe4gu
+         6Zrg==
+X-Gm-Message-State: APjAAAXJrnPNQbBO1s47xP+wuf1hpH9/rWb01/bD6zw0Yko/Fdv9d3xj
+        atAsCRuSsWqt3RkLN6nmfBoZbnZw
+X-Google-Smtp-Source: APXvYqx54nLoADteH2t6RZa5CCoOO72147cgZHbEE1AaCvcvNwAK60FdkbLOD0YenTbu7JF5eOMQeQ==
+X-Received: by 2002:a37:684a:: with SMTP id d71mr31325170qkc.201.1579195084165;
+        Thu, 16 Jan 2020 09:18:04 -0800 (PST)
+Received: from ?IPv6:2601:282:803:7700:5c84:fd9a:6187:58f5? ([2601:282:803:7700:5c84:fd9a:6187:58f5])
+        by smtp.googlemail.com with ESMTPSA id 68sm10567325qkj.102.2020.01.16.09.18.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Jan 2020 09:18:03 -0800 (PST)
+Subject: Re: [PATCH AUTOSEL 4.19 573/671] ipv6: Handle race in
+ addrconf_dad_work
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+References: <20200116170509.12787-1-sashal@kernel.org>
+ <20200116170509.12787-310-sashal@kernel.org>
+From:   David Ahern <dsahern@gmail.com>
+Message-ID: <fc012e53-ccdf-5ac5-6f3f-a2ecdf25bc39@gmail.com>
+Date:   Thu, 16 Jan 2020 10:18:00 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.3.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200116170509.12787-310-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <rajur@chelsio.com>
+On 1/16/20 10:03 AM, Sasha Levin wrote:
+> From: David Ahern <dsahern@gmail.com>
+> 
+> [ Upstream commit a3ce2a21bb8969ae27917281244fa91bf5f286d7 ]
+> 
 
-[ Upstream commit 3352976c892301fd576a2e9ff0ac7337b2e2ca48 ]
-
-The patch 944661dd97f4: "RDMA/iw_cxgb4: atomically lookup ep and get a
-reference" from May 6, 2016, leads to the following Smatch complaint:
-
-    drivers/infiniband/hw/cxgb4/cm.c:2953 terminate()
-    error: we previously assumed 'ep' could be null (see line 2945)
-
-Fixes: 944661dd97f4 ("RDMA/iw_cxgb4: atomically lookup ep and get a reference")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Raju Rangoju <rajur@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/infiniband/hw/cxgb4/cm.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index bb36cdf82a8d..3668cc71b47e 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -2923,15 +2923,18 @@ static int terminate(struct c4iw_dev *dev, struct sk_buff *skb)
- 	ep = get_ep_from_tid(dev, tid);
- 	BUG_ON(!ep);
- 
--	if (ep && ep->com.qp) {
--		pr_warn("TERM received tid %u qpid %u\n",
--			tid, ep->com.qp->wq.sq.qid);
--		attrs.next_state = C4IW_QP_STATE_TERMINATE;
--		c4iw_modify_qp(ep->com.qp->rhp, ep->com.qp,
--			       C4IW_QP_ATTR_NEXT_STATE, &attrs, 1);
-+	if (ep) {
-+		if (ep->com.qp) {
-+			pr_warn("TERM received tid %u qpid %u\n", tid,
-+				ep->com.qp->wq.sq.qid);
-+			attrs.next_state = C4IW_QP_STATE_TERMINATE;
-+			c4iw_modify_qp(ep->com.qp->rhp, ep->com.qp,
-+				       C4IW_QP_ATTR_NEXT_STATE, &attrs, 1);
-+		}
-+
-+		c4iw_put_ep(&ep->com);
- 	} else
- 		pr_warn("TERM received tid %u no ep/qp\n", tid);
--	c4iw_put_ep(&ep->com);
- 
- 	return 0;
- }
--- 
-2.20.1
+That commit was reverted by 8ae72cbf62d2c1879456c0c5872f958e18f53711 and
+then replaced by 2d819d250a1393a3e725715425ab70a0e0772a71
 
