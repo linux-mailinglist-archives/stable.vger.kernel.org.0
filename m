@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C9213EDC2
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1EAD13EDB5
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:04:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406927AbgAPSFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:05:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57294 "EHLO mail.kernel.org"
+        id S2406920AbgAPSEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:04:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390948AbgAPRkO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:40:14 -0500
+        id S2390966AbgAPRkR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:40:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8D6F2471C;
-        Thu, 16 Jan 2020 17:40:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12B08246FC;
+        Thu, 16 Jan 2020 17:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196413;
-        bh=f8DagKr6Vvh8oDgpnA79+Y7PwQqyCOeo5+FcDw+FMew=;
+        s=default; t=1579196416;
+        bh=Qr0wkqr2KRNdVxa33gp2rpu1dx+1sNPi3PcUBz2+qF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCGjQt4f1cXMi2hmRwAmoAt8UGxpV8RsCCiMhPad/3u2xMBXXN/KoEDf8VLtbT+MV
-         ji0NObjcrREkJo1WcDWtGqp2GPA5ephc5MGFdiJcoBnczYfHfmPovdBSQt8MRcsVmS
-         H7TI9prbIClCGnOZpw7IiT9ToKaamjeHy/2T5PA4=
+        b=anSQtWC7994j79MxpgDqtHnSRUTzSSwCsKiF88x2ZnbzZoA90JrkRezmlAFu10G4w
+         MKbLWsvpcsT7YDnAqIS5NqMYcaqw47VJmV738KtOB0H2qB27+lCEU61OWhmceHsLEp
+         80AzSZdgk2Q3k+4sgJ5wHqvmMdkyg57b+MZms6Cg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 186/251] mac80211: minstrel_ht: fix per-group max throughput rate initialization
-Date:   Thu, 16 Jan 2020 12:35:35 -0500
-Message-Id: <20200116173641.22137-146-sashal@kernel.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Eli Friedman <efriedma@quicinc.com>,
+        Paul Burton <paul.burton@mips.com>, ralf@linux-mips.org,
+        jhogan@kernel.org, "Maciej W . Rozycki" <macro@linux-mips.org>,
+        Hassan Naveed <hnaveed@wavecomp.com>,
+        Stephen Kitt <steve@sk2.org>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>, linux-mips@vger.kernel.org,
+        clang-built-linux@googlegroups.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 187/251] mips: avoid explicit UB in assignment of mips_io_port_base
+Date:   Thu, 16 Jan 2020 12:35:36 -0500
+Message-Id: <20200116173641.22137-147-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -44,35 +52,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 56dd918ff06e3ee24d8067e93ed12b2a39e71394 ]
+[ Upstream commit 12051b318bc3ce5b42d6d786191008284b067d83 ]
 
-The group number needs to be multiplied by the number of rates per group
-to get the full rate index
+The code in question is modifying a variable declared const through
+pointer manipulation.  Such code is explicitly undefined behavior, and
+is the lone issue preventing malta_defconfig from booting when built
+with Clang:
 
-Fixes: 5935839ad735 ("mac80211: improve minstrel_ht rate sorting by throughput & probability")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20190820095449.45255-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+If an attempt is made to modify an object defined with a const-qualified
+type through use of an lvalue with non-const-qualified type, the
+behavior is undefined.
+
+LLVM is removing such assignments. A simple fix is to not declare
+variables const that you plan on modifying.  Limiting the scope would be
+a better method of preventing unwanted writes to such a variable.
+
+Further, the code in question mentions "compiler bugs" without any links
+to bug reports, so it is difficult to know if the issue is resolved in
+GCC. The patch was authored in 2006, which would have been GCC 4.0.3 or
+4.1.1. The minimal supported version of GCC in the Linux kernel is
+currently 4.6.
+
+For what its worth, there was UB before the commit in question, it just
+added a barrier and got lucky IRT codegen. I don't think there's any
+actual compiler bugs related, just runtime bugs due to UB.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/610
+Fixes: 966f4406d903 ("[MIPS] Work around bad code generation for <asm/io.h>.")
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Debugged-by: Nathan Chancellor <natechancellor@gmail.com>
+Suggested-by: Eli Friedman <efriedma@quicinc.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: ralf@linux-mips.org
+Cc: jhogan@kernel.org
+Cc: Maciej W. Rozycki <macro@linux-mips.org>
+Cc: Hassan Naveed <hnaveed@wavecomp.com>
+Cc: Stephen Kitt <steve@sk2.org>
+Cc: Serge Semin <fancer.lancer@gmail.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: clang-built-linux@googlegroups.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rc80211_minstrel_ht.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/io.h | 14 ++------------
+ arch/mips/kernel/setup.c   |  2 +-
+ 2 files changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
-index 593184d14b3e..e1b0e26c1f17 100644
---- a/net/mac80211/rc80211_minstrel_ht.c
-+++ b/net/mac80211/rc80211_minstrel_ht.c
-@@ -547,7 +547,7 @@ minstrel_ht_update_stats(struct minstrel_priv *mp, struct minstrel_ht_sta *mi)
+diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
+index 06049b6b3ddd..5dfae80264b9 100644
+--- a/arch/mips/include/asm/io.h
++++ b/arch/mips/include/asm/io.h
+@@ -60,21 +60,11 @@
+  * instruction, so the lower 16 bits must be zero.  Should be true on
+  * on any sane architecture; generic code does not use this assumption.
+  */
+-extern const unsigned long mips_io_port_base;
++extern unsigned long mips_io_port_base;
  
- 		/* (re)Initialize group rate indexes */
- 		for(j = 0; j < MAX_THR_RATES; j++)
--			tmp_group_tp_rate[j] = group;
-+			tmp_group_tp_rate[j] = MCS_GROUP_RATES * group;
+-/*
+- * Gcc will generate code to load the value of mips_io_port_base after each
+- * function call which may be fairly wasteful in some cases.  So we don't
+- * play quite by the book.  We tell gcc mips_io_port_base is a long variable
+- * which solves the code generation issue.  Now we need to violate the
+- * aliasing rules a little to make initialization possible and finally we
+- * will need the barrier() to fight side effects of the aliasing chat.
+- * This trickery will eventually collapse under gcc's optimizer.  Oh well.
+- */
+ static inline void set_io_port_base(unsigned long base)
+ {
+-	* (unsigned long *) &mips_io_port_base = base;
+-	barrier();
++	mips_io_port_base = base;
+ }
  
- 		for (i = 0; i < MCS_GROUP_RATES; i++) {
- 			if (!(mg->supported & BIT(i)))
+ /*
+diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
+index 695950361d2a..7cc1d29334ee 100644
+--- a/arch/mips/kernel/setup.c
++++ b/arch/mips/kernel/setup.c
+@@ -74,7 +74,7 @@ static char __initdata builtin_cmdline[COMMAND_LINE_SIZE] = CONFIG_CMDLINE;
+  * mips_io_port_base is the begin of the address space to which x86 style
+  * I/O ports are mapped.
+  */
+-const unsigned long mips_io_port_base = -1;
++unsigned long mips_io_port_base = -1;
+ EXPORT_SYMBOL(mips_io_port_base);
+ 
+ static struct resource code_resource = { .name = "Kernel code", };
 -- 
 2.20.1
 
