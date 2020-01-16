@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9699D13FE31
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:35:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F6F13FE9D
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:36:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404307AbgAPXdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:33:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43374 "EHLO mail.kernel.org"
+        id S2403912AbgAPXb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:31:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391410AbgAPXdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:33:14 -0500
+        id S2403989AbgAPXaa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:30:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01A6F20661;
-        Thu, 16 Jan 2020 23:33:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C77220684;
+        Thu, 16 Jan 2020 23:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217593;
-        bh=qU0crJkjUsiWg2s1LzViuusnKuh8XR8514gpeOXXGK8=;
+        s=default; t=1579217429;
+        bh=kAOaVjnWMYC/RpKKbmuTL0WR4dJhxwrxKVKAogktUJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3WBNkBVjp6mX7RWemrFmRH35dUs0oZBbo7jbbVkdk4V0dnZa1lqGEuy8c46T7Xv0
-         hujDw4sedukZkdhXPDudgY81Z//v1vEs94+AbdFGCO+rrq+suwK9XBvOpP3C1glfeM
-         lKhM6xdr8nFVuIn6eWpeZpxPHmh58uzgIed5SilY=
+        b=IWJd1ifoBSXf0XPrptx/XFKOuxAmU4hvVSEtvN9Mie4DYahIgM9shjciwMoy09m/b
+         JU/vBqOK3Mf6K9/EXrFeZE+JWdNwKravHX2q+PW8x8N+jBqpQtx1wesgIkd8ZEXOt2
+         hT8/jiwmOEDTJwgrspagaVraOrtwACpMd5KEHCj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.14 54/71] media: ov6650: Fix .get_fmt() V4L2_SUBDEV_FORMAT_TRY support
-Date:   Fri, 17 Jan 2020 00:18:52 +0100
-Message-Id: <20200116231717.044191050@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>,
+        Liviu Dudau <Liviu.Dudau@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 79/84] drm/arm/mali: make malidp_mw_connector_helper_funcs static
+Date:   Fri, 17 Jan 2020 00:18:53 +0100
+Message-Id: <20200116231722.790733579@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
-References: <20200116231709.377772748@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
 
-commit 39034bb0c26b76a2c3abc54aa28c185f18b40c2f upstream.
+[ Upstream commit ac2917b01992c098b8d4e6837115e3ca347fdd90 ]
 
-Commit da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad
-op get_fmt") converted a former ov6650_g_fmt() video operation callback
-to an ov6650_get_fmt() pad operation callback.  However, the converted
-function disregards a format->which flag that pad operations should
-obey and always returns active frame format settings.
+The malidp_mw_connector_helper_funcs is not referenced by name
+outside of the file it is in, so make it static to avoid the
+following warning:
 
-That can be fixed by always responding to V4L2_SUBDEV_FORMAT_TRY with
--EINVAL, or providing the response from a pad config argument, likely
-updated by a former user call to V4L2_SUBDEV_FORMAT_TRY .set_fmt().
-Since implementation of the latter is trivial, go for it.
+drivers/gpu/drm/arm/malidp_mw.c:59:41: warning: symbol 'malidp_mw_connector_helper_funcs' was not declared. Should it be static?
 
-Fixes: da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad op get_fmt")
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
+Signed-off-by: Liviu Dudau <Liviu.Dudau@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191217115309.2133503-1-ben.dooks@codethink.co.uk
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov6650.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/arm/malidp_mw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/i2c/ov6650.c
-+++ b/drivers/media/i2c/ov6650.c
-@@ -531,10 +531,16 @@ static int ov6650_get_fmt(struct v4l2_su
- 	*mf = ov6650_def_fmt;
- 
- 	/* update media bus format code and frame size */
--	mf->width	= priv->rect.width >> priv->half_scale;
--	mf->height	= priv->rect.height >> priv->half_scale;
--	mf->code	= priv->code;
-+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
-+		mf->width = cfg->try_fmt.width;
-+		mf->height = cfg->try_fmt.height;
-+		mf->code = cfg->try_fmt.code;
- 
-+	} else {
-+		mf->width = priv->rect.width >> priv->half_scale;
-+		mf->height = priv->rect.height >> priv->half_scale;
-+		mf->code = priv->code;
-+	}
- 	return 0;
+diff --git a/drivers/gpu/drm/arm/malidp_mw.c b/drivers/gpu/drm/arm/malidp_mw.c
+index 91472e5e0c8b..7266d3c8b8f4 100644
+--- a/drivers/gpu/drm/arm/malidp_mw.c
++++ b/drivers/gpu/drm/arm/malidp_mw.c
+@@ -55,7 +55,7 @@ malidp_mw_connector_mode_valid(struct drm_connector *connector,
+ 	return MODE_OK;
  }
  
+-const struct drm_connector_helper_funcs malidp_mw_connector_helper_funcs = {
++static const struct drm_connector_helper_funcs malidp_mw_connector_helper_funcs = {
+ 	.get_modes = malidp_mw_connector_get_modes,
+ 	.mode_valid = malidp_mw_connector_mode_valid,
+ };
+-- 
+2.20.1
+
 
 
