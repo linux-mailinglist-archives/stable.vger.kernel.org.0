@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51D1F13FDEE
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BD2413FE12
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:32:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391413AbgAPXas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:30:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38126 "EHLO mail.kernel.org"
+        id S2403851AbgAPXcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:32:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391409AbgAPXar (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:30:47 -0500
+        id S2404050AbgAPXcT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:32:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EBCE2073A;
-        Thu, 16 Jan 2020 23:30:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73B52206D9;
+        Thu, 16 Jan 2020 23:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217446;
-        bh=qU0crJkjUsiWg2s1LzViuusnKuh8XR8514gpeOXXGK8=;
+        s=default; t=1579217538;
+        bh=80qMqilDKb1q7yzrUTzmSO/ts7DiRjQ2oLgmnoGIPT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkS7w93chAj0r2LH4UFnkxGPGC4Qlkdf7Vte4RUtOd9wZvGt4QmTpsm90XmjiRZ/P
-         rFO7U1pc9sDwM/3buUXHp1KyYCS1Up6t6tJy5ru3ivqEoI4UcD9ouRqxmMkhviErV/
-         J8lzZpPmFUFmpJtnaiL6UDczHrw4uuDHDpc8jkHw=
+        b=WEw+1NNAfZzO+qNA3XtcVpBd+FRZBMldfRzL5bJUm6nGqef6ik43uOE7jBDbSDesT
+         UWQKMjVURiacMgCpOj/P5yg4EoAavS7eD3o/dul0S4wulNmFDIqqNXsuPMUDGYGY/C
+         0CZVME+uwhqp45cUp3dplB/Nd7u8ZBB2HAB8gNN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.19 61/84] media: ov6650: Fix .get_fmt() V4L2_SUBDEV_FORMAT_TRY support
-Date:   Fri, 17 Jan 2020 00:18:35 +0100
-Message-Id: <20200116231720.884020396@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 4.14 40/71] mei: fix modalias documentation
+Date:   Fri, 17 Jan 2020 00:18:38 +0100
+Message-Id: <20200116231715.340326697@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
-References: <20200116231713.087649517@linuxfoundation.org>
+In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
+References: <20200116231709.377772748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 39034bb0c26b76a2c3abc54aa28c185f18b40c2f upstream.
+commit 73668309215285366c433489de70d31362987be9 upstream.
 
-Commit da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad
-op get_fmt") converted a former ov6650_g_fmt() video operation callback
-to an ov6650_get_fmt() pad operation callback.  However, the converted
-function disregards a format->which flag that pad operations should
-obey and always returns active frame format settings.
+mei client bus added the client protocol version to the device alias,
+but ABI documentation was not updated.
 
-That can be fixed by always responding to V4L2_SUBDEV_FORMAT_TRY with
--EINVAL, or providing the response from a pad config argument, likely
-updated by a former user call to V4L2_SUBDEV_FORMAT_TRY .set_fmt().
-Since implementation of the latter is trivial, go for it.
-
-Fixes: da298c6d98d5 ("[media] v4l2: replace video op g_mbus_fmt by pad op get_fmt")
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: b26864cad1c9 (mei: bus: add client protocol version to the device alias)
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20191008005735.12707-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/i2c/ov6650.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-mei |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/i2c/ov6650.c
-+++ b/drivers/media/i2c/ov6650.c
-@@ -531,10 +531,16 @@ static int ov6650_get_fmt(struct v4l2_su
- 	*mf = ov6650_def_fmt;
+--- a/Documentation/ABI/testing/sysfs-bus-mei
++++ b/Documentation/ABI/testing/sysfs-bus-mei
+@@ -4,7 +4,7 @@ KernelVersion:	3.10
+ Contact:	Samuel Ortiz <sameo@linux.intel.com>
+ 		linux-mei@linux.intel.com
+ Description:	Stores the same MODALIAS value emitted by uevent
+-		Format: mei:<mei device name>:<device uuid>:
++		Format: mei:<mei device name>:<device uuid>:<protocol version>
  
- 	/* update media bus format code and frame size */
--	mf->width	= priv->rect.width >> priv->half_scale;
--	mf->height	= priv->rect.height >> priv->half_scale;
--	mf->code	= priv->code;
-+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
-+		mf->width = cfg->try_fmt.width;
-+		mf->height = cfg->try_fmt.height;
-+		mf->code = cfg->try_fmt.code;
- 
-+	} else {
-+		mf->width = priv->rect.width >> priv->half_scale;
-+		mf->height = priv->rect.height >> priv->half_scale;
-+		mf->code = priv->code;
-+	}
- 	return 0;
- }
- 
+ What:		/sys/bus/mei/devices/.../name
+ Date:		May 2015
 
 
