@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C31B13F022
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A40313F020
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404180AbgAPR2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404187AbgAPR2T (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 12:28:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39144 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404173AbgAPR2R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:28:17 -0500
+        id S2404179AbgAPR2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:28:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF16C246E4;
-        Thu, 16 Jan 2020 17:28:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 494BB246E6;
+        Thu, 16 Jan 2020 17:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195696;
-        bh=SohZIyWFWMTpPw87zHrJTPxC3ujInMULYFxaLiydzbI=;
+        s=default; t=1579195698;
+        bh=rgDJbPRJVcoJSOkhpmFZCC4zEKPK4rigzmowCZomXv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqOWkxtrZE7Hp8n/QSU/9gPmq4C7i2aujhFRPEi/LKejwRGAMPV2/Swa95cdP3xs6
-         1tqE7YZGyRDb6MP8+vfPkr1DSqJGsZC/TOdT79XjeHY9g28/lIZOkcInxka1q3VLfN
-         VOfwDtWyM3R1FBXshubiDYs4GdBOXjy0s4g33ktQ=
+        b=SkZnVzaTIfJQX2JT5aPcRKeAyBVAVAqMXQJ6y4Ow09UzWfS41mvyvnvdkqVJ77mV4
+         QaxVDSgIVuxSI3HZASCTyEbQX366TLkOKjZ/KN/pRhimqMTmzXnBIDIGtrwSYFaqEx
+         VnsMGjN1ENmntd6R/pKhNem9YnNeLmrnkcmFzRTk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xi Wang <wangxi11@huawei.com>, Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 246/371] RDMA/hns: Fixs hw access invalid dma memory error
-Date:   Thu, 16 Jan 2020 12:21:58 -0500
-Message-Id: <20200116172403.18149-189-sashal@kernel.org>
+Cc:     Wen Yang <wen.yang99@zte.com.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>, netdev@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 247/371] net: pasemi: fix an use-after-free in pasemi_mac_phy_init()
+Date:   Thu, 16 Jan 2020 12:21:59 -0500
+Message-Id: <20200116172403.18149-190-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -42,46 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xi Wang <wangxi11@huawei.com>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit ec5bc2cc69b4fc494e04d10fc5226f6f9cf67c56 ]
+[ Upstream commit faf5577f2498cea23011b5c785ef853ded22700b ]
 
-When smmu is enable, if execute the perftest command and then use 'kill
--9' to exit, follow this operation repeatedly, the kernel will have a high
-probability to print the following smmu event:
+The phy_dn variable is still being used in of_phy_connect() after the
+of_node_put() call, which may result in use-after-free.
 
-  arm-smmu-v3 arm-smmu-v3.1.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.1.auto:  0x00007d0000000010
-  arm-smmu-v3 arm-smmu-v3.1.auto:  0x0000020900000080
-  arm-smmu-v3 arm-smmu-v3.1.auto:  0x00000000f47cf000
-  arm-smmu-v3 arm-smmu-v3.1.auto:  0x00000000f47cf000
-
-This is because the hw will periodically refresh the qpc cache until the
-next reset.
-
-This patch fixed it by removing the action that release qpc memory in the
-'hns_roce_qp_free' function.
-
-Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
-Signed-off-by: Xi Wang <wangxi11@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 1dd2d06c0459 ("net: Rework pasemi_mac driver to use of_mdio infrastructure")
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_qp.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/pasemi/pasemi_mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index 3a37d26889df..281e9987ffc8 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -241,7 +241,6 @@ void hns_roce_qp_free(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp)
+diff --git a/drivers/net/ethernet/pasemi/pasemi_mac.c b/drivers/net/ethernet/pasemi/pasemi_mac.c
+index 49591d9c2e1b..c9b4ac9d3330 100644
+--- a/drivers/net/ethernet/pasemi/pasemi_mac.c
++++ b/drivers/net/ethernet/pasemi/pasemi_mac.c
+@@ -1053,7 +1053,6 @@ static int pasemi_mac_phy_init(struct net_device *dev)
  
- 	if ((hr_qp->ibqp.qp_type) != IB_QPT_GSI) {
- 		hns_roce_table_put(hr_dev, &qp_table->irrl_table, hr_qp->qpn);
--		hns_roce_table_put(hr_dev, &qp_table->qp_table, hr_qp->qpn);
- 	}
- }
+ 	dn = pci_device_to_OF_node(mac->pdev);
+ 	phy_dn = of_parse_phandle(dn, "phy-handle", 0);
+-	of_node_put(phy_dn);
  
+ 	mac->link = 0;
+ 	mac->speed = 0;
+@@ -1062,6 +1061,7 @@ static int pasemi_mac_phy_init(struct net_device *dev)
+ 	phydev = of_phy_connect(dev, phy_dn, &pasemi_adjust_link, 0,
+ 				PHY_INTERFACE_MODE_SGMII);
+ 
++	of_node_put(phy_dn);
+ 	if (!phydev) {
+ 		printk(KERN_ERR "%s: Could not attach to phy\n", dev->name);
+ 		return -ENODEV;
 -- 
 2.20.1
 
