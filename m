@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC02813F819
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D084213F7EF
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731015AbgAPTPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:15:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42002 "EHLO mail.kernel.org"
+        id S1733150AbgAPQ4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:56:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733145AbgAPQ4C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:56:02 -0500
+        id S1732570AbgAPQ4E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:56:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D316A2467C;
-        Thu, 16 Jan 2020 16:56:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E5F524680;
+        Thu, 16 Jan 2020 16:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193761;
-        bh=6Fd7Q3BMWeJNBGk0kKO5Sfece9B848AW7wMsA8jHAYA=;
+        s=default; t=1579193763;
+        bh=/LFljjM9wXtT7AF1NZ86AQkwrJppmbCRjR8pgtvV8dQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ihPQzphy+LG9NPkWQ6WakpMAiLQ4YWtWnkG5dA3C/uTq3UYfqpRkhjADuJ3CTXKAX
-         KFEuLIerUtsaie66toY/XjQW5CNoMiC+iuOEG9o/e7R8fZ8jfR9hhtBZ7TGe+Gi6If
-         LMIBKmZ6GCjxN9DKDXuDexGVUIU6JSwsazsPIMGI=
+        b=DlOjce5YaXePq/0zafStpmO7pqnn1E7wWIejS4TeHwUsSj/rBw1y3OWYgdNKEp7/w
+         wEmuKEsQYdWvnIQ0zS3Df5zXR9mNcdIRUzI94e43ihN5aLMMqrQS4CS08aHT1B/ss2
+         gdfVI66jGK/+3RePGintiwcKFs7nx+GZuPuBlixs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 048/671] pcrypt: use format specifier in kobject_add
-Date:   Thu, 16 Jan 2020 11:44:39 -0500
-Message-Id: <20200116165502.8838-48-sashal@kernel.org>
+Cc:     Vasily Khoruzhick <anarsoul@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 049/671] ASoC: sun8i-codec: add missing route for ADC
+Date:   Thu, 16 Jan 2020 11:44:40 -0500
+Message-Id: <20200116165502.8838-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -44,41 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Vasily Khoruzhick <anarsoul@gmail.com>
 
-[ Upstream commit b1e3874c75ab15288f573b3532e507c37e8e7656 ]
+[ Upstream commit 9ee325d029c4abb75716851ce38863845911d605 ]
 
-Passing string 'name' as the format specifier is potentially hazardous
-because name could (although very unlikely to) have a format specifier
-embedded in it causing issues when parsing the non-existent arguments
-to these.  Follow best practice by using the "%s" format string for
-the string 'name'.
+sun8i-codec misses a route from ADC to AIF1 Slot 0 ADC. Add it
+to the driver to avoid adding it to every dts.
 
-Cleans up clang warning:
-crypto/pcrypt.c:397:40: warning: format string is not a string literal
-(potentially insecure) [-Wformat-security]
-
-Fixes: a3fb1e330dd2 ("pcrypt: Added sysfs interface to pcrypt")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: eda85d1fee05d ("ASoC: sun8i-codec: Add ADC support for a33")
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/pcrypt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sunxi/sun8i-codec.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
-index f8ec3d4ba4a8..a5718c0a3dc4 100644
---- a/crypto/pcrypt.c
-+++ b/crypto/pcrypt.c
-@@ -394,7 +394,7 @@ static int pcrypt_sysfs_add(struct padata_instance *pinst, const char *name)
- 	int ret;
+diff --git a/sound/soc/sunxi/sun8i-codec.c b/sound/soc/sunxi/sun8i-codec.c
+index bf615fa16dc8..a3db6a68dfe6 100644
+--- a/sound/soc/sunxi/sun8i-codec.c
++++ b/sound/soc/sunxi/sun8i-codec.c
+@@ -465,7 +465,11 @@ static const struct snd_soc_dapm_route sun8i_codec_dapm_routes[] = {
+ 	{ "Right Digital DAC Mixer", "AIF1 Slot 0 Digital DAC Playback Switch",
+ 	  "AIF1 Slot 0 Right"},
  
- 	pinst->kobj.kset = pcrypt_kset;
--	ret = kobject_add(&pinst->kobj, NULL, name);
-+	ret = kobject_add(&pinst->kobj, NULL, "%s", name);
- 	if (!ret)
- 		kobject_uevent(&pinst->kobj, KOBJ_ADD);
- 
+-	/* ADC routes */
++	/* ADC Routes */
++	{ "AIF1 Slot 0 Right ADC", NULL, "ADC" },
++	{ "AIF1 Slot 0 Left ADC", NULL, "ADC" },
++
++	/* ADC Mixer Routes */
+ 	{ "Left Digital ADC Mixer", "AIF1 Data Digital ADC Capture Switch",
+ 	  "AIF1 Slot 0 Left ADC" },
+ 	{ "Right Digital ADC Mixer", "AIF1 Data Digital ADC Capture Switch",
 -- 
 2.20.1
 
