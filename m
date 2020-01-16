@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6865013EE30
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:07:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EDFF13EE2A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:07:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388308AbgAPRjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:39:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55072 "EHLO mail.kernel.org"
+        id S1731617AbgAPRjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:39:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390428AbgAPRjC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:39:02 -0500
+        id S2393413AbgAPRjD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:39:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5ACEC246D3;
-        Thu, 16 Jan 2020 17:39:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C82D246EC;
+        Thu, 16 Jan 2020 17:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196341;
-        bh=o3C1UqRWBfZVIx0bzO1LlqfFxxEUFh+GSgJl8fNvMHs=;
+        s=default; t=1579196342;
+        bh=SdRVim0Vj/KNpASzwZRjnWoFpu17oNX69dqvLIkzFMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZm6Szib2cphewupuzqjmmVY6NbK5TKE2x12bp5cGAtlZTTVwBnP60a/foaoT9Nx1
-         YYuRY5c9ZAtKMl7/j4CAHW0qfzAfCn3MKhM4rhut0wcEoszE0iNtWMsCbkutl6bdhp
-         CIbW7Mp7Rk7AGaj8juApiT1HnzmI+H2uofL1QkLc=
+        b=da5zVZmroXY92uQQewNVCb8EsnHnKQl2fljPFba69SzYPhElHGvH9fj99LRhnN77A
+         On+wBRioftaM1WjZ+ifR+fHbJU8SLsmGzTko3KhM/x1ss1XjwrwkT3Og7pgUyxqbXY
+         J0Ov7jKpsjyCxBTpEedVDcz9aeFZYwyE/yo+0aaQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bichao Zheng <bichao.zheng@amlogic.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 138/251] pwm: meson: Don't disable PWM when setting duty repeatedly
-Date:   Thu, 16 Jan 2020 12:34:47 -0500
-Message-Id: <20200116173641.22137-98-sashal@kernel.org>
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 139/251] ARM: riscpc: fix lack of keyboard interrupts after irq conversion
+Date:   Thu, 16 Jan 2020 12:34:48 -0500
+Message-Id: <20200116173641.22137-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -47,41 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bichao Zheng <bichao.zheng@amlogic.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit a279345807e1e0ae79567a52cfdd9d30c9174a3c ]
+[ Upstream commit 63a0666bca9311f35017be454587f3ba903644b8 ]
 
-There is an abnormally low about 20ms,when setting duty repeatedly.
-Because setting the duty will disable PWM and then enable. Delete
-this operation now.
+Fix lack of keyboard interrupts for RiscPC due to incorrect conversion.
 
-Fixes: 211ed630753d2f ("pwm: Add support for Meson PWM Controller")
-Signed-off-by: Bichao Zheng <bichao.zheng@amlogic.com>
-[ Dropped code instead of hiding it behind a comment ]
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: e8d36d5dbb6a ("ARM: kill off set_irq_flags usage")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-meson.c | 5 -----
- 1 file changed, 5 deletions(-)
+ arch/arm/mach-rpc/irq.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-meson.c b/drivers/pwm/pwm-meson.c
-index f58a4867b519..a196439ee14c 100644
---- a/drivers/pwm/pwm-meson.c
-+++ b/drivers/pwm/pwm-meson.c
-@@ -320,11 +320,6 @@ static int meson_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 	if (state->period != channel->state.period ||
- 	    state->duty_cycle != channel->state.duty_cycle ||
- 	    state->polarity != channel->state.polarity) {
--		if (channel->state.enabled) {
--			meson_pwm_disable(meson, pwm->hwpwm);
--			channel->state.enabled = false;
--		}
--
- 		if (state->polarity != channel->state.polarity) {
- 			if (state->polarity == PWM_POLARITY_NORMAL)
- 				meson->inverter_mask |= BIT(pwm->hwpwm);
+diff --git a/arch/arm/mach-rpc/irq.c b/arch/arm/mach-rpc/irq.c
+index 66502e6207fe..fce7fecbd8fa 100644
+--- a/arch/arm/mach-rpc/irq.c
++++ b/arch/arm/mach-rpc/irq.c
+@@ -117,7 +117,7 @@ extern unsigned char rpc_default_fiq_start, rpc_default_fiq_end;
+ 
+ void __init rpc_init_irq(void)
+ {
+-	unsigned int irq, clr, set = 0;
++	unsigned int irq, clr, set;
+ 
+ 	iomd_writeb(0, IOMD_IRQMASKA);
+ 	iomd_writeb(0, IOMD_IRQMASKB);
+@@ -129,6 +129,7 @@ void __init rpc_init_irq(void)
+ 
+ 	for (irq = 0; irq < NR_IRQS; irq++) {
+ 		clr = IRQ_NOREQUEST;
++		set = 0;
+ 
+ 		if (irq <= 6 || (irq >= 9 && irq <= 15))
+ 			clr |= IRQ_NOPROBE;
 -- 
 2.20.1
 
