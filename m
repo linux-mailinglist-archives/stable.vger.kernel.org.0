@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1186A13E0B5
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A6113E1A7
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:50:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729151AbgAPQpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:45:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53864 "EHLO mail.kernel.org"
+        id S1729148AbgAPQpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:45:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726706AbgAPQpM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:45:12 -0500
+        id S1726706AbgAPQpQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:45:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4818B21582;
-        Thu, 16 Jan 2020 16:45:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E834B2073A;
+        Thu, 16 Jan 2020 16:45:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193111;
-        bh=1105cNsB3lE0xNOzbHnklhaaO2PN7/IcCNpK3vSUZEs=;
+        s=default; t=1579193115;
+        bh=E7LdTDXRcMDIR9XTPRTisJS7cMCBikPmWuoa6iCKbk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rv4Y1RfAQRRXaNv9JxVQSqc8zVos/VIDUOBvNbCrooHrupAQlACTD5h7Ncb+zejhu
-         cwdZkkyXqOPa1nluKV2OWmFZLa14/9ZBkxjRZE8DC/MVJ4No8NWscNGIbwMktFZX3X
-         wR+u1hkYwP8pD6qtOIAc+zMlAugy2VEGQpuo8HwA=
+        b=PzUeK30yKKt48KSPR7dTZ0ZtZwvk2z2XQ2v8/WJDUQu3b1Cs7TMRhmd5nxDfxHARJ
+         J0niG+YMzetaMQ5Fl1ndXpY9Ea7uxAX6fZTo/QGMIyvInrIDm2BjUDIjZuPxtWwdBF
+         x5QxZci35Vo8KGHwikizpehvmj8Knp1tcgdbtVfM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Phani Kiran Hemadri <phemadri@marvell.com>,
-        Srikanth Jampala <jsrikanth@marvell.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 026/205] crypto: cavium/nitrox - fix firmware assignment to AE cores
-Date:   Thu, 16 Jan 2020 11:40:01 -0500
-Message-Id: <20200116164300.6705-26-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 027/205] pinctl: ti: iodelay: fix error checking on pinctrl_count_index_with_args call
+Date:   Thu, 16 Jan 2020 11:40:02 -0500
+Message-Id: <20200116164300.6705-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -44,51 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phani Kiran Hemadri <phemadri@marvell.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 6a97a99db848748d582d79447f7c9c330ce1688e ]
+[ Upstream commit 5ff8aca906f3a7a7db79fad92f2a4401107ef50d ]
 
-This patch fixes assigning UCD block number of Asymmetric crypto
-firmware to AE cores of CNN55XX device.
+The call to pinctrl_count_index_with_args checks for a -EINVAL return
+however this function calls pinctrl_get_list_and_count and this can
+return -ENOENT. Rather than check for a specific error, fix this by
+checking for any error return to catch the -ENOENT case.
 
-Fixes: a7268c4d4205 ("crypto: cavium/nitrox - Add support for loading asymmetric crypto firmware")
-Signed-off-by: Phani Kiran Hemadri <phemadri@marvell.com>
-Reviewed-by: Srikanth Jampala <jsrikanth@marvell.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Addresses-Coverity: ("Improper use of negative")
+Fixes: 003910ebc83b ("pinctrl: Introduce TI IOdelay configuration driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20190920122030.14340-1-colin.king@canonical.com
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/cavium/nitrox/nitrox_main.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/pinctrl/ti/pinctrl-ti-iodelay.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/cavium/nitrox/nitrox_main.c b/drivers/crypto/cavium/nitrox/nitrox_main.c
-index bc924980e10c..c4632d84c9a1 100644
---- a/drivers/crypto/cavium/nitrox/nitrox_main.c
-+++ b/drivers/crypto/cavium/nitrox/nitrox_main.c
-@@ -103,8 +103,7 @@ static void write_to_ucd_unit(struct nitrox_device *ndev, u32 ucode_size,
- 	offset = UCD_UCODE_LOAD_BLOCK_NUM;
- 	nitrox_write_csr(ndev, offset, block_num);
+diff --git a/drivers/pinctrl/ti/pinctrl-ti-iodelay.c b/drivers/pinctrl/ti/pinctrl-ti-iodelay.c
+index e5e7f1f22813..b522ca010332 100644
+--- a/drivers/pinctrl/ti/pinctrl-ti-iodelay.c
++++ b/drivers/pinctrl/ti/pinctrl-ti-iodelay.c
+@@ -496,7 +496,7 @@ static int ti_iodelay_dt_node_to_map(struct pinctrl_dev *pctldev,
+ 		return -EINVAL;
  
--	code_size = ucode_size;
--	code_size = roundup(code_size, 8);
-+	code_size = roundup(ucode_size, 16);
- 	while (code_size) {
- 		data = ucode_data[i];
- 		/* write 8 bytes at a time */
-@@ -220,11 +219,11 @@ static int nitrox_load_fw(struct nitrox_device *ndev)
+ 	rows = pinctrl_count_index_with_args(np, name);
+-	if (rows == -EINVAL)
++	if (rows < 0)
+ 		return rows;
  
- 	/* write block number and firmware length
- 	 * bit:<2:0> block number
--	 * bit:3 is set SE uses 32KB microcode
--	 * bit:3 is clear SE uses 64KB microcode
-+	 * bit:3 is set AE uses 32KB microcode
-+	 * bit:3 is clear AE uses 64KB microcode
- 	 */
- 	core_2_eid_val.value = 0ULL;
--	core_2_eid_val.ucode_blk = 0;
-+	core_2_eid_val.ucode_blk = 2;
- 	if (ucode_size <= CNN55XX_UCD_BLOCK_SIZE)
- 		core_2_eid_val.ucode_len = 1;
- 	else
+ 	*map = devm_kzalloc(iod->dev, sizeof(**map), GFP_KERNEL);
 -- 
 2.20.1
 
