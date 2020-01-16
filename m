@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C96D13FED1
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2587B13FF42
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391272AbgAPXiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:38:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35018 "EHLO mail.kernel.org"
+        id S1731151AbgAPXlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:41:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730156AbgAPX3Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:29:25 -0500
+        id S2390123AbgAPX10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:27:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB9482072E;
-        Thu, 16 Jan 2020 23:29:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D7D820684;
+        Thu, 16 Jan 2020 23:27:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217364;
-        bh=zFbc9+S/ZEZazNWuHLHoKbSGQPRWWFbewUS9MAVVDD0=;
+        s=default; t=1579217245;
+        bh=heSSPlgUmAbexyzw0wI8y/0NCsNoYvE9fmtUfYhOM7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2t2Dqs5p63unbBg93dscNo+lfWuWXPCaWAfje7i/Yr8wV3EyhC5jQvTwi7DOqiOLS
-         a1l7TxOWW5Ogb7YJrIxanoBdKrPAsIxYfn0N242g1ryOZIfmhpDuzRxPD1VcW/yj5z
-         5EWcEeVcyCYdwel+zFd4yqI9/BcYOoH6sVkZHUjM=
+        b=HDbDU895p/OJXsMEePtaTRNGMP0MLA+HvNX4qC4E4aMmwtfnsy15tlF7GkcyA0spR
+         7hPKWIs0if8tzWuiWyofzzLg4y2+l4CqnS5x3nHRVyErHkoOtcOj2sQOk96cxXqS9p
+         ApaCS5fFq9Mw8+y9t39tUi/aJzaV9U8ucfgyr35E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, netdev@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.19 52/84] af_unix: add compat_ioctl support
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Sasha Levin <sashal@kernel.org>,
+        John Garry <john.garry@huawei.com>
+Subject: [PATCH 5.4 189/203] tomoyo: Suppress RCU warning at list_for_each_entry_rcu().
 Date:   Fri, 17 Jan 2020 00:18:26 +0100
-Message-Id: <20200116231719.946578178@linuxfoundation.org>
+Message-Id: <20200116231800.796145213@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
-References: <20200116231713.087649517@linuxfoundation.org>
+In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
+References: <20200116231745.218684830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,85 +45,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 5f6beb9e0f633f3cc845cdd67973c506372931b4 upstream.
+[ Upstream commit 6bd5ce6089b561f5392460bfb654dea89356ab1b ]
 
-The af_unix protocol family has a custom ioctl command (inexplicibly
-based on SIOCPROTOPRIVATE), but never had a compat_ioctl handler for
-32-bit applications.
+John Garry has reported that allmodconfig kernel on arm64 causes flood of
+"RCU-list traversed in non-reader section!!" warning. I don't know what
+change caused this warning, but this warning is safe because TOMOYO uses
+SRCU lock instead. Let's suppress this warning by explicitly telling that
+the caller is holding SRCU lock.
 
-Since all commands are compatible here, add a trivial wrapper that
-performs the compat_ptr() conversion for SIOCOUTQ/SIOCINQ.  SIOCUNIXFILE
-does not use the argument, but it doesn't hurt to also use compat_ptr()
-here.
-
-Fixes: ba94f3088b79 ("unix: add ioctl to open a unix socket file with O_PATH")
-Cc: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-and-tested-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/unix/af_unix.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ security/tomoyo/common.c |  9 ++++++---
+ security/tomoyo/domain.c | 15 ++++++++++-----
+ security/tomoyo/group.c  |  9 ++++++---
+ security/tomoyo/util.c   |  6 ++++--
+ 4 files changed, 26 insertions(+), 13 deletions(-)
 
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -649,6 +649,9 @@ static __poll_t unix_poll(struct file *,
- static __poll_t unix_dgram_poll(struct file *, struct socket *,
- 				    poll_table *);
- static int unix_ioctl(struct socket *, unsigned int, unsigned long);
-+#ifdef CONFIG_COMPAT
-+static int unix_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg);
-+#endif
- static int unix_shutdown(struct socket *, int);
- static int unix_stream_sendmsg(struct socket *, struct msghdr *, size_t);
- static int unix_stream_recvmsg(struct socket *, struct msghdr *, size_t, int);
-@@ -690,6 +693,9 @@ static const struct proto_ops unix_strea
- 	.getname =	unix_getname,
- 	.poll =		unix_poll,
- 	.ioctl =	unix_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl =	unix_compat_ioctl,
-+#endif
- 	.listen =	unix_listen,
- 	.shutdown =	unix_shutdown,
- 	.setsockopt =	sock_no_setsockopt,
-@@ -713,6 +719,9 @@ static const struct proto_ops unix_dgram
- 	.getname =	unix_getname,
- 	.poll =		unix_dgram_poll,
- 	.ioctl =	unix_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl =	unix_compat_ioctl,
-+#endif
- 	.listen =	sock_no_listen,
- 	.shutdown =	unix_shutdown,
- 	.setsockopt =	sock_no_setsockopt,
-@@ -735,6 +744,9 @@ static const struct proto_ops unix_seqpa
- 	.getname =	unix_getname,
- 	.poll =		unix_dgram_poll,
- 	.ioctl =	unix_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl =	unix_compat_ioctl,
-+#endif
- 	.listen =	unix_listen,
- 	.shutdown =	unix_shutdown,
- 	.setsockopt =	sock_no_setsockopt,
-@@ -2646,6 +2658,13 @@ static int unix_ioctl(struct socket *soc
- 	return err;
- }
+diff --git a/security/tomoyo/common.c b/security/tomoyo/common.c
+index dd3d5942e669..c36bafbcd77e 100644
+--- a/security/tomoyo/common.c
++++ b/security/tomoyo/common.c
+@@ -951,7 +951,8 @@ static bool tomoyo_manager(void)
+ 	exe = tomoyo_get_exe();
+ 	if (!exe)
+ 		return false;
+-	list_for_each_entry_rcu(ptr, &tomoyo_kernel_namespace.policy_list[TOMOYO_ID_MANAGER], head.list) {
++	list_for_each_entry_rcu(ptr, &tomoyo_kernel_namespace.policy_list[TOMOYO_ID_MANAGER], head.list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		if (!ptr->head.is_deleted &&
+ 		    (!tomoyo_pathcmp(domainname, ptr->manager) ||
+ 		     !strcmp(exe, ptr->manager->name))) {
+@@ -1095,7 +1096,8 @@ static int tomoyo_delete_domain(char *domainname)
+ 	if (mutex_lock_interruptible(&tomoyo_policy_lock))
+ 		return -EINTR;
+ 	/* Is there an active domain? */
+-	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list) {
++	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		/* Never delete tomoyo_kernel_domain */
+ 		if (domain == &tomoyo_kernel_domain)
+ 			continue;
+@@ -2778,7 +2780,8 @@ void tomoyo_check_profile(void)
  
-+#ifdef CONFIG_COMPAT
-+static int unix_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
-+{
-+	return unix_ioctl(sock, cmd, (unsigned long)compat_ptr(arg));
-+}
-+#endif
-+
- static __poll_t unix_poll(struct file *file, struct socket *sock, poll_table *wait)
+ 	tomoyo_policy_loaded = true;
+ 	pr_info("TOMOYO: 2.6.0\n");
+-	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list) {
++	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		const u8 profile = domain->profile;
+ 		struct tomoyo_policy_namespace *ns = domain->ns;
+ 
+diff --git a/security/tomoyo/domain.c b/security/tomoyo/domain.c
+index 8526a0a74023..7869d6a9980b 100644
+--- a/security/tomoyo/domain.c
++++ b/security/tomoyo/domain.c
+@@ -41,7 +41,8 @@ int tomoyo_update_policy(struct tomoyo_acl_head *new_entry, const int size,
+ 
+ 	if (mutex_lock_interruptible(&tomoyo_policy_lock))
+ 		return -ENOMEM;
+-	list_for_each_entry_rcu(entry, list, list) {
++	list_for_each_entry_rcu(entry, list, list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		if (entry->is_deleted == TOMOYO_GC_IN_PROGRESS)
+ 			continue;
+ 		if (!check_duplicate(entry, new_entry))
+@@ -119,7 +120,8 @@ int tomoyo_update_domain(struct tomoyo_acl_info *new_entry, const int size,
+ 	}
+ 	if (mutex_lock_interruptible(&tomoyo_policy_lock))
+ 		goto out;
+-	list_for_each_entry_rcu(entry, list, list) {
++	list_for_each_entry_rcu(entry, list, list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		if (entry->is_deleted == TOMOYO_GC_IN_PROGRESS)
+ 			continue;
+ 		if (!tomoyo_same_acl_head(entry, new_entry) ||
+@@ -166,7 +168,8 @@ void tomoyo_check_acl(struct tomoyo_request_info *r,
+ 	u16 i = 0;
+ 
+ retry:
+-	list_for_each_entry_rcu(ptr, list, list) {
++	list_for_each_entry_rcu(ptr, list, list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		if (ptr->is_deleted || ptr->type != r->param_type)
+ 			continue;
+ 		if (!check_entry(r, ptr))
+@@ -298,7 +301,8 @@ static inline bool tomoyo_scan_transition
  {
- 	struct sock *sk = sock->sk;
+ 	const struct tomoyo_transition_control *ptr;
+ 
+-	list_for_each_entry_rcu(ptr, list, head.list) {
++	list_for_each_entry_rcu(ptr, list, head.list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		if (ptr->head.is_deleted || ptr->type != type)
+ 			continue;
+ 		if (ptr->domainname) {
+@@ -735,7 +739,8 @@ retry:
+ 
+ 		/* Check 'aggregator' directive. */
+ 		candidate = &exename;
+-		list_for_each_entry_rcu(ptr, list, head.list) {
++		list_for_each_entry_rcu(ptr, list, head.list,
++					srcu_read_lock_held(&tomoyo_ss)) {
+ 			if (ptr->head.is_deleted ||
+ 			    !tomoyo_path_matches_pattern(&exename,
+ 							 ptr->original_name))
+diff --git a/security/tomoyo/group.c b/security/tomoyo/group.c
+index a37c7dc66e44..1cecdd797597 100644
+--- a/security/tomoyo/group.c
++++ b/security/tomoyo/group.c
+@@ -133,7 +133,8 @@ tomoyo_path_matches_group(const struct tomoyo_path_info *pathname,
+ {
+ 	struct tomoyo_path_group *member;
+ 
+-	list_for_each_entry_rcu(member, &group->member_list, head.list) {
++	list_for_each_entry_rcu(member, &group->member_list, head.list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		if (member->head.is_deleted)
+ 			continue;
+ 		if (!tomoyo_path_matches_pattern(pathname, member->member_name))
+@@ -161,7 +162,8 @@ bool tomoyo_number_matches_group(const unsigned long min,
+ 	struct tomoyo_number_group *member;
+ 	bool matched = false;
+ 
+-	list_for_each_entry_rcu(member, &group->member_list, head.list) {
++	list_for_each_entry_rcu(member, &group->member_list, head.list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		if (member->head.is_deleted)
+ 			continue;
+ 		if (min > member->number.values[1] ||
+@@ -191,7 +193,8 @@ bool tomoyo_address_matches_group(const bool is_ipv6, const __be32 *address,
+ 	bool matched = false;
+ 	const u8 size = is_ipv6 ? 16 : 4;
+ 
+-	list_for_each_entry_rcu(member, &group->member_list, head.list) {
++	list_for_each_entry_rcu(member, &group->member_list, head.list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		if (member->head.is_deleted)
+ 			continue;
+ 		if (member->address.is_ipv6 != is_ipv6)
+diff --git a/security/tomoyo/util.c b/security/tomoyo/util.c
+index 52752e1a84ed..eba0b3395851 100644
+--- a/security/tomoyo/util.c
++++ b/security/tomoyo/util.c
+@@ -594,7 +594,8 @@ struct tomoyo_domain_info *tomoyo_find_domain(const char *domainname)
+ 
+ 	name.name = domainname;
+ 	tomoyo_fill_path_info(&name);
+-	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list) {
++	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		if (!domain->is_deleted &&
+ 		    !tomoyo_pathcmp(&name, domain->domainname))
+ 			return domain;
+@@ -1028,7 +1029,8 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
+ 		return false;
+ 	if (!domain)
+ 		return true;
+-	list_for_each_entry_rcu(ptr, &domain->acl_info_list, list) {
++	list_for_each_entry_rcu(ptr, &domain->acl_info_list, list,
++				srcu_read_lock_held(&tomoyo_ss)) {
+ 		u16 perm;
+ 		u8 i;
+ 
+-- 
+2.20.1
+
 
 
