@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E49E13FF96
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:44:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CC9013FF91
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387681AbgAPXYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:24:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
+        id S2388076AbgAPXY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:24:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733266AbgAPXYZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:24:25 -0500
+        id S2387739AbgAPXY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:24:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28FE62075B;
-        Thu, 16 Jan 2020 23:24:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 995F820748;
+        Thu, 16 Jan 2020 23:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217064;
-        bh=PsSfzO05f+Oo1jRnR0rDPpL+kDOGWo5f0hc+PiXh7/0=;
+        s=default; t=1579217067;
+        bh=CS1XRDACWBXXeycLKvho87XDFgutnA8XGJnE6lEdYBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fr7DvOvzXsDCfLnIYXYdg3rnVQJ4MXE0ET4iPK/nEw35VojqyxP+tkS5N8pZTImod
-         f31C8kJodvF5B+1wQxiWJsFBQuarmhsRVat9egr+wpklzCXK2ywtn0qnBc6qmdrOlp
-         4r8uvL0p+2kHlCepHmFEyzwuP5GFvUziSh+aD3qw=
+        b=alkvLSJFM9GcM0AxUhrzG27FR4vkwY09ZSWrZkk3LAZN+qWhs64msOtUUDY2saKlW
+         9LrCJQBUg/Ko5sDOOOn3aEWNqiUYTEnF8S5PB7KvsTIkpz/VKjNK1QN9NI5G7XMJiS
+         X8F3W6OaTwIIJNP5xEbzF9vzBkq3xSvZ6VfvzUc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Niklas Cassel <niklas.cassel@linaro.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: [PATCH 5.4 133/203] PCI: aardvark: Fix PCI_EXP_RTCTL register configuration
-Date:   Fri, 17 Jan 2020 00:17:30 +0100
-Message-Id: <20200116231756.732374547@linuxfoundation.org>
+        Andrew Murray <andrew.murray@arm.com>,
+        Gustavo Pimentel <gustavo.pimentel@synopsys.com>
+Subject: [PATCH 5.4 134/203] PCI: dwc: Fix find_next_bit() usage
+Date:   Fri, 17 Jan 2020 00:17:31 +0100
+Message-Id: <20200116231756.802005832@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -44,54 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Niklas Cassel <niklas.cassel@linaro.org>
 
-commit c0f05a6ab52535c1bf5f43272eede3e11c5701a5 upstream.
+commit 1137e61dcb99f7f8b54e77ed83f68b5b485a3e34 upstream.
 
-PCI_EXP_RTCTL is used to activate PME interrupt only, so writing into it
-should not modify other interrupts' mask. The ISR mask polarity was also
-inverted, when PCI_EXP_RTCTL_PMEIE is set PCIE_MSG_PM_PME_MASK mask bit
-should actually be cleared.
+find_next_bit() takes a parameter of size long, and performs arithmetic
+that assumes that the argument is of size long.
 
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Therefore we cannot pass a u32, since this will cause find_next_bit()
+to read outside the stack buffer and will produce the following print:
+BUG: KASAN: stack-out-of-bounds in find_next_bit+0x38/0xb0
+
+Fixes: 1b497e6493c4 ("PCI: dwc: Fix uninitialized variable in dw_handle_msi_irq()")
+Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Acked-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/pci-aardvark.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/pci/controller/dwc/pcie-designware-host.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -428,7 +428,7 @@ advk_pci_bridge_emul_pcie_conf_read(stru
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -78,7 +78,8 @@ static struct msi_domain_info dw_pcie_ms
+ irqreturn_t dw_handle_msi_irq(struct pcie_port *pp)
+ {
+ 	int i, pos, irq;
+-	u32 val, num_ctrls;
++	unsigned long val;
++	u32 status, num_ctrls;
+ 	irqreturn_t ret = IRQ_NONE;
  
- 	case PCI_EXP_RTCTL: {
- 		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
--		*value = (val & PCIE_MSG_PM_PME_MASK) ? PCI_EXP_RTCTL_PMEIE : 0;
-+		*value = (val & PCIE_MSG_PM_PME_MASK) ? 0 : PCI_EXP_RTCTL_PMEIE;
- 		return PCI_BRIDGE_EMUL_HANDLED;
- 	}
+ 	num_ctrls = pp->num_vectors / MAX_MSI_IRQS_PER_CTRL;
+@@ -86,14 +87,14 @@ irqreturn_t dw_handle_msi_irq(struct pci
+ 	for (i = 0; i < num_ctrls; i++) {
+ 		dw_pcie_rd_own_conf(pp, PCIE_MSI_INTR0_STATUS +
+ 					(i * MSI_REG_CTRL_BLOCK_SIZE),
+-				    4, &val);
+-		if (!val)
++				    4, &status);
++		if (!status)
+ 			continue;
  
-@@ -478,10 +478,15 @@ advk_pci_bridge_emul_pcie_conf_write(str
- 			advk_pcie_wait_for_retrain(pcie);
- 		break;
- 
--	case PCI_EXP_RTCTL:
--		new = (new & PCI_EXP_RTCTL_PMEIE) << 3;
--		advk_writel(pcie, new, PCIE_ISR0_MASK_REG);
-+	case PCI_EXP_RTCTL: {
-+		/* Only mask/unmask PME interrupt */
-+		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG) &
-+			~PCIE_MSG_PM_PME_MASK;
-+		if ((new & PCI_EXP_RTCTL_PMEIE) == 0)
-+			val |= PCIE_MSG_PM_PME_MASK;
-+		advk_writel(pcie, val, PCIE_ISR0_MASK_REG);
- 		break;
-+	}
- 
- 	case PCI_EXP_RTSTA:
- 		new = (new & PCI_EXP_RTSTA_PME) >> 9;
+ 		ret = IRQ_HANDLED;
++		val = status;
+ 		pos = 0;
+-		while ((pos = find_next_bit((unsigned long *) &val,
+-					    MAX_MSI_IRQS_PER_CTRL,
++		while ((pos = find_next_bit(&val, MAX_MSI_IRQS_PER_CTRL,
+ 					    pos)) != MAX_MSI_IRQS_PER_CTRL) {
+ 			irq = irq_find_mapping(pp->irq_domain,
+ 					       (i * MAX_MSI_IRQS_PER_CTRL) +
 
 
