@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A60613F670
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:04:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0884813F675
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:04:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388342AbgAPRCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:02:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54940 "EHLO mail.kernel.org"
+        id S2388688AbgAPTEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:04:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387466AbgAPRCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:02:21 -0500
+        id S2387934AbgAPRCW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:02:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F41702077B;
-        Thu, 16 Jan 2020 17:02:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BAA720730;
+        Thu, 16 Jan 2020 17:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194140;
-        bh=Bqung/CFGAAzncMdZ5Rf7tz3HPZrtQ1OIkm3NCvqIwQ=;
+        s=default; t=1579194141;
+        bh=Arr1726Id5mEVcSp5PE/MtW4ooJu4KwJFMqCkc++vG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJ4vwbqDCC79kmnI+ss70m73rKckdjk69hvEmh8v7fl0Kr+ygqnuKUWYtOml2g9aG
-         nOkhja0UiV5OOaDKHnABDWRXZTj/3NysBFhiQCShh3/JlSuup53fBzRuW8eI2sNSUx
-         1xO+WwAHHzRwbxtDWwJCxicS9FSOuDfPmZiv1I00=
+        b=TBA4yWuW2SPxELObiTIT9AOZ2+XzAAwuGz3AHJP7VVH9r2IwVDGFjzm9MkMUah01g
+         CMFuI41pt4osmvHshFtv2C1aoyymgELT85AN7PQz8uFnVvkytQYwBfPdef1iUIxSn7
+         r9dgI1qUR80yNRaFVo88iguEBxhXtmAbbQy8yju4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eli Britstein <elibr@mellanox.com>, Jiri Pirko <jiri@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 227/671] net: sched: act_csum: Fix csum calc for tagged packets
-Date:   Thu, 16 Jan 2020 11:52:16 -0500
-Message-Id: <20200116165940.10720-110-sashal@kernel.org>
+Cc:     Jonas Gorski <jonas.gorski@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 228/671] hwrng: bcm2835 - fix probe as platform device
+Date:   Thu, 16 Jan 2020 11:52:17 -0500
+Message-Id: <20200116165940.10720-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -43,89 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Britstein <elibr@mellanox.com>
+From: Jonas Gorski <jonas.gorski@gmail.com>
 
-[ Upstream commit 2ecba2d1e45b24620a7c3df9531895cf68d5dec6 ]
+[ Upstream commit 984798de671a927ac73da31096a150df42e6aaf3 ]
 
-The csum calculation is different for IPv4/6. For VLAN packets,
-tc_skb_protocol returns the VLAN protocol rather than the packet's one
-(e.g. IPv4/6), so csum is not calculated. Furthermore, VLAN may not be
-stripped so csum is not calculated in this case too. Calculate the
-csum for those cases.
+BCM63XX (MIPS) does not use device tree, so there cannot be any
+of_device_id, causing the driver to fail on probe:
 
-Fixes: d8b9605d2697 ("net: sched: fix skb->protocol use in case of accelerated vlan path")
-Signed-off-by: Eli Britstein <elibr@mellanox.com>
-Signed-off-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[    0.904564] bcm2835-rng: probe of bcm63xx-rng failed with error -22
+
+Fix this by checking for match data only if we are probing from device
+tree.
+
+Fixes: 8705f24f7b57 ("hwrng: bcm2835 - Enable BCM2835 RNG to work on BCM63xx platforms")
+Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_csum.c | 31 +++++++++++++++++++++++++++++--
- 1 file changed, 29 insertions(+), 2 deletions(-)
+ drivers/char/hw_random/bcm2835-rng.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/net/sched/act_csum.c b/net/sched/act_csum.c
-index 1e269441065a..9ecbf8edcf39 100644
---- a/net/sched/act_csum.c
-+++ b/net/sched/act_csum.c
-@@ -560,8 +560,11 @@ static int tcf_csum_act(struct sk_buff *skb, const struct tc_action *a,
- 			struct tcf_result *res)
- {
- 	struct tcf_csum *p = to_tcf_csum(a);
-+	bool orig_vlan_tag_present = false;
-+	unsigned int vlan_hdr_count = 0;
- 	struct tcf_csum_params *params;
- 	u32 update_flags;
-+	__be16 protocol;
- 	int action;
+diff --git a/drivers/char/hw_random/bcm2835-rng.c b/drivers/char/hw_random/bcm2835-rng.c
+index 6767d965c36c..19bde680aee1 100644
+--- a/drivers/char/hw_random/bcm2835-rng.c
++++ b/drivers/char/hw_random/bcm2835-rng.c
+@@ -171,14 +171,16 @@ static int bcm2835_rng_probe(struct platform_device *pdev)
+ 	priv->rng.read = bcm2835_rng_read;
+ 	priv->rng.cleanup = bcm2835_rng_cleanup;
  
- 	params = rcu_dereference_bh(p->params);
-@@ -574,7 +577,9 @@ static int tcf_csum_act(struct sk_buff *skb, const struct tc_action *a,
- 		goto drop;
- 
- 	update_flags = params->update_flags;
--	switch (tc_skb_protocol(skb)) {
-+	protocol = tc_skb_protocol(skb);
-+again:
-+	switch (protocol) {
- 	case cpu_to_be16(ETH_P_IP):
- 		if (!tcf_csum_ipv4(skb, update_flags))
- 			goto drop;
-@@ -583,13 +588,35 @@ static int tcf_csum_act(struct sk_buff *skb, const struct tc_action *a,
- 		if (!tcf_csum_ipv6(skb, update_flags))
- 			goto drop;
- 		break;
-+	case cpu_to_be16(ETH_P_8021AD): /* fall through */
-+	case cpu_to_be16(ETH_P_8021Q):
-+		if (skb_vlan_tag_present(skb) && !orig_vlan_tag_present) {
-+			protocol = skb->protocol;
-+			orig_vlan_tag_present = true;
-+		} else {
-+			struct vlan_hdr *vlan = (struct vlan_hdr *)skb->data;
+-	rng_id = of_match_node(bcm2835_rng_of_match, np);
+-	if (!rng_id)
+-		return -EINVAL;
+-
+-	/* Check for rng init function, execute it */
+-	of_data = rng_id->data;
+-	if (of_data)
+-		priv->mask_interrupts = of_data->mask_interrupts;
++	if (dev_of_node(dev)) {
++		rng_id = of_match_node(bcm2835_rng_of_match, np);
++		if (!rng_id)
++			return -EINVAL;
 +
-+			protocol = vlan->h_vlan_encapsulated_proto;
-+			skb_pull(skb, VLAN_HLEN);
-+			skb_reset_network_header(skb);
-+			vlan_hdr_count++;
-+		}
-+		goto again;
++		/* Check for rng init function, execute it */
++		of_data = rng_id->data;
++		if (of_data)
++			priv->mask_interrupts = of_data->mask_interrupts;
 +	}
-+
-+out:
-+	/* Restore the skb for the pulled VLAN tags */
-+	while (vlan_hdr_count--) {
-+		skb_push(skb, VLAN_HLEN);
-+		skb_reset_network_header(skb);
- 	}
  
- 	return action;
- 
- drop:
- 	qstats_drop_inc(this_cpu_ptr(p->common.cpu_qstats));
--	return TC_ACT_SHOT;
-+	action = TC_ACT_SHOT;
-+	goto out;
- }
- 
- static int tcf_csum_dump(struct sk_buff *skb, struct tc_action *a, int bind,
+ 	/* register driver */
+ 	err = devm_hwrng_register(dev, &priv->rng);
 -- 
 2.20.1
 
