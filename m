@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C89513F108
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:27:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA93E13F129
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:27:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403972AbgAPR0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:26:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35442 "EHLO mail.kernel.org"
+        id S2405166AbgAPS04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:26:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403966AbgAPR0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:26:33 -0500
+        id S2403968AbgAPR0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:26:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2515246BE;
-        Thu, 16 Jan 2020 17:26:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1934B246C9;
+        Thu, 16 Jan 2020 17:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195592;
-        bh=206sE0FgN/guZTm+kxehiEoGAU09Y0UfRM/qPQMxmPE=;
+        s=default; t=1579195593;
+        bh=WWmPJ3650HNGqbtcw0J3/cGbsp9hXIqKcqF5dVQJQmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lcEa72yR+CEIYivF1+ofSUFTWceGg1eAVQeoJ1HkKIi47PGYO1Fzi4tsYfzqoj/p0
-         Wv3HyTj0hoPZvD2c7ysRhq1EGMElexoQdgUdzHhaw/nAtQsFhQV2EztKxQV3qzDmiM
-         BBxA+WtPJUnwB+6+yrN+ZaoxRwdDmohCq+UVaqsY=
+        b=JGBhzoALpcsSQw6QSiSEb+0u4NIG8SyCH6Jj7cLafvHJHcze3rQpyu+EAMFKJw17F
+         Il0DeOwpz3fYWNAf//hwWWnWuEayPPK48N3cKRtCjNZsOQu3k7n4NotfdKj6n15DJj
+         ry2PgQIA0U1W1OnP7/cMrvxN7ItFwUj0bboYu7Sk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 170/371] dmaengine: axi-dmac: Don't check the number of frames for alignment
-Date:   Thu, 16 Jan 2020 12:20:42 -0500
-Message-Id: <20200116172403.18149-113-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 171/371] ALSA: usb-audio: Handle the error from snd_usb_mixer_apply_create_quirk()
+Date:   Thu, 16 Jan 2020 12:20:43 -0500
+Message-Id: <20200116172403.18149-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -43,43 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 648865a79d8ee3d1aa64aab5eb2a9d12eeed14f9 ]
+[ Upstream commit 328e9f6973be2ee67862cb17bf6c0c5c5918cd72 ]
 
-In 2D transfers (for the AXI DMAC), the number of frames (numf) represents
-Y_LENGTH, and the length of a frame is X_LENGTH. 2D transfers are useful
-for video transfers where screen resolutions ( X * Y ) are typically
-aligned for X, but not for Y.
+The error from snd_usb_mixer_apply_create_quirk() is ignored in the
+current usb-audio driver code, which will continue the probing even
+after the error.  Let's take it more serious.
 
-There is no requirement for Y_LENGTH to be aligned to the bus-width (or
-anything), and this is also true for AXI DMAC.
-
-Checking the Y_LENGTH for alignment causes false errors when initiating DMA
-transfers. This change fixes this by checking only that the Y_LENGTH is
-non-zero.
-
-Fixes: 0e3b67b348b8 ("dmaengine: Add support for the Analog Devices AXI-DMAC DMA controller")
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 7b1eda223deb ("ALSA: usb-mixer: factor out quirks")
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dma-axi-dmac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/mixer.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dma-axi-dmac.c b/drivers/dma/dma-axi-dmac.c
-index 7f0b9aa15867..9887f2a14aa9 100644
---- a/drivers/dma/dma-axi-dmac.c
-+++ b/drivers/dma/dma-axi-dmac.c
-@@ -451,7 +451,7 @@ static struct dma_async_tx_descriptor *axi_dmac_prep_interleaved(
+diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
+index 044193b2364d..e6e4c3b9d9d3 100644
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -2632,7 +2632,9 @@ int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
+ 	    (err = snd_usb_mixer_status_create(mixer)) < 0)
+ 		goto _error;
  
- 	if (chan->hw_2d) {
- 		if (!axi_dmac_check_len(chan, xt->sgl[0].size) ||
--		    !axi_dmac_check_len(chan, xt->numf))
-+		    xt->numf == 0)
- 			return NULL;
- 		if (xt->sgl[0].size + dst_icg > chan->max_length ||
- 		    xt->sgl[0].size + src_icg > chan->max_length)
+-	snd_usb_mixer_apply_create_quirk(mixer);
++	err = snd_usb_mixer_apply_create_quirk(mixer);
++	if (err < 0)
++		goto _error;
+ 
+ 	err = snd_device_new(chip->card, SNDRV_DEV_CODEC, mixer, &dev_ops);
+ 	if (err < 0)
 -- 
 2.20.1
 
