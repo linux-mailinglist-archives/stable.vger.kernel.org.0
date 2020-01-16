@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F5A13E36D
+	by mail.lfdr.de (Postfix) with ESMTP id F360F13E36E
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387899AbgAPRCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:02:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53970 "EHLO mail.kernel.org"
+        id S2388242AbgAPRCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:02:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388231AbgAPRCB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:02:01 -0500
+        id S2388236AbgAPRCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:02:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 631A72073A;
-        Thu, 16 Jan 2020 17:01:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16A0E2081E;
+        Thu, 16 Jan 2020 17:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194119;
-        bh=NJQiPJIrKiaImODSr+PXyi/+dgALKKFxvN4AZd4v/Ng=;
+        s=default; t=1579194121;
+        bh=vtBZ2hk/fPtWls1UlfVKCCeAAevYCxSfx9KqQnSNZBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UdI9QO85pZIxT47joEI+dnZeyU8s8YCT+uzJhR884OdMZBOlc0uwVKUkfw+UldYDV
-         9qR6gV6L+kv+yMy85M5/JxRo9cZI1SMFFE2gXln/sF95enbCWX76CeAOGRmI1HDJnz
-         OzqMC+4AJMuFLT1JQdDjiFuWkDcAXF2RI74uBB/0=
+        b=g8VeV2DeBrc6AM50d5bdzvUsFKWt1rlaRH4fdtZPzQQs9GEyexi62U1GiTqtJIFE7
+         aCS3MQcQCHN04Y6L3N9wbxn8PaLBYv1mzWPzM4ddiTnu3TJV0u8U0S488tJ6ke7ynK
+         oG9NnVGbTJFkZnbMzEPaT7y4614SRMqKZJwVtTag=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+Cc:     Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 213/671] perf, pt, coresight: Fix address filters for vmas with non-zero offset
-Date:   Thu, 16 Jan 2020 11:52:02 -0500
-Message-Id: <20200116165940.10720-96-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 214/671] clocksource/drivers/sun5i: Fail gracefully when clock rate is unavailable
+Date:   Thu, 16 Jan 2020 11:52:03 -0500
+Message-Id: <20200116165940.10720-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -48,295 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit c60f83b813e5b25ccd5de7e8c8925c31b3aebcc1 ]
+[ Upstream commit e7e7e0d7beafebd11b0c065cd5fbc1e5759c5aab ]
 
-Currently, the address range calculation for file-based filters works as
-long as the vma that maps the matching part of the object file starts
-from offset zero into the file (vm_pgoff==0). Otherwise, the resulting
-filter range would be off by vm_pgoff pages. Another related problem is
-that in case of a partially matching vma, that is, a vma that matches
-part of a filter region, the filter range size wouldn't be adjusted.
+If the clock tree is not fully populated when the timer-sun5i init code
+is called, attempts to get the clock rate for the timer would fail and
+return 0.
 
-Fix the arithmetics around address filter range calculations, taking
-into account vma offset, so that the entire calculation is done before
-the filter configuration is passed to the PMU drivers instead of having
-those drivers do the final bit of arithmetics.
+Make the init code for both clock events and clocksource check the
+returned clock rate and fail gracefully if the result is 0, instead of
+causing a divide by 0 exception later on.
 
-Based on the patch by Adrian Hunter <adrian.hunter.intel.com>.
-
-Reported-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Tested-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Fixes: 375637bc5249 ("perf/core: Introduce address range filtering")
-Link: http://lkml.kernel.org/r/20190215115655.63469-3-alexander.shishkin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 4a59058f0b09 ("clocksource/drivers/sun5i: Refactor the current code")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/pt.c                    |  9 ++-
- .../hwtracing/coresight/coresight-etm-perf.c  |  7 +-
- include/linux/perf_event.h                    |  7 +-
- kernel/events/core.c                          | 81 +++++++++++--------
- 4 files changed, 62 insertions(+), 42 deletions(-)
+ drivers/clocksource/timer-sun5i.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
-index 8f4c98fdd03c..f03100bc5fd1 100644
---- a/arch/x86/events/intel/pt.c
-+++ b/arch/x86/events/intel/pt.c
-@@ -1213,7 +1213,8 @@ static int pt_event_addr_filters_validate(struct list_head *filters)
- static void pt_event_addr_filters_sync(struct perf_event *event)
- {
- 	struct perf_addr_filters_head *head = perf_event_addr_filters(event);
--	unsigned long msr_a, msr_b, *offs = event->addr_filters_offs;
-+	unsigned long msr_a, msr_b;
-+	struct perf_addr_filter_range *fr = event->addr_filter_ranges;
- 	struct pt_filters *filters = event->hw.addr_filters;
- 	struct perf_addr_filter *filter;
- 	int range = 0;
-@@ -1222,12 +1223,12 @@ static void pt_event_addr_filters_sync(struct perf_event *event)
- 		return;
+diff --git a/drivers/clocksource/timer-sun5i.c b/drivers/clocksource/timer-sun5i.c
+index 3b56ea3f52af..552c5254390c 100644
+--- a/drivers/clocksource/timer-sun5i.c
++++ b/drivers/clocksource/timer-sun5i.c
+@@ -202,6 +202,11 @@ static int __init sun5i_setup_clocksource(struct device_node *node,
+ 	}
  
- 	list_for_each_entry(filter, &head->list, entry) {
--		if (filter->path.dentry && !offs[range]) {
-+		if (filter->path.dentry && !fr[range].start) {
- 			msr_a = msr_b = 0;
- 		} else {
- 			/* apply the offset */
--			msr_a = filter->offset + offs[range];
--			msr_b = filter->size + msr_a - 1;
-+			msr_a = fr[range].start;
-+			msr_b = msr_a + fr[range].size - 1;
- 		}
- 
- 		filters->filter[range].msr_a  = msr_a;
-diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
-index c3c645201514..567f46ca2599 100644
---- a/drivers/hwtracing/coresight/coresight-etm-perf.c
-+++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
-@@ -437,15 +437,16 @@ static int etm_addr_filters_validate(struct list_head *filters)
- static void etm_addr_filters_sync(struct perf_event *event)
- {
- 	struct perf_addr_filters_head *head = perf_event_addr_filters(event);
--	unsigned long start, stop, *offs = event->addr_filters_offs;
-+	unsigned long start, stop;
-+	struct perf_addr_filter_range *fr = event->addr_filter_ranges;
- 	struct etm_filters *filters = event->hw.addr_filters;
- 	struct etm_filter *etm_filter;
- 	struct perf_addr_filter *filter;
- 	int i = 0;
- 
- 	list_for_each_entry(filter, &head->list, entry) {
--		start = filter->offset + offs[i];
--		stop = start + filter->size;
-+		start = fr[i].start;
-+		stop = start + fr[i].size;
- 		etm_filter = &filters->etm_filter[i];
- 
- 		switch (filter->action) {
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index b22bc81f3669..d8b4d31acd18 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -494,6 +494,11 @@ struct perf_addr_filters_head {
- 	unsigned int		nr_file_filters;
- };
- 
-+struct perf_addr_filter_range {
-+	unsigned long		start;
-+	unsigned long		size;
-+};
-+
- /**
-  * enum perf_event_state - the states of an event:
-  */
-@@ -670,7 +675,7 @@ struct perf_event {
- 	/* address range filters */
- 	struct perf_addr_filters_head	addr_filters;
- 	/* vma address array for file-based filders */
--	unsigned long			*addr_filters_offs;
-+	struct perf_addr_filter_range	*addr_filter_ranges;
- 	unsigned long			addr_filters_gen;
- 
- 	void (*destroy)(struct perf_event *);
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 9a5559f5938a..4eef2d42d05c 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -2804,7 +2804,7 @@ static int perf_event_stop(struct perf_event *event, int restart)
-  *
-  * (p1) when userspace mappings change as a result of (1) or (2) or (3) below,
-  *      we update the addresses of corresponding vmas in
-- *	event::addr_filters_offs array and bump the event::addr_filters_gen;
-+ *	event::addr_filter_ranges array and bump the event::addr_filters_gen;
-  * (p2) when an event is scheduled in (pmu::add), it calls
-  *      perf_event_addr_filters_sync() which calls pmu::addr_filters_sync()
-  *      if the generation has changed since the previous call.
-@@ -4448,7 +4448,7 @@ static void _free_event(struct perf_event *event)
- 
- 	perf_event_free_bpf_prog(event);
- 	perf_addr_filters_splice(event, NULL);
--	kfree(event->addr_filters_offs);
-+	kfree(event->addr_filter_ranges);
- 
- 	if (event->destroy)
- 		event->destroy(event);
-@@ -6743,7 +6743,8 @@ static void perf_event_addr_filters_exec(struct perf_event *event, void *data)
- 	raw_spin_lock_irqsave(&ifh->lock, flags);
- 	list_for_each_entry(filter, &ifh->list, entry) {
- 		if (filter->path.dentry) {
--			event->addr_filters_offs[count] = 0;
-+			event->addr_filter_ranges[count].start = 0;
-+			event->addr_filter_ranges[count].size = 0;
- 			restart++;
- 		}
- 
-@@ -7425,28 +7426,47 @@ static bool perf_addr_filter_match(struct perf_addr_filter *filter,
- 	return true;
- }
- 
-+static bool perf_addr_filter_vma_adjust(struct perf_addr_filter *filter,
-+					struct vm_area_struct *vma,
-+					struct perf_addr_filter_range *fr)
-+{
-+	unsigned long vma_size = vma->vm_end - vma->vm_start;
-+	unsigned long off = vma->vm_pgoff << PAGE_SHIFT;
-+	struct file *file = vma->vm_file;
-+
-+	if (!perf_addr_filter_match(filter, file, off, vma_size))
-+		return false;
-+
-+	if (filter->offset < off) {
-+		fr->start = vma->vm_start;
-+		fr->size = min(vma_size, filter->size - (off - filter->offset));
-+	} else {
-+		fr->start = vma->vm_start + filter->offset - off;
-+		fr->size = min(vma->vm_end - fr->start, filter->size);
+ 	rate = clk_get_rate(clk);
++	if (!rate) {
++		pr_err("Couldn't get parent clock rate\n");
++		ret = -EINVAL;
++		goto err_disable_clk;
 +	}
-+
-+	return true;
-+}
-+
- static void __perf_addr_filters_adjust(struct perf_event *event, void *data)
- {
- 	struct perf_addr_filters_head *ifh = perf_event_addr_filters(event);
- 	struct vm_area_struct *vma = data;
--	unsigned long off = vma->vm_pgoff << PAGE_SHIFT, flags;
--	struct file *file = vma->vm_file;
- 	struct perf_addr_filter *filter;
- 	unsigned int restart = 0, count = 0;
-+	unsigned long flags;
  
- 	if (!has_addr_filter(event))
- 		return;
- 
--	if (!file)
-+	if (!vma->vm_file)
- 		return;
- 
- 	raw_spin_lock_irqsave(&ifh->lock, flags);
- 	list_for_each_entry(filter, &ifh->list, entry) {
--		if (perf_addr_filter_match(filter, file, off,
--					     vma->vm_end - vma->vm_start)) {
--			event->addr_filters_offs[count] = vma->vm_start;
-+		if (perf_addr_filter_vma_adjust(filter, vma,
-+						&event->addr_filter_ranges[count]))
- 			restart++;
--		}
- 
- 		count++;
+ 	cs->timer.base = base;
+ 	cs->timer.clk = clk;
+@@ -275,6 +280,11 @@ static int __init sun5i_setup_clockevent(struct device_node *node, void __iomem
  	}
-@@ -8806,26 +8826,19 @@ static void perf_addr_filters_splice(struct perf_event *event,
-  * @filter; if so, adjust filter's address range.
-  * Called with mm::mmap_sem down for reading.
-  */
--static unsigned long perf_addr_filter_apply(struct perf_addr_filter *filter,
--					    struct mm_struct *mm)
-+static void perf_addr_filter_apply(struct perf_addr_filter *filter,
-+				   struct mm_struct *mm,
-+				   struct perf_addr_filter_range *fr)
- {
- 	struct vm_area_struct *vma;
  
- 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
--		struct file *file = vma->vm_file;
--		unsigned long off = vma->vm_pgoff << PAGE_SHIFT;
--		unsigned long vma_size = vma->vm_end - vma->vm_start;
--
--		if (!file)
-+		if (!vma->vm_file)
- 			continue;
+ 	rate = clk_get_rate(clk);
++	if (!rate) {
++		pr_err("Couldn't get parent clock rate\n");
++		ret = -EINVAL;
++		goto err_disable_clk;
++	}
  
--		if (!perf_addr_filter_match(filter, file, off, vma_size))
--			continue;
--
--		return vma->vm_start;
-+		if (perf_addr_filter_vma_adjust(filter, vma, fr))
-+			return;
- 	}
--
--	return 0;
- }
- 
- /*
-@@ -8859,15 +8872,15 @@ static void perf_event_addr_filters_apply(struct perf_event *event)
- 
- 	raw_spin_lock_irqsave(&ifh->lock, flags);
- 	list_for_each_entry(filter, &ifh->list, entry) {
--		event->addr_filters_offs[count] = 0;
-+		event->addr_filter_ranges[count].start = 0;
-+		event->addr_filter_ranges[count].size = 0;
- 
- 		/*
- 		 * Adjust base offset if the filter is associated to a binary
- 		 * that needs to be mapped:
- 		 */
- 		if (filter->path.dentry)
--			event->addr_filters_offs[count] =
--				perf_addr_filter_apply(filter, mm);
-+			perf_addr_filter_apply(filter, mm, &event->addr_filter_ranges[count]);
- 
- 		count++;
- 	}
-@@ -10129,10 +10142,10 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
- 		goto err_pmu;
- 
- 	if (has_addr_filter(event)) {
--		event->addr_filters_offs = kcalloc(pmu->nr_addr_filters,
--						   sizeof(unsigned long),
--						   GFP_KERNEL);
--		if (!event->addr_filters_offs) {
-+		event->addr_filter_ranges = kcalloc(pmu->nr_addr_filters,
-+						    sizeof(struct perf_addr_filter_range),
-+						    GFP_KERNEL);
-+		if (!event->addr_filter_ranges) {
- 			err = -ENOMEM;
- 			goto err_per_task;
- 		}
-@@ -10145,9 +10158,9 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
- 			struct perf_addr_filters_head *ifh = perf_event_addr_filters(event);
- 
- 			raw_spin_lock_irq(&ifh->lock);
--			memcpy(event->addr_filters_offs,
--			       event->parent->addr_filters_offs,
--			       pmu->nr_addr_filters * sizeof(unsigned long));
-+			memcpy(event->addr_filter_ranges,
-+			       event->parent->addr_filter_ranges,
-+			       pmu->nr_addr_filters * sizeof(struct perf_addr_filter_range));
- 			raw_spin_unlock_irq(&ifh->lock);
- 		}
- 
-@@ -10169,7 +10182,7 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
- 	return event;
- 
- err_addr_filters:
--	kfree(event->addr_filters_offs);
-+	kfree(event->addr_filter_ranges);
- 
- err_per_task:
- 	exclusive_event_destroy(event);
+ 	ce->timer.base = base;
+ 	ce->timer.ticks_per_jiffy = DIV_ROUND_UP(rate, HZ);
 -- 
 2.20.1
 
