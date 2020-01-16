@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D335913E1A6
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:50:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E06613E0C0
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:45:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729154AbgAPQpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:45:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54124 "EHLO mail.kernel.org"
+        id S1729588AbgAPQpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:45:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729164AbgAPQpT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:45:19 -0500
+        id S1729164AbgAPQpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:45:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66CD224653;
-        Thu, 16 Jan 2020 16:45:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C2E3214AF;
+        Thu, 16 Jan 2020 16:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193119;
-        bh=LloDcqJ/iXMkz8+ZcJPLrEce9JsPdxR77CwK+93jPBA=;
+        s=default; t=1579193123;
+        bh=DiQHE5REgQamHOQjDKS+KWLMX0tIKuXjs1EZJ4ndLqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=raA5DK4TneVwg31n/l8EU8B9Z1Zk0Hj+XsPGhqlYgGrIYJlPW3j1i6lNqAMqw084x
-         F3S/2mazvu43uD6eK/dZ7qBJTf48DoY5rM0iURyIK741HknzErpAoiNzRkLsxlfGMD
-         LOTggkC20EbF2zSF/kNjCz1lslY6lqofU266uKG8=
+        b=qTnVAGqO06gMlbaovWi08KGkdGygqtQxDrl6Dgtjbj8OSKEluRS12BCzHlTANHTzZ
+         qcZeMI4DdRWHk4s9SxTXv5/Gm6G0qZ+EcbKl5OomrgrlYz74BXf9YtPPXozLQ/VUJJ
+         XWEKR0/FQ15DuiH2f9X7J+z1d/MoineNSJvQB0MQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Manasa Mudireddy <manasa.mudireddy@broadcom.com>,
-        Ray Jui <ray.jui@broadcom.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 028/205] net: phy: broadcom: Fix RGMII delays configuration for BCM54210E
-Date:   Thu, 16 Jan 2020 11:40:03 -0500
-Message-Id: <20200116164300.6705-28-sashal@kernel.org>
+Cc:     Leonard Crestez <leonard.crestez@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 029/205] clk: imx: pll14xx: Fix quick switch of S/K parameter
+Date:   Thu, 16 Jan 2020 11:40:04 -0500
+Message-Id: <20200116164300.6705-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -45,53 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Leonard Crestez <leonard.crestez@nxp.com>
 
-[ Upstream commit fea7fda7f50a6059220f83251e70709e45cc8040 ]
+[ Upstream commit 094234fcf46146339caaac8282aa15d225a5911a ]
 
-Commit 0fc9ae107669 ("net: phy: broadcom: add support for
-BCM54210E") added support for BCM54210E but also unconditionally cleared
-the RXC to RXD skew and the TXD to TXC skew, thus only making
-PHY_INTERFACE_MODE_RGMII a possible configuration. Use
-bcm54xx_config_clock_delay() which correctly sets the registers
-depending on the 4 possible PHY interface values that exist for RGMII.
+The PLL14xx on imx8m can change the S and K parameter without requiring
+a reset and relock of the whole PLL.
 
-Fixes: 0fc9ae107669 ("net: phy: broadcom: add support for BCM54210E")
-Reported-by: Manasa Mudireddy <manasa.mudireddy@broadcom.com>
-Reported-by: Ray Jui <ray.jui@broadcom.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix clk_pll144xx_mp_change register reading and use it for pll1443 as
+well since no reset+relock is required on K changes either.
+
+Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
+Fixes: 8646d4dcc7fb ("clk: imx: Add PLLs driver for imx8mm soc")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/broadcom.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ drivers/clk/imx/clk-pll14xx.c | 40 +++++++----------------------------
+ 1 file changed, 8 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
-index 937d0059e8ac..5e956089bf52 100644
---- a/drivers/net/phy/broadcom.c
-+++ b/drivers/net/phy/broadcom.c
-@@ -26,18 +26,13 @@ MODULE_DESCRIPTION("Broadcom PHY driver");
- MODULE_AUTHOR("Maciej W. Rozycki");
- MODULE_LICENSE("GPL");
+diff --git a/drivers/clk/imx/clk-pll14xx.c b/drivers/clk/imx/clk-pll14xx.c
+index d43b4a3c0de8..047f1d8fe323 100644
+--- a/drivers/clk/imx/clk-pll14xx.c
++++ b/drivers/clk/imx/clk-pll14xx.c
+@@ -112,43 +112,17 @@ static unsigned long clk_pll1443x_recalc_rate(struct clk_hw *hw,
+ 	return fvco;
+ }
  
-+static int bcm54xx_config_clock_delay(struct phy_device *phydev);
-+
- static int bcm54210e_config_init(struct phy_device *phydev)
+-static inline bool clk_pll1416x_mp_change(const struct imx_pll14xx_rate_table *rate,
++static inline bool clk_pll14xx_mp_change(const struct imx_pll14xx_rate_table *rate,
+ 					  u32 pll_div)
  {
- 	int val;
+ 	u32 old_mdiv, old_pdiv;
  
--	val = bcm54xx_auxctl_read(phydev, MII_BCM54XX_AUXCTL_SHDWSEL_MISC);
--	val &= ~MII_BCM54XX_AUXCTL_SHDWSEL_MISC_RGMII_SKEW_EN;
--	val |= MII_BCM54XX_AUXCTL_MISC_WREN;
--	bcm54xx_auxctl_write(phydev, MII_BCM54XX_AUXCTL_SHDWSEL_MISC, val);
+-	old_mdiv = (pll_div >> MDIV_SHIFT) & MDIV_MASK;
+-	old_pdiv = (pll_div >> PDIV_SHIFT) & PDIV_MASK;
++	old_mdiv = (pll_div & MDIV_MASK) >> MDIV_SHIFT;
++	old_pdiv = (pll_div & PDIV_MASK) >> PDIV_SHIFT;
+ 
+ 	return rate->mdiv != old_mdiv || rate->pdiv != old_pdiv;
+ }
+ 
+-static inline bool clk_pll1443x_mpk_change(const struct imx_pll14xx_rate_table *rate,
+-					  u32 pll_div_ctl0, u32 pll_div_ctl1)
+-{
+-	u32 old_mdiv, old_pdiv, old_kdiv;
 -
--	val = bcm_phy_read_shadow(phydev, BCM54810_SHD_CLK_CTL);
--	val &= ~BCM54810_SHD_CLK_CTL_GTXCLK_EN;
--	bcm_phy_write_shadow(phydev, BCM54810_SHD_CLK_CTL, val);
-+	bcm54xx_config_clock_delay(phydev);
+-	old_mdiv = (pll_div_ctl0 >> MDIV_SHIFT) & MDIV_MASK;
+-	old_pdiv = (pll_div_ctl0 >> PDIV_SHIFT) & PDIV_MASK;
+-	old_kdiv = (pll_div_ctl1 >> KDIV_SHIFT) & KDIV_MASK;
+-
+-	return rate->mdiv != old_mdiv || rate->pdiv != old_pdiv ||
+-		rate->kdiv != old_kdiv;
+-}
+-
+-static inline bool clk_pll1443x_mp_change(const struct imx_pll14xx_rate_table *rate,
+-					  u32 pll_div_ctl0, u32 pll_div_ctl1)
+-{
+-	u32 old_mdiv, old_pdiv, old_kdiv;
+-
+-	old_mdiv = (pll_div_ctl0 >> MDIV_SHIFT) & MDIV_MASK;
+-	old_pdiv = (pll_div_ctl0 >> PDIV_SHIFT) & PDIV_MASK;
+-	old_kdiv = (pll_div_ctl1 >> KDIV_SHIFT) & KDIV_MASK;
+-
+-	return rate->mdiv != old_mdiv || rate->pdiv != old_pdiv ||
+-		rate->kdiv != old_kdiv;
+-}
+-
+ static int clk_pll14xx_wait_lock(struct clk_pll14xx *pll)
+ {
+ 	u32 val;
+@@ -174,7 +148,7 @@ static int clk_pll1416x_set_rate(struct clk_hw *hw, unsigned long drate,
  
- 	if (phydev->dev_flags & PHY_BRCM_EN_MASTER_MODE) {
- 		val = phy_read(phydev, MII_CTRL1000);
+ 	tmp = readl_relaxed(pll->base + 4);
+ 
+-	if (!clk_pll1416x_mp_change(rate, tmp)) {
++	if (!clk_pll14xx_mp_change(rate, tmp)) {
+ 		tmp &= ~(SDIV_MASK) << SDIV_SHIFT;
+ 		tmp |= rate->sdiv << SDIV_SHIFT;
+ 		writel_relaxed(tmp, pll->base + 4);
+@@ -239,13 +213,15 @@ static int clk_pll1443x_set_rate(struct clk_hw *hw, unsigned long drate,
+ 	}
+ 
+ 	tmp = readl_relaxed(pll->base + 4);
+-	div_val = readl_relaxed(pll->base + 8);
+ 
+-	if (!clk_pll1443x_mpk_change(rate, tmp, div_val)) {
++	if (!clk_pll14xx_mp_change(rate, tmp)) {
+ 		tmp &= ~(SDIV_MASK) << SDIV_SHIFT;
+ 		tmp |= rate->sdiv << SDIV_SHIFT;
+ 		writel_relaxed(tmp, pll->base + 4);
+ 
++		tmp = rate->kdiv << KDIV_SHIFT;
++		writel_relaxed(tmp, pll->base + 8);
++
+ 		return 0;
+ 	}
+ 
 -- 
 2.20.1
 
