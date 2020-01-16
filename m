@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF33F13FF54
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C4F13FECA
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:38:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389976AbgAPXmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:42:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57928 "EHLO mail.kernel.org"
+        id S2391684AbgAPXiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:38:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388702AbgAPX0x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:26:53 -0500
+        id S2391379AbgAPX34 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:29:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C55D2206D9;
-        Thu, 16 Jan 2020 23:26:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CE4C206D9;
+        Thu, 16 Jan 2020 23:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217212;
-        bh=Lr6ccyq9r++RHavAZxJatXl+CulmdR3K9ktH+EoAu+M=;
+        s=default; t=1579217396;
+        bh=VohqL72ye30HD11diAwJbn0CodlwueOSD4EQKGbCZt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2nwuBngmUejaU7WJGoWsbehpDde+xHNqlzhKOep3+pEzEG4U410BRjUrFPiShFiSu
-         4NI4AtSmumELlOONmS00R+vmUdPVgfIYBed5of4jdWiEzgpwuU9+yruVtOaDpThvlx
-         hYORLLfX8w/WwTOKiw1EU2hgsn76VIx+ssy8+6MI=
+        b=EdHk33mU+W7BJ2CdRB0/XE6AjucQ1u2FBnZHwv69svGxgYdwKc66skLwPh3tKF8tS
+         HE2toVdxDH04IUhyFAoclG5namI838Q5YUeyeYV3n15zIzS1tA3YLI1rneQP2VciRD
+         tp7TtdXTwioEvHL33BCo0FCz+553mCuLWLGDk+xA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 194/203] rxrpc: Fix missing security check on incoming calls
-Date:   Fri, 17 Jan 2020 00:18:31 +0100
-Message-Id: <20200116231801.152256547@linuxfoundation.org>
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
+Subject: [PATCH 4.19 58/84] tty: serial: pch_uart: correct usage of dma_unmap_sg
+Date:   Fri, 17 Jan 2020 00:18:32 +0100
+Message-Id: <20200116231720.590211332@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
-References: <20200116231745.218684830@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,293 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 063c60d39180cec7c9317f5acfc3071f8fecd705 ]
+commit 74887542fdcc92ad06a48c0cca17cdf09fc8aa00 upstream.
 
-Fix rxrpc_new_incoming_call() to check that we have a suitable service key
-available for the combination of service ID and security class of a new
-incoming call - and to reject calls for which we don't.
+Per Documentation/DMA-API-HOWTO.txt,
+To unmap a scatterlist, just call:
+	dma_unmap_sg(dev, sglist, nents, direction);
 
-This causes an assertion like the following to appear:
+.. note::
 
-	rxrpc: Assertion failed - 6(0x6) == 12(0xc) is false
-	kernel BUG at net/rxrpc/call_object.c:456!
+	The 'nents' argument to the dma_unmap_sg call must be
+	the _same_ one you passed into the dma_map_sg call,
+	it should _NOT_ be the 'count' value _returned_ from the
+	dma_map_sg call.
 
-Where call->state is RXRPC_CALL_SERVER_SECURING (6) rather than
-RXRPC_CALL_COMPLETE (12).
+However in the driver, priv->nent is directly assigned with value
+returned from dma_map_sg, and dma_unmap_sg use priv->nent for unmap,
+this breaks the API usage.
 
-Fixes: 248f219cb8bc ("rxrpc: Rewrite the data and ack handling code")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So introduce a new entry orig_nent to remember 'nents'.
+
+Fixes: da3564ee027e ("pch_uart: add multi-scatter processing")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/1573623259-6339-1-git-send-email-peng.fan@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/rxrpc/ar-internal.h  | 10 ++++--
- net/rxrpc/call_accept.c  | 14 ++++++--
- net/rxrpc/conn_event.c   | 16 +--------
- net/rxrpc/conn_service.c |  4 +++
- net/rxrpc/rxkad.c        |  5 +--
- net/rxrpc/security.c     | 70 +++++++++++++++++++---------------------
- 6 files changed, 59 insertions(+), 60 deletions(-)
+ drivers/tty/serial/pch_uart.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 7c7d10f2e0c1..5e99df80e80a 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -209,6 +209,7 @@ struct rxrpc_skb_priv {
- struct rxrpc_security {
- 	const char		*name;		/* name of this service */
- 	u8			security_index;	/* security type provided */
-+	u32			no_key_abort;	/* Abort code indicating no key */
- 
- 	/* Initialise a security service */
- 	int (*init)(void);
-@@ -977,8 +978,9 @@ static inline void rxrpc_reduce_conn_timer(struct rxrpc_connection *conn,
- struct rxrpc_connection *rxrpc_find_service_conn_rcu(struct rxrpc_peer *,
- 						     struct sk_buff *);
- struct rxrpc_connection *rxrpc_prealloc_service_connection(struct rxrpc_net *, gfp_t);
--void rxrpc_new_incoming_connection(struct rxrpc_sock *,
--				   struct rxrpc_connection *, struct sk_buff *);
-+void rxrpc_new_incoming_connection(struct rxrpc_sock *, struct rxrpc_connection *,
-+				   const struct rxrpc_security *, struct key *,
-+				   struct sk_buff *);
- void rxrpc_unpublish_service_conn(struct rxrpc_connection *);
- 
- /*
-@@ -1103,7 +1105,9 @@ extern const struct rxrpc_security rxkad;
- int __init rxrpc_init_security(void);
- void rxrpc_exit_security(void);
- int rxrpc_init_client_conn_security(struct rxrpc_connection *);
--int rxrpc_init_server_conn_security(struct rxrpc_connection *);
-+bool rxrpc_look_up_server_security(struct rxrpc_local *, struct rxrpc_sock *,
-+				   const struct rxrpc_security **, struct key **,
-+				   struct sk_buff *);
- 
- /*
-  * sendmsg.c
-diff --git a/net/rxrpc/call_accept.c b/net/rxrpc/call_accept.c
-index 44fa22b020ef..70e44abf106c 100644
---- a/net/rxrpc/call_accept.c
-+++ b/net/rxrpc/call_accept.c
-@@ -263,6 +263,8 @@ static struct rxrpc_call *rxrpc_alloc_incoming_call(struct rxrpc_sock *rx,
- 						    struct rxrpc_local *local,
- 						    struct rxrpc_peer *peer,
- 						    struct rxrpc_connection *conn,
-+						    const struct rxrpc_security *sec,
-+						    struct key *key,
- 						    struct sk_buff *skb)
- {
- 	struct rxrpc_backlog *b = rx->backlog;
-@@ -310,7 +312,7 @@ static struct rxrpc_call *rxrpc_alloc_incoming_call(struct rxrpc_sock *rx,
- 		conn->params.local = rxrpc_get_local(local);
- 		conn->params.peer = peer;
- 		rxrpc_see_connection(conn);
--		rxrpc_new_incoming_connection(rx, conn, skb);
-+		rxrpc_new_incoming_connection(rx, conn, sec, key, skb);
- 	} else {
- 		rxrpc_get_connection(conn);
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -235,6 +235,7 @@ struct eg20t_port {
+ 	struct dma_chan			*chan_rx;
+ 	struct scatterlist		*sg_tx_p;
+ 	int				nent;
++	int				orig_nent;
+ 	struct scatterlist		sg_rx;
+ 	int				tx_dma_use;
+ 	void				*rx_buf_virt;
+@@ -789,9 +790,10 @@ static void pch_dma_tx_complete(void *ar
  	}
-@@ -349,9 +351,11 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
- 					   struct sk_buff *skb)
- {
- 	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
-+	const struct rxrpc_security *sec = NULL;
- 	struct rxrpc_connection *conn;
- 	struct rxrpc_peer *peer = NULL;
--	struct rxrpc_call *call;
-+	struct rxrpc_call *call = NULL;
-+	struct key *key = NULL;
- 
- 	_enter("");
- 
-@@ -372,7 +376,11 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
- 	 */
- 	conn = rxrpc_find_connection_rcu(local, skb, &peer);
- 
--	call = rxrpc_alloc_incoming_call(rx, local, peer, conn, skb);
-+	if (!conn && !rxrpc_look_up_server_security(local, rx, &sec, &key, skb))
-+		goto no_call;
-+
-+	call = rxrpc_alloc_incoming_call(rx, local, peer, conn, sec, key, skb);
-+	key_put(key);
- 	if (!call) {
- 		skb->mark = RXRPC_SKB_MARK_REJECT_BUSY;
- 		goto no_call;
-diff --git a/net/rxrpc/conn_event.c b/net/rxrpc/conn_event.c
-index a1ceef4f5cd0..808a4723f868 100644
---- a/net/rxrpc/conn_event.c
-+++ b/net/rxrpc/conn_event.c
-@@ -376,21 +376,7 @@ static void rxrpc_secure_connection(struct rxrpc_connection *conn)
- 	_enter("{%d}", conn->debug_id);
- 
- 	ASSERT(conn->security_ix != 0);
--
--	if (!conn->params.key) {
--		_debug("set up security");
--		ret = rxrpc_init_server_conn_security(conn);
--		switch (ret) {
--		case 0:
--			break;
--		case -ENOENT:
--			abort_code = RX_CALL_DEAD;
--			goto abort;
--		default:
--			abort_code = RXKADNOAUTH;
--			goto abort;
--		}
--	}
-+	ASSERT(conn->server_key);
- 
- 	if (conn->security->issue_challenge(conn) < 0) {
- 		abort_code = RX_CALL_DEAD;
-diff --git a/net/rxrpc/conn_service.c b/net/rxrpc/conn_service.c
-index 123d6ceab15c..21da48e3d2e5 100644
---- a/net/rxrpc/conn_service.c
-+++ b/net/rxrpc/conn_service.c
-@@ -148,6 +148,8 @@ struct rxrpc_connection *rxrpc_prealloc_service_connection(struct rxrpc_net *rxn
-  */
- void rxrpc_new_incoming_connection(struct rxrpc_sock *rx,
- 				   struct rxrpc_connection *conn,
-+				   const struct rxrpc_security *sec,
-+				   struct key *key,
- 				   struct sk_buff *skb)
- {
- 	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
-@@ -160,6 +162,8 @@ void rxrpc_new_incoming_connection(struct rxrpc_sock *rx,
- 	conn->service_id	= sp->hdr.serviceId;
- 	conn->security_ix	= sp->hdr.securityIndex;
- 	conn->out_clientflag	= 0;
-+	conn->security		= sec;
-+	conn->server_key	= key_get(key);
- 	if (conn->security_ix)
- 		conn->state	= RXRPC_CONN_SERVICE_UNSECURED;
- 	else
-diff --git a/net/rxrpc/rxkad.c b/net/rxrpc/rxkad.c
-index 8d8aa3c230b5..098f1f9ec53b 100644
---- a/net/rxrpc/rxkad.c
-+++ b/net/rxrpc/rxkad.c
-@@ -648,9 +648,9 @@ static int rxkad_issue_challenge(struct rxrpc_connection *conn)
- 	u32 serial;
- 	int ret;
- 
--	_enter("{%d,%x}", conn->debug_id, key_serial(conn->params.key));
-+	_enter("{%d,%x}", conn->debug_id, key_serial(conn->server_key));
- 
--	ret = key_validate(conn->params.key);
-+	ret = key_validate(conn->server_key);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -1293,6 +1293,7 @@ static void rxkad_exit(void)
- const struct rxrpc_security rxkad = {
- 	.name				= "rxkad",
- 	.security_index			= RXRPC_SECURITY_RXKAD,
-+	.no_key_abort			= RXKADUNKNOWNKEY,
- 	.init				= rxkad_init,
- 	.exit				= rxkad_exit,
- 	.init_connection_security	= rxkad_init_connection_security,
-diff --git a/net/rxrpc/security.c b/net/rxrpc/security.c
-index a4c47d2b7054..9b1fb9ed0717 100644
---- a/net/rxrpc/security.c
-+++ b/net/rxrpc/security.c
-@@ -101,62 +101,58 @@ int rxrpc_init_client_conn_security(struct rxrpc_connection *conn)
+ 	xmit->tail &= UART_XMIT_SIZE - 1;
+ 	async_tx_ack(priv->desc_tx);
+-	dma_unmap_sg(port->dev, sg, priv->nent, DMA_TO_DEVICE);
++	dma_unmap_sg(port->dev, sg, priv->orig_nent, DMA_TO_DEVICE);
+ 	priv->tx_dma_use = 0;
+ 	priv->nent = 0;
++	priv->orig_nent = 0;
+ 	kfree(priv->sg_tx_p);
+ 	pch_uart_hal_enable_interrupt(priv, PCH_UART_HAL_TX_INT);
  }
- 
- /*
-- * initialise the security on a server connection
-+ * Find the security key for a server connection.
-  */
--int rxrpc_init_server_conn_security(struct rxrpc_connection *conn)
-+bool rxrpc_look_up_server_security(struct rxrpc_local *local, struct rxrpc_sock *rx,
-+				   const struct rxrpc_security **_sec,
-+				   struct key **_key,
-+				   struct sk_buff *skb)
- {
- 	const struct rxrpc_security *sec;
--	struct rxrpc_local *local = conn->params.local;
--	struct rxrpc_sock *rx;
--	struct key *key;
--	key_ref_t kref;
-+	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
-+	key_ref_t kref = NULL;
- 	char kdesc[5 + 1 + 3 + 1];
- 
- 	_enter("");
- 
--	sprintf(kdesc, "%u:%u", conn->service_id, conn->security_ix);
-+	sprintf(kdesc, "%u:%u", sp->hdr.serviceId, sp->hdr.securityIndex);
- 
--	sec = rxrpc_security_lookup(conn->security_ix);
-+	sec = rxrpc_security_lookup(sp->hdr.securityIndex);
- 	if (!sec) {
--		_leave(" = -ENOKEY [lookup]");
--		return -ENOKEY;
-+		trace_rxrpc_abort(0, "SVS",
-+				  sp->hdr.cid, sp->hdr.callNumber, sp->hdr.seq,
-+				  RX_INVALID_OPERATION, EKEYREJECTED);
-+		skb->mark = RXRPC_SKB_MARK_REJECT_ABORT;
-+		skb->priority = RX_INVALID_OPERATION;
-+		return false;
+@@ -1015,6 +1017,7 @@ static unsigned int dma_handle_tx(struct
+ 		dev_err(priv->port.dev, "%s:dma_map_sg Failed\n", __func__);
+ 		return 0;
  	}
++	priv->orig_nent = num;
+ 	priv->nent = nent;
  
--	/* find the service */
--	read_lock(&local->services_lock);
--	rx = rcu_dereference_protected(local->service,
--				       lockdep_is_held(&local->services_lock));
--	if (rx && (rx->srx.srx_service == conn->service_id ||
--		   rx->second_service == conn->service_id))
--		goto found_service;
-+	if (sp->hdr.securityIndex == RXRPC_SECURITY_NONE)
-+		goto out;
- 
--	/* the service appears to have died */
--	read_unlock(&local->services_lock);
--	_leave(" = -ENOENT");
--	return -ENOENT;
--
--found_service:
- 	if (!rx->securities) {
--		read_unlock(&local->services_lock);
--		_leave(" = -ENOKEY");
--		return -ENOKEY;
-+		trace_rxrpc_abort(0, "SVR",
-+				  sp->hdr.cid, sp->hdr.callNumber, sp->hdr.seq,
-+				  RX_INVALID_OPERATION, EKEYREJECTED);
-+		skb->mark = RXRPC_SKB_MARK_REJECT_ABORT;
-+		skb->priority = RX_INVALID_OPERATION;
-+		return false;
- 	}
- 
- 	/* look through the service's keyring */
- 	kref = keyring_search(make_key_ref(rx->securities, 1UL),
- 			      &key_type_rxrpc_s, kdesc, true);
- 	if (IS_ERR(kref)) {
--		read_unlock(&local->services_lock);
--		_leave(" = %ld [search]", PTR_ERR(kref));
--		return PTR_ERR(kref);
-+		trace_rxrpc_abort(0, "SVK",
-+				  sp->hdr.cid, sp->hdr.callNumber, sp->hdr.seq,
-+				  sec->no_key_abort, EKEYREJECTED);
-+		skb->mark = RXRPC_SKB_MARK_REJECT_ABORT;
-+		skb->priority = sec->no_key_abort;
-+		return false;
- 	}
- 
--	key = key_ref_to_ptr(kref);
--	read_unlock(&local->services_lock);
--
--	conn->server_key = key;
--	conn->security = sec;
--
--	_leave(" = 0");
--	return 0;
-+out:
-+	*_sec = sec;
-+	*_key = key_ref_to_ptr(kref);
-+	return true;
- }
--- 
-2.20.1
-
+ 	for (i = 0; i < nent; i++, sg++) {
 
 
