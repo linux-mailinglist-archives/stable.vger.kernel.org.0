@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06FA013EA40
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:43:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BD6013ECB9
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:58:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393888AbgAPRnN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:43:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
+        id S2393515AbgAPR6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:58:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393880AbgAPRnM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:43:12 -0500
+        id S2393889AbgAPRnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:43:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23E8E24718;
-        Thu, 16 Jan 2020 17:43:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49B6024725;
+        Thu, 16 Jan 2020 17:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196591;
-        bh=4QCofp9d3SO9SZEIJdRAIXqfbCqY8aKuMPQJPKeHI4Y=;
+        s=default; t=1579196593;
+        bh=3asVv0LkAlodZ0h3jq+2rgSq3Ucakva943Q5z9tTdW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qt+hKvjtOE/5j2n+LdhK7EHW4BhTbUETSxUbTx4UyoBjunkJ1iLvKzLI0Z/rfbukC
-         hhkoD3/hlOCxOi70oDM8hdq6cTkzWvdGOpR54EhDP2mOFIaWKTe5iIsjlWowBzFn2G
-         AjdimMY20hUdmkrqD4VG8E5UyWlnwyw5n9M0deiM=
+        b=Q3QuC2JKD6rs7pHRgFt56JnbCYrcJW9MPz59DPlXlfsySGrrWjEgTjzJ5d/i6idfP
+         oEIWaYabanjciSFPFQK1ShHT/Ltu6PhpsLlSA3v2x3gsEoWj2Kl8FIksq4bgbDZDvQ
+         cfemRKkMXZI4Ykr7WtFpwNf+4HYZukw0zRfMxuNc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Simon Horman <horms+renesas@verge.net.au>,
         Sasha Levin <sashal@kernel.org>,
         linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 015/174] pinctrl: sh-pfc: sh7734: Add missing IPSR11 field
-Date:   Thu, 16 Jan 2020 12:40:12 -0500
-Message-Id: <20200116174251.24326-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 016/174] pinctrl: sh-pfc: sh7269: Add missing PCIOR0 field
+Date:   Thu, 16 Jan 2020 12:40:13 -0500
+Message-Id: <20200116174251.24326-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -46,33 +46,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 94482af7055e1ffa211c1135256b85590ebcac99 ]
+[ Upstream commit 9540cbdfcd861caf67a6f0e4bb7f46d41c4aad86 ]
 
-The Peripheral Function Select Register 11 contains 3 reserved bits and
-15 variable-width fields, but the variable field descriptor does not
-contain the 3-bit field IP11[25:23].
+The Port C I/O Register 0 contains 7 reserved bits, but the descriptor
+contains only dummy configuration values for 6 reserved bits, thus
+breaking the configuration of all subsequent fields in the register.
 
-Fixes: 856cb4bb337ee504 ("sh: Add support pinmux for SH7734")
+Fix this by adding the two missing configuration values.
+
+Fixes: f5e811f2a43117b2 ("sh-pfc: Add sh7269 pinmux support")
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sh-pfc/pfc-sh7734.c | 2 +-
+ drivers/pinctrl/sh-pfc/pfc-sh7269.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7734.c b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
-index ab09d385f95d..a0835306f76e 100644
---- a/drivers/pinctrl/sh-pfc/pfc-sh7734.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
-@@ -2242,7 +2242,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
- 		FN_LCD_DATA15_B, 0, 0, 0 }
+diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7269.c b/drivers/pinctrl/sh-pfc/pfc-sh7269.c
+index a50d22bef1f4..cfdb4fc177c3 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-sh7269.c
++++ b/drivers/pinctrl/sh-pfc/pfc-sh7269.c
+@@ -2119,7 +2119,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
  	},
- 	{ PINMUX_CFG_REG_VAR("IPSR11", 0xFFFC0048, 32,
--			3, 1, 2, 2, 2, 3, 3, 1, 2, 3, 3, 1, 1, 1, 1) {
-+			3, 1, 2, 3, 2, 2, 3, 3, 1, 2, 3, 3, 1, 1, 1, 1) {
- 	    /* IP11_31_29 [3] */
- 	    0, 0, 0, 0, 0, 0, 0, 0,
- 	    /* IP11_28 [1] */
+ 
+ 	{ PINMUX_CFG_REG("PCIOR0", 0xfffe3852, 16, 1) {
+-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ 		PC8_IN, PC8_OUT,
+ 		PC7_IN, PC7_OUT,
+ 		PC6_IN, PC6_OUT,
 -- 
 2.20.1
 
