@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE8813E3A8
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:03:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FC1813E3AA
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:03:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388583AbgAPRDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388580AbgAPRDK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 12:03:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57034 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388549AbgAPRDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:03:08 -0500
+        id S2388576AbgAPRDJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:03:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E656124684;
-        Thu, 16 Jan 2020 17:03:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B26D24685;
+        Thu, 16 Jan 2020 17:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194187;
-        bh=h6uK8wo0qtyjOiISqKhtgbl/70dLIpaqIJZqKBaqWVI=;
+        s=default; t=1579194189;
+        bh=q1gIVPVMHO9I/akf7uP5X2iGRY12EkSsbiYExikhfrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XnViwBo1BUK+lRH+9P86vY3hn6cmUg/T1BuCGFE0xTwovCTgJpvVG31OxG4BU7aAt
-         w1MrIuO1tQnIApipWzvJI5hakvNwRornWUybmGA6y7uZQMLH6apbdHm9v26L02X3RZ
-         fdMrRS1MZAimW921dbCTZFFccp7U4OPs2p0J71KM=
+        b=bw+0VcF+WE8y3A279qZXG6gaOB/E4ov69Fyz68jcMaF5Tlf3cukfeK+drFmQTkgUE
+         VFDAw+xqjh94uWkSMEAssV0qjZHHy6/Zbxvl8tB9bPrSROIyhH4cmwTTzyUnvwVGZO
+         Nkxaq00pWPkYhHFW/vODnGiqhuNY/rLfZ8sPs7NU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Phil Reid <preid@electromag.com.au>,
-        liweihang <liweihang@hisilicon.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 260/671] net: phy: don't clear BMCR in genphy_soft_reset
-Date:   Thu, 16 Jan 2020 11:52:49 -0500
-Message-Id: <20200116165940.10720-143-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Paul Walmsley <paul@pwsan.com>,
+        Tero Kristo <t-kristo@ti.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 261/671] ARM: OMAP2+: Fix potentially uninitialized return value for _setup_reset()
+Date:   Thu, 16 Jan 2020 11:52:50 -0500
+Message-Id: <20200116165940.10720-144-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -46,44 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit d29f5aa0bc0c321e1b9e4658a2a7e08e885da52a ]
+[ Upstream commit 7f0d078667a494466991aa7133f49594f32ff6a2 ]
 
-So far we effectively clear the BMCR register. Some PHY's can deal
-with this (e.g. because they reset BMCR to a default as part of a
-soft-reset) whilst on others this causes issues because e.g. the
-autoneg bit is cleared. Marvell is an example, see also thread [0].
-So let's be a little bit more gentle and leave all bits we're not
-interested in as-is. This change is needed for PHY drivers to
-properly deal with the original patch.
+Commit 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior") made
+the call to _enable() conditional based on no oh->rst_lines_cnt. This
+caused the return value to be potentially uninitialized. Curiously we see
+no compiler warnings for this, probably as this gets inlined.
 
-[0] https://marc.info/?t=155264050700001&r=1&w=2
+We call _setup_reset() from _setup() and only _setup_postsetup() if the
+return value is zero. Currently the return value can be uninitialized for
+cases where oh->rst_lines_cnt is set and HWMOD_INIT_NO_RESET is not set.
 
-Fixes: 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
-Tested-by: Phil Reid <preid@electromag.com.au>
-Tested-by: liweihang <liweihang@hisilicon.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior")
+Cc: Paul Walmsley <paul@pwsan.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_device.c | 2 +-
+ arch/arm/mach-omap2/omap_hwmod.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 9c7e51443f6b..ae40d8137fd2 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -1657,7 +1657,7 @@ int genphy_soft_reset(struct phy_device *phydev)
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index ec3789ba17b8..a8269f0a87ce 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -2430,7 +2430,7 @@ static void _setup_iclk_autoidle(struct omap_hwmod *oh)
+  */
+ static int _setup_reset(struct omap_hwmod *oh)
  {
- 	int ret;
+-	int r;
++	int r = 0;
  
--	ret = phy_write(phydev, MII_BMCR, BMCR_RESET);
-+	ret = phy_set_bits(phydev, MII_BMCR, BMCR_RESET);
- 	if (ret < 0)
- 		return ret;
- 
+ 	if (oh->_state != _HWMOD_STATE_INITIALIZED)
+ 		return -EINVAL;
 -- 
 2.20.1
 
