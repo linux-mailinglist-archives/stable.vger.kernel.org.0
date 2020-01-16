@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B12913E333
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C1413E335
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:00:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387875AbgAPRAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:00:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50596 "EHLO mail.kernel.org"
+        id S2387893AbgAPRAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:00:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387865AbgAPRAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:00:42 -0500
+        id S2387850AbgAPRAo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:00:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1A992467C;
-        Thu, 16 Jan 2020 17:00:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 616A22468D;
+        Thu, 16 Jan 2020 17:00:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194041;
-        bh=BMgFxducrcVlOag3C3yZ/qE15LkMN0Q7yrMo9NxU0wI=;
+        s=default; t=1579194044;
+        bh=ITu0OrjqUNi+vDw5iSbQfx+KL7W0/cTHMQM8sZPugLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFwOUWYJc+1/r92V2MhO2Ip3trQVYuETeq3YFVNAqwUleD9qJp1zvJwwIFZCugjqp
-         X/pHBPTByENxqWCi/XmM0SjNg3WzcOWcAQf3G6YK1qKFLlKZCRXC4Kie4RkEZW9CVG
-         tLvKXj2KfwCVYqiRNjaEkhXabx3iZRDItgSpJCPQ=
+        b=j3ERuU/AvwZiVopxI/+woGTTsOnl6GXPnCqBlZvZztCLw/Ashy4+Lx34TtXL8NqGj
+         xpqzbvqNXKhhp5aFo+BKB1I1C3+ydMcfBzn6NR6KsIw9EnYNgGvB1irodehTjCI+zX
+         xpy1qZykNqRGhH2yxFQzfY/iSaTFem3v0MXPYUhs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Niklas Cassel <niklas.cassel@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Andy Gross <andy.gross@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 158/671] arm64: dts: msm8916: remove bogus argument to the cpu clock
-Date:   Thu, 16 Jan 2020 11:51:07 -0500
-Message-Id: <20200116165940.10720-41-sashal@kernel.org>
+Cc:     Moritz Fischer <mdf@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 160/671] net: phy: fixed_phy: Fix fixed_phy not checking GPIO
+Date:   Thu, 16 Jan 2020 11:51:09 -0500
+Message-Id: <20200116165940.10720-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -46,66 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@linaro.org>
+From: Moritz Fischer <mdf@kernel.org>
 
-[ Upstream commit e4f045ef38e61ba37aa4afc916fce4fc1b37aa19 ]
+[ Upstream commit 8f289805616e81f7c1690931aa8a586c76f4fa88 ]
 
-The apcs node has #clock-cells = <0>, which means that those who
-references it should specify 0 arguments.
+Fix fixed_phy not checking GPIO if no link_update callback
+is registered.
 
-The apcs reference in the cpu node incorrectly specifies an argument,
-remove this bogus argument.
+In the original version all users registered a link_update
+callback so the issue was masked.
 
-Fixes: 65afdf458360 ("arm64: dts: qcom: msm8916: Add CPU frequency scaling support")
-Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Andy Gross <andy.gross@linaro.org>
+Fixes: a5597008dbc2 ("phy: fixed_phy: Add gpio to determine link up/down.")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/phy/fixed_phy.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 7b32b8990d62..8011e564a234 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -114,7 +114,7 @@
- 			next-level-cache = <&L2_0>;
- 			enable-method = "psci";
- 			cpu-idle-states = <&CPU_SPC>;
--			clocks = <&apcs 0>;
-+			clocks = <&apcs>;
- 			operating-points-v2 = <&cpu_opp_table>;
- 			#cooling-cells = <2>;
- 		};
-@@ -126,7 +126,7 @@
- 			next-level-cache = <&L2_0>;
- 			enable-method = "psci";
- 			cpu-idle-states = <&CPU_SPC>;
--			clocks = <&apcs 0>;
-+			clocks = <&apcs>;
- 			operating-points-v2 = <&cpu_opp_table>;
- 			#cooling-cells = <2>;
- 		};
-@@ -138,7 +138,7 @@
- 			next-level-cache = <&L2_0>;
- 			enable-method = "psci";
- 			cpu-idle-states = <&CPU_SPC>;
--			clocks = <&apcs 0>;
-+			clocks = <&apcs>;
- 			operating-points-v2 = <&cpu_opp_table>;
- 			#cooling-cells = <2>;
- 		};
-@@ -150,7 +150,7 @@
- 			next-level-cache = <&L2_0>;
- 			enable-method = "psci";
- 			cpu-idle-states = <&CPU_SPC>;
--			clocks = <&apcs 0>;
-+			clocks = <&apcs>;
- 			operating-points-v2 = <&cpu_opp_table>;
- 			#cooling-cells = <2>;
- 		};
+diff --git a/drivers/net/phy/fixed_phy.c b/drivers/net/phy/fixed_phy.c
+index 67b260877f30..59820164502e 100644
+--- a/drivers/net/phy/fixed_phy.c
++++ b/drivers/net/phy/fixed_phy.c
+@@ -67,11 +67,11 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_addr, int reg_num)
+ 			do {
+ 				s = read_seqcount_begin(&fp->seqcount);
+ 				/* Issue callback if user registered it. */
+-				if (fp->link_update) {
++				if (fp->link_update)
+ 					fp->link_update(fp->phydev->attached_dev,
+ 							&fp->status);
+-					fixed_phy_update(fp);
+-				}
++				/* Check the GPIO for change in status */
++				fixed_phy_update(fp);
+ 				state = fp->status;
+ 			} while (read_seqcount_retry(&fp->seqcount, s));
+ 
 -- 
 2.20.1
 
