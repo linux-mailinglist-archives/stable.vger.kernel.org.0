@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C4513FDA5
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57AE513FDC7
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390225AbgAPX1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:27:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59544 "EHLO mail.kernel.org"
+        id S1733276AbgAPX3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:29:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390267AbgAPX1f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:27:35 -0500
+        id S2391231AbgAPX3K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:29:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A066B2072E;
-        Thu, 16 Jan 2020 23:27:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3626620684;
+        Thu, 16 Jan 2020 23:29:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217255;
-        bh=2slIPSeN0K9COdPi9pHFU+IzZRcSjCu1x7KhCyX6gMQ=;
+        s=default; t=1579217349;
+        bh=IqO6GUM5+oe/Wr6novD80hwQbjL+DQlazjx76R8wrGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l418/EnECoOQeNJBryjRavVU3r8TUpZWpS7NX1F9LjZ/Zru4611wzNJGYoScEepWW
-         33ZPLt8TNFFwS5Uw4z608/+OPj0FwhKuAGPPHPMGUf2qSmfnOiX1F4YG1eNF3ARB5Q
-         C8l1piM8eRwhoMjstcWwQTbdF3yVIF3mEZZfku+w=
+        b=EEPKfTDXqf5DnxkMj9YQMphsSUF2re98NLbVjA8p/O3yrAT1j7iBUONI71IoKVLYy
+         Wj1Llg45SHuIl9M5u2LIWv1HlA4F8Z0o5l9hZikaMZf64MlV6myNHWndm9CHLF1Ez7
+         87BLFGlw1FpfXITS4Br9uosvI7GXE2lGetitvZyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Israel Rukshin <israelr@mellanox.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 183/203] scsi: target/iblock: Fix protection error with blocks greater than 512B
-Date:   Fri, 17 Jan 2020 00:18:20 +0100
-Message-Id: <20200116231800.360412824@linuxfoundation.org>
+        stable@vger.kernel.org, Marian Mihailescu <mihailescu2m@gmail.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>
+Subject: [PATCH 4.19 47/84] clk: samsung: exynos5420: Preserve CPU clocks configuration during suspend/resume
+Date:   Fri, 17 Jan 2020 00:18:21 +0100
+Message-Id: <20200116231719.355968824@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
-References: <20200116231745.218684830@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Israel Rukshin <israelr@mellanox.com>
+From: Marian Mihailescu <mihailescu2m@gmail.com>
 
-[ Upstream commit e4dc9a4c31fe10d1751c542702afc85be8a5c56a ]
+commit e21be0d1d7bd7f78a77613f6bcb6965e72b22fc1 upstream.
 
-The sector size of the block layer is 512 bytes, but integrity interval
-size might be different (in case of 4K block size of the media). At the
-initiator side the virtual start sector is the one that was originally
-submitted by the block layer (512 bytes) for the Reftag usage. The
-initiator converts the Reftag to integrity interval units and sends it to
-the target. So the target virtual start sector should be calculated at
-integrity interval units. prepare_fn() and complete_fn() don't remap
-correctly the Reftag when using incorrect units of the virtual start
-sector, which leads to the following protection error at the device:
+Save and restore top PLL related configuration registers for big (APLL)
+and LITTLE (KPLL) cores during suspend/resume cycle. So far, CPU clocks
+were reset to default values after suspend/resume cycle and performance
+after system resume was affected when performance governor has been selected.
 
-"blk_update_request: protection error, dev sdb, sector 2048 op 0x0:(READ)
-flags 0x10000 phys_seg 1 prio class 0"
+Fixes: 773424326b51 ("clk: samsung: exynos5420: add more registers to restore list")
+Signed-off-by: Marian Mihailescu <mihailescu2m@gmail.com>
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-To fix that, set the seed in integrity interval units.
-
-Link: https://lore.kernel.org/r/1576078562-15240-1-git-send-email-israelr@mellanox.com
-Signed-off-by: Israel Rukshin <israelr@mellanox.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_iblock.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/clk/samsung/clk-exynos5420.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/target/target_core_iblock.c b/drivers/target/target_core_iblock.c
-index 6949ea8bc387..51ffd5c002de 100644
---- a/drivers/target/target_core_iblock.c
-+++ b/drivers/target/target_core_iblock.c
-@@ -646,7 +646,9 @@ iblock_alloc_bip(struct se_cmd *cmd, struct bio *bio,
- 	}
- 
- 	bip->bip_iter.bi_size = bio_integrity_bytes(bi, bio_sectors(bio));
--	bip_set_seed(bip, bio->bi_iter.bi_sector);
-+	/* virtual start sector must be in integrity interval units */
-+	bip_set_seed(bip, bio->bi_iter.bi_sector >>
-+				  (bi->interval_exp - SECTOR_SHIFT));
- 
- 	pr_debug("IBLOCK BIP Size: %u Sector: %llu\n", bip->bip_iter.bi_size,
- 		 (unsigned long long)bip->bip_iter.bi_sector);
--- 
-2.20.1
-
+--- a/drivers/clk/samsung/clk-exynos5420.c
++++ b/drivers/clk/samsung/clk-exynos5420.c
+@@ -171,6 +171,8 @@ static const unsigned long exynos5x_clk_
+ 	GATE_BUS_CPU,
+ 	GATE_SCLK_CPU,
+ 	CLKOUT_CMU_CPU,
++	APLL_CON0,
++	KPLL_CON0,
+ 	CPLL_CON0,
+ 	DPLL_CON0,
+ 	EPLL_CON0,
 
 
