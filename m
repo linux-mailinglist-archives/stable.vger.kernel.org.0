@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B90DA13E2F1
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:59:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA6413E2E7
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:59:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729235AbgAPQ7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:59:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44730 "EHLO mail.kernel.org"
+        id S1730992AbgAPQ5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:57:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387507AbgAPQ5a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:57:30 -0500
+        id S2387510AbgAPQ5c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:57:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA39521582;
-        Thu, 16 Jan 2020 16:57:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA12D24656;
+        Thu, 16 Jan 2020 16:57:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193850;
-        bh=loheZiKuFd82TFuV3kzeUih75ENh/ikI0zT5Mo6oE5k=;
+        s=default; t=1579193852;
+        bh=yYct/yvcXDrlEgA0LcQIaaTkGaXswQCQAppwQZKXnE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E0DzWE/hc1xl00uHZ04zFYvwWHTa5foSQHvRNc9gklXLaUWDoI1Bu2bwYy2djQikw
-         YHakyJxl2jMHl6WqRhisWqaesXv97e6Tmrc5dIgp++JTgMHPETMch8gNpWFvscA8lz
-         Dbh8576q0m1h/MmDvF6fom8IAUmm3INhvSI0JpjE=
+        b=IfvXmm5gDbIqmNdpdcCtjEDZpFfioCTqpj/iR2eutdW8u50lJggOl18t9O+zRjxGN
+         2bA+kOfjMDZ4ec/5w6BIXaEtNioYrCSiSwxsxdVkvdBkZi9PI0aZI1+vxyNw+HwkaV
+         GUYnfuMXBKiGiyboTaPNmtl4Mi5g/gEaLrgaoC8A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+Cc:     Biju Das <biju.das@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 102/671] drm: Fix error handling in drm_legacy_addctx
-Date:   Thu, 16 Jan 2020 11:45:33 -0500
-Message-Id: <20200116165502.8838-102-sashal@kernel.org>
+        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 103/671] ARM: dts: r8a7743: Remove generic compatible string from iic3
+Date:   Thu, 16 Jan 2020 11:45:34 -0500
+Message-Id: <20200116165502.8838-103-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -44,59 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Biju Das <biju.das@bp.renesas.com>
 
-[ Upstream commit c39191feed4540fed98badeb484833dcf659bb96 ]
+[ Upstream commit 072b817589b17660ef19c31d89f7b981dbed3fd2 ]
 
-'ctx->handle' is unsigned, it never less than zero.
-This patch use int 'tmp_handle' to handle the err condition.
+The iic3 block on RZ/G1M does not support automatic transmission, unlike
+other R-Car SoC's. So dropping the compatibility with the generic version.
 
-Fixes: 62968144e673 ("drm: convert drm context code to use Linux idr")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20181229024907.12852-1-yuehaibing@huawei.com
+Fixes: f523405f2a22cc0c307 ("ARM: dts: r8a7743: Add IIC cores to dtsi")
+Signed-off-by: Biju Das <biju.das@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_context.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/r8a7743.dtsi | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_context.c b/drivers/gpu/drm/drm_context.c
-index f973d287696a..da5abf24f59f 100644
---- a/drivers/gpu/drm/drm_context.c
-+++ b/drivers/gpu/drm/drm_context.c
-@@ -361,23 +361,26 @@ int drm_legacy_addctx(struct drm_device *dev, void *data,
- {
- 	struct drm_ctx_list *ctx_entry;
- 	struct drm_ctx *ctx = data;
-+	int tmp_handle;
- 
- 	if (!drm_core_check_feature(dev, DRIVER_KMS_LEGACY_CONTEXT) &&
- 	    !drm_core_check_feature(dev, DRIVER_LEGACY))
- 		return -EINVAL;
- 
--	ctx->handle = drm_legacy_ctxbitmap_next(dev);
--	if (ctx->handle == DRM_KERNEL_CONTEXT) {
-+	tmp_handle = drm_legacy_ctxbitmap_next(dev);
-+	if (tmp_handle == DRM_KERNEL_CONTEXT) {
- 		/* Skip kernel's context and get a new one. */
--		ctx->handle = drm_legacy_ctxbitmap_next(dev);
-+		tmp_handle = drm_legacy_ctxbitmap_next(dev);
- 	}
--	DRM_DEBUG("%d\n", ctx->handle);
--	if (ctx->handle < 0) {
-+	DRM_DEBUG("%d\n", tmp_handle);
-+	if (tmp_handle < 0) {
- 		DRM_DEBUG("Not enough free contexts.\n");
- 		/* Should this return -EBUSY instead? */
--		return -ENOMEM;
-+		return tmp_handle;
- 	}
- 
-+	ctx->handle = tmp_handle;
-+
- 	ctx_entry = kmalloc(sizeof(*ctx_entry), GFP_KERNEL);
- 	if (!ctx_entry) {
- 		DRM_DEBUG("out of memory\n");
+diff --git a/arch/arm/boot/dts/r8a7743.dtsi b/arch/arm/boot/dts/r8a7743.dtsi
+index 24715f74ae08..5015e2273d82 100644
+--- a/arch/arm/boot/dts/r8a7743.dtsi
++++ b/arch/arm/boot/dts/r8a7743.dtsi
+@@ -565,9 +565,7 @@
+ 			/* doesn't need pinmux */
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+-			compatible = "renesas,iic-r8a7743",
+-				     "renesas,rcar-gen2-iic",
+-				     "renesas,rmobile-iic";
++			compatible = "renesas,iic-r8a7743";
+ 			reg = <0 0xe60b0000 0 0x425>;
+ 			interrupts = <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 926>;
 -- 
 2.20.1
 
