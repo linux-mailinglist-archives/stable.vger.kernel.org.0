@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F8113F865
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:18:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60EE513F862
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:18:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732571AbgAPTSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:18:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39408 "EHLO mail.kernel.org"
+        id S1729225AbgAPQzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:55:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731921AbgAPQym (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:54:42 -0500
+        id S1727030AbgAPQzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:55:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 357D0205F4;
-        Thu, 16 Jan 2020 16:54:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 082AD22464;
+        Thu, 16 Jan 2020 16:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193681;
-        bh=2+gpWsmpb5DF4ayCzhFM7rLPmr+bUI4pfCSdEsSq01U=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYggzVXXCODFuSTZWZYU5+bxpeO6VaNDduKGM30USXdWBfawyJU0JgGR3YdxZBeKW
-         Mm4GTk1Cj/pSbyYFv/wbRmYAomlUQY/n9ElWjevunkZ491Fd3XleQMglM6EwX1PINO
-         P3JroINuGe3dYoo2ICls2iQAcmQ8pO1smhTQp+gk=
+        s=default; t=1579193704;
+        bh=bdU4W6NQUKwa38DROjElBeIEwAa7e1UupvtmZlJXjRM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=MhbhV+5IxqV/Gye42s9tyuvD3p9gSzv6UwD2qIysvD8Qva7FoofrQdZiL94ZJ2TlW
+         RYepKR47FL49q+fgtKGxTUUPqO/QHnWho9uritmiImtDFTliSiLOx8J3fWlXxa5TQ0
+         5JDgD9gUnz5soFhdOborokc0UEtJAHFx+jQhdcZQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonas Karlman <jonas@kwiboo.se>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+Cc:     Peter Rosin <peda@axentia.se>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 205/205] phy/rockchip: inno-hdmi: round clock rate down to closest 1000 Hz
-Date:   Thu, 16 Jan 2020 11:43:00 -0500
-Message-Id: <20200116164300.6705-205-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 001/671] drm/sti: do not remove the drm_bridge that was never added
+Date:   Thu, 16 Jan 2020 11:43:52 -0500
+Message-Id: <20200116165502.8838-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
-References: <20200116164300.6705-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,53 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Karlman <jonas@kwiboo.se>
+From: Peter Rosin <peda@axentia.se>
 
-[ Upstream commit 4f510aa10468954b1da4e94689c38ac6ea8d3627 ]
+[ Upstream commit 66e31a72dc38543b2d9d1ce267dc78ba9beebcfd ]
 
-Commit 287422a95fe2 ("drm/rockchip: Round up _before_ giving to the clock framework")
-changed what rate clk_round_rate() is called with, an additional 999 Hz
-added to the requsted mode clock. This has caused a regression on RK3328
-and presumably also on RK3228 because the inno-hdmi-phy clock requires an
-exact match of the requested rate in the pre pll config table.
+Removing the drm_bridge_remove call should avoid a NULL dereference
+during list processing in drm_bridge_remove if the error path is ever
+taken.
 
-When an exact match is not found the parent clock rate (24MHz) is returned
-to the clk_round_rate() caller. This cause wrong pixel clock to be used and
-result in no-signal when configuring a mode on RK3328.
+The more natural approach would perhaps be to add a drm_bridge_add,
+but there are several other bridges that never call drm_bridge_add.
+Just removing the drm_bridge_remove is the easier fix.
 
-Fix this by rounding the rate down to closest 1000 Hz in round_rate func,
-this allows an exact match to be found in pre pll config table.
-
-Fixes: 287422a95fe2 ("drm/rockchip: Round up _before_ giving to the clock framework")
-Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Fixes: 84601dbdea36 ("drm: sti: rework init sequence")
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20180806061910.29914-2-peda@axentia.se
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-inno-hdmi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/sti/sti_hda.c  | 1 -
+ drivers/gpu/drm/sti/sti_hdmi.c | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-inno-hdmi.c b/drivers/phy/rockchip/phy-rockchip-inno-hdmi.c
-index 2b97fb1185a0..9ca20c947283 100644
---- a/drivers/phy/rockchip/phy-rockchip-inno-hdmi.c
-+++ b/drivers/phy/rockchip/phy-rockchip-inno-hdmi.c
-@@ -603,6 +603,8 @@ static long inno_hdmi_phy_rk3228_clk_round_rate(struct clk_hw *hw,
- {
- 	const struct pre_pll_config *cfg = pre_pll_cfg_table;
+diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
+index 49438337f70d..19b9b5ed1297 100644
+--- a/drivers/gpu/drm/sti/sti_hda.c
++++ b/drivers/gpu/drm/sti/sti_hda.c
+@@ -721,7 +721,6 @@ static int sti_hda_bind(struct device *dev, struct device *master, void *data)
+ 	return 0;
  
-+	rate = (rate / 1000) * 1000;
-+
- 	for (; cfg->pixclock != 0; cfg++)
- 		if (cfg->pixclock == rate && !cfg->fracdiv)
- 			break;
-@@ -755,6 +757,8 @@ static long inno_hdmi_phy_rk3328_clk_round_rate(struct clk_hw *hw,
- {
- 	const struct pre_pll_config *cfg = pre_pll_cfg_table;
+ err_sysfs:
+-	drm_bridge_remove(bridge);
+ 	return -EINVAL;
+ }
  
-+	rate = (rate / 1000) * 1000;
-+
- 	for (; cfg->pixclock != 0; cfg++)
- 		if (cfg->pixclock == rate)
- 			break;
+diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
+index 34cdc4644435..ccf718404a1c 100644
+--- a/drivers/gpu/drm/sti/sti_hdmi.c
++++ b/drivers/gpu/drm/sti/sti_hdmi.c
+@@ -1315,7 +1315,6 @@ static int sti_hdmi_bind(struct device *dev, struct device *master, void *data)
+ 	return 0;
+ 
+ err_sysfs:
+-	drm_bridge_remove(bridge);
+ 	hdmi->drm_connector = NULL;
+ 	return -EINVAL;
+ }
 -- 
 2.20.1
 
