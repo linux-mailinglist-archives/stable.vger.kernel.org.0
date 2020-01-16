@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4332D13E6AF
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:21:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E268813E69D
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:21:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729208AbgAPRV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:21:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43340 "EHLO mail.kernel.org"
+        id S2391182AbgAPRRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:17:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391252AbgAPRRl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:17:41 -0500
+        id S1732461AbgAPRRn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:17:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4798024693;
-        Thu, 16 Jan 2020 17:17:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6678C246AA;
+        Thu, 16 Jan 2020 17:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195061;
-        bh=eSzMcQYi0nGtxL8imlw/3iEIcs2mG+60LHYeDMeYRa0=;
+        s=default; t=1579195062;
+        bh=6Fd7Q3BMWeJNBGk0kKO5Sfece9B848AW7wMsA8jHAYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uiwISQ4MEDPX688wOcgA/9H45nx/K6YwiKUYnNm7Wi0R4bHnwN8qs9+3Uv1MBiwYg
-         PTgFlDynSYl9wF+KzlNZs/jxK3ItEjRsHmvrWw6jZFHle4zeoR1Sigq/ijtZvKhlAx
-         +k1rUpmGVhVbNLpJSwRlrFEVhtdIyUGLvG/fl2hg=
+        b=PoBpmXvv7/5yvwZ4sx7+DJMT4tsxlcBXj4/8nIb3oGNO45DzwJkea5EIK7jpqT1AX
+         9NqHcWPX/Gu56vfOsNjJXq1dD1YepIWdYLILW2ZCLUregg1TWpVDd7EfPEaWxpJCXc
+         RloRPpUETBRPsINn20+MAsyUk61lXd2YmHXDIUP4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>,
-        linux-ntb@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 016/371] NTB: ntb_hw_idt: replace IS_ERR_OR_NULL with regular NULL checks
-Date:   Thu, 16 Jan 2020 12:11:24 -0500
-Message-Id: <20200116171719.16965-16-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 017/371] pcrypt: use format specifier in kobject_add
+Date:   Thu, 16 Jan 2020 12:11:25 -0500
+Message-Id: <20200116171719.16965-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116171719.16965-1-sashal@kernel.org>
 References: <20200116171719.16965-1-sashal@kernel.org>
@@ -43,52 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 1b7619828d0c341612f58683e73f279c37e70bbc ]
+[ Upstream commit b1e3874c75ab15288f573b3532e507c37e8e7656 ]
 
-Both devm_kcalloc() and devm_kzalloc() return NULL on error. They
-never return error pointers.
+Passing string 'name' as the format specifier is potentially hazardous
+because name could (although very unlikely to) have a format specifier
+embedded in it causing issues when parsing the non-existent arguments
+to these.  Follow best practice by using the "%s" format string for
+the string 'name'.
 
-The use of IS_ERR_OR_NULL is currently applied to the wrong
-context.
+Cleans up clang warning:
+crypto/pcrypt.c:397:40: warning: format string is not a string literal
+(potentially insecure) [-Wformat-security]
 
-Fix this by replacing IS_ERR_OR_NULL with regular NULL checks.
-
-Fixes: bf2a952d31d2 ("NTB: Add IDT 89HPESxNTx PCIe-switches support")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Fixes: a3fb1e330dd2 ("pcrypt: Added sysfs interface to pcrypt")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/hw/idt/ntb_hw_idt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ crypto/pcrypt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/ntb/hw/idt/ntb_hw_idt.c b/drivers/ntb/hw/idt/ntb_hw_idt.c
-index d44d7ef38fe8..b68e2cad74cc 100644
---- a/drivers/ntb/hw/idt/ntb_hw_idt.c
-+++ b/drivers/ntb/hw/idt/ntb_hw_idt.c
-@@ -1105,9 +1105,9 @@ static struct idt_mw_cfg *idt_scan_mws(struct idt_ntb_dev *ndev, int port,
- 	}
+diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
+index f8ec3d4ba4a8..a5718c0a3dc4 100644
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -394,7 +394,7 @@ static int pcrypt_sysfs_add(struct padata_instance *pinst, const char *name)
+ 	int ret;
  
- 	/* Allocate memory for memory window descriptors */
--	ret_mws = devm_kcalloc(&ndev->ntb.pdev->dev, *mw_cnt,
--				sizeof(*ret_mws), GFP_KERNEL);
--	if (IS_ERR_OR_NULL(ret_mws))
-+	ret_mws = devm_kcalloc(&ndev->ntb.pdev->dev, *mw_cnt, sizeof(*ret_mws),
-+			       GFP_KERNEL);
-+	if (!ret_mws)
- 		return ERR_PTR(-ENOMEM);
+ 	pinst->kobj.kset = pcrypt_kset;
+-	ret = kobject_add(&pinst->kobj, NULL, name);
++	ret = kobject_add(&pinst->kobj, NULL, "%s", name);
+ 	if (!ret)
+ 		kobject_uevent(&pinst->kobj, KOBJ_ADD);
  
- 	/* Copy the info of detected memory windows */
-@@ -2393,7 +2393,7 @@ static struct idt_ntb_dev *idt_create_dev(struct pci_dev *pdev,
- 
- 	/* Allocate memory for the IDT PCIe-device descriptor */
- 	ndev = devm_kzalloc(&pdev->dev, sizeof(*ndev), GFP_KERNEL);
--	if (IS_ERR_OR_NULL(ndev)) {
-+	if (!ndev) {
- 		dev_err(&pdev->dev, "Memory allocation failed for descriptor");
- 		return ERR_PTR(-ENOMEM);
- 	}
 -- 
 2.20.1
 
