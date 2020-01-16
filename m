@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9C213E588
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:15:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D854A13E587
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387598AbgAPRPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:15:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34160 "EHLO mail.kernel.org"
+        id S2389707AbgAPROk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:14:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390246AbgAPROi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:14:38 -0500
+        id S2391055AbgAPROj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:14:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFB28246A0;
-        Thu, 16 Jan 2020 17:14:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D0C9246A7;
+        Thu, 16 Jan 2020 17:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194878;
-        bh=P4JS33lPfd5CksSa+DV0l9XssAnGxxCSrEewU7X7u24=;
+        s=default; t=1579194879;
+        bh=U/NqnCQwVQ2UCt5lWGUmMYs4JvLuZDr4nhfNOLOb7kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zvOCsLo0W1tG7EA5E9DeS4bKV1Xh3i2RwDQjV4HEOfaE3zuGOw6J/D/tcB/9v/H9B
-         MtsQ9eENvmTR0hDySd6+3vODzO/nTkQYjEYGcf7S9uzQYvXBqwSJEIKpZoX8bIIPes
-         bcmn77XRd/kfwEVztUin1Qy9OXTWOf2naH6YpkwY=
+        b=dHKMWfTkMU9QrS+PAuRp/ZcmxWryEppv/yE3Kp0HLmP2xtRDDUJy3pBNsFcOssH+o
+         mNTIPemZzEAum5RUQzLvMKIInJ7zOxjsIwRUS/8h6ml1XbeGAArJGHc1JUzjm0w0RE
+         VbiR5HfPBOXoc9ZDar0I2JoxHqQ9K4Z2H3BygQME=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Olof Johansson <olof@lixom.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 667/671] soc: aspeed: Fix snoop_file_poll()'s return type
-Date:   Thu, 16 Jan 2020 12:05:05 -0500
-Message-Id: <20200116170509.12787-404-sashal@kernel.org>
+Cc:     Marc Gonzalez <marc.w.gonzalez@free.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 668/671] usb: dwc3: Allow building USB_DWC3_QCOM without EXTCON
+Date:   Thu, 16 Jan 2020 12:05:06 -0500
+Message-Id: <20200116170509.12787-405-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -46,48 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+From: Marc Gonzalez <marc.w.gonzalez@free.fr>
 
-[ Upstream commit a4e55ccd4392e70f296d12e81b93c6ca96ee21d5 ]
+[ Upstream commit 77a4946516fe488b6a33390de6d749f934a243ba ]
 
-snoop_file_poll() is defined as returning 'unsigned int' but the
-.poll method is declared as returning '__poll_t', a bitwise type.
+Keep EXTCON support optional, as some platforms do not need it.
 
-Fix this by using the proper return type and using the EPOLL
-constants instead of the POLL ones, as required for __poll_t.
+Do the same for USB_DWC3_OMAP while we're at it.
 
-Link: https://lore.kernel.org/r/20191121051851.268726-1-joel@jms.id.au
-Fixes: 3772e5da4454 ("drivers/misc: Aspeed LPC snoop output using misc chardev")
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Fixes: 3def4031b3e3f ("usb: dwc3: add EXTCON dependency for qcom")
+Signed-off-by: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/aspeed-lpc-snoop.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/Kconfig | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/aspeed-lpc-snoop.c b/drivers/misc/aspeed-lpc-snoop.c
-index 2feb4347d67f..c10be21a1663 100644
---- a/drivers/misc/aspeed-lpc-snoop.c
-+++ b/drivers/misc/aspeed-lpc-snoop.c
-@@ -101,13 +101,13 @@ static ssize_t snoop_file_read(struct file *file, char __user *buffer,
- 	return ret ? ret : copied;
- }
+diff --git a/drivers/usb/dwc3/Kconfig b/drivers/usb/dwc3/Kconfig
+index 1a0404fda596..5d22f4bf2a9f 100644
+--- a/drivers/usb/dwc3/Kconfig
++++ b/drivers/usb/dwc3/Kconfig
+@@ -52,7 +52,8 @@ comment "Platform Glue Driver Support"
  
--static unsigned int snoop_file_poll(struct file *file,
-+static __poll_t snoop_file_poll(struct file *file,
- 				    struct poll_table_struct *pt)
- {
- 	struct aspeed_lpc_snoop_channel *chan = snoop_file_to_chan(file);
+ config USB_DWC3_OMAP
+ 	tristate "Texas Instruments OMAP5 and similar Platforms"
+-	depends on EXTCON && (ARCH_OMAP2PLUS || COMPILE_TEST)
++	depends on ARCH_OMAP2PLUS || COMPILE_TEST
++	depends on EXTCON || !EXTCON
+ 	depends on OF
+ 	default USB_DWC3
+ 	help
+@@ -113,7 +114,8 @@ config USB_DWC3_ST
  
- 	poll_wait(file, &chan->wq, pt);
--	return !kfifo_is_empty(&chan->fifo) ? POLLIN : 0;
-+	return !kfifo_is_empty(&chan->fifo) ? EPOLLIN : 0;
- }
- 
- static const struct file_operations snoop_fops = {
+ config USB_DWC3_QCOM
+ 	tristate "Qualcomm Platform"
+-	depends on EXTCON && (ARCH_QCOM || COMPILE_TEST)
++	depends on ARCH_QCOM || COMPILE_TEST
++	depends on EXTCON || !EXTCON
+ 	depends on OF
+ 	default USB_DWC3
+ 	help
 -- 
 2.20.1
 
