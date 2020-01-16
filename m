@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 352B113FD60
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:26:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E9C13FD67
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387738AbgAPXZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:25:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54674 "EHLO mail.kernel.org"
+        id S1733265AbgAPXZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:25:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729799AbgAPXZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:25:10 -0500
+        id S2388038AbgAPXZN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:25:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 058952072B;
-        Thu, 16 Jan 2020 23:25:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A0192075B;
+        Thu, 16 Jan 2020 23:25:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217110;
-        bh=rnofVM1r06/zCpQPxV0g+/0PybA7btznnK8eSOOv9tw=;
+        s=default; t=1579217112;
+        bh=DkoLv/PPBCvriwWEPqQKsa4fsMQaQV3G/CykgTUgzik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aH4ohOvG6tFTMbureJMIBryRoSRIt9dRjv84/DoSww3hSX81+oQK/qIqik3JyVKAC
-         3RsqmyUshxESrLWlhR86/QayMRZsnULS0ojOf3NpRXDjTttmpHIGE8WJGhe1n6VDu9
-         P3Lhj/uAYenY0y2Oe+kE0jqMFCNkv+W0EHquOWW4=
+        b=w5Dp8JpZYX23HeKVjqg+LzQjV5daeub6qobc9Nf0bNlpStquoVGxP//400egx4JTc
+         iKNWE/NWBSfR+4/P0BN51nZIuUQp1MNP2vmSaZHWSVbT7tnBEItw4nJLihcuvAB26E
+         H44kNAphdtyXrZWUM8lWHBYB83ptUlo9UgvYERmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Seung-Woo Kim <sw0312.kim@samsung.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.4 152/203] media: v4l: cadence: Fix how unsued lanes are handled in csi2rx_start()
-Date:   Fri, 17 Jan 2020 00:17:49 +0100
-Message-Id: <20200116231758.150381634@linuxfoundation.org>
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 153/203] media: exynos4-is: Fix recursive locking in isp_video_release()
+Date:   Fri, 17 Jan 2020 00:17:50 +0100
+Message-Id: <20200116231758.222710009@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -45,33 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Seung-Woo Kim <sw0312.kim@samsung.com>
 
-commit 2eca8e4c1df4864b937752c3aa2f7925114f4806 upstream.
+commit 704c6c80fb471d1bb0ef0d61a94617d1d55743cd upstream.
 
-The 2nd parameter of 'find_first_zero_bit()' is a number of bits, not of
-bytes. So use 'csi2rx->max_lanes' instead of 'sizeof(lanes_used)'.
+>From isp_video_release(), &isp->video_lock is held and subsequent
+vb2_fop_release() tries to lock vdev->lock which is same with the
+previous one. Replace vb2_fop_release() with _vb2_fop_release() to
+fix the recursive locking.
 
-Fixes: 1fc3b37f34f6 ("media: v4l: cadence: Add Cadence MIPI-CSI2 RX driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: 1380f5754cb0 ("[media] videobuf2: Add missing lock held on vb2_fop_release")
+Signed-off-by: Seung-Woo Kim <sw0312.kim@samsung.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/cadence/cdns-csi2rx.c |    2 +-
+ drivers/media/platform/exynos4-is/fimc-isp-video.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/platform/cadence/cdns-csi2rx.c
-+++ b/drivers/media/platform/cadence/cdns-csi2rx.c
-@@ -129,7 +129,7 @@ static int csi2rx_start(struct csi2rx_pr
- 	 */
- 	for (i = csi2rx->num_lanes; i < csi2rx->max_lanes; i++) {
- 		unsigned int idx = find_first_zero_bit(&lanes_used,
--						       sizeof(lanes_used));
-+						       csi2rx->max_lanes);
- 		set_bit(idx, &lanes_used);
- 		reg |= CSI2RX_STATIC_CFG_DLANE_MAP(i, i + 1);
+--- a/drivers/media/platform/exynos4-is/fimc-isp-video.c
++++ b/drivers/media/platform/exynos4-is/fimc-isp-video.c
+@@ -313,7 +313,7 @@ static int isp_video_release(struct file
+ 		ivc->streaming = 0;
  	}
+ 
+-	vb2_fop_release(file);
++	_vb2_fop_release(file, NULL);
+ 
+ 	if (v4l2_fh_is_singular_file(file)) {
+ 		fimc_pipeline_call(&ivc->ve, close);
 
 
