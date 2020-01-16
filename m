@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0133013F813
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC5313F7FD
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387794AbgAPTOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:14:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42538 "EHLO mail.kernel.org"
+        id S1733218AbgAPQ4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:56:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733207AbgAPQ4S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:56:18 -0500
+        id S1729279AbgAPQ4T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:56:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 402FD24687;
-        Thu, 16 Jan 2020 16:56:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BB6E24656;
+        Thu, 16 Jan 2020 16:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193777;
-        bh=pRkhybkngEnr4gOAuE3FOmVM9pUynr3Wp6eubVhRKl0=;
+        s=default; t=1579193779;
+        bh=Zp7hJQHNlxB0lEeVCZjAhIkUtvA5aJ58o8NvYuc8Nt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owHF4+pZgP2xm8he0tnCNYc8vYSXD9fi3zT5/06oLHat48aomyUhv+b48bXnayEvu
-         Axs4P59TsIw53E5EGutBV8bToWh3zRsW9YMMyo/LTZcSyNU0Tyy3/rKo0qZFzmF+ym
-         LEfMcT9NNRxUNqSMT6B0O/qBZSBdRceqIuwbgM3Q=
+        b=F8tse3r3P+m6FgLnoHr7YpbFKKj85NZ7u2PcB+niqAQ0dV1kW8/zQ35AIeZWLVvZe
+         bFC6YK7uVx7ASMRKTPhfEg1vR2qmFMRtofk3hkX9ouJuSsnxG13QG90BELmyfOh3IV
+         Ojh0WfdmbzD9Kc8aXZTcPN1l5r7xaSuy8s/g0FWQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 058/671] arm64: dts: renesas: r8a7795-es1: Add missing power domains to IPMMU nodes
-Date:   Thu, 16 Jan 2020 11:44:49 -0500
-Message-Id: <20200116165502.8838-58-sashal@kernel.org>
+Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 059/671] net: phy: Fix not to call phy_resume() if PHY is not attached
+Date:   Thu, 16 Jan 2020 11:44:50 -0500
+Message-Id: <20200116165502.8838-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -44,42 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 41e30b515a003a90e336b7a456c7c82d8c3aa6a7 ]
+[ Upstream commit ef1b5bf506b1f0ee3edc98533e1f3ecb105eb46a ]
 
-While commit 3b7e7848f0e88b36 ("arm64: dts: renesas: r8a7795: Add IPMMU
-device nodes") for R-Car H3 ES2.0 did include power-domains properties,
-they were forgotten in the counterpart for older R-Car H3 ES1.x SoCs.
+This patch fixes an issue that mdio_bus_phy_resume() doesn't call
+phy_resume() if the PHY is not attached.
 
-Fixes: e4b9a493df45075b ("arm64: dts: renesas: r8a7795-es1: Add IPMMU device nodes")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Fixes: 803dd9c77ac3 ("net: phy: avoid suspending twice a PHY")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/phy/phy_device.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-index 7b2fbaec9aef..3dc61b7e1d08 100644
---- a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-@@ -28,6 +28,7 @@
- 		compatible = "renesas,ipmmu-r8a7795";
- 		reg = <0 0xec680000 0 0x1000>;
- 		renesas,ipmmu-main = <&ipmmu_mm 5>;
-+		power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
- 		#iommu-cells = <1>;
- 	};
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 43c4f358eeb8..9c7e51443f6b 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -76,7 +76,7 @@ static LIST_HEAD(phy_fixup_list);
+ static DEFINE_MUTEX(phy_fixup_lock);
  
-@@ -35,6 +36,7 @@
- 		compatible = "renesas,ipmmu-r8a7795";
- 		reg = <0 0xe7730000 0 0x1000>;
- 		renesas,ipmmu-main = <&ipmmu_mm 8>;
-+		power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
- 		#iommu-cells = <1>;
- 	};
+ #ifdef CONFIG_PM
+-static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
++static bool mdio_bus_phy_may_suspend(struct phy_device *phydev, bool suspend)
+ {
+ 	struct device_driver *drv = phydev->mdio.dev.driver;
+ 	struct phy_driver *phydrv = to_phy_driver(drv);
+@@ -88,10 +88,11 @@ static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
+ 	/* PHY not attached? May suspend if the PHY has not already been
+ 	 * suspended as part of a prior call to phy_disconnect() ->
+ 	 * phy_detach() -> phy_suspend() because the parent netdev might be the
+-	 * MDIO bus driver and clock gated at this point.
++	 * MDIO bus driver and clock gated at this point. Also may resume if
++	 * PHY is not attached.
+ 	 */
+ 	if (!netdev)
+-		return !phydev->suspended;
++		return suspend ? !phydev->suspended : phydev->suspended;
  
+ 	if (netdev->wol_enabled)
+ 		return false;
+@@ -126,7 +127,7 @@ static int mdio_bus_phy_suspend(struct device *dev)
+ 	if (phydev->attached_dev && phydev->adjust_link)
+ 		phy_stop_machine(phydev);
+ 
+-	if (!mdio_bus_phy_may_suspend(phydev))
++	if (!mdio_bus_phy_may_suspend(phydev, true))
+ 		return 0;
+ 
+ 	return phy_suspend(phydev);
+@@ -137,7 +138,7 @@ static int mdio_bus_phy_resume(struct device *dev)
+ 	struct phy_device *phydev = to_phy_device(dev);
+ 	int ret;
+ 
+-	if (!mdio_bus_phy_may_suspend(phydev))
++	if (!mdio_bus_phy_may_suspend(phydev, false))
+ 		goto no_resume;
+ 
+ 	ret = phy_resume(phydev);
 -- 
 2.20.1
 
