@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3BEB13FFE0
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BCC713FFF4
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390856AbgAPXVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:21:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49294 "EHLO mail.kernel.org"
+        id S2392037AbgAPXqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:46:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388978AbgAPXVq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:21:46 -0500
+        id S1729624AbgAPXVs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:21:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6143420748;
-        Thu, 16 Jan 2020 23:21:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D078A2077C;
+        Thu, 16 Jan 2020 23:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216905;
-        bh=JSuBphsjuh0+PpEiMvHb+bCx5t9x0cjW3CLELLPZeHc=;
+        s=default; t=1579216908;
+        bh=4QuQBs/y2wtwL6SKyn0ignYxYeQE9C0+uY2gTmS+OEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4kQJbPuUkGdH9MflN/Y+AaeNB6Yhw8GqhrgOhC/RsYmdabTzk+Nx6I5O/c0AxVR5
-         OGeiE5po1Ib/UF1E5/Xlr1bmGqpVtxjjndn3V6GWtC3g4zXllfFHHRrEhZWLO0KBf5
-         P+NrBl1RtT7AVWiTvj2Tngn+e8RVI1b6iRSzrc4Y=
+        b=Q66Qc8a/TKR8xnb1geFdOgRfdZnhD6EpmBZZjD3mbQzVGJ6ZpBvWU2GTKp9nOClNd
+         Mbz62iVC5LiBEmJAUy8Krd7KcTX7AzKFnTKuVFHlTldaCPm03r1HhuTicrsEtxJbkx
+         f+ZnuVksLxMWzNpxH+BZkJ7WvusklB+cktpxeO7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Goldwyn Rodrigues <rgoldwyn@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 052/203] btrfs: simplify inode locking for RWF_NOWAIT
-Date:   Fri, 17 Jan 2020 00:16:09 +0100
-Message-Id: <20200116231748.526335217@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 053/203] netfilter: nf_tables_offload: release flow_rule on error from commit path
+Date:   Fri, 17 Jan 2020 00:16:10 +0100
+Message-Id: <20200116231748.608901770@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -43,41 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Goldwyn Rodrigues <rgoldwyn@suse.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 9cf35f673583ccc9f3e2507498b3079d56614ad3 upstream.
+commit 23403cd8898dbc9808d3eb2f63bc1db8a340b751 upstream.
 
-This is similar to 942491c9e6d6 ("xfs: fix AIM7 regression"). Apparently
-our current rwsem code doesn't like doing the trylock, then lock for
-real scheme. This causes extra contention on the lock and can be
-measured eg. by AIM7 benchmark.  So change our read/write methods to
-just do the trylock for the RWF_NOWAIT case.
+If hardware offload commit path fails, release all flow_rule objects.
 
-Fixes: edf064e7c6fe ("btrfs: nowait aio support")
-Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ update changelog ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/file.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_offload.c |   26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -1903,9 +1903,10 @@ static ssize_t btrfs_file_write_iter(str
- 	    (iocb->ki_flags & IOCB_NOWAIT))
- 		return -EOPNOTSUPP;
+--- a/net/netfilter/nf_tables_offload.c
++++ b/net/netfilter/nf_tables_offload.c
+@@ -358,14 +358,14 @@ int nft_flow_rule_offload_commit(struct
+ 				continue;
  
--	if (!inode_trylock(inode)) {
--		if (iocb->ki_flags & IOCB_NOWAIT)
-+	if (iocb->ki_flags & IOCB_NOWAIT) {
-+		if (!inode_trylock(inode))
- 			return -EAGAIN;
-+	} else {
- 		inode_lock(inode);
+ 			if (trans->ctx.flags & NLM_F_REPLACE ||
+-			    !(trans->ctx.flags & NLM_F_APPEND))
+-				return -EOPNOTSUPP;
+-
++			    !(trans->ctx.flags & NLM_F_APPEND)) {
++				err = -EOPNOTSUPP;
++				break;
++			}
+ 			err = nft_flow_offload_rule(trans->ctx.chain,
+ 						    nft_trans_rule(trans),
+ 						    nft_trans_flow_rule(trans),
+ 						    FLOW_CLS_REPLACE);
+-			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
+ 			break;
+ 		case NFT_MSG_DELRULE:
+ 			if (!(trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD))
+@@ -379,7 +379,23 @@ int nft_flow_rule_offload_commit(struct
+ 		}
+ 
+ 		if (err)
+-			return err;
++			break;
++	}
++
++	list_for_each_entry(trans, &net->nft.commit_list, list) {
++		if (trans->ctx.family != NFPROTO_NETDEV)
++			continue;
++
++		switch (trans->msg_type) {
++		case NFT_MSG_NEWRULE:
++			if (!(trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD))
++				continue;
++
++			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
++			break;
++		default:
++			break;
++		}
  	}
  
+ 	return err;
 
 
