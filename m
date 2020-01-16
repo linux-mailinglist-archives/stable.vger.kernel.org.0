@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D217113EC12
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:54:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1152A13EA7F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:44:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406259AbgAPRyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:54:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35814 "EHLO mail.kernel.org"
+        id S2405939AbgAPRoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:44:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405928AbgAPRom (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:44:42 -0500
+        id S2405935AbgAPRon (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:44:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FB9624770;
-        Thu, 16 Jan 2020 17:44:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 405A12476C;
+        Thu, 16 Jan 2020 17:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196681;
-        bh=JBhNtFJ94R8C17PryEob3YDZloOshI0//2W6ZOtVMxU=;
+        s=default; t=1579196682;
+        bh=FZyY3AusIL/ws+s305lUHWFZJFeAb3WZkMJPSEuYV+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xzh9U9velmeSev1R/cwzUo/oSz9AMbFf5zDjP8uupxE94wVRGSd1XvZ5CFfh8sYWz
-         MzhiaadVZYW43mV8OCC4xAUDNXXgTZ2e3pnOZwcfYgCuXh+7UYR4h8JG4uRzxaC46z
-         cXvxg+C55h8IY5dxGpS5ryON65bvgcX6AKxSEpY4=
+        b=0qa3FMxJahq+MuaLpu+Rn85RqlQvbrXLNYtXPF+uclll8BiZOdtrEY/OnpITRqX7V
+         fELnOVJ3w0dFoAOnEkgTZJsXL/4hm0J9sVJaR/7FTjvnL1K9MApyeyWWjChIdX7nu7
+         AleXr0Ch7WkgOsMmNjyEbwR4VCFJOrpkAyj7OaHM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Jukka Rissanen <jukka.rissanen@linux.intel.com>,
-        Alexander Aring <aring@mojatatu.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, linux-wpan@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 079/174] 6lowpan: Off by one handling ->nexthdr
-Date:   Thu, 16 Jan 2020 12:41:16 -0500
-Message-Id: <20200116174251.24326-79-sashal@kernel.org>
+Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 080/174] dmaengine: axi-dmac: Don't check the number of frames for alignment
+Date:   Thu, 16 Jan 2020 12:41:17 -0500
+Message-Id: <20200116174251.24326-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -47,39 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-[ Upstream commit f57c4bbf34439531adccd7d3a4ecc14f409c1399 ]
+[ Upstream commit 648865a79d8ee3d1aa64aab5eb2a9d12eeed14f9 ]
 
-NEXTHDR_MAX is 255.  What happens here is that we take a u8 value
-"hdr->nexthdr" from the network and then look it up in
-lowpan_nexthdr_nhcs[].  The problem is that if hdr->nexthdr is 0xff then
-we read one element beyond the end of the array so the array needs to
-be one element larger.
+In 2D transfers (for the AXI DMAC), the number of frames (numf) represents
+Y_LENGTH, and the length of a frame is X_LENGTH. 2D transfers are useful
+for video transfers where screen resolutions ( X * Y ) are typically
+aligned for X, but not for Y.
 
-Fixes: 92aa7c65d295 ("6lowpan: add generic nhc layer interface")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Jukka Rissanen <jukka.rissanen@linux.intel.com>
-Acked-by: Alexander Aring <aring@mojatatu.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+There is no requirement for Y_LENGTH to be aligned to the bus-width (or
+anything), and this is also true for AXI DMAC.
+
+Checking the Y_LENGTH for alignment causes false errors when initiating DMA
+transfers. This change fixes this by checking only that the Y_LENGTH is
+non-zero.
+
+Fixes: 0e3b67b348b8 ("dmaengine: Add support for the Analog Devices AXI-DMAC DMA controller")
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/6lowpan/nhc.c | 2 +-
+ drivers/dma/dma-axi-dmac.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/6lowpan/nhc.c b/net/6lowpan/nhc.c
-index 7008d53e455c..e61679bf0908 100644
---- a/net/6lowpan/nhc.c
-+++ b/net/6lowpan/nhc.c
-@@ -18,7 +18,7 @@
- #include "nhc.h"
+diff --git a/drivers/dma/dma-axi-dmac.c b/drivers/dma/dma-axi-dmac.c
+index 5b2395e7e04d..6de3d2142c7d 100644
+--- a/drivers/dma/dma-axi-dmac.c
++++ b/drivers/dma/dma-axi-dmac.c
+@@ -441,7 +441,7 @@ static struct dma_async_tx_descriptor *axi_dmac_prep_interleaved(
  
- static struct rb_root rb_root = RB_ROOT;
--static struct lowpan_nhc *lowpan_nexthdr_nhcs[NEXTHDR_MAX];
-+static struct lowpan_nhc *lowpan_nexthdr_nhcs[NEXTHDR_MAX + 1];
- static DEFINE_SPINLOCK(lowpan_nhc_lock);
- 
- static int lowpan_nhc_insert(struct lowpan_nhc *nhc)
+ 	if (chan->hw_2d) {
+ 		if (!axi_dmac_check_len(chan, xt->sgl[0].size) ||
+-		    !axi_dmac_check_len(chan, xt->numf))
++		    xt->numf == 0)
+ 			return NULL;
+ 		if (xt->sgl[0].size + dst_icg > chan->max_length ||
+ 		    xt->sgl[0].size + src_icg > chan->max_length)
 -- 
 2.20.1
 
