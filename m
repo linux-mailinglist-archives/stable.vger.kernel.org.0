@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47EC113FDCF
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C8913FDE4
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391297AbgAPX3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:29:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
+        id S2403873AbgAPXaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:30:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391266AbgAPX3d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:29:33 -0500
+        id S2403863AbgAPXaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:30:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B5A52072E;
-        Thu, 16 Jan 2020 23:29:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA60D21582;
+        Thu, 16 Jan 2020 23:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217371;
-        bh=prQ0q8gvC79NNbn3+0ntZWUuhxJax8zUKx2jk+josZQ=;
+        s=default; t=1579217422;
+        bh=POtcQZukDa4ON6a4yKVTu2ZMOXl8kr2LgtdiFXwapgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQuEJ69zGQQRfCgGhFb71LvejpxQj5CucYwLS7KVPL4qvGmVXTmm2xBCHAOMsaBbN
-         m4hH7PbBageI/m44KCn2a6BD3mZK5mU34Y85ep5vIKVhEzZfz+T9aExf+u4ViX+JFN
-         ooARh2m7KVTvzJnW9ehtxhuMuACa9/6SCvhxlUsc=
+        b=HG+PSf8Zd15pMKQDzgSDcnnNNqB7qz4V5idgUwJ+NhjMjoCGmOmnY3xvyV0VDR/cV
+         hRUyNzspgLSe2bk575SVE2i8vvvX5PPiwK6ZMNfjwb7EiMlOJjqq1453sc65O2oMBR
+         oLJyDPed2hjR4zoiBYQ1g7o9HNsbR9f0SL05r/FY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Jonathan Yong <jonathan.yong@intel.com>
-Subject: [PATCH 4.19 55/84] PCI/PTM: Remove spurious "d" from granularity message
-Date:   Fri, 17 Jan 2020 00:18:29 +0100
-Message-Id: <20200116231720.275767106@linuxfoundation.org>
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.19 59/84] media: ov6650: Fix incorrect use of JPEG colorspace
+Date:   Fri, 17 Jan 2020 00:18:33 +0100
+Message-Id: <20200116231720.687606474@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
 References: <20200116231713.087649517@linuxfoundation.org>
@@ -44,37 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-commit 127a7709495db52a41012deaebbb7afc231dad91 upstream.
+commit 12500731895ef09afc5b66b86b76c0884fb9c7bf upstream.
 
-The granularity message has an extra "d":
+Since its initial submission, the driver selects V4L2_COLORSPACE_JPEG
+for supported formats other than V4L2_MBUS_FMT_SBGGR8_1X8.  According
+to v4l2-compliance test program, V4L2_COLORSPACE_JPEG applies
+exclusively to V4L2_PIX_FMT_JPEG.  Since the sensor does not support
+JPEG format, fix it to always select V4L2_COLORSPACE_SRGB.
 
-  pci 0000:02:00.0: PTM enabled, 4dns granularity
-
-Remove the "d" so the message is simply "PTM enabled, 4ns granularity".
-
-Fixes: 8b2ec318eece ("PCI: Add PTM clock granularity information")
-Link: https://lore.kernel.org/r/20191106222420.10216-2-helgaas@kernel.org
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Cc: Jonathan Yong <jonathan.yong@intel.com>
+Fixes: 2f6e2404799a ("[media] SoC Camera: add driver for OV6650 sensor")
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pcie/ptm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/ov6650.c |   13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
---- a/drivers/pci/pcie/ptm.c
-+++ b/drivers/pci/pcie/ptm.c
-@@ -21,7 +21,7 @@ static void pci_ptm_info(struct pci_dev
- 		snprintf(clock_desc, sizeof(clock_desc), ">254ns");
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -203,7 +203,6 @@ struct ov6650 {
+ 	unsigned long		pclk_max;	/* from resolution and format */
+ 	struct v4l2_fract	tpf;		/* as requested with s_frame_interval */
+ 	u32 code;
+-	enum v4l2_colorspace	colorspace;
+ };
+ 
+ 
+@@ -520,7 +519,7 @@ static int ov6650_get_fmt(struct v4l2_su
+ 	mf->width	= priv->rect.width >> priv->half_scale;
+ 	mf->height	= priv->rect.height >> priv->half_scale;
+ 	mf->code	= priv->code;
+-	mf->colorspace	= priv->colorspace;
++	mf->colorspace	= V4L2_COLORSPACE_SRGB;
+ 	mf->field	= V4L2_FIELD_NONE;
+ 
+ 	return 0;
+@@ -627,11 +626,6 @@ static int ov6650_s_fmt(struct v4l2_subd
+ 		priv->pclk_max = 8000000;
+ 	}
+ 
+-	if (code == MEDIA_BUS_FMT_SBGGR8_1X8)
+-		priv->colorspace = V4L2_COLORSPACE_SRGB;
+-	else if (code != 0)
+-		priv->colorspace = V4L2_COLORSPACE_JPEG;
+-
+ 	if (half_scale) {
+ 		dev_dbg(&client->dev, "max resolution: QCIF\n");
+ 		coma_set |= COMA_QCIF;
+@@ -666,7 +660,6 @@ static int ov6650_s_fmt(struct v4l2_subd
+ 		priv->code = code;
+ 
+ 	if (!ret) {
+-		mf->colorspace	= priv->colorspace;
+ 		mf->width = priv->rect.width >> half_scale;
+ 		mf->height = priv->rect.height >> half_scale;
+ 	}
+@@ -689,6 +682,7 @@ static int ov6650_set_fmt(struct v4l2_su
+ 				&mf->height, 2, H_CIF, 1, 0);
+ 
+ 	mf->field = V4L2_FIELD_NONE;
++	mf->colorspace = V4L2_COLORSPACE_SRGB;
+ 
+ 	switch (mf->code) {
+ 	case MEDIA_BUS_FMT_Y10_1X10:
+@@ -699,13 +693,11 @@ static int ov6650_set_fmt(struct v4l2_su
+ 	case MEDIA_BUS_FMT_YUYV8_2X8:
+ 	case MEDIA_BUS_FMT_VYUY8_2X8:
+ 	case MEDIA_BUS_FMT_UYVY8_2X8:
+-		mf->colorspace = V4L2_COLORSPACE_JPEG;
  		break;
  	default:
--		snprintf(clock_desc, sizeof(clock_desc), "%udns",
-+		snprintf(clock_desc, sizeof(clock_desc), "%uns",
- 			 dev->ptm_granularity);
+ 		mf->code = MEDIA_BUS_FMT_SBGGR8_1X8;
+ 		/* fall through */
+ 	case MEDIA_BUS_FMT_SBGGR8_1X8:
+-		mf->colorspace = V4L2_COLORSPACE_SRGB;
  		break;
  	}
+ 
+@@ -1006,7 +998,6 @@ static int ov6650_probe(struct i2c_clien
+ 	priv->rect.height = H_CIF;
+ 	priv->half_scale  = false;
+ 	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
+-	priv->colorspace  = V4L2_COLORSPACE_JPEG;
+ 
+ 	ret = ov6650_video_probe(client);
+ 	if (ret)
 
 
