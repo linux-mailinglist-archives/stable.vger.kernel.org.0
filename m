@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C34D13F8FF
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:22:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A922D13F903
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:22:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731004AbgAPQxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:53:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37370 "EHLO mail.kernel.org"
+        id S1731668AbgAPTWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:22:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730990AbgAPQxb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:53:31 -0500
+        id S1731005AbgAPQxc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:53:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 830772081E;
-        Thu, 16 Jan 2020 16:53:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5874214AF;
+        Thu, 16 Jan 2020 16:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193610;
-        bh=eNmW3pak0Drwu2Uzw7tfRv/DSDXFQ0oyshwD7EuwO7Y=;
+        s=default; t=1579193611;
+        bh=Ct7epx5Ce1DJ/Hup0WnjGmC1dF6IYb33R8xHw35puVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0xvzTnptSsvsGF31fqsHPknl3opuXHH4epehEz3UmVfJt5snPfCca0uSsH3XCkHP
-         VhOIhqTi9qlSGETbXLVOxuoJIg2eJa6Fkf69eWzaZKtTB3rNBHIMI6LJ/zEV3f569f
-         NoEOFeYWx8EPeIYi8Aoa08GdWoWYT3CIJBdtJWkA=
+        b=edy9qZXJY2wL2ZtzTXYrDXXEpqnlHKpq05lC7uCIMBhWgfZZkWSCrWgBOskphPQ+L
+         GU9ndiMRZZGh018Df6RSmCxqqZtOwUOAamgpuHY/WImwWCoBRHaFEUwUf/L6Ib60Hi
+         j2Dn9O4I8w4yxUTr0IIHgPRGcgVmUmZpUU+hItKQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+Cc:     Chuck Lever <chuck.lever@oracle.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
         netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 148/205] netfilter: nf_tables_offload: release flow_rule on error from commit path
-Date:   Thu, 16 Jan 2020 11:42:03 -0500
-Message-Id: <20200116164300.6705-148-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 149/205] SUNRPC: Fix another issue with MIC buffer space
+Date:   Thu, 16 Jan 2020 11:42:04 -0500
+Message-Id: <20200116164300.6705-149-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -44,67 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 23403cd8898dbc9808d3eb2f63bc1db8a340b751 ]
+[ Upstream commit e8d70b321ecc9b23d09b8df63e38a2f73160c209 ]
 
-If hardware offload commit path fails, release all flow_rule objects.
+xdr_shrink_pagelen() BUG's when @len is larger than buf->page_len.
+This can happen when xdr_buf_read_mic() is given an xdr_buf with
+a small page array (like, only a few bytes).
 
-Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Instead, just cap the number of bytes that xdr_shrink_pagelen()
+will move.
+
+Fixes: 5f1bc39979d ("SUNRPC: Fix buffer handling of GSS MIC ... ")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_offload.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ net/sunrpc/xdr.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
-index e743f811245f..96a64e7594a5 100644
---- a/net/netfilter/nf_tables_offload.c
-+++ b/net/netfilter/nf_tables_offload.c
-@@ -358,14 +358,14 @@ int nft_flow_rule_offload_commit(struct net *net)
- 				continue;
+diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
+index 14ba9e72a204..f3104be8ff5d 100644
+--- a/net/sunrpc/xdr.c
++++ b/net/sunrpc/xdr.c
+@@ -436,13 +436,12 @@ xdr_shrink_bufhead(struct xdr_buf *buf, size_t len)
+ }
  
- 			if (trans->ctx.flags & NLM_F_REPLACE ||
--			    !(trans->ctx.flags & NLM_F_APPEND))
--				return -EOPNOTSUPP;
+ /**
+- * xdr_shrink_pagelen
++ * xdr_shrink_pagelen - shrinks buf->pages by up to @len bytes
+  * @buf: xdr_buf
+  * @len: bytes to remove from buf->pages
+  *
+- * Shrinks XDR buffer's page array buf->pages by
+- * 'len' bytes. The extra data is not lost, but is instead
+- * moved into the tail.
++ * The extra data is not lost, but is instead moved into buf->tail.
++ * Returns the actual number of bytes moved.
+  */
+ static unsigned int
+ xdr_shrink_pagelen(struct xdr_buf *buf, size_t len)
+@@ -455,8 +454,8 @@ xdr_shrink_pagelen(struct xdr_buf *buf, size_t len)
+ 
+ 	result = 0;
+ 	tail = buf->tail;
+-	BUG_ON (len > pglen);
 -
-+			    !(trans->ctx.flags & NLM_F_APPEND)) {
-+				err = -EOPNOTSUPP;
-+				break;
-+			}
- 			err = nft_flow_offload_rule(trans->ctx.chain,
- 						    nft_trans_rule(trans),
- 						    nft_trans_flow_rule(trans),
- 						    FLOW_CLS_REPLACE);
--			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
- 			break;
- 		case NFT_MSG_DELRULE:
- 			if (!(trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD))
-@@ -379,7 +379,23 @@ int nft_flow_rule_offload_commit(struct net *net)
- 		}
++	if (len > buf->page_len)
++		len = buf-> page_len;
+ 	tailbuf_len = buf->buflen - buf->head->iov_len - buf->page_len;
  
- 		if (err)
--			return err;
-+			break;
-+	}
-+
-+	list_for_each_entry(trans, &net->nft.commit_list, list) {
-+		if (trans->ctx.family != NFPROTO_NETDEV)
-+			continue;
-+
-+		switch (trans->msg_type) {
-+		case NFT_MSG_NEWRULE:
-+			if (!(trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD))
-+				continue;
-+
-+			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
-+			break;
-+		default:
-+			break;
-+		}
- 	}
- 
- 	return err;
+ 	/* Shift the tail first */
 -- 
 2.20.1
 
