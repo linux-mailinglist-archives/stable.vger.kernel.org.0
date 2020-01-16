@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E915913FF50
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26AEB13FEBF
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389690AbgAPX06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:26:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58104 "EHLO mail.kernel.org"
+        id S2404539AbgAPXhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:37:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730261AbgAPX06 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:26:58 -0500
+        id S2404167AbgAPXap (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:30:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9453320684;
-        Thu, 16 Jan 2020 23:26:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6B2520661;
+        Thu, 16 Jan 2020 23:30:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217217;
-        bh=T9fqrrkfooFFhTRKTUscSsrpJdO1WsvH0QD9PwLE1V0=;
+        s=default; t=1579217444;
+        bh=5KDrKj1M5O3zZvLmsVdi7oVZ6QM5dpT4Ve2OnYrKyCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOTQaP+T0hMNZy1jXp0VJawZSjSL3Tx6bkz6Fbquy2yBruHj8u7FVlFhJczKMTQ60
-         6p3NCAbCkbtEaNpucFY1ztPabD+Ee8Tig1UPueZXo/E4XSITcQ2GoBivsaWBmeT13n
-         xfNsLbF2tgxjVkB6PWIne4bIedgRCZMIahBHf7hA=
+        b=HVPKpkNFbTqtiX48r/7FJN7kxndlIKOnX37P023baeKxDna174jRWe2M/6GGX6R36
+         8tP3IihG2vt9jKopY7ud8Wn/+WLyzQpASFWWPfzqpEaEcJ3EhL5do9zHZEPZih1LFw
+         0EZoZ0RK3o/Rj7D9fIQSj9efyjrqk5ZFFm3x+M84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 196/203] s390/qeth: lock the card while changing its hsuid
-Date:   Fri, 17 Jan 2020 00:18:33 +0100
-Message-Id: <20200116231801.292602782@linuxfoundation.org>
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.19 60/84] media: ov6650: Fix some format attributes not under control
+Date:   Fri, 17 Jan 2020 00:18:34 +0100
+Message-Id: <20200116231720.781108135@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
-References: <20200116231745.218684830@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,120 +44,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit 5b6c7b55cfe26224b0f41b1c226d3534c542787f ]
+commit 1c6a2b63095154bbf9e8f38d79487a728331bf65 upstream.
 
-qeth_l3_dev_hsuid_store() initially checks the card state, but doesn't
-take the conf_mutex to ensure that the card stays in this state while
-being reconfigured.
+User arguments passed to .get/set_fmt() pad operation callbacks may
+contain unsupported values.  The driver takes control over frame size
+and pixel code as well as colorspace and field attributes but has never
+cared for remainig format attributes, i.e., ycbcr_enc, quantization
+and xfer_func, introduced by commit 11ff030c7365 ("[media]
+v4l2-mediabus: improve colorspace support").  Fix it.
 
-Rework the code to take this lock, and drop a redundant state check in a
-helper function.
+Set up a static v4l2_mbus_framefmt structure with attributes
+initialized to reasonable defaults and use it for updating content of
+user provided arguments.  In case of V4L2_SUBDEV_FORMAT_ACTIVE,
+postpone frame size update, now performed from inside ov6650_s_fmt()
+helper, util the user argument is first updated in ov6650_set_fmt() with
+default frame format content.  For V4L2_SUBDEV_FORMAT_TRY, don't copy
+all attributes to pad config, only those handled by the driver, then
+fill the response with the default frame format updated with resulting
+pad config format code and frame size.
 
-Fixes: b333293058aa ("qeth: add support for af_iucv HiperSockets transport")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 11ff030c7365 ("[media] v4l2-mediabus: improve colorspace support")
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/s390/net/qeth_core_main.c |  5 ----
- drivers/s390/net/qeth_l3_sys.c    | 40 +++++++++++++++++++++----------
- 2 files changed, 28 insertions(+), 17 deletions(-)
+ drivers/media/i2c/ov6650.c |   51 ++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 39 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 94e5b6e15ef9..5be4d800e4ba 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3378,11 +3378,6 @@ int qeth_configure_cq(struct qeth_card *card, enum qeth_cq cq)
- 			goto out;
- 		}
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -215,6 +215,17 @@ static u32 ov6650_codes[] = {
+ 	MEDIA_BUS_FMT_Y8_1X8,
+ };
  
--		if (card->state != CARD_STATE_DOWN) {
--			rc = -1;
--			goto out;
--		}
--
- 		qeth_free_qdio_queues(card);
- 		card->options.cq = cq;
- 		rc = 0;
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index 2f73b33c9347..333fd4619dc6 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -270,24 +270,36 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
- 		struct device_attribute *attr, const char *buf, size_t count)
++static const struct v4l2_mbus_framefmt ov6650_def_fmt = {
++	.width		= W_CIF,
++	.height		= H_CIF,
++	.code		= MEDIA_BUS_FMT_SBGGR8_1X8,
++	.colorspace	= V4L2_COLORSPACE_SRGB,
++	.field		= V4L2_FIELD_NONE,
++	.ycbcr_enc	= V4L2_YCBCR_ENC_DEFAULT,
++	.quantization	= V4L2_QUANTIZATION_DEFAULT,
++	.xfer_func	= V4L2_XFER_FUNC_DEFAULT,
++};
++
+ /* read a register */
+ static int ov6650_reg_read(struct i2c_client *client, u8 reg, u8 *val)
  {
- 	struct qeth_card *card = dev_get_drvdata(dev);
-+	int rc = 0;
- 	char *tmp;
--	int rc;
- 
- 	if (!card)
+@@ -516,11 +527,13 @@ static int ov6650_get_fmt(struct v4l2_su
+ 	if (format->pad)
  		return -EINVAL;
  
- 	if (!IS_IQD(card))
- 		return -EPERM;
--	if (card->state != CARD_STATE_DOWN)
--		return -EPERM;
--	if (card->options.sniffer)
--		return -EPERM;
--	if (card->options.cq == QETH_CQ_NOTAVAILABLE)
--		return -EPERM;
++	/* initialize response with default media bus frame format */
++	*mf = ov6650_def_fmt;
 +
-+	mutex_lock(&card->conf_mutex);
-+	if (card->state != CARD_STATE_DOWN) {
-+		rc = -EPERM;
-+		goto out;
-+	}
-+
-+	if (card->options.sniffer) {
-+		rc = -EPERM;
-+		goto out;
-+	}
-+
-+	if (card->options.cq == QETH_CQ_NOTAVAILABLE) {
-+		rc = -EPERM;
-+		goto out;
-+	}
++	/* update media bus format code and frame size */
+ 	mf->width	= priv->rect.width >> priv->half_scale;
+ 	mf->height	= priv->rect.height >> priv->half_scale;
+ 	mf->code	= priv->code;
+-	mf->colorspace	= V4L2_COLORSPACE_SRGB;
+-	mf->field	= V4L2_FIELD_NONE;
  
- 	tmp = strsep((char **)&buf, "\n");
--	if (strlen(tmp) > 8)
--		return -EINVAL;
-+	if (strlen(tmp) > 8) {
-+		rc = -EINVAL;
-+		goto out;
-+	}
+ 	return 0;
+ }
+@@ -659,10 +672,6 @@ static int ov6650_s_fmt(struct v4l2_subd
+ 	if (!ret)
+ 		priv->code = code;
  
- 	if (card->options.hsuid[0])
- 		/* delete old ip address */
-@@ -298,11 +310,13 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
- 		card->options.hsuid[0] = '\0';
- 		memcpy(card->dev->perm_addr, card->options.hsuid, 9);
- 		qeth_configure_cq(card, QETH_CQ_DISABLED);
--		return count;
-+		goto out;
- 	}
- 
--	if (qeth_configure_cq(card, QETH_CQ_ENABLED))
--		return -EPERM;
-+	if (qeth_configure_cq(card, QETH_CQ_ENABLED)) {
-+		rc = -EPERM;
-+		goto out;
-+	}
- 
- 	snprintf(card->options.hsuid, sizeof(card->options.hsuid),
- 		 "%-8s", tmp);
-@@ -311,6 +325,8 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
- 
- 	rc = qeth_l3_modify_hsuid(card, true);
- 
-+out:
-+	mutex_unlock(&card->conf_mutex);
- 	return rc ? rc : count;
+-	if (!ret) {
+-		mf->width = priv->rect.width >> half_scale;
+-		mf->height = priv->rect.height >> half_scale;
+-	}
+ 	return ret;
  }
  
--- 
-2.20.1
-
+@@ -681,9 +690,6 @@ static int ov6650_set_fmt(struct v4l2_su
+ 		v4l_bound_align_image(&mf->width, 2, W_CIF, 1,
+ 				&mf->height, 2, H_CIF, 1, 0);
+ 
+-	mf->field = V4L2_FIELD_NONE;
+-	mf->colorspace = V4L2_COLORSPACE_SRGB;
+-
+ 	switch (mf->code) {
+ 	case MEDIA_BUS_FMT_Y10_1X10:
+ 		mf->code = MEDIA_BUS_FMT_Y8_1X8;
+@@ -701,10 +707,31 @@ static int ov6650_set_fmt(struct v4l2_su
+ 		break;
+ 	}
+ 
+-	if (format->which == V4L2_SUBDEV_FORMAT_ACTIVE)
+-		return ov6650_s_fmt(sd, mf);
+-	cfg->try_fmt = *mf;
++	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
++		/* store media bus format code and frame size in pad config */
++		cfg->try_fmt.width = mf->width;
++		cfg->try_fmt.height = mf->height;
++		cfg->try_fmt.code = mf->code;
++
++		/* return default mbus frame format updated with pad config */
++		*mf = ov6650_def_fmt;
++		mf->width = cfg->try_fmt.width;
++		mf->height = cfg->try_fmt.height;
++		mf->code = cfg->try_fmt.code;
++
++	} else {
++		/* apply new media bus format code and frame size */
++		int ret = ov6650_s_fmt(sd, mf);
+ 
++		if (ret)
++			return ret;
++
++		/* return default format updated with active size and code */
++		*mf = ov6650_def_fmt;
++		mf->width = priv->rect.width >> priv->half_scale;
++		mf->height = priv->rect.height >> priv->half_scale;
++		mf->code = priv->code;
++	}
+ 	return 0;
+ }
+ 
 
 
