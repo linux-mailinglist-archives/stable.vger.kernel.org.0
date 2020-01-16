@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F4913F1BF
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6635513F1BD
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391897AbgAPRZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:25:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33234 "EHLO mail.kernel.org"
+        id S2392059AbgAPSay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:30:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391958AbgAPRZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:29 -0500
+        id S2391963AbgAPRZa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92634246D6;
-        Thu, 16 Jan 2020 17:25:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E93BB246CE;
+        Thu, 16 Jan 2020 17:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195528;
-        bh=4FwwNBMxPQsMF1REKzY3u6wC+rgjFHSdFCTiwJQWwUo=;
+        s=default; t=1579195529;
+        bh=0JFl9aWLKC71Gk5dPOObiZY7H/47oVRdIQLA7yf0cs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rODUwBemp9DY8gDih+jyUyINvD7khqbzmD6msjLBVn0R5NZN0ISgzkJtMN6L55Z1z
-         AM8qo3Kkb/ZUSZu0ABGage3PHXsLWoC9bf0oTKVhoBUcNP8gvKeQRtZEsmIcIMMOEl
-         oLjV1tKaN7waTeX/a6w0SOq9E5xsNAUsGMZpk0nI=
+        b=FviwH3H3OFQ06PSTaJucZHh0sP2n1fl75sdNfZOoygxhIe/UNXHJ1BNOEjihqk3G7
+         IS+1YDFQaSvpVPhcM5H0AYR89Xp1ecQ6sRsKWgEsqm9wHyKufzGZqSfpIogjVZM1FG
+         nLxQX8l6+Q3uRRdFvF6TdFz4YqJNS2os/nwYCuSg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Murzin <vladimir.murzin@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 124/371] ARM: 8848/1: virt: Align GIC version check with arm64 counterpart
-Date:   Thu, 16 Jan 2020 12:19:56 -0500
-Message-Id: <20200116172403.18149-67-sashal@kernel.org>
+Cc:     Axel Lin <axel.lin@ingics.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 4.14 125/371] regulator: wm831x-dcdc: Fix list of wm831x_dcdc_ilim from mA to uA
+Date:   Thu, 16 Jan 2020 12:19:57 -0500
+Message-Id: <20200116172403.18149-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,38 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Murzin <vladimir.murzin@arm.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 9db043d36bd379f4cc99054c079de0dabfc38d03 ]
+[ Upstream commit c25d47888f0fb3d836d68322d4aea2caf31a75a6 ]
 
-arm64 has got relaxation on GIC version check at early boot stage due
-to update of the GIC architecture let's align ARM with that.
+The wm831x_dcdc_ilim entries needs to be uA because it is used to compare
+with min_uA and max_uA.
+While at it also make the array const and change to use unsigned int.
 
-To help backports (even though the code was correct at the time of writing)
-Fixes: e59941b9b381 ("ARM: 8527/1: virt: enable GICv3 system registers")
-Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: e4ee831f949a ("regulator: Add WM831x DC-DC buck convertor support")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/hyp-stub.S | 4 ++--
+ drivers/regulator/wm831x-dcdc.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/kernel/hyp-stub.S b/arch/arm/kernel/hyp-stub.S
-index 60146e32619a..82a942894fc0 100644
---- a/arch/arm/kernel/hyp-stub.S
-+++ b/arch/arm/kernel/hyp-stub.S
-@@ -180,8 +180,8 @@ ARM_BE8(orr	r7, r7, #(1 << 25))     @ HSCTLR.EE
- 	@ Check whether GICv3 system registers are available
- 	mrc	p15, 0, r7, c0, c1, 1	@ ID_PFR1
- 	ubfx	r7, r7, #28, #4
--	cmp	r7, #1
--	bne	2f
-+	teq	r7, #0
-+	beq	2f
+diff --git a/drivers/regulator/wm831x-dcdc.c b/drivers/regulator/wm831x-dcdc.c
+index 5a5bc4bb08d2..df591435d12a 100644
+--- a/drivers/regulator/wm831x-dcdc.c
++++ b/drivers/regulator/wm831x-dcdc.c
+@@ -327,8 +327,8 @@ static int wm831x_buckv_get_voltage_sel(struct regulator_dev *rdev)
+ }
  
- 	@ Enable system register accesses
- 	mrc	p15, 4, r7, c12, c9, 5	@ ICC_HSRE
+ /* Current limit options */
+-static u16 wm831x_dcdc_ilim[] = {
+-	125, 250, 375, 500, 625, 750, 875, 1000
++static const unsigned int wm831x_dcdc_ilim[] = {
++	125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000
+ };
+ 
+ static int wm831x_buckv_set_current_limit(struct regulator_dev *rdev,
 -- 
 2.20.1
 
