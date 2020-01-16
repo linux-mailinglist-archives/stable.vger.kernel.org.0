@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C38B13F1F0
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:32:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E3213F1F3
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:32:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391884AbgAPRZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:25:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60602 "EHLO mail.kernel.org"
+        id S2391889AbgAPRZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:25:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391880AbgAPRZG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:06 -0500
+        id S2391888AbgAPRZI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8521246CE;
-        Thu, 16 Jan 2020 17:25:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8230246A5;
+        Thu, 16 Jan 2020 17:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195506;
-        bh=YwJenkpKoQsOOnBf39koHZ3gIvgogWUcYu9U/efC4eo=;
+        s=default; t=1579195507;
+        bh=KT9eY9teyu9DbO7QxqE4c0V0TOwHiCWLRLe30T59hJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDl4l6VISRZmLqy8LwTyLQ+niTHJ+7kg7ch+br8tyKrsaWsD+TUzDVFgURgXUzrpS
-         FMQzGVbxuF87BHO0k7W7BarlLENdZet2e5F20hh/3rDNknHR3mreHtDnLnlmGQk/P5
-         u6V5zIj39Z9QoioB3xRB/Im1MK1L1NYR7sE3dVd8=
+        b=An2pNbbAGZWbBKKWs5XrjgXKwDZYu6MdZxHa8OTAU0CvRs+pHuqYVkSoDTdhVv3CE
+         R3V9ydJBYq/gcfuu6LamFkYSQDABgX7pT0AxlBu6D3942VKJQQyU44zIFK6vSai5Yj
+         RS85KvhX7cQ5WCvLNqNb0WlGJ6Fq4a4VoUscQAtk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 106/371] cdc-wdm: pass return value of recover_from_urb_loss
-Date:   Thu, 16 Jan 2020 12:19:38 -0500
-Message-Id: <20200116172403.18149-49-sashal@kernel.org>
+Cc:     Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 107/371] regulator: pv88060: Fix array out-of-bounds access
+Date:   Thu, 16 Jan 2020 12:19:39 -0500
+Message-Id: <20200116172403.18149-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -43,33 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 0742a338f5b3446a26de551ad8273fb41b2787f2 ]
+[ Upstream commit 7cd415f875591bc66c5ecb49bf84ef97e80d7b0e ]
 
-'rv' is the correct return value, pass it upstream instead of 0
+Fix off-by-one while iterating current_limits array.
+The valid index should be 0 ~ n_current_limits -1.
 
-Fixes: 17d80d562fd7 ("USB: autosuspend for cdc-wdm")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f307a7e9b7af ("regulator: pv88060: new regulator driver")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-wdm.c | 2 +-
+ drivers/regulator/pv88060-regulator.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
-index a593cdfc897f..d5d42dccda10 100644
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -1085,7 +1085,7 @@ static int wdm_post_reset(struct usb_interface *intf)
- 	rv = recover_from_urb_loss(desc);
- 	mutex_unlock(&desc->wlock);
- 	mutex_unlock(&desc->rlock);
--	return 0;
-+	return rv;
- }
+diff --git a/drivers/regulator/pv88060-regulator.c b/drivers/regulator/pv88060-regulator.c
+index a9446056435f..1f2d8180506b 100644
+--- a/drivers/regulator/pv88060-regulator.c
++++ b/drivers/regulator/pv88060-regulator.c
+@@ -135,7 +135,7 @@ static int pv88060_set_current_limit(struct regulator_dev *rdev, int min,
+ 	int i;
  
- static struct usb_driver wdm_driver = {
+ 	/* search for closest to maximum */
+-	for (i = info->n_current_limits; i >= 0; i--) {
++	for (i = info->n_current_limits - 1; i >= 0; i--) {
+ 		if (min <= info->current_limits[i]
+ 			&& max >= info->current_limits[i]) {
+ 			return regmap_update_bits(rdev->regmap,
 -- 
 2.20.1
 
