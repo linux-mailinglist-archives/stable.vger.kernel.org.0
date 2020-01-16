@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CD1E13F011
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7764B13F054
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392522AbgAPR16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:27:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38416 "EHLO mail.kernel.org"
+        id S1732274AbgAPSUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:20:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392515AbgAPR15 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:27:57 -0500
+        id S2392520AbgAPR16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:27:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2773A246F7;
-        Thu, 16 Jan 2020 17:27:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 660EE246E1;
+        Thu, 16 Jan 2020 17:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195677;
-        bh=EJVoF4yoDsWrIGRFahRUz/h9EFQOzcUM9CG+TSSpZPo=;
+        s=default; t=1579195678;
+        bh=J6zFKzHIeidi6nmeByR1vyewnAIdLUrm5WXXVok04+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjaFN2PPqnqVTCJyz/c8YA7vUZYaghkQx2UwuGnij1VdXb9W8TiEkswxLWp3wZyaX
-         OV5hYXmRKJm0J7JL78qssPMRSp5I9vDwhikUVTkD4HqvpdbFAPTK69NZALoNxsZOsE
-         XozWHwh8FFthJ9MSZM4yrX3DFBlOFLufSKJ8Jz4k=
+        b=SUntbJuUDikzbOeDbVlZJPSlJWWXObaY4yhIgxP0j+EOv37adprVmmZ1gdzoNHmyF
+         fCejT0wc6BIJzUQPoanT5wcQ2v7Qse57O4PJKTyvx5OyT2seatBzk3yf/mZTPjSIxu
+         ebQawoNIPYs8KkNV/jR5mgj+7AhGZ7SSmIEsimpY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 232/371] net/af_iucv: always register net_device notifier
-Date:   Thu, 16 Jan 2020 12:21:44 -0500
-Message-Id: <20200116172403.18149-175-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 233/371] ASoC: ti: davinci-mcasp: Fix slot mask settings when using multiple AXRs
+Date:   Thu, 16 Jan 2020 12:21:45 -0500
+Message-Id: <20200116172403.18149-176-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,82 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit 06996c1d4088a0d5f3e7789d7f96b4653cc947cc ]
+[ Upstream commit fd14f4436fd47d5418023c90e933e66d3645552e ]
 
-Even when running as VM guest (ie pr_iucv != NULL), af_iucv can still
-open HiperTransport-based connections. For robust operation these
-connections require the af_iucv_netdev_notifier, so register it
-unconditionally.
+If multiple serializers are connected in the system and the number of
+channels will need to use more than one serializer the mask to enable the
+serializers were left to 0 if tdm_mask is provided
 
-Also handle any error that register_netdevice_notifier() returns.
+Fixes: dd55ff8346a97 ("ASoC: davinci-mcasp: Add set_tdm_slots() support")
 
-Fixes: 9fbd87d41392 ("af_iucv: handle netdev events")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/iucv/af_iucv.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ sound/soc/davinci/davinci-mcasp.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index ca98276c2709..7a9cbc9502d9 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -2446,6 +2446,13 @@ static int afiucv_iucv_init(void)
- 	return err;
- }
- 
-+static void afiucv_iucv_exit(void)
-+{
-+	device_unregister(af_iucv_dev);
-+	driver_unregister(&af_iucv_driver);
-+	pr_iucv->iucv_unregister(&af_iucv_handler, 0);
-+}
-+
- static int __init afiucv_init(void)
- {
- 	int err;
-@@ -2479,11 +2486,18 @@ static int __init afiucv_init(void)
- 		err = afiucv_iucv_init();
- 		if (err)
- 			goto out_sock;
--	} else
--		register_netdevice_notifier(&afiucv_netdev_notifier);
-+	}
-+
-+	err = register_netdevice_notifier(&afiucv_netdev_notifier);
-+	if (err)
-+		goto out_notifier;
-+
- 	dev_add_pack(&iucv_packet_type);
- 	return 0;
- 
-+out_notifier:
-+	if (pr_iucv)
-+		afiucv_iucv_exit();
- out_sock:
- 	sock_unregister(PF_IUCV);
- out_proto:
-@@ -2497,12 +2511,11 @@ static int __init afiucv_init(void)
- static void __exit afiucv_exit(void)
- {
- 	if (pr_iucv) {
--		device_unregister(af_iucv_dev);
--		driver_unregister(&af_iucv_driver);
--		pr_iucv->iucv_unregister(&af_iucv_handler, 0);
-+		afiucv_iucv_exit();
- 		symbol_put(iucv_if);
--	} else
--		unregister_netdevice_notifier(&afiucv_netdev_notifier);
-+	}
-+
-+	unregister_netdevice_notifier(&afiucv_netdev_notifier);
- 	dev_remove_pack(&iucv_packet_type);
- 	sock_unregister(PF_IUCV);
- 	proto_unregister(&iucv_proto);
+diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
+index 07bac9ea65c4..e10e03800cce 100644
+--- a/sound/soc/davinci/davinci-mcasp.c
++++ b/sound/soc/davinci/davinci-mcasp.c
+@@ -882,14 +882,13 @@ static int mcasp_i2s_hw_param(struct davinci_mcasp *mcasp, int stream,
+ 		active_slots = hweight32(mcasp->tdm_mask[stream]);
+ 		active_serializers = (channels + active_slots - 1) /
+ 			active_slots;
+-		if (active_serializers == 1) {
++		if (active_serializers == 1)
+ 			active_slots = channels;
+-			for (i = 0; i < total_slots; i++) {
+-				if ((1 << i) & mcasp->tdm_mask[stream]) {
+-					mask |= (1 << i);
+-					if (--active_slots <= 0)
+-						break;
+-				}
++		for (i = 0; i < total_slots; i++) {
++			if ((1 << i) & mcasp->tdm_mask[stream]) {
++				mask |= (1 << i);
++				if (--active_slots <= 0)
++					break;
+ 			}
+ 		}
+ 	} else {
 -- 
 2.20.1
 
