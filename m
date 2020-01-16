@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56EA413E6A5
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:21:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DFB913E6AA
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:21:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391266AbgAPRRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:17:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43604 "EHLO mail.kernel.org"
+        id S2391456AbgAPRVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:21:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391260AbgAPRRq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:17:46 -0500
+        id S2391249AbgAPRRs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:17:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5545E2075B;
-        Thu, 16 Jan 2020 17:17:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7509822522;
+        Thu, 16 Jan 2020 17:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195066;
-        bh=94usrpuvHkK+oqpe26a5HjtKs1zleocJ+1SOwzdpkao=;
+        s=default; t=1579195067;
+        bh=pVwNJTS267s0DwV6idTs9NtxVWaFw9mF8KkJysJqDvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/tv+NXqnsX7KUKdEip+w5UuayM0F3hVNalLfb31JqDwgWsoyVRGgaHJ7LoWg5pYV
-         lmxGt7gKQ5u3tLsibYgGr7xDdIyQ5+XzrzHWp5aDFSnTqBw8S2eXM37EdeLYExMKFA
-         HBJ52wULvpva5sB3qoMVYVwGPk/5zVCwSph2c7Uw=
+        b=vF5LgtYKaVoZQhUUikUtq3Bs+zc3ci3wcvAqwnm3Ff8X/NaJv7PmOqO9b3varnS2E
+         kjdvPVjgrTqK3h5NxtyTxIsIZVBx2xHAWbux026+MUrw0VTibMSvgPNXfvlVO2BuA0
+         4d5KeI8iyhzObv0OIxs5zmT9lX6+0bdSKexxLY8s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 020/371] net: phy: Fix not to call phy_resume() if PHY is not attached
-Date:   Thu, 16 Jan 2020 12:11:28 -0500
-Message-Id: <20200116171719.16965-20-sashal@kernel.org>
+Cc:     Yuval Shaia <yuval.shaia@oracle.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Zhu Yanjun <yanjun.zhu@oracle.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 021/371] IB/rxe: Fix incorrect cache cleanup in error flow
+Date:   Thu, 16 Jan 2020 12:11:29 -0500
+Message-Id: <20200116171719.16965-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116171719.16965-1-sashal@kernel.org>
 References: <20200116171719.16965-1-sashal@kernel.org>
@@ -43,66 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Yuval Shaia <yuval.shaia@oracle.com>
 
-[ Upstream commit ef1b5bf506b1f0ee3edc98533e1f3ecb105eb46a ]
+[ Upstream commit 6db21d8986e14e2e86573a3b055b05296188bd2c ]
 
-This patch fixes an issue that mdio_bus_phy_resume() doesn't call
-phy_resume() if the PHY is not attached.
+Array iterator stays at the same slot, fix it.
 
-Fixes: 803dd9c77ac3 ("net: phy: avoid suspending twice a PHY")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Signed-off-by: Yuval Shaia <yuval.shaia@oracle.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Zhu Yanjun <yanjun.zhu@oracle.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_device.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_pool.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index a98c227a4c2e..99dae55cd334 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -76,7 +76,7 @@ static LIST_HEAD(phy_fixup_list);
- static DEFINE_MUTEX(phy_fixup_lock);
+diff --git a/drivers/infiniband/sw/rxe/rxe_pool.c b/drivers/infiniband/sw/rxe/rxe_pool.c
+index b4a8acc7bb7d..0e2425f28233 100644
+--- a/drivers/infiniband/sw/rxe/rxe_pool.c
++++ b/drivers/infiniband/sw/rxe/rxe_pool.c
+@@ -112,6 +112,18 @@ static inline struct kmem_cache *pool_cache(struct rxe_pool *pool)
+ 	return rxe_type_info[pool->type].cache;
+ }
  
- #ifdef CONFIG_PM
--static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
-+static bool mdio_bus_phy_may_suspend(struct phy_device *phydev, bool suspend)
++static void rxe_cache_clean(size_t cnt)
++{
++	int i;
++	struct rxe_type_info *type;
++
++	for (i = 0; i < cnt; i++) {
++		type = &rxe_type_info[i];
++		kmem_cache_destroy(type->cache);
++		type->cache = NULL;
++	}
++}
++
+ int rxe_cache_init(void)
  {
- 	struct device_driver *drv = phydev->mdio.dev.driver;
- 	struct phy_driver *phydrv = to_phy_driver(drv);
-@@ -88,10 +88,11 @@ static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
- 	/* PHY not attached? May suspend if the PHY has not already been
- 	 * suspended as part of a prior call to phy_disconnect() ->
- 	 * phy_detach() -> phy_suspend() because the parent netdev might be the
--	 * MDIO bus driver and clock gated at this point.
-+	 * MDIO bus driver and clock gated at this point. Also may resume if
-+	 * PHY is not attached.
- 	 */
- 	if (!netdev)
--		return !phydev->suspended;
-+		return suspend ? !phydev->suspended : phydev->suspended;
+ 	int err;
+@@ -136,24 +148,14 @@ int rxe_cache_init(void)
+ 	return 0;
  
- 	/* Don't suspend PHY if the attached netdev parent may wakeup.
- 	 * The parent may point to a PCI device, as in tg3 driver.
-@@ -121,7 +122,7 @@ static int mdio_bus_phy_suspend(struct device *dev)
- 	if (phydev->attached_dev && phydev->adjust_link)
- 		phy_stop_machine(phydev);
+ err1:
+-	while (--i >= 0) {
+-		kmem_cache_destroy(type->cache);
+-		type->cache = NULL;
+-	}
++	rxe_cache_clean(i);
  
--	if (!mdio_bus_phy_may_suspend(phydev))
-+	if (!mdio_bus_phy_may_suspend(phydev, true))
- 		return 0;
+ 	return err;
+ }
  
- 	return phy_suspend(phydev);
-@@ -132,7 +133,7 @@ static int mdio_bus_phy_resume(struct device *dev)
- 	struct phy_device *phydev = to_phy_device(dev);
- 	int ret;
+ void rxe_cache_exit(void)
+ {
+-	int i;
+-	struct rxe_type_info *type;
+-
+-	for (i = 0; i < RXE_NUM_TYPES; i++) {
+-		type = &rxe_type_info[i];
+-		kmem_cache_destroy(type->cache);
+-		type->cache = NULL;
+-	}
++	rxe_cache_clean(RXE_NUM_TYPES);
+ }
  
--	if (!mdio_bus_phy_may_suspend(phydev))
-+	if (!mdio_bus_phy_may_suspend(phydev, false))
- 		goto no_resume;
- 
- 	ret = phy_resume(phydev);
+ static int rxe_pool_init_index(struct rxe_pool *pool, u32 max, u32 min)
 -- 
 2.20.1
 
