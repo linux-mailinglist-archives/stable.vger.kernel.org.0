@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4691213FF76
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CBDE13FF74
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388789AbgAPXZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:25:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55588 "EHLO mail.kernel.org"
+        id S2388971AbgAPXnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:43:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733168AbgAPXZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:25:45 -0500
+        id S2389006AbgAPXZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:25:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 116FA20684;
-        Thu, 16 Jan 2020 23:25:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7819D20684;
+        Thu, 16 Jan 2020 23:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217144;
-        bh=DxL97Mube6rfLAuMouuyK1bFCfxxgK8KTNyr1qECnpY=;
+        s=default; t=1579217146;
+        bh=lkSHes5e9d4xcqebKv/yK6/bBAOg+pa91rHSqGY9AQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJ/q9Xgsjqz27KVmVkJhmKDTUGtv6gkw3YQZznru2Nxf2/NxeiBBr9qUXCQlMihCW
-         DyqlKUF4Coc14rx3RsEMR9mgH9bjG6SMFDykWrvnk2+7SL9hOz+u34U1oG+qnXpHbF
-         OSDkxxRhPsf7YSnBtLJbJtZ6LSv+q5IKCjaYB1jM=
+        b=cIuZ2WKEp/4I8IyB/Dq+AVTsCmMOo8odybWwQIKFqZ4LkKm46Icbq+ZXgyWmP7soc
+         5NsWEEKnvLR4P7nrMmRnK6R78bkp8JsjYLw47Vy4dKLiH555kv0HfIOkrn1QTZKjRo
+         +TYVTrsky9mG/+v3I8oLVY7tGBVP6X+Xcbro+dqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
         Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 5.4 166/203] mtd: spi-nor: fix silent truncation in spi_nor_read()
-Date:   Fri, 17 Jan 2020 00:18:03 +0100
-Message-Id: <20200116231759.152183681@linuxfoundation.org>
+Subject: [PATCH 5.4 167/203] mtd: spi-nor: fix silent truncation in spi_nor_read_raw()
+Date:   Fri, 17 Jan 2020 00:18:04 +0100
+Message-Id: <20200116231759.221421726@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -46,14 +46,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
-commit a719a75a7761e4139dd099330d9fe3589d844f9b upstream.
+commit 3d63ee5deb466fd66ed6ffb164a87ce36425cf36 upstream.
 
-spi_nor_read() assigns the result of 'ssize_t spi_nor_read_data()'
+spi_nor_read_raw() assigns the result of 'ssize_t spi_nor_read_data()'
 to the 'int ret' variable, while 'ssize_t' is a 64-bit type and *int*
 is a 32-bit type on the 64-bit machines. This silent truncation isn't
 really valid, so fix up the variable's type.
 
-Fixes: 59451e1233bd ("mtd: spi-nor: change return value of read/write")
+Fixes: f384b352cbf0 ("mtd: spi-nor: parse Serial Flash Discoverable Parameters (SFDP) tables")
 Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -64,14 +64,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mtd/spi-nor/spi-nor.c
 +++ b/drivers/mtd/spi-nor/spi-nor.c
-@@ -2544,7 +2544,7 @@ static int spi_nor_read(struct mtd_info
- 			size_t *retlen, u_char *buf)
+@@ -2865,7 +2865,7 @@ static int spi_nor_hwcaps_pp2cmd(u32 hwc
+  */
+ static int spi_nor_read_raw(struct spi_nor *nor, u32 addr, size_t len, u8 *buf)
  {
- 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
 -	int ret;
 +	ssize_t ret;
  
- 	dev_dbg(nor->dev, "from 0x%08x, len %zd\n", (u32)from, len);
- 
+ 	while (len) {
+ 		ret = spi_nor_read_data(nor, addr, len, buf);
 
 
