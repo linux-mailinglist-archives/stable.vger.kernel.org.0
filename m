@@ -2,92 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B591713D138
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 01:42:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D40E13D164
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 02:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729585AbgAPAm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 19:42:28 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:36953 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729112AbgAPAm2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 19:42:28 -0500
-Received: by mail-wm1-f67.google.com with SMTP id f129so1979409wmf.2
-        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 16:42:27 -0800 (PST)
+        id S1729099AbgAPBLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 20:11:31 -0500
+Received: from mail-io1-f68.google.com ([209.85.166.68]:37010 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729031AbgAPBLb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 20:11:31 -0500
+Received: by mail-io1-f68.google.com with SMTP id k24so19912670ioc.4
+        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 17:11:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=4/jstXZmrITObPhJbH2rh8I9wEDPhZEPe6GyHJoj8hY=;
-        b=pWd6LMWcUXUU/aOkgo2eH4PxGxpVX5NtqdukUt9ro263EB9OOuGmll/0qRpOFpSa70
-         qorvd59T6rDnNHSeL0MPb2d2hwOZl+FcYv3PlXvHaig9SPlBvMiezPPY+lmufe1IegL+
-         RLPgY/pnyl8u4v+xsQ7oTijA9YL4OzZCnjs1qSLs4rIib0DvuRbbb1VSmNsXJiFNLTs4
-         UPOkm+2gjmOOPV7FIklgcGIUmU4CZbukjsThPrJjw5T4C40DR7ewr3in9NlEcuAN6tr2
-         +ojVfHBri4bTwjgOdccu/t4djwSOqQ5OYNBFrvuB9VHlMunwrGlNNhwBdGN0sjf4N1/A
-         A8eA==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
+        b=NE4LuW2NDsE0XST8wn0/ktE2KysXxi7ZmCAlt7Bbyq1rFJHgscPm63/WiP/4LjKE9a
+         T0QNd94/n4o8G5vaIiBaK03Uc3GCI3jTVNpELpSTUxH3WxnmEHKLDRpXfzZLWktjMuoZ
+         WWJPy9rw+hwLbNznFSWbYKDTi2D2xG0R3uo+wX3EcRtnrEYjwiqb5uviwalTUqVCMKDM
+         Uc1V2COP21xekPQzMEFjWnOSgeILl6slm8cMJ/v9QxwRx+E2AEyQVz9hymjKYwWbNwuZ
+         6qQ/0qeXn1MPs8+lnL63xn+3mCsLWvNOPDj2yRhSWAfJv3WmPi8QyvKoZfB0YQlmEJNn
+         kGlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=4/jstXZmrITObPhJbH2rh8I9wEDPhZEPe6GyHJoj8hY=;
-        b=FPMMfzLAWjGT3h2EnqwbrzxsQ4aa+VV5qvpZnW4iwXYP3b79PapkeuJLajqNDflgor
-         ZxbqSSXMOtYHjO+uxP1ECgiHEiX5UCH7bnKPqUEBUqK9zkfBTEsCXCVaqUQpbXoY9jFd
-         Hy1dXzvFWdQRBXs0GRm9ZRddIm2MMz1I+aY347xNhN/4xBq+5UaaI07xn5kgkBJzi89T
-         vmvJSZ99w/juGV7zyU3Lkr8cIsqc/bD8fAuVJDSdwt2PyIDYi6H6ej19hqFx6IjBSzLg
-         tAFwfhRdkbE7+LAaiAjCKDYTB95WAct3C8J41qJYRbSXgXz7JrWYPmEfnYHzaopnRlLd
-         /pUg==
-X-Gm-Message-State: APjAAAWUFaeD3jEUURNEUt/0QTvP1vR1tUbniXWlLWskon2BApA7wOyu
-        Se37fSp4gnTrMOn5n5lj8drjREyyFTdi3Q==
-X-Google-Smtp-Source: APXvYqxf+k9Yn4Hq53Xakiszxk+g2QNCH9GDxJ5/pPaJHk2ZkJlNdU3k0uh4BeWR3IHD4YXooo8XGw==
-X-Received: by 2002:a1c:44d5:: with SMTP id r204mr3018028wma.122.1579135346317;
-        Wed, 15 Jan 2020 16:42:26 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c15sm26638868wrt.1.2020.01.15.16.42.25
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jan 2020 16:42:25 -0800 (PST)
-Message-ID: <5e1fb171.1c69fb81.b90be.fb64@mx.google.com>
-Date:   Wed, 15 Jan 2020 16:42:25 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=RFjST6WTWl2HErgo/MFlw9oz3Ck4pyxWRgkJWzlGF00=;
+        b=LbvAw/SrpqmN7H96da0QOCl7p0/WUV/6Pz7QHKhOpFRo64MfcpKAehqa1HGRSddtDb
+         eye875TzyBrW0DwZHAIry1qS6uCN8uJs12EfPd65zrGh4P52Y3He2PMIdk9fxI8Hcn7y
+         JhCfg2lPSDeJznd6o1PcchSiDMttCXM5WGI9b1C5Bk1VroFk5rA0wayOFhIIkEKeTxl6
+         LeeMaK5BJpf49GLYVZXZVokFWLk1LSgb4/0GA2lL3M17nnq3TMiLvglJ2yXVI1u7MN0s
+         8+dW8Vg/4/JIsRbz50dpJ4zgbfA6vjH0JqjLbZV+1huQGfzYRiU7Yd5II6RsktWAzdi3
+         qUaA==
+X-Gm-Message-State: APjAAAXnDpFcdsD/DHpL2wEy/cKiLJztvfZ3hLjpYEf3zcm32t6FHM23
+        6RSnMdR8Ul53Uk+VtowNW3LCTEzIlYzYvfFR/vo=
+X-Google-Smtp-Source: APXvYqyvmLmuwY8J9qhE1hiEpkvoqcw9sxLVHHo991HSzXY3auV0Ci4pWmHgTdMUlo94r5eEGYUYuNPGPOgOVFfCGNA=
+X-Received: by 2002:a02:950d:: with SMTP id y13mr8715619jah.139.1579137090258;
+ Wed, 15 Jan 2020 17:11:30 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.165-20-g241f53838006
-Subject: stable-rc/linux-4.14.y boot: 73 boots: 0 failed,
- 72 passed with 1 untried/unknown (v4.14.165-20-g241f53838006)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a4f:4c83:0:0:0:0:0 with HTTP; Wed, 15 Jan 2020 17:11:29
+ -0800 (PST)
+Reply-To: dunawattara6@outlook.com
+From:   Mr Duna Wattara <drhajizongob@gmail.com>
+Date:   Wed, 15 Jan 2020 17:11:29 -0800
+Message-ID: <CAEgioX7oURvbdJk58PVhceyTsXcz7wFSvGfqGhGX6KNfBxjYiw@mail.gmail.com>
+Subject: with due respect
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 73 boots: 0 failed, 72 passed with 1 untried/u=
-nknown (v4.14.165-20-g241f53838006)
+Dear Friend,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.165-20-g241f53838006/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.165-20-g241f53838006/
+I know that this mail will come to you as a surprise as we have never
+met before, but need not to worry as I am contacting you independently
+of my investigation and no one is informed of this communication.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.165-20-g241f53838006
-Git Commit: 241f5383800698b5f3921253c06ee80dcf4b5945
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 41 unique boards, 13 SoC families, 12 builds out of 201
+I need your urgent assistance in transferring the sum of $11.3million
+immediately to your private account.The money has been here in our
+Bank lying dormant for years now without anybody coming for the claim of it.
 
-Boot Regressions Detected:
+I want to release the money to you as the relative to our deceased
+customer (the account owner) who died a long with his supposed NEXT OF
+KIN since 16th October 2005. The Banking laws here does not allow such
+money to stay more than 15 years, because the money will be recalled
+to the Bank treasury account as unclaimed fund.
 
-arm:
+By indicating your interest I will send you the full details on how
+the business will be executed.
 
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.14.164-41-g04f13b8f=
-773f)
+Please respond urgently and delete if you are not interested.
 
----
-For more info write to <info@kernelci.org>
+Best Regards,
+Mr. Duna Wattara.
