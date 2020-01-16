@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B14D13E697
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:21:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34E0F13E6B1
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:21:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391143AbgAPRRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:17:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43132 "EHLO mail.kernel.org"
+        id S1729431AbgAPRVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:21:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391249AbgAPRRi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730357AbgAPRRi (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Jan 2020 12:17:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DE392075B;
-        Thu, 16 Jan 2020 17:17:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79AB92087E;
+        Thu, 16 Jan 2020 17:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195057;
-        bh=47H3in3Ti6n0Ze1iwksWcpGbMYB5bXdY5ZkIePJCJvE=;
+        s=default; t=1579195058;
+        bh=GNZp0UeonDfLmB9+iQmd4E5uDQXciC8j7pjaO1xySas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Phentg8aJqsy0qriHYlELIGpuykqFJgAU5Ukuk2KmmkkHOuPcD3nq1dZWfe4pOCMK
-         2ifG2scNGvc23d6efrW5kUkHpyFQMLEj6iEqQu1wMhh3E3Mhe4uFEDM9JS+tPiIizm
-         Rm6Qwf129AtMvSfxOAB+cTiEMU6Kka3p90ICUd7s=
+        b=udtg47BXvtViavBBOQy4uzZkOc/y8vK/EcCoMmP9Si3Tul8SGtBduSTxshYhMRYc+
+         IbHiIhvZCPSgEOskbEXReYFJWgNMBVRxCFD/qdgP4Jpbml4ettlz8BGqNe5ud3kwbn
+         E3sQgZUGia9WvsfLPbPHOx3q4/McpqYgnBAu9A8k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 013/371] powerpc/kgdb: add kgdb_arch_set/remove_breakpoint()
-Date:   Thu, 16 Jan 2020 12:11:21 -0500
-Message-Id: <20200116171719.16965-13-sashal@kernel.org>
+Cc:     Maxime Ripard <maxime.ripard@bootlin.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 014/371] drm/sun4i: hdmi: Fix double flag assignation
+Date:   Thu, 16 Jan 2020 12:11:22 -0500
+Message-Id: <20200116171719.16965-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116171719.16965-1-sashal@kernel.org>
 References: <20200116171719.16965-1-sashal@kernel.org>
@@ -43,134 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Maxime Ripard <maxime.ripard@bootlin.com>
 
-[ Upstream commit fb978ca207743badfe7efd9eebe68bcbb4969f79 ]
+[ Upstream commit 1e0ff648940e603cab6c52cf3723017d30d78f30 ]
 
-Generic implementation fails to remove breakpoints after init
-when CONFIG_STRICT_KERNEL_RWX is selected:
+The is_double flag is a boolean currently assigned to the value of the d
+variable, that is either 1 or 2. It means that this is_double variable is
+always set to true, even though the initial intent was to have it set to
+true when d is 2.
 
-[   13.251285] KGDB: BP remove failed: c001c338
-[   13.259587] kgdbts: ERROR PUT: end of test buffer on 'do_fork_test' line 8 expected OK got $E14#aa
-[   13.268969] KGDB: re-enter exception: ALL breakpoints killed
-[   13.275099] CPU: 0 PID: 1 Comm: init Not tainted 4.18.0-g82bbb913ffd8 #860
-[   13.282836] Call Trace:
-[   13.285313] [c60e1ba0] [c0080ef0] kgdb_handle_exception+0x6f4/0x720 (unreliable)
-[   13.292618] [c60e1c30] [c000e97c] kgdb_handle_breakpoint+0x3c/0x98
-[   13.298709] [c60e1c40] [c000af54] program_check_exception+0x104/0x700
-[   13.305083] [c60e1c60] [c000e45c] ret_from_except_full+0x0/0x4
-[   13.310845] [c60e1d20] [c02a22ac] run_simple_test+0x2b4/0x2d4
-[   13.316532] [c60e1d30] [c0081698] put_packet+0xb8/0x158
-[   13.321694] [c60e1d60] [c00820b4] gdb_serial_stub+0x230/0xc4c
-[   13.327374] [c60e1dc0] [c0080af8] kgdb_handle_exception+0x2fc/0x720
-[   13.333573] [c60e1e50] [c000e928] kgdb_singlestep+0xb4/0xcc
-[   13.339068] [c60e1e70] [c000ae1c] single_step_exception+0x90/0xac
-[   13.345100] [c60e1e80] [c000e45c] ret_from_except_full+0x0/0x4
-[   13.350865] [c60e1f40] [c000e11c] ret_from_syscall+0x0/0x38
-[   13.356346] Kernel panic - not syncing: Recursive entry to debugger
+Fix this.
 
-This patch creates powerpc specific version of
-kgdb_arch_set_breakpoint() and kgdb_arch_remove_breakpoint()
-using patch_instruction()
-
-Fixes: 1e0fc9d1eb2b ("powerpc/Kconfig: Enable STRICT_KERNEL_RWX for some configs")
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: 9c5681011a0c ("drm/sun4i: Add HDMI support")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Reviewed-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20181021163446.29135-2-maxime.ripard@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/kgdb.h |  5 +++-
- arch/powerpc/kernel/kgdb.c      | 43 +++++++++++++++++++++++++++------
- 2 files changed, 39 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_hdmi_tmds_clk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/kgdb.h b/arch/powerpc/include/asm/kgdb.h
-index 9db24e77b9f4..a9e098a3b881 100644
---- a/arch/powerpc/include/asm/kgdb.h
-+++ b/arch/powerpc/include/asm/kgdb.h
-@@ -26,9 +26,12 @@
- #define BREAK_INSTR_SIZE	4
- #define BUFMAX			((NUMREGBYTES * 2) + 512)
- #define OUTBUFMAX		((NUMREGBYTES * 2) + 512)
-+
-+#define BREAK_INSTR		0x7d821008	/* twge r2, r2 */
-+
- static inline void arch_kgdb_breakpoint(void)
- {
--	asm(".long 0x7d821008"); /* twge r2, r2 */
-+	asm(stringify_in_c(.long BREAK_INSTR));
- }
- #define CACHE_FLUSH_IS_SAFE	1
- #define DBG_MAX_REG_NUM     70
-diff --git a/arch/powerpc/kernel/kgdb.c b/arch/powerpc/kernel/kgdb.c
-index 35e240a0a408..59c578f865aa 100644
---- a/arch/powerpc/kernel/kgdb.c
-+++ b/arch/powerpc/kernel/kgdb.c
-@@ -24,6 +24,7 @@
- #include <asm/processor.h>
- #include <asm/machdep.h>
- #include <asm/debug.h>
-+#include <asm/code-patching.h>
- #include <linux/slab.h>
- 
- /*
-@@ -144,7 +145,7 @@ static int kgdb_handle_breakpoint(struct pt_regs *regs)
- 	if (kgdb_handle_exception(1, SIGTRAP, 0, regs) != 0)
- 		return 0;
- 
--	if (*(u32 *) (regs->nip) == *(u32 *) (&arch_kgdb_ops.gdb_bpt_instr))
-+	if (*(u32 *)regs->nip == BREAK_INSTR)
- 		regs->nip += BREAK_INSTR_SIZE;
- 
- 	return 1;
-@@ -441,16 +442,42 @@ int kgdb_arch_handle_exception(int vector, int signo, int err_code,
- 	return -1;
- }
- 
-+int kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
-+{
-+	int err;
-+	unsigned int instr;
-+	unsigned int *addr = (unsigned int *)bpt->bpt_addr;
-+
-+	err = probe_kernel_address(addr, instr);
-+	if (err)
-+		return err;
-+
-+	err = patch_instruction(addr, BREAK_INSTR);
-+	if (err)
-+		return -EFAULT;
-+
-+	*(unsigned int *)bpt->saved_instr = instr;
-+
-+	return 0;
-+}
-+
-+int kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
-+{
-+	int err;
-+	unsigned int instr = *(unsigned int *)bpt->saved_instr;
-+	unsigned int *addr = (unsigned int *)bpt->bpt_addr;
-+
-+	err = patch_instruction(addr, instr);
-+	if (err)
-+		return -EFAULT;
-+
-+	return 0;
-+}
-+
- /*
-  * Global data
-  */
--struct kgdb_arch arch_kgdb_ops = {
--#ifdef __LITTLE_ENDIAN__
--	.gdb_bpt_instr = {0x08, 0x10, 0x82, 0x7d},
--#else
--	.gdb_bpt_instr = {0x7d, 0x82, 0x10, 0x08},
--#endif
--};
-+struct kgdb_arch arch_kgdb_ops;
- 
- static int kgdb_not_implemented(struct pt_regs *regs)
- {
+diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_tmds_clk.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_tmds_clk.c
+index 5cf2527bffc8..d7a8fea94557 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_hdmi_tmds_clk.c
++++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_tmds_clk.c
+@@ -50,7 +50,7 @@ static unsigned long sun4i_tmds_calc_divider(unsigned long rate,
+ 			    (rate - tmp_rate) < (rate - best_rate)) {
+ 				best_rate = tmp_rate;
+ 				best_m = m;
+-				is_double = d;
++				is_double = (d == 2) ? true : false;
+ 			}
+ 		}
+ 	}
 -- 
 2.20.1
 
