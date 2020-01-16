@@ -2,148 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F91313D7DE
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 11:28:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3988A13D96B
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 12:57:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725973AbgAPK2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 05:28:02 -0500
-Received: from mx2.suse.de ([195.135.220.15]:37176 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725800AbgAPK2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 05:28:02 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 83CFFACB8;
-        Thu, 16 Jan 2020 10:27:59 +0000 (UTC)
-Date:   Thu, 16 Jan 2020 11:27:58 +0100
-From:   Libor Pechacek <lpechacek@suse.cz>
-To:     linuxppc-dev@lists.ozlabs.org,
-        Nathan Fontenot <nfont@linux.vnet.ibm.com>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michal Suchanek <msuchanek@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Allison Randal <allison@lohutok.net>,
-        Leonardo Bras <leonardo@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Nathan Lynch <nathanl@linux.ibm.com>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] powerpc: drmem: avoid NULL pointer dereference when drmem is
- unavailable
-Message-ID: <20200116102758.GC25138@fm.suse.cz>
+        id S1726343AbgAPL5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 06:57:35 -0500
+Received: from lb2-smtp-cloud8.xs4all.net ([194.109.24.25]:33719 "EHLO
+        lb2-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726045AbgAPL5f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 06:57:35 -0500
+Received: from [IPv6:2001:420:44c1:2577:1825:cb8:c622:6168]
+ ([IPv6:2001:420:44c1:2577:1825:cb8:c622:6168])
+        by smtp-cloud8.xs4all.net with ESMTPA
+        id s3mEiVv1mpLtbs3mHippvi; Thu, 16 Jan 2020 12:57:33 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s1;
+        t=1579175853; bh=CO/vUaixcPthghITm2hsK1W4fZfENwAkzYapTVaIFkk=;
+        h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type:From:
+         Subject;
+        b=oZ8LtWeazwlNeMSVA4OACnMQloHi2ZAzYUaQ/jdr/inW0JgtX50oCMVMZUwr6s1+W
+         S2iGk3oTRZ08LKqaT1i4AV3MgFzKU01VmD/XTF40GRZWJzlIW7cAcOKMIgsyQ56dtu
+         zNC716BfxPdE0E0OQhqNkasnm/7RDa6M39PNr51T+NSjpAQKjKjQeU8L3NnrYaO045
+         c/3YpcNvIR6qwX9XImExqV1O5BqpIWNiAO4gk/hL9ZI9mFJjRGK5wPGP2nUaQ2vnjb
+         w9RfPyMIjmFOOooMs0YGHdUTGSvQmBqUjNkbsId3APFMZUgprqxUpzNkCyoUFMXlz2
+         B8HW2o1eObBZA==
+Subject: Re: [PATCH v3] media: v4l2-core: fix a use-after-free bug of
+ sd->devnode
+To:     Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        linux-media@vger.kernel.org
+Cc:     dafna3@gmail.com, helen.koike@collabora.com,
+        ezequiel@collabora.com, stable@vger.kernel.org
+References: <20191120122217.845-1-dafna.hirschfeld@collabora.com>
+From:   Hans Verkuil <hverkuil@xs4all.nl>
+Message-ID: <fe36e4a9-2369-3150-b823-97fb4bf1afe4@xs4all.nl>
+Date:   Thu, 16 Jan 2020 12:57:29 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191120122217.845-1-dafna.hirschfeld@collabora.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: MS4wfCKdpuTRcA4kmDyGfoE+W77lomGJ0lNiB/ZRxbC+hXyospYPJ8hI90siBENddxnfJ3XLFb1/aos6rnIbkpG60We7jdc1TgEt0zegrSBTNzeoCkNIYwFF
+ 6zrE0zL+MQHFIRqI2ZVIdHV2l9KlCf+uXWWYwxh6LnhXmCyi8wnCqOMzF5TJre3obgsDquDM/ijEDChP6dMn6zvssItANOSxozGCvGtAov4c0rD+8Air9D79
+ Y+8fRepNp4cvt2Q596AeXGUh1SmA9SH9fZ7DCdlRfaW6knLo1Ja7cAWGxeZ632Z/ph/c6keuJsldw8+oVLispppSxR0z7AoX04RAJLriF134Pl1+sYh367yL
+ 4uovmjDdPHzPWHMmdeNACStaTFIUNL/WJH/sIYn3OjrvGgIh4cC3RAOBip43DXBpaG6chEeNA/efSlaaluUzuoVgwx8waa5y/gxH5mSCs/s6/k/jpGM=
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In KVM guests drmem structure is only zero initialized. Trying to
-manipulate DLPAR parameters results in a crash in this environment.
+On 11/20/19 1:22 PM, Dafna Hirschfeld wrote:
+> sd->devnode is released after calling
+> v4l2_subdev_release. Therefore it should be set
+> to NULL so that the subdev won't hold a pointer
+> to a released object. This fixes a reference
+> after free bug in function
+> v4l2_device_unregister_subdev
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 0e43734d4c46e ("media: v4l2-subdev: add release() internal op")
+> Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+> Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+> ---
+> changes since v2:
+> - since this is a regresion fix, I added Fixes and Cc to stable tags,
+> - change the commit title and log to be more clear.
+> 
+>  drivers/media/v4l2-core/v4l2-device.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/media/v4l2-core/v4l2-device.c b/drivers/media/v4l2-core/v4l2-device.c
+> index 63d6b147b21e..2b3595671d62 100644
+> --- a/drivers/media/v4l2-core/v4l2-device.c
+> +++ b/drivers/media/v4l2-core/v4l2-device.c
+> @@ -177,6 +177,7 @@ static void v4l2_subdev_release(struct v4l2_subdev *sd)
+>  {
+>  	struct module *owner = !sd->owner_v4l2_dev ? sd->owner : NULL;
+>  
+> +	sd->devnode = NULL;
+>  	if (sd->internal_ops && sd->internal_ops->release)
+>  		sd->internal_ops->release(sd);
 
-$ echo "memory add count 1" > /sys/kernel/dlpar
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in: af_packet(E) rfkill(E) nvram(E) vmx_crypto(E)
-gf128mul(E) e1000(E) virtio_balloon(E) rtc_generic(E) crct10dif_vpmsum(E)
-btrfs(E) blake2b_generic(E) libcrc32c(E) xor(E) raid6_pq(E) virtio_rng(E)
-virtio_blk(E) ohci_pci(E) ehci_pci(E) ohci_hcd(E) ehci_hcd(E)
-crc32c_vpmsum(E) usbcore(E) virtio_pci(E) virtio_ring(E) virtio(E) sg(E)
-dm_multipath(E) dm_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E)
-scsi_mod(E)
-CPU: 1 PID: 4114 Comm: bash Kdump: loaded Tainted: G            E     5.5.0-rc6-2-default #1
-NIP:  c0000000000ff294 LR: c0000000000ff248 CTR: 0000000000000000
-REGS: c0000000fb9d3880 TRAP: 0300   Tainted: G            E      (5.5.0-rc6-2-default)
-MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28242428  XER: 20000000
-CFAR: c0000000009a6c10 DAR: 0000000000000010 DSISR: 40000000 IRQMASK: 0
-GPR00: c0000000000ff248 c0000000fb9d3b10 c000000001682e00 0000000000000033
-GPR04: c0000000ff30bf90 c0000000ff394800 0000000000005110 ffffffffffffffe8
-GPR08: 0000000000000000 0000000000000000 00000000fe1c0000 0000000000000000
-GPR12: 0000000000002200 c00000003fffee00 0000000000000000 000000011cbc37c0
-GPR16: 000000011cb27ed0 0000000000000000 000000011cb6dd10 0000000000000000
-GPR20: 000000011cb7db28 000001003ce035f0 000000011cbc7828 000000011cbc6c70
-GPR24: 000001003cf01210 0000000000000000 c0000000ffade4e0 c000000002d7216b
-GPR28: 0000000000000001 c000000002d78560 0000000000000000 c0000000015458d0
-NIP [c0000000000ff294] dlpar_memory+0x6e4/0xd00
-LR [c0000000000ff248] dlpar_memory+0x698/0xd00
-Call Trace:
-[c0000000fb9d3b10] [c0000000000ff248] dlpar_memory+0x698/0xd00 (unreliable)
-[c0000000fb9d3ba0] [c0000000000f5990] handle_dlpar_errorlog+0xc0/0x190
-[c0000000fb9d3c10] [c0000000000f5c58] dlpar_store+0x198/0x4a0
-[c0000000fb9d3cd0] [c000000000c4cb00] kobj_attr_store+0x30/0x50
-[c0000000fb9d3cf0] [c0000000005a37b4] sysfs_kf_write+0x64/0x90
-[c0000000fb9d3d10] [c0000000005a2c90] kernfs_fop_write+0x1b0/0x290
-[c0000000fb9d3d60] [c0000000004a2bec] __vfs_write+0x3c/0x70
-[c0000000fb9d3d80] [c0000000004a6560] vfs_write+0xd0/0x260
-[c0000000fb9d3dd0] [c0000000004a69ac] ksys_write+0xdc/0x130
-[c0000000fb9d3e20] [c00000000000b478] system_call+0x5c/0x68
-Instruction dump:
-ebc90000 1ce70018 38e7ffe8 7cfe3a14 7fbe3840 419dff14 fb610068 7fc9f378
-39000000 4800000c 60000000 4195fef4 <81490010> 39290018 38c80001 7ea93840
----[ end trace cc2dd8152608c295 ]---
+I'd move the sd->devnode = NULL; line here. That way the
+sd->internal_ops->release(sd) callback can still use it.
 
-Taking closer look at the code, I can see that for_each_drmem_lmb is a
-macro expanding into `for (lmb = &drmem_info->lmbs[0]; lmb <=
-&drmem_info->lmbs[drmem_info->n_lmbs - 1]; lmb++)`. When drmem_info->lmbs
-is NULL, the loop would iterate through the whole address range if it
-weren't stopped by the NULL pointer dereference on the next line.
+Unless I am missing something?
 
-This patch aligns for_each_drmem_lmb and for_each_drmem_lmb_in_range macro
-behavior with the common C semantics, where the end marker does not belong
-to the scanned range, and alters get_lmb_range() semantics. As a side
-effect, the wraparound observed in the crash is prevented.
+>  	module_put(owner);
+> 
 
-Fixes: 6c6ea53725b3 ("powerpc/mm: Separate ibm, dynamic-memory data from DT format")
-Cc: Michal Suchanek <msuchanek@suse.cz>
-Cc: stable@vger.kernel.org
-Signed-off-by: Libor Pechacek <lpechacek@suse.cz>
----
- arch/powerpc/include/asm/drmem.h                | 4 ++--
- arch/powerpc/platforms/pseries/hotplug-memory.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+Regards,
 
-diff --git a/arch/powerpc/include/asm/drmem.h b/arch/powerpc/include/asm/drmem.h
-index 3d76e1c388c2..28c3d936fdf3 100644
---- a/arch/powerpc/include/asm/drmem.h
-+++ b/arch/powerpc/include/asm/drmem.h
-@@ -27,12 +27,12 @@ struct drmem_lmb_info {
- extern struct drmem_lmb_info *drmem_info;
- 
- #define for_each_drmem_lmb_in_range(lmb, start, end)		\
--	for ((lmb) = (start); (lmb) <= (end); (lmb)++)
-+	for ((lmb) = (start); (lmb) < (end); (lmb)++)
- 
- #define for_each_drmem_lmb(lmb)					\
- 	for_each_drmem_lmb_in_range((lmb),			\
- 		&drmem_info->lmbs[0],				\
--		&drmem_info->lmbs[drmem_info->n_lmbs - 1])
-+		&drmem_info->lmbs[drmem_info->n_lmbs])
- 
- /*
-  * The of_drconf_cell_v1 struct defines the layout of the LMB data
-diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/powerpc/platforms/pseries/hotplug-memory.c
-index c126b94d1943..4ea6af002e27 100644
---- a/arch/powerpc/platforms/pseries/hotplug-memory.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
-@@ -236,9 +236,9 @@ static int get_lmb_range(u32 drc_index, int n_lmbs,
- 	if (!start)
- 		return -EINVAL;
- 
--	end = &start[n_lmbs - 1];
-+	end = &start[n_lmbs];
- 
--	last_lmb = &drmem_info->lmbs[drmem_info->n_lmbs - 1];
-+	last_lmb = &drmem_info->lmbs[drmem_info->n_lmbs];
- 	if (end > last_lmb)
- 		return -EINVAL;
- 
--- 
-2.24.1
-
-
--- 
-Libor Pechacek
-SUSE Labs                                Remember to have fun...
+	Hans
