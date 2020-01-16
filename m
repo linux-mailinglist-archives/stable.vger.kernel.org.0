@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2F013EC84
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:57:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FBB513EC8C
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:57:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393943AbgAPRnd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:43:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
+        id S2394482AbgAPR5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:57:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393937AbgAPRnc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:43:32 -0500
+        id S2393944AbgAPRne (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:43:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BA0F246C2;
-        Thu, 16 Jan 2020 17:43:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2C2E24718;
+        Thu, 16 Jan 2020 17:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196612;
-        bh=QJfuTchg0AaTuZTfMfJaRqGBCF2ucnljtlclH+t/ZLs=;
+        s=default; t=1579196613;
+        bh=3fo/lw0ekBXGcW1nkoAipEkQ75aRje11EdBC8E7xhbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h9o5LCESY99fX13aaaZvNr075R/VIJ5E3bvslabZahrHFvsbaJkJwwEVhdw45bkZf
-         hSIRzXV5U0BwyWXXQ9MnUfihpmAtlTvN46W58EV27ufB7KrdwR19oaSL51xT6JhhWg
-         i1//iGLF/3nyufhy4KTUMVAHoOlx1sGcXnfTXaVM=
+        b=flVnbg6GoBmsVVTdV59sChMEOROC2N6Co1+hhqJwSYr4wd/Z725hLO0W/eqXbg3AW
+         TUsyZvMNq/aA9UCrhm8T2kpoeXqTwk+RXqmqhrfo+fBvjROocpzqaTA2xvpAlCqTG2
+         Mfp0rZC/QJTIxlIasIu2gCa2Szh0jQA/Ek53TFXQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gal Pressman <galpress@amazon.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 031/174] RDMA/ocrdma: Fix out of bounds index check in query pkey
-Date:   Thu, 16 Jan 2020 12:40:28 -0500
-Message-Id: <20200116174251.24326-31-sashal@kernel.org>
+Cc:     Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 032/174] media: s5p-jpeg: Correct step and max values for V4L2_CID_JPEG_RESTART_INTERVAL
+Date:   Thu, 16 Jan 2020 12:40:29 -0500
+Message-Id: <20200116174251.24326-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -43,34 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gal Pressman <galpress@amazon.com>
+From: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
-[ Upstream commit b188940796c7be31c1b8c25a9a0e0842c2e7a49e ]
+[ Upstream commit 19c624c6b29e244c418f8b44a711cbf5e82e3cd4 ]
 
-The pkey table size is one element, index should be tested for > 0 instead
-of > 1.
+This commit corrects max and step values for v4l2 control for
+V4L2_CID_JPEG_RESTART_INTERVAL. Max should be 0xffff and step should be 1.
+It was found by using v4l2-compliance tool and checking result of
+VIDIOC_QUERY_EXT_CTRL/QUERYMENU test.
+Previously it was complaining that step was bigger than difference
+between max and min.
 
-Fixes: fe2caefcdf58 ("RDMA/ocrdma: Add driver for Emulex OneConnect IBoE RDMA adapter")
-Signed-off-by: Gal Pressman <galpress@amazon.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 15f4bc3b1f42 ("[media] s5p-jpeg: Add JPEG controls support")
+
+Signed-off-by: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Reviewed-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/ocrdma/ocrdma_verbs.c | 2 +-
+ drivers/media/platform/s5p-jpeg/jpeg-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c b/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c
-index 76e96f97b3f6..6385448b22c5 100644
---- a/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c
-+++ b/drivers/infiniband/hw/ocrdma/ocrdma_verbs.c
-@@ -55,7 +55,7 @@
+diff --git a/drivers/media/platform/s5p-jpeg/jpeg-core.c b/drivers/media/platform/s5p-jpeg/jpeg-core.c
+index 0d981bbf38bc..255f70999ee8 100644
+--- a/drivers/media/platform/s5p-jpeg/jpeg-core.c
++++ b/drivers/media/platform/s5p-jpeg/jpeg-core.c
+@@ -1952,7 +1952,7 @@ static int s5p_jpeg_controls_create(struct s5p_jpeg_ctx *ctx)
  
- int ocrdma_query_pkey(struct ib_device *ibdev, u8 port, u16 index, u16 *pkey)
- {
--	if (index > 1)
-+	if (index > 0)
- 		return -EINVAL;
- 
- 	*pkey = 0xffff;
+ 		v4l2_ctrl_new_std(&ctx->ctrl_handler, &s5p_jpeg_ctrl_ops,
+ 				  V4L2_CID_JPEG_RESTART_INTERVAL,
+-				  0, 3, 0xffff, 0);
++				  0, 0xffff, 1, 0);
+ 		if (ctx->jpeg->variant->version == SJPEG_S5P)
+ 			mask = ~0x06; /* 422, 420 */
+ 	}
 -- 
 2.20.1
 
