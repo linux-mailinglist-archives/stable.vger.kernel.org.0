@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2DA213ED6B
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:02:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CB7B13ED6A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:02:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405500AbgAPRlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:41:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58504 "EHLO mail.kernel.org"
+        id S2387552AbgAPSCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:02:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405477AbgAPRlC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:41:02 -0500
+        id S2405504AbgAPRlD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:41:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEA762469B;
-        Thu, 16 Jan 2020 17:41:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0952D20684;
+        Thu, 16 Jan 2020 17:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196461;
-        bh=vJF+Ll0eNNdtR7dU4tcDtQOLQdilD63T1VeiZ+lI00Q=;
+        s=default; t=1579196462;
+        bh=SceM7aifQ7GJa345if7ZC3x+Pkfqo/xKT7DD+rgLG2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xEB6XHGTe5WrCYC7MOHEMHve3pIci0sKerpHfHlCrQLxralc8/iuS0iGXu1sI8uVt
-         tT66aJzpxkyCYaW/bcr1+wOqhTzAYFgKRz5dlgxbOt+nzDy+zHstQdihwsF2E2WeJm
-         V0PorgHlpKbXPDMVElkwiFlA7DeHWl7JZeASK01Q=
+        b=A7TvwuVyQEFBZ6BME2ldiTxJ8WERrgSgWvaUqVLqclOHhf1VsghfJyYDk5VXOHTp8
+         gxIqNoP0QSwzjhegackFbrYjyOvKHxDHw7Q1rA2Ge/u/7HYnzOX2CwSyGd50148WU5
+         2qsxW9RWYYg9ERbr8yAj2IUt6b8NAjcLqZQ0HYlU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 215/251] act_mirred: Fix mirred_init_module error handling
-Date:   Thu, 16 Jan 2020 12:36:04 -0500
-Message-Id: <20200116173641.22137-175-sashal@kernel.org>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 216/251] USB: usb-skeleton: fix use-after-free after driver unbind
+Date:   Thu, 16 Jan 2020 12:36:05 -0500
+Message-Id: <20200116173641.22137-176-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -43,38 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 11c9a7d38af524217efb7a176ad322b97ac2f163 ]
+[ Upstream commit 6353001852776e7eeaab4da78922d4c6f2b076af ]
 
-If tcf_register_action failed, mirred_device_notifier
-should be unregistered.
+The driver failed to stop its read URB on disconnect, something which
+could lead to a use-after-free in the completion handler after driver
+unbind in case the character device has been closed.
 
-Fixes: 3b87956ea645 ("net sched: fix race in mirred device removal")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: e7389cc9a7ff ("USB: skel_read really sucks royally")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191009170944.30057-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_mirred.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/usb-skeleton.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sched/act_mirred.c b/net/sched/act_mirred.c
-index fc3650b06192..9b4c7c42c932 100644
---- a/net/sched/act_mirred.c
-+++ b/net/sched/act_mirred.c
-@@ -332,7 +332,11 @@ static int __init mirred_init_module(void)
- 		return err;
+diff --git a/drivers/usb/usb-skeleton.c b/drivers/usb/usb-skeleton.c
+index f24374486623..1e6146f70cc7 100644
+--- a/drivers/usb/usb-skeleton.c
++++ b/drivers/usb/usb-skeleton.c
+@@ -584,6 +584,7 @@ static void skel_disconnect(struct usb_interface *interface)
+ 	dev->disconnected = 1;
+ 	mutex_unlock(&dev->io_mutex);
  
- 	pr_info("Mirror/redirect action on\n");
--	return tcf_register_action(&act_mirred_ops, &mirred_net_ops);
-+	err = tcf_register_action(&act_mirred_ops, &mirred_net_ops);
-+	if (err)
-+		unregister_netdevice_notifier(&mirred_device_notifier);
-+
-+	return err;
- }
++	usb_kill_urb(dev->bulk_in_urb);
+ 	usb_kill_anchored_urbs(&dev->submitted);
  
- static void __exit mirred_cleanup_module(void)
+ 	/* decrement our usage count */
 -- 
 2.20.1
 
