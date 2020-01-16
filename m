@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC95313E41C
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A168613E426
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:06:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388863AbgAPRGL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:06:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36066 "EHLO mail.kernel.org"
+        id S2388594AbgAPRG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:06:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388856AbgAPRGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:06:11 -0500
+        id S2388129AbgAPRG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:06:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C26122464;
-        Thu, 16 Jan 2020 17:06:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99C882081E;
+        Thu, 16 Jan 2020 17:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194370;
-        bh=hoAeHIin1PajjGGMU+rPtuGTtkB/3qcEtajll6KHLEw=;
+        s=default; t=1579194387;
+        bh=Bp4pI+ad+N9IwNA/+aNu2276XV/+Ac7nGVNYGPFcSlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PAKkcPX+IIpHcW5zz9L3xyOec+vxJ9oDjidgIQtoStG8mdb9NLCJuFXS36P60f09x
-         mZESbGWDLtHE1UaIIxz3/JW29W81M/NB5zw50pTdw7SMhFEHjs4omZfNu+nWXcxK3/
-         jUaWyhnjQfG0HhGBF2ei6l90xn/y0KZh95ctLvq8=
+        b=gUpJctyhckpA+XT4ElbQHetOwh9KekGPSFv090SJNxzv0DhEulcJQjBoY5Gm9+sPU
+         d8MLwAWMtujnoQsF5MiGRVWN4PSLi9yajZhfs6XLsr+cwetjaRsypElrOKF1CVdJzD
+         K+oUJjKl+1K9YJTpQ5LYHcuysl/YPNyQo0045UII=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Hutchings <ben@decadent.org.uk>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 304/671] powerpc: vdso: Make vdso32 installation conditional in vdso_install
-Date:   Thu, 16 Jan 2020 11:59:02 -0500
-Message-Id: <20200116170509.12787-41-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        Giridhar Malavali <gmalavali@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 316/671] scsi: qla2xxx: Fix a format specifier
+Date:   Thu, 16 Jan 2020 11:59:14 -0500
+Message-Id: <20200116170509.12787-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -43,37 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit ff6d27823f619892ab96f7461764840e0d786b15 ]
+[ Upstream commit 19ce192cd718e02f880197c0983404ca48236807 ]
 
-The 32-bit vDSO is not needed and not normally built for 64-bit
-little-endian configurations.  However, the vdso_install target still
-builds and installs it.  Add the same config condition as is normally
-used for the build.
+Since mcmd->sess->port_name is eight bytes long, use %8phC to format that
+port name instead of %phC.
 
-Fixes: e0d005916994 ("powerpc/vdso: Disable building the 32-bit VDSO ...")
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Himanshu Madhani <hmadhani@marvell.com>
+Cc: Giridhar Malavali <gmalavali@marvell.com>
+Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery") # v4.11.
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/qla2xxx/qla_target.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index e43321f46a3b..8954108df457 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -412,7 +412,9 @@ vdso_install:
- ifdef CONFIG_PPC64
- 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso64 $@
- endif
-+ifdef CONFIG_VDSO32
- 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso32 $@
-+endif
- 
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index e9545411ec5a..bbbe1996620b 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -2290,7 +2290,7 @@ void qlt_xmit_tm_rsp(struct qla_tgt_mgmt_cmd *mcmd)
+ 		    mcmd->orig_iocb.imm_ntfy.u.isp24.status_subcode ==
+ 		    ELS_TPRLO) {
+ 			ql_dbg(ql_dbg_disc, vha, 0x2106,
+-			    "TM response logo %phC status %#x state %#x",
++			    "TM response logo %8phC status %#x state %#x",
+ 			    mcmd->sess->port_name, mcmd->fc_tm_rsp,
+ 			    mcmd->flags);
+ 			qlt_schedule_sess_for_deletion(mcmd->sess);
 -- 
 2.20.1
 
