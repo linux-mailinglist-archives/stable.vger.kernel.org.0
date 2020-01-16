@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4B7D13F517
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:54:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69E4D13F514
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:54:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731630AbgAPSyN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:54:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41004 "EHLO mail.kernel.org"
+        id S2389276AbgAPRIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:08:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389264AbgAPRIC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:02 -0500
+        id S2389269AbgAPRID (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:08:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8071B205F4;
-        Thu, 16 Jan 2020 17:08:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F9F9206D9;
+        Thu, 16 Jan 2020 17:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194481;
-        bh=y/nZ42/FMMXceNUw7WAIY9pg7MUgfngQZU/ejKKMVf0=;
+        s=default; t=1579194483;
+        bh=otB4YrLPX1FK6NOMQfHHW/jvAN8ppGD0SWM37ZRWQBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxkRJdz/Jg0ZVpe+LoRAy28Ehf5LtnGp+nCQ2F3hsLJeeeIH+HEY5Y0zzIG+GhiIM
-         HahhqQt/ycuNTwkS31ps1paXfX5sfkAOcsEe+g032PgfZimBx6DpfN/P8iVEQjpv9e
-         BFhYnGhGyRk/M91POHi9lkPbc8jw7RakF6FLAORg=
+        b=zA1Dbta3j2+A82u9K+eY/lNnDNUWDHTGkjvyRCh5FTK6I4Z6ApAip2kOZ2d56X9Pp
+         i6f60GnTC0v7I0Q7VqCO+oE3MdnIVDT78bqTkt0QpTsQ7Vk7L5dsCznuEpZ1w7L27q
+         kcmQaU+ZGI7GCDXzUZFiBLNkHfxPRtPlBWmTY/DA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 383/671] signal/bpfilter: Fix bpfilter_kernl to use send_sig not force_sig
-Date:   Thu, 16 Jan 2020 12:00:21 -0500
-Message-Id: <20200116170509.12787-120-sashal@kernel.org>
+        Namjae Jeon <namjae.jeon@samsung.com>,
+        Jeff Layton <jlayton@primarydata.com>,
+        Steve French <smfrench@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.19 384/671] signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig
+Date:   Thu, 16 Jan 2020 12:00:22 -0500
+Message-Id: <20200116170509.12787-121-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -47,11 +48,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 
-[ Upstream commit 1dfd1711de2952fd1bfeea7152bd1687a4eea771 ]
+[ Upstream commit 72abe3bcf0911d69b46c1e8bdb5612675e0ac42c ]
 
-The locking in force_sig_info is not prepared to deal with
-a task that exits or execs (as sighand may change).  As force_sig
-is only built to handle synchronous exceptions.
+The locking in force_sig_info is not prepared to deal with a task that
+exits or execs (as sighand may change).  The is not a locking problem
+in force_sig as force_sig is only built to handle synchronous
+exceptions.
 
 Further the function force_sig_info changes the signal state if the
 signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
@@ -59,33 +61,36 @@ delivery of the signal.  The signal SIGKILL can not be ignored and can
 not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
 delivered.
 
-So using force_sig rather than send_sig for SIGKILL is pointless.
+So using force_sig rather than send_sig for SIGKILL is confusing
+and pointless.
 
 Because it won't impact the sending of the signal and and because
 using force_sig is wrong, replace force_sig with send_sig.
 
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: David S. Miller <davem@davemloft.net>
-Fixes: d2ba09c17a06 ("net: add skeleton of bpfilter kernel module")
+Cc: Namjae Jeon <namjae.jeon@samsung.com>
+Cc: Jeff Layton <jlayton@primarydata.com>
+Cc: Steve French <smfrench@gmail.com>
+Fixes: a5c3e1c725af ("Revert "cifs: No need to send SIGKILL to demux_thread during umount"")
+Fixes: e7ddee9037e7 ("cifs: disable sharing session and tcon and add new TCP sharing code")
 Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bpfilter/bpfilter_kern.c | 2 +-
+ fs/cifs/connect.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bpfilter/bpfilter_kern.c b/net/bpfilter/bpfilter_kern.c
-index 94e88f510c5b..450b257afa84 100644
---- a/net/bpfilter/bpfilter_kern.c
-+++ b/net/bpfilter/bpfilter_kern.c
-@@ -25,7 +25,7 @@ static void shutdown_umh(struct umh_info *info)
- 		return;
- 	tsk = get_pid_task(find_vpid(info->pid), PIDTYPE_PID);
- 	if (tsk) {
--		force_sig(SIGKILL, tsk);
-+		send_sig(SIGKILL, tsk, 1);
- 		put_task_struct(tsk);
- 	}
- 	fput(info->pipe_to_umh);
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 7e85070d010f..a59dcda07534 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2454,7 +2454,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
+ 
+ 	task = xchg(&server->tsk, NULL);
+ 	if (task)
+-		force_sig(SIGKILL, task);
++		send_sig(SIGKILL, task, 1);
+ }
+ 
+ static struct TCP_Server_Info *
 -- 
 2.20.1
 
