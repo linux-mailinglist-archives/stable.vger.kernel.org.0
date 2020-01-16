@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F142313E5E5
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:18:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9C213E588
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:15:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391040AbgAPROh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:14:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34086 "EHLO mail.kernel.org"
+        id S2387598AbgAPRPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:15:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391036AbgAPROh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:14:37 -0500
+        id S2390246AbgAPROi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:14:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 588912469D;
-        Thu, 16 Jan 2020 17:14:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFB28246A0;
+        Thu, 16 Jan 2020 17:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194876;
-        bh=TbGXhwCyiiSgzBOyD8VskMJHmRt2e+werhnVDQj3bmQ=;
+        s=default; t=1579194878;
+        bh=P4JS33lPfd5CksSa+DV0l9XssAnGxxCSrEewU7X7u24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLR3WgDlUvBp8AxdEfOT9XiKpcDyUVbdqDK3h6YMYOrH26Ngka2R/o52dWuI/wh35
-         HjxGCe9eLSWqu3d1NN8CcR/H+feSWIDc8BmeAtEQ/pwcHjt5xjOg2ZzBO8MI4QfPP8
-         oqdEr450/zlvBP9ZjC2FW1CmX/Pj3qUGKIqRaA7g=
+        b=zvOCsLo0W1tG7EA5E9DeS4bKV1Xh3i2RwDQjV4HEOfaE3zuGOw6J/D/tcB/9v/H9B
+         MtsQ9eENvmTR0hDySd6+3vODzO/nTkQYjEYGcf7S9uzQYvXBqwSJEIKpZoX8bIIPes
+         bcmn77XRd/kfwEVztUin1Qy9OXTWOf2naH6YpkwY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jesper Dangaard Brouer <brouer@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 666/671] samples/bpf: Fix broken xdp_rxq_info due to map order assumptions
-Date:   Thu, 16 Jan 2020 12:05:04 -0500
-Message-Id: <20200116170509.12787-403-sashal@kernel.org>
+Cc:     Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Olof Johansson <olof@lixom.net>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 667/671] soc: aspeed: Fix snoop_file_poll()'s return type
+Date:   Thu, 16 Jan 2020 12:05:05 -0500
+Message-Id: <20200116170509.12787-404-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,61 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-[ Upstream commit edbca120a8cdfa5a5793707e33497aa5185875ca ]
+[ Upstream commit a4e55ccd4392e70f296d12e81b93c6ca96ee21d5 ]
 
-In the days of using bpf_load.c the order in which the 'maps' sections
-were defines in BPF side (*_kern.c) file, were used by userspace side
-to identify the map via using the map order as an index. In effect the
-order-index is created based on the order the maps sections are stored
-in the ELF-object file, by the LLVM compiler.
+snoop_file_poll() is defined as returning 'unsigned int' but the
+.poll method is declared as returning '__poll_t', a bitwise type.
 
-This have also carried over in libbpf via API bpf_map__next(NULL, obj)
-to extract maps in the order libbpf parsed the ELF-object file.
+Fix this by using the proper return type and using the EPOLL
+constants instead of the POLL ones, as required for __poll_t.
 
-When BTF based maps were introduced a new section type ".maps" were
-created. I found that the LLVM compiler doesn't create the ".maps"
-sections in the order they are defined in the C-file. The order in the
-ELF file is based on the order the map pointer is referenced in the code.
-
-This combination of changes lead to xdp_rxq_info mixing up the map
-file-descriptors in userspace, resulting in very broken behaviour, but
-without warning the user.
-
-This patch fix issue by instead using bpf_object__find_map_by_name()
-to find maps via their names. (Note, this is the ELF name, which can
-be longer than the name the kernel retains).
-
-Fixes: be5bca44aa6b ("samples: bpf: convert some XDP samples from bpf_load to libbpf")
-Fixes: 451d1dc886b5 ("samples: bpf: update map definition to new syntax BTF-defined map")
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/157529025128.29832.5953245340679936909.stgit@firesoul
+Link: https://lore.kernel.org/r/20191121051851.268726-1-joel@jms.id.au
+Fixes: 3772e5da4454 ("drivers/misc: Aspeed LPC snoop output using misc chardev")
+Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp_rxq_info_user.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/misc/aspeed-lpc-snoop.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/samples/bpf/xdp_rxq_info_user.c b/samples/bpf/xdp_rxq_info_user.c
-index ef26f882f92f..a55c81301c1a 100644
---- a/samples/bpf/xdp_rxq_info_user.c
-+++ b/samples/bpf/xdp_rxq_info_user.c
-@@ -472,9 +472,9 @@ int main(int argc, char **argv)
- 	if (bpf_prog_load_xattr(&prog_load_attr, &obj, &prog_fd))
- 		return EXIT_FAIL;
+diff --git a/drivers/misc/aspeed-lpc-snoop.c b/drivers/misc/aspeed-lpc-snoop.c
+index 2feb4347d67f..c10be21a1663 100644
+--- a/drivers/misc/aspeed-lpc-snoop.c
++++ b/drivers/misc/aspeed-lpc-snoop.c
+@@ -101,13 +101,13 @@ static ssize_t snoop_file_read(struct file *file, char __user *buffer,
+ 	return ret ? ret : copied;
+ }
  
--	map = bpf_map__next(NULL, obj);
--	stats_global_map = bpf_map__next(map, obj);
--	rx_queue_index_map = bpf_map__next(stats_global_map, obj);
-+	map =  bpf_object__find_map_by_name(obj, "config_map");
-+	stats_global_map = bpf_object__find_map_by_name(obj, "stats_global_map");
-+	rx_queue_index_map = bpf_object__find_map_by_name(obj, "rx_queue_index_map");
- 	if (!map || !stats_global_map || !rx_queue_index_map) {
- 		printf("finding a map in obj file failed\n");
- 		return EXIT_FAIL;
+-static unsigned int snoop_file_poll(struct file *file,
++static __poll_t snoop_file_poll(struct file *file,
+ 				    struct poll_table_struct *pt)
+ {
+ 	struct aspeed_lpc_snoop_channel *chan = snoop_file_to_chan(file);
+ 
+ 	poll_wait(file, &chan->wq, pt);
+-	return !kfifo_is_empty(&chan->fifo) ? POLLIN : 0;
++	return !kfifo_is_empty(&chan->fifo) ? EPOLLIN : 0;
+ }
+ 
+ static const struct file_operations snoop_fops = {
 -- 
 2.20.1
 
