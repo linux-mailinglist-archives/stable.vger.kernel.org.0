@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 530A813FF60
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 542FD13FF58
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389456AbgAPX0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:26:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57332 "EHLO mail.kernel.org"
+        id S2389541AbgAPX0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:26:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388576AbgAPX0f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:26:35 -0500
+        id S2389521AbgAPX0i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:26:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE8E620684;
-        Thu, 16 Jan 2020 23:26:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 314C72072B;
+        Thu, 16 Jan 2020 23:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217195;
-        bh=IL/aoOh9AuCGQjJL/BwlrmEDOqzkzTyXv6qi+8K5jeI=;
+        s=default; t=1579217197;
+        bh=SVJmoXEarOoz5TtLX6oxSO0j1YGh+KQ936Pf8K3ZsFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njlNV4PsNYKDnRvRivjguaXbqXF0ArjmozNq03pKkhBXwer8FG1zvIJ74tPKoz/Sp
-         JfjQeZ7a9TzB/TytECemUtyAAM4m9Pqt/23HWUFuFVWYdkAyGmiWX27LK0Uk2z4mbh
-         1TVSS9b0P/fTn1nDbh3UGsBuTTDBZsvgKxK5CMb8=
+        b=nxm0riow8nzwN5DGMDqoj+vb/dc5/leX4lBhFERzbwDL1v2roru+JTIxBni2jf0xK
+         looqw+MGqPR99jiWvvfaALkJEK/OfCKbWxbYIRo5zaKyYOPzkAKLs7+vr+by9eHwgd
+         6j1fKHq3+8v0duWNFcuyZW70eEJ7wINWbJOx91NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        Richard Weinberger <richard@nod.at>,
-        Romain Izard <romain.izard.pro@gmail.com>
-Subject: [PATCH 5.4 162/203] Revert "ubifs: Fix memory leak bug in alloc_ubifs_info() error path"
-Date:   Fri, 17 Jan 2020 00:17:59 +0100
-Message-Id: <20200116231758.872830984@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.4 163/203] ubifs: Fixed missed le64_to_cpu() in journal
+Date:   Fri, 17 Jan 2020 00:18:00 +0100
+Message-Id: <20200116231758.943679715@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -44,41 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
 
-commit 91cbf01178c37086b32148c53e24b04cb77557cf upstream.
+commit df22b5b3ecc6233e33bd27f67f14c0cd1b5a5897 upstream.
 
-This reverts commit 9163e0184bd7d5f779934d34581843f699ad2ffd.
+In the ubifs_jnl_write_inode() functon, it calls ubifs_iget()
+with xent->inum. The xent->inum is __le64, but the ubifs_iget()
+takes native cpu endian.
 
-At the point when ubifs_fill_super() runs, we have already a reference
-to the super block. So upon deactivate_locked_super() c will get
-free()'ed via ->kill_sb().
+I think that this should be changed to passing le64_to_cpu(xent->inum)
+to fix the following sparse warning:
 
-Cc: Wenwen Wang <wenwen@cs.uga.edu>
-Fixes: 9163e0184bd7 ("ubifs: Fix memory leak bug in alloc_ubifs_info() error path")
-Reported-by: https://twitter.com/grsecurity/status/1180609139359277056
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Tested-by: Romain Izard <romain.izard.pro@gmail.com>
+fs/ubifs/journal.c:902:58: warning: incorrect type in argument 2 (different base types)
+fs/ubifs/journal.c:902:58:    expected unsigned long inum
+fs/ubifs/journal.c:902:58:    got restricted __le64 [usertype] inum
+
+Fixes: 7959cf3a7506 ("ubifs: journal: Handle xattrs like files")
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ubifs/super.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/ubifs/journal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ubifs/super.c
-+++ b/fs/ubifs/super.c
-@@ -2267,10 +2267,8 @@ static struct dentry *ubifs_mount(struct
- 		}
- 	} else {
- 		err = ubifs_fill_super(sb, data, flags & SB_SILENT ? 1 : 0);
--		if (err) {
--			kfree(c);
-+		if (err)
- 			goto out_deact;
--		}
- 		/* We do not support atime */
- 		sb->s_flags |= SB_ACTIVE;
- 		if (IS_ENABLED(CONFIG_UBIFS_ATIME_SUPPORT))
+--- a/fs/ubifs/journal.c
++++ b/fs/ubifs/journal.c
+@@ -899,7 +899,7 @@ int ubifs_jnl_write_inode(struct ubifs_i
+ 			fname_name(&nm) = xent->name;
+ 			fname_len(&nm) = le16_to_cpu(xent->nlen);
+ 
+-			xino = ubifs_iget(c->vfs_sb, xent->inum);
++			xino = ubifs_iget(c->vfs_sb, le64_to_cpu(xent->inum));
+ 			if (IS_ERR(xino)) {
+ 				err = PTR_ERR(xino);
+ 				ubifs_err(c, "dead directory entry '%s', error %d",
 
 
