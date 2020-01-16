@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6887C13FDD7
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B9E13FDC1
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:30:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403747AbgAPX3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:29:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35852 "EHLO mail.kernel.org"
+        id S1729632AbgAPX3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:29:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391358AbgAPX3t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:29:49 -0500
+        id S2389637AbgAPX26 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:28:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 497BF206D9;
-        Thu, 16 Jan 2020 23:29:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 157FD20684;
+        Thu, 16 Jan 2020 23:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217388;
-        bh=bRXWIdddXbaSpDKseEkgF8QW4FjBl0fHJoBki22Yous=;
+        s=default; t=1579217337;
+        bh=0OrMHnukN32l1tTlce+BD7S8E7gNYvNKNM/0qoVDPS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVS6UMLWjgcaYeLFYKR/Q1kSHkv2B0xC5kPYYQ4zCN5l/xR312UfHMRqmNV3IT9T4
-         2HGXdFPjvBQmzfW1ADHmjJjHAQeRJHZ1nBVfhgEsRYJmXmbPA1EaZwogQ/aZa8/EvW
-         K0221Tu0sp32Sxt17yN371IeknwAJpE4us7DPGYM=
+        b=HSL6+w1KfxfhRHTlLGJ8Fua+xN/fDdY3yOEJeKqubQV/tLkTQM0fqEd4gA3UDu7U1
+         wnJUFWWhdpHFtXoUpz/9zPpBalYxvZRpu0QCcSRwPuorNh9Pt38somCPguZHxiL8dm
+         26LG4GTwA7Wn4tL+d4gkudAytpV3+4/Q0xL10UMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Honggang Li <honli@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.19 36/84] RDMA/srpt: Report the SCSI residual to the initiator
-Date:   Fri, 17 Jan 2020 00:18:10 +0100
-Message-Id: <20200116231718.035158071@linuxfoundation.org>
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Gonglei <arei.gonglei@huawei.com>,
+        virtualization@lists.linux-foundation.org,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 42/84] crypto: virtio - implement missing support for output IVs
+Date:   Fri, 17 Jan 2020 00:18:16 +0100
+Message-Id: <20200116231718.728089716@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
 References: <20200116231713.087649517@linuxfoundation.org>
@@ -44,70 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit e88982ad1bb12db699de96fbc07096359ef6176c upstream.
+commit 500e6807ce93b1fdc7d5b827c5cc167cc35630db upstream.
 
-The code added by this patch is similar to the code that already exists in
-ibmvscsis_determine_resid(). This patch has been tested by running the
-following command:
+In order to allow for CBC to be chained, which is something that the
+CTS template relies upon, implementations of CBC need to pass the
+IV to be used for subsequent invocations via the IV buffer. This was
+not implemented yet for virtio-crypto so implement it now.
 
-strace sg_raw -r 1k /dev/sdb 12 00 00 00 60 00 -o inquiry.bin |&
-    grep resid=
-
-Link: https://lore.kernel.org/r/20191105214632.183302-1-bvanassche@acm.org
-Fixes: a42d985bd5b2 ("ib_srpt: Initial SRP Target merge for v3.3-rc1")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Acked-by: Honggang Li <honli@redhat.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Gonglei <arei.gonglei@huawei.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/ulp/srpt/ib_srpt.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/crypto/virtio/virtio_crypto_algs.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/infiniband/ulp/srpt/ib_srpt.c
-+++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
-@@ -1324,9 +1324,11 @@ static int srpt_build_cmd_rsp(struct srp
- 			      struct srpt_send_ioctx *ioctx, u64 tag,
- 			      int status)
- {
-+	struct se_cmd *cmd = &ioctx->cmd;
- 	struct srp_rsp *srp_rsp;
- 	const u8 *sense_data;
- 	int sense_data_len, max_sense_len;
-+	u32 resid = cmd->residual_count;
- 
- 	/*
- 	 * The lowest bit of all SAM-3 status codes is zero (see also
-@@ -1348,6 +1350,28 @@ static int srpt_build_cmd_rsp(struct srp
- 	srp_rsp->tag = tag;
- 	srp_rsp->status = status;
- 
-+	if (cmd->se_cmd_flags & SCF_UNDERFLOW_BIT) {
-+		if (cmd->data_direction == DMA_TO_DEVICE) {
-+			/* residual data from an underflow write */
-+			srp_rsp->flags = SRP_RSP_FLAG_DOUNDER;
-+			srp_rsp->data_out_res_cnt = cpu_to_be32(resid);
-+		} else if (cmd->data_direction == DMA_FROM_DEVICE) {
-+			/* residual data from an underflow read */
-+			srp_rsp->flags = SRP_RSP_FLAG_DIUNDER;
-+			srp_rsp->data_in_res_cnt = cpu_to_be32(resid);
-+		}
-+	} else if (cmd->se_cmd_flags & SCF_OVERFLOW_BIT) {
-+		if (cmd->data_direction == DMA_TO_DEVICE) {
-+			/* residual data from an overflow write */
-+			srp_rsp->flags = SRP_RSP_FLAG_DOOVER;
-+			srp_rsp->data_out_res_cnt = cpu_to_be32(resid);
-+		} else if (cmd->data_direction == DMA_FROM_DEVICE) {
-+			/* residual data from an overflow read */
-+			srp_rsp->flags = SRP_RSP_FLAG_DIOVER;
-+			srp_rsp->data_in_res_cnt = cpu_to_be32(resid);
-+		}
-+	}
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -449,6 +449,11 @@ __virtio_crypto_ablkcipher_do_req(struct
+ 		goto free;
+ 	}
+ 	memcpy(iv, req->info, ivsize);
++	if (!vc_sym_req->encrypt)
++		scatterwalk_map_and_copy(req->info, req->src,
++					 req->nbytes - AES_BLOCK_SIZE,
++					 AES_BLOCK_SIZE, 0);
 +
- 	if (sense_data_len) {
- 		BUILD_BUG_ON(MIN_MAX_RSP_SIZE <= sizeof(*srp_rsp));
- 		max_sense_len = ch->max_ti_iu_len - sizeof(*srp_rsp);
+ 	sg_init_one(&iv_sg, iv, ivsize);
+ 	sgs[num_out++] = &iv_sg;
+ 	vc_sym_req->iv = iv;
+@@ -585,6 +590,10 @@ static void virtio_crypto_ablkcipher_fin
+ 	struct ablkcipher_request *req,
+ 	int err)
+ {
++	if (vc_sym_req->encrypt)
++		scatterwalk_map_and_copy(req->info, req->dst,
++					 req->nbytes - AES_BLOCK_SIZE,
++					 AES_BLOCK_SIZE, 0);
+ 	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
+ 					   req, err);
+ 	kzfree(vc_sym_req->iv);
 
 
