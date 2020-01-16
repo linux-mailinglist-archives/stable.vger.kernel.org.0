@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E21A813E5B3
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:16:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69AD613E5AA
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729031AbgAPRQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:16:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32772 "EHLO mail.kernel.org"
+        id S2390947AbgAPROO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:14:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390887AbgAPROM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:14:12 -0500
+        id S2390337AbgAPRON (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:14:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76F5B246BB;
-        Thu, 16 Jan 2020 17:14:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8998C246B0;
+        Thu, 16 Jan 2020 17:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194852;
-        bh=zPm3rMc6kTYxFq53Hy+TK42EjY/2/sZs7TOmw6+t2Ak=;
+        s=default; t=1579194853;
+        bh=CLw4gHOlzKBi2xPBIjgsxQE+QMGm79q1jYQOrUriOKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zSffbajkJOx4IyEDxt3rZbmWPsKLZ+uKdvslTNWHqDIpPaGW+z5ApSCIqcq1NKG26
-         //ZWCtc+5yAifCfgvDv2CZ0EANqpyCeoBZP1TfsMZXgM/CeIk4vTYQKwCa+MlV7rsr
-         XQQIbekFLJq5KDKHztBBj3ywDsEGE7/uD/yYw4IA=
+        b=sUISP019mid0IRN2r3mZ5GFvkt98KFbLiChtrnr0zZmcJkADeihqAmfI63E9Ab63X
+         jnJ46OZSRdMMKHlrLqqEf4GvAj8CgPWm7r2nZce3wsFYG4qrBsJxL9MDPPYah6WXQ0
+         0o/vJLCxWqsSR5rOGVxWr7jI+4jtouaA36+eJGWo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 648/671] mmc: core: fix wl1251 sdio quirks
-Date:   Thu, 16 Jan 2020 12:04:46 -0500
-Message-Id: <20200116170509.12787-385-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 649/671] affs: fix a memory leak in affs_remount
+Date:   Thu, 16 Jan 2020 12:04:47 -0500
+Message-Id: <20200116170509.12787-386-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -43,40 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 16568b4a4f0c34bd35cfadac63303c7af7812764 ]
+[ Upstream commit 450c3d4166837c496ebce03650c08800991f2150 ]
 
-wl1251 and wl1271 have different vendor id and device id.
-So we need to handle both with sdio quirks.
+In affs_remount if data is provided it is duplicated into new_opts.  The
+allocated memory for new_opts is only released if parse_options fails.
 
-Fixes: 884f38607897 ("mmc: core: move some sdio IDs out of quirks file")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Cc: <stable@vger.kernel.org> # v4.11+
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+There's a bit of history behind new_options, originally there was
+save/replace options on the VFS layer so the 'data' passed must not
+change (thus strdup), this got cleaned up in later patches. But not
+completely.
+
+There's no reason to do the strdup in cases where the filesystem does
+not need to reuse the 'data' again, because strsep would modify it
+directly.
+
+Fixes: c8f33d0bec99 ("affs: kstrdup() memory handling")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+[ update changelog ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/quirks.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/affs/super.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/mmc/core/quirks.h b/drivers/mmc/core/quirks.h
-index dd2f73af8f2c..d5bbe8e544de 100644
---- a/drivers/mmc/core/quirks.h
-+++ b/drivers/mmc/core/quirks.h
-@@ -119,7 +119,14 @@ static const struct mmc_fixup mmc_ext_csd_fixups[] = {
- 	END_FIXUP
- };
+diff --git a/fs/affs/super.c b/fs/affs/super.c
+index d1ad11a8a4a5..b6ce0c36029b 100644
+--- a/fs/affs/super.c
++++ b/fs/affs/super.c
+@@ -561,14 +561,9 @@ affs_remount(struct super_block *sb, int *flags, char *data)
+ 	int			 root_block;
+ 	unsigned long		 mount_flags;
+ 	int			 res = 0;
+-	char			*new_opts;
+ 	char			 volume[32];
+ 	char			*prefix = NULL;
  
-+
- static const struct mmc_fixup sdio_fixup_methods[] = {
-+	SDIO_FIXUP(SDIO_VENDOR_ID_TI_WL1251, SDIO_DEVICE_ID_TI_WL1251,
-+		   add_quirk, MMC_QUIRK_NONSTD_FUNC_IF),
-+
-+	SDIO_FIXUP(SDIO_VENDOR_ID_TI_WL1251, SDIO_DEVICE_ID_TI_WL1251,
-+		   add_quirk, MMC_QUIRK_DISABLE_CD),
-+
- 	SDIO_FIXUP(SDIO_VENDOR_ID_TI, SDIO_DEVICE_ID_TI_WL1271,
- 		   add_quirk, MMC_QUIRK_NONSTD_FUNC_IF),
+-	new_opts = kstrdup(data, GFP_KERNEL);
+-	if (data && !new_opts)
+-		return -ENOMEM;
+-
+ 	pr_debug("%s(flags=0x%x,opts=\"%s\")\n", __func__, *flags, data);
+ 
+ 	sync_filesystem(sb);
+@@ -579,7 +574,6 @@ affs_remount(struct super_block *sb, int *flags, char *data)
+ 			   &blocksize, &prefix, volume,
+ 			   &mount_flags)) {
+ 		kfree(prefix);
+-		kfree(new_opts);
+ 		return -EINVAL;
+ 	}
  
 -- 
 2.20.1
