@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68DC7140016
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:48:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0386F140013
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:48:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729821AbgAPXrx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:47:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46890 "EHLO mail.kernel.org"
+        id S1730182AbgAPXU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:20:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390589AbgAPXUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:20:24 -0500
+        id S2389723AbgAPXU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:20:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 932A02075B;
-        Thu, 16 Jan 2020 23:20:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DC452073A;
+        Thu, 16 Jan 2020 23:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216824;
-        bh=bSbMUm6My9PBpn1i1nRi6dfQfDMXOv5DX13A1b+34nI=;
+        s=default; t=1579216828;
+        bh=3yWjoeEIMnBoOIZGVRv9iSKJUBempfyyrqd4UN/dPGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X2L68pLYM/VDTmVPXFS1t2cybhyVObwZ2y8ITXQrlxi+pwJZtwPZy62WFf6MJjDm2
-         IuxmaYHRk4LbaH0fwa/l9p0pQdONwKJZ5VwpNH+Lk0y9BL3FPZ7PUkYyu4DP0B4RSZ
-         TeytzzOrAjAvNLWPanG/wiCJVPICB5lDVxm9E1B0=
+        b=T90L4dTvc397uotyF516T3CBssoKKijqyZoWKLh2ZXP4DkrbBAlzxDdXmbSYpXz03
+         y4CqMFlO8hzgCgE/S03qnqFKTgmNVntN20FH0kGWqgrx7+fRN8/C/0gbPa3LEYTnwN
+         NgB9fI4veRyeUah5PZ8EBnAUlScGmAeEJUXkrxNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 017/203] mtd: onenand: omap2: Pass correct flags for prep_dma_memcpy
-Date:   Fri, 17 Jan 2020 00:15:34 +0100
-Message-Id: <20200116231746.217281240@linuxfoundation.org>
+        stable@vger.kernel.org, Qianggui Song <qianggui.song@amlogic.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 019/203] pinctrl: meson: Fix wrong shift value when get drive-strength
+Date:   Fri, 17 Jan 2020 00:15:36 +0100
+Message-Id: <20200116231746.325188044@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -45,37 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Qianggui Song <qianggui.song@amlogic.com>
 
-commit 8bcef0d54067077cf9a6cb129022c77559926e8c upstream.
+commit 35c60be220572de7d6605c4318f640d133982040 upstream.
 
-The commit converting the driver to DMAengine was missing the flags for
-the memcpy prepare call.
-It went unnoticed since the omap-dma driver was ignoring them.
+In meson_pinconf_get_drive_strength, variable bit is calculated by
+meson_calc_reg_and_bit, this value is the offset from the first pin of a
+certain bank to current pin, while Meson SoCs use two bits for each pin
+to depict drive-strength. So a left shift by 1 should be done or node
+pinconf-pins shows wrong message.
 
-Fixes: 3ed6a4d1de2c5 (" mtd: onenand: omap2: Convert to use dmaengine for memcp")
-Reported-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
-Tested-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Fixes: 6ea3e3bbef37 ("pinctrl: meson: add support of drive-strength-microamp")
+
+Signed-off-by: Qianggui Song <qianggui.song@amlogic.com>
+Link: https://lore.kernel.org/r/20191226023734.9631-1-qianggui.song@amlogic.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/onenand/omap2.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pinctrl/meson/pinctrl-meson.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mtd/nand/onenand/omap2.c
-+++ b/drivers/mtd/nand/onenand/omap2.c
-@@ -328,7 +328,8 @@ static inline int omap2_onenand_dma_tran
- 	struct dma_async_tx_descriptor *tx;
- 	dma_cookie_t cookie;
+--- a/drivers/pinctrl/meson/pinctrl-meson.c
++++ b/drivers/pinctrl/meson/pinctrl-meson.c
+@@ -441,6 +441,7 @@ static int meson_pinconf_get_drive_stren
+ 		return ret;
  
--	tx = dmaengine_prep_dma_memcpy(c->dma_chan, dst, src, count, 0);
-+	tx = dmaengine_prep_dma_memcpy(c->dma_chan, dst, src, count,
-+				       DMA_CTRL_ACK | DMA_PREP_INTERRUPT);
- 	if (!tx) {
- 		dev_err(&c->pdev->dev, "Failed to prepare DMA memcpy\n");
- 		return -EIO;
+ 	meson_calc_reg_and_bit(bank, pin, REG_DS, &reg, &bit);
++	bit = bit << 1;
+ 
+ 	ret = regmap_read(pc->reg_ds, reg, &val);
+ 	if (ret)
 
 
