@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7BD413F659
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:03:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3694A13F65A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:03:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730106AbgAPRFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729952AbgAPRFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 12:05:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55400 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388409AbgAPRCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:02:33 -0500
+        id S2388412AbgAPRCe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:02:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B1342073A;
-        Thu, 16 Jan 2020 17:02:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C960820730;
+        Thu, 16 Jan 2020 17:02:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194152;
-        bh=NMtzhIfJOHOAtmyYoR7QWOqYodHl2omDYrFFEDvuwAs=;
+        s=default; t=1579194153;
+        bh=RWIpyYV2IZnnvLeNB3e+att7PsbnyepJ/57t61uI6Fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgPPZVwAfS9d11fp0NkTA/Jgbn0Krawh8k5y2ZBdcxTN4tGBNg2CldsugaXHHCwB+
-         W71uTEhMdEtMnOtIf5+sNay+i19fUER2BngReOmDNz88DnrBKamIppkzAYhE9ODf+c
-         6PLrmjLanKL4aRccmOW2vGiolBEoQoywNfP7CLrs=
+        b=luu56mpsF9yPSv2pnMdasv/lDt5ZCAjR0UcD7nA7XvXrzLIqD4eHKrZpHlwO8exw0
+         DQOi341Hn6rAxW37Q95WSUW9jC49T2Wn2TpbK8svXiXS7pXm9DRczJCJHaWDh/rZy+
+         pQMOoobOU798WOZVKXobP+LFCdYmpIdDQa/4ZnXQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sinan Kaya <okaya@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 236/671] PCI: Fix "try" semantics of bus and slot reset
-Date:   Thu, 16 Jan 2020 11:52:25 -0500
-Message-Id: <20200116165940.10720-119-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Ley Foon Tan <ley.foon.tan@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        nios2-dev@lists.rocketboards.org
+Subject: [PATCH AUTOSEL 4.19 237/671] nios2: ksyms: Add missing symbol exports
+Date:   Thu, 16 Jan 2020 11:52:26 -0500
+Message-Id: <20200116165940.10720-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -44,161 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit ddefc033eecf23f1e8b81d0663c5db965adf5516 ]
+[ Upstream commit 0f8ed994575429d6042cf5d7ef70081c94091587 ]
 
-The commit referenced below introduced device locking around save and
-restore of state for each device during a PCI bus "try" reset, making it
-decidely non-"try" and prone to deadlock in the event that a device is
-already locked.  Restore __pci_reset_bus() and __pci_reset_slot() to their
-advertised locking semantics by pushing the save and restore functions into
-the branch where the entire tree is already locked.  Extend the helper
-function names with "_locked" and update the comment to reflect this
-calling requirement.
+Building nios2:allmodconfig fails as follows (each symbol is only listed
+once).
 
-Fixes: b014e96d1abb ("PCI: Protect pci_error_handlers->reset_notify() usage with device_lock()")
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Sinan Kaya <okaya@kernel.org>
+ERROR: "__ashldi3" [drivers/md/dm-writecache.ko] undefined!
+ERROR: "__ashrdi3" [fs/xfs/xfs.ko] undefined!
+ERROR: "__ucmpdi2" [drivers/media/i2c/adv7842.ko] undefined!
+ERROR: "__lshrdi3" [drivers/md/dm-zoned.ko] undefined!
+ERROR: "flush_icache_range" [drivers/misc/lkdtm/lkdtm.ko] undefined!
+ERROR: "empty_zero_page" [drivers/md/dm-mod.ko] undefined!
+
+The problem is seen with gcc 7.3.0.
+
+Export the missing symbols.
+
+Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Ley Foon Tan <ley.foon.tan@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 54 +++++++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 28 deletions(-)
+ arch/nios2/kernel/nios2_ksyms.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index c9f51fc24563..57a87a001b4f 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -5039,39 +5039,42 @@ static int pci_slot_trylock(struct pci_slot *slot)
- 	return 0;
- }
+diff --git a/arch/nios2/kernel/nios2_ksyms.c b/arch/nios2/kernel/nios2_ksyms.c
+index bf2f55d10a4d..4e704046a150 100644
+--- a/arch/nios2/kernel/nios2_ksyms.c
++++ b/arch/nios2/kernel/nios2_ksyms.c
+@@ -9,12 +9,20 @@
+ #include <linux/export.h>
+ #include <linux/string.h>
  
--/* Save and disable devices from the top of the tree down */
--static void pci_bus_save_and_disable(struct pci_bus *bus)
-+/*
-+ * Save and disable devices from the top of the tree down while holding
-+ * the @dev mutex lock for the entire tree.
-+ */
-+static void pci_bus_save_and_disable_locked(struct pci_bus *bus)
- {
- 	struct pci_dev *dev;
++#include <asm/cacheflush.h>
++#include <asm/pgtable.h>
++
+ /* string functions */
  
- 	list_for_each_entry(dev, &bus->devices, bus_list) {
--		pci_dev_lock(dev);
- 		pci_dev_save_and_disable(dev);
--		pci_dev_unlock(dev);
- 		if (dev->subordinate)
--			pci_bus_save_and_disable(dev->subordinate);
-+			pci_bus_save_and_disable_locked(dev->subordinate);
- 	}
- }
+ EXPORT_SYMBOL(memcpy);
+ EXPORT_SYMBOL(memset);
+ EXPORT_SYMBOL(memmove);
  
++/* memory management */
++
++EXPORT_SYMBOL(empty_zero_page);
++EXPORT_SYMBOL(flush_icache_range);
++
  /*
-- * Restore devices from top of the tree down - parent bridges need to be
-- * restored before we can get to subordinate devices.
-+ * Restore devices from top of the tree down while holding @dev mutex lock
-+ * for the entire tree.  Parent bridges need to be restored before we can
-+ * get to subordinate devices.
-  */
--static void pci_bus_restore(struct pci_bus *bus)
-+static void pci_bus_restore_locked(struct pci_bus *bus)
- {
- 	struct pci_dev *dev;
- 
- 	list_for_each_entry(dev, &bus->devices, bus_list) {
--		pci_dev_lock(dev);
- 		pci_dev_restore(dev);
--		pci_dev_unlock(dev);
- 		if (dev->subordinate)
--			pci_bus_restore(dev->subordinate);
-+			pci_bus_restore_locked(dev->subordinate);
- 	}
- }
- 
--/* Save and disable devices from the top of the tree down */
--static void pci_slot_save_and_disable(struct pci_slot *slot)
-+/*
-+ * Save and disable devices from the top of the tree down while holding
-+ * the @dev mutex lock for the entire tree.
-+ */
-+static void pci_slot_save_and_disable_locked(struct pci_slot *slot)
- {
- 	struct pci_dev *dev;
- 
-@@ -5080,26 +5083,25 @@ static void pci_slot_save_and_disable(struct pci_slot *slot)
- 			continue;
- 		pci_dev_save_and_disable(dev);
- 		if (dev->subordinate)
--			pci_bus_save_and_disable(dev->subordinate);
-+			pci_bus_save_and_disable_locked(dev->subordinate);
- 	}
- }
- 
- /*
-- * Restore devices from top of the tree down - parent bridges need to be
-- * restored before we can get to subordinate devices.
-+ * Restore devices from top of the tree down while holding @dev mutex lock
-+ * for the entire tree.  Parent bridges need to be restored before we can
-+ * get to subordinate devices.
-  */
--static void pci_slot_restore(struct pci_slot *slot)
-+static void pci_slot_restore_locked(struct pci_slot *slot)
- {
- 	struct pci_dev *dev;
- 
- 	list_for_each_entry(dev, &slot->bus->devices, bus_list) {
- 		if (!dev->slot || dev->slot != slot)
- 			continue;
--		pci_dev_lock(dev);
- 		pci_dev_restore(dev);
--		pci_dev_unlock(dev);
- 		if (dev->subordinate)
--			pci_bus_restore(dev->subordinate);
-+			pci_bus_restore_locked(dev->subordinate);
- 	}
- }
- 
-@@ -5158,17 +5160,15 @@ static int __pci_reset_slot(struct pci_slot *slot)
- 	if (rc)
- 		return rc;
- 
--	pci_slot_save_and_disable(slot);
--
- 	if (pci_slot_trylock(slot)) {
-+		pci_slot_save_and_disable_locked(slot);
- 		might_sleep();
- 		rc = pci_reset_hotplug_slot(slot->hotplug, 0);
-+		pci_slot_restore_locked(slot);
- 		pci_slot_unlock(slot);
- 	} else
- 		rc = -EAGAIN;
- 
--	pci_slot_restore(slot);
--
- 	return rc;
- }
- 
-@@ -5254,17 +5254,15 @@ static int __pci_reset_bus(struct pci_bus *bus)
- 	if (rc)
- 		return rc;
- 
--	pci_bus_save_and_disable(bus);
--
- 	if (pci_bus_trylock(bus)) {
-+		pci_bus_save_and_disable_locked(bus);
- 		might_sleep();
- 		rc = pci_bridge_secondary_bus_reset(bus->self);
-+		pci_bus_restore_locked(bus);
- 		pci_bus_unlock(bus);
- 	} else
- 		rc = -EAGAIN;
- 
--	pci_bus_restore(bus);
--
- 	return rc;
- }
- 
+  * libgcc functions - functions that are used internally by the
+  * compiler...  (prototypes are not correct though, but that
+@@ -31,3 +39,7 @@ DECLARE_EXPORT(__udivsi3);
+ DECLARE_EXPORT(__umoddi3);
+ DECLARE_EXPORT(__umodsi3);
+ DECLARE_EXPORT(__muldi3);
++DECLARE_EXPORT(__ucmpdi2);
++DECLARE_EXPORT(__lshrdi3);
++DECLARE_EXPORT(__ashldi3);
++DECLARE_EXPORT(__ashrdi3);
 -- 
 2.20.1
 
