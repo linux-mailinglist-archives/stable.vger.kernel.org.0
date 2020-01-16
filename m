@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 220F513EE20
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:07:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C5EE13EE1E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:07:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405846AbgAPSHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:07:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55322 "EHLO mail.kernel.org"
+        id S2394980AbgAPSHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:07:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393439AbgAPRjK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:39:10 -0500
+        id S2388465AbgAPRjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:39:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA9E724700;
-        Thu, 16 Jan 2020 17:39:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15CD72470B;
+        Thu, 16 Jan 2020 17:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196350;
-        bh=CPfwDNy1xAd9rZ4cs5BD+7Xze0X8gxbRUSw9BiBcjrk=;
+        s=default; t=1579196353;
+        bh=UNs+FSMFE5y+swkCJ1aDB112pLnvBCrA4j+3vrVOtCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UfIsov0nAk1AzTJ+SGs/oixzUrGA+nJVBET4F6owA9l1TrXSXk1kR11OdqS/e5pJ1
-         JWgGXeKjQyHves5X/BS68ataqVKS7PLLO9R7WuRfzR69htheQUHzV7wD9SiqmzpoE6
-         JmCUiRhu7zTQQaUaJ4xJLqb+bXvZqqG+qkfQa29Q=
+        b=gZNXl/mTbICGnk57ECMmoa+e89YNPWSo69iXneV793Fkq9LHrj48vQI2AW+iOMYhZ
+         N8dcshzCQweula9DxQELodtl2LKRZO95cuMAXZRIsu9qiXuAJjKGCytM1P9AfnFDwi
+         KRngyNJmxOBHXWPDTBTECTaYzVgnB9R7WDRf913A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 144/251] spi: spi-fsl-spi: call spi_finalize_current_message() at the end
-Date:   Thu, 16 Jan 2020 12:34:53 -0500
-Message-Id: <20200116173641.22137-104-sashal@kernel.org>
+Cc:     Erwan Le Ray <erwan.leray@st.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 146/251] serial: stm32: fix transmit_chars when tx is stopped
+Date:   Thu, 16 Jan 2020 12:34:55 -0500
+Message-Id: <20200116173641.22137-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -43,42 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Erwan Le Ray <erwan.leray@st.com>
 
-[ Upstream commit 44a042182cb1e9f7916e015c836967bf638b33c4 ]
+[ Upstream commit b83b957c91f68e53f0dc596e129e8305761f2a32 ]
 
-spi_finalize_current_message() shall be called once all
-actions are finished, otherwise the last actions might
-step over a newly started transfer.
+Disables the tx irq  when the transmission is ended and updates stop_tx
+conditions for code cleanup.
 
-Fixes: c592becbe704 ("spi: fsl-(e)spi: migrate to generic master queueing")
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
+Signed-off-by: Erwan Le Ray <erwan.leray@st.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-spi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/stm32-usart.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-spi.c b/drivers/spi/spi-fsl-spi.c
-index 8b290d9d7935..5419de19859a 100644
---- a/drivers/spi/spi-fsl-spi.c
-+++ b/drivers/spi/spi-fsl-spi.c
-@@ -408,7 +408,6 @@ static int fsl_spi_do_one_msg(struct spi_master *master,
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 033856287ca2..ea8b591dd46f 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -293,13 +293,8 @@ static void stm32_transmit_chars(struct uart_port *port)
+ 		return;
  	}
  
- 	m->status = status;
--	spi_finalize_current_message(master);
- 
- 	if (status || !cs_change) {
- 		ndelay(nsecs);
-@@ -416,6 +415,7 @@ static int fsl_spi_do_one_msg(struct spi_master *master,
+-	if (uart_tx_stopped(port)) {
+-		stm32_stop_tx(port);
+-		return;
+-	}
+-
+-	if (uart_circ_empty(xmit)) {
+-		stm32_stop_tx(port);
++	if (uart_circ_empty(xmit) || uart_tx_stopped(port)) {
++		stm32_clr_bits(port, ofs->cr1, USART_CR1_TXEIE);
+ 		return;
  	}
  
- 	fsl_spi_setup_transfer(spi, NULL);
-+	spi_finalize_current_message(master);
- 	return 0;
+@@ -312,7 +307,7 @@ static void stm32_transmit_chars(struct uart_port *port)
+ 		uart_write_wakeup(port);
+ 
+ 	if (uart_circ_empty(xmit))
+-		stm32_stop_tx(port);
++		stm32_clr_bits(port, ofs->cr1, USART_CR1_TXEIE);
  }
  
+ static irqreturn_t stm32_interrupt(int irq, void *ptr)
 -- 
 2.20.1
 
