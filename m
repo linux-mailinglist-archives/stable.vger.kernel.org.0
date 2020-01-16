@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58EAE13F6C2
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:07:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD5A13F6C6
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:07:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387719AbgAPRBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:01:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52370 "EHLO mail.kernel.org"
+        id S2388137AbgAPTG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:06:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388078AbgAPRBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:01:22 -0500
+        id S1730172AbgAPRBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:01:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35AE520730;
-        Thu, 16 Jan 2020 17:01:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DB752077B;
+        Thu, 16 Jan 2020 17:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194082;
-        bh=hyqnidKUhr5IO7828ua1HHV6ukySUvw9Gad4wTAK1DE=;
+        s=default; t=1579194083;
+        bh=4rsPsug2hH4OP9DXtOETkYKx2Y264/RLBnDXf25S6G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zggOnGeCZI/EA26jG4oEv6sh3FOEnUmDJdbScRBHtN81CbU0F7jAhANQARL5d0hSU
-         +ZJC6X6/o00Eu/RuspxeEGruweQl0VKLA+mkCA1DzmI27VpDhNI28YFv7XCBsyH/vp
-         6C1oqoQU9pH/YW2cVmemwzQ6BGPk7wNsKLKCFJa0=
+        b=tmz37ShPvrDqcYAM7pSvsQ7q+SzBb+mtL6Gzo13VbCFCbDA/RtcpaZW9OFa9ceb6M
+         CbEMznfjxdPa7asf/SkOmlMPFzTMymH5t2USOeTjAMIXQdUFdM450hfHg61cdzFJLT
+         SaknxPBEjewa6DnkkKH0pmMyqwJLxMIc5J0E9rgA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 187/671] mt76: usb: fix possible memory leak in mt76u_buf_free
-Date:   Thu, 16 Jan 2020 11:51:36 -0500
-Message-Id: <20200116165940.10720-70-sashal@kernel.org>
+Cc:     Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-sh@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 188/671] media: sh: migor: Include missing dma-mapping header
+Date:   Thu, 16 Jan 2020 11:51:37 -0500
+Message-Id: <20200116165940.10720-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -45,63 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-[ Upstream commit cb83585e1121bd6d6c039cf09fa32380bf8b6258 ]
+[ Upstream commit 5c88ee02932a964096cbbcc7c9f38b78d230bacb ]
 
-Move q->ndesc initialization before the for loop in mt76u_alloc_rx
-since otherwise allocated urbs will not be freed in mt76u_buf_free
-Double-check scatterlist pointer in mt76u_buf_free
+Since the removal of the stale soc_camera headers, Migo-R board fails to
+build due to missing dma-mapping include directive.
 
-Fixes: b40b15e1521f ("mt76: add usb support to mt76 layer")
-Signed-off-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Include missing dma-mapping.h header in Migo-R board file to fix the build
+error.
+
+Fixes: a50c7738e8ae ("media: sh: migor: Remove stale soc_camera include")
+
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/usb.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/sh/boards/mach-migor/setup.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/usb.c b/drivers/net/wireless/mediatek/mt76/usb.c
-index 8d40e92fb6f2..dcf927de65f3 100644
---- a/drivers/net/wireless/mediatek/mt76/usb.c
-+++ b/drivers/net/wireless/mediatek/mt76/usb.c
-@@ -273,10 +273,16 @@ EXPORT_SYMBOL_GPL(mt76u_buf_alloc);
- void mt76u_buf_free(struct mt76u_buf *buf)
- {
- 	struct urb *urb = buf->urb;
-+	struct scatterlist *sg;
- 	int i;
- 
--	for (i = 0; i < urb->num_sgs; i++)
--		skb_free_frag(sg_virt(&urb->sg[i]));
-+	for (i = 0; i < urb->num_sgs; i++) {
-+		sg = &urb->sg[i];
-+		if (!sg)
-+			continue;
-+
-+		skb_free_frag(sg_virt(sg));
-+	}
- 	usb_free_urb(buf->urb);
- }
- EXPORT_SYMBOL_GPL(mt76u_buf_free);
-@@ -478,7 +484,8 @@ static int mt76u_alloc_rx(struct mt76_dev *dev)
- 		nsgs = 1;
- 	}
- 
--	for (i = 0; i < MT_NUM_RX_ENTRIES; i++) {
-+	q->ndesc = MT_NUM_RX_ENTRIES;
-+	for (i = 0; i < q->ndesc; i++) {
- 		err = mt76u_buf_alloc(dev, &q->entry[i].ubuf,
- 				      nsgs, q->buf_size,
- 				      SKB_WITH_OVERHEAD(q->buf_size),
-@@ -486,7 +493,6 @@ static int mt76u_alloc_rx(struct mt76_dev *dev)
- 		if (err < 0)
- 			return err;
- 	}
--	q->ndesc = MT_NUM_RX_ENTRIES;
- 
- 	return mt76u_submit_rx_buffers(dev);
- }
+diff --git a/arch/sh/boards/mach-migor/setup.c b/arch/sh/boards/mach-migor/setup.c
+index 254f2c662703..6cd3cd468047 100644
+--- a/arch/sh/boards/mach-migor/setup.c
++++ b/arch/sh/boards/mach-migor/setup.c
+@@ -5,6 +5,7 @@
+  * Copyright (C) 2008 Magnus Damm
+  */
+ #include <linux/clkdev.h>
++#include <linux/dma-mapping.h>
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
+ #include <linux/interrupt.h>
 -- 
 2.20.1
 
