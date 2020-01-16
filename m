@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 531AE13F88A
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:19:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA58813F889
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:19:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731739AbgAPQyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:54:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38866 "EHLO mail.kernel.org"
+        id S1731809AbgAPTTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:19:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731727AbgAPQyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:54:21 -0500
+        id S1729347AbgAPQyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:54:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B4C9205F4;
-        Thu, 16 Jan 2020 16:54:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5658D22525;
+        Thu, 16 Jan 2020 16:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193660;
-        bh=bmRdvpHD39WBfm6lyhHhVIBGEfuGksgspOgTMV/qZjA=;
+        s=default; t=1579193662;
+        bh=1Y83ZRy4JQGM0BUTA/qOSFth1ukzvcOryxz+QvYzsxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/oXsbNinds7DSo4J5C7vSQMg8GB/TGVYrtbnw6yjuyNZO21BnSfgnGc7xgaZKBE0
-         LcTvxoluul+X5BeaKI5K61RBHHq/1+qW63EtrHxQWbXif3q4QOpeEH1zRlXms5gaO9
-         OBKS1YiRm8+qh7AON7mOCF26Sp7WyWeWfnQGJd/0=
+        b=BGDPjtpQlr5FysV9vC0FzVLcxEwxmczDi9JeRBt6N69hq/Qiq5aXn8AiU+EBMNSvd
+         6Z9sNTuPjB+funRi5cpppEnQCQ1i/Ai4wHxejfH/CF3BXQn0Fc59qdKQRie/pXUvJJ
+         Db9LxnkqRKvsYCvu+Q5F/Pg37SBvPvLsMIMIhgQo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Victorien Molle <victorien.molle@wifirst.fr>,
-        Florent Fourcot <florent.fourcot@wifirst.fr>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, cake@lists.bufferbloat.net,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 188/205] sch_cake: Add missing NLA policy entry TCA_CAKE_SPLIT_GSO
-Date:   Thu, 16 Jan 2020 11:42:43 -0500
-Message-Id: <20200116164300.6705-188-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        Lexi Shao <shaolexi@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 189/205] powerpc/kasan: Fix boot failure with RELOCATABLE && FSL_BOOKE
+Date:   Thu, 16 Jan 2020 11:42:44 -0500
+Message-Id: <20200116164300.6705-189-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,34 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victorien Molle <victorien.molle@wifirst.fr>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit b3c424eb6a1a3c485de64619418a471dee6ce849 ]
+[ Upstream commit 71eb40fc53371bc247c8066ae76ad9e22ae1e18d ]
 
-This field has never been checked since introduction in mainline kernel
+When enabling CONFIG_RELOCATABLE and CONFIG_KASAN on FSL_BOOKE,
+the kernel doesn't boot.
 
-Signed-off-by: Victorien Molle <victorien.molle@wifirst.fr>
-Signed-off-by: Florent Fourcot <florent.fourcot@wifirst.fr>
-Fixes: 2db6dc2662ba "sch_cake: Make gso-splitting configurable from userspace"
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+relocate_init() requires KASAN early shadow area to be set up because
+it needs access to the device tree through generic functions.
+
+Call kasan_early_init() before calling relocate_init()
+
+Reported-by: Lexi Shao <shaolexi@huawei.com>
+Fixes: 2edb16efc899 ("powerpc/32: Add KASAN support")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/b58426f1664a4b344ff696d18cacf3b3e8962111.1575036985.git.christophe.leroy@c-s.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_cake.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/head_fsl_booke.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
-index dd0e8680b030..2277369feae5 100644
---- a/net/sched/sch_cake.c
-+++ b/net/sched/sch_cake.c
-@@ -2184,6 +2184,7 @@ static const struct nla_policy cake_policy[TCA_CAKE_MAX + 1] = {
- 	[TCA_CAKE_MPU]		 = { .type = NLA_U32 },
- 	[TCA_CAKE_INGRESS]	 = { .type = NLA_U32 },
- 	[TCA_CAKE_ACK_FILTER]	 = { .type = NLA_U32 },
-+	[TCA_CAKE_SPLIT_GSO]	 = { .type = NLA_U32 },
- 	[TCA_CAKE_FWMARK]	 = { .type = NLA_U32 },
- };
+diff --git a/arch/powerpc/kernel/head_fsl_booke.S b/arch/powerpc/kernel/head_fsl_booke.S
+index adf0505dbe02..519d49547e2f 100644
+--- a/arch/powerpc/kernel/head_fsl_booke.S
++++ b/arch/powerpc/kernel/head_fsl_booke.S
+@@ -238,6 +238,9 @@ set_ivor:
  
+ 	bl	early_init
+ 
++#ifdef CONFIG_KASAN
++	bl	kasan_early_init
++#endif
+ #ifdef CONFIG_RELOCATABLE
+ 	mr	r3,r30
+ 	mr	r4,r31
+@@ -264,9 +267,6 @@ set_ivor:
+ /*
+  * Decide what sort of machine this is and initialize the MMU.
+  */
+-#ifdef CONFIG_KASAN
+-	bl	kasan_early_init
+-#endif
+ 	mr	r3,r30
+ 	mr	r4,r31
+ 	bl	machine_init
 -- 
 2.20.1
 
