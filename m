@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8511A13F6B9
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:06:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9509D13F6B7
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:06:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730136AbgAPRBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:01:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52648 "EHLO mail.kernel.org"
+        id S2387824AbgAPRBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:01:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388105AbgAPRB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:01:29 -0500
+        id S2387670AbgAPRBc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:01:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25BEF2077B;
-        Thu, 16 Jan 2020 17:01:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 764D324684;
+        Thu, 16 Jan 2020 17:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194088;
-        bh=q6V7gbEyGtHNDb/LxwtSrTQJHi8OJzfFfB5CY+lL4uo=;
+        s=default; t=1579194091;
+        bh=Vgu7OrnRpkJqobvkw4XRI1HavqMpMCUHZK0vAJPiCnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nT0wDggkThsIC5PB19XM3q4SyJfBqiUbVroWVpVaGRFhuez8SiS46aavbJoPM0ciS
-         AtNPE1/j6bwaYfTP7uluuRSgnRLt5iyWrnbrrxtW1vyloH7onxZeDnjsOYQK2p0PDb
-         UrUVFOMonXuhd/z28oNWiaSV6dN1155IQb6erkd8=
+        b=r/TfxilhifLsWhasZBvK8b5B+GKFkjAvdCNndyV3lhxNJpcCD1eLZSaahAPiUcmxW
+         Gs48oZY7f5AxN/v4sQgB7MSPHGCfqCxjEkapHc1x/WKpgLCBm1TUae9/I55mtVmA1z
+         9ac9oPTBqjUn+WMCnLDi5pwL2x4gVbvSbF6HzoGs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 192/671] KVM: PPC: Release all hardware TCE tables attached to a group
-Date:   Thu, 16 Jan 2020 11:51:41 -0500
-Message-Id: <20200116165940.10720-75-sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        John David Anglin <dave.anglin@bell.net>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 194/671] dmaengine: mv_xor: Use correct device for DMA API
+Date:   Thu, 16 Jan 2020 11:51:43 -0500
+Message-Id: <20200116165940.10720-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -44,46 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit a67614cc05a5052b265ea48196dab2fce11f5f2e ]
+[ Upstream commit 3e5daee5ecf314da33a890fabaa2404244cd2a36 ]
 
-The SPAPR TCE KVM device references all hardware IOMMU tables assigned to
-some IOMMU group to ensure that in-kernel KVM acceleration of H_PUT_TCE
-can work. The tables are references when an IOMMU group gets registered
-with the VFIO KVM device by the KVM_DEV_VFIO_GROUP_ADD ioctl;
-KVM_DEV_VFIO_GROUP_DEL calls into the dereferencing code
-in kvm_spapr_tce_release_iommu_group() which walks through the list of
-LIOBNs, finds a matching IOMMU table and calls kref_put() when found.
+Using dma_dev->dev for mappings before it's assigned with the correct
+device is unlikely to work as expected, and with future dma-direct
+changes, passing a NULL device may end up crashing entirely. I don't
+know enough about this hardware or the mv_xor_prep_dma_interrupt()
+operation to implement the appropriate error-handling logic that would
+have revealed those dma_map_single() calls failing on arm64 for as long
+as the driver has been enabled there, but moving the assignment earlier
+will at least make the current code operate as intended.
 
-However that code stops after the very first successful derefencing
-leaving other tables referenced till the SPAPR TCE KVM device is destroyed
-which normally happens on guest reboot or termination so if we do hotplug
-and unplug in a loop, we are leaking IOMMU tables here.
-
-This removes a premature return to let kvm_spapr_tce_release_iommu_group()
-find and dereference all attached tables.
-
-Fixes: 121f80ba68f ("KVM: PPC: VFIO: Add in-kernel acceleration for VFIO")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Fixes: 22843545b200 ("dma: mv_xor: Add support for DMA_INTERRUPT")
+Reported-by: John David Anglin <dave.anglin@bell.net>
+Tested-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Tested-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_64_vio.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/dma/mv_xor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_64_vio.c b/arch/powerpc/kvm/book3s_64_vio.c
-index 65486c3d029b..26b03af71abd 100644
---- a/arch/powerpc/kvm/book3s_64_vio.c
-+++ b/arch/powerpc/kvm/book3s_64_vio.c
-@@ -133,7 +133,6 @@ extern void kvm_spapr_tce_release_iommu_group(struct kvm *kvm,
- 					continue;
+diff --git a/drivers/dma/mv_xor.c b/drivers/dma/mv_xor.c
+index 969534c1a6c6..abc8d3e0487b 100644
+--- a/drivers/dma/mv_xor.c
++++ b/drivers/dma/mv_xor.c
+@@ -1059,6 +1059,7 @@ mv_xor_channel_add(struct mv_xor_device *xordev,
+ 		mv_chan->op_in_desc = XOR_MODE_IN_DESC;
  
- 				kref_put(&stit->kref, kvm_spapr_tce_liobn_put);
--				return;
- 			}
- 		}
- 	}
+ 	dma_dev = &mv_chan->dmadev;
++	dma_dev->dev = &pdev->dev;
+ 	mv_chan->xordev = xordev;
+ 
+ 	/*
+@@ -1091,7 +1092,6 @@ mv_xor_channel_add(struct mv_xor_device *xordev,
+ 	dma_dev->device_free_chan_resources = mv_xor_free_chan_resources;
+ 	dma_dev->device_tx_status = mv_xor_status;
+ 	dma_dev->device_issue_pending = mv_xor_issue_pending;
+-	dma_dev->dev = &pdev->dev;
+ 
+ 	/* set prep routines based on capability */
+ 	if (dma_has_cap(DMA_INTERRUPT, dma_dev->cap_mask))
 -- 
 2.20.1
 
