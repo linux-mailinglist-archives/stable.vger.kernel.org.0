@@ -2,83 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 636C013D0D7
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 01:01:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B591713D138
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 01:42:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729016AbgAPABC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 19:01:02 -0500
-Received: from mx2.suse.de ([195.135.220.15]:42166 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728931AbgAPABC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 19:01:02 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 451B3AD0F;
-        Thu, 16 Jan 2020 00:01:00 +0000 (UTC)
-Subject: Re: [PATCH] bcache: back to cache all readahead I/Os
-To:     Nix <nix@esperi.org.uk>
-Cc:     Eric Wheeler <bcache@lists.ewheeler.net>,
-        linux-bcache@vger.kernel.org, stable@vger.kernel.org
-References: <20200104065802.113137-1-colyli@suse.de>
- <alpine.LRH.2.11.2001062256450.2074@mx.ewheeler.net>
- <87lfqa2p4s.fsf@esperi.org.uk> <5af6593d-b6aa-74a7-0aae-e3c689cebc67@suse.de>
- <875zhc3ncu.fsf@esperi.org.uk>
-From:   Coly Li <colyli@suse.de>
-Organization: SUSE Labs
-Message-ID: <931567a8-a81d-a1cd-c7d8-7c193e61f79d@suse.de>
-Date:   Thu, 16 Jan 2020 08:00:53 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.4.1
+        id S1729585AbgAPAm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Jan 2020 19:42:28 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:36953 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729112AbgAPAm2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Jan 2020 19:42:28 -0500
+Received: by mail-wm1-f67.google.com with SMTP id f129so1979409wmf.2
+        for <stable@vger.kernel.org>; Wed, 15 Jan 2020 16:42:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=4/jstXZmrITObPhJbH2rh8I9wEDPhZEPe6GyHJoj8hY=;
+        b=pWd6LMWcUXUU/aOkgo2eH4PxGxpVX5NtqdukUt9ro263EB9OOuGmll/0qRpOFpSa70
+         qorvd59T6rDnNHSeL0MPb2d2hwOZl+FcYv3PlXvHaig9SPlBvMiezPPY+lmufe1IegL+
+         RLPgY/pnyl8u4v+xsQ7oTijA9YL4OzZCnjs1qSLs4rIib0DvuRbbb1VSmNsXJiFNLTs4
+         UPOkm+2gjmOOPV7FIklgcGIUmU4CZbukjsThPrJjw5T4C40DR7ewr3in9NlEcuAN6tr2
+         +ojVfHBri4bTwjgOdccu/t4djwSOqQ5OYNBFrvuB9VHlMunwrGlNNhwBdGN0sjf4N1/A
+         A8eA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=4/jstXZmrITObPhJbH2rh8I9wEDPhZEPe6GyHJoj8hY=;
+        b=FPMMfzLAWjGT3h2EnqwbrzxsQ4aa+VV5qvpZnW4iwXYP3b79PapkeuJLajqNDflgor
+         ZxbqSSXMOtYHjO+uxP1ECgiHEiX5UCH7bnKPqUEBUqK9zkfBTEsCXCVaqUQpbXoY9jFd
+         Hy1dXzvFWdQRBXs0GRm9ZRddIm2MMz1I+aY347xNhN/4xBq+5UaaI07xn5kgkBJzi89T
+         vmvJSZ99w/juGV7zyU3Lkr8cIsqc/bD8fAuVJDSdwt2PyIDYi6H6ej19hqFx6IjBSzLg
+         tAFwfhRdkbE7+LAaiAjCKDYTB95WAct3C8J41qJYRbSXgXz7JrWYPmEfnYHzaopnRlLd
+         /pUg==
+X-Gm-Message-State: APjAAAWUFaeD3jEUURNEUt/0QTvP1vR1tUbniXWlLWskon2BApA7wOyu
+        Se37fSp4gnTrMOn5n5lj8drjREyyFTdi3Q==
+X-Google-Smtp-Source: APXvYqxf+k9Yn4Hq53Xakiszxk+g2QNCH9GDxJ5/pPaJHk2ZkJlNdU3k0uh4BeWR3IHD4YXooo8XGw==
+X-Received: by 2002:a1c:44d5:: with SMTP id r204mr3018028wma.122.1579135346317;
+        Wed, 15 Jan 2020 16:42:26 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c15sm26638868wrt.1.2020.01.15.16.42.25
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jan 2020 16:42:25 -0800 (PST)
+Message-ID: <5e1fb171.1c69fb81.b90be.fb64@mx.google.com>
+Date:   Wed, 15 Jan 2020 16:42:25 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <875zhc3ncu.fsf@esperi.org.uk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.165-20-g241f53838006
+Subject: stable-rc/linux-4.14.y boot: 73 boots: 0 failed,
+ 72 passed with 1 untried/unknown (v4.14.165-20-g241f53838006)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/1/15 8:39 下午, Nix wrote:
-> On 15 Jan 2020, Coly Li stated:
-> 
->> I have two reports offline and directly to me, one is from an email
->> address of github and forwarded to me by Jens, one is from a China local
->> storage startup.
->>
->> The first report complains the desktop-pc benchmark is about 50% down
->> and the root cause is located on commit b41c9b0 ("bcache: update
->> bio->bi_opf bypass/writeback REQ_ flag hints").
->>
->> The second report complains their small file workload (mixed read and
->> write) has around 20%+ performance drop and the suspicious change is
->> also focused on the readahead restriction.
->>
->> The second reporter verifies this patch and confirms the performance
->> issue has gone. I don't know who is the first report so no response so far.
-> 
-> Hah! OK, looks like readahead is frequently-enough useful that caching
-> it is better than not caching it :) I guess the problem is that if you
-> don't cache it, it never gets cached at all even if it was useful, so
-> the next time round you'll end up having to readahead it again :/
-> 
+stable-rc/linux-4.14.y boot: 73 boots: 0 failed, 72 passed with 1 untried/u=
+nknown (v4.14.165-20-g241f53838006)
 
-Yes, this is the problem. The bypassed data won't have chance to go into
-cache always.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.165-20-g241f53838006/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.165-20-g241f53838006/
 
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.165-20-g241f53838006
+Git Commit: 241f5383800698b5f3921253c06ee80dcf4b5945
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 41 unique boards, 13 SoC families, 12 builds out of 201
 
-> One wonders what effect this will have on a bcache-atop-RAID: will we
-> end up caching whole stripes most of the time?
-> 
+Boot Regressions Detected:
 
-In my I/O pressure testing, I have a raid0 backing device assembled by 3
-SSDs. From my observation, the whole stripe size won't be cached for
-small read/write requests. The stripe size alignment is handled in md
-raid layer, even md returns bio which stays in a stripe size memory
-chunk, bcache only takes bi_size part for its I/O.
+arm:
 
-Thanks.
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.14.164-41-g04f13b8f=
+773f)
 
--- 
-
-Coly Li
+---
+For more info write to <info@kernelci.org>
