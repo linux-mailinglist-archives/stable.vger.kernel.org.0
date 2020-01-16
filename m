@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A62A13E265
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:56:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE38D13E274
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:56:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732981AbgAPQzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:55:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40860 "EHLO mail.kernel.org"
+        id S1733170AbgAPQ4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:56:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728890AbgAPQzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:55:32 -0500
+        id S1733163AbgAPQ4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:56:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F33152467C;
-        Thu, 16 Jan 2020 16:55:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 008C524685;
+        Thu, 16 Jan 2020 16:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193731;
-        bh=eq4V5fWRWUv3qEIk4JJVlBSpyfCfuRrIIjYJ1RW9xb0=;
+        s=default; t=1579193767;
+        bh=/tTxODoMqPU5hdKg3Zt9fsCQnbAlVRox+DNsy3jrUkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qrqzuh17heWZLcRbrZSplidfpuKusQH8UV6gya78hxuY0H5LbyzTmPsSZjLYmE0FC
-         zJGFcpfxXC91TQZ5YEPVvnFq5kN3j3eRdggS3NK7pYIRjs5ZmbQ9GtnIu5ZQL6QD/X
-         yzQnu1SwVY9XeK4AWL2M7w5KfkY2E8WsCGSs+obQ=
+        b=gvcvru5hLLxWxBU7NzD4QR7gPjS0HjBwL5b190pLmWlhhBBJZfeCntDjhDd9gY9p2
+         fmo5wNDksNAZmUqU2+sEBg0hu2bvp7xAJftwXca9Rk2COgolB2Qmk27qS2umv8neoJ
+         RLP1hrRmkEV4qRzJDuotAXvhR475Vrf8TUwDXhcA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 024/671] cfg80211: regulatory: make initialization more robust
-Date:   Thu, 16 Jan 2020 11:44:15 -0500
-Message-Id: <20200116165502.8838-24-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 052/671] exportfs: fix 'passing zero to ERR_PTR()' warning
+Date:   Thu, 16 Jan 2020 11:44:43 -0500
+Message-Id: <20200116165502.8838-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -43,42 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 71e5e886806ee3f8e0c44ed945eb2e4d6659c6e3 ]
+[ Upstream commit 909e22e05353a783c526829427e9a8de122fba9c ]
 
-Since my change to split out the regulatory init to occur later,
-any issues during earlier cfg80211_init() or errors during the
-platform device allocation would lead to crashes later. Make this
-more robust by checking that the earlier initialization succeeded.
+Fix a static code checker warning:
+  fs/exportfs/expfs.c:171 reconnect_one() warn: passing zero to 'ERR_PTR'
 
-Fixes: d7be102f2945 ("cfg80211: initialize regulatory keys/database later")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+The error path for lookup_one_len_unlocked failure
+should set err to PTR_ERR.
+
+Fixes: bbf7a8a3562f ("exportfs: move most of reconnect_path to helper function")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/exportfs/expfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 64841238df85..5643bdee7198 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -3870,6 +3870,15 @@ static int __init regulatory_init_db(void)
- {
- 	int err;
- 
-+	/*
-+	 * It's possible that - due to other bugs/issues - cfg80211
-+	 * never called regulatory_init() below, or that it failed;
-+	 * in that case, don't try to do any further work here as
-+	 * it's doomed to lead to crashes.
-+	 */
-+	if (IS_ERR_OR_NULL(reg_pdev))
-+		return -EINVAL;
-+
- 	err = load_builtin_regdb_keys();
- 	if (err)
- 		return err;
+diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
+index 808cae6d5f50..ae3248326c44 100644
+--- a/fs/exportfs/expfs.c
++++ b/fs/exportfs/expfs.c
+@@ -147,6 +147,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
+ 	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
+ 	if (IS_ERR(tmp)) {
+ 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
++		err = PTR_ERR(tmp);
+ 		goto out_err;
+ 	}
+ 	if (tmp != dentry) {
 -- 
 2.20.1
 
