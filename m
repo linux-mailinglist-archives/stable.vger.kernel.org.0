@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0329513F019
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C04913F01C
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404099AbgAPR2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:28:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38762 "EHLO mail.kernel.org"
+        id S2404133AbgAPR2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:28:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404089AbgAPR2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:28:06 -0500
+        id S2404126AbgAPR2L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:28:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D051246F2;
-        Thu, 16 Jan 2020 17:28:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D18B8246D7;
+        Thu, 16 Jan 2020 17:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195685;
-        bh=5Hqvj1d0sGbjAeExLTLRYC4kjmNKiEF1Y0ULRa5GIMs=;
+        s=default; t=1579195691;
+        bh=YLN8h777Z8NE3Opm/rAY2aVdzAenJ+dIpl9mHFPoMCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SrnmIbOvbVZliZjEAbZeOmhQzTZPX+7/+9iw8RgVvB90mtpeleYIuoQ+afoSRcQrH
-         YRlU5gqCUblkjASIOg4a3AKcG6gHUlvFD14sg8xOXUAvAEl0LJizHzXffVFOmWCYVq
-         7Ye+HGLuBg0Pu9/7RY8xOJ+8943uJIDup+XMfTxg=
+        b=u0U+kzd2oK3yFao6ie/nB48mJh7DfFjgvo3Mn6OuYAuRzdX/sBmHtr3lzAa0xiCfW
+         BMG5uCt7AcUFI4O/fUwyvbHuKMkWX/3Xns8975E67I1W+c0bgMeCipZIgQfnV13iCx
+         sw7pyXawcKaNSlGAswjzc8T0kkaHRKMcv6WWVfRk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 238/371] dmaengine: hsu: Revert "set HSU_CH_MTSR to memory width"
-Date:   Thu, 16 Jan 2020 12:21:50 -0500
-Message-Id: <20200116172403.18149-181-sashal@kernel.org>
+Cc:     Michael Chan <michael.chan@broadcom.com>,
+        Somasundaram Krishnasamy <somasundaram.krishnasamy@oracle.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 241/371] bnxt_en: Fix ethtool selftest crash under error conditions.
+Date:   Thu, 16 Jan 2020 12:21:53 -0500
+Message-Id: <20200116172403.18149-184-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -43,49 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit c24a5c735f87d0549060de31367c095e8810b895 ]
+[ Upstream commit d27e2ca1166aefd54d9c48fb6647dee8115a5dfc ]
 
-The commit
+After ethtool loopback packet tests, we re-open the nic for the next
+IRQ test.  If the open fails, we must not proceed with the IRQ test
+or we will crash with NULL pointer dereference.  Fix it by checking
+the bnxt_open_nic() return code before proceeding.
 
-  080edf75d337 ("dmaengine: hsu: set HSU_CH_MTSR to memory width")
-
-has been mistakenly submitted. The further investigations show that
-the original code does better job since the memory side transfer size
-has never been configured by DMA users.
-
-As per latest revision of documentation: "Channel minimum transfer size
-(CHnMTSR)... For IOSF UART, maximum value that can be programmed is 64 and
-minimum value that can be programmed is 1."
-
-This reverts commit 080edf75d337d35faa6fc3df99342b10d2848d16.
-
-Fixes: 080edf75d337 ("dmaengine: hsu: set HSU_CH_MTSR to memory width")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: Somasundaram Krishnasamy <somasundaram.krishnasamy@oracle.com>
+Fixes: 67fea463fd87 ("bnxt_en: Add interrupt test to ethtool -t selftest.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/hsu/hsu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/hsu/hsu.c b/drivers/dma/hsu/hsu.c
-index 29d04ca71d52..15525a2b8ebd 100644
---- a/drivers/dma/hsu/hsu.c
-+++ b/drivers/dma/hsu/hsu.c
-@@ -64,10 +64,10 @@ static void hsu_dma_chan_start(struct hsu_dma_chan *hsuc)
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index fc8e185718a1..963beaa8fabb 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -2463,7 +2463,7 @@ static void bnxt_self_test(struct net_device *dev, struct ethtool_test *etest,
+ 	bool offline = false;
+ 	u8 test_results = 0;
+ 	u8 test_mask = 0;
+-	int rc, i;
++	int rc = 0, i;
  
- 	if (hsuc->direction == DMA_MEM_TO_DEV) {
- 		bsr = config->dst_maxburst;
--		mtsr = config->src_addr_width;
-+		mtsr = config->dst_addr_width;
- 	} else if (hsuc->direction == DMA_DEV_TO_MEM) {
- 		bsr = config->src_maxburst;
--		mtsr = config->dst_addr_width;
-+		mtsr = config->src_addr_width;
+ 	if (!bp->num_tests || !BNXT_SINGLE_PF(bp))
+ 		return;
+@@ -2521,9 +2521,9 @@ static void bnxt_self_test(struct net_device *dev, struct ethtool_test *etest,
+ 		}
+ 		bnxt_hwrm_phy_loopback(bp, false);
+ 		bnxt_half_close_nic(bp);
+-		bnxt_open_nic(bp, false, true);
++		rc = bnxt_open_nic(bp, false, true);
  	}
- 
- 	hsu_chan_disable(hsuc);
+-	if (bnxt_test_irq(bp)) {
++	if (rc || bnxt_test_irq(bp)) {
+ 		buf[BNXT_IRQ_TEST_IDX] = 1;
+ 		etest->flags |= ETH_TEST_FL_FAILED;
+ 	}
 -- 
 2.20.1
 
