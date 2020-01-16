@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A1DD13F693
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:05:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF1D13F690
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:05:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390716AbgAPTFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:05:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
+        id S2388220AbgAPRB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:01:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388205AbgAPRBw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:01:52 -0500
+        id S1733180AbgAPRBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:01:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4D572077B;
-        Thu, 16 Jan 2020 17:01:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02CEE21582;
+        Thu, 16 Jan 2020 17:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194112;
-        bh=Z2cuzGhZiehtPD1idTVQTGEo+8cKbQOQw5EZSqU/6p8=;
+        s=default; t=1579194114;
+        bh=YQ/Hcyv+U1F9awMquJDtHPpWKxuAbPdy3YF5Mp56J9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cvkf8g/Jf9nahiWs20GCq8XhmNpUal342cHqsHNNudCqL7E8j2QJojaI/7NOgKua/
-         0ckbGBtr2/G4i0h6MPKiIZyHETqbXo1hxuSGsAVyKYXwSBs/dJ6ASNWJS3ntzewmpw
-         AWmEmweFzcTRrJZwrUsIVylPxqMXUN6Gl+vl7oL8=
+        b=okHWbA6wXlGlsJ4rqusMjuzWgrtmD2JPeVrc6MGyVmdRYcbtPmJ+GY7DrkzIlgxuF
+         EI7B+PMmDs3wkQ1kGJSNCt/rMMJsHhoao5qzitdMofd+QXXXVoL4z0I8EobcrcnL6w
+         TdqjHTloCOr9O9n8MnMsKO2+QCW7MMrICWYch4vE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 208/671] fs/nfs: Fix nfs_parse_devname to not modify it's argument
-Date:   Thu, 16 Jan 2020 11:51:57 -0500
-Message-Id: <20200116165940.10720-91-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Andrew Donnellan <andrew.donnellan@au1.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 210/671] powerpc/64s: Fix logic when handling unknown CPU features
+Date:   Thu, 16 Jan 2020 11:51:59 -0500
+Message-Id: <20200116165940.10720-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,36 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 40cc394be1aa18848b8757e03bd8ed23281f572e ]
+[ Upstream commit 8cfaf106918a8c13abb24c641556172afbb9545c ]
 
-In the rare and unsupported case of a hostname list nfs_parse_devname
-will modify dev_name.  There is no need to modify dev_name as the all
-that is being computed is the length of the hostname, so the computed
-length can just be shorted.
+In cpufeatures_process_feature(), if a provided CPU feature is unknown and
+enable_unknown is false, we erroneously print that the feature is being
+enabled and return true, even though no feature has been enabled, and
+may also set feature bits based on the last entry in the match table.
 
-Fixes: dc04589827f7 ("NFS: Use common device name parsing logic for NFSv4 and NFSv2/v3")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fix this so that we only set feature bits from the match table if we have
+actually enabled a feature from that table, and when failing to enable an
+unknown feature, always print the "not enabling" message and return false.
+
+Coincidentally, some older gccs (<GCC 7), when invoked with
+-fsanitize-coverage=trace-pc, cause a spurious uninitialised variable
+warning in this function:
+
+  arch/powerpc/kernel/dt_cpu_ftrs.c: In function ‘cpufeatures_process_feature’:
+  arch/powerpc/kernel/dt_cpu_ftrs.c:686:7: warning: ‘m’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+    if (m->cpu_ftr_bit_mask)
+
+An upcoming patch will enable support for kcov, which requires this option.
+This patch avoids the warning.
+
+Fixes: 5a61ef74f269 ("powerpc/64s: Support new device tree binding for discovering CPU features")
+Reported-by: Segher Boessenkool <segher@kernel.crashing.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+[ajd: add commit message]
+Signed-off-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/dt_cpu_ftrs.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index d90efdea9fbd..5db7aceb4190 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -1930,7 +1930,7 @@ static int nfs_parse_devname(const char *dev_name,
- 		/* kill possible hostname list: not supported */
- 		comma = strchr(dev_name, ',');
- 		if (comma != NULL && comma < end)
--			*comma = 0;
-+			len = comma - dev_name;
+diff --git a/arch/powerpc/kernel/dt_cpu_ftrs.c b/arch/powerpc/kernel/dt_cpu_ftrs.c
+index c6f41907f0d7..a4b31e17492d 100644
+--- a/arch/powerpc/kernel/dt_cpu_ftrs.c
++++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
+@@ -666,8 +666,10 @@ static bool __init cpufeatures_process_feature(struct dt_cpu_feature *f)
+ 		m = &dt_cpu_feature_match_table[i];
+ 		if (!strcmp(f->name, m->name)) {
+ 			known = true;
+-			if (m->enable(f))
++			if (m->enable(f)) {
++				cur_cpu_spec->cpu_features |= m->cpu_ftr_bit_mask;
+ 				break;
++			}
+ 
+ 			pr_info("not enabling: %s (disabled or unsupported by kernel)\n",
+ 				f->name);
+@@ -675,17 +677,12 @@ static bool __init cpufeatures_process_feature(struct dt_cpu_feature *f)
+ 		}
  	}
  
- 	if (len > maxnamlen)
+-	if (!known && enable_unknown) {
+-		if (!feat_try_enable_unknown(f)) {
+-			pr_info("not enabling: %s (unknown and unsupported by kernel)\n",
+-				f->name);
+-			return false;
+-		}
++	if (!known && (!enable_unknown || !feat_try_enable_unknown(f))) {
++		pr_info("not enabling: %s (unknown and unsupported by kernel)\n",
++			f->name);
++		return false;
+ 	}
+ 
+-	if (m->cpu_ftr_bit_mask)
+-		cur_cpu_spec->cpu_features |= m->cpu_ftr_bit_mask;
+-
+ 	if (known)
+ 		pr_debug("enabling: %s\n", f->name);
+ 	else
 -- 
 2.20.1
 
