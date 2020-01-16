@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE38D13E274
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:56:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3B113E27E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733170AbgAPQ4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:56:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42154 "EHLO mail.kernel.org"
+        id S1733238AbgAPQ42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:56:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733163AbgAPQ4I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:56:08 -0500
+        id S1732442AbgAPQ41 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:56:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 008C524685;
-        Thu, 16 Jan 2020 16:56:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8CF921582;
+        Thu, 16 Jan 2020 16:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193767;
-        bh=/tTxODoMqPU5hdKg3Zt9fsCQnbAlVRox+DNsy3jrUkc=;
+        s=default; t=1579193786;
+        bh=pVwNJTS267s0DwV6idTs9NtxVWaFw9mF8KkJysJqDvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvcvru5hLLxWxBU7NzD4QR7gPjS0HjBwL5b190pLmWlhhBBJZfeCntDjhDd9gY9p2
-         fmo5wNDksNAZmUqU2+sEBg0hu2bvp7xAJftwXca9Rk2COgolB2Qmk27qS2umv8neoJ
-         RLP1hrRmkEV4qRzJDuotAXvhR475Vrf8TUwDXhcA=
+        b=P3I23oJqFonzSqTR4u02vV9BYK+W8zgb9ZrVXg3IoPeuGcK5Q7+8sMYqKQ1i5ag4X
+         0UfImHgNus9qt3ATlKMuyGZbw4deQ9ffU4zsNY/r4xs2hVREiCONX7FIudUkn7QzIp
+         Vik8fBeVeanLYBX5dNavym+r0tfLjj/Ogt1GlPUo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 052/671] exportfs: fix 'passing zero to ERR_PTR()' warning
-Date:   Thu, 16 Jan 2020 11:44:43 -0500
-Message-Id: <20200116165502.8838-52-sashal@kernel.org>
+Cc:     Yuval Shaia <yuval.shaia@oracle.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Zhu Yanjun <yanjun.zhu@oracle.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 062/671] IB/rxe: Fix incorrect cache cleanup in error flow
+Date:   Thu, 16 Jan 2020 11:44:53 -0500
+Message-Id: <20200116165502.8838-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -43,36 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Yuval Shaia <yuval.shaia@oracle.com>
 
-[ Upstream commit 909e22e05353a783c526829427e9a8de122fba9c ]
+[ Upstream commit 6db21d8986e14e2e86573a3b055b05296188bd2c ]
 
-Fix a static code checker warning:
-  fs/exportfs/expfs.c:171 reconnect_one() warn: passing zero to 'ERR_PTR'
+Array iterator stays at the same slot, fix it.
 
-The error path for lookup_one_len_unlocked failure
-should set err to PTR_ERR.
-
-Fixes: bbf7a8a3562f ("exportfs: move most of reconnect_path to helper function")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Signed-off-by: Yuval Shaia <yuval.shaia@oracle.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Zhu Yanjun <yanjun.zhu@oracle.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exportfs/expfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/sw/rxe/rxe_pool.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
-index 808cae6d5f50..ae3248326c44 100644
---- a/fs/exportfs/expfs.c
-+++ b/fs/exportfs/expfs.c
-@@ -147,6 +147,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
- 	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
- 	if (IS_ERR(tmp)) {
- 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
-+		err = PTR_ERR(tmp);
- 		goto out_err;
- 	}
- 	if (tmp != dentry) {
+diff --git a/drivers/infiniband/sw/rxe/rxe_pool.c b/drivers/infiniband/sw/rxe/rxe_pool.c
+index b4a8acc7bb7d..0e2425f28233 100644
+--- a/drivers/infiniband/sw/rxe/rxe_pool.c
++++ b/drivers/infiniband/sw/rxe/rxe_pool.c
+@@ -112,6 +112,18 @@ static inline struct kmem_cache *pool_cache(struct rxe_pool *pool)
+ 	return rxe_type_info[pool->type].cache;
+ }
+ 
++static void rxe_cache_clean(size_t cnt)
++{
++	int i;
++	struct rxe_type_info *type;
++
++	for (i = 0; i < cnt; i++) {
++		type = &rxe_type_info[i];
++		kmem_cache_destroy(type->cache);
++		type->cache = NULL;
++	}
++}
++
+ int rxe_cache_init(void)
+ {
+ 	int err;
+@@ -136,24 +148,14 @@ int rxe_cache_init(void)
+ 	return 0;
+ 
+ err1:
+-	while (--i >= 0) {
+-		kmem_cache_destroy(type->cache);
+-		type->cache = NULL;
+-	}
++	rxe_cache_clean(i);
+ 
+ 	return err;
+ }
+ 
+ void rxe_cache_exit(void)
+ {
+-	int i;
+-	struct rxe_type_info *type;
+-
+-	for (i = 0; i < RXE_NUM_TYPES; i++) {
+-		type = &rxe_type_info[i];
+-		kmem_cache_destroy(type->cache);
+-		type->cache = NULL;
+-	}
++	rxe_cache_clean(RXE_NUM_TYPES);
+ }
+ 
+ static int rxe_pool_init_index(struct rxe_pool *pool, u32 max, u32 min)
 -- 
 2.20.1
 
