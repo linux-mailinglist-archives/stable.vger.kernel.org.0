@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47D3013ED12
+	by mail.lfdr.de (Postfix) with ESMTP id C7C3813ED13
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:01:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405746AbgAPRlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:41:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59264 "EHLO mail.kernel.org"
+        id S2405757AbgAPRlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:41:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405739AbgAPRlg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:41:36 -0500
+        id S2405741AbgAPRlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:41:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5D7124724;
-        Thu, 16 Jan 2020 17:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9AF424695;
+        Thu, 16 Jan 2020 17:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196495;
-        bh=lqrIGMuhw2YUdZMNtbC+hPhbBIxoi+KdmiQHRp4jedg=;
+        s=default; t=1579196496;
+        bh=mUsGVvXWUExxBpgzFf9xPdpr/JUVswy0UAwmXfmLFk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g9jQsq3oUg98Ms9bAlSSyZT8Oq914S6Dp5Rsba9Mj4AlRb7UahjKvqGg0XBM4lTGg
-         wMngyNGbV6QeCxY4CTD7B3lXS/qRFrQVUqKGChcN/ktmZUwFQludX9U216hVHtfrWB
-         uBekmljBfm07mk1b6tZpu5w59sN8/x9dqgWg6RVE=
+        b=CVxDVAzPLHoQ+sTz3P3kDcC0k7GoY8VsNk4FsKnWXl4uJaEBg3mI0EXHGXCh448ci
+         9DP0GTU+uIXqbHGwjUzuHfO+i3P1stcIiLlYeUocjbzmg1gpuHUkoaJnFWIcNxk55D
+         WSkYltvH2LqycNz//Axq68DfT/+Tff2Ex2w433XY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.9 238/251] f2fs: fix potential overflow
-Date:   Thu, 16 Jan 2020 12:36:27 -0500
-Message-Id: <20200116173641.22137-198-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 239/251] packet: fix data-race in fanout_flow_is_huge()
+Date:   Thu, 16 Jan 2020 12:36:28 -0500
+Message-Id: <20200116173641.22137-199-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -43,59 +44,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit a9af3fdcc4258af406879eca63d82e9d6baa892e ]
+[ Upstream commit b756ad928d98e5ef0b74af7546a6a31a8dadde00 ]
 
-In build_sit_entries(), if valid_blocks in SIT block is smaller than
-valid_blocks in journal, for below calculation:
+KCSAN reported the following data-race [1]
 
-sbi->discard_blks += old_valid_blocks - se->valid_blocks;
+Adding a couple of READ_ONCE()/WRITE_ONCE() should silence it.
 
-There will be two times potential overflow:
-- old_valid_blocks - se->valid_blocks will overflow, and be a very
-large number.
-- sbi->discard_blks += result will overflow again, comes out a correct
-result accidently.
+Since the report hinted about multiple cpus using the history
+concurrently, I added a test avoiding writing on it if the
+victim slot already contains the desired value.
 
-Anyway, it should be fixed.
+[1]
 
-Fixes: d600af236da5 ("f2fs: avoid unneeded loop in build_sit_entries")
-Fixes: 1f43e2ad7bff ("f2fs: introduce CP_TRIMMED_FLAG to avoid unneeded discard")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+BUG: KCSAN: data-race in fanout_demux_rollover / fanout_demux_rollover
+
+read to 0xffff8880b01786cc of 4 bytes by task 18921 on cpu 1:
+ fanout_flow_is_huge net/packet/af_packet.c:1303 [inline]
+ fanout_demux_rollover+0x33e/0x3f0 net/packet/af_packet.c:1353
+ packet_rcv_fanout+0x34e/0x490 net/packet/af_packet.c:1453
+ deliver_skb net/core/dev.c:1888 [inline]
+ dev_queue_xmit_nit+0x15b/0x540 net/core/dev.c:1958
+ xmit_one net/core/dev.c:3195 [inline]
+ dev_hard_start_xmit+0x3f5/0x430 net/core/dev.c:3215
+ __dev_queue_xmit+0x14ab/0x1b40 net/core/dev.c:3792
+ dev_queue_xmit+0x21/0x30 net/core/dev.c:3825
+ neigh_direct_output+0x1f/0x30 net/core/neighbour.c:1530
+ neigh_output include/net/neighbour.h:511 [inline]
+ ip6_finish_output2+0x7a2/0xec0 net/ipv6/ip6_output.c:116
+ __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
+ __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
+ ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
+ dst_output include/net/dst.h:436 [inline]
+ ip6_local_out+0x74/0x90 net/ipv6/output_core.c:179
+ ip6_send_skb+0x53/0x110 net/ipv6/ip6_output.c:1795
+ udp_v6_send_skb.isra.0+0x3ec/0xa70 net/ipv6/udp.c:1173
+ udpv6_sendmsg+0x1906/0x1c20 net/ipv6/udp.c:1471
+ inet6_sendmsg+0x6d/0x90 net/ipv6/af_inet6.c:576
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0x9f/0xc0 net/socket.c:657
+ ___sys_sendmsg+0x2b7/0x5d0 net/socket.c:2311
+ __sys_sendmmsg+0x123/0x350 net/socket.c:2413
+ __do_sys_sendmmsg net/socket.c:2442 [inline]
+ __se_sys_sendmmsg net/socket.c:2439 [inline]
+ __x64_sys_sendmmsg+0x64/0x80 net/socket.c:2439
+ do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+write to 0xffff8880b01786cc of 4 bytes by task 18922 on cpu 0:
+ fanout_flow_is_huge net/packet/af_packet.c:1306 [inline]
+ fanout_demux_rollover+0x3a4/0x3f0 net/packet/af_packet.c:1353
+ packet_rcv_fanout+0x34e/0x490 net/packet/af_packet.c:1453
+ deliver_skb net/core/dev.c:1888 [inline]
+ dev_queue_xmit_nit+0x15b/0x540 net/core/dev.c:1958
+ xmit_one net/core/dev.c:3195 [inline]
+ dev_hard_start_xmit+0x3f5/0x430 net/core/dev.c:3215
+ __dev_queue_xmit+0x14ab/0x1b40 net/core/dev.c:3792
+ dev_queue_xmit+0x21/0x30 net/core/dev.c:3825
+ neigh_direct_output+0x1f/0x30 net/core/neighbour.c:1530
+ neigh_output include/net/neighbour.h:511 [inline]
+ ip6_finish_output2+0x7a2/0xec0 net/ipv6/ip6_output.c:116
+ __ip6_finish_output net/ipv6/ip6_output.c:142 [inline]
+ __ip6_finish_output+0x2d7/0x330 net/ipv6/ip6_output.c:127
+ ip6_finish_output+0x41/0x160 net/ipv6/ip6_output.c:152
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip6_output+0xf2/0x280 net/ipv6/ip6_output.c:175
+ dst_output include/net/dst.h:436 [inline]
+ ip6_local_out+0x74/0x90 net/ipv6/output_core.c:179
+ ip6_send_skb+0x53/0x110 net/ipv6/ip6_output.c:1795
+ udp_v6_send_skb.isra.0+0x3ec/0xa70 net/ipv6/udp.c:1173
+ udpv6_sendmsg+0x1906/0x1c20 net/ipv6/udp.c:1471
+ inet6_sendmsg+0x6d/0x90 net/ipv6/af_inet6.c:576
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0x9f/0xc0 net/socket.c:657
+ ___sys_sendmsg+0x2b7/0x5d0 net/socket.c:2311
+ __sys_sendmmsg+0x123/0x350 net/socket.c:2413
+ __do_sys_sendmmsg net/socket.c:2442 [inline]
+ __se_sys_sendmmsg net/socket.c:2439 [inline]
+ __x64_sys_sendmmsg+0x64/0x80 net/socket.c:2439
+ do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 18922 Comm: syz-executor.3 Not tainted 5.4.0-rc6+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 3b3a5b0aab5b ("packet: rollover huge flows before small flows")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c | 2 +-
- fs/f2fs/file.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/packet/af_packet.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 0206c8c20784..b2cccd4083b8 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -1267,7 +1267,7 @@ static int f2fs_write_data_page(struct page *page,
- 	loff_t i_size = i_size_read(inode);
- 	const pgoff_t end_index = ((unsigned long long) i_size)
- 							>> PAGE_SHIFT;
--	loff_t psize = (page->index + 1) << PAGE_SHIFT;
-+	loff_t psize = (loff_t)(page->index + 1) << PAGE_SHIFT;
- 	unsigned offset = 0;
- 	bool need_balance_fs = false;
- 	int err = 0;
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index f46ac1651bd5..e3c438c8b8ce 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -980,7 +980,7 @@ static int __clone_blkaddrs(struct inode *src_inode, struct inode *dst_inode,
- 				}
- 				dn.ofs_in_node++;
- 				i++;
--				new_size = (dst + i) << PAGE_SHIFT;
-+				new_size = (loff_t)(dst + i) << PAGE_SHIFT;
- 				if (dst_inode->i_size < new_size)
- 					f2fs_i_size_write(dst_inode, new_size);
- 			} while (--ilen && (do_replace[i] || blkaddr[i] == NULL_ADDR));
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 47a862cc7b34..fb643945e424 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1332,15 +1332,21 @@ static void packet_sock_destruct(struct sock *sk)
+ 
+ static bool fanout_flow_is_huge(struct packet_sock *po, struct sk_buff *skb)
+ {
+-	u32 rxhash;
++	u32 *history = po->rollover->history;
++	u32 victim, rxhash;
+ 	int i, count = 0;
+ 
+ 	rxhash = skb_get_hash(skb);
+ 	for (i = 0; i < ROLLOVER_HLEN; i++)
+-		if (po->rollover->history[i] == rxhash)
++		if (READ_ONCE(history[i]) == rxhash)
+ 			count++;
+ 
+-	po->rollover->history[prandom_u32() % ROLLOVER_HLEN] = rxhash;
++	victim = prandom_u32() % ROLLOVER_HLEN;
++
++	/* Avoid dirtying the cache line if possible */
++	if (READ_ONCE(history[victim]) != rxhash)
++		WRITE_ONCE(history[victim], rxhash);
++
+ 	return count > (ROLLOVER_HLEN >> 1);
+ }
+ 
 -- 
 2.20.1
 
