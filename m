@@ -2,78 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4804E13D2FB
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 05:03:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A99513D438
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 07:21:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730385AbgAPED1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Jan 2020 23:03:27 -0500
-Received: from mga06.intel.com ([134.134.136.31]:37789 "EHLO mga06.intel.com"
+        id S1730241AbgAPGVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 01:21:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729110AbgAPED1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Jan 2020 23:03:27 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 Jan 2020 20:03:26 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,324,1574150400"; 
-   d="scan'208";a="273859959"
-Received: from tassilo.jf.intel.com (HELO tassilo.localdomain) ([10.7.201.21])
-  by FMSMGA003.fm.intel.com with ESMTP; 15 Jan 2020 20:03:25 -0800
-Received: by tassilo.localdomain (Postfix, from userid 1000)
-        id 08F56301003; Wed, 15 Jan 2020 20:03:25 -0800 (PST)
-Date:   Wed, 15 Jan 2020 20:03:24 -0800
-From:   Andi Kleen <ak@linux.intel.com>
-To:     Kim Phillips <kim.phillips@amd.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Babu Moger <babu.moger@amd.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Frank van der Linden <fllinden@amazon.com>,
-        "H . Peter Anvin" <hpa@zytor.com>, Huang Rui <ray.huang@amd.com>,
-        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Luwei Kang <luwei.kang@intel.com>,
-        Martin =?utf-8?B?TGnFoWth?= <mliska@suse.cz>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] x86/cpu/amd: Enable the fixed intructions retired
- free counter IRPERF
-Message-ID: <20200116040324.GI302770@tassilo.jf.intel.com>
-References: <20200115205646.10678-1-kim.phillips@amd.com>
- <20200115205646.10678-2-kim.phillips@amd.com>
+        id S1725768AbgAPGVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 01:21:33 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7632520728;
+        Thu, 16 Jan 2020 06:21:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579155692;
+        bh=fMhT46q4PoSd5jFYY6QltFeELTTAVrDbliwfAO7u8vU=;
+        h=Subject:To:From:Date:From;
+        b=iT+CBwXgdAMAy/A1v88nPOZC2z+/fOvN9MoagiuZPku5cEGRBr0uSoRO8l65TnAAj
+         6F87m+IUYjG548w7z8dlXwRaUWMCBXuPsJ+j9ctFuXdfrCavzqIxcnvKgFqubgm+f3
+         oXXfSp/d87Va8dPfWMah5HZ4GfK64HqZVByPmoRQ=
+Subject: patch "staging: wlan-ng: ensure error return is actually returned" added to staging-next
+To:     colin.king@canonical.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 16 Jan 2020 07:20:45 +0100
+Message-ID: <157915564513941@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200115205646.10678-2-kim.phillips@amd.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> +	if (cpu_has(c, X86_FEATURE_IRPERF) &&
-> +	    !(c->x86 == 0x17 && c->x86_model <= 0x1f))
 
-Such checks are normally through a x86_pmu lag or possibly a X86_BUG_* flag
+This is a note to let you know that I've just added the patch titled
 
-> +		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
->  }
->  
->  #ifdef CONFIG_X86_32
-> -- 
-> 2.24.1
-> 
+    staging: wlan-ng: ensure error return is actually returned
+
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 4cc41cbce536876678b35e03c4a8a7bb72c78fa9 Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@canonical.com>
+Date: Tue, 14 Jan 2020 18:16:04 +0000
+Subject: staging: wlan-ng: ensure error return is actually returned
+
+Currently when the call to prism2sta_ifst fails a netdev_err error
+is reported, error return variable result is set to -1 but the
+function always returns 0 for success.  Fix this by returning
+the error value in variable result rather than 0.
+
+Addresses-Coverity: ("Unused value")
+Fixes: 00b3ed168508 ("Staging: add wlan-ng prism2 usb driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200114181604.390235-1-colin.king@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/wlan-ng/prism2mgmt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/wlan-ng/prism2mgmt.c b/drivers/staging/wlan-ng/prism2mgmt.c
+index 7350fe5d96a3..a8860d2aee68 100644
+--- a/drivers/staging/wlan-ng/prism2mgmt.c
++++ b/drivers/staging/wlan-ng/prism2mgmt.c
+@@ -959,7 +959,7 @@ int prism2mgmt_flashdl_state(struct wlandevice *wlandev, void *msgp)
+ 		}
+ 	}
+ 
+-	return 0;
++	return result;
+ }
+ 
+ /*----------------------------------------------------------------
+-- 
+2.25.0
+
+
