@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5249C13F656
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:03:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8999613F62D
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388893AbgAPTD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:03:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33560 "EHLO mail.kernel.org"
+        id S2388544AbgAPRFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:05:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387697AbgAPRFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:05:12 -0500
+        id S2388532AbgAPRFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:05:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9B522077B;
-        Thu, 16 Jan 2020 17:05:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99D6620730;
+        Thu, 16 Jan 2020 17:05:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194311;
-        bh=qYzyfsKwX5P/PuWJpfC14glwxT+idLXapD5N8g1prvE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ND1YA85D+Ir14Xc2EjSui0jo0qJr4xassAjsjhWKhmaagrUocLAqVI42WqgXpN6uV
-         wXLrM4zQVsN5HkkmvEWwNUhtKAUDKWNQgfogMxaR1FMw3ZdH9PNggP3PgVwoDIHOCA
-         G6Xj4ncZ+0C98nBbGaPajzSxGfk4qj6Fz3kjgI/o=
+        s=default; t=1579194313;
+        bh=5krxYgAKq1c2WAFa6tfchIcxl6hb4JIJxjkgyH6US3k=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=06GQyUsjP8DDy/dEZtX9FtmsSaerQQg+4qArwcjHYFgCWfnLAOOhVgRohFJtljmJH
+         yA4lrbaX1HOCOz1PCupMMjBhe8bgKCH5BvhJvqnZItCaYnua65dyFMSBbqdlQnEEzj
+         gG7sO2lVhRcCw/y23ajhktb1a6Dir9wKayroMFM8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Lad Prabhakar <prabhakar.csengg@gmail.com>,
+Cc:     YueHaibing <yuehaibing@huawei.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 264/671] media: davinci-isif: avoid uninitialized variable use
-Date:   Thu, 16 Jan 2020 11:58:22 -0500
-Message-Id: <20200116170509.12787-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 265/671] media: tw5864: Fix possible NULL pointer dereference in tw5864_handle_frame
+Date:   Thu, 16 Jan 2020 11:58:23 -0500
+Message-Id: <20200116170509.12787-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
+References: <20200116170509.12787-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,76 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 0e633f97162c1c74c68e2eb20bbd9259dce87cd9 ]
+[ Upstream commit 2e7682ebfc750177a4944eeb56e97a3f05734528 ]
 
-clang warns about a possible variable use that gcc never
-complained about:
+'vb' null check should be done before dereferencing it in
+tw5864_handle_frame, otherwise a NULL pointer dereference
+may occur.
 
-drivers/media/platform/davinci/isif.c:982:32: error: variable 'frame_size' is uninitialized when used here
-      [-Werror,-Wuninitialized]
-                dm365_vpss_set_pg_frame_size(frame_size);
-                                             ^~~~~~~~~~
-drivers/media/platform/davinci/isif.c:887:2: note: variable 'frame_size' is declared here
-        struct vpss_pg_frame_size frame_size;
-        ^
-1 error generated.
+Fixes: 34d1324edd31 ("[media] pci: Add tw5864 driver")
 
-There is no initialization for this variable at all, and there
-has never been one in the mainline kernel, so we really should
-not put that stack data into an mmio register.
-
-On the other hand, I suspect that gcc checks the condition
-more closely and notices that the global
-isif_cfg.bayer.config_params.test_pat_gen flag is initialized
-to zero and never written to from any code path, so anything
-depending on it can be eliminated.
-
-To shut up the clang warning, just remove the dead code manually,
-it has probably never been used because any attempt to do so
-would have resulted in undefined behavior.
-
-Fixes: 63e3ab142fa3 ("V4L/DVB: V4L - vpfe capture - source for ISIF driver on DM365")
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/davinci/isif.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/media/pci/tw5864/tw5864-video.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/davinci/isif.c b/drivers/media/platform/davinci/isif.c
-index 340f8218f54d..80fa60a4c448 100644
---- a/drivers/media/platform/davinci/isif.c
-+++ b/drivers/media/platform/davinci/isif.c
-@@ -884,9 +884,7 @@ static int isif_set_hw_if_params(struct vpfe_hw_if_param *params)
- static int isif_config_ycbcr(void)
- {
- 	struct isif_ycbcr_config *params = &isif_cfg.ycbcr;
--	struct vpss_pg_frame_size frame_size;
- 	u32 modeset = 0, ccdcfg = 0;
--	struct vpss_sync_pol sync;
+diff --git a/drivers/media/pci/tw5864/tw5864-video.c b/drivers/media/pci/tw5864/tw5864-video.c
+index ff2b7da90c08..6c40e60ac993 100644
+--- a/drivers/media/pci/tw5864/tw5864-video.c
++++ b/drivers/media/pci/tw5864/tw5864-video.c
+@@ -1395,13 +1395,13 @@ static void tw5864_handle_frame(struct tw5864_h264_frame *frame)
+ 	input->vb = NULL;
+ 	spin_unlock_irqrestore(&input->slock, flags);
  
- 	dev_dbg(isif_cfg.dev, "\nStarting isif_config_ycbcr...");
+-	v4l2_buf = to_vb2_v4l2_buffer(&vb->vb.vb2_buf);
+-
+ 	if (!vb) { /* Gone because of disabling */
+ 		dev_dbg(&dev->pci->dev, "vb is empty, dropping frame\n");
+ 		return;
+ 	}
  
-@@ -974,13 +972,6 @@ static int isif_config_ycbcr(void)
- 		/* two fields are interleaved in memory */
- 		regw(0x00000249, SDOFST);
- 
--	/* Setup test pattern if enabled */
--	if (isif_cfg.bayer.config_params.test_pat_gen) {
--		sync.ccdpg_hdpol = params->hd_pol;
--		sync.ccdpg_vdpol = params->vd_pol;
--		dm365_vpss_set_sync_pol(sync);
--		dm365_vpss_set_pg_frame_size(frame_size);
--	}
- 	return 0;
- }
- 
++	v4l2_buf = to_vb2_v4l2_buffer(&vb->vb.vb2_buf);
++
+ 	/*
+ 	 * Check for space.
+ 	 * Mind the overhead of startcode emulation prevention.
 -- 
 2.20.1
 
