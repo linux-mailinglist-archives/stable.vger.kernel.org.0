@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 428D913F47B
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:50:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D389613F470
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:50:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389153AbgAPSuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:50:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44616 "EHLO mail.kernel.org"
+        id S2389637AbgAPRJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:09:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389629AbgAPRJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:09:13 -0500
+        id S2389635AbgAPRJP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33A1D2467A;
-        Thu, 16 Jan 2020 17:09:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7217021D56;
+        Thu, 16 Jan 2020 17:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194553;
-        bh=Ohe283Voqpzg5Cv1z/zQlCanRENtJcAkqcgCz5p5Q0A=;
+        s=default; t=1579194554;
+        bh=Kqk6fl6f5LB8HMHeUsBnSkg3ZQMA6NTi9LKibYodp1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LHM6rAyorKpVzQQxjrurv4Ks0hO9IEBx6/0meZgyUgf0vfzvTuo0ZpHKsSJm4X541
-         ZGNlySHb4+4SOmTxgDPhubTH34dKGys8uzly/4JgVtifERLjD5ViPmlNATBcAp404w
-         37/6HgXMUG3StWKBKtsQvdmPpX560RYKKs8K2mYo=
+        b=aAbdnb4yE2Pz6f4szPh27+ZCQM3txynKywa5dHxd4APcz1TkUBqdNhSkB5jVRe4Xj
+         8N1w6Y1OjTlcePvhA6SrNNvVampeozlxJvWZvCcKkr/X3o06kOdJS9kCBp7zeeYWTz
+         C6mQanpOAnMcFsrUCISIAO866Ab3mVCQ7U0Y9lFo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bryan O'Donoghue <pure.logic@nexus-software.ie>,
@@ -31,9 +31,9 @@ Cc:     Bryan O'Donoghue <pure.logic@nexus-software.ie>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 435/671] nvmem: imx-ocotp: Ensure WAIT bits are preserved when setting timing
-Date:   Thu, 16 Jan 2020 12:01:13 -0500
-Message-Id: <20200116170509.12787-172-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 436/671] nvmem: imx-ocotp: Change TIMING calculation to u-boot algorithm
+Date:   Thu, 16 Jan 2020 12:01:14 -0500
+Message-Id: <20200116170509.12787-173-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -48,43 +48,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
 
-[ Upstream commit 0493c4792b4eb260441e57f52cc11a9ded48b5a7 ]
+[ Upstream commit 159dbaf57b2f4f67ecb59b2c87d071e45ed41d7e ]
 
-The i.MX6 and i.MX8 both have a bit-field spanning bits 27:22 called the
-WAIT field.
+The RELAX field of the OCOTP block is turning out as a zero on i.MX8MM.
+This messes up the subsequent re-load of the fuse shadow registers.
 
-The WAIT field according to the documentation for both parts "specifies
-time interval between auto read and write access in one time program. It is
-given in number of ipg_clk periods."
+After some discussion with people @ NXP its clear we have missed a trick
+here in Linux.
 
-This patch ensures that the relevant field is read and written back to the
-timing register.
+The OCOTP fuse programming time has a physical minimum 'burn time' that is
+not related to the ipg_clk.
+
+We need to define the RELAX, STROBE_READ and STROBE_PROG fields in terms of
+desired timings to allow for the burn-in to safely complete. Right now only
+the RELAX field is calculated in terms of an absolute time and we are
+ending up with a value of zero.
+
+This patch inherits the u-boot timings for the OCOTP_TIMING calculation on
+the i.MX6 and i.MX8. Those timings are known to work and critically specify
+values such as STROBE_PROG as a minimum timing.
 
 Fixes: 0642bac7da42 ("nvmem: imx-ocotp: add write support")
 
 Signed-off-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Suggested-by: Leonard Crestez <leonard.crestez@nxp.com>
 Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/imx-ocotp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nvmem/imx-ocotp.c | 36 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 32 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/nvmem/imx-ocotp.c b/drivers/nvmem/imx-ocotp.c
-index 926d9cc080cf..04421a73f74a 100644
+index 04421a73f74a..09281aca86c2 100644
 --- a/drivers/nvmem/imx-ocotp.c
 +++ b/drivers/nvmem/imx-ocotp.c
-@@ -189,7 +189,8 @@ static void imx_ocotp_set_imx6_timing(struct ocotp_priv *priv)
- 	strobe_prog = clk_rate / (1000000000 / 10000) + 2 * (DEF_RELAX + 1) - 1;
- 	strobe_read = clk_rate / (1000000000 / 40) + 2 * (DEF_RELAX + 1) - 1;
+@@ -50,7 +50,9 @@
+ #define IMX_OCOTP_BM_CTRL_ERROR		0x00000200
+ #define IMX_OCOTP_BM_CTRL_REL_SHADOWS	0x00000400
  
--	timing = strobe_prog & 0x00000FFF;
-+	timing = readl(priv->base + IMX_OCOTP_ADDR_TIMING) & 0x0FC00000;
-+	timing |= strobe_prog & 0x00000FFF;
- 	timing |= (relax       << 12) & 0x0000F000;
- 	timing |= (strobe_read << 16) & 0x003F0000;
+-#define DEF_RELAX			20	/* > 16.5ns */
++#define TIMING_STROBE_PROG_US		10	/* Min time to blow a fuse */
++#define TIMING_STROBE_READ_NS		37	/* Min time before read */
++#define TIMING_RELAX_NS			17
+ #define DEF_FSOURCE			1001	/* > 1000 ns */
+ #define DEF_STROBE_PROG			10000	/* IPG clocks */
+ #define IMX_OCOTP_WR_UNLOCK		0x3E770000
+@@ -182,12 +184,38 @@ static void imx_ocotp_set_imx6_timing(struct ocotp_priv *priv)
+ 	 * fields with timing values to match the current frequency of the
+ 	 * ipg_clk. OTP writes will work at maximum bus frequencies as long
+ 	 * as the HW_OCOTP_TIMING parameters are set correctly.
++	 *
++	 * Note: there are minimum timings required to ensure an OTP fuse burns
++	 * correctly that are independent of the ipg_clk. Those values are not
++	 * formally documented anywhere however, working from the minimum
++	 * timings given in u-boot we can say:
++	 *
++	 * - Minimum STROBE_PROG time is 10 microseconds. Intuitively 10
++	 *   microseconds feels about right as representative of a minimum time
++	 *   to physically burn out a fuse.
++	 *
++	 * - Minimum STROBE_READ i.e. the time to wait post OTP fuse burn before
++	 *   performing another read is 37 nanoseconds
++	 *
++	 * - Minimum RELAX timing is 17 nanoseconds. This final RELAX minimum
++	 *   timing is not entirely clear the documentation says "This
++	 *   count value specifies the time to add to all default timing
++	 *   parameters other than the Tpgm and Trd. It is given in number
++	 *   of ipg_clk periods." where Tpgm and Trd refer to STROBE_PROG
++	 *   and STROBE_READ respectively. What the other timing parameters
++	 *   are though, is not specified. Experience shows a zero RELAX
++	 *   value will mess up a re-load of the shadow registers post OTP
++	 *   burn.
+ 	 */
+ 	clk_rate = clk_get_rate(priv->clk);
  
+-	relax = clk_rate / (1000000000 / DEF_RELAX) - 1;
+-	strobe_prog = clk_rate / (1000000000 / 10000) + 2 * (DEF_RELAX + 1) - 1;
+-	strobe_read = clk_rate / (1000000000 / 40) + 2 * (DEF_RELAX + 1) - 1;
++	relax = DIV_ROUND_UP(clk_rate * TIMING_RELAX_NS, 1000000000) - 1;
++	strobe_read = DIV_ROUND_UP(clk_rate * TIMING_STROBE_READ_NS,
++				   1000000000);
++	strobe_read += 2 * (relax + 1) - 1;
++	strobe_prog = DIV_ROUND_CLOSEST(clk_rate * TIMING_STROBE_PROG_US,
++					1000000);
++	strobe_prog += 2 * (relax + 1) - 1;
+ 
+ 	timing = readl(priv->base + IMX_OCOTP_ADDR_TIMING) & 0x0FC00000;
+ 	timing |= strobe_prog & 0x00000FFF;
 -- 
 2.20.1
 
