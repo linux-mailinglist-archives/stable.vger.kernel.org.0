@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35B2C13F5D9
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:59:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7DD513F5D8
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:59:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388943AbgAPRGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:06:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36690 "EHLO mail.kernel.org"
+        id S2388143AbgAPRGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:06:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388936AbgAPRGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:06:30 -0500
+        id S2388940AbgAPRGb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:06:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A96F21582;
-        Thu, 16 Jan 2020 17:06:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BB8720730;
+        Thu, 16 Jan 2020 17:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194389;
-        bh=4W8VS8IETV5SxqetcRr+1EcIZttD2EodDWDUmxYf8kM=;
+        s=default; t=1579194390;
+        bh=oUxuQepRUEKu++HXwriPcKSaTS7OHkGAGIHwak+Ax6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gnw4XYdIAmyeUpSg3M4VAi0D51WU2VD+oZKWLxAY7zUfwL34FfHxcp5KIlTJ86Ww
-         /RsMEEKPoxitVDkjaCJvm3t7TQvd1zlsDzCKWiIyB3HAoDgBgdzNcrdLyzL9DXSKBF
-         ce0bcUXOBP+71uwtD8jVccGtbAvLz3ExeImkXr90=
+        b=0XCbY8I9s+R+h5p8ABvc63bdeSbDpGO66YFThwrvm1KjqL7oW0eOAeNQbWQe+EabW
+         8tcCLeGlNEWr1O6sUwXmb7qYuicwWqIdoL/017uP503orzmQXBDMbyiny+FZk7KaMb
+         d/hs2zpJLqKXLQXvj6JNARLioI8Sakl0zu2mNs8g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bart Van Assche <bvanassche@acm.org>,
@@ -30,9 +30,9 @@ Cc:     Bart Van Assche <bvanassche@acm.org>,
         Giridhar Malavali <gmalavali@marvell.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 317/671] scsi: qla2xxx: Fix error handling in qlt_alloc_qfull_cmd()
-Date:   Thu, 16 Jan 2020 11:59:15 -0500
-Message-Id: <20200116170509.12787-54-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 318/671] scsi: qla2xxx: Avoid that qlt_send_resp_ctio() corrupts memory
+Date:   Thu, 16 Jan 2020 11:59:16 -0500
+Message-Id: <20200116170509.12787-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -47,48 +47,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit c04466c17142d5eb566984372b9a5003d1900fe3 ]
+[ Upstream commit a861b49273578e255426a499842cf7f465456351 ]
 
-The test "if (!cmd)" is not useful because it is guaranteed that cmd !=
-NULL.  Instead of testing the cmd pointer, rely on the tag to decide
-whether or not command allocation failed.
+The "(&ctio->u.status1.sense_data)[i]" where i >= 0 expressions in
+qlt_send_resp_ctio() are probably typos and should have been
+"(&ctio->u.status1.sense_data[4 * i])" instead. Instead of only fixing
+these typos, modify the code for storing sense data such that it becomes
+easy to read. This patch fixes a Coverity complaint about accessing an
+array outside its bounds.
 
 Cc: Himanshu Madhani <hmadhani@marvell.com>
 Cc: Giridhar Malavali <gmalavali@marvell.com>
-Fixes: 33e799775593 ("qla2xxx: Add support for QFull throttling and Term Exchange retry") # v3.18.
+Fixes: be25152c0d9e ("qla2xxx: Improve T10-DIF/PI handling in driver.") # v4.11.
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Acked-by: Himanshu Madhani <hmadhani@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/scsi/qla2xxx/qla_target.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index bbbe1996620b..c925ca787537 100644
+index c925ca787537..95206e227730 100644
 --- a/drivers/scsi/qla2xxx/qla_target.c
 +++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -5334,11 +5334,7 @@ qlt_alloc_qfull_cmd(struct scsi_qla_host *vha,
- 	se_sess = sess->se_sess;
+@@ -2233,14 +2233,14 @@ void qlt_send_resp_ctio(struct qla_qpair *qpair, struct qla_tgt_cmd *cmd,
+ 		ctio->u.status1.scsi_status |=
+ 		    cpu_to_le16(SS_RESIDUAL_UNDER);
  
- 	tag = sbitmap_queue_get(&se_sess->sess_tag_pool, &cpu);
--	if (tag < 0)
--		return;
--
--	cmd = &((struct qla_tgt_cmd *)se_sess->sess_cmd_map)[tag];
--	if (!cmd) {
-+	if (tag < 0) {
- 		ql_dbg(ql_dbg_io, vha, 0x3009,
- 			"qla_target(%d): %s: Allocation of cmd failed\n",
- 			vha->vp_idx, __func__);
-@@ -5353,6 +5349,7 @@ qlt_alloc_qfull_cmd(struct scsi_qla_host *vha,
- 		return;
- 	}
+-	/* Response code and sense key */
+-	put_unaligned_le32(((0x70 << 24) | (sense_key << 8)),
+-	    (&ctio->u.status1.sense_data)[0]);
++	/* Fixed format sense data. */
++	ctio->u.status1.sense_data[0] = 0x70;
++	ctio->u.status1.sense_data[2] = sense_key;
+ 	/* Additional sense length */
+-	put_unaligned_le32(0x0a, (&ctio->u.status1.sense_data)[1]);
++	ctio->u.status1.sense_data[7] = 0xa;
+ 	/* ASC and ASCQ */
+-	put_unaligned_le32(((asc << 24) | (ascq << 16)),
+-	    (&ctio->u.status1.sense_data)[3]);
++	ctio->u.status1.sense_data[12] = asc;
++	ctio->u.status1.sense_data[13] = ascq;
  
-+	cmd = &((struct qla_tgt_cmd *)se_sess->sess_cmd_map)[tag];
- 	memset(cmd, 0, sizeof(struct qla_tgt_cmd));
- 
- 	qlt_incr_num_pend_cmds(vha);
+ 	/* Memory Barrier */
+ 	wmb();
 -- 
 2.20.1
 
