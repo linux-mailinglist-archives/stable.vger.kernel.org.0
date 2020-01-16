@@ -2,34 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B3513DC47
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 14:45:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B936613DC59
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 14:50:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726160AbgAPNpN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 08:45:13 -0500
-Received: from mga14.intel.com ([192.55.52.115]:37809 "EHLO mga14.intel.com"
+        id S1729134AbgAPNtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 08:49:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726151AbgAPNpN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 08:45:13 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 Jan 2020 05:45:12 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,326,1574150400"; 
-   d="scan'208";a="425538251"
-Received: from mdanino-mobl1.ger.corp.intel.com (HELO localhost.localdomain) ([10.252.23.174])
-  by fmsmga006.fm.intel.com with ESMTP; 16 Jan 2020 05:45:11 -0800
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-To:     Intel-gfx@lists.freedesktop.org
-Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
-Subject: [PATCH v2] drm/i915: Align engine->uabi_class/instance with i915_drm.h
-Date:   Thu, 16 Jan 2020 13:45:08 +0000
-Message-Id: <20200116134508.25211-1-tvrtko.ursulin@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200115152437.13207-1-tvrtko.ursulin@linux.intel.com>
-References: <20200115152437.13207-1-tvrtko.ursulin@linux.intel.com>
+        id S1726958AbgAPNtC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 08:49:02 -0500
+Received: from quaco.ghostprotocols.net (unknown [179.97.37.151])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0E042176D;
+        Thu, 16 Jan 2020 13:48:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579182542;
+        bh=4eDnCeywUXMSgK8wvLJsYC/uQhHp4VylsmBVXwZoQf0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jTDjUicL4UijwvdmqNiKtpbXr4w4+lPhez6O77TQeezieIT5C4GPrOOMpOAn+vwGe
+         Ziv0CiTWIwldTl3wTfWWl7AILWXbR61tOHPciTVzlHgOX85c2iC5za8bqvDxxbDKv2
+         eLmLW4KJHViSZDzT1AUmvd1IAbwv8t5ctRHXbEdg=
+From:   Arnaldo Carvalho de Melo <acme@kernel.org>
+To:     Ingo Molnar <mingo@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
+        Clark Williams <williams@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        Andres Freund <andres@anarazel.de>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 11/12] perf c2c: Fix return type for histogram sorting comparision functions
+Date:   Thu, 16 Jan 2020 10:48:13 -0300
+Message-Id: <20200116134814.8811-12-acme@kernel.org>
+X-Mailer: git-send-email 2.21.1
+In-Reply-To: <20200116134814.8811-1-acme@kernel.org>
+References: <20200116134814.8811-1-acme@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -37,102 +49,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+From: Andres Freund <andres@anarazel.de>
 
-In our ABI we have defined I915_ENGINE_CLASS_INVALID_NONE and
-I915_ENGINE_CLASS_INVALID_VIRTUAL as negative values which creates
-implicit coupling with type widths used in, also ABI, struct
-i915_engine_class_instance.
+Commit 722ddfde366f ("perf tools: Fix time sorting") changed - correctly
+so - hist_entry__sort to return int64. Unfortunately several of the
+builtin-c2c.c comparison routines only happened to work due the cast
+caused by the wrong return type.
 
-One place where we export engine->uabi_class
-I915_ENGINE_CLASS_INVALID_VIRTUAL is from our our tracepoints. Because the
-type of the former is u8 in contrast to u16 defined in the ABI, 254 will
-be returned instead of 65534 which userspace would legitimately expect.
+This causes meaningless ordering of both the cacheline list, and the
+cacheline details page. E.g a simple:
 
-Another place is I915_CONTEXT_PARAM_ENGINES.
+  perf c2c record -a sleep 3
+  perf c2c report
 
-Therefore we need to align the type used to store engine ABI class and
-instance.
+will result in cacheline table like
+  =================================================
+             Shared Data Cache Line Table
+  =================================================
+  #
+  #        ------- Cacheline ----------    Total     Tot  - LLC Load Hitm -  - Store Reference -  - Load Dram -     LLC  Total  - Core Load Hit -  - LLC Load Hit -
+  # Index         Address  Node  PA cnt  records    Hitm  Total  Lcl    Rmt  Total  L1Hit  L1Miss     Lcl   Rmt  Ld Miss  Loads    FB    L1   L2     Llc      Rmt
+  # .....  ..............  ....  ......  .......  ......  .....  .....  ...  ....   .....  ......  ......  ....  ......   .....  .....  ..... ...  ....     .......
 
-v2:
- * Update the commit message mentioning get_engines and cc stable.
-   (Chris)
+        0  0x7f0d27ffba00   N/A       0       52   0.12%     13      6    7    12      12       0       0     7      14      40      4     16    0    0           0
+        1  0x7f0d27ff61c0   N/A       0     6353  14.04%   1475    801  674   779     779       0       0   718    1392    5574   1299   1967    0  115           0
+        2  0x7f0d26d3ec80   N/A       0       71   0.15%     16      4   12    13      13       0       0    12      24      58      1     20    0    9           0
+        3  0x7f0d26d3ec00   N/A       0       98   0.22%     23     17    6    19      19       0       0     6      12      79      0     40    0   10           0
 
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Fixes: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: <stable@vger.kernel.org> # v5.3+
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+i.e. with the list not being ordered by Total Hitm.
+
+Fixes: 722ddfde366f ("perf tools: Fix time sorting")
+Signed-off-by: Andres Freund <andres@anarazel.de>
+Tested-by: Michael Petlan <mpetlan@redhat.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org # v3.16+
+Link: http://lore.kernel.org/lkml/20200109043030.233746-1-andres@anarazel.de
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_busy.c     | 12 ++++++------
- drivers/gpu/drm/i915/gt/intel_engine_types.h |  4 ++--
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ tools/perf/builtin-c2c.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_busy.c b/drivers/gpu/drm/i915/gem/i915_gem_busy.c
-index 3d4f5775a4ba..25235ef630c1 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_busy.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_busy.c
-@@ -9,16 +9,16 @@
- #include "i915_gem_ioctls.h"
- #include "i915_gem_object.h"
- 
--static __always_inline u32 __busy_read_flag(u8 id)
-+static __always_inline u32 __busy_read_flag(u16 id)
+diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
+index 346351260c0b..246ac0b4d54f 100644
+--- a/tools/perf/builtin-c2c.c
++++ b/tools/perf/builtin-c2c.c
+@@ -595,8 +595,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
  {
--	if (id == (u8)I915_ENGINE_CLASS_INVALID)
-+	if (id == (u16)I915_ENGINE_CLASS_INVALID)
- 		return 0xffff0000u;
+ 	struct c2c_hist_entry *c2c_left;
+ 	struct c2c_hist_entry *c2c_right;
+-	unsigned int tot_hitm_left;
+-	unsigned int tot_hitm_right;
++	uint64_t tot_hitm_left;
++	uint64_t tot_hitm_right;
  
- 	GEM_BUG_ON(id >= 16);
- 	return 0x10000u << id;
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);
+@@ -629,7 +629,8 @@ __f ## _cmp(struct perf_hpp_fmt *fmt __maybe_unused,			\
+ 									\
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);	\
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);	\
+-	return c2c_left->stats.__f - c2c_right->stats.__f;		\
++	return (uint64_t) c2c_left->stats.__f -				\
++	       (uint64_t) c2c_right->stats.__f;				\
  }
  
--static __always_inline u32 __busy_write_id(u8 id)
-+static __always_inline u32 __busy_write_id(u16 id)
- {
- 	/*
- 	 * The uABI guarantees an active writer is also amongst the read
-@@ -29,14 +29,14 @@ static __always_inline u32 __busy_write_id(u8 id)
- 	 * last_read - hence we always set both read and write busy for
- 	 * last_write.
- 	 */
--	if (id == (u8)I915_ENGINE_CLASS_INVALID)
-+	if (id == (u16)I915_ENGINE_CLASS_INVALID)
- 		return 0xffffffffu;
+ #define STAT_FN(__f)		\
+@@ -682,7 +683,8 @@ ld_llcmiss_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
+ 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
+ 	c2c_right = container_of(right, struct c2c_hist_entry, he);
  
- 	return (id + 1) | __busy_read_flag(id);
+-	return llc_miss(&c2c_left->stats) - llc_miss(&c2c_right->stats);
++	return (uint64_t) llc_miss(&c2c_left->stats) -
++	       (uint64_t) llc_miss(&c2c_right->stats);
  }
  
- static __always_inline unsigned int
--__busy_set_if_active(const struct dma_fence *fence, u32 (*flag)(u8 id))
-+__busy_set_if_active(const struct dma_fence *fence, u32 (*flag)(u16 id))
- {
- 	const struct i915_request *rq;
- 
-@@ -57,7 +57,7 @@ __busy_set_if_active(const struct dma_fence *fence, u32 (*flag)(u8 id))
- 		return 0;
- 
- 	/* Beware type-expansion follies! */
--	BUILD_BUG_ON(!typecheck(u8, rq->engine->uabi_class));
-+	BUILD_BUG_ON(!typecheck(u16, rq->engine->uabi_class));
- 	return flag(rq->engine->uabi_class);
- }
- 
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-index 00287515e7af..350da59e605b 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-@@ -278,8 +278,8 @@ struct intel_engine_cs {
- 	u8 class;
- 	u8 instance;
- 
--	u8 uabi_class;
--	u8 uabi_instance;
-+	u16 uabi_class;
-+	u16 uabi_instance;
- 
- 	u32 uabi_capabilities;
- 	u32 context_size;
+ static uint64_t total_records(struct c2c_stats *stats)
 -- 
-2.20.1
+2.21.1
 
