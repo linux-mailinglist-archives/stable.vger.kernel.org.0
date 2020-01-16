@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6635513F1BD
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E85AF13F1B5
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:31:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392059AbgAPSay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:30:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33292 "EHLO mail.kernel.org"
+        id S2391753AbgAPSae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:30:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391963AbgAPRZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:30 -0500
+        id S2391990AbgAPRZb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E93BB246CE;
-        Thu, 16 Jan 2020 17:25:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CB47246DC;
+        Thu, 16 Jan 2020 17:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195529;
-        bh=0JFl9aWLKC71Gk5dPOObiZY7H/47oVRdIQLA7yf0cs4=;
+        s=default; t=1579195531;
+        bh=USVgftlGwiLXXi5/H+/NWK1w91iAaWxgSLPLjyHHRn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FviwH3H3OFQ06PSTaJucZHh0sP2n1fl75sdNfZOoygxhIe/UNXHJ1BNOEjihqk3G7
-         IS+1YDFQaSvpVPhcM5H0AYR89Xp1ecQ6sRsKWgEsqm9wHyKufzGZqSfpIogjVZM1FG
-         nLxQX8l6+Q3uRRdFvF6TdFz4YqJNS2os/nwYCuSg=
+        b=iCtmNUd5wmY/ESVpu5SoLK8QS0X2M3wZDf+x0Wd3rpdSxw5HqC6Hkyv386Gotn4We
+         RKCdYzOyI/vyghcKf4ZYdgGEskN+8Qu6J0ESAfygW36C0iAOfgWdOMUh+RbGSAkxem
+         ro5i/+LFyQnBTsSCPV4+Q7DtXObX4ZFl/UFSCGnk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 4.14 125/371] regulator: wm831x-dcdc: Fix list of wm831x_dcdc_ilim from mA to uA
-Date:   Thu, 16 Jan 2020 12:19:57 -0500
-Message-Id: <20200116172403.18149-68-sashal@kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 126/371] netfilter: nft_set_hash: fix lookups with fixed size hash on big endian
+Date:   Thu, 16 Jan 2020 12:19:58 -0500
+Message-Id: <20200116172403.18149-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,38 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit c25d47888f0fb3d836d68322d4aea2caf31a75a6 ]
+[ Upstream commit 3b02b0adc242a72b5e46019b6a9e4f84823592f6 ]
 
-The wm831x_dcdc_ilim entries needs to be uA because it is used to compare
-with min_uA and max_uA.
-While at it also make the array const and change to use unsigned int.
+Call jhash_1word() for the 4-bytes key case from the insertion and
+deactivation path, otherwise big endian arch set lookups fail.
 
-Fixes: e4ee831f949a ("regulator: Add WM831x DC-DC buck convertor support")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 446a8268b7f5 ("netfilter: nft_set_hash: add lookup variant for fixed size hashtable")
+Reported-by: Florian Westphal <fw@strlen.de>
+Tested-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/wm831x-dcdc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nft_set_hash.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/regulator/wm831x-dcdc.c b/drivers/regulator/wm831x-dcdc.c
-index 5a5bc4bb08d2..df591435d12a 100644
---- a/drivers/regulator/wm831x-dcdc.c
-+++ b/drivers/regulator/wm831x-dcdc.c
-@@ -327,8 +327,8 @@ static int wm831x_buckv_get_voltage_sel(struct regulator_dev *rdev)
+diff --git a/net/netfilter/nft_set_hash.c b/net/netfilter/nft_set_hash.c
+index 33aa2ac3a62e..73f8f99b1193 100644
+--- a/net/netfilter/nft_set_hash.c
++++ b/net/netfilter/nft_set_hash.c
+@@ -442,6 +442,23 @@ static bool nft_hash_lookup_fast(const struct net *net,
+ 	return false;
  }
  
- /* Current limit options */
--static u16 wm831x_dcdc_ilim[] = {
--	125, 250, 375, 500, 625, 750, 875, 1000
-+static const unsigned int wm831x_dcdc_ilim[] = {
-+	125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000
- };
++static u32 nft_jhash(const struct nft_set *set, const struct nft_hash *priv,
++		     const struct nft_set_ext *ext)
++{
++	const struct nft_data *key = nft_set_ext_key(ext);
++	u32 hash, k1;
++
++	if (set->klen == 4) {
++		k1 = *(u32 *)key;
++		hash = jhash_1word(k1, priv->seed);
++	} else {
++		hash = jhash(key, set->klen, priv->seed);
++	}
++	hash = reciprocal_scale(hash, priv->buckets);
++
++	return hash;
++}
++
+ static int nft_hash_insert(const struct net *net, const struct nft_set *set,
+ 			   const struct nft_set_elem *elem,
+ 			   struct nft_set_ext **ext)
+@@ -451,8 +468,7 @@ static int nft_hash_insert(const struct net *net, const struct nft_set *set,
+ 	u8 genmask = nft_genmask_next(net);
+ 	u32 hash;
  
- static int wm831x_buckv_set_current_limit(struct regulator_dev *rdev,
+-	hash = jhash(nft_set_ext_key(&this->ext), set->klen, priv->seed);
+-	hash = reciprocal_scale(hash, priv->buckets);
++	hash = nft_jhash(set, priv, &this->ext);
+ 	hlist_for_each_entry(he, &priv->table[hash], node) {
+ 		if (!memcmp(nft_set_ext_key(&this->ext),
+ 			    nft_set_ext_key(&he->ext), set->klen) &&
+@@ -491,8 +507,7 @@ static void *nft_hash_deactivate(const struct net *net,
+ 	u8 genmask = nft_genmask_next(net);
+ 	u32 hash;
+ 
+-	hash = jhash(nft_set_ext_key(&this->ext), set->klen, priv->seed);
+-	hash = reciprocal_scale(hash, priv->buckets);
++	hash = nft_jhash(set, priv, &this->ext);
+ 	hlist_for_each_entry(he, &priv->table[hash], node) {
+ 		if (!memcmp(nft_set_ext_key(&this->ext), &elem->key.val,
+ 			    set->klen) ||
 -- 
 2.20.1
 
