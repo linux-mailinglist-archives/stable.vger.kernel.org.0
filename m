@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5209713F484
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:50:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9018F13F47F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:50:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389629AbgAPSuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:50:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44254 "EHLO mail.kernel.org"
+        id S2389623AbgAPRJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:09:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389259AbgAPRJH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:09:07 -0500
+        id S2389592AbgAPRJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F3C5217F4;
-        Thu, 16 Jan 2020 17:09:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 945C42467C;
+        Thu, 16 Jan 2020 17:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194547;
-        bh=+FFA+G3tdJcrZvilavAYlGhlcqAn30vwrIjSwb1Q3/I=;
+        s=default; t=1579194550;
+        bh=pnGhygOX4JqLJYH3+6P61ZFc3qssG4FVfSiYvbA+iaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LlrqPvhuYB7w8CKqmliz5ujcV3kVFN601TdQxJDYDvxlf1GviztcrNxnJeaeV993J
-         zj7Twia11u0HWH1fxG7rQ6o2II2sHkxBmuDANh8JG2eLYLFci8lLhM8PKmeaPtlFlw
-         vNFfx4Sc2GLQ4r1vzpXZNWxiIUjrkJKlSpmjXGN4=
+        b=VjDJq7TeirYXqCXbYqzPa7pVjQzMhyRVra4br05d6XS+vMc0xN2PbomUeDYDIFYnX
+         7tbMOUeV37LFXOpUyf801BOiL8x/HzATD8Jr7CLnraLLl66P7zlwGdp7JiaztzHk+k
+         iEhgTM+YeYtoWCOW/MDiOuT+8X1iJudMK4jfaWag=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefano Brivio <sbrivio@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 431/671] ip6_fib: Don't discard nodes with valid routing information in fib6_locate_1()
-Date:   Thu, 16 Jan 2020 12:01:09 -0500
-Message-Id: <20200116170509.12787-168-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 433/671] dmaengine: hsu: Revert "set HSU_CH_MTSR to memory width"
+Date:   Thu, 16 Jan 2020 12:01:11 -0500
+Message-Id: <20200116170509.12787-170-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -43,60 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Brivio <sbrivio@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 40cb35d5dc04e7f89cbc7b1fc9b4b48d9f1e5343 ]
+[ Upstream commit c24a5c735f87d0549060de31367c095e8810b895 ]
 
-When we perform an inexact match on FIB nodes via fib6_locate_1(), longer
-prefixes will be preferred to shorter ones. However, it might happen that
-a node, with higher fn_bit value than some other, has no valid routing
-information.
+The commit
 
-In this case, we'll pick that node, but it will be discarded by the check
-on RTN_RTINFO in fib6_locate(), and we might miss nodes with valid routing
-information but with lower fn_bit value.
+  080edf75d337 ("dmaengine: hsu: set HSU_CH_MTSR to memory width")
 
-This is apparent when a routing exception is created for a default route:
- # ip -6 route list
- fc00:1::/64 dev veth_A-R1 proto kernel metric 256 pref medium
- fc00:2::/64 dev veth_A-R2 proto kernel metric 256 pref medium
- fc00:4::1 via fc00:2::2 dev veth_A-R2 metric 1024 pref medium
- fe80::/64 dev veth_A-R1 proto kernel metric 256 pref medium
- fe80::/64 dev veth_A-R2 proto kernel metric 256 pref medium
- default via fc00:1::2 dev veth_A-R1 metric 1024 pref medium
- # ip -6 route list cache
- fc00:4::1 via fc00:2::2 dev veth_A-R2 metric 1024 expires 593sec mtu 1500 pref medium
- fc00:3::1 via fc00:1::2 dev veth_A-R1 metric 1024 expires 593sec mtu 1500 pref medium
- # ip -6 route flush cache    # node for default route is discarded
- Failed to send flush request: No such process
- # ip -6 route list cache
- fc00:3::1 via fc00:1::2 dev veth_A-R1 metric 1024 expires 586sec mtu 1500 pref medium
+has been mistakenly submitted. The further investigations show that
+the original code does better job since the memory side transfer size
+has never been configured by DMA users.
 
-Check right away if the node has a RTN_RTINFO flag, before replacing the
-'prev' pointer, that indicates the longest matching prefix found so far.
+As per latest revision of documentation: "Channel minimum transfer size
+(CHnMTSR)... For IOSF UART, maximum value that can be programmed is 64 and
+minimum value that can be programmed is 1."
 
-Fixes: 38fbeeeeccdb ("ipv6: prepare fib6_locate() for exception table")
-Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This reverts commit 080edf75d337d35faa6fc3df99342b10d2848d16.
+
+Fixes: 080edf75d337 ("dmaengine: hsu: set HSU_CH_MTSR to memory width")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_fib.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/dma/hsu/hsu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/ip6_fib.c b/net/ipv6/ip6_fib.c
-index bbb5ffb3397d..7091568b9f63 100644
---- a/net/ipv6/ip6_fib.c
-+++ b/net/ipv6/ip6_fib.c
-@@ -1529,7 +1529,8 @@ static struct fib6_node *fib6_locate_1(struct fib6_node *root,
- 		if (plen == fn->fn_bit)
- 			return fn;
+diff --git a/drivers/dma/hsu/hsu.c b/drivers/dma/hsu/hsu.c
+index 202ffa9f7611..18f155a974db 100644
+--- a/drivers/dma/hsu/hsu.c
++++ b/drivers/dma/hsu/hsu.c
+@@ -64,10 +64,10 @@ static void hsu_dma_chan_start(struct hsu_dma_chan *hsuc)
  
--		prev = fn;
-+		if (fn->fn_flags & RTN_RTINFO)
-+			prev = fn;
+ 	if (hsuc->direction == DMA_MEM_TO_DEV) {
+ 		bsr = config->dst_maxburst;
+-		mtsr = config->src_addr_width;
++		mtsr = config->dst_addr_width;
+ 	} else if (hsuc->direction == DMA_DEV_TO_MEM) {
+ 		bsr = config->src_maxburst;
+-		mtsr = config->dst_addr_width;
++		mtsr = config->src_addr_width;
+ 	}
  
- next:
- 		/*
+ 	hsu_chan_disable(hsuc);
 -- 
 2.20.1
 
