@@ -2,67 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 731A713DFD4
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:20:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0982513DFEA
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:22:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726559AbgAPQUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:20:25 -0500
-Received: from mail-vs1-f45.google.com ([209.85.217.45]:33201 "EHLO
-        mail-vs1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726151AbgAPQUZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 11:20:25 -0500
-Received: by mail-vs1-f45.google.com with SMTP id n27so13034299vsa.0
-        for <stable@vger.kernel.org>; Thu, 16 Jan 2020 08:20:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=y8fBDU4I9p4YH4vO5ONWDVa4NA/fEu/ZLgdl772NQOE=;
-        b=XX1Nkvoq4Yyky1cU8TQ5AwLJk/fgpuOA0enOAQ/cf3c48rsQRYzO59QEywvA7mIi64
-         80wjHoXLvDOnLJu0uqii2LfoqcdFU4NBRChMdA35f8/NucyxgL7iM4iXFLb6ajduMq0d
-         6eN1845OA36RxgQHtWRsGp7mJ2M2G6r6QHeAL3QFIKOiIMvcOGRxWR7/aB0IZEnLj9/R
-         d94AAnbkXjeH1fJ1OYMmu+0Udgz8aHzy5lfHbJ64fQaOFru6mdhCAoLHysZEyGMJ88fT
-         +psmJQkLvdHspzmvtXJHhTlGLxvr9m9eIj6G8XmVN/OYbVDKxjXDmSGdAoRy6pHUYsgi
-         XOlA==
+        id S1728903AbgAPQVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:21:13 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:41354 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726983AbgAPQVN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 11:21:13 -0500
+Received: by mail-lj1-f196.google.com with SMTP id h23so23335812ljc.8;
+        Thu, 16 Jan 2020 08:21:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=y8fBDU4I9p4YH4vO5ONWDVa4NA/fEu/ZLgdl772NQOE=;
-        b=N9ygbj/6CexUhKcfH5oWWdcxr2QUdvLkFCu6xsU4W8QZt26kw+xwX9gZd4XAh0LeXc
-         B5g/xPmxYpp1rz5IMHvmMo0/f2tE4KpKavjaVGf6j1vKuVkuAVvwoiC+yuG4wu7QfdFW
-         AvQH8yk3+UrIOR8zQE2xLG/BtH2JfJjpcfwW0GXaofS4PG1elehlou6QyI4lv/cn/dU0
-         +fJ/gMvoSfYXUn1D822NBMmaOTAzocO+IvjzuQbGA3k7vkIofsV9aqp3dPnOXva14yu0
-         xN+xc3crPvGoZL9TaU7/jWT946aqcDxyxDkL2oWwInbn7yxiF30YgIr+t7hAZD1ZoyfN
-         dvCg==
-X-Gm-Message-State: APjAAAXP6nUi6irNkpgc2+yVqimi1rBw1F3s9PA9IamN77/9tF7FkMlP
-        IQbYaWmDH5nLBoxBsEjrJDqQXJvZWLK8sxOnvWv3LmfVgNnf7A==
-X-Google-Smtp-Source: APXvYqz2IJuQ+rEN9KQrQJENd25eN5gRPy7ZIPu70U0TsMArUMu7wHUK78UfMu2Tf82M3J+2bDX2Tfzt/fpDZ9dJFAQ=
-X-Received: by 2002:a05:6102:1173:: with SMTP id k19mr2102556vsg.203.1579191623041;
- Thu, 16 Jan 2020 08:20:23 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=+Oyv6HUhQJ+ugxt03sULpvXf+nEqbMw6YaCFbn4jEVg=;
+        b=qPeBh4HB/hG5xxZfLXGGpsPWVdIj7f2qFYo8BvC66wqnQrHmlaO+NzrHITZPwh/FvY
+         OlR7/MM+Il1c2alDCyMOOBx0vWe+O8wJfJxsjPkJpJ0yZuTlzfZUBUsefRiMufpLwmrd
+         dSQY/W68J4HuU/WkmrcmNDjdTMV2JDsO8heNbDMwH+/Nkg7DW6KBp/WICNSIm+J1lzqD
+         iP2WJLX3hffmOvFEv60iUqsb/MLTKwMD/YxDbnbazYEXICPk4sJvqEm3uiMpSwfd697s
+         Sk1t9kCWHdEvJusHvOIG+XG7StBviJklLStcMAtW6rjVy3SAH2+3tmkBzE9k+lC3Sfn0
+         /jcw==
+X-Gm-Message-State: APjAAAUEXFg2Pd55OdgJzvV74rq6HHoQQrH6MQ5OfTvaxrLGjgg573Fp
+        jzmEL6JWVeA2Aawhxfam+XLk/Ogf
+X-Google-Smtp-Source: APXvYqxtYxg9uZ2T0HP/gexGAeygGVRNpFPcMqdEN+h24fzwD29kOHYc6c8h4nZ0TD/swcDyZzZD3w==
+X-Received: by 2002:a2e:916:: with SMTP id 22mr2873167ljj.60.1579191670678;
+        Thu, 16 Jan 2020 08:21:10 -0800 (PST)
+Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
+        by smtp.gmail.com with ESMTPSA id l21sm10777444lfh.74.2020.01.16.08.21.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jan 2020 08:21:09 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@kernel.org>)
+        id 1is7tN-0001RS-9s; Thu, 16 Jan 2020 17:21:09 +0100
+Date:   Thu, 16 Jan 2020 17:21:09 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2 2/2] USB: serial: opticon: stop all I/O on close()
+Message-ID: <20200116162109.GO2301@localhost>
+References: <20200114110146.5929-1-johan@kernel.org>
+ <20200114110146.5929-2-johan@kernel.org>
+ <20200114121857.GB1503960@kroah.com>
 MIME-Version: 1.0
-From:   Alistair Delva <adelva@google.com>
-Date:   Thu, 16 Jan 2020 08:20:11 -0800
-Message-ID: <CANDihLFwsdpGmR5j++bLSaxGYuXOtykA-B2T0rWiXgzdfCPkJg@mail.gmail.com>
-Subject: Please revert "drm/virtio: switch virtio_gpu_wait_ioctl() to gem
- helper." from 5.4-stable
-To:     stable@vger.kernel.org
-Cc:     kernel-team@android.com, Lingfeng Yang <lfy@google.com>,
-        kraxel@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200114121857.GB1503960@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-(Sorry if this is noise and has already been reported)
+On Tue, Jan 14, 2020 at 01:18:57PM +0100, Greg Kroah-Hartman wrote:
+> On Tue, Jan 14, 2020 at 12:01:46PM +0100, Johan Hovold wrote:
+> > Make sure to stop any submitted write URBs on close(). This specifically
+> > avoids a NULL-pointer dereference or use-after-free in case of a late
+> > completion event after driver unbind.
+> > 
+> > Fixes: 648d4e16567e ("USB: serial: opticon: add write support")
+> > Cc: stable <stable@vger.kernel.org>	# 2.6.30: xxx: USB: serial: opticon: add chars_in_buffer() implementation
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> 
+> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-After updating to 5.4.7 we noticed that virtio_gpu's wait ioctl
-stopped working correctly.
+Thanks for the review.
 
-It looks like 29cf12394c05 ("drm/virtio: switch
-virtio_gpu_wait_ioctl() to gem helper.") was picked up automatically,
-but it depends on 889165ad6190 ("drm/virtio: pass gem reservation
-object to ttm init") from earlier in Gerd's series in Linus's tree,
-which was not picked up.
+I just submitted a patch preventing individual ports from being unbound,
+which almost no USB-serial driver can handle generally without crashing.
 
-(This patch doesn't seem like compelling stable material so maybe we
-should revert it.)
+And as USB core handles the case were the USB interface driver is
+unbound, this one doesn't fix anything critical.
+
+So I'll apply this for -next with the following updated commit message:
+
+    USB: serial: opticon: stop all I/O on close()
+    
+    Make sure to stop any submitted write URBs on close().
+    
+    Note that the tty layer will wait up to 30 seconds for the buffers to
+    drain before close() is called.
+
+and drop the Fixes and stable tags instead.
+
+Johan
