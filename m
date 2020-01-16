@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4E713FEF1
+	by mail.lfdr.de (Postfix) with ESMTP id AE33113FEF2
 	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:40:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391179AbgAPX2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:28:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34012 "EHLO mail.kernel.org"
+        id S2391194AbgAPX24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:28:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729762AbgAPX2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:28:53 -0500
+        id S2388441AbgAPX2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:28:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C95B20684;
-        Thu, 16 Jan 2020 23:28:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A46B9206D9;
+        Thu, 16 Jan 2020 23:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217332;
-        bh=PoxcrDcGEQmUeQXGusjb3WsOfqsZeYJY0WnI1BoaYy0=;
+        s=default; t=1579217335;
+        bh=/nGz56sMA8caDTBApOsOknhSoqaPclZYldLAfPUelVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGYqx+BMwIdxFNjrgFRn8bhUoAFWf2RhwEsHwtSqno/XfBo8Iky2CLR45jt1MQYc6
-         rg2tYp81lg9w7ogLbHdy/QBND9UvDKhKoO2QrmvdMIOKLCYvvi8TYIJjPTX/58yhjy
-         2NJvRI/PThOVYs9EjeVqNj2uHSuk75IrOClBI73E=
+        b=fY+2gUB0jnQ7jRV3ric8AngJcsJzND/HPgLE1t6wESa6ChPaBcsaPIwes1WVCpGFf
+         IpwwrchCvP94a1uDdfmx1XEvfTV5E13Iqol4MEHKTFgyGdLfOM3DH1HENAQX/kfQlb
+         dB7quDUNMLU2gpxFh8JVs+gxVZX5h47rrR/vsQfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Anderson <jasona.594@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.19 40/84] platform/x86: GPD pocket fan: Use default values when wrong modparams are given
-Date:   Fri, 17 Jan 2020 00:18:14 +0100
-Message-Id: <20200116231718.472607590@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.19 41/84] xprtrdma: Fix completion wait during device removal
+Date:   Fri, 17 Jan 2020 00:18:15 +0100
+Message-Id: <20200116231718.603428265@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
 References: <20200116231713.087649517@linuxfoundation.org>
@@ -44,89 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 6ae01050e49f0080ae30575d9b45a6d4a3d7ee23 upstream.
+commit 13cb886c591f341a8759f175292ddf978ef903a1 upstream.
 
-Use our default values when wrong module-parameters are given, instead of
-refusing to load. Refusing to load leaves the fan at the BIOS default
-setting, which is "Off". The CPU's thermal throttling should protect the
-system from damage, but not-loading is really not the best fallback in this
-case.
+I've found that on occasion, "rmmod <dev>" will hang while if an NFS
+is under load.
 
-This commit fixes this by re-setting module-parameter values to their
-defaults if they are out of range, instead of failing the probe with
--EINVAL.
+Ensure that ri_remove_done is initialized only just before the
+transport is woken up to force a close. This avoids the completion
+possibly getting initialized again while the CM event handler is
+waiting for a wake-up.
 
-Cc: stable@vger.kernel.org
-Cc: Jason Anderson <jasona.594@gmail.com>
-Reported-by: Jason Anderson <jasona.594@gmail.com>
-Fixes: 594ce6db326e ("platform/x86: GPD pocket fan: Use a min-speed of 2 while charging")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: bebd031866ca ("xprtrdma: Support unplugging an HCA from under an NFS mount")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/gpd-pocket-fan.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ net/sunrpc/xprtrdma/verbs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/x86/gpd-pocket-fan.c
-+++ b/drivers/platform/x86/gpd-pocket-fan.c
-@@ -16,17 +16,27 @@
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -248,6 +248,7 @@ rpcrdma_conn_upcall(struct rdma_cm_id *i
+ 			ia->ri_device->name,
+ 			rpcrdma_addrstr(xprt), rpcrdma_portstr(xprt));
+ #endif
++		init_completion(&ia->ri_remove_done);
+ 		set_bit(RPCRDMA_IAF_REMOVING, &ia->ri_flags);
+ 		ep->rep_connected = -ENODEV;
+ 		xprt_force_disconnect(&xprt->rx_xprt);
+@@ -306,7 +307,6 @@ rpcrdma_create_id(struct rpcrdma_xprt *x
+ 	trace_xprtrdma_conn_start(xprt);
  
- #define MAX_SPEED 3
+ 	init_completion(&ia->ri_done);
+-	init_completion(&ia->ri_remove_done);
  
--static int temp_limits[3] = { 55000, 60000, 65000 };
-+#define TEMP_LIMIT0_DEFAULT	55000
-+#define TEMP_LIMIT1_DEFAULT	60000
-+#define TEMP_LIMIT2_DEFAULT	65000
-+
-+#define HYSTERESIS_DEFAULT	3000
-+
-+#define SPEED_ON_AC_DEFAULT	2
-+
-+static int temp_limits[3] = {
-+	TEMP_LIMIT0_DEFAULT, TEMP_LIMIT1_DEFAULT, TEMP_LIMIT2_DEFAULT,
-+};
- module_param_array(temp_limits, int, NULL, 0444);
- MODULE_PARM_DESC(temp_limits,
- 		 "Millicelsius values above which the fan speed increases");
- 
--static int hysteresis = 3000;
-+static int hysteresis = HYSTERESIS_DEFAULT;
- module_param(hysteresis, int, 0444);
- MODULE_PARM_DESC(hysteresis,
- 		 "Hysteresis in millicelsius before lowering the fan speed");
- 
--static int speed_on_ac = 2;
-+static int speed_on_ac = SPEED_ON_AC_DEFAULT;
- module_param(speed_on_ac, int, 0444);
- MODULE_PARM_DESC(speed_on_ac,
- 		 "minimum fan speed to allow when system is powered by AC");
-@@ -120,18 +130,21 @@ static int gpd_pocket_fan_probe(struct p
- 		if (temp_limits[i] < 40000 || temp_limits[i] > 70000) {
- 			dev_err(&pdev->dev, "Invalid temp-limit %d (must be between 40000 and 70000)\n",
- 				temp_limits[i]);
--			return -EINVAL;
-+			temp_limits[0] = TEMP_LIMIT0_DEFAULT;
-+			temp_limits[1] = TEMP_LIMIT1_DEFAULT;
-+			temp_limits[2] = TEMP_LIMIT2_DEFAULT;
-+			break;
- 		}
- 	}
- 	if (hysteresis < 1000 || hysteresis > 10000) {
- 		dev_err(&pdev->dev, "Invalid hysteresis %d (must be between 1000 and 10000)\n",
- 			hysteresis);
--		return -EINVAL;
-+		hysteresis = HYSTERESIS_DEFAULT;
- 	}
- 	if (speed_on_ac < 0 || speed_on_ac > MAX_SPEED) {
- 		dev_err(&pdev->dev, "Invalid speed_on_ac %d (must be between 0 and 3)\n",
- 			speed_on_ac);
--		return -EINVAL;
-+		speed_on_ac = SPEED_ON_AC_DEFAULT;
- 	}
- 
- 	fan = devm_kzalloc(&pdev->dev, sizeof(*fan), GFP_KERNEL);
+ 	id = rdma_create_id(xprt->rx_xprt.xprt_net, rpcrdma_conn_upcall,
+ 			    xprt, RDMA_PS_TCP, IB_QPT_RC);
 
 
