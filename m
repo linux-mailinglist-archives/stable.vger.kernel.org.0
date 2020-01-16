@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9800513EF21
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:13:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B70AB13EF1C
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:13:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405223AbgAPRgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:36:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51796 "EHLO mail.kernel.org"
+        id S2390707AbgAPSNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:13:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405211AbgAPRgv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:36:51 -0500
+        id S2405220AbgAPRgy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:36:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59162246C5;
-        Thu, 16 Jan 2020 17:36:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 365E920730;
+        Thu, 16 Jan 2020 17:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196211;
-        bh=LW2F/jHELeJRFD9QL7sp0B9QATRcwZeOVrASKbhON6M=;
+        s=default; t=1579196213;
+        bh=iXlGhkD+iPp8vh7EEoCYUfHQYjiFUHCq17Z2sMpPylM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Im8+VoS+bdZ5csWX+o0KtkdzgegB0jr3fCQN3ScN5ancrjaPKeh1oIfDbERxlforz
-         VHdfNK3NYtomdeaByE00NZOh4UEUhFfyUWaxWYihcLvLEV8H12Lptj025VORgqaFcU
-         EAS1i1Kz+5GAhR5zV9wz5sf6wgTY2lMtnZxxogsk=
+        b=ggnPMsJH7/ur/G73IYSCjISJuaLoh4uk2AW9RtiABEYQ1lg3O8AInl2hI0BwCI2BX
+         Ve+i4lghxps7PZh50YJbY6xStljYK4Ejg37b5aTRrfQ/VuG3yHCz4JZ9d2qbGkN8IS
+         P5CXhKmp0988bE55Y17J4Ml+MBA1ViHi8zyXdVs8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Danny Alexander <danny.alexander@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 047/251] iwlwifi: mvm: fix A-MPDU reference assignment
-Date:   Thu, 16 Jan 2020 12:33:16 -0500
-Message-Id: <20200116173641.22137-7-sashal@kernel.org>
+Cc:     Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 049/251] crypto: crypto4xx - Fix wrong ppc4xx_trng_probe()/ppc4xx_trng_remove() arguments
+Date:   Thu, 16 Jan 2020 12:33:18 -0500
+Message-Id: <20200116173641.22137-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
 References: <20200116173641.22137-1-sashal@kernel.org>
@@ -45,48 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 1f7698abedeeb3fef3cbcf78e16f925df675a179 ]
+[ Upstream commit 6e88098ca43a3d80ae86908f7badba683c8a0d84 ]
 
-The current code assigns the reference, and then goes to increment
-it if the toggle bit has changed. That way, we get
+When building without CONFIG_HW_RANDOM_PPC4XX, I hit the following build failure:
+drivers/crypto/amcc/crypto4xx_core.c: In function 'crypto4xx_probe':
+drivers/crypto/amcc/crypto4xx_core.c:1407:20: error: passing argument 1 of 'ppc4xx_trng_probe' from incompatible pointer type [-Werror=incompatible-pointer-types]
+In file included from drivers/crypto/amcc/crypto4xx_core.c:50:0:
+drivers/crypto/amcc/crypto4xx_trng.h:28:20: note: expected 'struct crypto4xx_device *' but argument is of type 'struct crypto4xx_core_device *'
+drivers/crypto/amcc/crypto4xx_core.c: In function 'crypto4xx_remove':
+drivers/crypto/amcc/crypto4xx_core.c:1434:21: error: passing argument 1 of 'ppc4xx_trng_remove' from incompatible pointer type [-Werror=incompatible-pointer-types]
+In file included from drivers/crypto/amcc/crypto4xx_core.c:50:0:
+drivers/crypto/amcc/crypto4xx_trng.h:30:20: note: expected 'struct crypto4xx_device *' but argument is of type 'struct crypto4xx_core_device *'
 
-Toggle  0  0  0  0  1  1  1  1
-ID      1  1  1  1  1  2  2  2
+This patch fix the needed argument of ppc4xx_trng_probe()/ppc4xx_trng_remove() in that case.
 
-Fix that by assigning the post-toggle ID to get
-
-Toggle  0  0  0  0  1  1  1  1
-ID      1  1  1  1  2  2  2  2
-
-Reported-by: Danny Alexander <danny.alexander@intel.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: fbe4112791b8 ("iwlwifi: mvm: update mpdu metadata API")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: 5343e674f32f ("crypto4xx: integrate ppc4xx-rng into crypto4xx")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/amcc/crypto4xx_trng.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-index c2bbc8c17beb..bc06d87a0106 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-@@ -810,12 +810,12 @@ void iwl_mvm_rx_mpdu_mq(struct iwl_mvm *mvm, struct napi_struct *napi,
- 		bool toggle_bit = phy_info & IWL_RX_MPDU_PHY_AMPDU_TOGGLE;
+diff --git a/drivers/crypto/amcc/crypto4xx_trng.h b/drivers/crypto/amcc/crypto4xx_trng.h
+index 931d22531f51..7bbda51b7337 100644
+--- a/drivers/crypto/amcc/crypto4xx_trng.h
++++ b/drivers/crypto/amcc/crypto4xx_trng.h
+@@ -26,9 +26,9 @@ void ppc4xx_trng_probe(struct crypto4xx_core_device *core_dev);
+ void ppc4xx_trng_remove(struct crypto4xx_core_device *core_dev);
+ #else
+ static inline void ppc4xx_trng_probe(
+-	struct crypto4xx_device *dev __maybe_unused) { }
++	struct crypto4xx_core_device *dev __maybe_unused) { }
+ static inline void ppc4xx_trng_remove(
+-	struct crypto4xx_device *dev __maybe_unused) { }
++	struct crypto4xx_core_device *dev __maybe_unused) { }
+ #endif
  
- 		rx_status->flag |= RX_FLAG_AMPDU_DETAILS;
--		rx_status->ampdu_reference = mvm->ampdu_ref;
- 		/* toggle is switched whenever new aggregation starts */
- 		if (toggle_bit != mvm->ampdu_toggle) {
- 			mvm->ampdu_ref++;
- 			mvm->ampdu_toggle = toggle_bit;
- 		}
-+		rx_status->ampdu_reference = mvm->ampdu_ref;
- 	}
- 
- 	rcu_read_lock();
+ #endif
 -- 
 2.20.1
 
