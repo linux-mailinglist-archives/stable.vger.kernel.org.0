@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A921313F648
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:03:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C532E13F644
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437280AbgAPTC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 14:02:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34646 "EHLO mail.kernel.org"
+        id S2437276AbgAPTCS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:02:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388656AbgAPRFj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:05:39 -0500
+        id S2388777AbgAPRFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:05:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59D0521582;
-        Thu, 16 Jan 2020 17:05:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9739F20730;
+        Thu, 16 Jan 2020 17:05:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194338;
-        bh=/OH7utaEkzlC5VqUAttqW8fvQA9OIPT/0q2BoS1aV5k=;
+        s=default; t=1579194339;
+        bh=CQDizk1U+ffUTXTTxGwiQ2zeRMUYVg5Zx3vc70w1Lho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvhKeel0fnwAsOyEpAWujU8kGIDxhSHp1jzoPpP83/nxGxWloTYRqUkw3Blq+cWdH
-         7IrPRae96vizg7E1ILkIS0urNauY93VtZS5vm2H/y1hTU/QrGN/feQeO6zmBgO8ScE
-         bR4fL5R0KtKotZBcwrp6PBbyv0kBWm9SJPbnoKs4=
+        b=zL2+wOr13bF4UK83Hcm6buSj1c9T2b6L8Fo8ROt2y6xgwlVDtwghSWOfHJXPaPkpR
+         Wnpx3/Y6tgEHJAZsXTkI9L6YGfbevbZMfdwAh9E4y/HhG3dV3AE+GPLaA225uppWjJ
+         h+8MeVTUNroync9/qB56Qq0/iEwVaOQSmvcdYva8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        Giridhar Malavali <giridhar.malavali@qlogic.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 282/671] scsi: qla2xxx: Unregister chrdev if module initialization fails
-Date:   Thu, 16 Jan 2020 11:58:40 -0500
-Message-Id: <20200116170509.12787-19-sashal@kernel.org>
+Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Frank Rowand <frank.rowand@sony.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 283/671] of: use correct function prototype for of_overlay_fdt_apply()
+Date:   Thu, 16 Jan 2020 11:58:41 -0500
+Message-Id: <20200116170509.12787-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,98 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit c794d24ec9eb6658909955772e70f34bef5b5b91 ]
+[ Upstream commit ecb0abc1d8528015957fbd034be8bfe760363b3b ]
 
-If module initialization fails after the character device has been
-registered, unregister the character device. Additionally, avoid
-duplicating error path code.
+When CONFIG_OF_OVERLAY is not enabled the fallback stub for
+of_overlay_fdt_apply() does not match the prototype for the case when
+CONFIG_OF_OVERLAY is enabled. Update the stub to use the correct
+function prototype.
 
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Cc: Giridhar Malavali <giridhar.malavali@qlogic.com>
-Fixes: 6a03b4cd78f3 ("[SCSI] qla2xxx: Add char device to increase driver use count") # v2.6.35.
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 39a751a4cb7e ("of: change overlay apply input data from unflattened to FDT")
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Frank Rowand <frank.rowand@sony.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ include/linux/of.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index bb20a4a228cf..fff20a370767 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -6967,8 +6967,7 @@ qla2x00_module_init(void)
- 	/* Initialize target kmem_cache and mem_pools */
- 	ret = qlt_init();
- 	if (ret < 0) {
--		kmem_cache_destroy(srb_cachep);
--		return ret;
-+		goto destroy_cache;
- 	} else if (ret > 0) {
- 		/*
- 		 * If initiator mode is explictly disabled by qlt_init(),
-@@ -6989,11 +6988,10 @@ qla2x00_module_init(void)
- 	qla2xxx_transport_template =
- 	    fc_attach_transport(&qla2xxx_transport_functions);
- 	if (!qla2xxx_transport_template) {
--		kmem_cache_destroy(srb_cachep);
- 		ql_log(ql_log_fatal, NULL, 0x0002,
- 		    "fc_attach_transport failed...Failing load!.\n");
--		qlt_exit();
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto qlt_exit;
- 	}
+diff --git a/include/linux/of.h b/include/linux/of.h
+index dac0201eacef..d4f14b0302b6 100644
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -1425,7 +1425,8 @@ int of_overlay_notifier_unregister(struct notifier_block *nb);
  
- 	apidev_major = register_chrdev(0, QLA2XXX_APIDEV, &apidev_fops);
-@@ -7005,27 +7003,37 @@ qla2x00_module_init(void)
- 	qla2xxx_transport_vport_template =
- 	    fc_attach_transport(&qla2xxx_transport_vport_functions);
- 	if (!qla2xxx_transport_vport_template) {
--		kmem_cache_destroy(srb_cachep);
--		qlt_exit();
--		fc_release_transport(qla2xxx_transport_template);
- 		ql_log(ql_log_fatal, NULL, 0x0004,
- 		    "fc_attach_transport vport failed...Failing load!.\n");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto unreg_chrdev;
- 	}
- 	ql_log(ql_log_info, NULL, 0x0005,
- 	    "QLogic Fibre Channel HBA Driver: %s.\n",
- 	    qla2x00_version_str);
- 	ret = pci_register_driver(&qla2xxx_pci_driver);
- 	if (ret) {
--		kmem_cache_destroy(srb_cachep);
--		qlt_exit();
--		fc_release_transport(qla2xxx_transport_template);
--		fc_release_transport(qla2xxx_transport_vport_template);
- 		ql_log(ql_log_fatal, NULL, 0x0006,
- 		    "pci_register_driver failed...ret=%d Failing load!.\n",
- 		    ret);
-+		goto release_vport_transport;
- 	}
- 	return ret;
-+
-+release_vport_transport:
-+	fc_release_transport(qla2xxx_transport_vport_template);
-+
-+unreg_chrdev:
-+	if (apidev_major >= 0)
-+		unregister_chrdev(apidev_major, QLA2XXX_APIDEV);
-+	fc_release_transport(qla2xxx_transport_template);
-+
-+qlt_exit:
-+	qlt_exit();
-+
-+destroy_cache:
-+	kmem_cache_destroy(srb_cachep);
-+	return ret;
+ #else
+ 
+-static inline int of_overlay_fdt_apply(void *overlay_fdt, int *ovcs_id)
++static inline int of_overlay_fdt_apply(void *overlay_fdt, u32 overlay_fdt_size,
++				       int *ovcs_id)
+ {
+ 	return -ENOTSUPP;
  }
- 
- /**
 -- 
 2.20.1
 
