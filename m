@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F0113FF6E
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9704913FEC3
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:38:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388734AbgAPXZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:25:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55984 "EHLO mail.kernel.org"
+        id S2391339AbgAPX3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:29:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388332AbgAPXZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:25:56 -0500
+        id S2391336AbgAPX3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:29:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C66F2072B;
-        Thu, 16 Jan 2020 23:25:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A022206D9;
+        Thu, 16 Jan 2020 23:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217156;
-        bh=mAeyCEBh9vgKs3MQPtBIK04WIfJU/5gVTaleQ8b0eJM=;
+        s=default; t=1579217383;
+        bh=JSuBphsjuh0+PpEiMvHb+bCx5t9x0cjW3CLELLPZeHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uq2r6s6Xi3iDWdw6wSK2v/P09JDys78ppLpGGOQVRe7G29gEs9X5nTVQRBWX23u/A
-         XRgojo614iXpW8scGU08j5mghrvPpbZ5j4Hgq8fAJRJAcOG+ov4I6nuVHs/2SQpLbM
-         EDhgIehzZPuN1Fg9ZuESJDHTgT62NfmfuNwXrreg=
+        b=nqgpf7fzk95CcAfEMo9u9ksZQwy2R184yvc4zxCvg35rt1/yTb8vpFUcWvuHdUYoh
+         3tg945Wsx/nL+DXbJKHQdzACh5cNruPFMcylGyXyyVI8Ftmy2ib90SBKbtLPVmF/hP
+         2imWHPCS1a99/3xmV5SiiFdXsgkxiMyr5y6s5+rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 171/203] spi: lpspi: fix memory leak in fsl_lpspi_probe
+        stable@vger.kernel.org, Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 34/84] btrfs: simplify inode locking for RWF_NOWAIT
 Date:   Fri, 17 Jan 2020 00:18:08 +0100
-Message-Id: <20200116231759.502270087@linuxfoundation.org>
+Message-Id: <20200116231717.760212736@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
-References: <20200116231745.218684830@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Goldwyn Rodrigues <rgoldwyn@suse.com>
 
-commit 057b8945f78f76d0b04eeb5c27cd9225e5e7ad86 upstream.
+commit 9cf35f673583ccc9f3e2507498b3079d56614ad3 upstream.
 
-In fsl_lpspi_probe an SPI controller is allocated either via
-spi_alloc_slave or spi_alloc_master. In all but one error cases this
-controller is put by going to error handling code. This commit fixes the
-case when pm_runtime_get_sync fails and it should go to the error
-handling path.
+This is similar to 942491c9e6d6 ("xfs: fix AIM7 regression"). Apparently
+our current rwsem code doesn't like doing the trylock, then lock for
+real scheme. This causes extra contention on the lock and can be
+measured eg. by AIM7 benchmark.  So change our read/write methods to
+just do the trylock for the RWF_NOWAIT case.
 
-Fixes: 944c01a889d9 ("spi: lpspi: enable runtime pm for lpspi")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Link: https://lore.kernel.org/r/20190930034602.1467-1-navid.emamdoost@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: edf064e7c6fe ("btrfs: nowait aio support")
+Signed-off-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ update changelog ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-fsl-lpspi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/file.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/spi/spi-fsl-lpspi.c
-+++ b/drivers/spi/spi-fsl-lpspi.c
-@@ -938,7 +938,7 @@ static int fsl_lpspi_probe(struct platfo
- 	ret = pm_runtime_get_sync(fsl_lpspi->dev);
- 	if (ret < 0) {
- 		dev_err(fsl_lpspi->dev, "failed to enable clock\n");
--		return ret;
-+		goto out_controller_put;
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1903,9 +1903,10 @@ static ssize_t btrfs_file_write_iter(str
+ 	    (iocb->ki_flags & IOCB_NOWAIT))
+ 		return -EOPNOTSUPP;
+ 
+-	if (!inode_trylock(inode)) {
+-		if (iocb->ki_flags & IOCB_NOWAIT)
++	if (iocb->ki_flags & IOCB_NOWAIT) {
++		if (!inode_trylock(inode))
+ 			return -EAGAIN;
++	} else {
+ 		inode_lock(inode);
  	}
  
- 	temp = readl(fsl_lpspi->base + IMX7ULP_PARAM);
 
 
