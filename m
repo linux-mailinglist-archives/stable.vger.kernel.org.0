@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1F013F66A
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:04:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16AC913F66D
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:04:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388236AbgAPRCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:02:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54642 "EHLO mail.kernel.org"
+        id S1729858AbgAPRCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:02:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388295AbgAPRCN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:02:13 -0500
+        id S2388308AbgAPRCQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:02:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E9FC2073A;
-        Thu, 16 Jan 2020 17:02:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD34E2087E;
+        Thu, 16 Jan 2020 17:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194132;
-        bh=pOkluVnHUm+ELhjKzSD++0rgASEdiCKf2x3XTdb8Res=;
+        s=default; t=1579194135;
+        bh=rOBWmBUqsRKtqSJgMsVu02iSM9VhORwgoCJfqubhHAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1nfaltul760cPgg8VJtXsxkPdbBE4H/6pEQ6OfBkPjQPwrOlv3xtCfH/7SxhCbNF
-         Z2ATpoVEiWFYm8s6aKTOeLEYata1f+Vn+vEWL7ibqpZsTILx/hQBfiJBUjHWSHkz0q
-         Am9H8eJxuXQu3agEyYA1PAYIcO5vD+G0VzjzWcgk=
+        b=pON7C8X6geuB9UDERestAlQt29G+rIfXWcLm9aIWec8DSEAJukXIjoXUO86cnuFDO
+         pYqJo01yF+Ay9J9tv+lFX9uGFo1MTl+rJDNDK483h4EzBZqo9ExGADmGg93KcW0+mG
+         YNvNxaxkS6whAResfPjCgigqeKuXQBZCWgXG3o70=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Murzin <vladimir.murzin@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 222/671] ARM: 8849/1: NOMMU: Fix encodings for PMSAv8's PRBAR4/PRLAR4
-Date:   Thu, 16 Jan 2020 11:52:11 -0500
-Message-Id: <20200116165940.10720-105-sashal@kernel.org>
+Cc:     Surabhi Vishnoi <svishnoi@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 224/671] ath10k: Fix length of wmi tlv command for protected mgmt frames
+Date:   Thu, 16 Jan 2020 11:52:13 -0500
+Message-Id: <20200116165940.10720-107-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -44,46 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Murzin <vladimir.murzin@arm.com>
+From: Surabhi Vishnoi <svishnoi@codeaurora.org>
 
-[ Upstream commit d410a8a49e3e00e07d43037e90f776d522b25a6a ]
+[ Upstream commit 761156ff573d1002983416e4fd1fe8d3489c4bd8 ]
 
-To access PRBARn, where n is referenced as a binary number:
+The length of wmi tlv command for management tx send is calculated
+incorrectly in case of protected management frames as there is addition
+of IEEE80211_CCMP_MIC_LEN twice. This leads to improper behaviour of
+firmware as the wmi tlv mgmt tx send command for protected mgmt frames
+is formed wrongly.
 
-MRC p15, 0, <Rt>, c6, c8+n[3:1], 4*n[0] ; Read PRBARn into Rt
-MCR p15, 0, <Rt>, c6, c8+n[3:1], 4*n[0] ; Write Rt into PRBARn
+Fix the length calculation of wmi tlv command for mgmt tx send in case
+of protected management frames by adding the IEEE80211_CCMP_MIC_LEN only
+once.
 
-To access PRLARn, where n is referenced as a binary number:
+Tested HW: WCN3990
+Tested FW: WLAN.HL.3.1-00784-QCAHLSWMTPLZ-1
 
-MRC p15, 0, <Rt>, c6, c8+n[3:1], 4*n[0]+1 ; Read PRLARn into Rt
-MCR p15, 0, <Rt>, c6, c8+n[3:1], 4*n[0]+1 ; Write Rt into PRLARn
-
-For PR{B,L}AR4, n is 4, n[0] is 0, n[3:1] is 2, while current encoding
-done with n[0] set to 1 which is wrong. Use proper encoding instead.
-
-Fixes: 046835b4aa22b9ab6aa0bb274e3b71047c4b887d ("ARM: 8757/1: NOMMU: Support PMSAv8 MPU")
-Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: 1807da49733e "ath10k: wmi: add management tx by reference support over wmi"
+Signed-off-by: Surabhi Vishnoi <svishnoi@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/head-nommu.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/wmi-tlv.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm/kernel/head-nommu.S b/arch/arm/kernel/head-nommu.S
-index 326a97aa3ea0..22efcf48604c 100644
---- a/arch/arm/kernel/head-nommu.S
-+++ b/arch/arm/kernel/head-nommu.S
-@@ -441,8 +441,8 @@ M_CLASS(str	r6, [r12, #PMSAv8_RLAR_A(3)])
- 	str	r5, [r12, #PMSAv8_RBAR_A(0)]
- 	str	r6, [r12, #PMSAv8_RLAR_A(0)]
- #else
--	mcr	p15, 0, r5, c6, c10, 1			@ PRBAR4
--	mcr	p15, 0, r6, c6, c10, 2			@ PRLAR4
-+	mcr	p15, 0, r5, c6, c10, 0			@ PRBAR4
-+	mcr	p15, 0, r6, c6, c10, 1			@ PRLAR4
- #endif
- #endif
- 	ret	lr
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+index cdc1e64d52ad..a90990b8008d 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+@@ -2692,10 +2692,8 @@ ath10k_wmi_tlv_op_gen_mgmt_tx_send(struct ath10k *ar, struct sk_buff *msdu,
+ 	if ((ieee80211_is_action(hdr->frame_control) ||
+ 	     ieee80211_is_deauth(hdr->frame_control) ||
+ 	     ieee80211_is_disassoc(hdr->frame_control)) &&
+-	     ieee80211_has_protected(hdr->frame_control)) {
+-		len += IEEE80211_CCMP_MIC_LEN;
++	     ieee80211_has_protected(hdr->frame_control))
+ 		buf_len += IEEE80211_CCMP_MIC_LEN;
+-	}
+ 
+ 	buf_len = min_t(u32, buf_len, WMI_TLV_MGMT_TX_FRAME_MAX_LEN);
+ 	buf_len = round_up(buf_len, 4);
 -- 
 2.20.1
 
