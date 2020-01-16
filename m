@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6581213E8C8
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:34:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F39C213E8BF
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:34:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387875AbgAPReS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:34:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42534 "EHLO mail.kernel.org"
+        id S2404335AbgAPRaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:30:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404324AbgAPRaK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:30:10 -0500
+        id S2404330AbgAPRaM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:30:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EB6624724;
-        Thu, 16 Jan 2020 17:30:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 011D824718;
+        Thu, 16 Jan 2020 17:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195809;
-        bh=h5WNL/seNEWA2AWyaIonY+f3tUYc7EjWCdHsYyIlzxc=;
+        s=default; t=1579195811;
+        bh=lyG/hC1sIhm3QEKmu0uFZcRAdLkak4Zq0PP9TrCgYfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Et4VyQC7xPpUsvLigB2UXCMYDqhfkvkf4qJKOZNRA5o3LutsfYKlk1K11lrMtCa6r
-         Hi+WeuB8ZADMQjRwKCK/RE3kWobeJsiALnBoOh4RBxLCotTS5QKBW2bWxnl1+8MzQP
-         f2Apg7rY9f5njkiugYRJDTQ9gDogIWcXwlp2mxRk=
+        b=bu99JjfzJmhN7iYGcEtjCs2JE2e26aGmbsy8Vz+mZYUoJwDBChmN9p7T7j7IpYuKK
+         Fgat20I8S5j1haWl6pyItEdVMRc0n6D9ddd0+kSJ2+yTTuhzKx6v0YDjdv1RZrViU7
+         4yxf1kEQGfubK07k+aF2TdDPG0xT5GVWQ5qSg/n0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        Hai Li <hali@codeaurora.org>, Rob Clark <robdclark@gmail.com>,
-        Sean Paul <sean@poorly.run>, Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 322/371] drm/msm/dsi: Implement reset correctly
-Date:   Thu, 16 Jan 2020 12:23:14 -0500
-Message-Id: <20200116172403.18149-265-sashal@kernel.org>
+Cc:     Robin Gong <yibin.gong@nxp.com>, stable@vger.kernel,
+        Jurgen Lambrecht <J.Lambrecht@TELEVIC.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 323/371] dmaengine: imx-sdma: fix size check for sdma script_number
+Date:   Thu, 16 Jan 2020 12:23:15 -0500
+Message-Id: <20200116172403.18149-266-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -45,71 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+From: Robin Gong <yibin.gong@nxp.com>
 
-[ Upstream commit 78e31c42261779a01bc73472d0f65f15378e9de3 ]
+[ Upstream commit bd73dfabdda280fc5f05bdec79b6721b4b2f035f ]
 
-On msm8998, vblank timeouts are observed because the DSI controller is not
-reset properly, which ends up stalling the MDP.  This is because the reset
-logic is not correct per the hardware documentation.
+Illegal memory will be touch if SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V3
+(41) exceed the size of structure sdma_script_start_addrs(40),
+thus cause memory corrupt such as slob block header so that kernel
+trap into while() loop forever in slob_free(). Please refer to below
+code piece in imx-sdma.c:
+for (i = 0; i < sdma->script_number; i++)
+	if (addr_arr[i] > 0)
+		saddr_arr[i] = addr_arr[i]; /* memory corrupt here */
+That issue was brought by commit a572460be9cf ("dmaengine: imx-sdma: Add
+support for version 3 firmware") because SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V3
+(38->41 3 scripts added) not align with script number added in
+sdma_script_start_addrs(2 scripts).
 
-The documentation states that after asserting reset, software should wait
-some time (no indication of how long), or poll the status register until it
-returns 0 before deasserting reset.
-
-wmb() is insufficient for this purpose since it just ensures ordering, not
-timing between writes.  Since asserting and deasserting reset occurs on the
-same register, ordering is already guaranteed by the architecture, making
-the wmb extraneous.
-
-Since we would define a timeout for polling the status register to avoid a
-possible infinite loop, lets just use a static delay of 20 ms, since 16.666
-ms is the time available to process one frame at 60 fps.
-
-Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
-Cc: Hai Li <hali@codeaurora.org>
-Cc: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Reviewed-by: Sean Paul <sean@poorly.run>
-[seanpaul renamed RESET_DELAY to DSI_RESET_TOGGLE_DELAY_MS]
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191011133939.16551-1-jeffrey.l.hugo@gmail.com
+Fixes: a572460be9cf ("dmaengine: imx-sdma: Add support for version 3 firmware")
+Cc: stable@vger.kernel
+Link: https://www.spinics.net/lists/arm-kernel/msg754895.html
+Signed-off-by: Robin Gong <yibin.gong@nxp.com>
+Reported-by: Jurgen Lambrecht <J.Lambrecht@TELEVIC.com>
+Link: https://lore.kernel.org/r/1569347584-3478-1-git-send-email-yibin.gong@nxp.com
+[vkoul: update the patch title]
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/dma/imx-sdma.c                     | 8 ++++++++
+ include/linux/platform_data/dma-imx-sdma.h | 3 +++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index a9a0b56f1fbc..b9cb7c09e05a 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -34,6 +34,8 @@
- #include "dsi_cfg.h"
- #include "msm_kms.h"
+diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
+index 0fc12a8783e3..99f3f22ed647 100644
+--- a/drivers/dma/imx-sdma.c
++++ b/drivers/dma/imx-sdma.c
+@@ -1441,6 +1441,14 @@ static void sdma_add_scripts(struct sdma_engine *sdma,
+ 	if (!sdma->script_number)
+ 		sdma->script_number = SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V1;
  
-+#define DSI_RESET_TOGGLE_DELAY_MS 20
++	if (sdma->script_number > sizeof(struct sdma_script_start_addrs)
++				  / sizeof(s32)) {
++		dev_err(sdma->dev,
++			"SDMA script number %d not match with firmware.\n",
++			sdma->script_number);
++		return;
++	}
 +
- static int dsi_get_version(const void __iomem *base, u32 *major, u32 *minor)
- {
- 	u32 ver;
-@@ -906,7 +908,7 @@ static void dsi_sw_reset(struct msm_dsi_host *msm_host)
- 	wmb(); /* clocks need to be enabled before reset */
+ 	for (i = 0; i < sdma->script_number; i++)
+ 		if (addr_arr[i] > 0)
+ 			saddr_arr[i] = addr_arr[i];
+diff --git a/include/linux/platform_data/dma-imx-sdma.h b/include/linux/platform_data/dma-imx-sdma.h
+index 6eaa53cef0bd..30e676b36b24 100644
+--- a/include/linux/platform_data/dma-imx-sdma.h
++++ b/include/linux/platform_data/dma-imx-sdma.h
+@@ -51,7 +51,10 @@ struct sdma_script_start_addrs {
+ 	/* End of v2 array */
+ 	s32 zcanfd_2_mcu_addr;
+ 	s32 zqspi_2_mcu_addr;
++	s32 mcu_2_ecspi_addr;
+ 	/* End of v3 array */
++	s32 mcu_2_zqspi_addr;
++	/* End of v4 array */
+ };
  
- 	dsi_write(msm_host, REG_DSI_RESET, 1);
--	wmb(); /* make sure reset happen */
-+	msleep(DSI_RESET_TOGGLE_DELAY_MS); /* make sure reset happen */
- 	dsi_write(msm_host, REG_DSI_RESET, 0);
- }
- 
-@@ -1288,7 +1290,7 @@ static void dsi_sw_reset_restore(struct msm_dsi_host *msm_host)
- 
- 	/* dsi controller can only be reset while clocks are running */
- 	dsi_write(msm_host, REG_DSI_RESET, 1);
--	wmb();	/* make sure reset happen */
-+	msleep(DSI_RESET_TOGGLE_DELAY_MS); /* make sure reset happen */
- 	dsi_write(msm_host, REG_DSI_RESET, 0);
- 	wmb();	/* controller out of reset */
- 	dsi_write(msm_host, REG_DSI_CTRL, data0);
+ /**
 -- 
 2.20.1
 
