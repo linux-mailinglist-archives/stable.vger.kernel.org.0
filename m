@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B3C813EA4D
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:43:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6F013EC8D
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:57:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393934AbgAPRnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2393939AbgAPRnc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 12:43:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33614 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393927AbgAPRna (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:43:30 -0500
+        id S2393931AbgAPRnb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:43:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA93224718;
-        Thu, 16 Jan 2020 17:43:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B7FF2469C;
+        Thu, 16 Jan 2020 17:43:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196609;
-        bh=TTm/1xiXVzRgbqhITYxzac3zAfj+k/VG3pkN5qcTSUg=;
+        s=default; t=1579196611;
+        bh=Hk84uf/rM1XtY1kzIekO7c7DJKkXQfSigAeROO6xwbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTZOGj9oFNpJdBb1hIN0oTGji6BiZycnPa2XZVa+YTP8pJzXstviEM/V/QXmkYWfx
-         K4kCrO4unDfB4bf7aZnO04pW/OYGO+THi2HOJgJAmKhgD6xqq/NHU3ay6zXPjZl+xT
-         m/WCxRyA2ll2LZehKA6XhpcvS4rAsAYS/ucrGSoQ=
+        b=ifQ2QrocK0gL4pf0uE5zvWncNYrtyfTFtLTdiwc57zII06AJ6/mTh/TU9Ie9GESPE
+         cZDWtsqZHHtriyFHBjwS6qIzHUKe5hzO4Ru6iUA/95viFEfKsMoXR6WIyVxCP1wXiN
+         CEARTCxp48W/tLLpbEUJP9qQg4Xm1Vv0UDloWomk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yangtao Li <tiny.windzz@gmail.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 029/174] clk: armada-xp: fix refcount leak in axp_clk_init()
-Date:   Thu, 16 Jan 2020 12:40:26 -0500
-Message-Id: <20200116174251.24326-29-sashal@kernel.org>
+Cc:     Gal Pressman <galpress@amazon.com>,
+        Parvi Kaustubhi <pkaustub@cisco.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 030/174] IB/usnic: Fix out of bounds index check in query pkey
+Date:   Thu, 16 Jan 2020 12:40:27 -0500
+Message-Id: <20200116174251.24326-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -44,38 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Gal Pressman <galpress@amazon.com>
 
-[ Upstream commit db20a90a4b6745dad62753f8bd2f66afdd5abc84 ]
+[ Upstream commit 4959d5da5737dd804255c75b8cea0a2929ce279a ]
 
-The of_find_compatible_node() returns a node pointer with refcount
-incremented, but there is the lack of use of the of_node_put() when
-done. Add the missing of_node_put() to release the refcount.
+The pkey table size is one element, index should be tested for > 0 instead
+of > 1.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Fixes: 0a11a6ae9437 ("clk: mvebu: armada-xp: maintain clock init order")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: e3cf00d0a87f ("IB/usnic: Add Cisco VIC low-level hardware driver")
+Signed-off-by: Gal Pressman <galpress@amazon.com>
+Acked-by: Parvi Kaustubhi <pkaustub@cisco.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mvebu/armada-xp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/usnic/usnic_ib_verbs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/mvebu/armada-xp.c b/drivers/clk/mvebu/armada-xp.c
-index b3094315a3c0..2fa15a274719 100644
---- a/drivers/clk/mvebu/armada-xp.c
-+++ b/drivers/clk/mvebu/armada-xp.c
-@@ -202,7 +202,9 @@ static void __init axp_clk_init(struct device_node *np)
+diff --git a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
+index f8e3211689a3..8e18bfca5516 100644
+--- a/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
++++ b/drivers/infiniband/hw/usnic/usnic_ib_verbs.c
+@@ -427,7 +427,7 @@ int usnic_ib_query_gid(struct ib_device *ibdev, u8 port, int index,
+ int usnic_ib_query_pkey(struct ib_device *ibdev, u8 port, u16 index,
+ 				u16 *pkey)
+ {
+-	if (index > 1)
++	if (index > 0)
+ 		return -EINVAL;
  
- 	mvebu_coreclk_setup(np, &axp_coreclks);
- 
--	if (cgnp)
-+	if (cgnp) {
- 		mvebu_clk_gating_setup(cgnp, axp_gating_desc);
-+		of_node_put(cgnp);
-+	}
- }
- CLK_OF_DECLARE(axp_clk, "marvell,armada-xp-core-clock", axp_clk_init);
+ 	*pkey = 0xffff;
 -- 
 2.20.1
 
