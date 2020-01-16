@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0276313E1F2
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:54:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C38113E1FB
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 17:54:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729331AbgAPQwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:52:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35622 "EHLO mail.kernel.org"
+        id S1730353AbgAPQwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 11:52:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbgAPQwc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:52:32 -0500
+        id S1730346AbgAPQwp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:52:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0132205F4;
-        Thu, 16 Jan 2020 16:52:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 399992073A;
+        Thu, 16 Jan 2020 16:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193552;
-        bh=w25Sz8SICwQl+XrqV3Xr7Ksv5FbWlYC8zU9L6OzLX84=;
+        s=default; t=1579193565;
+        bh=zpzci73/WOYggS/ZHbcKp5B5Qj5/qqYf8+daUsf7X+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+PtpmpXtJKv+UFrPBYbLiNzzKN/NZak7+MJg3dBK7p4rCaHGeCpJWa88HrZTUc6T
-         TpMxDkGq/C4oz01EWG+YabBr7kR0PGUOo+u86p40JM8FkX4uoeSKk3nIlVB++CKDVa
-         a/ffwNKiZnTz8uTft27j0vqrOfUDf6hHwKgBzKwY=
+        b=1oJYVDzJOyuKZVvho3neOYFgWmjuZTt0Lxr+Dtx9U1HGpQo3RcGsTnAud6gnXlMZi
+         F4bEvpa5nKs+aQQq5zmygQi5w7yKuq8RNFqpS1diGBWexRjIe5IR6iBQ7cCkLp+HqR
+         24iOCpfwgB2b7wEGV9B9tbl8hJU1fEL54iD9ULU0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 101/205] media: coda: fix deadlock between decoder picture run and start command
-Date:   Thu, 16 Jan 2020 11:41:16 -0500
-Message-Id: <20200116164300.6705-101-sashal@kernel.org>
+Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 109/205] net: axienet: Fix error return code in axienet_probe()
+Date:   Thu, 16 Jan 2020 11:41:24 -0500
+Message-Id: <20200116164300.6705-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -44,48 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit a3fd80198de6ab98a205cf7fb148d88e9e1c44bb ]
+[ Upstream commit eb34e98baf4ce269423948dacefea6747e963b48 ]
 
-The BIT decoder picture run temporarily locks the bitstream mutex while
-the coda device mutex is locked, to refill the bitstream ring buffer.
-Consequently, the decoder start command, which locks both mutexes when
-flushing the bitstream ring buffer, must lock the coda device mutex
-first as well, to avoid an ABBA deadlock.
+In the DMA memory resource get failed case, the error is not
+set and 0 will be returned. Fix it by removing redundant check
+since devm_ioremap_resource() will handle it.
 
-Fixes: e7fd95849b3c ("media: coda: flush bitstream ring buffer on decoder restart")
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 28ef9ebdb64c ("net: axienet: make use of axistream-connected attribute optional")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-common.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index 73222c0615c0..834f11fe9dc2 100644
---- a/drivers/media/platform/coda/coda-common.c
-+++ b/drivers/media/platform/coda/coda-common.c
-@@ -1084,16 +1084,16 @@ static int coda_decoder_cmd(struct file *file, void *fh,
- 
- 	switch (dc->cmd) {
- 	case V4L2_DEC_CMD_START:
--		mutex_lock(&ctx->bitstream_mutex);
- 		mutex_lock(&dev->coda_mutex);
-+		mutex_lock(&ctx->bitstream_mutex);
- 		coda_bitstream_flush(ctx);
--		mutex_unlock(&dev->coda_mutex);
- 		dst_vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx,
- 					 V4L2_BUF_TYPE_VIDEO_CAPTURE);
- 		vb2_clear_last_buffer_dequeued(dst_vq);
- 		ctx->bit_stream_param &= ~CODA_BIT_STREAM_END_FLAG;
- 		coda_fill_bitstream(ctx, NULL);
- 		mutex_unlock(&ctx->bitstream_mutex);
-+		mutex_unlock(&dev->coda_mutex);
- 		break;
- 	case V4L2_DEC_CMD_STOP:
- 		stream_end = false;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index 676006f32f91..479325eeaf8a 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -1790,10 +1790,6 @@ static int axienet_probe(struct platform_device *pdev)
+ 		/* Check for these resources directly on the Ethernet node. */
+ 		struct resource *res = platform_get_resource(pdev,
+ 							     IORESOURCE_MEM, 1);
+-		if (!res) {
+-			dev_err(&pdev->dev, "unable to get DMA memory resource\n");
+-			goto free_netdev;
+-		}
+ 		lp->dma_regs = devm_ioremap_resource(&pdev->dev, res);
+ 		lp->rx_irq = platform_get_irq(pdev, 1);
+ 		lp->tx_irq = platform_get_irq(pdev, 0);
 -- 
 2.20.1
 
