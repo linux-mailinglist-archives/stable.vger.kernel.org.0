@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A4D113E37B
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:02:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 057CE13E3EA
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:05:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388329AbgAPRCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:02:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54840 "EHLO mail.kernel.org"
+        id S2388423AbgAPRCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:02:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387586AbgAPRCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:02:19 -0500
+        id S2388408AbgAPRCg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:02:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58602207FF;
-        Thu, 16 Jan 2020 17:02:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4B802087E;
+        Thu, 16 Jan 2020 17:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194138;
-        bh=Vu2GNXNXW2Lq/MQh8E+8TwQcdIpv8XQTS4u624FWLZc=;
+        s=default; t=1579194155;
+        bh=ulldtO/RFNmOoEzUWRdK1DRt06HF+hBHLHkpTjhoxSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxBSnMVbvfzR5aZU1SCkSeKgHAXr3o858HbgnA9z7RXBur/p5TPGlAklUqoj2aZni
-         xA4qZGpX+DSJQHyIzJ3Q83Q1IBUTASqib4tLb1aWuYvMwzOEDmr8aqqaQ3LDHrWfWY
-         uknYH1I3kzcw4YZzUkyKaNTL5RGc845aZ+Dsvj1Y=
+        b=QBbnXdsELDhGLcaFlEPclgoT2RjmL2F4vDxKNCvwVwoOKbpNHhINg07CdPlCFC4ig
+         rP9p6WO2bJ9ugS5f4dtXv3AYbsuLjH/Fif4Xh8ScZSwWWSatK/NvSEEtT3zs1pcIms
+         LWoEPHV/+MI8CRdbzXt45kb9W4WYYqPHCjKKGvhg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 226/671] netfilter: nft_set_hash: bogus element self comparison from deactivation path
-Date:   Thu, 16 Jan 2020 11:52:15 -0500
-Message-Id: <20200116165940.10720-109-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Thomas Gleixner <tglx@linutronix.de>,
+        Andyt Lutomirski <luto@kernel.org>,
+        dave.hansen@linux.intel.com, peterz@infradead.org, bp@alien8.de,
+        hpa@zytor.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 238/671] x86/mm: Remove unused variable 'cpu'
+Date:   Thu, 16 Jan 2020 11:52:27 -0500
+Message-Id: <20200116165940.10720-121-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -45,35 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit a01cbae57ec29b161d42ee1caa4ffffda5d519c2 ]
+[ Upstream commit 3609e31bc8dc03b701390f79c74fc7fe92b95039 ]
 
-Use the element from the loop iteration, not the same element we want to
-deactivate otherwise this branch always evaluates true.
+The commit a2055abe9c67 ("x86/mm: Pass flush_tlb_info to
+flush_tlb_others() etc") removed the unnecessary cpu parameter from
+uv_flush_tlb_others() but left an unused variable.
 
-Fixes: 6c03ae210ce3 ("netfilter: nft_set_hash: add non-resizable hashtable implementation")
-Reported-by: Florian Westphal <fw@strlen.de>
-Tested-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+arch/x86/mm/tlb.c: In function 'native_flush_tlb_others':
+arch/x86/mm/tlb.c:688:16: warning: variable 'cpu' set but not used
+[-Wunused-but-set-variable]
+   unsigned int cpu;
+                ^~~
+
+Fixes: a2055abe9c67 ("x86/mm: Pass flush_tlb_info to flush_tlb_others() etc")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Andyt Lutomirski <luto@kernel.org>
+Cc: dave.hansen@linux.intel.com
+Cc: peterz@infradead.org
+Cc: bp@alien8.de
+Cc: hpa@zytor.com
+Link: https://lkml.kernel.org/r/20190228220155.88124-1-cai@lca.pw
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_hash.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/mm/tlb.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/net/netfilter/nft_set_hash.c b/net/netfilter/nft_set_hash.c
-index 8dde4bfe8b8a..05118e03c3e4 100644
---- a/net/netfilter/nft_set_hash.c
-+++ b/net/netfilter/nft_set_hash.c
-@@ -555,7 +555,7 @@ static void *nft_hash_deactivate(const struct net *net,
- 
- 	hash = nft_jhash(set, priv, &this->ext);
- 	hlist_for_each_entry(he, &priv->table[hash], node) {
--		if (!memcmp(nft_set_ext_key(&this->ext), &elem->key.val,
-+		if (!memcmp(nft_set_ext_key(&he->ext), &elem->key.val,
- 			    set->klen) &&
- 		    nft_set_elem_active(&he->ext, genmask)) {
- 			nft_set_elem_change_active(net, set, &he->ext);
+diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+index a6836ab0fcc7..b72296bd04a2 100644
+--- a/arch/x86/mm/tlb.c
++++ b/arch/x86/mm/tlb.c
+@@ -664,9 +664,6 @@ void native_flush_tlb_others(const struct cpumask *cpumask,
+ 		 * that UV should be updated so that smp_call_function_many(),
+ 		 * etc, are optimal on UV.
+ 		 */
+-		unsigned int cpu;
+-
+-		cpu = smp_processor_id();
+ 		cpumask = uv_flush_tlb_others(cpumask, info);
+ 		if (cpumask)
+ 			smp_call_function_many(cpumask, flush_tlb_func_remote,
 -- 
 2.20.1
 
