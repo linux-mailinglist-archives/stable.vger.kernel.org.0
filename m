@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04DCD13F440
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:48:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E01713F444
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389733AbgAPRJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:09:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46160 "EHLO mail.kernel.org"
+        id S2389886AbgAPSsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:48:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389727AbgAPRJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:09:42 -0500
+        id S2389735AbgAPRJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D1AC2467A;
-        Thu, 16 Jan 2020 17:09:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88C0B2468D;
+        Thu, 16 Jan 2020 17:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194581;
-        bh=3qKvzdVHJtKqiD1XDd9gYxY9M0XMt+MlxqxmSCoyTpw=;
+        s=default; t=1579194584;
+        bh=2dxMZ0XX0ymzZ5ZeO57n1kVvU7HDxLY2QeDz4UF2+DY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HHqt7rdtE7dT0wv7cZjb1PbIQ4Z2p7gs/94lIugZSFOkuzMj8Zw7LFlgUZLE7Hc1b
-         DPX4v2KPjCm0liOyVot9DC90N5QicHFj090zXiZn53PbC7urfHXhk8j8dccsJ+f88R
-         qVDNJubWC4xkJ8Tdc4eGZrja9XTRyIW2Z/UaH56A=
+        b=1bI8rzPfR7afFsmovSB974vyQWrF9q3hTaiU/PYdPxWY5YjFKwHyUhCBRyHA/IVyx
+         wafS1u18xADnsPCKCN5x/biCU0xT3LisHEvSTkKQc/A7opUtOpDHzUcmJc95p/DDWr
+         RBd5Zj1BW6yJu8gcaOk/bu1yBFOkSt4MFre4iCVs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Minghuan Lian <Minghuan.Lian@nxp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 455/671] PCI: mobiveil: Fix devfn check in mobiveil_pcie_valid_device()
-Date:   Thu, 16 Jan 2020 12:01:33 -0500
-Message-Id: <20200116170509.12787-192-sashal@kernel.org>
+Cc:     David Disseldorp <ddiss@suse.de>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 457/671] ceph: fix "ceph.dir.rctime" vxattr value
+Date:   Thu, 16 Jan 2020 12:01:35 -0500
+Message-Id: <20200116170509.12787-194-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,39 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit cbd50b3ca3964c79dac65fda277637577e029e8c ]
+[ Upstream commit 718807289d4130be1fe13f24f018733116958070 ]
 
-Current check for devfn number in mobiveil_pci_valid_device() is
-wrong in that it flags as invalid functions present in PCI device 0
-in the root bus while it is perfectly valid to access all functions
-in PCI device 0 in the root bus.
+The vxattr value incorrectly places a "09" prefix to the nanoseconds
+field, instead of providing it as a zero-pad width specifier after '%'.
 
-Update the check in mobiveil_pci_valid_device() to fix the issue.
-
-Fixes: 9af6bcb11e12 ("PCI: mobiveil: Add Mobiveil PCIe Host Bridge IP driver")
-Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Minghuan Lian <Minghuan.Lian@nxp.com>
+Fixes: 3489b42a72a4 ("ceph: fix three bugs, two in ceph_vxattrcb_file_layout()")
+Link: https://tracker.ceph.com/issues/39943
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mobiveil.c | 2 +-
+ fs/ceph/xattr.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pcie-mobiveil.c b/drivers/pci/controller/pcie-mobiveil.c
-index dc228eb500ed..476be4f3c7f6 100644
---- a/drivers/pci/controller/pcie-mobiveil.c
-+++ b/drivers/pci/controller/pcie-mobiveil.c
-@@ -174,7 +174,7 @@ static bool mobiveil_pcie_valid_device(struct pci_bus *bus, unsigned int devfn)
- 	 * Do not read more than one device on the bus directly
- 	 * attached to RC
- 	 */
--	if ((bus->primary == pcie->root_bus_nr) && (devfn > 0))
-+	if ((bus->primary == pcie->root_bus_nr) && (PCI_SLOT(devfn) > 0))
- 		return false;
+diff --git a/fs/ceph/xattr.c b/fs/ceph/xattr.c
+index 5e4f3f833e85..a09ce27ab220 100644
+--- a/fs/ceph/xattr.c
++++ b/fs/ceph/xattr.c
+@@ -221,7 +221,7 @@ static size_t ceph_vxattrcb_dir_rbytes(struct ceph_inode_info *ci, char *val,
+ static size_t ceph_vxattrcb_dir_rctime(struct ceph_inode_info *ci, char *val,
+ 				       size_t size)
+ {
+-	return snprintf(val, size, "%lld.09%ld", ci->i_rctime.tv_sec,
++	return snprintf(val, size, "%lld.%09ld", ci->i_rctime.tv_sec,
+ 			ci->i_rctime.tv_nsec);
+ }
  
- 	return true;
 -- 
 2.20.1
 
