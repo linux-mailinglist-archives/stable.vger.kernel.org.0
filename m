@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3307013FF25
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:41:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CCD613FE59
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:35:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733160AbgAPX1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:27:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
+        id S2391246AbgAPXej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:34:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730992AbgAPX1O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:27:14 -0500
+        id S2404292AbgAPXdL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:33:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3544120684;
-        Thu, 16 Jan 2020 23:27:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8822B2072B;
+        Thu, 16 Jan 2020 23:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217233;
-        bh=p9B0uT2oHpZTVWWgC2Fc08MdyScnRBmnaT96Qf13I7I=;
+        s=default; t=1579217591;
+        bh=zUwbC1w2zhbHABY8M4rwoXqvkrgONGKbYDP+0nH1LKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNftGDSOOH5oKt6mQxaZC563AsXI2ssYZzxY+c2Je9GoxuLXT+wcHVNFL/RS2aeYX
-         DJvb8vMTS5q1I0Slm3G3m7kWTIukZv+WTxIJjAzAtyNzEs575Pygj9r5D5aRzXKxdN
-         xLnR6lcYz8mMDWa1Fuj/CaKD3DVSHLqy0dNhXpX4=
+        b=m7Y4IkSBJvoIz4bSnW12QveE+P6tlNbDR1IFQtgr81EM1a1PcR/eGObGnj0VuDiZz
+         Gz9HWNo+Y0ZQ7TKpDW249sSAyru9uuN+vbgfbil/cIi595VVnmfH83AxY4MAAk3iU/
+         jsUTSS6Djaf5bpwigYhH5v1qHMO3RwY7toYxhHMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 185/203] rseq/selftests: Turn off timeout setting
+        Swapna Manupati <swapna.manupati@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Srinivas Neeli <srinivas.neeli@xilinx.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.14 24/71] gpio: zynq: Fix for bug in zynq_gpio_restore_context API
 Date:   Fri, 17 Jan 2020 00:18:22 +0100
-Message-Id: <20200116231800.506910692@linuxfoundation.org>
+Message-Id: <20200116231712.900067453@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
-References: <20200116231745.218684830@linuxfoundation.org>
+In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
+References: <20200116231709.377772748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,38 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Swapna Manupati <swapna.manupati@xilinx.com>
 
-[ Upstream commit af9cb29c5488381083b0b5ccdfb3cd931063384a ]
+commit 36f2e7207f21a83ca0054116191f119ac64583ab upstream.
 
-As the rseq selftests can run for a long period of time, disable the
-timeout that the general selftests have.
+This patch writes the inverse value of Interrupt Mask Status
+register into the Interrupt Enable register in
+zynq_gpio_restore_context API to fix the bug.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: "H . Peter Anvin" <hpa@zytor.com>
-Cc: Paul Turner <pjt@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e11de4de28c0 ("gpio: zynq: Add support for suspend resume")
+Signed-off-by: Swapna Manupati <swapna.manupati@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
+Link: https://lore.kernel.org/r/1577362338-28744-2-git-send-email-srinivas.neeli@xilinx.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/testing/selftests/rseq/settings | 1 +
- 1 file changed, 1 insertion(+)
- create mode 100644 tools/testing/selftests/rseq/settings
+ drivers/gpio/gpio-zynq.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/rseq/settings b/tools/testing/selftests/rseq/settings
-new file mode 100644
-index 000000000000..e7b9417537fb
---- /dev/null
-+++ b/tools/testing/selftests/rseq/settings
-@@ -0,0 +1 @@
-+timeout=0
--- 
-2.20.1
-
+--- a/drivers/gpio/gpio-zynq.c
++++ b/drivers/gpio/gpio-zynq.c
+@@ -639,6 +639,8 @@ static void zynq_gpio_restore_context(st
+ 	unsigned int bank_num;
+ 
+ 	for (bank_num = 0; bank_num < gpio->p_data->max_bank; bank_num++) {
++		writel_relaxed(ZYNQ_GPIO_IXR_DISABLE_ALL, gpio->base_addr +
++				ZYNQ_GPIO_INTDIS_OFFSET(bank_num));
+ 		writel_relaxed(gpio->context.datalsw[bank_num],
+ 			       gpio->base_addr +
+ 			       ZYNQ_GPIO_DATA_LSW_OFFSET(bank_num));
+@@ -648,9 +650,6 @@ static void zynq_gpio_restore_context(st
+ 		writel_relaxed(gpio->context.dirm[bank_num],
+ 			       gpio->base_addr +
+ 			       ZYNQ_GPIO_DIRM_OFFSET(bank_num));
+-		writel_relaxed(gpio->context.int_en[bank_num],
+-			       gpio->base_addr +
+-			       ZYNQ_GPIO_INTEN_OFFSET(bank_num));
+ 		writel_relaxed(gpio->context.int_type[bank_num],
+ 			       gpio->base_addr +
+ 			       ZYNQ_GPIO_INTTYPE_OFFSET(bank_num));
+@@ -660,6 +659,9 @@ static void zynq_gpio_restore_context(st
+ 		writel_relaxed(gpio->context.int_any[bank_num],
+ 			       gpio->base_addr +
+ 			       ZYNQ_GPIO_INTANY_OFFSET(bank_num));
++		writel_relaxed(~(gpio->context.int_en[bank_num]),
++			       gpio->base_addr +
++			       ZYNQ_GPIO_INTEN_OFFSET(bank_num));
+ 	}
+ }
+ 
 
 
