@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F29A513FEDF
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:40:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F73B13FF01
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:40:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389214AbgAPX2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:28:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60308 "EHLO mail.kernel.org"
+        id S1729165AbgAPXjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:39:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390379AbgAPX17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390315AbgAPX17 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Jan 2020 18:27:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 837A4206D9;
-        Thu, 16 Jan 2020 23:27:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E466020684;
+        Thu, 16 Jan 2020 23:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217277;
-        bh=KeMuUU1uohJ1StY+/CmAWDNzajPxBmntrU56E74dvHo=;
+        s=default; t=1579217279;
+        bh=KNMUoW2XH5IzFZtNLY8+UWNfcdNo7DhgtsCcv8xcdIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4qzHjHiu8PyMahtfkYQ4FNGO6p3LBfOM/2h6iUzKAD7HObvu06yjPoF4lfVgxgsj
-         D2ZZVQ94s4LCX5cU0rIfhgN1oW161bfKaVgHiwuCkuAiDX9msaDbR5j/MqPTQiyZoF
-         E7dWGup6Kq1GH/jifN83fsielta4sSbXjUqOD9K8=
+        b=mjVrixY9R7yWp89ICMg6AvCfSCPUvm8ZL6uWqgQjubVvt2TNNSwjUW/UOIzKb5Alz
+         8/Ps9/n0GEGxsNpQA2egW9TQP6LV0WWngec88STOmd3AExncv0eIPpzCyyShsuChYa
+         /f5TtGNpHqshAJoqWvsnWn+7A0kNloTHPuRFnghc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ran Bi <ran.bi@mediatek.com>,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.19 17/84] rtc: mt6397: fix alarm register overwrite
-Date:   Fri, 17 Jan 2020 00:17:51 +0100
-Message-Id: <20200116231715.667078333@linuxfoundation.org>
+        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.19 18/84] RDMA/bnxt_re: Avoid freeing MR resources if dereg fails
+Date:   Fri, 17 Jan 2020 00:17:52 +0100
+Message-Id: <20200116231715.784465944@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
 References: <20200116231713.087649517@linuxfoundation.org>
@@ -44,103 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ran Bi <ran.bi@mediatek.com>
+From: Selvin Xavier <selvin.xavier@broadcom.com>
 
-commit 653997eeecef95c3ead4fba1b2d27e6a5854d6cd upstream.
+commit 9a4467a6b282a299b932608ac2c9034f8415359f upstream.
 
-Alarm registers high byte was reserved for other functions.
-This add mask in alarm registers operation functions.
-This also fix error condition in interrupt handler.
+The driver returns an error code for MR dereg, but frees the MR structure.
+When the MR dereg is retried due to previous error, the system crashes as
+the structure is already freed.
 
-Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
+  BUG: unable to handle kernel NULL pointer dereference at 00000000000001b8
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  CPU: 7 PID: 12178 Comm: ib_send_bw Kdump: loaded Not tainted 4.18.0-124.el8.x86_64 #1
+  Hardware name: Dell Inc. PowerEdge R430/03XKDV, BIOS 1.1.10 03/10/2015
+  RIP: 0010:__dev_printk+0x2a/0x70
+  Code: 0f 1f 44 00 00 49 89 d1 48 85 f6 0f 84 f6 2b 00 00 4c 8b 46 70 4d 85 c0 75 04 4c 8b
+46 10 48 8b 86 a8 00 00 00 48 85 c0 74 16 <48> 8b 08 0f be 7f 01 48 c7 c2 13 ac ac 83 83 ef 30 e9 10 fe ff ff
+  RSP: 0018:ffffaf7c04607a60 EFLAGS: 00010006
+  RAX: 00000000000001b8 RBX: ffffa0010c91c488 RCX: 0000000000000246
+  RDX: ffffaf7c04607a68 RSI: ffffa0010c91caa8 RDI: ffffffff83a788eb
+  RBP: ffffaf7c04607ac8 R08: 0000000000000000 R09: ffffaf7c04607a68
+  R10: 0000000000000000 R11: 0000000000000001 R12: ffffaf7c04607b90
+  R13: 000000000000000e R14: 0000000000000000 R15: 00000000ffffa001
+  FS:  0000146fa1f1cdc0(0000) GS:ffffa0012fac0000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00000000000001b8 CR3: 000000007680a003 CR4: 00000000001606e0
+  Call Trace:
+   dev_err+0x6c/0x90
+   ? dev_printk_emit+0x4e/0x70
+   bnxt_qplib_rcfw_send_message+0x594/0x660 [bnxt_re]
+   ? dev_err+0x6c/0x90
+   bnxt_qplib_free_mrw+0x80/0xe0 [bnxt_re]
+   bnxt_re_dereg_mr+0x2e/0xd0 [bnxt_re]
+   ib_dereg_mr+0x2f/0x50 [ib_core]
+   destroy_hw_idr_uobject+0x20/0x70 [ib_uverbs]
+   uverbs_destroy_uobject+0x2e/0x170 [ib_uverbs]
+   __uverbs_cleanup_ufile+0x6e/0x90 [ib_uverbs]
+   uverbs_destroy_ufile_hw+0x61/0x130 [ib_uverbs]
+   ib_uverbs_close+0x1f/0x80 [ib_uverbs]
+   __fput+0xb7/0x230
+   task_work_run+0x8a/0xb0
+   do_exit+0x2da/0xb40
+...
+  RIP: 0033:0x146fa113a387
+  Code: Bad RIP value.
+  RSP: 002b:00007fff945d1478 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff02
+  RAX: 0000000000000000 RBX: 000055a248908d70 RCX: 0000000000000000
+  RDX: 0000146fa1f2b000 RSI: 0000000000000001 RDI: 000055a248906488
+  RBP: 000055a248909630 R08: 0000000000010000 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000000 R12: 000055a248906488
+  R13: 0000000000000001 R14: 0000000000000000 R15: 000055a2489095f0
 
-Signed-off-by: Ran Bi <ran.bi@mediatek.com>
-Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Link: https://lore.kernel.org/r/1576057435-3561-6-git-send-email-hsin-hsiung.wang@mediatek.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Do not free the MR structures, when driver returns error to the stack.
+
+Fixes: 872f3578241d ("RDMA/bnxt_re: Add support for MRs with Huge pages")
+Link: https://lore.kernel.org/r/1574671174-5064-2-git-send-email-selvin.xavier@broadcom.com
+Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/rtc-mt6397.c |   47 +++++++++++++++++++++++++++++++++--------------
- 1 file changed, 33 insertions(+), 14 deletions(-)
+ drivers/infiniband/hw/bnxt_re/ib_verbs.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -55,6 +55,14 @@
+--- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
++++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+@@ -3368,8 +3368,10 @@ int bnxt_re_dereg_mr(struct ib_mr *ib_mr
+ 	int rc;
  
- #define RTC_AL_SEC		0x0018
+ 	rc = bnxt_qplib_free_mrw(&rdev->qplib_res, &mr->qplib_mr);
+-	if (rc)
++	if (rc) {
+ 		dev_err(rdev_to_dev(rdev), "Dereg MR failed: %#x\n", rc);
++		return rc;
++	}
  
-+#define RTC_AL_SEC_MASK		0x003f
-+#define RTC_AL_MIN_MASK		0x003f
-+#define RTC_AL_HOU_MASK		0x001f
-+#define RTC_AL_DOM_MASK		0x001f
-+#define RTC_AL_DOW_MASK		0x0007
-+#define RTC_AL_MTH_MASK		0x000f
-+#define RTC_AL_YEA_MASK		0x007f
-+
- #define RTC_PDN2		0x002e
- #define RTC_PDN2_PWRON_ALARM	BIT(4)
- 
-@@ -111,7 +119,7 @@ static irqreturn_t mtk_rtc_irq_handler_t
- 		irqen = irqsta & ~RTC_IRQ_EN_AL;
- 		mutex_lock(&rtc->lock);
- 		if (regmap_write(rtc->regmap, rtc->addr_base + RTC_IRQ_EN,
--				 irqen) < 0)
-+				 irqen) == 0)
- 			mtk_rtc_write_trigger(rtc);
- 		mutex_unlock(&rtc->lock);
- 
-@@ -233,12 +241,12 @@ static int mtk_rtc_read_alarm(struct dev
- 	alm->pending = !!(pdn2 & RTC_PDN2_PWRON_ALARM);
- 	mutex_unlock(&rtc->lock);
- 
--	tm->tm_sec = data[RTC_OFFSET_SEC];
--	tm->tm_min = data[RTC_OFFSET_MIN];
--	tm->tm_hour = data[RTC_OFFSET_HOUR];
--	tm->tm_mday = data[RTC_OFFSET_DOM];
--	tm->tm_mon = data[RTC_OFFSET_MTH];
--	tm->tm_year = data[RTC_OFFSET_YEAR];
-+	tm->tm_sec = data[RTC_OFFSET_SEC] & RTC_AL_SEC_MASK;
-+	tm->tm_min = data[RTC_OFFSET_MIN] & RTC_AL_MIN_MASK;
-+	tm->tm_hour = data[RTC_OFFSET_HOUR] & RTC_AL_HOU_MASK;
-+	tm->tm_mday = data[RTC_OFFSET_DOM] & RTC_AL_DOM_MASK;
-+	tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_AL_MTH_MASK;
-+	tm->tm_year = data[RTC_OFFSET_YEAR] & RTC_AL_YEA_MASK;
- 
- 	tm->tm_year += RTC_MIN_YEAR_OFFSET;
- 	tm->tm_mon--;
-@@ -259,14 +267,25 @@ static int mtk_rtc_set_alarm(struct devi
- 	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
- 	tm->tm_mon++;
- 
--	data[RTC_OFFSET_SEC] = tm->tm_sec;
--	data[RTC_OFFSET_MIN] = tm->tm_min;
--	data[RTC_OFFSET_HOUR] = tm->tm_hour;
--	data[RTC_OFFSET_DOM] = tm->tm_mday;
--	data[RTC_OFFSET_MTH] = tm->tm_mon;
--	data[RTC_OFFSET_YEAR] = tm->tm_year;
--
- 	mutex_lock(&rtc->lock);
-+	ret = regmap_bulk_read(rtc->regmap, rtc->addr_base + RTC_AL_SEC,
-+			       data, RTC_OFFSET_COUNT);
-+	if (ret < 0)
-+		goto exit;
-+
-+	data[RTC_OFFSET_SEC] = ((data[RTC_OFFSET_SEC] & ~(RTC_AL_SEC_MASK)) |
-+				(tm->tm_sec & RTC_AL_SEC_MASK));
-+	data[RTC_OFFSET_MIN] = ((data[RTC_OFFSET_MIN] & ~(RTC_AL_MIN_MASK)) |
-+				(tm->tm_min & RTC_AL_MIN_MASK));
-+	data[RTC_OFFSET_HOUR] = ((data[RTC_OFFSET_HOUR] & ~(RTC_AL_HOU_MASK)) |
-+				(tm->tm_hour & RTC_AL_HOU_MASK));
-+	data[RTC_OFFSET_DOM] = ((data[RTC_OFFSET_DOM] & ~(RTC_AL_DOM_MASK)) |
-+				(tm->tm_mday & RTC_AL_DOM_MASK));
-+	data[RTC_OFFSET_MTH] = ((data[RTC_OFFSET_MTH] & ~(RTC_AL_MTH_MASK)) |
-+				(tm->tm_mon & RTC_AL_MTH_MASK));
-+	data[RTC_OFFSET_YEAR] = ((data[RTC_OFFSET_YEAR] & ~(RTC_AL_YEA_MASK)) |
-+				(tm->tm_year & RTC_AL_YEA_MASK));
-+
- 	if (alm->enabled) {
- 		ret = regmap_bulk_write(rtc->regmap,
- 					rtc->addr_base + RTC_AL_SEC,
+ 	if (mr->pages) {
+ 		rc = bnxt_qplib_free_fast_reg_page_list(&rdev->qplib_res,
 
 
