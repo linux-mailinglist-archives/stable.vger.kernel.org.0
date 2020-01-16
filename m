@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6428C13E6CB
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:22:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80DF413E6E9
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390774AbgAPRNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:13:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58816 "EHLO mail.kernel.org"
+        id S2390805AbgAPRWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:22:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390088AbgAPRNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:13:33 -0500
+        id S2390772AbgAPRNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:13:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 727A520684;
-        Thu, 16 Jan 2020 17:13:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA2672469E;
+        Thu, 16 Jan 2020 17:13:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194812;
-        bh=MxaV68l1iyvzUPYvUZ38+nAcxYoouadMP8paClzaSmI=;
+        s=default; t=1579194813;
+        bh=2alawyexEup4tNEDc7koqZfVAReZTW5i3HMWygIn5VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XRQ3P7mQD+mHeVOy7N9ZWTvOyrtYy6g7+uTucAWUKIPZxuBlkxOkFb+ZuXlSwaKKx
-         i/VApS6SKn5ZtKP2KN0aw/2yoGjUoL1u7H/lXEhY8/pvBIwuEnZrOMsLsDhhHEn6ws
-         lpi/xWB+kCV81cZH+s703rlz33B12Z3nUsIlviVY=
+        b=0iElM7d5i2zJuT3+WJTPxs3zvtcLhMtR5znBf7fuCVFkQAYuWwhXP1mNlPX+z5t/N
+         qyCx5GGlbTlz7vbP8A9qvZeMmN52lyL37jQ5VpwS5f7TCTLlq1GZcJ0n3YTBJ0Cv29
+         AhoI/8TyFYz1pwbWAW4JQ0rtHojAv9/hqnJ2HGZk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Hewitt <christianshewitt@gmail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 619/671] arm64: dts: meson-gxl-s905x-khadas-vim: fix gpio-keys-polled node
-Date:   Thu, 16 Jan 2020 12:04:17 -0500
-Message-Id: <20200116170509.12787-356-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 620/671] media: v4l: cadence: Fix how unsued lanes are handled in 'csi2rx_start()'
+Date:   Thu, 16 Jan 2020 12:04:18 -0500
+Message-Id: <20200116170509.12787-357-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,42 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d5f6fa904ecbadbb8e9fa6302b0fc165bec0559a ]
+[ Upstream commit 2eca8e4c1df4864b937752c3aa2f7925114f4806 ]
 
-Fix DTC warnings:
+The 2nd parameter of 'find_first_zero_bit()' is a number of bits, not of
+bytes. So use 'csi2rx->max_lanes' instead of 'sizeof(lanes_used)'.
 
-arch/arm/dts/meson-gxl-s905x-khadas-vim.dtb: Warning (avoid_unnecessary_addr_size):
-   /gpio-keys-polled: unnecessary #address-cells/#size-cells
-      without "ranges" or child "reg" property
-
-Fixes: e15d2774b8c0 ("ARM64: dts: meson-gxl: add support for the Khadas VIM board")
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Fixes: 1fc3b37f34f6 ("media: v4l: cadence: Add Cadence MIPI-CSI2 RX driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/media/platform/cadence/cdns-csi2rx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-index a589547fc6e3..062e12aa4677 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-@@ -33,11 +33,9 @@
- 
- 	gpio-keys-polled {
- 		compatible = "gpio-keys-polled";
--		#address-cells = <1>;
--		#size-cells = <0>;
- 		poll-interval = <100>;
- 
--		button@0 {
-+		power-button {
- 			label = "power";
- 			linux,code = <KEY_POWER>;
- 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_LOW>;
+diff --git a/drivers/media/platform/cadence/cdns-csi2rx.c b/drivers/media/platform/cadence/cdns-csi2rx.c
+index 43e43c7b3e98..6f64703d2c7c 100644
+--- a/drivers/media/platform/cadence/cdns-csi2rx.c
++++ b/drivers/media/platform/cadence/cdns-csi2rx.c
+@@ -129,7 +129,7 @@ static int csi2rx_start(struct csi2rx_priv *csi2rx)
+ 	 */
+ 	for (i = csi2rx->num_lanes; i < csi2rx->max_lanes; i++) {
+ 		unsigned int idx = find_first_zero_bit(&lanes_used,
+-						       sizeof(lanes_used));
++						       csi2rx->max_lanes);
+ 		set_bit(idx, &lanes_used);
+ 		reg |= CSI2RX_STATIC_CFG_DLANE_MAP(i, i + 1);
+ 	}
 -- 
 2.20.1
 
