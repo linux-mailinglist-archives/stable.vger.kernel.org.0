@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ACD213FEBB
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:37:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1242113FE6A
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:35:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391390AbgAPXaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:30:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36486 "EHLO mail.kernel.org"
+        id S2403819AbgAPXch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:32:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391384AbgAPXaD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:30:03 -0500
+        id S2403889AbgAPXch (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:32:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5AEA214AF;
-        Thu, 16 Jan 2020 23:30:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69BAE20684;
+        Thu, 16 Jan 2020 23:32:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217403;
-        bh=uxoYdEa1YMvd4QmddYEXwU+ZoyC4hc6YNpLE/Vn6OP4=;
+        s=default; t=1579217555;
+        bh=Y9zR/zTmFhs3FpnRvxKhdD2kucn2ce+WPJwdkc21DP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxGvcuplotiqP2vFSy0innAHUepsbb4BQlW7AwbQXC+RvKTKCJergyjCtrxJJx+LO
-         XgOAtK0yQfm/k4uPZ7DsaihYijxUdVIJNzeDuO+MLW7fWzSxzXu571zXBBjKXjW1hx
-         VHMNASux1QBIN89Y5tS799dLLXrZIeO8mUzIDGVM=
+        b=kEHYBMlRiw8GFQ49CUalo+QwDmPgNciQCTFOVyp7SFVS/HcgI/Oc+FtZSeKcU14hg
+         Pby+HzIDWoHgoNfVxYcbR0RYVmT0/MyWcCd0jJjV08IVW8N/tFoJ0VOykHDaU0hlQh
+         U60jJkWRQCFT0+PK5w6h1qJFRZVpmZMDgCKYvSOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 69/84] rtlwifi: Remove unnecessary NULL check in rtl_regd_init
-Date:   Fri, 17 Jan 2020 00:18:43 +0100
-Message-Id: <20200116231721.704400580@linuxfoundation.org>
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.14 46/71] af_unix: add compat_ioctl support
+Date:   Fri, 17 Jan 2020 00:18:44 +0100
+Message-Id: <20200116231716.118855040@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
-References: <20200116231713.087649517@linuxfoundation.org>
+In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
+References: <20200116231709.377772748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 091c6e9c083f7ebaff00b37ad13562d51464d175 upstream.
+commit 5f6beb9e0f633f3cc845cdd67973c506372931b4 upstream.
 
-When building with Clang + -Wtautological-pointer-compare:
+The af_unix protocol family has a custom ioctl command (inexplicibly
+based on SIOCPROTOPRIVATE), but never had a compat_ioctl handler for
+32-bit applications.
 
-drivers/net/wireless/realtek/rtlwifi/regd.c:389:33: warning: comparison
-of address of 'rtlpriv->regd' equal to a null pointer is always false
-[-Wtautological-pointer-compare]
-        if (wiphy == NULL || &rtlpriv->regd == NULL)
-                              ~~~~~~~~~^~~~    ~~~~
-1 warning generated.
+Since all commands are compatible here, add a trivial wrapper that
+performs the compat_ptr() conversion for SIOCOUTQ/SIOCINQ.  SIOCUNIXFILE
+does not use the argument, but it doesn't hurt to also use compat_ptr()
+here.
 
-The address of an array member is never NULL unless it is the first
-struct member so remove the unnecessary check. This was addressed in
-the staging version of the driver in commit f986978b32b3 ("Staging:
-rtlwifi: remove unnecessary NULL check").
-
-While we are here, fix the following checkpatch warning:
-
-CHECK: Comparison to NULL could be written "!wiphy"
-35: FILE: drivers/net/wireless/realtek/rtlwifi/regd.c:389:
-+       if (wiphy == NULL)
-
-Fixes: 0c8173385e54 ("rtl8192ce: Add new driver")
-Link:https://github.com/ClangBuiltLinux/linux/issues/750
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: ba94f3088b79 ("unix: add ioctl to open a unix socket file with O_PATH")
+Cc: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/realtek/rtlwifi/regd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/unix/af_unix.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/drivers/net/wireless/realtek/rtlwifi/regd.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/regd.c
-@@ -427,7 +427,7 @@ int rtl_regd_init(struct ieee80211_hw *h
- 	struct wiphy *wiphy = hw->wiphy;
- 	struct country_code_to_enum_rd *country = NULL;
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -644,6 +644,9 @@ static unsigned int unix_poll(struct fil
+ static unsigned int unix_dgram_poll(struct file *, struct socket *,
+ 				    poll_table *);
+ static int unix_ioctl(struct socket *, unsigned int, unsigned long);
++#ifdef CONFIG_COMPAT
++static int unix_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg);
++#endif
+ static int unix_shutdown(struct socket *, int);
+ static int unix_stream_sendmsg(struct socket *, struct msghdr *, size_t);
+ static int unix_stream_recvmsg(struct socket *, struct msghdr *, size_t, int);
+@@ -685,6 +688,9 @@ static const struct proto_ops unix_strea
+ 	.getname =	unix_getname,
+ 	.poll =		unix_poll,
+ 	.ioctl =	unix_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl =	unix_compat_ioctl,
++#endif
+ 	.listen =	unix_listen,
+ 	.shutdown =	unix_shutdown,
+ 	.setsockopt =	sock_no_setsockopt,
+@@ -708,6 +714,9 @@ static const struct proto_ops unix_dgram
+ 	.getname =	unix_getname,
+ 	.poll =		unix_dgram_poll,
+ 	.ioctl =	unix_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl =	unix_compat_ioctl,
++#endif
+ 	.listen =	sock_no_listen,
+ 	.shutdown =	unix_shutdown,
+ 	.setsockopt =	sock_no_setsockopt,
+@@ -730,6 +739,9 @@ static const struct proto_ops unix_seqpa
+ 	.getname =	unix_getname,
+ 	.poll =		unix_dgram_poll,
+ 	.ioctl =	unix_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl =	unix_compat_ioctl,
++#endif
+ 	.listen =	unix_listen,
+ 	.shutdown =	unix_shutdown,
+ 	.setsockopt =	sock_no_setsockopt,
+@@ -2650,6 +2662,13 @@ static int unix_ioctl(struct socket *soc
+ 	return err;
+ }
  
--	if (wiphy == NULL || &rtlpriv->regd == NULL)
-+	if (!wiphy)
- 		return -EINVAL;
- 
- 	/* init country_code from efuse channel plan */
++#ifdef CONFIG_COMPAT
++static int unix_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
++{
++	return unix_ioctl(sock, cmd, (unsigned long)compat_ptr(arg));
++}
++#endif
++
+ static unsigned int unix_poll(struct file *file, struct socket *sock, poll_table *wait)
+ {
+ 	struct sock *sk = sock->sk;
 
 
