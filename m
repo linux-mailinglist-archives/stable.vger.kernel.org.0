@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C06D13F44A
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:48:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04DCD13F440
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:48:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389735AbgAPSsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:48:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
+        id S2389733AbgAPRJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:09:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389068AbgAPRJl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:09:41 -0500
+        id S2389727AbgAPRJm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:09:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E557D2081E;
-        Thu, 16 Jan 2020 17:09:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D1AC2467A;
+        Thu, 16 Jan 2020 17:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194580;
-        bh=lV6vCJ54AZJJG/iIgMdGhEKiyRI7RwaFGDruA9QXvkU=;
+        s=default; t=1579194581;
+        bh=3qKvzdVHJtKqiD1XDd9gYxY9M0XMt+MlxqxmSCoyTpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFeOe3C+EYsGO6AIAehSqPbsUF1AH1b/+dt8SaZ9WiD8ZHgc02g7pISBiNMNPdoPM
-         4tRvj4iyh1svAxzMmIT9BFaKDsH2et9269p7NE9w0wQhPTaRXj4XB+3QCBL9vZZhPA
-         TMeqQUvaulH+bQ2mfBzk6qacg1184UKTr+u/CKsk=
+        b=HHqt7rdtE7dT0wv7cZjb1PbIQ4Z2p7gs/94lIugZSFOkuzMj8Zw7LFlgUZLE7Hc1b
+         DPX4v2KPjCm0liOyVot9DC90N5QicHFj090zXiZn53PbC7urfHXhk8j8dccsJ+f88R
+         qVDNJubWC4xkJ8Tdc4eGZrja9XTRyIW2Z/UaH56A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Minghuan Lian <Minghuan.Lian@nxp.com>,
         Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 454/671] PCI: mobiveil: Remove the flag MSI_FLAG_MULTI_PCI_MSI
-Date:   Thu, 16 Jan 2020 12:01:32 -0500
-Message-Id: <20200116170509.12787-191-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 455/671] PCI: mobiveil: Fix devfn check in mobiveil_pcie_valid_device()
+Date:   Thu, 16 Jan 2020 12:01:33 -0500
+Message-Id: <20200116170509.12787-192-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -46,21 +46,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 
-[ Upstream commit a131fb6364c1be0924dcb969ecf6b988c556a5d5 ]
+[ Upstream commit cbd50b3ca3964c79dac65fda277637577e029e8c ]
 
-The Mobiveil internal MSI controller requires separate target addresses,
-one per MSI vector; this is clearly incompatible with the Multiple MSI
-feature, which requires the same target address for all vectors
-requested by an endpoint (ie the Message Address field in the MSI
-Capability structure), so the multi MSI feature is clearly not
-supported by the host controller driver.
+Current check for devfn number in mobiveil_pci_valid_device() is
+wrong in that it flags as invalid functions present in PCI device 0
+in the root bus while it is perfectly valid to access all functions
+in PCI device 0 in the root bus.
 
-Remove the flag MSI_FLAG_MULTI_PCI_MSI and with it multi MSI support,
-fixing the misconfiguration.
+Update the check in mobiveil_pci_valid_device() to fix the issue.
 
-Fixes: 1e913e58335f ("PCI: mobiveil: Add MSI support")
+Fixes: 9af6bcb11e12 ("PCI: mobiveil: Add Mobiveil PCIe Host Bridge IP driver")
 Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
-[lorenzo.pieralisi@arm.com: commit log]
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Reviewed-by: Minghuan Lian <Minghuan.Lian@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
@@ -69,18 +65,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/pci/controller/pcie-mobiveil.c b/drivers/pci/controller/pcie-mobiveil.c
-index a2d1e89d4867..dc228eb500ed 100644
+index dc228eb500ed..476be4f3c7f6 100644
 --- a/drivers/pci/controller/pcie-mobiveil.c
 +++ b/drivers/pci/controller/pcie-mobiveil.c
-@@ -643,7 +643,7 @@ static struct irq_chip mobiveil_msi_irq_chip = {
+@@ -174,7 +174,7 @@ static bool mobiveil_pcie_valid_device(struct pci_bus *bus, unsigned int devfn)
+ 	 * Do not read more than one device on the bus directly
+ 	 * attached to RC
+ 	 */
+-	if ((bus->primary == pcie->root_bus_nr) && (devfn > 0))
++	if ((bus->primary == pcie->root_bus_nr) && (PCI_SLOT(devfn) > 0))
+ 		return false;
  
- static struct msi_domain_info mobiveil_msi_domain_info = {
- 	.flags	= (MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
--		MSI_FLAG_MULTI_PCI_MSI | MSI_FLAG_PCI_MSIX),
-+		   MSI_FLAG_PCI_MSIX),
- 	.chip	= &mobiveil_msi_irq_chip,
- };
- 
+ 	return true;
 -- 
 2.20.1
 
