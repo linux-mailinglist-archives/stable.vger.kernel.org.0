@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0015B13F3CF
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:46:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B1E13F3C7
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:45:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388115AbgAPSp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:45:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49238 "EHLO mail.kernel.org"
+        id S2389925AbgAPRKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:10:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390046AbgAPRKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:10:39 -0500
+        id S2390049AbgAPRKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:10:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EE1A2468A;
-        Thu, 16 Jan 2020 17:10:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C30AE2467C;
+        Thu, 16 Jan 2020 17:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194638;
-        bh=WmkmH9k1I+h9YStmDsNCig/jfY5LcZcLHbuDnJJLezs=;
+        s=default; t=1579194639;
+        bh=BzWGq08Cw707pQ2k90WhyO1dpmbOcfJvExvmh/Tx6H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oene3RMOt3ES08W6Ci8eYQYRVHE8kfHe1KzBqYbKq2S3H2Jc0lY0+/SIzJm2QN2rZ
-         /n/2rNcgSDLGVHx/7/+LYxnqTI9J/yLIlJsDF+Ha2YCnXdRraWlsABCRcYcA4Q4pJA
-         e5ed7H+wi1qptOO6oJ5hZsY7sh8ZkQFv/tpZpnXE=
+        b=nIDx07yRwemt5WKIMJwJmabnX6JjAnVEtKH5J0Qo90hrub+fRjauSJWZKQUiioC6P
+         3aY5hH2Jl0U1Plvr/ChUBDlm+t2tC91sTCNBloVGuGi6A2BQTg7nq81ztfhfRGuCqw
+         TEmK1YjxpjTy8t0DiCb4fD792WeeigRBBf5v+Yng=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 496/671] drm: rcar-du: lvds: Fix bridge_to_rcar_lvds
-Date:   Thu, 16 Jan 2020 12:02:14 -0500
-Message-Id: <20200116170509.12787-233-sashal@kernel.org>
+Cc:     Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 497/671] bnxt_en: Fix handling FRAG_ERR when NVM_INSTALL_UPDATE cmd fails
+Date:   Thu, 16 Jan 2020 12:02:15 -0500
+Message-Id: <20200116170509.12787-234-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,46 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit 0b936e6122738f4cf474d1f3ff636cba0edc8b94 ]
+[ Upstream commit dd2ebf3404c7c295014bc025dea23960960ceb1a ]
 
-Using name "bridge" for macro bridge_to_rcar_lvds argument doesn't
-work when the pointer name used by the caller is not "bridge".
-Rename the argument to "b" to allow for any pointer name.
+If FW returns FRAG_ERR in response error code, driver is resending the
+command only when HWRM command returns success. Fix the code to resend
+NVM_INSTALL_UPDATE command with DEFRAG install flags, if FW returns
+FRAG_ERR in its response error code.
 
-While at it, fix the connector_to_rcar_lvds macro similarly.
-
-Fixes: c6a27fa41fab ("drm: rcar-du: Convert LVDS encoder code to bridge driver")
-Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-[Fix connector_to_rcar_lvds]
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Fixes: cb4d1d626145 ("bnxt_en: Retry failed NVM_INSTALL_UPDATE with defragmentation flag enabled.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_lvds.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_lvds.c b/drivers/gpu/drm/rcar-du/rcar_lvds.c
-index 4c39de3f4f0f..b6dc91cdff68 100644
---- a/drivers/gpu/drm/rcar-du/rcar_lvds.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_lvds.c
-@@ -59,11 +59,11 @@ struct rcar_lvds {
- 	enum rcar_lvds_mode mode;
- };
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index dc63d269f01d..cdbb8940a4ae 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -1778,21 +1778,19 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
+ 	mutex_lock(&bp->hwrm_cmd_lock);
+ 	hwrm_err = _hwrm_send_message(bp, &install, sizeof(install),
+ 				      INSTALL_PACKAGE_TIMEOUT);
+-	if (hwrm_err)
+-		goto flash_pkg_exit;
+-
+-	if (resp->error_code) {
++	if (hwrm_err) {
+ 		u8 error_code = ((struct hwrm_err_output *)resp)->cmd_err;
  
--#define bridge_to_rcar_lvds(bridge) \
--	container_of(bridge, struct rcar_lvds, bridge)
-+#define bridge_to_rcar_lvds(b) \
-+	container_of(b, struct rcar_lvds, bridge)
+-		if (error_code == NVM_INSTALL_UPDATE_CMD_ERR_CODE_FRAG_ERR) {
++		if (resp->error_code && error_code ==
++		    NVM_INSTALL_UPDATE_CMD_ERR_CODE_FRAG_ERR) {
+ 			install.flags |= cpu_to_le16(
+ 			       NVM_INSTALL_UPDATE_REQ_FLAGS_ALLOWED_TO_DEFRAG);
+ 			hwrm_err = _hwrm_send_message(bp, &install,
+ 						      sizeof(install),
+ 						      INSTALL_PACKAGE_TIMEOUT);
+-			if (hwrm_err)
+-				goto flash_pkg_exit;
+ 		}
++		if (hwrm_err)
++			goto flash_pkg_exit;
+ 	}
  
--#define connector_to_rcar_lvds(connector) \
--	container_of(connector, struct rcar_lvds, connector)
-+#define connector_to_rcar_lvds(c) \
-+	container_of(c, struct rcar_lvds, connector)
- 
- static void rcar_lvds_write(struct rcar_lvds *lvds, u32 reg, u32 data)
- {
+ 	if (resp->result) {
 -- 
 2.20.1
 
