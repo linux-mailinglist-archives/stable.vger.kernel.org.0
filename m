@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 823E613FE47
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:35:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A80C113FEBE
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389072AbgAPXdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:33:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44328 "EHLO mail.kernel.org"
+        id S2404151AbgAPXal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:30:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404407AbgAPXdk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:33:40 -0500
+        id S2404043AbgAPXad (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:30:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6271E2087E;
-        Thu, 16 Jan 2020 23:33:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7673206D9;
+        Thu, 16 Jan 2020 23:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217619;
-        bh=gVbEkf4yq5vJTw4E2HU3ReKS20++66X8C4lqXwTVBZ4=;
+        s=default; t=1579217432;
+        bh=ok15enOupA5W/wMO7U7KSrXVmeBc2HMpZ4pSkfou/bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/i4wPskJao7RG5U4kRaM4RGq09HNZ7oo1jDTjYsrh6vQpoXGhWbN0YYs1+fPFLzJ
-         hQYpKcAavk70MZ9WAxU48iaO48v3An1RSfG3lVp0MbKsbSyw7bpWKV3fdcP2VIDqxw
-         JDIjVQOOpewaHtR8/BAODiHV2GrvZqn/1gH9CE1E=
+        b=xDimKJ8+cXQTsC/HfZImhvelEnhj6Sv+44RSGlvwyNm52riX7Q3Lwj5Ve4kgBV0P8
+         Mn3Zlcr3cZI992oJELns7sImmqwJyqfKJjw8LdUfwMyG9+RYNYH9wH1e8xORE6H4y+
+         fq39SxpTVBA4enV1DYDP+Aqk0WU+iMEbnVkYTssM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 4.14 56/71] mtd: spi-nor: fix silent truncation in spi_nor_read()
+        stable@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 80/84] dmaengine: k3dma: Avoid null pointer traversal
 Date:   Fri, 17 Jan 2020 00:18:54 +0100
-Message-Id: <20200116231717.270112184@linuxfoundation.org>
+Message-Id: <20200116231722.885728900@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
-References: <20200116231709.377772748@linuxfoundation.org>
+In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
+References: <20200116231713.087649517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+From: John Stultz <john.stultz@linaro.org>
 
-commit a719a75a7761e4139dd099330d9fe3589d844f9b upstream.
+[ Upstream commit 2f42e05b942fe2fbfb9bbc6e34e1dd8c3ce4f3a4 ]
 
-spi_nor_read() assigns the result of 'ssize_t spi_nor_read_data()'
-to the 'int ret' variable, while 'ssize_t' is a 64-bit type and *int*
-is a 32-bit type on the 64-bit machines. This silent truncation isn't
-really valid, so fix up the variable's type.
+In some cases we seem to submit two transactions in a row, which
+causes us to lose track of the first. If we then cancel the
+request, we may still get an interrupt, which traverses a null
+ds_run value.
 
-Fixes: 59451e1233bd ("mtd: spi-nor: change return value of read/write")
-Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So try to avoid starting a new transaction if the ds_run value
+is set.
 
+While this patch avoids the null pointer crash, I've had some
+reports of the k3dma driver still getting confused, which
+suggests the ds_run/ds_done value handling still isn't quite
+right. However, I've not run into an issue recently with it
+so I think this patch is worth pushing upstream to avoid the
+crash.
+
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+[add ss tag]
+Link: https://lore.kernel.org/r/20191218190906.6641-1-john.stultz@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/spi-nor/spi-nor.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/k3dma.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/mtd/spi-nor/spi-nor.c
-+++ b/drivers/mtd/spi-nor/spi-nor.c
-@@ -1216,7 +1216,7 @@ static int spi_nor_read(struct mtd_info
- 			size_t *retlen, u_char *buf)
- {
- 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
--	int ret;
-+	ssize_t ret;
+diff --git a/drivers/dma/k3dma.c b/drivers/dma/k3dma.c
+index 6bfa217ed6d0..ba3c3791f9dc 100644
+--- a/drivers/dma/k3dma.c
++++ b/drivers/dma/k3dma.c
+@@ -222,9 +222,11 @@ static irqreturn_t k3_dma_int_handler(int irq, void *dev_id)
+ 			c = p->vchan;
+ 			if (c && (tc1 & BIT(i))) {
+ 				spin_lock_irqsave(&c->vc.lock, flags);
+-				vchan_cookie_complete(&p->ds_run->vd);
+-				p->ds_done = p->ds_run;
+-				p->ds_run = NULL;
++				if (p->ds_run != NULL) {
++					vchan_cookie_complete(&p->ds_run->vd);
++					p->ds_done = p->ds_run;
++					p->ds_run = NULL;
++				}
+ 				spin_unlock_irqrestore(&c->vc.lock, flags);
+ 			}
+ 			if (c && (tc2 & BIT(i))) {
+@@ -264,6 +266,10 @@ static int k3_dma_start_txd(struct k3_dma_chan *c)
+ 	if (BIT(c->phy->idx) & k3_dma_get_chan_stat(d))
+ 		return -EAGAIN;
  
- 	dev_dbg(nor->dev, "from 0x%08x, len %zd\n", (u32)from, len);
- 
++	/* Avoid losing track of  ds_run if a transaction is in flight */
++	if (c->phy->ds_run)
++		return -EAGAIN;
++
+ 	if (vd) {
+ 		struct k3_dma_desc_sw *ds =
+ 			container_of(vd, struct k3_dma_desc_sw, vd);
+-- 
+2.20.1
+
 
 
