@@ -2,186 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CDE713FE43
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:35:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E99B513FFFC
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404379AbgAPXdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:33:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44148 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404387AbgAPXdf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:33:35 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EC19206D9;
-        Thu, 16 Jan 2020 23:33:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217615;
-        bh=k5w4ijoqBtT842ZCsyR/uIyxAWRCCY6bAI24oq1ApEQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYehRFFJIITxI+M8zTqrLoVTr5pv36tA6/xW3QMZNjT9mlg2Dyrtrvw9Gg7HAwutN
-         5ZYy9WTqZUKdl2KjkkEb4jFBl5xdz/zKGNFH7xU0Ksnf7E/B/4J28iPzGdrs8grTol
-         HFawmGgDrLjalHf6Ika9xTNvLPuxsTvhSAF5km/Y=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai Li <li.kai4@h3c.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Changwei Ge <gechangwei@live.cn>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 71/71] ocfs2: call journal flush to mark journal as empty after journal recovery when mount
-Date:   Fri, 17 Jan 2020 00:19:09 +0100
-Message-Id: <20200116231719.203772638@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
-References: <20200116231709.377772748@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2388351AbgAPXq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:46:58 -0500
+Received: from kvm5.telegraphics.com.au ([98.124.60.144]:57582 "EHLO
+        kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390819AbgAPXV0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 18:21:26 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by kvm5.telegraphics.com.au (Postfix) with ESMTP id 3828C29997;
+        Thu, 16 Jan 2020 18:21:23 -0500 (EST)
+Date:   Fri, 17 Jan 2020 10:21:26 +1100 (AEDT)
+From:   Finn Thain <fthain@telegraphics.com.au>
+To:     Sasha Levin <sashal@kernel.org>
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-m68k@lists.linux-m68k.org
+Subject: Re: [PATCH AUTOSEL 4.4 064/174] m68k: mac: Fix VIA timer counter
+ accesses
+In-Reply-To: <20200116174251.24326-64-sashal@kernel.org>
+Message-ID: <alpine.LNX.2.21.1.2001170929550.255@nippy.intranet>
+References: <20200116174251.24326-1-sashal@kernel.org> <20200116174251.24326-64-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Li <li.kai4@h3c.com>
 
-[ Upstream commit 397eac17f86f404f5ba31d8c3e39ec3124b39fd3 ]
+On Thu, 16 Jan 2020, Sasha Levin wrote:
 
-If journal is dirty when mount, it will be replayed but jbd2 sb log tail
-cannot be updated to mark a new start because journal->j_flag has
-already been set with JBD2_ABORT first in journal_init_common.
+> From: Finn Thain <fthain@telegraphics.com.au>
+> 
+> [ Upstream commit 0ca7ce7db771580433bf24454f7a1542bd326078 ]
+> 
 
-When a new transaction is committed, it will be recored in block 1
-first(journal->j_tail is set to 1 in journal_reset).  If emergency
-restart happens again before journal super block is updated
-unfortunately, the new recorded trans will not be replayed in the next
-mount.
+This commit has been selected for 4.4, 4.9, 4.14 and 4.19. But this commit 
+has questionable value without it's parent, commit 1efdd4bd2543 ("m68k: 
+Call timer_interrupt() with interrupts disabled").
 
-The following steps describe this procedure in detail.
-1. mount and touch some files
-2. these transactions are committed to journal area but not checkpointed
-3. emergency restart
-4. mount again and its journals are replayed
-5. journal super block's first s_start is 1, but its s_seq is not updated
-6. touch a new file and its trans is committed but not checkpointed
-7. emergency restart again
-8. mount and journal is dirty, but trans committed in 6 will not be
-replayed.
+For all stable branches, I'd prefer you selected both commits or neither, 
+because I periodically backport to a branch based on stable/linux-4.14.y.
 
-This exception happens easily when this lun is used by only one node.
-If it is used by multi-nodes, other node will replay its journal and its
-journal super block will be updated after recovery like what this patch
-does.
-
-ocfs2_recover_node->ocfs2_replay_journal.
-
-The following jbd2 journal can be generated by touching a new file after
-journal is replayed, and seq 15 is the first valid commit, but first seq
-is 13 in journal super block.
-
-logdump:
-  Block 0: Journal Superblock
-  Seq: 0   Type: 4 (JBD2_SUPERBLOCK_V2)
-  Blocksize: 4096   Total Blocks: 32768   First Block: 1
-  First Commit ID: 13   Start Log Blknum: 1
-  Error: 0
-  Feature Compat: 0
-  Feature Incompat: 2 block64
-  Feature RO compat: 0
-  Journal UUID: 4ED3822C54294467A4F8E87D2BA4BC36
-  FS Share Cnt: 1   Dynamic Superblk Blknum: 0
-  Per Txn Block Limit    Journal: 0    Data: 0
-
-  Block 1: Journal Commit Block
-  Seq: 14   Type: 2 (JBD2_COMMIT_BLOCK)
-
-  Block 2: Journal Descriptor
-  Seq: 15   Type: 1 (JBD2_DESCRIPTOR_BLOCK)
-  No. Blocknum        Flags
-   0. 587             none
-  UUID: 00000000000000000000000000000000
-   1. 8257792         JBD2_FLAG_SAME_UUID
-   2. 619             JBD2_FLAG_SAME_UUID
-   3. 24772864        JBD2_FLAG_SAME_UUID
-   4. 8257802         JBD2_FLAG_SAME_UUID
-   5. 513             JBD2_FLAG_SAME_UUID JBD2_FLAG_LAST_TAG
-  ...
-  Block 7: Inode
-  Inode: 8257802   Mode: 0640   Generation: 57157641 (0x3682809)
-  FS Generation: 2839773110 (0xa9437fb6)
-  CRC32: 00000000   ECC: 0000
-  Type: Regular   Attr: 0x0   Flags: Valid
-  Dynamic Features: (0x1) InlineData
-  User: 0 (root)   Group: 0 (root)   Size: 7
-  Links: 1   Clusters: 0
-  ctime: 0x5de5d870 0x11104c61 -- Tue Dec  3 11:37:20.286280801 2019
-  atime: 0x5de5d870 0x113181a1 -- Tue Dec  3 11:37:20.288457121 2019
-  mtime: 0x5de5d870 0x11104c61 -- Tue Dec  3 11:37:20.286280801 2019
-  dtime: 0x0 -- Thu Jan  1 08:00:00 1970
-  ...
-  Block 9: Journal Commit Block
-  Seq: 15   Type: 2 (JBD2_COMMIT_BLOCK)
-
-The following is journal recovery log when recovering the upper jbd2
-journal when mount again.
-
-syslog:
-  ocfs2: File system on device (252,1) was not unmounted cleanly, recovering it.
-  fs/jbd2/recovery.c:(do_one_pass, 449): Starting recovery pass 0
-  fs/jbd2/recovery.c:(do_one_pass, 449): Starting recovery pass 1
-  fs/jbd2/recovery.c:(do_one_pass, 449): Starting recovery pass 2
-  fs/jbd2/recovery.c:(jbd2_journal_recover, 278): JBD2: recovery, exit status 0, recovered transactions 13 to 13
-
-Due to first commit seq 13 recorded in journal super is not consistent
-with the value recorded in block 1(seq is 14), journal recovery will be
-terminated before seq 15 even though it is an unbroken commit, inode
-8257802 is a new file and it will be lost.
-
-Link: http://lkml.kernel.org/r/20191217020140.2197-1-li.kai4@h3c.com
-Signed-off-by: Kai Li <li.kai4@h3c.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reviewed-by: Changwei Ge <gechangwei@live.cn>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/ocfs2/journal.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/fs/ocfs2/journal.c b/fs/ocfs2/journal.c
-index 2459ae9d2234..39bb80fb2934 100644
---- a/fs/ocfs2/journal.c
-+++ b/fs/ocfs2/journal.c
-@@ -1080,6 +1080,14 @@ int ocfs2_journal_load(struct ocfs2_journal *journal, int local, int replayed)
- 
- 	ocfs2_clear_journal_error(osb->sb, journal->j_journal, osb->slot_num);
- 
-+	if (replayed) {
-+		jbd2_journal_lock_updates(journal->j_journal);
-+		status = jbd2_journal_flush(journal->j_journal);
-+		jbd2_journal_unlock_updates(journal->j_journal);
-+		if (status < 0)
-+			mlog_errno(status);
-+	}
-+
- 	status = ocfs2_journal_toggle_dirty(osb, 1, replayed);
- 	if (status < 0) {
- 		mlog_errno(status);
--- 
-2.20.1
-
-
-
+Thanks.
