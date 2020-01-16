@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D0F213FF7A
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F39E13FF7E
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733262AbgAPXZe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:25:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55180 "EHLO mail.kernel.org"
+        id S2387875AbgAPXnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:43:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391172AbgAPXZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:25:30 -0500
+        id S2391199AbgAPXZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:25:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8208E20684;
-        Thu, 16 Jan 2020 23:25:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECD81206D9;
+        Thu, 16 Jan 2020 23:25:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217130;
-        bh=XTqnGcvS7WqidMv0v2cIiMxDnZKfcC1Qt09ZYW3LVyI=;
+        s=default; t=1579217132;
+        bh=ine7E5qPQZUYkUIMnNrr2s/IxLjekYwCjQbUn8Tu5AU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6G/ogJep6UaLYWsGSKMThzcxzwUQi5kst2XQSM5ypK4seGj3XpnEvYahDbp7Lr9L
-         lZuUvyUg+hr1jiJ9ptAO8FkWz9O+sU8UBndHWnUoYbvIaGzdzbkviljbiSVctlWiWv
-         vf3zbV+T5/58uJHhKnX/jElAWBPYY2QH2sGebFnw=
+        b=c6k+CsOgZbg/LZZjnKnKPP9cDU+Gr1NCd+dqPAxQLgy+ppQcB23rb2n1vgvK/9YMx
+         NiJSaRGLqf4bJA0y1yUN2WRX/bveRuBcanyW0ZT99apNxu4LI3YB0VoNmoRm1/+36K
+         cnBGSoI5o4vgvnmmXA67oqviJFLX5XtzJz/BYWgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
-Subject: [PATCH 5.4 143/203] tty: serial: imx: use the sg count from dma_map_sg
-Date:   Fri, 17 Jan 2020 00:17:40 +0100
-Message-Id: <20200116231757.466034926@linuxfoundation.org>
+Subject: [PATCH 5.4 144/203] tty: serial: pch_uart: correct usage of dma_unmap_sg
+Date:   Fri, 17 Jan 2020 00:17:41 +0100
+Message-Id: <20200116231757.538548742@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -44,31 +44,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peng Fan <peng.fan@nxp.com>
 
-commit 596fd8dffb745afcebc0ec6968e17fe29f02044c upstream.
+commit 74887542fdcc92ad06a48c0cca17cdf09fc8aa00 upstream.
 
-The dmaengine_prep_slave_sg needs to use sg count returned
-by dma_map_sg, not use sport->dma_tx_nents, because the return
-value of dma_map_sg is not always same with "nents".
+Per Documentation/DMA-API-HOWTO.txt,
+To unmap a scatterlist, just call:
+	dma_unmap_sg(dev, sglist, nents, direction);
 
-Fixes: b4cdc8f61beb ("serial: imx: add DMA support for imx6q")
+.. note::
+
+	The 'nents' argument to the dma_unmap_sg call must be
+	the _same_ one you passed into the dma_map_sg call,
+	it should _NOT_ be the 'count' value _returned_ from the
+	dma_map_sg call.
+
+However in the driver, priv->nent is directly assigned with value
+returned from dma_map_sg, and dma_unmap_sg use priv->nent for unmap,
+this breaks the API usage.
+
+So introduce a new entry orig_nent to remember 'nents'.
+
+Fixes: da3564ee027e ("pch_uart: add multi-scatter processing")
 Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1573108875-26530-1-git-send-email-peng.fan@nxp.com
+Link: https://lore.kernel.org/r/1573623259-6339-1-git-send-email-peng.fan@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/imx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/pch_uart.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -619,7 +619,7 @@ static void imx_uart_dma_tx(struct imx_p
- 		dev_err(dev, "DMA mapping error for TX.\n");
- 		return;
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -233,6 +233,7 @@ struct eg20t_port {
+ 	struct dma_chan			*chan_rx;
+ 	struct scatterlist		*sg_tx_p;
+ 	int				nent;
++	int				orig_nent;
+ 	struct scatterlist		sg_rx;
+ 	int				tx_dma_use;
+ 	void				*rx_buf_virt;
+@@ -787,9 +788,10 @@ static void pch_dma_tx_complete(void *ar
  	}
--	desc = dmaengine_prep_slave_sg(chan, sgl, sport->dma_tx_nents,
-+	desc = dmaengine_prep_slave_sg(chan, sgl, ret,
- 					DMA_MEM_TO_DEV, DMA_PREP_INTERRUPT);
- 	if (!desc) {
- 		dma_unmap_sg(dev, sgl, sport->dma_tx_nents,
+ 	xmit->tail &= UART_XMIT_SIZE - 1;
+ 	async_tx_ack(priv->desc_tx);
+-	dma_unmap_sg(port->dev, sg, priv->nent, DMA_TO_DEVICE);
++	dma_unmap_sg(port->dev, sg, priv->orig_nent, DMA_TO_DEVICE);
+ 	priv->tx_dma_use = 0;
+ 	priv->nent = 0;
++	priv->orig_nent = 0;
+ 	kfree(priv->sg_tx_p);
+ 	pch_uart_hal_enable_interrupt(priv, PCH_UART_HAL_TX_INT);
+ }
+@@ -1010,6 +1012,7 @@ static unsigned int dma_handle_tx(struct
+ 		dev_err(priv->port.dev, "%s:dma_map_sg Failed\n", __func__);
+ 		return 0;
+ 	}
++	priv->orig_nent = num;
+ 	priv->nent = nent;
+ 
+ 	for (i = 0; i < nent; i++, sg++) {
 
 
