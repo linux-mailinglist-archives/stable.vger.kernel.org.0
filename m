@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F73B13FF01
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:40:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FEC213FF5A
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729165AbgAPXjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:39:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60406 "EHLO mail.kernel.org"
+        id S2389043AbgAPXmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:42:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390315AbgAPX17 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:27:59 -0500
+        id S2389563AbgAPX0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:26:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E466020684;
-        Thu, 16 Jan 2020 23:27:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 611B820684;
+        Thu, 16 Jan 2020 23:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217279;
-        bh=KNMUoW2XH5IzFZtNLY8+UWNfcdNo7DhgtsCcv8xcdIg=;
+        s=default; t=1579217204;
+        bh=fie/VVcWmbXEWsdoSUFANSBNvQIF5+dbvGAku2TdS9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjVrixY9R7yWp89ICMg6AvCfSCPUvm8ZL6uWqgQjubVvt2TNNSwjUW/UOIzKb5Alz
-         8/Ps9/n0GEGxsNpQA2egW9TQP6LV0WWngec88STOmd3AExncv0eIPpzCyyShsuChYa
-         /f5TtGNpHqshAJoqWvsnWn+7A0kNloTHPuRFnghc=
+        b=iPhf+e9TU9z3/TO/u4elskuwCTNdKgTCjHQ2tjUxy+UZJyyQ7Id+jPjAzfNfEuyqD
+         bi6PfIvyEG21zotE9lPGVMHc6/07DvY8JAClOrx5+czQx/rTR9Kk3UVPCQQEsbPDfJ
+         BR2BLduSDkzNOU743jGqFawyg6sAsUCey8XHeSs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.19 18/84] RDMA/bnxt_re: Avoid freeing MR resources if dereg fails
-Date:   Fri, 17 Jan 2020 00:17:52 +0100
-Message-Id: <20200116231715.784465944@linuxfoundation.org>
+        stable@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 156/203] media: hantro: Do not reorder H264 scaling list
+Date:   Fri, 17 Jan 2020 00:17:53 +0100
+Message-Id: <20200116231758.448421502@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
-References: <20200116231713.087649517@linuxfoundation.org>
+In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
+References: <20200116231745.218684830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +45,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: Jonas Karlman <jonas@kwiboo.se>
 
-commit 9a4467a6b282a299b932608ac2c9034f8415359f upstream.
+commit e17f08e3166635d2eaa6a894afeb28ca651ddd35 upstream.
 
-The driver returns an error code for MR dereg, but frees the MR structure.
-When the MR dereg is retried due to previous error, the system crashes as
-the structure is already freed.
+Scaling list supplied from userspace should be in matrix order
+and can be used without applying the inverse scanning process.
 
-  BUG: unable to handle kernel NULL pointer dereference at 00000000000001b8
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  CPU: 7 PID: 12178 Comm: ib_send_bw Kdump: loaded Not tainted 4.18.0-124.el8.x86_64 #1
-  Hardware name: Dell Inc. PowerEdge R430/03XKDV, BIOS 1.1.10 03/10/2015
-  RIP: 0010:__dev_printk+0x2a/0x70
-  Code: 0f 1f 44 00 00 49 89 d1 48 85 f6 0f 84 f6 2b 00 00 4c 8b 46 70 4d 85 c0 75 04 4c 8b
-46 10 48 8b 86 a8 00 00 00 48 85 c0 74 16 <48> 8b 08 0f be 7f 01 48 c7 c2 13 ac ac 83 83 ef 30 e9 10 fe ff ff
-  RSP: 0018:ffffaf7c04607a60 EFLAGS: 00010006
-  RAX: 00000000000001b8 RBX: ffffa0010c91c488 RCX: 0000000000000246
-  RDX: ffffaf7c04607a68 RSI: ffffa0010c91caa8 RDI: ffffffff83a788eb
-  RBP: ffffaf7c04607ac8 R08: 0000000000000000 R09: ffffaf7c04607a68
-  R10: 0000000000000000 R11: 0000000000000001 R12: ffffaf7c04607b90
-  R13: 000000000000000e R14: 0000000000000000 R15: 00000000ffffa001
-  FS:  0000146fa1f1cdc0(0000) GS:ffffa0012fac0000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00000000000001b8 CR3: 000000007680a003 CR4: 00000000001606e0
-  Call Trace:
-   dev_err+0x6c/0x90
-   ? dev_printk_emit+0x4e/0x70
-   bnxt_qplib_rcfw_send_message+0x594/0x660 [bnxt_re]
-   ? dev_err+0x6c/0x90
-   bnxt_qplib_free_mrw+0x80/0xe0 [bnxt_re]
-   bnxt_re_dereg_mr+0x2e/0xd0 [bnxt_re]
-   ib_dereg_mr+0x2f/0x50 [ib_core]
-   destroy_hw_idr_uobject+0x20/0x70 [ib_uverbs]
-   uverbs_destroy_uobject+0x2e/0x170 [ib_uverbs]
-   __uverbs_cleanup_ufile+0x6e/0x90 [ib_uverbs]
-   uverbs_destroy_ufile_hw+0x61/0x130 [ib_uverbs]
-   ib_uverbs_close+0x1f/0x80 [ib_uverbs]
-   __fput+0xb7/0x230
-   task_work_run+0x8a/0xb0
-   do_exit+0x2da/0xb40
-...
-  RIP: 0033:0x146fa113a387
-  Code: Bad RIP value.
-  RSP: 002b:00007fff945d1478 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff02
-  RAX: 0000000000000000 RBX: 000055a248908d70 RCX: 0000000000000000
-  RDX: 0000146fa1f2b000 RSI: 0000000000000001 RDI: 000055a248906488
-  RBP: 000055a248909630 R08: 0000000000010000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000000 R12: 000055a248906488
-  R13: 0000000000000001 R14: 0000000000000000 R15: 000055a2489095f0
+The HW also only support 8x8 scaling list for the Y component, indices 0
+and 1 in the scaling list supplied from userspace.
 
-Do not free the MR structures, when driver returns error to the stack.
+Remove reordering and write the scaling matrix in an order expected by
+the VPU, also only allocate memory for the two 8x8 lists supported.
 
-Fixes: 872f3578241d ("RDMA/bnxt_re: Add support for MRs with Huge pages")
-Link: https://lore.kernel.org/r/1574671174-5064-2-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: a9471e25629b ("media: hantro: Add core bits to support H264 decoding")
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/bnxt_re/ib_verbs.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/media/hantro/hantro_h264.c |   51 ++++++-----------------------
+ 1 file changed, 12 insertions(+), 39 deletions(-)
 
---- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-+++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-@@ -3368,8 +3368,10 @@ int bnxt_re_dereg_mr(struct ib_mr *ib_mr
- 	int rc;
+--- a/drivers/staging/media/hantro/hantro_h264.c
++++ b/drivers/staging/media/hantro/hantro_h264.c
+@@ -20,7 +20,7 @@
+ /* Size with u32 units. */
+ #define CABAC_INIT_BUFFER_SIZE		(460 * 2)
+ #define POC_BUFFER_SIZE			34
+-#define SCALING_LIST_SIZE		(6 * 16 + 6 * 64)
++#define SCALING_LIST_SIZE		(6 * 16 + 2 * 64)
  
- 	rc = bnxt_qplib_free_mrw(&rdev->qplib_res, &mr->qplib_mr);
--	if (rc)
-+	if (rc) {
- 		dev_err(rdev_to_dev(rdev), "Dereg MR failed: %#x\n", rc);
-+		return rc;
-+	}
+ #define POC_CMP(p0, p1) ((p0) < (p1) ? -1 : 1)
  
- 	if (mr->pages) {
- 		rc = bnxt_qplib_free_fast_reg_page_list(&rdev->qplib_res,
+@@ -194,23 +194,6 @@ static const u32 h264_cabac_table[] = {
+ 	0x1f0c2517, 0x1f261440
+ };
+ 
+-/*
+- * NOTE: The scaling lists are in zig-zag order, apply inverse scanning process
+- * to get the values in matrix order. In addition, the hardware requires bytes
+- * swapped within each subsequent 4 bytes. Both arrays below include both
+- * transformations.
+- */
+-static const u32 zig_zag_4x4[] = {
+-	3, 2, 7, 11, 6, 1, 0, 5, 10, 15, 14, 9, 4, 8, 13, 12
+-};
+-
+-static const u32 zig_zag_8x8[] = {
+-	3, 2, 11, 19, 10, 1, 0, 9, 18, 27, 35, 26, 17, 8, 7, 6,
+-	15, 16, 25, 34, 43, 51, 42, 33, 24, 23, 14, 5, 4, 13, 22, 31,
+-	32, 41, 50, 59, 58, 49, 40, 39, 30, 21, 12, 20, 29, 38, 47, 48,
+-	57, 56, 55, 46, 37, 28, 36, 45, 54, 63, 62, 53, 44, 52, 61, 60
+-};
+-
+ static void
+ reorder_scaling_list(struct hantro_ctx *ctx)
+ {
+@@ -218,33 +201,23 @@ reorder_scaling_list(struct hantro_ctx *
+ 	const struct v4l2_ctrl_h264_scaling_matrix *scaling = ctrls->scaling;
+ 	const size_t num_list_4x4 = ARRAY_SIZE(scaling->scaling_list_4x4);
+ 	const size_t list_len_4x4 = ARRAY_SIZE(scaling->scaling_list_4x4[0]);
+-	const size_t num_list_8x8 = ARRAY_SIZE(scaling->scaling_list_8x8);
+ 	const size_t list_len_8x8 = ARRAY_SIZE(scaling->scaling_list_8x8[0]);
+ 	struct hantro_h264_dec_priv_tbl *tbl = ctx->h264_dec.priv.cpu;
+-	u8 *dst = tbl->scaling_list;
+-	const u8 *src;
++	u32 *dst = (u32 *)tbl->scaling_list;
++	const u32 *src;
+ 	int i, j;
+ 
+-	BUILD_BUG_ON(ARRAY_SIZE(zig_zag_4x4) != list_len_4x4);
+-	BUILD_BUG_ON(ARRAY_SIZE(zig_zag_8x8) != list_len_8x8);
+-	BUILD_BUG_ON(ARRAY_SIZE(tbl->scaling_list) !=
+-		     num_list_4x4 * list_len_4x4 +
+-		     num_list_8x8 * list_len_8x8);
+-
+-	src = &scaling->scaling_list_4x4[0][0];
+-	for (i = 0; i < num_list_4x4; ++i) {
+-		for (j = 0; j < list_len_4x4; ++j)
+-			dst[zig_zag_4x4[j]] = src[j];
+-		src += list_len_4x4;
+-		dst += list_len_4x4;
++	for (i = 0; i < num_list_4x4; i++) {
++		src = (u32 *)&scaling->scaling_list_4x4[i];
++		for (j = 0; j < list_len_4x4 / 4; j++)
++			*dst++ = swab32(src[j]);
+ 	}
+ 
+-	src = &scaling->scaling_list_8x8[0][0];
+-	for (i = 0; i < num_list_8x8; ++i) {
+-		for (j = 0; j < list_len_8x8; ++j)
+-			dst[zig_zag_8x8[j]] = src[j];
+-		src += list_len_8x8;
+-		dst += list_len_8x8;
++	/* Only Intra/Inter Y lists */
++	for (i = 0; i < 2; i++) {
++		src = (u32 *)&scaling->scaling_list_8x8[i];
++		for (j = 0; j < list_len_8x8 / 4; j++)
++			*dst++ = swab32(src[j]);
+ 	}
+ }
+ 
 
 
