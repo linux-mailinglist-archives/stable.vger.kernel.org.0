@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22C4C13E4BE
+	by mail.lfdr.de (Postfix) with ESMTP id A0A4813E4BF
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389903AbgAPRKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:10:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48210 "EHLO mail.kernel.org"
+        id S2389920AbgAPRKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:10:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389900AbgAPRKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:10:20 -0500
+        id S2389911AbgAPRKX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:10:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26F5921D56;
-        Thu, 16 Jan 2020 17:10:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B356205F4;
+        Thu, 16 Jan 2020 17:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194619;
-        bh=ul71Y/zEbW7xkWlk/aceUw/nzMusboXygjav+Ia0Llo=;
+        s=default; t=1579194622;
+        bh=GxpxSfn4Aog9jObkkwzJClYhMneNU3fTJqn+IXbCiGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KNrGCXyZOfUNa7q0ntGnXKruh+BdC5lwrn3Z4Dppf7DFZmrlfvPHnqF1yJvnQF5GL
-         FoMhaonFjL018f8lEaq9IgFu6yhwFyrK6NBJnynqzBoaFg7oku5P/jYtSQ0tw042yD
-         wU6y6lKKJuk1SJ8dcE5UG30qG1vyKNG1DX/PdpU0=
+        b=Wyz+O5Rwk/jbC8uaAyi+p+7sltSdczBBFyYQEAZ9cSDrEjrm3czSklo4fgikssVbQ
+         uFK52lkIgZ4Cv4p3oIVftIMLGNRGO8dfzkOJsXi5VdUZpmMlKaoo1qJVaaSEhUah66
+         qckkt7DThFaicMLB7iDYDm5RlT8fMqtANF+saWjQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.19 481/671] cifs: fix rmmod regression in cifs.ko caused by force_sig changes
-Date:   Thu, 16 Jan 2020 12:01:59 -0500
-Message-Id: <20200116170509.12787-218-sashal@kernel.org>
+Cc:     Jesper Dangaard Brouer <brouer@redhat.com>,
+        Brandon Cazander <brandon.cazander@multapplied.net>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 483/671] net: fix bpf_xdp_adjust_head regression for generic-XDP
+Date:   Thu, 16 Jan 2020 12:02:01 -0500
+Message-Id: <20200116170509.12787-220-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,36 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-[ Upstream commit 247bc9470b1eeefc7b58cdf2c39f2866ba651509 ]
+[ Upstream commit 065af355470519bd184019a93ac579f22b036045 ]
 
-Fixes: 72abe3bcf091 ("signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig")
+When generic-XDP was moved to a later processing step by commit
+458bf2f224f0 ("net: core: support XDP generic on stacked devices.")
+a regression was introduced when using bpf_xdp_adjust_head.
 
-The global change from force_sig caused module unloading of cifs.ko
-to fail (since the cifsd process could not be killed, "rmmod cifs"
-now would always fail)
+The issue is that after this commit the skb->network_header is now
+changed prior to calling generic XDP and not after. Thus, if the header
+is changed by XDP (via bpf_xdp_adjust_head), then skb->network_header
+also need to be updated again.  Fix by calling skb_reset_network_header().
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-CC: Eric W. Biederman <ebiederm@xmission.com>
+Fixes: 458bf2f224f0 ("net: core: support XDP generic on stacked devices.")
+Reported-by: Brandon Cazander <brandon.cazander@multapplied.net>
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/dev.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index a59dcda07534..a8790bf04e95 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -970,6 +970,7 @@ cifs_demultiplex_thread(void *p)
- 		mempool_resize(cifs_req_poolp, length + cifs_min_rcv);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 935fe158cfaf..73ebacabfde8 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4349,12 +4349,17 @@ static u32 netif_receive_generic_xdp(struct sk_buff *skb,
  
- 	set_freezable();
-+	allow_signal(SIGKILL);
- 	while (server->tcpStatus != CifsExiting) {
- 		if (try_to_freeze())
- 			continue;
+ 	act = bpf_prog_run_xdp(xdp_prog, xdp);
+ 
++	/* check if bpf_xdp_adjust_head was used */
+ 	off = xdp->data - orig_data;
+-	if (off > 0)
+-		__skb_pull(skb, off);
+-	else if (off < 0)
+-		__skb_push(skb, -off);
+-	skb->mac_header += off;
++	if (off) {
++		if (off > 0)
++			__skb_pull(skb, off);
++		else if (off < 0)
++			__skb_push(skb, -off);
++
++		skb->mac_header += off;
++		skb_reset_network_header(skb);
++	}
+ 
+ 	/* check if bpf_xdp_adjust_tail was used. it can only "shrink"
+ 	 * pckt.
 -- 
 2.20.1
 
