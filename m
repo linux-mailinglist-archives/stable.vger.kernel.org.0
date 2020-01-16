@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9F5E13EB67
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:49:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E9C413EB5E
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:49:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394191AbgAPRqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2394197AbgAPRqD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 12:46:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38450 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394153AbgAPRqC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:46:02 -0500
+        id S2394179AbgAPRqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:46:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 806B3246CA;
-        Thu, 16 Jan 2020 17:46:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F5C0246D0;
+        Thu, 16 Jan 2020 17:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196761;
-        bh=5Jgl+M7ZoabBz9Iu6TrW5f8g7D771jjye+OXmxt+DFo=;
+        s=default; t=1579196762;
+        bh=ChIPeAG1dGINkg+Fp76gMqPv0W47WaRVmtClRrlqMlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWBnSBTaE/RYktrd2sM3gFCOheKikw0rndtVgyLHFDjkLktYUxkWWfIt7j7Kd+jmX
-         eaK35wWXpOO1sAYByWRh4s2oaZZKpGuOAiGVxat/mg8I2Y8m2oHmWSigmRJoyRjbgv
-         TPP1xvtVzsTxUHth9CrzilsJ65zlJDllzj6VnciQ=
+        b=O3u/z+mdJGwhBBIGBj62TNvkBh+0kWRitc0OQzNkn8r4PpCfudTJdDMrAkwJtuJyL
+         fQzkGUqe6Tvda4IRGPVZG/87W3prUwivDd4xMvdh+f9vktciWhu5Mf8t2sqIWZuJMR
+         /IV7fUlpFszKdRz6l9DNsSqVMM+Z4N+Ylp3to2g0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Filipe Manana <fdmanana@suse.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 135/174] Btrfs: fix hang when loading existing inode cache off disk
-Date:   Thu, 16 Jan 2020 12:42:12 -0500
-Message-Id: <20200116174251.24326-135-sashal@kernel.org>
+Cc:     Dan Robertson <dan@dlrobertson.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 136/174] hwmon: (shtc1) fix shtc1 and shtw1 id mask
+Date:   Thu, 16 Jan 2020 12:42:13 -0500
+Message-Id: <20200116174251.24326-136-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -44,84 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Dan Robertson <dan@dlrobertson.com>
 
-[ Upstream commit 7764d56baa844d7f6206394f21a0e8c1f303c476 ]
+[ Upstream commit fdc7d8e829ec755c5cfb2f5a8d8c0cdfb664f895 ]
 
-If we are able to load an existing inode cache off disk, we set the state
-of the cache to BTRFS_CACHE_FINISHED, but we don't wake up any one waiting
-for the cache to be available. This means that anyone waiting for the
-cache to be available, waiting on the condition that either its state is
-BTRFS_CACHE_FINISHED or its available free space is greather than zero,
-can hang forever.
+Fix an error in the bitmaskfor the shtc1 and shtw1 bitmask used to
+retrieve the chip ID from the ID register. See section 5.7 of the shtw1
+or shtc1 datasheet for details.
 
-This could be observed running fstests with MOUNT_OPTIONS="-o inode_cache",
-in particular test case generic/161 triggered it very frequently for me,
-producing a trace like the following:
-
-  [63795.739712] BTRFS info (device sdc): enabling inode map caching
-  [63795.739714] BTRFS info (device sdc): disk space caching is enabled
-  [63795.739716] BTRFS info (device sdc): has skinny extents
-  [64036.653886] INFO: task btrfs-transacti:3917 blocked for more than 120 seconds.
-  [64036.654079]       Not tainted 5.2.0-rc4-btrfs-next-50 #1
-  [64036.654143] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-  [64036.654232] btrfs-transacti D    0  3917      2 0x80004000
-  [64036.654239] Call Trace:
-  [64036.654258]  ? __schedule+0x3ae/0x7b0
-  [64036.654271]  schedule+0x3a/0xb0
-  [64036.654325]  btrfs_commit_transaction+0x978/0xae0 [btrfs]
-  [64036.654339]  ? remove_wait_queue+0x60/0x60
-  [64036.654395]  transaction_kthread+0x146/0x180 [btrfs]
-  [64036.654450]  ? btrfs_cleanup_transaction+0x620/0x620 [btrfs]
-  [64036.654456]  kthread+0x103/0x140
-  [64036.654464]  ? kthread_create_worker_on_cpu+0x70/0x70
-  [64036.654476]  ret_from_fork+0x3a/0x50
-  [64036.654504] INFO: task xfs_io:3919 blocked for more than 120 seconds.
-  [64036.654568]       Not tainted 5.2.0-rc4-btrfs-next-50 #1
-  [64036.654617] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-  [64036.654685] xfs_io          D    0  3919   3633 0x00000000
-  [64036.654691] Call Trace:
-  [64036.654703]  ? __schedule+0x3ae/0x7b0
-  [64036.654716]  schedule+0x3a/0xb0
-  [64036.654756]  btrfs_find_free_ino+0xa9/0x120 [btrfs]
-  [64036.654764]  ? remove_wait_queue+0x60/0x60
-  [64036.654809]  btrfs_create+0x72/0x1f0 [btrfs]
-  [64036.654822]  lookup_open+0x6bc/0x790
-  [64036.654849]  path_openat+0x3bc/0xc00
-  [64036.654854]  ? __lock_acquire+0x331/0x1cb0
-  [64036.654869]  do_filp_open+0x99/0x110
-  [64036.654884]  ? __alloc_fd+0xee/0x200
-  [64036.654895]  ? do_raw_spin_unlock+0x49/0xc0
-  [64036.654909]  ? do_sys_open+0x132/0x220
-  [64036.654913]  do_sys_open+0x132/0x220
-  [64036.654926]  do_syscall_64+0x60/0x1d0
-  [64036.654933]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fix this by adding a wake_up() call right after setting the cache state to
-BTRFS_CACHE_FINISHED, at start_caching(), when we are able to load the
-cache from disk.
-
-Fixes: 82d5902d9c681b ("Btrfs: Support reading/writing on disk free ino cache")
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 1a539d372edd9832444e7a3daa710c444c014dc9 ("hwmon: add support for Sensirion SHTC1 sensor")
+Signed-off-by: Dan Robertson <dan@dlrobertson.com>
+Link: https://lore.kernel.org/r/20190905014554.21658-3-dan@dlrobertson.com
+[groeck: Reordered to be first in series and adjusted accordingly]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode-map.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/shtc1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/inode-map.c b/fs/btrfs/inode-map.c
-index 07573dc1614a..3469c7ce7cb6 100644
---- a/fs/btrfs/inode-map.c
-+++ b/fs/btrfs/inode-map.c
-@@ -158,6 +158,7 @@ static void start_caching(struct btrfs_root *root)
- 		spin_lock(&root->ino_cache_lock);
- 		root->ino_cache_state = BTRFS_CACHE_FINISHED;
- 		spin_unlock(&root->ino_cache_lock);
-+		wake_up(&root->ino_cache_wait);
- 		return;
- 	}
+diff --git a/drivers/hwmon/shtc1.c b/drivers/hwmon/shtc1.c
+index decd7df995ab..2a18539591ea 100644
+--- a/drivers/hwmon/shtc1.c
++++ b/drivers/hwmon/shtc1.c
+@@ -38,7 +38,7 @@ static const unsigned char shtc1_cmd_read_id_reg[]	       = { 0xef, 0xc8 };
  
+ /* constants for reading the ID register */
+ #define SHTC1_ID	  0x07
+-#define SHTC1_ID_REG_MASK 0x1f
++#define SHTC1_ID_REG_MASK 0x3f
+ 
+ /* delays for non-blocking i2c commands, both in us */
+ #define SHTC1_NONBLOCKING_WAIT_TIME_HPM  14400
 -- 
 2.20.1
 
