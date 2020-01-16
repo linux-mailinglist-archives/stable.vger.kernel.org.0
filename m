@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF9813E767
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:25:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B9413E76F
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:25:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392140AbgAPRZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:25:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33602 "EHLO mail.kernel.org"
+        id S2392089AbgAPRZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:25:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392133AbgAPRZk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:40 -0500
+        id S2392066AbgAPRZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C8AB246DB;
-        Thu, 16 Jan 2020 17:25:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50B2F24653;
+        Thu, 16 Jan 2020 17:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195540;
-        bh=tH7fwmpQiZPw0MyDgLkGZKtY/tukBcVLLZDmKus01K4=;
+        s=default; t=1579195550;
+        bh=cptCo7/ZT7TtmpKLsgFyIEJ5nLFSH3EM9lZa+qr5o60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dMIjYj+COwxwnp6z8sYLSGH3lWIN0guXgOMDEWWT43ZqC0JfZn8HW0MIJ5/ix3s+D
-         hUvka6jJkknEVaMfnj4PL11/nMG4Ygb328HZwvdE1YhgRgXDbj3HilkSI12p40zFGp
-         /u6ih5p2p7ekT7KD3bVRSSqhZjrZu7aD8wmO32no=
+        b=tqP5K5udl3NIzEsuknOGV3YA+cgjcP12b1eQqix13iVBf1Pw4Echsv7X5t1NdUeuC
+         /IrcsOexWtIqE5STYaXRH3L658qzWkv5HhuhRPovVTVIrZuwDQldIik5bzsDDKf3Qm
+         Nj4NC+edHwUxl0cEtDj3iwwxkeMu4Wc/P1gAV6Dk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Alexandre Bounine <alexandre.bounine@idt.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     Axel Lin <axel.lin@ingics.com>, "Andrew F . Davis" <afd@ti.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 133/371] drivers/rapidio/rio_cm.c: fix potential oops in riocm_ch_listen()
-Date:   Thu, 16 Jan 2020 12:20:05 -0500
-Message-Id: <20200116172403.18149-76-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 141/371] regulator: tps65086: Fix tps65086_ldoa1_ranges for selector 0xB
+Date:   Thu, 16 Jan 2020 12:20:13 -0500
+Message-Id: <20200116172403.18149-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -46,42 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 5ac188b12e7cbdd92dee60877d1fac913fc1d074 ]
+[ Upstream commit e69b394703e032e56a140172440ec4f9890b536d ]
 
-If riocm_get_channel() fails, then we should just return -EINVAL.
-Calling riocm_put_channel() will trigger a NULL dereference and
-generally we should call put() if the get() didn't succeed.
+selector 0xB (1011) should be 2.6V rather than 2.7V, fit ix.
 
-Link: http://lkml.kernel.org/r/20190110130230.GB27017@kadam
-Fixes: b6e8d4aa1110 ("rapidio: add RapidIO channelized messaging driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Alexandre Bounine <alexandre.bounine@idt.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Table 5-4. LDOA1 Output Voltage Options
+VID Bits VOUT VID Bits VOUT VID Bits VOUT VID Bits VOUT
+0000     1.35 0100     1.8  1000     2.3  1100     2.85
+0001     1.5  0101     1.9  1001     2.4  1101     3.0
+0010     1.6  0110     2.0  1010     2.5  1110     3.3
+0011     1.7  0111     2.1  1011     2.6  1111     Not Used
+
+Fixes: d2a2e729a666 ("regulator: tps65086: Add regulator driver for the TPS65086 PMIC")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/rio_cm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/regulator/tps65086-regulator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rapidio/rio_cm.c b/drivers/rapidio/rio_cm.c
-index ef989a15aefc..b29fc258eeba 100644
---- a/drivers/rapidio/rio_cm.c
-+++ b/drivers/rapidio/rio_cm.c
-@@ -1215,7 +1215,9 @@ static int riocm_ch_listen(u16 ch_id)
- 	riocm_debug(CHOP, "(ch_%d)", ch_id);
+diff --git a/drivers/regulator/tps65086-regulator.c b/drivers/regulator/tps65086-regulator.c
+index 45e96e154690..5a5e9b5bf4be 100644
+--- a/drivers/regulator/tps65086-regulator.c
++++ b/drivers/regulator/tps65086-regulator.c
+@@ -90,8 +90,8 @@ static const struct regulator_linear_range tps65086_buck345_25mv_ranges[] = {
+ static const struct regulator_linear_range tps65086_ldoa1_ranges[] = {
+ 	REGULATOR_LINEAR_RANGE(1350000, 0x0, 0x0, 0),
+ 	REGULATOR_LINEAR_RANGE(1500000, 0x1, 0x7, 100000),
+-	REGULATOR_LINEAR_RANGE(2300000, 0x8, 0xA, 100000),
+-	REGULATOR_LINEAR_RANGE(2700000, 0xB, 0xD, 150000),
++	REGULATOR_LINEAR_RANGE(2300000, 0x8, 0xB, 100000),
++	REGULATOR_LINEAR_RANGE(2850000, 0xC, 0xD, 150000),
+ 	REGULATOR_LINEAR_RANGE(3300000, 0xE, 0xE, 0),
+ };
  
- 	ch = riocm_get_channel(ch_id);
--	if (!ch || !riocm_cmp_exch(ch, RIO_CM_CHAN_BOUND, RIO_CM_LISTEN))
-+	if (!ch)
-+		return -EINVAL;
-+	if (!riocm_cmp_exch(ch, RIO_CM_CHAN_BOUND, RIO_CM_LISTEN))
- 		ret = -EINVAL;
- 	riocm_put_channel(ch);
- 	return ret;
 -- 
 2.20.1
 
