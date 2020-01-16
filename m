@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E16B613FF8C
+	by mail.lfdr.de (Postfix) with ESMTP id 6E10E13FF8B
 	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:44:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733257AbgAPXYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731108AbgAPXYe (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Jan 2020 18:24:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53582 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388172AbgAPXY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:24:29 -0500
+        id S2387807AbgAPXYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:24:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1299E2072B;
-        Thu, 16 Jan 2020 23:24:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BB0B20748;
+        Thu, 16 Jan 2020 23:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217069;
-        bh=oXcqTYvmKHG2Oyu7/RIiGJnpCLc/p7lAUB5yf0Pq8iY=;
+        s=default; t=1579217071;
+        bh=gXlucmQXaJRN2NvwLwtt5SNUnBMfGb5PCo9Z7vBS/hY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GnLln8KxGw8bsVYiJIxiLm+Nd1FHoMwm1juzz/yWc/GxZxtvUakX8aNzLIpj4u4lt
-         8tAuHRRu3msQoIXQRQrwunbm9+qUjxfFPEgzUPffZtQW0QWWEIGDejDmnro9k7E1h+
-         OCVUfN6Xl4miLsCgYEzaWWYdjJzZcreepsH6dtf8=
+        b=SWEufhi46MT9rdbTNgbJZQc5AbWDDqoG/zYK6s4qlSFhvEIakKz8ldChClTAPPK5G
+         WKhLfJVr0jyf/+KVHfXvW/lH0p/g6njOQe7RKxrPJCqBRwhH/9DM8VUOTxRGRlgPeq
+         dkeH6Y+37tyjf6L6HBqVkCBXAGWXuW/9ss+ssTwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Srinath Mannam <srinath.mannam@broadcom.com>
-Subject: [PATCH 5.4 135/203] PCI: Fix missing bridge dma_ranges resource list cleanup
-Date:   Fri, 17 Jan 2020 00:17:32 +0100
-Message-Id: <20200116231756.875627199@linuxfoundation.org>
+        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 136/203] PCI/PM: Clear PCIe PME Status even for legacy power management
+Date:   Fri, 17 Jan 2020 00:17:33 +0100
+Message-Id: <20200116231756.949934252@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -44,36 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-commit 7608158df3ed87a5c938c4a0b91f5b11101a9be1 upstream.
+commit ec6a75ef8e33fe33f963b916fd902c52a0be33ff upstream.
 
-Commit e80a91ad302b ("PCI: Add dma_ranges window list") added a
-dma_ranges resource list, but failed to correctly free the list when
-devm_pci_alloc_host_bridge() is used.
+Previously, pci_pm_resume_noirq() cleared the PME Status bit in the Root
+Status register only if the device had no driver or the driver did not
+implement legacy power management.  It should clear PME Status regardless
+of what sort of power management the driver supports, so do this before
+checking for legacy power management.
 
-Only the iproc host bridge driver is using the dma_ranges list.
+This affects Root Ports and Root Complex Event Collectors, for which the
+usual driver is the PCIe portdrv, which implements new power management, so
+this change is just on principle, not to fix any actual defects.
 
-Fixes: e80a91ad302b ("PCI: Add dma_ranges window list")
-Link: https://lore.kernel.org/r/20191008012325.25700-1-robh@kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
+Fixes: a39bd851dccf ("PCI/PM: Clear PCIe PME Status bit in core, not PCIe port driver")
+Link: https://lore.kernel.org/r/20191014230016.240912-4-helgaas@kernel.org
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Srinath Mannam <srinath.mannam@broadcom.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/probe.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/pci-driver.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -572,6 +572,7 @@ static void devm_pci_release_host_bridge
- 		bridge->release_fn(bridge);
+--- a/drivers/pci/pci-driver.c
++++ b/drivers/pci/pci-driver.c
+@@ -941,12 +941,11 @@ static int pci_pm_resume_noirq(struct de
+ 		pci_pm_default_resume_early(pci_dev);
  
- 	pci_free_resource_list(&bridge->windows);
-+	pci_free_resource_list(&bridge->dma_ranges);
- }
+ 	pci_fixup_device(pci_fixup_resume_early, pci_dev);
++	pcie_pme_root_status_cleanup(pci_dev);
  
- static void pci_release_host_bridge_dev(struct device *dev)
+ 	if (pci_has_legacy_pm_support(pci_dev))
+ 		return pci_legacy_resume_early(dev);
+ 
+-	pcie_pme_root_status_cleanup(pci_dev);
+-
+ 	if (drv && drv->pm && drv->pm->resume_noirq)
+ 		error = drv->pm->resume_noirq(dev);
+ 
 
 
