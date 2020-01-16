@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE6813FFAB
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:45:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19ABF13FFAC
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:45:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390993AbgAPXXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:23:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51454 "EHLO mail.kernel.org"
+        id S2391003AbgAPXXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:23:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390992AbgAPXXR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:23:17 -0500
+        id S2390998AbgAPXXT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:23:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94709206D9;
-        Thu, 16 Jan 2020 23:23:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F1362073A;
+        Thu, 16 Jan 2020 23:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216996;
-        bh=PoxcrDcGEQmUeQXGusjb3WsOfqsZeYJY0WnI1BoaYy0=;
+        s=default; t=1579216998;
+        bh=P7gMxpRatdfwykCDGs5mdRZOhMP7lLnF7WwhUP339Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ha1ujjckPZb2rvz3uRfaP3MGTkBOi8A9YaFNuqKJYylioyH0NNdWloUN6Iu+ydI+3
-         e9VERzUkUvXAhd0otqViWikntkLFxn/O8UbQizBXVTL0Jw837dFGloYQL+Mf1Lq5pF
-         m1Gz0AwcB8HfsbXxMHviSh3/l/JXJp53evdWCbZw=
+        b=KzpBCSGgV6rrnVEhsDbpIapk6L5ytRs3uThfZOp8bKc+G1YmNBvUQD/p6j0Ww1jGT
+         8/8kdie8YwcBhJh2GV0Tvi5x9y5G1HStW6qprBEpd/2K01bK1Uy2T3M0yfgJLW7++o
+         Dy3KUKkvKBuBDaLt0DYDeFaPUwlONXDAOP13Dq/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Anderson <jasona.594@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 089/203] platform/x86: GPD pocket fan: Use default values when wrong modparams are given
-Date:   Fri, 17 Jan 2020 00:16:46 +0100
-Message-Id: <20200116231753.449871591@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.4 090/203] asm-generic/nds32: dont redefine cacheflush primitives
+Date:   Fri, 17 Jan 2020 00:16:47 +0100
+Message-Id: <20200116231753.554229283@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -44,89 +45,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit 6ae01050e49f0080ae30575d9b45a6d4a3d7ee23 upstream.
+commit 4f0bd808134d73184054ad09173821c84f31dd5d upstream.
 
-Use our default values when wrong module-parameters are given, instead of
-refusing to load. Refusing to load leaves the fan at the BIOS default
-setting, which is "Off". The CPU's thermal throttling should protect the
-system from damage, but not-loading is really not the best fallback in this
-case.
+The commit c296d4dc13ae ("asm-generic: fix a compilation warning") changed
+asm-generic/cachflush.h to use static inlines instead of macros and as a
+result the nds32 build with CONFIG_CPU_CACHE_ALIASING=n fails:
 
-This commit fixes this by re-setting module-parameter values to their
-defaults if they are out of range, instead of failing the probe with
--EINVAL.
+  CC      init/main.o
+In file included from arch/nds32/include/asm/cacheflush.h:43,
+                 from include/linux/highmem.h:12,
+                 from include/linux/pagemap.h:11,
+                 from include/linux/blkdev.h:16,
+                 from include/linux/blk-cgroup.h:23,
+                 from include/linux/writeback.h:14,
+                 from init/main.c:44:
+include/asm-generic/cacheflush.h:50:20: error: static declaration of 'flush_icache_range' follows non-static declaration
+ static inline void flush_icache_range(unsigned long start, unsigned long end)
+                    ^~~~~~~~~~~~~~~~~~
+In file included from include/linux/highmem.h:12,
+                 from include/linux/pagemap.h:11,
+                 from include/linux/blkdev.h:16,
+                 from include/linux/blk-cgroup.h:23,
+                 from include/linux/writeback.h:14,
+                 from init/main.c:44:
+arch/nds32/include/asm/cacheflush.h:11:6: note: previous declaration of 'flush_icache_range' was here
+ void flush_icache_range(unsigned long start, unsigned long end);
+      ^~~~~~~~~~~~~~~~~~
 
-Cc: stable@vger.kernel.org
-Cc: Jason Anderson <jasona.594@gmail.com>
-Reported-by: Jason Anderson <jasona.594@gmail.com>
-Fixes: 594ce6db326e ("platform/x86: GPD pocket fan: Use a min-speed of 2 while charging")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Surround the inline functions in asm-generic/cacheflush.h by ifdef's so
+that architectures could override them and add the required overrides to
+nds32.
+
+Fixes: c296d4dc13ae ("asm-generic: fix a compilation warning")
+Link: https://lore.kernel.org/lkml/201912212139.yptX8CsV%25lkp@intel.com/
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Greentime Hu <green.hu@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/gpd-pocket-fan.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ arch/nds32/include/asm/cacheflush.h |   11 +++++++----
+ include/asm-generic/cacheflush.h    |   33 ++++++++++++++++++++++++++++++++-
+ 2 files changed, 39 insertions(+), 5 deletions(-)
 
---- a/drivers/platform/x86/gpd-pocket-fan.c
-+++ b/drivers/platform/x86/gpd-pocket-fan.c
-@@ -16,17 +16,27 @@
+--- a/arch/nds32/include/asm/cacheflush.h
++++ b/arch/nds32/include/asm/cacheflush.h
+@@ -9,7 +9,11 @@
+ #define PG_dcache_dirty PG_arch_1
  
- #define MAX_SPEED 3
- 
--static int temp_limits[3] = { 55000, 60000, 65000 };
-+#define TEMP_LIMIT0_DEFAULT	55000
-+#define TEMP_LIMIT1_DEFAULT	60000
-+#define TEMP_LIMIT2_DEFAULT	65000
+ void flush_icache_range(unsigned long start, unsigned long end);
++#define flush_icache_range flush_icache_range
 +
-+#define HYSTERESIS_DEFAULT	3000
+ void flush_icache_page(struct vm_area_struct *vma, struct page *page);
++#define flush_icache_page flush_icache_page
 +
-+#define SPEED_ON_AC_DEFAULT	2
+ #ifdef CONFIG_CPU_CACHE_ALIASING
+ void flush_cache_mm(struct mm_struct *mm);
+ void flush_cache_dup_mm(struct mm_struct *mm);
+@@ -40,12 +44,11 @@ void invalidate_kernel_vmap_range(void *
+ #define flush_dcache_mmap_unlock(mapping) xa_unlock_irq(&(mapping)->i_pages)
+ 
+ #else
+-#include <asm-generic/cacheflush.h>
+-#undef flush_icache_range
+-#undef flush_icache_page
+-#undef flush_icache_user_range
+ void flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
+ 	                     unsigned long addr, int len);
++#define flush_icache_user_range flush_icache_user_range
 +
-+static int temp_limits[3] = {
-+	TEMP_LIMIT0_DEFAULT, TEMP_LIMIT1_DEFAULT, TEMP_LIMIT2_DEFAULT,
-+};
- module_param_array(temp_limits, int, NULL, 0444);
- MODULE_PARM_DESC(temp_limits,
- 		 "Millicelsius values above which the fan speed increases");
++#include <asm-generic/cacheflush.h>
+ #endif
  
--static int hysteresis = 3000;
-+static int hysteresis = HYSTERESIS_DEFAULT;
- module_param(hysteresis, int, 0444);
- MODULE_PARM_DESC(hysteresis,
- 		 "Hysteresis in millicelsius before lowering the fan speed");
+ #endif /* __NDS32_CACHEFLUSH_H__ */
+--- a/include/asm-generic/cacheflush.h
++++ b/include/asm-generic/cacheflush.h
+@@ -11,71 +11,102 @@
+  * The cache doesn't need to be flushed when TLB entries change when
+  * the cache is mapped to physical memory, not virtual memory
+  */
++#ifndef flush_cache_all
+ static inline void flush_cache_all(void)
+ {
+ }
++#endif
  
--static int speed_on_ac = 2;
-+static int speed_on_ac = SPEED_ON_AC_DEFAULT;
- module_param(speed_on_ac, int, 0444);
- MODULE_PARM_DESC(speed_on_ac,
- 		 "minimum fan speed to allow when system is powered by AC");
-@@ -120,18 +130,21 @@ static int gpd_pocket_fan_probe(struct p
- 		if (temp_limits[i] < 40000 || temp_limits[i] > 70000) {
- 			dev_err(&pdev->dev, "Invalid temp-limit %d (must be between 40000 and 70000)\n",
- 				temp_limits[i]);
--			return -EINVAL;
-+			temp_limits[0] = TEMP_LIMIT0_DEFAULT;
-+			temp_limits[1] = TEMP_LIMIT1_DEFAULT;
-+			temp_limits[2] = TEMP_LIMIT2_DEFAULT;
-+			break;
- 		}
- 	}
- 	if (hysteresis < 1000 || hysteresis > 10000) {
- 		dev_err(&pdev->dev, "Invalid hysteresis %d (must be between 1000 and 10000)\n",
- 			hysteresis);
--		return -EINVAL;
-+		hysteresis = HYSTERESIS_DEFAULT;
- 	}
- 	if (speed_on_ac < 0 || speed_on_ac > MAX_SPEED) {
- 		dev_err(&pdev->dev, "Invalid speed_on_ac %d (must be between 0 and 3)\n",
- 			speed_on_ac);
--		return -EINVAL;
-+		speed_on_ac = SPEED_ON_AC_DEFAULT;
- 	}
++#ifndef flush_cache_mm
+ static inline void flush_cache_mm(struct mm_struct *mm)
+ {
+ }
++#endif
  
- 	fan = devm_kzalloc(&pdev->dev, sizeof(*fan), GFP_KERNEL);
++#ifndef flush_cache_dup_mm
+ static inline void flush_cache_dup_mm(struct mm_struct *mm)
+ {
+ }
++#endif
+ 
++#ifndef flush_cache_range
+ static inline void flush_cache_range(struct vm_area_struct *vma,
+ 				     unsigned long start,
+ 				     unsigned long end)
+ {
+ }
++#endif
+ 
++#ifndef flush_cache_page
+ static inline void flush_cache_page(struct vm_area_struct *vma,
+ 				    unsigned long vmaddr,
+ 				    unsigned long pfn)
+ {
+ }
++#endif
+ 
++#ifndef flush_dcache_page
+ static inline void flush_dcache_page(struct page *page)
+ {
+ }
++#endif
+ 
++#ifndef flush_dcache_mmap_lock
+ static inline void flush_dcache_mmap_lock(struct address_space *mapping)
+ {
+ }
++#endif
+ 
++#ifndef flush_dcache_mmap_unlock
+ static inline void flush_dcache_mmap_unlock(struct address_space *mapping)
+ {
+ }
++#endif
+ 
++#ifndef flush_icache_range
+ static inline void flush_icache_range(unsigned long start, unsigned long end)
+ {
+ }
++#endif
+ 
++#ifndef flush_icache_page
+ static inline void flush_icache_page(struct vm_area_struct *vma,
+ 				     struct page *page)
+ {
+ }
++#endif
+ 
++#ifndef flush_icache_user_range
+ static inline void flush_icache_user_range(struct vm_area_struct *vma,
+ 					   struct page *page,
+ 					   unsigned long addr, int len)
+ {
+ }
++#endif
+ 
++#ifndef flush_cache_vmap
+ static inline void flush_cache_vmap(unsigned long start, unsigned long end)
+ {
+ }
++#endif
+ 
++#ifndef flush_cache_vunmap
+ static inline void flush_cache_vunmap(unsigned long start, unsigned long end)
+ {
+ }
++#endif
+ 
+-#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
++#ifndef copy_to_user_page
++#define copy_to_user_page(vma, page, vaddr, dst, src, len)	\
+ 	do { \
+ 		memcpy(dst, src, len); \
+ 		flush_icache_user_range(vma, page, vaddr, len); \
+ 	} while (0)
++#endif
++
++#ifndef copy_from_user_page
+ #define copy_from_user_page(vma, page, vaddr, dst, src, len) \
+ 	memcpy(dst, src, len)
++#endif
+ 
+ #endif /* __ASM_CACHEFLUSH_H */
 
 
