@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6C4513E80F
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:30:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81F6313E812
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:30:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392941AbgAPRaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:30:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42260 "EHLO mail.kernel.org"
+        id S2392970AbgAPRaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:30:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392903AbgAPRaD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:30:03 -0500
+        id S2392960AbgAPRaG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:30:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBC9724718;
-        Thu, 16 Jan 2020 17:30:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D303324721;
+        Thu, 16 Jan 2020 17:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195802;
-        bh=v3livdS8vM+rdbLAzBYFHtfZ/IqjRpEO2jwm4V2eyJU=;
+        s=default; t=1579195805;
+        bh=GqT+VFCz0fjwLD0nspadbZFk3K0CQrDFdoHxecWoKJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQUhy9HxB5HkhqjgWKOVNDiGZWgGtnDH0/86nuxlR67HeAi8LK+nfsE7uKKRfju4J
-         pCVv9O0fPKDojhJpcMwk5jrz2Q8wBCOa8qwN42SerC49NxZ4vsbevjOcryT8nOc8ef
-         MP/0QdhyIizO4qVD7B3TaILVMQf12C0cyLYEVZXs=
+        b=PeIDTAum8YvyOGvNSCbuMlKUy5AFa40ICcUYOI67uU4Q84F0BEKzwXfbq9iJoX1jM
+         +Rg78qkTTtdpyKDSG/yy0DL+lJFwR8pdH3f7F40GHXUo4vQgt0DzwDQu/0vk87cQ8S
+         Ob1AtOQcePEfcsb0fc2blqrN8moiXuigs+XD6BGE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
+Cc:     Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 317/371] act_mirred: Fix mirred_init_module error handling
-Date:   Thu, 16 Jan 2020 12:23:09 -0500
-Message-Id: <20200116172403.18149-260-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        xen-devel@lists.xenproject.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 319/371] net: add {READ|WRITE}_ONCE() annotations on ->rskq_accept_head
+Date:   Thu, 16 Jan 2020 12:23:11 -0500
+Message-Id: <20200116172403.18149-262-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -43,38 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 11c9a7d38af524217efb7a176ad322b97ac2f163 ]
+[ Upstream commit 60b173ca3d1cd1782bd0096dc17298ec242f6fb1 ]
 
-If tcf_register_action failed, mirred_device_notifier
-should be unregistered.
+reqsk_queue_empty() is called from inet_csk_listen_poll() while
+other cpus might write ->rskq_accept_head value.
 
-Fixes: 3b87956ea645 ("net sched: fix race in mirred device removal")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Use {READ|WRITE}_ONCE() to avoid compiler tricks
+and potential KCSAN splats.
+
+Fixes: fff1f3001cc5 ("tcp: add a spinlock to protect struct request_sock_queue")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_mirred.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/xen/pvcalls-back.c      | 2 +-
+ include/net/request_sock.h      | 4 ++--
+ net/ipv4/inet_connection_sock.c | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/sched/act_mirred.c b/net/sched/act_mirred.c
-index 529bb064c4a4..dcfaa4f9c7c5 100644
---- a/net/sched/act_mirred.c
-+++ b/net/sched/act_mirred.c
-@@ -371,7 +371,11 @@ static int __init mirred_init_module(void)
- 		return err;
+diff --git a/drivers/xen/pvcalls-back.c b/drivers/xen/pvcalls-back.c
+index abd6dbc29ac2..58be15c27b6d 100644
+--- a/drivers/xen/pvcalls-back.c
++++ b/drivers/xen/pvcalls-back.c
+@@ -792,7 +792,7 @@ static int pvcalls_back_poll(struct xenbus_device *dev,
+ 	mappass->reqcopy = *req;
+ 	icsk = inet_csk(mappass->sock->sk);
+ 	queue = &icsk->icsk_accept_queue;
+-	data = queue->rskq_accept_head != NULL;
++	data = READ_ONCE(queue->rskq_accept_head) != NULL;
+ 	if (data) {
+ 		mappass->reqcopy.cmd = 0;
+ 		ret = 0;
+diff --git a/include/net/request_sock.h b/include/net/request_sock.h
+index 23e22054aa60..04aa2c7d35c4 100644
+--- a/include/net/request_sock.h
++++ b/include/net/request_sock.h
+@@ -181,7 +181,7 @@ void reqsk_fastopen_remove(struct sock *sk, struct request_sock *req,
  
- 	pr_info("Mirror/redirect action on\n");
--	return tcf_register_action(&act_mirred_ops, &mirred_net_ops);
-+	err = tcf_register_action(&act_mirred_ops, &mirred_net_ops);
-+	if (err)
-+		unregister_netdevice_notifier(&mirred_device_notifier);
-+
-+	return err;
+ static inline bool reqsk_queue_empty(const struct request_sock_queue *queue)
+ {
+-	return queue->rskq_accept_head == NULL;
++	return READ_ONCE(queue->rskq_accept_head) == NULL;
  }
  
- static void __exit mirred_cleanup_module(void)
+ static inline struct request_sock *reqsk_queue_remove(struct request_sock_queue *queue,
+@@ -193,7 +193,7 @@ static inline struct request_sock *reqsk_queue_remove(struct request_sock_queue
+ 	req = queue->rskq_accept_head;
+ 	if (req) {
+ 		sk_acceptq_removed(parent);
+-		queue->rskq_accept_head = req->dl_next;
++		WRITE_ONCE(queue->rskq_accept_head, req->dl_next);
+ 		if (queue->rskq_accept_head == NULL)
+ 			queue->rskq_accept_tail = NULL;
+ 	}
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index f7224c4fc30f..da55ce62fe50 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -936,7 +936,7 @@ struct sock *inet_csk_reqsk_queue_add(struct sock *sk,
+ 		req->sk = child;
+ 		req->dl_next = NULL;
+ 		if (queue->rskq_accept_head == NULL)
+-			queue->rskq_accept_head = req;
++			WRITE_ONCE(queue->rskq_accept_head, req);
+ 		else
+ 			queue->rskq_accept_tail->dl_next = req;
+ 		queue->rskq_accept_tail = req;
 -- 
 2.20.1
 
