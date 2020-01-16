@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C538613F036
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F12013F033
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:21:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392915AbgAPSTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:19:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39658 "EHLO mail.kernel.org"
+        id S2388468AbgAPSTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:19:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392584AbgAPR2b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:28:31 -0500
+        id S2392588AbgAPR2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:28:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68BFC24701;
-        Thu, 16 Jan 2020 17:28:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C00CD246D0;
+        Thu, 16 Jan 2020 17:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195710;
-        bh=B2qxsZi5im0ROgTjukgilkJpFct4R/89pn0HPMplz3o=;
+        s=default; t=1579195711;
+        bh=VgOQDA71uRDSsos4UvyhHQ5aQa7agYA/TfWi29gk9ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UewlVl+Gz+LjOGfN7tYECqRSqUMdPg+HGyjapG/LOB4pa6WLZ4d2aCNYevD9w6g2l
-         oGG/GTAxU35LWTuhc4RgeyCjdZzzMdSn44GGDyVOBL2vI1ISRfPSaFZf3NF8RL8kAW
-         bOfsqrC78ZK4Je2gB33W6Gf68lDLLYUswXvH/5m4=
+        b=xjqQ8Ql8jB03xs4SSwa8kd77FohHA24RLJBLmu5An4mulFzhilgzv/AoO937R3vea
+         4dy9jG51VIlNx5t6gvoTlZ5YmS/gYfXcUgecHhnV7CzL+05fwdjcRSFVsJ/az4sHYS
+         kUfaj7pRcuVjxy8AaWwXJsyeb9SUzXIjYcc5eaaQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 256/371] crypto: ccp - Reduce maximum stack usage
-Date:   Thu, 16 Jan 2020 12:22:08 -0500
-Message-Id: <20200116172403.18149-199-sashal@kernel.org>
+Cc:     Johannes Berg <johannes@sipsolutions.net>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 257/371] ALSA: aoa: onyx: always initialize register read value
+Date:   Thu, 16 Jan 2020 12:22:09 -0500
+Message-Id: <20200116172403.18149-200-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,176 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Johannes Berg <johannes@sipsolutions.net>
 
-[ Upstream commit 72c8117adfced37df101c8c0b3f363e0906f83f0 ]
+[ Upstream commit f474808acb3c4b30552d9c59b181244e0300d218 ]
 
-Each of the operations in ccp_run_cmd() needs several hundred
-bytes of kernel stack. Depending on the inlining, these may
-need separate stack slots that add up to more than the warning
-limit, as shown in this clang based build:
+A lot of places in the driver use onyx_read_register() without
+checking the return value, and it's been working OK for ~10 years
+or so, so probably never fails ... Rather than trying to check the
+return value everywhere, which would be relatively intrusive, at
+least make sure we don't use an uninitialized value.
 
-drivers/crypto/ccp/ccp-ops.c:871:12: error: stack frame size of 1164 bytes in function 'ccp_run_aes_cmd' [-Werror,-Wframe-larger-than=]
-static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-
-The problem may also happen when there is no warning, e.g. in the
-ccp_run_cmd()->ccp_run_aes_cmd()->ccp_run_aes_gcm_cmd() call chain with
-over 2000 bytes.
-
-Mark each individual function as 'noinline_for_stack' to prevent
-this from happening, and move the calls to the two special cases for aes
-into the top-level function. This will keep the actual combined stack
-usage to the mimimum: 828 bytes for ccp_run_aes_gcm_cmd() and
-at most 524 bytes for each of the other cases.
-
-Fixes: 63b945091a07 ("crypto: ccp - CCP device driver and interface support")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: f3d9478b2ce4 ("[ALSA] snd-aoa: add snd-aoa")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/ccp-ops.c | 52 +++++++++++++++++++++---------------
- 1 file changed, 31 insertions(+), 21 deletions(-)
+ sound/aoa/codecs/onyx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccp/ccp-ops.c b/drivers/crypto/ccp/ccp-ops.c
-index 4b48b8523a40..330853a2702f 100644
---- a/drivers/crypto/ccp/ccp-ops.c
-+++ b/drivers/crypto/ccp/ccp-ops.c
-@@ -458,8 +458,8 @@ static int ccp_copy_from_sb(struct ccp_cmd_queue *cmd_q,
- 	return ccp_copy_to_from_sb(cmd_q, wa, jobid, sb, byte_swap, true);
- }
- 
--static int ccp_run_aes_cmac_cmd(struct ccp_cmd_queue *cmd_q,
--				struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_aes_cmac_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_aes_engine *aes = &cmd->u.aes;
- 	struct ccp_dm_workarea key, ctx;
-@@ -614,8 +614,8 @@ static int ccp_run_aes_cmac_cmd(struct ccp_cmd_queue *cmd_q,
- 	return ret;
- }
- 
--static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
--			       struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_aes_engine *aes = &cmd->u.aes;
- 	struct ccp_dm_workarea key, ctx, final_wa, tag;
-@@ -897,7 +897,8 @@ static int ccp_run_aes_gcm_cmd(struct ccp_cmd_queue *cmd_q,
- 	return ret;
- }
- 
--static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_aes_engine *aes = &cmd->u.aes;
- 	struct ccp_dm_workarea key, ctx;
-@@ -907,12 +908,6 @@ static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 	bool in_place = false;
- 	int ret;
- 
--	if (aes->mode == CCP_AES_MODE_CMAC)
--		return ccp_run_aes_cmac_cmd(cmd_q, cmd);
--
--	if (aes->mode == CCP_AES_MODE_GCM)
--		return ccp_run_aes_gcm_cmd(cmd_q, cmd);
--
- 	if (!((aes->key_len == AES_KEYSIZE_128) ||
- 	      (aes->key_len == AES_KEYSIZE_192) ||
- 	      (aes->key_len == AES_KEYSIZE_256)))
-@@ -1080,8 +1075,8 @@ static int ccp_run_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 	return ret;
- }
- 
--static int ccp_run_xts_aes_cmd(struct ccp_cmd_queue *cmd_q,
--			       struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_xts_aes_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_xts_aes_engine *xts = &cmd->u.xts;
- 	struct ccp_dm_workarea key, ctx;
-@@ -1280,7 +1275,8 @@ static int ccp_run_xts_aes_cmd(struct ccp_cmd_queue *cmd_q,
- 	return ret;
- }
- 
--static int ccp_run_des3_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_des3_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_des3_engine *des3 = &cmd->u.des3;
- 
-@@ -1476,7 +1472,8 @@ static int ccp_run_des3_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 	return ret;
- }
- 
--static int ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_sha_engine *sha = &cmd->u.sha;
- 	struct ccp_dm_workarea ctx;
-@@ -1820,7 +1817,8 @@ static int ccp_run_sha_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 	return ret;
- }
- 
--static int ccp_run_rsa_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_rsa_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_rsa_engine *rsa = &cmd->u.rsa;
- 	struct ccp_dm_workarea exp, src, dst;
-@@ -1951,8 +1949,8 @@ static int ccp_run_rsa_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 	return ret;
- }
- 
--static int ccp_run_passthru_cmd(struct ccp_cmd_queue *cmd_q,
--				struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_passthru_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_passthru_engine *pt = &cmd->u.passthru;
- 	struct ccp_dm_workarea mask;
-@@ -2083,7 +2081,8 @@ static int ccp_run_passthru_cmd(struct ccp_cmd_queue *cmd_q,
- 	return ret;
- }
- 
--static int ccp_run_passthru_nomap_cmd(struct ccp_cmd_queue *cmd_q,
-+static noinline_for_stack int
-+ccp_run_passthru_nomap_cmd(struct ccp_cmd_queue *cmd_q,
- 				      struct ccp_cmd *cmd)
- {
- 	struct ccp_passthru_nomap_engine *pt = &cmd->u.passthru_nomap;
-@@ -2424,7 +2423,8 @@ static int ccp_run_ecc_pm_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 	return ret;
- }
- 
--static int ccp_run_ecc_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
-+static noinline_for_stack int
-+ccp_run_ecc_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- {
- 	struct ccp_ecc_engine *ecc = &cmd->u.ecc;
- 
-@@ -2461,7 +2461,17 @@ int ccp_run_cmd(struct ccp_cmd_queue *cmd_q, struct ccp_cmd *cmd)
- 
- 	switch (cmd->engine) {
- 	case CCP_ENGINE_AES:
--		ret = ccp_run_aes_cmd(cmd_q, cmd);
-+		switch (cmd->u.aes.mode) {
-+		case CCP_AES_MODE_CMAC:
-+			ret = ccp_run_aes_cmac_cmd(cmd_q, cmd);
-+			break;
-+		case CCP_AES_MODE_GCM:
-+			ret = ccp_run_aes_gcm_cmd(cmd_q, cmd);
-+			break;
-+		default:
-+			ret = ccp_run_aes_cmd(cmd_q, cmd);
-+			break;
-+		}
- 		break;
- 	case CCP_ENGINE_XTS_AES_128:
- 		ret = ccp_run_xts_aes_cmd(cmd_q, cmd);
+diff --git a/sound/aoa/codecs/onyx.c b/sound/aoa/codecs/onyx.c
+index d2d96ca082b7..6224fd3bbf7c 100644
+--- a/sound/aoa/codecs/onyx.c
++++ b/sound/aoa/codecs/onyx.c
+@@ -74,8 +74,10 @@ static int onyx_read_register(struct onyx *onyx, u8 reg, u8 *value)
+ 		return 0;
+ 	}
+ 	v = i2c_smbus_read_byte_data(onyx->i2c, reg);
+-	if (v < 0)
++	if (v < 0) {
++		*value = 0;
+ 		return -1;
++	}
+ 	*value = (u8)v;
+ 	onyx->cache[ONYX_REG_CONTROL-FIRSTREGISTER] = *value;
+ 	return 0;
 -- 
 2.20.1
 
