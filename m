@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C21F313F8A3
+	by mail.lfdr.de (Postfix) with ESMTP id 4409F13F8A2
 	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:20:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731547AbgAPQyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:54:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38484 "EHLO mail.kernel.org"
+        id S1731636AbgAPTTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:19:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731515AbgAPQyI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:54:08 -0500
+        id S1731611AbgAPQyM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:54:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17F7822522;
-        Thu, 16 Jan 2020 16:54:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E86812176D;
+        Thu, 16 Jan 2020 16:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193647;
-        bh=BrLs7BvJ+lpkPyofEsvryvAamJQw9HhTY9L33aTBCdM=;
+        s=default; t=1579193651;
+        bh=OzFODw4fgcmPhpz8E8cgdKYNHhUMu9ketHJs8OPWZQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05scrx0O9lRkbNgGW3wr1PAjzYVGj8U83ogxVXteFTqU4iWd4ED+u/Yh6GCAnhZjJ
-         C5LkaNKF5XcDT+OTTtG/XeOmNfuPlS8C7luGhiaexXT92b15SavZzSC8h9CTuhzG6C
-         HwP2ecUU9HyiW1ZjzUu7yIbIbEh0o8Kq3wcPSgw4=
+        b=b7ifsK/NcQq8eYKGbGo/0xDU7rp/wLTiVeRLW/B0Ofg6KoujqKPNzFGY/3z9vSM3R
+         eR6gxRXOEin3hNHlb95Ykf3xySSkexWancXvfpJQ3j8nF4W4YDYCUKbmAOKskOrlR7
+         5CoKFzUR1aQn+Sq8EMvlY+Zik2MpPySEY1txYZso=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huacai Chen <chenhc@lemote.com>,
-        Michael Hernandez <michael.hernandez@cavium.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 178/205] scsi: qla2xxx: Fix qla2x00_request_irqs() for MSI
-Date:   Thu, 16 Jan 2020 11:42:33 -0500
-Message-Id: <20200116164300.6705-178-sashal@kernel.org>
+Cc:     Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 181/205] ath9k: use iowrite32 over __raw_writel
+Date:   Thu, 16 Jan 2020 11:42:36 -0500
+Message-Id: <20200116164300.6705-181-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -45,58 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit 45dc8f2d9c94ed74a5e31e63e9136a19a7e16081 ]
+[ Upstream commit 22d0d5ae7a089967e9295a06694aa3e8a812b15e ]
 
-Commit 4fa183455988 ("scsi: qla2xxx: Utilize pci_alloc_irq_vectors/
-pci_free_irq_vectors calls.") use pci_alloc_irq_vectors() to replace
-pci_enable_msi() but it didn't handle the return value correctly. This bug
-make qla2x00 always fail to setup MSI if MSI-X fail, so fix it.
+This patch changes the ath9k_pci_owl_loader to use the
+same iowrite32 memory accessor that ath9k_pci is using
+to communicate with the PCI(e) chip.
 
-BTW, improve the log message of return value in qla2x00_request_irqs() to
-avoid confusion.
+This will fix endian issues that came up during testing
+with loaned AVM Fritz!Box 7360 (Lantiq MIPS SoCs + AR9287).
 
-Fixes: 4fa183455988 ("scsi: qla2xxx: Utilize pci_alloc_irq_vectors/pci_free_irq_vectors calls.")
-Cc: Michael Hernandez <michael.hernandez@cavium.com>
-Link: https://lore.kernel.org/r/1574314847-14280-1-git-send-email-chenhc@lemote.com
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 5a4f2040fd07 ("ath9k: add loader for AR92XX (and older) pci(e)")
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/ath9k_pci_owl_loader.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index b3766b1879e3..7c5f2736ebee 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3625,7 +3625,7 @@ qla2x00_request_irqs(struct qla_hw_data *ha, struct rsp_que *rsp)
- skip_msix:
+diff --git a/drivers/net/wireless/ath/ath9k/ath9k_pci_owl_loader.c b/drivers/net/wireless/ath/ath9k/ath9k_pci_owl_loader.c
+index 159490f5a111..60731e07f681 100644
+--- a/drivers/net/wireless/ath/ath9k/ath9k_pci_owl_loader.c
++++ b/drivers/net/wireless/ath/ath9k/ath9k_pci_owl_loader.c
+@@ -84,7 +84,7 @@ static int ath9k_pci_fixup(struct pci_dev *pdev, const u16 *cal_data,
+ 			val = swahb32(val);
+ 		}
  
- 	ql_log(ql_log_info, vha, 0x0037,
--	    "Falling back-to MSI mode -%d.\n", ret);
-+	    "Falling back-to MSI mode -- ret=%d.\n", ret);
+-		__raw_writel(val, mem + reg);
++		iowrite32(val, mem + reg);
+ 		usleep_range(100, 120);
+ 	}
  
- 	if (!IS_QLA24XX(ha) && !IS_QLA2532(ha) && !IS_QLA8432(ha) &&
- 	    !IS_QLA8001(ha) && !IS_P3P_TYPE(ha) && !IS_QLAFX00(ha) &&
-@@ -3633,13 +3633,13 @@ qla2x00_request_irqs(struct qla_hw_data *ha, struct rsp_que *rsp)
- 		goto skip_msi;
- 
- 	ret = pci_alloc_irq_vectors(ha->pdev, 1, 1, PCI_IRQ_MSI);
--	if (!ret) {
-+	if (ret > 0) {
- 		ql_dbg(ql_dbg_init, vha, 0x0038,
- 		    "MSI: Enabled.\n");
- 		ha->flags.msi_enabled = 1;
- 	} else
- 		ql_log(ql_log_warn, vha, 0x0039,
--		    "Falling back-to INTa mode -- %d.\n", ret);
-+		    "Falling back-to INTa mode -- ret=%d.\n", ret);
- skip_msi:
- 
- 	/* Skip INTx on ISP82xx. */
 -- 
 2.20.1
 
