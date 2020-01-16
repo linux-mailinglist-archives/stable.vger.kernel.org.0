@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 113EB13F561
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:56:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 926EC13F560
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:56:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388835AbgAPSzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:55:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39646 "EHLO mail.kernel.org"
+        id S2388703AbgAPRHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:07:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729950AbgAPRHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:07:32 -0500
+        id S2388893AbgAPRHd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:07:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8897821582;
-        Thu, 16 Jan 2020 17:07:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D79B24679;
+        Thu, 16 Jan 2020 17:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194452;
-        bh=9ffIg72vfAL9XOeRGbQvUSJeUprb7SNydkmcRf2SO2o=;
+        s=default; t=1579194453;
+        bh=eiozgSvE0P6s9NMNgVO9mWYQC/RhfGeUjT37ObuwHHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0XcO2XazkZ77b+AhN+4jzVvtfR5ZJ4h3cWJh9X/76aBXYTLBtCfQgGb50/lHAgomB
-         vyRVb24VOqQtTSGa+uRFDyrXjJ6BhlNrHslsjHE0NaK0G07r9MeyB9r/uuB+YrUFPF
-         HywCBsxzMjrk4YJMFUKqJQJlLV+UDpPcj+S492LA=
+        b=DSsw2DKDUjn1Q0RaxXGrVACyeJsqu5aVyzCUMYau2736JUnPJIzOsV/uDluIZ6gz1
+         +3aUwsDiS5+TScvU/LEUTAmPy6NBMQPky+TwoGJi401I/e97aMYS0yLrsYkUsyMtz4
+         tDW0O72DUPUjIe961O+U7Sb56p1auBKKycCPn71Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 362/671] afs: Fix lock-wait/callback-break double locking
-Date:   Thu, 16 Jan 2020 12:00:00 -0500
-Message-Id: <20200116170509.12787-99-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 363/671] afs: Fix double inc of vnode->cb_break
+Date:   Thu, 16 Jan 2020 12:00:01 -0500
+Message-Id: <20200116170509.12787-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,60 +44,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit c7226e407b6065d3bda8bd9dc627663d2c505ea3 ]
+[ Upstream commit fd711586bb7d63f257da5eff234e68c446ac35ea ]
 
-__afs_break_callback() holds vnode->lock around its call of
-afs_lock_may_be_available() - which also takes that lock.
+When __afs_break_callback() clears the CB_PROMISED flag, it increments
+vnode->cb_break to trigger a future refetch of the status and callback -
+however it also calls afs_clear_permits(), which also increments
+vnode->cb_break.
 
-Fix this by not taking the lock in __afs_break_callback().
+Fix this by removing the increment from afs_clear_permits().
 
-Also, there's no point checking the granted_locks and pending_locks queues;
-it's sufficient to check lock_state, so move that check out of
-afs_lock_may_be_available() into __afs_break_callback() to replace the
-queue checks.
+Whilst we're at it, fix the conditional call to afs_put_permits() as the
+function checks to see if the argument is NULL, so the check is redundant.
 
-Fixes: e8d6c554126b ("AFS: implement file locking")
+Fixes: be080a6f43c4 ("afs: Overhaul permit caching");
 Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/callback.c | 8 +-------
- fs/afs/flock.c    | 3 ---
- 2 files changed, 1 insertion(+), 10 deletions(-)
+ fs/afs/security.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/afs/callback.c b/fs/afs/callback.c
-index 4ad701250299..97283b04fa6f 100644
---- a/fs/afs/callback.c
-+++ b/fs/afs/callback.c
-@@ -221,14 +221,8 @@ void afs_break_callback(struct afs_vnode *vnode)
- 		vnode->cb_break++;
- 		afs_clear_permits(vnode);
+diff --git a/fs/afs/security.c b/fs/afs/security.c
+index 81dfedb7879f..66042b432baa 100644
+--- a/fs/afs/security.c
++++ b/fs/afs/security.c
+@@ -87,11 +87,9 @@ void afs_clear_permits(struct afs_vnode *vnode)
+ 	permits = rcu_dereference_protected(vnode->permit_cache,
+ 					    lockdep_is_held(&vnode->lock));
+ 	RCU_INIT_POINTER(vnode->permit_cache, NULL);
+-	vnode->cb_break++;
+ 	spin_unlock(&vnode->lock);
  
--		spin_lock(&vnode->lock);
--
--		_debug("break callback");
--
--		if (list_empty(&vnode->granted_locks) &&
--		    !list_empty(&vnode->pending_locks))
-+		if (vnode->lock_state == AFS_VNODE_LOCK_WAITING_FOR_CB)
- 			afs_lock_may_be_available(vnode);
--		spin_unlock(&vnode->lock);
- 	}
+-	if (permits)
+-		afs_put_permits(permits);
++	afs_put_permits(permits);
+ }
  
- 	write_sequnlock(&vnode->cb_lock);
-diff --git a/fs/afs/flock.c b/fs/afs/flock.c
-index 075fe7f94810..457ce62e5c0f 100644
---- a/fs/afs/flock.c
-+++ b/fs/afs/flock.c
-@@ -39,9 +39,6 @@ void afs_lock_may_be_available(struct afs_vnode *vnode)
- {
- 	_enter("{%x:%u}", vnode->fid.vid, vnode->fid.vnode);
- 
--	if (vnode->lock_state != AFS_VNODE_LOCK_WAITING_FOR_CB)
--		return;
--
- 	spin_lock(&vnode->lock);
- 	if (vnode->lock_state == AFS_VNODE_LOCK_WAITING_FOR_CB)
- 		afs_next_locker(vnode, 0);
+ /*
 -- 
 2.20.1
 
