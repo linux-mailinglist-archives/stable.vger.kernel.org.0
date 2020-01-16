@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10BE713FD66
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:26:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CB9113FD69
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:26:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730338AbgAPXZd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:25:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55012 "EHLO mail.kernel.org"
+        id S2388540AbgAPXZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:25:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388789AbgAPXZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:25:23 -0500
+        id S2388212AbgAPXZh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:25:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4619B20684;
-        Thu, 16 Jan 2020 23:25:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDF7820684;
+        Thu, 16 Jan 2020 23:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217122;
-        bh=Am514viuDR+6nowEVV3dj8GfLUbRHk3fnPYTQWZhNqw=;
+        s=default; t=1579217137;
+        bh=f5K9Qz9G83MgDNny780J8X4HB03TXt8kgb7x4eSj1JU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWxHVMMMXDyUO9kXyBbNYV9qP8boOs6qE8F1yak5lQ4+W+uc48aPV10EFNf1KZspa
-         KC57C8fNJAaK2vXHJyXH0zqPEu24kXrVvJABU+zPmcgbwwulWlSwh7Fx/vs1Smb4Pk
-         fFw0VR7bNHng5wxH0Rk045j1/z5RJz2AjTzCyjF0=
+        b=yz31yV3sF+s2khjVmqh+6WUG9gqdcx7WCTZkJMYwZa+M3AYvrYRrDEJksZkRO1nzp
+         Jc4wPbmigrzH/z8IUBneeRnb0lGGm2WYlPTRhs/GMxEwrPHvatlCmmgV05WOP502Z4
+         J8UOvGlUK+TFxEGH2gRSqydcUgl6c/33xvSeiLTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH 5.4 140/203] MIPS: PCI: remember nasid changed by set interrupt affinity
-Date:   Fri, 17 Jan 2020 00:17:37 +0100
-Message-Id: <20200116231757.243032912@linuxfoundation.org>
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 5.4 146/203] media: ov6650: Fix incorrect use of JPEG colorspace
+Date:   Fri, 17 Jan 2020 00:17:43 +0100
+Message-Id: <20200116231757.695720616@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -46,47 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-commit 37640adbefd66491cb8083a438f7bf366ac09bc7 upstream.
+commit 12500731895ef09afc5b66b86b76c0884fb9c7bf upstream.
 
-When changing interrupt affinity remember the possible changed nasid,
-otherwise an interrupt deactivate/activate sequence will incorrectly
-setup interrupt.
+Since its initial submission, the driver selects V4L2_COLORSPACE_JPEG
+for supported formats other than V4L2_MBUS_FMT_SBGGR8_1X8.  According
+to v4l2-compliance test program, V4L2_COLORSPACE_JPEG applies
+exclusively to V4L2_PIX_FMT_JPEG.  Since the sensor does not support
+JPEG format, fix it to always select V4L2_COLORSPACE_SRGB.
 
-Fixes: e6308b6d35ea ("MIPS: SGI-IP27: abstract chipset irq from bridge")
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Fixes: 2f6e2404799a ("[media] SoC Camera: add driver for OV6650 sensor")
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/pci/pci-xtalk-bridge.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/media/i2c/ov6650.c |   13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
---- a/arch/mips/pci/pci-xtalk-bridge.c
-+++ b/arch/mips/pci/pci-xtalk-bridge.c
-@@ -279,16 +279,15 @@ static int bridge_set_affinity(struct ir
- 	struct bridge_irq_chip_data *data = d->chip_data;
- 	int bit = d->parent_data->hwirq;
- 	int pin = d->hwirq;
--	nasid_t nasid;
- 	int ret, cpu;
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -201,7 +201,6 @@ struct ov6650 {
+ 	unsigned long		pclk_max;	/* from resolution and format */
+ 	struct v4l2_fract	tpf;		/* as requested with s_frame_interval */
+ 	u32 code;
+-	enum v4l2_colorspace	colorspace;
+ };
  
- 	ret = irq_chip_set_affinity_parent(d, mask, force);
- 	if (ret >= 0) {
- 		cpu = cpumask_first_and(mask, cpu_online_mask);
--		nasid = COMPACT_TO_NASID_NODEID(cpu_to_node(cpu));
-+		data->nnasid = COMPACT_TO_NASID_NODEID(cpu_to_node(cpu));
- 		bridge_write(data->bc, b_int_addr[pin].addr,
- 			     (((data->bc->intr_addr >> 30) & 0x30000) |
--			      bit | (nasid << 8)));
-+			      bit | (data->nasid << 8)));
- 		bridge_read(data->bc, b_wid_tflush);
+ 
+@@ -517,7 +516,7 @@ static int ov6650_get_fmt(struct v4l2_su
+ 	mf->width	= priv->rect.width >> priv->half_scale;
+ 	mf->height	= priv->rect.height >> priv->half_scale;
+ 	mf->code	= priv->code;
+-	mf->colorspace	= priv->colorspace;
++	mf->colorspace	= V4L2_COLORSPACE_SRGB;
+ 	mf->field	= V4L2_FIELD_NONE;
+ 
+ 	return 0;
+@@ -624,11 +623,6 @@ static int ov6650_s_fmt(struct v4l2_subd
+ 		priv->pclk_max = 8000000;
  	}
- 	return ret;
+ 
+-	if (code == MEDIA_BUS_FMT_SBGGR8_1X8)
+-		priv->colorspace = V4L2_COLORSPACE_SRGB;
+-	else if (code != 0)
+-		priv->colorspace = V4L2_COLORSPACE_JPEG;
+-
+ 	if (half_scale) {
+ 		dev_dbg(&client->dev, "max resolution: QCIF\n");
+ 		coma_set |= COMA_QCIF;
+@@ -663,7 +657,6 @@ static int ov6650_s_fmt(struct v4l2_subd
+ 		priv->code = code;
+ 
+ 	if (!ret) {
+-		mf->colorspace	= priv->colorspace;
+ 		mf->width = priv->rect.width >> half_scale;
+ 		mf->height = priv->rect.height >> half_scale;
+ 	}
+@@ -686,6 +679,7 @@ static int ov6650_set_fmt(struct v4l2_su
+ 				&mf->height, 2, H_CIF, 1, 0);
+ 
+ 	mf->field = V4L2_FIELD_NONE;
++	mf->colorspace = V4L2_COLORSPACE_SRGB;
+ 
+ 	switch (mf->code) {
+ 	case MEDIA_BUS_FMT_Y10_1X10:
+@@ -696,13 +690,11 @@ static int ov6650_set_fmt(struct v4l2_su
+ 	case MEDIA_BUS_FMT_YUYV8_2X8:
+ 	case MEDIA_BUS_FMT_VYUY8_2X8:
+ 	case MEDIA_BUS_FMT_UYVY8_2X8:
+-		mf->colorspace = V4L2_COLORSPACE_JPEG;
+ 		break;
+ 	default:
+ 		mf->code = MEDIA_BUS_FMT_SBGGR8_1X8;
+ 		/* fall through */
+ 	case MEDIA_BUS_FMT_SBGGR8_1X8:
+-		mf->colorspace = V4L2_COLORSPACE_SRGB;
+ 		break;
+ 	}
+ 
+@@ -1008,7 +1000,6 @@ static int ov6650_probe(struct i2c_clien
+ 	priv->rect.height = H_CIF;
+ 	priv->half_scale  = false;
+ 	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
+-	priv->colorspace  = V4L2_COLORSPACE_JPEG;
+ 
+ 	/* Hardware default frame interval */
+ 	priv->tpf.numerator   = GET_CLKRC_DIV(DEF_CLKRC);
 
 
