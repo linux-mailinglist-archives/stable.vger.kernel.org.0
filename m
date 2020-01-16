@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A925413F378
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:44:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 282A513F379
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:44:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389860AbgAPRL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:11:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52142 "EHLO mail.kernel.org"
+        id S2390249AbgAPRLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:11:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389964AbgAPRL2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:11:28 -0500
+        id S2390245AbgAPRLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:11:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 321B42468B;
-        Thu, 16 Jan 2020 17:11:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C134E24687;
+        Thu, 16 Jan 2020 17:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194688;
-        bh=uiasfpaw3t7cNNMG2O+qQHIqHKAg3oUJaJRg0Vu++lE=;
+        s=default; t=1579194689;
+        bh=no52/3ZbBlS+WUGpTZ80/4fIwoJ8eEU+z3lXxNEXLtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8IzHwxo0HD0xqFeJjJQSjE9jWBDlrUlZ8xtY1OOoYpTP+ZsOF1sRASr++1lo6gn7
-         hEjz7DQ6eCF+k7v+nVGgET/J5bkm1wHPNtPRxCh9rowGKD7kOihnoqu12V6scXafsG
-         LBcHzUV/M018bSFez1VliUJOCJtRxIcoMV6ncuUY=
+        b=a47zNemmlwHGEzKqUQwFaYNaFMQA9RcmLQonYmnhCk4glPtuHjSHSbXiIWzLvTKZ/
+         Xy5JiF6+WZTk2mXoxMNlYO5FnL/EF8C5TmR23F9ZpZCTkjDKFtbDZmpEzZJ1KPRkCo
+         sQv1KgzQIw7XKvPTxpXj5K2tHBTpuX/ortUZPzi0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oleh Kravchenko <oleg@kaa.org.ua>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-leds@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 531/671] led: triggers: Fix dereferencing of null pointer
-Date:   Thu, 16 Jan 2020 12:02:49 -0500
-Message-Id: <20200116170509.12787-268-sashal@kernel.org>
+Cc:     Mao Wenan <maowenan@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 532/671] net: sonic: return NETDEV_TX_OK if failed to map buffer
+Date:   Thu, 16 Jan 2020 12:02:50 -0500
+Message-Id: <20200116170509.12787-269-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,40 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleh Kravchenko <oleg@kaa.org.ua>
+From: Mao Wenan <maowenan@huawei.com>
 
-[ Upstream commit 4016ba85880b252365d11bc7dc899450f2c73ad7 ]
+[ Upstream commit 6e1cdedcf0362fed3aedfe051d46bd7ee2a85fe1 ]
 
-Error was detected by PVS-Studio:
-V522 Dereferencing of the null pointer 'led_cdev->trigger' might take place.
+NETDEV_TX_BUSY really should only be used by drivers that call
+netif_tx_stop_queue() at the wrong moment. If dma_map_single() is
+failed to map tx DMA buffer, it might trigger an infinite loop.
+This patch use NETDEV_TX_OK instead of NETDEV_TX_BUSY, and change
+printk to pr_err_ratelimited.
 
-Fixes: 2282e125a406 ("leds: triggers: let struct led_trigger::activate() return an error code")
-Signed-off-by: Oleh Kravchenko <oleg@kaa.org.ua>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Fixes: d9fb9f384292 ("*sonic/natsemi/ns83829: Move the National Semi-conductor drivers")
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/led-triggers.c | 4 ++--
+ drivers/net/ethernet/natsemi/sonic.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/leds/led-triggers.c b/drivers/leds/led-triggers.c
-index e4cb3811e82a..005b839f6eb9 100644
---- a/drivers/leds/led-triggers.c
-+++ b/drivers/leds/led-triggers.c
-@@ -171,11 +171,11 @@ int led_trigger_set(struct led_classdev *led_cdev, struct led_trigger *trig)
- 		trig->deactivate(led_cdev);
- err_activate:
+diff --git a/drivers/net/ethernet/natsemi/sonic.c b/drivers/net/ethernet/natsemi/sonic.c
+index c805dcbebd02..be36f7117d48 100644
+--- a/drivers/net/ethernet/natsemi/sonic.c
++++ b/drivers/net/ethernet/natsemi/sonic.c
+@@ -231,9 +231,9 @@ static int sonic_send_packet(struct sk_buff *skb, struct net_device *dev)
  
--	led_cdev->trigger = NULL;
--	led_cdev->trigger_data = NULL;
- 	write_lock_irqsave(&led_cdev->trigger->leddev_list_lock, flags);
- 	list_del(&led_cdev->trig_list);
- 	write_unlock_irqrestore(&led_cdev->trigger->leddev_list_lock, flags);
-+	led_cdev->trigger = NULL;
-+	led_cdev->trigger_data = NULL;
- 	led_set_brightness(led_cdev, LED_OFF);
- 	kfree(event);
+ 	laddr = dma_map_single(lp->device, skb->data, length, DMA_TO_DEVICE);
+ 	if (!laddr) {
+-		printk(KERN_ERR "%s: failed to map tx DMA buffer.\n", dev->name);
++		pr_err_ratelimited("%s: failed to map tx DMA buffer.\n", dev->name);
+ 		dev_kfree_skb(skb);
+-		return NETDEV_TX_BUSY;
++		return NETDEV_TX_OK;
+ 	}
  
+ 	sonic_tda_put(dev, entry, SONIC_TD_STATUS, 0);       /* clear status */
 -- 
 2.20.1
 
