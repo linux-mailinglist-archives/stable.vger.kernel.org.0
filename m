@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43A8F13F11A
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:27:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C88D313F10B
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:27:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436577AbgAPS0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:26:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35712 "EHLO mail.kernel.org"
+        id S2404021AbgAPR0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:26:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404007AbgAPR0l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:26:41 -0500
+        id S2404015AbgAPR0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:26:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88E11246CA;
-        Thu, 16 Jan 2020 17:26:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AF99246BE;
+        Thu, 16 Jan 2020 17:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195600;
-        bh=dtlWM/rdlsoDyqcHy5G+UH3OKt7K9e0UJ2kfXsgMzQo=;
+        s=default; t=1579195602;
+        bh=dPFKh4qxVWxL82ZXRTuZo2RFzaWXENsX8DRPcBi7jD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jqoCV9roHlXiF/ROxdNUroTdVJonFnJBEvaLbut7N9cWPujE324ytPa7JdiSD+gMW
-         3qFJQP07ieUyEcTTZrIZfrOrf2w3Z3nNydNPvmxJk+X81NxyWOZGD40fTYXnAXDzyH
-         gVFq+xobJ9K4FCdBg7UoReulcugmUU1TStqYjMWM=
+        b=WUYZquyReQ4zSd5K0pphmIcFyQdLepVPpa8peD2uEBVQSj/5e22s5H/VG9K2RO7JP
+         uEUOrUU0+44sW8cGe34osTOfrxPSNL/vMTrSfM1vMWJrt7HMqG8yo7FkBSsd7Fbwkz
+         wU83SI8sUPjO6WRMlAa/DP6v7vpn6a3/SW0Jq940=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Willem de Bruijn <willemb@google.com>,
-        David Laight <David.Laight@aculab.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 176/371] packet: in recvmsg msg_name return at least sizeof sockaddr_ll
-Date:   Thu, 16 Jan 2020 12:20:48 -0500
-Message-Id: <20200116172403.18149-119-sashal@kernel.org>
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 177/371] ASoC: fix valid stream condition
+Date:   Thu, 16 Jan 2020 12:20:49 -0500
+Message-Id: <20200116172403.18149-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -44,67 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit b2cf86e1563e33a14a1c69b3e508d15dc12f804c ]
+[ Upstream commit 6a7c59c6d9f3b280e81d7a04bbe4e55e90152dce ]
 
-Packet send checks that msg_name is at least sizeof sockaddr_ll.
-Packet recv must return at least this length, so that its output
-can be passed unmodified to packet send.
+A stream may specify a rate range using 'rate_min' and 'rate_max', so a
+stream may be valid and not specify any rates. However, as stream cannot
+be valid and not have any channel. Let's use this condition instead to
+determine if a stream is valid or not.
 
-This ceased to be true since adding support for lladdr longer than
-sll_addr. Since, the return value uses true address length.
-
-Always return at least sizeof sockaddr_ll, even if address length
-is shorter. Zero the padding bytes.
-
-Change v1->v2: do not overwrite zeroed padding again. use copy_len.
-
-Fixes: 0fb375fb9b93 ("[AF_PACKET]: Allow for > 8 byte hardware addresses.")
-Suggested-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cde79035c6cf ("ASoC: Handle multiple codecs with split playback / capture")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ sound/soc/soc-pcm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 4e1058159b08..e788f9c7c398 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -3407,20 +3407,29 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	sock_recv_ts_and_drops(msg, sk, skb);
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 24047375c2fb..70e1a60a2e98 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -48,8 +48,8 @@ static bool snd_soc_dai_stream_valid(struct snd_soc_dai *dai, int stream)
+ 	else
+ 		codec_stream = &dai->driver->capture;
  
- 	if (msg->msg_name) {
-+		int copy_len;
-+
- 		/* If the address length field is there to be filled
- 		 * in, we fill it in now.
- 		 */
- 		if (sock->type == SOCK_PACKET) {
- 			__sockaddr_check_size(sizeof(struct sockaddr_pkt));
- 			msg->msg_namelen = sizeof(struct sockaddr_pkt);
-+			copy_len = msg->msg_namelen;
- 		} else {
- 			struct sockaddr_ll *sll = &PACKET_SKB_CB(skb)->sa.ll;
+-	/* If the codec specifies any rate at all, it supports the stream. */
+-	return codec_stream->rates;
++	/* If the codec specifies any channels at all, it supports the stream */
++	return codec_stream->channels_min;
+ }
  
- 			msg->msg_namelen = sll->sll_halen +
- 				offsetof(struct sockaddr_ll, sll_addr);
-+			copy_len = msg->msg_namelen;
-+			if (msg->msg_namelen < sizeof(struct sockaddr_ll)) {
-+				memset(msg->msg_name +
-+				       offsetof(struct sockaddr_ll, sll_addr),
-+				       0, sizeof(sll->sll_addr));
-+				msg->msg_namelen = sizeof(struct sockaddr_ll);
-+			}
- 		}
--		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa,
--		       msg->msg_namelen);
-+		memcpy(msg->msg_name, &PACKET_SKB_CB(skb)->sa, copy_len);
- 	}
- 
- 	if (pkt_sk(sk)->auxdata) {
+ /**
 -- 
 2.20.1
 
