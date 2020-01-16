@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA93E13F129
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:27:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E889613F127
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405166AbgAPS04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:26:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
+        id S2390717AbgAPS0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:26:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403968AbgAPR0e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:26:34 -0500
+        id S2403977AbgAPR0f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:26:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1934B246C9;
+        by mail.kernel.org (Postfix) with ESMTPSA id 15A59246D4;
         Thu, 16 Jan 2020 17:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195593;
-        bh=WWmPJ3650HNGqbtcw0J3/cGbsp9hXIqKcqF5dVQJQmw=;
+        s=default; t=1579195594;
+        bh=pZ1XnrvHf1IPiLRXxbEExVOtWong9/zjiiEtZtGOJzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JGBhzoALpcsSQw6QSiSEb+0u4NIG8SyCH6Jj7cLafvHJHcze3rQpyu+EAMFKJw17F
-         Il0DeOwpz3fYWNAf//hwWWnWuEayPPK48N3cKRtCjNZsOQu3k7n4NotfdKj6n15DJj
-         ry2PgQIA0U1W1OnP7/cMrvxN7ItFwUj0bboYu7Sk=
+        b=hHp7uJeKLVal196D/wg9MFkl4NFIMGa9M4yAzTjrYWczaTku3OWF/uCi+Jgnme3Xi
+         NxFYlA1KVJBm2Hu/igjyD/fgI4KfmvqXeLPesJ3ntm5fFu6Z87k/E9pjgqqfR4AYLm
+         UK2v7SAJb04ZONOlny3+xsqJQPnUoVyiO1Sh4z68=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 171/371] ALSA: usb-audio: Handle the error from snd_usb_mixer_apply_create_quirk()
-Date:   Thu, 16 Jan 2020 12:20:43 -0500
-Message-Id: <20200116172403.18149-114-sashal@kernel.org>
+Cc:     Trond Myklebust <trondmy@gmail.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 172/371] NFS: Don't interrupt file writeout due to fatal errors
+Date:   Thu, 16 Jan 2020 12:20:44 -0500
+Message-Id: <20200116172403.18149-115-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -42,36 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Trond Myklebust <trondmy@gmail.com>
 
-[ Upstream commit 328e9f6973be2ee67862cb17bf6c0c5c5918cd72 ]
+[ Upstream commit 14bebe3c90b326d2a0df78aed5e9de090c71d878 ]
 
-The error from snd_usb_mixer_apply_create_quirk() is ignored in the
-current usb-audio driver code, which will continue the probing even
-after the error.  Let's take it more serious.
+When flushing out dirty pages, the fact that we may hit fatal errors
+is not a reason to stop writeback. Those errors are reported through
+fsync(), not through the flush mechanism.
 
-Fixes: 7b1eda223deb ("ALSA: usb-mixer: factor out quirks")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: a6598813a4c5b ("NFS: Don't write back further requests if there...")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/nfs/write.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index 044193b2364d..e6e4c3b9d9d3 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -2632,7 +2632,9 @@ int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
- 	    (err = snd_usb_mixer_status_create(mixer)) < 0)
- 		goto _error;
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 01b9d9341b54..ed3f5afc4ff7 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -643,7 +643,7 @@ static int nfs_page_async_flush(struct nfs_pageio_descriptor *pgio,
+ 	return ret;
+ out_launder:
+ 	nfs_write_error_remove_page(req);
+-	return ret;
++	return 0;
+ }
  
--	snd_usb_mixer_apply_create_quirk(mixer);
-+	err = snd_usb_mixer_apply_create_quirk(mixer);
-+	if (err < 0)
-+		goto _error;
- 
- 	err = snd_device_new(chip->card, SNDRV_DEV_CODEC, mixer, &dev_ops);
- 	if (err < 0)
+ static int nfs_do_writepage(struct page *page, struct writeback_control *wbc,
 -- 
 2.20.1
 
