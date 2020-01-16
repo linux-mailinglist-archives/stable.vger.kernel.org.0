@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C88D13F7EA
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B057713F81D
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:17:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733097AbgAPQzy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:55:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41622 "EHLO mail.kernel.org"
+        id S2389785AbgAPTPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:15:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732543AbgAPQzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:55:54 -0500
+        id S1733115AbgAPQzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:55:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2E9722464;
-        Thu, 16 Jan 2020 16:55:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA1EE2467E;
+        Thu, 16 Jan 2020 16:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193753;
-        bh=hr+B5uQ0PdzcKcQdS7HasGDltOnY59pKbIhtGDmGYoE=;
+        s=default; t=1579193755;
+        bh=jPadxU3bIAKq2rzDSYyu4zF/hz9uIqRi/y4LlM9n1g0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+IN2WLbDfh4y/fPykt4Q3Xn2OeWSE7ZbLu17brSEZjDTxPkvu9xEVqryu/9hATAo
-         N9+do2MqzVumVTkV4ACUB0TBTYileXXtgkoeG60Rm4wPECD8Go0/AC5LiNkvOvuqhI
-         ojbC9muqpnNFgpdfF3MHJuW09R5aDI+cW+mYaT74=
+        b=mMu7F657d7LPT29+n0CAqHT2sstpq86xYDms34bo8KcUAbg+Glq0QAsOxPIzvnhnc
+         3X0CmOY+Tk3wG2z2/TCPW+5phjjtRvBq7kAsF+P70ZvbenVxZ1IM1vQo32B9lj6EJ2
+         G81bWeEj/5FbKvd+W4v7ECnUMbJlxW0aOs1ZlYLM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huazhong Tan <tanhuazhong@huawei.com>,
+Cc:     Petr Machata <petrm@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 042/671] net: hns3: add error handler for hns3_nic_init_vector_data()
-Date:   Thu, 16 Jan 2020 11:44:33 -0500
-Message-Id: <20200116165502.8838-42-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 043/671] mlxsw: reg: QEEC: Add minimum shaper fields
+Date:   Thu, 16 Jan 2020 11:44:34 -0500
+Message-Id: <20200116165502.8838-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165502.8838-1-sashal@kernel.org>
 References: <20200116165502.8838-1-sashal@kernel.org>
@@ -43,56 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huazhong Tan <tanhuazhong@huawei.com>
+From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit ece4bf46e98c9f3775a488f3932a531508d3b1a2 ]
+[ Upstream commit 8b931821aa04823e2e5df0ae93937baabbd23286 ]
 
-When hns3_nic_init_vector_data() fails to map ring to vector,
-it should cancel the netif_napi_add() that has been successfully
-done and then exits.
+Add QEEC.mise (minimum shaper enable) and QEEC.min_shaper_rate to enable
+configuration of minimum shaper.
 
-Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Increase the QEEC length to 0x20 as well: that's the length that the
+register has had for a long time now, but with the configurations that
+mlxsw typically exercises, the firmware tolerated 0x1C-sized packets.
+With mise=true however, FW rejects packets unless they have the full
+required length.
+
+Fixes: b9b7cee40579 ("mlxsw: reg: Add QoS ETS Element Configuration register")
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/reg.h | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 1aaf6e2a3b39..9df807ec8c84 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -2642,7 +2642,7 @@ static int hns3_nic_init_vector_data(struct hns3_nic_priv *priv)
- 	struct hnae3_handle *h = priv->ae_handle;
- 	struct hns3_enet_tqp_vector *tqp_vector;
- 	int ret = 0;
--	u16 i;
-+	int i;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/reg.h b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+index aee58b3892f2..c9895876a231 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/reg.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+@@ -3215,7 +3215,7 @@ static inline void mlxsw_reg_qtct_pack(char *payload, u8 local_port,
+  * Configures the ETS elements.
+  */
+ #define MLXSW_REG_QEEC_ID 0x400D
+-#define MLXSW_REG_QEEC_LEN 0x1C
++#define MLXSW_REG_QEEC_LEN 0x20
  
- 	for (i = 0; i < priv->vector_num; i++) {
- 		tqp_vector = &priv->tqp_vector[i];
-@@ -2687,13 +2687,19 @@ static int hns3_nic_init_vector_data(struct hns3_nic_priv *priv)
- 		hns3_free_vector_ring_chain(tqp_vector, &vector_ring_chain);
+ MLXSW_REG_DEFINE(qeec, MLXSW_REG_QEEC_ID, MLXSW_REG_QEEC_LEN);
  
- 		if (ret)
--			return ret;
-+			goto map_ring_fail;
+@@ -3257,6 +3257,15 @@ MLXSW_ITEM32(reg, qeec, element_index, 0x04, 0, 8);
+  */
+ MLXSW_ITEM32(reg, qeec, next_element_index, 0x08, 0, 8);
  
- 		netif_napi_add(priv->netdev, &tqp_vector->napi,
- 			       hns3_nic_common_poll, NAPI_POLL_WEIGHT);
- 	}
- 
- 	return 0;
++/* reg_qeec_mise
++ * Min shaper configuration enable. Enables configuration of the min
++ * shaper on this ETS element
++ * 0 - Disable
++ * 1 - Enable
++ * Access: RW
++ */
++MLXSW_ITEM32(reg, qeec, mise, 0x0C, 31, 1);
 +
-+map_ring_fail:
-+	while (i--)
-+		netif_napi_del(&priv->tqp_vector[i].napi);
-+
-+	return ret;
- }
+ enum {
+ 	MLXSW_REG_QEEC_BYTES_MODE,
+ 	MLXSW_REG_QEEC_PACKETS_MODE,
+@@ -3273,6 +3282,17 @@ enum {
+  */
+ MLXSW_ITEM32(reg, qeec, pb, 0x0C, 28, 1);
  
- static int hns3_nic_alloc_vector_data(struct hns3_nic_priv *priv)
++/* The smallest permitted min shaper rate. */
++#define MLXSW_REG_QEEC_MIS_MIN	200000		/* Kbps */
++
++/* reg_qeec_min_shaper_rate
++ * Min shaper information rate.
++ * For CPU port, can only be configured for port hierarchy.
++ * When in bytes mode, value is specified in units of 1000bps.
++ * Access: RW
++ */
++MLXSW_ITEM32(reg, qeec, min_shaper_rate, 0x0C, 0, 28);
++
+ /* reg_qeec_mase
+  * Max shaper configuration enable. Enables configuration of the max
+  * shaper on this ETS element.
 -- 
 2.20.1
 
