@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BCE613FEE1
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:40:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11ACD13FEE3
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:40:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389619AbgAPX2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:28:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60456 "EHLO mail.kernel.org"
+        id S2389981AbgAPX2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:28:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390442AbgAPX2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:28:02 -0500
+        id S2391044AbgAPX2H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:28:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EDBD206D9;
-        Thu, 16 Jan 2020 23:28:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26FFA206D9;
+        Thu, 16 Jan 2020 23:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217281;
-        bh=k1xW4E0PnhvTwxAb+0h6nrBd+l2dC40n2yHqfbRZWxQ=;
+        s=default; t=1579217286;
+        bh=EJ9iI+eUjvW2rcFKp3DjF2SfLtjsxCOxAXRBiIJFWj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hu++GIFJpeqw7/ROD8e+b3aFVj1zdW0okcFd002EvL+GwXXgZIm/H4jrtnEgI9Zsv
-         Mb/C963L56DxiYDWatOWFteNFyZmijwd2SZuLPz2xqlCIeN+X4qyKMIGsBWx4hPhI8
-         pVQ3U2UTV/0Lsk5K2g19dygawtz3SfnRz2OD2p24=
+        b=VN4mSq+eQWEZmmav9xtJ76+4iJcikjJmmf0tWjnWqsiYWRvnmmatAemObtWLE/UuZ
+         pR2qkVY4oGKZ3MO23VFxxMq5FUOjy+4Si4aCN6UbzCWny1a2vw5gK9h2fgAVovQoMo
+         c4xnb03jLMyfoYG8JrmxvqbBM708PRuj2c9BqjPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.19 19/84] RDMA/bnxt_re: Fix Send Work Entry state check while polling completions
-Date:   Fri, 17 Jan 2020 00:17:53 +0100
-Message-Id: <20200116231715.935439547@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 20/84] ASoC: soc-core: Set dpcm_playback / dpcm_capture
+Date:   Fri, 17 Jan 2020 00:17:54 +0100
+Message-Id: <20200116231716.046108056@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
 References: <20200116231713.087649517@linuxfoundation.org>
@@ -43,50 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: Daniel Baluta <daniel.baluta@nxp.com>
 
-commit c5275723580922e5f3264f96751337661a153c7d upstream.
+commit 218fe9b7ec7f32c10a07539365488d80af7b0084 upstream.
 
-Some adapters need a fence Work Entry to handle retransmission.  Currently
-the driver checks for this condition, only if the Send queue entry is
-signalled. Implement the condition check, irrespective of the signalled
-state of the Work queue entries
+When converting a normal link to a DPCM link we need
+to set dpcm_playback / dpcm_capture otherwise playback/capture
+streams will not be created resulting in errors like this:
 
-Failure to add the fence can result in access to memory that is already
-marked as completed, triggering data corruption, transmission failure,
-IOMMU failures, etc.
+[   36.039111]  sai1-wm8960-hifi: ASoC: no backend playback stream
 
-Fixes: 9152e0b722b2 ("RDMA/bnxt_re: HW workarounds for handling specific conditions")
-Link: https://lore.kernel.org/r/1574671174-5064-3-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: a655de808cbde ("ASoC: core: Allow topology to override machine driver FE DAI link config")
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Link: https://lore.kernel.org/r/20191204151333.26625-1-daniel.baluta@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/bnxt_re/qplib_fp.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/soc/soc-core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/infiniband/hw/bnxt_re/qplib_fp.c
-+++ b/drivers/infiniband/hw/bnxt_re/qplib_fp.c
-@@ -2273,13 +2273,13 @@ static int bnxt_qplib_cq_process_req(str
- 			/* Add qp to flush list of the CQ */
- 			bnxt_qplib_add_flush_qp(qp);
- 		} else {
-+			/* Before we complete, do WA 9060 */
-+			if (do_wa9060(qp, cq, cq_cons, sw_sq_cons,
-+				      cqe_sq_cons)) {
-+				*lib_qp = qp;
-+				goto out;
-+			}
- 			if (swq->flags & SQ_SEND_FLAGS_SIGNAL_COMP) {
--				/* Before we complete, do WA 9060 */
--				if (do_wa9060(qp, cq, cq_cons, sw_sq_cons,
--					      cqe_sq_cons)) {
--					*lib_qp = qp;
--					goto out;
--				}
- 				cqe->status = CQ_REQ_STATUS_OK;
- 				cqe++;
- 				(*budget)--;
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -1921,6 +1921,8 @@ static void soc_check_tplg_fes(struct sn
+ 
+ 			/* convert non BE into BE */
+ 			dai_link->no_pcm = 1;
++			dai_link->dpcm_playback = 1;
++			dai_link->dpcm_capture = 1;
+ 
+ 			/* override any BE fixups */
+ 			dai_link->be_hw_params_fixup =
 
 
