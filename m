@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F5C13F907
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A17C13F908
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730939AbgAPQx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 11:53:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37274 "EHLO mail.kernel.org"
+        id S1730970AbgAPTW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 14:22:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730917AbgAPQx0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:53:26 -0500
+        id S1730943AbgAPQx1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:53:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BB1E208C3;
-        Thu, 16 Jan 2020 16:53:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70A442081E;
+        Thu, 16 Jan 2020 16:53:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193606;
-        bh=07HOz8UvqDas42y+05OFgSsqy9xaOjUJbCnbLMwnHdA=;
+        s=default; t=1579193607;
+        bh=3dY9UzQ5FnrJjjb34dZYUEMkKYZza9PI9MXrctpD6Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gtHX/fh8f840sICdUQazZeLf8PqkZu05msMP2LB34XybtiddDjP1HEuljJ+qWNQjq
-         OI6vC+lUjkGjfGlfFf0Y9V7U2nszwyxR1rl2TOzyCBzWWcp06F5hgEtV0ssuc9eS4i
-         JdzPSpFPRYT9P18idjpnSRo8K9a5ry0raLiP8/cI=
+        b=rZSp6M301GnniJmB2EJCSeRiZieKla1KH8QXFQg0BR7KeGUqzARKfQt/SC8QqJQVi
+         kc0qs08+paKlVj3SRntSVkDaJqsLIM03XBCHKtxKKn+rNsWhZNkBTnKOS74filSbWD
+         I/Mdjcxp3yTSLAw8tYVTcCB8wfrw4uB5mYNVz3RE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 144/205] mmc: core: fix wl1251 sdio quirks
-Date:   Thu, 16 Jan 2020 11:41:59 -0500
-Message-Id: <20200116164300.6705-144-sashal@kernel.org>
+Cc:     Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, tee-dev@lists.linaro.org
+Subject: [PATCH AUTOSEL 5.4 145/205] tee: optee: Fix dynamic shm pool allocations
+Date:   Thu, 16 Jan 2020 11:42:00 -0500
+Message-Id: <20200116164300.6705-145-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -43,41 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
+From: Sumit Garg <sumit.garg@linaro.org>
 
-[ Upstream commit 16568b4a4f0c34bd35cfadac63303c7af7812764 ]
+[ Upstream commit a249dd200d03791cab23e47571f3e13d9c72af6c ]
 
-wl1251 and wl1271 have different vendor id and device id.
-So we need to handle both with sdio quirks.
+In case of dynamic shared memory pool, kernel memory allocated using
+dmabuf_mgr pool needs to be registered with OP-TEE prior to its usage
+during optee_open_session() or optee_invoke_func().
 
-Fixes: 884f38607897 ("mmc: core: move some sdio IDs out of quirks file")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Cc: <stable@vger.kernel.org> # v4.11+
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+So fix dmabuf_mgr pool allocations via an additional call to
+optee_shm_register().
+
+Also, allow kernel pages to be registered as shared memory with OP-TEE.
+
+Fixes: 9733b072a12a ("optee: allow to work without static shared memory")
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/quirks.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/tee/optee/call.c     |  7 +++++++
+ drivers/tee/optee/shm_pool.c | 12 +++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/core/quirks.h b/drivers/mmc/core/quirks.h
-index 2d2d9ea8be4f..3dba15bccce2 100644
---- a/drivers/mmc/core/quirks.h
-+++ b/drivers/mmc/core/quirks.h
-@@ -119,7 +119,14 @@ static const struct mmc_fixup mmc_ext_csd_fixups[] = {
- 	END_FIXUP
- };
+diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
+index 13b0269a0abc..cf2367ba08d6 100644
+--- a/drivers/tee/optee/call.c
++++ b/drivers/tee/optee/call.c
+@@ -554,6 +554,13 @@ static int check_mem_type(unsigned long start, size_t num_pages)
+ 	struct mm_struct *mm = current->mm;
+ 	int rc;
  
++	/*
++	 * Allow kernel address to register with OP-TEE as kernel
++	 * pages are configured as normal memory only.
++	 */
++	if (virt_addr_valid(start))
++		return 0;
 +
- static const struct mmc_fixup sdio_fixup_methods[] = {
-+	SDIO_FIXUP(SDIO_VENDOR_ID_TI_WL1251, SDIO_DEVICE_ID_TI_WL1251,
-+		   add_quirk, MMC_QUIRK_NONSTD_FUNC_IF),
-+
-+	SDIO_FIXUP(SDIO_VENDOR_ID_TI_WL1251, SDIO_DEVICE_ID_TI_WL1251,
-+		   add_quirk, MMC_QUIRK_DISABLE_CD),
-+
- 	SDIO_FIXUP(SDIO_VENDOR_ID_TI, SDIO_DEVICE_ID_TI_WL1271,
- 		   add_quirk, MMC_QUIRK_NONSTD_FUNC_IF),
+ 	down_read(&mm->mmap_sem);
+ 	rc = __check_mem_type(find_vma(mm, start),
+ 			      start + num_pages * PAGE_SIZE);
+diff --git a/drivers/tee/optee/shm_pool.c b/drivers/tee/optee/shm_pool.c
+index de1d9b8fad90..0332a5301d61 100644
+--- a/drivers/tee/optee/shm_pool.c
++++ b/drivers/tee/optee/shm_pool.c
+@@ -17,6 +17,7 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
+ {
+ 	unsigned int order = get_order(size);
+ 	struct page *page;
++	int rc = 0;
  
+ 	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
+ 	if (!page)
+@@ -26,12 +27,21 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
+ 	shm->paddr = page_to_phys(page);
+ 	shm->size = PAGE_SIZE << order;
+ 
+-	return 0;
++	if (shm->flags & TEE_SHM_DMA_BUF) {
++		shm->flags |= TEE_SHM_REGISTER;
++		rc = optee_shm_register(shm->ctx, shm, &page, 1 << order,
++					(unsigned long)shm->kaddr);
++	}
++
++	return rc;
+ }
+ 
+ static void pool_op_free(struct tee_shm_pool_mgr *poolm,
+ 			 struct tee_shm *shm)
+ {
++	if (shm->flags & TEE_SHM_DMA_BUF)
++		optee_shm_unregister(shm->ctx, shm);
++
+ 	free_pages((unsigned long)shm->kaddr, get_order(shm->size));
+ 	shm->kaddr = NULL;
+ }
 -- 
 2.20.1
 
