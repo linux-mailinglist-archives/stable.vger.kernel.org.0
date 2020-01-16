@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74EAA13E75C
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6186C13E766
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:25:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391894AbgAPRZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:25:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60726 "EHLO mail.kernel.org"
+        id S2392124AbgAPRZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:25:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391897AbgAPRZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:09 -0500
+        id S2392117AbgAPRZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:25:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC949246A5;
-        Thu, 16 Jan 2020 17:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10E40246CA;
+        Thu, 16 Jan 2020 17:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195509;
-        bh=10IWbZKtLiSfkMg+zSvCP4zf9XlLcu8JzOFTXwphxRA=;
+        s=default; t=1579195535;
+        bh=RWIpyYV2IZnnvLeNB3e+att7PsbnyepJ/57t61uI6Fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aiLY2PX+oI0JI9kT8nIYBdeaSCF0wLOWxjtUWicri4GEZcKltI+px6HiEN9+RY1A1
-         9H8dO1Y8g6skEf9HsXx1u7j9/k+QHOXFbf/vLjiKu3oME80ROjVHewDdB33UiQfDmt
-         QQYztRNDDUaI8O9r+Kw13PP0rjf8OiTkH8VsKuDU=
+        b=puucLYIkRxSJodtDQOtaDZNdDFDKlZ7GRzByUa1SpGWUdKed2bH4CMggYNJcD8PHb
+         z76lAxvutzAwo8oMABCqKPnYXuw3+luWyiqftdxEVsJy0i/57EHr+OfYrdz9uh3oZj
+         2z/IiPdurBryQzmmVqgdDDr1/NOWpzLehjgiZeiw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 109/371] regulator: pv88090: Fix array out-of-bounds access
-Date:   Thu, 16 Jan 2020 12:19:41 -0500
-Message-Id: <20200116172403.18149-52-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Ley Foon Tan <ley.foon.tan@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        nios2-dev@lists.rocketboards.org
+Subject: [PATCH AUTOSEL 4.14 130/371] nios2: ksyms: Add missing symbol exports
+Date:   Thu, 16 Jan 2020 12:20:02 -0500
+Message-Id: <20200116172403.18149-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -42,34 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit a5455c9159414748bed4678184bf69989a4f7ba3 ]
+[ Upstream commit 0f8ed994575429d6042cf5d7ef70081c94091587 ]
 
-Fix off-by-one while iterating current_limits array.
-The valid index should be 0 ~ n_current_limits -1.
+Building nios2:allmodconfig fails as follows (each symbol is only listed
+once).
 
-Fixes: c90456e36d9c ("regulator: pv88090: new regulator driver")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ERROR: "__ashldi3" [drivers/md/dm-writecache.ko] undefined!
+ERROR: "__ashrdi3" [fs/xfs/xfs.ko] undefined!
+ERROR: "__ucmpdi2" [drivers/media/i2c/adv7842.ko] undefined!
+ERROR: "__lshrdi3" [drivers/md/dm-zoned.ko] undefined!
+ERROR: "flush_icache_range" [drivers/misc/lkdtm/lkdtm.ko] undefined!
+ERROR: "empty_zero_page" [drivers/md/dm-mod.ko] undefined!
+
+The problem is seen with gcc 7.3.0.
+
+Export the missing symbols.
+
+Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Ley Foon Tan <ley.foon.tan@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pv88090-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/kernel/nios2_ksyms.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/regulator/pv88090-regulator.c b/drivers/regulator/pv88090-regulator.c
-index 7a0c15957bd0..2302b0df7630 100644
---- a/drivers/regulator/pv88090-regulator.c
-+++ b/drivers/regulator/pv88090-regulator.c
-@@ -157,7 +157,7 @@ static int pv88090_set_current_limit(struct regulator_dev *rdev, int min,
- 	int i;
+diff --git a/arch/nios2/kernel/nios2_ksyms.c b/arch/nios2/kernel/nios2_ksyms.c
+index bf2f55d10a4d..4e704046a150 100644
+--- a/arch/nios2/kernel/nios2_ksyms.c
++++ b/arch/nios2/kernel/nios2_ksyms.c
+@@ -9,12 +9,20 @@
+ #include <linux/export.h>
+ #include <linux/string.h>
  
- 	/* search for closest to maximum */
--	for (i = info->n_current_limits; i >= 0; i--) {
-+	for (i = info->n_current_limits - 1; i >= 0; i--) {
- 		if (min <= info->current_limits[i]
- 			&& max >= info->current_limits[i]) {
- 			return regmap_update_bits(rdev->regmap,
++#include <asm/cacheflush.h>
++#include <asm/pgtable.h>
++
+ /* string functions */
+ 
+ EXPORT_SYMBOL(memcpy);
+ EXPORT_SYMBOL(memset);
+ EXPORT_SYMBOL(memmove);
+ 
++/* memory management */
++
++EXPORT_SYMBOL(empty_zero_page);
++EXPORT_SYMBOL(flush_icache_range);
++
+ /*
+  * libgcc functions - functions that are used internally by the
+  * compiler...  (prototypes are not correct though, but that
+@@ -31,3 +39,7 @@ DECLARE_EXPORT(__udivsi3);
+ DECLARE_EXPORT(__umoddi3);
+ DECLARE_EXPORT(__umodsi3);
+ DECLARE_EXPORT(__muldi3);
++DECLARE_EXPORT(__ucmpdi2);
++DECLARE_EXPORT(__lshrdi3);
++DECLARE_EXPORT(__ashldi3);
++DECLARE_EXPORT(__ashrdi3);
 -- 
 2.20.1
 
