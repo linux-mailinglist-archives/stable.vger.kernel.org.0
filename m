@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FC3D13F775
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:12:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5597713F768
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 20:11:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387409AbgAPRAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:00:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49578 "EHLO mail.kernel.org"
+        id S2387691AbgAPRAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:00:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387676AbgAPRAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:00:09 -0500
+        id S2387685AbgAPRAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:00:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CD6624686;
-        Thu, 16 Jan 2020 17:00:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCC3E2468B;
+        Thu, 16 Jan 2020 17:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194008;
-        bh=HhTOEnfVPXjkdgMI5j2Rj7f81dghYJkTfY6kVie9fZE=;
+        s=default; t=1579194010;
+        bh=M7pKHob5n3us2aSh5joiFKVhkWDKifwR8/doQiFngqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DhjDfcP4eTcGSP5jAbPvpQSQibbmMz/2JbyYcM2bXtWx598RB7tyL+NMkp2QC9LEH
-         TQL53P+c/angnZ9Izpw3u5E4Po4euHD/PkV5FVffy34n6f6pCBxBT6pSAnM86TZMcn
-         N+67QuqMHr5xKLtEQj0XjL5BrP72vym8Yq5EEniQ=
+        b=qjIvlASfZr+ybAmWjvMsc6s7Dy1Cb0SlLAU8BoSlZutbo7DVYI3fecU5Fgh6BansF
+         r9dA1C6pAsSuX5Wa7tEpYUmfnsuON8ReQlpDf1J6zDfkzhzsT1GXrm1IALgatYDrJ8
+         GAag5XJS5P+TRupt+VHDrNUZC244F/a0F6PQlrJ0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Moni Shoua <monis@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 133/671] net/mlx5: Take lock with IRQs disabled to avoid deadlock
-Date:   Thu, 16 Jan 2020 11:50:42 -0500
-Message-Id: <20200116165940.10720-16-sashal@kernel.org>
+Cc:     wenxu <wenxu@ucloud.cn>, "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 134/671] ip_tunnel: Fix route fl4 init in ip_md_tunnel_xmit
+Date:   Thu, 16 Jan 2020 11:50:43 -0500
+Message-Id: <20200116165940.10720-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
@@ -45,80 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moni Shoua <monis@mellanox.com>
+From: wenxu <wenxu@ucloud.cn>
 
-[ Upstream commit 33814e5d127e21f53b52e17b0722c1b57d4f4d29 ]
+[ Upstream commit 6e6b904ad4f9aed43ec320afbd5a52ed8461ab41 ]
 
-The lock in qp_table might be taken from process context or from
-interrupt context. This may lead to a deadlock unless it is taken with
-IRQs disabled.
+Init the gre_key from tuninfo->key.tun_id and init the mark
+from the skb->mark, set the oif to zero in the collect metadata
+mode.
 
-Discovered by lockdep
-
-================================
-WARNING: inconsistent lock state
-4.20.0-rc6
---------------------------------
-inconsistent {HARDIRQ-ON-W} -> {IN-HARDIRQ-W}
-
-python/12572 [HC1[1]:SC0[0]:HE0:SE1] takes:
-00000000052a4df4 (&(&table->lock)->rlock#2){?.+.}, /0x50 [mlx5_core]
-{HARDIRQ-ON-W} state was registered at:
-  _raw_spin_lock+0x33/0x70
-  mlx5_get_rsc+0x1a/0x50 [mlx5_core]
-  mlx5_ib_eqe_pf_action+0x493/0x1be0 [mlx5_ib]
-  process_one_work+0x90c/0x1820
-  worker_thread+0x87/0xbb0
-  kthread+0x320/0x3e0
-  ret_from_fork+0x24/0x30
-irq event stamp: 103928
-hardirqs last  enabled at (103927): [] nk+0x1a/0x1c
-hardirqs last disabled at (103928): [] unk+0x1a/0x1c
-softirqs last  enabled at (103924): [] tcp_sendmsg+0x31/0x40
-softirqs last disabled at (103922): [] 80
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(&(&table->lock)->rlock#2);
-
-    lock(&(&table->lock)->rlock#2);
-
- *** DEADLOCK ***
-
-Fixes: 032080ab43ac ("IB/mlx5: Lock QP during page fault handling")
-Signed-off-by: Moni Shoua <monis@mellanox.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: cfc7381b3002 ("ip_tunnel: add collect_md mode to IPIP tunnel")
+Signed-off-by: wenxu <wenxu@ucloud.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/qp.c | 5 +++--
+ net/ipv4/ip_tunnel.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/qp.c b/drivers/net/ethernet/mellanox/mlx5/core/qp.c
-index f33707ce8b6b..479ac21cdbc6 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/qp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/qp.c
-@@ -44,14 +44,15 @@ static struct mlx5_core_rsc_common *mlx5_get_rsc(struct mlx5_core_dev *dev,
- {
- 	struct mlx5_qp_table *table = &dev->priv.qp_table;
- 	struct mlx5_core_rsc_common *common;
-+	unsigned long flags;
- 
--	spin_lock(&table->lock);
-+	spin_lock_irqsave(&table->lock, flags);
- 
- 	common = radix_tree_lookup(&table->tree, rsn);
- 	if (common)
- 		atomic_inc(&common->refcount);
- 
--	spin_unlock(&table->lock);
-+	spin_unlock_irqrestore(&table->lock, flags);
- 
- 	if (!common) {
- 		mlx5_core_warn(dev, "Async event for bogus resource 0x%x\n",
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index 420e891ac59d..f03a1b68e70f 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -574,8 +574,9 @@ void ip_md_tunnel_xmit(struct sk_buff *skb, struct net_device *dev, u8 proto)
+ 		else if (skb->protocol == htons(ETH_P_IPV6))
+ 			tos = ipv6_get_dsfield((const struct ipv6hdr *)inner_iph);
+ 	}
+-	ip_tunnel_init_flow(&fl4, proto, key->u.ipv4.dst, key->u.ipv4.src, 0,
+-			    RT_TOS(tos), tunnel->parms.link, tunnel->fwmark);
++	ip_tunnel_init_flow(&fl4, proto, key->u.ipv4.dst, key->u.ipv4.src,
++			    tunnel_id_to_key32(key->tun_id), RT_TOS(tos),
++			    0, skb->mark);
+ 	if (tunnel->encap.type != TUNNEL_ENCAP_NONE)
+ 		goto tx_error;
+ 	rt = ip_route_output_key(tunnel->net, &fl4);
 -- 
 2.20.1
 
