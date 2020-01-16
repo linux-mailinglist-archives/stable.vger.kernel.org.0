@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A083013FED4
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:38:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C96D13FED1
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730156AbgAPXic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:38:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34952 "EHLO mail.kernel.org"
+        id S2391272AbgAPXiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:38:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388703AbgAPX3W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:29:22 -0500
+        id S1730156AbgAPX3Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:29:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 579D32082F;
-        Thu, 16 Jan 2020 23:29:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB9482072E;
+        Thu, 16 Jan 2020 23:29:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217361;
-        bh=MUI1DTqAcYejrIAwt0p2evOy8fWIcS7iMwvPsNqjPCM=;
+        s=default; t=1579217364;
+        bh=zFbc9+S/ZEZazNWuHLHoKbSGQPRWWFbewUS9MAVVDD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9azp6zK7+/uLe2yck9FwsIzHrnWzK/tq01oGW2VJgq096ug3UqbDyEIO9IMImUwd
-         TBssYsxJOweYqUDHp+9X2tA73EqmYu+B7LUNvHI0cuZ8OEsIeYdRylvu6DIHCcNHzr
-         KRrld7YzexMp/yADqZuqAZ0b+ydQtpBnGpryU4aM=
+        b=2t2Dqs5p63unbBg93dscNo+lfWuWXPCaWAfje7i/Yr8wV3EyhC5jQvTwi7DOqiOLS
+         a1l7TxOWW5Ogb7YJrIxanoBdKrPAsIxYfn0N242g1ryOZIfmhpDuzRxPD1VcW/yj5z
+         5EWcEeVcyCYdwel+zFd4yqI9/BcYOoH6sVkZHUjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>
-Subject: [PATCH 4.19 51/84] arm64: dts: apq8096-db820c: Increase load on l21 for SDCARD
-Date:   Fri, 17 Jan 2020 00:18:25 +0100
-Message-Id: <20200116231719.808357694@linuxfoundation.org>
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.19 52/84] af_unix: add compat_ioctl support
+Date:   Fri, 17 Jan 2020 00:18:26 +0100
+Message-Id: <20200116231719.946578178@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
 References: <20200116231713.087649517@linuxfoundation.org>
@@ -44,35 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit e38161bd325ea541ef2f258d8e28281077dde524 upstream.
+commit 5f6beb9e0f633f3cc845cdd67973c506372931b4 upstream.
 
-In the same way as for msm8974-hammerhead, l21 load, used for SDCARD
-VMMC, needs to be increased in order to prevent any voltage drop issues
-(due to limited current) happening with some SDCARDS or during specific
-operations (e.g. write).
+The af_unix protocol family has a custom ioctl command (inexplicibly
+based on SIOCPROTOPRIVATE), but never had a compat_ioctl handler for
+32-bit applications.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Fixes: 660a9763c6a9 (arm64: dts: qcom: db820c: Add pm8994 regulator node)
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Since all commands are compatible here, add a trivial wrapper that
+performs the compat_ptr() conversion for SIOCOUTQ/SIOCINQ.  SIOCUNIXFILE
+does not use the argument, but it doesn't hurt to also use compat_ptr()
+here.
+
+Fixes: ba94f3088b79 ("unix: add ioctl to open a unix socket file with O_PATH")
+Cc: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi |    2 ++
- 1 file changed, 2 insertions(+)
+ net/unix/af_unix.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi
-+++ b/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi
-@@ -580,6 +580,8 @@
- 				l21 {
- 					regulator-min-microvolt = <2950000>;
- 					regulator-max-microvolt = <2950000>;
-+					regulator-allow-set-load;
-+					regulator-system-load = <200000>;
- 				};
- 				l22 {
- 					regulator-min-microvolt = <3300000>;
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -649,6 +649,9 @@ static __poll_t unix_poll(struct file *,
+ static __poll_t unix_dgram_poll(struct file *, struct socket *,
+ 				    poll_table *);
+ static int unix_ioctl(struct socket *, unsigned int, unsigned long);
++#ifdef CONFIG_COMPAT
++static int unix_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg);
++#endif
+ static int unix_shutdown(struct socket *, int);
+ static int unix_stream_sendmsg(struct socket *, struct msghdr *, size_t);
+ static int unix_stream_recvmsg(struct socket *, struct msghdr *, size_t, int);
+@@ -690,6 +693,9 @@ static const struct proto_ops unix_strea
+ 	.getname =	unix_getname,
+ 	.poll =		unix_poll,
+ 	.ioctl =	unix_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl =	unix_compat_ioctl,
++#endif
+ 	.listen =	unix_listen,
+ 	.shutdown =	unix_shutdown,
+ 	.setsockopt =	sock_no_setsockopt,
+@@ -713,6 +719,9 @@ static const struct proto_ops unix_dgram
+ 	.getname =	unix_getname,
+ 	.poll =		unix_dgram_poll,
+ 	.ioctl =	unix_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl =	unix_compat_ioctl,
++#endif
+ 	.listen =	sock_no_listen,
+ 	.shutdown =	unix_shutdown,
+ 	.setsockopt =	sock_no_setsockopt,
+@@ -735,6 +744,9 @@ static const struct proto_ops unix_seqpa
+ 	.getname =	unix_getname,
+ 	.poll =		unix_dgram_poll,
+ 	.ioctl =	unix_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl =	unix_compat_ioctl,
++#endif
+ 	.listen =	unix_listen,
+ 	.shutdown =	unix_shutdown,
+ 	.setsockopt =	sock_no_setsockopt,
+@@ -2646,6 +2658,13 @@ static int unix_ioctl(struct socket *soc
+ 	return err;
+ }
+ 
++#ifdef CONFIG_COMPAT
++static int unix_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
++{
++	return unix_ioctl(sock, cmd, (unsigned long)compat_ptr(arg));
++}
++#endif
++
+ static __poll_t unix_poll(struct file *file, struct socket *sock, poll_table *wait)
+ {
+ 	struct sock *sk = sock->sk;
 
 
