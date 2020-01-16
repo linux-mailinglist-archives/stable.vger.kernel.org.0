@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9869D13E547
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:13:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3834E13E5EE
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:18:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390856AbgAPRNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:13:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59944 "EHLO mail.kernel.org"
+        id S1729890AbgAPRRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:17:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390211AbgAPRNw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:13:52 -0500
+        id S2390859AbgAPRNy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:13:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D0B620684;
-        Thu, 16 Jan 2020 17:13:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86E5E246A7;
+        Thu, 16 Jan 2020 17:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194832;
-        bh=uUpN2dY7R4VzTueHXTuHcDY+ZoCtUVRaHz1tmu8JhXU=;
+        s=default; t=1579194833;
+        bh=t3NzLjqky/Ad3i0HuvmURg01ba2B4dUEqMwPsFzQWqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lItvOtJAuEfNF2+dKkwlmDVSSL6eVCbzz49HfkoVSzSizKOxrHLJRTg0IKfIWn70X
-         gblNwHrnkzTsP8DN7vV76b8hbuunRP7rJJZQl9Owd1dWHYBPjWmcjmMTp8hdkkE2JW
-         sm5+9clD5olWfjQcH8ZCridXt/z9Z2+3JP6jwD58=
+        b=NUCjHXK64dpBBkIuul/oisKrmjMyYgc/IxOag+nDIo6hMmHZJd2RWhqVivQisyBkn
+         K0qNSRiwfLivIfJQ2WYmEkHNTiHlHXk9pNdqwL3h5Zyw7VK9j60XNLvT2zZJW+o7Dd
+         0PBr1pi+RUU1ypIYMkHmkMN1sR+s23jYxFe9WaX4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Huacai Chen <chenhc@lemote.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 633/671] MIPS: Loongson: Fix return value of loongson_hwmon_init
-Date:   Thu, 16 Jan 2020 12:04:31 -0500
-Message-Id: <20200116170509.12787-370-sashal@kernel.org>
+Cc:     Seung-Woo Kim <sw0312.kim@samsung.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 634/671] media: exynos4-is: Fix recursive locking in isp_video_release()
+Date:   Thu, 16 Jan 2020 12:04:32 -0500
+Message-Id: <20200116170509.12787-371-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -47,40 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Seung-Woo Kim <sw0312.kim@samsung.com>
 
-[ Upstream commit dece3c2a320b0a6d891da6ff774ab763969b6860 ]
+[ Upstream commit 704c6c80fb471d1bb0ef0d61a94617d1d55743cd ]
 
-When call function hwmon_device_register failed, use the actual
-return value instead of always -ENOMEM.
+>From isp_video_release(), &isp->video_lock is held and subsequent
+vb2_fop_release() tries to lock vdev->lock which is same with the
+previous one. Replace vb2_fop_release() with _vb2_fop_release() to
+fix the recursive locking.
 
-Fixes: 64f09aa967e1 ("MIPS: Loongson-3: Add CPU Hwmon platform driver")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Huacai Chen <chenhc@lemote.com>
-Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Fixes: 1380f5754cb0 ("[media] videobuf2: Add missing lock held on vb2_fop_release")
+Signed-off-by: Seung-Woo Kim <sw0312.kim@samsung.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/mips/cpu_hwmon.c | 2 +-
+ drivers/media/platform/exynos4-is/fimc-isp-video.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/mips/cpu_hwmon.c b/drivers/platform/mips/cpu_hwmon.c
-index f66521c7f846..98128374d710 100644
---- a/drivers/platform/mips/cpu_hwmon.c
-+++ b/drivers/platform/mips/cpu_hwmon.c
-@@ -159,7 +159,7 @@ static int __init loongson_hwmon_init(void)
- 
- 	cpu_hwmon_dev = hwmon_device_register(NULL);
- 	if (IS_ERR(cpu_hwmon_dev)) {
--		ret = -ENOMEM;
-+		ret = PTR_ERR(cpu_hwmon_dev);
- 		pr_err("hwmon_device_register fail!\n");
- 		goto fail_hwmon_device_register;
+diff --git a/drivers/media/platform/exynos4-is/fimc-isp-video.c b/drivers/media/platform/exynos4-is/fimc-isp-video.c
+index a920164f53f1..39340abefd14 100644
+--- a/drivers/media/platform/exynos4-is/fimc-isp-video.c
++++ b/drivers/media/platform/exynos4-is/fimc-isp-video.c
+@@ -316,7 +316,7 @@ static int isp_video_release(struct file *file)
+ 		ivc->streaming = 0;
  	}
+ 
+-	vb2_fop_release(file);
++	_vb2_fop_release(file, NULL);
+ 
+ 	if (v4l2_fh_is_singular_file(file)) {
+ 		fimc_pipeline_call(&ivc->ve, close);
 -- 
 2.20.1
 
