@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02BFB13FF8A
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EAB813FF85
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729904AbgAPXnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:43:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53800 "EHLO mail.kernel.org"
+        id S1729365AbgAPXYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:24:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388071AbgAPXYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:24:40 -0500
+        id S2387716AbgAPXYt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:24:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A913E2072B;
-        Thu, 16 Jan 2020 23:24:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6656D206D9;
+        Thu, 16 Jan 2020 23:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217079;
-        bh=CtoeY/iV094Q9xMkZINh314p/7c2W56mhxr/mjN84fA=;
+        s=default; t=1579217088;
+        bh=ti9OQzTrR39hfLZ/0pUi+SVIH06RaO/hmG3omslXZAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NSrPPIBK6Vi7+PRM3HY5qAAw8/anWPn9MM3Vb3dNecaVRq1aW6dAdxK4aJPWRkgkp
-         aeTyLAWyxnQQTqcYd7YFr1rceYaIFfmN43qMuFmlH/jxWALBosB+Ee0Y6jBgUxOQ7v
-         6oYVCW6ADhAaAeCXwXnfSwrObIF/gtQ4ban8qhEY=
+        b=bGDRdEvmIt8E5Z70OBVIF38a1dAXIu3oBNag2UZ/Fcwe99uVUQwxRW01PvRx/O55Z
+         ZVfoP0wPDCxvXeb+n8+5DfXQkDp58MHLwtrRf/8/hIAE/Udf9JtUc+qkg7zBbX09bR
+         4cNuKpiUMV1pq2XOSoOoHXTrRs5Ccly/xzlDhLMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 123/203] PCI: pciehp: Do not disable interrupt twice on suspend
-Date:   Fri, 17 Jan 2020 00:17:20 +0100
-Message-Id: <20200116231756.034414476@linuxfoundation.org>
+        stable@vger.kernel.org, linux-scsi@vger.kernel.org,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.4 127/203] scsi: sd: enable compat ioctls for sed-opal
+Date:   Fri, 17 Jan 2020 00:17:24 +0100
+Message-Id: <20200116231756.312596106@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -46,100 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 75fcc0ce72e5cea2e357cdde858216c5bad40442 upstream.
+commit 142b2ac82e31c174936c5719fa12ae28f51a55b7 upstream.
 
-We try to keep PCIe hotplug ports runtime suspended when entering system
-suspend. Because the PCIe portdrv sets the DPM_FLAG_NEVER_SKIP flag, the PM
-core always calls system suspend/resume hooks even if the device is left
-runtime suspended. Since PCIe hotplug driver re-used the same function for
-both runtime suspend and system suspend, it ended up disabling hotplug
-interrupt twice and the second time following was printed:
+The sed_ioctl() function is written to be compatible between
+32-bit and 64-bit processes, however compat mode is only
+wired up for nvme, not for sd.
 
-  pciehp 0000:03:01.0:pcie204: pcie_do_write_cmd: no response from device
+Add the missing call to sed_ioctl() in sd_compat_ioctl().
 
-Prevent this from happening by checking whether the device is already
-runtime suspended when the system suspend hook is called.
-
-Fixes: 9c62f0bfb832 ("PCI: pciehp: Implement runtime PM callbacks")
-Link: https://lore.kernel.org/r/20191029170022.57528-1-mika.westerberg@linux.intel.com
-Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: d80210f25ff0 ("sd: add support for TCG OPAL self encrypting disks")
+Cc: linux-scsi@vger.kernel.org
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/hotplug/pciehp_core.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/scsi/sd.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/hotplug/pciehp_core.c
-+++ b/drivers/pci/hotplug/pciehp_core.c
-@@ -253,7 +253,7 @@ static bool pme_is_native(struct pcie_de
- 	return pcie_ports_native || host->native_pme;
- }
- 
--static int pciehp_suspend(struct pcie_device *dev)
-+static void pciehp_disable_interrupt(struct pcie_device *dev)
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -1694,20 +1694,30 @@ static void sd_rescan(struct device *dev
+ static int sd_compat_ioctl(struct block_device *bdev, fmode_t mode,
+ 			   unsigned int cmd, unsigned long arg)
  {
- 	/*
- 	 * Disable hotplug interrupt so that it does not trigger
-@@ -261,7 +261,19 @@ static int pciehp_suspend(struct pcie_de
+-	struct scsi_device *sdev = scsi_disk(bdev->bd_disk)->device;
++	struct gendisk *disk = bdev->bd_disk;
++	struct scsi_disk *sdkp = scsi_disk(disk);
++	struct scsi_device *sdev = sdkp->device;
++	void __user *p = compat_ptr(arg);
+ 	int error;
+ 
++	error = scsi_verify_blk_ioctl(bdev, cmd);
++	if (error < 0)
++		return error;
++
+ 	error = scsi_ioctl_block_when_processing_errors(sdev, cmd,
+ 			(mode & FMODE_NDELAY) != 0);
+ 	if (error)
+ 		return error;
++
++	if (is_sed_ioctl(cmd))
++		return sed_ioctl(sdkp->opal_dev, cmd, p);
+ 	       
+ 	/* 
+ 	 * Let the static ioctl translation table take care of it.
  	 */
- 	if (pme_is_native(dev))
- 		pcie_disable_interrupt(get_service_data(dev));
-+}
- 
-+#ifdef CONFIG_PM_SLEEP
-+static int pciehp_suspend(struct pcie_device *dev)
-+{
-+	/*
-+	 * If the port is already runtime suspended we can keep it that
-+	 * way.
-+	 */
-+	if (dev_pm_smart_suspend_and_suspended(&dev->port->dev))
-+		return 0;
-+
-+	pciehp_disable_interrupt(dev);
- 	return 0;
+ 	if (!sdev->host->hostt->compat_ioctl)
+ 		return -ENOIOCTLCMD; 
+-	return sdev->host->hostt->compat_ioctl(sdev, cmd, (void __user *)arg);
++	return sdev->host->hostt->compat_ioctl(sdev, cmd, p);
  }
+ #endif
  
-@@ -279,6 +291,7 @@ static int pciehp_resume_noirq(struct pc
- 
- 	return 0;
- }
-+#endif
- 
- static int pciehp_resume(struct pcie_device *dev)
- {
-@@ -292,6 +305,12 @@ static int pciehp_resume(struct pcie_dev
- 	return 0;
- }
- 
-+static int pciehp_runtime_suspend(struct pcie_device *dev)
-+{
-+	pciehp_disable_interrupt(dev);
-+	return 0;
-+}
-+
- static int pciehp_runtime_resume(struct pcie_device *dev)
- {
- 	struct controller *ctrl = get_service_data(dev);
-@@ -318,10 +337,12 @@ static struct pcie_port_service_driver h
- 	.remove		= pciehp_remove,
- 
- #ifdef	CONFIG_PM
-+#ifdef	CONFIG_PM_SLEEP
- 	.suspend	= pciehp_suspend,
- 	.resume_noirq	= pciehp_resume_noirq,
- 	.resume		= pciehp_resume,
--	.runtime_suspend = pciehp_suspend,
-+#endif
-+	.runtime_suspend = pciehp_runtime_suspend,
- 	.runtime_resume	= pciehp_runtime_resume,
- #endif	/* PM */
- };
 
 
