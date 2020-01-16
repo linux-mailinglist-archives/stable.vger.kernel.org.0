@@ -2,79 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0315013E674
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:20:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6F413E734
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:24:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391288AbgAPRU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:20:27 -0500
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:38026 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391362AbgAPRSF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 12:18:05 -0500
-Received: by mail-qk1-f194.google.com with SMTP id k6so19822239qki.5;
-        Thu, 16 Jan 2020 09:18:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ZHJNJzAFrt0uyyRdNsMrWMrSY7FsAQZj36UJfWF2nQU=;
-        b=uKE/aGAqqXGSN8s+eDE4CAzAzR2AtXW9tzd+k5XeRXKQcW+eaNJZvBZZwrFIGWJRyu
-         3hjiIr8ru5Dlc1QYU2Z0YYBb7lAlosZetIUrC/lFZQzqKja0FGSUxSI1QRBUUeczFPfh
-         nPPW1XUE4qVgUcvYBpN8380/wdXR+xV1BA29a9I+JfXI0H0Hbw5HoJGuSuHrq/FZ2+Or
-         ue7zj0GyFEKbPP/vbtcGVCwc0lanVffQuHrz8j+0NLBH9kKuK9Qsomi0Gn/Y/to+lHAx
-         4CBLsBM5pmJ85IL5FstHN1P+pJSfJw4DWdfTGTHgQFcAmk+5ONRgSjJfkEuNahVYuhbZ
-         EoLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ZHJNJzAFrt0uyyRdNsMrWMrSY7FsAQZj36UJfWF2nQU=;
-        b=FshGpK11LIM1rgRINmc3mIT0JQRzeZVaeUaGAn5mcLgYKeiig/FGNQnn/AuSxRMSl2
-         DO3GVYHWXRvcTZKKwkkhE9h8LjNfyObuUhua2PKpyq7BemzvMJAIkwJq3cmpUTKuKStQ
-         xXmdOA6P0GE0vXcsyjyKFMaR4o9hpIDKRuHFbxlQi7voD3JzmujP1FLnA0sk7f8l1nk8
-         /vqwy0sHBZGJlnVb36LoGHgAG4PQSPdQ1AgxSk05vvJplxNT/tRKTTZhqTsDkvSMo0cu
-         px4NDhH2qNgT311MASkoRIx1Hfz3EcJ1CLSe2nfAK89uwwt/RQcdeF66Pjw6xCQYe4gu
-         6Zrg==
-X-Gm-Message-State: APjAAAXJrnPNQbBO1s47xP+wuf1hpH9/rWb01/bD6zw0Yko/Fdv9d3xj
-        atAsCRuSsWqt3RkLN6nmfBoZbnZw
-X-Google-Smtp-Source: APXvYqx54nLoADteH2t6RZa5CCoOO72147cgZHbEE1AaCvcvNwAK60FdkbLOD0YenTbu7JF5eOMQeQ==
-X-Received: by 2002:a37:684a:: with SMTP id d71mr31325170qkc.201.1579195084165;
-        Thu, 16 Jan 2020 09:18:04 -0800 (PST)
-Received: from ?IPv6:2601:282:803:7700:5c84:fd9a:6187:58f5? ([2601:282:803:7700:5c84:fd9a:6187:58f5])
-        by smtp.googlemail.com with ESMTPSA id 68sm10567325qkj.102.2020.01.16.09.18.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Jan 2020 09:18:03 -0800 (PST)
-Subject: Re: [PATCH AUTOSEL 4.19 573/671] ipv6: Handle race in
- addrconf_dad_work
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-References: <20200116170509.12787-1-sashal@kernel.org>
- <20200116170509.12787-310-sashal@kernel.org>
-From:   David Ahern <dsahern@gmail.com>
-Message-ID: <fc012e53-ccdf-5ac5-6f3f-a2ecdf25bc39@gmail.com>
-Date:   Thu, 16 Jan 2020 10:18:00 -0700
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.3.1
+        id S2391698AbgAPRYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:24:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58350 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2391693AbgAPRYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:24:14 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8599E2468E;
+        Thu, 16 Jan 2020 17:24:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579195453;
+        bh=OvR6d+GuurWj3pV1jLo6SNT47v2bz6Kyw8Ptl/ssFBE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZlMex3M1vYNkcbd5Y5tA4vIlW6w1K52Ud0pYUr7azPzgjIUjX3npzCg+Xubx/ZMv5
+         F+ZyzuMG59TpFJdYFFtOHUBaYOVT7WoE64a5REZC1GaOJ47CrO0qi5mBgIwNdbCf2P
+         JlyRzg+HR608yxui7JPB7b465w0nL02zJcfCJbN0=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Israel Rukshin <israelr@mellanox.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 063/371] IB/iser: Pass the correct number of entries for dma mapped SGL
+Date:   Thu, 16 Jan 2020 12:18:55 -0500
+Message-Id: <20200116172403.18149-6-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
+References: <20200116172403.18149-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20200116170509.12787-310-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/16/20 10:03 AM, Sasha Levin wrote:
-> From: David Ahern <dsahern@gmail.com>
-> 
-> [ Upstream commit a3ce2a21bb8969ae27917281244fa91bf5f286d7 ]
-> 
+From: Israel Rukshin <israelr@mellanox.com>
 
-That commit was reverted by 8ae72cbf62d2c1879456c0c5872f958e18f53711 and
-then replaced by 2d819d250a1393a3e725715425ab70a0e0772a71
+[ Upstream commit 57b26497fabe1b9379b59fbc7e35e608e114df16 ]
+
+ib_dma_map_sg() augments the SGL into a 'dma mapped SGL'. This process may
+change the number of entries and the lengths of each entry.
+
+Code that touches dma_address is iterating over the 'dma mapped SGL' and
+must use dma_nents which returned from ib_dma_map_sg().
+
+ib_sg_to_pages() and ib_map_mr_sg() are using dma_address so they must use
+dma_nents.
+
+Fixes: 39405885005a ("IB/iser: Port to new fast registration API")
+Fixes: bfe066e256d5 ("IB/iser: Reuse ib_sg_to_pages")
+Signed-off-by: Israel Rukshin <israelr@mellanox.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Acked-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/infiniband/ulp/iser/iser_memory.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/infiniband/ulp/iser/iser_memory.c b/drivers/infiniband/ulp/iser/iser_memory.c
+index 322209d5ff58..19883169e7b7 100644
+--- a/drivers/infiniband/ulp/iser/iser_memory.c
++++ b/drivers/infiniband/ulp/iser/iser_memory.c
+@@ -240,8 +240,8 @@ int iser_fast_reg_fmr(struct iscsi_iser_task *iser_task,
+ 	page_vec->npages = 0;
+ 	page_vec->fake_mr.page_size = SIZE_4K;
+ 	plen = ib_sg_to_pages(&page_vec->fake_mr, mem->sg,
+-			      mem->size, NULL, iser_set_page);
+-	if (unlikely(plen < mem->size)) {
++			      mem->dma_nents, NULL, iser_set_page);
++	if (unlikely(plen < mem->dma_nents)) {
+ 		iser_err("page vec too short to hold this SG\n");
+ 		iser_data_buf_dump(mem, device->ib_device);
+ 		iser_dump_page_vec(page_vec);
+@@ -450,10 +450,10 @@ static int iser_fast_reg_mr(struct iscsi_iser_task *iser_task,
+ 
+ 	ib_update_fast_reg_key(mr, ib_inc_rkey(mr->rkey));
+ 
+-	n = ib_map_mr_sg(mr, mem->sg, mem->size, NULL, SIZE_4K);
+-	if (unlikely(n != mem->size)) {
++	n = ib_map_mr_sg(mr, mem->sg, mem->dma_nents, NULL, SIZE_4K);
++	if (unlikely(n != mem->dma_nents)) {
+ 		iser_err("failed to map sg (%d/%d)\n",
+-			 n, mem->size);
++			 n, mem->dma_nents);
+ 		return n < 0 ? n : -EINVAL;
+ 	}
+ 
+-- 
+2.20.1
 
