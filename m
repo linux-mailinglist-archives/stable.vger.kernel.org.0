@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4AF413F4BE
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:53:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 416AE13F4B0
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389514AbgAPSvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:51:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43352 "EHLO mail.kernel.org"
+        id S2389170AbgAPRIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:08:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389507AbgAPRIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:50 -0500
+        id S2389512AbgAPRIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:08:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6DA420663;
-        Thu, 16 Jan 2020 17:08:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0332521D56;
+        Thu, 16 Jan 2020 17:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194529;
-        bh=3kO+qp8JvkBpLkZkOcNexrYO7Q5vC0JuClMqjGEwdvY=;
+        s=default; t=1579194531;
+        bh=Uzv5z87h/1y7qrqArg8niP0Nskd8r1JLkx4WiiPFa4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5ybyT2oRy8TYww/8ZK07fcr/vHbEB7cTBFItvVFsFLJwL+HH5IkRtH5t55yWJye7
-         tWhrT2cMeOJpkTub+7tbR0n8pb4d19DnoAnO4vMBlzF4XfLuSbJiUPibgla9O0HUEN
-         YISnMsCUPhUowfp8jYqqCl9GI7M+SI8g32DOCNHA=
+        b=cPnkHI9ieXdqSLvpXJjywNA2rYo9LuT+0ch+WksvL8FXTA8VWXpuGddKjoxQBWdZ9
+         J6itLK3QHNWln4i+j23M2gIqXZY05e7486SMHAGFZy9sc3gw+8zCCfXsXwX5FMxhxk
+         tWYEMUZDOyCJVpwIGDLrWWs+Rlf+XXzlwzH0aa9U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Doug Ledford <dledford@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 418/671] IB/hfi1: Handle port down properly in pio
-Date:   Thu, 16 Jan 2020 12:00:56 -0500
-Message-Id: <20200116170509.12787-155-sashal@kernel.org>
+Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 419/671] drm/msm/mdp5: Fix mdp5_cfg_init error return
+Date:   Thu, 16 Jan 2020 12:00:57 -0500
+Message-Id: <20200116170509.12787-156-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,111 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@intel.com>
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 
-[ Upstream commit 942a899335707fc9cfc97cb382a60734b2ff4e03 ]
+[ Upstream commit fc19cbb785d7bbd1a1af26229b5240a3ab332744 ]
 
-The call to sc_buffer_alloc currently returns NULL (no buffer) or
-a buffer descriptor.
+If mdp5_cfg_init fails because of an unknown major version, a null pointer
+dereference occurs.  This is because the caller of init expects error
+pointers, but init returns NULL on error.  Fix this by returning the
+expected values on error.
 
-There is a third case when the port is down.  Currently that
-returns NULL and this prevents the caller from properly handling the
-sc_buffer_alloc() failure.  A verbs code link test after the call is
-racy so the indication needs to come from the state check inside the allocation
-routine to be valid.
-
-Fix by encoding the ECOMM failure like SDMA.   IS_ERR_OR_NULL() tests
-are added at all call sites.  For verbs send, this needs to treat any
-error by returning a completion without any MMIO copy.
-
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Fixes: 2e362e1772b8 (drm/msm/mdp5: introduce mdp5_cfg module)
+Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/pio.c   | 5 +++--
- drivers/infiniband/hw/hfi1/rc.c    | 2 +-
- drivers/infiniband/hw/hfi1/ud.c    | 4 ++--
- drivers/infiniband/hw/hfi1/verbs.c | 4 ++--
- 4 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/pio.c b/drivers/infiniband/hw/hfi1/pio.c
-index 752057647f09..3fcbf56f8be2 100644
---- a/drivers/infiniband/hw/hfi1/pio.c
-+++ b/drivers/infiniband/hw/hfi1/pio.c
-@@ -1434,7 +1434,8 @@ void sc_stop(struct send_context *sc, int flag)
-  * @cb: optional callback to call when the buffer is finished sending
-  * @arg: argument for cb
-  *
-- * Return a pointer to a PIO buffer if successful, NULL if not enough room.
-+ * Return a pointer to a PIO buffer, NULL if not enough room, -ECOMM
-+ * when link is down.
-  */
- struct pio_buf *sc_buffer_alloc(struct send_context *sc, u32 dw_len,
- 				pio_release_cb cb, void *arg)
-@@ -1450,7 +1451,7 @@ struct pio_buf *sc_buffer_alloc(struct send_context *sc, u32 dw_len,
- 	spin_lock_irqsave(&sc->alloc_lock, flags);
- 	if (!(sc->flags & SCF_ENABLED)) {
- 		spin_unlock_irqrestore(&sc->alloc_lock, flags);
--		goto done;
-+		return ERR_PTR(-ECOMM);
- 	}
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
+index 824067d2d427..42f0ecb0cf35 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
+@@ -635,7 +635,7 @@ struct mdp5_cfg_handler *mdp5_cfg_init(struct mdp5_kms *mdp5_kms,
+ 	if (cfg_handler)
+ 		mdp5_cfg_destroy(cfg_handler);
  
- retry:
-diff --git a/drivers/infiniband/hw/hfi1/rc.c b/drivers/infiniband/hw/hfi1/rc.c
-index 980168a56707..7ed6fb407a68 100644
---- a/drivers/infiniband/hw/hfi1/rc.c
-+++ b/drivers/infiniband/hw/hfi1/rc.c
-@@ -914,7 +914,7 @@ void hfi1_send_rc_ack(struct hfi1_packet *packet, bool is_fecn)
- 	pbc = create_pbc(ppd, pbc_flags, qp->srate_mbps,
- 			 sc_to_vlt(ppd->dd, sc5), plen);
- 	pbuf = sc_buffer_alloc(rcd->sc, plen, NULL, NULL);
--	if (!pbuf) {
-+	if (IS_ERR_OR_NULL(pbuf)) {
- 		/*
- 		 * We have no room to send at the moment.  Pass
- 		 * responsibility for sending the ACK to the send engine
-diff --git a/drivers/infiniband/hw/hfi1/ud.c b/drivers/infiniband/hw/hfi1/ud.c
-index ef5b3ffd3888..839593641e3f 100644
---- a/drivers/infiniband/hw/hfi1/ud.c
-+++ b/drivers/infiniband/hw/hfi1/ud.c
-@@ -703,7 +703,7 @@ void return_cnp_16B(struct hfi1_ibport *ibp, struct rvt_qp *qp,
- 	pbc = create_pbc(ppd, pbc_flags, qp->srate_mbps, vl, plen);
- 	if (ctxt) {
- 		pbuf = sc_buffer_alloc(ctxt, plen, NULL, NULL);
--		if (pbuf) {
-+		if (!IS_ERR_OR_NULL(pbuf)) {
- 			trace_pio_output_ibhdr(ppd->dd, &hdr, sc5);
- 			ppd->dd->pio_inline_send(ppd->dd, pbuf, pbc,
- 						 &hdr, hwords);
-@@ -758,7 +758,7 @@ void return_cnp(struct hfi1_ibport *ibp, struct rvt_qp *qp, u32 remote_qpn,
- 	pbc = create_pbc(ppd, pbc_flags, qp->srate_mbps, vl, plen);
- 	if (ctxt) {
- 		pbuf = sc_buffer_alloc(ctxt, plen, NULL, NULL);
--		if (pbuf) {
-+		if (!IS_ERR_OR_NULL(pbuf)) {
- 			trace_pio_output_ibhdr(ppd->dd, &hdr, sc5);
- 			ppd->dd->pio_inline_send(ppd->dd, pbuf, pbc,
- 						 &hdr, hwords);
-diff --git a/drivers/infiniband/hw/hfi1/verbs.c b/drivers/infiniband/hw/hfi1/verbs.c
-index 4e7b3c027901..90e12f9433a3 100644
---- a/drivers/infiniband/hw/hfi1/verbs.c
-+++ b/drivers/infiniband/hw/hfi1/verbs.c
-@@ -1096,10 +1096,10 @@ int hfi1_verbs_send_pio(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
- 	if (cb)
- 		iowait_pio_inc(&priv->s_iowait);
- 	pbuf = sc_buffer_alloc(sc, plen, cb, qp);
--	if (unlikely(!pbuf)) {
-+	if (unlikely(IS_ERR_OR_NULL(pbuf))) {
- 		if (cb)
- 			verbs_pio_complete(qp, 0);
--		if (ppd->host_link_state != HLS_UP_ACTIVE) {
-+		if (IS_ERR(pbuf)) {
- 			/*
- 			 * If we have filled the PIO buffers to capacity and are
- 			 * not in an active state this request is not going to
+-	return NULL;
++	return ERR_PTR(ret);
+ }
+ 
+ static struct mdp5_cfg_platform *mdp5_get_config(struct platform_device *dev)
 -- 
 2.20.1
 
