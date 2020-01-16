@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD1613EC22
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:56:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3915113EC8A
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:57:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394140AbgAPRoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:44:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35216 "EHLO mail.kernel.org"
+        id S2394146AbgAPRoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:44:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394133AbgAPRoV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2394141AbgAPRoV (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Jan 2020 12:44:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A94B42475F;
-        Thu, 16 Jan 2020 17:44:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 318102474F;
+        Thu, 16 Jan 2020 17:44:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196659;
-        bh=ece1MduIGLf0VL1T4CTx4Z0+HhcdtrzP5JPqdRX2BWk=;
+        s=default; t=1579196661;
+        bh=GQCU0no0l5BLWAsjMwoqXKZkwUcKNtpdr0nZvy6+HE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClAmYH0IgPrWmHzNn1St/UtSuLaorJFs96a9Z6MCENSSJqM7W+QOKR1H1/0S4tkLA
-         ZtOgVolXNhh9D41ilIFjiI7K/pNH9intIMDOHUiSOGwgbhKlLaR5Jmiaiv797yZLEH
-         NEAxWjXJLfTg4nB0wbctFvEtFLa7AgL/nlGWkcTw=
+        b=Yu2U+IG9jmdquhqdRFquP14VNLRnSYWShFWNQsr713c0xH9YjzvlNYr+0GgFiHMxQ
+         K5XieArzjE5d1YFnERnCMieBtWhNuhtH2LS0yZSLVSPHDlcYhFueCtisGzbufxzIuT
+         cqbGVEDmMe5bjKZ4bh7leO4lyHPsBHX0C3phOzgk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Finn Thain <fthain@telegraphics.com.au>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-m68k@lists.linux-m68k.org
-Subject: [PATCH AUTOSEL 4.4 064/174] m68k: mac: Fix VIA timer counter accesses
-Date:   Thu, 16 Jan 2020 12:41:01 -0500
-Message-Id: <20200116174251.24326-64-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Paul Walmsley <paul@pwsan.com>,
+        Tero Kristo <t-kristo@ti.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.4 065/174] ARM: OMAP2+: Fix potentially uninitialized return value for _setup_reset()
+Date:   Thu, 16 Jan 2020 12:41:02 -0500
+Message-Id: <20200116174251.24326-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
 References: <20200116174251.24326-1-sashal@kernel.org>
@@ -44,154 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 0ca7ce7db771580433bf24454f7a1542bd326078 ]
+[ Upstream commit 7f0d078667a494466991aa7133f49594f32ff6a2 ]
 
-This resolves some bugs that affect VIA timer counter accesses.
-Avoid lost interrupts caused by reading the counter low byte register.
-Make allowance for the fact that the counter will be decremented to
-0xFFFF before being reloaded.
+Commit 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior") made
+the call to _enable() conditional based on no oh->rst_lines_cnt. This
+caused the return value to be potentially uninitialized. Curiously we see
+no compiler warnings for this, probably as this gets inlined.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+We call _setup_reset() from _setup() and only _setup_postsetup() if the
+return value is zero. Currently the return value can be uninitialized for
+cases where oh->rst_lines_cnt is set and HWMOD_INIT_NO_RESET is not set.
+
+Fixes: 747834ab8347 ("ARM: OMAP2+: hwmod: revise hardreset behavior")
+Cc: Paul Walmsley <paul@pwsan.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/mac/via.c | 102 +++++++++++++++++++++++---------------------
- 1 file changed, 53 insertions(+), 49 deletions(-)
+ arch/arm/mach-omap2/omap_hwmod.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/m68k/mac/via.c b/arch/m68k/mac/via.c
-index ce56e04386e7..2d687518c76f 100644
---- a/arch/m68k/mac/via.c
-+++ b/arch/m68k/mac/via.c
-@@ -53,16 +53,6 @@ static __u8 rbv_clear;
- 
- static int gIER,gIFR,gBufA,gBufB;
- 
--/*
-- * Timer defs.
-- */
--
--#define TICK_SIZE		10000
--#define MAC_CLOCK_TICK		(783300/HZ)		/* ticks per HZ */
--#define MAC_CLOCK_LOW		(MAC_CLOCK_TICK&0xFF)
--#define MAC_CLOCK_HIGH		(MAC_CLOCK_TICK>>8)
--
--
- /*
-  * On Macs with a genuine VIA chip there is no way to mask an individual slot
-  * interrupt. This limitation also seems to apply to VIA clone logic cores in
-@@ -277,22 +267,6 @@ void __init via_init(void)
- 	}
- }
- 
--/*
-- * Start the 100 Hz clock
-- */
--
--void __init via_init_clock(irq_handler_t func)
--{
--	via1[vACR] |= 0x40;
--	via1[vT1LL] = MAC_CLOCK_LOW;
--	via1[vT1LH] = MAC_CLOCK_HIGH;
--	via1[vT1CL] = MAC_CLOCK_LOW;
--	via1[vT1CH] = MAC_CLOCK_HIGH;
--
--	if (request_irq(IRQ_MAC_TIMER_1, func, 0, "timer", func))
--		pr_err("Couldn't register %s interrupt\n", "timer");
--}
--
- /*
-  * Debugging dump, used in various places to see what's going on.
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 36706d32d656..1bc87c29467b 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -2563,7 +2563,7 @@ static void _setup_iclk_autoidle(struct omap_hwmod *oh)
   */
-@@ -320,29 +294,6 @@ void via_debug_dump(void)
- 	}
- }
+ static int _setup_reset(struct omap_hwmod *oh)
+ {
+-	int r;
++	int r = 0;
  
--/*
-- * This is always executed with interrupts disabled.
-- *
-- * TBI: get time offset between scheduling timer ticks
-- */
--
--u32 mac_gettimeoffset(void)
--{
--	unsigned long ticks, offset = 0;
--
--	/* read VIA1 timer 2 current value */
--	ticks = via1[vT1CL] | (via1[vT1CH] << 8);
--	/* The probability of underflow is less than 2% */
--	if (ticks > MAC_CLOCK_TICK - MAC_CLOCK_TICK / 50)
--		/* Check for pending timer interrupt in VIA1 IFR */
--		if (via1[vIFR] & 0x40) offset = TICK_SIZE;
--
--	ticks = MAC_CLOCK_TICK - ticks;
--	ticks = ticks * 10000L / MAC_CLOCK_TICK;
--
--	return (ticks + offset) * 1000;
--}
--
- /*
-  * Flush the L2 cache on Macs that have it by flipping
-  * the system into 24-bit mode for an instant.
-@@ -619,3 +570,56 @@ int via2_scsi_drq_pending(void)
- 	return via2[gIFR] & (1 << IRQ_IDX(IRQ_MAC_SCSIDRQ));
- }
- EXPORT_SYMBOL(via2_scsi_drq_pending);
-+
-+/* timer and clock source */
-+
-+#define VIA_CLOCK_FREQ     783360                /* VIA "phase 2" clock in Hz */
-+#define VIA_TIMER_INTERVAL (1000000 / HZ)        /* microseconds per jiffy */
-+#define VIA_TIMER_CYCLES   (VIA_CLOCK_FREQ / HZ) /* clock cycles per jiffy */
-+
-+#define VIA_TC             (VIA_TIMER_CYCLES - 2) /* including 0 and -1 */
-+#define VIA_TC_LOW         (VIA_TC & 0xFF)
-+#define VIA_TC_HIGH        (VIA_TC >> 8)
-+
-+void __init via_init_clock(irq_handler_t timer_routine)
-+{
-+	if (request_irq(IRQ_MAC_TIMER_1, timer_routine, 0, "timer", NULL)) {
-+		pr_err("Couldn't register %s interrupt\n", "timer");
-+		return;
-+	}
-+
-+	via1[vT1LL] = VIA_TC_LOW;
-+	via1[vT1LH] = VIA_TC_HIGH;
-+	via1[vT1CL] = VIA_TC_LOW;
-+	via1[vT1CH] = VIA_TC_HIGH;
-+	via1[vACR] |= 0x40;
-+}
-+
-+u32 mac_gettimeoffset(void)
-+{
-+	unsigned long flags;
-+	u8 count_high;
-+	u16 count, offset = 0;
-+
-+	/*
-+	 * Timer counter wrap-around is detected with the timer interrupt flag
-+	 * but reading the counter low byte (vT1CL) would reset the flag.
-+	 * Also, accessing both counter registers is essentially a data race.
-+	 * These problems are avoided by ignoring the low byte. Clock accuracy
-+	 * is 256 times worse (error can reach 0.327 ms) but CPU overhead is
-+	 * reduced by avoiding slow VIA register accesses.
-+	 */
-+
-+	local_irq_save(flags);
-+	count_high = via1[vT1CH];
-+	if (count_high == 0xFF)
-+		count_high = 0;
-+	if (count_high > 0 && (via1[vIFR] & VIA_TIMER_1_INT))
-+		offset = VIA_TIMER_CYCLES;
-+	local_irq_restore(flags);
-+
-+	count = count_high << 8;
-+	count = VIA_TIMER_CYCLES - count + offset;
-+
-+	return ((count * VIA_TIMER_INTERVAL) / VIA_TIMER_CYCLES) * 1000;
-+}
+ 	if (oh->_state != _HWMOD_STATE_INITIALIZED)
+ 		return -EINVAL;
 -- 
 2.20.1
 
