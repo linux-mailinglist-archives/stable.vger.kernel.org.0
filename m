@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC3513FFEE
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 251EC13FFDB
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:47:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729583AbgAPXq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:46:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
+        id S2390794AbgAPXVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:21:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390881AbgAPXV7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:21:59 -0500
+        id S2390793AbgAPXVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:21:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A63E2087E;
-        Thu, 16 Jan 2020 23:21:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC92C2072B;
+        Thu, 16 Jan 2020 23:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579216917;
-        bh=KnNF++O83Xcivapna5ZWxJ3A/nCVJ2nlj6WaYyZBObc=;
+        s=default; t=1579216877;
+        bh=++ojnTPojwk+HgVg78h7H+X+w8TmRkZDj7wnWMjCXaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JG4l0MhdL6qrS9D0QEDOHURKZn32BtDxJbBXJ07uoaYlwtzk+Tb7SUCDTiGcF5ZaU
-         /nS6H1HUhHwTsc7EF152yVcgij6DKelSUtxNqY01INMUFZp0xsLRn8CzEORiXc73cB
-         Jv+8jMCJloVcTeT0UixXQmc1SfhsUHMPXHDqQfj8=
+        b=U8Sgr8WDnVBItK8NLxYtql00eWpps7ERmgt7kskYnv1lW1zTgQQDCqW8jA4El9U3o
+         QPZNv9iCWGE5DTL39cVWim0n56bS1oLSTABsaLLvwN7jlTAAVO3kzK+EsX22S0KLTU
+         uTRmR+JOhuwi198ViqobuYZkS3Lk0/HCwFZQdsbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
         Borislav Petkov <bp@alien8.de>,
         "H . Peter Anvin" <hpa@zytor.com>,
         Kees Cook <keescook@chromium.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.4 047/203] syscalls/x86: Wire up COMPAT_SYSCALL_DEFINE0
-Date:   Fri, 17 Jan 2020 00:16:04 +0100
-Message-Id: <20200116231748.097040033@linuxfoundation.org>
+Subject: [PATCH 5.4 048/203] syscalls/x86: Use COMPAT_SYSCALL_DEFINE0 for IA32 (rt_)sigreturn
+Date:   Fri, 17 Jan 2020 00:16:05 +0100
+Message-Id: <20200116231748.186323489@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 References: <20200116231745.218684830@linuxfoundation.org>
@@ -50,98 +50,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-commit cf3b83e19d7c928e05a5d193c375463182c6029a upstream.
+commit 00198a6eaf66609de5e4de9163bb42c7ca9dd7b7 upstream.
 
-x86 has special handling for COMPAT_SYSCALL_DEFINEx, but there was
-no override for COMPAT_SYSCALL_DEFINE0.  Wire it up so that we can
-use it for rt_sigreturn.
+Use COMPAT_SYSCALL_DEFINE0 to define (rt_)sigreturn() syscalls to
+replace sys32_sigreturn() and sys32_rt_sigreturn(). This fixes indirect
+call mismatches with Control-Flow Integrity (CFI) checking.
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
 Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Acked-by: Andy Lutomirski <luto@kernel.org>
 Cc: Borislav Petkov <bp@alien8.de>
 Cc: H . Peter Anvin <hpa@zytor.com>
 Cc: Kees Cook <keescook@chromium.org>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191008224049.115427-3-samitolvanen@google.com
+Link: https://lkml.kernel.org/r/20191008224049.115427-4-samitolvanen@google.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/syscall_wrapper.h |   32 ++++++++++++++++++++++++++++++--
- 1 file changed, 30 insertions(+), 2 deletions(-)
+ arch/x86/entry/syscalls/syscall_32.tbl |    4 ++--
+ arch/x86/ia32/ia32_signal.c            |    5 +++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
---- a/arch/x86/include/asm/syscall_wrapper.h
-+++ b/arch/x86/include/asm/syscall_wrapper.h
-@@ -28,13 +28,21 @@
-  * kernel/sys_ni.c and SYS_NI in kernel/time/posix-stubs.c to cover this
-  * case as well.
-  */
-+#define __IA32_COMPAT_SYS_STUB0(x, name)				\
-+	asmlinkage long __ia32_compat_sys_##name(const struct pt_regs *regs);\
-+	ALLOW_ERROR_INJECTION(__ia32_compat_sys_##name, ERRNO);		\
-+	asmlinkage long __ia32_compat_sys_##name(const struct pt_regs *regs)\
-+	{								\
-+		return __se_compat_sys_##name();			\
-+	}
-+
- #define __IA32_COMPAT_SYS_STUBx(x, name, ...)				\
- 	asmlinkage long __ia32_compat_sys##name(const struct pt_regs *regs);\
- 	ALLOW_ERROR_INJECTION(__ia32_compat_sys##name, ERRNO);		\
- 	asmlinkage long __ia32_compat_sys##name(const struct pt_regs *regs)\
- 	{								\
- 		return __se_compat_sys##name(SC_IA32_REGS_TO_ARGS(x,__VA_ARGS__));\
--	}								\
-+	}
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -130,7 +130,7 @@
+ 116	i386	sysinfo			sys_sysinfo			__ia32_compat_sys_sysinfo
+ 117	i386	ipc			sys_ipc				__ia32_compat_sys_ipc
+ 118	i386	fsync			sys_fsync			__ia32_sys_fsync
+-119	i386	sigreturn		sys_sigreturn			sys32_sigreturn
++119	i386	sigreturn		sys_sigreturn			__ia32_compat_sys_sigreturn
+ 120	i386	clone			sys_clone			__ia32_compat_sys_x86_clone
+ 121	i386	setdomainname		sys_setdomainname		__ia32_sys_setdomainname
+ 122	i386	uname			sys_newuname			__ia32_sys_newuname
+@@ -184,7 +184,7 @@
+ 170	i386	setresgid		sys_setresgid16			__ia32_sys_setresgid16
+ 171	i386	getresgid		sys_getresgid16			__ia32_sys_getresgid16
+ 172	i386	prctl			sys_prctl			__ia32_sys_prctl
+-173	i386	rt_sigreturn		sys_rt_sigreturn		sys32_rt_sigreturn
++173	i386	rt_sigreturn		sys_rt_sigreturn		__ia32_compat_sys_rt_sigreturn
+ 174	i386	rt_sigaction		sys_rt_sigaction		__ia32_compat_sys_rt_sigaction
+ 175	i386	rt_sigprocmask		sys_rt_sigprocmask		__ia32_compat_sys_rt_sigprocmask
+ 176	i386	rt_sigpending		sys_rt_sigpending		__ia32_compat_sys_rt_sigpending
+--- a/arch/x86/ia32/ia32_signal.c
++++ b/arch/x86/ia32/ia32_signal.c
+@@ -21,6 +21,7 @@
+ #include <linux/personality.h>
+ #include <linux/compat.h>
+ #include <linux/binfmts.h>
++#include <linux/syscalls.h>
+ #include <asm/ucontext.h>
+ #include <linux/uaccess.h>
+ #include <asm/fpu/internal.h>
+@@ -118,7 +119,7 @@ static int ia32_restore_sigcontext(struc
+ 	return err;
+ }
  
- #define __IA32_SYS_STUBx(x, name, ...)					\
- 	asmlinkage long __ia32_sys##name(const struct pt_regs *regs);	\
-@@ -76,15 +84,24 @@
-  * of the x86-64-style parameter ordering of x32 syscalls. The syscalls common
-  * with x86_64 obviously do not need such care.
-  */
-+#define __X32_COMPAT_SYS_STUB0(x, name, ...)				\
-+	asmlinkage long __x32_compat_sys_##name(const struct pt_regs *regs);\
-+	ALLOW_ERROR_INJECTION(__x32_compat_sys_##name, ERRNO);		\
-+	asmlinkage long __x32_compat_sys_##name(const struct pt_regs *regs)\
-+	{								\
-+		return __se_compat_sys_##name();\
-+	}
-+
- #define __X32_COMPAT_SYS_STUBx(x, name, ...)				\
- 	asmlinkage long __x32_compat_sys##name(const struct pt_regs *regs);\
- 	ALLOW_ERROR_INJECTION(__x32_compat_sys##name, ERRNO);		\
- 	asmlinkage long __x32_compat_sys##name(const struct pt_regs *regs)\
- 	{								\
- 		return __se_compat_sys##name(SC_X86_64_REGS_TO_ARGS(x,__VA_ARGS__));\
--	}								\
-+	}
+-asmlinkage long sys32_sigreturn(void)
++COMPAT_SYSCALL_DEFINE0(sigreturn)
+ {
+ 	struct pt_regs *regs = current_pt_regs();
+ 	struct sigframe_ia32 __user *frame = (struct sigframe_ia32 __user *)(regs->sp-8);
+@@ -144,7 +145,7 @@ badframe:
+ 	return 0;
+ }
  
- #else /* CONFIG_X86_X32 */
-+#define __X32_COMPAT_SYS_STUB0(x, name)
- #define __X32_COMPAT_SYS_STUBx(x, name, ...)
- #endif /* CONFIG_X86_X32 */
- 
-@@ -95,6 +112,17 @@
-  * mapping of registers to parameters, we need to generate stubs for each
-  * of them.
-  */
-+#define COMPAT_SYSCALL_DEFINE0(name)					\
-+	static long __se_compat_sys_##name(void);			\
-+	static inline long __do_compat_sys_##name(void);		\
-+	__IA32_COMPAT_SYS_STUB0(x, name)				\
-+	__X32_COMPAT_SYS_STUB0(x, name)					\
-+	static long __se_compat_sys_##name(void)			\
-+	{								\
-+		return __do_compat_sys_##name();			\
-+	}								\
-+	static inline long __do_compat_sys_##name(void)
-+
- #define COMPAT_SYSCALL_DEFINEx(x, name, ...)					\
- 	static long __se_compat_sys##name(__MAP(x,__SC_LONG,__VA_ARGS__));	\
- 	static inline long __do_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));\
+-asmlinkage long sys32_rt_sigreturn(void)
++COMPAT_SYSCALL_DEFINE0(rt_sigreturn)
+ {
+ 	struct pt_regs *regs = current_pt_regs();
+ 	struct rt_sigframe_ia32 __user *frame;
 
 
