@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB0E13F2C0
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:37:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AF8E13F2B7
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:37:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391721AbgAPShf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:37:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56224 "EHLO mail.kernel.org"
+        id S1732591AbgAPRMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:12:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390566AbgAPRMs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:12:48 -0500
+        id S1729521AbgAPRMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:12:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D72BB20684;
-        Thu, 16 Jan 2020 17:12:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B30A246AB;
+        Thu, 16 Jan 2020 17:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194767;
-        bh=PAz7ZqudbFdxvDWTEGwpjpQR1rAd4t4vy1yzy9d5A40=;
+        s=default; t=1579194769;
+        bh=hVLeEUaOeMMSd2tkkAvEA9VjNWHrwdwc57q7m5N+ncE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WUo1qm1s0PREpKIxvHFoN7rzAMcJxTujMkfBJqmhfhdGmCmdmvaVv6s4WyYM9FOO6
-         11s5uGh8MyjyjBA/NHlpNNY9vuHxc+kpTBwSm60zxYbM+LzqnPb6LKxrlsQdgBklrU
-         Aeh5PnpKPYVv9QwWqzy9cTBcxpo6kqOhoXMNUK3M=
+        b=UkVO47LnPojkPZzkoB5s+FH83RHkcqm6EElDRbtJlO63lq8s5Nal07DmrLnKUpMsf
+         cRzJ9WlNAySIJpCzIC9RxKvWwWaIfnYdB+6QOffz7rtkWudVgCK+lH9v2WtY61mc54
+         snEZnX+R+eBXW7Dd4IXDrP0uU9NWff9axV9doSMg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandra Winter <wintera@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
+Cc:     YueHaibing <yuehaibing@huawei.com>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 587/671] s390/qeth: Fix initialization of vnicc cmd masks during set online
-Date:   Thu, 16 Jan 2020 12:03:45 -0500
-Message-Id: <20200116170509.12787-324-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 588/671] act_mirred: Fix mirred_init_module error handling
+Date:   Thu, 16 Jan 2020 12:03:46 -0500
+Message-Id: <20200116170509.12787-325-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -44,49 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit be40a86c319706f90caca144343c64743c32b953 ]
+[ Upstream commit 11c9a7d38af524217efb7a176ad322b97ac2f163 ]
 
-Without this patch, a command bit in the supported commands mask is only
-ever set to unsupported during set online. If a command is ever marked as
-unsupported (e.g. because of error during qeth_l2_vnicc_query_cmds),
-subsequent successful initialization (offline/online) would not bring it
-back.
+If tcf_register_action failed, mirred_device_notifier
+should be unregistered.
 
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: 3b87956ea645 ("net sched: fix race in mirred device removal")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_l2_main.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/sched/act_mirred.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index cf3b15ebcf75..f86465da2422 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2359,11 +2359,15 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
- 			sup_cmds = 0;
- 			error = true;
- 		}
--		if (!(sup_cmds & IPA_VNICC_SET_TIMEOUT) ||
--		    !(sup_cmds & IPA_VNICC_GET_TIMEOUT))
-+		if ((sup_cmds & IPA_VNICC_SET_TIMEOUT) &&
-+		    (sup_cmds & IPA_VNICC_GET_TIMEOUT))
-+			card->options.vnicc.getset_timeout_sup |= vnicc;
-+		else
- 			card->options.vnicc.getset_timeout_sup &= ~vnicc;
--		if (!(sup_cmds & IPA_VNICC_ENABLE) ||
--		    !(sup_cmds & IPA_VNICC_DISABLE))
-+		if ((sup_cmds & IPA_VNICC_ENABLE) &&
-+		    (sup_cmds & IPA_VNICC_DISABLE))
-+			card->options.vnicc.set_char_sup |= vnicc;
-+		else
- 			card->options.vnicc.set_char_sup &= ~vnicc;
- 	}
- 	/* enforce assumed default values and recover settings, if changed  */
+diff --git a/net/sched/act_mirred.c b/net/sched/act_mirred.c
+index 399e3beae6cf..a30c17a28281 100644
+--- a/net/sched/act_mirred.c
++++ b/net/sched/act_mirred.c
+@@ -445,7 +445,11 @@ static int __init mirred_init_module(void)
+ 		return err;
+ 
+ 	pr_info("Mirror/redirect action on\n");
+-	return tcf_register_action(&act_mirred_ops, &mirred_net_ops);
++	err = tcf_register_action(&act_mirred_ops, &mirred_net_ops);
++	if (err)
++		unregister_netdevice_notifier(&mirred_device_notifier);
++
++	return err;
+ }
+ 
+ static void __exit mirred_cleanup_module(void)
 -- 
 2.20.1
 
