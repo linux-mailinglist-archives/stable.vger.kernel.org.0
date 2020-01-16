@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D18013FEC5
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:38:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C783F13FF5F
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 00:42:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391369AbgAPX3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 18:29:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36078 "EHLO mail.kernel.org"
+        id S1730372AbgAPXmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 18:42:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391366AbgAPX3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 18:29:54 -0500
+        id S2389546AbgAPX0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 18:26:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 390C9206D9;
-        Thu, 16 Jan 2020 23:29:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 006D32072E;
+        Thu, 16 Jan 2020 23:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579217393;
-        bh=EpbH0jM1qqpILirwYTaP+35s+uBkOLXxHRMn5MSJZVs=;
+        s=default; t=1579217202;
+        bh=kX37GmXtMftvg79iJNrFFU0voest/XQlIMKKYxjKyew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myQTrWUZaU3IoFb/iKIO8Ov1JDg1g+Gk85GCfGCVAOo3nXhTULW2i/bZsx+ottcrB
-         zrdioCB7LkxE89/91uQv5XmfGOOHIAddc4EEcsPQYNtGbubrgtjo+Do1xUsi6sHb2i
-         6h/So6lMFfqpBlDowSJBhR80ciebuGqUEvixHDyA=
+        b=VIe2GhJ0wQhOqlk1P/gR0FQkK4EoATZuf6umEDng9Ur/O2nr3zzlzhXZIkpe+CTvr
+         jFGwj3j5ulVC8Jpa5xaK6rAwm6XJ/5ujSds9ryZei8RrVD5r6sI8CGJHV1MC0rhbxo
+         PV3TYQD1N1phlmSAbcSFEyPXIgvPoqEK/VprTdr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 28/84] s390/qeth: fix false reporting of VNIC CHAR config failure
+        stable@vger.kernel.org, Huanpeng Xin <huanpeng.xin@unisoc.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 165/203] spi: sprd: Fix the incorrect SPI register
 Date:   Fri, 17 Jan 2020 00:18:02 +0100
-Message-Id: <20200116231716.994739626@linuxfoundation.org>
+Message-Id: <20200116231759.082586236@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200116231713.087649517@linuxfoundation.org>
-References: <20200116231713.087649517@linuxfoundation.org>
+In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
+References: <20200116231745.218684830@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+From: Huanpeng Xin <huanpeng.xin@unisoc.com>
 
-commit 68c57bfd52836e31bff33e5e1fc64029749d2c35 upstream.
+commit 5e9c5236b7b86779b53b762f7e66240c3f18314b upstream.
 
-Symptom: Error message "Configuring the VNIC characteristics failed"
-in dmesg whenever an OSA interface on z15 is set online.
+The original code used an incorrect SPI register to initialize the SPI
+controller in sprd_spi_init_hw(), thus fix it.
 
-The VNIC characteristics get re-programmed when setting a L2 device
-online. This follows the selected 'wanted' characteristics - with the
-exception that the INVISIBLE characteristic unconditionally gets
-switched off.
-
-For devices that don't support INVISIBLE (ie. OSA), the resulting
-IO failure raises a noisy error message
-("Configuring the VNIC characteristics failed").
-For IQD, INVISIBLE is off by default anyways.
-
-So don't unnecessarily special-case the INVISIBLE characteristic, and
-thereby suppress the misleading error message on OSA devices.
-
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e7d973a31c24 ("spi: sprd: Add SPI driver for Spreadtrum SC9860")
+Signed-off-by: Huanpeng Xin <huanpeng.xin@unisoc.com>
+Signed-off-by: Baolin Wang <baolin.wang7@gmail.com>
+Link: https://lore.kernel.org/r/b4f7f89ec0fdc595335687bfbd9f962213bc4a1d.1575443510.git.baolin.wang7@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/net/qeth_l2_main.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/spi/spi-sprd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2367,7 +2367,6 @@ static void qeth_l2_vnicc_init(struct qe
- 	error = qeth_l2_vnicc_recover_timeout(card, QETH_VNICC_LEARNING,
- 					      timeout);
- 	chars_tmp = card->options.vnicc.wanted_chars ^ QETH_VNICC_DEFAULT;
--	chars_tmp |= QETH_VNICC_BRIDGE_INVISIBLE;
- 	chars_len = sizeof(card->options.vnicc.wanted_chars) * BITS_PER_BYTE;
- 	for_each_set_bit(i, &chars_tmp, chars_len) {
- 		vnicc = BIT(i);
+--- a/drivers/spi/spi-sprd.c
++++ b/drivers/spi/spi-sprd.c
+@@ -674,7 +674,7 @@ static void sprd_spi_init_hw(struct sprd
+ 	u16 word_delay, interval;
+ 	u32 val;
+ 
+-	val = readl_relaxed(ss->base + SPRD_SPI_CTL7);
++	val = readl_relaxed(ss->base + SPRD_SPI_CTL0);
+ 	val &= ~(SPRD_SPI_SCK_REV | SPRD_SPI_NG_TX | SPRD_SPI_NG_RX);
+ 	/* Set default chip selection, clock phase and clock polarity */
+ 	val |= ss->hw_mode & SPI_CPHA ? SPRD_SPI_NG_RX : SPRD_SPI_NG_TX;
 
 
