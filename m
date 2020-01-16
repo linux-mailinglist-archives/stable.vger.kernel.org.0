@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E5A713E402
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:05:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E46113E406
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:05:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728512AbgAPRFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:05:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34246 "EHLO mail.kernel.org"
+        id S2388747AbgAPRFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:05:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388720AbgAPRF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:05:29 -0500
+        id S2388740AbgAPRFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:05:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A03E72077B;
-        Thu, 16 Jan 2020 17:05:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4079A24684;
+        Thu, 16 Jan 2020 17:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194328;
-        bh=A6Z7jOfd+OQTDKe1kq58OeNgsQqWUkVXWSp8srLhlIk=;
+        s=default; t=1579194331;
+        bh=Hv37BfS55KKDAbh7Qq/n5MYz80MnjEqtZFsgK6Mdv/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PzlqwGPB7jsNwvb30iPS+PEdmVSY0tLg/JxV9pvMNgpx6XGtj3oghgDvRhWfrNjM5
-         Auxk6GyzZ9E9+KTK0in3e3IhMghzUv3NKXEVqfzaWIEfVeoxOKT1ctIMNqkUubWl41
-         FeUX6Cox+5sET37hnvmBFRppgQh2NUSQJxR+RMRA=
+        b=AQ/uDMdir2IB3IrBlV2W3YTW8sv0wY7TTiSHV3sflENNBUKSmnS7P1pyACU8+cnJS
+         sUME1CAOQWUPYx/Veep3HNMjzg6eyPrnsBUnKAemLUQ6kh7KnFT0yYKwcQScsVmLC2
+         sm5wloc9N4aqok52LqwZSQWVTYNTj32bMD1aYgMI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matteo Croce <mcroce@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
+Cc:     Pi-Hsun Shih <pihsun@chromium.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 276/671] arm64/vdso: don't leak kernel addresses
-Date:   Thu, 16 Jan 2020 11:58:34 -0500
-Message-Id: <20200116170509.12787-13-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 278/671] rtc: mt6397: Don't call irq_dispose_mapping.
+Date:   Thu, 16 Jan 2020 11:58:36 -0500
+Message-Id: <20200116170509.12787-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -45,39 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@redhat.com>
+From: Pi-Hsun Shih <pihsun@chromium.org>
 
-[ Upstream commit 0f1bf7e39822476b2f921435cf990f67a61f5f92 ]
+[ Upstream commit 24db953e942bd7a983e97892bdaddf69d00b1199 ]
 
-Since commit ad67b74d2469d9b8 ("printk: hash addresses printed with %p"),
-two obfuscated kernel pointer are printed at every boot:
+The IRQ mapping was changed to not being created in the rtc-mt6397
+driver, so the irq_dispose_mapping is no longer needed.
+Also the dev_id passed to free_irq should be the same as the last
+argument passed to request_threaded_irq.
+This prevents a "Trying to free already-free IRQ 274" warning when
+unbinding the driver.
 
-    vdso: 2 pages (1 code @ (____ptrval____), 1 data @ (____ptrval____))
-
-Remove the the print completely, as it's useless without the addresses.
-
-Fixes: ad67b74d2469d9b8 ("printk: hash addresses printed with %p")
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Matteo Croce <mcroce@redhat.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Fixes: e695d3a0b3b3 ("mfd: mt6397: Create irq mappings in mfd core driver")
+Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/vdso.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/rtc/rtc-mt6397.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
-index ec0bb588d755..42b7082029e1 100644
---- a/arch/arm64/kernel/vdso.c
-+++ b/arch/arm64/kernel/vdso.c
-@@ -146,8 +146,6 @@ static int __init vdso_init(void)
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index e9a25ec4d434..c06cf5202e02 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -343,7 +343,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+ 			rtc->irq, ret);
+-		goto out_dispose_irq;
++		return ret;
  	}
  
- 	vdso_pages = (vdso_end - vdso_start) >> PAGE_SHIFT;
--	pr_info("vdso: %ld pages (%ld code @ %p, %ld data @ %p)\n",
--		vdso_pages + 1, vdso_pages, vdso_start, 1L, vdso_data);
+ 	device_init_wakeup(&pdev->dev, 1);
+@@ -359,9 +359,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	return 0;
  
- 	/* Allocate the vDSO pagelist, plus a page for the data. */
- 	vdso_pagelist = kcalloc(vdso_pages + 1, sizeof(struct page *),
+ out_free_irq:
+-	free_irq(rtc->irq, rtc->rtc_dev);
+-out_dispose_irq:
+-	irq_dispose_mapping(rtc->irq);
++	free_irq(rtc->irq, rtc);
+ 	return ret;
+ }
+ 
+@@ -369,8 +367,7 @@ static int mtk_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
+ 
+-	free_irq(rtc->irq, rtc->rtc_dev);
+-	irq_dispose_mapping(rtc->irq);
++	free_irq(rtc->irq, rtc);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
