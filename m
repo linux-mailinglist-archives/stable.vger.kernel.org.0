@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1646313F25B
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:34:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD11413F251
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 19:34:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391857AbgAPSev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 13:34:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59298 "EHLO mail.kernel.org"
+        id S2436784AbgAPSeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 13:34:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729635AbgAPRYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:24:33 -0500
+        id S2391666AbgAPRYf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:24:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE12224684;
-        Thu, 16 Jan 2020 17:24:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A367D2469F;
+        Thu, 16 Jan 2020 17:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195473;
-        bh=UvvU2ACvuYDR0k0CFkDRQnXCIO/igM/KM/2IdQE1i8c=;
+        s=default; t=1579195474;
+        bh=zh/nQzK4rhPcEdCNNJRcqVr+AghfOqS52DMQnXrB+/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mtrupOC15eWroqE8Gz4QSAL5gbfI8ogpc1G2NToM9ow2/F0XgH7TApXU/FPg2h7Kr
-         aCPCK4+7NGxC3R4z802LHK7OyK9xD28ssjuUQktCKjvzqJhUJ7ZHwggclxNMIHBIWO
-         dq9u29cWahlRy+kt4hdHcblgAad1L1C7ZYQFueDQ=
+        b=jKiXJwlymw/XHq0A6bXcbwKrFJAqBs2xBiugKixCluE/NDhSGQKXmw+9ZWy+gDzUL
+         FJkvevy+/lkZKJQ0L51AqasUyt1IO74y644FbZPVBLUmRHtC4uHkZKhfi+CQHjzYZp
+         L5R7zFvspa090R3GY9nRYU5m6ry96pitJLVPTFig=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Zapolskiy <vz@mleia.com>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 079/371] ARM: dts: lpc32xx: phy3250: fix SD card regulator voltage
-Date:   Thu, 16 Jan 2020 12:19:11 -0500
-Message-Id: <20200116172403.18149-22-sashal@kernel.org>
+Cc:     Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 080/371] iwlwifi: mvm: fix RSS config command
+Date:   Thu, 16 Jan 2020 12:19:12 -0500
+Message-Id: <20200116172403.18149-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -42,37 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vz@mleia.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit dc141b99fc36cf910a1d8d5ee30f43f2442fd1bd ]
+[ Upstream commit 608dce95db10b8ee1a26dbce3f60204bb69812a5 ]
 
-The fixed voltage regulator on Phytec phyCORE-LPC3250 board, which
-supplies SD/MMC card's power, has a constant output voltage level
-of either 3.15V or 3.3V, the actual value depends on JP4 position,
-the power rail is referenced as VCC_SDIO in the board hardware manual.
+The hash mask is a bitmap, so we should use BIT() on
+the enum values.
 
-Fixes: d06670e96267 ("arm: dts: phy3250: add SD fixed regulator")
-Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Fixes: 43413a975d06 ("iwlwifi: mvm: support rss queues configuration command")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/lpc3250-phy3250.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/lpc3250-phy3250.dts b/arch/arm/boot/dts/lpc3250-phy3250.dts
-index b7bd3a110a8d..dd0bdf765599 100644
---- a/arch/arm/boot/dts/lpc3250-phy3250.dts
-+++ b/arch/arm/boot/dts/lpc3250-phy3250.dts
-@@ -49,8 +49,8 @@
- 		sd_reg: regulator@2 {
- 			compatible = "regulator-fixed";
- 			regulator-name = "sd_reg";
--			regulator-min-microvolt = <1800000>;
--			regulator-max-microvolt = <1800000>;
-+			regulator-min-microvolt = <3300000>;
-+			regulator-max-microvolt = <3300000>;
- 			gpio = <&gpio 5 5 0>;
- 			enable-active-high;
- 		};
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 78228f870f8f..754dcc1c1f40 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -107,12 +107,12 @@ static int iwl_send_rss_cfg_cmd(struct iwl_mvm *mvm)
+ 	int i;
+ 	struct iwl_rss_config_cmd cmd = {
+ 		.flags = cpu_to_le32(IWL_RSS_ENABLE),
+-		.hash_mask = IWL_RSS_HASH_TYPE_IPV4_TCP |
+-			     IWL_RSS_HASH_TYPE_IPV4_UDP |
+-			     IWL_RSS_HASH_TYPE_IPV4_PAYLOAD |
+-			     IWL_RSS_HASH_TYPE_IPV6_TCP |
+-			     IWL_RSS_HASH_TYPE_IPV6_UDP |
+-			     IWL_RSS_HASH_TYPE_IPV6_PAYLOAD,
++		.hash_mask = BIT(IWL_RSS_HASH_TYPE_IPV4_TCP) |
++			     BIT(IWL_RSS_HASH_TYPE_IPV4_UDP) |
++			     BIT(IWL_RSS_HASH_TYPE_IPV4_PAYLOAD) |
++			     BIT(IWL_RSS_HASH_TYPE_IPV6_TCP) |
++			     BIT(IWL_RSS_HASH_TYPE_IPV6_UDP) |
++			     BIT(IWL_RSS_HASH_TYPE_IPV6_PAYLOAD),
+ 	};
+ 
+ 	if (mvm->trans->num_rx_queues == 1)
 -- 
 2.20.1
 
