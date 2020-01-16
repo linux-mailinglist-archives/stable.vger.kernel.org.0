@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04A1E13E92F
-	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11DA813E927
+	for <lists+stable@lfdr.de>; Thu, 16 Jan 2020 18:36:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404923AbgAPRg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 12:36:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49346 "EHLO mail.kernel.org"
+        id S2393118AbgAPRg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 12:36:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393076AbgAPRfJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:35:09 -0500
+        id S2393078AbgAPRfK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:35:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67A34246A9;
-        Thu, 16 Jan 2020 17:35:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 999BC246BA;
+        Thu, 16 Jan 2020 17:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196109;
-        bh=4SRJb8qcVjP2QHL9Zdeu2yEEZmxwQyxCQJ9qOUOh2i0=;
+        s=default; t=1579196110;
+        bh=nZ+rhucHjfZ5qUxINywK+hynvejPhBJ35eVjtPq6reg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmvqJbGs4q8fSDMfN64MGx8yTG3oOZiP45NEimjPar4QoiyyP9Kxf6emsgT2TrInQ
-         NYwr8U4XXTAU2VnzmmLJSIoRw6tSmyh5ssmnrDxlu1oZntbESojCqIIBVJJUY2BB+t
-         qEwH1N0FMgFiJp5L6tJFFuaC1OBPCeG/FZODLt8I=
+        b=2Bt3Ydt+R55oqZtA7yQhnqCKgdj8ipZTt3OjNLU2xX3y62AM3i2hRzCXRsrJ2GD6d
+         E8RYY1BBfe3621icqMEIxgJW5aiC9iW5PcEfw38gjX9sFRkiPoWCFzcXMGOaFctFfm
+         Yej/GHBrm3M3e5BbgoocVvuBcee9hAcVPI3f+vJA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Simon Horman <horms+renesas@verge.net.au>,
         Sasha Levin <sashal@kernel.org>,
         linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 018/251] pinctrl: sh-pfc: sh73a0: Add missing TO pin to tpu4_to3 group
-Date:   Thu, 16 Jan 2020 12:30:52 -0500
-Message-Id: <20200116173445.21385-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 019/251] pinctrl: sh-pfc: r8a7794: Remove bogus IPSR9 field
+Date:   Thu, 16 Jan 2020 12:30:53 -0500
+Message-Id: <20200116173445.21385-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116173445.21385-1-sashal@kernel.org>
 References: <20200116173445.21385-1-sashal@kernel.org>
@@ -46,33 +46,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 124cde98f856b6206b804acbdec3b7c80f8c3427 ]
+[ Upstream commit 6a6c195d98a1a5e70faa87f594d7564af1dd1bed ]
 
-The tpu4_to3_mux[] array contains the TPU4TO3 pin mark, but the
-tpu4_to3_pins[] array lacks the corresponding pin number.
+The Peripheral Function Select Register 9 contains 12 fields, but the
+variable field descriptor contains a 13th bogus field of 3 bits.
 
-Add the missing pin number, for non-GPIO pin F26.
-
-Fixes: 5da4eb049de803c7 ("sh-pfc: sh73a0: Add TPU pin groups and functions")
+Fixes: 43c4436e2f1890a7 ("pinctrl: sh-pfc: add R8A7794 PFC support")
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sh-pfc/pfc-sh73a0.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/sh-pfc/pfc-r8a7794.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sh-pfc/pfc-sh73a0.c b/drivers/pinctrl/sh-pfc/pfc-sh73a0.c
-index d25e6f674d0a..f8fbedb46585 100644
---- a/drivers/pinctrl/sh-pfc/pfc-sh73a0.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-sh73a0.c
-@@ -3086,6 +3086,7 @@ static const unsigned int tpu4_to2_mux[] = {
- };
- static const unsigned int tpu4_to3_pins[] = {
- 	/* TO */
-+	PIN_NUMBER(6, 26),
- };
- static const unsigned int tpu4_to3_mux[] = {
- 	TPU4TO3_MARK,
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7794.c b/drivers/pinctrl/sh-pfc/pfc-r8a7794.c
+index ef093ac0cf2f..fe8c9c24634d 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7794.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7794.c
+@@ -4826,7 +4826,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
+ 		FN_AVB_MDC, FN_SSI_SDATA6_B, 0, 0, }
+ 	},
+ 	{ PINMUX_CFG_REG_VAR("IPSR9", 0xE6060044, 32,
+-			     1, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3) {
++			     1, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3) {
+ 		/* IP9_31 [1] */
+ 		0, 0,
+ 		/* IP9_30_28 [3] */
 -- 
 2.20.1
 
