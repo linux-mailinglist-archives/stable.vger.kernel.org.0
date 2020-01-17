@@ -2,88 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0DFA1414C8
-	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 00:18:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59DA71414DD
+	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 00:38:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730153AbgAQXSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 18:18:21 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:53796 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729354AbgAQXSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 18:18:21 -0500
-Received: by mail-pj1-f66.google.com with SMTP id n96so3804947pjc.3
-        for <stable@vger.kernel.org>; Fri, 17 Jan 2020 15:18:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=VLG8/maPK56SKNLr2yTnp4t8L0TJHtYxqLK8FSBIkjM=;
-        b=vy72WAyzSSQasq9HbUjrg3RmYtI0feBoyIRzXbcaqQasdTSoh8bCrZS8wj1qS5OHDb
-         ix+JfCHG/FPIkn3ARXwVJ5pihxlwF0EWzuqY8J14IqUpdeFxx7AsAykB2E3xX3mOvNBA
-         A5Su205h1jqTioIim81JdQb/+gZXY6nnPxfpDbBB+/MJkk8vCbNpbk31oSxcihMauRs/
-         5kUeoF2Pt9b1xQ7bWG9iE12gAjuJhVXC/A1N1wIY93iMdDj6tRVPbPQ/IsUYDqOTklSI
-         UgwobEyvB3G2xHgMgOeD8xBSY/lTb79pn1iFqfQpEZdLcZ8P+e2CabEO6lk7YCKaWhAu
-         HKRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=VLG8/maPK56SKNLr2yTnp4t8L0TJHtYxqLK8FSBIkjM=;
-        b=Yqrc5/K7oZibvOFX5jjZiQKLcpdfUZS/ITLJyRxZ299NwXCoc4OKySW21YfYhgVczG
-         djOtCTQ9gyFDDdu2OpqflKCeODbHYLB+0Fq98Zi1Nf5QXauWu9KsSE2mtRYwaFmXnNyy
-         ltteaN42GjTIfak5lJftrXTWDiPQcv1JNl6lVvYmsjR+qVNfEXMC3BUy6nO2ueLwnYjU
-         PvWJ182t/dX5lBTR4X5vW+w0r+qrPr9MoQkwgYEvVnZgwrhECeB2fEMrar/Dk1Rdac0x
-         L06Br0CuB76lnqVOsS8JunioOfanHgQg8ufY8aBrLABD61XnAGpIgPXNPIMSQZDztrOP
-         5Y3A==
-X-Gm-Message-State: APjAAAVtsPpNBQWRQg4S8g3nnxoK65/Jcv6J9oCrtjwPfh/6ygF25t7d
-        GBVfRLSRDr4+uE2rrTqd6CzXng==
-X-Google-Smtp-Source: APXvYqyav0hbbsufO88stfLwuT5j7l9xrp4RSPyN0zoqp/A7wZAkTVx0csOHgCvKj9+MAqieRPBHhQ==
-X-Received: by 2002:a17:90a:246d:: with SMTP id h100mr8365827pje.127.1579303100597;
-        Fri, 17 Jan 2020 15:18:20 -0800 (PST)
-Received: from debian ([122.178.20.229])
-        by smtp.gmail.com with ESMTPSA id z64sm31598159pfz.23.2020.01.17.15.18.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jan 2020 15:18:19 -0800 (PST)
-Date:   Sat, 18 Jan 2020 04:48:13 +0530
-From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        jeffrin@rajagiritech.edu.in
-Subject: Re: [PATCH 5.4 000/203] 5.4.13-stable review
-Message-ID: <20200117231813.GA2799@debian>
-References: <20200116231745.218684830@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
+        id S1730232AbgAQXi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 18:38:29 -0500
+Received: from mga14.intel.com ([192.55.52.115]:62782 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730117AbgAQXi3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jan 2020 18:38:29 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jan 2020 15:38:28 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,332,1574150400"; 
+   d="scan'208";a="249407880"
+Received: from richard.sh.intel.com (HELO localhost) ([10.239.159.54])
+  by fmsmga004.fm.intel.com with ESMTP; 17 Jan 2020 15:38:26 -0800
+From:   Wei Yang <richardw.yang@linux.intel.com>
+To:     hannes@cmpxchg.org, mhocko@kernel.org, vdavydov.dev@gmail.com,
+        akpm@linux-foundation.org, ktkhai@virtuozzo.com,
+        kirill.shutemov@linux.intel.com, yang.shi@linux.alibaba.com
+Cc:     cgroups@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
+        rientjes@google.com, Wei Yang <richardw.yang@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [Patch v4] mm: thp: remove the defer list related code since this will not happen
+Date:   Sat, 18 Jan 2020 07:38:36 +0800
+Message-Id: <20200117233836.3434-1-richardw.yang@linux.intel.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 17, 2020 at 12:15:17AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.13 release.
-> There are 203 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 18 Jan 2020 23:16:00 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.13-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
+If compound is true, this means it is a PMD mapped THP. Which implies
+the page is not linked to any defer list. So the first code chunk will
+not be executed.
 
-hello,
+Also with this reason, it would not be proper to add this page to a
+defer list. So the second code chunk is not correct.
 
-compiled and booted 5.4.13-rc1+ . No regressions according to "sudo dmesg -l err"
+Based on this, we should remove the defer list related code.
 
---
-software engineer
-rajagiri school of engineering and technology
+Fixes: 87eaceb3faa5 ("mm: thp: make deferred split shrinker memcg aware")
+
+Signed-off-by: Wei Yang <richardw.yang@linux.intel.com>
+Suggested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>    [5.4+]
+
+---
+v4:
+  * finally we identified the related code is not necessary and not
+    correct, just remove it
+  * thanks to Kirill T first spot some problem
+v3:
+  * remove all review/ack tag since rewrite the changelog
+  * use deferred_split_huge_page as the example of race
+  * add cc stable 5.4+ tag as suggested by David Rientjes
+
+v2:
+  * move check on compound outside suggested by Alexander
+  * an example of the race condition, suggested by Michal
+---
+ mm/memcontrol.c | 18 ------------------
+ 1 file changed, 18 deletions(-)
+
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index 6c83cf4ed970..27c231bf4565 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -5340,14 +5340,6 @@ static int mem_cgroup_move_account(struct page *page,
+ 		__mod_lruvec_state(to_vec, NR_WRITEBACK, nr_pages);
+ 	}
+ 
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-	if (compound && !list_empty(page_deferred_list(page))) {
+-		spin_lock(&from->deferred_split_queue.split_queue_lock);
+-		list_del_init(page_deferred_list(page));
+-		from->deferred_split_queue.split_queue_len--;
+-		spin_unlock(&from->deferred_split_queue.split_queue_lock);
+-	}
+-#endif
+ 	/*
+ 	 * It is safe to change page->mem_cgroup here because the page
+ 	 * is referenced, charged, and isolated - we can't race with
+@@ -5357,16 +5349,6 @@ static int mem_cgroup_move_account(struct page *page,
+ 	/* caller should have done css_get */
+ 	page->mem_cgroup = to;
+ 
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-	if (compound && list_empty(page_deferred_list(page))) {
+-		spin_lock(&to->deferred_split_queue.split_queue_lock);
+-		list_add_tail(page_deferred_list(page),
+-			      &to->deferred_split_queue.split_queue);
+-		to->deferred_split_queue.split_queue_len++;
+-		spin_unlock(&to->deferred_split_queue.split_queue_lock);
+-	}
+-#endif
+-
+ 	spin_unlock_irqrestore(&from->move_lock, flags);
+ 
+ 	ret = 0;
+-- 
+2.17.1
+
