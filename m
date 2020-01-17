@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 490AB141101
+	by mail.lfdr.de (Postfix) with ESMTP id C6C09141102
 	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 19:43:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728600AbgAQSnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 13:43:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35700 "EHLO mail.kernel.org"
+        id S1729335AbgAQSnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 13:43:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726897AbgAQSnn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Jan 2020 13:43:43 -0500
+        id S1729325AbgAQSnp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jan 2020 13:43:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EF872082F;
-        Fri, 17 Jan 2020 18:43:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBC922083E;
+        Fri, 17 Jan 2020 18:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579286622;
-        bh=Dxi/D+Yzl4h9zID/qVqiGrTOiUzbJlVqfpgpmlYpuBI=;
+        s=default; t=1579286625;
+        bh=Eqh//VT3iMNo9nABUp/sLL5XmyL3OlCJ6qnl4cSi9mw=;
         h=Subject:To:From:Date:From;
-        b=Glni6kRzfr6M/q+paKTmEnZw4V3QqvdsfwYAQVBxszsY9Uzzcxlk1jWX/iEKvqZU0
-         Qubwp/ty2UF9BNFlWVg2cTEe+lB1kQqusJl+f5BF3MypU135TWuS/g3hJ92hEVqS06
-         NPPDObSWw0e2phTXSEcLk6NdM1vDqIR8sEa1U9rc=
-Subject: patch "USB: serial: opticon: fix control-message timeouts" added to usb-linus
+        b=ZiVadN0SsItmKDJCRLWAkXSyj8Kh3BBHPhsSS6b2OKuLTHQoyh4fSkIgN4MyP9p77
+         jnmvxjhBWGgnXgNZHDc11BhlvlKh6a7vlo19fQIUgAeaW1qNMQWF86y6jM0RT+Y5nx
+         FK2GWDYEKoLMjxqmfdC7Aa0SM7FvrHlKQFmyWuB8=
+Subject: patch "USB: serial: suppress driver bind attributes" added to usb-linus
 To:     johan@kernel.org, gregkh@linuxfoundation.org,
-        martin.jansen@opticon.com, stable@vger.kernel.org
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 Jan 2020 19:43:38 +0100
-Message-ID: <15792866183130@kroah.com>
+Date:   Fri, 17 Jan 2020 19:43:39 +0100
+Message-ID: <15792866191535@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: serial: opticon: fix control-message timeouts
+    USB: serial: suppress driver bind attributes
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,41 +55,43 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5e28055f340275a8616eee88ef19186631b4d136 Mon Sep 17 00:00:00 2001
+From fdb838efa31e1ed9a13ae6ad0b64e30fdbd00570 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
-Date: Mon, 13 Jan 2020 18:22:13 +0100
-Subject: USB: serial: opticon: fix control-message timeouts
+Date: Thu, 16 Jan 2020 17:07:05 +0100
+Subject: USB: serial: suppress driver bind attributes
 
-The driver was issuing synchronous uninterruptible control requests
-without using a timeout. This could lead to the driver hanging
-on open() or tiocmset() due to a malfunctioning (or malicious) device
-until the device is physically disconnected.
+USB-serial drivers must not be unbound from their ports before the
+corresponding USB driver is unbound from the parent interface so
+suppress the bind and unbind attributes.
 
-The USB upper limit of five seconds per request should be more than
-enough.
+Unbinding a serial driver while it's port is open is a sure way to
+trigger a crash as any driver state is released on unbind while port
+hangup is handled on the parent USB interface level. Drivers for
+multiport devices where ports share a resource such as an interrupt
+endpoint also generally cannot handle individual ports going away.
 
-Fixes: 309a057932ab ("USB: opticon: add rts and cts support")
-Cc: stable <stable@vger.kernel.org>     # 2.6.39
-Cc: Martin Jansen <martin.jansen@opticon.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/serial/opticon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/usb-serial.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/serial/opticon.c b/drivers/usb/serial/opticon.c
-index cb7aac9cd9e7..ed2b4e6dca38 100644
---- a/drivers/usb/serial/opticon.c
-+++ b/drivers/usb/serial/opticon.c
-@@ -113,7 +113,7 @@ static int send_control_msg(struct usb_serial_port *port, u8 requesttype,
- 	retval = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
- 				requesttype,
- 				USB_DIR_OUT|USB_TYPE_VENDOR|USB_RECIP_INTERFACE,
--				0, 0, buffer, 1, 0);
-+				0, 0, buffer, 1, USB_CTRL_SET_TIMEOUT);
- 	kfree(buffer);
+diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
+index 8f066bb55d7d..dc7a65b9ec98 100644
+--- a/drivers/usb/serial/usb-serial.c
++++ b/drivers/usb/serial/usb-serial.c
+@@ -1317,6 +1317,9 @@ static int usb_serial_register(struct usb_serial_driver *driver)
+ 		return -EINVAL;
+ 	}
  
- 	if (retval < 0)
++	/* Prevent individual ports from being unbound. */
++	driver->driver.suppress_bind_attrs = true;
++
+ 	usb_serial_operations_init(driver);
+ 
+ 	/* Add this device to our list of devices */
 -- 
 2.25.0
 
