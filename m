@@ -2,91 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2A1140589
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 09:35:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F9131405D9
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 10:11:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729690AbgAQIfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 03:35:22 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52415 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727002AbgAQIfV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 03:35:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579250119;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8Yhtv60kTBgLbtrf5+KxVHz2BHqtcVn/8f147NS0+So=;
-        b=Xo/AyUGOolNmks53vZoo/3ptjKKC+xDJa4HBzCh2JqM9tpkVQkTgrqQ4nUh0FaQlZYCPOx
-        HrcYF+K/6UDfexubAoYeIC9hPzKTvYywVDxQTTySpuCgsjJgM03+aYVLJDf8tUXElzilA9
-        zk1oSx+zCYciNdPt8m+UXbt7Mv/9ryE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-385-px9lVYfWP7CngCFPjmpKhg-1; Fri, 17 Jan 2020 03:35:13 -0500
-X-MC-Unique: px9lVYfWP7CngCFPjmpKhg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 99F548017CC;
-        Fri, 17 Jan 2020 08:35:12 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 90E4B10016EB;
-        Fri, 17 Jan 2020 08:35:12 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id DB8431809563;
-        Fri, 17 Jan 2020 08:35:11 +0000 (UTC)
-Date:   Fri, 17 Jan 2020 03:35:11 -0500 (EST)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     Cyril Hrubis <chrubis@suse.cz>
-Cc:     Rachel Sibley <rasibley@redhat.com>, Jianwen Ji <jiji@redhat.com>,
-        Hangbin Liu <haliu@redhat.com>,
-        Memory Management <mm-qe@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Jianlin Shi <jishi@redhat.com>,
-        CKI Project <cki-project@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>
-Message-ID: <1477632721.2420697.1579250111441.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20200116153741.GA558@rei>
-References: <cki.FA900DB853.LBD049H627@redhat.com> <84944fa0-3c18-f8a4-47ca-7627eb4e0594@redhat.com> <20200116153741.GA558@rei>
-Subject: Re: [LTP] ??? FAIL: Test report for kernel 5.4.13-rc1-7f1b863.cki
- (stable)
+        id S1729044AbgAQJKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 04:10:07 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:52798 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726578AbgAQJKG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 04:10:06 -0500
+Received: by mail-wm1-f68.google.com with SMTP id p9so6644131wmc.2;
+        Fri, 17 Jan 2020 01:10:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=qOAMOjVIT0Dy7HI3yT3GvFvQG+nWIqkGdWAkQAANxIs=;
+        b=i3VC2hk3c7Q3umUhqRHyLDAyLAgkubw4cZCh4mKyXs61HhZD1+5VQ3YTpUu236ei0Z
+         SKQHO6whSmioWOc3uUnzFp1/1pLdx//nOGxriKznClIeyHUjHOiKJs7nOD3IryBDu1Wm
+         28jxbHcQdOY4uLODGBSBGBy3rfSxnFMFyBqp/z3qdPrWmDwXWEHcwsPNcHUqmRyl0c+6
+         D8rNUWZauarKWpNJ8QJhaF3o5I258UQKQZ4Nb8GRhWpGutoO5pThxchuBFtC2g/8fQZ4
+         JloFRzFtEw8/V9tLLAMP+O6qmY/JzYAi8PaYGd6SwG6+0NjInFCWAA9BGOf/vXe9r+92
+         EPyA==
+X-Gm-Message-State: APjAAAUgWwxA98muPFLoYFTWX7D198/tpo30uCMbrEqTD86xHV2qcKy4
+        2U5wwi/ijU2UsrwR6evUAQg=
+X-Google-Smtp-Source: APXvYqxXrq0ijHEf/PD9PkyhW0nrCXshQ4ZYmw0U20Dw/jgMjbfIqhSoiXZ5+/XBrR3qI7+rqI7Ndg==
+X-Received: by 2002:a7b:cb46:: with SMTP id v6mr3683767wmj.117.1579252204153;
+        Fri, 17 Jan 2020 01:10:04 -0800 (PST)
+Received: from localhost (prg-ext-pat.suse.com. [213.151.95.130])
+        by smtp.gmail.com with ESMTPSA id x132sm2683366wmg.0.2020.01.17.01.10.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jan 2020 01:10:03 -0800 (PST)
+Date:   Fri, 17 Jan 2020 10:10:02 +0100
+From:   Michal Hocko <mhocko@kernel.org>
+To:     David Rientjes <rientjes@google.com>
+Cc:     Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Wei Yang <richardw.yang@linux.intel.com>, hannes@cmpxchg.org,
+        vdavydov.dev@gmail.com, akpm@linux-foundation.org,
+        kirill.shutemov@linux.intel.com, yang.shi@linux.alibaba.com,
+        cgroups@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: [Patch v3] mm: thp: grab the lock before manipulation defer list
+Message-ID: <20200117091002.GM19428@dhcp22.suse.cz>
+References: <20200116013100.7679-1-richardw.yang@linux.intel.com>
+ <0bb34c4a-97c7-0b3c-cf43-8af6cf9c4396@virtuozzo.com>
+ <alpine.DEB.2.21.2001161357240.109233@chino.kir.corp.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.43.17.25, 10.4.195.6]
-Thread-Topic: ??? FAIL: Test report for kernel 5.4.13-rc1-7f1b863.cki (stable)
-Thread-Index: p1YXf2kW0X2fHt0OMwa/2fDBBYA+iw==
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.21.2001161357240.109233@chino.kir.corp.google.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
------ Original Message -----
-> Hi!
-> > > One or more kernel tests failed:
-> > > 
-> > >      ppc64le:
-> > >       ??? LTP
+On Thu 16-01-20 14:01:59, David Rientjes wrote:
+> On Thu, 16 Jan 2020, Kirill Tkhai wrote:
+> 
+> > > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > > index c5b5f74cfd4d..6450bbe394e2 100644
+> > > --- a/mm/memcontrol.c
+> > > +++ b/mm/memcontrol.c
+> > > @@ -5360,10 +5360,12 @@ static int mem_cgroup_move_account(struct page *page,
+> > >  	}
+> > >  
+> > >  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+> > > -	if (compound && !list_empty(page_deferred_list(page))) {
+> > > +	if (compound) {
+> > >  		spin_lock(&from->deferred_split_queue.split_queue_lock);
+> > > -		list_del_init(page_deferred_list(page));
+> > > -		from->deferred_split_queue.split_queue_len--;
+> > > +		if (!list_empty(page_deferred_list(page))) {
+> > > +			list_del_init(page_deferred_list(page));
+> > > +			from->deferred_split_queue.split_queue_len--;
+> > > +		}
+> > >  		spin_unlock(&from->deferred_split_queue.split_queue_lock);
+> > >  	}
+> > >  #endif
+> > > @@ -5377,11 +5379,13 @@ static int mem_cgroup_move_account(struct page *page,
+> > >  	page->mem_cgroup = to;
+> > >  
+> > >  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+> > > -	if (compound && list_empty(page_deferred_list(page))) {
+> > > +	if (compound) {
+> > >  		spin_lock(&to->deferred_split_queue.split_queue_lock);
+> > > -		list_add_tail(page_deferred_list(page),
+> > > -			      &to->deferred_split_queue.split_queue);
+> > > -		to->deferred_split_queue.split_queue_len++;
+> > > +		if (list_empty(page_deferred_list(page))) {
+> > > +			list_add_tail(page_deferred_list(page),
+> > > +				      &to->deferred_split_queue.split_queue);
+> > > +			to->deferred_split_queue.split_queue_len++;
+> > > +		}
+> > >  		spin_unlock(&to->deferred_split_queue.split_queue_lock);
+> > >  	}
+> > >  #endif
 > > 
-> > Hi, I see max_map_count failed on ppc64le:
-> > https://artifacts.cki-project.org/pipelines/385189/logs/ppc64le_host_2_LTP_mm.run.log
+> > The patch looks OK for me. But there is another question. I forget, why we unconditionally
+> > add a page with empty deferred list to deferred_split_queue. Shouldn't we also check that
+> > it was initially in the list? Something like:
+> > 
+> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > index d4394ae4e5be..0be0136adaa6 100644
+> > --- a/mm/memcontrol.c
+> > +++ b/mm/memcontrol.c
+> > @@ -5289,6 +5289,7 @@ static int mem_cgroup_move_account(struct page *page,
+> >  	struct pglist_data *pgdat;
+> >  	unsigned long flags;
+> >  	unsigned int nr_pages = compound ? hpage_nr_pages(page) : 1;
+> > +	bool split = false;
+> >  	int ret;
+> >  	bool anon;
+> >  
+> > @@ -5346,6 +5347,7 @@ static int mem_cgroup_move_account(struct page *page,
+> >  		if (!list_empty(page_deferred_list(page))) {
+> >  			list_del_init(page_deferred_list(page));
+> >  			from->deferred_split_queue.split_queue_len--;
+> > +			split = true;
+> >  		}
+> >  		spin_unlock(&from->deferred_split_queue.split_queue_lock);
+> >  	}
+> > @@ -5360,7 +5362,7 @@ static int mem_cgroup_move_account(struct page *page,
+> >  	page->mem_cgroup = to;
+> >  
+> >  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+> > -	if (compound) {
+> > +	if (compound && split) {
+> >  		spin_lock(&to->deferred_split_queue.split_queue_lock);
+> >  		if (list_empty(page_deferred_list(page))) {
+> >  			list_add_tail(page_deferred_list(page),
+> > 
 > 
-> That's strange, we do attempt to map 65536 mappings but we do not touch
-> them, so these shouldn't be faulted in, so there is no real reason why
-> mmap() in the child process should stop prematurely at 65532.
-> 
-> I guess that we cannot do much here, unless it's reproducible, because
-> there is not much information there.
+> I think that's a good point, especially considering that the current code 
+> appears to unconditionally place any compound page on the deferred split 
+> queue of the destination memcg.  The correct list that it should appear 
+> on, I believe, depends on whether the pmd has been split for the process 
+> being moved: note the MC_TARGET_PAGE caveat in 
+> mem_cgroup_move_charge_pte_range() that does not move the charge for 
+> compound pages with split pmds.  So when mem_cgroup_move_account() is 
+> called with compound == true, we're moving the charge of the entire 
+> compound page: why would it appear on that memcg's deferred split queue?
 
-max_map_count.c:205: FAIL: 64882 map entries in total, but expected 65536 entries
+I believe Kirill asked how do we know that the page should be actually
+added to the deferred list just from the list_empty check. In other
+words what if the page hasn't been split at all?
 
-I can reproduce it by running it in loop for couple hours. Though no idea
-why we started seeing it only in 5.4.13 rc kernels, as there doesn't seem
-to be any significant mm changes.
-
-I'll try some older kernels.
-
+-- 
+Michal Hocko
+SUSE Labs
