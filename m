@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6C41410FD
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 19:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E0CD141100
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 19:43:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727115AbgAQSnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 13:43:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35430 "EHLO mail.kernel.org"
+        id S1729332AbgAQSnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 13:43:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726603AbgAQSnf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Jan 2020 13:43:35 -0500
+        id S1728600AbgAQSnl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jan 2020 13:43:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23F6E2072B;
-        Fri, 17 Jan 2020 18:43:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D456D2082F;
+        Fri, 17 Jan 2020 18:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579286613;
-        bh=KeRwoc9YxJ6/7PXvUeK5VQU9h/oe59eXzrwzzn0bvkM=;
+        s=default; t=1579286620;
+        bh=xeDSfueOHtQgo97jpOnY3NX0QlppeSvT/dmYb66m6UY=;
         h=Subject:To:From:Date:From;
-        b=K8YZaogBaidNPGn7CA6o+UZlqD/OD963JpCx7sF4PCooGpWKbGcTY1xKz6chIvC4t
-         Hbx6pllxYyy6s6yArw3+iLTz2zpARnwkTq2eAG1wxD4wLS2WZTP22LNJIkO0S1FNgy
-         HiyJgR/Z3q5lGqiGy9D1vs70EmOSfcjxWbCIKEGM=
-Subject: patch "USB: serial: simple: Add Motorola Solutions TETRA MTP3xxx and MTP85xx" added to usb-linus
-To:     jeronimo@borque.com.ar, johan@kernel.org, stable@vger.kernel.org
+        b=I1EQY6VLD0sEl6uOOjorfN3gSNfaJAFdLeD5KzEeF/j1R9mCCDhZE/cZaMWbNFC2U
+         i/vqzssFFZF1v9b6uVo/gKit21pl304/A1amlNkEyLeserwr7mA2uEzhLS1JIrr3+1
+         U8l2lK6lPagTMUOQUpK43Z1bn1Kf79Uzpfw/43+E=
+Subject: patch "USB: serial: option: Add support for Quectel RM500Q" added to usb-linus
+To:     kristian.evensen@gmail.com, johan@kernel.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 Jan 2020 19:43:31 +0100
-Message-ID: <1579286611225215@kroah.com>
+Date:   Fri, 17 Jan 2020 19:43:38 +0100
+Message-ID: <157928661856168@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -39,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: serial: simple: Add Motorola Solutions TETRA MTP3xxx and MTP85xx
+    USB: serial: option: Add support for Quectel RM500Q
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -54,45 +55,49 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 260e41ac4dd3e5acb90be624c03ba7f019615b75 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Jer=C3=B3nimo=20Borque?= <jeronimo@borque.com.ar>
-Date: Thu, 9 Jan 2020 12:23:34 -0300
-Subject: USB: serial: simple: Add Motorola Solutions TETRA MTP3xxx and MTP85xx
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From accf227de4d211b52c830a58b2df00d5739f2389 Mon Sep 17 00:00:00 2001
+From: Kristian Evensen <kristian.evensen@gmail.com>
+Date: Mon, 13 Jan 2020 15:14:05 +0100
+Subject: USB: serial: option: Add support for Quectel RM500Q
 
-Add device-ids for the Motorola Solutions TETRA radios MTP3xxx series
-and MTP85xx series
+RM500Q is a 5G module from Quectel, supporting both standalone and
+non-standalone modes. Unlike other recent Quectel modems, it is possible
+to identify the diagnostic interface (bInterfaceProtocol is unique).
+Thus, there is no need to check for the number of endpoints or reserve
+interfaces. The interface number is still dynamic though, so matching on
+interface number is not possible and two entries have to be added to the
+table.
 
-$ lsusb -vd 0cad:
+Output from usb-devices with all interfaces enabled (order is diag,
+nmea, at_port, modem, rmnet and adb):
 
-Bus 001 Device 009: ID 0cad:9015 Motorola CGISS TETRA PEI interface
+Bus 004 Device 007: ID 2c7c:0800 Quectel Wireless Solutions Co., Ltd.
 Device Descriptor:
   bLength                18
   bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0
+  bcdUSB               3.20
+  bDeviceClass            0 (Defined at Interface level)
   bDeviceSubClass         0
   bDeviceProtocol         0
-  bMaxPacketSize0        64
-  idVendor           0x0cad Motorola CGISS
-  idProduct          0x9015
-  bcdDevice           24.16
-  iManufacturer           1
-  iProduct                2
-  iSerial                 0
+  bMaxPacketSize0         9
+  idVendor           0x2c7c Quectel Wireless Solutions Co., Ltd.
+  idProduct          0x0800
+  bcdDevice            4.14
+  iManufacturer           1 Quectel
+  iProduct                2 LTE-A Module
+  iSerial                 3 40046d60
   bNumConfigurations      1
   Configuration Descriptor:
     bLength                 9
     bDescriptorType         2
-    wTotalLength       0x0037
-    bNumInterfaces          2
+    wTotalLength          328
+    bNumInterfaces          6
     bConfigurationValue     1
-    iConfiguration          3
-    bmAttributes         0x80
+    iConfiguration          4 DIAG_SER_RMNET
+    bmAttributes         0xa0
       (Bus Powered)
-    MaxPower              500mA
+      Remote Wakeup
+    MaxPower              224mA
     Interface Descriptor:
       bLength                 9
       bDescriptorType         4
@@ -100,8 +105,8 @@ Device Descriptor:
       bAlternateSetting       0
       bNumEndpoints           2
       bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
+      bInterfaceSubClass    255 Vendor Specific Subclass
+      bInterfaceProtocol     48
       iInterface              0
       Endpoint Descriptor:
         bLength                 7
@@ -111,8 +116,9 @@ Device Descriptor:
           Transfer Type            Bulk
           Synch Type               None
           Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
+        wMaxPacketSize     0x0400  1x 1024 bytes
         bInterval               0
+        bMaxBurst               0
       Endpoint Descriptor:
         bLength                 7
         bDescriptorType         5
@@ -121,18 +127,34 @@ Device Descriptor:
           Transfer Type            Bulk
           Synch Type               None
           Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
+        wMaxPacketSize     0x0400  1x 1024 bytes
         bInterval               0
+        bMaxBurst               0
     Interface Descriptor:
       bLength                 9
       bDescriptorType         4
       bInterfaceNumber        1
       bAlternateSetting       0
-      bNumEndpoints           2
+      bNumEndpoints           3
       bInterfaceClass       255 Vendor Specific Class
       bInterfaceSubClass      0
       bInterfaceProtocol      0
       iInterface              0
+      ** UNRECOGNIZED:  05 24 00 10 01
+      ** UNRECOGNIZED:  05 24 01 00 00
+      ** UNRECOGNIZED:  04 24 02 02
+      ** UNRECOGNIZED:  05 24 06 00 00
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x000a  1x 10 bytes
+        bInterval               9
+        bMaxBurst               0
       Endpoint Descriptor:
         bLength                 7
         bDescriptorType         5
@@ -141,8 +163,9 @@ Device Descriptor:
           Transfer Type            Bulk
           Synch Type               None
           Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
+        wMaxPacketSize     0x0400  1x 1024 bytes
         bInterval               0
+        bMaxBurst               0
       Endpoint Descriptor:
         bLength                 7
         bDescriptorType         5
@@ -151,116 +174,236 @@ Device Descriptor:
           Transfer Type            Bulk
           Synch Type               None
           Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
+        wMaxPacketSize     0x0400  1x 1024 bytes
         bInterval               0
-
-Bus 001 Device 010: ID 0cad:9013 Motorola CGISS TETRA PEI interface
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0        64
-  idVendor           0x0cad Motorola CGISS
-  idProduct          0x9013
-  bcdDevice           24.16
-  iManufacturer           1
-  iProduct                2
-  iSerial                 0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0037
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          3
-    bmAttributes         0x80
-      (Bus Powered)
-    MaxPower              500mA
+        bMaxBurst               0
     Interface Descriptor:
       bLength                 9
       bDescriptorType         4
-      bInterfaceNumber        0
+      bInterfaceNumber        2
       bAlternateSetting       0
-      bNumEndpoints           2
+      bNumEndpoints           3
       bInterfaceClass       255 Vendor Specific Class
       bInterfaceSubClass      0
       bInterfaceProtocol      0
       iInterface              0
+      ** UNRECOGNIZED:  05 24 00 10 01
+      ** UNRECOGNIZED:  05 24 01 00 00
+      ** UNRECOGNIZED:  04 24 02 02
+      ** UNRECOGNIZED:  05 24 06 00 00
       Endpoint Descriptor:
         bLength                 7
         bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
+        bEndpointAddress     0x85  EP 5 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x000a  1x 10 bytes
+        bInterval               9
+        bMaxBurst               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x84  EP 4 IN
         bmAttributes            2
           Transfer Type            Bulk
           Synch Type               None
           Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
+        wMaxPacketSize     0x0400  1x 1024 bytes
         bInterval               0
+        bMaxBurst               0
       Endpoint Descriptor:
         bLength                 7
         bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
+        bEndpointAddress     0x03  EP 3 OUT
         bmAttributes            2
           Transfer Type            Bulk
           Synch Type               None
           Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
+        wMaxPacketSize     0x0400  1x 1024 bytes
         bInterval               0
+        bMaxBurst               0
     Interface Descriptor:
       bLength                 9
       bDescriptorType         4
-      bInterfaceNumber        1
+      bInterfaceNumber        3
       bAlternateSetting       0
-      bNumEndpoints           2
+      bNumEndpoints           3
       bInterfaceClass       255 Vendor Specific Class
       bInterfaceSubClass      0
       bInterfaceProtocol      0
       iInterface              0
+      ** UNRECOGNIZED:  05 24 00 10 01
+      ** UNRECOGNIZED:  05 24 01 00 00
+      ** UNRECOGNIZED:  04 24 02 02
+      ** UNRECOGNIZED:  05 24 06 00 00
       Endpoint Descriptor:
         bLength                 7
         bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
+        bEndpointAddress     0x87  EP 7 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x000a  1x 10 bytes
+        bInterval               9
+        bMaxBurst               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x86  EP 6 IN
         bmAttributes            2
           Transfer Type            Bulk
           Synch Type               None
           Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
+        wMaxPacketSize     0x0400  1x 1024 bytes
         bInterval               0
+        bMaxBurst               0
       Endpoint Descriptor:
         bLength                 7
         bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
+        bEndpointAddress     0x04  EP 4 OUT
         bmAttributes            2
           Transfer Type            Bulk
           Synch Type               None
           Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
+        wMaxPacketSize     0x0400  1x 1024 bytes
         bInterval               0
+        bMaxBurst               0
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        4
+      bAlternateSetting       0
+      bNumEndpoints           3
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass    255 Vendor Specific Subclass
+      bInterfaceProtocol    255 Vendor Specific Protocol
+      iInterface              5 CDEV Serial
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x88  EP 8 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval               9
+        bMaxBurst               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x8e  EP 14 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0400  1x 1024 bytes
+        bInterval               0
+        bMaxBurst               6
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x0f  EP 15 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0400  1x 1024 bytes
+        bInterval               0
+        bMaxBurst               2
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        5
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass     66
+      bInterfaceProtocol      1
+      iInterface              6 ADB Interface
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x05  EP 5 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0400  1x 1024 bytes
+        bInterval               0
+        bMaxBurst               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x89  EP 9 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0400  1x 1024 bytes
+        bInterval               0
+        bMaxBurst               0
+Binary Object Store Descriptor:
+  bLength                 5
+  bDescriptorType        15
+  wTotalLength           42
+  bNumDeviceCaps          3
+  USB 2.0 Extension Device Capability:
+    bLength                 7
+    bDescriptorType        16
+    bDevCapabilityType      2
+    bmAttributes   0x00000006
+      Link Power Management (LPM) Supported
+  SuperSpeed USB Device Capability:
+    bLength                10
+    bDescriptorType        16
+    bDevCapabilityType      3
+    bmAttributes         0x00
+    wSpeedsSupported   0x000f
+      Device can operate at Low Speed (1Mbps)
+      Device can operate at Full Speed (12Mbps)
+      Device can operate at High Speed (480Mbps)
+      Device can operate at SuperSpeed (5Gbps)
+    bFunctionalitySupport   1
+      Lowest fully-functional device speed is Full Speed (12Mbps)
+    bU1DevExitLat           1 micro seconds
+    bU2DevExitLat         500 micro seconds
+  ** UNRECOGNIZED:  14 10 0a 00 01 00 00 00 00 11 00 00 30 40 0a 00 b0 40 0a 00
+Device Status:     0x0000
+  (Bus Powered)
 
-Signed-off-by: Jerónimo Borque <jeronimo@borque.com.ar>
+Signed-off-by: Kristian Evensen <kristian.evensen@gmail.com>
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/serial/usb-serial-simple.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/option.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/serial/usb-serial-simple.c b/drivers/usb/serial/usb-serial-simple.c
-index edbbb13d6de6..bd23a7cb1be2 100644
---- a/drivers/usb/serial/usb-serial-simple.c
-+++ b/drivers/usb/serial/usb-serial-simple.c
-@@ -86,6 +86,8 @@ DEVICE(moto_modem, MOTO_IDS);
- #define MOTOROLA_TETRA_IDS()			\
- 	{ USB_DEVICE(0x0cad, 0x9011) },	/* Motorola Solutions TETRA PEI */ \
- 	{ USB_DEVICE(0x0cad, 0x9012) },	/* MTP6550 */ \
-+	{ USB_DEVICE(0x0cad, 0x9013) },	/* MTP3xxx */ \
-+	{ USB_DEVICE(0x0cad, 0x9015) },	/* MTP85xx */ \
- 	{ USB_DEVICE(0x0cad, 0x9016) }	/* TPG2200 */
- DEVICE(motorola_tetra, MOTOROLA_TETRA_IDS);
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 2d919d0e6e45..62bad1b2c18e 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -248,6 +248,7 @@ static void option_instat_callback(struct urb *urb);
+ #define QUECTEL_PRODUCT_BG96			0x0296
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ #define QUECTEL_PRODUCT_EM12			0x0512
++#define QUECTEL_PRODUCT_RM500Q			0x0800
  
+ #define CMOTECH_VENDOR_ID			0x16d8
+ #define CMOTECH_PRODUCT_6001			0x6001
+@@ -1104,6 +1105,9 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x30) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
++
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6003),
 -- 
 2.25.0
 
