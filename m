@@ -2,77 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B54061407D0
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 11:21:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5AFA14080B
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 11:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726688AbgAQKVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 05:21:20 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:39773 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726085AbgAQKVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 05:21:20 -0500
-Received: by mail-lf1-f68.google.com with SMTP id y1so17916321lfb.6;
-        Fri, 17 Jan 2020 02:21:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=eaqHcAIOe4AOO/TalL4e8/rw3+XC4UIZ6k8/4PUD8ow=;
-        b=AwTirvulevfHfqOelod+TeypmC1nHcwfwM4a+Kt7807sKybMntmfSYqNYbf1uhpY+h
-         PiUt+r+KAlscjMTGwjbNzBx/lc6gRl+kLq7U+p6RBoJAvF7DCitwpXdxLt3FxVhNTHyh
-         FDp8zA5WyulfUjLn21pTYrVqlHeZFrWO6oOORKIHaLa3SE0ZG5fkeqJmbYLERWPFYSPF
-         4N1b+zFlmNgy+dTKSoVa2HEQt6EB8muMlPomFGc628P7xyIuoxtkJOtRiDwDDQ3eNbwv
-         zO1K3/9u08GgEV5SkM3opNQgBuLRJb40VDhjt3bGpWSypCSy9Pnr68u6iU++Q1ialuey
-         DQdw==
-X-Gm-Message-State: APjAAAWf7fUW09ucCJTaq0m5E5AZzbIME/rE4gZW6DJu4H2hQIpwleZ7
-        3mRQBJij3VwCu5Cz8Xl4KeHPV5Dw
-X-Google-Smtp-Source: APXvYqzJQvBprQx7Ic5TrIAMUJR5Oqiu1a5ykCuEEgfOE/FHlJyXeV64gHVvKFNfZG5zSDko9pQmRQ==
-X-Received: by 2002:ac2:5195:: with SMTP id u21mr4892698lfi.141.1579256477904;
-        Fri, 17 Jan 2020 02:21:17 -0800 (PST)
-Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id i197sm11929086lfi.56.2020.01.17.02.21.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jan 2020 02:21:17 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@kernel.org>)
-        id 1isOke-0003q4-Lx; Fri, 17 Jan 2020 11:21:16 +0100
-Date:   Fri, 17 Jan 2020 11:21:16 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.19 592/671] USB: usb-skeleton: fix
- use-after-free after driver unbind
-Message-ID: <20200117102116.GS2301@localhost>
-References: <20200116170509.12787-1-sashal@kernel.org>
- <20200116170509.12787-329-sashal@kernel.org>
+        id S1726362AbgAQKfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 05:35:46 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:38732 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726085AbgAQKfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 05:35:46 -0500
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: dafna)
+        with ESMTPSA id 7EA6D294794
+Subject: Re: [PATCH v3] media: v4l2-core: fix a use-after-free bug of
+ sd->devnode
+To:     Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org
+Cc:     dafna3@gmail.com, helen.koike@collabora.com,
+        ezequiel@collabora.com, stable@vger.kernel.org
+References: <20191120122217.845-1-dafna.hirschfeld@collabora.com>
+ <fe36e4a9-2369-3150-b823-97fb4bf1afe4@xs4all.nl>
+From:   Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Message-ID: <d0505bd7-920e-d0f2-3aa2-440f27e7c08f@collabora.com>
+Date:   Fri, 17 Jan 2020 12:35:20 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200116170509.12787-329-sashal@kernel.org>
+In-Reply-To: <fe36e4a9-2369-3150-b823-97fb4bf1afe4@xs4all.nl>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 16, 2020 at 12:03:50PM -0500, Sasha Levin wrote:
-> From: Johan Hovold <johan@kernel.org>
-> 
-> [ Upstream commit 6353001852776e7eeaab4da78922d4c6f2b076af ]
-> 
-> The driver failed to stop its read URB on disconnect, something which
-> could lead to a use-after-free in the completion handler after driver
-> unbind in case the character device has been closed.
-> 
-> Fixes: e7389cc9a7ff ("USB: skel_read really sucks royally")
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> Link: https://lore.kernel.org/r/20191009170944.30057-3-johan@kernel.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Hi
 
-This one isn't needed in any stable tree. As we discussed before, the
-skeleton driver is only there for documentation purposes. 
+On 16.01.20 13:57, Hans Verkuil wrote:
+> On 11/20/19 1:22 PM, Dafna Hirschfeld wrote:
+>> sd->devnode is released after calling
+>> v4l2_subdev_release. Therefore it should be set
+>> to NULL so that the subdev won't hold a pointer
+>> to a released object. This fixes a reference
+>> after free bug in function
+>> v4l2_device_unregister_subdev
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 0e43734d4c46e ("media: v4l2-subdev: add release() internal op")
+>> Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+>> Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+>> ---
+>> changes since v2:
+>> - since this is a regresion fix, I added Fixes and Cc to stable tags,
+>> - change the commit title and log to be more clear.
+>>
+>>   drivers/media/v4l2-core/v4l2-device.c | 1 +
+>>   1 file changed, 1 insertion(+)
+>>
+>> diff --git a/drivers/media/v4l2-core/v4l2-device.c b/drivers/media/v4l2-core/v4l2-device.c
+>> index 63d6b147b21e..2b3595671d62 100644
+>> --- a/drivers/media/v4l2-core/v4l2-device.c
+>> +++ b/drivers/media/v4l2-core/v4l2-device.c
+>> @@ -177,6 +177,7 @@ static void v4l2_subdev_release(struct v4l2_subdev *sd)
+>>   {
+>>   	struct module *owner = !sd->owner_v4l2_dev ? sd->owner : NULL;
+>>   
+>> +	sd->devnode = NULL;
+>>   	if (sd->internal_ops && sd->internal_ops->release)
+>>   		sd->internal_ops->release(sd);
+> 
+> I'd move the sd->devnode = NULL; line here. That way the
+> sd->internal_ops->release(sd) callback can still use it.
+> 
+> Unless I am missing something?
+It makes sense although none of the drivers uses this callback since
+the subdevice should be released in the v4l2_device's release so it 
+seems that this callback can (should?) be removed.
 
-Johan
+Dafna
+
+> 
+>>   	module_put(owner);
+>>
+> 
+> Regards,
+> 
+> 	Hans
+> 
