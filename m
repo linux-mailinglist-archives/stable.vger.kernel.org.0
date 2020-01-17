@@ -2,76 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA29140214
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 03:43:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 058BC140217
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 03:45:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbgAQCnK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 21:43:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35412 "EHLO mail.kernel.org"
+        id S1731204AbgAQCpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 21:45:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729067AbgAQCnK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 21:43:10 -0500
+        id S1729067AbgAQCpX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Jan 2020 21:45:23 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64FA02072B;
-        Fri, 17 Jan 2020 02:43:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C4F920730;
+        Fri, 17 Jan 2020 02:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579228989;
-        bh=icVIaVDWi3vTyx1vb/g5+nyxUn3QmYadK7RMizpkMvg=;
+        s=default; t=1579229123;
+        bh=dKyqaaGGcB1MEqXs9BPg8uYw+xt+15onKXbpCmYtg4Y=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2H5qdGxcEvFupn1mLneikZvzAUVpctllA1nwnUE1QYY9mPT+2beJnTxKBBuhbyCUU
-         wzAUXQ820y8HpILkHlloaJIyczUjAY8qHbO5FzMdnIzhJZZJSR3+Fa5bZCKTAETV91
-         vVWdU8IFrCQiR6QMDTJ4Q6ugv0or+VoSbfdMdtqQ=
-Date:   Thu, 16 Jan 2020 21:43:08 -0500
+        b=AexsPH/wskCzkb4pS2nT3LvFZB4U5CmfvO1tbOlwAmfd1Rs1rv3bPekfFJAR5fOPa
+         Au3WHsZFYfHiNbNL6NdkHnXQrtTALNMarDKuHPbl1Js/orf59bNMpKaiNiW+B4WdMw
+         K/sVKwM5KdYMz2jVOfnearTXlAGR34ko/ivRC6H8=
+Date:   Thu, 16 Jan 2020 21:45:22 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Jonathan Cameron <Jonathan.Cameron@Huawei.com>
+To:     David Ahern <dsahern@gmail.com>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Chuhong Yuan <hslester96@gmail.com>,
-        Brian Masney <masneyb@onstation.org>, linux-iio@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.19 482/671] iio: tsl2772: Use
- devm_add_action_or_reset for tsl2772_chip_off
-Message-ID: <20200117024308.GM1706@sasha-vm>
+        Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 573/671] ipv6: Handle race in
+ addrconf_dad_work
+Message-ID: <20200117024522.GN1706@sasha-vm>
 References: <20200116170509.12787-1-sashal@kernel.org>
- <20200116170509.12787-219-sashal@kernel.org>
- <20200116181618.000063c2@Huawei.com>
+ <20200116170509.12787-310-sashal@kernel.org>
+ <fc012e53-ccdf-5ac5-6f3f-a2ecdf25bc39@gmail.com>
+ <630c6286-2ab4-44ab-693e-0615a2ac690b@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200116181618.000063c2@Huawei.com>
+In-Reply-To: <630c6286-2ab4-44ab-693e-0615a2ac690b@gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 16, 2020 at 06:16:18PM +0000, Jonathan Cameron wrote:
->On Thu, 16 Jan 2020 12:02:00 -0500
->Sasha Levin <sashal@kernel.org> wrote:
->
->> From: Chuhong Yuan <hslester96@gmail.com>
+On Thu, Jan 16, 2020 at 10:20:16AM -0700, David Ahern wrote:
+>On 1/16/20 10:18 AM, David Ahern wrote:
+>> On 1/16/20 10:03 AM, Sasha Levin wrote:
+>>> From: David Ahern <dsahern@gmail.com>
+>>>
+>>> [ Upstream commit a3ce2a21bb8969ae27917281244fa91bf5f286d7 ]
+>>>
 >>
->> [ Upstream commit 338084135aeddb103624a6841972fb8588295cc6 ]
+>> That commit was reverted by 8ae72cbf62d2c1879456c0c5872f958e18f53711 and
+>> then replaced by 2d819d250a1393a3e725715425ab70a0e0772a71
 >>
->> Use devm_add_action_or_reset to call tsl2772_chip_off
->> when the device is removed.
->> This also fixes the issue that the chip is turned off
->> before the device is unregistered.
->>
->> Not marked for stable as fairly hard to hit the bug and
->> this is in the middle of a set making other cleanups
->> to the driver.  Hence will probably need explicit backporting.
 >
->Guess I was wrong and it does go on cleanly.  I took a quick
->look at current 4.19 driver and looks like it's fine on it's
->own.
+>BTW, the AUTOSEL algorithm should be updated to look for reverts and
+>even ones that have already been nack'ed from a backport perspective.
 >
->We need to be careful with this one in general though.
->
->Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> for 4.19
+>I felt a bit of deja vu with my response and sure enough this patch was
+>selected back in October and I responded then that it should not be
+>backported.
 
-Thanks Jonathan. I saw the comment, but it applied and built cleanly,
-and looked sane enough without any related changes.
+Sorry about this David. This series is a result of an experimental work
+I did rather than the regular AUTOSEL workflow, so it ended up
+accidentally bubbling a few commits that were previously rejected.
 
 -- 
 Thanks,
