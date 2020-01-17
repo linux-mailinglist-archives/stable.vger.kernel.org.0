@@ -2,135 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53E12140242
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 04:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A295F14025C
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 04:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728916AbgAQDWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 22:22:55 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:51406 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727015AbgAQDWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 22:22:55 -0500
-Received: by mail-wm1-f65.google.com with SMTP id d73so5983971wmd.1
-        for <stable@vger.kernel.org>; Thu, 16 Jan 2020 19:22:53 -0800 (PST)
+        id S1729605AbgAQDhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 22:37:48 -0500
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:42122 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726366AbgAQDhr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 22:37:47 -0500
+Received: by mail-pf1-f195.google.com with SMTP id 4so11269110pfz.9;
+        Thu, 16 Jan 2020 19:37:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=LNBvJKpursuZIsa4tr0qGzUaYHSe3kAHhxDsDY0PLmo=;
-        b=hS9aKNt1peWtY3b3oFS66zJiSjn6ui72tr+O9KFbBNsOHIs1LVSU9DYunOpHF+VGlp
-         wUAvnA5iA+c/MQ7ssJUaAw6pNohvuIAyI26EK/7QoobVnGJ+5cTDGbyUuz+toINZXfyw
-         xFtto0m7ap5wx0rr1oPlqcom3ogh1B262q6awMjFHptqDM6Z/JDuy9wbEQUqe/NsrFH8
-         8OlaIjADBKfeDtoLJHwn3ndCZjfRUJYZjOG0gU7yaxnu8Pgw/R06q4fhlzy+6Ur2zuYQ
-         mrHcaFR1t6izlHF5OQZ4kTCelvGdvTYFAKWytdHQ9Ic2yuGs2xxpb8tmmxUBRoy4Imkl
-         uNXw==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=IOMBiPn5diyVcn37zND9XcdLr5eqb4ZCuFIh7nwBBvI=;
+        b=h3BN7sJiAE71AxB3UoxhzZdoMzvAZJwC0PFKI2+vsrsqS7BPzxkwyUoh+GsIetXH4k
+         bA820vMnySBgqNkMFJ9f+9HZ2K18puWc3Ap60u2cCslyU9bQiQxA+3d2LQKlfpmjl2CD
+         IgBsqKvaMPMahjbxek0H1r4I7NfHCZ8A5A1VxkZ5euAXNcd+mfF6PPwEAqaD9alEDUHA
+         zu6/x5nztIbewk6FLUsIP+JUhk4YkOONgK9SyU4DDvLw8YdsHIgh5qTkNiuSiE/3Xole
+         m4QcRBXqQaYN9mEe4VI4NXRjO676FePdptdFmNjexyN0d9ol8hyl+L20dTDu35H38V5s
+         xO4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=LNBvJKpursuZIsa4tr0qGzUaYHSe3kAHhxDsDY0PLmo=;
-        b=NsEMQCFCqYolaqQT5qg2lyo14Y+S3uTaZCgMy52F8mbsVYPCL4joT4TUAyfyVFBTO1
-         qC61SjiKIT+7CA4zFwrlItZnrVEuIOZ4FFaY6DWT2rttLaPsgvJXcsSq3l4MTHsdazX7
-         jx0N/V8b0+MjEd7egQx6eHGLMmzWnUDGlftUjTUZgyBRNeuAH+TpTzQ4ygSazSB+iHVH
-         vtqIsoiggccb0g2PxSAr8hvMyus0jm1T+sWyAR+DL3kZxMuSwvfR8BNFsnGoB1YjUhHg
-         DFZO30eBtcAmKFDny77pVHz7ZvPLKTRft10IJJhyc8EQsMn4aI7cdSJcPcoVJWdr20sI
-         XbYA==
-X-Gm-Message-State: APjAAAWydACTNZfd17UrAP/GnzfAVToWGzEOxlRbBy+qUupE991e//Ht
-        GNYpnnTiW92h39KYMl4OVeH9KewkkvgoMw==
-X-Google-Smtp-Source: APXvYqwoSITAZR9m7332JbvkWJTK4kMnrg8j8Y6zlse+31UXQ4qEtJhHpKzHoY+amMNqHuos/b4BzA==
-X-Received: by 2002:a1c:28d4:: with SMTP id o203mr2204811wmo.123.1579231372882;
-        Thu, 16 Jan 2020 19:22:52 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id z124sm8310093wmc.20.2020.01.16.19.22.52
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=IOMBiPn5diyVcn37zND9XcdLr5eqb4ZCuFIh7nwBBvI=;
+        b=eaVNiD2r6k6A07u7DdYZeRB83ujqvc9mKxG3GsF0bPikyaROQmWH+/FOt1CpasqXOn
+         AdHnPiCuhS0HRvJRhXzsCJJXdhuN5UM+6Z5EAYGdYgNprNHuRHvxHqWgRr0/ebTk241c
+         NECjAw/kTouVakTJS6nbhXlMn9zV69IFhZsFrK5iTUfjobyO5kws2s2NyrUxDoplzohB
+         yiiqtq4EZXcX9SroSLx5i/f2cYlcHXPQl+Z70hnHbgVbiDV5DKyw20qKyFT9GjGLu5px
+         8RY8l+2P/5xikvl1idSRBRr1bgmQcCNWOH5WXnODUFQDSuVjTycB6GL7JZ/g00jJVx6t
+         u14g==
+X-Gm-Message-State: APjAAAXECQY7rh+wxr2uny1Zb+Fyan/KMdRj+n7zF9wEAzCvrecTPsmJ
+        +9z3+inrpGKgKsYCxs/gBK8=
+X-Google-Smtp-Source: APXvYqzNpGV8dUq0SsgrafcwveW1nffkJMFmfmvtFYbyhs7gM/GD6KknMvGcyVkhEDmaMvjMvXjw6w==
+X-Received: by 2002:a65:68d4:: with SMTP id k20mr43739997pgt.142.1579232266878;
+        Thu, 16 Jan 2020 19:37:46 -0800 (PST)
+Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
+        by smtp.gmail.com with ESMTPSA id k3sm26460240pgc.3.2020.01.16.19.37.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jan 2020 19:22:52 -0800 (PST)
-Message-ID: <5e21288c.1c69fb81.a64a4.042e@mx.google.com>
-Date:   Thu, 16 Jan 2020 19:22:52 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 16 Jan 2020 19:37:46 -0800 (PST)
+Date:   Thu, 16 Jan 2020 19:37:44 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc:     linux-media@vger.kernel.org, linux-input@vger.kernel.org,
+        Timo Kaufmann <timokau@zoho.com>, stable@vger.kernel.org
+Subject: Re: [PATCH for v5.5 1/2] Revert "Input: synaptics-rmi4 - don't
+ increment rmiaddr for SMBus transfers"
+Message-ID: <20200117033744.GC47797@dtor-ws>
+References: <20200115124819.3191024-1-hverkuil-cisco@xs4all.nl>
+ <20200115124819.3191024-2-hverkuil-cisco@xs4all.nl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.96-50-g3904aafeda38
-Subject: stable-rc/linux-4.19.y boot: 99 boots: 1 failed,
- 89 passed with 7 offline, 2 untried/unknown (v4.19.96-50-g3904aafeda38)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200115124819.3191024-2-hverkuil-cisco@xs4all.nl>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 99 boots: 1 failed, 89 passed with 7 offline, =
-2 untried/unknown (v4.19.96-50-g3904aafeda38)
+On Wed, Jan 15, 2020 at 01:48:18PM +0100, Hans Verkuil wrote:
+> This reverts commit a284e11c371e446371675668d8c8120a27227339.
+> 
+> This causes problems (drifting cursor) with at least the F11 function that
+> reads more than 32 bytes.
+> 
+> The real issue is in the F54 driver, and so this should be fixed there, and
+> not in rmi_smbus.c.
+> 
+> So first revert this bad commit, then fix the real problem in F54 in another
+> patch.
+> 
+> Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+> Reported-by: Timo Kaufmann <timokau@zoho.com>
+> Fixes: a284e11c371e ("Input: synaptics-rmi4 - don't increment rmiaddr for SMBus transfers")
+> Cc: stable@vger.kernel.org
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.96-50-g3904aafeda38/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.96-50-g3904aafeda38/
+Applied, thank you.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.96-50-g3904aafeda38
-Git Commit: 3904aafeda38d7b29673da5404806176f4fd72db
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 67 unique boards, 21 SoC families, 17 builds out of 204
+> ---
+>  drivers/input/rmi4/rmi_smbus.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+> index b313c579914f..2407ea43de59 100644
+> --- a/drivers/input/rmi4/rmi_smbus.c
+> +++ b/drivers/input/rmi4/rmi_smbus.c
+> @@ -163,6 +163,7 @@ static int rmi_smb_write_block(struct rmi_transport_dev *xport, u16 rmiaddr,
+>  		/* prepare to write next block of bytes */
+>  		cur_len -= SMB_MAX_COUNT;
+>  		databuff += SMB_MAX_COUNT;
+> +		rmiaddr += SMB_MAX_COUNT;
+>  	}
+>  exit:
+>  	mutex_unlock(&rmi_smb->page_mutex);
+> @@ -214,6 +215,7 @@ static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiaddr,
+>  		/* prepare to read next block of bytes */
+>  		cur_len -= SMB_MAX_COUNT;
+>  		databuff += SMB_MAX_COUNT;
+> +		rmiaddr += SMB_MAX_COUNT;
+>  	}
+>  
+>  	retval = 0;
+> -- 
+> 2.24.0
+> 
 
-Boot Regressions Detected:
-
-arm:
-
-    davinci_all_defconfig:
-        gcc-8:
-          da850-lcdk:
-              lab-baylibre: new failure (last pass: v4.19.96-17-g17243698cd=
-fd)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-gxl-s905x-khadas-vim:
-              lab-baylibre: new failure (last pass: v4.19.96-17-g17243698cd=
-fd)
-
-Boot Failure Detected:
-
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            juno-r2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Dmitry
