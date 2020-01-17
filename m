@@ -2,99 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 159B41402DB
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 05:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 309F8140307
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 05:35:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729616AbgAQEPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 23:15:10 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:39332 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729559AbgAQEPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 23:15:10 -0500
-Received: by mail-pj1-f66.google.com with SMTP id e11so2684719pjt.4;
-        Thu, 16 Jan 2020 20:15:09 -0800 (PST)
+        id S1727040AbgAQEfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 23:35:45 -0500
+Received: from mail-wm1-f48.google.com ([209.85.128.48]:50895 "EHLO
+        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726951AbgAQEfp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 23:35:45 -0500
+Received: by mail-wm1-f48.google.com with SMTP id a5so6092605wmb.0
+        for <stable@vger.kernel.org>; Thu, 16 Jan 2020 20:35:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=bbL7DykLMjR4IBh+1blOFW3gZb5qagjDzhxfjiFEjd8=;
-        b=qK6PT7KCcMfj1muWed0b3i6ok5ZKMYYZy7gdJlXw2tC6TIleyMD6OJFswgO9BP9mKY
-         MonsjQOW3UlPvlrFcc8IR6PbuKIDt/sevzLXR6HZtEeHXDNyRvTozS9ai7EbRmp/BViv
-         7xnCdScSNi0ISqmUPuD9kGsVQxmogeShbiG5QlyeqUZiFN78tx0Z7oKFNcf8EWqTOOG0
-         m/+YpEWMQ/gfj1SaihNtFZVlqWSthkGsJ+/Nke4+sa+UfwcgvKzt0ljBfO73fVWIe4Q7
-         WBDD7r8USoLe1sZqrBjkxF7WLX6U20qg8Ci+w6lPdwBwgT6zcO3EgYVDKacDOrvbsRdG
-         A8dg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vm1gt+XFKK8BZhnSlgSFslusp3SL2DzIE0J2AuvTFtI=;
+        b=YiNF4BJHD45oEhZ3Tk4ZAuhjD4eMwKVxG56q4i2CL8cr6u8RMdd6o5G3/l3dd60ggp
+         lFXDHvUn4rQ26MTEeF07cqDRedsAkaeJlAXF6dqkPsxhZrAG8rhZQORq65wgfS7t6l7a
+         JIyIBZ3kuBnDvwiN2xrd7Z/pln2xIXJiz5FyMLRMCKpDvfd1HlCo9gtvEsBZtYuamOCu
+         FJ3ovLeEwrBs1YWfIH22CAO0mInMKUJdSMjzE3/kZliHt/fLMJtCNGRMgs3pRRi1xMwM
+         lXlMs09VU5rUVd4oP14PRvT7drYmOj8ziNiBFBcMIKESNGxAZQoSbe1MrabOtIS1jb35
+         AXgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=bbL7DykLMjR4IBh+1blOFW3gZb5qagjDzhxfjiFEjd8=;
-        b=N3ifG72x9rDuI/5e2etaA6RdH3xeXLL6JKB5RrAvi9fk93wJSBIq8bhB3IQp8JAGQo
-         TMWMP+hn/6iYtQjoUQVntT0TTna7nthUIk4Y1xNVhw0H0jU4k4nwba1FCTmFqXuTT0sV
-         iMkhHNJFXIazPWf1B3VTYt/0X67zDW+E5hNwCc723EeYzn6N9nrfJ3LtLsboLPC1P1S9
-         KoDaEOoCe276eVg3FeWoB3sSIDoEhAjRPgU5ZOdr6gSz/kC2qRYnhqIGM2WV5+oGNWne
-         nvja8l9lBJv4H9b1gkY7zUfh+J6f2pblqGrvbs2Kjdqq9t2SiLFWnysXxzl6XPitPFmp
-         U3VQ==
-X-Gm-Message-State: APjAAAVGiANqmmHFU+iBQ8CDvPofZYNRIcaK4jxoH91UYidUg0v0bfUm
-        F6IrXCgVbLeiMsj63GoSfVY=
-X-Google-Smtp-Source: APXvYqyOwN5MUuJbgblp1NTy+y/gUkoYCTgxAVuPkvbDAV+zy+hv76xpdSI2yFN+nRPwtZvwR+mpYg==
-X-Received: by 2002:a17:90a:fa07:: with SMTP id cm7mr3265779pjb.119.1579234509410;
-        Thu, 16 Jan 2020 20:15:09 -0800 (PST)
-Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id k23sm25303816pgg.7.2020.01.16.20.15.08
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vm1gt+XFKK8BZhnSlgSFslusp3SL2DzIE0J2AuvTFtI=;
+        b=Dlvdr7GtZJKM3GczdwfnLWx5H+LEMxdAH1oDbhLAoRVcKVnDooPtHqn2L7L+nRqddD
+         kFd9730bsocHcdiiVUBYWUp1kUtAeX7HuQqD89GU2x9SLkEy+BvvTm/hXQYivOvOhh5s
+         Cqnj5PZpWrwrhw+WbBkJCm/cemVM+pw/riMI3/ZktbhOKtEG5qLvVhCTk3WnSrf5gOiQ
+         xtiejdZzwDegCGb9oFPWsi+8SSLU9AVPYx9+fL8GDNw2nTUmqsdnwPgTXdbLGW4C+GT5
+         M+Rqz33bf9VEHYH9HOlmEg0GvTBCOJFa/eqaRxG06hlxgs2fWWhPcLFMPg4HQ5KGo3uu
+         GyuA==
+X-Gm-Message-State: APjAAAUaJQYiIrLh+hI8Jz58SWfSoJK24Ob9xQj8mPz8JHrRWtvmLHvI
+        D1ypKINo4+QzKHg3HxTZnhcYcGjdrWJt0A==
+X-Google-Smtp-Source: APXvYqxZw9UsVeUvIS1Mgaj98QYjKsgH87/tdgXy9UKdU+VrgAgIh53nb9JJ7Mb7PdZZY4ti9QsMqA==
+X-Received: by 2002:a1c:a543:: with SMTP id o64mr2525349wme.73.1579235742893;
+        Thu, 16 Jan 2020 20:35:42 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id m10sm32295700wrx.19.2020.01.16.20.35.42
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jan 2020 20:15:08 -0800 (PST)
-Date:   Thu, 16 Jan 2020 20:15:06 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc:     linux-media@vger.kernel.org, linux-input@vger.kernel.org,
-        Timo Kaufmann <timokau@zoho.com>, stable@vger.kernel.org
-Subject: Re: [PATCH for v5.5 2/2] Input: rmi_f54: read from FIFO in 32 byte
- blocks
-Message-ID: <20200117041506.GD47797@dtor-ws>
-References: <20200115124819.3191024-1-hverkuil-cisco@xs4all.nl>
- <20200115124819.3191024-3-hverkuil-cisco@xs4all.nl>
+        Thu, 16 Jan 2020 20:35:42 -0800 (PST)
+Message-ID: <5e21399e.1c69fb81.ea23c.4dbb@mx.google.com>
+Date:   Thu, 16 Jan 2020 20:35:42 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200115124819.3191024-3-hverkuil-cisco@xs4all.nl>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.210-40-g10cbf6496fe2
+Subject: stable-rc/linux-4.4.y boot: 81 boots: 0 failed,
+ 76 passed with 5 offline (v4.4.210-40-g10cbf6496fe2)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Hans,
+stable-rc/linux-4.4.y boot: 81 boots: 0 failed, 76 passed with 5 offline (v=
+4.4.210-40-g10cbf6496fe2)
 
-On Wed, Jan 15, 2020 at 01:48:19PM +0100, Hans Verkuil wrote:
-> The F54 Report Data is apparently read through a fifo and for
-> the smbus protocol that means that between reading a block of 32
-> bytes the rmiaddr shouldn't be incremented. However, changing
-> that causes other non-fifo reads to fail and so that change was
-> reverted.
-> 
-> This patch changes just the F54 function and it now reads 32 bytes
-> at a time from the fifo, using the F54_FIFO_OFFSET to update the
-> start address that is used when reading from the fifo.
-> 
-> This has only been tested with smbus, not with i2c or spi. But I
-> suspect that the same is needed there since I think similar
-> problems will occur there when reading more than 256 bytes.
-> 
-> Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-> Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-> Reported-by: Timo Kaufmann <timokau@zoho.com>
-> Fixes: a284e11c371e ("Input: synaptics-rmi4 - don't increment rmiaddr for SMBus transfers")
-> Cc: stable@vger.kernel.org
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.210-40-g10cbf6496fe2/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.210-40-g10cbf6496fe2/
 
-As you mentioned this one is not urgent so I dropped the stable
-designation (you may forward to stable once it cooks in 5.5 for a bit)
-and also dropped fixes as it does not fixes this particular commit but
-something that was done before.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.210-40-g10cbf6496fe2
+Git Commit: 10cbf6496fe262d809f05cd252925a85dd2072fa
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 43 unique boards, 15 SoC families, 14 builds out of 181
 
-Otherwise applied.
+Offline Platforms:
 
-Thanks.
+arm:
 
--- 
-Dmitry
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
