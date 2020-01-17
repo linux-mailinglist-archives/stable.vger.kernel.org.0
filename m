@@ -2,105 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C331B140BF9
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 15:03:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDEA3140C2D
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 15:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729037AbgAQOCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 09:02:46 -0500
-Received: from mail.dlink.ru ([178.170.168.18]:55836 "EHLO fd.dlink.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728998AbgAQOCp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Jan 2020 09:02:45 -0500
-Received: by fd.dlink.ru (Postfix, from userid 5000)
-        id 6EE6F1B21576; Fri, 17 Jan 2020 17:02:42 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 fd.dlink.ru 6EE6F1B21576
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dlink.ru; s=mail;
-        t=1579269762; bh=5ylIyyrZHlzb5tLPn4yy5E0L0D4VwPrmEFZ7BGuuHO8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=EWBPsPwsX/FBRAeYsYwLjo7CLzvkeykEkH6W4hPSin3x4nVpHbx8dB0zBAd3+ybfw
-         lPzxQX4Y/M5STsdDec+7dQ7JLXXIQuEPYvS6W8a3nFCJoj8oitsGYK/lorWNkw2e4c
-         OB+UNMEDAhllfdOQFY64LqnJ0WuHq5oyN2/1aP4k=
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.dlink.ru
-X-Spam-Level: 
-X-Spam-Status: No, score=-99.2 required=7.5 tests=BAYES_50,URIBL_BLOCKED,
-        USER_IN_WHITELIST autolearn=disabled version=3.4.2
-Received: from mail.rzn.dlink.ru (mail.rzn.dlink.ru [178.170.168.13])
-        by fd.dlink.ru (Postfix) with ESMTP id 0A6A61B214CE;
-        Fri, 17 Jan 2020 17:02:32 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 fd.dlink.ru 0A6A61B214CE
-Received: from mail.rzn.dlink.ru (localhost [127.0.0.1])
-        by mail.rzn.dlink.ru (Postfix) with ESMTP id 5DADB1B20AE9;
-        Fri, 17 Jan 2020 17:02:31 +0300 (MSK)
-Received: from localhost.localdomain (unknown [196.196.203.126])
-        by mail.rzn.dlink.ru (Postfix) with ESMTPA;
-        Fri, 17 Jan 2020 17:02:31 +0300 (MSK)
-From:   Alexander Lobakin <alobakin@dlink.ru>
-To:     Paul Burton <paulburton@kernel.org>
-Cc:     Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Rob Herring <robh@kernel.org>,
-        Alexander Lobakin <alobakin@dlink.ru>,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH mips-fixes 3/3] MIPS: syscalls: fix indentation of the 'SYSNR' message
-Date:   Fri, 17 Jan 2020 17:02:09 +0300
-Message-Id: <20200117140209.17672-4-alobakin@dlink.ru>
-X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200117140209.17672-1-alobakin@dlink.ru>
-References: <20200117140209.17672-1-alobakin@dlink.ru>
+        id S1726942AbgAQOOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 09:14:20 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:38799 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726908AbgAQOOT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 09:14:19 -0500
+Received: by mail-lj1-f196.google.com with SMTP id w1so26647587ljh.5
+        for <stable@vger.kernel.org>; Fri, 17 Jan 2020 06:14:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=NAVl4mPYQplvO0E1VEcLtuftfASYI5IMVIWdknaGvCA=;
+        b=w4bY3R8TtyJb7jkXithwHOwZVPqqwh2yl4FR0j7r+RWErw279gj5h/c5naJx/MsCYb
+         18drbwEsvdJ0TvouP+nLV7sW5F1K3cOYwgT5gcVlvt7VwGkE8scxWSG+Ip3Zrsz9/k/1
+         gx6nPqc/PvPWNlXlJRF2yB4tLn0oZ/cQS7BEOfzZBNNlt8QB3hzJf7S8fp5pLTXEVN5y
+         iWvj4IMvNQfLXBKS6WZfxwi/80JcCzRPGtxDqFZu1+/dzXW9iYUjrsNnjDOtffG4tiOg
+         I2cy8W0bhSNZuYEZrY1Y0z58q+vTy/mSqVA4+t7kCJMjO5YqXX6XXTqbdyUKUprHMW7x
+         dcWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=NAVl4mPYQplvO0E1VEcLtuftfASYI5IMVIWdknaGvCA=;
+        b=WZYRBNkubayEm1sefu2wPCpampqH/N703MVNs59h37Okki7rGQt+DdLnQ9UUs4g2Vh
+         Iq7CGldSHsIo3pBxNwS/zre/k0WAnwHdxTE4fvT8mRTr3Y6xyPStGVUPF2zGi2cX3Rip
+         QH57hdMKjWsB0j1yYLhNb03jiumBbfVxGiLZi2Twwf6wg1MKeHYRSbo4QfNk1NlSoJv2
+         ouDhhrDtKLd+MWCXp7SIylfgUofAnZaHoyLAZwN08L4KDh7n9D5V9+SXQH8trcVMTBdz
+         B5JRbBrfbV9vo/oaS6dY0PAW5zY59o9EBuVBuiDCHXeLYN5zE6DR9caz5/46VHECI3jW
+         QTmw==
+X-Gm-Message-State: APjAAAVfARk3PhF5Uqmok97r5UWUEWJHgC7Vu0hTTf7X68Z+Ka5bbZwa
+        QUYXeYQM/v24qUUJr442Y5SUU0wSWeSiQ6giny1JeYbIpck=
+X-Google-Smtp-Source: APXvYqwpOzoJj2hqKTH6cWieOe3rC3BLloHvdlHV9wBMM9oHOg7W/FAdqxxxJ+gcLiULKuLaCD3MTGedsFjV7mB+fO8=
+X-Received: by 2002:a2e:b017:: with SMTP id y23mr5943206ljk.229.1579270457363;
+ Fri, 17 Jan 2020 06:14:17 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200116231709.377772748@linuxfoundation.org>
+In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 17 Jan 2020 19:43:51 +0530
+Message-ID: <CA+G9fYv_DsFjC_d=K95z1NdhgrBqGbLAURKTpG608fd9DK2aCQ@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/71] 4.14.166-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It also lacks a whitespace (copy'n'paste error?) and also messes up the
-output:
+On Fri, 17 Jan 2020 at 05:02, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.166 release.
+> There are 71 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 18 Jan 2020 23:16:00 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.166-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_n32.h
-  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_n64.h
-  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_o32.h
-  SYSNR  arch/mips/include/generated/uapi/asm/unistd_nr_n32.h
-  SYSNR  arch/mips/include/generated/uapi/asm/unistd_nr_n64.h
-  SYSNR  arch/mips/include/generated/uapi/asm/unistd_nr_o32.h
-  WRAP    arch/mips/include/generated/uapi/asm/bpf_perf_event.h
-  WRAP    arch/mips/include/generated/uapi/asm/ipcbuf.h
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-After:
+Summary
+------------------------------------------------------------------------
 
-  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_n32.h
-  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_n64.h
-  SYSHDR  arch/mips/include/generated/uapi/asm/unistd_o32.h
-  SYSNR   arch/mips/include/generated/uapi/asm/unistd_nr_n32.h
-  SYSNR   arch/mips/include/generated/uapi/asm/unistd_nr_n64.h
-  SYSNR   arch/mips/include/generated/uapi/asm/unistd_nr_o32.h
-  WRAP    arch/mips/include/generated/uapi/asm/bpf_perf_event.h
-  WRAP    arch/mips/include/generated/uapi/asm/ipcbuf.h
+kernel: 4.14.166-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: e0cdfda2225350bfbf0a3d0a6ba1c2717512f26b
+git describe: v4.14.165-72-ge0cdfda22253
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.165-72-ge0cdfda22253
 
-Present since day 0 of syscall table generation introduction for MIPS.
+No regressions (compared to build v4.14.165)
 
-Fixes: 9bcbf97c6293 ("mips: add system call table generation support")
-Cc: <stable@vger.kernel.org> # v5.0+
-Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
----
- arch/mips/kernel/syscalls/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+No fixes (compared to build v4.14.165)
 
-diff --git a/arch/mips/kernel/syscalls/Makefile b/arch/mips/kernel/syscalls/Makefile
-index a3d4bec695c6..6efb2f6889a7 100644
---- a/arch/mips/kernel/syscalls/Makefile
-+++ b/arch/mips/kernel/syscalls/Makefile
-@@ -18,7 +18,7 @@ quiet_cmd_syshdr = SYSHDR  $@
- 		   '$(syshdr_pfx_$(basetarget))'		\
- 		   '$(syshdr_offset_$(basetarget))'
- 
--quiet_cmd_sysnr = SYSNR  $@
-+quiet_cmd_sysnr = SYSNR   $@
-       cmd_sysnr = $(CONFIG_SHELL) '$(sysnr)' '$<' '$@'		\
- 		  '$(sysnr_abis_$(basetarget))'			\
- 		  '$(sysnr_pfx_$(basetarget))'			\
--- 
-2.25.0
+Ran 24180 total tests in the following environments and test suites.
 
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* ltp-cve-tests
+* network-basic-tests
+* spectre-meltdown-checker-test
+* ltp-open-posix-tests
+* kvm-unit-tests
+* ssuite
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
