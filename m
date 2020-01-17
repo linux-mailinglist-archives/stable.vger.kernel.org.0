@@ -2,90 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5AFA14080B
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 11:35:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 906BD14080F
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 11:36:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726362AbgAQKfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 05:35:46 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:38732 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726085AbgAQKfq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 05:35:46 -0500
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: dafna)
-        with ESMTPSA id 7EA6D294794
-Subject: Re: [PATCH v3] media: v4l2-core: fix a use-after-free bug of
- sd->devnode
-To:     Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org
-Cc:     dafna3@gmail.com, helen.koike@collabora.com,
-        ezequiel@collabora.com, stable@vger.kernel.org
-References: <20191120122217.845-1-dafna.hirschfeld@collabora.com>
- <fe36e4a9-2369-3150-b823-97fb4bf1afe4@xs4all.nl>
-From:   Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-Message-ID: <d0505bd7-920e-d0f2-3aa2-440f27e7c08f@collabora.com>
-Date:   Fri, 17 Jan 2020 12:35:20 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726409AbgAQKgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 05:36:43 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:33121 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726085AbgAQKgm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 05:36:42 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 6AAD421B2B;
+        Fri, 17 Jan 2020 05:36:41 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 17 Jan 2020 05:36:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=zysE2vfsh8RYHDgl7OqOaN4tYLh
+        R2XvhvACmMgZFGng=; b=GSzG5OiDDy1rYVC+OygEUkgG/hmot7g5uaukIiWA4EM
+        8e5IyoxR/dMQWNPnAH3sxuB0XNhDdIGMzk7DqFELM3CMwydID6ZqjqbvmIaUnjG8
+        iy1S4EX6aXvGqJdudz5KXw5aG0OLJDGjBvapdCuuhA2uCDOFa7tTQ/FWPVW3bxso
+        ttDYtiKbh/MlNm+Q9T/eWawcyGwrr3ImaXfu8kBILWfd+DZGUOL8bht5A1T/WP+O
+        LeZNDP5GilkOOhhkDd6t10S9+kPOh8GHkI4qJCz/NRMmeuqdSi50kxjZiJpol4fE
+        i59Hs83AnYlsy4MdN+GnQwxPE5FJGzmWesWntRwhvJQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=zysE2v
+        fsh8RYHDgl7OqOaN4tYLhR2XvhvACmMgZFGng=; b=XmrTQkrB2lhUW5SW/C0IXj
+        TYjwfiUWVaYolcy1+Xl1ZuuJFQgGagnpYchGFHTyX1FEC2zzcgLPfy7BcoxvBuXY
+        04AS61I0J4CzU7SeWEUnX/T7PITR/NiAcbsXGAnzDTXAO2ivDSu1l56F+fxdzOKS
+        lC8JyUfBbK/DRN4cequ56EGx+nL14UR1oS/XQJR5Bl4pDVzagatsA4uXE7msYhBC
+        jVEi0q4+I0++sp4zfwKARfeB43ZlycuGIJ+uX9ZD6A10E0o0c/jtTkmclYpEkuqj
+        //z+rSQuN4lobtH9G1FxviP9otP9OoVuKiANofhwrrg/9dZ3J1UBSvZ5MOmRAvMA
+        ==
+X-ME-Sender: <xms:OY4hXudSsFir1jfFpDYyO0rTlWtubXRA2Zp78g4kFROce6ZcWlnDnA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrtdejgddujecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledruddtje
+    enucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehl
+    uhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:OY4hXqn89M-AH0dju1h0OdSWAakLDf3qCbnBp3PoqoAygOf_x6dQjg>
+    <xmx:OY4hXoxrrhkw0fyDEs7ePDd71vLFN6wRexo7s9KcvV8X-xuc6eB6TA>
+    <xmx:OY4hXvE9tLywBmuZnKuRp5EjTAVZiQiaWnzRGWm3sGLR-TqAS5TjsQ>
+    <xmx:OY4hXscfvbQk5tF6JAcYAW8DS9zMPZzZQVp5j1H6Jh6_E9fkp11BYQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A87428005B;
+        Fri, 17 Jan 2020 05:36:40 -0500 (EST)
+Date:   Fri, 17 Jan 2020 11:36:39 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     linux-usb@vger.kernel.org, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 5/5] USB: serial: quatech2: handle unbound ports
+Message-ID: <20200117103639.GA1835567@kroah.com>
+References: <20200117095026.27655-1-johan@kernel.org>
+ <20200117095026.27655-6-johan@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <fe36e4a9-2369-3150-b823-97fb4bf1afe4@xs4all.nl>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200117095026.27655-6-johan@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+On Fri, Jan 17, 2020 at 10:50:26AM +0100, Johan Hovold wrote:
+> Check for NULL port data in the event handlers to avoid dereferencing a
+> NULL pointer in the unlikely case where a port device isn't bound to a
+> driver (e.g. after an allocation failure on port probe).
+> 
+> Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
+> Cc: stable <stable@vger.kernel.org>     # 3.5
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/usb/serial/quatech2.c | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+> 
+> diff --git a/drivers/usb/serial/quatech2.c b/drivers/usb/serial/quatech2.c
+> index a62981ca7a73..c76a2c0c32ff 100644
+> --- a/drivers/usb/serial/quatech2.c
+> +++ b/drivers/usb/serial/quatech2.c
+> @@ -470,6 +470,13 @@ static int get_serial_info(struct tty_struct *tty,
+>  
+>  static void qt2_process_status(struct usb_serial_port *port, unsigned char *ch)
+>  {
+> +	struct qt2_port_private *port_priv;
+> +
+> +	/* May be called from qt2_process_read_urb() for an unbound port. */
+> +	port_priv = usb_get_serial_port_data(port);
+> +	if (!port_priv)
+> +		return;
+> +
 
-On 16.01.20 13:57, Hans Verkuil wrote:
-> On 11/20/19 1:22 PM, Dafna Hirschfeld wrote:
->> sd->devnode is released after calling
->> v4l2_subdev_release. Therefore it should be set
->> to NULL so that the subdev won't hold a pointer
->> to a released object. This fixes a reference
->> after free bug in function
->> v4l2_device_unregister_subdev
->>
->> Cc: stable@vger.kernel.org
->> Fixes: 0e43734d4c46e ("media: v4l2-subdev: add release() internal op")
->> Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
->> Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
->> ---
->> changes since v2:
->> - since this is a regresion fix, I added Fixes and Cc to stable tags,
->> - change the commit title and log to be more clear.
->>
->>   drivers/media/v4l2-core/v4l2-device.c | 1 +
->>   1 file changed, 1 insertion(+)
->>
->> diff --git a/drivers/media/v4l2-core/v4l2-device.c b/drivers/media/v4l2-core/v4l2-device.c
->> index 63d6b147b21e..2b3595671d62 100644
->> --- a/drivers/media/v4l2-core/v4l2-device.c
->> +++ b/drivers/media/v4l2-core/v4l2-device.c
->> @@ -177,6 +177,7 @@ static void v4l2_subdev_release(struct v4l2_subdev *sd)
->>   {
->>   	struct module *owner = !sd->owner_v4l2_dev ? sd->owner : NULL;
->>   
->> +	sd->devnode = NULL;
->>   	if (sd->internal_ops && sd->internal_ops->release)
->>   		sd->internal_ops->release(sd);
-> 
-> I'd move the sd->devnode = NULL; line here. That way the
-> sd->internal_ops->release(sd) callback can still use it.
-> 
-> Unless I am missing something?
-It makes sense although none of the drivers uses this callback since
-the subdevice should be released in the v4l2_device's release so it 
-seems that this callback can (should?) be removed.
+Where is the null dereference here?  Will port be NULL somehow?
 
-Dafna
+>  	switch (*ch) {
+>  	case QT2_LINE_STATUS:
+>  		qt2_update_lsr(port, ch + 1);
+> @@ -484,14 +491,27 @@ static void qt2_process_status(struct usb_serial_port *port, unsigned char *ch)
+>  static void qt2_process_xmit_empty(struct usb_serial_port *port,
+>  				   unsigned char *ch)
+>  {
+> +	struct qt2_port_private *port_priv;
+>  	int bytes_written;
+>  
+> +	/* May be called from qt2_process_read_urb() for an unbound port. */
+> +	port_priv = usb_get_serial_port_data(port);
+> +	if (!port_priv)
+> +		return;
+> +
+>  	bytes_written = (int)(*ch) + (int)(*(ch + 1) << 4);
 
-> 
->>   	module_put(owner);
->>
-> 
-> Regards,
-> 
-> 	Hans
-> 
+What's the harm in doing a pointless calculation here?  Nothing seems to
+happen in this function at all.
+
+>  }
+>  
+>  /* not needed, kept to document functionality */
+>  static void qt2_process_flush(struct usb_serial_port *port, unsigned char *ch)
+>  {
+> +	struct qt2_port_private *port_priv;
+> +
+> +	/* May be called from qt2_process_read_urb() for an unbound port. */
+> +	port_priv = usb_get_serial_port_data(port);
+> +	if (!port_priv)
+> +		return;
+> +
+>  	return;
+>  }
+
+This whole function can just be removed, right?
+
+thanks,
+
+greg k-h
