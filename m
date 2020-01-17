@@ -2,87 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D69571404DF
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 09:08:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C2A1140589
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 09:35:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729409AbgAQIIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 03:08:46 -0500
-Received: from fanzine.igalia.com ([178.60.130.6]:38119 "EHLO
-        fanzine.igalia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727002AbgAQIIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 03:08:45 -0500
-X-Greylist: delayed 2593 seconds by postgrey-1.27 at vger.kernel.org; Fri, 17 Jan 2020 03:08:45 EST
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com; s=20170329;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID; bh=xkBF8jCSOWPumWg9R+MOpddk9K9WEJFLsXsk5vUpwbU=;
-        b=ctgc1bMFPsEvVCcRWuutv+YO2ueOPTps5Bt6MPdOZxl0KloyUOn9f0hYS7JBAP89XHhp/vfRf7bptujxrAIlMsrG0sWnRbKLIAuU7iS9+xFRPoZ8VL+OvJ7WMAu1kkK7v3nMnJ3y3hIxjvVhUeA8s0Wcjg080Em0FF8EeHom99OO8mLi13fCUVAKq5Pj50iiEdcc4m63hho9fAfWt+TAU3Zyf0QCRtiYU9AMd98dJqiA64iCO3yjrPiofo+VNVdjjJ74qNABJwgbedobd2rr8QEMJduQYJOcFwUubSPhukHyPiVuM1DC7scKUrxgryJ2apfGF+D9rINzKTEEJhxXrw==;
-Received: from [192.168.10.170] (helo=ip170.dynamic.igalia.com)
-        by fanzine.igalia.com with esmtpsa 
-        (Cipher TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim)
-        id 1isM0Y-00039r-B1; Fri, 17 Jan 2020 08:25:30 +0100
-Message-ID: <cb93a21557216d1b389390c556f421132aac88f0.camel@igalia.com>
-Subject: Re: [PATCH AUTOSEL 5.4 003/205] drm/v3d: don't leak bin job if
- v3d_job_init fails.
-From:   Iago Toral <itoral@igalia.com>
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Eric Anholt <eric@anholt.net>, dri-devel@lists.freedesktop.org
-Date:   Fri, 17 Jan 2020 08:25:30 +0100
-In-Reply-To: <20200116164300.6705-3-sashal@kernel.org>
-References: <20200116164300.6705-1-sashal@kernel.org>
-         <20200116164300.6705-3-sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.1-2 
+        id S1729690AbgAQIfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 03:35:22 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52415 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727002AbgAQIfV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 03:35:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579250119;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=8Yhtv60kTBgLbtrf5+KxVHz2BHqtcVn/8f147NS0+So=;
+        b=Xo/AyUGOolNmks53vZoo/3ptjKKC+xDJa4HBzCh2JqM9tpkVQkTgrqQ4nUh0FaQlZYCPOx
+        HrcYF+K/6UDfexubAoYeIC9hPzKTvYywVDxQTTySpuCgsjJgM03+aYVLJDf8tUXElzilA9
+        zk1oSx+zCYciNdPt8m+UXbt7Mv/9ryE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-385-px9lVYfWP7CngCFPjmpKhg-1; Fri, 17 Jan 2020 03:35:13 -0500
+X-MC-Unique: px9lVYfWP7CngCFPjmpKhg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 99F548017CC;
+        Fri, 17 Jan 2020 08:35:12 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 90E4B10016EB;
+        Fri, 17 Jan 2020 08:35:12 +0000 (UTC)
+Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id DB8431809563;
+        Fri, 17 Jan 2020 08:35:11 +0000 (UTC)
+Date:   Fri, 17 Jan 2020 03:35:11 -0500 (EST)
+From:   Jan Stancek <jstancek@redhat.com>
+To:     Cyril Hrubis <chrubis@suse.cz>
+Cc:     Rachel Sibley <rasibley@redhat.com>, Jianwen Ji <jiji@redhat.com>,
+        Hangbin Liu <haliu@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Jianlin Shi <jishi@redhat.com>,
+        CKI Project <cki-project@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>
+Message-ID: <1477632721.2420697.1579250111441.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20200116153741.GA558@rei>
+References: <cki.FA900DB853.LBD049H627@redhat.com> <84944fa0-3c18-f8a4-47ca-7627eb4e0594@redhat.com> <20200116153741.GA558@rei>
+Subject: Re: [LTP] ??? FAIL: Test report for kernel 5.4.13-rc1-7f1b863.cki
+ (stable)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.43.17.25, 10.4.195.6]
+Thread-Topic: ??? FAIL: Test report for kernel 5.4.13-rc1-7f1b863.cki (stable)
+Thread-Index: p1YXf2kW0X2fHt0OMwa/2fDBBYA+iw==
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
 
 
-please notice that there were two separate patches that addressed the
-same issue and applying both simultaneously leads to a double free
-(which is what I see is happening with this patch: see the second call
-to kfree(bin) right below the one added here). This issue was raised
-previously here:
-
-https://lists.freedesktop.org/archives/dri-devel/2019-October/241425.html
-
-Iago
-
-On Thu, 2020-01-16 at 11:39 -0500, Sasha Levin wrote:
-> From: Iago Toral Quiroga <itoral@igalia.com>
+----- Original Message -----
+> Hi!
+> > > One or more kernel tests failed:
+> > > 
+> > >      ppc64le:
+> > >       ??? LTP
+> > 
+> > Hi, I see max_map_count failed on ppc64le:
+> > https://artifacts.cki-project.org/pipelines/385189/logs/ppc64le_host_2_LTP_mm.run.log
 > 
-> [ Upstream commit 0d352a3a8a1f26168d09f7073e61bb4b328e3bb9 ]
+> That's strange, we do attempt to map 65536 mappings but we do not touch
+> them, so these shouldn't be faulted in, so there is no real reason why
+> mmap() in the child process should stop prematurely at 65532.
 > 
-> If the initialization of the job fails we need to kfree() it
-> before returning.
-> 
-> Signed-off-by: Iago Toral Quiroga <itoral@igalia.com>
-> Signed-off-by: Eric Anholt <eric@anholt.net>
-> Link: 
-> https://patchwork.freedesktop.org/patch/msgid/20190916071125.5255-1-itoral@igalia.com
-> Fixes: a783a09ee76d ("drm/v3d: Refactor job management.")
-> Reviewed-by: Eric Anholt <eric@anholt.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/v3d/v3d_gem.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/gpu/drm/v3d/v3d_gem.c
-> b/drivers/gpu/drm/v3d/v3d_gem.c
-> index 19c092d75266..6316bf3646af 100644
-> --- a/drivers/gpu/drm/v3d/v3d_gem.c
-> +++ b/drivers/gpu/drm/v3d/v3d_gem.c
-> @@ -565,6 +565,7 @@ v3d_submit_cl_ioctl(struct drm_device *dev, void
-> *data,
->  		ret = v3d_job_init(v3d, file_priv, &bin->base,
->  				   v3d_job_free, args->in_sync_bcl);
->  		if (ret) {
-> +			kfree(bin);
->  			v3d_job_put(&render->base);
->  			kfree(bin);
->  			return ret;
+> I guess that we cannot do much here, unless it's reproducible, because
+> there is not much information there.
+
+max_map_count.c:205: FAIL: 64882 map entries in total, but expected 65536 entries
+
+I can reproduce it by running it in loop for couple hours. Though no idea
+why we started seeing it only in 5.4.13 rc kernels, as there doesn't seem
+to be any significant mm changes.
+
+I'll try some older kernels.
 
