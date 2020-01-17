@@ -2,71 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32B9A140A5B
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 14:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70836140A77
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 14:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726832AbgAQNAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 08:00:50 -0500
-Received: from 8bytes.org ([81.169.241.247]:60168 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726688AbgAQNAu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Jan 2020 08:00:50 -0500
-Received: by theia.8bytes.org (Postfix, from userid 1000)
-        id D1DF9327; Fri, 17 Jan 2020 14:00:48 +0100 (CET)
-Date:   Fri, 17 Jan 2020 14:00:47 +0100
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Brijesh Singh <brijesh.singh@amd.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] x86/CPU/AMD: Ensure clearing of SME/SEV features is
- maintained
-Message-ID: <20200117130047.GA3685@8bytes.org>
-References: <226de90a703c3c0be5a49565047905ac4e94e8f3.1579125915.git.thomas.lendacky@amd.com>
+        id S1726688AbgAQNNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 08:13:20 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:8971 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726329AbgAQNNU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 08:13:20 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e21b2da0000>; Fri, 17 Jan 2020 05:12:58 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 17 Jan 2020 05:13:19 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Fri, 17 Jan 2020 05:13:19 -0800
+Received: from [10.21.133.51] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 17 Jan
+ 2020 13:13:16 +0000
+Subject: Re: [PATCH 4.14 00/71] 4.14.166-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200116231709.377772748@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <ff6be524-fdb0-66c1-977a-96f521a13025@nvidia.com>
+Date:   Fri, 17 Jan 2020 13:13:15 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <226de90a703c3c0be5a49565047905ac4e94e8f3.1579125915.git.thomas.lendacky@amd.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1579266778; bh=JINbM8EB/HU/d2rIdr6xU/Im+Zb4b59It+btSrtysTw=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=gBLmXAF/A2RCOQ+em6ggRElAmkzOFHBytMw3Smfh/m3zhz7ZHfZuRAJaCKVOxpQw6
+         LixeIKjjOd3/bkhfos0PYgijWxF6TrNAG3JL1/k1dct5N9CLwYU6ue+2jD3h1BpfSM
+         JGRwdHB2fZ3x+3htXZCK6EVfpb6CSkf2LgbSaN3uTOf/7iPYqKDdJ0TpGv+Uz4PEMp
+         VxYr0hhfnCTEXCY6TRpGQw1GI8NKnnwQfjekuMGBjD6OORWaL9enbjLU2bjSCkMX1u
+         5kw8xAJLi/UiBWKIiHHDf90tqNNo7L9aMV21kyVrO0FBN8eoOCR+0hQcZrLFEdHrSk
+         Of6tcgPtePGEA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 15, 2020 at 04:05:16PM -0600, Tom Lendacky wrote:
-> If the SME and SEV features are present via CPUID, but memory encryption
-> support is not enabled (MSR 0xC001_0010[23]), the features are cleared
-> using clear_cpu_cap(). However, if get_cpu_cap() is later called, these
-> features will be reset back to present, which is not desired.
-> 
-> Change from using clear_cpu_cap() to setup_clear_cpu_cap() so that the
-> clearing of the features is maintained.
-> 
-> Cc: <stable@vger.kernel.org> # 4.16.x-
-> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
-
-> ---
->  arch/x86/kernel/cpu/amd.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On 16/01/2020 23:17, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.166 release.
+> There are 71 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-> index 90f75e515876..62c30279be77 100644
-> --- a/arch/x86/kernel/cpu/amd.c
-> +++ b/arch/x86/kernel/cpu/amd.c
-> @@ -615,9 +615,9 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
->  		return;
->  
->  clear_all:
-> -		clear_cpu_cap(c, X86_FEATURE_SME);
-> +		setup_clear_cpu_cap(X86_FEATURE_SME);
->  clear_sev:
-> -		clear_cpu_cap(c, X86_FEATURE_SEV);
-> +		setup_clear_cpu_cap(X86_FEATURE_SEV);
->  	}
->  }
->  
-> -- 
-> 2.17.1
+> Responses should be made by Sat, 18 Jan 2020 23:16:00 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.166-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+
+All tests are passing for Tegra ...
+
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    24 tests:	24 pass, 0 fail
+
+Linux version:	4.14.166-rc1-ge0cdfda22253
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
