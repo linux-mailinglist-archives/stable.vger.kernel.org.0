@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDEA714078B
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 11:10:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83050140771
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 11:09:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727022AbgAQKIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 05:08:48 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:55329 "EHLO
+        id S1729262AbgAQKJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 05:09:18 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:55440 "EHLO
         Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727126AbgAQKIr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 05:08:47 -0500
+        with ESMTP id S1729224AbgAQKJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Jan 2020 05:09:17 -0500
 Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
         by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
         (Exim 4.80)
         (envelope-from <tip-bot2@linutronix.de>)
-        id 1isOYR-0005P5-TA; Fri, 17 Jan 2020 11:08:39 +0100
+        id 1isOYw-0005b3-F7; Fri, 17 Jan 2020 11:09:10 +0100
 Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 7EE311C19CC;
-        Fri, 17 Jan 2020 11:08:39 +0100 (CET)
-Date:   Fri, 17 Jan 2020 10:08:39 -0000
-From:   "tip-bot2 for Kan Liang" <tip-bot2@linutronix.de>
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 2D2CD1C19CE;
+        Fri, 17 Jan 2020 11:09:10 +0100 (CET)
+Date:   Fri, 17 Jan 2020 10:09:10 -0000
+From:   "tip-bot2 for Waiman Long" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] perf/x86/intel/uncore: Fix missing marker for
- snr_uncore_imc_freerunning_events
-Cc:     Like Xu <like.xu@linux.intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
+Subject: [tip: locking/urgent] locking/rwsem: Fix kernel crash when spinning
+ on RWSEM_OWNER_UNKNOWN
+Cc:     Christoph Hellwig <hch@lst.de>, Waiman Long <longman@redhat.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         stable@vger.kernel.org, x86 <x86@kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200116200210.18937-1-kan.liang@linux.intel.com>
-References: <20200116200210.18937-1-kan.liang@linux.intel.com>
+In-Reply-To: <20200115154336.8679-1-longman@redhat.com>
+References: <20200115154336.8679-1-longman@redhat.com>
 MIME-Version: 1.0
-Message-ID: <157925571931.396.10786662135233748797.tip-bot2@tip-bot2>
+Message-ID: <157925575001.396.11932253245740441268.tip-bot2@tip-bot2>
 X-Mailer: tip-git-log-daemon
 Robot-ID: <tip-bot2.linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
@@ -47,41 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/urgent branch of tip:
+The following commit has been merged into the locking/urgent branch of tip:
 
-Commit-ID:     ff7be8a42c8844c7923288b218c9151934aa9b26
-Gitweb:        https://git.kernel.org/tip/ff7be8a42c8844c7923288b218c9151934aa9b26
-Author:        Kan Liang <kan.liang@linux.intel.com>
-AuthorDate:    Thu, 16 Jan 2020 12:02:09 -08:00
+Commit-ID:     39e7234f00bc93613c086ae42d852d5f4147120a
+Gitweb:        https://git.kernel.org/tip/39e7234f00bc93613c086ae42d852d5f4147120a
+Author:        Waiman Long <longman@redhat.com>
+AuthorDate:    Wed, 15 Jan 2020 10:43:36 -05:00
 Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Fri, 17 Jan 2020 10:19:24 +01:00
+CommitterDate: Fri, 17 Jan 2020 10:19:27 +01:00
 
-perf/x86/intel/uncore: Fix missing marker for snr_uncore_imc_freerunning_events
+locking/rwsem: Fix kernel crash when spinning on RWSEM_OWNER_UNKNOWN
 
-An Oops during the boot is found on some SNR machines.  It turns out
-this is because the snr_uncore_imc_freerunning_events[] array was
-missing an end-marker.
+The commit 91d2a812dfb9 ("locking/rwsem: Make handoff writer
+optimistically spin on owner") will allow a recently woken up waiting
+writer to spin on the owner. Unfortunately, if the owner happens to be
+RWSEM_OWNER_UNKNOWN, the code will incorrectly spin on it leading to a
+kernel crash. This is fixed by passing the proper non-spinnable bits
+to rwsem_spin_on_owner() so that RWSEM_OWNER_UNKNOWN will be treated
+as a non-spinnable target.
 
-Fixes: ee49532b38dd ("perf/x86/intel/uncore: Add IMC uncore support for Snow Ridge")
-Reported-by: Like Xu <like.xu@linux.intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Fixes: 91d2a812dfb9 ("locking/rwsem: Make handoff writer optimistically spin on owner")
+
+Reported-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Waiman Long <longman@redhat.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Like Xu <like.xu@linux.intel.com>
+Tested-by: Christoph Hellwig <hch@lst.de>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200116200210.18937-1-kan.liang@linux.intel.com
+Link: https://lkml.kernel.org/r/20200115154336.8679-1-longman@redhat.com
 ---
- arch/x86/events/intel/uncore_snbep.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/locking/rwsem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index b10a5ec..0116448 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -4536,6 +4536,7 @@ static struct uncore_event_desc snr_uncore_imc_freerunning_events[] = {
- 	INTEL_UNCORE_EVENT_DESC(write,		"event=0xff,umask=0x21"),
- 	INTEL_UNCORE_EVENT_DESC(write.scale,	"3.814697266e-6"),
- 	INTEL_UNCORE_EVENT_DESC(write.unit,	"MiB"),
-+	{ /* end: all zeroes */ },
- };
+diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
+index 44e6876..0d9b6be 100644
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -1226,8 +1226,8 @@ wait:
+ 		 * In this case, we attempt to acquire the lock again
+ 		 * without sleeping.
+ 		 */
+-		if ((wstate == WRITER_HANDOFF) &&
+-		    (rwsem_spin_on_owner(sem, 0) == OWNER_NULL))
++		if (wstate == WRITER_HANDOFF &&
++		    rwsem_spin_on_owner(sem, RWSEM_NONSPINNABLE) == OWNER_NULL)
+ 			goto trylock_again;
  
- static struct intel_uncore_ops snr_uncore_imc_freerunning_ops = {
+ 		/* Block until there are no active lockers. */
