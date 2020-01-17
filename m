@@ -2,71 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 899EE140EA6
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 17:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B75D0140EB6
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 17:12:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbgAQQGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Jan 2020 11:06:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47566 "EHLO mail.kernel.org"
+        id S1727043AbgAQQMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Jan 2020 11:12:33 -0500
+Received: from foss.arm.com ([217.140.110.172]:43142 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729074AbgAQQGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Jan 2020 11:06:33 -0500
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6FD42072E;
-        Fri, 17 Jan 2020 16:06:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579277193;
-        bh=W4J9u1QVeQSOIq0oEUWMuQF9R1YLXhKlVrmxwBdYUfk=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=1OS6YVLcW3Ss1b+kH+MP7qZ6NyJKEGJeLScgvbkKADYtNH6Qwy/yLO/vchiVcKwoC
-         4kRYB87Wg11aD1+wI/3799BI63GE9fafMUjcPe1mizRxBeKpBD7Whb1i5yJhS8OqeD
-         z3KO1GxKHTH/eXfgF1kUIK50lQsqGZfZGhVV30RM=
-Subject: Re: [PATCH 4.14 00/71] 4.14.166-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20200116231709.377772748@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <6ea88e7b-4e0e-dfd4-5473-54535e1edc35@kernel.org>
-Date:   Fri, 17 Jan 2020 09:06:32 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1729153AbgAQQMd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Jan 2020 11:12:33 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5F8B4113E;
+        Fri, 17 Jan 2020 08:12:32 -0800 (PST)
+Received: from arm.com (e112269-lin.cambridge.arm.com [10.1.194.52])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 74FA03F718;
+        Fri, 17 Jan 2020 08:12:31 -0800 (PST)
+Date:   Fri, 17 Jan 2020 16:12:27 +0000
+From:   Steven Price <steven.price@arm.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Rob Herring <robh@kernel.org>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
+Subject: Re: [PATCH AUTOSEL 5.4 002/205] drm/panfrost: Add missing check for
+ pfdev->regulator
+Message-ID: <20200117161226.GA8472@arm.com>
+References: <20200116164300.6705-1-sashal@kernel.org>
+ <20200116164300.6705-2-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20200116231709.377772748@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200116164300.6705-2-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/16/20 4:17 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.166 release.
-> There are 71 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Jan 16, 2020 at 04:39:37PM +0000, Sasha Levin wrote:
+> From: Steven Price <steven.price@arm.com>
 > 
-> Responses should be made by Sat, 18 Jan 2020 23:16:00 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.166-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> [ Upstream commit 52282163dfa651849e905886845bcf6850dd83c2 ]
 
-Compiled and booted on my test system. No dmesg regressions.
+This commit is effectively already in 5.4. Confusingly there were two
+versions of this upstream:
 
-thanks,
--- Shuah
+52282163dfa6 ("drm/panfrost: Add missing check for pfdev->regulator")
+c90f30812a79 ("drm/panfrost: Add missing check for pfdev->regulator")
+
+It got merged both through a -fixes branch and through the normal merge
+window. The two copies caused a bad merge in mainline and this was
+effectively reverted in commit 603e398a3db2 ("drm/panfrost: Remove NULL
+check for regulator").
+
+c90f30812a79 is included in v5.4 so should already be in any v5.4.y
+release.
+
+Steve
+
+> 
+> When modifying panfrost_devfreq_target() to support a device without a
+> regulator defined I missed the check on the error path. Let's add it.
+> 
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Fixes: e21dd290881b ("drm/panfrost: Enable devfreq to work without regulator")
+> Signed-off-by: Steven Price <steven.price@arm.com>
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20190822093218.26014-1-steven.price@arm.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/gpu/drm/panfrost/panfrost_devfreq.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/panfrost/panfrost_devfreq.c b/drivers/gpu/drm/panfrost/panfrost_devfreq.c
+> index 12ff77dacc95..c1eb8cfe6aeb 100644
+> --- a/drivers/gpu/drm/panfrost/panfrost_devfreq.c
+> +++ b/drivers/gpu/drm/panfrost/panfrost_devfreq.c
+> @@ -53,8 +53,10 @@ static int panfrost_devfreq_target(struct device *dev, unsigned long *freq,
+>  	if (err) {
+>  		dev_err(dev, "Cannot set frequency %lu (%d)\n", target_rate,
+>  			err);
+> -		regulator_set_voltage(pfdev->regulator, pfdev->devfreq.cur_volt,
+> -				      pfdev->devfreq.cur_volt);
+> +		if (pfdev->regulator)
+> +			regulator_set_voltage(pfdev->regulator,
+> +					      pfdev->devfreq.cur_volt,
+> +					      pfdev->devfreq.cur_volt);
+>  		return err;
+>  	}
+>  
+> -- 
+> 2.20.1
+> 
