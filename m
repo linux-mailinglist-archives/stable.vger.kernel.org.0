@@ -2,142 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D399140119
-	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 01:47:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A64A14014D
+	for <lists+stable@lfdr.de>; Fri, 17 Jan 2020 02:08:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732701AbgAQAr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Jan 2020 19:47:29 -0500
-Received: from mga07.intel.com ([134.134.136.100]:37145 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726378AbgAQAr3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Jan 2020 19:47:29 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 Jan 2020 16:47:27 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,327,1574150400"; 
-   d="scan'208";a="306066002"
-Received: from unknown (HELO localhost) ([10.239.159.54])
-  by orsmga001.jf.intel.com with ESMTP; 16 Jan 2020 16:47:24 -0800
-Date:   Fri, 17 Jan 2020 08:47:35 +0800
-From:   Wei Yang <richardw.yang@linux.intel.com>
-To:     David Rientjes <rientjes@google.com>
-Cc:     Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Wei Yang <richardw.yang@linux.intel.com>, hannes@cmpxchg.org,
-        mhocko@kernel.org, vdavydov.dev@gmail.com,
-        akpm@linux-foundation.org, kirill.shutemov@linux.intel.com,
-        yang.shi@linux.alibaba.com, cgroups@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        alexander.duyck@gmail.com, stable@vger.kernel.org
-Subject: Re: [Patch v3] mm: thp: grab the lock before manipulation defer list
-Message-ID: <20200117004735.GA16207@richard>
-Reply-To: Wei Yang <richardw.yang@linux.intel.com>
-References: <20200116013100.7679-1-richardw.yang@linux.intel.com>
- <0bb34c4a-97c7-0b3c-cf43-8af6cf9c4396@virtuozzo.com>
- <alpine.DEB.2.21.2001161357240.109233@chino.kir.corp.google.com>
+        id S2387678AbgAQBFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Jan 2020 20:05:49 -0500
+Received: from smtp.bonedaddy.net ([45.33.94.42]:35588 "EHLO
+        smtp.bonedaddy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727022AbgAQBFt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Jan 2020 20:05:49 -0500
+X-Greylist: delayed 487 seconds by postgrey-1.27 at vger.kernel.org; Thu, 16 Jan 2020 20:05:49 EST
+Received: from chianamo (n175-38-4-223.per2.wa.optusnet.com.au [175.38.4.223])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: pabs3@bonedaddy.net)
+        by smtp.bonedaddy.net (Postfix) with ESMTPSA id B8942180043;
+        Thu, 16 Jan 2020 19:57:43 -0500 (EST)
+Message-ID: <2479db5788a3c776d3c38d2e3b87c570f9a41ea8.camel@bonedaddy.net>
+Subject: Re: [PATCH AUTOSEL 4.4 116/174] coredump: split pipe command
+ whitespace before expanding template
+From:   Paul Wise <pabs3@bonedaddy.net>
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Jakub Wilk <jwilk@jwilk.net>, Neil Horman <nhorman@tuxdriver.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-fsdevel@vger.kernel.org
+In-Reply-To: <20200116174251.24326-116-sashal@kernel.org>
+References: <20200116174251.24326-1-sashal@kernel.org>
+         <20200116174251.24326-116-sashal@kernel.org>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-GSXQFiNy98loWZ2QPEBN"
+Date:   Fri, 17 Jan 2020 08:57:35 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.21.2001161357240.109233@chino.kir.corp.google.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+User-Agent: Evolution 3.34.1-2+b1 
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 16, 2020 at 02:01:59PM -0800, David Rientjes wrote:
->On Thu, 16 Jan 2020, Kirill Tkhai wrote:
->
->> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
->> > index c5b5f74cfd4d..6450bbe394e2 100644
->> > --- a/mm/memcontrol.c
->> > +++ b/mm/memcontrol.c
->> > @@ -5360,10 +5360,12 @@ static int mem_cgroup_move_account(struct page *page,
->> >  	}
->> >  
->> >  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
->> > -	if (compound && !list_empty(page_deferred_list(page))) {
->> > +	if (compound) {
->> >  		spin_lock(&from->deferred_split_queue.split_queue_lock);
->> > -		list_del_init(page_deferred_list(page));
->> > -		from->deferred_split_queue.split_queue_len--;
->> > +		if (!list_empty(page_deferred_list(page))) {
->> > +			list_del_init(page_deferred_list(page));
->> > +			from->deferred_split_queue.split_queue_len--;
->> > +		}
->> >  		spin_unlock(&from->deferred_split_queue.split_queue_lock);
->> >  	}
->> >  #endif
->> > @@ -5377,11 +5379,13 @@ static int mem_cgroup_move_account(struct page *page,
->> >  	page->mem_cgroup = to;
->> >  
->> >  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
->> > -	if (compound && list_empty(page_deferred_list(page))) {
->> > +	if (compound) {
->> >  		spin_lock(&to->deferred_split_queue.split_queue_lock);
->> > -		list_add_tail(page_deferred_list(page),
->> > -			      &to->deferred_split_queue.split_queue);
->> > -		to->deferred_split_queue.split_queue_len++;
->> > +		if (list_empty(page_deferred_list(page))) {
->> > +			list_add_tail(page_deferred_list(page),
->> > +				      &to->deferred_split_queue.split_queue);
->> > +			to->deferred_split_queue.split_queue_len++;
->> > +		}
->> >  		spin_unlock(&to->deferred_split_queue.split_queue_lock);
->> >  	}
->> >  #endif
->> 
->> The patch looks OK for me. But there is another question. I forget, why we unconditionally
->> add a page with empty deferred list to deferred_split_queue. Shouldn't we also check that
->> it was initially in the list? Something like:
->> 
->> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
->> index d4394ae4e5be..0be0136adaa6 100644
->> --- a/mm/memcontrol.c
->> +++ b/mm/memcontrol.c
->> @@ -5289,6 +5289,7 @@ static int mem_cgroup_move_account(struct page *page,
->>  	struct pglist_data *pgdat;
->>  	unsigned long flags;
->>  	unsigned int nr_pages = compound ? hpage_nr_pages(page) : 1;
->> +	bool split = false;
->>  	int ret;
->>  	bool anon;
->>  
->> @@ -5346,6 +5347,7 @@ static int mem_cgroup_move_account(struct page *page,
->>  		if (!list_empty(page_deferred_list(page))) {
->>  			list_del_init(page_deferred_list(page));
->>  			from->deferred_split_queue.split_queue_len--;
->> +			split = true;
->>  		}
->>  		spin_unlock(&from->deferred_split_queue.split_queue_lock);
->>  	}
->> @@ -5360,7 +5362,7 @@ static int mem_cgroup_move_account(struct page *page,
->>  	page->mem_cgroup = to;
->>  
->>  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
->> -	if (compound) {
->> +	if (compound && split) {
->>  		spin_lock(&to->deferred_split_queue.split_queue_lock);
->>  		if (list_empty(page_deferred_list(page))) {
->>  			list_add_tail(page_deferred_list(page),
->> 
->
->I think that's a good point, especially considering that the current code 
->appears to unconditionally place any compound page on the deferred split 
->queue of the destination memcg.  The correct list that it should appear 
->on, I believe, depends on whether the pmd has been split for the process 
->being moved: note the MC_TARGET_PAGE caveat in 
->mem_cgroup_move_charge_pte_range() that does not move the charge for 
->compound pages with split pmds.  So when mem_cgroup_move_account() is 
->called with compound == true, we're moving the charge of the entire 
->compound page: why would it appear on that memcg's deferred split queue?
 
-Well, Kirill's change is easy to understand, while your statement here is a
-bit hard for me. Seems I lack some knowledge about cgroup. I am sorry about
-this. :-(
+--=-GSXQFiNy98loWZ2QPEBN
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Wei Yang
-Help you, Help me
+On Thu, 2020-01-16 at 12:41 -0500, Sasha Levin wrote:
+
+> From: Paul Wise <pabs3@bonedaddy.net>
+>=20
+> [ Upstream commit 315c69261dd3fa12dbc830d4fa00d1fad98d3b03 ]
+
+Sasha, we already agreed in [1] and [2] that this patch should not get
+backported to earlier versions of Linux, would you mind teaching your
+patch autoselection about that so that it doesn't get backported?
+
+1. https://lore.kernel.org/lkml/c835c71b722c3df3d11e7b7f8fd65bbd7da0d482.ca=
+mel@bonedaddy.net/
+2. https://lore.kernel.org/lkml/20190818014841.GF1318@sasha-vm/
+
+--=20
+bye,
+pabs
+
+https://bonedaddy.net/pabs3/
+
+--=-GSXQFiNy98loWZ2QPEBN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEYQsotVz8/kXqG1Y7MRa6Xp/6aaMFAl4hBnkACgkQMRa6Xp/6
+aaPi0Q//cebVmScish+TwhHnq8zxYtq+fBQYrnLGDtKdSBDnfYalZgtOIi6qRni3
+GSvMUuclWoCCWSgWPvnjAhaEPdhg5YLOkc7rvqrBYkxbg2hjmZZ1xdaMOJX1Mgd1
+kCnS02u2Lm1BMPY7dtbiXBmrp7eFbL6Pkf/4wzqihGEJhUtZ9+EkbMbYJ0rSxEvP
+Z9qsQGoLk+Zfldv/Pn8yH4+HpIEMYB7WM76MjJJS3qmzR6fNvvK/W6ZVVh5N96iL
+HHpV33GQnQzl3t9xuh4ryxMTmovQY4D3V1k7DMNP7Akl8CdwZjYBsIJJuv46rMAm
+vmwQUpjMxA0xupQ1MOpW4SSvWQdvTM3Js0Q8tIj4tIEZZtQAOB9n3MtKuY2+qQdi
+qlqgaM4TgzACPNT4JC291tr7IdkQSQvoPMr+o6fzvmzYKjOxcjpVx3PEfay/BbsN
+dO0UJVRLJmG7IlX8ci8Xz8mwCvhiCVWyW5C6ULpSpB3ARgVxUGqndcIIIjUh0lYm
+T0aG7fU6FoAOSpAlLtbBS/lfOmmL0ismCqTDrL5+GraILkC24HatXLioHLemnp9s
+xmXk3LqOl6YzKKkF/3NH+riAspoweFKbVQKwp7ebUimAVRKjdnsVFeMtL0r96i5W
+c19Kn1Xc50RUP0MRo+pAFuhsnjweVV0s2GRbtsI9Q1uasT+rM/Q=
+=ShSX
+-----END PGP SIGNATURE-----
+
+--=-GSXQFiNy98loWZ2QPEBN--
+
