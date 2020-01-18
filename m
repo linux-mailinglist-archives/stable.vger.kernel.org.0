@@ -2,88 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA80D141681
-	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 09:22:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AC701416AC
+	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 10:00:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726509AbgARIWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jan 2020 03:22:10 -0500
-Received: from mx1.yrkesakademin.fi ([85.134.45.194]:57383 "EHLO
-        mx1.yrkesakademin.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726425AbgARIWK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 03:22:10 -0500
-Subject: Re: [PATCH] tpm: Revert "tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before
- probing for interrupts"
-To:     Miaohe Lin <linmiaohe@huawei.com>
-CC:     Stefan Berger <stefanb@linux.ibm.com>, <stable@vger.kernel.org>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-References: <20200118202544.14523-1-linmiaohe@huawei.com>
-From:   Thomas Backlund <tmb@mageia.org>
-Message-ID: <36bebb77-95b8-49b4-ad55-73f6c0ddf9b2@mageia.org>
-Date:   Sat, 18 Jan 2020 10:22:06 +0200
+        id S1726628AbgARJAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jan 2020 04:00:32 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:54274 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726619AbgARJAc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 04:00:32 -0500
+Received: by mail-wm1-f67.google.com with SMTP id b19so9589327wmj.4
+        for <stable@vger.kernel.org>; Sat, 18 Jan 2020 01:00:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=O/8qNbmFz55Bk6WldKnQLSxf5yQ+XlqeDyt/Uf3IL7k=;
+        b=06LWeq0/vs05TgwSZ+rdSq+XRdKHAOJYfJ17l40k2U0UJYcG/FVSmOd3KFVFEY1UPG
+         EI1QcNltwCOUyORnSQW2ij5Bn6VX0bxKEJfcqcA3jyMn8naahaUqCkgKAA2rpGloKNfg
+         wXHCqYpx7dImrawfOr96O+GdyMpVQw8YDaRCtXqTBONayLzS2Tgi5i/pft5GfhKU6cvT
+         yW2rDvoxuUgtY7EMdcwfMqktfzPJxOnToEw9eL33NPZ/w1x80akanWcbmKKTv9onruiA
+         NTS4CMEVLKUu+ULUlFrFyTf6qBKIouEUxzkuBj7SsP4l5fPZX7xxEZ6w+E9vo/nTDrV8
+         oREQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=O/8qNbmFz55Bk6WldKnQLSxf5yQ+XlqeDyt/Uf3IL7k=;
+        b=pLTGkPmvw+j8Bpba+q2CBJ3awTUJxvoOup4WAxGIyXRDHBrpC8LoGND0XyNElm44dF
+         3JAwUm9SUYROWU8E1vstvWf7Puq/p97nZ1hKd9wl+xjHMyvCgd+jMjW8VSw4hbB0HkdX
+         1hmCWhxPsoewWQF3zCrvvzbwZn8M2BxnDydvalXbPh4+EN9e2/GV1N0OYW+Kt4X7IbLx
+         hPOOShj66G27+uwl7ZH7JaCdEiuyksRv4zm5qzD+/68di/jCOYWLvnfEIYDkAP1FpraX
+         ge97DkAcgBQ4RdHYK+RzQKEfdGr39Yae7o8GrxT4LR4NJaJyup1wrZeB8GfAj3EnX0qK
+         z85A==
+X-Gm-Message-State: APjAAAVBdiH3VPcFngWBYhlTqaP3Hmoa5XWpoYlUqPWb74OAGRDo8l1J
+        heQfRSWU0aP1Z3FxVXebvyYWXg1f/qxCeg==
+X-Google-Smtp-Source: APXvYqxli2nKZ+9yoQ8cisUdGmFUDuXT7HZwPnzTU8N2iIYcipkcALrjMboyMwOsH4hqn0lbLlhjxw==
+X-Received: by 2002:a1c:964f:: with SMTP id y76mr8564443wmd.62.1579338030311;
+        Sat, 18 Jan 2020 01:00:30 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a14sm39552356wrx.81.2020.01.18.01.00.29
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jan 2020 01:00:29 -0800 (PST)
+Message-ID: <5e22c92d.1c69fb81.f3667.15ee@mx.google.com>
+Date:   Sat, 18 Jan 2020 01:00:29 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200118202544.14523-1-linmiaohe@huawei.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-WatchGuard-Spam-ID: str=0001.0A0C0213.5E22C031.0042,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
-X-WatchGuard-Spam-Score: 0, clean; 0, virus threat unknown
-X-WatchGuard-Mail-Client-IP: 85.134.45.194
-X-WatchGuard-Mail-From: tmb@mageia.org
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.97
+Subject: stable-rc/linux-4.19.y boot: 62 boots: 1 failed, 61 passed (v4.19.97)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Den 18-01-2020 kl. 22:25, skrev Miaohe Lin:
-> From: Stefan Berger <stefanb@linux.ibm.com>
-> 
-> There has been a bunch of reports (one from kernel bugzilla linked)
-> reporting that when this commit is applied it causes on some machines
-> boot freezes.
-> 
-> Unfortunately hardware where this commit causes a failure is not widely
-> available (only one I'm aware is Lenovo T490), which means we cannot
-> predict yet how long it will take to properly fix tpm_tis interrupt
-> probing.
-> 
-> Thus, the least worst short term action is to revert the code to the
-> state before this commit. In long term we need fix the tpm_tis probing
-> code to work on machines that Stefan's fix was supposed to fix.
-> 
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=205935
-> Fixes: 1ea32c83c699 ("tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts")
-> Cc: stable@vger.kernel.org
-> Cc: Jerry Snitselaar <jsnitsel@redhat.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Tested-by: Dan Williams <dan.j.williams@intel.com>
-> Tested-by: Xiaoping Zhou <xiaoping.zhou@intel.com>
-> Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-> Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
-> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> ---
->   drivers/char/tpm/tpm_tis_core.c | 1 -
->   1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-> index 8af2cee1a762..5dc52c4e2292 100644
-> --- a/drivers/char/tpm/tpm_tis_core.c
-> +++ b/drivers/char/tpm/tpm_tis_core.c
-> @@ -1060,7 +1060,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
->   		}
->   
->   		tpm_chip_start(chip);
-> -		chip->flags |= TPM_CHIP_FLAG_IRQ;
->   		if (irq) {
->   			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
->   						 irq);
-> 
+stable-rc/linux-4.19.y boot: 62 boots: 1 failed, 61 passed (v4.19.97)
 
-Please check before posting...
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.97/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.97/
 
-This is already reverted in 5.4.12 relased ~4 days ago..
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.97
+Git Commit: dc4ba5be1babd3b3ec905751a30df89a5899a7a9
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 42 unique boards, 11 SoC families, 12 builds out of 203
 
+Boot Failure Detected:
 
---
-Thomas
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
