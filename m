@@ -2,139 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F81141A4B
-	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 23:56:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 319A8141A78
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 00:36:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727029AbgARW4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jan 2020 17:56:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41822 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbgARW4G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Jan 2020 17:56:06 -0500
-Received: from X1 (nat-ab2241.sltdut.senawave.net [162.218.216.4])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A827620679;
-        Sat, 18 Jan 2020 22:56:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579388165;
-        bh=jZ8YdnRBX9EDonfAPfT7ZcpoPzWPALa4EA5mgXF9H3A=;
-        h=Date:From:To:Subject:From;
-        b=MYPu1P8nZw35efkRrlGT9SRyJQpBmLOs97Pzm/BdnHjyCXyETw//UsRcn/pVhxnkB
-         Kn7DLubMgck1QTwIT5RSWwXz4Zmf9RcVebro2LlFnnHFFWX34gvWCfp4YzfQUTtAWY
-         IHRu+6IsLBwWGMSsjyocXx7+rsy7rccT38cCKhDg=
-Date:   Sat, 18 Jan 2020 14:56:05 -0800
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, yang.shi@linux.alibaba.com,
-        vdavydov.dev@gmail.com, stable@vger.kernel.org,
-        rientjes@google.com, mhocko@suse.com,
-        kirill.shutemov@linux.intel.com, hannes@cmpxchg.org,
-        richardw.yang@linux.intel.com
-Subject:  +
- mm-thp-remove-the-defer-list-related-code-since-this-will-not-happen.patch
- added to -mm tree
-Message-ID: <20200118225605.Nvg0D%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1727051AbgARXgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jan 2020 18:36:09 -0500
+Received: from mail-pj1-f66.google.com ([209.85.216.66]:37653 "EHLO
+        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727008AbgARXgJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 18:36:09 -0500
+Received: by mail-pj1-f66.google.com with SMTP id m13so5193174pjb.2
+        for <stable@vger.kernel.org>; Sat, 18 Jan 2020 15:36:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:in-reply-to:message-id:references
+         :user-agent:mime-version;
+        bh=uIkVi5/18BrXAFhDrVTXIWex0kk8NMAn2RkTWk0CSSY=;
+        b=iu115+9lV/04EU32wHPVpF5SDtYyBN/ZzP+6hYsCU3Loxosw509E7TMGGGSST3zeco
+         midRiRU45Kip2a5+PVlNYHG5rnRUAbAya88HCQLSqJXOSRpyh5D5ysfQA5zKL6VN9cjo
+         YFLcul8JrbJIRsTxm9W8BTYuu3mU+NggVPgGJ9oWUH5JAgZl/jl6BaXT+mi8ElktC7eP
+         K9uDl0rvufOE+biNXeyhrorGReyOFLb9SLyQGcLRZd1fvH03NkUt5aPxE9CraNLEZ1eK
+         HAbBTyicLdpaAK/ntvqjoTh0C0873jNLJNI1hXCrkWwl8Oh9yEcFe2V7ZSHQgpmk/zH/
+         ts0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
+         :references:user-agent:mime-version;
+        bh=uIkVi5/18BrXAFhDrVTXIWex0kk8NMAn2RkTWk0CSSY=;
+        b=qmnJR8orKXXH272elYQN1ibzVR4ZJDgG66wGku+8NCqB9ADlJDnH0MpCzPu5HjiIf2
+         qrmd/aZiyUuf6qImaPSm3ppLhYVrNVP1QA/gd2H9qT/e0+3BdBDsMazY+ryILHTfvG54
+         2gv12e1z80swTCop8FWPlqJjGCOi5oK6SaDxGGbydcT1keDWtiVhvp3VKEq61IEKXaAu
+         0T53o9i+JEVAEu+XUrlkkFd+7VpDtFwTgRnxap0+MiXYoUS5cVzD+5KZPRdlA+Q12gw+
+         eSOg2sNztfzIYNKxJsHiDaIkq9tfFVwx0DsDD759m+MHwsbPOUGyt7iUAgU8JcKCXwOn
+         vdhg==
+X-Gm-Message-State: APjAAAXMFYHZOVKTjMXnk6krE5J/Iiyb2zAixNYDpq6PxI3sYZLdvk3l
+        kL8stpADPJDfdya05z/8Zi5mpA==
+X-Google-Smtp-Source: APXvYqz7a/YBmpU2KpRRbYHzpssvbNtNYLKoplHj5DlHRkIHmGTqw52wuPetVnUrdiiuBUzJdi0dNg==
+X-Received: by 2002:a17:902:34a:: with SMTP id 68mr6912460pld.250.1579390568189;
+        Sat, 18 Jan 2020 15:36:08 -0800 (PST)
+Received: from [2620:15c:17:3:3a5:23a7:5e32:4598] ([2620:15c:17:3:3a5:23a7:5e32:4598])
+        by smtp.gmail.com with ESMTPSA id w5sm11953694pjt.32.2020.01.18.15.36.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jan 2020 15:36:07 -0800 (PST)
+Date:   Sat, 18 Jan 2020 15:36:06 -0800 (PST)
+From:   David Rientjes <rientjes@google.com>
+X-X-Sender: rientjes@chino.kir.corp.google.com
+To:     Andrew Morton <akpm@linux-foundation.org>
+cc:     Wei Yang <richardw.yang@linux.intel.com>, hannes@cmpxchg.org,
+        mhocko@kernel.org, vdavydov.dev@gmail.com, ktkhai@virtuozzo.com,
+        kirill.shutemov@linux.intel.com, yang.shi@linux.alibaba.com,
+        cgroups@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: [Patch v4] mm: thp: remove the defer list related code since
+ this will not happen
+In-Reply-To: <20200118145421.0ab96d5d9bea21a3339d52fe@linux-foundation.org>
+Message-ID: <alpine.DEB.2.21.2001181525250.27051@chino.kir.corp.google.com>
+References: <20200117233836.3434-1-richardw.yang@linux.intel.com> <20200118145421.0ab96d5d9bea21a3339d52fe@linux-foundation.org>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, 18 Jan 2020, Andrew Morton wrote:
 
-The patch titled
-     Subject: mm: thp: don't need care deferred split queue in memcg charge move path
-has been added to the -mm tree.  Its filename is
-     mm-thp-remove-the-defer-list-related-code-since-this-will-not-happen.patch
+> On Sat, 18 Jan 2020 07:38:36 +0800 Wei Yang <richardw.yang@linux.intel.com> wrote:
+> 
+> > If compound is true, this means it is a PMD mapped THP. Which implies
+> > the page is not linked to any defer list. So the first code chunk will
+> > not be executed.
+> > 
+> > Also with this reason, it would not be proper to add this page to a
+> > defer list. So the second code chunk is not correct.
+> > 
+> > Based on this, we should remove the defer list related code.
+> > 
+> > Fixes: 87eaceb3faa5 ("mm: thp: make deferred split shrinker memcg aware")
+> > 
+> > Signed-off-by: Wei Yang <richardw.yang@linux.intel.com>
+> > Suggested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> > Cc: <stable@vger.kernel.org>    [5.4+]
+> 
+> This patch is identical to "mm: thp: grab the lock before manipulating
+> defer list", which is rather confusing.  Please let people know when
+> this sort of thing is done.
+> 
+> The earlier changelog mentioned a possible race condition.  This
+> changelog does not.  In fact this changelog fails to provide any
+> description of any userspace-visible runtime effects of the bug. 
+> Please send along such a description for inclusion, as always.
+> 
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-thp-remove-the-defer-list-related-code-since-this-will-not-happen.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-thp-remove-the-defer-list-related-code-since-this-will-not-happen.patch
+The locking concern that Wei was originally looking at is no longer an 
+issue because we determined that the code in question could simply be 
+removed.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+I think the following can be added to the changelog:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+----->o-----
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+When migrating memcg charges of thp memory, there are two possibilities:
 
-------------------------------------------------------
-From: Wei Yang <richardw.yang@linux.intel.com>
-Subject: mm: thp: don't need care deferred split queue in memcg charge move path
+ (1) The underlying compound page is mapped by a pmd and thus does is not 
+     on a deferred split queue (it's mapped), or
 
-If compound is true, this means it is a PMD mapped THP. Which implies
-the page is not linked to any defer list. So the first code chunk will
-not be executed.
+ (2) The compound page is not mapped by a pmd and is awaiting split on a
+     deferred split queue.
 
-Also with this reason, it would not be proper to add this page to a
-defer list. So the second code chunk is not correct.
+The current charge migration implementation does *not* migrate charges for 
+thp memory on the deferred split queue, it only migrates charges for pages 
+that are mapped by a pmd.
 
-Based on this, we should remove the defer list related code.
+Thus, to migrate charges, the underlying compound page cannot be on a 
+deferred split queue; no list manipulation needs to be done in 
+mem_cgroup_move_account().
 
-[yang.shi@linux.alibaba.com: better patch title]
-Link: http://lkml.kernel.org/r/20200117233836.3434-1-richardw.yang@linux.intel.com
-Fixes: 87eaceb3faa5 ("mm: thp: make deferred split shrinker memcg aware")
-Signed-off-by: Wei Yang <richardw.yang@linux.intel.com>
-Suggested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Acked-by: Yang Shi <yang.shi@linux.alibaba.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <stable@vger.kernel.org>    [5.4+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+With the current code, the underlying compound page is moved to the 
+deferred split queue of the memcg its memory is not charged to, so 
+susbequent reclaim will consider these pages for the wrong memcg.  Remove 
+the deferred split queue handling in mem_cgroup_move_account() entirely.
 
- mm/memcontrol.c |   18 ------------------
- 1 file changed, 18 deletions(-)
+----->o-----
 
---- a/mm/memcontrol.c~mm-thp-remove-the-defer-list-related-code-since-this-will-not-happen
-+++ a/mm/memcontrol.c
-@@ -5340,14 +5340,6 @@ static int mem_cgroup_move_account(struc
- 		__mod_lruvec_state(to_vec, NR_WRITEBACK, nr_pages);
- 	}
- 
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--	if (compound && !list_empty(page_deferred_list(page))) {
--		spin_lock(&from->deferred_split_queue.split_queue_lock);
--		list_del_init(page_deferred_list(page));
--		from->deferred_split_queue.split_queue_len--;
--		spin_unlock(&from->deferred_split_queue.split_queue_lock);
--	}
--#endif
- 	/*
- 	 * It is safe to change page->mem_cgroup here because the page
- 	 * is referenced, charged, and isolated - we can't race with
-@@ -5357,16 +5349,6 @@ static int mem_cgroup_move_account(struc
- 	/* caller should have done css_get */
- 	page->mem_cgroup = to;
- 
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--	if (compound && list_empty(page_deferred_list(page))) {
--		spin_lock(&to->deferred_split_queue.split_queue_lock);
--		list_add_tail(page_deferred_list(page),
--			      &to->deferred_split_queue.split_queue);
--		to->deferred_split_queue.split_queue_len++;
--		spin_unlock(&to->deferred_split_queue.split_queue_lock);
--	}
--#endif
--
- 	spin_unlock_irqrestore(&from->move_lock, flags);
- 
- 	ret = 0;
-_
-
-Patches currently in -mm which might be from richardw.yang@linux.intel.com are
-
-mm-thp-remove-the-defer-list-related-code-since-this-will-not-happen.patch
-mm-gupc-use-is_vm_hugetlb_page-to-check-whether-to-follow-huge.patch
-mm-huge_memoryc-use-head-to-check-huge-zero-page.patch
-mm-huge_memoryc-use-head-to-emphasize-the-purpose-of-page.patch
-mm-huge_memoryc-reduce-critical-section-protected-by-split_queue_lock.patch
-mm-remove-dead-code-totalram_pages_set.patch
-
+Acked-by: David Rientjes <rientjes@google.com>
