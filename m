@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 576AE14181A
-	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 16:03:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48AE514181C
+	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 16:04:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726359AbgARPDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jan 2020 10:03:49 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:40035 "EHLO
+        id S1726386AbgARPD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jan 2020 10:03:58 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:55877 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726334AbgARPDt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 10:03:49 -0500
+        by vger.kernel.org with ESMTP id S1726334AbgARPD6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 10:03:58 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 3C28343E;
-        Sat, 18 Jan 2020 10:03:48 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 605B143E;
+        Sat, 18 Jan 2020 10:03:57 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sat, 18 Jan 2020 10:03:48 -0500
+  by compute6.internal (MEProxy); Sat, 18 Jan 2020 10:03:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=GpziT6
-        SAjhIhntFSwQR9K0cIPI80fQfm/ivbiCuRuvM=; b=cquoia8Z4f+8uctLHhx7D1
-        mtL5Ag/1gY30IPHbD/nKHuVq3yMcccDRBgaMRC0lrWx/hreX+07RtE5mF6memXRa
-        jW8yyDRzWtgn4EI1mjSybXhyYNAtC+oQ7U0OOGLD6IlcCZrbXIonnSXbGGzjWyvx
-        t1+UGfItLnKIERDq6NJbQouJl287wL1PoOSpWtTojJUhldlXIsuKVcACGorytYMC
-        OWxPTfN0C/SiDe+jL7d0PPUpm8xHQs5YGMeds1/fKdnUQCDijrwsFpZv+wCNb86p
-        EPhdwXwRSeWcpv0nopWk5M32DwZUuzDvnH2lZJjWhiex0SmhUAIf/pQGme9omY8w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=tMlvP4
+        T4r8nmNinnSDVBv9w21tnyACDU7Lk8HMDXttw=; b=wWnklI22su6nrPMws/Q0YL
+        QC2wBpeE9zUfs36maFRf5ezU7ek6fOVOjml4AXtaOwr0yDe7UvpY57ePX49sowlp
+        TkqjLMywcXfGlBycMGMeL0d6PnMzlZFwtyIaLDx8Mm9IZreJL9knMWo1N8QF7LUW
+        yEZuA/6CyYPzWzEI/ZydmvDZzj8DVlJ1TbPvrJj0od00HtCTI999YgvSv7243Gy3
+        k8SsWBxuABzPPD2yXtJx6XW3B/VCyAg4o9TswMeD3GbBX/0hquD0qB8iINj+npD8
+        IQHmdCde1/x3TziNOtpKgf4CAWpFhxfL/YEKrzNca7yn8mOVx+/rs61rlDUX2YNA
         ==
-X-ME-Sender: <xms:Ux4jXkUHH_G9jWjFh07xF3BFJAD1UsvmYGAReHvfe6RSGwpRwMGh5A>
+X-ME-Sender: <xms:XB4jXhp3BK2a3dc-cQ1SbvS4yhk2ucNXF0JyRC9proYCVRhLkVMFRg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddtgdejudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepfeejrdejuddrudegfedrudejtdenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Ux4jXq88zPcSfYBo9KXgJukly4o1C_u33_-h_tXlTp7PJsHwPhRgdw>
-    <xmx:Ux4jXhoSYq0QRPR1BMxpDdA83sjSwcVaNl_xfJGREKD_Zq_QA9R77w>
-    <xmx:Ux4jXme8vbZ0gTuwGGXz0ptB8upxpVlDOLyxdGNnW2Sa1vuOxWIPQA>
-    <xmx:Ux4jXo0aHoNUEVwrzWyDPFabkTA0g6HjOg6CbsAuNNLtNNvVSvwaSg>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:XB4jXuYiDF4L9mK1ziy7A4igKUnFE62Jqo-jtM4_LU-QTpz-000YNQ>
+    <xmx:XB4jXtFPMJ9aZJrdt7ysR7uEKdv5m_v3ljRdI8iYPH62f3vfRNB_dQ>
+    <xmx:XB4jXjobPJ7e1uEnIYRVOdaTNMASvWP3d_2y-O9DU4qWTnRONPvsxw>
+    <xmx:XR4jXjoohHqP3d0DEwfrebh7p0CA0AZThiSV0DqbQ3hATpfuBc9pug>
 Received: from localhost (170.143.71.37.rev.sfr.net [37.71.143.170])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 24C1F30607B4;
-        Sat, 18 Jan 2020 10:03:47 -0500 (EST)
-Subject: FAILED: patch "[PATCH] arm64: dts: agilex/stratix10: fix pmu interrupt numbers" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id A417E30607CD;
+        Sat, 18 Jan 2020 10:03:56 -0500 (EST)
+Subject: FAILED: patch "[PATCH] arm64: dts: agilex/stratix10: fix pmu interrupt numbers" failed to apply to 4.9-stable tree
 To:     dinguyen@kernel.org, Meng.Li@windriver.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 18 Jan 2020 16:03:46 +0100
-Message-ID: <1579359826132170@kroah.com>
+Message-ID: <157935982661210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
