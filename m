@@ -2,212 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4501F141929
-	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 20:29:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA7B914195A
+	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 21:11:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbgART3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jan 2020 14:29:32 -0500
-Received: from mail-dm6nam10on2138.outbound.protection.outlook.com ([40.107.93.138]:63962
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726806AbgART3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Jan 2020 14:29:31 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lBtBvB1lD7GOgPkfSbGIJFBj5e6//AT3fZPXmVioVvMhhtfMKv1rbV1pj8mr+ELg9vTd2KbxOOFOl6DKCNLXuXq6VYjyIdX4/eUfTLrb+3Py/xSX/Zi7hLe99sGBBnHII2DfX3GnmQwh9Tm7b7vZaGme82YHyewfRfrs6lbSA96B90BDB67vivLuaE+RDQPL14ybR1KzLO36Axpfn4GrpLyJZZF1G5wadKhlV0fL68v68mWpISMePngcQdnMMDJaaS4r3i3FT8SSmeonfl1ZIAjaVr6W6famtLGLLRhc2jGQxRzN21TWbOUI60I5y4kXcMuw+ogvv8oieJaBDiTjEw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qvQXSTONABnpWNd33pVwgZD/aMU5i0BZrnt5B+W9FCw=;
- b=nF4AkD3SRC70Had1kTQvhdXjtIf2bwBD0LLkbUQ7IQNBjcd1iulc0E/WzyS0WYk01BAfqV5ZMCwPYT8Z7c8JAzONtIc8oSdplhlyYVXYP1YdE5R4YiWcPxXyISrmcma7n72gwSv+VQ5ElUTRMmOBrOjtOoUwPz4ttcWA1x3TAR0h4KGz6aQCf4mcjMiFq3rLYYlORFOgYWM6yFvOp8/+p8CdiWVSiV69ZSB9RiMbQiSrMM6SXDojVS+2gRFsmuC6md8lANs48DmD8FqaZ+MAoZJOho/4WzF+9OszNbTsuBBYVO+/+XXl0xl6oR7oVLpdVuI94fj4GAZoGnSL9DTJtQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qvQXSTONABnpWNd33pVwgZD/aMU5i0BZrnt5B+W9FCw=;
- b=df0GpXq7x22PRzlY86x3HeFghI2r1Y2eUS+jFCAAjLn5/u0arD6+l2o20a61jFg8Ul4Y6P4itFnzJ2fGPLZ9Mq0JsvmNXAT6XSWABAhqc7ZLe+KokPyHUTckren38xGVUE4h7Jd9sN4IRuZuFSxjtDnRVnGh0oys7tn14QzmjdM=
-Received: from MW2PR2101MB1052.namprd21.prod.outlook.com (52.132.149.16) by
- MW2PR2101MB0940.namprd21.prod.outlook.com (52.132.146.13) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2644.4; Sat, 18 Jan 2020 19:29:27 +0000
-Received: from MW2PR2101MB1052.namprd21.prod.outlook.com
- ([fe80::f1bb:c094:cb30:ba1f]) by MW2PR2101MB1052.namprd21.prod.outlook.com
- ([fe80::f1bb:c094:cb30:ba1f%6]) with mapi id 15.20.2644.015; Sat, 18 Jan 2020
- 19:29:27 +0000
-From:   Michael Kelley <mikelley@microsoft.com>
-To:     "lantianyu1986@gmail.com" <lantianyu1986@gmail.com>,
-        KY Srinivasan <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        "sashal@kernel.org" <sashal@kernel.org>
-CC:     Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        vkuznets <vkuznets@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH V2] x86/Hyper-V: Balloon up according to request page
- number
-Thread-Topic: [PATCH V2] x86/Hyper-V: Balloon up according to request page
- number
-Thread-Index: AQHVzHeBeCcAgW5Bc0OpEv2JOO+xBKfwzQOg
-Date:   Sat, 18 Jan 2020 19:29:27 +0000
-Message-ID: <MW2PR2101MB10520A27DC77E3B2F15EC75FD7300@MW2PR2101MB1052.namprd21.prod.outlook.com>
-References: <20200116141600.23391-1-Tianyu.Lan@microsoft.com>
-In-Reply-To: <20200116141600.23391-1-Tianyu.Lan@microsoft.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=True;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Owner=mikelley@ntdev.microsoft.com;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2020-01-18T19:29:24.8895054Z;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=General;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Application=Microsoft Azure
- Information Protection;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=20eeef19-b79d-4e67-97db-f5edc5648f20;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Extended_MSFT_Method=Automatic
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=mikelley@microsoft.com; 
-x-originating-ip: [24.22.167.197]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 51104d43-e1ba-40a9-29aa-08d79c4cbbbe
-x-ms-traffictypediagnostic: MW2PR2101MB0940:|MW2PR2101MB0940:|MW2PR2101MB0940:
-x-ms-exchange-transport-forked: True
-x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
-x-microsoft-antispam-prvs: <MW2PR2101MB0940F7C5C844E4F6F9786B82D7300@MW2PR2101MB0940.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:6790;
-x-forefront-prvs: 0286D7B531
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(396003)(346002)(366004)(136003)(39860400002)(376002)(189003)(199004)(81166006)(33656002)(5660300002)(81156014)(10290500003)(186003)(52536014)(478600001)(9686003)(6506007)(26005)(8990500004)(316002)(8676002)(71200400001)(66556008)(76116006)(7696005)(66446008)(4326008)(86362001)(2906002)(54906003)(8936002)(66946007)(66476007)(110136005)(64756008)(55016002);DIR:OUT;SFP:1102;SCL:1;SRVR:MW2PR2101MB0940;H:MW2PR2101MB1052.namprd21.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: microsoft.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 7CZ2t0jBEpyJyKOm1Rx5QKa8cC3aSBPV1vm2EmHguw+M6ZMV164Y1HguLe/VkNF9WRDw+xCw5G8cbTnSFR9RogJp8rD5aO0o4+2F3H6C4eGd6LIIXAygPbMVSNCEZJXLJqR+CnYJpolhGnN1RfP1iHYFbaBoE9XawA5SH3MWwqN3NRcInocKmo2gOReUipobEIR8NogPUgz6deAx78XdxgffRCKFt298gEh1pw9T16vSWlOd4CpJjkcDPpYSUScIDEZDqbCVbnKYz61kacO2L+05TgtlKqQEksF1Cr0FuGepnSc2EGcbEgrC+hvf+5CIigy0LNYB9vHZL9w9qK+M69mnOeGqHHzo1zUOSgY/ANuNTx9QTGiyziBcz8HfAWyNzdWZb/nYSYqPdUy7NyLcHEpnMoaG3XJMSB9SKiaNmFQzIrtXXKSDrON4Vz+DvRzK
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1726910AbgARUKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jan 2020 15:10:45 -0500
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:39926 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726720AbgARUKp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 15:10:45 -0500
+Received: by mail-pl1-f193.google.com with SMTP id g6so11357291plp.6
+        for <stable@vger.kernel.org>; Sat, 18 Jan 2020 12:10:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=pTlazCNxUY2WnhqQUJW93zmqTNOLYC2EDHPWpa9mxbA=;
+        b=alkj7wx06eVo+EteRZwj3oj8Dns2P52ChrKCK9d3GEd7UDNcf5dqbktNFIXEYlxhMM
+         /CyZ4Z1u3J/QHRRxNAk48xF1D8NecB2e2Ojs4bF5nh6ERDsd9lrp8CCKLQgDqOmQ73ny
+         IASABNUu4TllCxQGZl00hG3PRC7fm2QUGtwysN6h6vqmRR+nydIERhs4bPcNRSox/ts+
+         vmvs118o8cKMsq7aTKYjpfFilnIt+IhtZ5qPmXacGM+odgdI+yqT7HofFBJ3ZDOR8WPQ
+         NbBRJAkMd9tsCe83BgSOpUo5pfpgzzt06m89Zo5Mupn+TPU3Nrrk9GYXGro008oEOz2A
+         IDng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=pTlazCNxUY2WnhqQUJW93zmqTNOLYC2EDHPWpa9mxbA=;
+        b=Shqka98wEeBqdSlQhhTTBMQ5pnlO4PoZDLyhXYdjJgRchqHG0q2Be3bJExAIKSRDky
+         DPnc3dgdmsT5tgVhPebxo9Hn33ZOlIYcHtZit7FF36ZcwWjhMK8Lh0rHeWt6oL+Fv6cK
+         PWxc3G/yNRH/SdaoCFGYelxCaXFWIDD53BK8oaKijxXp3QyuL1AlEm+AaUrP6y5iF5y7
+         B0UupgEBilBLz2Mj+bis2arKeHwBGl/5CQitRkTCjWhokNae+rpeNRX1yxUQDfwh6ob3
+         PHZSegDaRPJSaiqLR5p1bbcejxooXG0CqjAx3fF983Ys6nzplK4mLuA4K6i+ZITuudz+
+         IGSQ==
+X-Gm-Message-State: APjAAAULN6nWUbrqhfZSxO1gIfs05po2Ak59DvS7Fu3Z/3wMqpMFZS10
+        enzAublfVsVES1Re5cf7u58uDg==
+X-Google-Smtp-Source: APXvYqwlqj9Dde4TU8hw6QRRZNwWNiqOrg/Jc8GxPylIlJqtwOqTYzwv4YKAYF1KyhX6b9Drx1qZ1A==
+X-Received: by 2002:a17:902:bc85:: with SMTP id bb5mr6396764plb.208.1579378244210;
+        Sat, 18 Jan 2020 12:10:44 -0800 (PST)
+Received: from yoga (104-188-17-28.lightspeed.sndgca.sbcglobal.net. [104.188.17.28])
+        by smtp.gmail.com with ESMTPSA id i3sm33490574pfg.94.2020.01.18.12.10.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jan 2020 12:10:43 -0800 (PST)
+Date:   Sat, 18 Jan 2020 12:10:40 -0800
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Luis Chamberlain <mcgrof@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Jari Ruusu <jari.ruusu@gmail.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Fenghua Yu <fenghua.yu@intel.com>, johannes.berg@intel.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        linux-remoteproc@vger.kernel.org
+Subject: Re: Fix built-in early-load Intel microcode alignment
+Message-ID: <20200118201040.GH1511@yoga>
+References: <CACMCwJK-2DHZDA_F5Z3wsEUEKJSc3uOwwPD4HRoYGW7A+kA75w@mail.gmail.com>
+ <20200113154739.GB11244@42.do-not-panic.com>
+ <CAHk-=wja2GChi_JBu0xBkQ96mqXC3TMKUp=YvRhgPy0+1m5YNw@mail.gmail.com>
+ <20200115022705.GE11244@42.do-not-panic.com>
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 51104d43-e1ba-40a9-29aa-08d79c4cbbbe
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Jan 2020 19:29:27.5934
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: K6EjvkPm4Ld31anXM4jo0mm2Rs6VUUjb+PBcfV2Xh2zBqam/brD4ovDo6etJ8LyOg3+zjdTFYVevlLOfCpE71LZMA7Dw/SEmK6xojctgt2E=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW2PR2101MB0940
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200115022705.GE11244@42.do-not-panic.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Lan <Tianyu.Lan@microsoft.com> Sent: Thursday, January 16, 202=
-0 6:16 AM
->=20
-> Current code has assumption that balloon request memory size aligns
-> with 2MB. But actually Hyper-V doesn't guarantee such alignment. When
-> balloon driver receives non-aligned balloon request, it produces warning
-> and balloon up more memory than requested in order to keep 2MB alignment.
-> Remove the warning and balloon up memory according to actual requested
-> memory size.
->=20
-> Fixes: f6712238471a ("hv: hv_balloon: avoid memory leak on alloc_error of=
- 2MB memory
-> block")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-> ---
-> Change since v2:
->     - Change logic of switching alloc_unit from 2MB to 4KB
->     in the balloon_up() to avoid redundant iteration when
->     handle non-aligned page request.
->     - Remove 2MB alignment operation and comment in balloon_up()
-> ---
->  drivers/hv/hv_balloon.c | 12 ++++--------
->  1 file changed, 4 insertions(+), 8 deletions(-)
->=20
-> diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
-> index 7f3e7ab22d5d..536807efbc35 100644
-> --- a/drivers/hv/hv_balloon.c
-> +++ b/drivers/hv/hv_balloon.c
-> @@ -1684,7 +1684,7 @@ static unsigned int alloc_balloon_pages(struct
-> hv_dynmem_device *dm,
->  	if (num_pages < alloc_unit)
->  		return 0;
+On Tue 14 Jan 18:27 PST 2020, Luis Chamberlain wrote:
 
-The above test is no longer necessary.  The num_pages < alloc_unit
-case is handled implicitly by your new 'for' loop condition.
+> On Mon, Jan 13, 2020 at 11:44:25AM -0800, Linus Torvalds wrote:
+> > On Mon, Jan 13, 2020 at 7:47 AM Luis Chamberlain <mcgrof@kernel.org> wrote:
+> > >
+> > > So I'd like to determine first if we really need this. Then if so,
+> > > either add a new global config option, and worst comes to worst
+> > > figure out a way to do it per driver. I don't think we'd need it
+> > > per driver.
+> > 
+> > I really don't think we need to have a config option for some small
+> > alignment. Increasing the alignment unconditionally to 16 bytes won't
+> > hurt anybody.
+> 
+> Since you are confident in that, then simply bumping it to 16 bytes
+> seems fine by me.
+> 
+> > Now, whether there might be other firmware loaders that need even more
+> > alignment, that might be an interesting question, and if such an
+> > alignment would be _huge_ we might want to worry about actual memory
+> > waste.
+> 
+> I can only envision waste being considered due to alignent for remote
+> proc folks, who I *doubt* use the built-in stuff given the large size of
+> their blobs... but since you never know, better poke. So I've CC'd them.
+> 
 
->=20
-> -	for (i =3D 0; (i * alloc_unit) < num_pages; i++) {
-> +	for (i =3D 0; i < num_pages / alloc_unit; i++) {
->  		if (bl_resp->hdr.size + sizeof(union dm_mem_page_range) >
->  			HV_HYP_PAGE_SIZE)
->  			return i * alloc_unit;
-> @@ -1722,7 +1722,7 @@ static unsigned int alloc_balloon_pages(struct
-> hv_dynmem_device *dm,
->=20
->  	}
->=20
-> -	return num_pages;
-> +	return i * alloc_unit;
->  }
->=20
->  static void balloon_up(union dm_msg_info *msg_info)
-> @@ -1737,9 +1737,6 @@ static void balloon_up(union dm_msg_info *msg_info)
->  	long avail_pages;
->  	unsigned long floor;
->=20
-> -	/* The host balloons pages in 2M granularity. */
-> -	WARN_ON_ONCE(num_pages % PAGES_IN_2M !=3D 0);
-> -
->  	/*
->  	 * We will attempt 2M allocations. However, if we fail to
->  	 * allocate 2M chunks, we will go back to PAGE_SIZE allocations.
-> @@ -1749,14 +1746,13 @@ static void balloon_up(union dm_msg_info *msg_inf=
-o)
->  	avail_pages =3D si_mem_available();
->  	floor =3D compute_balloon_floor();
->=20
-> -	/* Refuse to balloon below the floor, keep the 2M granularity. */
-> +	/* Refuse to balloon below the floor. */
->  	if (avail_pages < num_pages || avail_pages - num_pages < floor) {
->  		pr_warn("Balloon request will be partially fulfilled. %s\n",
->  			avail_pages < num_pages ? "Not enough memory." :
->  			"Balloon floor reached.");
->=20
->  		num_pages =3D avail_pages > floor ? (avail_pages - floor) : 0;
-> -		num_pages -=3D num_pages % PAGES_IN_2M;
->  	}
->=20
->  	while (!done) {
-> @@ -1770,7 +1766,7 @@ static void balloon_up(union dm_msg_info *msg_info)
->  		num_ballooned =3D alloc_balloon_pages(&dm_device, num_pages,
->  						    bl_resp, alloc_unit);
->=20
-> -		if (alloc_unit !=3D 1 && num_ballooned =3D=3D 0) {
-> +		if (alloc_unit !=3D 1 && num_ballooned !=3D num_pages) {
+I've not heard of anyone using built-in firmware with remoteproc, but as
+you say firmware used with remoteproc is large. So I can't see there
+being a problem of potentially wasting 8 bytes...
 
-Maybe I'm missing something, but I don't think Vitaly's optimization works.=
-  If
-alloc_unit specifies 2 Mbytes, and num_pages specifies 3 Mbytes, then num_b=
-allooned
-will come back as 2 Mbytes, which is correct.  But if we revert alloc_unit =
-to 1 page and
-"continue" in that case, we will lose the 2 Mbytes of memory (it's not free=
-d), and the
-next time through the loop will try to allocate only 1 Mbyte (because num_p=
-ages
-will be decremented by num_ballooned).  I think the original code does the =
-right thing.
+> > But 16-byte alignment for a fw blob? That's nothing.
+> 
+> Fine by me if we are sure it won't break anything and we hear no
+> complaints by remote proc folks.
+> 
 
-Michael
+Go for it.
 
->  			alloc_unit =3D 1;
->  			continue;
->  		}
-> --
-> 2.14.5
-
+Regards,
+Bjorn
