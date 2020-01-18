@@ -2,188 +2,288 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6AD7141744
-	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 12:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9AC714176E
+	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 13:09:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727109AbgARLhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jan 2020 06:37:16 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:38157 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727081AbgARLhP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 06:37:15 -0500
-Received: by mail-pg1-f195.google.com with SMTP id a33so13008343pgm.5
-        for <stable@vger.kernel.org>; Sat, 18 Jan 2020 03:37:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=dJFpZmbL29Nhk/m0uumLjQe295W+Tqyiu0Y2F3ZrsGE=;
-        b=GDWdJquZYzJ4XJLd81poGT62R1JdfDpVM7N50F5H28SfDpaLO+gfT9wj/O7F6qEFgo
-         EL4ppOvEn3mVFrxS+C7ZtsO83I+xhOfm76eVVGANa9vzVZ5ySQPQJY6qKQ9GeaaMn4Uk
-         sLoTkDGy3wQtjEWRAe6auUi/9286Zb5SBilcw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=dJFpZmbL29Nhk/m0uumLjQe295W+Tqyiu0Y2F3ZrsGE=;
-        b=mcZZP4RZz/Gz0V2XsDJRIM7ahsa8Ioveji49p2qRTjCmHnNc+j1sr/9pTymGhMn36E
-         or0lluDi2McQ+s6sqMUy18WvxSxNka3tmXLhssuFL2TZmaOcxvWS7QFUufPB+kjBt/Y1
-         lpU4h4Ey1EIBa4rWX04Jh1CcnxaWrXoVYfqM2pUFa5unq3NF8txDoHFqDfOab+4qLEiH
-         TC3sz/+zSenecbMLgLypdFnFaYi9oKDDLnOcR/AUfcPBu+CQD24G2ogaA5gaF0B8I7je
-         msjt3kqLG99HVYmvHX1uNDAVmL79EaSzlOAVTg/fXfj4ochfCRglq7t5JRDpQl8c0InV
-         6Wzw==
-X-Gm-Message-State: APjAAAUV0GZr8JXln/5hdXlw6HlVO7Otmxm1Eu7TyBrMRYmvo92pghph
-        qqSRwyHmaGwFKVaYvuvmIra68w==
-X-Google-Smtp-Source: APXvYqzyAgaGpOPjRh7J3jDSXt9buI4zmXy/wdMRydYeKUGftRpELJHQlYHek1AST36dVgajTSV1sA==
-X-Received: by 2002:a63:234f:: with SMTP id u15mr49598701pgm.88.1579347433758;
-        Sat, 18 Jan 2020 03:37:13 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id a17sm5902264pjv.6.2020.01.18.03.37.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Jan 2020 03:37:12 -0800 (PST)
-Date:   Sat, 18 Jan 2020 03:37:11 -0800
-From:   Kees Cook <keescook@chromium.org>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     linux-kernel@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Oleg Nesterov <oleg@redhat.com>, stable@vger.kernel.org,
-        Serge Hallyn <serge@hallyn.com>, avagin@gmail.com,
-        Eric Paris <eparis@redhat.com>
-Subject: Re: [PATCH v4] ptrace: reintroduce usage of subjective credentials
- in ptrace_has_cap()
-Message-ID: <202001180336.F000E9337@keescook>
-References: <20200118011908.23582-1-christian.brauner@ubuntu.com>
+        id S1728676AbgARMJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jan 2020 07:09:39 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:56539 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727118AbgARMJj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 07:09:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579349376;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=lPynrNqePKF1KnST6ds66vt1kp9krP7dsscYmrtwkhM=;
+        b=YlVuUZwKXgdub9yQ5Ihrn2mopOCIaGkUGWiUb3B/qpnTOC8STjRhH0/y75WhDchvrS01YL
+        gT5kr/kg8LdvVmDcImJSzkG7zw9WrjfjsVCNTh6iP/madFmk0GK5oPPrTr0jwINADXpApN
+        Nis0ajxDekio1clW49Rc/7Iylh9Kjdg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-69-bUIrLbtXN4KqpYJiFmJxEA-1; Sat, 18 Jan 2020 07:09:32 -0500
+X-MC-Unique: bUIrLbtXN4KqpYJiFmJxEA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 79B2C800D48
+        for <stable@vger.kernel.org>; Sat, 18 Jan 2020 12:09:31 +0000 (UTC)
+Received: from [172.54.107.231] (cpt-1057.paas.prod.upshift.rdu2.redhat.com [10.0.19.72])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E7FB65C1D4;
+        Sat, 18 Jan 2020 12:09:28 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200118011908.23582-1-christian.brauner@ubuntu.com>
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.13-ba19874.cki
+ (stable)
+Date:   Sat, 18 Jan 2020 12:09:28 -0000
+Message-ID: <cki.5090F7DEFB.C6F3R98QXF@redhat.com>
+X-Gitlab-Pipeline-ID: 389429
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/389429
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 18, 2020 at 02:19:08AM +0100, Christian Brauner wrote:
-> Commit 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
-> introduced the ability to opt out of audit messages for accesses to various
-> proc files since they are not violations of policy.  While doing so it
-> somehow switched the check from ns_capable() to
-> has_ns_capability{_noaudit}(). That means it switched from checking the
-> subjective credentials of the task to using the objective credentials. This
-> is wrong since. ptrace_has_cap() is currently only used in
-> ptrace_may_access() And is used to check whether the calling task (subject)
-> has the CAP_SYS_PTRACE capability in the provided user namespace to operate
-> on the target task (object). According to the cred.h comments this would
-> mean the subjective credentials of the calling task need to be used.
-> This switches ptrace_has_cap() to use security_capable(). Because we only
-> call ptrace_has_cap() in ptrace_may_access() and in there we already have a
-> stable reference to the calling task's creds under rcu_read_lock() there's
-> no need to go through another series of dereferences and rcu locking done
-> in ns_capable{_noaudit}().
-> 
-> As one example where this might be particularly problematic, Jann pointed
-> out that in combination with the upcoming IORING_OP_OPENAT feature, this
-> bug might allow unprivileged users to bypass the capability checks while
-> asynchronously opening files like /proc/*/mem, because the capability
-> checks for this would be performed against kernel credentials.
-> 
-> To illustrate on the former point about this being exploitable: When
-> io_uring creates a new context it records the subjective credentials of the
-> caller. Later on, when it starts to do work it creates a kernel thread and
-> registers a callback. The callback runs with kernel creds for
-> ktask->real_cred and ktask->cred. To prevent this from becoming a
-> full-blown 0-day io_uring will call override_cred() and override
-> ktask->cred with the subjective credentials of the creator of the io_uring
-> instance. With ptrace_has_cap() currently looking at ktask->real_cred this
-> override will be ineffective and the caller will be able to open arbitray
-> proc files as mentioned above.
-> Luckily, this is currently not exploitable but will turn into a 0-day once
-> IORING_OP_OPENAT{2} land in v5.6. Fix it now!
-> 
-> Cc: Oleg Nesterov <oleg@redhat.com>
-> Cc: Eric Paris <eparis@redhat.com>
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Kees Cook <keescook@chromium.org>
 
-Looks good! Just to close the loop, yes, my Reviewed-by can stand. :)
+Hello,
 
--Kees
+We ran automated tests on a recent commit from this kernel tree:
 
-> Reviewed-by: Serge Hallyn <serge@hallyn.com>
-> Reviewed-by: Jann Horn <jannh@google.com>
-> Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
-> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-> ---
-> /* v1 */
-> Link: https://lore.kernel.org/r/20200115171736.16994-1-christian.brauner@ubuntu.com
-> 
-> /* v2 */
-> Link: https://lore.kernel.org/r/20200116224518.30598-1-christian.brauner@ubuntu.com
-> - Christian Brauner <christian.brauner@ubuntu.com>:
->   - fix incorrect CAP_OPT_NOAUDIT, CAPT_OPT_NONE order
-> 
-> /* v3 */
-> Link: https://lore.kernel.org/r/20200117105717.29803-1-christian.brauner@ubuntu.com
-> - Kees Cook <keescook@chromium.org>:
->   - remove misleading reference to cread guard mutex from commit message
->   - replace if-branches with ternary ?: operator
-> 
-> /* v4 */
-> - Kees Cook <keescook@chromium.org>:
->   - use security_capable() == 0 on return
-> - Christian Brauner <christian.brauner@ubuntu.com>:
->   - replace ?: operator with if-branches since we need to check against 0.
->     This makes it more legible.
-> ---
->  kernel/ptrace.c | 15 ++++++++++-----
->  1 file changed, 10 insertions(+), 5 deletions(-)
-> 
-> diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-> index cb9ddcc08119..43d6179508d6 100644
-> --- a/kernel/ptrace.c
-> +++ b/kernel/ptrace.c
-> @@ -264,12 +264,17 @@ static int ptrace_check_attach(struct task_struct *child, bool ignore_state)
->  	return ret;
->  }
->  
-> -static int ptrace_has_cap(struct user_namespace *ns, unsigned int mode)
-> +static bool ptrace_has_cap(const struct cred *cred, struct user_namespace *ns,
-> +			   unsigned int mode)
->  {
-> +	int ret;
-> +
->  	if (mode & PTRACE_MODE_NOAUDIT)
-> -		return has_ns_capability_noaudit(current, ns, CAP_SYS_PTRACE);
-> +		ret = security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NOAUDIT);
->  	else
-> -		return has_ns_capability(current, ns, CAP_SYS_PTRACE);
-> +		ret = security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NONE);
-> +
-> +	return ret == 0;
->  }
->  
->  /* Returns 0 on success, -errno on denial. */
-> @@ -321,7 +326,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
->  	    gid_eq(caller_gid, tcred->sgid) &&
->  	    gid_eq(caller_gid, tcred->gid))
->  		goto ok;
-> -	if (ptrace_has_cap(tcred->user_ns, mode))
-> +	if (ptrace_has_cap(cred, tcred->user_ns, mode))
->  		goto ok;
->  	rcu_read_unlock();
->  	return -EPERM;
-> @@ -340,7 +345,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
->  	mm = task->mm;
->  	if (mm &&
->  	    ((get_dumpable(mm) != SUID_DUMP_USER) &&
-> -	     !ptrace_has_cap(mm->user_ns, mode)))
-> +	     !ptrace_has_cap(cred, mm->user_ns, mode)))
->  	    return -EPERM;
->  
->  	return security_ptrace_access_check(task, mode);
-> 
-> base-commit: b3a987b0264d3ddbb24293ebff10eddfc472f653
-> -- 
-> 2.25.0
-> 
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
+x-stable-rc.git
+            Commit: ba1987403207 - Linux 5.4.13
 
--- 
-Kees Cook
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/389429
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - megaraid_sas
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - mpt3sas driver
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernels =
+have
+a Beaker recipe linked to next to each host.
+
