@@ -2,119 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E34141814
-	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 15:49:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 576AE14181A
+	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 16:03:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726277AbgAROtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jan 2020 09:49:33 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:44893 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726208AbgAROtd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 09:49:33 -0500
-Received: from ip5f5bf7da.dynamic.kabel-deutschland.de ([95.91.247.218] helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1ispPm-0000RI-OH; Sat, 18 Jan 2020 14:49:30 +0000
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc:     Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>,
-        Serge Hallyn <serge@hallyn.com>, stable@vger.kernel.org
-Subject: [GIT PULL] thread fixes v5.5-rc7
-Date:   Sat, 18 Jan 2020 15:49:14 +0100
-Message-Id: <20200118144914.25322-1-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.25.0
+        id S1726359AbgARPDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jan 2020 10:03:49 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:40035 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726334AbgARPDt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 10:03:49 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 3C28343E;
+        Sat, 18 Jan 2020 10:03:48 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sat, 18 Jan 2020 10:03:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=GpziT6
+        SAjhIhntFSwQR9K0cIPI80fQfm/ivbiCuRuvM=; b=cquoia8Z4f+8uctLHhx7D1
+        mtL5Ag/1gY30IPHbD/nKHuVq3yMcccDRBgaMRC0lrWx/hreX+07RtE5mF6memXRa
+        jW8yyDRzWtgn4EI1mjSybXhyYNAtC+oQ7U0OOGLD6IlcCZrbXIonnSXbGGzjWyvx
+        t1+UGfItLnKIERDq6NJbQouJl287wL1PoOSpWtTojJUhldlXIsuKVcACGorytYMC
+        OWxPTfN0C/SiDe+jL7d0PPUpm8xHQs5YGMeds1/fKdnUQCDijrwsFpZv+wCNb86p
+        EPhdwXwRSeWcpv0nopWk5M32DwZUuzDvnH2lZJjWhiex0SmhUAIf/pQGme9omY8w
+        ==
+X-ME-Sender: <xms:Ux4jXkUHH_G9jWjFh07xF3BFJAD1UsvmYGAReHvfe6RSGwpRwMGh5A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddtgdejudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepfeejrdejuddrudegfedrudejtdenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Ux4jXq88zPcSfYBo9KXgJukly4o1C_u33_-h_tXlTp7PJsHwPhRgdw>
+    <xmx:Ux4jXhoSYq0QRPR1BMxpDdA83sjSwcVaNl_xfJGREKD_Zq_QA9R77w>
+    <xmx:Ux4jXme8vbZ0gTuwGGXz0ptB8upxpVlDOLyxdGNnW2Sa1vuOxWIPQA>
+    <xmx:Ux4jXo0aHoNUEVwrzWyDPFabkTA0g6HjOg6CbsAuNNLtNNvVSvwaSg>
+Received: from localhost (170.143.71.37.rev.sfr.net [37.71.143.170])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 24C1F30607B4;
+        Sat, 18 Jan 2020 10:03:47 -0500 (EST)
+Subject: FAILED: patch "[PATCH] arm64: dts: agilex/stratix10: fix pmu interrupt numbers" failed to apply to 4.19-stable tree
+To:     dinguyen@kernel.org, Meng.Li@windriver.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 18 Jan 2020 16:03:46 +0100
+Message-ID: <1579359826132170@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Linus,
 
-/* Summary */
-Here is an urgent fix for ptrace_may_access() permission checking.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Commit 69f594a38967 ("ptrace: do not audit capability check when outputing
-/proc/pid/stat") introduced the ability to opt out of audit
-messages for accesses to various proc files since they are not violations of
-policy. While doing so it switched the check from ns_capable() to
-has_ns_capability{_noaudit}(). That means it switched from checking the
-subjective credentials (ktask->cred) of the task to using the objective
-credentials (ktask->real_cred). This is appears to be wrong. ptrace_has_cap()
-is currently only used in ptrace_may_access() And is used to check whether the
-calling task (subject) has the CAP_SYS_PTRACE capability in the provided user
-namespace to operate on the target task (object).  According to the cred.h
-comments this means the subjective credentials of the calling task need to be
-used.
+thanks,
 
-With this pr we switch ptrace_has_cap() to use security_capable() and thus back
-to using the subjective credentials.
+greg k-h
 
-As one example where this might be particularly problematic, Jann pointed out
-that in combination with the upcoming IORING_OP_OPENAT{2} feature, this bug
-might allow unprivileged users to bypass the capability checks while
-asynchronously opening files like /proc/*/mem, because the capability checks
-for this would be performed against kernel credentials.
+------------------ original commit in Linus's tree ------------------
 
-To illustrate on the former point about this being exploitable: When io_uring
-creates a new context it records the subjective credentials of the caller.
-Later on, when it starts to do work it creates a kernel thread and registers a
-callback. The callback runs with kernel creds for ktask->real_cred and
-ktask->cred. To prevent this from becoming a full-blown 0-day io_uring will
-call override_cred() and override ktask->cred with the subjective credentials
-of the creator of the io_uring instance. With ptrace_has_cap() currently
-looking at ktask->real_cred this override will be ineffective and the caller
-will be able to open arbitray proc files as mentioned above.
-Luckily, this is currently not exploitable but will turn into a 0-day once
-IORING_OP_OPENAT{2} land in v5.6. Let's fix it now.
+From 210de0e996aee8e360ccc9e173fe7f0a7ed2f695 Mon Sep 17 00:00:00 2001
+From: Dinh Nguyen <dinguyen@kernel.org>
+Date: Wed, 20 Nov 2019 09:15:17 -0600
+Subject: [PATCH] arm64: dts: agilex/stratix10: fix pmu interrupt numbers
 
-To minimize potential regressions I successfully ran the criu testsuite. criu
-makes heavy use of ptrace() and extensively hits ptrace_may_access() codepaths
-and has a good change of detecting any regressions.
-Additionally, I succesfully ran the ptrace and seccomp kernel tests.
+Fix up the correct interrupt numbers for the PMU unit on Agilex
+and Stratix10.
 
-/* Testing */
-All patches have seen exposure in linux-next and are based on v5.5-rc6.
-As mentioned above, the criu test-suite which is one of the test-suits make
-massive use of ptrace and hitting ptrace_may_access() codepaths successfully
-passed on a kernel with this fix:
-################## ALL TEST(S) PASSED (TOTAL 178/SKIPPED 16) ###################
-I've posted the full test-log at:
-https://gitlab.com/snippets/1931214
-Additionally, I succesfully ran the ptrace and seccomp kernel tests.
-We also will add a regression test once IO_URING_OPENAT{2} has landed for v5.6
-since this gives us a really easy test.
+Fixes: 78cd6a9d8e15 ("arm64: dts: Add base stratix 10 dtsi")
+Cc: linux-stable <stable@vger.kernel.org>
+Reported-by: Meng Li <Meng.Li@windriver.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 
-/* Conflicts */
-At the time of creating this PR no merge conflicts were reported from
-linux-next.
+diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
+index 144a2c19ac02..d1fc9c2055f4 100644
+--- a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
++++ b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
+@@ -61,10 +61,10 @@ cpu3: cpu@3 {
+ 
+ 	pmu {
+ 		compatible = "arm,armv8-pmuv3";
+-		interrupts = <0 120 8>,
+-			     <0 121 8>,
+-			     <0 122 8>,
+-			     <0 123 8>;
++		interrupts = <0 170 4>,
++			     <0 171 4>,
++			     <0 172 4>,
++			     <0 173 4>;
+ 		interrupt-affinity = <&cpu0>,
+ 				     <&cpu1>,
+ 				     <&cpu2>,
+diff --git a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
+index 94090c6fb946..d43e1299c8ef 100644
+--- a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
++++ b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
+@@ -60,10 +60,10 @@ cpu3: cpu@3 {
+ 
+ 	pmu {
+ 		compatible = "arm,armv8-pmuv3";
+-		interrupts = <0 120 8>,
+-			     <0 121 8>,
+-			     <0 122 8>,
+-			     <0 123 8>;
++		interrupts = <0 170 4>,
++			     <0 171 4>,
++			     <0 172 4>,
++			     <0 173 4>;
+ 		interrupt-affinity = <&cpu0>,
+ 				     <&cpu1>,
+ 				     <&cpu2>,
 
-The following changes since commit b3a987b0264d3ddbb24293ebff10eddfc472f653:
-
-  Linux 5.5-rc6 (2020-01-12 16:55:08 -0800)
-
-are available in the Git repository at:
-
-  git@gitolite.kernel.org:pub/scm/linux/kernel/git/brauner/linux tags/for-linus-2020-01-18
-
-for you to fetch changes up to 6b3ad6649a4c75504edeba242d3fd36b3096a57f:
-
-  ptrace: reintroduce usage of subjective credentials in ptrace_has_cap() (2020-01-18 13:51:39 +0100)
-
-Please consider pulling these changes from the signed for-linus-2020-01-18 tag.
-
-Thanks!
-Christian
-
-----------------------------------------------------------------
-for-linus-2020-01-18
-
-----------------------------------------------------------------
-Christian Brauner (1):
-      ptrace: reintroduce usage of subjective credentials in ptrace_has_cap()
-
- kernel/ptrace.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
