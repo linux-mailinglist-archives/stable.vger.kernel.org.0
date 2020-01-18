@@ -2,120 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB88C14181D
-	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 16:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53B31141866
+	for <lists+stable@lfdr.de>; Sat, 18 Jan 2020 17:31:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726407AbgARPD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Jan 2020 10:03:59 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:46853 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726334AbgARPD7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 10:03:59 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 9EAD24C9;
-        Sat, 18 Jan 2020 10:03:58 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sat, 18 Jan 2020 10:03:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gZU226
-        p6OZXW0S/Vupb/6qP6NAfEzK4+yKSXriaXSxQ=; b=TYjpNGrjxoF26i8PiFHUfl
-        4Uybcqd5eTZcR2Fr6FE7tHOlaEhrLFjLPKNwuHal2lMLNF25D1tjT3UNUPtQbDU9
-        4C1U1wy5qOxXoA0ec9svTr3W5m6JgfACC8huIj00yJnq0OtejQnt2eehbMYhemJG
-        EdylN7oA63eGp2W5khbZGWn/4uw1BzeKfCgqUdoKoN/WWddSePvDE3EQmbzpI0/3
-        +g8A/tWMN7kyhDbMo9pHxelwO1AiLviEv9q2j6U2gLAX++TK2d4Vz0JOeiHqTVNc
-        E42L/gwa5sVw6Q4Ph76gzwg7y21QokF6s58djK2puQTrG+SzJJoscQ0ERKS7OQzw
-        ==
-X-ME-Sender: <xms:Xh4jXhGvTTy8lk2PSnm3jNNizCD9HpuShpUd2mME87tCtXSFKc8KLA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedruddtgdejudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepfeejrdejuddrudegfedrudejtdenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
-X-ME-Proxy: <xmx:Xh4jXgzfdzep3Vlzo5XEUBnNQoVaGxvnXBfQILJ0ABMMsPUYPwvwPw>
-    <xmx:Xh4jXp4PWXf8sAwJtTVU-XM_k_jKrnsf3RdcxtDOyV4BpxzM-7brcg>
-    <xmx:Xh4jXhiNLZ_Evt2SGJ9_U-w5w6vp--iKBnaafqRoBTnrZUrMetNuiw>
-    <xmx:Xh4jXsmlLVieQIuDpbLSCa7ufryUhiHUcltYlLztc815K6-eVdhAMg>
-Received: from localhost (170.143.71.37.rev.sfr.net [37.71.143.170])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E0ECE30607CD;
-        Sat, 18 Jan 2020 10:03:57 -0500 (EST)
-Subject: FAILED: patch "[PATCH] arm64: dts: agilex/stratix10: fix pmu interrupt numbers" failed to apply to 4.4-stable tree
-To:     dinguyen@kernel.org, Meng.Li@windriver.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 18 Jan 2020 16:03:47 +0100
-Message-ID: <1579359827103124@kroah.com>
+        id S1726607AbgARQa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Jan 2020 11:30:59 -0500
+Received: from mail-il1-f177.google.com ([209.85.166.177]:43560 "EHLO
+        mail-il1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726413AbgARQa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Jan 2020 11:30:59 -0500
+Received: by mail-il1-f177.google.com with SMTP id v69so23876813ili.10
+        for <stable@vger.kernel.org>; Sat, 18 Jan 2020 08:30:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=6IDgqRteOo+71FETEkqrv5roSYs3toNgJUJI+29pcks=;
+        b=RWF00Akhy+xiZ963l6eSDs7rTGCmABCsUmfGfwx/Ck48wfIHNpkM0sZMlOJ51K5VHL
+         KB2pdggz0xW1mUJCzH9tQ3+kCAWMUn307LkWLxLVodBDrKk4EvOpwSCJDlb6hUVuS9s7
+         c6ezlfJxMd74bQOi4scupHYk9ZqaqT6Dj6KPr/NC/8qgezUAoSPu2v0gvJXZhaOZtnCj
+         tT6ryftgatguAhrAJBpZLzPdzo2fSwI6IhjfUirEHaM27Tx04aMmUs/MvYeQiJNwIDLf
+         paq3JbM/Jmb9taBPZhS4GvLTt5dsoCe2qIkBtiu/r3AiGVw5kIOQ1nfAzNY8tbXwwT4M
+         7oSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=6IDgqRteOo+71FETEkqrv5roSYs3toNgJUJI+29pcks=;
+        b=eI7f4d/eGigoDLIn5CwhXRYzWMI5KLA5ZXbvRGyR2GRI8thhYxZGU4ocOKhlbkHFst
+         AxmqJcb8rJGkodJMTdihEaGJujLVT6MZ0/f9jpFVCUDN0OHTPwllZE3JhIKgBJ2kKUN0
+         8zECf2ZVp6QnMKMRd9qvv8f+kNqkzUQvhr1/izTAZfbzU2M/PBKKbz9NLz7M9R8TrEt4
+         LUYvVy6w7svZcc9bJ/5Iq0nGqzq4b2w9osRuqPUooE71ChyHi0lrAL0EEYmqoCYW3PR0
+         WbELCdMtYuUkANiRqmLLnayv0hIwCYily6Z7gKuYPD16b9qwNXYDTNCXg2swm4tQgUEU
+         q0Mw==
+X-Gm-Message-State: APjAAAWrso+O/v2E02jAG+78BJTf8+FCzAvc96tqCIveU9WJ9d6SbNcI
+        skwJi1HDDzI6CrWlJzILWvRu+w49ryufq94l8w==
+X-Google-Smtp-Source: APXvYqxeTFmGnBFnbd5JKzTSHp3HVaWlH4IEPvBeA6h0VSNHntlcUY7CyS/pOlL1qKEyUVAZ1TKVt1BFQQpTpXrojXU=
+X-Received: by 2002:a92:d7c6:: with SMTP id g6mr3620293ilq.282.1579365058630;
+ Sat, 18 Jan 2020 08:30:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a5d:8a11:0:0:0:0:0 with HTTP; Sat, 18 Jan 2020 08:30:56
+ -0800 (PST)
+Reply-To: mrsnicoleApollonia11@yandex.com
+From:   "Mrs Nicole Apollonia," <mrsnicoleapollonia9@gmail.com>
+Date:   Sat, 18 Jan 2020 16:30:56 +0000
+Message-ID: <CAE-HGpsxwu9rK5FbgzdwWx0w4rX9jOk0GDWje4n5Ox0=TfswEw@mail.gmail.com>
+Subject: Compliments of the day,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear friend,
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+My name is Mrs. Nicole Apollonia, from Toulouse France. I have been
+suffering from ovarian cancer disease and the doctor says that I have
+just a short time to live. For the past Twelve years, I have being
+dealing on gold exportation, before falling ill due to the Cancer.
 
-thanks,
+Now that I am very sick and according to the doctor,i will not survive
+the sickness.The worst of it all is that I do not have any family
+members or children to inherit my wealth.I am writing this letter now
+through the help of the computer beside my sick bed.I have $4.5
+Million US Dollars deposited in Eco-Bank here in Burkina Faso and I am
+willing to instruct my bank to transfer the fund to you as my foreign
+Trustee.You will apply to the bank, that they should release the fund
+to you, but you will assure me that you will take 50% of the fund and
+give 50% to the orphanages home in your country for my soul to rest
+after i have gone.In my next email, I will send you the copy of the
+Certificate of Deposit which will enable you apply to the bank and
+receive the money with no case.Respond to me immediately for further
+details and instructions since I am in the end times of my life due to
+the ovarian cancer disease.
 
-greg k-h
+Hoping to receive your response as soon as possible.
 
------------------- original commit in Linus's tree ------------------
-
-From 210de0e996aee8e360ccc9e173fe7f0a7ed2f695 Mon Sep 17 00:00:00 2001
-From: Dinh Nguyen <dinguyen@kernel.org>
-Date: Wed, 20 Nov 2019 09:15:17 -0600
-Subject: [PATCH] arm64: dts: agilex/stratix10: fix pmu interrupt numbers
-
-Fix up the correct interrupt numbers for the PMU unit on Agilex
-and Stratix10.
-
-Fixes: 78cd6a9d8e15 ("arm64: dts: Add base stratix 10 dtsi")
-Cc: linux-stable <stable@vger.kernel.org>
-Reported-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-
-diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-index 144a2c19ac02..d1fc9c2055f4 100644
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-@@ -61,10 +61,10 @@ cpu3: cpu@3 {
- 
- 	pmu {
- 		compatible = "arm,armv8-pmuv3";
--		interrupts = <0 120 8>,
--			     <0 121 8>,
--			     <0 122 8>,
--			     <0 123 8>;
-+		interrupts = <0 170 4>,
-+			     <0 171 4>,
-+			     <0 172 4>,
-+			     <0 173 4>;
- 		interrupt-affinity = <&cpu0>,
- 				     <&cpu1>,
- 				     <&cpu2>,
-diff --git a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-index 94090c6fb946..d43e1299c8ef 100644
---- a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-+++ b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-@@ -60,10 +60,10 @@ cpu3: cpu@3 {
- 
- 	pmu {
- 		compatible = "arm,armv8-pmuv3";
--		interrupts = <0 120 8>,
--			     <0 121 8>,
--			     <0 122 8>,
--			     <0 123 8>;
-+		interrupts = <0 170 4>,
-+			     <0 171 4>,
-+			     <0 172 4>,
-+			     <0 173 4>;
- 		interrupt-affinity = <&cpu0>,
- 				     <&cpu1>,
- 				     <&cpu2>,
-
+Yours Faithfully,
+Mrs. Nicole Apollonia,
