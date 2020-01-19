@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A92EB141E43
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 14:35:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48D17141E4E
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 14:40:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726925AbgASNfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 08:35:15 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:57907 "EHLO
+        id S1726798AbgASNka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 08:40:30 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:42347 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726816AbgASNfO (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 19 Jan 2020 08:35:14 -0500
+        by vger.kernel.org with ESMTP id S1726778AbgASNka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 08:40:30 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id A48EB56E;
-        Sun, 19 Jan 2020 08:35:13 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 19 Jan 2020 08:35:14 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 40D66544;
+        Sun, 19 Jan 2020 08:40:29 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 19 Jan 2020 08:40:29 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=P9N+3H
-        F9OZmf9SVrBPOrWHcWTnaQorOyJrj4vYUd0K4=; b=vm2vrzSPn6JLYpvxDjqZhs
-        na7zPxP4Atmo5AsVBrM/+KIIssKXSIcPMqyp8ToHSa+8NtUnSFFZNS/hkvzxKLEy
-        ZcEW7R3HSiJ65Y9dTP8PuPyl/KpnS3s5Y7HwIICjyqp2VDVoVC7GkGwfTuxDhuyT
-        X3AiUuJiIa28ukdQ6ULlPOlCYWiBbxlA8avR0MbLqWH9xP46IyHbZPu4PlXsJTwS
-        uWaC82ggs3AX0WMyqZpk1PyYgGJb/b69Nala8IlH2OPnfBIIgU+Ge7g9zOP2nE4B
-        ypN7O4YqEfRlGxOIOJPR16vxi8IO3XJSQAg+XiF5f4/qFlpZhwWQtIFa0J2jCkDg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=yzulsE
+        52YV33yRppOiIjc+9z5fFdxcOVyvb6Luh1ymc=; b=jrKnv4AYMR5ueXeFbIxz/D
+        YrI5/DNcA/gbXCQrYLWLWENlZn/saHywKGVpO8biKr8xQin07D1DU4WFZUsVHJvk
+        D36a/jixyWlhabTmh3zlkIOhzCj6kYkpVuTABjCIBt5QVU+9udA9FI8f8Dz2OYpo
+        KLUTUDH8ocM9ZP274aCrmmPXFv9ZDeCPhoatr233c7LtF0R9modQTtvxfjqFV9Jm
+        pvFT+mll/cxCM6RY1sebNkGYdtkWapvwxI/woi+Gu2iGI0jues/91GvYeirEWexg
+        Fi+Yduglt2sn0BigjPPSFjwcvC6kLxe8lk6JIUzSvcPbCSmXd022SQHr1oS/n6TQ
         ==
-X-ME-Sender: <xms:EFskXo8hylu5up1b8tZMmER84_qUd3vQ0iTvifnxB1nEk6uzhfFXwQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdehfecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:TFwkXsfBchByV5LjqOEaCjeqo5PKYGIpDaBwpScJgzaWY57u-L6RGA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeegrddvgedurdduleejrdeijeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:EFskXgQDKT8qIxwdGvCPStPj-ySQ5U7yi5h2e-16_KM2fY9tngAVTA>
-    <xmx:EFskXiV0V9_OmMJ0YMw7kWHSHmCm6-n8rcW-ZszYoMtgLJDojU1oKw>
-    <xmx:EFskXq8xkhNoWI_qkHDaiYxJbJxEObpN1Mx7k4Nl2dxvf5gWn8q2QA>
-    <xmx:EVskXtTFoUklTSMNoqCJvXIHoUYJtlI74ZJ5CDiXlpUM-dSP73nbmg>
+X-ME-Proxy: <xmx:TFwkXlMMmLMCuVvbWsS4vUI82cAO5YBwnGdmxbQpOqqQfmttOyI0Ug>
+    <xmx:TFwkXijfPddxFvkrb_qis2TcDv2fvf21fttY6-YY8pE2hl3uqS0zAw>
+    <xmx:TFwkXg0C1n1xd03xBcEY4rS7zA3dBFAi1FC2bVTUk3tzw6vnLx1ztg>
+    <xmx:TFwkXjMYweUSnQ24rzketuNV1EhfMMl4gvBveFlR0KQNNjmF5kWMFQ>
 Received: from localhost (unknown [84.241.197.67])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1C4D33060B16;
-        Sun, 19 Jan 2020 08:35:11 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio: buffer: align the size of scan bytes to size of the" failed to apply to 4.4-stable tree
-To:     lars.moellendorf@plating.de, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, gregkh@linuxfoundation.org, lars@metafoo.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2E3A48005B;
+        Sun, 19 Jan 2020 08:40:28 -0500 (EST)
+Subject: FAILED: patch "[PATCH] USB: serial: io_edgeport: handle unbound ports on URB" failed to apply to 4.9-stable tree
+To:     johan@kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 19 Jan 2020 14:35:10 +0100
-Message-ID: <157944091042104@kroah.com>
+Date:   Sun, 19 Jan 2020 14:40:26 +0100
+Message-ID: <157944122699135@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,60 +68,43 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 883f616530692d81cb70f8a32d85c0d2afc05f69 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Lars=20M=C3=B6llendorf?= <lars.moellendorf@plating.de>
-Date: Fri, 13 Dec 2019 14:50:55 +0100
-Subject: [PATCH] iio: buffer: align the size of scan bytes to size of the
- largest element
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From e37d1aeda737a20b1846a91a3da3f8b0f00cf690 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Fri, 17 Jan 2020 10:50:23 +0100
+Subject: [PATCH] USB: serial: io_edgeport: handle unbound ports on URB
+ completion
 
-Previous versions of `iio_compute_scan_bytes` only aligned each element
-to its own length (i.e. its own natural alignment). Because multiple
-consecutive sets of scan elements are buffered this does not work in
-case the computed scan bytes do not align with the natural alignment of
-the first scan element in the set.
+Check for NULL port data in the shared interrupt and bulk completion
+callbacks to avoid dereferencing a NULL pointer in case a device sends
+data for a port device which isn't bound to a driver (e.g. due to a
+malicious device having unexpected endpoints or after an allocation
+failure on port probe).
 
-This commit fixes this by aligning the scan bytes to the natural
-alignment of the largest scan element in the set.
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 
-Fixes: 959d2952d124 ("staging:iio: make iio_sw_buffer_preenable much more general.")
-Signed-off-by: Lars Möllendorf <lars.moellendorf@plating.de>
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
-index c193d64e5217..112225c0e486 100644
---- a/drivers/iio/industrialio-buffer.c
-+++ b/drivers/iio/industrialio-buffer.c
-@@ -566,7 +566,7 @@ static int iio_compute_scan_bytes(struct iio_dev *indio_dev,
- 				const unsigned long *mask, bool timestamp)
- {
- 	unsigned bytes = 0;
--	int length, i;
-+	int length, i, largest = 0;
- 
- 	/* How much space will the demuxed element take? */
- 	for_each_set_bit(i, mask,
-@@ -574,13 +574,17 @@ static int iio_compute_scan_bytes(struct iio_dev *indio_dev,
- 		length = iio_storage_bytes_for_si(indio_dev, i);
- 		bytes = ALIGN(bytes, length);
- 		bytes += length;
-+		largest = max(largest, length);
- 	}
- 
- 	if (timestamp) {
- 		length = iio_storage_bytes_for_timestamp(indio_dev);
- 		bytes = ALIGN(bytes, length);
- 		bytes += length;
-+		largest = max(largest, length);
- 	}
-+
-+	bytes = ALIGN(bytes, largest);
- 	return bytes;
- }
- 
+diff --git a/drivers/usb/serial/io_edgeport.c b/drivers/usb/serial/io_edgeport.c
+index 9690a5f4b9d6..0582d78bdb1d 100644
+--- a/drivers/usb/serial/io_edgeport.c
++++ b/drivers/usb/serial/io_edgeport.c
+@@ -716,7 +716,7 @@ static void edge_interrupt_callback(struct urb *urb)
+ 			if (txCredits) {
+ 				port = edge_serial->serial->port[portNumber];
+ 				edge_port = usb_get_serial_port_data(port);
+-				if (edge_port->open) {
++				if (edge_port && edge_port->open) {
+ 					spin_lock_irqsave(&edge_port->ep_lock,
+ 							  flags);
+ 					edge_port->txCredits += txCredits;
+@@ -1825,7 +1825,7 @@ static void process_rcvd_data(struct edgeport_serial *edge_serial,
+ 				port = edge_serial->serial->port[
+ 							edge_serial->rxPort];
+ 				edge_port = usb_get_serial_port_data(port);
+-				if (edge_port->open) {
++				if (edge_port && edge_port->open) {
+ 					dev_dbg(dev, "%s - Sending %d bytes to TTY for port %d\n",
+ 						__func__, rxLen,
+ 						edge_serial->rxPort);
 
