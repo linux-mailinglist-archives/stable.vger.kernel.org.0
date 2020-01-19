@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D17141E4E
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 14:40:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0885141E4F
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 14:40:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726798AbgASNka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 08:40:30 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:42347 "EHLO
+        id S1726816AbgASNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 08:40:33 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:47687 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726778AbgASNka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 08:40:30 -0500
+        by vger.kernel.org with ESMTP id S1726778AbgASNkd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 08:40:33 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 40D66544;
-        Sun, 19 Jan 2020 08:40:29 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 19 Jan 2020 08:40:29 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 24031560;
+        Sun, 19 Jan 2020 08:40:32 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 19 Jan 2020 08:40:32 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=yzulsE
-        52YV33yRppOiIjc+9z5fFdxcOVyvb6Luh1ymc=; b=jrKnv4AYMR5ueXeFbIxz/D
-        YrI5/DNcA/gbXCQrYLWLWENlZn/saHywKGVpO8biKr8xQin07D1DU4WFZUsVHJvk
-        D36a/jixyWlhabTmh3zlkIOhzCj6kYkpVuTABjCIBt5QVU+9udA9FI8f8Dz2OYpo
-        KLUTUDH8ocM9ZP274aCrmmPXFv9ZDeCPhoatr233c7LtF0R9modQTtvxfjqFV9Jm
-        pvFT+mll/cxCM6RY1sebNkGYdtkWapvwxI/woi+Gu2iGI0jues/91GvYeirEWexg
-        Fi+Yduglt2sn0BigjPPSFjwcvC6kLxe8lk6JIUzSvcPbCSmXd022SQHr1oS/n6TQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=9/3I6B
+        x2tmHiUcU3n9qFyLw1t25n0WruWW3t15LQ9Dc=; b=LkC7A/P4ZxSFGaqBIcOFAR
+        eGmmIkBxTEUa7BUYdDTBIDoumQwbm1mGYGg35lW4iJ33Mbd7o8ArgFKa/a9Zqg9F
+        tVG9Zoo3LerseyLOEkdrrMJisEyVMc60X8cJdS3KZZEKcwPfyLOuqFShYxAQUFMA
+        vyhtyD2ZL/nqnkmnscRCM125eNe8m/EzIVkWfWa4q41KjXMCpFcuPe3xss2iMesv
+        /MdjOjVO5OwgZNzKZGs3ghxNCWegIISlx9OD3YJwu1FxJiY2Qp3DqDd8sakukEkN
+        DO9uHFRnya+maD8aT4YjvATdfdnJJikEZ1bq9GKIJ+79x8+cz/5T9/LaEpmOXysg
         ==
-X-ME-Sender: <xms:TFwkXsfBchByV5LjqOEaCjeqo5PKYGIpDaBwpScJgzaWY57u-L6RGA>
+X-ME-Sender: <xms:T1wkXgc-ljQyML3mAcu9d58QZkyIMEBhzkdbgY1iC-HwwBt9PgY8pA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeegrddvgedurdduleejrdeijeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:TFwkXlMMmLMCuVvbWsS4vUI82cAO5YBwnGdmxbQpOqqQfmttOyI0Ug>
-    <xmx:TFwkXijfPddxFvkrb_qis2TcDv2fvf21fttY6-YY8pE2hl3uqS0zAw>
-    <xmx:TFwkXg0C1n1xd03xBcEY4rS7zA3dBFAi1FC2bVTUk3tzw6vnLx1ztg>
-    <xmx:TFwkXjMYweUSnQ24rzketuNV1EhfMMl4gvBveFlR0KQNNjmF5kWMFQ>
+X-ME-Proxy: <xmx:T1wkXuagIY-NMVkGpR9dlAUdkFTPvTxJqVhzUJrv66F71_yFOEGS_A>
+    <xmx:T1wkXkbchmphvr680zKghDteD3WgUwGZ-okeaSnlE4KJqcT2fsTAqw>
+    <xmx:T1wkXkmw3iXBKztN4iPGMazquzHjhggM97H-dVreJIqDho9qwXy4XA>
+    <xmx:T1wkXg9GeAX9O5-G8pLz1aItHfPSyM2sCHeiPlZq-LFrKoP6QbPKeQ>
 Received: from localhost (unknown [84.241.197.67])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2E3A48005B;
-        Sun, 19 Jan 2020 08:40:28 -0500 (EST)
-Subject: FAILED: patch "[PATCH] USB: serial: io_edgeport: handle unbound ports on URB" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 328823060ACE;
+        Sun, 19 Jan 2020 08:40:31 -0500 (EST)
+Subject: FAILED: patch "[PATCH] USB: serial: io_edgeport: handle unbound ports on URB" failed to apply to 4.4-stable tree
 To:     johan@kernel.org, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 19 Jan 2020 14:40:26 +0100
-Message-ID: <157944122699135@kroah.com>
+Date:   Sun, 19 Jan 2020 14:40:27 +0100
+Message-ID: <157944122793195@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
