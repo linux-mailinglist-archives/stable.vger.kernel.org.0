@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1CE9141E39
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 14:33:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A92EB141E43
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 14:35:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727066AbgASNdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 08:33:44 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:43287 "EHLO
+        id S1726925AbgASNfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 08:35:15 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:57907 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727011AbgASNdo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 08:33:44 -0500
+        by vger.kernel.org with ESMTP id S1726816AbgASNfO (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 19 Jan 2020 08:35:14 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 9FEDF539;
-        Sun, 19 Jan 2020 08:33:43 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id A48EB56E;
+        Sun, 19 Jan 2020 08:35:13 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 19 Jan 2020 08:33:44 -0500
+  by compute6.internal (MEProxy); Sun, 19 Jan 2020 08:35:14 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=lFWWfc
-        IabuhPOIlXdHQrBS6/VzwiJQ5Xn/+0ynUQTkA=; b=s82yCBcyyaTvxFMunBo0+E
-        FF0xpIU3FrXmBSmttydSzHHLn4TqxyQQbIDTnYvvPyG8Qs4vGWNMq3U5WkMo5PHc
-        TP+uKkcc4f17TPX4a6vgXoZAenF2iGtaL+mhKBpl7D+CjL4+jwEPnO9mvBVwklSA
-        rqCPQauFy+o1BKMh4UHtgYGt6qA2zG9tKA4mbEUxM2ZTGBi7xbnMug+jC3cN3VG2
-        BBCXSZiTrfj6ElK2fZN6CvRx/Zx+QwbMNrhDnIkQ4+BoFz/3cKdZyt8MoUrzqQR6
-        5IW5pLUAV0vwwrL8xMWZE1asjn0/9HlonyCi6SgM2hKF8gSfffnW2OBJ6FkDfU9Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=P9N+3H
+        F9OZmf9SVrBPOrWHcWTnaQorOyJrj4vYUd0K4=; b=vm2vrzSPn6JLYpvxDjqZhs
+        na7zPxP4Atmo5AsVBrM/+KIIssKXSIcPMqyp8ToHSa+8NtUnSFFZNS/hkvzxKLEy
+        ZcEW7R3HSiJ65Y9dTP8PuPyl/KpnS3s5Y7HwIICjyqp2VDVoVC7GkGwfTuxDhuyT
+        X3AiUuJiIa28ukdQ6ULlPOlCYWiBbxlA8avR0MbLqWH9xP46IyHbZPu4PlXsJTwS
+        uWaC82ggs3AX0WMyqZpk1PyYgGJb/b69Nala8IlH2OPnfBIIgU+Ge7g9zOP2nE4B
+        ypN7O4YqEfRlGxOIOJPR16vxi8IO3XJSQAg+XiF5f4/qFlpZhwWQtIFa0J2jCkDg
         ==
-X-ME-Sender: <xms:t1okXlaUxx9qRvyPpHx6KHXsMCoJN_3K_KbM61myGMZrQLs3a0XbvQ>
+X-ME-Sender: <xms:EFskXo8hylu5up1b8tZMmER84_qUd3vQ0iTvifnxB1nEk6uzhfFXwQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdehfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeegrddvgedurdduleejrdeijeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:t1okXnUDh1o7dUSDp5LEINkcXCCOfSE1Tk8_CIdZFtbr9KABH4pvHw>
-    <xmx:t1okXql8itebmAxb_nGsbs3xLYFVMEtZ34WWKRzdse3fT2R5Q-Y5fw>
-    <xmx:t1okXiaec77rtYRk605mW43X_abgQivOCQppbfIlVp-UIGNuzKzsQQ>
-    <xmx:t1okXi3b8vwfaPB_RQNaiACK1eH3ZFi2XLuC-uFhci2_3A_KMXlnag>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:EFskXgQDKT8qIxwdGvCPStPj-ySQ5U7yi5h2e-16_KM2fY9tngAVTA>
+    <xmx:EFskXiV0V9_OmMJ0YMw7kWHSHmCm6-n8rcW-ZszYoMtgLJDojU1oKw>
+    <xmx:EFskXq8xkhNoWI_qkHDaiYxJbJxEObpN1Mx7k4Nl2dxvf5gWn8q2QA>
+    <xmx:EVskXtTFoUklTSMNoqCJvXIHoUYJtlI74ZJ5CDiXlpUM-dSP73nbmg>
 Received: from localhost (unknown [84.241.197.67])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B633130607B4;
-        Sun, 19 Jan 2020 08:33:42 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: Fix selection of ST_LSM6DS3_ID" failed to apply to 4.14-stable tree
-To:     stephan@gerhold.net, Jonathan.Cameron@huawei.com,
-        gregkh@linuxfoundation.org, lorenzo@kernel.org,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1C4D33060B16;
+        Sun, 19 Jan 2020 08:35:11 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iio: buffer: align the size of scan bytes to size of the" failed to apply to 4.4-stable tree
+To:     lars.moellendorf@plating.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, gregkh@linuxfoundation.org, lars@metafoo.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 19 Jan 2020 14:33:32 +0100
-Message-ID: <157944081220070@kroah.com>
+Date:   Sun, 19 Jan 2020 14:35:10 +0100
+Message-ID: <157944091042104@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -58,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,50 +68,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fb4fbc8904e786537e29329d791147389e1465a2 Mon Sep 17 00:00:00 2001
-From: Stephan Gerhold <stephan@gerhold.net>
-Date: Mon, 16 Dec 2019 13:41:20 +0100
-Subject: [PATCH] iio: imu: st_lsm6dsx: Fix selection of ST_LSM6DS3_ID
+From 883f616530692d81cb70f8a32d85c0d2afc05f69 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Lars=20M=C3=B6llendorf?= <lars.moellendorf@plating.de>
+Date: Fri, 13 Dec 2019 14:50:55 +0100
+Subject: [PATCH] iio: buffer: align the size of scan bytes to size of the
+ largest element
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-At the moment, attempting to probe a device with ST_LSM6DS3_ID
-(e.g. using the st,lsm6ds3 compatible) fails with:
+Previous versions of `iio_compute_scan_bytes` only aligned each element
+to its own length (i.e. its own natural alignment). Because multiple
+consecutive sets of scan elements are buffered this does not work in
+case the computed scan bytes do not align with the natural alignment of
+the first scan element in the set.
 
-    st_lsm6dsx_i2c 1-006b: unsupported whoami [69]
+This commit fixes this by aligning the scan bytes to the natural
+alignment of the largest scan element in the set.
 
-... even though 0x69 is the whoami listed for ST_LSM6DS3_ID.
-
-This happens because st_lsm6dsx_check_whoami() also attempts
-to match unspecified (zero-initialized) entries in the "id" array.
-ST_LSM6DS3_ID = 0 will therefore match any entry in
-st_lsm6dsx_sensor_settings (here: the first), because none of them
-actually have all 12 entries listed in the "id" array.
-
-Avoid this by additionally checking if "name" is set,
-which is only set for valid entries in the "id" array.
-
-Note: Although the problem was introduced earlier it did not surface until
-commit 52f4b1f19679 ("iio: imu: st_lsm6dsx: add support for accel/gyro unit of lsm9ds1")
-because ST_LSM6DS3_ID was the first entry in st_lsm6dsx_sensor_settings.
-
-Fixes: d068e4a0f921 ("iio: imu: st_lsm6dsx: add support to multiple devices with the same settings")
-Cc: <stable@vger.kernel.org> # 5.4
-Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Fixes: 959d2952d124 ("staging:iio: make iio_sw_buffer_preenable much more general.")
+Signed-off-by: Lars Möllendorf <lars.moellendorf@plating.de>
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index a7d40c02ce6b..b921dd9e108f 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -1301,7 +1301,8 @@ static int st_lsm6dsx_check_whoami(struct st_lsm6dsx_hw *hw, int id,
+diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
+index c193d64e5217..112225c0e486 100644
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -566,7 +566,7 @@ static int iio_compute_scan_bytes(struct iio_dev *indio_dev,
+ 				const unsigned long *mask, bool timestamp)
+ {
+ 	unsigned bytes = 0;
+-	int length, i;
++	int length, i, largest = 0;
  
- 	for (i = 0; i < ARRAY_SIZE(st_lsm6dsx_sensor_settings); i++) {
- 		for (j = 0; j < ST_LSM6DSX_MAX_ID; j++) {
--			if (id == st_lsm6dsx_sensor_settings[i].id[j].hw_id)
-+			if (st_lsm6dsx_sensor_settings[i].id[j].name &&
-+			    id == st_lsm6dsx_sensor_settings[i].id[j].hw_id)
- 				break;
- 		}
- 		if (j < ST_LSM6DSX_MAX_ID)
+ 	/* How much space will the demuxed element take? */
+ 	for_each_set_bit(i, mask,
+@@ -574,13 +574,17 @@ static int iio_compute_scan_bytes(struct iio_dev *indio_dev,
+ 		length = iio_storage_bytes_for_si(indio_dev, i);
+ 		bytes = ALIGN(bytes, length);
+ 		bytes += length;
++		largest = max(largest, length);
+ 	}
+ 
+ 	if (timestamp) {
+ 		length = iio_storage_bytes_for_timestamp(indio_dev);
+ 		bytes = ALIGN(bytes, length);
+ 		bytes += length;
++		largest = max(largest, length);
+ 	}
++
++	bytes = ALIGN(bytes, largest);
+ 	return bytes;
+ }
+ 
 
