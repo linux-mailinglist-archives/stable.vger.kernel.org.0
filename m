@@ -2,98 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 392EF141EEE
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 16:53:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3968E141EF0
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 16:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726860AbgASPxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 10:53:22 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:34102 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726778AbgASPxW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 10:53:22 -0500
-Received: by mail-lf1-f67.google.com with SMTP id l18so22035206lfc.1
-        for <stable@vger.kernel.org>; Sun, 19 Jan 2020 07:53:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=nlXx1t1kXYQp2vJ2k1L9OrgAxcPIAOBgSt1sUDPSaSY=;
-        b=Li0wSGwU/sgEvNdvTnazDkZf2dVGNxMQ2K+/T1bhcCLZSlhsZ/T5+ETHbw1kl9q6X0
-         xAX+yicwv55WB65nhzVQo9Qjc3xvDK8QLxqMcmOj4ItRDsToGPDNZnkMaEE7R16RS7Cw
-         Ocf1XEoiJBk3Y7ZZgjoHw0ztPuxNWODMxzkBIYUzBj5WNpzbg95B5Fh65b3Mq4qA/f6g
-         QKjoRBEypRSNvcJhdNqtSeE50ZFqcFt8IG+iFoT9P4w/UQAFlap1puWnVLMvPC4HHQql
-         NpgrRv5o+VvOXJxJhp97p6jPvQ6WaTD1ocTdxcT7pRTC5YX1Ejy4XBK8ZIEz6DOyC3Sp
-         SS0A==
-X-Gm-Message-State: APjAAAVsl/LScD6CgW73+oa9uB4I5yfd3plTP/whT5N5k9cgDQycD3EO
-        ThLv3c9Bq7ZQKZc5aLIBMgL5n/E6
-X-Google-Smtp-Source: APXvYqwl8p8XqPCUIxUUhzdl3HcczebmZRdRdy285aZjOOCdcf5gEMdO89cKA7Hi5HJ0ZxA10hX6Ww==
-X-Received: by 2002:ac2:544f:: with SMTP id d15mr10932056lfn.126.1579449200418;
-        Sun, 19 Jan 2020 07:53:20 -0800 (PST)
-Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id y5sm2419891lfl.6.2020.01.19.07.53.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Jan 2020 07:53:19 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@kernel.org>)
-        id 1itCt3-0007pM-4R; Sun, 19 Jan 2020 16:53:17 +0100
-Date:   Sun, 19 Jan 2020 16:53:17 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     gregkh@linuxfoundation.org, johan@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] USB: serial: io_edgeport: handle unbound
- ports on URB" failed to apply to 4.14-stable tree
-Message-ID: <20200119155317.GA2301@localhost>
-References: <15794412294018@kroah.com>
- <20200119154225.GQ1706@sasha-vm>
+        id S1726890AbgASPxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 10:53:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46668 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726778AbgASPxq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 19 Jan 2020 10:53:46 -0500
+Received: from localhost (96-81-74-198-static.hfc.comcastbusiness.net [96.81.74.198])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D71E20679;
+        Sun, 19 Jan 2020 15:53:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579449226;
+        bh=mXP11L3Rzg4DCKV1ZfhEPpDkkCXe9+Dm35EA647SK9o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AI1VIAAt9XQ1EShdnP9iPHd6s1PGrZ/8gtf96HdeOck6JeJqryOg6dyJK0OU2X5e5
+         pGIaGKwABVvmvwPYoD4aQbKrWUsbnu+mtiJTIc5vKlUISgCnLCBaaJbvx2rQX3FZuh
+         9HcMu5mxnMDDjDrE69Wa3KMA97G4KihrT38lzSYY=
+Date:   Sun, 19 Jan 2020 10:53:43 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     arnd@arndb.de, martin.petersen@oracle.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] scsi: fnic: fix invalid stack access"
+ failed to apply to 4.9-stable tree
+Message-ID: <20200119155343.GS1706@sasha-vm>
+References: <157944140770121@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200119154225.GQ1706@sasha-vm>
+In-Reply-To: <157944140770121@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 19, 2020 at 10:42:25AM -0500, Sasha Levin wrote:
-> On Sun, Jan 19, 2020 at 02:40:29PM +0100, gregkh@linuxfoundation.org wrote:
-> >
-> >The patch below does not apply to the 4.14-stable tree.
-> >If someone wants it applied there, or to any other stable or longterm
-> >tree, then please email the backport, including the original git commit
-> >id to <stable@vger.kernel.org>.
-> >
-> >thanks,
-> >
-> >greg k-h
-> >
-> >------------------ original commit in Linus's tree ------------------
-> >
-> >From e37d1aeda737a20b1846a91a3da3f8b0f00cf690 Mon Sep 17 00:00:00 2001
-> >From: Johan Hovold <johan@kernel.org>
-> >Date: Fri, 17 Jan 2020 10:50:23 +0100
-> >Subject: [PATCH] USB: serial: io_edgeport: handle unbound ports on URB
-> > completion
-> >
-> >Check for NULL port data in the shared interrupt and bulk completion
-> >callbacks to avoid dereferencing a NULL pointer in case a device sends
-> >data for a port device which isn't bound to a driver (e.g. due to a
-> >malicious device having unexpected endpoints or after an allocation
-> >failure on port probe).
-> >
-> >Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> >Cc: stable <stable@vger.kernel.org>
-> >Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >Signed-off-by: Johan Hovold <johan@kernel.org>
-> 
-> I also took dd1fae527612 ("USB: serial: io_edgeport: use irqsave() in
-> USB's complete callback") as a fix on it's own,
+On Sun, Jan 19, 2020 at 02:43:27PM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.9-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 42ec15ceaea74b5f7a621fc6686cbf69ca66c4cf Mon Sep 17 00:00:00 2001
+>From: Arnd Bergmann <arnd@arndb.de>
+>Date: Tue, 7 Jan 2020 21:15:49 +0100
+>Subject: [PATCH] scsi: fnic: fix invalid stack access
+>
+>gcc -O3 warns that some local variables are not properly initialized:
+>
+>drivers/scsi/fnic/vnic_dev.c: In function 'fnic_dev_hang_notify':
+>drivers/scsi/fnic/vnic_dev.c:511:16: error: 'a0' is used uninitialized in this function [-Werror=uninitialized]
+>  vdev->args[0] = *a0;
+>  ~~~~~~~~~~~~~~^~~~~
+>drivers/scsi/fnic/vnic_dev.c:691:6: note: 'a0' was declared here
+>  u64 a0, a1;
+>      ^~
+>drivers/scsi/fnic/vnic_dev.c:512:16: error: 'a1' is used uninitialized in this function [-Werror=uninitialized]
+>  vdev->args[1] = *a1;
+>  ~~~~~~~~~~~~~~^~~~~
+>drivers/scsi/fnic/vnic_dev.c:691:10: note: 'a1' was declared here
+>  u64 a0, a1;
+>          ^~
+>drivers/scsi/fnic/vnic_dev.c: In function 'fnic_dev_mac_addr':
+>drivers/scsi/fnic/vnic_dev.c:512:16: error: 'a1' is used uninitialized in this function [-Werror=uninitialized]
+>  vdev->args[1] = *a1;
+>  ~~~~~~~~~~~~~~^~~~~
+>drivers/scsi/fnic/vnic_dev.c:698:10: note: 'a1' was declared here
+>  u64 a0, a1;
+>          ^~
+>
+>Apparently the code relies on the local variables occupying adjacent memory
+>locations in the same order, but this is of course not guaranteed.
+>
+>Use an array of two u64 variables where needed to make it work correctly.
+>
+>I suspect there is also an endianness bug here, but have not digged in deep
+>enough to be sure.
+>
+>Fixes: 5df6d737dd4b ("[SCSI] fnic: Add new Cisco PCI-Express FCoE HBA")
+>Fixes: mmtom ("init/Kconfig: enable -O3 for all arches")
+>Cc: stable@vger.kernel.org
+>Link: https://lore.kernel.org/r/20200107201602.4096790-1-arnd@arndb.de
+>Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-That commit is not a fix; it was a preparatory change done to be able to
-call completion handlers with interrupts enabled.
+I've grabbed 36fe90b0f0bd ("scsi: fnic: use kernel's '%pM' format option
+to print MAC") to resolve this conflict and queued both for 4.9 and 4.4
 
-> and queued both for 4.14-4.4.
-
-That said, it should be fine to backport, thanks.
-
-Johan
+-- 
+Thanks,
+Sasha
