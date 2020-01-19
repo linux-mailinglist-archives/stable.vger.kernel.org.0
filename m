@@ -2,79 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7581F141CAD
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 07:58:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D4B141E2C
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 14:28:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726396AbgASG6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 01:58:47 -0500
-Received: from mga04.intel.com ([192.55.52.120]:45648 "EHLO mga04.intel.com"
+        id S1726874AbgASN2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 08:28:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726060AbgASG6r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 19 Jan 2020 01:58:47 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Jan 2020 22:58:46 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,337,1574150400"; 
-   d="scan'208";a="399073104"
-Received: from twinkler-lnx.jer.intel.com ([10.12.91.155])
-  by orsmga005.jf.intel.com with ESMTP; 18 Jan 2020 22:58:44 -0800
-From:   Tomas Winkler <tomas.winkler@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
-        linux-kernel@vger.kernel.org,
-        Tomas Winkler <tomas.winkler@intel.com>, stable@vger.kernel.org
-Subject: [char-misc] mei: me: add comet point (lake) H device ids
-Date:   Sun, 19 Jan 2020 11:42:29 +0200
-Message-Id: <20200119094229.20116-1-tomas.winkler@intel.com>
-X-Mailer: git-send-email 2.21.1
+        id S1726798AbgASN2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 19 Jan 2020 08:28:16 -0500
+Received: from localhost (unknown [84.241.197.67])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89F272053B;
+        Sun, 19 Jan 2020 13:28:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579440495;
+        bh=nvAre70wOdY3sLAD40GwTa3vY5f50vzWLmhparXnoi4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RilBkiyAZe8b9059GqCS8KVCrB+pNMzdX1/8yq09SNsgzNcZiPc+j5KsvxEhJk1VL
+         YpXLBKLgEb75/LRNg52PCjYbofqK+vahIrfBJe79s6eaCNHOfNjphhBhK7W7VMyGT4
+         uqfVm52fAsjFGDTaRz6lB0KP6/5REaNkDu0KAN/M=
+Date:   Sun, 19 Jan 2020 14:28:11 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ingo Molnar <mingo@kernel.org>
+Cc:     Vince Weaver <vincent.weaver@maine.edu>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        stable kernel team <stable@vger.kernel.org>
+Subject: Re: [PATCH, v5.4] perf: Correctly handle failed perf_get_aux_event()
+Message-ID: <20200119132811.GA159416@kroah.com>
+References: <alpine.DEB.2.21.2001021349390.11372@macbook-air>
+ <alpine.DEB.2.21.2001021418590.11372@macbook-air>
+ <20200106120338.GC9630@lakrids.cambridge.arm.com>
+ <alpine.DEB.2.21.2001061307460.24675@macbook-air>
+ <alpine.DEB.2.21.2001161144590.29041@macbook-air>
+ <20200118180529.GA70028@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200118180529.GA70028@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add Comet Point device IDs for Comet Lake H platforms.
+On Sat, Jan 18, 2020 at 07:05:29PM +0100, Ingo Molnar wrote:
+> 
+> * Vince Weaver <vincent.weaver@maine.edu> wrote:
+> 
+> > On Mon, 6 Jan 2020, Vince Weaver wrote:
+> > 
+> > > On Mon, 6 Jan 2020, Mark Rutland wrote:
+> > > 
+> > > > On Thu, Jan 02, 2020 at 02:22:47PM -0500, Vince Weaver wrote:
+> > > > > On Thu, 2 Jan 2020, Vince Weaver wrote:
+> > > > > 
+> > > > Vince, does the below (untested) patch work for you?
+> > > 
+> > > 
+> > > yes, this patch fixes things for me.
+> > > 
+> > > Tested-by: Vince Weaver <vincent.weaver@maine.edu>
+> > > 
+> > 
+> > is this patch going to make it upstream?  It's a fairly major correctness 
+> > bug with perf_event_open().
+> 
+> I just sent it to Linus.
+> 
+> In hindsight this should have been marked Cc: stable for v5.4 - we should 
+> forward it to Greg once Linus has pulled it:
+> 
+>    da9ec3d3dd0f: ("perf: Correctly handle failed perf_get_aux_event()")
+> 
+> 
+> Note that in the v5.4 cherry-pick there's a conflict due to interaction 
+> with another recent commit - I've attached the ported fix against v5.4, 
+> but have only test built it.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
----
- drivers/misc/mei/hw-me-regs.h | 4 ++++
- drivers/misc/mei/pci-me.c     | 2 ++
- 2 files changed, 6 insertions(+)
+Thanks for the backport, now queued up.
 
-diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
-index 7cd67fb2365d..9d24db38e8bc 100644
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -81,8 +81,12 @@
- 
- #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
- #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
-+
- #define MEI_DEV_ID_CMP_V      0xA3BA  /* Comet Point Lake V */
- 
-+#define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
-+#define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
-+
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
- 
- #define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index c845b7e40f26..c14261d735db 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -99,6 +99,8 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_V, MEI_ME_PCH12_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H, MEI_ME_PCH12_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H_3, MEI_ME_PCH8_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
- 
--- 
-2.21.1
-
+greg k-h
