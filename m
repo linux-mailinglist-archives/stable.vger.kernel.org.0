@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60C78141ED3
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 16:20:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C86D9141ED4
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 16:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727121AbgASPUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 10:20:09 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:57151 "EHLO
+        id S1727075AbgASPV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 10:21:29 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:43707 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727075AbgASPUJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 10:20:09 -0500
+        by vger.kernel.org with ESMTP id S1726778AbgASPV3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 10:21:29 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id D676F5E5;
-        Sun, 19 Jan 2020 10:20:07 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 19 Jan 2020 10:20:08 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 6C14439E;
+        Sun, 19 Jan 2020 10:21:28 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 19 Jan 2020 10:21:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=LsyrxL
-        qGsbwTOfI1+QVY/Slbi3H2StlxJhSFEKTqEZY=; b=YLiusYW+9jl82UNmk4RCw5
-        Bf1Wd8B3iCVRxzcOrlUVSjQgNyLsq/Dfy81RRj5RbCdfn3Xfu6Y3yneSpru5Iwv6
-        JJKGLY3M1dF5UtTGh6VgrqQ0HS2uWVF2CCtSrOU7xnkVVmWBF6EU0tA+WtzjDuW1
-        lfzohUwnEqt+Gznq9LGKcLgsThsDsIKuIzebs9WWQXG0jzpD2PROYgrXosR4+4WA
-        Cygk9WroFV3AJnZn1mo87P/CrAngwbRvc0i+gArsFpiZi6YfQbrjBZ3Y6RVeDvk9
-        HdtdqxtG4vbD5MtTclW0V2apezPMgQ2FrhcA+dx1OSBAyj6l2IIjdi5lb5kT2AqQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=APvhrN
+        HzXPJbJMF/CPqdY5ZSrsHXEbYmusgIEGGOk7U=; b=buVvCtadlFPSyHkCEZ+0j6
+        RJmTQcbC9M860ee0QjDphEHO/T0afGQhQEaQhOqScSqsmU+dyRjSjqcFrHbqKhvs
+        P4KHYMzgndEmWNrWqYVys30C/oUt4nAUTZZMS/4lbKODApaKkHQbnI46De2Prxh/
+        fWckMzgwYnycOPMIqf8rSJBDs/ssP4ZlfW4ebr2Wx2+Y4ZgcwOfMBLRSA+E+SezF
+        MxDqEdBMFRrx+LYkdJ8SXdraBa63TkGKuNJh2w4bJHPfnPZxA5PS2aQ917l2i/eN
+        HZhZfbr2JGnWOftMD0wddIBYm8UPqZKaP9s3DnKbJawbpa9LqecpnQRnrcG4SQQg
         ==
-X-ME-Sender: <xms:p3MkXuvGvvmpZVzUAo3MkPD1Kys2bhhRsu3G6RB3mLl91vdjZ6ki2g>
+X-ME-Sender: <xms:93MkXoHhKC-xBFbS2WNQgTVuuUjVC9Z_jkRlrhM3jAfv8Gnf3Using>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdejgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeegrddvgedurdduleejrdeijeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepge
-X-ME-Proxy: <xmx:p3MkXrSP5gWrjv7DEm_6Il605c-FDgLZ_8h1t0r76ObfkIFIg2KONA>
-    <xmx:p3MkXlKAe6RZUeJqhCuXVZ9W1V6hHABgRUQry9Nl97a8UmpiUJoqXg>
-    <xmx:p3MkXjCnO5BCuVrZs7Oep6za3e6FQ-2ywJAZMZko7NUPk3LgbcB1ag>
-    <xmx:p3MkXlduY6k4P6W1P4ljKxLr--Jz8SvclMeXAVqHU8j_Kf7I0JHXiw>
+    qeenucffohhmrghinhepohhpvghnshhushgvrdhorhhgnecukfhppeekgedrvdeguddrud
+    eljedrieejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
+    mhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:93MkXlnfEjGXjMIoQYEXrGRGX0lfORvxzZBmaAir9X2YYq2p4S2s0A>
+    <xmx:93MkXtL7aa9GqDw7KESEyNQxdWndIwNW4AZWLHbDrC3jD9aGFN2dNA>
+    <xmx:93MkXubt9Th7EN4TBsTO1LVZrswSinH3nMDxO1r9eG2j4j3tWq3BpA>
+    <xmx:-HMkXiZSaBQ1Y0ihyJHSiGL5D6ZVrutfAi43cJQEYy0SzhxIrJ-IaQ>
 Received: from localhost (unknown [84.241.197.67])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F2ECC30607B4;
-        Sun, 19 Jan 2020 10:20:06 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: do not delete mismatched root refs" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 405138005A;
+        Sun, 19 Jan 2020 10:21:27 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: check rw_devices, not num_devices for balance" failed to apply to 4.4-stable tree
 To:     josef@toxicpanda.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 19 Jan 2020 16:20:02 +0100
-Message-ID: <157944720280143@kroah.com>
+Date:   Sun, 19 Jan 2020 16:21:25 +0100
+Message-ID: <157944728517539@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,42 +68,89 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 423a716cd7be16fb08690760691befe3be97d3fc Mon Sep 17 00:00:00 2001
+From b35cf1f0bf1f2b0b193093338414b9bd63b29015 Mon Sep 17 00:00:00 2001
 From: Josef Bacik <josef@toxicpanda.com>
-Date: Wed, 18 Dec 2019 17:20:29 -0500
-Subject: [PATCH] btrfs: do not delete mismatched root refs
+Date: Fri, 10 Jan 2020 11:11:24 -0500
+Subject: [PATCH] btrfs: check rw_devices, not num_devices for balance
 
-btrfs_del_root_ref() will simply WARN_ON() if the ref doesn't match in
-any way, and then continue to delete the reference.  This shouldn't
-happen, we have these values because there's more to the reference than
-the original root and the sub root.  If any of these checks fail, return
--ENOENT.
+The fstest btrfs/154 reports
 
+  [ 8675.381709] BTRFS: Transaction aborted (error -28)
+  [ 8675.383302] WARNING: CPU: 1 PID: 31900 at fs/btrfs/block-group.c:2038 btrfs_create_pending_block_groups+0x1e0/0x1f0 [btrfs]
+  [ 8675.390925] CPU: 1 PID: 31900 Comm: btrfs Not tainted 5.5.0-rc6-default+ #935
+  [ 8675.392780] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
+  [ 8675.395452] RIP: 0010:btrfs_create_pending_block_groups+0x1e0/0x1f0 [btrfs]
+  [ 8675.402672] RSP: 0018:ffffb2090888fb00 EFLAGS: 00010286
+  [ 8675.404413] RAX: 0000000000000000 RBX: ffff92026dfa91c8 RCX: 0000000000000001
+  [ 8675.406609] RDX: 0000000000000000 RSI: ffffffff8e100899 RDI: ffffffff8e100971
+  [ 8675.408775] RBP: ffff920247c61660 R08: 0000000000000000 R09: 0000000000000000
+  [ 8675.410978] R10: 0000000000000000 R11: 0000000000000000 R12: 00000000ffffffe4
+  [ 8675.412647] R13: ffff92026db74000 R14: ffff920247c616b8 R15: ffff92026dfbc000
+  [ 8675.413994] FS:  00007fd5e57248c0(0000) GS:ffff92027d800000(0000) knlGS:0000000000000000
+  [ 8675.416146] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [ 8675.417833] CR2: 0000564aa51682d8 CR3: 000000006dcbc004 CR4: 0000000000160ee0
+  [ 8675.419801] Call Trace:
+  [ 8675.420742]  btrfs_start_dirty_block_groups+0x355/0x480 [btrfs]
+  [ 8675.422600]  btrfs_commit_transaction+0xc8/0xaf0 [btrfs]
+  [ 8675.424335]  reset_balance_state+0x14a/0x190 [btrfs]
+  [ 8675.425824]  btrfs_balance.cold+0xe7/0x154 [btrfs]
+  [ 8675.427313]  ? kmem_cache_alloc_trace+0x235/0x2c0
+  [ 8675.428663]  btrfs_ioctl_balance+0x298/0x350 [btrfs]
+  [ 8675.430285]  btrfs_ioctl+0x466/0x2550 [btrfs]
+  [ 8675.431788]  ? mem_cgroup_charge_statistics+0x51/0xf0
+  [ 8675.433487]  ? mem_cgroup_commit_charge+0x56/0x400
+  [ 8675.435122]  ? do_raw_spin_unlock+0x4b/0xc0
+  [ 8675.436618]  ? _raw_spin_unlock+0x1f/0x30
+  [ 8675.438093]  ? __handle_mm_fault+0x499/0x740
+  [ 8675.439619]  ? do_vfs_ioctl+0x56e/0x770
+  [ 8675.441034]  do_vfs_ioctl+0x56e/0x770
+  [ 8675.442411]  ksys_ioctl+0x3a/0x70
+  [ 8675.443718]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+  [ 8675.445333]  __x64_sys_ioctl+0x16/0x20
+  [ 8675.446705]  do_syscall_64+0x50/0x210
+  [ 8675.448059]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  [ 8675.479187] BTRFS: error (device vdb) in btrfs_create_pending_block_groups:2038: errno=-28 No space left
+
+We now use btrfs_can_overcommit() to see if we can flip a block group
+read only.  Before this would fail because we weren't taking into
+account the usable un-allocated space for allocating chunks.  With my
+patches we were allowed to do the balance, which is technically correct.
+
+The test is trying to start balance on degraded mount.  So now we're
+trying to allocate a chunk and cannot because we want to allocate a
+RAID1 chunk, but there's only 1 device that's available for usage.  This
+results in an ENOSPC.
+
+But we shouldn't even be making it this far, we don't have enough
+devices to restripe.  The problem is we're using btrfs_num_devices(),
+that also includes missing devices. That's not actually what we want, we
+need to use rw_devices.
+
+The chunk_mutex is not needed here, rw_devices changes only in device
+add, remove or replace, all are excluded by EXCL_OP mechanism.
+
+Fixes: e4d8ec0f65b9 ("Btrfs: implement online profile changing")
 CC: stable@vger.kernel.org # 4.4+
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
+[ add stacktrace, update changelog, drop chunk_mutex ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/root-tree.c b/fs/btrfs/root-tree.c
-index 3b17b647d002..612411c74550 100644
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -376,11 +376,13 @@ int btrfs_del_root_ref(struct btrfs_trans_handle *trans, u64 root_id,
- 		leaf = path->nodes[0];
- 		ref = btrfs_item_ptr(leaf, path->slots[0],
- 				     struct btrfs_root_ref);
--
--		WARN_ON(btrfs_root_ref_dirid(leaf, ref) != dirid);
--		WARN_ON(btrfs_root_ref_name_len(leaf, ref) != name_len);
- 		ptr = (unsigned long)(ref + 1);
--		WARN_ON(memcmp_extent_buffer(leaf, name, ptr, name_len));
-+		if ((btrfs_root_ref_dirid(leaf, ref) != dirid) ||
-+		    (btrfs_root_ref_name_len(leaf, ref) != name_len) ||
-+		    memcmp_extent_buffer(leaf, name, ptr, name_len)) {
-+			err = -ENOENT;
-+			goto out;
-+		}
- 		*sequence = btrfs_root_ref_sequence(leaf, ref);
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index a6d3f08bfff3..9b78e720c697 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -3881,7 +3881,11 @@ int btrfs_balance(struct btrfs_fs_info *fs_info,
+ 		}
+ 	}
  
- 		ret = btrfs_del_item(trans, tree_root, path);
+-	num_devices = btrfs_num_devices(fs_info);
++	/*
++	 * rw_devices will not change at the moment, device add/delete/replace
++	 * are excluded by EXCL_OP
++	 */
++	num_devices = fs_info->fs_devices->rw_devices;
+ 
+ 	/*
+ 	 * SINGLE profile on-disk has no profile bit, but in-memory we have a
 
