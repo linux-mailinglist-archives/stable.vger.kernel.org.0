@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D06141E60
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 15:02:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E6A7141E61
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 15:02:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726816AbgASOCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 09:02:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40748 "EHLO mail.kernel.org"
+        id S1726867AbgASOCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 09:02:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726778AbgASOCL (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sun, 19 Jan 2020 09:02:11 -0500
+        id S1726778AbgASOCW (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sun, 19 Jan 2020 09:02:22 -0500
 Received: from localhost (unknown [84.241.197.67])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 871A320684;
-        Sun, 19 Jan 2020 14:02:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4E5320684;
+        Sun, 19 Jan 2020 14:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579442530;
-        bh=Du7b8V/8m2GxPC1QftHhLNrNDyZnarSwvc8kHhorx+o=;
+        s=default; t=1579442541;
+        bh=jl+KxTcJvQGYZi2uoFuHOQ8YBvyy31RgtLdp7htzroE=;
         h=Subject:To:From:Date:From;
-        b=QZ+Y1gxrsaSeQ6C7vImPGiR8DuQHvR3aKZZ6oiBOn61SBnM3lVg8ty1ifaFM375es
-         A9I8gaPCxL8nh8uGRklGaBGZxMwKTWZAbU8Y/4lKla8YuJSn9HiZrvAF5W9InWuLDX
-         Kj3QXfxa8Cs2XWPw+NzoCpH2Hydp7TTGe3p1Nn20=
-Subject: patch "iio: st_gyro: Correct data for LSM9DS0 gyro" added to staging-testing
-To:     andriy.shevchenko@linux.intel.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, leonard.crestez@nxp.com,
-        lorenzo.bianconi83@gmail.com
+        b=M1sPGHNA/pldJusLIMkATuGNZD5Fi7XfCbHlD5HKlnHZN60wHOSvZZT5bLLBOhfBx
+         SX2003utMLuUQAAuvlAZzlojivYV+vK6LfQASPvR2c+rnvowIMm7OiRRlws3hRMOsT
+         0BA+z6bO0oNKrseD69/+tFLAK0QL8C//5lYUR5Vg=
+Subject: patch "iio: adc: stm32-dfsdm: fix single conversion" added to staging-testing
+To:     olivier.moysan@st.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, fabrice.gasnier@st.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 19 Jan 2020 15:01:41 +0100
-Message-ID: <15794425011541@kroah.com>
+Date:   Sun, 19 Jan 2020 15:01:44 +0100
+Message-ID: <157944250412318@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: st_gyro: Correct data for LSM9DS0 gyro
+    iio: adc: stm32-dfsdm: fix single conversion
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -56,122 +55,37 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From e825070f697abddf3b9b0a675ed0ff1884114818 Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Tue, 17 Dec 2019 19:10:38 +0200
-Subject: iio: st_gyro: Correct data for LSM9DS0 gyro
+From dc26935fb60e8da8d59655dd2ec0de47b20d7d8f Mon Sep 17 00:00:00 2001
+From: Olivier Moysan <olivier.moysan@st.com>
+Date: Wed, 27 Nov 2019 14:07:29 +0100
+Subject: iio: adc: stm32-dfsdm: fix single conversion
 
-The commit 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
-assumes that gyro in LSM9DS0 is the same as others with 0xd4 WAI ID,
-but datasheet tells slight different story, i.e. the first scale factor
-for the chip is 245 dps, and not 250 dps.
+Apply data formatting to single conversion,
+as this is already done in continuous and trigger modes.
 
-Correct this by introducing a separate settings for LSM9DS0.
+Fixes: 102afde62937 ("iio: adc: stm32-dfsdm: manage data resolution in trigger mode")
 
-Fixes: 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
-Depends-on: 45a4e4220bf4 ("iio: gyro: st_gyro: fix L3GD20H support")
-Cc: Leonard Crestez <leonard.crestez@nxp.com>
-Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
 Cc: <Stable@vger.kernel.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/gyro/st_gyro_core.c | 75 ++++++++++++++++++++++++++++++++-
- 1 file changed, 74 insertions(+), 1 deletion(-)
+ drivers/iio/adc/stm32-dfsdm-adc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/gyro/st_gyro_core.c b/drivers/iio/gyro/st_gyro_core.c
-index 57be68b291fa..26c50b24bc08 100644
---- a/drivers/iio/gyro/st_gyro_core.c
-+++ b/drivers/iio/gyro/st_gyro_core.c
-@@ -138,7 +138,6 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 			[2] = LSM330DLC_GYRO_DEV_NAME,
- 			[3] = L3G4IS_GYRO_DEV_NAME,
- 			[4] = LSM330_GYRO_DEV_NAME,
--			[5] = LSM9DS0_GYRO_DEV_NAME,
- 		},
- 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
- 		.odr = {
-@@ -208,6 +207,80 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
- 		.multi_read_bit = true,
- 		.bootime = 2,
- 	},
-+	{
-+		.wai = 0xd4,
-+		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
-+		.sensors_supported = {
-+			[0] = LSM9DS0_GYRO_DEV_NAME,
-+		},
-+		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
-+		.odr = {
-+			.addr = 0x20,
-+			.mask = GENMASK(7, 6),
-+			.odr_avl = {
-+				{ .hz = 95, .value = 0x00, },
-+				{ .hz = 190, .value = 0x01, },
-+				{ .hz = 380, .value = 0x02, },
-+				{ .hz = 760, .value = 0x03, },
-+			},
-+		},
-+		.pw = {
-+			.addr = 0x20,
-+			.mask = BIT(3),
-+			.value_on = ST_SENSORS_DEFAULT_POWER_ON_VALUE,
-+			.value_off = ST_SENSORS_DEFAULT_POWER_OFF_VALUE,
-+		},
-+		.enable_axis = {
-+			.addr = ST_SENSORS_DEFAULT_AXIS_ADDR,
-+			.mask = ST_SENSORS_DEFAULT_AXIS_MASK,
-+		},
-+		.fs = {
-+			.addr = 0x23,
-+			.mask = GENMASK(5, 4),
-+			.fs_avl = {
-+				[0] = {
-+					.num = ST_GYRO_FS_AVL_245DPS,
-+					.value = 0x00,
-+					.gain = IIO_DEGREE_TO_RAD(8750),
-+				},
-+				[1] = {
-+					.num = ST_GYRO_FS_AVL_500DPS,
-+					.value = 0x01,
-+					.gain = IIO_DEGREE_TO_RAD(17500),
-+				},
-+				[2] = {
-+					.num = ST_GYRO_FS_AVL_2000DPS,
-+					.value = 0x02,
-+					.gain = IIO_DEGREE_TO_RAD(70000),
-+				},
-+			},
-+		},
-+		.bdu = {
-+			.addr = 0x23,
-+			.mask = BIT(7),
-+		},
-+		.drdy_irq = {
-+			.int2 = {
-+				.addr = 0x22,
-+				.mask = BIT(3),
-+			},
-+			/*
-+			 * The sensor has IHL (active low) and open
-+			 * drain settings, but only for INT1 and not
-+			 * for the DRDY line on INT2.
-+			 */
-+			.stat_drdy = {
-+				.addr = ST_SENSORS_DEFAULT_STAT_ADDR,
-+				.mask = GENMASK(2, 0),
-+			},
-+		},
-+		.sim = {
-+			.addr = 0x23,
-+			.value = BIT(0),
-+		},
-+		.multi_read_bit = true,
-+		.bootime = 2,
-+	},
- 	{
- 		.wai = 0xd7,
- 		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
+diff --git a/drivers/iio/adc/stm32-dfsdm-adc.c b/drivers/iio/adc/stm32-dfsdm-adc.c
+index 74a2211bdff4..1c9b05d11dc5 100644
+--- a/drivers/iio/adc/stm32-dfsdm-adc.c
++++ b/drivers/iio/adc/stm32-dfsdm-adc.c
+@@ -1204,6 +1204,8 @@ static int stm32_dfsdm_single_conv(struct iio_dev *indio_dev,
+ 
+ 	stm32_dfsdm_stop_conv(adc);
+ 
++	stm32_dfsdm_process_data(adc, res);
++
+ stop_dfsdm:
+ 	stm32_dfsdm_stop_dfsdm(adc->dfsdm);
+ 
 -- 
 2.25.0
 
