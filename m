@@ -2,120 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02CB6141F18
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 17:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE3FA141FAA
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 19:53:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726925AbgASQlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 11:41:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38842 "EHLO mail.kernel.org"
+        id S1727138AbgASSxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 13:53:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726860AbgASQli (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 19 Jan 2020 11:41:38 -0500
+        id S1727123AbgASSxa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 19 Jan 2020 13:53:30 -0500
 Received: from localhost (96-81-74-198-static.hfc.comcastbusiness.net [96.81.74.198])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1B8420679;
-        Sun, 19 Jan 2020 16:41:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D77320679;
+        Sun, 19 Jan 2020 18:53:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579452097;
-        bh=8RY3dVu0co497bINTl6DWMYKBPZFv8aJCOyvSBPPz0E=;
+        s=default; t=1579460010;
+        bh=g54lcafQeBdaVWsOI3myQqqk/Q/dyMCJvoQVweioQYI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Vt6n6X5AeJsfakgOUw6tIUZeFk10jXDZ4IsqMNG8uh1Do+oDp0b0lzoIkIQ5MBYvl
-         pZKTE/CZAqTKt2F//acuzDBcBlaF3VDnLWc6yzV6GjGWk60u1YTo/WMRSkvBB2BiCk
-         VthF9KLScG1uM/Yu4XG1l43qgAziw3Q8daSDzXnI=
-Date:   Sun, 19 Jan 2020 11:41:33 -0500
+        b=K59+gbrCvo80P5lh+L+HzZx6lMzWdgL9bwQfeVkxUve5sf755LE2qy4/JW7dziCXU
+         nWWmGD3NlxIo7aSACCHlaMWqTYN5NREU6vjyursXawhR3gX9VHf81pGCtujcrSsWIe
+         Yeyu1perivdP+zG6zQMKtCufyYPPZ0WtSdED72XU=
+Date:   Sun, 19 Jan 2020 13:53:26 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     kirill@shutemov.name, akpm@linux-foundation.org,
-        aneesh.kumar@linux.vnet.ibm.com, dan.j.williams@intel.com,
-        kirill.shutemov@linux.intel.com, otto.g.bruggeman@intel.com,
-        stable@vger.kernel.org, thomas.willhalm@intel.com,
-        torvalds@linux-foundation.org
-Subject: Re: FAILED: patch "[PATCH] mm/huge_memory.c: thp: fix conflict of
- above-47bit hint" failed to apply to 4.19-stable tree
-Message-ID: <20200119164133.GV1706@sasha-vm>
-References: <157944690224276@kroah.com>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] USB: serial: keyspan: handle unbound
+ ports" failed to apply to 4.9-stable tree
+Message-ID: <20200119185326.GW1706@sasha-vm>
+References: <157944127621242@kroah.com>
+ <20200119154733.GR1706@sasha-vm>
+ <20200119160136.GB2301@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <157944690224276@kroah.com>
+In-Reply-To: <20200119160136.GB2301@localhost>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 19, 2020 at 04:15:02PM +0100, gregkh@linuxfoundation.org wrote:
+On Sun, Jan 19, 2020 at 05:01:36PM +0100, Johan Hovold wrote:
+>On Sun, Jan 19, 2020 at 10:47:33AM -0500, Sasha Levin wrote:
+>> On Sun, Jan 19, 2020 at 02:41:16PM +0100, gregkh@linuxfoundation.org wrote:
+>> >
+>> >The patch below does not apply to the 4.9-stable tree.
+>> >If someone wants it applied there, or to any other stable or longterm
+>> >tree, then please email the backport, including the original git commit
+>> >id to <stable@vger.kernel.org>.
+>> >
+>> >thanks,
+>> >
+>> >greg k-h
+>> >
+>> >------------------ original commit in Linus's tree ------------------
+>> >
+>> >From 3018dd3fa114b13261e9599ddb5656ef97a1fa17 Mon Sep 17 00:00:00 2001
+>> >From: Johan Hovold <johan@kernel.org>
+>> >Date: Fri, 17 Jan 2020 10:50:25 +0100
+>> >Subject: [PATCH] USB: serial: keyspan: handle unbound ports
+>> >
+>> >Check for NULL port data in the control URB completion handlers to avoid
+>> >dereferencing a NULL pointer in the unlikely case where a port device
+>> >isn't bound to a driver (e.g. after an allocation failure on port
+>> >probe()).
+>> >
+>> >Fixes: 0ca1268e109a ("USB Serial Keyspan: add support for USA-49WG & USA-28XG")
+>> >Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+>> >Cc: stable <stable@vger.kernel.org>
+>> >Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> >Signed-off-by: Johan Hovold <johan@kernel.org>
+>>
+>> Grabbing the prerequisite for the other USB patch also resolved the
+>> conflict here, now queued for 4.9 and 4.4.
 >
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 97d3d0f9a1cf132c63c0b8b8bd497b8a56283dd9 Mon Sep 17 00:00:00 2001
->From: "Kirill A. Shutemov" <kirill@shutemov.name>
->Date: Mon, 13 Jan 2020 16:29:10 -0800
->Subject: [PATCH] mm/huge_memory.c: thp: fix conflict of above-47bit hint
-> address and PMD alignment
->
->Patch series "Fix two above-47bit hint address vs.  THP bugs".
->
->The two get_unmapped_area() implementations have to be fixed to provide
->THP-friendly mappings if above-47bit hint address is specified.
->
->This patch (of 2):
->
->Filesystems use thp_get_unmapped_area() to provide THP-friendly
->mappings.  For DAX in particular.
->
->Normally, the kernel doesn't create userspace mappings above 47-bit,
->even if the machine allows this (such as with 5-level paging on x86-64).
->Not all user space is ready to handle wide addresses.  It's known that
->at least some JIT compilers use higher bits in pointers to encode their
->information.
->
->Userspace can ask for allocation from full address space by specifying
->hint address (with or without MAP_FIXED) above 47-bits.  If the
->application doesn't need a particular address, but wants to allocate
->from whole address space it can specify -1 as a hint address.
->
->Unfortunately, this trick breaks thp_get_unmapped_area(): the function
->would not try to allocate PMD-aligned area if *any* hint address
->specified.
->
->Modify the routine to handle it correctly:
->
-> - Try to allocate the space at the specified hint address with length
->   padding required for PMD alignment.
-> - If failed, retry without length padding (but with the same hint
->   address);
-> - If the returned address matches the hint address return it.
-> - Otherwise, align the address as required for THP and return.
->
->The user specified hint address is passed down to get_unmapped_area() so
->above-47bit hint address will be taken into account without breaking
->alignment requirements.
->
->Link: http://lkml.kernel.org/r/20191220142548.7118-2-kirill.shutemov@linux.intel.com
->Fixes: b569bab78d8d ("x86/mm: Prepare to expose larger address space to userspace")
->Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
->Reported-by: Thomas Willhalm <thomas.willhalm@intel.com>
->Tested-by: Dan Williams <dan.j.williams@intel.com>
->Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
->Cc: "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>
->Cc: <stable@vger.kernel.org>
->Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
->Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+>Just curious; which prerequisite are referring to here? I can't seem to
+>understand why this one failed to apply to 4.9 in the first place as
+>there hasn't really been any changes to that code in the keyspan driver.
 
-Conflict due to missing b3b07077b01e ("mm/huge_memory.c: make
-__thp_get_unmapped_area static"), I've just queued both for 4.19 and
-4.14.
+I thought that it was either dd1fae527612 ("USB: serial: io_edgeport:
+use irqsave() in USB's complete callback") or the stable commit that was
+applied on top, but you're right -  it doesn't seem to be either of
+those.
 
 -- 
 Thanks,
