@@ -2,52 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAFEF141E54
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 14:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D06141E60
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 15:02:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726903AbgASNnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 08:43:31 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:33475 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726778AbgASNnb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 08:43:31 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id AB88A4ED;
-        Sun, 19 Jan 2020 08:43:30 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 19 Jan 2020 08:43:30 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=H6rcM7
-        yo6vH+Fh+svEZ8P3ftIfDrAkwZUjOuDoGm+Uc=; b=veJ/QRZKb65M3XJ4rmNmzH
-        riivP6XqaGrmIzF4TNwQX7ZsaF4IqZGTDMTXUgudGN6p4r4KZ3H/2HGFmYiZUmTy
-        jq6z82eyW7pBLTpxtbVxBMguMJt/8pRXWiqgOIkcqD+sHXFmOfbPM0O5SI2nDKXg
-        sJeSVxeF8qLxezO2s7GNiE3BnVvqYK7GS9OQtcvir7xezdPqRejW+xNDcqMvMwPe
-        oYfzkw1nsPD+CXRZrMyGZYtMTZl8OC70YQGjjq+eFHnrGmMfphMc0p7L9fYVG6DW
-        W4vdCbnzLmoOccGM2iHOFQFKZl6Rh01hldjEoVoCPvty32SRxkinkRr4dlRhRgFw
-        ==
-X-ME-Sender: <xms:Al0kXrqD8hHAd3aGvJQON29i7QAYdAMURAV4-IcL6PiAm-K9uv-8Eg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdehhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekgedrvdeguddrudelje
-    drieejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:Al0kXnXhYCcbxfJmIfwxYzMiku0BIVSUIIRDn-MgxLw6hvkpaTOxGA>
-    <xmx:Al0kXnrCNYz-qTmQV1OZvglPSleTU6tMuP8US0JBeGsS8DnPhZfJdQ>
-    <xmx:Al0kXogfdFlR47UCv1vypY9TAkXJX2E0ir5x7UUoc0qsMulrhGIX7w>
-    <xmx:Al0kXoaAxjf41uZyegaQwI-pP15jG5ow8vkiKTEi_vaNAwP-ETkTQg>
+        id S1726816AbgASOCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 09:02:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40748 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726778AbgASOCL (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sun, 19 Jan 2020 09:02:11 -0500
 Received: from localhost (unknown [84.241.197.67])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B1C3A80059;
-        Sun, 19 Jan 2020 08:43:29 -0500 (EST)
-Subject: FAILED: patch "[PATCH] scsi: fnic: fix invalid stack access" failed to apply to 4.9-stable tree
-To:     arnd@arndb.de, martin.petersen@oracle.com
-Cc:     <stable@vger.kernel.org>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 871A320684;
+        Sun, 19 Jan 2020 14:02:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579442530;
+        bh=Du7b8V/8m2GxPC1QftHhLNrNDyZnarSwvc8kHhorx+o=;
+        h=Subject:To:From:Date:From;
+        b=QZ+Y1gxrsaSeQ6C7vImPGiR8DuQHvR3aKZZ6oiBOn61SBnM3lVg8ty1ifaFM375es
+         A9I8gaPCxL8nh8uGRklGaBGZxMwKTWZAbU8Y/4lKla8YuJSn9HiZrvAF5W9InWuLDX
+         Kj3QXfxa8Cs2XWPw+NzoCpH2Hydp7TTGe3p1Nn20=
+Subject: patch "iio: st_gyro: Correct data for LSM9DS0 gyro" added to staging-testing
+To:     andriy.shevchenko@linux.intel.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, leonard.crestez@nxp.com,
+        lorenzo.bianconi83@gmail.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 19 Jan 2020 14:43:27 +0100
-Message-ID: <157944140770121@kroah.com>
+Date:   Sun, 19 Jan 2020 15:01:41 +0100
+Message-ID: <15794425011541@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,130 +39,140 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This is a note to let you know that I've just added the patch titled
 
-thanks,
+    iio: st_gyro: Correct data for LSM9DS0 gyro
 
-greg k-h
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
 
------------------- original commit in Linus's tree ------------------
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-From 42ec15ceaea74b5f7a621fc6686cbf69ca66c4cf Mon Sep 17 00:00:00 2001
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 7 Jan 2020 21:15:49 +0100
-Subject: [PATCH] scsi: fnic: fix invalid stack access
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-gcc -O3 warns that some local variables are not properly initialized:
+If you have any questions about this process, please let me know.
 
-drivers/scsi/fnic/vnic_dev.c: In function 'fnic_dev_hang_notify':
-drivers/scsi/fnic/vnic_dev.c:511:16: error: 'a0' is used uninitialized in this function [-Werror=uninitialized]
-  vdev->args[0] = *a0;
-  ~~~~~~~~~~~~~~^~~~~
-drivers/scsi/fnic/vnic_dev.c:691:6: note: 'a0' was declared here
-  u64 a0, a1;
-      ^~
-drivers/scsi/fnic/vnic_dev.c:512:16: error: 'a1' is used uninitialized in this function [-Werror=uninitialized]
-  vdev->args[1] = *a1;
-  ~~~~~~~~~~~~~~^~~~~
-drivers/scsi/fnic/vnic_dev.c:691:10: note: 'a1' was declared here
-  u64 a0, a1;
-          ^~
-drivers/scsi/fnic/vnic_dev.c: In function 'fnic_dev_mac_addr':
-drivers/scsi/fnic/vnic_dev.c:512:16: error: 'a1' is used uninitialized in this function [-Werror=uninitialized]
-  vdev->args[1] = *a1;
-  ~~~~~~~~~~~~~~^~~~~
-drivers/scsi/fnic/vnic_dev.c:698:10: note: 'a1' was declared here
-  u64 a0, a1;
-          ^~
 
-Apparently the code relies on the local variables occupying adjacent memory
-locations in the same order, but this is of course not guaranteed.
+From e825070f697abddf3b9b0a675ed0ff1884114818 Mon Sep 17 00:00:00 2001
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Tue, 17 Dec 2019 19:10:38 +0200
+Subject: iio: st_gyro: Correct data for LSM9DS0 gyro
 
-Use an array of two u64 variables where needed to make it work correctly.
+The commit 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
+assumes that gyro in LSM9DS0 is the same as others with 0xd4 WAI ID,
+but datasheet tells slight different story, i.e. the first scale factor
+for the chip is 245 dps, and not 250 dps.
 
-I suspect there is also an endianness bug here, but have not digged in deep
-enough to be sure.
+Correct this by introducing a separate settings for LSM9DS0.
 
-Fixes: 5df6d737dd4b ("[SCSI] fnic: Add new Cisco PCI-Express FCoE HBA")
-Fixes: mmtom ("init/Kconfig: enable -O3 for all arches")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200107201602.4096790-1-arnd@arndb.de
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
+Depends-on: 45a4e4220bf4 ("iio: gyro: st_gyro: fix L3GD20H support")
+Cc: Leonard Crestez <leonard.crestez@nxp.com>
+Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/gyro/st_gyro_core.c | 75 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 74 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/fnic/vnic_dev.c b/drivers/scsi/fnic/vnic_dev.c
-index 1f55b9e4e74a..1b88a3b53eee 100644
---- a/drivers/scsi/fnic/vnic_dev.c
-+++ b/drivers/scsi/fnic/vnic_dev.c
-@@ -688,26 +688,26 @@ int vnic_dev_soft_reset_done(struct vnic_dev *vdev, int *done)
- 
- int vnic_dev_hang_notify(struct vnic_dev *vdev)
- {
--	u64 a0, a1;
-+	u64 a0 = 0, a1 = 0;
- 	int wait = 1000;
- 	return vnic_dev_cmd(vdev, CMD_HANG_NOTIFY, &a0, &a1, wait);
- }
- 
- int vnic_dev_mac_addr(struct vnic_dev *vdev, u8 *mac_addr)
- {
--	u64 a0, a1;
-+	u64 a[2] = {};
- 	int wait = 1000;
- 	int err, i;
- 
- 	for (i = 0; i < ETH_ALEN; i++)
- 		mac_addr[i] = 0;
- 
--	err = vnic_dev_cmd(vdev, CMD_MAC_ADDR, &a0, &a1, wait);
-+	err = vnic_dev_cmd(vdev, CMD_MAC_ADDR, &a[0], &a[1], wait);
- 	if (err)
- 		return err;
- 
- 	for (i = 0; i < ETH_ALEN; i++)
--		mac_addr[i] = ((u8 *)&a0)[i];
-+		mac_addr[i] = ((u8 *)&a)[i];
- 
- 	return 0;
- }
-@@ -732,30 +732,30 @@ void vnic_dev_packet_filter(struct vnic_dev *vdev, int directed, int multicast,
- 
- void vnic_dev_add_addr(struct vnic_dev *vdev, u8 *addr)
- {
--	u64 a0 = 0, a1 = 0;
-+	u64 a[2] = {};
- 	int wait = 1000;
- 	int err;
- 	int i;
- 
- 	for (i = 0; i < ETH_ALEN; i++)
--		((u8 *)&a0)[i] = addr[i];
-+		((u8 *)&a)[i] = addr[i];
- 
--	err = vnic_dev_cmd(vdev, CMD_ADDR_ADD, &a0, &a1, wait);
-+	err = vnic_dev_cmd(vdev, CMD_ADDR_ADD, &a[0], &a[1], wait);
- 	if (err)
- 		pr_err("Can't add addr [%pM], %d\n", addr, err);
- }
- 
- void vnic_dev_del_addr(struct vnic_dev *vdev, u8 *addr)
- {
--	u64 a0 = 0, a1 = 0;
-+	u64 a[2] = {};
- 	int wait = 1000;
- 	int err;
- 	int i;
- 
- 	for (i = 0; i < ETH_ALEN; i++)
--		((u8 *)&a0)[i] = addr[i];
-+		((u8 *)&a)[i] = addr[i];
- 
--	err = vnic_dev_cmd(vdev, CMD_ADDR_DEL, &a0, &a1, wait);
-+	err = vnic_dev_cmd(vdev, CMD_ADDR_DEL, &a[0], &a[1], wait);
- 	if (err)
- 		pr_err("Can't del addr [%pM], %d\n", addr, err);
- }
+diff --git a/drivers/iio/gyro/st_gyro_core.c b/drivers/iio/gyro/st_gyro_core.c
+index 57be68b291fa..26c50b24bc08 100644
+--- a/drivers/iio/gyro/st_gyro_core.c
++++ b/drivers/iio/gyro/st_gyro_core.c
+@@ -138,7 +138,6 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
+ 			[2] = LSM330DLC_GYRO_DEV_NAME,
+ 			[3] = L3G4IS_GYRO_DEV_NAME,
+ 			[4] = LSM330_GYRO_DEV_NAME,
+-			[5] = LSM9DS0_GYRO_DEV_NAME,
+ 		},
+ 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
+ 		.odr = {
+@@ -208,6 +207,80 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
+ 		.multi_read_bit = true,
+ 		.bootime = 2,
+ 	},
++	{
++		.wai = 0xd4,
++		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
++		.sensors_supported = {
++			[0] = LSM9DS0_GYRO_DEV_NAME,
++		},
++		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
++		.odr = {
++			.addr = 0x20,
++			.mask = GENMASK(7, 6),
++			.odr_avl = {
++				{ .hz = 95, .value = 0x00, },
++				{ .hz = 190, .value = 0x01, },
++				{ .hz = 380, .value = 0x02, },
++				{ .hz = 760, .value = 0x03, },
++			},
++		},
++		.pw = {
++			.addr = 0x20,
++			.mask = BIT(3),
++			.value_on = ST_SENSORS_DEFAULT_POWER_ON_VALUE,
++			.value_off = ST_SENSORS_DEFAULT_POWER_OFF_VALUE,
++		},
++		.enable_axis = {
++			.addr = ST_SENSORS_DEFAULT_AXIS_ADDR,
++			.mask = ST_SENSORS_DEFAULT_AXIS_MASK,
++		},
++		.fs = {
++			.addr = 0x23,
++			.mask = GENMASK(5, 4),
++			.fs_avl = {
++				[0] = {
++					.num = ST_GYRO_FS_AVL_245DPS,
++					.value = 0x00,
++					.gain = IIO_DEGREE_TO_RAD(8750),
++				},
++				[1] = {
++					.num = ST_GYRO_FS_AVL_500DPS,
++					.value = 0x01,
++					.gain = IIO_DEGREE_TO_RAD(17500),
++				},
++				[2] = {
++					.num = ST_GYRO_FS_AVL_2000DPS,
++					.value = 0x02,
++					.gain = IIO_DEGREE_TO_RAD(70000),
++				},
++			},
++		},
++		.bdu = {
++			.addr = 0x23,
++			.mask = BIT(7),
++		},
++		.drdy_irq = {
++			.int2 = {
++				.addr = 0x22,
++				.mask = BIT(3),
++			},
++			/*
++			 * The sensor has IHL (active low) and open
++			 * drain settings, but only for INT1 and not
++			 * for the DRDY line on INT2.
++			 */
++			.stat_drdy = {
++				.addr = ST_SENSORS_DEFAULT_STAT_ADDR,
++				.mask = GENMASK(2, 0),
++			},
++		},
++		.sim = {
++			.addr = 0x23,
++			.value = BIT(0),
++		},
++		.multi_read_bit = true,
++		.bootime = 2,
++	},
+ 	{
+ 		.wai = 0xd7,
+ 		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
+-- 
+2.25.0
+
 
