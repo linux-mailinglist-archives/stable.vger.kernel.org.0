@@ -2,56 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2D35141ECA
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 16:15:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E24141ECE
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 16:19:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727045AbgASPPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 10:15:07 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:35759 "EHLO
+        id S1727007AbgASPTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 10:19:42 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:52095 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726860AbgASPPG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 10:15:06 -0500
+        by vger.kernel.org with ESMTP id S1726925AbgASPTm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 10:19:42 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 65E1A603;
-        Sun, 19 Jan 2020 10:15:05 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 19 Jan 2020 10:15:06 -0500
+        by mailout.west.internal (Postfix) with ESMTP id D8D85536;
+        Sun, 19 Jan 2020 10:19:40 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 19 Jan 2020 10:19:41 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Q56qtO
-        XRBQjIGrL9HsM2SVfrdDVkRFRFAFfKdmfTb+0=; b=bXubgIwF2Y29OdMz2FY1T1
-        xrrlI98lbCBTTmP4RVfG1Uq6JK6JT7hVqtFeJl9AYbE0mZX3fRNbO0C9Qlv4ndxv
-        0oq5jkgY7zksUDKkdfEqFD3pqdsjDOGQ7VsO1HgNym8iAmVSe5lzkgFlM9cluBFc
-        oU1UM5/iA0PUCnkqURkGylyivVoL55chyz1pXeb0zs1HiUZbiQ1TRxGHVQKZSQDw
-        Gif5qHlvo3wnbJ1DfqDL5j91IkC712jtybH6TgZYB+JLC0iJ8bKFBrfOZOiHpoUp
-        IOZsQyhp0oq6d6fIc6jRlDXpDO3N55oRPaGudXK/FHWAbfRP9wKdQGRuQU+ODcQQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mWUWKX
+        XnY6CZwsEHdz/idayFjR19CT5oMQzb+AoDsY8=; b=RNOys5GpQmY06y+oja3Yty
+        ntLSUy5r6sjGURWc7kIu9LgYLUtu0HENfd/4fhI86YLCvkhVygB/OEX9tuZ9MAsU
+        1RMvo3iAfmAhlpXPexQreAbNTboAxoFI8UE44SDVEHrxQDbhZm435yIDxIe/jPB1
+        xrgVGUj21nVfj4A+obN0njidl/oyVdOYKz2ENG1sezR7mutieUwNxxpGAV5un+wa
+        hOQZusH2d+xcJs9j4qOIJS7/zC0NyHtnMenlHtugrrxbBaS8/7jvPBgZ7smrm10d
+        DLSH+Vv4vgFarlJw/WD8gMGlJdv7lFSrX1cHQqhgXJ1mXuO/vUuR2vQanhP+WFFg
         ==
-X-ME-Sender: <xms:eHIkXp0dmWQesuGvkoISiNV7m60cIyGUU-XV5gxjxzoUPpLhFxPFvw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdejfecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:jHMkXlU8NJTCvNz6-pJViSGPZCWoj67CxMHvzhT_Ps_voMyv5d0QcA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdejgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekgedrvdeguddrudelje
-    drieejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:eHIkXkWfrXlYxDMJhwaQ9kyhkko1HjyE-vHUjZ4pGgahobxyjaSJuA>
-    <xmx:eHIkXk67SzeBLGifAjhd1sH5y_fl6rFfINYYYYRPFjyNaPrAzhSjaQ>
-    <xmx:eHIkXrLdbfT-kSQq7APNOtAgbEFANEtq-HZDVmlQmuIv5PVYBzBOxw>
-    <xmx:eXIkXjM--daom1otm4fiZK1gzxv_M0x_L-aHXq27EKlrLA5CsgkKkw>
+    qeenucfkphepkeegrddvgedurdduleejrdeijeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:jHMkXk15lPoCvjCDfo90rDGy9V833fJRB_zh2erYMwhgmDCHygsBXQ>
+    <xmx:jHMkXtRBJKgqLj355YcSOajMbK2cjbosoH9HwTgh9U_yPvVAIN84FQ>
+    <xmx:jHMkXnxfpJc_TdKV_ZbvxTo3_ZK7_9KdrRcMnhRGaq9aU8pax9B46A>
+    <xmx:jHMkXuuN8uv2kffRWPHOBfjUgKrRiOficmkXkDaoWV5cHYJ1C2pCig>
 Received: from localhost (unknown [84.241.197.67])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F24008005A;
-        Sun, 19 Jan 2020 10:15:03 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mm/huge_memory.c: thp: fix conflict of above-47bit hint" failed to apply to 4.19-stable tree
-To:     kirill@shutemov.name, akpm@linux-foundation.org,
-        aneesh.kumar@linux.vnet.ibm.com, dan.j.williams@intel.com,
-        kirill.shutemov@linux.intel.com, otto.g.bruggeman@intel.com,
-        stable@vger.kernel.org, thomas.willhalm@intel.com,
-        torvalds@linux-foundation.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id D9C643060B16;
+        Sun, 19 Jan 2020 10:19:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: fix invalid removal of root ref" failed to apply to 4.4-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 19 Jan 2020 16:15:02 +0100
-Message-ID: <157944690224276@kroah.com>
+Date:   Sun, 19 Jan 2020 16:19:37 +0100
+Message-ID: <157944717725115@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,132 +67,86 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 97d3d0f9a1cf132c63c0b8b8bd497b8a56283dd9 Mon Sep 17 00:00:00 2001
-From: "Kirill A. Shutemov" <kirill@shutemov.name>
-Date: Mon, 13 Jan 2020 16:29:10 -0800
-Subject: [PATCH] mm/huge_memory.c: thp: fix conflict of above-47bit hint
- address and PMD alignment
+From d49d3287e74ffe55ae7430d1e795e5f9bf7359ea Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Wed, 18 Dec 2019 17:20:28 -0500
+Subject: [PATCH] btrfs: fix invalid removal of root ref
 
-Patch series "Fix two above-47bit hint address vs.  THP bugs".
+If we have the following sequence of events
 
-The two get_unmapped_area() implementations have to be fixed to provide
-THP-friendly mappings if above-47bit hint address is specified.
+  btrfs sub create A
+  btrfs sub create A/B
+  btrfs sub snap A C
+  mkdir C/foo
+  mv A/B C/foo
+  rm -rf *
 
-This patch (of 2):
+We will end up with a transaction abort.
 
-Filesystems use thp_get_unmapped_area() to provide THP-friendly
-mappings.  For DAX in particular.
+The reason for this is because we create a root ref for B pointing to A.
+When we create a snapshot of C we still have B in our tree, but because
+the root ref points to A and not C we will make it appear to be empty.
 
-Normally, the kernel doesn't create userspace mappings above 47-bit,
-even if the machine allows this (such as with 5-level paging on x86-64).
-Not all user space is ready to handle wide addresses.  It's known that
-at least some JIT compilers use higher bits in pointers to encode their
-information.
+The problem happens when we move B into C.  This removes the root ref
+for B pointing to A and adds a ref of B pointing to C.  When we rmdir C
+we'll see that we have a ref to our root and remove the root ref,
+despite not actually matching our reference name.
 
-Userspace can ask for allocation from full address space by specifying
-hint address (with or without MAP_FIXED) above 47-bits.  If the
-application doesn't need a particular address, but wants to allocate
-from whole address space it can specify -1 as a hint address.
+Now btrfs_del_root_ref() allowing this to work is a bug as well, however
+we know that this inode does not actually point to a root ref in the
+first place, so we shouldn't be calling btrfs_del_root_ref() in the
+first place and instead simply look up our dir index for this item and
+do the rest of the removal.
 
-Unfortunately, this trick breaks thp_get_unmapped_area(): the function
-would not try to allocate PMD-aligned area if *any* hint address
-specified.
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 
-Modify the routine to handle it correctly:
-
- - Try to allocate the space at the specified hint address with length
-   padding required for PMD alignment.
- - If failed, retry without length padding (but with the same hint
-   address);
- - If the returned address matches the hint address return it.
- - Otherwise, align the address as required for THP and return.
-
-The user specified hint address is passed down to get_unmapped_area() so
-above-47bit hint address will be taken into account without breaking
-alignment requirements.
-
-Link: http://lkml.kernel.org/r/20191220142548.7118-2-kirill.shutemov@linux.intel.com
-Fixes: b569bab78d8d ("x86/mm: Prepare to expose larger address space to userspace")
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reported-by: Thomas Willhalm <thomas.willhalm@intel.com>
-Tested-by: Dan Williams <dan.j.williams@intel.com>
-Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 41a0fbddc96b..a88093213674 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -527,13 +527,13 @@ void prep_transhuge_page(struct page *page)
- 	set_compound_page_dtor(page, TRANSHUGE_PAGE_DTOR);
- }
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 99631030d13c..c70baafb2a39 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -4283,13 +4283,16 @@ static int btrfs_unlink_subvol(struct btrfs_trans_handle *trans,
+ 	}
+ 	btrfs_release_path(path);
  
--static unsigned long __thp_get_unmapped_area(struct file *filp, unsigned long len,
-+static unsigned long __thp_get_unmapped_area(struct file *filp,
-+		unsigned long addr, unsigned long len,
- 		loff_t off, unsigned long flags, unsigned long size)
- {
--	unsigned long addr;
- 	loff_t off_end = off + len;
- 	loff_t off_align = round_up(off, size);
--	unsigned long len_pad;
-+	unsigned long len_pad, ret;
- 
- 	if (off_end <= off_align || (off_end - off_align) < size)
- 		return 0;
-@@ -542,30 +542,40 @@ static unsigned long __thp_get_unmapped_area(struct file *filp, unsigned long le
- 	if (len_pad < len || (off + len_pad) < off)
- 		return 0;
- 
--	addr = current->mm->get_unmapped_area(filp, 0, len_pad,
-+	ret = current->mm->get_unmapped_area(filp, addr, len_pad,
- 					      off >> PAGE_SHIFT, flags);
--	if (IS_ERR_VALUE(addr))
-+
+-	ret = btrfs_del_root_ref(trans, objectid, root->root_key.objectid,
+-				 dir_ino, &index, name, name_len);
+-	if (ret < 0) {
+-		if (ret != -ENOENT) {
+-			btrfs_abort_transaction(trans, ret);
+-			goto out;
+-		}
 +	/*
-+	 * The failure might be due to length padding. The caller will retry
-+	 * without the padding.
++	 * This is a placeholder inode for a subvolume we didn't have a
++	 * reference to at the time of the snapshot creation.  In the meantime
++	 * we could have renamed the real subvol link into our snapshot, so
++	 * depending on btrfs_del_root_ref to return -ENOENT here is incorret.
++	 * Instead simply lookup the dir_index_item for this entry so we can
++	 * remove it.  Otherwise we know we have a ref to the root and we can
++	 * call btrfs_del_root_ref, and it _shouldn't_ fail.
 +	 */
-+	if (IS_ERR_VALUE(ret))
- 		return 0;
++	if (btrfs_ino(inode) == BTRFS_EMPTY_SUBVOL_DIR_OBJECTID) {
+ 		di = btrfs_search_dir_index_item(root, path, dir_ino,
+ 						 name, name_len);
+ 		if (IS_ERR_OR_NULL(di)) {
+@@ -4304,8 +4307,16 @@ static int btrfs_unlink_subvol(struct btrfs_trans_handle *trans,
+ 		leaf = path->nodes[0];
+ 		btrfs_item_key_to_cpu(leaf, &key, path->slots[0]);
+ 		index = key.offset;
++		btrfs_release_path(path);
++	} else {
++		ret = btrfs_del_root_ref(trans, objectid,
++					 root->root_key.objectid, dir_ino,
++					 &index, name, name_len);
++		if (ret) {
++			btrfs_abort_transaction(trans, ret);
++			goto out;
++		}
+ 	}
+-	btrfs_release_path(path);
  
--	addr += (off - addr) & (size - 1);
--	return addr;
-+	/*
-+	 * Do not try to align to THP boundary if allocation at the address
-+	 * hint succeeds.
-+	 */
-+	if (ret == addr)
-+		return addr;
-+
-+	ret += (off - ret) & (size - 1);
-+	return ret;
- }
- 
- unsigned long thp_get_unmapped_area(struct file *filp, unsigned long addr,
- 		unsigned long len, unsigned long pgoff, unsigned long flags)
- {
-+	unsigned long ret;
- 	loff_t off = (loff_t)pgoff << PAGE_SHIFT;
- 
--	if (addr)
--		goto out;
- 	if (!IS_DAX(filp->f_mapping->host) || !IS_ENABLED(CONFIG_FS_DAX_PMD))
- 		goto out;
- 
--	addr = __thp_get_unmapped_area(filp, len, off, flags, PMD_SIZE);
--	if (addr)
--		return addr;
--
-- out:
-+	ret = __thp_get_unmapped_area(filp, addr, len, off, flags, PMD_SIZE);
-+	if (ret)
-+		return ret;
-+out:
- 	return current->mm->get_unmapped_area(filp, addr, len, pgoff, flags);
- }
- EXPORT_SYMBOL_GPL(thp_get_unmapped_area);
+ 	ret = btrfs_delete_delayed_dir_index(trans, BTRFS_I(dir), index);
+ 	if (ret) {
 
