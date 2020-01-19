@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70766141ED5
+	by mail.lfdr.de (Postfix) with ESMTP id E5D81141ED6
 	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 16:22:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727113AbgASPVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 10:21:33 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:39073 "EHLO
+        id S1727123AbgASPVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 10:21:39 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:37977 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726778AbgASPVd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 10:21:33 -0500
+        by vger.kernel.org with ESMTP id S1727121AbgASPVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 10:21:39 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 8E49D46A;
-        Sun, 19 Jan 2020 10:21:32 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 19 Jan 2020 10:21:32 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 14CDD4A6;
+        Sun, 19 Jan 2020 10:21:38 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 19 Jan 2020 10:21:38 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=zuM3Yk
-        QXr7wZzIh112qnY0TFIVwXlRo33e2xzsmfLRM=; b=YcaopqhQ039ysUQfqlQ0lz
-        nmH6uN+Ud1b9CQR5ev2jKOTQ7V+mO10KcZw/xJzJpVi1W6utou9DwE6fg0d+8EJP
-        DnnXPa9JFmVz/2czU0Iq95t1xxw1eDhGfHMI3ih30QBUok3hQdSdzwjaUbuMOeVM
-        WKW/rTFOAkz5bNaEuuL4ZpawGTcOWjSH7RsSZrG/LD4eH6CwD61ZhSD4Jj5/xWWA
-        QHcDM8ehOaxf3upEV6zoyiBeDyIRYLzO5BH6AY3sgla9Wf2jJcahPu2mIyIUeqLf
-        XvpGMfNmWr51xa41iJD5mjhaQVWacWVnsoUw2uunkpjYsQVkglxTJUWD+S4uDqPw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ohthvl
+        6Q526FWpygVeOov+D7gJV1gN7zsKyWioLYAGM=; b=ApBAWvOUOx25th8/wEWDIX
+        9hcwWWGLD55UUQ+N3yqJaFsGQ9VEihRKvwgz9KxD4zfLS0qOqH9a7shNhPf9UfT0
+        MSD98/2K/nycd+0nqQjAiV2BYeGpDE/gEkHpA1TXMs6nWzSpAwv56r2xpoiXNO87
+        BUgi7pvDw9nQBvuqUEVBZD6BUSrChzjTK+MEVfZR+Xrb2QFItc8ZnK+k/hNqeWWz
+        AmSDrrCj0YdpgKkr8Xub4ZbGyNuZeJw6OUwcKE+5ZjMzwkDsJ/cogSJtACXLhVHX
+        UCaYBYo56KOLIxBlmbzwVkeEgtf6i8o2M1SMZwvMdqVYsa/YTa21gFmqXGyWi+3A
         ==
-X-ME-Sender: <xms:_HMkXkfstoZmoEtRu04cOKa32vN1LKr5JQoJxEKVYExMwAHrdv8rGQ>
+X-ME-Sender: <xms:AXQkXuL9RGG0gMVj86Kxeotd4FPrxi7mGYrtrpxbEmMg0YaABL6xAg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdejgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -35,19 +35,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefgdejgecutefuodetggdote
     qeenucffohhmrghinhepohhpvghnshhushgvrdhorhhgnecukfhppeekgedrvdeguddrud
     eljedrieejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
     mhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:_HMkXr3NPURA3g8mtM2FwserlFfbVPh54-LEDexyFREMLrXMUdvqQw>
-    <xmx:_HMkXtkcPFtbDQCOqaa1rCVQm68LOWh0Bnh_PvOFOasnacj2KcUCEA>
-    <xmx:_HMkXioZ3-5ZsZD2RnmsQ9tWjtt-Z4kUR-95yJL-vVJAQSdwotpYlA>
-    <xmx:_HMkXg6QrVcxrTymXUpvCC_4dR74OUVOd_sAFJPjxmQbW6jX5Luxxw>
+X-ME-Proxy: <xmx:AXQkXjiOkQJZoJr5H463roCU5hPj7D36hbGMijuoyggkErPH-kZIrg>
+    <xmx:AXQkXoPu0Uub0SoaRzD6pQbfvlnSBlpZBVqoC-xSL-HlHMlWWKFLMQ>
+    <xmx:AXQkXuoB6-gS9jA9Wsjyg3-k-1b8-eVAd83dfAZmuideFmALBDjvCw>
+    <xmx:AXQkXujboIp1wzVHEivxW89nYwSY0aZZm1EKHrzWx5ke1GvzNt2hRQ>
 Received: from localhost (unknown [84.241.197.67])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B74633060ACE;
-        Sun, 19 Jan 2020 10:21:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: check rw_devices, not num_devices for balance" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E5AC98005A;
+        Sun, 19 Jan 2020 10:21:36 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: check rw_devices, not num_devices for balance" failed to apply to 4.14-stable tree
 To:     josef@toxicpanda.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 19 Jan 2020 16:21:30 +0100
-Message-ID: <1579447290102224@kroah.com>
+Date:   Sun, 19 Jan 2020 16:21:34 +0100
+Message-ID: <1579447294227210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
