@@ -2,89 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3FA141FAA
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 19:53:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5573141FAB
+	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 19:55:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727138AbgASSxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 13:53:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57082 "EHLO mail.kernel.org"
+        id S1727144AbgASSzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Jan 2020 13:55:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727123AbgASSxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 19 Jan 2020 13:53:30 -0500
+        id S1727123AbgASSzd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 19 Jan 2020 13:55:33 -0500
 Received: from localhost (96-81-74-198-static.hfc.comcastbusiness.net [96.81.74.198])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D77320679;
-        Sun, 19 Jan 2020 18:53:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D64FB20679;
+        Sun, 19 Jan 2020 18:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579460010;
-        bh=g54lcafQeBdaVWsOI3myQqqk/Q/dyMCJvoQVweioQYI=;
+        s=default; t=1579460132;
+        bh=bPhjRjWxq2o/5ANt1iHBmDcfS3c8wKJOEClvgWGOBY0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K59+gbrCvo80P5lh+L+HzZx6lMzWdgL9bwQfeVkxUve5sf755LE2qy4/JW7dziCXU
-         nWWmGD3NlxIo7aSACCHlaMWqTYN5NREU6vjyursXawhR3gX9VHf81pGCtujcrSsWIe
-         Yeyu1perivdP+zG6zQMKtCufyYPPZ0WtSdED72XU=
-Date:   Sun, 19 Jan 2020 13:53:26 -0500
+        b=jUwbmD0AzpVtLB9jWGvh1evB6R2/+2GLCGF5xwr4wCGCkukzqt8B6GyJ57t5jPnjV
+         3wpXEcKxGWq2gijzWtJTxIIZgaiWvwe3b7L1UpDhNm+uzCIHQgxUZ8hs7RoaEWpakb
+         L4jpN7yupSTUaSjugxITF90d+gYWnCkcbEbmTMxM=
+Date:   Sun, 19 Jan 2020 13:55:30 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] USB: serial: keyspan: handle unbound
- ports" failed to apply to 4.9-stable tree
-Message-ID: <20200119185326.GW1706@sasha-vm>
-References: <157944127621242@kroah.com>
- <20200119154733.GR1706@sasha-vm>
- <20200119160136.GB2301@localhost>
+To:     Stephan Gerhold <stephan@gerhold.net>
+Cc:     gregkh@linuxfoundation.org, Jonathan.Cameron@huawei.com,
+        lorenzo@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: Fix selection of
+ ST_LSM6DS3_ID" failed to apply to 4.19-stable tree
+Message-ID: <20200119185530.GX1706@sasha-vm>
+References: <1579440810243255@kroah.com>
+ <20200119153253.GP1706@sasha-vm>
+ <20200119161533.GA143951@gerhold.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200119160136.GB2301@localhost>
+In-Reply-To: <20200119161533.GA143951@gerhold.net>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 19, 2020 at 05:01:36PM +0100, Johan Hovold wrote:
->On Sun, Jan 19, 2020 at 10:47:33AM -0500, Sasha Levin wrote:
->> On Sun, Jan 19, 2020 at 02:41:16PM +0100, gregkh@linuxfoundation.org wrote:
+On Sun, Jan 19, 2020 at 05:15:33PM +0100, Stephan Gerhold wrote:
+>On Sun, Jan 19, 2020 at 10:32:53AM -0500, Sasha Levin wrote:
+>> On Sun, Jan 19, 2020 at 02:33:30PM +0100, gregkh@linuxfoundation.org wrote:
 >> >
->> >The patch below does not apply to the 4.9-stable tree.
->> >If someone wants it applied there, or to any other stable or longterm
->> >tree, then please email the backport, including the original git commit
->> >id to <stable@vger.kernel.org>.
+>> > The patch below does not apply to the 4.19-stable tree.
+>> > If someone wants it applied there, or to any other stable or longterm
+>> > tree, then please email the backport, including the original git commit
+>> > id to <stable@vger.kernel.org>.
 >> >
->> >thanks,
+>> > thanks,
 >> >
->> >greg k-h
+>> > greg k-h
 >> >
->> >------------------ original commit in Linus's tree ------------------
+>> > ------------------ original commit in Linus's tree ------------------
 >> >
->> >From 3018dd3fa114b13261e9599ddb5656ef97a1fa17 Mon Sep 17 00:00:00 2001
->> >From: Johan Hovold <johan@kernel.org>
->> >Date: Fri, 17 Jan 2020 10:50:25 +0100
->> >Subject: [PATCH] USB: serial: keyspan: handle unbound ports
+>> > From fb4fbc8904e786537e29329d791147389e1465a2 Mon Sep 17 00:00:00 2001
+>> > From: Stephan Gerhold <stephan@gerhold.net>
+>> > Date: Mon, 16 Dec 2019 13:41:20 +0100
+>> > Subject: [PATCH] iio: imu: st_lsm6dsx: Fix selection of ST_LSM6DS3_ID
 >> >
->> >Check for NULL port data in the control URB completion handlers to avoid
->> >dereferencing a NULL pointer in the unlikely case where a port device
->> >isn't bound to a driver (e.g. after an allocation failure on port
->> >probe()).
+>> > At the moment, attempting to probe a device with ST_LSM6DS3_ID
+>> > (e.g. using the st,lsm6ds3 compatible) fails with:
 >> >
->> >Fixes: 0ca1268e109a ("USB Serial Keyspan: add support for USA-49WG & USA-28XG")
->> >Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
->> >Cc: stable <stable@vger.kernel.org>
->> >Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> >Signed-off-by: Johan Hovold <johan@kernel.org>
+>> >    st_lsm6dsx_i2c 1-006b: unsupported whoami [69]
+>> >
+>> > ... even though 0x69 is the whoami listed for ST_LSM6DS3_ID.
+>> >
+>> > This happens because st_lsm6dsx_check_whoami() also attempts
+>> > to match unspecified (zero-initialized) entries in the "id" array.
+>> > ST_LSM6DS3_ID = 0 will therefore match any entry in
+>> > st_lsm6dsx_sensor_settings (here: the first), because none of them
+>> > actually have all 12 entries listed in the "id" array.
+>> >
+>> > Avoid this by additionally checking if "name" is set,
+>> > which is only set for valid entries in the "id" array.
+>> >
+>> > Note: Although the problem was introduced earlier it did not surface until
+>> > commit 52f4b1f19679 ("iio: imu: st_lsm6dsx: add support for accel/gyro unit of lsm9ds1")
+>> > because ST_LSM6DS3_ID was the first entry in st_lsm6dsx_sensor_settings.
+>> >
+>> > Fixes: d068e4a0f921 ("iio: imu: st_lsm6dsx: add support to multiple devices with the same settings")
+>> > Cc: <stable@vger.kernel.org> # 5.4
+>> > Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
+>> > Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+>> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+>> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 >>
->> Grabbing the prerequisite for the other USB patch also resolved the
->> conflict here, now queued for 4.9 and 4.4.
+>> I don't think that this is needed on anything older than 5.4 because
+>> they don't have 801a6e0af0c6 ("iio: imu: st_lsm6dsx: add support to
+>> LSM6DSO"), the fixes tag might be misleading here a bit.
 >
->Just curious; which prerequisite are referring to here? I can't seem to
->understand why this one failed to apply to 4.9 in the first place as
->there hasn't really been any changes to that code in the keyspan driver.
+>Correct. I didn't want to use 801a6e0af0c6 ("iio: imu: st_lsm6dsx: add
+>support to LSM6DSO") as Fixes tag because that commit did not do
+>anything wrong - the problem was introduced earlier, but there is no way
+>to trigger it on older kernels.
+>
+>This is why I added # 5.5 to the Cc: stable tag.
+>Are these comments still used in any way?
+>Or is there a better way to encode this into the commit message?
 
-I thought that it was either dd1fae527612 ("USB: serial: io_edgeport:
-use irqsave() in USB's complete callback") or the stable commit that was
-applied on top, but you're right -  it doesn't seem to be either of
-those.
+Usually if there's a fixes: tag we'll look at that rather than the
+version appended to the stable tag.
+
+Consider maybe using two "Fixes:" tags to point at the commits that were
+involved.
 
 -- 
 Thanks,
