@@ -2,105 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0697D14333E
-	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 22:11:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B52F143347
+	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 22:12:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726890AbgATVK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 16:10:59 -0500
-Received: from mail-pl1-f180.google.com ([209.85.214.180]:38116 "EHLO
-        mail-pl1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726874AbgATVK6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 16:10:58 -0500
-Received: by mail-pl1-f180.google.com with SMTP id f20so353722plj.5
-        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 13:10:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :user-agent:mime-version;
-        bh=SSadIyR7qVLBxGpfBtC2uRk5NBC+TncNZKu7gCEZ7pA=;
-        b=e4c5GH3yb99tS4U3zqHkIHT5zq1PHemkzbJQ92TpbvDrMbCVfVqwabuhKEcIkWE7Bh
-         sAr74tq9kNLnOcxliIkDllPWCaggxJJZHdNJcM7gieitVYuq2XQac8TrMmY8lQYtifoJ
-         3QdaLVI/+OJNhSQZkv23hZAWELVCl/TWUfHLdHReQ9zLjUChBhD2GiFsjtiw9au6skhY
-         eubc51eHF6ddYbcLVSGjVrF7psbbypJu8Dwzowo7/2+/6Qi2qGHcc8qzwzr9fbRFURgC
-         0WwM1o+ZzL4xpJj1ZwnQdbzV5CXuKZXYVga+2FGM+yTAH2tV5ATQAvhA1SCDU3CUqqH7
-         Kuvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:user-agent:mime-version;
-        bh=SSadIyR7qVLBxGpfBtC2uRk5NBC+TncNZKu7gCEZ7pA=;
-        b=WPIexyvfJBbpsPQl+s+d2k6B7rik7aq9RItFNNZzahjegV5lpDAZBbfR28mspT5ydR
-         1JZzG5Aj7Px8XJ7w5erhgOKV8x237Udt75HrQXPNT4m9qXKA/DWDnY/FWagseIWuACR0
-         UaYWtBERrDhrP3J7T+jUZqw5LvV2yL3UIRlO1RwceIcfVX6v6F+BSJYpm2PXPsqW9rxY
-         s8ptYruK96eGMNS7JFm1SHPDsHkg4SUpg+Xyz8YTc1W4jvuby1wMGjdtzYXDp4tY3QU3
-         eJq7yS0OWWdDU1gaT4C0x5EgDT5jnCVyCNmKOHrhR4T0fJ+D1O+snelZzITtlm7TX1dg
-         HeSg==
-X-Gm-Message-State: APjAAAUTTXv6Z7S4fKkrlLlCW+GHXfm5pxwbUdUTJllXbYaFKOwor2K2
-        uLDx592GmOAhihMwd81P7wwnHQ==
-X-Google-Smtp-Source: APXvYqwVcFkW1ppmvT8X3m7D+blK3vBxTjJDijtegUcyGaMfvlBh63AN6tKuiyhKNGXLfow1BgyhVQ==
-X-Received: by 2002:a17:90a:e397:: with SMTP id b23mr1018122pjz.135.1579554657933;
-        Mon, 20 Jan 2020 13:10:57 -0800 (PST)
-Received: from [2620:15c:17:3:3a5:23a7:5e32:4598] ([2620:15c:17:3:3a5:23a7:5e32:4598])
-        by smtp.gmail.com with ESMTPSA id j14sm38145864pgs.57.2020.01.20.13.10.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jan 2020 13:10:57 -0800 (PST)
-Date:   Mon, 20 Jan 2020 13:10:56 -0800 (PST)
-From:   David Rientjes <rientjes@google.com>
-X-X-Sender: rientjes@chino.kir.corp.google.com
-To:     Michal Hocko <mhocko@kernel.org>
-cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Wei Yang <richardw.yang@linux.intel.com>, hannes@cmpxchg.org,
-        vdavydov.dev@gmail.com, ktkhai@virtuozzo.com,
-        kirill.shutemov@linux.intel.com, yang.shi@linux.alibaba.com,
-        cgroups@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
+        id S1726843AbgATVMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 16:12:47 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:55123 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726607AbgATVMr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 16:12:47 -0500
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1iteLh-0006um-7f; Mon, 20 Jan 2020 22:12:41 +0100
+Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1iteLc-0002MJ-EP; Mon, 20 Jan 2020 22:12:36 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andre Renaud <arenaud@designa-electronics.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Andy Duan <fugang.duan@nxp.com>
+Cc:     linux-imx@nxp.com, kernel@pengutronix.de,
+        linux-arm-kernel@lists.infradead.org, linux-serial@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [Patch v4] mm: thp: remove the defer list related code since
- this will not happen
-In-Reply-To: <20200120072237.GA18451@dhcp22.suse.cz>
-Message-ID: <alpine.DEB.2.21.2001201307520.259466@chino.kir.corp.google.com>
-References: <20200117233836.3434-1-richardw.yang@linux.intel.com> <20200118145421.0ab96d5d9bea21a3339d52fe@linux-foundation.org> <alpine.DEB.2.21.2001181525250.27051@chino.kir.corp.google.com> <20200120072237.GA18451@dhcp22.suse.cz>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+Subject: [PATCH] serial: imx: fix a race condition in receive path
+Date:   Mon, 20 Jan 2020 22:12:32 +0100
+Message-Id: <20200120211232.21329-1-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Jan 2020, Michal Hocko wrote:
+The main irq handler function starts by first masking disabled
+interrupts in the status register values to ensure to only handle
+enabled interrupts. This is important as when the RX path in the
+hardware is disabled reading the RX fifo results in an external abort.
 
-> > When migrating memcg charges of thp memory, there are two possibilities:
-> > 
-> >  (1) The underlying compound page is mapped by a pmd and thus does is not 
-> >      on a deferred split queue (it's mapped), or
-> > 
-> >  (2) The compound page is not mapped by a pmd and is awaiting split on a
-> >      deferred split queue.
-> > 
-> > The current charge migration implementation does *not* migrate charges for 
-> > thp memory on the deferred split queue, it only migrates charges for pages 
-> > that are mapped by a pmd.
-> > 
-> > Thus, to migrate charges, the underlying compound page cannot be on a 
-> > deferred split queue; no list manipulation needs to be done in 
-> > mem_cgroup_move_account().
-> > 
-> > With the current code, the underlying compound page is moved to the 
-> > deferred split queue of the memcg its memory is not charged to, so 
-> > susbequent reclaim will consider these pages for the wrong memcg.  Remove 
-> > the deferred split queue handling in mem_cgroup_move_account() entirely.
-> 
-> I believe this still doesn't describe the underlying problem to the full
-> extent. What happens with the page on the deferred list when it
-> shouldn't be there in fact? Unless I am missing something deferred_split_scan
-> will simply split that huge page. Which is a bit unfortunate but nothing
-> really critical. This should be mentioned in the changelog.
-> 
+This checking must be done under the port lock, otherwise the following
+can happen:
 
-Are you referring to a compound page on the deferred split queue before a 
-task is moved?  I'm not sure this is within the scope of Wei's patch.. 
-this is simply preventing a page from being moved to the deferred split
-queue of a memcg that it is not charged to.  Is there a concern about why 
-this code can be removed or a suggestion on something else it should be 
-doing instead?
+     CPU1                            | CPU2
+                                     |
+     irq triggers as there are chars |
+     in the RX fifo                  |
+				     | grab port lock
+     imx_uart_int finds RRDY enabled |
+     and calls imx_uart_rxint which  |
+     has to wait for port lock       |
+                                     | disable RX (e.g. because we're
+                                     | using RS485 with !RX_DURING_TX)
+                                     |
+                                     | release port lock
+     read from RX fifo with RX       |
+     disabled => exception           |
+
+So take the port lock only once in imx_uart_int() instead of in the
+functions called from there.
+
+Reported-by: Andre Renaud <arenaud@designa-electronics.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+Hello,
+
+this problem type was addressed already in commits
+
+	437768962f75 ("serial: imx: Only handle irqs that are actually enabled")
+	76821e222c18 ("serial: imx: ensure that RX irqs are off if RX is off")
+
+that entered 4.17-rc1. Backporting to older versions would require to
+backport these two, too. I didn't try that, but I think this gets messy,
+so I'd recommend to only backport to 4.19.x and 5.4.x (and 5.5.x
+assuming this patch won't make it into 5.5).
+
+Andre Renaud tested this patch and confirmed it to fix the problem, he
+didn't provide a Tested-by tag, so I didn't add that here.
+
+Best regards
+Uwe
+
+ drivers/tty/serial/imx.c | 52 ++++++++++++++++++++++++++++++----------
+ 1 file changed, 39 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index a9e20e6c63ad..679b2de27c4d 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -700,22 +700,33 @@ static void imx_uart_start_tx(struct uart_port *port)
+ 	}
+ }
+ 
+-static irqreturn_t imx_uart_rtsint(int irq, void *dev_id)
++static irqreturn_t __imx_uart_rtsint(int irq, void *dev_id)
+ {
+ 	struct imx_port *sport = dev_id;
+ 	u32 usr1;
+ 
+-	spin_lock(&sport->port.lock);
+-
+ 	imx_uart_writel(sport, USR1_RTSD, USR1);
+ 	usr1 = imx_uart_readl(sport, USR1) & USR1_RTSS;
+ 	uart_handle_cts_change(&sport->port, !!usr1);
+ 	wake_up_interruptible(&sport->port.state->port.delta_msr_wait);
+ 
+-	spin_unlock(&sport->port.lock);
+ 	return IRQ_HANDLED;
+ }
+ 
++static irqreturn_t imx_uart_rtsint(int irq, void *dev_id)
++{
++	struct imx_port *sport = dev_id;
++	irqreturn_t ret;
++
++	spin_lock(&sport->port.lock);
++
++	ret = __imx_uart_rtsint(irq, dev_id);
++
++	spin_unlock(&sport->port.lock);
++
++	return ret;
++}
++
+ static irqreturn_t imx_uart_txint(int irq, void *dev_id)
+ {
+ 	struct imx_port *sport = dev_id;
+@@ -726,14 +737,12 @@ static irqreturn_t imx_uart_txint(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
++static irqreturn_t __imx_uart_rxint(int irq, void *dev_id)
+ {
+ 	struct imx_port *sport = dev_id;
+ 	unsigned int rx, flg, ignored = 0;
+ 	struct tty_port *port = &sport->port.state->port;
+ 
+-	spin_lock(&sport->port.lock);
+-
+ 	while (imx_uart_readl(sport, USR2) & USR2_RDR) {
+ 		u32 usr2;
+ 
+@@ -792,11 +801,26 @@ static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
+ 	}
+ 
+ out:
+-	spin_unlock(&sport->port.lock);
+ 	tty_flip_buffer_push(port);
++
+ 	return IRQ_HANDLED;
+ }
+ 
++static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
++{
++	struct imx_port *sport = dev_id;
++	struct tty_port *port = &sport->port.state->port;
++	irqreturn_t ret;
++
++	spin_lock(&sport->port.lock);
++
++	ret = __imx_uart_rxint(irq, dev_id);
++
++	spin_unlock(&sport->port.lock);
++
++	return ret;
++}
++
+ static void imx_uart_clear_rx_errors(struct imx_port *sport);
+ 
+ /*
+@@ -855,6 +879,8 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
+ 	unsigned int usr1, usr2, ucr1, ucr2, ucr3, ucr4;
+ 	irqreturn_t ret = IRQ_NONE;
+ 
++	spin_lock(&sport->port.lock);
++
+ 	usr1 = imx_uart_readl(sport, USR1);
+ 	usr2 = imx_uart_readl(sport, USR2);
+ 	ucr1 = imx_uart_readl(sport, UCR1);
+@@ -888,27 +914,25 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
+ 		usr2 &= ~USR2_ORE;
+ 
+ 	if (usr1 & (USR1_RRDY | USR1_AGTIM)) {
+-		imx_uart_rxint(irq, dev_id);
++		__imx_uart_rxint(irq, dev_id);
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	if ((usr1 & USR1_TRDY) || (usr2 & USR2_TXDC)) {
+-		imx_uart_txint(irq, dev_id);
++		imx_uart_transmit_buffer(sport);
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	if (usr1 & USR1_DTRD) {
+ 		imx_uart_writel(sport, USR1_DTRD, USR1);
+ 
+-		spin_lock(&sport->port.lock);
+ 		imx_uart_mctrl_check(sport);
+-		spin_unlock(&sport->port.lock);
+ 
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+ 	if (usr1 & USR1_RTSD) {
+-		imx_uart_rtsint(irq, dev_id);
++		__imx_uart_rtsint(irq, dev_id);
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+@@ -923,6 +947,8 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
++	spin_unlock(&sport->port.lock);
++
+ 	return ret;
+ }
+ 
+-- 
+2.24.0
+
