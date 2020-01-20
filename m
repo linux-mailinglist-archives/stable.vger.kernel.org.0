@@ -2,110 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 203B3142F37
-	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 17:05:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFECA142F8D
+	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 17:26:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728900AbgATQFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 11:05:33 -0500
-Received: from mail-wm1-f51.google.com ([209.85.128.51]:38239 "EHLO
-        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726876AbgATQFd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 11:05:33 -0500
-Received: by mail-wm1-f51.google.com with SMTP id u2so122804wmc.3
-        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 08:05:32 -0800 (PST)
+        id S1729251AbgATQ0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 11:26:40 -0500
+Received: from mail-il1-f195.google.com ([209.85.166.195]:37735 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729246AbgATQ0k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 11:26:40 -0500
+Received: by mail-il1-f195.google.com with SMTP id t8so27735609iln.4
+        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 08:26:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fMDuo9Y9NeCog0iRsPyOle7AGSm0BadbumEWdEHrMJE=;
-        b=TIz1I7ShNTloVj2LyMg/WgUi/ZTfPAnnOzjTjS1wUJ3Q/6MvK7aHeKVGmKo8/8gLZ0
-         SiHW4bolFuCmuisWI4LRObDsviJthPAw0pYQs/85+6zg7ZEV4OnpPTmnJS3QQE5kIlCe
-         X2u40zX0a1h+TROIV0LfNLUsCub3d2MKSW1WQOYK2UsNc9wvfyfc2MmiLtl4vf5GAM8w
-         Wsk8kXOtmY/d4LC+YOLHOwZrLFBClIjdR9IfbTLEG8W+H5sa/Jf68W4GpgioaHnYQWeF
-         E7Td9ulTQOE+utOxZhzjCtkQQbHw4Y8Ukb+QZmY2KaJrWf3Xu+rHfFMozsGNC0tIwDmn
-         2Qsg==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=gl8m333ia74OFZpNmB4o7kIcYlvQPFpoCsxlN0OXKb0=;
+        b=CM/nO8rlMqJV1j6F81HmDwV7uDWnLligPLs7prBfFFByeV6RYeZ6BVaAxlJv+O601Q
+         kMbddN4Uv0VJ62Hx5h9NRlXu+sK9lDUSmK+oa8EXyumSOpxTRNzjxI5k2hVHuNvh66FP
+         ozMYMM4/4jy6cNjQVhmXuYR+2+h/s+fuetnZjTaFPjYi4Gyiofy8e0Zsd4XtobqwSApJ
+         SQZmOly650ptoT9BHW3Wo5pL99O3CRCiFjbax1sq+EVQf5rAv5uJgfk/klq/UNR9VsQc
+         Rr0+KSRZPa5ppmeh8kfitnvGNdLBHCKq6ZQ85NbutaBA7fFRhuVjLjZdCHUw+C+NXuVJ
+         xBHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fMDuo9Y9NeCog0iRsPyOle7AGSm0BadbumEWdEHrMJE=;
-        b=Cfj/JAfbHJ4CPCLfjujJKvN0OuE+92BdYnYHBMufJEPoIa+wcvKqEqkLIlM+NrZ15+
-         zs9le8AfWRNnAjUlSC3syCrAcbGPm+7JC85CfEHBuCmKprlO1YeA+ansDcl+YZxIwS0O
-         pNVDISkA4F3++1LivCTbOZA4YssDbslEOZW0nISAXSKhkKJ206hsXEkqCT8uoD5LblT7
-         BFsY7asX9aSHAOsZSZ9pExCH05uG6SYXaz8OeecooEYYbdqrLp5ZqWWwINAJ8FPlFWVa
-         vKeeD4jbJP0qkUwCLPfSKWATjtJnydKhS3uFXF9yJSBXM/EBEJAmBxI6nT9G3jCUT1bV
-         gGoA==
-X-Gm-Message-State: APjAAAXsC04rOA7zgvRNPSFziUqafs6CELo6ctA0zecp4KoNnNhpbDfK
-        urOKVrb191DVdlxfdDzd+q/dJ0HK4M03GA==
-X-Google-Smtp-Source: APXvYqw//DM74qaf9grq4hVi0kWk47t3MjYqUInbRk+jDOydNlz5RLMM7EZb2R4vWFqGRrY9co4A8w==
-X-Received: by 2002:a7b:c956:: with SMTP id i22mr62159wml.67.1579536331514;
-        Mon, 20 Jan 2020 08:05:31 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id g21sm5452419wmh.17.2020.01.20.08.05.30
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jan 2020 08:05:31 -0800 (PST)
-Message-ID: <5e25cfcb.1c69fb81.5b94a.5c29@mx.google.com>
-Date:   Mon, 20 Jan 2020 08:05:31 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=gl8m333ia74OFZpNmB4o7kIcYlvQPFpoCsxlN0OXKb0=;
+        b=jiQ7GuvJYZmHnHD9zm+1rTYtgdUfJJSQQUkvm+e//1iLJ+tEMHBSaKEGvJH9CSJwxR
+         Q7W+xwHUAAfERgJVEXktTFan7Rv+fsP6DiWH2yHgOXTwnTVPGm9KeotKbz+Gw7efaTUd
+         4NYnzvF6PQOLNedXagbxMbwymfInaTJh6VX6tBWKsiSP8qp2n7OwBVvcpEOHFbiYvUfZ
+         ISr6trGZcBHMMpJERMHM665ZsHTNm5/aNBYafIrSg8F6Mbqo7lligiwRm7ORRKeXW6oF
+         lFM88u/97n+qOLxaJht6nRBA/q5zkkG6YvZ7QOfPkBKvdEgCmJNrJ5Edid0jOp7epPr3
+         T76w==
+X-Gm-Message-State: APjAAAVLBKVbsYJL9tKjpLW8FrXiruMSCBPOIxsKGlKu+0mJQK5V1wcy
+        K8cr8wb6RzG1UmkEaPpX/8zBRFuqPtnXhCqWe1c=
+X-Google-Smtp-Source: APXvYqxf0EPqMyO8a5td3M2zTTau28nYOxd0CQ9PxapKPAgaQJBrqpK29dPqfJ9c7D9RpseLzQPz1wtkUozUm+au2C8=
+X-Received: by 2002:a92:d80f:: with SMTP id y15mr11832460ilm.225.1579537599352;
+ Mon, 20 Jan 2020 08:26:39 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.97-54-gb0ef8c14676a
-Subject: stable-rc/linux-4.19.y boot: 68 boots: 0 failed,
- 59 passed with 7 offline, 2 untried/unknown (v4.19.97-54-gb0ef8c14676a)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a4f:2585:0:0:0:0:0 with HTTP; Mon, 20 Jan 2020 08:26:39
+ -0800 (PST)
+Reply-To: RevWrightWatson@yandex.com
+From:   "Rev.Wright Watson" <mralharirilzzeddin@gmail.com>
+Date:   Mon, 20 Jan 2020 17:26:39 +0100
+Message-ID: <CAAXN-KvNM_tcYCJcX5vnw--0Eq=0CUUTGV5MC41qNryWkQKodQ@mail.gmail.com>
+Subject: Dear Beloved,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 68 boots: 0 failed, 59 passed with 7 offline, =
-2 untried/unknown (v4.19.97-54-gb0ef8c14676a)
+Dear Beloved,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.97-54-gb0ef8c14676a/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.97-54-gb0ef8c14676a/
+I'm Reverend Wright Watson, I was born in USA, 1945, I was ordained
+into the Catholic Priesthood.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.97-54-gb0ef8c14676a
-Git Commit: b0ef8c14676a3f3a7fc8bd1c19fefd91ed6f94d2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 55 unique boards, 18 SoC families, 15 builds out of 203
+Please take your time to read this message, although we have never met
+before, this is no spam, It's a real message sent to you. I know also
+that you will be amazed at the level of trust that I am willing to
+place in a person that I have never seen nor spoken with. If I can
+receive favor from someone I barely know, its not bad entrusting this
+project to unknown person as long as my spirit directed me to you.
 
-Offline Platforms:
+I have been a catholic priest for over 22 years. I spent about 10
+years serving at Africa, Burkina Faso to be precise, I spend most time
+in Ouagadougou Cathedral.
+Presently, I had a heart surgery on the 23-11-2018 and the Doctors
+have informed me that I cannot live longer; I had a serious bleeding
+after the operation.
+Before I left Ouagadougou to my country for the surgery, a priest
+friend of mine visited me from Netherlands with three companion, when
+they went back, one among his companion Transferred 10M$ in my
+personal account with Bank of Africa and advised that I use the money
+to help the poor, handicaps and less privileges because he saw the
+level hardship then.
 
-arm64:
+Because of my present health condition, I cannot live to proceed with
+the projects, therefore, I have decided to appoint you to reclaim the
+money which total sum of $10,970,000.00 (Ten million Nine Hundred and
+seventy Thousand US DOLLARS).
 
-    defconfig:
-        gcc-8
-            juno-r2: 1 offline lab
-            meson-axg-s400: 1 offline lab
-            mt7622-rfb1: 1 offline lab
+I want you to use this sum to make the world a better place for the
+poor and less privileged, help the needy and also help your family
+members.
 
-arm:
+I took this decision because I was raised in an Orphanage so I don't
+have relatives and presently, I'm still in the hospital, where I am
+undergoing treatment. That's why I have decided to contact you so that
+you can contact my account manager in Bank of Africa, reclaim the
+money and make good use of it.
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
+then you can contact me through private email
+addres(RevWrightWatson@yandex.com)
 
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Regards,
+Rev.Wright Watson
