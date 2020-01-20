@@ -2,289 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 697C3142046
-	for <lists+stable@lfdr.de>; Sun, 19 Jan 2020 22:49:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A5C142429
+	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 08:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727556AbgASVtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Jan 2020 16:49:46 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:50819 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727195AbgASVtq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Jan 2020 16:49:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579470583;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=plxP9c0sd14tNnxIwfZbRsUVG88yfBitWlThhGB5hMQ=;
-        b=IjqZtjYmcaOMwCm588bdLQ28KHiUCh1Axc5OoI2TbSnCcmvqIKTBEPl/L/a7ZOhgcdLIOU
-        8CNZk+wjRFAbYbPZsO9qrvNwRrIDmzUw1EipR+oDOe2y78uWDIpG8Pd+Eb2ht9yqB+YCPY
-        DFLeqGTvcDmszj1QtARkkbqPrmt8Nxw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-275-BPfFKa6ONNiQOUd1VPdZeg-1; Sun, 19 Jan 2020 16:49:41 -0500
-X-MC-Unique: BPfFKa6ONNiQOUd1VPdZeg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DB3AC800D48
-        for <stable@vger.kernel.org>; Sun, 19 Jan 2020 21:49:40 +0000 (UTC)
-Received: from [172.54.107.231] (cpt-1057.paas.prod.upshift.rdu2.redhat.com [10.0.19.72])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 37F1D89E99;
-        Sun, 19 Jan 2020 21:49:38 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1725872AbgATHWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 02:22:40 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:42863 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725851AbgATHWk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 02:22:40 -0500
+Received: by mail-wr1-f67.google.com with SMTP id q6so28223345wro.9;
+        Sun, 19 Jan 2020 23:22:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=hTCsEqhnbed2yOohKKa5cDEabb8n+zDv0sqNRlWlasA=;
+        b=EQBP+t6WVO61LQob2SXQ5C0ZjDPuq3xh0z0fv+IpWyzkAVvHNaC9XlvHAB4r82gcf8
+         9UqdSC9Ha3Zfp0La4d1/TyOcA+RjW6iHQDhmH7jbA6ZPyqdT2oO5CVxXE4YJY2aG+t+J
+         4I9ru4bBgsuEb/7GLXTABStMXSmehC4fDLqGs3/o8/9lrRAD6TZvG4CvkMQT0EH8XIpb
+         6xVj7rzA6wEs+54x+kxVx46g0gcGVCZpK/66OU8FXsM6LdUcosiIrvNPoP8s3vp9McsP
+         N26TXUTHU0kBqqY8DxPNQ39Cu4XFXSeNXMyl/PhTXwf7w4vOnlQCYvPQUhj3oN7x7gG/
+         5P6Q==
+X-Gm-Message-State: APjAAAVh2upr6LTwvAteSPA6nhMVPFx5Vo/RRXlIbNmdGpWzxuS+Dms6
+        oZS6Om4NhE164q4g2vEi0KQ=
+X-Google-Smtp-Source: APXvYqz2iKEyfHH4o8n7UwHlrXbuZHD2r/KRCLb4H54aiHlWXHfI2T42/+/ZrJKyKqvFz7N2h/rY6Q==
+X-Received: by 2002:adf:e3c7:: with SMTP id k7mr16533068wrm.80.1579504958617;
+        Sun, 19 Jan 2020 23:22:38 -0800 (PST)
+Received: from localhost (ip-37-188-138-155.eurotel.cz. [37.188.138.155])
+        by smtp.gmail.com with ESMTPSA id w83sm21395092wmb.42.2020.01.19.23.22.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Jan 2020 23:22:37 -0800 (PST)
+Date:   Mon, 20 Jan 2020 08:22:37 +0100
+From:   Michal Hocko <mhocko@kernel.org>
+To:     David Rientjes <rientjes@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Wei Yang <richardw.yang@linux.intel.com>, hannes@cmpxchg.org,
+        vdavydov.dev@gmail.com, ktkhai@virtuozzo.com,
+        kirill.shutemov@linux.intel.com, yang.shi@linux.alibaba.com,
+        cgroups@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: [Patch v4] mm: thp: remove the defer list related code since
+ this will not happen
+Message-ID: <20200120072237.GA18451@dhcp22.suse.cz>
+References: <20200117233836.3434-1-richardw.yang@linux.intel.com>
+ <20200118145421.0ab96d5d9bea21a3339d52fe@linux-foundation.org>
+ <alpine.DEB.2.21.2001181525250.27051@chino.kir.corp.google.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.5.0-rc6-3457be9.cki
- (stable-next)
-Date:   Sun, 19 Jan 2020 21:49:37 -0000
-Message-ID: <cki.5ED155EF61.R0VBAEX2N2@redhat.com>
-X-Gitlab-Pipeline-ID: 392280
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/392280
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.21.2001181525250.27051@chino.kir.corp.google.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat 18-01-20 15:36:06, David Rientjes wrote:
+> On Sat, 18 Jan 2020, Andrew Morton wrote:
+> 
+> > On Sat, 18 Jan 2020 07:38:36 +0800 Wei Yang <richardw.yang@linux.intel.com> wrote:
+> > 
+> > > If compound is true, this means it is a PMD mapped THP. Which implies
+> > > the page is not linked to any defer list. So the first code chunk will
+> > > not be executed.
+> > > 
+> > > Also with this reason, it would not be proper to add this page to a
+> > > defer list. So the second code chunk is not correct.
+> > > 
+> > > Based on this, we should remove the defer list related code.
+> > > 
+> > > Fixes: 87eaceb3faa5 ("mm: thp: make deferred split shrinker memcg aware")
+> > > 
+> > > Signed-off-by: Wei Yang <richardw.yang@linux.intel.com>
+> > > Suggested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> > > Cc: <stable@vger.kernel.org>    [5.4+]
+> > 
+> > This patch is identical to "mm: thp: grab the lock before manipulating
+> > defer list", which is rather confusing.  Please let people know when
+> > this sort of thing is done.
+> > 
+> > The earlier changelog mentioned a possible race condition.  This
+> > changelog does not.  In fact this changelog fails to provide any
+> > description of any userspace-visible runtime effects of the bug. 
+> > Please send along such a description for inclusion, as always.
+> > 
+> 
+> The locking concern that Wei was originally looking at is no longer an 
+> issue because we determined that the code in question could simply be 
+> removed.
+> 
+> I think the following can be added to the changelog:
+> 
+> ----->o-----
+> 
+> When migrating memcg charges of thp memory, there are two possibilities:
+> 
+>  (1) The underlying compound page is mapped by a pmd and thus does is not 
+>      on a deferred split queue (it's mapped), or
+> 
+>  (2) The compound page is not mapped by a pmd and is awaiting split on a
+>      deferred split queue.
+> 
+> The current charge migration implementation does *not* migrate charges for 
+> thp memory on the deferred split queue, it only migrates charges for pages 
+> that are mapped by a pmd.
+> 
+> Thus, to migrate charges, the underlying compound page cannot be on a 
+> deferred split queue; no list manipulation needs to be done in 
+> mem_cgroup_move_account().
+> 
+> With the current code, the underlying compound page is moved to the 
+> deferred split queue of the memcg its memory is not charged to, so 
+> susbequent reclaim will consider these pages for the wrong memcg.  Remove 
+> the deferred split queue handling in mem_cgroup_move_account() entirely.
 
-Hello,
+I believe this still doesn't describe the underlying problem to the full
+extent. What happens with the page on the deferred list when it
+shouldn't be there in fact? Unless I am missing something deferred_split_scan
+will simply split that huge page. Which is a bit unfortunate but nothing
+really critical. This should be mentioned in the changelog.
 
-We ran automated tests on a recent commit from this kernel tree:
+With that clarified, feel free to add
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linu=
-x-stable.git
-            Commit: 3457be9d367c - ARM: dma-api: fix max_pfn off-by-one error=
- in __dma_supported()
+Acked-by: Michal Hocko <mhocko@suse.com>
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/392280
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernels =
-have
-a Beaker recipe linked to next to each host.
-
+-- 
+Michal Hocko
+SUSE Labs
