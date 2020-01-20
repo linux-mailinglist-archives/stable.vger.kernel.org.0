@@ -2,110 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4503A14334A
-	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 22:14:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B38CD14334F
+	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 22:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726607AbgATVOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 16:14:50 -0500
-Received: from mail-wm1-f52.google.com ([209.85.128.52]:50951 "EHLO
-        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726586AbgATVOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 16:14:50 -0500
-Received: by mail-wm1-f52.google.com with SMTP id a5so801695wmb.0
-        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 13:14:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=14lpT6chpmOM/4RFe6OTH3vaax6ahk2dS/hYKCLVHTg=;
-        b=BtsjO8HqZxLUIn1Buci4A++XFSWEOffPnL5qVk7igzD4g2tjEUCGOwZxjWDQEIKSR4
-         c51BhnMMUiOlUvQ6RTOSuwqYx5O1OItNtvsdx1Ca8G/Y67ZhcKu8WbGbBxX7NNqRlN1a
-         oOMeN0iHUtpCCceh2SUHDauLAXal6Z3EXdB6k7gx1dAf71QvcMP/Qt6lkAtLIgxMA0qH
-         5nbo7JAbEuufYN0KlW0/ud9ANYsoFyuYnkYl4WTy7gz/bae3Z+tSeg0Ti6QNiw01p6LC
-         Y4mBWCW46w9uoAvO0py8WoyKYowvFOMjDK7RNzCqKIjuosGfAYVqY65t4JExU7BqseDG
-         YW1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=14lpT6chpmOM/4RFe6OTH3vaax6ahk2dS/hYKCLVHTg=;
-        b=ESVj6KHeZgcmG4BLWDInVtBV7ciXpPb+mHydThXaui1tRKufX75Q7KnD1SXiuGksJ+
-         CFyg8cdqQ50HMxnC03Ci4Tinf3IzLjASt51lf8W73TrfJjAbCwZRO48dOuDCKXr173f3
-         ThaoH+SoTx0B4vVF5Q3IspWue8vZ8HMMwlYExjgtERRXEyqzsH5WTKi+0ZsGUPFK6s4K
-         cAYKjjFasa0eJj0fSsuNq2K7ZVwzlatHUsQq/M+S7AB9Bav2l197AdgrlZlyBVXxk1IZ
-         hkuTlq2Xs84Uty173YXHo3sSxAfzzbv0rhXXGOteuvfSCtQ4GZc6d/hGbrEyhHShA78E
-         ij1A==
-X-Gm-Message-State: APjAAAU+HFxotd7H0uYG1f4TFJg+ynnGQTMrbIO4aZ0dBEQQu5zoucgO
-        oUARwbmIvELofj6rMQmZuMa+DbvPOZVtog==
-X-Google-Smtp-Source: APXvYqwoU+NOdp9i29Pp6jdFjk8bf4YPBDxuZjhoYgCoSmdqUvP7ZgoPRKYmRyz6QN5RwRFitUfoeg==
-X-Received: by 2002:a05:600c:2488:: with SMTP id 8mr709430wms.152.1579554887903;
-        Mon, 20 Jan 2020 13:14:47 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id i10sm50002827wru.16.2020.01.20.13.14.47
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jan 2020 13:14:47 -0800 (PST)
-Message-ID: <5e261847.1c69fb81.48768.7c6e@mx.google.com>
-Date:   Mon, 20 Jan 2020 13:14:47 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        id S1726843AbgATVT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 16:19:29 -0500
+Received: from mail-bn8nam12on2123.outbound.protection.outlook.com ([40.107.237.123]:55488
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726586AbgATVT3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jan 2020 16:19:29 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=YFPp/VyYl+iiNmyK5bDWVIzjb4aEh/94HLANAIiG9mAEabSIahjDTRDPzNEeheXPVck1P70Gzudz7F9nL1pn71prAtTW9lyR02jLGrYqbbBPZ0MjmKPOXYgMvHhsrijXRRKQy/mwvmugaXOE18FgH+LdNJmWHDLNlwLB7tPlDmJsh/0t4HWRPgK17I+Lo8eV28ykFgOKuZmfA9TxqnUBp3+EAAE4U2Vcy878SBBAeRGjbJ3a/soSMTfqvyos/JGHkvwbzUPgmVcE61RjMBrLiKiSSyY5jWJk/vZEpjgBIqqsOJ8BQiMRhMqpkNi0UAp6u2TB4gzU0vhUYapdysExfQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MQo07sjsplm+qelLIRvgBMGR+Ov5DNvELVwoB44v4ws=;
+ b=F5kpr4nRiQlRVRgFXSKt0JcsdieUGLjZWJLZ7YFqThS9eB22gAFndYP0LOTlPur0IPoB7CBrCCtYWEV6DumlTWrb3ev9uNGxKN0aI3IDPZGODTRFVj36RJiPbA1z64F3OGDHZfwvzwcbG4m6a2rjZLkJWzandgvO1totAwB8U1ClDCyrZrVJp9BGzpySEO+I/wHIhZ6m1RCbQBIgzFHASbTlphgVs5555UMkLrzHfmTpONYL5JDITa58vCImHzkUla7XKyd4ebJjC4zCzIrsIiZOqJFWprvGgdcJa6UhNA4WNMLu4m+ZuzZ3pYdOOdISe3llhKMsAkKRvz4pFoswvg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MQo07sjsplm+qelLIRvgBMGR+Ov5DNvELVwoB44v4ws=;
+ b=GnjP+lSAbaR6ImItzlsqWAGtHBqJM964VxoVUaugGQHF3aVhxmD7GWi8jhYI4rAaRp8Zb2JZyPp9bR0IGUtBLy7dG2+gCHO7/3u4anr/1LWxG4KxjcwthnbmKWClkuJp+lED6aN55nN0erX2en/OmT+teLyDYFdvJ2Us/wWN1y0=
+Received: from MW2PR2101MB1052.namprd21.prod.outlook.com (52.132.149.16) by
+ MW2PR2101MB1066.namprd21.prod.outlook.com (52.132.149.19) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2686.8; Mon, 20 Jan 2020 21:17:49 +0000
+Received: from MW2PR2101MB1052.namprd21.prod.outlook.com
+ ([fe80::f1bb:c094:cb30:ba1f]) by MW2PR2101MB1052.namprd21.prod.outlook.com
+ ([fe80::f1bb:c094:cb30:ba1f%6]) with mapi id 15.20.2644.015; Mon, 20 Jan 2020
+ 21:17:49 +0000
+From:   Michael Kelley <mikelley@microsoft.com>
+To:     "lantianyu1986@gmail.com" <lantianyu1986@gmail.com>,
+        KY Srinivasan <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        "sashal@kernel.org" <sashal@kernel.org>
+CC:     Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        vkuznets <vkuznets@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH V3] x86/Hyper-V: Balloon up according to request page
+ number
+Thread-Topic: [PATCH V3] x86/Hyper-V: Balloon up according to request page
+ number
+Thread-Index: AQHVz219fxFYFMG+5UOXJtwliYHKI6f0DXlA
+Date:   Mon, 20 Jan 2020 21:17:49 +0000
+Message-ID: <MW2PR2101MB10529ECBC84A6BA130FB9134D7320@MW2PR2101MB1052.namprd21.prod.outlook.com>
+References: <20200120084149.4791-1-Tianyu.Lan@microsoft.com>
+In-Reply-To: <20200120084149.4791-1-Tianyu.Lan@microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=True;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Owner=mikelley@ntdev.microsoft.com;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2020-01-20T21:17:47.6293435Z;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=General;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Application=Microsoft Azure
+ Information Protection;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=9b695f0e-65e6-4cff-8fef-9ee6a6ee20b4;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Extended_MSFT_Method=Automatic
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=mikelley@microsoft.com; 
+x-originating-ip: [24.22.167.197]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: f94b8c97-28ab-4299-fce2-08d79dee3408
+x-ms-traffictypediagnostic: MW2PR2101MB1066:|MW2PR2101MB1066:|MW2PR2101MB1066:
+x-ms-exchange-transport-forked: True
+x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
+x-microsoft-antispam-prvs: <MW2PR2101MB10661451E9C6F30AF79501BDD7320@MW2PR2101MB1066.namprd21.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:1850;
+x-forefront-prvs: 0288CD37D9
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(396003)(39860400002)(366004)(136003)(346002)(376002)(199004)(189003)(33656002)(81156014)(316002)(5660300002)(110136005)(478600001)(8990500004)(4326008)(81166006)(9686003)(54906003)(66446008)(10290500003)(2906002)(186003)(26005)(76116006)(64756008)(66556008)(66476007)(66946007)(86362001)(71200400001)(7696005)(55016002)(52536014)(8936002)(8676002)(6506007);DIR:OUT;SFP:1102;SCL:1;SRVR:MW2PR2101MB1066;H:MW2PR2101MB1052.namprd21.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: microsoft.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: R4b6xe9WA6YzbRLh4B+fVBipw60nU0oQpNr9LQL9yn8FfnsmDozGm6OBadxviaAXZzZYcWQnv8jxReRq+Tnn8yRHwUOuGGzHVxe73fQ+eEWx/MFoMPOuUHk03QhPfRZVEnryWtvMiSSVtrPANblXwvvidaqoEyiELa/K0oqKq3yneq2Y8VvI6BAwwVpnsa7cS8cSxjpdKxsGKZArwyr/xm+SJyf5oW46ztHdztgHUnN2ERwZawkP+yNzqpa2rApX8d0LZb38ajS9xYT1hbOyN5OwpF0a1krWRBWPLi3rrDhB92m5U356G5gSbjUGT0E+xbvQFAwDASFG99idgtWvNddZdfD9iuDwVwi6OaDEKKxwye7yrrxX1kTyRQkGLGXUY/eb3te1calUbxy4BNzx2l7AGQXLUQvbPby1s+LK8Q4SnDhu80R6dQ/6TBqphI3U
+x-ms-exchange-antispam-messagedata: eLrSTSguGyPO5rOpFcFWklRdOgf4B3PobqDUDK1qD3arYkmKZFBr9srVQUHIOg+eWdcor854H4syF8adlziWvnqejzLub4hipPAmuyxa3UqmdQkZylvp3xAKepNpmgoxIuCKB11/YkzlaLODQBdEcw==
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.97-66-g6e319a78bc27
-Subject: stable-rc/linux-4.19.y boot: 61 boots: 0 failed,
- 53 passed with 7 offline, 1 untried/unknown (v4.19.97-66-g6e319a78bc27)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+MIME-Version: 1.0
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f94b8c97-28ab-4299-fce2-08d79dee3408
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Jan 2020 21:17:49.5416
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: SJexm/tQqQN0+8+0iNqhPulXFmoi3o41VaP+QIjq8yw8w4v9CtaHI1Zh0XPXjAPk2vBD9UGMG29UasILaaCb6TYYHlAqx52kov0NNTYM0bk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW2PR2101MB1066
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 61 boots: 0 failed, 53 passed with 7 offline, =
-1 untried/unknown (v4.19.97-66-g6e319a78bc27)
+From: Tianyu Lan <Tianyu.Lan@microsoft.com> Sent: Monday, January 20, 2020 =
+12:42 AM
+>=20
+> Current code has assumption that balloon request memory size aligns
+> with 2MB. But actually Hyper-V doesn't guarantee such alignment. When
+> balloon driver receives non-aligned balloon request, it produces warning
+> and balloon up more memory than requested in order to keep 2MB alignment.
+> Remove the warning and balloon up memory according to actual requested
+> memory size.
+>=20
+> Fixes: f6712238471a ("hv: hv_balloon: avoid memory leak on alloc_error of=
+ 2MB memory
+> block")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+> ---
+> Change since v2:
+>     - Remove check between request page number and alloc_unit
+>     in the alloc_balloon_pages() because it's redundant with
+>     new change.
+>     - Remove the "continue" just follwoing alloc_unit switch
+>      from 2MB to 4K in order to avoid skipping allocated
+>      memory.
+>=20
+> Change since v1:
+>     - Change logic of switching alloc_unit from 2MB to 4KB
+>     in the balloon_up() to avoid redundant iteration when
+>     handle non-aligned page request.
+>     - Remove 2MB alignment operation and comment in balloon_up()
+> ---
+>  drivers/hv/hv_balloon.c | 17 ++++-------------
+>  1 file changed, 4 insertions(+), 13 deletions(-)
+>=20
+> diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+> index 7f3e7ab22d5d..73092a7a3345 100644
+> --- a/drivers/hv/hv_balloon.c
+> +++ b/drivers/hv/hv_balloon.c
+> @@ -1681,10 +1681,7 @@ static unsigned int alloc_balloon_pages(struct
+> hv_dynmem_device *dm,
+>  	unsigned int i, j;
+>  	struct page *pg;
+>=20
+> -	if (num_pages < alloc_unit)
+> -		return 0;
+> -
+> -	for (i =3D 0; (i * alloc_unit) < num_pages; i++) {
+> +	for (i =3D 0; i < num_pages / alloc_unit; i++) {
+>  		if (bl_resp->hdr.size + sizeof(union dm_mem_page_range) >
+>  			HV_HYP_PAGE_SIZE)
+>  			return i * alloc_unit;
+> @@ -1722,7 +1719,7 @@ static unsigned int alloc_balloon_pages(struct
+> hv_dynmem_device *dm,
+>=20
+>  	}
+>=20
+> -	return num_pages;
+> +	return i * alloc_unit;
+>  }
+>=20
+>  static void balloon_up(union dm_msg_info *msg_info)
+> @@ -1737,9 +1734,6 @@ static void balloon_up(union dm_msg_info *msg_info)
+>  	long avail_pages;
+>  	unsigned long floor;
+>=20
+> -	/* The host balloons pages in 2M granularity. */
+> -	WARN_ON_ONCE(num_pages % PAGES_IN_2M !=3D 0);
+> -
+>  	/*
+>  	 * We will attempt 2M allocations. However, if we fail to
+>  	 * allocate 2M chunks, we will go back to PAGE_SIZE allocations.
+> @@ -1749,14 +1743,13 @@ static void balloon_up(union dm_msg_info *msg_inf=
+o)
+>  	avail_pages =3D si_mem_available();
+>  	floor =3D compute_balloon_floor();
+>=20
+> -	/* Refuse to balloon below the floor, keep the 2M granularity. */
+> +	/* Refuse to balloon below the floor. */
+>  	if (avail_pages < num_pages || avail_pages - num_pages < floor) {
+>  		pr_warn("Balloon request will be partially fulfilled. %s\n",
+>  			avail_pages < num_pages ? "Not enough memory." :
+>  			"Balloon floor reached.");
+>=20
+>  		num_pages =3D avail_pages > floor ? (avail_pages - floor) : 0;
+> -		num_pages -=3D num_pages % PAGES_IN_2M;
+>  	}
+>=20
+>  	while (!done) {
+> @@ -1770,10 +1763,8 @@ static void balloon_up(union dm_msg_info *msg_info=
+)
+>  		num_ballooned =3D alloc_balloon_pages(&dm_device, num_pages,
+>  						    bl_resp, alloc_unit);
+>=20
+> -		if (alloc_unit !=3D 1 && num_ballooned =3D=3D 0) {
+> +		if (alloc_unit !=3D 1 && num_ballooned !=3D num_pages)
+>  			alloc_unit =3D 1;
+> -			continue;
+> -		}
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.97-66-g6e319a78bc27/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.97-66-g6e319a78bc27/
+I don't think removing the "continue" works either.   Suppose the requested
+size is 1 Mbyte.   With an alloc_unit of 2M, alloc_balloon_pages() will ret=
+urn
+zero.  The code above will set alloc_unit to 1, which is correct.  But with=
+out the
+"continue", the code below will mark "done" as true, and we won't loop back
+around to try again with alloc_unit set to 1.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.97-66-g6e319a78bc27
-Git Commit: 6e319a78bc278fb8f9173acec4733804333d8416
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 53 unique boards, 15 SoC families, 16 builds out of 205
+I think the original code needs to stay as is.
 
-Offline Platforms:
+Michael
 
-arm64:
+>=20
+>  		if (num_ballooned =3D=3D 0 || num_ballooned =3D=3D num_pages) {
+>  			pr_debug("Ballooned %u out of %u requested pages.\n",
+> --
+> 2.14.5
 
-    defconfig:
-        gcc-8
-            juno-r2: 1 offline lab
-            meson-axg-s400: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
