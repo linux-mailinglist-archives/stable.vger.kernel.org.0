@@ -2,91 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92875142780
-	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 10:42:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACDD31427B3
+	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 10:57:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726589AbgATJmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 04:42:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55526 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726130AbgATJmv (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 20 Jan 2020 04:42:51 -0500
-Received: from localhost (unknown [89.205.136.67])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88A242087E;
-        Mon, 20 Jan 2020 09:42:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579513370;
-        bh=DXODXE7M1rOOyJTc/ylMFnIM8Uw5bPRmqGEz9lRn+wc=;
-        h=Subject:To:From:Date:From;
-        b=gaXNiNf+V8Mp7xPjQnmN0VVz+f7p1mZIlVmHCMq1BEI4+P5/9cYBWjdAFscCluUj3
-         f4GAhVlyaQSbgrqJfT+vD4pwNM3Cz94ELXj3MJBACbllETtt4Sr67a2GeJVbG1UqYB
-         YWjBrWJM89S7W1LWqfvg6XGZ3fP3RbsYa0QCEMg8=
-Subject: patch "iio: adc: stm32-dfsdm: fix single conversion" added to staging-next
-To:     olivier.moysan@st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, fabrice.gasnier@st.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Jan 2020 10:42:08 +0100
-Message-ID: <15795133287927@kroah.com>
+        id S1726075AbgATJ5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 04:57:18 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:43557 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726039AbgATJ5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 04:57:18 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id 572EE21EB2;
+        Mon, 20 Jan 2020 04:57:17 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Mon, 20 Jan 2020 04:57:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Y4PRSU
+        2I4mepMUl3Q7aQc2IUX+a0tD2/En87ke8o5ZM=; b=mLfq0ljZbkb4pMyaSuoZW0
+        kQw97wugBxkBB7OzBabjJkk0leBli533lEnq95TUEPjxIZw6KXwX8TbYubX+v2QV
+        yk/PfuHHaKiwv0y5JWXJx7WmUXLtRNVBwZocVzttPEP9Dx4hvnPCqDVaPyMH6Ch6
+        oC/KX77J7XZrTFvlrTtsnQOIFIGVhu8K0SyuhndyaRjKJ7LCzdRUSnqhkWtpSVlQ
+        BspHGWqsHQZ8JMnSeZghUP/gZfgOusNfxxXq0K1aKLlXrZWf1M7z8VTgWtwOEVMb
+        brlbqWAkOSgdANr//pMKjegBvYEIf1kKw9PezdskIjmk1cRrTTePlej1OtWBwLxQ
+        ==
+X-ME-Sender: <xms:fHklXhjcorA_7ZBWFl0NMLYtwtfnb7a7x4K5OBdYEusMPIsFvO8dgA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudehgddtjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepkfguohcuufgt
+    hhhimhhmvghluceoihguohhstghhsehiughoshgthhdrohhrgheqnecuffhomhgrihhnpe
+    hkvghrnhgvlhdrohhrghenucfkphepudelfedrgeejrdduieehrddvhedunecurfgrrhgr
+    mhepmhgrihhlfhhrohhmpehiughoshgthhesihguohhstghhrdhorhhgnecuvehluhhsth
+    gvrhfuihiivgeptd
+X-ME-Proxy: <xmx:fHklXlTnMZwF0uRJq-xBJdohuy_VeWNbVHSQESOHRXAVMumIaPPbYQ>
+    <xmx:fHklXtSL5a62Uvo72FZ9mnM630C9aGmb3_w51pS9neWlcDKOP69FTg>
+    <xmx:fHklXhA6vg6wSg7v9IsxQaZyUeL7-4weG0bl0QZuwWC0IgtpHxiu0w>
+    <xmx:fXklXsP7hAqMXTRM_-BtUD87VPIDd13sPevXtXreb4ouxu_VuGqhuw>
+Received: from localhost (unknown [193.47.165.251])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4BE133060986;
+        Mon, 20 Jan 2020 04:57:16 -0500 (EST)
+Date:   Mon, 20 Jan 2020 11:57:14 +0200
+From:   Ido Schimmel <idosch@idosch.org>
+To:     "Hans-Christian Egtvedt (hegtvedt)" <hegtvedt@cisco.com>
+Cc:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: Regression in macvlan driver in stable release 4.4.209
+Message-ID: <20200120095714.GA3421303@splinter>
+References: <01accb3f-bb52-906f-d164-c49f2dc170bc@cisco.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01accb3f-bb52-906f-d164-c49f2dc170bc@cisco.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jan 20, 2020 at 09:17:35AM +0000, Hans-Christian Egtvedt (hegtvedt) wrote:
+> Hello,
+> 
+> I am seeing a regression in the macvlan kernel driver after Linux stable 
+> release 4.4.209, bisecting identifies commit 
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-4.4.y&id=8d28d7e88851b1081b05dc269a27df1c8a903f3e
 
-This is a note to let you know that I've just added the patch titled
+Noticed it too last week (on net-next), but Eric already fixed it:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1712b2fff8c682d145c7889d2290696647d82dab
 
-    iio: adc: stm32-dfsdm: fix single conversion
+I assume the patch will find its way to 4.4.y soon now that it is in
+mainline.
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From dc26935fb60e8da8d59655dd2ec0de47b20d7d8f Mon Sep 17 00:00:00 2001
-From: Olivier Moysan <olivier.moysan@st.com>
-Date: Wed, 27 Nov 2019 14:07:29 +0100
-Subject: iio: adc: stm32-dfsdm: fix single conversion
-
-Apply data formatting to single conversion,
-as this is already done in continuous and trigger modes.
-
-Fixes: 102afde62937 ("iio: adc: stm32-dfsdm: manage data resolution in trigger mode")
-
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
-Cc: <Stable@vger.kernel.org>
-Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
----
- drivers/iio/adc/stm32-dfsdm-adc.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/iio/adc/stm32-dfsdm-adc.c b/drivers/iio/adc/stm32-dfsdm-adc.c
-index 74a2211bdff4..1c9b05d11dc5 100644
---- a/drivers/iio/adc/stm32-dfsdm-adc.c
-+++ b/drivers/iio/adc/stm32-dfsdm-adc.c
-@@ -1204,6 +1204,8 @@ static int stm32_dfsdm_single_conv(struct iio_dev *indio_dev,
- 
- 	stm32_dfsdm_stop_conv(adc);
- 
-+	stm32_dfsdm_process_data(adc, res);
-+
- stop_dfsdm:
- 	stm32_dfsdm_stop_dfsdm(adc->dfsdm);
- 
--- 
-2.25.0
-
-
+> 
+> There seems to be a history behind this, and I do not have the full 
+> overview of the intention behind the change.
+> 
+> What I see on my target, Aarch64 CPU, is that this patch moves the eth 
+> pointer in macvlan_broadcast() function some bytes. This will cause 
+> everything within the ethhdr struct to be wrong AFAICT.
+> 
+> An example:
+> Original code "eth = eth_hdr(skb)"
+>     eth = ffffffc007a1b002
+> New code "eth = skb_eth_hdr(skb)"
+>     eth = ffffffc007a1b010
+> 
+> Let me know if I can assist in any way.
+> 
+> -- 
+> Best regards,
+> Hans-Christian Noren Egtvedt
