@@ -2,79 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F277F142D85
-	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 15:28:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 069DD142DE4
+	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 15:43:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726642AbgATO2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 09:28:07 -0500
-Received: from mail-vk1-f196.google.com ([209.85.221.196]:37000 "EHLO
-        mail-vk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726626AbgATO2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 09:28:06 -0500
-Received: by mail-vk1-f196.google.com with SMTP id b129so8589472vka.4
-        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 06:28:06 -0800 (PST)
+        id S1726901AbgATOne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 09:43:34 -0500
+Received: from mail-wm1-f50.google.com ([209.85.128.50]:35242 "EHLO
+        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726626AbgATOnd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 09:43:33 -0500
+Received: by mail-wm1-f50.google.com with SMTP id p17so15010113wmb.0
+        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 06:43:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=benyossef-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Oks3v5r4LX6AsSe/R0iC47ZeQKYFHo5w4hpUercnPGI=;
-        b=Kn+yW0NbC92FNLFs0j3ktGOE+Nja3EMth9Q2ArUiVlR9Si1mcW1DL0X+8UEQpOl+Gc
-         eV55kxqJ4FN7nGCOxLg4H+Nj39qvZ4SpZy27aVEvpxgdVcvStfKa2oskZMY8lY27thtC
-         BmUFNq61Sut0kvCt7oK/F6tOGm3MiAtGs/5x4ZBLbClayE5OKHFs/XFVIVZyo9LsqeTP
-         cJ/OM9XCql+RfNZlKsbLvgVgFlIoR397BZJDBqsbVMW3an3pJeh+xO5hEheZn5rQH5Ck
-         AZl8hvGfpsB5juQgkaf7mmsjVh+BtvjcLKmSGHpRDHY1ZhYQZ+iWH1zKyCJqho7cQKIJ
-         9paA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=S9wAQ4FRsjIqV8nItDaCvJb2gbnFVikWm5lqlnQnn0g=;
+        b=guOWGFWMxrHiFWD1K3Tb/szv1c0hz5POs5M/W74yb+tQ7V16Yy8FP83X/L1LvpOhRk
+         k85KsjyuB3l6CYaKU5h9kzq2OLYNhFcph/37xl4QYdSiouC5F1oDG1kpickvJx5sA5O2
+         7I4GpwN34F3mVNxVfEPlTBo3x/EQqIdWo1q7MXdXPYn65NyVaHHD9JR/3QUsQk32ZcPq
+         nMi7AkxJnbPtOJJ0LDHn+Dh6RcpAkXNGUaFBSy1S5/8RDHEbeXC5Q0V8foK1b22MI448
+         bxoj0yXzjP33Sd/AVcFuom/dItrH+suuekgrMxuc3R5YhmVJfE0d/YmngaEaBiifv3HM
+         oDSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Oks3v5r4LX6AsSe/R0iC47ZeQKYFHo5w4hpUercnPGI=;
-        b=WmpPimQEfGKyeejt9Pxx3pfrN04fAofHFqu4LvnzQ5xu3lZW8Xo+vBQR2HIYz0eOn4
-         U0D8qEIBhe0PwASRn0JJVfMkLohzH3jAPFvexzvmVbz+3Ji/YV3RcIoS35KgvVmsHDSf
-         baZQ//FPP8S7o5SSoKUmiCQnvJygmStRCUvpY3ASimSJOdJAfcQHaF/dYQLHWcbTFGNu
-         VUhADN5EZjwZI0kwyFmAO7Y6XKwpqrRVL1XQ1yYm1k55O2ZKLP8IevzKLiAwnOoBP4No
-         sAgGcJYtvxV4a6zZh8WItGPI3ZHLU8i19F8oBfYjGJ1GctZVDz6FO9Y9hwP9L4I6pO6Y
-         Bj+A==
-X-Gm-Message-State: APjAAAVqptThfJ4nzoboQOkF3ctaT74DJRxFjLUraWUteJ6LyW39Vqtf
-        V8S8fUuw7w2xU9bqLqpdsuDhv+fV2T5feTM0hcSa4Q==
-X-Google-Smtp-Source: APXvYqy93Q9TGJxGdhUNmkvjv0kKK+3YZVpJNtUTugODqJn5Cbjt+fmBBQ7E6NMR6WKCq9I+k425y0g1IXA8rVJwy6c=
-X-Received: by 2002:a1f:2a95:: with SMTP id q143mr1056687vkq.2.1579530485860;
- Mon, 20 Jan 2020 06:28:05 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=S9wAQ4FRsjIqV8nItDaCvJb2gbnFVikWm5lqlnQnn0g=;
+        b=K2Wl9kpEMYebz5WjL/uvvR2jh8gpuUsW1zm4NSHzwcB1aulBsi7yUuhNQrflyv1X7w
+         Sev7MWWNR3KreOreTKnISTeQZHGtFCsN2B0Qi32OmTHMuvFkKf+uCvIge0Wrma9fX11h
+         9aQaR21Qs9yxLUUBkutFo1w6rFkw74Vny2TxBtgrX/x71BQIzNiUp2/Q5G6GxrNanMD8
+         o325slvwxE3cviYIpTkHGs2gfiVWPN5zOS+HVrJSi0w6pyIbPZeR+ehRH1A5TybyLijR
+         lNtSWCDT9hlcSjKDfjDq5vkK1XZlvYquP6F02XbYN0/xk2yz/sUAK8MZO5vv+pGqGC/d
+         iHIQ==
+X-Gm-Message-State: APjAAAUsY3Hn9W0UxbM/mWG1++PBp4acKT3LK1X8V+k9tWIySLR4cUzG
+        aOOCLsqCxuFhPiVzxKZaTnqCzMV3Ey8ZcQ==
+X-Google-Smtp-Source: APXvYqxGfH1c0IxB0ZcAb6L78eT36xpIxNxGnahuh2Xlxo8GvnTDgY9W2pzd7E4Cq+MyTdLBEdx/aQ==
+X-Received: by 2002:a05:600c:2059:: with SMTP id p25mr20095061wmg.161.1579531411681;
+        Mon, 20 Jan 2020 06:43:31 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w8sm82716wmm.0.2020.01.20.06.43.30
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Jan 2020 06:43:30 -0800 (PST)
+Message-ID: <5e25bc92.1c69fb81.6425f.0620@mx.google.com>
+Date:   Mon, 20 Jan 2020 06:43:30 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200116101447.20374-8-gilad@benyossef.com> <20200119152653.6E37B20678@mail.kernel.org>
-In-Reply-To: <20200119152653.6E37B20678@mail.kernel.org>
-From:   Gilad Ben-Yossef <gilad@benyossef.com>
-Date:   Mon, 20 Jan 2020 16:27:52 +0200
-Message-ID: <CAOtvUMeJLUhPWP00h6h+LcGSvu+=CsHcbZ7OXzXHwWJd2R0agg@mail.gmail.com>
-Subject: Re: [PATCH 07/11] crypto: ccree - fix FDE descriptor sequence
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Ofir Drang <ofir.drang@arm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Hadar Gat <hadar.gat@arm.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.210-61-g7b7b6e94c6ca
+Subject: stable-rc/linux-4.4.y boot: 79 boots: 0 failed,
+ 71 passed with 7 offline, 1 untried/unknown (v4.4.210-61-g7b7b6e94c6ca)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+stable-rc/linux-4.4.y boot: 79 boots: 0 failed, 71 passed with 7 offline, 1=
+ untried/unknown (v4.4.210-61-g7b7b6e94c6ca)
 
-On Sun, Jan 19, 2020 at 5:26 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi,
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->
-> The bot has tested the following trees: v5.4.13, v4.19.97, v4.14.166, v4.9.210, v4.4.210.
->
-> v5.4.13: Build OK!
-> v4.19.97: Failed to apply! Possible dependencies:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.210-61-g7b7b6e94c6ca/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.210-61-g7b7b6e94c6ca/
 
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.210-61-g7b7b6e94c6ca
+Git Commit: 7b7b6e94c6ca1a7e4ab86717a30e8bcc1fad1d18
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 44 unique boards, 15 SoC families, 13 builds out of 185
 
-'m looking into making a patch for v4.19.y. The rest are not relevant
+Offline Platforms:
 
-Thanks,
-Gilad
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
