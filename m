@@ -2,141 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4965C14258E
-	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 09:28:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8B011425F3
+	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 09:42:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727465AbgATI1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 03:27:53 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:60787 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727066AbgATI10 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 03:27:26 -0500
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1itSOu-0002sC-Ow; Mon, 20 Jan 2020 09:27:12 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 3AAB11C1A3D;
-        Mon, 20 Jan 2020 09:27:12 +0100 (CET)
-Date:   Mon, 20 Jan 2020 08:27:12 -0000
-From:   "tip-bot2 for Andres Freund" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/core] perf c2c: Fix return type for histogram sorting
- comparision functions
-Cc:     Andres Freund <andres@anarazel.de>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
-        #@tip-bot2.tec.linutronix.de, v3.16+@tip-bot2.tec.linutronix.de,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200109043030.233746-1-andres@anarazel.de>
-References: <20200109043030.233746-1-andres@anarazel.de>
-MIME-Version: 1.0
-Message-ID: <157950883206.396.14634708982531515260.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+        id S1726125AbgATIl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 03:41:59 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:41353 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726075AbgATIl7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 03:41:59 -0500
+Received: by mail-pf1-f194.google.com with SMTP id w62so15496307pfw.8;
+        Mon, 20 Jan 2020 00:41:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=EY2MDrWinifj7MCYl+z9onO507BA337ICgHM373gFUM=;
+        b=Z7EBYI7cGAGA0LYnhxJIxhm/AmdmvJcGkWQq574+rFyxqNkfBdMKlvg3XRDucT9lDw
+         VKeKbh6jGZQITq2/U9J9nZlRt46Q2DkCNszl1H84XpL/jU3DmIV4ILkDJWUN+cR+h+tX
+         454yTWc2UCPCQZF8BveHA7fAtaRxocpvYMzZ53KD/f9/EI5OT7zrqvy17LXyhJSxowgj
+         n1OYXtTmyfs8j6ob6+g6vP7stIG8Ge4Wq1ZFHB9Ddu3aDge2kzF+9nvh2eG74lo3sJ4c
+         YCOzTuI+79p621ggW2j9MS4d1gALEgDL8NcMRJp7blkpCdudhr4IdpX+KfrsGK57JHAZ
+         SBAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=EY2MDrWinifj7MCYl+z9onO507BA337ICgHM373gFUM=;
+        b=Ch4wpI8JQPxyduY99HJjWY5eI+keETNiq1qA31R8hhdzWdPDze46w58e6+HBrkKDSC
+         yAstAmeVUU/A7xSpCsXCT8DbAVcfp4j6wWpK6wZc4SE9HxmRToXPxDUDLJNlFVbYUOEP
+         hQ/n190AJgrLDCZyuDJeD3QM7iuOGagDanlG+pxtzs/rLg20QRh82O0cC1kfixqD8urM
+         G6koHTXmBUDy3gmfTPcq9syCtfXHWJ7bG+ADlFulrZaXCcQtEzXGpM+G0Q0ui0pNQa8o
+         UnMup2GcN2uO66qw6BwitTrqPMZ/BnxojgfKqwqRhjcRt2StzJNDkqSfKVsogvmMe7pr
+         DqYw==
+X-Gm-Message-State: APjAAAV2QyKYQvp+peHZWfuZ/ILKINBBiRNHX7fvZQMmnCbglK+sEJMK
+        SihbrvsOgNpx/zLO4Q87hh8=
+X-Google-Smtp-Source: APXvYqxwN4NmF5om54ObzIn0da84s6+Cyh5NURt5Vp0Y16BCtacyYQlsdnCyq8yJyYKlGCCT3NHdJQ==
+X-Received: by 2002:a63:5062:: with SMTP id q34mr58778067pgl.378.1579509718742;
+        Mon, 20 Jan 2020 00:41:58 -0800 (PST)
+Received: from localhost.corp.microsoft.com ([167.220.255.5])
+        by smtp.googlemail.com with ESMTPSA id z6sm38259693pfa.155.2020.01.20.00.41.55
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 20 Jan 2020 00:41:58 -0800 (PST)
+From:   lantianyu1986@gmail.com
+X-Google-Original-From: Tianyu.Lan@microsoft.com
+To:     kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
+        sashal@kernel.org, michael.h.kelley@microsoft.com
+Cc:     Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
+        vkuznets@redhat.com, stable@vger.kernel.org
+Subject: [PATCH V3] x86/Hyper-V: Balloon up according to request page number
+Date:   Mon, 20 Jan 2020 16:41:49 +0800
+Message-Id: <20200120084149.4791-1-Tianyu.Lan@microsoft.com>
+X-Mailer: git-send-email 2.14.5
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/core branch of tip:
+From: Tianyu Lan <Tianyu.Lan@microsoft.com>
 
-Commit-ID:     c1c8013ec34d7163431d18367808ea40b2e305f8
-Gitweb:        https://git.kernel.org/tip/c1c8013ec34d7163431d18367808ea40b2e305f8
-Author:        Andres Freund <andres@anarazel.de>
-AuthorDate:    Wed, 08 Jan 2020 20:30:30 -08:00
-Committer:     Arnaldo Carvalho de Melo <acme@redhat.com>
-CommitterDate: Tue, 14 Jan 2020 13:29:21 -03:00
+Current code has assumption that balloon request memory size aligns
+with 2MB. But actually Hyper-V doesn't guarantee such alignment. When
+balloon driver receives non-aligned balloon request, it produces warning
+and balloon up more memory than requested in order to keep 2MB alignment.
+Remove the warning and balloon up memory according to actual requested
+memory size.
 
-perf c2c: Fix return type for histogram sorting comparision functions
-
-Commit 722ddfde366f ("perf tools: Fix time sorting") changed - correctly
-so - hist_entry__sort to return int64. Unfortunately several of the
-builtin-c2c.c comparison routines only happened to work due the cast
-caused by the wrong return type.
-
-This causes meaningless ordering of both the cacheline list, and the
-cacheline details page. E.g a simple:
-
-  perf c2c record -a sleep 3
-  perf c2c report
-
-will result in cacheline table like
-  =================================================
-             Shared Data Cache Line Table
-  =================================================
-  #
-  #        ------- Cacheline ----------    Total     Tot  - LLC Load Hitm -  - Store Reference -  - Load Dram -     LLC  Total  - Core Load Hit -  - LLC Load Hit -
-  # Index         Address  Node  PA cnt  records    Hitm  Total  Lcl    Rmt  Total  L1Hit  L1Miss     Lcl   Rmt  Ld Miss  Loads    FB    L1   L2     Llc      Rmt
-  # .....  ..............  ....  ......  .......  ......  .....  .....  ...  ....   .....  ......  ......  ....  ......   .....  .....  ..... ...  ....     .......
-
-        0  0x7f0d27ffba00   N/A       0       52   0.12%     13      6    7    12      12       0       0     7      14      40      4     16    0    0           0
-        1  0x7f0d27ff61c0   N/A       0     6353  14.04%   1475    801  674   779     779       0       0   718    1392    5574   1299   1967    0  115           0
-        2  0x7f0d26d3ec80   N/A       0       71   0.15%     16      4   12    13      13       0       0    12      24      58      1     20    0    9           0
-        3  0x7f0d26d3ec00   N/A       0       98   0.22%     23     17    6    19      19       0       0     6      12      79      0     40    0   10           0
-
-i.e. with the list not being ordered by Total Hitm.
-
-Fixes: 722ddfde366f ("perf tools: Fix time sorting")
-Signed-off-by: Andres Freund <andres@anarazel.de>
-Tested-by: Michael Petlan <mpetlan@redhat.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org # v3.16+
-Link: http://lore.kernel.org/lkml/20200109043030.233746-1-andres@anarazel.de
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: f6712238471a ("hv: hv_balloon: avoid memory leak on alloc_error of 2MB memory block")
+Cc: stable@vger.kernel.org
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
 ---
- tools/perf/builtin-c2c.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+Change since v2:
+    - Remove check between request page number and alloc_unit
+    in the alloc_balloon_pages() because it's redundant with
+    new change.
+    - Remove the "continue" just follwoing alloc_unit switch
+     from 2MB to 4K in order to avoid skipping allocated
+     memory.
 
-diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
-index 3463512..246ac0b 100644
---- a/tools/perf/builtin-c2c.c
-+++ b/tools/perf/builtin-c2c.c
-@@ -595,8 +595,8 @@ tot_hitm_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
- {
- 	struct c2c_hist_entry *c2c_left;
- 	struct c2c_hist_entry *c2c_right;
--	unsigned int tot_hitm_left;
--	unsigned int tot_hitm_right;
-+	uint64_t tot_hitm_left;
-+	uint64_t tot_hitm_right;
+Change since v1:
+    - Change logic of switching alloc_unit from 2MB to 4KB
+    in the balloon_up() to avoid redundant iteration when
+    handle non-aligned page request.
+    - Remove 2MB alignment operation and comment in balloon_up()
+---
+ drivers/hv/hv_balloon.c | 17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 7f3e7ab22d5d..73092a7a3345 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -1681,10 +1681,7 @@ static unsigned int alloc_balloon_pages(struct hv_dynmem_device *dm,
+ 	unsigned int i, j;
+ 	struct page *pg;
  
- 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
- 	c2c_right = container_of(right, struct c2c_hist_entry, he);
-@@ -629,7 +629,8 @@ __f ## _cmp(struct perf_hpp_fmt *fmt __maybe_unused,			\
- 									\
- 	c2c_left  = container_of(left, struct c2c_hist_entry, he);	\
- 	c2c_right = container_of(right, struct c2c_hist_entry, he);	\
--	return c2c_left->stats.__f - c2c_right->stats.__f;		\
-+	return (uint64_t) c2c_left->stats.__f -				\
-+	       (uint64_t) c2c_right->stats.__f;				\
+-	if (num_pages < alloc_unit)
+-		return 0;
+-
+-	for (i = 0; (i * alloc_unit) < num_pages; i++) {
++	for (i = 0; i < num_pages / alloc_unit; i++) {
+ 		if (bl_resp->hdr.size + sizeof(union dm_mem_page_range) >
+ 			HV_HYP_PAGE_SIZE)
+ 			return i * alloc_unit;
+@@ -1722,7 +1719,7 @@ static unsigned int alloc_balloon_pages(struct hv_dynmem_device *dm,
+ 
+ 	}
+ 
+-	return num_pages;
++	return i * alloc_unit;
  }
  
- #define STAT_FN(__f)		\
-@@ -682,7 +683,8 @@ ld_llcmiss_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
- 	c2c_left  = container_of(left, struct c2c_hist_entry, he);
- 	c2c_right = container_of(right, struct c2c_hist_entry, he);
+ static void balloon_up(union dm_msg_info *msg_info)
+@@ -1737,9 +1734,6 @@ static void balloon_up(union dm_msg_info *msg_info)
+ 	long avail_pages;
+ 	unsigned long floor;
  
--	return llc_miss(&c2c_left->stats) - llc_miss(&c2c_right->stats);
-+	return (uint64_t) llc_miss(&c2c_left->stats) -
-+	       (uint64_t) llc_miss(&c2c_right->stats);
- }
+-	/* The host balloons pages in 2M granularity. */
+-	WARN_ON_ONCE(num_pages % PAGES_IN_2M != 0);
+-
+ 	/*
+ 	 * We will attempt 2M allocations. However, if we fail to
+ 	 * allocate 2M chunks, we will go back to PAGE_SIZE allocations.
+@@ -1749,14 +1743,13 @@ static void balloon_up(union dm_msg_info *msg_info)
+ 	avail_pages = si_mem_available();
+ 	floor = compute_balloon_floor();
  
- static uint64_t total_records(struct c2c_stats *stats)
+-	/* Refuse to balloon below the floor, keep the 2M granularity. */
++	/* Refuse to balloon below the floor. */
+ 	if (avail_pages < num_pages || avail_pages - num_pages < floor) {
+ 		pr_warn("Balloon request will be partially fulfilled. %s\n",
+ 			avail_pages < num_pages ? "Not enough memory." :
+ 			"Balloon floor reached.");
+ 
+ 		num_pages = avail_pages > floor ? (avail_pages - floor) : 0;
+-		num_pages -= num_pages % PAGES_IN_2M;
+ 	}
+ 
+ 	while (!done) {
+@@ -1770,10 +1763,8 @@ static void balloon_up(union dm_msg_info *msg_info)
+ 		num_ballooned = alloc_balloon_pages(&dm_device, num_pages,
+ 						    bl_resp, alloc_unit);
+ 
+-		if (alloc_unit != 1 && num_ballooned == 0) {
++		if (alloc_unit != 1 && num_ballooned != num_pages)
+ 			alloc_unit = 1;
+-			continue;
+-		}
+ 
+ 		if (num_ballooned == 0 || num_ballooned == num_pages) {
+ 			pr_debug("Ballooned %u out of %u requested pages.\n",
+-- 
+2.14.5
+
