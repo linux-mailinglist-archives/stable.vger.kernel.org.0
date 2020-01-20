@@ -2,140 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02E66142731
-	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 10:24:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F139514277E
+	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 10:42:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726465AbgATJYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 04:24:46 -0500
-Received: from alln-iport-8.cisco.com ([173.37.142.95]:41827 "EHLO
-        alln-iport-8.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726039AbgATJYp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 04:24:45 -0500
-X-Greylist: delayed 425 seconds by postgrey-1.27 at vger.kernel.org; Mon, 20 Jan 2020 04:24:44 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=cisco.com; i=@cisco.com; l=1126; q=dns/txt; s=iport;
-  t=1579512284; x=1580721884;
-  h=from:to:cc:subject:date:message-id:content-id:
-   content-transfer-encoding:mime-version;
-  bh=w5gy+mcO3Z007wJ0dmVi8kkf5xmjybGH+tMjTtxLK8M=;
-  b=Q3LkZy1bcse4uUYH3/orRoHPE6FFF0eqOvPOh00oKdnhr+KmHT6CpGRE
-   M5pxCdUj9VyRq9aKUaoRazCofPqd+kwji+e6abW83zTbwbIrz952YAXX8
-   0yllRNdF0iJKb777zDUuIeAchkyvO2KDY5B9x9A/tQ4q+FZ7b237eXM0B
-   c=;
-IronPort-PHdr: =?us-ascii?q?9a23=3AwWOSiRMQBkMxMm0FzsQl6mtXPHoupqn0MwgJ65?=
- =?us-ascii?q?Eul7NJdOG58o//OFDEu6w/l0fHCIPc7f8My/HbtaztQyQh2d6AqzhDFf4ETB?=
- =?us-ascii?q?oZkYMTlg0kDtSCDBj7IfH2cSE2AOxJVURu+DewNk0GUMs=3D?=
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: =?us-ascii?q?A0BICAC9biVe/5FdJa1lHQEBAQkBEQU?=
- =?us-ascii?q?FAYF7gVRQBWxYIAQLKoQSg0YDinyabYJSA1QJAQEBDAEBJwYCAQGEQBmBdiQ?=
- =?us-ascii?q?4EwIDDQEBBAEBAQIBBQRthTcBC4VhFhERDAEBNwERASICJgIEMBUSBA0BBwE?=
- =?us-ascii?q?BHoMEAYJKAy4BDp9iAoE5iGF1gTKCfwEBBYUHGIIMAwaBDiqFGwyGbRqBQT+?=
- =?us-ascii?q?BOII3By6BQgGBRhkEGoRXgl6NaYJsnwEKgjkEhlJnjm4GG5p3jl6IYZIlAgQ?=
- =?us-ascii?q?CBAUCDgEBBYFpIoFYcBWDJ1AYDYgBCQ8Lg1CFFIU/dAIBAQeBHowmAQE?=
-X-IronPort-AV: E=Sophos;i="5.70,341,1574121600"; 
-   d="scan'208";a="419520609"
-Received: from rcdn-core-9.cisco.com ([173.37.93.145])
-  by alln-iport-8.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 20 Jan 2020 09:17:38 +0000
-Received: from XCH-ALN-001.cisco.com (xch-aln-001.cisco.com [173.36.7.11])
-        by rcdn-core-9.cisco.com (8.15.2/8.15.2) with ESMTPS id 00K9HckU012013
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=FAIL);
-        Mon, 20 Jan 2020 09:17:38 GMT
-Received: from xhs-aln-002.cisco.com (173.37.135.119) by XCH-ALN-001.cisco.com
- (173.36.7.11) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 20 Jan
- 2020 03:17:37 -0600
-Received: from xhs-aln-001.cisco.com (173.37.135.118) by xhs-aln-002.cisco.com
- (173.37.135.119) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 20 Jan
- 2020 03:17:37 -0600
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (173.37.151.57)
- by xhs-aln-001.cisco.com (173.37.135.118) with Microsoft SMTP Server (TLS) id
- 15.0.1473.3 via Frontend Transport; Mon, 20 Jan 2020 03:17:37 -0600
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KVH5tnaIqc8WuxuXTd+gbafP3qHio0MlQ0HQ141sjiQH0zo4H2Mba9GsyDO3wNQ4LUU/sizIm8O+4767UXeKv+ttMDKTVx2nFwdhtMc2DoLl8g6j9beR2iPhfhgyCMbwtqKNirCwrkXL6jAEgisQ9LXzCy5agt4niXXd/Ah1aYLFsWdo/21mt4Usd1JlzCGmGxtj6CIQBlBqQPzZw6tTzJHndaphW+5PE0UQoX6R+5pdSDSsL/HBCURGsH1PVF6EYSo/X8Il0OSdQ3GD+MRAkUISE6tDan/8e8jeywZkd+vHeUYDVIPaseICs4mNR7tInmoEjJEcrKDMijsGXu0x0g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=w5gy+mcO3Z007wJ0dmVi8kkf5xmjybGH+tMjTtxLK8M=;
- b=Czy8jl9khfLvZokWdoQA23fx6je0+pfbTFE+x5s3AiLgdViJKQ4nRDalP+84oLZ4mbThZRa4nNuSd4IZmR0KxoB/qlD/wt8PxLmVdJrbj1pivA2TkEZMkp/NkySNblrWrb+w3X7YQ5yE7P9Ox6KPe7iAIcNUrZBfIix6Zrt/Jyx8YHT1HRZqM8KxzO0GPKjqzMKYLY1uPS+UBCe1F3cBcKjPloR3td6SK5D+g6MZHjcVx1IMp4aFvwao/vcAcJFS+jjTyidEov3iMOygmTIorZDRiD068V+Ia/zErFvR5wH+8bynVvFMy26zgrvaks7ASU25zdugdrMEqXIWYo51OA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cisco.com; dmarc=pass action=none header.from=cisco.com;
- dkim=pass header.d=cisco.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cisco.onmicrosoft.com;
- s=selector2-cisco-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=w5gy+mcO3Z007wJ0dmVi8kkf5xmjybGH+tMjTtxLK8M=;
- b=XoRd6gU1cihv/fmjy2C51Oz8CDMx3zBy7SdEaViFO7hNiCEs3RFC8YaF/Hb3KmBDPGYMIae0S85ywgzrGceNLSk4bNcg0GXlPVrFP0KZuFbVNdK6anzA2NjB6KSAv7GjHOqDuLkyzKXuoXx5FcNiJuPkniA3h/sMfw4i6qCpLNY=
-Received: from BY5PR11MB3862.namprd11.prod.outlook.com (10.255.72.11) by
- BY5PR11MB4372.namprd11.prod.outlook.com (52.132.252.153) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2644.20; Mon, 20 Jan 2020 09:17:36 +0000
-Received: from BY5PR11MB3862.namprd11.prod.outlook.com
- ([fe80::8417:581e:6261:a36a]) by BY5PR11MB3862.namprd11.prod.outlook.com
- ([fe80::8417:581e:6261:a36a%3]) with mapi id 15.20.2644.024; Mon, 20 Jan 2020
- 09:17:36 +0000
-From:   "Hans-Christian Egtvedt (hegtvedt)" <hegtvedt@cisco.com>
-To:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Regression in macvlan driver in stable release 4.4.209
-Thread-Topic: Regression in macvlan driver in stable release 4.4.209
-Thread-Index: AQHVz3JzO8uHcCgc5kms+UsvKqCsCw==
-Date:   Mon, 20 Jan 2020 09:17:35 +0000
-Message-ID: <01accb3f-bb52-906f-d164-c49f2dc170bc@cisco.com>
-Accept-Language: en-DK, en-US
-Content-Language: aa
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=hegtvedt@cisco.com; 
-x-originating-ip: [2001:420:44c1:2578:965c:d737:527:20d4]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: f6cb5de9-530d-4f3e-67c1-08d79d8996c8
-x-ms-traffictypediagnostic: BY5PR11MB4372:
-x-microsoft-antispam-prvs: <BY5PR11MB4372BC322DD62152350ED9C0DD320@BY5PR11MB4372.namprd11.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2733;
-x-forefront-prvs: 0288CD37D9
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(376002)(39860400002)(366004)(396003)(136003)(199004)(189003)(6486002)(31696002)(86362001)(4326008)(2906002)(5660300002)(4744005)(31686004)(54906003)(6916009)(91956017)(76116006)(316002)(6506007)(186003)(36756003)(6512007)(8676002)(478600001)(71200400001)(2616005)(66446008)(8936002)(81156014)(966005)(66946007)(66556008)(66476007)(64756008)(81166006);DIR:OUT;SFP:1101;SCL:1;SRVR:BY5PR11MB4372;H:BY5PR11MB3862.namprd11.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: cisco.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: xCFilK9dNDgaNZ5jgj7TBqUTtdH2BxhrLaZYSrTyPkNl+s5Bg7i+uGOupM/ibKHmPKObAS50aSmCARLKfcpZNteovLmFJhuV0GJLsezjxWagVIDlo/tsIoyn4hOU5+MB36NcfvbCrQJ+iKPVzhZVDUUGlNGlA+e003zmpAmc3znJ3J1ciOjjsqoAZ91wkBt2hB3pKI/Ah/SC+ksxL2EyFLwmpCurgkibX17zQ0B8SQPEB8yVvNho2wmVqEHPMEN7f0dUDG8q+L+BjM0S65x62Vy2Nnf9z/7tautbtK0mhDndHQZ+4o7OZlsPyusNIQyFG8Mv1g4j9Y9djK7fKVKjYPlZMmX1j032i5QrecDcC28JGJvJwz3e174uIFk8L9YxYBWoVvwCpmB4gSdQ01jdt2p4is5ZA7wk9hjPHPuG133t2ef+YUjKIP8CbRuZkRTjhUq3S96NKivDZKHht66ha1NoPojNjWlxTcsvDwNwgu8bcuvU9o2kOLKPFwJRO+w0jO5JBg0N5LQYvChnKdzL1g==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <978549D51982604CBFF22E5D4DB104ED@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S1726421AbgATJml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 04:42:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55286 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726130AbgATJml (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 20 Jan 2020 04:42:41 -0500
+Received: from localhost (unknown [89.205.136.67])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2951207E0;
+        Mon, 20 Jan 2020 09:42:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579513360;
+        bh=ds+b1mTQi9cNmnqa7BFS4/i4W6vfYkV3fr5ELCtipJI=;
+        h=Subject:To:From:Date:From;
+        b=s9l/e4rshfsKBURuYhEszONWJPug9yMbLtVFgS+qqqaKC042ysRgzApu30C/Tbl4K
+         mqoaSaJ3SP2+9CoYCBiXbiQ9wJyNUqVpkyOUK2Pa5cHl16+fLtPDCUi+jbdZvlOHiD
+         KW2mes17MJCrvmHcqZxAlFF1DVBUO+cCUvWggP3k=
+Subject: patch "iio: st_gyro: Correct data for LSM9DS0 gyro" added to staging-next
+To:     andriy.shevchenko@linux.intel.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, leonard.crestez@nxp.com,
+        lorenzo.bianconi83@gmail.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Jan 2020 10:42:07 +0100
+Message-ID: <157951332720498@kroah.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: f6cb5de9-530d-4f3e-67c1-08d79d8996c8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Jan 2020 09:17:35.6434
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5ae1af62-9505-4097-a69a-c1553ef7840e
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: I0jPbQAQgRnYl5e4oiwhs18T20IsldnsfgNQhxB61uxl4dfA8QvaqivcCE7y2FtSJWkDgrbS8e/OOPTE7uAeSg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR11MB4372
-X-OriginatorOrg: cisco.com
-X-Outbound-SMTP-Client: 173.36.7.11, xch-aln-001.cisco.com
-X-Outbound-Node: rcdn-core-9.cisco.com
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGVsbG8sDQoNCkkgYW0gc2VlaW5nIGEgcmVncmVzc2lvbiBpbiB0aGUgbWFjdmxhbiBrZXJuZWwg
-ZHJpdmVyIGFmdGVyIExpbnV4IHN0YWJsZSANCnJlbGVhc2UgNC40LjIwOSwgYmlzZWN0aW5nIGlk
-ZW50aWZpZXMgY29tbWl0IA0KaHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tl
-cm5lbC9naXQvc3RhYmxlL2xpbnV4LmdpdC9jb21taXQvP2g9bGludXgtNC40LnkmaWQ9OGQyOGQ3
-ZTg4ODUxYjEwODFiMDVkYzI2OWEyN2RmMWM4YTkwM2YzZQ0KDQpUaGVyZSBzZWVtcyB0byBiZSBh
-IGhpc3RvcnkgYmVoaW5kIHRoaXMsIGFuZCBJIGRvIG5vdCBoYXZlIHRoZSBmdWxsIA0Kb3ZlcnZp
-ZXcgb2YgdGhlIGludGVudGlvbiBiZWhpbmQgdGhlIGNoYW5nZS4NCg0KV2hhdCBJIHNlZSBvbiBt
-eSB0YXJnZXQsIEFhcmNoNjQgQ1BVLCBpcyB0aGF0IHRoaXMgcGF0Y2ggbW92ZXMgdGhlIGV0aCAN
-CnBvaW50ZXIgaW4gbWFjdmxhbl9icm9hZGNhc3QoKSBmdW5jdGlvbiBzb21lIGJ5dGVzLiBUaGlz
-IHdpbGwgY2F1c2UgDQpldmVyeXRoaW5nIHdpdGhpbiB0aGUgZXRoaGRyIHN0cnVjdCB0byBiZSB3
-cm9uZyBBRkFJQ1QuDQoNCkFuIGV4YW1wbGU6DQpPcmlnaW5hbCBjb2RlICJldGggPSBldGhfaGRy
-KHNrYikiDQogICAgZXRoID0gZmZmZmZmYzAwN2ExYjAwMg0KTmV3IGNvZGUgImV0aCA9IHNrYl9l
-dGhfaGRyKHNrYikiDQogICAgZXRoID0gZmZmZmZmYzAwN2ExYjAxMA0KDQpMZXQgbWUga25vdyBp
-ZiBJIGNhbiBhc3Npc3QgaW4gYW55IHdheS4NCg0KLS0gDQpCZXN0IHJlZ2FyZHMsDQpIYW5zLUNo
-cmlzdGlhbiBOb3JlbiBFZ3R2ZWR0DQo=
+
+This is a note to let you know that I've just added the patch titled
+
+    iio: st_gyro: Correct data for LSM9DS0 gyro
+
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From e825070f697abddf3b9b0a675ed0ff1884114818 Mon Sep 17 00:00:00 2001
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Tue, 17 Dec 2019 19:10:38 +0200
+Subject: iio: st_gyro: Correct data for LSM9DS0 gyro
+
+The commit 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
+assumes that gyro in LSM9DS0 is the same as others with 0xd4 WAI ID,
+but datasheet tells slight different story, i.e. the first scale factor
+for the chip is 245 dps, and not 250 dps.
+
+Correct this by introducing a separate settings for LSM9DS0.
+
+Fixes: 41c128cb25ce ("iio: st_gyro: Add lsm9ds0-gyro support")
+Depends-on: 45a4e4220bf4 ("iio: gyro: st_gyro: fix L3GD20H support")
+Cc: Leonard Crestez <leonard.crestez@nxp.com>
+Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/gyro/st_gyro_core.c | 75 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 74 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/iio/gyro/st_gyro_core.c b/drivers/iio/gyro/st_gyro_core.c
+index 57be68b291fa..26c50b24bc08 100644
+--- a/drivers/iio/gyro/st_gyro_core.c
++++ b/drivers/iio/gyro/st_gyro_core.c
+@@ -138,7 +138,6 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
+ 			[2] = LSM330DLC_GYRO_DEV_NAME,
+ 			[3] = L3G4IS_GYRO_DEV_NAME,
+ 			[4] = LSM330_GYRO_DEV_NAME,
+-			[5] = LSM9DS0_GYRO_DEV_NAME,
+ 		},
+ 		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
+ 		.odr = {
+@@ -208,6 +207,80 @@ static const struct st_sensor_settings st_gyro_sensors_settings[] = {
+ 		.multi_read_bit = true,
+ 		.bootime = 2,
+ 	},
++	{
++		.wai = 0xd4,
++		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
++		.sensors_supported = {
++			[0] = LSM9DS0_GYRO_DEV_NAME,
++		},
++		.ch = (struct iio_chan_spec *)st_gyro_16bit_channels,
++		.odr = {
++			.addr = 0x20,
++			.mask = GENMASK(7, 6),
++			.odr_avl = {
++				{ .hz = 95, .value = 0x00, },
++				{ .hz = 190, .value = 0x01, },
++				{ .hz = 380, .value = 0x02, },
++				{ .hz = 760, .value = 0x03, },
++			},
++		},
++		.pw = {
++			.addr = 0x20,
++			.mask = BIT(3),
++			.value_on = ST_SENSORS_DEFAULT_POWER_ON_VALUE,
++			.value_off = ST_SENSORS_DEFAULT_POWER_OFF_VALUE,
++		},
++		.enable_axis = {
++			.addr = ST_SENSORS_DEFAULT_AXIS_ADDR,
++			.mask = ST_SENSORS_DEFAULT_AXIS_MASK,
++		},
++		.fs = {
++			.addr = 0x23,
++			.mask = GENMASK(5, 4),
++			.fs_avl = {
++				[0] = {
++					.num = ST_GYRO_FS_AVL_245DPS,
++					.value = 0x00,
++					.gain = IIO_DEGREE_TO_RAD(8750),
++				},
++				[1] = {
++					.num = ST_GYRO_FS_AVL_500DPS,
++					.value = 0x01,
++					.gain = IIO_DEGREE_TO_RAD(17500),
++				},
++				[2] = {
++					.num = ST_GYRO_FS_AVL_2000DPS,
++					.value = 0x02,
++					.gain = IIO_DEGREE_TO_RAD(70000),
++				},
++			},
++		},
++		.bdu = {
++			.addr = 0x23,
++			.mask = BIT(7),
++		},
++		.drdy_irq = {
++			.int2 = {
++				.addr = 0x22,
++				.mask = BIT(3),
++			},
++			/*
++			 * The sensor has IHL (active low) and open
++			 * drain settings, but only for INT1 and not
++			 * for the DRDY line on INT2.
++			 */
++			.stat_drdy = {
++				.addr = ST_SENSORS_DEFAULT_STAT_ADDR,
++				.mask = GENMASK(2, 0),
++			},
++		},
++		.sim = {
++			.addr = 0x23,
++			.value = BIT(0),
++		},
++		.multi_read_bit = true,
++		.bootime = 2,
++	},
+ 	{
+ 		.wai = 0xd7,
+ 		.wai_addr = ST_SENSORS_DEFAULT_WAI_ADDRESS,
+-- 
+2.25.0
+
+
