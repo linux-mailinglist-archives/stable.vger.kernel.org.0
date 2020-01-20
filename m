@@ -2,114 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BA6C143128
-	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 18:56:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 430B7143169
+	for <lists+stable@lfdr.de>; Mon, 20 Jan 2020 19:24:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726876AbgATR4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 12:56:52 -0500
-Received: from mailin.studentenwerk.mhn.de ([141.84.225.229]:32888 "EHLO
-        email.studentenwerk.mhn.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726642AbgATR4w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 12:56:52 -0500
-X-Greylist: delayed 424 seconds by postgrey-1.27 at vger.kernel.org; Mon, 20 Jan 2020 12:56:51 EST
-Received: from mailhub.studentenwerk.mhn.de (mailhub.studentenwerk.mhn.de [127.0.0.1])
-        by email.studentenwerk.mhn.de (Postfix) with ESMTPS id 481fLy4jmVzRhSx;
-        Mon, 20 Jan 2020 18:49:46 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=stwm.de; s=stwm-20170627;
-        t=1579542586;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=C+Lhj8chUKLJVXXPOqbYYnVp0h/ptgB+BJqp+XECkAE=;
-        b=gIdroEjiVVepp5Lvliu4o5lYB3LYwiB0nY7WVblk0QJVZYClZXUQQM5oXZM2Qb4lDhrSF6
-        aM2iQN5L6lq9apLlY0J1YNcKGP6ocvkEcA+EI/+x0BKHLPGfswgYMzSjaPdcWtGEh3g1Q9
-        zbKWheAn2LoZGwF44QATUXF9xSAN8vCIFPzU8myMPoEijlN0kOUNbCT7iuB8+0Fr/W47ok
-        +hqPxcpLeUAayPxSLyswi0h1Wl9M3NLytkdHxDrtnNs8oSU0DPz92wp0RqBTTvQ0AsOq6v
-        LKAw4zbDzZNi/mDEIQXQX8dL3hs3OfYxxFydYicYmlxp7zVk2wfPxx7sxsYWyA==
-From:   Wolfgang Walter <linux@stwm.de>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: Linux 5.4.13
-Date:   Mon, 20 Jan 2020 18:49:46 +0100
-Message-ID: <2465902.uHH96e9i0Q@stwm.de>
-User-Agent: KMail/4.14.3 (Linux/5.0.6-050006-generic; KDE/4.14.13; x86_64; ; )
-In-Reply-To: <20200117231105.GA2130102@kroah.com>
-References: <20200117231105.GA2130102@kroah.com>
+        id S1726901AbgATSYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 13:24:48 -0500
+Received: from mail-qv1-f65.google.com ([209.85.219.65]:46930 "EHLO
+        mail-qv1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726642AbgATSYs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 13:24:48 -0500
+Received: by mail-qv1-f65.google.com with SMTP id u1so198720qvk.13
+        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 10:24:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=YWUtfkitrmKbo67cSD1/zuV+fr6A5x6JR+2oM8WC5fs=;
+        b=CTwmzD/BzauwmlUNlOFDcvnEoJ0ybuPojLOoVZzsinJwJ/1RpeFsVTchsWUZ5Mj8Lj
+         5vsuvhibtJ4H/7r7WAu8balq/xpcX7I3yECJYXW5cvVzQSRWjRn+jJEqFDn3lHuMa3Tj
+         fqtSAUxuWiNaUxtO8jyc5OwocpceCE3RrLok8yNCCKcuAFjlFicxcXQh5VBKFddY8b/8
+         Flf7Ak3v0kJQIQEIxScFREAl2kHf3JGcitIrniXxpBY9piZFrWYtCokZsVYyeib37AGF
+         P07zPEAJYseOm9h8PMi1uunmF6Hx7WrlnR/zBOr+7FFIk7Dog7XdHiKevvjYwSvy3dTt
+         ZOUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=YWUtfkitrmKbo67cSD1/zuV+fr6A5x6JR+2oM8WC5fs=;
+        b=uC0sx2QriqVoCIg8R6vuKBkE2cGZ2J/I277BTuOP6gULoecv6QGM6O+uFcufpaDVej
+         7u0gv/lqeWK0WVojj55as58puraTrBOXxiiVSjIGnxKgkDfrw3HxCecurE810jsYG3B9
+         E6UhQ2/kMT6uozco8rBDoNL55+/8xGzaRJ811riGHZIxF6rmyk+ujzs/71jIFbRune7J
+         T/QHXXqwnY5eh+pHi2AX3vuIi2qz9/v9RPC95qYXwqH2xjtLZjx0RoxLZC5Sgefbw1AB
+         obTzT8Mu8crB9soGBsg1cZJzmujlDBw/DDjxZpWo6rYYk5GGOWb5lLd+Hl9vX6ond3qM
+         bt2A==
+X-Gm-Message-State: APjAAAVHXNlMMon3doq7NlXNhkrPKx4LVKhpng2e19bZzoYpydBdvZyG
+        NxDLDX/B6QnWbo93ixfbhCF4gPDn
+X-Google-Smtp-Source: APXvYqx9wVmGTbi2Jyo2YRhtprJDDRbQH0ou4AjLK+4Ntr8Wah9f49//mjM6lujO+TBTto/xzArrCg==
+X-Received: by 2002:a0c:904b:: with SMTP id o69mr1037713qvo.218.1579544687166;
+        Mon, 20 Jan 2020 10:24:47 -0800 (PST)
+Received: from localhost.localdomain ([71.219.59.120])
+        by smtp.gmail.com with ESMTPSA id p185sm16281329qkd.126.2020.01.20.10.24.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Jan 2020 10:24:46 -0800 (PST)
+From:   Alex Deucher <alexdeucher@gmail.com>
+X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
+To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
+Cc:     changzhu <Changfeng.Zhu@amd.com>, Huang Rui <ray.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH] drm/amdgpu: allow direct upload save restore list for raven2
+Date:   Mon, 20 Jan 2020 13:24:39 -0500
+Message-Id: <20200120182439.602448-1-alexander.deucher@amd.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=stwm.de;
-        s=stwm-20170627; t=1579542586;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=C+Lhj8chUKLJVXXPOqbYYnVp0h/ptgB+BJqp+XECkAE=;
-        b=hTrB0haQL0u/hRjNJmn6jIRS5Mc7ZbsPjMrKPVSKKGs0cCMJPYtwnUBcT1ygZUtfclD6o0
-        kpI++JzujS/ds+aLfEPihgRrUD2HwnX/CO8MyK5FCTwiggd/8wDJoMIjoGt/insa+2TlqE
-        udP9tUO50oBs97trRBv3WowCfnEKDHDbC2GymX+aOCUp4N00CcdYRCx4Hhnvc8qqw/brX3
-        17CmykVD/WpCftvwA/Z97r4xm1eTgnwqAH7HIIdHS40FjgasYCgP3z6doSSzgybzch3ZGn
-        xIAi4zfdb6Zo49fUO2EVcVMmZXYUZsPqCFeGgv1EaaHNlMQvxT6IRwtBlv/Gsg==
-ARC-Seal: i=1; s=stwm-20170627; d=stwm.de; t=1579542586; a=rsa-sha256;
-        cv=none;
-        b=aV/Tq0WDl9YOOPKU44rSyXjxC8zrydcaC3A+N/yFBNkrqXiUtz4Ichwrt1ZZ5drT5gy0mz
-        +PtJIhBlJ7ZzTRbjHhbWjD1OPg5J1hGrDPF6DPCRT5/8BvsNGv8XU2uJ8hHuYSNv2OuKhK
-        Ul2B+gRb7L33/b/5WIrOQ3ZIhs2OcfCNYZbZUvb/WHBxh9nfkyeDtwSWrRtm7ySPhch9c8
-        oudcQWznXBZDRgljl0KXl8mNwdc5uoD9VFYYtpgHjNB3zzrlsLjQHkPmOF5Lx31HtA49DO
-        Y+D3eHj7YkmuW4ZBLBwCm+afSfC2tkRp9yGl/VTUD3JywBY42Nadgpcf2c/HfQ==
-ARC-Authentication-Results: i=1;
-        email.studentenwerk.mhn.de;
-        none
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am Samstag, 18. Januar 2020, 00:11:05 schrieben Sie:
-> I'm announcing the release of the 5.4.13 kernel.
->=20
-> All users of the 5.4 kernel series must upgrade.
->=20
-> The updated 5.4.y git tree can be found at:
-> =09git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.=
-git
-> linux-5.4.y and can be browsed at the normal kernel.org git web brows=
-er:
-> =09https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.g=
-it;a=3Dsummar
-> y
->=20
-> thanks,
->=20
-> greg k-h
->=20
+From: changzhu <Changfeng.Zhu@amd.com>
 
-Compiling 5.4.13 I got (for one test configuration):
+It will cause modprobe atombios stuck problem in raven2 if it doesn't
+allow direct upload save restore list from gfx driver.
+So it needs to allow direct upload save restore list for raven2
+temporarily.
 
-In file included from net/hsr/hsr_main.c:12:
-net/hsr/hsr_main.h:194:20: error: two or more data types in declaration=
-=20
-specifiers
-  194 | static inline void void hsr_debugfs_rename(struct net_device *d=
-ev)
-      |                    ^~~~
-make[3]: *** [scripts/Makefile.build:266: net/hsr/hsr_main.o] Error 1
-make[2]: *** [scripts/Makefile.build:509: net/hsr] Error 2
-make[1]: *** [Makefile:1652: net] Error 2
-make[1]: *** Waiting for unfinished jobs....
+Bug: https://gitlab.freedesktop.org/drm/amd/issues/1013
+Signed-off-by: changzhu <Changfeng.Zhu@amd.com>
+Reviewed-by: Huang Rui <ray.huang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+(cherry picked from commit eebc7f4d7ffa09f2a620bd1e2c67ddd579118af9)
+Cc: <stable@vger.kernel.org> # 5.4.x
+---
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-There seems to be already a patch:
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index ab4a0d8545dc..0125ea7c4103 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2923,7 +2923,9 @@ static void gfx_v9_0_init_pg(struct amdgpu_device *adev)
+ 	 * And it's needed by gfxoff feature.
+ 	 */
+ 	if (adev->gfx.rlc.is_rlc_v2_1) {
+-		if (adev->asic_type == CHIP_VEGA12)
++		if (adev->asic_type == CHIP_VEGA12 ||
++		    (adev->asic_type == CHIP_RAVEN &&
++		     adev->rev_id >= 8))
+ 			gfx_v9_1_init_rlc_save_restore_list(adev);
+ 		gfx_v9_0_enable_save_restore_machine(adev);
+ 	}
+-- 
+2.24.1
 
-=09https://lkml.org/lkml/2020/1/7/876
-
-which is not in torvalds tree yet, though.
-
-Just found it by accident, usually =09I do not use HSR.
-
-
-Regards
---=20
-Wolfgang Walter
-Studentenwerk M=FCnchen
-Anstalt des =F6ffentlichen Rechts
