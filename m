@@ -2,91 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00462144389
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 18:45:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B301443DE
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 19:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729080AbgAURp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 12:45:58 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:36082 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728186AbgAURp5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 12:45:57 -0500
-Received: from p5b06da22.dip0.t-ipconnect.de ([91.6.218.34] helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1itxax-0000jZ-CC; Tue, 21 Jan 2020 18:45:43 +0100
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id 8020A1008BE; Tue, 21 Jan 2020 18:45:42 +0100 (CET)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Vipul Kumar <vipulk0511@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        Vipul Kumar <vipulk0511@gmail.com>, x86@kernel.org,
-        Bin Gao <bin.gao@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Len Brown <len.brown@intel.com>,
-        Vipul Kumar <vipul_kumar@mentor.com>
-Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on Intel Bay Trail SoC
-In-Reply-To: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com>
-References: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com>
-Date:   Tue, 21 Jan 2020 18:45:42 +0100
-Message-ID: <87eevs7lfd.fsf@nanos.tec.linutronix.de>
+        id S1729396AbgAUSCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 13:02:03 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:20392 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729080AbgAUSCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 13:02:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579629721;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=SM1Q6+uA9JteDcqaEaarHrXHS5IQuFXAP10+krA66Hs=;
+        b=XmkYjnHYqELwxkGcG48wdbk7oUNQcixGgVotQMMy7lcUzCjiF/xXhHdvABYuh6CIMn3A1f
+        bFfmN+LOQ8Lm3kqlLiLWXqgvKTnRzJyBfB6i3qYDkZavB23aSn4rEi1IRRnjvUpljFq+Ha
+        ZC3FfOSp4dxWBh0SDqJs/g0zeiExJmM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-58-zZd0M29bO7iv8OqeP5_0Qw-1; Tue, 21 Jan 2020 13:01:59 -0500
+X-MC-Unique: zZd0M29bO7iv8OqeP5_0Qw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2CA8E100550E;
+        Tue, 21 Jan 2020 18:01:57 +0000 (UTC)
+Received: from t480s.redhat.com (unknown [10.36.118.56])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BDFC35C1C3;
+        Tue, 21 Jan 2020 18:01:51 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Wei Yang <richard.weiyang@gmail.com>
+Subject: [PATCH for 4.19-stable v2 00/24] mm/memory_hotplug: backport of pending stable fixes
+Date:   Tue, 21 Jan 2020 19:01:26 +0100
+Message-Id: <20200121180150.37454-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=UTF-8
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Vipul,
+This is the backport of the following fixes for 4.19-stable:
 
-Vipul Kumar <vipulk0511@gmail.com> writes:
+- d84f2f5a7552 ("drivers/base/node.c: simplify
+  unregister_memory_block_under_nodes()")
+-- Turned out to not only be a cleanup but also a fix
+- 2c91f8fc6c99 ("mm/memory_hotplug: fix try_offline_node()")
+-- Automatic stable backport failed due to missing dependencies.
+- feee6b298916 ("mm/memory_hotplug: shrink zones when offlining memory")
+-- Was marked as stable 5.0+ due to the backport complexity,, but it's al=
+so
+   relevant for 4.19/4.14. As I have to backport quite some cleanups
+   already ...
 
-> commit f3a02ecebed7 ("x86/tsc: Set TSC_KNOWN_FREQ and TSC_RELIABLE
-> flags on Intel Atom SoCs"), is setting TSC_KNOWN_FREQ and TSC_RELIABLE
-> flags for Soc's which is causing time drift on Valleyview/Bay trail Soc.
+All tackle memory unplug issues, especially when memory was never
+onlined (or onlining failed), paired with memory unplug. When trying to
+access garbage memmaps we crash the kernel (e.g., because the derviced
+pgdat pointer is broken)
 
-This lacks any form of information what the difference is. I asked about
-that before and got no answer.
+To minimize manual code changes, I decided to pull in quite some cleanups=
+.
+Still some manual code changes are necessary (indicated in the individual
+patches). Especially missing arm64 hot(un)plug, missing sub-section hotad=
+d
+support, and missing unification of mm/hmm.c and kernel/memremap.c requir=
+es
+care.
 
-> This patch introduces a new macro to skip these flags.
+Due to:
+- 4e0d2e7ef14d ("mm, sparse: pass nid instead of pgdat to
+  sparse_add_one_section()")
+I need:
+- afe9b36ca890 ("mm/memunmap: don't access uninitialized memmap in
+  memunmap_pages()")
 
-git grep 'This patch' Documentation/process/submitting-patches.rst
+Please note that:
+- 4c4b7f9ba948 ("mm/memory_hotplug: remove memory block devices
+  before arch_remove_memory()")
+Makes big (e.g., 32TB) machines boot up slower (e.g., 2h vs 10m). There i=
+s
+a performance fix in linux-next, but it does not seem to classify as a
+fix for current RC / stable.
 
-> Signed-off-by: Vipul Kumar <vipul_kumar@mentor.com>
-> Cc: stable@vger.kernel.org
+I did quite some testing with hot(un)plug, onlining/offlining of memory
+blocks and memory-less/CPU-less NUMA nodes under x86_64 - the same set of
+tests I run against upstream on a fairly regular basis. I compile-tested
+on PowerPC, arm64, s390x, i386 and sh. I did not test any ZONE_DEVICE/HMM
+thingies.
 
-That stable tag is useless as you already have identied the commit which
-is "Fixed" by your patch.
+v1 -> v2:
+- Fix patch authors
+- Dropped "mm/memory_hotplug: make __remove_pages() and
+  arch_remove_memory() never fail"
+-- Only creates a minor conflict in another patch
+- "mm/memory_hotplug: make remove_memory() take the device_hotplug_lock"
+-- Fix wrong upstream commit id
+- "mm/memory_hotplug: shrink zones when offlining memory"
+- "mm/memunmap: don't access uninitialized memmap in memunmap_pages()"
+-- Fix usage of wrong pfn
 
->  
-> +config X86_FEATURE_TSC_UNKNOWN_FREQ
-> +	bool "Support to skip tsc known frequency flag"
-> +	help
-> +	  Include support to skip X86_FEATURE_TSC_KNOWN_FREQ flag
-> +
-> +	  X86_FEATURE_TSC_KNOWN_FREQ flag is causing time-drift on Valleyview/
-> +	  Baytrail SoC.
-> +	  By selecting this option, user can skip X86_FEATURE_TSC_KNOWN_FREQ
-> +	  flag to use refine tsc freq calibration.
+CCing only some people to minimize noise.
 
-This is exactly the same problem as before. How does anyone aside of you
-know whether to enable this or not?
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Wei Yang <richard.weiyang@gmail.com>
 
-And if someone enables this option then _ALL_ platforms which utilize
-cpu_khz_from_msr() are affected. How is that any different from your
-previous approach? This works on local kernels where you build for a
-specific platform and you know exactly what you're doing, but not for
-general consumption. What should a distro do with this option?
+Aneesh Kumar K.V (2):
+  powerpc/mm: Fix section mismatch warning
+  mm/memunmap: don't access uninitialized memmap in memunmap_pages()
 
-Thanks,
+Baoquan He (1):
+  drivers/base/memory.c: clean up relics in function parameters
 
-        tglx
+Dan Carpenter (1):
+  mm, memory_hotplug: update a comment in unregister_memory()
 
+Dan Williams (1):
+  mm/hotplug: kill is_dev_zone() usage in __remove_pages()
+
+David Hildenbrand (15):
+  mm/memory_hotplug: make remove_memory() take the device_hotplug_lock
+  mm, memory_hotplug: add nid parameter to arch_remove_memory
+  mm/memory_hotplug: make unregister_memory_section() never fail
+  mm/memory_hotplug: make __remove_section() never fail
+  mm/memory_hotplug: make __remove_pages() and arch_remove_memory()
+    never fail
+  s390x/mm: implement arch_remove_memory()
+  mm/memory_hotplug: allow arch_remove_memory() without
+    CONFIG_MEMORY_HOTREMOVE
+  drivers/base/memory: pass a block_id to init_memory_block()
+  mm/memory_hotplug: create memory block devices after arch_add_memory()
+  mm/memory_hotplug: remove memory block devices before
+    arch_remove_memory()
+  mm/memory_hotplug: make unregister_memory_block_under_nodes() never
+    fail
+  mm/memory_hotplug: remove "zone" parameter from
+    sparse_remove_one_section
+  drivers/base/node.c: simplify unregister_memory_block_under_nodes()
+  mm/memory_hotplug: fix try_offline_node()
+  mm/memory_hotplug: shrink zones when offlining memory
+
+Oscar Salvador (1):
+  mm/memory_hotplug: release memory resource after arch_remove_memory()
+
+Wei Yang (3):
+  mm, sparse: drop pgdat_resize_lock in sparse_add/remove_one_section()
+  mm, sparse: pass nid instead of pgdat to sparse_add_one_section()
+  drivers/base/memory.c: remove an unnecessary check on NR_MEM_SECTIONS
+
+ arch/ia64/mm/init.c                           |  15 +-
+ arch/powerpc/mm/mem.c                         |  25 +--
+ arch/powerpc/platforms/powernv/memtrace.c     |   2 +-
+ .../platforms/pseries/hotplug-memory.c        |   6 +-
+ arch/s390/mm/init.c                           |  16 +-
+ arch/sh/mm/init.c                             |  15 +-
+ arch/x86/mm/init_32.c                         |   9 +-
+ arch/x86/mm/init_64.c                         |  17 +-
+ drivers/acpi/acpi_memhotplug.c                |   2 +-
+ drivers/base/memory.c                         | 203 +++++++++++-------
+ drivers/base/node.c                           |  52 ++---
+ include/linux/memory.h                        |   8 +-
+ include/linux/memory_hotplug.h                |  22 +-
+ include/linux/mmzone.h                        |   3 +-
+ include/linux/node.h                          |   7 +-
+ kernel/memremap.c                             |  12 +-
+ mm/hmm.c                                      |   8 +-
+ mm/memory_hotplug.c                           | 166 +++++++-------
+ mm/sparse.c                                   |  27 +--
+ 19 files changed, 303 insertions(+), 312 deletions(-)
+
+--=20
+2.24.1
 
