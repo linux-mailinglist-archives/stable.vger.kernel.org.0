@@ -2,95 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC381144022
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 16:06:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A311514406D
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 16:24:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728896AbgAUPGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 10:06:23 -0500
-Received: from bombadil.infradead.org ([198.137.202.133]:37956 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727508AbgAUPGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 10:06:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=TYcI2J8+m5fI6D2lTz5Hy7Lgm04gjVpXRrOJfqIDEpY=; b=P/Gk+XxY85kqGawYZuTlwb04D
-        lJPsnSqZ6Q0IsXXYe8eEu8+4wzk8p9J3AoLaCLSgDQO83C0s0WrdmDfzBnXUxPhX0YMlRpvvGT2vv
-        N1fCR1C4Ef7KxqIkCEnmS1fUfg8uZ04aI+ekCBtcZwq+jl1giiMZ4nOD6Fa4gVyEH2G2RB954uAaD
-        juntudQbuI5dTwiJubdvFwbm+F60uBajhdR237MkYoNOz890xcaTvuLrlwXrt1NMobwF5/N6QiW92
-        8xPojBIKC0Yw7Qs/kvZglBJei9iqYTuRYQdmc7FEL8jY7BAC+FivaNDinOre4MNUoLD62sHJIgngD
-        RYIi/6V3Q==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1itv6V-0004uo-9L; Tue, 21 Jan 2020 15:06:07 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id DF71F305D3F;
-        Tue, 21 Jan 2020 16:04:25 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 11A8E20983FC2; Tue, 21 Jan 2020 16:06:05 +0100 (CET)
-Date:   Tue, 21 Jan 2020 16:06:05 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Toke =?iso-8859-1?Q?H=F8iland-J=F8rgensen?= <thoiland@redhat.com>,
-        Jean-Tsung Hsiao <jhsiao@redhat.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: Re: [for-linus][PATCH 2/5] tracing/uprobe: Fix double perf_event
- linking on multiprobe uprobe
-Message-ID: <20200121150605.GT14879@hirez.programming.kicks-ass.net>
-References: <20200121143847.609307852@goodmis.org>
- <20200121143956.600928887@goodmis.org>
- <20200121145009.GR14879@hirez.programming.kicks-ass.net>
- <bd3126fff15641098af2a4ac2164f3c4@AcuMS.aculab.com>
+        id S1729162AbgAUPYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 10:24:41 -0500
+Received: from mga06.intel.com ([134.134.136.31]:50642 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727508AbgAUPYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jan 2020 10:24:41 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Jan 2020 07:24:40 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,346,1574150400"; 
+   d="scan'208";a="220949034"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by fmsmga007.fm.intel.com with ESMTP; 21 Jan 2020 07:24:37 -0800
+Received: from andy by smile with local (Exim 4.93)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1itvOL-0007Xj-PW; Tue, 21 Jan 2020 17:24:33 +0200
+Date:   Tue, 21 Jan 2020 17:24:33 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Vipul Kumar <vipulk0511@gmail.com>
+Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
+        Srikanth Krishnakar <Srikanth_Krishnakar@mentor.com>,
+        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
+        x86@kernel.org, Bin Gao <bin.gao@linux.intel.com>,
+        Len Brown <len.brown@intel.com>,
+        Vipul Kumar <vipul_kumar@mentor.com>
+Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on
+ Intel Bay Trail SoC
+Message-ID: <20200121152433.GW32742@smile.fi.intel.com>
+References: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bd3126fff15641098af2a4ac2164f3c4@AcuMS.aculab.com>
+In-Reply-To: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 21, 2020 at 02:59:35PM +0000, David Laight wrote:
-> From: Peter Zijlstra
-> > Sent: 21 January 2020 14:50
-> > On Tue, Jan 21, 2020 at 09:38:49AM -0500, Steven Rostedt wrote:
-> > > diff --git a/kernel/trace/trace_probe.h b/kernel/trace/trace_probe.h
-> > > index 4ee703728aec..03e4e180058d 100644
-> > > --- a/kernel/trace/trace_probe.h
-> > > +++ b/kernel/trace/trace_probe.h
-> > > @@ -230,6 +230,7 @@ struct trace_probe_event {
-> > >  	struct trace_event_call		call;
-> > >  	struct list_head 		files;
-> > >  	struct list_head		probes;
-> > > +	char				data[0];
-> > >  };
-> > 
-> > Note that this relies on pure 'luck'. If you stick anything <4 bytes in
-> > between the list_head and the data member it'll come unstuck real fast.
+On Tue, Jan 21, 2020 at 08:11:57PM +0530, Vipul Kumar wrote:
+> From: Vipul Kumar <vipul_kumar@mentor.com>
 > 
-> Can you fix it by adding an unnamed struct as in:
+> commit f3a02ecebed7 ("x86/tsc: Set TSC_KNOWN_FREQ and TSC_RELIABLE
+> flags on Intel Atom SoCs"), is setting TSC_KNOWN_FREQ and TSC_RELIABLE
+> flags for Soc's which is causing time drift on Valleyview/Bay trail Soc.
+> 
+> This patch introduces a new macro to skip these flags.
 
-The trivial fix is like I suggested in the other thread:
+I guess commit message still needs to provide the measurements
+for the both with and without the option being selected.
 
-	struct trace_uprobe_filter filters[0];
+-- 
+With Best Regards,
+Andy Shevchenko
 
-The alternative that Masami-San suggested should also work.
+
