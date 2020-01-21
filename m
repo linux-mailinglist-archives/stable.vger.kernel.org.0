@@ -2,136 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A39143878
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 09:41:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E78E8143919
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 10:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727312AbgAUIko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 03:40:44 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:32847 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727255AbgAUIko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 03:40:44 -0500
-Received: by mail-wm1-f66.google.com with SMTP id d139so1591605wmd.0;
-        Tue, 21 Jan 2020 00:40:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=mlOECQ7CcQkzAwbpkxm8GkUs0tDU/ThJ8gW1i6BlUtI=;
-        b=GmESNmmxJe1Xalyt4uWbfMS8TvPJG4siJNsHMacKmFQRSnZc+WoL1J/Z4d7dDO7UIR
-         38PpiXPnuTQqOEaZuDrswCtBBXHzoOYp11hXrVoABP4q6hs+qAj8vVMcJ9OICHHeNzag
-         H/W8Em2Y1oVzTSXsf+uUn/NUExGYFaiV2rr0GuU5/AfINDvlIYPkgloehiFTidUDTPCQ
-         ISkqESHQoZ7IGT8RT2KiuP7cepeNKREkcTNRx6OsyrnyZ15ILDaBJaq3nQEp6Z5D3XTQ
-         rHl6oL7apaCXepW0RQ0VPN9iH7kJhRpF7+WvqirERaupMSHPT6vk60adJNVpmUNJZvhc
-         UzUA==
-X-Gm-Message-State: APjAAAX/srXfHU0OP+3vK1Bac1eJpLzDury7lgSkm+SAv/BE9waEaML+
-        tf75td5pexHrfe8zNfgpR9M=
-X-Google-Smtp-Source: APXvYqxmo87LjwWCnCYhoNAvperR/n4gqhmQOwBxDxX5GOh/KMVdsccSINDsGl9fzEDtrfht0x7yYw==
-X-Received: by 2002:a7b:c8cd:: with SMTP id f13mr3116009wml.18.1579596042020;
-        Tue, 21 Jan 2020 00:40:42 -0800 (PST)
-Received: from localhost (prg-ext-pat.suse.com. [213.151.95.130])
-        by smtp.gmail.com with ESMTPSA id q3sm2855681wmc.47.2020.01.21.00.40.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jan 2020 00:40:41 -0800 (PST)
-Date:   Tue, 21 Jan 2020 09:40:40 +0100
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Wei Yang <richardw.yang@linux.intel.com>
-Cc:     Yang Shi <yang.shi@linux.alibaba.com>, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] mm: move_pages: fix the return value if there are
- not-migrated pages
-Message-ID: <20200121084040.GC29276@dhcp22.suse.cz>
-References: <1579325203-16405-1-git-send-email-yang.shi@linux.alibaba.com>
- <20200120130624.GD18451@dhcp22.suse.cz>
- <20200120131744.GE18451@dhcp22.suse.cz>
- <20200121014416.GC1567@richard>
+        id S1729076AbgAUJHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 04:07:37 -0500
+Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:58305 "EHLO
+        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728816AbgAUJHh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 04:07:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1579597656; x=1611133656;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=xxUKV6eYs53CctdQJsRE86nf14teuaNxvJM6Mv3hu9E=;
+  b=lUFLTnEpNtPqKkcqP0P5eScYn7+kjSqvUI88pRfhTPE+STFTBrDAJ0fD
+   01J42+PwWYoBmElmhbPJ1TM6NGe7sDWLfFvyI9MhMcHukuNQ0I1bQiN2L
+   rKl688xGxYgRAa6EvD250OOx3pCVtiqbmrZq0V9Q37wLKaM8kflSPs6mH
+   A=;
+IronPort-SDR: aBkEAAS/9ty2ykz38l03NWTrPw/FI8gZO+Qhb8tyaE4ANF7W03kBYS5pYwXQwohV/wgwVokz7I
+ vGm1E9HRjnrg==
+X-IronPort-AV: E=Sophos;i="5.70,345,1574121600"; 
+   d="scan'208";a="13990018"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1d-f273de60.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 21 Jan 2020 09:07:35 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan2.iad.amazon.com [10.40.159.162])
+        by email-inbound-relay-1d-f273de60.us-east-1.amazon.com (Postfix) with ESMTPS id 19757A18F8;
+        Tue, 21 Jan 2020 09:07:32 +0000 (UTC)
+Received: from EX13D19EUB003.ant.amazon.com (10.43.166.69) by
+ EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
+ id 15.0.1236.3; Tue, 21 Jan 2020 09:07:30 +0000
+Received: from 8c85908914bf.ant.amazon.com (10.43.161.253) by
+ EX13D19EUB003.ant.amazon.com (10.43.166.69) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Tue, 21 Jan 2020 09:07:26 +0000
+Subject: Re: [PATCH for-rc] Revert "RDMA/efa: Use API to get contiguous memory
+ blocks aligned to device supported page size"
+To:     Shiraz Saleem <shiraz.saleem@intel.com>
+CC:     Jason Gunthorpe <jgg@ziepe.ca>, Doug Ledford <dledford@redhat.com>,
+        <linux-rdma@vger.kernel.org>,
+        Alexander Matushevsky <matua@amazon.com>,
+        <stable@vger.kernel.org>, "Leybovich, Yossi" <sleybo@amazon.com>
+References: <20200120141001.63544-1-galpress@amazon.com>
+From:   Gal Pressman <galpress@amazon.com>
+Message-ID: <0557a917-b6ad-1be7-e46b-cbe08f2ee4d3@amazon.com>
+Date:   Tue, 21 Jan 2020 11:07:21 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0)
+ Gecko/20100101 Thunderbird/68.3.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200121014416.GC1567@richard>
+In-Reply-To: <20200120141001.63544-1-galpress@amazon.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.43.161.253]
+X-ClientProxiedBy: EX13D08UWB003.ant.amazon.com (10.43.161.186) To
+ EX13D19EUB003.ant.amazon.com (10.43.166.69)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 21-01-20 09:44:16, Wei Yang wrote:
-> On Mon, Jan 20, 2020 at 02:17:44PM +0100, Michal Hocko wrote:
-> >On Mon 20-01-20 14:06:26, Michal Hocko wrote:
-> >> On Sat 18-01-20 13:26:43, Yang Shi wrote:
-> >> > The do_move_pages_to_node() might return > 0 value, the number of pages
-> >> > that are not migrated, then the value will be returned to userspace
-> >> > directly.  But, move_pages() syscall would just return 0 or errno.  So,
-> >> > we need reset the return value to 0 for such case as what pre-v4.17 did.
-> >> 
-> >> The patch is wrong. migrate_pages returns the number of pages it
-> >> _hasn't_ migrated or -errno. Yeah that semantic sucks but...
-> >> So err != 0 is always an error. Except err > 0 doesn't really provide
-> >> any useful information to the userspace. I cannot really remember what
-> >> was the actual behavior before my rework because there were some gotchas
-> >> hidden there.
-> >
-> >OK, so I've double checked. do_move_page_to_node_array would carry the
-> >error code over to do_pages_move and it would store the status stored
-> >in the pm array. It contains page_to_nid(page) so the resulting code
-> >indeed behaves properly before my change and this is a regression. I
+On 20/01/2020 16:10, Gal Pressman wrote:
+> The cited commit leads to register MR failures and random hangs when
+> running different MPI applications. The exact root cause for the issue
+> is still not clear, this revert brings us back to a stable state.
 > 
-> Thanks, I see the change.
+> This reverts commit 40ddb3f020834f9afb7aab31385994811f4db259.
 > 
-> >have a very vague recollection that this has been brought up already.
-> ><...looks in notes...>
-> >Found it! The report is
-> >http://lkml.kernel.org/r/0329efa0984b9b0252ef166abb4498c0795fab36.1535113317.git.jstancek@redhat.com
-> >and my proposed workaround was http://lkml.kernel.org/r/20180829145537.GZ10223@dhcp22.suse.cz
-> 
-> Well, the above two links return 404.
+> Fixes: 40ddb3f02083 ("RDMA/efa: Use API to get contiguous memory blocks aligned to device supported page size")
+> Cc: Shiraz Saleem <shiraz.saleem@intel.com>
+> Cc: stable@vger.kernel.org # 5.3
+> Signed-off-by: Gal Pressman <galpress@amazon.com>
 
-You are right. They are not archived for some reason. Anyway, the patch
-I was proposing back then is below:
+Shiraz, I think I found the root cause here.
+I'm noticing a register MR of size 32k, which is constructed from two sges, the
+first sge of size 12k and the second of 20k.
 
-commit cfb88c266b645197135cde2905c2bfc82f6d82a9
-Author: Michal Hocko <mhocko@suse.com>
-Date:   Wed Nov 14 12:19:09 2018 +0100
+ib_umem_find_best_pgsz returns page shift 13 in the following way:
 
-    mm: fix do_pages_move error reporting
-    
-    a49bd4d71637 ("mm, numa: rework do_pages_move") has changed the way how
-    we report error to layers above. As the changelog mentioned the semantic
-    was quite unclear previously because the return 0 could mean both
-    success and failure.
-    
-    The above mentioned commit didn't get all the way down to fix this
-    completely because it doesn't report pages that we even haven't
-    attempted to migrate and therefore we cannot simply say that the
-    semantic is:
-    - err < 0 - errno
-    - err >= 0 number of non-migrated pages.
-    
-    Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
-    Signed-off-by: Michal Hocko <mhocko@suse.com>
+0x103dcb2000      0x103dcb5000       0x103dd5d000           0x103dd62000
+          +----------+                      +------------------+
+          |          |                      |                  |
+          |  12k     |                      |     20k          |
+          +----------+                      +------------------+
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index f7e4bfdc13b7..aa53ebc523eb 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -1615,8 +1615,16 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
- 			goto out_flush;
- 
- 		err = do_move_pages_to_node(mm, &pagelist, current_node);
--		if (err)
-+		if (err) {
-+			/*
-+			 * Possitive err means the number of failed pages to
-+			 * migrate. Make sure to report the rest of the
-+			 * nr_pages is not migrated as well.
-+			 */
-+			if (err > 0)
-+				err += nr_pages - i - 1;
- 			goto out;
-+		}
- 		if (i > start) {
- 			err = store_status(status, start, current_node, i - start);
- 			if (err)
--- 
-Michal Hocko
-SUSE Labs
+          +------+------+                 +------+------+------+
+          |      |      |                 |      |      |      |
+          | 8k   | 8k   |                 | 8k   | 8k   | 8k   |
+          +------+------+                 +------+------+------+
+0x103dcb2000       0x103dcb6000   0x103dd5c000              0x103dd62000
+
+
+The top row is the original umem sgl, and the bottom is the sgl constructed by
+rdma_for_each_block with page size of 8k.
+
+Is this the expected output? The 8k pages cover addresses which aren't part of
+the MR. This breaks some of the assumptions in the driver (for example, the way
+we calculate the number of pages in the MR) and I'm not sure our device can
+handle such sgl.
