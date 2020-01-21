@@ -2,104 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B9B81437EB
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 08:56:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62A39143878
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 09:41:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728093AbgAUH4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 02:56:01 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:60067 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725789AbgAUH4B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 02:56:01 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 98F2E4F2;
-        Tue, 21 Jan 2020 02:55:59 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Tue, 21 Jan 2020 02:56:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anarazel.de; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=pjxZsKCHbYV+yWcufdKiS+2H1Vi
-        vNWsEeVgpRIYcua0=; b=cePp5eFUsZbD1x7hkhLArAVzW3z1ljH2udoAgAab3Rv
-        LbzYwgzpRAAWsBnM4QOLAUXA1c+AOsrzNd3RX1v8cMK+XNodY0WpaPtRrzUJzHVL
-        UsOUgyGoxp05O5dVFhJcIOe6MjLKHFnR2pll3AHlAdkw/kGWjhHNSmYIc6k6USLR
-        pur+ND7wvXzN4DgegWj5aCw7C2pIH3lM1r4OKnoUDs6B0GLDz1HDIjTkh69Tniau
-        Mu3KSLA9uarJumjptVjf0VGJXnwQTMKGYRQP+dSU0yAJyUUjrgeT+H188OffAT7y
-        XlaDs6uXukcQPRxOdVG62IY8vkvT9AbcTh2LruTK0WA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=pjxZsK
-        CHbYV+yWcufdKiS+2H1VivNWsEeVgpRIYcua0=; b=kcLnRYPNByO9PYuwfDQJGO
-        5RaYtZShyy3HybsdC+3khcqn4EdABmii0lVXaNsZcrTG/PNgsIW/KJjJORUvm57O
-        s5bRL7FxBK0M3e6cLTEjQGsZ2fPB7XgtnW7/E01hOtwiGrdUnlW65Ah7rQocv0eC
-        Fjpb0qjPuNH7TbDs+TWVslB4VlrsCBMsQ7EpQI+s4tar8pLAzNSw6EczwC7ipeti
-        zFWlE70kb7xCWPYlUhiqyhgahhXqTu8AetI7QqI01jYsSwApWpcsPSWwPerHt5eh
-        S3WJwvM2r50QpBzAGXXPXFfkML4OK2hL4cOMkCLlQ3rxEcCS/X8hedgWr75WdC1w
-        ==
-X-ME-Sender: <xms:jq4mXqNSKjlAzGUkjADRd7aLQQ-E3BLiB8aeZeeegTaBwnh7a0Q7NA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudejgdduuddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeetnhgurhgv
-    shcuhfhrvghunhguuceorghnughrvghssegrnhgrrhgriigvlhdruggvqeenucffohhmrg
-    hinhepvddutddrhhhofienucfkphepieejrdduiedtrddvudejrddvhedtnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghnughrvghssegrnh
-    grrhgriigvlhdruggv
-X-ME-Proxy: <xmx:jq4mXhb8Si7d-PNXy98TxEBf-7yp2nNC1T3mi9Yn0jT8T3GW3YMj4w>
-    <xmx:jq4mXhuJnnBSMq31fC_Yew5OCWk_OsLTE9Yd6dko8QGkkM81zWfS2Q>
-    <xmx:jq4mXrNxCJiQZTmqD-fmDxRF8iXJR7wVlpM51P2-2UMDjxOZQK050A>
-    <xmx:j64mXrPxZzMGak80u5S2dNbRkRXw1SCHEnNecmq5KYIO4bHbU21NZA>
-Received: from intern.anarazel.de (c-67-160-217-250.hsd1.ca.comcast.net [67.160.217.250])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C311C328005E;
-        Tue, 21 Jan 2020 02:55:58 -0500 (EST)
-Date:   Mon, 20 Jan 2020 23:55:58 -0800
-From:   Andres Freund <andres@anarazel.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 11/12] perf c2c: Fix return type for histogram sorting
- comparision functions
-Message-ID: <20200121075558.qltcuwr464tzvfrw@alap3.anarazel.de>
-References: <20200116134814.8811-12-acme@kernel.org>
- <20200119152655.A692A20679@mail.kernel.org>
+        id S1727312AbgAUIko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 03:40:44 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:32847 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727255AbgAUIko (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 03:40:44 -0500
+Received: by mail-wm1-f66.google.com with SMTP id d139so1591605wmd.0;
+        Tue, 21 Jan 2020 00:40:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=mlOECQ7CcQkzAwbpkxm8GkUs0tDU/ThJ8gW1i6BlUtI=;
+        b=GmESNmmxJe1Xalyt4uWbfMS8TvPJG4siJNsHMacKmFQRSnZc+WoL1J/Z4d7dDO7UIR
+         38PpiXPnuTQqOEaZuDrswCtBBXHzoOYp11hXrVoABP4q6hs+qAj8vVMcJ9OICHHeNzag
+         H/W8Em2Y1oVzTSXsf+uUn/NUExGYFaiV2rr0GuU5/AfINDvlIYPkgloehiFTidUDTPCQ
+         ISkqESHQoZ7IGT8RT2KiuP7cepeNKREkcTNRx6OsyrnyZ15ILDaBJaq3nQEp6Z5D3XTQ
+         rHl6oL7apaCXepW0RQ0VPN9iH7kJhRpF7+WvqirERaupMSHPT6vk60adJNVpmUNJZvhc
+         UzUA==
+X-Gm-Message-State: APjAAAX/srXfHU0OP+3vK1Bac1eJpLzDury7lgSkm+SAv/BE9waEaML+
+        tf75td5pexHrfe8zNfgpR9M=
+X-Google-Smtp-Source: APXvYqxmo87LjwWCnCYhoNAvperR/n4gqhmQOwBxDxX5GOh/KMVdsccSINDsGl9fzEDtrfht0x7yYw==
+X-Received: by 2002:a7b:c8cd:: with SMTP id f13mr3116009wml.18.1579596042020;
+        Tue, 21 Jan 2020 00:40:42 -0800 (PST)
+Received: from localhost (prg-ext-pat.suse.com. [213.151.95.130])
+        by smtp.gmail.com with ESMTPSA id q3sm2855681wmc.47.2020.01.21.00.40.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jan 2020 00:40:41 -0800 (PST)
+Date:   Tue, 21 Jan 2020 09:40:40 +0100
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Wei Yang <richardw.yang@linux.intel.com>
+Cc:     Yang Shi <yang.shi@linux.alibaba.com>, akpm@linux-foundation.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] mm: move_pages: fix the return value if there are
+ not-migrated pages
+Message-ID: <20200121084040.GC29276@dhcp22.suse.cz>
+References: <1579325203-16405-1-git-send-email-yang.shi@linux.alibaba.com>
+ <20200120130624.GD18451@dhcp22.suse.cz>
+ <20200120131744.GE18451@dhcp22.suse.cz>
+ <20200121014416.GC1567@richard>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200119152655.A692A20679@mail.kernel.org>
+In-Reply-To: <20200121014416.GC1567@richard>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On 2020-01-19 15:26:54 +0000, Sasha Levin wrote:
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: 722ddfde366f ("perf tools: Fix time sorting").
-
-> The bot has tested the following trees: v5.4.13, v4.19.97, v4.14.166, v4.9.210, v4.4.210.
+On Tue 21-01-20 09:44:16, Wei Yang wrote:
+> On Mon, Jan 20, 2020 at 02:17:44PM +0100, Michal Hocko wrote:
+> >On Mon 20-01-20 14:06:26, Michal Hocko wrote:
+> >> On Sat 18-01-20 13:26:43, Yang Shi wrote:
+> >> > The do_move_pages_to_node() might return > 0 value, the number of pages
+> >> > that are not migrated, then the value will be returned to userspace
+> >> > directly.  But, move_pages() syscall would just return 0 or errno.  So,
+> >> > we need reset the return value to 0 for such case as what pre-v4.17 did.
+> >> 
+> >> The patch is wrong. migrate_pages returns the number of pages it
+> >> _hasn't_ migrated or -errno. Yeah that semantic sucks but...
+> >> So err != 0 is always an error. Except err > 0 doesn't really provide
+> >> any useful information to the userspace. I cannot really remember what
+> >> was the actual behavior before my rework because there were some gotchas
+> >> hidden there.
+> >
+> >OK, so I've double checked. do_move_page_to_node_array would carry the
+> >error code over to do_pages_move and it would store the status stored
+> >in the pm array. It contains page_to_nid(page) so the resulting code
+> >indeed behaves properly before my change and this is a regression. I
 > 
-> How should we proceed with this patch?
+> Thanks, I see the change.
 > 
-> v5.4.13: Build OK!
-> v4.19.97: Build OK!
-> v4.14.166: Build OK!
-> v4.9.210: Failed to apply! Possible dependencies:
->     7aef3bf3daa1 ("perf c2c: Add c2c command")
+> >have a very vague recollection that this has been brought up already.
+> ><...looks in notes...>
+> >Found it! The report is
+> >http://lkml.kernel.org/r/0329efa0984b9b0252ef166abb4498c0795fab36.1535113317.git.jstancek@redhat.com
+> >and my proposed workaround was http://lkml.kernel.org/r/20180829145537.GZ10223@dhcp22.suse.cz
+> 
+> Well, the above two links return 404.
 
-> v4.4.210: Failed to apply! Possible dependencies:
->     7aef3bf3daa1 ("perf c2c: Add c2c command")
+You are right. They are not archived for some reason. Anyway, the patch
+I was proposing back then is below:
 
-Looks like it doesn't need to be backpatched to the failing
-branches. "Fixes" was approximate here anyway, since that commit just
-exposed a pre-existing coding bug, that was masked by the fix in
-722ddfde366f. And since 4.9/4.4 don't have c2c at all, there's nothing
-to fix.
+commit cfb88c266b645197135cde2905c2bfc82f6d82a9
+Author: Michal Hocko <mhocko@suse.com>
+Date:   Wed Nov 14 12:19:09 2018 +0100
 
-Greetings,
+    mm: fix do_pages_move error reporting
+    
+    a49bd4d71637 ("mm, numa: rework do_pages_move") has changed the way how
+    we report error to layers above. As the changelog mentioned the semantic
+    was quite unclear previously because the return 0 could mean both
+    success and failure.
+    
+    The above mentioned commit didn't get all the way down to fix this
+    completely because it doesn't report pages that we even haven't
+    attempted to migrate and therefore we cannot simply say that the
+    semantic is:
+    - err < 0 - errno
+    - err >= 0 number of non-migrated pages.
+    
+    Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
+    Signed-off-by: Michal Hocko <mhocko@suse.com>
 
-Andres Freund
+diff --git a/mm/migrate.c b/mm/migrate.c
+index f7e4bfdc13b7..aa53ebc523eb 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -1615,8 +1615,16 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+ 			goto out_flush;
+ 
+ 		err = do_move_pages_to_node(mm, &pagelist, current_node);
+-		if (err)
++		if (err) {
++			/*
++			 * Possitive err means the number of failed pages to
++			 * migrate. Make sure to report the rest of the
++			 * nr_pages is not migrated as well.
++			 */
++			if (err > 0)
++				err += nr_pages - i - 1;
+ 			goto out;
++		}
+ 		if (i > start) {
+ 			err = store_status(status, start, current_node, i - start);
+ 			if (err)
+-- 
+Michal Hocko
+SUSE Labs
