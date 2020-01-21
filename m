@@ -2,122 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5C361434DA
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 01:47:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAD6E143552
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 02:44:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727045AbgAUAry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 19:47:54 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46962 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727009AbgAUAry (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 19:47:54 -0500
-Received: by mail-wr1-f65.google.com with SMTP id z7so1329541wrl.13
-        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 16:47:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=yxNVTigx7RjcxB97RncCUH2FitTWgTntOugJWBkeSBE=;
-        b=aahGv7b670nBwERxfe/azeE+ieA3cIARM8ZuNupA7UjyklAkghyDEtU9TCA1/9WvKn
-         M3WKCA9AmzT8tao9qJHmjLIua3MH8pgmNYLs79OR9cWlZAxnlxXFVsZgqEJnZukEgZco
-         gqxEShdsNQuw0QUdHgQHmmggcTaoYnuDV4/svhGIvNtFSJGXf9LK97oTssFY5TSauqFK
-         jACKkCkeH5gSLo6elErTyO6g0mOblGAAwc7sdyeFm9Vudf+gRBE5yHc9nSMbM77+Nenk
-         vW0A9KawfAeei6ehenm1Jo+9OE+obCqFqbM/+5a7BjNJcn1Gmdi330xM6PI124kMt+p/
-         IC6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=yxNVTigx7RjcxB97RncCUH2FitTWgTntOugJWBkeSBE=;
-        b=RfLvRIXXPYOkHyNgfCFnDFyWPf1wYoSXwh1K97Z25Fh0YN2qwuaeFThJKlTPKzy2xU
-         LlKRfOf2jcqDauYevGDIumu3UO5kB/c99xkl90qZ+EocrTIm/m+lIORPBd8J8vah5+uX
-         SUj4HZRVt0sGzhOOwshbZafrVmDPekDLUH4GVdM/f+n7ai1Sntucc1HYdND+3tKAA+5i
-         sqJ/MNJMViiUSXMTY1XEwThlFOXMzD+hobdUNG8W6xuyLyb08/KHvGTHeN+XGafDubMz
-         W9SZkow4fN+zew/4xJ08FiqISFcKEDvJakxALaTtl0IIUEyTi1kJs5670UtsARc7hJfZ
-         F9aQ==
-X-Gm-Message-State: APjAAAW0jL+8vbchUOIG8eqT71wSXwkL76yhvobdQ+Se7vh01zNZeSk7
-        irn2i8JxRWymZAsvByJNrOI/NXUZRDbBwQ==
-X-Google-Smtp-Source: APXvYqyWBxhODlORpQUdaUYKlvwzkdibi5q7CIbP6y6qtx3BrICRdfnl0YOPXT1DiqeC4TKtg65S2w==
-X-Received: by 2002:adf:f3d1:: with SMTP id g17mr1961934wrp.378.1579567672180;
-        Mon, 20 Jan 2020 16:47:52 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n3sm47046863wrs.8.2020.01.20.16.47.51
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jan 2020 16:47:51 -0800 (PST)
-Message-ID: <5e264a37.1c69fb81.917b5.e132@mx.google.com>
-Date:   Mon, 20 Jan 2020 16:47:51 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727009AbgAUBoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 20:44:08 -0500
+Received: from mga18.intel.com ([134.134.136.126]:63155 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726935AbgAUBoI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Jan 2020 20:44:08 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Jan 2020 17:44:08 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,344,1574150400"; 
+   d="scan'208";a="307056935"
+Received: from richard.sh.intel.com (HELO localhost) ([10.239.159.54])
+  by orsmga001.jf.intel.com with ESMTP; 20 Jan 2020 17:44:05 -0800
+Date:   Tue, 21 Jan 2020 09:44:16 +0800
+From:   Wei Yang <richardw.yang@linux.intel.com>
+To:     Michal Hocko <mhocko@kernel.org>
+Cc:     Yang Shi <yang.shi@linux.alibaba.com>,
+        richardw.yang@linux.intel.com, akpm@linux-foundation.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] mm: move_pages: fix the return value if there are
+ not-migrated pages
+Message-ID: <20200121014416.GC1567@richard>
+Reply-To: Wei Yang <richardw.yang@linux.intel.com>
+References: <1579325203-16405-1-git-send-email-yang.shi@linux.alibaba.com>
+ <20200120130624.GD18451@dhcp22.suse.cz>
+ <20200120131744.GE18451@dhcp22.suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.166-41-g9accc54d9689
-Subject: stable-rc/linux-4.14.y boot: 107 boots: 1 failed,
- 96 passed with 9 offline, 1 untried/unknown (v4.14.166-41-g9accc54d9689)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200120131744.GE18451@dhcp22.suse.cz>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 107 boots: 1 failed, 96 passed with 9 offline,=
- 1 untried/unknown (v4.14.166-41-g9accc54d9689)
+On Mon, Jan 20, 2020 at 02:17:44PM +0100, Michal Hocko wrote:
+>On Mon 20-01-20 14:06:26, Michal Hocko wrote:
+>> On Sat 18-01-20 13:26:43, Yang Shi wrote:
+>> > The do_move_pages_to_node() might return > 0 value, the number of pages
+>> > that are not migrated, then the value will be returned to userspace
+>> > directly.  But, move_pages() syscall would just return 0 or errno.  So,
+>> > we need reset the return value to 0 for such case as what pre-v4.17 did.
+>> 
+>> The patch is wrong. migrate_pages returns the number of pages it
+>> _hasn't_ migrated or -errno. Yeah that semantic sucks but...
+>> So err != 0 is always an error. Except err > 0 doesn't really provide
+>> any useful information to the userspace. I cannot really remember what
+>> was the actual behavior before my rework because there were some gotchas
+>> hidden there.
+>
+>OK, so I've double checked. do_move_page_to_node_array would carry the
+>error code over to do_pages_move and it would store the status stored
+>in the pm array. It contains page_to_nid(page) so the resulting code
+>indeed behaves properly before my change and this is a regression. I
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.166-41-g9accc54d9689/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.166-41-g9accc54d9689/
+Thanks, I see the change.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.166-41-g9accc54d9689
-Git Commit: 9accc54d96898b2e3dd6c27ffcb36db40e2dff13
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 62 unique boards, 20 SoC families, 14 builds out of 198
+>have a very vague recollection that this has been brought up already.
+><...looks in notes...>
+>Found it! The report is
+>http://lkml.kernel.org/r/0329efa0984b9b0252ef166abb4498c0795fab36.1535113317.git.jstancek@redhat.com
+>and my proposed workaround was http://lkml.kernel.org/r/20180829145537.GZ10223@dhcp22.suse.cz
 
-Boot Failure Detected:
+Well, the above two links return 404.
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
+>
+>> If you want to fix this properly then you have to query node status of
+>> each page unmigrated when migrate_pages fails with > 0. This would be
+>> easier if the fix is done on the latest cleanup posted to the list which
+>> consolidates all do_move_pages_to_node and store_status calls to a
+>> single function.
+>
+>Sorry forgot to put a reference to the patch: http://lkml.kernel.org/r/20200119030636.11899-5-richardw.yang@linux.intel.com
+>
+>-- 
+>Michal Hocko
+>SUSE Labs
 
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            juno-r2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Wei Yang
+Help you, Help me
