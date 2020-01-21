@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DCD01435B8
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 03:36:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4EC01435BB
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 03:40:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726935AbgAUCgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Jan 2020 21:36:32 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:37475 "EHLO
+        id S1729043AbgAUCkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Jan 2020 21:40:41 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:44251 "EHLO
         mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726890AbgAUCgc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 21:36:32 -0500
-Received: by mail-lf1-f65.google.com with SMTP id b15so915683lfc.4
-        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 18:36:30 -0800 (PST)
+        with ESMTP id S1727829AbgAUCkl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Jan 2020 21:40:41 -0500
+Received: by mail-lf1-f65.google.com with SMTP id v201so880168lfa.11
+        for <stable@vger.kernel.org>; Mon, 20 Jan 2020 18:40:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:from:date:message-id:subject:to:cc
          :content-transfer-encoding;
-        bh=b60dkj/rL5SXirIPU8PUvzqJ6kZipXx0K/BtQImcJUQ=;
-        b=YNAH/f0bhDuHg60vApXLsTyRWKQiCGP2/vehet6SzcaPU5Fye8rhXEOxM+pTkIy0bo
-         +l7wOjoNzGfMYCIwBAycT1Aaz0G9437XhnT1ogCUI/snrUb8DcvTgw03GBoSRASep+vc
-         Op+mVELx58RrMFq7ttOG4usZWxeoz2UmuBFtfTEXIH5NJZ0Y6XFmC3CncebXxQ4EObj9
-         Zj0wXzzU7XbmFArZhlO8cYyNLU/VuzmYJfokmGXb6gnP0gPLcaOwhCi9MTJBBXUOxXvl
-         29tykDaB9+LwlFSywE1DcFVKAAkuUSHdd69lzdIp+dB3ZazPEusiW1tJJeVqH3P9xg3/
-         lymw==
+        bh=mEYxaeaD/ni9fI5N0R8AkjO6yBJXlHCq9B1gsIiALFs=;
+        b=XMrKjoj6wlzusgFAHvx7zB+LhLueiEpHbL7Df0EOuzIYYj/9lV+mfjhd5D3yFL2UTn
+         BIcG0i7dYUxa8oCwvbiAsJPCQVYzbMCc7KrtOKZ+V+uQvTJhkspz74Izex8v5WRTfa3U
+         D5ZtXemt26wiq3IuG+I6i/mnEZx3QsUYcUBPJq8aR/nyYpqRmg206uGrJ9AdyE1Puz7q
+         XlAP/KK7lxkQusKSl4LlE3nL4D5i2QUIkTwU7N9EaeT06gn3gkHAXPVUyR6iZqcDmgEQ
+         y+rpln27TPW0LRs8gPsnCD8HyuUvCAETDDzTeOd2l/6M9Im5c/xF0dlr7803U1JazzBU
+         62Lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
          :content-transfer-encoding;
-        bh=b60dkj/rL5SXirIPU8PUvzqJ6kZipXx0K/BtQImcJUQ=;
-        b=sjorfry1AVz9ZICPGkg6TCU1SV2ESZ59AP3H3ITwWZEju526SYFtjE2Buematde5Hi
-         540xf54gBvRIc+a7tVPeti5ES6spZ3EPqq7SMl7N5Ymruqio2xj03PlGxiESTwpg33BV
-         ad29/t6dQETq6SNBFXEBvDfBA7Pz3VbohsqXxEbfB4wCh5LWGVdh/CJlwMrqp/+3RWrq
-         zafNqmHej4zHAN3VV0LXEiRoQBJmmJeALgQy2qX1666lMLVb7ClDkTXR89yCb6LW1skH
-         V+ZcJvsPMUHjVqNSLWALp5YHoDpLAkKXViQODk2vNfJdz6tlHMNOsCdkRrfsTo7xrt7q
-         qFQw==
-X-Gm-Message-State: APjAAAVaLJuXFoNSorHWp7zLsdVE6BNbSfFPo7ysgpTKS+WhiyCNBZNf
-        LIZPzV6eSXXwDeqX7rkhYA56heSu7ouRk/ZSGcdhgw==
-X-Google-Smtp-Source: APXvYqxdJib7V1FO2hn6Kv8fvlwIeZUyCKwcuzrUKriCgWTNZSxG8c+NaJLUgzHknP9SIzwV5UVUPTm3YjcOV74QRdI=
-X-Received: by 2002:ac2:5467:: with SMTP id e7mr1188928lfn.74.1579574189870;
- Mon, 20 Jan 2020 18:36:29 -0800 (PST)
+        bh=mEYxaeaD/ni9fI5N0R8AkjO6yBJXlHCq9B1gsIiALFs=;
+        b=jA9ssqFW3XlnUIxWKg4E94FHVmvEwEzHRZn45919VgzsGYdWQ/g4z8OEj/fa7mbb4y
+         gQmrmJdR7RPmc9r8hVe8YZIZq9dLTtt2ZFt7GLkrXN/sULX5cP/oFBPZoIVRcpjsZJGL
+         94e0GACGYLdW22dH4OVWkkODMrxiaMyyeJRoGBTBFHhCfoxU6+GywNvjOqR52QHYsZvR
+         3PkhjajmcbLU8amABFOMEsL/qqa2e++qY8qJcCikTXc0Arl5cMR1bRDj0DlkL0ZwtOrZ
+         mcbDjoVYvvG2KFq99Hu6yEGhuinztkVusfw/zq+BA4BQqNIJBKficH5rQ2kKitAJ5Pbr
+         ZQ6g==
+X-Gm-Message-State: APjAAAVKujVgsuoyBaf/rqV6p6MyeNd7zIMgNhDmDR7voWYlnVNgRHCH
+        v3gtHklrWf4wzHG2HUymgidZjZITiY0iqqUe8hhxkA==
+X-Google-Smtp-Source: APXvYqxiskfAroezW3io0p9c0SYnzwXWTzizSYNYmMO2vm+NQ394P/gwHgYwr9FqFkO5+P4H5figLAGdUJ2GF2lfZgQ=
+X-Received: by 2002:a05:6512:64:: with SMTP id i4mr1277262lfo.55.1579574438974;
+ Mon, 20 Jan 2020 18:40:38 -0800 (PST)
 MIME-Version: 1.0
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 21 Jan 2020 08:06:18 +0530
-Message-ID: <CA+G9fYsnCO6p41f1ub45-o2RdKW4HwnN5XK-bhfBLUS--tt=xQ@mail.gmail.com>
-Subject: stable-rc 4.9.211-rc1/0f7725a1298b: no regressions found in project
- stable v4.9.y
+Date:   Tue, 21 Jan 2020 08:10:27 +0530
+Message-ID: <CA+G9fYttVF2DPnd3S=H7uGp7HP7dPEgMG_cXxd0sv-8bRK6Oqg@mail.gmail.com>
+Subject: stable-rc 4.14.167-rc1/9accc54d9689: no regressions found in project
+ stable v.4.14.y
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     linux- stable <stable@vger.kernel.org>,
@@ -63,21 +63,20 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.9.211-rc1
+kernel: 4.14.167-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-4.9.y
-git commit: 0f7725a1298bdfb6612898c01a4e7abb01f7e1a7
-git describe: v4.9.210-81-g0f7725a1298b
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
-ld/v4.9.210-81-g0f7725a1298b
+git branch: linux-4.14.y
+git commit: 9accc54d96898b2e3dd6c27ffcb36db40e2dff13
+git describe: v4.14.166-41-g9accc54d9689
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.166-41-g9accc54d9689
 
-No regressions (compared to build v4.9.210)
+No regressions (compared to build v4.14.166)
 
-No fixes (compared to build v4.9.210)
+No fixes (compared to build v4.14.166)
 
-
-Ran 23572 total tests in the following environments and test suites.
+Ran 24209 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -126,11 +125,11 @@ Test Suites
 * v4l2-compliance
 * network-basic-tests
 * ltp-open-posix-tests
-* prep-tmp-disk
 * kvm-unit-tests
+* ssuite
 * kselftest-vsyscall-mode-native
 * kselftest-vsyscall-mode-none
-* ssuite
+* prep-tmp-disk
 
 --=20
 Linaro LKFT
