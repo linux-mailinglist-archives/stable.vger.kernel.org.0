@@ -2,87 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F0A14410B
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 16:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB33F14421A
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 17:24:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729081AbgAUPzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 10:55:03 -0500
-Received: from smtp1.de.adit-jv.com ([93.241.18.167]:34898 "EHLO
-        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729096AbgAUPzD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 10:55:03 -0500
-Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
-        by smtp1.de.adit-jv.com (Postfix) with ESMTP id C93473C04C1;
-        Tue, 21 Jan 2020 16:55:00 +0100 (CET)
-Received: from smtp1.de.adit-jv.com ([127.0.0.1])
-        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id mElhgqLIX9qL; Tue, 21 Jan 2020 16:54:52 +0100 (CET)
-Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        id S1729275AbgAUQYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 11:24:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54682 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727817AbgAUQYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jan 2020 11:24:42 -0500
+Received: from localhost (unknown [213.57.247.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id B3FD33C00C5;
-        Tue, 21 Jan 2020 16:54:52 +0100 (CET)
-Received: from lxhi-065.adit-jv.com (10.72.93.66) by HI2EXCH01.adit-jv.com
- (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.468.0; Tue, 21 Jan
- 2020 16:54:52 +0100
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>
-CC:     <stable@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Eugeniu Rosca <roscaeugeniu@gmail.com>,
-        Dirk Behme <dirk.behme@de.bosch.com>
-Subject: [PATCH v2] arm64: kbuild: remove compressed images on 'make ARCH=arm64 (dist)clean'
-Date:   Tue, 21 Jan 2020 16:54:39 +0100
-Message-ID: <20200121155439.1061-1-erosca@de.adit-jv.com>
-X-Mailer: git-send-email 2.25.0
+        by mail.kernel.org (Postfix) with ESMTPSA id 70A9C206A2;
+        Tue, 21 Jan 2020 16:24:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579623881;
+        bh=y5enciPxhhvPHKJ8dGaGr/eY5VsE1LwSzGN3HrEYbeA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=E4rZL3Th12ZxLgedIYKFGL83Gzj+tCkU5PHasZj+bQ6WyeAL85gqRt6/i/drapk1J
+         bdBpHgk2N5/lFsyZ3r2Hw5tvqy59vW+ueIV4eFKGSvF8v1T8fSeS84ebikm2whxFSW
+         JDKPUfcZ4/HwuWMKBmloXaCnPoljesPwJaXwMNIk=
+Date:   Tue, 21 Jan 2020 18:24:36 +0200
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Gal Pressman <galpress@amazon.com>
+Cc:     Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Doug Ledford <dledford@redhat.com>, linux-rdma@vger.kernel.org,
+        Alexander Matushevsky <matua@amazon.com>,
+        stable@vger.kernel.org, "Leybovich, Yossi" <sleybo@amazon.com>
+Subject: Re: [PATCH for-rc] Revert "RDMA/efa: Use API to get contiguous
+ memory blocks aligned to device supported page size"
+Message-ID: <20200121162436.GL51881@unreal>
+References: <20200120141001.63544-1-galpress@amazon.com>
+ <0557a917-b6ad-1be7-e46b-cbe08f2ee4d3@amazon.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.72.93.66]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0557a917-b6ad-1be7-e46b-cbe08f2ee4d3@amazon.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Behme <dirk.behme@de.bosch.com>
+On Tue, Jan 21, 2020 at 11:07:21AM +0200, Gal Pressman wrote:
+> On 20/01/2020 16:10, Gal Pressman wrote:
+> > The cited commit leads to register MR failures and random hangs when
+> > running different MPI applications. The exact root cause for the issue
+> > is still not clear, this revert brings us back to a stable state.
+> >
+> > This reverts commit 40ddb3f020834f9afb7aab31385994811f4db259.
+> >
+> > Fixes: 40ddb3f02083 ("RDMA/efa: Use API to get contiguous memory blocks aligned to device supported page size")
+> > Cc: Shiraz Saleem <shiraz.saleem@intel.com>
+> > Cc: stable@vger.kernel.org # 5.3
+> > Signed-off-by: Gal Pressman <galpress@amazon.com>
+>
+> Shiraz, I think I found the root cause here.
+> I'm noticing a register MR of size 32k, which is constructed from two sges, the
+> first sge of size 12k and the second of 20k.
+>
+> ib_umem_find_best_pgsz returns page shift 13 in the following way:
+>
+> 0x103dcb2000      0x103dcb5000       0x103dd5d000           0x103dd62000
+>           +----------+                      +------------------+
+>           |          |                      |                  |
+>           |  12k     |                      |     20k          |
+>           +----------+                      +------------------+
+>
+>           +------+------+                 +------+------+------+
+>           |      |      |                 |      |      |      |
+>           | 8k   | 8k   |                 | 8k   | 8k   | 8k   |
+>           +------+------+                 +------+------+------+
+> 0x103dcb2000       0x103dcb6000   0x103dd5c000              0x103dd62000
+>
+>
+> The top row is the original umem sgl, and the bottom is the sgl constructed by
+> rdma_for_each_block with page size of 8k.
+>
+> Is this the expected output? The 8k pages cover addresses which aren't part of
+> the MR. This breaks some of the assumptions in the driver (for example, the way
+> we calculate the number of pages in the MR) and I'm not sure our device can
+> handle such sgl.
 
-Since v4.3-rc1 commit 0723c05fb75e44 ("arm64: enable more compressed
-Image formats"), it is possible to build Image.{bz2,lz4,lzma,lzo}
-AArch64 images. However, the commit missed adding support for removing
-those images on 'make ARCH=arm64 (dist)clean'.
+Artemy wrote this fix that can help you.
 
-Fix this by adding them to the target list.
-Make sure to match the order of the recipes in the makefile.
+commit 60c9fe2d18b657df950a5f4d5a7955694bd08e63
+Author: Artemy Kovalyov <artemyko@mellanox.com>
+Date:   Sun Dec 15 12:43:13 2019 +0200
 
-Cc: stable@vger.kernel.org # v4.3+
-Fixes: 0723c05fb75e44 ("arm64: enable more compressed Image formats")
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+    RDMA/umem: Fix ib_umem_find_best_pgsz()
 
----
-v2:
- - Added 'Fixes:', 'Cc: stable' and 'Reviewed-by' tags
----
- arch/arm64/boot/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+    Except for the last entry, the ending iova alignment sets the maximum
+    possible page size as the low bits of the iova must be zero when
+    starting the next chunk.
 
-diff --git a/arch/arm64/boot/Makefile b/arch/arm64/boot/Makefile
-index 1f012c506434..cd3414898d10 100644
---- a/arch/arm64/boot/Makefile
-+++ b/arch/arm64/boot/Makefile
-@@ -16,7 +16,7 @@
- 
- OBJCOPYFLAGS_Image :=-O binary -R .note -R .note.gnu.build-id -R .comment -S
- 
--targets := Image Image.gz
-+targets := Image Image.bz2 Image.gz Image.lz4 Image.lzma Image.lzo
- 
- $(obj)/Image: vmlinux FORCE
- 	$(call if_changed,objcopy)
--- 
-2.25.0
+    Fixes: 4a35339958f1 ("RDMA/umem: Add API to find best driver supported page size in an MR")
+    Signed-off-by: Artemy Kovalyov <artemyko@mellanox.com>
+    Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+
+diff --git a/drivers/infiniband/core/umem.c b/drivers/infiniband/core/umem.c
+index c3769a5f096d..06b6125b5ae1 100644
+--- a/drivers/infiniband/core/umem.c
++++ b/drivers/infiniband/core/umem.c
+@@ -166,10 +166,13 @@ unsigned long ib_umem_find_best_pgsz(struct ib_umem *umem,
+                 * for any address.
+                 */
+                mask |= (sg_dma_address(sg) + pgoff) ^ va;
+-               if (i && i != (umem->nmap - 1))
+-                       /* restrict by length as well for interior SGEs */
+-                       mask |= sg_dma_len(sg);
+                va += sg_dma_len(sg) - pgoff;
++               /* Except for the last entry, the ending iova alignment sets
++                * the maximum possible page size as the low bits of the iova
++                * must be zero when starting the next chunk.
++                */
++               if (i != (umem->nmap - 1))
++                       mask |= va;
+                pgoff = 0;
+        }
+        best_pg_bit = rdma_find_pg_bit(mask, pgsz_bitmap);
+
 
