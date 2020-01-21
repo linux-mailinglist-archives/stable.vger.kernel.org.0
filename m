@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 819D91443EB
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 19:02:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB111443EA
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 19:02:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729431AbgAUSCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 13:02:50 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:56838 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729399AbgAUSCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 13:02:49 -0500
+        id S1729427AbgAUSCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 13:02:47 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:55580 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729399AbgAUSCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 13:02:47 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579629768;
+        s=mimecast20190719; t=1579629766;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=JDa/6MD2QZaRtp/DNJJPsnCvCCrAi5HUTK78bJMcAgs=;
-        b=NK6/e8R/gGI3CTV5ScyfBvakZUHYas2kXE9/dLN3bwQA2vDcwYIB5Sj+PtxuA72NJvIE+l
-        PMFdieY5ZSFg8QP4AzRZvXdYKJYPkdzUJc/q8rU56HFAYE1wnuxifk1tBF5+YyjMttwklX
-        M5vtsII7leoaEb/IvM/83HoVeHdan+I=
+        bh=uBgTreueQ4GMfX9dOgeNYJcp9dN6Z4IlmuREQf3D2BY=;
+        b=ZQKJhL62MhyR/hArsWFxuwMGnbXQIFM68nOLzpYAg7EcdYujY0+5Ak+r6WxJE8K0HZx/SR
+        zemOhwr6P+ARos3dHEdzydi7Z4kPWlSZbCseAgGobiYeLVVvBwLBB41m1DRFd3zdWNy29m
+        f/YRKZAQVO1uceqNHxE7nk/JE90IP+g=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-14-s6tR4WwoPr2dIk4WZgHRRw-1; Tue, 21 Jan 2020 13:02:39 -0500
-X-MC-Unique: s6tR4WwoPr2dIk4WZgHRRw-1
+ us-mta-56-5ync-iL_OpKbbd1Xqb266g-1; Tue, 21 Jan 2020 13:02:42 -0500
+X-MC-Unique: 5ync-iL_OpKbbd1Xqb266g-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DFA0E8017CC;
-        Tue, 21 Jan 2020 18:02:37 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5F805107ACC4;
+        Tue, 21 Jan 2020 18:02:40 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.36.118.56])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B75325C1C3;
-        Tue, 21 Jan 2020 18:02:35 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 374345C3FD;
+        Tue, 21 Jan 2020 18:02:38 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
@@ -44,9 +44,9 @@ Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
         Oscar Salvador <osalvador@suse.de>,
         Wei Yang <richard.weiyang@gmail.com>,
         David Hildenbrand <david@redhat.com>
-Subject: [PATCH for 4.19-stable v2 10/24] mm/memory_hotplug: make __remove_section() never fail
-Date:   Tue, 21 Jan 2020 19:01:36 +0100
-Message-Id: <20200121180150.37454-11-david@redhat.com>
+Subject: [PATCH for 4.19-stable v2 11/24] powerpc/mm: Fix section mismatch warning
+Date:   Tue, 21 Jan 2020 19:01:37 +0100
+Message-Id: <20200121180150.37454-12-david@redhat.com>
 In-Reply-To: <20200121180150.37454-1-david@redhat.com>
 References: <20200121180150.37454-1-david@redhat.com>
 MIME-Version: 1.0
@@ -57,127 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 9d1d887d785b4fe0590bd3c5e71acaa3908044e2 upstream.
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 
-Let's just warn in case a section is not valid instead of failing to
-remove somewhere in the middle of the process, returning an error that
-will be mostly ignored by callers.
+commit 26ad26718dfaa7cf49d106d212ebf2370076c253 upstream.
 
-Link: http://lkml.kernel.org/r/20190409100148.24703-4-david@redhat.com
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Arun KS <arunks@codeaurora.org>
-Cc: Mathieu Malaterre <malat@debian.org>
-Cc: Andrew Banman <andrew.banman@hpe.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Mike Travis <mike.travis@hpe.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Oscar Salvador <osalvador@suse.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This patch fix the below section mismatch warnings.
+
+WARNING: vmlinux.o(.text+0x2d1f44): Section mismatch in reference from th=
+e function devm_memremap_pages_release() to the function .meminit.text:ar=
+ch_remove_memory()
+WARNING: vmlinux.o(.text+0x2d265c): Section mismatch in reference from th=
+e function devm_memremap_pages() to the function .meminit.text:arch_add_m=
+emory()
+
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/memory_hotplug.c | 22 +++++++++-------------
- 1 file changed, 9 insertions(+), 13 deletions(-)
+ arch/powerpc/mm/mem.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 42c5bc371ffe..a9fcae50a33a 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -478,15 +478,15 @@ static void __remove_zone(struct zone *zone, unsign=
-ed long start_pfn)
- 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 1b6e0ef5d14d..625d78547fe7 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -118,8 +118,8 @@ int __weak remove_section_mapping(unsigned long start=
+, unsigned long end)
+ 	return -ENODEV;
  }
 =20
--static int __remove_section(struct zone *zone, struct mem_section *ms,
--		unsigned long map_offset, struct vmem_altmap *altmap)
-+static void __remove_section(struct zone *zone, struct mem_section *ms,
-+			     unsigned long map_offset,
+-int __meminit arch_add_memory(int nid, u64 start, u64 size, struct vmem_=
+altmap *altmap,
+-		bool want_memblock)
++int __ref arch_add_memory(int nid, u64 start, u64 size, struct vmem_altm=
+ap *altmap,
++			  bool want_memblock)
+ {
+ 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
+ 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
+@@ -140,8 +140,8 @@ int __meminit arch_add_memory(int nid, u64 start, u64=
+ size, struct vmem_altmap *
+ }
+=20
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+-int __meminit arch_remove_memory(int nid, u64 start, u64 size,
+-					struct vmem_altmap *altmap)
++int __ref arch_remove_memory(int nid, u64 start, u64 size,
 +			     struct vmem_altmap *altmap)
  {
- 	unsigned long start_pfn;
- 	int scn_nr;
--	int ret =3D -EINVAL;
-=20
--	if (!valid_section(ms))
--		return ret;
-+	if (WARN_ON_ONCE(!valid_section(ms)))
-+		return;
-=20
- 	unregister_memory_section(ms);
-=20
-@@ -495,7 +495,6 @@ static int __remove_section(struct zone *zone, struct=
- mem_section *ms,
- 	__remove_zone(zone, start_pfn);
-=20
- 	sparse_remove_one_section(zone, ms, map_offset, altmap);
--	return 0;
- }
-=20
- /**
-@@ -515,7 +514,7 @@ int __remove_pages(struct zone *zone, unsigned long p=
-hys_start_pfn,
- {
- 	unsigned long i;
- 	unsigned long map_offset =3D 0;
--	int sections_to_remove, ret =3D 0;
-+	int sections_to_remove;
-=20
- 	/* In the ZONE_DEVICE case device driver owns the memory region */
- 	if (is_dev_zone(zone)) {
-@@ -536,16 +535,13 @@ int __remove_pages(struct zone *zone, unsigned long=
- phys_start_pfn,
- 		unsigned long pfn =3D phys_start_pfn + i*PAGES_PER_SECTION;
-=20
- 		cond_resched();
--		ret =3D __remove_section(zone, __pfn_to_section(pfn), map_offset,
--				altmap);
-+		__remove_section(zone, __pfn_to_section(pfn), map_offset,
-+				 altmap);
- 		map_offset =3D 0;
--		if (ret)
--			break;
- 	}
-=20
- 	set_zone_contiguous(zone);
--
--	return ret;
-+	return 0;
- }
- #endif /* CONFIG_MEMORY_HOTREMOVE */
-=20
+ 	unsigned long start_pfn =3D start >> PAGE_SHIFT;
+ 	unsigned long nr_pages =3D size >> PAGE_SHIFT;
 --=20
 2.24.1
 
