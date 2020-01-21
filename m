@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FDA1443F8
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 19:03:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8FC11443F7
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 19:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729140AbgAUSDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 13:03:41 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:60248 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729134AbgAUSDl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 13:03:41 -0500
+        id S1729127AbgAUSDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 13:03:34 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:33303 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728901AbgAUSDe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 13:03:34 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579629820;
+        s=mimecast20190719; t=1579629813;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=8Y37LtuBkW3Lzzd1FvM9mCBkJ82AVH3Rl8iL/YAjrZc=;
-        b=co34s570sMtXokRSPzt4MJbIbk+eS2k18xD+2kGWY3KRnrTzXssozM3D32hZhYYCHmHnTs
-        1yS8DKvfm396m/Nn1edIRTj+Ek1a45V3FgoHB2fGmcakRlFAErlesCEJV2vntL3w1mNcvV
-        NTINMhksU/XCmccgNk1d3ZrTa4Vn76Y=
+        bh=KTjEjUlMxE+1FeA+9rvGI6ZQpOmYiCnZtwWVJmVE5AQ=;
+        b=GeokAkplraeLNOxKRB6t3XsZxBlsGSd2VZpO+KOrTAObeB/DWax6RF7EqP1v9WZhhiK0Vx
+        nNl0FdmEJxqrQFPX9Js/F5kuTQFzcgg0VYuvDHRhcPIkDj+AwzeTE7y73EGYSGI1L4EOCM
+        oIEoSH8Cwnk2qahK3hmz12VviUZgqPw=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-3-tXI-T4ncMk2pcE5LyYFLZA-1; Tue, 21 Jan 2020 13:03:21 -0500
-X-MC-Unique: tXI-T4ncMk2pcE5LyYFLZA-1
+ us-mta-260-XFlDHh-eM02tqBhl6FYmTw-1; Tue, 21 Jan 2020 13:03:29 -0500
+X-MC-Unique: XFlDHh-eM02tqBhl6FYmTw-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 776E1800D48;
-        Tue, 21 Jan 2020 18:03:19 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B1EED802569;
+        Tue, 21 Jan 2020 18:03:27 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.36.118.56])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D74E35C1C3;
-        Tue, 21 Jan 2020 18:03:13 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C26185C545;
+        Tue, 21 Jan 2020 18:03:19 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
@@ -44,13 +44,12 @@ Cc:     linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>,
         Oscar Salvador <osalvador@suse.de>,
         Wei Yang <richard.weiyang@gmail.com>,
         David Hildenbrand <david@redhat.com>
-Subject: [PATCH for 4.19-stable v2 20/24] mm/hotplug: kill is_dev_zone() usage in __remove_pages()
-Date:   Tue, 21 Jan 2020 19:01:46 +0100
-Message-Id: <20200121180150.37454-21-david@redhat.com>
+Subject: [PATCH for 4.19-stable v2 21/24] drivers/base/node.c: simplify unregister_memory_block_under_nodes()
+Date:   Tue, 21 Jan 2020 19:01:47 +0100
+Message-Id: <20200121180150.37454-22-david@redhat.com>
 In-Reply-To: <20200121180150.37454-1-david@redhat.com>
 References: <20200121180150.37454-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
@@ -58,65 +57,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+commit d84f2f5a755208da3f93e17714631485cb3da11c upstream.
 
-commit 96da4350000973ef9310a10d077d65bbc017f093 upstream.
+We don't allow to offline memory block devices that belong to multiple
+numa nodes.  Therefore, such devices can never get removed.  It is
+sufficient to process a single node when removing the memory block.  No
+need to iterate over each and every PFN.
 
--- snip --
+We already have the nid stored for each memory block.  Make sure that the
+nid always has a sane value.
 
-Minor conflict, keep the altmap check.
+Please note that checking for node_online(nid) is not required.  If we
+would have a memory block belonging to a node that is no longer offline,
+then we would have a BUG in the node offlining code.
 
--- snip --
-
-The zone type check was a leftover from the cleanup that plumbed altmap
-through the memory hotplug path, i.e.  commit da024512a1fa "mm: pass the
-vmem_altmap to arch_remove_memory and __remove_pages".
-
-Link: http://lkml.kernel.org/r/156092352642.979959.6664333788149363039.st=
-git@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>	[ppc64]
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
+Link: http://lkml.kernel.org/r/20190719135244.15242-1-david@redhat.com
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
 Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Jane Chu <jane.chu@oracle.com>
-Cc: Jeff Moyer <jmoyer@redhat.com>
-Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Christoph Hellwig <hch@lst.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Oscar Salvador <osalvador@suse.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/memory_hotplug.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/base/memory.c |  1 +
+ drivers/base/node.c   | 39 +++++++++++++++------------------------
+ 2 files changed, 16 insertions(+), 24 deletions(-)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 74cfa2fbe88e..888fcbdf97cf 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -507,11 +507,8 @@ void __remove_pages(struct zone *zone, unsigned long=
- phys_start_pfn,
- 	unsigned long map_offset =3D 0;
- 	int sections_to_remove;
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index fdda7a6d712e..fde8d34a1c16 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -693,6 +693,7 @@ static int init_memory_block(struct memory_block **me=
+mory, int block_id,
+ 	mem->state =3D state;
+ 	start_pfn =3D section_nr_to_pfn(mem->start_section_nr);
+ 	mem->phys_device =3D arch_get_memory_phys_device(start_pfn);
++	mem->nid =3D NUMA_NO_NODE;
 =20
--	/* In the ZONE_DEVICE case device driver owns the memory region */
--	if (is_dev_zone(zone)) {
--		if (altmap)
--			map_offset =3D vmem_altmap_offset(altmap);
+ 	ret =3D register_memory(mem);
+=20
+diff --git a/drivers/base/node.c b/drivers/base/node.c
+index bdff237f4167..f3565c2dbc52 100644
+--- a/drivers/base/node.c
++++ b/drivers/base/node.c
+@@ -409,8 +409,6 @@ int register_mem_sect_under_node(struct memory_block =
+*mem_blk, void *arg)
+ 	int ret, nid =3D *(int *)arg;
+ 	unsigned long pfn, sect_start_pfn, sect_end_pfn;
+=20
+-	mem_blk->nid =3D nid;
+-
+ 	sect_start_pfn =3D section_nr_to_pfn(mem_blk->start_section_nr);
+ 	sect_end_pfn =3D section_nr_to_pfn(mem_blk->end_section_nr);
+ 	sect_end_pfn +=3D PAGES_PER_SECTION - 1;
+@@ -439,6 +437,13 @@ int register_mem_sect_under_node(struct memory_block=
+ *mem_blk, void *arg)
+ 			if (page_nid !=3D nid)
+ 				continue;
+ 		}
++
++		/*
++		 * If this memory block spans multiple nodes, we only indicate
++		 * the last processed node.
++		 */
++		mem_blk->nid =3D nid;
++
+ 		ret =3D sysfs_create_link_nowarn(&node_devices[nid]->dev.kobj,
+ 					&mem_blk->dev.kobj,
+ 					kobject_name(&mem_blk->dev.kobj));
+@@ -454,32 +459,18 @@ int register_mem_sect_under_node(struct memory_bloc=
+k *mem_blk, void *arg)
+ }
+=20
+ /*
+- * Unregister memory block device under all nodes that it spans.
+- * Has to be called with mem_sysfs_mutex held (due to unlinked_nodes).
++ * Unregister a memory block device under the node it spans. Memory bloc=
+ks
++ * with multiple nodes cannot be offlined and therefore also never be re=
+moved.
+  */
+ void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
+ {
+-	unsigned long pfn, sect_start_pfn, sect_end_pfn;
+-	static nodemask_t unlinked_nodes;
+-
+-	nodes_clear(unlinked_nodes);
+-	sect_start_pfn =3D section_nr_to_pfn(mem_blk->start_section_nr);
+-	sect_end_pfn =3D section_nr_to_pfn(mem_blk->end_section_nr);
+-	for (pfn =3D sect_start_pfn; pfn <=3D sect_end_pfn; pfn++) {
+-		int nid;
++	if (mem_blk->nid =3D=3D NUMA_NO_NODE)
++		return;
+=20
+-		nid =3D get_nid_for_pfn(pfn);
+-		if (nid < 0)
+-			continue;
+-		if (!node_online(nid))
+-			continue;
+-		if (node_test_and_set(nid, unlinked_nodes))
+-			continue;
+-		sysfs_remove_link(&node_devices[nid]->dev.kobj,
+-			 kobject_name(&mem_blk->dev.kobj));
+-		sysfs_remove_link(&mem_blk->dev.kobj,
+-			 kobject_name(&node_devices[nid]->dev.kobj));
 -	}
-+	if (altmap)
-+		map_offset =3D vmem_altmap_offset(altmap);
++	sysfs_remove_link(&node_devices[mem_blk->nid]->dev.kobj,
++			  kobject_name(&mem_blk->dev.kobj));
++	sysfs_remove_link(&mem_blk->dev.kobj,
++			  kobject_name(&node_devices[mem_blk->nid]->dev.kobj));
+ }
 =20
- 	clear_zone_contiguous(zone);
-=20
+ int link_mem_sections(int nid, unsigned long start_pfn, unsigned long en=
+d_pfn)
 --=20
 2.24.1
 
