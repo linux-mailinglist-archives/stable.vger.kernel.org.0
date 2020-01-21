@@ -2,56 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53535143992
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 10:35:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80FB01439B3
+	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 10:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728682AbgAUJfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 04:35:33 -0500
-Received: from mail-ua1-f66.google.com ([209.85.222.66]:46357 "EHLO
-        mail-ua1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727962AbgAUJfd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 04:35:33 -0500
-Received: by mail-ua1-f66.google.com with SMTP id l6so695062uap.13
-        for <stable@vger.kernel.org>; Tue, 21 Jan 2020 01:35:32 -0800 (PST)
+        id S1728831AbgAUJmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 04:42:36 -0500
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:40694 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725789AbgAUJmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 04:42:36 -0500
+Received: by mail-pg1-f194.google.com with SMTP id k25so1177014pgt.7
+        for <stable@vger.kernel.org>; Tue, 21 Jan 2020 01:42:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=benyossef-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=5xSr/xWhBdXs7RNFC7Li5lQIHOdj4syccfkV3xZnEyo=;
-        b=tjfByNT9DB22fcS1Z2EsFr90KKjb8XoxQFziAySgcR8PON7907/MPiZBD/dWRgaa+Z
-         GqeKogByNjUu1PgWMoUo5q7V6mZcePbJM5JsvAMpflk3nz9bnjw6VVD4hjnQg3d4H6p2
-         sgnJM2PWtcWGkt6HDJsoP5IYjk/Glr9SDi4sywpX43iWciyEzsGonz+39bBTqOk7jx1G
-         w3n541D5hQilTxQX5Hpq6b22omlQho+lArJrcfhup8bSFWXF1HB21uJDuDmSLTuOJWey
-         VhjLm2uyvKFxMjnE09LCe/05eIY7fRvp4fx3IoA3qyeGJiJJmei3sVxO5D/Exvw9qzNL
-         K+Gg==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=TxJfp0M6D+iM+MnB8mMkIdT6FDNsRufQzBUGbTUsTiw=;
+        b=TJQL1KPIGrDsBh/D39mKdzoGNhqUeiG1p+rf4IUSliNzeJuY2FTmCfn8AgWOJYEeJ3
+         O4WV45atfTigG2ltKDAgXCvhwvbhW6VkCPOWcQ4UCURS5KvZ4+Bm/DOA31qZQfceINrG
+         VBX0J1T2FMeXE2TyKwPSkVgchdeCX+lIf0PWQuy87PlQF68qthy8jkB6LThWS1WEFwim
+         Uu2PRHJ7abKApXJm9IzDiRsKtD8vc/CYBHl56FTqDU4AboHHQGSBaTJLaW6RtUQQbcM+
+         GQu7cPLTpiES/KeGvqxshKpL66VA7+PlXigcCp6wU0E+w4j8tInCn2A+YovLeOh/xlLc
+         HsTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=5xSr/xWhBdXs7RNFC7Li5lQIHOdj4syccfkV3xZnEyo=;
-        b=hzuxJHLRoMls6PvYE1dtfaPwLOB9BvoENUwjIuH5F73MBzUkktrUqP0LGs3v52vDMu
-         yr7IaJ2y5kjdAvE8lAHvO2ukoZipnR6NrzThpWhiYaPqsovDoXbF/+TxKpO1izp1yDeV
-         GPUtYT6mTYp9PuhCpMyPyItCQ7Rdh7ZamkBCehUNxzebZAWN+DLp5VTC9iycKse6sJkX
-         VlESdrA39tzmIYsWePkwuQWPeDomvrEnWNcqEuk4Nk7zg0QZAwqjb3QE+npD9CVLquR3
-         migUDaxD74WbfsRxOtFpA4SkGeidSaaOPiHvLlRMyJvBpYnpka7bD6aYh2UNFHPrxE5B
-         3otQ==
-X-Gm-Message-State: APjAAAVZto/T2DjU+cGFg2jJy3NcieooeG5qx8CFZcvIUDemiNPl4a71
-        JTTTP3Yb3EPyRELrgLohfGRp6+ZIFY5f8UdGR8ou5w==
-X-Google-Smtp-Source: APXvYqzWoNnY7whvMjOB189pVR/o+F7LCysg8eFana7vFsSEpP1KXHwDk2CsMfB29UYjvfjd2l5e+90P2Z3UIdKF0JY=
-X-Received: by 2002:ab0:77d7:: with SMTP id y23mr2228235uar.4.1579599332214;
- Tue, 21 Jan 2020 01:35:32 -0800 (PST)
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=TxJfp0M6D+iM+MnB8mMkIdT6FDNsRufQzBUGbTUsTiw=;
+        b=qHJt3a6h0QXLNhO0+8nJ8ol6n6T1ix3m8f6APnRWdJuJatMfQYYSQKy6cRNYC5HUtQ
+         seDX/5MqLxLcaji8ZZOcReCHV0km/NlCaQxsHP0tmbdsmYcobLM7UKbrSuVfV5tQFjFO
+         86i4E2yZv1iOtzLty9dJneLQqNMon1rmpgHqXX6j7ITKvFvlXor6TP0+kXw3wo0kwbJ8
+         52rmr9M9br4qeBdT2uwMTQ4MNxjG4Y8FcRyS/vWHzdzUahCHlMa1p1reGh25VjqIJMPG
+         dgNbCKx7mAHDYq/v+tjx35nShOXD8BtyBESJ/BYEhTM6TRWXVrjQxq0Ve4tfyEqCeElv
+         /c6g==
+X-Gm-Message-State: APjAAAUrUPSh0fp8nfkGe2OrzbGWMuwsN+vd4L61bcGmKeQGgglK+ae9
+        I2KhJ8HotUdwCkNMMPno2boxpPdYR3n+medvvFY=
+X-Google-Smtp-Source: APXvYqw9ajvMUf+EhHeCvzK1a3hp25Mk7KaJFSDDkDEtDiuXQlTHR8h/fq+0XCms2qP73O/TZPx/Fh76vPFxQwfkMhw=
+X-Received: by 2002:a63:2842:: with SMTP id o63mr4524505pgo.317.1579599755528;
+ Tue, 21 Jan 2020 01:42:35 -0800 (PST)
 MIME-Version: 1.0
-References: <20200116101447.20374-8-gilad@benyossef.com> <20200119152653.6E37B20678@mail.kernel.org>
- <CAOtvUMeJLUhPWP00h6h+LcGSvu+=CsHcbZ7OXzXHwWJd2R0agg@mail.gmail.com>
-In-Reply-To: <CAOtvUMeJLUhPWP00h6h+LcGSvu+=CsHcbZ7OXzXHwWJd2R0agg@mail.gmail.com>
-From:   Gilad Ben-Yossef <gilad@benyossef.com>
-Date:   Tue, 21 Jan 2020 11:35:17 +0200
-Message-ID: <CAOtvUMffK_ZJtT3mNtqeceTrYtN0on7pcxJuwacr=RyPBnU8xA@mail.gmail.com>
-Subject: Re: [PATCH 07/11] crypto: ccree - fix FDE descriptor sequence
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Ofir Drang <ofir.drang@arm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Hadar Gat <hadar.gat@arm.com>, stable@vger.kernel.org
+Reply-To: sebastient766@gmail.com
+Received: by 2002:a17:90a:262c:0:0:0:0 with HTTP; Tue, 21 Jan 2020 01:42:34
+ -0800 (PST)
+From:   =?UTF-8?B?TXIuU8OpYmFzdGllbiBUb25p?= <sebastient766@gmail.com>
+Date:   Tue, 21 Jan 2020 01:42:34 -0800
+X-Google-Sender-Auth: 3M34ZFFvUkmsS3SYr0n1D1bTIKg
+Message-ID: <CABUk92s0HKC0R3vCWHKazLNO8X9C-eD5-brfwvJKn7Xiwbk2iQ@mail.gmail.com>
+Subject: Dear Friend,
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
@@ -59,44 +57,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+FROM MR.S=C3=89BASTIEN TONI
+AUDIT& ACCOUNT MANAGER
+BANK OF AFRICA (B.O.A)
+OUAGADOUGOU BURKINA FASO
 
-On Mon, Jan 20, 2020 at 4:27 PM Gilad Ben-Yossef <gilad@benyossef.com> wrot=
-e:
->
-> Hi Sasha,
->
-> On Sun, Jan 19, 2020 at 5:26 PM Sasha Levin <sashal@kernel.org> wrote:
-> >
-> > Hi,
-> >
-> > [This is an automated email]
-> >
-> > This commit has been processed because it contains a -stable tag.
-> > The stable tag indicates that it's relevant for the following trees: al=
-l
-> >
-> > The bot has tested the following trees: v5.4.13, v4.19.97, v4.14.166, v=
-4.9.210, v4.4.210.
-> >
-> > v5.4.13: Build OK!
-> > v4.19.97: Failed to apply! Possible dependencies:
->
->
-> 'm looking into making a patch for v4.19.y. The rest are not relevant
->
+WEST AFRICA.
 
-After further investigation, this fix is only relevant for 5.4.y
-stable releases as the earlier versions did not include the change
-that originally caused the problem.
+Dear Friend,
 
-Many thanks,
-Gilad
+With due respect, I have decided to contact you on
+abusinesstransaction  that will be beneficial to both of us. At the
+bank last account and  auditing evaluation, my staffs came across an
+old account which was being maintained by a foreign client who we
+learn was among the deceased passengers of motor accident on
+November.2003, the deceased was unable to run this account since his
+death. Theaccount has  remained dormant without the knowledge of his
+family since it was put in a  safe deposit account in the bank for
+future investment by the client.
 
+Since his demise, even the members of his family haven't applied for
+claims  over this fund and it has been in the safe deposit account
+until I  discovered that it cannot be claimed since our client
+isaforeign national and we are sure that he has no next of kin here to
+file claims over the money. As the director of the department, this
+discovery was brought to my office so as to decide what is to bedone.I
+ decided to seek ways through which to transfer this money out of the
+bank  and out of the country too.
 
+The total amount in the account is 18.6 million with my positions as
+staffs  of the bank, I am handicapped because I cannot operate foreign
+accounts and  cannot lay bonafide claim over this money. The client
+was a foreign  national and you will only be asked to act as his next
+of kin and I will  supply you with all the necessary information and
+bank data to assist you in being able to transfer this money to any
+bank of your  choice where this money could be transferred into.The
+total sum will be shared as follows: 50% for me, 50% for you and
+expenses incidental occur  during the transfer will be incur by both
+of us. The transfer is risk free on both sides hence you are going to
+follow my instruction till the fund  transfer to your account. Since I
+work in this bank that is why you should  be confident in the success
+of this transaction because you will be updated with information as at
+when desired.
 
---=20
-Gilad Ben-Yossef
-Chief Coffee Drinker
+I will wish you to keep this transaction secret and confidential as I
+am  hoping to retire with my share of this money at the end of
+transaction  which will be when this money is safety in your account.
+I will then come over to your country for sharing according to the
+previously agreed percentages. You might even have to advise me on
+possibilities of investment in your country or elsewhere of our
+choice. May  God help you to help me to a restive retirement, Amen,And
+You have to  contact me through my private e-mail
+at(sebastient766@gmail.com)Please for further information and inquires
+feel free to contact me back immediately for more explanation and
+better  understanding I want you to assure me your capability of
+handling this  project with trust by providing me your following
+information details such as:
 
-values of =CE=B2 will give rise to dom!
+(1)NAME..............
+(2)AGE:................
+(3)SEX:.....................
+(4)PHONE NUMBER:.................
+(5)OCCUPATION:.....................
+(6)YOUR COUNTRY:.....................
+
+Yours sincerely,
+Mr.S=C3=A9bastien Toni
