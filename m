@@ -2,107 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09AAF1447EC
-	for <lists+stable@lfdr.de>; Tue, 21 Jan 2020 23:53:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F58144805
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 00:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726584AbgAUWxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 17:53:24 -0500
-Received: from perceval.ideasonboard.com ([213.167.242.64]:33276 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725876AbgAUWxY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 17:53:24 -0500
-Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id C1C9052A;
-        Tue, 21 Jan 2020 23:53:21 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1579647201;
-        bh=+o9lAebGcfIPvu6BwlMSFfOT4pdXPhZxgEAsy4SNm2E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nq4aFWpuAjtBfYJ8ciGIrsSYLe2oU+g5nTBkSi/7WHs22iD/iSDNauv5gn19he62S
-         qUPdeLcyTH/uZojPqjxZV4KNVbGBMwNbZR0HdjB1ciQLxMs/lcjLxBj+hh2Ydq9pT3
-         p9wFPeq8MIE1hZVJlaSX4Ez83OSqRgw1rjRGVeSI=
-Date:   Wed, 22 Jan 2020 00:53:05 +0200
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Will Deacon <will@kernel.org>
-Cc:     Andrey Konovalov <andreyknvl@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-media@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Kostya Serebryany <kcc@google.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH RESEND RESEND] media: uvc: Avoid cyclic entity chains due
- to malformed USB descriptors
-Message-ID: <20200121225305.GL5003@pendragon.ideasonboard.com>
-References: <20191108154838.21487-1-will@kernel.org>
- <20191108155503.GB15731@pendragon.ideasonboard.com>
- <20191216121651.GA12947@willie-the-truck>
- <CAAeHK+xdVmEFtK78bWd2Odn0uBynqnt5UT9jZJFvqGL=_9NU2w@mail.gmail.com>
- <20191218114137.GA15505@willie-the-truck>
- <20191218122324.GB17086@kroah.com>
- <CAAeHK+xyv-x6ejwcqNAn=5eKoBYPkJsN=SgJLHJ1ey=6v+YyyA@mail.gmail.com>
- <20191218165153.GC17876@pendragon.ideasonboard.com>
- <20200121190142.GB13592@willie-the-truck>
+        id S1726590AbgAUXHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 18:07:55 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:38259 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725876AbgAUXHz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 18:07:55 -0500
+Received: by mail-lf1-f66.google.com with SMTP id r14so3769928lfm.5
+        for <stable@vger.kernel.org>; Tue, 21 Jan 2020 15:07:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=dITQVLbK/NPk07lly0JDaiOTyqI9WjCMwk1K5x1ixns=;
+        b=pbbkCNagoNPKQVRuecBzJBjgVkMwC3T8eXhuNVHXF1JxZWvItp8DUs/Uv7Bxxz8Ssr
+         R71k+N0WgOIxko4jD4rWOZUMnaZNdk10C1DCXzt+KL1+hU/3fzBmW32VXBEfHdVYuX/3
+         LKrhQEipQb1FE4aVAKClwxbRn1pfRzV++182l/374+6JjsXjyAKxr/rvS5zmi/TKW91y
+         0h8KkFCbmBRA+ebLjpb3RYYjqWCMB82ab/aId8jj9Dkm1hnwLzFN97x5geM150M52Trk
+         +EbJQBytpZ034FWUtWkhPPFmbNJ8hO4tbV1QOrDMraKwQjFbMnWTYqoCrtGaPrr1A0T2
+         RbzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=dITQVLbK/NPk07lly0JDaiOTyqI9WjCMwk1K5x1ixns=;
+        b=Iisz2bsp65IJXM6uMjb8kCJUPsXm0w64AyUrJni9jItja6UGhOcLajuKiEQ82/WGKQ
+         jKNmPhDkqPjOoH3+hNk6E/Z2/g21vpZprjmY4He0dz0t8Xlo9jPuPoMjMiHkxJTw7UgA
+         wQ3GcRnhPVzKjfl+RQIR3HruFdSpn9UemBw29Q2Dh+mcPuHRIcmi1DsLyGKA9CfdN9GY
+         7bxCaGfn57qh4Ii2d68U33p4tZLwu5X590U2zeSlbb3JmXWhaJ010YfNa9t4fjuAjj4y
+         sO5URVz99tD60/Th5NNP1Z0ch3RnH5TpMjnHIyWIX2MKwIKjWvXvUqnYZMeHkdWM8bQj
+         xRHQ==
+X-Gm-Message-State: APjAAAVbjd2mhv4uQ/W31IjPz0d1YdF3aFAA7ql4vCRoABmMB1Aw84M9
+        nUQZ1bSw9KD65gjwt0NviqLi1EH2qiwfhOL1xbJlRQ==
+X-Google-Smtp-Source: APXvYqyj4/tOipEE+F2MUs1QSBgROTa4tMvk+HoF2kn0F3V3ikXHUkztp/0DBT91QRMn0PioTFWz5rNuwRla5vtIVDE=
+X-Received: by 2002:a05:6512:7c:: with SMTP id i28mr68769lfo.131.1579648073334;
+ Tue, 21 Jan 2020 15:07:53 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200121190142.GB13592@willie-the-truck>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20191230120021.32630-1-jagan@amarulasolutions.com>
+ <20200109074625.GE4456@T480> <CA+G9fYvKw7ijk-vxA58SR_d0_-3_in28uFG5H6pikypgDpAHPQ@mail.gmail.com>
+In-Reply-To: <CA+G9fYvKw7ijk-vxA58SR_d0_-3_in28uFG5H6pikypgDpAHPQ@mail.gmail.com>
+From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
+Date:   Tue, 21 Jan 2020 17:07:41 -0600
+Message-ID: <CAEUSe79LAxmMf31bt3hoEfUH3k3tqg=41mxy4yVJkYRTpw4k_Q@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] ARM: dts: imx6q-icore-mipi: Use 1.5 version of
+ i.Core MX6DL
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Will,
+Hello!
 
-On Tue, Jan 21, 2020 at 07:01:42PM +0000, Will Deacon wrote:
-> On Wed, Dec 18, 2019 at 06:51:53PM +0200, Laurent Pinchart wrote:
-> > On Wed, Dec 18, 2019 at 01:46:00PM +0100, Andrey Konovalov wrote:
-> > > On Wed, Dec 18, 2019 at 1:23 PM Greg Kroah-Hartman wrote:
-> > > > On Wed, Dec 18, 2019 at 11:41:38AM +0000, Will Deacon wrote:
-> > > >> On Mon, Dec 16, 2019 at 02:17:52PM +0100, Andrey Konovalov wrote:
-> > > >>> On Mon, Dec 16, 2019 at 1:16 PM Will Deacon <will@kernel.org> wrote:
-> > > >>>> On Fri, Nov 08, 2019 at 05:55:03PM +0200, Laurent Pinchart wrote:
-> > > >>>>> Thank you for the patch.
-> > > >>>>>
-> > > >>>>> I'm sorry for the delay, and will have to ask you to be a bit more
-> > > >>>>> patient I'm afraid. I will leave tomorrow for a week without computer
-> > > >>>>> access and will only be able to go through my backlog when I will be
-> > > >>>>> back on the 17th.
-> > > >>>>
-> > > >>>> Gentle reminder on this, now you've been back a month ;)
-> > > >>>
-> > > >>> I think we now have a reproducer for this issue that syzbot just reported:
-> > > >>>
-> > > >>> https://syzkaller.appspot.com/bug?extid=0a5c96772a9b26f2a876
-> > > >>>
-> > > >>> You can try you patch on it :)
-> > > >>
-> > > >> Oh wow, I *really* like the raw USB gadget thingy you have to reproduce
-> > > >> these! I also really like that this patch fixes the issue. Logs below.
-> > > 
-> > > Thanks! An easier way to test the patch would be to issue a syz test
-> > > command, but I'm glad you managed to set up raw gadget manually and it
-> > > worked for you.
-> > > 
-> > > >
-> > > > Ok, that's a good poke for me to go review that raw gadget code to see
-> > > > if it can be merged upstream :)
-> > > 
-> > > Looking forward to it! =)
-> > 
-> > Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > 
-> > and merged in my tree. I'm so sorry for the way too long delay.
-> 
-> Please can you send this upstream and/or put it in linux-next? I can't see
-> it anywhere at the moment :(
+On Mon, 20 Jan 2020 at 23:22, Naresh Kamboju <naresh.kamboju@linaro.org> wr=
+ote:
+> The following dtbs build error noticed for arm build on stable rc 4.19 br=
+anch.
+>
+> # make -sk KBUILD_BUILD_USER=3DKernelCI -C/linux ARCH=3Darm
+> CROSS_COMPILE=3Darm-linux-gnueabihf- HOSTCC=3Dgcc O=3Dbuild dtbs
+>  #
+>  ../arch/arm/boot/dts/imx6dl-icore-mipi.dts:11:10: fatal error:
+> imx6qdl-icore-1.5.dtsi: No such file or directory
+>     11 | #include "imx6qdl-icore-1.5.dtsi"
+>        |          ^~~~~~~~~~~~~~~~~~~~~~~~
+>  compilation terminated.
+>  make[2]: *** [scripts/Makefile.lib:294:
+> arch/arm/boot/dts/imx6dl-icore-mipi.dtb] Error 1
 
-I've now sent the pull request. Seems I failed the schedule from A to Z
-with this patch. I'm extremely sorry :-(
+This failed again on the latest 4.19.98-rc1 from
+linux-stable-rc/4.19.y. Looks like it's missing 37c045d25e900 ("ARM:
+dts: imx6qdl: Add Engicam i.Core 1.5 MX6") from mainline.
 
--- 
-Regards,
+Greetings!
 
-Laurent Pinchart
+Daniel D=C3=ADaz
+daniel.diaz@linaro.org
+
+
+
+> On Thu, 9 Jan 2020 at 13:16, Shawn Guo <shawnguo@kernel.org> wrote:
+> >
+> > On Mon, Dec 30, 2019 at 05:30:19PM +0530, Jagan Teki wrote:
+> > > The EDIMM STARTER KIT i.Core 1.5 MIPI Evaluation is based on
+> > > the 1.5 version of the i.Core MX6 cpu module. The 1.5 version
+> > > differs from the original one for a few details, including the
+> > > ethernet PHY interface clock provider.
+> > >
+> > > With this commit, the ethernet interface works properly:
+> > > SMSC LAN8710/LAN8720 2188000.ethernet-1:00: attached PHY driver
+> > >
+> > > While before using the 1.5 version, ethernet failed to startup
+> > > do to un-clocked PHY interface:
+> > > fec 2188000.ethernet eth0: could not attach to PHY
+> > >
+> > > Similar fix has merged for i.Core MX6Q but missed to update for DL.
+> > >
+> > > Fixes: a8039f2dd089 ("ARM: dts: imx6dl: Add Engicam i.CoreM6 1.5 Quad=
+/Dual MIPI starter kit support")
+> > > Cc: Jacopo Mondi <jacopo@jmondi.org>
+> > > Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+> > > Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+> >
+> > Applied all 3, thanks.
