@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9BBD145635
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 379A0145636
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730487AbgAVNWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:22:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39874 "EHLO mail.kernel.org"
+        id S1730535AbgAVNWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:22:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729992AbgAVNWU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:22:20 -0500
+        id S1730520AbgAVNWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:22:23 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D145B24688;
-        Wed, 22 Jan 2020 13:22:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBC4324688;
+        Wed, 22 Jan 2020 13:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699339;
-        bh=l8E9WhQUYdRFLvGLz94bVCMxZ6KMHAl9UrG+udAtBWw=;
+        s=default; t=1579699342;
+        bh=MAnP2AhfIm6LZWZ1PsAzMs4DYiF5mhiV3PWTnyrUOOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ajVoK6n8gGZI6FN+7AFZCCWPAYkXuNtaxovb68ZEV5Gj0xNws99jHOCCYIiuVNyha
-         fO+E+uXwx/VRToDX8G8kZT9KOPhBxrWUao7dmMqi6j3/Z8zj7TCFl2SY0R9ood1Dso
-         n0qkx+quMIU0sHdeJxF78S8Adp2u5AxC5fdkdeJg=
+        b=M15oBGCuegSpSf16vNEZ2+IkkaKpMZYmBEZgI+QMb18AyriBAPCTM3Vujp25fzxmw
+         f14gZlXi/FUM6tNKZW4dTYERN/lpa6HanbdNNIY0cUHm6nwjB+YCsMXOZ8qi/Hj134
+         uzOz6NlEmwx0nxyiK4bg9ZuviSNeXgN6FyjcjYbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        "Willhalm, Thomas" <thomas.willhalm@intel.com>,
+        Thomas Willhalm <thomas.willhalm@intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
-        "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>,
         "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
+        "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 078/222] mm/shmem.c: thp, shmem: fix conflict of above-47bit hint address and PMD alignment
-Date:   Wed, 22 Jan 2020 10:27:44 +0100
-Message-Id: <20200122092839.299021330@linuxfoundation.org>
+Subject: [PATCH 5.4 079/222] mm/huge_memory.c: thp: fix conflict of above-47bit hint address and PMD alignment
+Date:   Wed, 22 Jan 2020 10:27:45 +0100
+Message-Id: <20200122092839.369227278@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -51,10 +51,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kirill A. Shutemov <kirill@shutemov.name>
 
-commit 991589974d9c9ecb24ee3799ec8c415c730598a2 upstream.
+commit 97d3d0f9a1cf132c63c0b8b8bd497b8a56283dd9 upstream.
 
-Shmem/tmpfs tries to provide THP-friendly mappings if huge pages are
-enabled.  But it doesn't work well with above-47bit hint address.
+Patch series "Fix two above-47bit hint address vs.  THP bugs".
+
+The two get_unmapped_area() implementations have to be fixed to provide
+THP-friendly mappings if above-47bit hint address is specified.
+
+This patch (of 2):
+
+Filesystems use thp_get_unmapped_area() to provide THP-friendly
+mappings.  For DAX in particular.
 
 Normally, the kernel doesn't create userspace mappings above 47-bit,
 even if the machine allows this (such as with 5-level paging on x86-64).
@@ -67,56 +74,109 @@ hint address (with or without MAP_FIXED) above 47-bits.  If the
 application doesn't need a particular address, but wants to allocate
 from whole address space it can specify -1 as a hint address.
 
-Unfortunately, this trick breaks THP alignment in shmem/tmp:
-shmem_get_unmapped_area() would not try to allocate PMD-aligned area if
-*any* hint address specified.
+Unfortunately, this trick breaks thp_get_unmapped_area(): the function
+would not try to allocate PMD-aligned area if *any* hint address
+specified.
 
-This can be fixed by requesting the aligned area if the we failed to
-allocated at user-specified hint address.  The request with inflated
-length will also take the user-specified hint address.  This way we will
-not lose an allocation request from the full address space.
+Modify the routine to handle it correctly:
 
-[kirill@shutemov.name: fold in a fixup]
-  Link: http://lkml.kernel.org/r/20191223231309.t6bh5hkbmokihpfu@box
-Link: http://lkml.kernel.org/r/20191220142548.7118-3-kirill.shutemov@linux.intel.com
+ - Try to allocate the space at the specified hint address with length
+   padding required for PMD alignment.
+ - If failed, retry without length padding (but with the same hint
+   address);
+ - If the returned address matches the hint address return it.
+ - Otherwise, align the address as required for THP and return.
+
+The user specified hint address is passed down to get_unmapped_area() so
+above-47bit hint address will be taken into account without breaking
+alignment requirements.
+
+Link: http://lkml.kernel.org/r/20191220142548.7118-2-kirill.shutemov@linux.intel.com
 Fixes: b569bab78d8d ("x86/mm: Prepare to expose larger address space to userspace")
 Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: "Willhalm, Thomas" <thomas.willhalm@intel.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>
+Reported-by: Thomas Willhalm <thomas.willhalm@intel.com>
+Tested-by: Dan Williams <dan.j.williams@intel.com>
 Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
+Cc: "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/shmem.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ mm/huge_memory.c |   38 ++++++++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2106,9 +2106,10 @@ unsigned long shmem_get_unmapped_area(st
- 	/*
- 	 * Our priority is to support MAP_SHARED mapped hugely;
- 	 * and support MAP_PRIVATE mapped hugely too, until it is COWed.
--	 * But if caller specified an address hint, respect that as before.
-+	 * But if caller specified an address hint and we allocated area there
-+	 * successfully, respect that as before.
- 	 */
--	if (uaddr)
-+	if (uaddr == addr)
- 		return addr;
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -527,13 +527,13 @@ void prep_transhuge_page(struct page *pa
+ 	set_compound_page_dtor(page, TRANSHUGE_PAGE_DTOR);
+ }
  
- 	if (shmem_huge != SHMEM_HUGE_FORCE) {
-@@ -2142,7 +2143,7 @@ unsigned long shmem_get_unmapped_area(st
- 	if (inflated_len < len)
- 		return addr;
+-static unsigned long __thp_get_unmapped_area(struct file *filp, unsigned long len,
++static unsigned long __thp_get_unmapped_area(struct file *filp,
++		unsigned long addr, unsigned long len,
+ 		loff_t off, unsigned long flags, unsigned long size)
+ {
+-	unsigned long addr;
+ 	loff_t off_end = off + len;
+ 	loff_t off_align = round_up(off, size);
+-	unsigned long len_pad;
++	unsigned long len_pad, ret;
  
--	inflated_addr = get_area(NULL, 0, inflated_len, 0, flags);
-+	inflated_addr = get_area(NULL, uaddr, inflated_len, 0, flags);
- 	if (IS_ERR_VALUE(inflated_addr))
- 		return addr;
- 	if (inflated_addr & ~PAGE_MASK)
+ 	if (off_end <= off_align || (off_end - off_align) < size)
+ 		return 0;
+@@ -542,30 +542,40 @@ static unsigned long __thp_get_unmapped_
+ 	if (len_pad < len || (off + len_pad) < off)
+ 		return 0;
+ 
+-	addr = current->mm->get_unmapped_area(filp, 0, len_pad,
++	ret = current->mm->get_unmapped_area(filp, addr, len_pad,
+ 					      off >> PAGE_SHIFT, flags);
+-	if (IS_ERR_VALUE(addr))
++
++	/*
++	 * The failure might be due to length padding. The caller will retry
++	 * without the padding.
++	 */
++	if (IS_ERR_VALUE(ret))
+ 		return 0;
+ 
+-	addr += (off - addr) & (size - 1);
+-	return addr;
++	/*
++	 * Do not try to align to THP boundary if allocation at the address
++	 * hint succeeds.
++	 */
++	if (ret == addr)
++		return addr;
++
++	ret += (off - ret) & (size - 1);
++	return ret;
+ }
+ 
+ unsigned long thp_get_unmapped_area(struct file *filp, unsigned long addr,
+ 		unsigned long len, unsigned long pgoff, unsigned long flags)
+ {
++	unsigned long ret;
+ 	loff_t off = (loff_t)pgoff << PAGE_SHIFT;
+ 
+-	if (addr)
+-		goto out;
+ 	if (!IS_DAX(filp->f_mapping->host) || !IS_ENABLED(CONFIG_FS_DAX_PMD))
+ 		goto out;
+ 
+-	addr = __thp_get_unmapped_area(filp, len, off, flags, PMD_SIZE);
+-	if (addr)
+-		return addr;
+-
+- out:
++	ret = __thp_get_unmapped_area(filp, addr, len, off, flags, PMD_SIZE);
++	if (ret)
++		return ret;
++out:
+ 	return current->mm->get_unmapped_area(filp, addr, len, pgoff, flags);
+ }
+ EXPORT_SYMBOL_GPL(thp_get_unmapped_area);
 
 
