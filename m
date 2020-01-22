@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D329145110
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A67614500A
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:43:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729410AbgAVJvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:51:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53410 "EHLO mail.kernel.org"
+        id S1733285AbgAVJnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:43:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731058AbgAVJhV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:37:21 -0500
+        id S2387852AbgAVJnP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:43:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42DC22467E;
-        Wed, 22 Jan 2020 09:37:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 426E124680;
+        Wed, 22 Jan 2020 09:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685840;
-        bh=9kdsAENDk8onj4AJteB91HNaL8zgrpxl1z1L7bDvJIE=;
+        s=default; t=1579686194;
+        bh=h9wDXmwEsFdoPohpB5Y3eEkycsp8x/x34bOnIPfQ6gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M15AS1avLuvwZdJaBXxKjjJ6fn0q2ENKF8EPqDLQjlnVpMgLlD/OlFjtPF/wIVzZJ
-         YvvqM0BlPLCVPAJykvSucE3WOtSGnBW+lrz+kL850sGJxAg0V9ti/JEH3L3LXCaW+u
-         1LqmMJIW6wlCg5WuoTOd4gRXEXQ4KEtua5wrrOf4=
+        b=Ar5GX2OlQGLPGgRWHV5PUE0ru9txdHWQaqfWBzWXcnAl6jvdCv0xaf73A1iVNV+xh
+         yIp6HmMMIrT9Z9RryRLUfxldXWJR+fUcq1qfdCANu4yz3GAV8iDqeWQR51oBHqB+oj
+         sY0LN5EHdQ+kqPQZCpiGqfeVUoiDP/t574jm07d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 94/97] scsi: target: core: Fix a pr_debug() argument
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 082/103] cw1200: Fix a signedness bug in cw1200_load_firmware()
 Date:   Wed, 22 Jan 2020 10:29:38 +0100
-Message-Id: <20200122092811.126690482@linuxfoundation.org>
+Message-Id: <20200122092814.970803207@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit c941e0d172605731de9b4628bd4146d35cf2e7d6 upstream.
+commit 4a50d454502f1401171ff061a5424583f91266db upstream.
 
-Print the string for which conversion failed instead of printing the
-function name twice.
+The "priv->hw_type" is an enum and in this context GCC will treat it
+as an unsigned int so the error handling will never trigger.
 
-Fixes: 2650d71e244f ("target: move transport ID handling to the core")
-Cc: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20191107215525.64415-1-bvanassche@acm.org
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: a910e4a94f69 ("cw1200: add driver for the ST-E CW1100 & CW1200 WLAN chipsets")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/target/target_core_fabric_lib.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/st/cw1200/fwio.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/target/target_core_fabric_lib.c
-+++ b/drivers/target/target_core_fabric_lib.c
-@@ -130,7 +130,7 @@ static int srp_get_pr_transport_id(
- 	memset(buf + 8, 0, leading_zero_bytes);
- 	rc = hex2bin(buf + 8 + leading_zero_bytes, p, count);
- 	if (rc < 0) {
--		pr_debug("hex2bin failed for %s: %d\n", __func__, rc);
-+		pr_debug("hex2bin failed for %s: %d\n", p, rc);
- 		return rc;
+--- a/drivers/net/wireless/st/cw1200/fwio.c
++++ b/drivers/net/wireless/st/cw1200/fwio.c
+@@ -323,12 +323,12 @@ int cw1200_load_firmware(struct cw1200_c
+ 		goto out;
  	}
  
+-	priv->hw_type = cw1200_get_hw_type(val32, &major_revision);
+-	if (priv->hw_type < 0) {
++	ret = cw1200_get_hw_type(val32, &major_revision);
++	if (ret < 0) {
+ 		pr_err("Can't deduce hardware type.\n");
+-		ret = -ENOTSUPP;
+ 		goto out;
+ 	}
++	priv->hw_type = ret;
+ 
+ 	/* Set DPLL Reg value, and read back to confirm writes work */
+ 	ret = cw1200_reg_write_32(priv, ST90TDS_TSET_GEN_R_W_REG_ID,
 
 
