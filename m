@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A23B144F76
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:38:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98CB01451CA
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:56:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732393AbgAVJiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:38:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54474 "EHLO mail.kernel.org"
+        id S1729967AbgAVJcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:32:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732861AbgAVJiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:38:05 -0500
+        id S1729951AbgAVJcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:32:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C3AF2467F;
-        Wed, 22 Jan 2020 09:38:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2311A24673;
+        Wed, 22 Jan 2020 09:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685884;
-        bh=Rlka6QsD7cuOhT3QEuTFp25l9TRE6qb5THyJ9TzS5C0=;
+        s=default; t=1579685527;
+        bh=qGi+amHtg4nMFyTreTVC3CjCEdnJ/6cm/CDIADTgEpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZ/UuaPcMJsdA7z1dKlB0hH84xBTpfkf/caw5/bJXgKeK47HQZJ+wMMsNyRekUCJw
-         samAx86E5ID4UFigLr9Mrd2d3kfdlFaj17pCXWtc3hx6cnZ3qyL3gWvC839ksRnK2B
-         GONnR8vsuqoAwajEA+GffGk8haFzextrol/sOI9s=
+        b=uRSAmXxFWBFRu9K6UykZCef6EIATEFuONd8E6DjnHQYlPufmrREa4R16dlc55KlHM
+         dEiacctlRLbXAFjMNT/wRwCsnGUSN6jU7W8AX3uS6CljzzjpHSXgUWxABrcbULU4/x
+         5seYLY9CAo0BwYPLgm+aEs0KKm6ILRmZXeQCVGuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Keiya Nobuta <nobuta.keiya@fujitsu.com>,
         Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.14 21/65] usb: core: hub: Improved device recognition on remote wakeup
+Subject: [PATCH 4.4 50/76] usb: core: hub: Improved device recognition on remote wakeup
 Date:   Wed, 22 Jan 2020 10:29:06 +0100
-Message-Id: <20200122092754.100033239@linuxfoundation.org>
+Message-Id: <20200122092758.234882382@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
-@@ -1164,6 +1164,7 @@ static void hub_activate(struct usb_hub
+@@ -1146,6 +1146,7 @@ static void hub_activate(struct usb_hub
  			 * PORT_OVER_CURRENT is not. So check for any of them.
  			 */
  			if (udev || (portstatus & USB_PORT_STAT_CONNECTION) ||
