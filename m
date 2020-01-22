@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3430B145049
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:45:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BE1414503B
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:45:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387929AbgAVJoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:44:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38514 "EHLO mail.kernel.org"
+        id S2388136AbgAVJo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:44:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387642AbgAVJox (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:44:53 -0500
+        id S2388133AbgAVJo7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:44:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E31BC24689;
-        Wed, 22 Jan 2020 09:44:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3D202467B;
+        Wed, 22 Jan 2020 09:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686293;
-        bh=aSV8YN8FUxhKqGyvl1LF4GoWMng6nckjMxuUvtSrAJ8=;
+        s=default; t=1579686298;
+        bh=Dbo3v6EsEkfvHSpCRZHRDxdBfN5Pfp/DqXmhD8DDa1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTdD+1GEVo5zIH3h/uJHS35BWpij+OfAXW7wnaSILyt2itVxni21xuy4DKhV/wYpb
-         iH6fiTfkwGghF8zu/j39fUPu+I9+mOS0SC/X4tSSS2gBCMA2WbS+jbh5tBe859/zY5
-         r+wCZQ3FiA7izyrp3rlXDlxRJj1iS4hTn/r3kh3k=
+        b=aIN3pRd4ASDzzg7cVelzf+cw/jXhbovcKRedFNXPdNoI9NZwi5NGomefb950AWNQb
+         OmO+og4I5K4sYNOvyMnjk/BFvv9gWJ9kEdzKxK25sLgaYfAIW4UJbtSZuCnOhv7+W8
+         PfwzMj/wUiwGGt0C4lNH+iPcgQA6oDKUslcrhzTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
         Fabio Estevam <festevam@gmail.com>,
+        Ludwig Zenz <lzenz@dh-electronics.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.4 019/222] ARM: dts: imx7ulp: fix reg of cpu node
-Date:   Wed, 22 Jan 2020 10:26:45 +0100
-Message-Id: <20200122092834.776704477@linuxfoundation.org>
+Subject: [PATCH 5.4 020/222] ARM: dts: imx6q-dhcom: Fix SGTL5000 VDDIO regulator connection
+Date:   Wed, 22 Jan 2020 10:26:46 +0100
+Message-Id: <20200122092834.849596981@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,50 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Marek Vasut <marex@denx.de>
 
-commit b8ab62ff7199fac8ce27fa4a149929034fabe7f8 upstream.
+commit fe6a6689d1815b63528796886853890d8ee7f021 upstream.
 
-According to arm cpus binding doc,
-"
-      On 32-bit ARM v7 or later systems this property is
-        required and matches the CPU MPIDR[23:0] register
-        bits.
+The SGTL5000 VDDIO is connected to the PMIC SW2 output, not to
+a fixed 3V3 rail. Describe this correctly in the DT.
 
-        Bits [23:0] in the reg cell must be set to
-        bits [23:0] in MPIDR.
-
-        All other bits in the reg cell must be set to 0.
-"
-
-In i.MX7ULP, the MPIDR[23:0] is 0xf00, not 0, so fix it.
-Otherwise there will be warning:
-"DT missing boot CPU MPIDR[23:0], fall back to default cpu_logical_map"
-
-Fixes: 20434dc92c05 ("ARM: dts: imx: add common imx7ulp dtsi support")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM and PDK2")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Ludwig Zenz <lzenz@dh-electronics.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+To: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/imx7ulp.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6q-dhcom-pdk2.dts |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/imx7ulp.dtsi
-+++ b/arch/arm/boot/dts/imx7ulp.dtsi
-@@ -37,10 +37,10 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
--		cpu0: cpu@0 {
-+		cpu0: cpu@f00 {
- 			compatible = "arm,cortex-a7";
- 			device_type = "cpu";
--			reg = <0>;
-+			reg = <0xf00>;
- 		};
+--- a/arch/arm/boot/dts/imx6q-dhcom-pdk2.dts
++++ b/arch/arm/boot/dts/imx6q-dhcom-pdk2.dts
+@@ -55,7 +55,7 @@
+ 		#sound-dai-cells = <0>;
+ 		clocks = <&clk_ext_audio_codec>;
+ 		VDDA-supply = <&reg_3p3v>;
+-		VDDIO-supply = <&reg_3p3v>;
++		VDDIO-supply = <&sw2_reg>;
  	};
+ };
  
 
 
