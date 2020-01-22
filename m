@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4E0145683
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE80145685
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728890AbgAVN1a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:27:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48908 "EHLO mail.kernel.org"
+        id S1730959AbgAVN1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:27:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731505AbgAVN1a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:27:30 -0500
+        id S1731505AbgAVN1c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:27:32 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83AED205F4;
-        Wed, 22 Jan 2020 13:27:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD24120678;
+        Wed, 22 Jan 2020 13:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699649;
-        bh=4yD1R+pFhDL9C4bL1QzVzvgSM2HNYuoVeKThpzCZuLw=;
+        s=default; t=1579699652;
+        bh=DMzQfcS5xAtCDGC66DRYfaphZBjQGtafikwUVfigmRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCE8ZXaCa3OwrE4SF9fXfJtbE2PAlzfrldff0C1xpA+OB4plY2rsKj+CxzEalgy5P
-         mY18YplW/OKTZy+x6qVXnQrtm0GpWlezAXxJqBkH5IVio1u+HVJRGG9/B+l3gnlNCz
-         ZCvUCf0CRPzqLjGvE45Ge8WAlEALE1tagMmDhWGY=
+        b=Njo4gzoneIQnjNWwUU1UBPjzir5xamqG6TwZd+Z7N8e9T4zSy2QZTw7E8vvnZeqhm
+         ZVoJ3RddLmqi8usOl9mEaQKjCuYJlrPecWELDqRsJSzGfQEMMNWHPivQMGBY8N8Pk7
+         cZkNDBVeY8ShzwTMuNShjRZ3lbG3e7fXAB4p/nPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        stable@vger.kernel.org,
+        Michael Hernandez <michael.hernandez@cavium.com>,
+        Huacai Chen <chenhc@lemote.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 207/222] scsi: scsi_transport_sas: Fix memory leak when removing devices
-Date:   Wed, 22 Jan 2020 10:29:53 +0100
-Message-Id: <20200122092848.520088601@linuxfoundation.org>
+Subject: [PATCH 5.4 208/222] scsi: qla2xxx: Fix qla2x00_request_irqs() for MSI
+Date:   Wed, 22 Jan 2020 10:29:54 +0100
+Message-Id: <20200122092848.590628821@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -43,119 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-commit 82ea3e0e129e2ab913dd6684bab7a6e5e9896dee upstream.
+commit 45dc8f2d9c94ed74a5e31e63e9136a19a7e16081 upstream.
 
-Removing a non-host rphy causes a memory leak:
+Commit 4fa183455988 ("scsi: qla2xxx: Utilize pci_alloc_irq_vectors/
+pci_free_irq_vectors calls.") use pci_alloc_irq_vectors() to replace
+pci_enable_msi() but it didn't handle the return value correctly. This bug
+make qla2x00 always fail to setup MSI if MSI-X fail, so fix it.
 
-root@(none)$ echo 0 > /sys/devices/platform/HISI0162:01/host0/port-0:0/expander-0:0/port-0:0:10/phy-0:0:10/sas_phy/phy-0:0:10/enable
-[   79.857888] hisi_sas_v2_hw HISI0162:01: dev[7:1] is gone
-root@(none)$ echo scan > /sys/kernel/debug/kmemleak
-[  131.656603] kmemleak: 3 new suspected memory leaks (see /sys/kernel/debug/kmemleak)
-root@(none)$ more /sys/kernel/debug/kmemleak
-unreferenced object 0xffff041da5c66000 (size 256):
-  comm "kworker/u128:1", pid 549, jiffies 4294898543 (age 113.728s)
-  hex dump (first 32 bytes):
-    00 5e c6 a5 1d 04 ff ff 01 00 00 00 00 00 00 00  .^..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<(____ptrval____)>] kmem_cache_alloc+0x188/0x260
-    [<(____ptrval____)>] bsg_setup_queue+0x48/0x1a8
-    [<(____ptrval____)>] sas_rphy_add+0x108/0x2d0
-    [<(____ptrval____)>] sas_probe_devices+0x168/0x208
-    [<(____ptrval____)>] sas_discover_domain+0x660/0x9c8
-    [<(____ptrval____)>] process_one_work+0x3f8/0x690
-    [<(____ptrval____)>] worker_thread+0x70/0x6a0
-    [<(____ptrval____)>] kthread+0x1b8/0x1c0
-    [<(____ptrval____)>] ret_from_fork+0x10/0x18
-unreferenced object 0xffff041d8c075400 (size 128):
-  comm "kworker/u128:1", pid 549, jiffies 4294898543 (age 113.728s)
-  hex dump (first 32 bytes):
-    00 40 25 97 1d 00 ff ff 00 00 00 00 00 00 00 00  .@%.............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<(____ptrval____)>] __kmalloc_node+0x1a8/0x2c8
-    [<(____ptrval____)>] blk_mq_realloc_tag_set_tags.part.70+0x48/0xd8
-    [<(____ptrval____)>] blk_mq_alloc_tag_set+0x1dc/0x530
-    [<(____ptrval____)>] bsg_setup_queue+0xe8/0x1a8
-    [<(____ptrval____)>] sas_rphy_add+0x108/0x2d0
-    [<(____ptrval____)>] sas_probe_devices+0x168/0x208
-    [<(____ptrval____)>] sas_discover_domain+0x660/0x9c8
-    [<(____ptrval____)>] process_one_work+0x3f8/0x690
-    [<(____ptrval____)>] worker_thread+0x70/0x6a0
-    [<(____ptrval____)>] kthread+0x1b8/0x1c0
-    [<(____ptrval____)>] ret_from_fork+0x10/0x18
-unreferenced object 0xffff041da5c65e00 (size 256):
-  comm "kworker/u128:1", pid 549, jiffies 4294898543 (age 113.728s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<(____ptrval____)>] __kmalloc_node+0x1a8/0x2c8
-    [<(____ptrval____)>] blk_mq_alloc_tag_set+0x254/0x530
-    [<(____ptrval____)>] bsg_setup_queue+0xe8/0x1a8
-    [<(____ptrval____)>] sas_rphy_add+0x108/0x2d0
-    [<(____ptrval____)>] sas_probe_devices+0x168/0x208
-    [<(____ptrval____)>] sas_discover_domain+0x660/0x9c8
-    [<(____ptrval____)>] process_one_work+0x3f8/0x690
-    [<(____ptrval____)>] worker_thread+0x70/0x6a0
-    [<(____ptrval____)>] kthread+0x1b8/0x1c0
-    [<(____ptrval____)>] ret_from_fork+0x10/0x18
-root@(none)$
+BTW, improve the log message of return value in qla2x00_request_irqs() to
+avoid confusion.
 
-It turns out that we don't clean up the request queue fully for bsg
-devices, as the blk mq tags for the request queue are not freed.
-
-Fix by doing the queue removal in one place - in sas_rphy_remove() -
-instead of unregistering the queue in sas_rphy_remove() and finally
-cleaning up the queue in calling blk_cleanup_queue() from
-sas_end_device_release() or sas_expander_release().
-
-Function bsg_remove_queue() can handle a NULL pointer q, so remove the
-precheck in sas_rphy_remove().
-
-Fixes: 651a013649943 ("scsi: scsi_transport_sas: switch to bsg-lib for SMP passthrough")
-Link: https://lore.kernel.org/r/1574242755-94156-1-git-send-email-john.garry@huawei.com
-Signed-off-by: John Garry <john.garry@huawei.com>
+Fixes: 4fa183455988 ("scsi: qla2xxx: Utilize pci_alloc_irq_vectors/pci_free_irq_vectors calls.")
+Cc: Michael Hernandez <michael.hernandez@cavium.com>
+Link: https://lore.kernel.org/r/1574314847-14280-1-git-send-email-chenhc@lemote.com
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/scsi_transport_sas.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/scsi/qla2xxx/qla_isr.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/scsi_transport_sas.c
-+++ b/drivers/scsi/scsi_transport_sas.c
-@@ -1391,9 +1391,6 @@ static void sas_expander_release(struct
- 	struct sas_rphy *rphy = dev_to_rphy(dev);
- 	struct sas_expander_device *edev = rphy_to_expander_device(rphy);
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -3625,7 +3625,7 @@ qla2x00_request_irqs(struct qla_hw_data
+ skip_msix:
  
--	if (rphy->q)
--		blk_cleanup_queue(rphy->q);
--
- 	put_device(dev->parent);
- 	kfree(edev);
- }
-@@ -1403,9 +1400,6 @@ static void sas_end_device_release(struc
- 	struct sas_rphy *rphy = dev_to_rphy(dev);
- 	struct sas_end_device *edev = rphy_to_end_device(rphy);
+ 	ql_log(ql_log_info, vha, 0x0037,
+-	    "Falling back-to MSI mode -%d.\n", ret);
++	    "Falling back-to MSI mode -- ret=%d.\n", ret);
  
--	if (rphy->q)
--		blk_cleanup_queue(rphy->q);
--
- 	put_device(dev->parent);
- 	kfree(edev);
- }
-@@ -1634,8 +1628,7 @@ sas_rphy_remove(struct sas_rphy *rphy)
- 	}
+ 	if (!IS_QLA24XX(ha) && !IS_QLA2532(ha) && !IS_QLA8432(ha) &&
+ 	    !IS_QLA8001(ha) && !IS_P3P_TYPE(ha) && !IS_QLAFX00(ha) &&
+@@ -3633,13 +3633,13 @@ skip_msix:
+ 		goto skip_msi;
  
- 	sas_rphy_unlink(rphy);
--	if (rphy->q)
--		bsg_unregister_queue(rphy->q);
-+	bsg_remove_queue(rphy->q);
- 	transport_remove_device(dev);
- 	device_del(dev);
- }
+ 	ret = pci_alloc_irq_vectors(ha->pdev, 1, 1, PCI_IRQ_MSI);
+-	if (!ret) {
++	if (ret > 0) {
+ 		ql_dbg(ql_dbg_init, vha, 0x0038,
+ 		    "MSI: Enabled.\n");
+ 		ha->flags.msi_enabled = 1;
+ 	} else
+ 		ql_log(ql_log_warn, vha, 0x0039,
+-		    "Falling back-to INTa mode -- %d.\n", ret);
++		    "Falling back-to INTa mode -- ret=%d.\n", ret);
+ skip_msi:
+ 
+ 	/* Skip INTx on ISP82xx. */
 
 
