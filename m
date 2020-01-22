@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA7701450B5
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1972144EE2
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:34:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387419AbgAVJkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:40:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58752 "EHLO mail.kernel.org"
+        id S1729447AbgAVJcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:32:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732879AbgAVJkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:40:10 -0500
+        id S1729439AbgAVJcU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:32:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1AE524686;
-        Wed, 22 Jan 2020 09:40:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE9E32071E;
+        Wed, 22 Jan 2020 09:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686009;
-        bh=6peGELComVwPJobIqCDWWvnmKmDPtlCrb3OFIpVkbPg=;
+        s=default; t=1579685540;
+        bh=yuc2WD3xnHmcdfjcvYL1sN24yQMukUchQOZdU/paCYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIefOkZaC+qqRYB4NLF94tbvQWbpLbCnS1PUZW/V6y2TZgovw/b15oKggxNE8GbJp
-         9zrAwtth7mVwSIc9IQAWPkuUQUGIf9dV9r98/lRfFmwZW8MEHj2ojXDW6FatrRiWXi
-         2fjyIkM42bfDdbEZ1puKjX5elTXh9DtIPqZvyX1g=
+        b=DIj2ekrGCGZbMSEB2IfwlLxFKmeMxqOQqNh3gGrRX8d7DXOGWFqGrxicCmkanLs+h
+         B3wd4iFi/Ll5N+GW9QBjXGOk+kAy9KvyRgpijeNzC/o5+KU+dxvhljWnfOLAIKqEjE
+         RQhLbHdp5KnlQCtkLzrw4oonU4wWPXluChVc6P3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        "Willhalm, Thomas" <thomas.willhalm@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 26/65] mm/shmem.c: thp, shmem: fix conflict of above-47bit hint address and PMD alignment
+        stable@vger.kernel.org, John Ogness <john.ogness@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 55/76] USB: serial: io_edgeport: use irqsave() in USBs complete callback
 Date:   Wed, 22 Jan 2020 10:29:11 +0100
-Message-Id: <20200122092754.541271857@linuxfoundation.org>
+Message-Id: <20200122092759.185198066@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,74 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill A. Shutemov <kirill@shutemov.name>
+From: John Ogness <john.ogness@linutronix.de>
 
-commit 991589974d9c9ecb24ee3799ec8c415c730598a2 upstream.
+[ Upstream commit dd1fae527612543e560e84f2eba4f6ef2006ac55 ]
 
-Shmem/tmpfs tries to provide THP-friendly mappings if huge pages are
-enabled.  But it doesn't work well with above-47bit hint address.
+The USB completion callback does not disable interrupts while acquiring
+the lock. We want to remove the local_irq_disable() invocation from
+__usb_hcd_giveback_urb() and therefore it is required for the callback
+handler to disable the interrupts while acquiring the lock.
+The callback may be invoked either in IRQ or BH context depending on the
+USB host controller.
+Use the _irqsave() variant of the locking primitives.
 
-Normally, the kernel doesn't create userspace mappings above 47-bit,
-even if the machine allows this (such as with 5-level paging on x86-64).
-Not all user space is ready to handle wide addresses.  It's known that
-at least some JIT compilers use higher bits in pointers to encode their
-information.
-
-Userspace can ask for allocation from full address space by specifying
-hint address (with or without MAP_FIXED) above 47-bits.  If the
-application doesn't need a particular address, but wants to allocate
-from whole address space it can specify -1 as a hint address.
-
-Unfortunately, this trick breaks THP alignment in shmem/tmp:
-shmem_get_unmapped_area() would not try to allocate PMD-aligned area if
-*any* hint address specified.
-
-This can be fixed by requesting the aligned area if the we failed to
-allocated at user-specified hint address.  The request with inflated
-length will also take the user-specified hint address.  This way we will
-not lose an allocation request from the full address space.
-
-[kirill@shutemov.name: fold in a fixup]
-  Link: http://lkml.kernel.org/r/20191223231309.t6bh5hkbmokihpfu@box
-Link: http://lkml.kernel.org/r/20191220142548.7118-3-kirill.shutemov@linux.intel.com
-Fixes: b569bab78d8d ("x86/mm: Prepare to expose larger address space to userspace")
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: "Willhalm, Thomas" <thomas.willhalm@intel.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>
-Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/shmem.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/serial/io_edgeport.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2052,9 +2052,10 @@ unsigned long shmem_get_unmapped_area(st
- 	/*
- 	 * Our priority is to support MAP_SHARED mapped hugely;
- 	 * and support MAP_PRIVATE mapped hugely too, until it is COWed.
--	 * But if caller specified an address hint, respect that as before.
-+	 * But if caller specified an address hint and we allocated area there
-+	 * successfully, respect that as before.
- 	 */
--	if (uaddr)
-+	if (uaddr == addr)
- 		return addr;
+diff --git a/drivers/usb/serial/io_edgeport.c b/drivers/usb/serial/io_edgeport.c
+index 4db280e6fac9..1995e6306b88 100644
+--- a/drivers/usb/serial/io_edgeport.c
++++ b/drivers/usb/serial/io_edgeport.c
+@@ -572,6 +572,7 @@ static void edge_interrupt_callback(struct urb *urb)
+ 	struct usb_serial_port *port;
+ 	unsigned char *data = urb->transfer_buffer;
+ 	int length = urb->actual_length;
++	unsigned long flags;
+ 	int bytes_avail;
+ 	int position;
+ 	int txCredits;
+@@ -603,7 +604,7 @@ static void edge_interrupt_callback(struct urb *urb)
+ 		if (length > 1) {
+ 			bytes_avail = data[0] | (data[1] << 8);
+ 			if (bytes_avail) {
+-				spin_lock(&edge_serial->es_lock);
++				spin_lock_irqsave(&edge_serial->es_lock, flags);
+ 				edge_serial->rxBytesAvail += bytes_avail;
+ 				dev_dbg(dev,
+ 					"%s - bytes_avail=%d, rxBytesAvail=%d, read_in_progress=%d\n",
+@@ -626,7 +627,8 @@ static void edge_interrupt_callback(struct urb *urb)
+ 						edge_serial->read_in_progress = false;
+ 					}
+ 				}
+-				spin_unlock(&edge_serial->es_lock);
++				spin_unlock_irqrestore(&edge_serial->es_lock,
++						       flags);
+ 			}
+ 		}
+ 		/* grab the txcredits for the ports if available */
+@@ -639,9 +641,11 @@ static void edge_interrupt_callback(struct urb *urb)
+ 				port = edge_serial->serial->port[portNumber];
+ 				edge_port = usb_get_serial_port_data(port);
+ 				if (edge_port->open) {
+-					spin_lock(&edge_port->ep_lock);
++					spin_lock_irqsave(&edge_port->ep_lock,
++							  flags);
+ 					edge_port->txCredits += txCredits;
+-					spin_unlock(&edge_port->ep_lock);
++					spin_unlock_irqrestore(&edge_port->ep_lock,
++							       flags);
+ 					dev_dbg(dev, "%s - txcredits for port%d = %d\n",
+ 						__func__, portNumber,
+ 						edge_port->txCredits);
+@@ -682,6 +686,7 @@ static void edge_bulk_in_callback(struct urb *urb)
+ 	int			retval;
+ 	__u16			raw_data_length;
+ 	int status = urb->status;
++	unsigned long flags;
  
- 	if (shmem_huge != SHMEM_HUGE_FORCE) {
-@@ -2088,7 +2089,7 @@ unsigned long shmem_get_unmapped_area(st
- 	if (inflated_len < len)
- 		return addr;
+ 	if (status) {
+ 		dev_dbg(&urb->dev->dev, "%s - nonzero read bulk status received: %d\n",
+@@ -701,7 +706,7 @@ static void edge_bulk_in_callback(struct urb *urb)
  
--	inflated_addr = get_area(NULL, 0, inflated_len, 0, flags);
-+	inflated_addr = get_area(NULL, uaddr, inflated_len, 0, flags);
- 	if (IS_ERR_VALUE(inflated_addr))
- 		return addr;
- 	if (inflated_addr & ~PAGE_MASK)
+ 	usb_serial_debug_data(dev, __func__, raw_data_length, data);
+ 
+-	spin_lock(&edge_serial->es_lock);
++	spin_lock_irqsave(&edge_serial->es_lock, flags);
+ 
+ 	/* decrement our rxBytes available by the number that we just got */
+ 	edge_serial->rxBytesAvail -= raw_data_length;
+@@ -725,7 +730,7 @@ static void edge_bulk_in_callback(struct urb *urb)
+ 		edge_serial->read_in_progress = false;
+ 	}
+ 
+-	spin_unlock(&edge_serial->es_lock);
++	spin_unlock_irqrestore(&edge_serial->es_lock, flags);
+ }
+ 
+ 
+-- 
+2.20.1
+
 
 
