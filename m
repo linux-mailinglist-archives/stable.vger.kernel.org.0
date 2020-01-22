@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7662145078
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 146E8145058
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:45:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388022AbgAVJoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:44:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37368 "EHLO mail.kernel.org"
+        id S1729828AbgAVJpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:45:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387848AbgAVJoS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:44:18 -0500
+        id S2388025AbgAVJoV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:44:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9AAA2468B;
-        Wed, 22 Jan 2020 09:44:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 598CA24689;
+        Wed, 22 Jan 2020 09:44:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686258;
-        bh=dEwi0JC7TzjYmMHSKOvdlRofP9l7kVazWtTHC4k6uxA=;
+        s=default; t=1579686260;
+        bh=uekGNvBbb8iL4au83+tOTlq3z6PxAJJO3z4muAo2nhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XJWwX1X4JKXp4SaBbx9EjjM4nZyhlGk3Kgwsgk8zM3o0HB9KJglxZ0vvIhOAqrNv4
-         NK/70AfnIZ0fV32aesQx7WiraJYly2HNeHnQZkLiSTcgotsU13GQgN+/uTEDH9i/Bs
-         XMyGymvgC901t/d5bueychdgJFrZ5Wx0mNmyAH6k=
+        b=y7AbrtVr0bBU/YpvANACtBIJKYyGlrKUC2yRjM3J4yicVa7l3vEq2wv7Lj+u/nxlJ
+         l6esthmcGzpi5HxOJTEocy2HXNAF9UpvTZovjL6S4UVHfjszzXq03wXqIGd8brOwWZ
+         Q3lfpzhTYNe0X0VlCV0sYSp8rauznvAApcf9V1uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baolin Wang <baolin.wang@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 4.19 101/103] clk: sprd: Use IS_ERR() to validate the return value of syscon_regmap_lookup_by_phandle()
-Date:   Wed, 22 Jan 2020 10:29:57 +0100
-Message-Id: <20200122092816.824516282@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 102/103] regulator: ab8500: Remove SYSCLKREQ from enum ab8505_regulator_id
+Date:   Wed, 22 Jan 2020 10:29:58 +0100
+Message-Id: <20200122092816.938064051@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
 References: <20200122092803.587683021@linuxfoundation.org>
@@ -43,33 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linaro.org>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 9629dbdabd1983ef53f125336e1d62d77b1620f9 upstream.
+commit 458ea3ad033fc86e291712ce50cbe60c3428cf30 upstream.
 
-The syscon_regmap_lookup_by_phandle() will never return NULL, thus use
-IS_ERR() to validate the return value instead of IS_ERR_OR_NULL().
+Those regulators are not actually supported by the AB8500 regulator
+driver. There is no ab8500_regulator_info for them and no entry in
+ab8505_regulator_match.
 
-Fixes: d41f59fd92f2 ("clk: sprd: Add common infrastructure")
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-Link: https://lkml.kernel.org/r/1995139bee5248ff3e9d46dc715968f212cfc4cc.1570520268.git.baolin.wang@linaro.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+As such, they cannot be registered successfully, and looking them
+up in ab8505_regulator_match causes an out-of-bounds array read.
+
+Fixes: 547f384f33db ("regulator: ab8500: add support for ab8505")
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20191106173125.14496-2-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/sprd/common.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/regulator/ab8500.h |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/clk/sprd/common.c
-+++ b/drivers/clk/sprd/common.c
-@@ -45,7 +45,7 @@ int sprd_clk_regmap_init(struct platform
+--- a/include/linux/regulator/ab8500.h
++++ b/include/linux/regulator/ab8500.h
+@@ -43,8 +43,6 @@ enum ab8505_regulator_id {
+ 	AB8505_LDO_ANAMIC2,
+ 	AB8505_LDO_AUX8,
+ 	AB8505_LDO_ANA,
+-	AB8505_SYSCLKREQ_2,
+-	AB8505_SYSCLKREQ_4,
+ 	AB8505_NUM_REGULATORS,
+ };
  
- 	if (of_find_property(node, "sprd,syscon", NULL)) {
- 		regmap = syscon_regmap_lookup_by_phandle(node, "sprd,syscon");
--		if (IS_ERR_OR_NULL(regmap)) {
-+		if (IS_ERR(regmap)) {
- 			pr_err("%s: failed to get syscon regmap\n", __func__);
- 			return PTR_ERR(regmap);
- 		}
 
 
