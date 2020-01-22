@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9D75145637
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27CC1145638
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729017AbgAVNWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:22:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40364 "EHLO mail.kernel.org"
+        id S1729050AbgAVNWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:22:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725827AbgAVNWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:22:38 -0500
+        id S1729425AbgAVNWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:22:47 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71CCF24690;
-        Wed, 22 Jan 2020 13:22:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C7432468D;
+        Wed, 22 Jan 2020 13:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699358;
-        bh=THZTOQTBOsJRrzlwegB7sVd2vR3v8N9OdsvPhENhc5g=;
+        s=default; t=1579699367;
+        bh=As0BFpKYdf8bREqme8P5/YpjihCcV/hXG3yG8sQOQCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yM2ptP1WXt38YUkHMqz5eeT6rUhN1FAtgiwv5A3hVJP+7JnRss9XSRXvv6vYoPi+E
-         B0xjXmbtLcdFfqyMKNnPZNwULURTmX3ek1HH3sYEW6gV+fyEYPCt1T+Ec2J5ev4uTT
-         jD+Zq1hjyS7vlwZq0t2aLiqCR4rLSF7V5zfEDyWU=
+        b=v6kLxPL+gaAoOJgZayM1q+SSKprAdO9ZbXaOUwcH4CX9DOFHtsX8P2id6ZtmERScl
+         h2jndKqZMQPdboAZZrg/Uleuj3bXkwaL3l/rQNRThFBeN6LpvD0I006DVKZsksnkL2
+         bsGr9O9yhPP2t1D7iKqRT1iJnj4g+S+dk9AWR4ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 120/222] cfg80211: fix memory leak in cfg80211_cqm_rssi_update
-Date:   Wed, 22 Jan 2020 10:28:26 +0100
-Message-Id: <20200122092842.331958509@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 5.4 123/222] i2c: iop3xx: Fix memory leak in probe error path
+Date:   Wed, 22 Jan 2020 10:28:29 +0100
+Message-Id: <20200122092842.556199913@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -43,32 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit df16737d438f534d0cc9948c7c5158f1986c5c87 upstream.
+commit e64175776d06a8ceebbfd349d7e66a4a46ca39ef upstream.
 
-The per-tid statistics need to be released after the call to rdev_get_station
+When handling devm_gpiod_get_optional() errors, free the memory already
+allocated.  This fixes Smatch warnings:
 
-Cc: stable@vger.kernel.org
-Fixes: 8689c051a201 ("cfg80211: dynamically allocate per-tid stats for station info")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20200108170630.33680-2-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+    drivers/i2c/busses/i2c-iop3xx.c:437 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
+    drivers/i2c/busses/i2c-iop3xx.c:442 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
+
+Fixes: fdb7e884ad61 ("i2c: iop: Use GPIO descriptors")
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/nl80211.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-iop3xx.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -10834,6 +10834,7 @@ static int cfg80211_cqm_rssi_update(stru
- 		if (err)
- 			return err;
+--- a/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -433,13 +433,17 @@ iop3xx_i2c_probe(struct platform_device
+ 	adapter_data->gpio_scl = devm_gpiod_get_optional(&pdev->dev,
+ 							 "scl",
+ 							 GPIOD_ASIS);
+-	if (IS_ERR(adapter_data->gpio_scl))
+-		return PTR_ERR(adapter_data->gpio_scl);
++	if (IS_ERR(adapter_data->gpio_scl)) {
++		ret = PTR_ERR(adapter_data->gpio_scl);
++		goto free_both;
++	}
+ 	adapter_data->gpio_sda = devm_gpiod_get_optional(&pdev->dev,
+ 							 "sda",
+ 							 GPIOD_ASIS);
+-	if (IS_ERR(adapter_data->gpio_sda))
+-		return PTR_ERR(adapter_data->gpio_sda);
++	if (IS_ERR(adapter_data->gpio_sda)) {
++		ret = PTR_ERR(adapter_data->gpio_sda);
++		goto free_both;
++	}
  
-+		cfg80211_sinfo_release_content(&sinfo);
- 		if (sinfo.filled & BIT_ULL(NL80211_STA_INFO_BEACON_SIGNAL_AVG))
- 			wdev->cqm_config->last_rssi_event_value =
- 				(s8) sinfo.rx_beacon_signal_avg;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!res) {
 
 
