@@ -2,62 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1896B144E56
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:12:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 774C7144E61
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:13:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726049AbgAVJMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:12:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58356 "EHLO mail.kernel.org"
+        id S1729248AbgAVJN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:13:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725911AbgAVJMk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:12:40 -0500
+        id S1725911AbgAVJN1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:13:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D49322465A;
-        Wed, 22 Jan 2020 09:12:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B054F2467B;
+        Wed, 22 Jan 2020 09:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579684360;
-        bh=v9bvt8Gscx2GT8F2r5lav4J36LbFKUfgh/vaKsSP1no=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yKzNXYBS98U1LHCpdh555l5Yguy1kGGcEbbtYnVRlgw+VSzz9Hlnb9ZAkSAJdbNXZ
-         LFBWaOVN/l6L7EDSFpM3NBQTbOVns4evluJlaGHsjCugrQNIlXnbaZhX5J/7Jbw+PR
-         Z1T2I7BbW+0CWP61IQrYCCjqXqaEk2K695oQIHYw=
-Date:   Wed, 22 Jan 2020 10:12:38 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Thomas Hebb <tommyhebb@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        linux-usb@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] usb: typec: fusb302: fix "op-sink-microwatt"
- default that was in mW
-Message-ID: <20200122091238.GB2643799@kroah.com>
-References: <d8be32512efd31995ad7d65b27df9d443131b07c.1579529334.git.tommyhebb@gmail.com>
- <0da564559af75ec829c6c7e3aa4024f857c91bee.1579529334.git.tommyhebb@gmail.com>
+        s=default; t=1579684407;
+        bh=RgMoKMilie0hGVyZ8sb2z8rV/0l8ZItvDdh/OERIPP8=;
+        h=Subject:To:From:Date:From;
+        b=kABEjWD3TnReDLSO9svNLEj50VTM5Ge+XLraoLLyGKotSB+qPB3Ya1zavFAP7ew+E
+         o8MAiTDaqHI8srfRJuBHxRNkZPKtNQ9OjaTL2yWV1kOnnaRK11uYg+EBrmJYG+Sorm
+         t5vR3KMaUrZB9gkts8bT4oYDP4d4DSg6abLWpgg8=
+Subject: patch "usb: dwc3: pci: add ID for the Intel Comet Lake -V variant" added to usb-testing
+To:     heikki.krogerus@linux.intel.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 22 Jan 2020 10:13:14 +0100
+Message-ID: <157968439498179@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0da564559af75ec829c6c7e3aa4024f857c91bee.1579529334.git.tommyhebb@gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 20, 2020 at 06:09:06AM -0800, Thomas Hebb wrote:
-> commit 8f6244055bd3 ("usb: typec: fusb302: Always provide fwnode for the
-> port") didn't convert this value from mW to uW when migrating to a new
-> specification format like it should have.
-> 
-> Fixes: 8f6244055bd3 ("usb: typec: fusb302: Always provide fwnode for the port")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-> Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> 
-> Changes in v3: None
 
-Not true, you changed the stable address :(
+This is a note to let you know that I've just added the patch titled
+
+    usb: dwc3: pci: add ID for the Intel Comet Lake -V variant
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From f5ae8869095552e3396ee3e404f9586cc6a828f0 Mon Sep 17 00:00:00 2001
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Date: Fri, 17 Jan 2020 12:30:33 +0300
+Subject: usb: dwc3: pci: add ID for the Intel Comet Lake -V variant
+
+There is one more Comet Lake PCH variant, CML-V, that has
+its own PCI ID.
+
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200117093033.48616-1-heikki.krogerus@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/dwc3/dwc3-pci.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index 294276f7deb9..7051611229c9 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -34,6 +34,7 @@
+ #define PCI_DEVICE_ID_INTEL_GLK			0x31aa
+ #define PCI_DEVICE_ID_INTEL_CNPLP		0x9dee
+ #define PCI_DEVICE_ID_INTEL_CNPH		0xa36e
++#define PCI_DEVICE_ID_INTEL_CNPV		0xa3b0
+ #define PCI_DEVICE_ID_INTEL_ICLLP		0x34ee
+ #define PCI_DEVICE_ID_INTEL_EHLLP		0x4b7e
+ #define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
+@@ -342,6 +343,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_CNPH),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
+ 
++	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_CNPV),
++	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
++
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_ICLLP),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
+ 
+-- 
+2.25.0
+
 
