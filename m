@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E164145539
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:20:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E959314557B
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:25:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729332AbgAVNUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:20:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36026 "EHLO mail.kernel.org"
+        id S1729148AbgAVNW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:22:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729849AbgAVNT5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:19:57 -0500
+        id S1725827AbgAVNW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:22:26 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6436A2467E;
-        Wed, 22 Jan 2020 13:19:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 038B6205F4;
+        Wed, 22 Jan 2020 13:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699197;
-        bh=KjfjgbCTqX+0P7kzgRGtTQuph1RQP1dgmSW8J+6GUXk=;
+        s=default; t=1579699345;
+        bh=q+uwZbHrhnEvPeUulaq1n7jqJ5rCMHn4Q3crXScWbqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEIHI6kr58asRz5alAVHwrgewcyunWz/JMhdSwpWfjsDZniyI4u6r3eXN0mCwFJEZ
-         26NI5IoN3OF7FYWDZH+Kqs+qmtbg+6AmyagEqeNmWeWT12WNsg6W7Czqo+veIr4H0w
-         Ics6BHBjPShIliWMuWTKLUB6XYJWnNQc3mNhLWBI=
+        b=T6q3CLbdoJrZ3H959TRxDlCM59Yuct6pVqFA92JXrZQUFxeDSQjlIc5gfYpx0ibLO
+         DNVcldxDbzjsrYClfemKW68IjB4N/P4hSwspPjVt/qH/vg1+65wkl7dLYnC9mhchLQ
+         Vy3K/HTy9CXpH4aSlAgM3sBuxOz5DSH5RKTA8ylo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 069/222] mtd: spi-nor: Fix selection of 4-byte addressing opcodes on Spansion
-Date:   Wed, 22 Jan 2020 10:27:35 +0100
-Message-Id: <20200122092838.664472744@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Subject: [PATCH 5.4 070/222] drm/i915: Add missing include file <linux/math64.h>
+Date:   Wed, 22 Jan 2020 10:27:36 +0100
+Message-Id: <20200122092838.734177378@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,39 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit 440b6d50254bdbd84c2a665c7f53ec69dd741a4f upstream.
+commit ea38aa2ea5b0969776f0a47f174ce928a22be803 upstream.
 
-mtd->size is still unassigned when running spansion_post_sfdp_fixups()
-hook, therefore use nor->params.size to determine the size of flash device.
+Fix build error:
+./drivers/gpu/drm/i915/selftests/i915_random.h: In function i915_prandom_u32_max_state:
+./drivers/gpu/drm/i915/selftests/i915_random.h:48:23: error:
+ implicit declaration of function mul_u32_u32; did you mean mul_u64_u32_div? [-Werror=implicit-function-declaration]
+  return upper_32_bits(mul_u32_u32(prandom_u32_state(state), ep_ro));
 
-This makes sure that 4-byte addressing opcodes are used on Spansion
-flashes that are larger than 16MiB and don't have SFDP 4BAIT table
-populated.
-
-Fixes: 92094ebc385e ("mtd: spi-nor: Add spansion_post_sfdp_fixups()")
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 7ce5b6850b47 ("drm/i915/selftests: Use mul_u32_u32() for 32b x 32b -> 64b result")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200107135014.36472-1-yuehaibing@huawei.com
+(cherry picked from commit 62bf5465b26d1f502430b9c654be7d16bf2e242d)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/spi-nor/spi-nor.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/i915/selftests/i915_random.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mtd/spi-nor/spi-nor.c
-+++ b/drivers/mtd/spi-nor/spi-nor.c
-@@ -4544,9 +4544,7 @@ static void spi_nor_info_init_params(str
+--- a/drivers/gpu/drm/i915/selftests/i915_random.h
++++ b/drivers/gpu/drm/i915/selftests/i915_random.h
+@@ -25,6 +25,7 @@
+ #ifndef __I915_SELFTESTS_RANDOM_H__
+ #define __I915_SELFTESTS_RANDOM_H__
  
- static void spansion_post_sfdp_fixups(struct spi_nor *nor)
- {
--	struct mtd_info *mtd = &nor->mtd;
--
--	if (mtd->size <= SZ_16M)
-+	if (nor->params.size <= SZ_16M)
- 		return;
++#include <linux/math64.h>
+ #include <linux/random.h>
  
- 	nor->flags |= SNOR_F_4B_OPCODES;
+ #include "../i915_selftest.h"
 
 
