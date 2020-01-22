@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B6A4145621
+	by mail.lfdr.de (Postfix) with ESMTP id AE278145622
 	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728709AbgAVNVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:21:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37636 "EHLO mail.kernel.org"
+        id S1730163AbgAVNVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:21:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729030AbgAVNVC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:21:02 -0500
+        id S1730155AbgAVNVG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:21:06 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC95D24688;
-        Wed, 22 Jan 2020 13:21:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39BCD2468C;
+        Wed, 22 Jan 2020 13:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699261;
-        bh=oZ3D/2tSzQfYgmBD0f7Y8DUisUQLp+WfsagJ3bkMHM0=;
+        s=default; t=1579699265;
+        bh=KBgjthE4MXi4jjoOKexi2wKqKnsrS/GTG2qljJ1vEok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqZr9KC9O9Dx4om7oEqsCEIBx93kvrtpNsPQr5ka3xjWsHlImacerHTxRHU2M3okp
-         GESvWBPO/o6TN68Rpe8qa2mEdFEv812LuAtvEyJx7qwuwqb+koUq5A3H/mJjAN0SHs
-         OGsl/z9r4Ydo3A9WnQCKyXNXTrVyfJth/8X09TeE=
+        b=syUNxM/7i1jhydHF9iW/5AHgjZsOS1EuTqknxlRNbFy8Jql7pk//y5zqTnW+v/ggp
+         2OCzWaXSrqeQEL/Hf5ZTwVEti5OGUvEmvWuJ6ofBjBQgcYYmVIodesYic3Ii/lBkco
+         /yPfyCFXlNysZuY3Btwhq9mrHvV6MBidm5Z1330k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Pingfan Liu <piliu@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@kernel.org>,
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Qian Cai <cai@lca.pw>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 090/222] mm/memory_hotplug: dont free usage map when removing a re-added early section
-Date:   Wed, 22 Jan 2020 10:27:56 +0100
-Message-Id: <20200122092840.175336528@linuxfoundation.org>
+Subject: [PATCH 5.4 091/222] mm/page-writeback.c: avoid potential division by zero in wb_min_max_ratio()
+Date:   Wed, 22 Jan 2020 10:27:57 +0100
+Message-Id: <20200122092840.249902197@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -48,97 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-commit 8068df3b60373c390198f660574ea14c8098de57 upstream.
+commit 6d9e8c651dd979aa666bee15f086745f3ea9c4b3 upstream.
 
-When we remove an early section, we don't free the usage map, as the
-usage maps of other sections are placed into the same page.  Once the
-section is removed, it is no longer an early section (especially, the
-memmap is freed).  When we re-add that section, the usage map is reused,
-however, it is no longer an early section.  When removing that section
-again, we try to kfree() a usage map that was allocated during early
-boot - bad.
+Patch series "use div64_ul() instead of div_u64() if the divisor is
+unsigned long".
 
-Let's check against PageReserved() to see if we are dealing with an
-usage map that was allocated during boot.  We could also check against
-!(PageSlab(usage_page) || PageCompound(usage_page)), but PageReserved() is
-cleaner.
+We were first inspired by commit b0ab99e7736a ("sched: Fix possible divide
+by zero in avg_atom () calculation"), then refer to the recently analyzed
+mm code, we found this suspicious place.
 
-Can be triggered using memtrace under ppc64/powernv:
+ 201                 if (min) {
+ 202                         min *= this_bw;
+ 203                         do_div(min, tot_bw);
+ 204                 }
 
-  $ mount -t debugfs none /sys/kernel/debug/
-  $ echo 0x20000000 > /sys/kernel/debug/powerpc/memtrace/enable
-  $ echo 0x20000000 > /sys/kernel/debug/powerpc/memtrace/enable
-   ------------[ cut here ]------------
-   kernel BUG at mm/slub.c:3969!
-   Oops: Exception in kernel mode, sig: 5 [#1]
-   LE PAGE_SIZE=3D64K MMU=3DHash SMP NR_CPUS=3D2048 NUMA PowerNV
-   Modules linked in:
-   CPU: 0 PID: 154 Comm: sh Not tainted 5.5.0-rc2-next-20191216-00005-g0be1dba7b7c0 #61
-   NIP kfree+0x338/0x3b0
-   LR section_deactivate+0x138/0x200
-   Call Trace:
-     section_deactivate+0x138/0x200
-     __remove_pages+0x114/0x150
-     arch_remove_memory+0x3c/0x160
-     try_remove_memory+0x114/0x1a0
-     __remove_memory+0x20/0x40
-     memtrace_enable_set+0x254/0x850
-     simple_attr_write+0x138/0x160
-     full_proxy_write+0x8c/0x110
-     __vfs_write+0x38/0x70
-     vfs_write+0x11c/0x2a0
-     ksys_write+0x84/0x140
-     system_call+0x5c/0x68
-   ---[ end trace 4b053cbd84e0db62 ]---
+And we also disassembled and confirmed it:
 
-The first invocation will offline+remove memory blocks.  The second
-invocation will first add+online them again, in order to offline+remove
-them again (usually we are lucky and the exact same memory blocks will
-get "reallocated").
+  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 201
+  0xffffffff811c37da <__wb_calc_thresh+234>:      xor    %r10d,%r10d
+  0xffffffff811c37dd <__wb_calc_thresh+237>:      test   %rax,%rax
+  0xffffffff811c37e0 <__wb_calc_thresh+240>:      je 0xffffffff811c3800 <__wb_calc_thresh+272>
+  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 202
+  0xffffffff811c37e2 <__wb_calc_thresh+242>:      imul   %r8,%rax
+  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 203
+  0xffffffff811c37e6 <__wb_calc_thresh+246>:      mov    %r9d,%r10d    ---> truncates it to 32 bits here
+  0xffffffff811c37e9 <__wb_calc_thresh+249>:      xor    %edx,%edx
+  0xffffffff811c37eb <__wb_calc_thresh+251>:      div    %r10
+  0xffffffff811c37ee <__wb_calc_thresh+254>:      imul   %rbx,%rax
+  0xffffffff811c37f2 <__wb_calc_thresh+258>:      shr    $0x2,%rax
+  0xffffffff811c37f6 <__wb_calc_thresh+262>:      mul    %rcx
+  0xffffffff811c37f9 <__wb_calc_thresh+265>:      shr    $0x2,%rdx
+  0xffffffff811c37fd <__wb_calc_thresh+269>:      mov    %rdx,%r10
 
-Tested on powernv with boot memory: The usage map will not get freed.
-Tested on x86-64 with DIMMs: The usage map will get freed.
+This series uses div64_ul() instead of div_u64() if the divisor is
+unsigned long, to avoid truncation to 32-bit on 64-bit platforms.
 
-Using Dynamic Memory under a Power DLAPR can trigger it easily.
+This patch (of 3):
 
-Triggering removal (I assume after previously removed+re-added) of
-memory from the HMC GUI can crash the kernel with the same call trace
-and is fixed by this patch.
+The variables 'min' and 'max' are unsigned long and do_div truncates
+them to 32 bits, which means it can test non-zero and be truncated to
+zero for division.  Fix this issue by using div64_ul() instead.
 
-Link: http://lkml.kernel.org/r/20191217104637.5509-1-david@redhat.com
-Fixes: 326e1b8f83a4 ("mm/sparsemem: introduce a SECTION_IS_EARLY flag")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Tested-by: Pingfan Liu <piliu@redhat.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@kernel.org>
+Link: http://lkml.kernel.org/r/20200102081442.8273-2-wenyang@linux.alibaba.com
+Fixes: 693108a8a667 ("writeback: make bdi->min/max_ratio handling cgroup writeback aware")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/sparse.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ mm/page-writeback.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -775,7 +775,14 @@ static void section_deactivate(unsigned
- 	if (bitmap_empty(subsection_map, SUBSECTIONS_PER_SECTION)) {
- 		unsigned long section_nr = pfn_to_section_nr(pfn);
- 
--		if (!section_is_early) {
-+		/*
-+		 * When removing an early section, the usage map is kept (as the
-+		 * usage maps of other sections fall into the same page). It
-+		 * will be re-used when re-adding the section - which is then no
-+		 * longer an early section. If the usage map is PageReserved, it
-+		 * was allocated during boot.
-+		 */
-+		if (!PageReserved(virt_to_page(ms->usage))) {
- 			kfree(ms->usage);
- 			ms->usage = NULL;
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -201,11 +201,11 @@ static void wb_min_max_ratio(struct bdi_
+ 	if (this_bw < tot_bw) {
+ 		if (min) {
+ 			min *= this_bw;
+-			do_div(min, tot_bw);
++			min = div64_ul(min, tot_bw);
  		}
+ 		if (max < 100) {
+ 			max *= this_bw;
+-			do_div(max, tot_bw);
++			max = div64_ul(max, tot_bw);
+ 		}
+ 	}
+ 
 
 
