@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C383914553C
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:20:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A3C6145541
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:24:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729876AbgAVNUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:20:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36128 "EHLO mail.kernel.org"
+        id S1729370AbgAVNUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:20:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729860AbgAVNUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:20:04 -0500
+        id S1729368AbgAVNUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:20:18 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 766D82467A;
-        Wed, 22 Jan 2020 13:20:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C60DF2467A;
+        Wed, 22 Jan 2020 13:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699204;
-        bh=TBSkjwugAdx71V+ek//0N6epTGZxQcR558IFnm4KTI4=;
+        s=default; t=1579699217;
+        bh=JSqun9nJBN4MdPIwWzdJTXE21YaHq+B7jgEJA9Z1utg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P11AZxl1SdjaycmVYSz+b2K9ujn6Z5HClZt+x/08baSpaCNSWjT3iCVRFBAFqOVW7
-         XvBmyJf2GsgHDL7O5kGAWS8ADTvgx8uk+/xovNGrBst6GXsRtK6rbi/9mx7LcYMDLw
-         vTxnq0ZV7TvzSyJ5qbUFNdZN1VZCsnySNEHOnZVI=
+        b=sxSiGhvknzwG/JDARB6zdrxCTVVFwhCW/LbGNVIudzvGrMeaM1qzXOqzbb9DGQrzB
+         gUsHZvN/DlypIo62+Kgm4t2T+V8xvGjRSxHZOyZ3SFF/4iVItSuWhzm+mhCJ1cRIqp
+         MbxnOeQDuCSXlKcU2iWum2Xk4ICGFTvaEGZcB33I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sekhar Nori <nsekhar@ti.com>, Olof Johansson <olof@lixom.net>
-Subject: [PATCH 5.4 036/222] ARM: davinci: select CONFIG_RESET_CONTROLLER
-Date:   Wed, 22 Jan 2020 10:27:02 +0100
-Message-Id: <20200122092836.090826916@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
+        Marco Felsch <m.felsch@pengutronix.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 040/222] iio: light: vcnl4000: Fix scale for vcnl4040
+Date:   Wed, 22 Jan 2020 10:27:06 +0100
+Message-Id: <20200122092836.405074922@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -45,41 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Guido Günther <agx@sigxcpu.org>
 
-commit 7afec66e2bf5683d8bfc812cc295313d1b8473bc upstream.
+commit bc80573ea25bb033a58da81b3ce27205b97c088e upstream.
 
-Selecting RESET_CONTROLLER is actually required, otherwise we
-can get a link failure in the clock driver:
+According to the data sheet the ambient sensor's scale is 0.12 lux/step
+(not 0.024 lux/step as used by vcnl4200) when the integration time is
+80ms. The integration time is currently hardcoded in the driver to that
+value.
 
-drivers/clk/davinci/psc.o: In function `__davinci_psc_register_clocks':
-psc.c:(.text+0x9a0): undefined reference to `devm_reset_controller_register'
-drivers/clk/davinci/psc-da850.o: In function `da850_psc0_init':
-psc-da850.c:(.text+0x24): undefined reference to `reset_controller_add_lookup'
+See p. 8 in https://www.vishay.com/docs/84307/designingvcnl4040.pdf
 
-Link: https://lore.kernel.org/r/20191210195202.622734-1-arnd@arndb.de
-Fixes: f962396ce292 ("ARM: davinci: support multiplatform build for ARM v5")
-Cc: <stable@vger.kernel.org> # v5.4
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Acked-by: Sekhar Nori <nsekhar@ti.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Fixes: 5a441aade5b3 ("iio: light: vcnl4000 add support for the VCNL4040 proximity and light sensor")
+Signed-off-by: Guido Günther <agx@sigxcpu.org>
+Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-davinci/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/light/vcnl4000.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mach-davinci/Kconfig
-+++ b/arch/arm/mach-davinci/Kconfig
-@@ -9,6 +9,7 @@ menuconfig ARCH_DAVINCI
- 	select PM_GENERIC_DOMAINS if PM
- 	select PM_GENERIC_DOMAINS_OF if PM && OF
- 	select REGMAP_MMIO
-+	select RESET_CONTROLLER
- 	select HAVE_IDE
- 	select PINCTRL_SINGLE
+--- a/drivers/iio/light/vcnl4000.c
++++ b/drivers/iio/light/vcnl4000.c
+@@ -163,7 +163,6 @@ static int vcnl4200_init(struct vcnl4000
+ 	if (ret < 0)
+ 		return ret;
  
+-	data->al_scale = 24000;
+ 	data->vcnl4200_al.reg = VCNL4200_AL_DATA;
+ 	data->vcnl4200_ps.reg = VCNL4200_PS_DATA;
+ 	switch (id) {
+@@ -172,11 +171,13 @@ static int vcnl4200_init(struct vcnl4000
+ 		/* show 54ms in total. */
+ 		data->vcnl4200_al.sampling_rate = ktime_set(0, 54000 * 1000);
+ 		data->vcnl4200_ps.sampling_rate = ktime_set(0, 4200 * 1000);
++		data->al_scale = 24000;
+ 		break;
+ 	case VCNL4040_PROD_ID:
+ 		/* Integration time is 80ms, add 10ms. */
+ 		data->vcnl4200_al.sampling_rate = ktime_set(0, 100000 * 1000);
+ 		data->vcnl4200_ps.sampling_rate = ktime_set(0, 100000 * 1000);
++		data->al_scale = 120000;
+ 		break;
+ 	}
+ 	data->vcnl4200_al.last_measurement = ktime_set(0, 0);
 
 
