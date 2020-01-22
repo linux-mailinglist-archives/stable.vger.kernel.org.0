@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17EA214567A
+	by mail.lfdr.de (Postfix) with ESMTP id 89EC514567B
 	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730591AbgAVN1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:27:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48472 "EHLO mail.kernel.org"
+        id S1730782AbgAVN1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:27:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730097AbgAVN1O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:27:14 -0500
+        id S1730635AbgAVN1R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:27:17 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D89DC2468C;
-        Wed, 22 Jan 2020 13:27:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E682324690;
+        Wed, 22 Jan 2020 13:27:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699633;
-        bh=e36sjmPaCPPq1/i9Ltj188SqoWa1clYoefAn7mPbTaA=;
+        s=default; t=1579699636;
+        bh=FjVa/TtanWhsbNi+fN2ck1+11LWGxXUxjOdAbshIHZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hj0oPHg8m69oIlQBrTjsNjZmHcbYCz2ibsdF/aRfBXvJyv61Hx5BKlsSCPHgkMNc2
-         yWOrDOMo9f8N58DM1axldF3LDbpDvkB183DmPY8beYye+JsG0C1AoLQpeZjDE13Gev
-         mPMuvZ+1QwA97xwGVCTyLN6bwfCCRiGfQ4BE4DY4=
+        b=zYrUfLeEUx7N/GYJq9y40Zb/ktPMbKyUsbbY5NcY09QRYBk+xrGjWs06vb7xkitMK
+         IY2JxD8z4Nt1XZWbZfmrQqafsS9OP8HizHXjRdG7/1Y0x6R+CKq8LWVAxeswZGx5eL
+         ENnOHsnMfH7HZbvtwbWETowafeJJV0SMcJXmHM+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 203/222] scsi: bnx2i: fix potential use after free
-Date:   Wed, 22 Jan 2020 10:29:49 +0100
-Message-Id: <20200122092848.238314727@linuxfoundation.org>
+Subject: [PATCH 5.4 204/222] scsi: target: core: Fix a pr_debug() argument
+Date:   Wed, 22 Jan 2020 10:29:50 +0100
+Message-Id: <20200122092848.308412177@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -43,39 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 29d28f2b8d3736ac61c28ef7e20fda63795b74d9 upstream.
+commit c941e0d172605731de9b4628bd4146d35cf2e7d6 upstream.
 
-The member hba->pcidev may be used after its reference is dropped. Move the
-put function to where it is never used to avoid potential use after free
-issues.
+Print the string for which conversion failed instead of printing the
+function name twice.
 
-Fixes: a77171806515 ("[SCSI] bnx2i: Removed the reference to the netdev->base_addr")
-Link: https://lore.kernel.org/r/1573043541-19126-1-git-send-email-bianpan2016@163.com
-Signed-off-by: Pan Bian <bianpan2016@163.com>
+Fixes: 2650d71e244f ("target: move transport ID handling to the core")
+Cc: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20191107215525.64415-1-bvanassche@acm.org
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/bnx2i/bnx2i_iscsi.c |    2 +-
+ drivers/target/target_core_fabric_lib.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/bnx2i/bnx2i_iscsi.c
-+++ b/drivers/scsi/bnx2i/bnx2i_iscsi.c
-@@ -915,12 +915,12 @@ void bnx2i_free_hba(struct bnx2i_hba *hb
- 	INIT_LIST_HEAD(&hba->ep_ofld_list);
- 	INIT_LIST_HEAD(&hba->ep_active_list);
- 	INIT_LIST_HEAD(&hba->ep_destroy_list);
--	pci_dev_put(hba->pcidev);
- 
- 	if (hba->regview) {
- 		pci_iounmap(hba->pcidev, hba->regview);
- 		hba->regview = NULL;
+--- a/drivers/target/target_core_fabric_lib.c
++++ b/drivers/target/target_core_fabric_lib.c
+@@ -118,7 +118,7 @@ static int srp_get_pr_transport_id(
+ 	memset(buf + 8, 0, leading_zero_bytes);
+ 	rc = hex2bin(buf + 8 + leading_zero_bytes, p, count);
+ 	if (rc < 0) {
+-		pr_debug("hex2bin failed for %s: %d\n", __func__, rc);
++		pr_debug("hex2bin failed for %s: %d\n", p, rc);
+ 		return rc;
  	}
-+	pci_dev_put(hba->pcidev);
- 	bnx2i_free_mp_bdt(hba);
- 	bnx2i_release_free_cid_que(hba);
- 	iscsi_host_free(shost);
+ 
 
 
