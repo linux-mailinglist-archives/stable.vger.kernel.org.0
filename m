@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4458E144F33
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:36:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD55F144FB1
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730253AbgAVJfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:35:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50648 "EHLO mail.kernel.org"
+        id S1733178AbgAVJkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:40:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731359AbgAVJfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:35:31 -0500
+        id S1733182AbgAVJkR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:40:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B526A2071E;
-        Wed, 22 Jan 2020 09:35:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3842624689;
+        Wed, 22 Jan 2020 09:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685731;
-        bh=A9XTKbZ/DBvTwFtI/ME9c00+wnuEU9MhfX68pfhkB9w=;
+        s=default; t=1579686016;
+        bh=uG2XbXMoGZzx8H4q1N55KBac6z4u0PS3eMFKnphQBH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01p+mXnxXO1nY0+5DpCu+UmtIhKS6oImTisc3hHvL2UUCSY1UqhdAhEaeaYR7JhBM
-         nzcqqcxo2cwPcH0/PKHa6XvUZMAdsrxcsEpkufSQnzg+OqJnMc8ycRt1vmXo0YuJB3
-         mQey2aNsw1UJxTA/QsaTESVG9iPZusqt+pYpFPqA=
+        b=g+8tza/nNiPq5bhNYa59QELKpDmWpXBJGjbGDfNcho/MMfT4XdnddUOTHivuwvoRv
+         6P8OCe8lGtjqnXLHim2cMEr7uh7qJPjMFD4C3k/QDWT/jqqovRKs0NekxFPS2k75WO
+         ZWTFjrECWdRnp4zsjSAvwwjVk16M+pfB+Ttej544=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.9 22/97] gpio: Fix error message on out-of-range GPIO in lookup table
+        stable@vger.kernel.org, Martin Jansen <martin.jansen@opticon.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 010/103] USB: serial: opticon: fix control-message timeouts
 Date:   Wed, 22 Jan 2020 10:28:26 +0100
-Message-Id: <20200122092759.704387610@linuxfoundation.org>
+Message-Id: <20200122092805.192201547@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Johan Hovold <johan@kernel.org>
 
-commit d935bd50dd14a7714cbdba9a76435dbb56edb1ae upstream.
+commit 5e28055f340275a8616eee88ef19186631b4d136 upstream.
 
-When a GPIO offset in a lookup table is out-of-range, the printed error
-message (1) does not include the actual out-of-range value, and (2)
-contains an off-by-one error in the upper bound.
+The driver was issuing synchronous uninterruptible control requests
+without using a timeout. This could lead to the driver hanging
+on open() or tiocmset() due to a malfunctioning (or malicious) device
+until the device is physically disconnected.
 
-Avoid user confusion by also printing the actual GPIO offset, and
-correcting the upper bound of the range.
-While at it, use "%u" for unsigned int.
+The USB upper limit of five seconds per request should be more than
+enough.
 
-Sample impact:
-
-    -requested GPIO 0 is out of range [0..32] for chip e6052000.gpio
-    +requested GPIO 0 (45) is out of range [0..31] for chip e6052000.gpio
-
-Fixes: 2a3cf6a3599e9015 ("gpiolib: return -ENOENT if no GPIO mapping exists")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191127095919.4214-1-geert+renesas@glider.be
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 309a057932ab ("USB: opticon: add rts and cts support")
+Cc: stable <stable@vger.kernel.org>     # 2.6.39
+Cc: Martin Jansen <martin.jansen@opticon.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/serial/opticon.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -3049,8 +3049,9 @@ static struct gpio_desc *gpiod_find(stru
+--- a/drivers/usb/serial/opticon.c
++++ b/drivers/usb/serial/opticon.c
+@@ -113,7 +113,7 @@ static int send_control_msg(struct usb_s
+ 	retval = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
+ 				requesttype,
+ 				USB_DIR_OUT|USB_TYPE_VENDOR|USB_RECIP_INTERFACE,
+-				0, 0, buffer, 1, 0);
++				0, 0, buffer, 1, USB_CTRL_SET_TIMEOUT);
+ 	kfree(buffer);
  
- 		if (chip->ngpio <= p->chip_hwnum) {
- 			dev_err(dev,
--				"requested GPIO %d is out of range [0..%d] for chip %s\n",
--				idx, chip->ngpio, chip->label);
-+				"requested GPIO %u (%u) is out of range [0..%u] for chip %s\n",
-+				idx, p->chip_hwnum, chip->ngpio - 1,
-+				chip->label);
- 			return ERR_PTR(-EINVAL);
- 		}
- 
+ 	if (retval < 0)
 
 
