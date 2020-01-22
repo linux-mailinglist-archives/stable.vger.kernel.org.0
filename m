@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B2E214513D
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:52:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA7701450B5
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730198AbgAVJwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:52:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51240 "EHLO mail.kernel.org"
+        id S2387419AbgAVJkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:40:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730771AbgAVJf4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:35:56 -0500
+        id S1732879AbgAVJkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:40:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD70F24683;
-        Wed, 22 Jan 2020 09:35:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1AE524686;
+        Wed, 22 Jan 2020 09:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685755;
-        bh=sniDWG76cP0p1zzZmg0UOTJ1OyzKMNJHs3a6FuOzDhI=;
+        s=default; t=1579686009;
+        bh=6peGELComVwPJobIqCDWWvnmKmDPtlCrb3OFIpVkbPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUecTaS/VUXl+s9nEw7CsCLHwu/pokl+44AFmIjuxDcXDq5krrc86KMDL7E/IWSEt
-         MTf3qaDuM7BVXcVT0Z2WcbaVu7hHbftlpSNLSUb89Rnf+8XPA8DuVEi+C/B2ZMsAzT
-         vBYI6K/f5Teb0kFNFaZ1ZXf+xtYldCuDQDJXgpR0=
+        b=EIefOkZaC+qqRYB4NLF94tbvQWbpLbCnS1PUZW/V6y2TZgovw/b15oKggxNE8GbJp
+         9zrAwtth7mVwSIc9IQAWPkuUQUGIf9dV9r98/lRfFmwZW8MEHj2ojXDW6FatrRiWXi
+         2fjyIkM42bfDdbEZ1puKjX5elTXh9DtIPqZvyX1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>, Jin Yao <yao.jin@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 4.9 67/97] perf report: Fix incorrectly added dimensions as switch perf data file
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        "Willhalm, Thomas" <thomas.willhalm@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 26/65] mm/shmem.c: thp, shmem: fix conflict of above-47bit hint address and PMD alignment
 Date:   Wed, 22 Jan 2020 10:29:11 +0100
-Message-Id: <20200122092807.138995506@linuxfoundation.org>
+Message-Id: <20200122092754.541271857@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,69 +49,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: Kirill A. Shutemov <kirill@shutemov.name>
 
-commit 0feba17bd7ee3b7e03d141f119049dcc23efa94e upstream.
+commit 991589974d9c9ecb24ee3799ec8c415c730598a2 upstream.
 
-We observed an issue that was some extra columns displayed after switching
-perf data file in browser. The steps to reproduce:
+Shmem/tmpfs tries to provide THP-friendly mappings if huge pages are
+enabled.  But it doesn't work well with above-47bit hint address.
 
-1. perf record -a -e cycles,instructions -- sleep 3
-2. perf report --group
-3. In browser, we use hotkey 's' to switch to another perf.data
-4. Now in browser, the extra columns 'Self' and 'Children' are displayed.
+Normally, the kernel doesn't create userspace mappings above 47-bit,
+even if the machine allows this (such as with 5-level paging on x86-64).
+Not all user space is ready to handle wide addresses.  It's known that
+at least some JIT compilers use higher bits in pointers to encode their
+information.
 
-The issue is setup_sorting() executed again after repeat path, so dimensions
-are added again.
+Userspace can ask for allocation from full address space by specifying
+hint address (with or without MAP_FIXED) above 47-bits.  If the
+application doesn't need a particular address, but wants to allocate
+from whole address space it can specify -1 as a hint address.
 
-This patch checks the last key returned from __cmd_report(). If it's
-K_SWITCH_INPUT_DATA, skips the setup_sorting().
+Unfortunately, this trick breaks THP alignment in shmem/tmp:
+shmem_get_unmapped_area() would not try to allocate PMD-aligned area if
+*any* hint address specified.
 
-Fixes: ad0de0971b7f ("perf report: Enable the runtime switching of perf data file")
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20191220013722.20592-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+This can be fixed by requesting the aligned area if the we failed to
+allocated at user-specified hint address.  The request with inflated
+length will also take the user-specified hint address.  This way we will
+not lose an allocation request from the full address space.
+
+[kirill@shutemov.name: fold in a fixup]
+  Link: http://lkml.kernel.org/r/20191223231309.t6bh5hkbmokihpfu@box
+Link: http://lkml.kernel.org/r/20191220142548.7118-3-kirill.shutemov@linux.intel.com
+Fixes: b569bab78d8d ("x86/mm: Prepare to expose larger address space to userspace")
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: "Willhalm, Thomas" <thomas.willhalm@intel.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>
+Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/builtin-report.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ mm/shmem.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -671,6 +671,7 @@ int cmd_report(int argc, const char **ar
- 	struct stat st;
- 	bool has_br_stack = false;
- 	int branch_mode = -1;
-+	int last_key = 0;
- 	bool branch_call_mode = false;
- 	char callchain_default_opt[] = CALLCHAIN_DEFAULT_OPT;
- 	const char * const report_usage[] = {
-@@ -956,7 +957,8 @@ repeat:
- 	else
- 		use_browser = 0;
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2052,9 +2052,10 @@ unsigned long shmem_get_unmapped_area(st
+ 	/*
+ 	 * Our priority is to support MAP_SHARED mapped hugely;
+ 	 * and support MAP_PRIVATE mapped hugely too, until it is COWed.
+-	 * But if caller specified an address hint, respect that as before.
++	 * But if caller specified an address hint and we allocated area there
++	 * successfully, respect that as before.
+ 	 */
+-	if (uaddr)
++	if (uaddr == addr)
+ 		return addr;
  
--	if (setup_sorting(session->evlist) < 0) {
-+	if ((last_key != K_SWITCH_INPUT_DATA) &&
-+	    (setup_sorting(session->evlist) < 0)) {
- 		if (sort_order)
- 			parse_options_usage(report_usage, options, "s", 1);
- 		if (field_order)
-@@ -1011,6 +1013,7 @@ repeat:
- 	ret = __cmd_report(&report);
- 	if (ret == K_SWITCH_INPUT_DATA) {
- 		perf_session__delete(session);
-+		last_key = K_SWITCH_INPUT_DATA;
- 		goto repeat;
- 	} else
- 		ret = 0;
+ 	if (shmem_huge != SHMEM_HUGE_FORCE) {
+@@ -2088,7 +2089,7 @@ unsigned long shmem_get_unmapped_area(st
+ 	if (inflated_len < len)
+ 		return addr;
+ 
+-	inflated_addr = get_area(NULL, 0, inflated_len, 0, flags);
++	inflated_addr = get_area(NULL, uaddr, inflated_len, 0, flags);
+ 	if (IS_ERR_VALUE(inflated_addr))
+ 		return addr;
+ 	if (inflated_addr & ~PAGE_MASK)
 
 
