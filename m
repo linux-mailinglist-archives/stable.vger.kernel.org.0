@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2285E1451CF
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:56:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC48814509C
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:48:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729306AbgAVJbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:31:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44230 "EHLO mail.kernel.org"
+        id S1729113AbgAVJry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:47:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729876AbgAVJbu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:31:50 -0500
+        id S1729629AbgAVJlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:41:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D604224673;
-        Wed, 22 Jan 2020 09:31:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 914F924686;
+        Wed, 22 Jan 2020 09:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685510;
-        bh=Gvw4IBVvTbh7LJegV1H9BhU7bNh5YLZ2sWO/BXanA6g=;
+        s=default; t=1579686102;
+        bh=X2+KNYrnWc7xc7JQJmIwQfuTJNrbwS5UPIVPMmDqCPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arDZ8kv12mActkM/Cucbykz3AI5QR/Vh95hor7f6qxrZEw7+BXv4xqJdm9FhR1dbq
-         x5KDNm/XsDmLJdQGl5Tyn6XmptBRDDBwvyCYqntO7RfnYiaRrXW36u3p+mrw5OhvKb
-         pR7vb7V7FnsWllmxqGWIiwbukosNuzYGjMimN8ig=
+        b=V6hkPNyK1kAbdCaXzpWQjbR8U70aBCsy24uTwNRQQTqvQsL8rf6sZ3U0G9qTWCDV2
+         cfzMRzHX+O6lygq4EwitFOJ5GjggCXyc3gHjovv/k9TxS27+OrMKsB9onvRBJL1Bmj
+         HfcloUCk71/3EjDl6Xo+YaMS1f3Ga8h6dbBVaJN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Jansen <martin.jansen@opticon.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 44/76] USB: serial: opticon: fix control-message timeouts
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 044/103] btrfs: do not delete mismatched root refs
 Date:   Wed, 22 Jan 2020 10:29:00 +0100
-Message-Id: <20200122092757.098385108@linuxfoundation.org>
+Message-Id: <20200122092810.489624554@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 5e28055f340275a8616eee88ef19186631b4d136 upstream.
+commit 423a716cd7be16fb08690760691befe3be97d3fc upstream.
 
-The driver was issuing synchronous uninterruptible control requests
-without using a timeout. This could lead to the driver hanging
-on open() or tiocmset() due to a malfunctioning (or malicious) device
-until the device is physically disconnected.
+btrfs_del_root_ref() will simply WARN_ON() if the ref doesn't match in
+any way, and then continue to delete the reference.  This shouldn't
+happen, we have these values because there's more to the reference than
+the original root and the sub root.  If any of these checks fail, return
+-ENOENT.
 
-The USB upper limit of five seconds per request should be more than
-enough.
-
-Fixes: 309a057932ab ("USB: opticon: add rts and cts support")
-Cc: stable <stable@vger.kernel.org>     # 2.6.39
-Cc: Martin Jansen <martin.jansen@opticon.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/opticon.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/root-tree.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/opticon.c
-+++ b/drivers/usb/serial/opticon.c
-@@ -116,7 +116,7 @@ static int send_control_msg(struct usb_s
- 	retval = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
- 				requesttype,
- 				USB_DIR_OUT|USB_TYPE_VENDOR|USB_RECIP_INTERFACE,
--				0, 0, buffer, 1, 0);
-+				0, 0, buffer, 1, USB_CTRL_SET_TIMEOUT);
- 	kfree(buffer);
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -370,11 +370,13 @@ again:
+ 		leaf = path->nodes[0];
+ 		ref = btrfs_item_ptr(leaf, path->slots[0],
+ 				     struct btrfs_root_ref);
+-
+-		WARN_ON(btrfs_root_ref_dirid(leaf, ref) != dirid);
+-		WARN_ON(btrfs_root_ref_name_len(leaf, ref) != name_len);
+ 		ptr = (unsigned long)(ref + 1);
+-		WARN_ON(memcmp_extent_buffer(leaf, name, ptr, name_len));
++		if ((btrfs_root_ref_dirid(leaf, ref) != dirid) ||
++		    (btrfs_root_ref_name_len(leaf, ref) != name_len) ||
++		    memcmp_extent_buffer(leaf, name, ptr, name_len)) {
++			err = -ENOENT;
++			goto out;
++		}
+ 		*sequence = btrfs_root_ref_sequence(leaf, ref);
  
- 	if (retval < 0)
+ 		ret = btrfs_del_item(trans, tree_root, path);
 
 
