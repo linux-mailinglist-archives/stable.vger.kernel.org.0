@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D686E1450E5
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B533F145129
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732581AbgAVJip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:38:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55782 "EHLO mail.kernel.org"
+        id S1729537AbgAVJwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:52:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730166AbgAVJip (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:38:45 -0500
+        id S1731815AbgAVJg2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:36:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC9752467F;
-        Wed, 22 Jan 2020 09:38:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEEA720704;
+        Wed, 22 Jan 2020 09:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685924;
-        bh=TPA65KktlMCkj55dMMFCXU0dDGCznac3poGy9SI6+rs=;
+        s=default; t=1579685787;
+        bh=oW/nJSRnqwL4LFxYNywdLrAnqSiWfV1hujPdnbzAnjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FoAAiREIV1870DBJTbYLnvIvyUyJvrQCglgS5HNci5M03K68540whA5I82p+5fzyT
-         fePfrWW/r7t7SJ1rqG8omGTAes4lsfbdTf1KxI1QKRWfssOqxSq54ECPpUnCWYeNKy
-         ww43IGGNl7kA8F8NeQLevC931ezq5W4zD7WNGttA=
+        b=vXa3wiHNYlO3beDhzq4pB1PqqcU6d80Hb9zUoGG3fWgGA95H5BKP9yzuFqfk7Q94e
+         5aZzBDP0iCbWqp0MV/hA1bfUO9dwAijhcoQMRZAyfShEx+Tp4hlKxM1VLeeoGWHnFs
+         NlrWgHATr4n4sefy9K8qBWrmIbE7Ayi8puKcWsHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         syzbot+91bdd8eece0f6629ec8b@syzkaller.appspotmail.com,
         Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 38/65] netfilter: arp_tables: init netns pointer in xt_tgdtor_param struct
+Subject: [PATCH 4.9 79/97] netfilter: arp_tables: init netns pointer in xt_tgdtor_param struct
 Date:   Wed, 22 Jan 2020 10:29:23 +0100
-Message-Id: <20200122092756.358278429@linuxfoundation.org>
+Message-Id: <20200122092809.057782737@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -77,7 +77,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/ipv4/netfilter/arp_tables.c
 +++ b/net/ipv4/netfilter/arp_tables.c
-@@ -506,12 +506,13 @@ static inline int check_entry_size_and_h
+@@ -515,12 +515,13 @@ static inline int check_entry_size_and_h
  	return 0;
  }
  
@@ -92,7 +92,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	par.target   = t->u.kernel.target;
  	par.targinfo = t->data;
  	par.family   = NFPROTO_ARP;
-@@ -601,7 +602,7 @@ static int translate_table(struct net *n
+@@ -612,7 +613,7 @@ static int translate_table(struct net *n
  		xt_entry_foreach(iter, entry0, newinfo->size) {
  			if (i-- == 0)
  				break;
@@ -101,7 +101,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  		return ret;
  	}
-@@ -926,7 +927,7 @@ static int __do_replace(struct net *net,
+@@ -939,7 +940,7 @@ static int __do_replace(struct net *net,
  	/* Decrease module usage counts and free resource */
  	loc_cpu_old_entry = oldinfo->entries;
  	xt_entry_foreach(iter, loc_cpu_old_entry, oldinfo->size)
@@ -110,7 +110,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	xt_free_table_info(oldinfo);
  	if (copy_to_user(counters_ptr, counters,
-@@ -990,7 +991,7 @@ static int do_replace(struct net *net, c
+@@ -1003,7 +1004,7 @@ static int do_replace(struct net *net, c
  
   free_newinfo_untrans:
  	xt_entry_foreach(iter, loc_cpu_entry, newinfo->size)
@@ -119,7 +119,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   free_newinfo:
  	xt_free_table_info(newinfo);
  	return ret;
-@@ -1287,7 +1288,7 @@ static int compat_do_replace(struct net
+@@ -1300,7 +1301,7 @@ static int compat_do_replace(struct net
  
   free_newinfo_untrans:
  	xt_entry_foreach(iter, loc_cpu_entry, newinfo->size)
@@ -128,7 +128,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   free_newinfo:
  	xt_free_table_info(newinfo);
  	return ret;
-@@ -1514,7 +1515,7 @@ static int do_arpt_get_ctl(struct sock *
+@@ -1527,7 +1528,7 @@ static int do_arpt_get_ctl(struct sock *
  	return ret;
  }
  
@@ -137,7 +137,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct xt_table_info *private;
  	void *loc_cpu_entry;
-@@ -1526,7 +1527,7 @@ static void __arpt_unregister_table(stru
+@@ -1539,7 +1540,7 @@ static void __arpt_unregister_table(stru
  	/* Decrease module usage counts and free resources */
  	loc_cpu_entry = private->entries;
  	xt_entry_foreach(iter, loc_cpu_entry, private->size)
@@ -146,7 +146,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	if (private->number > private->initial_entries)
  		module_put(table_owner);
  	xt_free_table_info(private);
-@@ -1566,7 +1567,7 @@ int arpt_register_table(struct net *net,
+@@ -1579,7 +1580,7 @@ int arpt_register_table(struct net *net,
  
  	ret = nf_register_net_hooks(net, ops, hweight32(table->valid_hooks));
  	if (ret != 0) {
@@ -155,7 +155,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		*res = NULL;
  	}
  
-@@ -1581,7 +1582,7 @@ void arpt_unregister_table(struct net *n
+@@ -1594,7 +1595,7 @@ void arpt_unregister_table(struct net *n
  			   const struct nf_hook_ops *ops)
  {
  	nf_unregister_net_hooks(net, ops, hweight32(table->valid_hooks));
