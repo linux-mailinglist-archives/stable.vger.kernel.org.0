@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2203E144FD1
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD35614519A
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:55:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387561AbgAVJlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:41:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60742 "EHLO mail.kernel.org"
+        id S1730353AbgAVJdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:33:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387557AbgAVJlU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:41:20 -0500
+        id S1729496AbgAVJdF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:33:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBF0224680;
-        Wed, 22 Jan 2020 09:41:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B34C24672;
+        Wed, 22 Jan 2020 09:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686080;
-        bh=q+uwZbHrhnEvPeUulaq1n7jqJ5rCMHn4Q3crXScWbqM=;
+        s=default; t=1579685584;
+        bh=wbfoAA42oX5l4yauXATlXAMyCq6qjlKLDgmai3tPlJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJGfDTCU8XAFUQi0Oo0VWHb0obVEBLBMobdk1+cOw7oIXHNfXTtQ+eyMMMLnByP3g
-         WUR7iK0n/2h9FrdxIuUBvOnMqKI025soxNA8gVz1bVxIIDPPNosbM81aMuprdq6yfE
-         Bkuw6NOKd3sACii1enfI5bVpxfYrn6I01YH1P9S8=
+        b=VhD5J9rgWbvaq57NR9MowP2Dmnpu6PWOhhmJXyFW1cW2iwiPEg6TDWR86ySTd5Fy8
+         3qWTXdqT5zRPtQnR7fNJIhbO4A0DYyZ0nCkIifQmu+EtLweiLQMr71cnu6qYFpTGun
+         SM830QfaSdquU7r27xCkB54tPrmOAUA2YUv8eYlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 4.19 036/103] drm/i915: Add missing include file <linux/math64.h>
+        stable@vger.kernel.org, Kars de Jong <jongk@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 4.4 36/76] rtc: msm6242: Fix reading of 10-hour digit
 Date:   Wed, 22 Jan 2020 10:28:52 +0100
-Message-Id: <20200122092809.312155945@linuxfoundation.org>
+Message-Id: <20200122092755.802958083@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Kars de Jong <jongk@linux-m68k.org>
 
-commit ea38aa2ea5b0969776f0a47f174ce928a22be803 upstream.
+commit e34494c8df0cd96fc432efae121db3212c46ae48 upstream.
 
-Fix build error:
-./drivers/gpu/drm/i915/selftests/i915_random.h: In function i915_prandom_u32_max_state:
-./drivers/gpu/drm/i915/selftests/i915_random.h:48:23: error:
- implicit declaration of function mul_u32_u32; did you mean mul_u64_u32_div? [-Werror=implicit-function-declaration]
-  return upper_32_bits(mul_u32_u32(prandom_u32_state(state), ep_ro));
+The driver was reading the wrong register as the 10-hour digit due to
+a misplaced ')'. It was in fact reading the 1-second digit register due
+to this bug.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 7ce5b6850b47 ("drm/i915/selftests: Use mul_u32_u32() for 32b x 32b -> 64b result")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200107135014.36472-1-yuehaibing@huawei.com
-(cherry picked from commit 62bf5465b26d1f502430b9c654be7d16bf2e242d)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Also remove the use of a magic number for the hour mask and use the define
+for it which was already present.
+
+Fixes: 4f9b9bba1dd1 ("rtc: Add an RTC driver for the Oki MSM6242")
+Tested-by: Kars de Jong <jongk@linux-m68k.org>
+Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
+Link: https://lore.kernel.org/r/20191116110548.8562-1-jongk@linux-m68k.org
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/selftests/i915_random.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-msm6242.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/selftests/i915_random.h
-+++ b/drivers/gpu/drm/i915/selftests/i915_random.h
-@@ -25,6 +25,7 @@
- #ifndef __I915_SELFTESTS_RANDOM_H__
- #define __I915_SELFTESTS_RANDOM_H__
- 
-+#include <linux/math64.h>
- #include <linux/random.h>
- 
- #include "../i915_selftest.h"
+--- a/drivers/rtc/rtc-msm6242.c
++++ b/drivers/rtc/rtc-msm6242.c
+@@ -132,7 +132,8 @@ static int msm6242_read_time(struct devi
+ 		      msm6242_read(priv, MSM6242_SECOND1);
+ 	tm->tm_min  = msm6242_read(priv, MSM6242_MINUTE10) * 10 +
+ 		      msm6242_read(priv, MSM6242_MINUTE1);
+-	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10 & 3)) * 10 +
++	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10) &
++		       MSM6242_HOUR10_HR_MASK) * 10 +
+ 		      msm6242_read(priv, MSM6242_HOUR1);
+ 	tm->tm_mday = msm6242_read(priv, MSM6242_DAY10) * 10 +
+ 		      msm6242_read(priv, MSM6242_DAY1);
 
 
