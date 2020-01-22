@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E10A145659
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9E914565B
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731083AbgAVN0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:26:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46856 "EHLO mail.kernel.org"
+        id S1731553AbgAVN0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:26:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730845AbgAVN0P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:26:15 -0500
+        id S1730845AbgAVN0S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:26:18 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C61A24694;
-        Wed, 22 Jan 2020 13:26:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E4812467F;
+        Wed, 22 Jan 2020 13:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699574;
-        bh=6WTdhUFKHAtR4iBSmnrgFS4gUpJDuX+ld+Dm484dcCo=;
+        s=default; t=1579699577;
+        bh=MqHk9ws1zC4KJqEe/qedh29q88AsQZjUKviXXMv9T14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oy4HDNQ+w6tb/eqW+oYi1obzDiJpquDGgIeYE0gcK99m/Oeop4XESf4/zJ3EnNOVN
-         pZPRrkrZtzn1cV3gV/fdLVD93j9SDNh5WJos+mUt+k8LQhSjsfz7aNoEKrSlkxYU8o
-         vsUwYboLxPpLN/3t8OK6p8HXShln4AAKQNknieqE=
+        b=v/RsWG0Dh58dTqRLPeZVF7Bw6FYabVGowEPfhm8D809ioxL3XYk1LnWwVQivQTEOC
+         dGAI2Z4HUCK0z+kpOcN5v8IJC+rXUagm1q1Zztu+JE1RlayhldeZDKryta046DAk8n
+         ebZWBNlIYUxxpEHQlTylV8LzTtoA3RjL2FStFW7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>
-Subject: [PATCH 5.4 183/222] arm64: dts: marvell: Fix CP110 NAND controller node multi-line comment alignment
-Date:   Wed, 22 Jan 2020 10:29:29 +0100
-Message-Id: <20200122092846.791206349@linuxfoundation.org>
+        stable@vger.kernel.org, Biju Das <biju.das@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 5.4 184/222] arm64: dts: renesas: r8a774a1: Remove audio port node
+Date:   Wed, 22 Jan 2020 10:29:30 +0100
+Message-Id: <20200122092846.861792313@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -43,37 +43,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Biju Das <biju.das@bp.renesas.com>
 
-commit 2bc26088ba37d4f2a4b8bd813ee757992522d082 upstream.
+commit a381325812691f57aece60aaee76938ac8fc6619 upstream.
 
-Fix this tiny typo before renaming/changing this file.
+This patch removes audio port node from SoC device tree and
+fixes the below dtb warning
 
-Fixes: 72a3713fadfd ("arm64: dts: marvell: de-duplicate CP110 description")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+    Warning (unit_address_vs_reg): /soc/sound@ec500000/ports/port@0: node has a unit name, but no reg property
+
+Fixes: e2f04248fcd4 ("arm64: dts: renesas: r8a774a1: Add audio support")
+Signed-off-by: Biju Das <biju.das@bp.renesas.com>
+Link: https://lore.kernel.org/r/1570200761-884-1-git-send-email-biju.das@bp.renesas.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/marvell/armada-cp110.dtsi |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/renesas/hihope-common.dtsi |   22 ++++++++++------------
+ arch/arm64/boot/dts/renesas/r8a774a1.dtsi      |   11 -----------
+ 2 files changed, 10 insertions(+), 23 deletions(-)
 
---- a/arch/arm64/boot/dts/marvell/armada-cp110.dtsi
-+++ b/arch/arm64/boot/dts/marvell/armada-cp110.dtsi
-@@ -438,10 +438,10 @@
+--- a/arch/arm64/boot/dts/renesas/hihope-common.dtsi
++++ b/arch/arm64/boot/dts/renesas/hihope-common.dtsi
+@@ -86,7 +86,7 @@
  
- 		CP110_LABEL(nand_controller): nand@720000 {
- 			/*
--			* Due to the limitation of the pins available
--			* this controller is only usable on the CPM
--			* for A7K and on the CPS for A8K.
--			*/
-+			 * Due to the limitation of the pins available
-+			 * this controller is only usable on the CPM
-+			 * for A7K and on the CPS for A8K.
-+			 */
- 			compatible = "marvell,armada-8k-nand-controller",
- 				"marvell,armada370-nand-controller";
- 			reg = <0x720000 0x54>;
+ 		label = "rcar-sound";
+ 
+-		dais = <&rsnd_port0>;
++		dais = <&rsnd_port>;
+ 	};
+ 
+ 	vbus0_usb2: regulator-vbus0-usb2 {
+@@ -191,7 +191,7 @@
+ 		port@2 {
+ 			reg = <2>;
+ 			dw_hdmi0_snd_in: endpoint {
+-				remote-endpoint = <&rsnd_endpoint0>;
++				remote-endpoint = <&rsnd_endpoint>;
+ 			};
+ 		};
+ 	};
+@@ -327,17 +327,15 @@
+ 	/* Single DAI */
+ 	#sound-dai-cells = <0>;
+ 
+-	ports {
+-		rsnd_port0: port@0 {
+-			rsnd_endpoint0: endpoint {
+-				remote-endpoint = <&dw_hdmi0_snd_in>;
+-
+-				dai-format = "i2s";
+-				bitclock-master = <&rsnd_endpoint0>;
+-				frame-master = <&rsnd_endpoint0>;
++	rsnd_port: port {
++		rsnd_endpoint: endpoint {
++			remote-endpoint = <&dw_hdmi0_snd_in>;
++
++			dai-format = "i2s";
++			bitclock-master = <&rsnd_endpoint>;
++			frame-master = <&rsnd_endpoint>;
+ 
+-				playback = <&ssi2>;
+-			};
++			playback = <&ssi2>;
+ 		};
+ 	};
+ };
+--- a/arch/arm64/boot/dts/renesas/r8a774a1.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a774a1.dtsi
+@@ -1726,17 +1726,6 @@
+ 				      "ssi.1", "ssi.0";
+ 			status = "disabled";
+ 
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				port@0 {
+-					reg = <0>;
+-				};
+-				port@1 {
+-					reg = <1>;
+-				};
+-			};
+-
+ 			rcar_sound,ctu {
+ 				ctu00: ctu-0 { };
+ 				ctu01: ctu-1 { };
 
 
