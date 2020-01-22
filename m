@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ABC714513B
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:52:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F0441450D7
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730943AbgAVJf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:35:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51324 "EHLO mail.kernel.org"
+        id S1732867AbgAVJjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:39:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730935AbgAVJf7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:35:59 -0500
+        id S1733142AbgAVJjE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:39:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 567002467C;
-        Wed, 22 Jan 2020 09:35:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17EF224684;
+        Wed, 22 Jan 2020 09:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685757;
-        bh=tAEX8k+O68fJuZfYx6mQBJTYLpBE2CrVhQuydpAimMg=;
+        s=default; t=1579685943;
+        bh=KBgjthE4MXi4jjoOKexi2wKqKnsrS/GTG2qljJ1vEok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/YfMRRK776OLNqgyR1n+DXJube5+rbwcwptAgLphvAmiHcm7txYrRMiqHcckYRxG
-         NtsJwgW3/62T2m4yOZWBTWiPEJTh/VlDHYvPAjJEfObgYkLG2oBtOa2ChiN8S0sCXt
-         nSjIjJRVIkqiFOHutP14GeHyN2Ij1XLa0eGFFEec=
+        b=g8iCvQ/DCt0adKFw/A18hlORCxvMeure+n0C4tDRPVQNVnd/XY3mXrLq3fqAg5QUo
+         e0lI50or0iRZNNRwde+LwcCErTomulmtPNXujPMVFoZanhiVQc9M7cKSaHniRAZaYC
+         YbdyFGn4a7BJY5RaqmQnxfW5Sukm6CcBXWWWa4ZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Qian Cai <cai@lca.pw>, Tejun Heo <tj@kernel.org>,
         Jens Axboe <axboe@kernel.dk>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 68/97] mm/page-writeback.c: avoid potential division by zero in wb_min_max_ratio()
-Date:   Wed, 22 Jan 2020 10:29:12 +0100
-Message-Id: <20200122092807.307956778@linuxfoundation.org>
+Subject: [PATCH 4.14 28/65] mm/page-writeback.c: avoid potential division by zero in wb_min_max_ratio()
+Date:   Wed, 22 Jan 2020 10:29:13 +0100
+Message-Id: <20200122092754.784874453@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -106,7 +106,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/mm/page-writeback.c
 +++ b/mm/page-writeback.c
-@@ -200,11 +200,11 @@ static void wb_min_max_ratio(struct bdi_
+@@ -201,11 +201,11 @@ static void wb_min_max_ratio(struct bdi_
  	if (this_bw < tot_bw) {
  		if (min) {
  			min *= this_bw;
