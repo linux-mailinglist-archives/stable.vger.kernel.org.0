@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06971145534
+	by mail.lfdr.de (Postfix) with ESMTP id ED19E145536
 	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:20:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729817AbgAVNTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:19:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35892 "EHLO mail.kernel.org"
+        id S1729832AbgAVNTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:19:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729058AbgAVNTu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:19:50 -0500
+        id S1729826AbgAVNTy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:19:54 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98E732467A;
-        Wed, 22 Jan 2020 13:19:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC2A82467A;
+        Wed, 22 Jan 2020 13:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699190;
-        bh=lYcyzUsSueiTVaeCjUbMt38KiP52JGJR1GhZPYucS/4=;
+        s=default; t=1579699193;
+        bh=zrgM32+MfYz8uFvX7xck2BXM2ageeXgUiFXT/ybNLUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rD9hxWb0B+Uew2OaI+6vlKSWy6UrpDLH6T1Z+2W+3AA9mEaxlGdQoydJw0BdXBp1x
-         0Ca3yMy7fRTknmY7alrclkQwGRKl2hfi5FNr6YATox+aSk4S9IKGxdlEEdjPsTAa8d
-         HAg7zsZXWAqMoZYfgWrLt85Rrc7BC7thKlhsTNYE=
+        b=fI9i9FgYuQKj/YaiMQ+8BlhnjSi7GcWJ1jCcr+Mj1bIaBOQZ6PrpVF6iT0/VA1QMc
+         lWy3e69qnvGvXyELZk/GjPRSEPEfwFy3RznFHtcpK1c/5vEBC9uheU9mmQMcQRg3Ue
+         Dp5aUU/zeW6I+C2P3W9yD9FgeJ8NtM6LZDuZ+pjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 067/222] s390/zcrypt: Fix CCA cipher key gen with clear key value function
-Date:   Wed, 22 Jan 2020 10:27:33 +0100
-Message-Id: <20200122092838.523158685@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Long Li <longli@microsoft.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 068/222] scsi: storvsc: Correctly set number of hardware queues for IDE disk
+Date:   Wed, 22 Jan 2020 10:27:34 +0100
+Message-Id: <20200122092838.593531809@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,38 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Long Li <longli@microsoft.com>
 
-commit 94dd3bada53ee77b80d0aeee5571eeb83654d156 upstream.
+commit 7b571c19d4c0b78d27dd3bf1f3c42e4032390af6 upstream.
 
-Regression tests showed that the CCA cipher key function which
-generates an CCA cipher key with given clear key value does not work
-correctly. At parsing the reply CPRB two limits are wrong calculated
-resulting in rejecting the reply as invalid with s390dbf message
-"_ip_cprb_helper reply with invalid or unknown key block".
+Commit 0ed881027690 ("scsi: storvsc: setup 1:1 mapping between hardware
+queue and CPU queue") introduced a regression for disks attached to
+IDE. For these disks the host VSP only offers one VMBUS channel. Setting
+multiple queues can overload the VMBUS channel and result in performance
+drop for high queue depth workload on system with large number of CPUs.
 
-Fixes: f2bbc96e7cfa ("s390/pkey: add CCA AES cipher key support")
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fix it by leaving the number of hardware queues to 1 (default value) for
+IDE disks.
+
+Fixes: 0ed881027690 ("scsi: storvsc: setup 1:1 mapping between hardware queue and CPU queue")
+Link: https://lore.kernel.org/r/1578960516-108228-1-git-send-email-longli@linuxonhyperv.com
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Long Li <longli@microsoft.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/crypto/zcrypt_ccamisc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/storvsc_drv.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/crypto/zcrypt_ccamisc.c
-+++ b/drivers/s390/crypto/zcrypt_ccamisc.c
-@@ -1037,8 +1037,8 @@ static int _ip_cprb_helper(u16 cardnr, u
- 	prepparm = (struct iprepparm *) prepcblk->rpl_parmb;
+--- a/drivers/scsi/storvsc_drv.c
++++ b/drivers/scsi/storvsc_drv.c
+@@ -1835,9 +1835,11 @@ static int storvsc_probe(struct hv_devic
+ 	 */
+ 	host->sg_tablesize = (stor_device->max_transfer_bytes >> PAGE_SHIFT);
+ 	/*
++	 * For non-IDE disks, the host supports multiple channels.
+ 	 * Set the number of HW queues we are supporting.
+ 	 */
+-	host->nr_hw_queues = num_present_cpus();
++	if (!dev_is_ide)
++		host->nr_hw_queues = num_present_cpus();
  
- 	/* do some plausibility checks on the key block */
--	if (prepparm->kb.len < 120 + 5 * sizeof(uint16_t) ||
--	    prepparm->kb.len > 136 + 5 * sizeof(uint16_t)) {
-+	if (prepparm->kb.len < 120 + 3 * sizeof(uint16_t) ||
-+	    prepparm->kb.len > 136 + 3 * sizeof(uint16_t)) {
- 		DEBUG_ERR("%s reply with invalid or unknown key block\n",
- 			  __func__);
- 		rc = -EIO;
+ 	/*
+ 	 * Set the error handler work queue.
 
 
