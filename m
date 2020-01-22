@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9CC21451A1
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:55:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD57145088
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729247AbgAVJcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:32:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
+        id S1730266AbgAVJrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:47:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730258AbgAVJcw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:32:52 -0500
+        id S2387453AbgAVJmi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:42:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD3D424673;
-        Wed, 22 Jan 2020 09:32:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B63012467B;
+        Wed, 22 Jan 2020 09:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685572;
-        bh=T6Bz7GzP/Tc70fMoKXyvu0ibzBZJF2aJQbCdC6q0keg=;
+        s=default; t=1579686158;
+        bh=lw0n30HJ5egXyCrAZm3hjuOlIemciB2e6c2wPKuVijM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dgQPQZNGZMO+tO0fi9kbkZB7LATtYv50ZU4vUvjf770t9ds7Ptp2xMeBl+WuxXR61
-         849MPooQP8u2cVT3K6kLLYe0gcxDzS7I/dIvMWYGW8tF6j/6c1nBWtiP1nvmKGj8LD
-         z0DZx65kRVOLTbLdNCGc0o/D7wGurT0X7B4Wnk2M=
+        b=hlK/cNMQy6iwicxxVnsjksFvl2lpizV1krRoLMjQYOwKdD+F3nfODdTk9s0L7+tkU
+         S4szFo/K94UfebmPhUqttOLg3QGg4H8KCcH7+yIfQcPdCnw08P/yHVeqZ/mpiOpH7i
+         /toIMd+a8XFu4//ntwxdYSVwwMGwvYCbgegeMl88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Juergen Gross <jgross@suse.com>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
-Subject: [PATCH 4.4 67/76] xen/blkfront: Adjust indentation in xlvbd_alloc_gendisk
-Date:   Wed, 22 Jan 2020 10:29:23 +0100
-Message-Id: <20200122092801.587987713@linuxfoundation.org>
+        stable@vger.kernel.org, Mohammed Gamal <mgamal@redhat.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 068/103] hv_netvsc: Fix memory leak when removing rndis device
+Date:   Wed, 22 Jan 2020 10:29:24 +0100
+Message-Id: <20200122092813.776028007@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Mohammed Gamal <mgamal@redhat.com>
 
-commit 589b72894f53124a39d1bb3c0cecaf9dcabac417 upstream.
+[ Upstream commit 536dc5df2808efbefc5acee334d3c4f701790ec0 ]
 
-Clang warns:
+kmemleak detects the following memory leak when hot removing
+a network device:
 
-../drivers/block/xen-blkfront.c:1117:4: warning: misleading indentation;
-statement is not part of the previous 'if' [-Wmisleading-indentation]
-                nr_parts = PARTS_PER_DISK;
-                ^
-../drivers/block/xen-blkfront.c:1115:3: note: previous statement is here
-                if (err)
-                ^
+unreferenced object 0xffff888083f63600 (size 256):
+  comm "kworker/0:1", pid 12, jiffies 4294831717 (age 1113.676s)
+  hex dump (first 32 bytes):
+    00 40 c7 33 80 88 ff ff 00 00 00 00 10 00 00 00  .@.3............
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+  backtrace:
+    [<00000000d4a8f5be>] rndis_filter_device_add+0x117/0x11c0 [hv_netvsc]
+    [<000000009c02d75b>] netvsc_probe+0x5e7/0xbf0 [hv_netvsc]
+    [<00000000ddafce23>] vmbus_probe+0x74/0x170 [hv_vmbus]
+    [<00000000046e64f1>] really_probe+0x22f/0xb50
+    [<000000005cc35eb7>] driver_probe_device+0x25e/0x370
+    [<0000000043c642b2>] bus_for_each_drv+0x11f/0x1b0
+    [<000000005e3d09f0>] __device_attach+0x1c6/0x2f0
+    [<00000000a72c362f>] bus_probe_device+0x1a6/0x260
+    [<0000000008478399>] device_add+0x10a3/0x18e0
+    [<00000000cf07b48c>] vmbus_device_register+0xe7/0x1e0 [hv_vmbus]
+    [<00000000d46cf032>] vmbus_add_channel_work+0x8ab/0x1770 [hv_vmbus]
+    [<000000002c94bb64>] process_one_work+0x919/0x17d0
+    [<0000000096de6781>] worker_thread+0x87/0xb40
+    [<00000000fbe7397e>] kthread+0x333/0x3f0
+    [<000000004f844269>] ret_from_fork+0x3a/0x50
 
-This is because there is a space at the beginning of this line; remove
-it so that the indentation is consistent according to the Linux kernel
-coding style and clang no longer warns.
+rndis_filter_device_add() allocates an instance of struct rndis_device
+which never gets deallocated as rndis_filter_device_remove() sets
+net_device->extension which points to the rndis_device struct to NULL,
+leaving the rndis_device dangling.
 
-While we are here, the previous line has some trailing whitespace; clean
-that up as well.
+Since net_device->extension is eventually freed in free_netvsc_device(),
+we refrain from setting it to NULL inside rndis_filter_device_remove()
 
-Fixes: c80a420995e7 ("xen-blkfront: handle Xen major numbers other than XENVBD")
-Link: https://github.com/ClangBuiltLinux/linux/issues/791
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Acked-by: Roger Pau Monné <roger.pau@citrix.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Mohammed Gamal <mgamal@redhat.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/block/xen-blkfront.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/hyperv/rndis_filter.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -952,8 +952,8 @@ static int xlvbd_alloc_gendisk(blkif_sec
- 	if (!VDEV_IS_EXTENDED(info->vdevice)) {
- 		err = xen_translate_vdev(info->vdevice, &minor, &offset);
- 		if (err)
--			return err;		
-- 		nr_parts = PARTS_PER_DISK;
-+			return err;
-+		nr_parts = PARTS_PER_DISK;
- 	} else {
- 		minor = BLKIF_MINOR_EXT(info->vdevice);
- 		nr_parts = PARTS_PER_EXT_DISK;
+--- a/drivers/net/hyperv/rndis_filter.c
++++ b/drivers/net/hyperv/rndis_filter.c
+@@ -1375,8 +1375,6 @@ void rndis_filter_device_remove(struct h
+ 	/* Halt and release the rndis device */
+ 	rndis_filter_halt_device(net_dev, rndis_dev);
+ 
+-	net_dev->extension = NULL;
+-
+ 	netvsc_device_remove(dev);
+ }
+ 
 
 
