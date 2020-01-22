@@ -2,150 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18542145885
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 16:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D2F1458CC
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 16:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725836AbgAVPVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 10:21:41 -0500
-Received: from mx2.suse.de ([195.135.220.15]:48204 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725802AbgAVPVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 10:21:41 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 047F3ACC2;
-        Wed, 22 Jan 2020 15:21:38 +0000 (UTC)
-Date:   Wed, 22 Jan 2020 16:21:36 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Libor Pechacek <lpechacek@suse.cz>
-Cc:     linuxppc-dev@lists.ozlabs.org,
-        Nathan Fontenot <nfont@linux.vnet.ibm.com>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-        Leonardo Bras <leonardo@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Allison Randal <allison@lohutok.net>
-Subject: Re: [PATCH] powerpc: drmem: avoid NULL pointer dereference when
- drmem is unavailable
-Message-ID: <20200122152136.GL4113@kitsune.suse.cz>
-References: <20200116102758.GC25138@fm.suse.cz>
+        id S1725827AbgAVPaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 10:30:18 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:37079 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725802AbgAVPaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 10:30:18 -0500
+Received: by mail-wr1-f66.google.com with SMTP id w15so7775343wru.4
+        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 07:30:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CgAFQSqwSjkV/DuXkxY5ZVWLWiOcGCKblH1ZrGP8iVY=;
+        b=PMN5M6Hvj+QsIPwpX0Ll6kJFbfFMC9B9bJa8tqQzqAKnXvJ5YnM0mcbZDNZrjtdqdD
+         +do++stmhmx+xxyWmzb5bcHGJ2A+3XF+nZ7Di7fsJWjTKnP1OuYTwKVUwGAC0oNmEO9e
+         fsCTXebPZRTNb3Nmly5uSQdILX9QXvCBMYpH81IL+hYGShx8GujPrzarqbCSSbBzWcVB
+         hdRiTww5Hd8A8HNVMKCqcgOj2xcv0kDU1FZRxpOmkhPWLRX66XBd5G8hoTnkJ8cApIzQ
+         DhVEixQiYfjUkBUbXC+PwpzjDowygSh/k0/jJ3uHMRjqo5ffc/oiWZ+RZnVwqTnmynni
+         evqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CgAFQSqwSjkV/DuXkxY5ZVWLWiOcGCKblH1ZrGP8iVY=;
+        b=PYzmo+98ZQJfhsQvU3sfpzS12DCXw1mWv8oEI2g6f61N6YJb2Hi2gaXERBZzkVkz1v
+         lvD0+gimpYL3atFUABl/bGrFewvS7HHc81bQNSzkN7dz4Hu4Pc63FQXwOYlEl7IYGmOS
+         pRBST//NajBEtsPWCcWtHnFvKyqwizDMy1vlQlqK7GfotJXh4IIH3YhhoAxbucHOTyJ9
+         FI9k4DmBzt3m2Cobn6zTPlYJ1ObGUz6tMV0edMSJf5KzJgP+Eh6s6i8r1RJ4bLsv/eX7
+         r+0VfTgpnRMf3jHEO1uQftJr/QZ558aexax5MxfrhRqK9AZEBMp7OGVqHKl7CdWJGeMy
+         qxDw==
+X-Gm-Message-State: APjAAAUoVgH9TRnQ7Oo0gFHbji1RvKpFLuKDceG1KBsiKFq687J827TG
+        3yR0oH8cCFxxwuYV72skoa2djRl/8sWJYA==
+X-Google-Smtp-Source: APXvYqzH37plBv94TiQ31mXmiu3Edq0f+9kNm/hMfyeoN+2OiwTQwbclUnFinHsKOi5r981sF8/UYw==
+X-Received: by 2002:a05:6000:11c6:: with SMTP id i6mr12308290wrx.178.1579707015514;
+        Wed, 22 Jan 2020 07:30:15 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id i10sm58770254wru.16.2020.01.22.07.30.14
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jan 2020 07:30:14 -0800 (PST)
+Message-ID: <5e286a86.1c69fb81.48768.a1b6@mx.google.com>
+Date:   Wed, 22 Jan 2020 07:30:14 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200116102758.GC25138@fm.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.97-104-g0ed30079b15d
+Subject: stable-rc/linux-4.19.y boot: 125 boots: 2 failed,
+ 112 passed with 9 offline, 2 untried/unknown (v4.19.97-104-g0ed30079b15d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 16, 2020 at 11:27:58AM +0100, Libor Pechacek wrote:
-> In KVM guests drmem structure is only zero initialized. Trying to
-> manipulate DLPAR parameters results in a crash in this environment.
-> 
-> $ echo "memory add count 1" > /sys/kernel/dlpar
-> Oops: Kernel access of bad area, sig: 11 [#1]
-> LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-> Modules linked in: af_packet(E) rfkill(E) nvram(E) vmx_crypto(E)
-> gf128mul(E) e1000(E) virtio_balloon(E) rtc_generic(E) crct10dif_vpmsum(E)
-> btrfs(E) blake2b_generic(E) libcrc32c(E) xor(E) raid6_pq(E) virtio_rng(E)
-> virtio_blk(E) ohci_pci(E) ehci_pci(E) ohci_hcd(E) ehci_hcd(E)
-> crc32c_vpmsum(E) usbcore(E) virtio_pci(E) virtio_ring(E) virtio(E) sg(E)
-> dm_multipath(E) dm_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E)
-> scsi_mod(E)
-> CPU: 1 PID: 4114 Comm: bash Kdump: loaded Tainted: G            E     5.5.0-rc6-2-default #1
-> NIP:  c0000000000ff294 LR: c0000000000ff248 CTR: 0000000000000000
-> REGS: c0000000fb9d3880 TRAP: 0300   Tainted: G            E      (5.5.0-rc6-2-default)
-> MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28242428  XER: 20000000
-> CFAR: c0000000009a6c10 DAR: 0000000000000010 DSISR: 40000000 IRQMASK: 0
-> GPR00: c0000000000ff248 c0000000fb9d3b10 c000000001682e00 0000000000000033
-> GPR04: c0000000ff30bf90 c0000000ff394800 0000000000005110 ffffffffffffffe8
-> GPR08: 0000000000000000 0000000000000000 00000000fe1c0000 0000000000000000
-> GPR12: 0000000000002200 c00000003fffee00 0000000000000000 000000011cbc37c0
-> GPR16: 000000011cb27ed0 0000000000000000 000000011cb6dd10 0000000000000000
-> GPR20: 000000011cb7db28 000001003ce035f0 000000011cbc7828 000000011cbc6c70
-> GPR24: 000001003cf01210 0000000000000000 c0000000ffade4e0 c000000002d7216b
-> GPR28: 0000000000000001 c000000002d78560 0000000000000000 c0000000015458d0
-> NIP [c0000000000ff294] dlpar_memory+0x6e4/0xd00
-> LR [c0000000000ff248] dlpar_memory+0x698/0xd00
-> Call Trace:
-> [c0000000fb9d3b10] [c0000000000ff248] dlpar_memory+0x698/0xd00 (unreliable)
-> [c0000000fb9d3ba0] [c0000000000f5990] handle_dlpar_errorlog+0xc0/0x190
-> [c0000000fb9d3c10] [c0000000000f5c58] dlpar_store+0x198/0x4a0
-> [c0000000fb9d3cd0] [c000000000c4cb00] kobj_attr_store+0x30/0x50
-> [c0000000fb9d3cf0] [c0000000005a37b4] sysfs_kf_write+0x64/0x90
-> [c0000000fb9d3d10] [c0000000005a2c90] kernfs_fop_write+0x1b0/0x290
-> [c0000000fb9d3d60] [c0000000004a2bec] __vfs_write+0x3c/0x70
-> [c0000000fb9d3d80] [c0000000004a6560] vfs_write+0xd0/0x260
-> [c0000000fb9d3dd0] [c0000000004a69ac] ksys_write+0xdc/0x130
-> [c0000000fb9d3e20] [c00000000000b478] system_call+0x5c/0x68
-> Instruction dump:
-> ebc90000 1ce70018 38e7ffe8 7cfe3a14 7fbe3840 419dff14 fb610068 7fc9f378
-> 39000000 4800000c 60000000 4195fef4 <81490010> 39290018 38c80001 7ea93840
-> ---[ end trace cc2dd8152608c295 ]---
-> 
-> Taking closer look at the code, I can see that for_each_drmem_lmb is a
-> macro expanding into `for (lmb = &drmem_info->lmbs[0]; lmb <=
-> &drmem_info->lmbs[drmem_info->n_lmbs - 1]; lmb++)`. When drmem_info->lmbs
-> is NULL, the loop would iterate through the whole address range if it
-> weren't stopped by the NULL pointer dereference on the next line.
-> 
-> This patch aligns for_each_drmem_lmb and for_each_drmem_lmb_in_range macro
-> behavior with the common C semantics, where the end marker does not belong
-> to the scanned range, and alters get_lmb_range() semantics. As a side
-> effect, the wraparound observed in the crash is prevented.
-> 
-> Fixes: 6c6ea53725b3 ("powerpc/mm: Separate ibm, dynamic-memory data from DT format")
-> Cc: Michal Suchanek <msuchanek@suse.cz>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Libor Pechacek <lpechacek@suse.cz>
+stable-rc/linux-4.19.y boot: 125 boots: 2 failed, 112 passed with 9 offline=
+, 2 untried/unknown (v4.19.97-104-g0ed30079b15d)
 
-Reviewed-by: Michal Suchanek <msuchanek@suse.de>
-> ---
->  arch/powerpc/include/asm/drmem.h                | 4 ++--
->  arch/powerpc/platforms/pseries/hotplug-memory.c | 4 ++--
->  2 files changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/powerpc/include/asm/drmem.h b/arch/powerpc/include/asm/drmem.h
-> index 3d76e1c388c2..28c3d936fdf3 100644
-> --- a/arch/powerpc/include/asm/drmem.h
-> +++ b/arch/powerpc/include/asm/drmem.h
-> @@ -27,12 +27,12 @@ struct drmem_lmb_info {
->  extern struct drmem_lmb_info *drmem_info;
->  
->  #define for_each_drmem_lmb_in_range(lmb, start, end)		\
-> -	for ((lmb) = (start); (lmb) <= (end); (lmb)++)
-> +	for ((lmb) = (start); (lmb) < (end); (lmb)++)
->  
->  #define for_each_drmem_lmb(lmb)					\
->  	for_each_drmem_lmb_in_range((lmb),			\
->  		&drmem_info->lmbs[0],				\
-> -		&drmem_info->lmbs[drmem_info->n_lmbs - 1])
-> +		&drmem_info->lmbs[drmem_info->n_lmbs])
->  
->  /*
->   * The of_drconf_cell_v1 struct defines the layout of the LMB data
-> diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/powerpc/platforms/pseries/hotplug-memory.c
-> index c126b94d1943..4ea6af002e27 100644
-> --- a/arch/powerpc/platforms/pseries/hotplug-memory.c
-> +++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
-> @@ -236,9 +236,9 @@ static int get_lmb_range(u32 drc_index, int n_lmbs,
->  	if (!start)
->  		return -EINVAL;
->  
-> -	end = &start[n_lmbs - 1];
-> +	end = &start[n_lmbs];
->  
-> -	last_lmb = &drmem_info->lmbs[drmem_info->n_lmbs - 1];
-> +	last_lmb = &drmem_info->lmbs[drmem_info->n_lmbs];
->  	if (end > last_lmb)
->  		return -EINVAL;
->  
-> -- 
-> 2.24.1
-> 
-> 
-> -- 
-> Libor Pechacek
-> SUSE Labs                                Remember to have fun...
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.97-104-g0ed30079b15d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.97-104-g0ed30079b15d/
+
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.97-104-g0ed30079b15d
+Git Commit: 0ed30079b15d245f5a148a4ff156dff23d9569df
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 76 unique boards, 22 SoC families, 15 builds out of 192
+
+Boot Regressions Detected:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-cubieboard:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.9=
+7-66-g6e319a78bc27 - first fail: v4.19.97-88-g854a2a8f9451)
+          sun5i-r8-chip:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.9=
+7-66-g6e319a78bc27 - first fail: v4.19.97-88-g854a2a8f9451)
+
+Boot Failures Detected:
+
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            juno-r2: 1 offline lab
+            meson-axg-s400: 1 offline lab
+            mt7622-rfb1: 1 offline lab
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
