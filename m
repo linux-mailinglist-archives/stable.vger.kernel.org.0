@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D9A145080
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEE351450A7
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:49:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730716AbgAVJqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:46:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35788 "EHLO mail.kernel.org"
+        id S1733237AbgAVJje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:39:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387855AbgAVJnU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:43:20 -0500
+        id S1733229AbgAVJjd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:39:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AF6E24680;
-        Wed, 22 Jan 2020 09:43:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F22F24685;
+        Wed, 22 Jan 2020 09:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686199;
-        bh=yUzz3pdxXKQpwQTWqhRKVlEnaLWaycXtq8Of/BB7q7c=;
+        s=default; t=1579685972;
+        bh=e5CRW54dsq2bYqXNwFy3jRK3OjNNRYCjwFha6ZoH1FY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ont4lVIJqDUJBcHHT/WxhO9rYdxazBL3m+v/TbD8S8gV0k/zTYradtcFfiT1mbLnv
-         fUauznOMtdsXnBRuw2iOnVZGDhkbJ2QLi+csWlcUvz9o2AbfIlPnaCmYP7prUa30YD
-         SQaOn0iRxiPVq4iiK4/RL2g23JQnjZWVLRnCYOe0=
+        b=HYdiF3yBx8N0SMvuu3mQE1KFjaIbhdWiljuqJ2dwlHu24BZSViJYfLqxFhvSLjpkb
+         2F6Wq6Ty7lWhnObpmWGUfVNOIggbUeG0QHINjHUniEQRicj6UUMfwGX7FRAQ8FIGm/
+         vYfOQoiG5l7IU+aSq53SPU47IclvapctOvDYcTw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e8a797964a4180eb57d5@syzkaller.appspotmail.com,
-        syzbot+34b582cf32c1db008f8e@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 084/103] cfg80211: check for set_wiphy_params
-Date:   Wed, 22 Jan 2020 10:29:40 +0100
-Message-Id: <20200122092815.181496714@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Brunnbauer <brunni@netestate.de>,
+        Jeff Mahoney <jeffm@suse.com>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.14 56/65] reiserfs: fix handling of -EOPNOTSUPP in reiserfs_for_each_xattr
+Date:   Wed, 22 Jan 2020 10:29:41 +0100
+Message-Id: <20200122092759.623911907@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Jeff Mahoney <jeffm@suse.com>
 
-commit 24953de0a5e31dcca7e82c8a3c79abc2dfe8fb6e upstream.
+commit 394440d469413fa9b74f88a11f144d76017221f2 upstream.
 
-Check if set_wiphy_params is assigned and return an error if not,
-some drivers (e.g. virt_wifi where syzbot reported it) don't have
-it.
+Commit 60e4cf67a58 (reiserfs: fix extended attributes on the root
+directory) introduced a regression open_xa_root started returning
+-EOPNOTSUPP but it was not handled properly in reiserfs_for_each_xattr.
 
-Reported-by: syzbot+e8a797964a4180eb57d5@syzkaller.appspotmail.com
-Reported-by: syzbot+34b582cf32c1db008f8e@syzkaller.appspotmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200113125358.ac07f276efff.Ibd85ee1b12e47b9efb00a2adc5cd3fac50da791a@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+When the reiserfs module is built without CONFIG_REISERFS_FS_XATTR,
+deleting an inode would result in a warning and chowning an inode
+would also result in a warning and then fail to complete.
+
+With CONFIG_REISERFS_FS_XATTR enabled, the xattr root would always be
+present for read-write operations.
+
+This commit handles -EOPNOSUPP in the same way -ENODATA is handled.
+
+Fixes: 60e4cf67a582 ("reiserfs: fix extended attributes on the root directory")
+CC: stable@vger.kernel.org	# Commit 60e4cf67a58 was picked up by stable
+Link: https://lore.kernel.org/r/20200115180059.6935-1-jeffm@suse.com
+Reported-by: Michael Brunnbauer <brunni@netestate.de>
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/rdev-ops.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/reiserfs/xattr.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/net/wireless/rdev-ops.h
-+++ b/net/wireless/rdev-ops.h
-@@ -537,6 +537,10 @@ static inline int
- rdev_set_wiphy_params(struct cfg80211_registered_device *rdev, u32 changed)
- {
- 	int ret;
-+
-+	if (!rdev->ops->set_wiphy_params)
-+		return -EOPNOTSUPP;
-+
- 	trace_rdev_set_wiphy_params(&rdev->wiphy, changed);
- 	ret = rdev->ops->set_wiphy_params(&rdev->wiphy, changed);
- 	trace_rdev_return_int(&rdev->wiphy, ret);
+--- a/fs/reiserfs/xattr.c
++++ b/fs/reiserfs/xattr.c
+@@ -319,8 +319,12 @@ static int reiserfs_for_each_xattr(struc
+ out_dir:
+ 	dput(dir);
+ out:
+-	/* -ENODATA isn't an error */
+-	if (err == -ENODATA)
++	/*
++	 * -ENODATA: this object doesn't have any xattrs
++	 * -EOPNOTSUPP: this file system doesn't have xattrs enabled on disk.
++	 * Neither are errors
++	 */
++	if (err == -ENODATA || err == -EOPNOTSUPP)
+ 		err = 0;
+ 	return err;
+ }
 
 
