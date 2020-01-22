@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E1741450D5
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1298145004
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:43:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733169AbgAVJjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:39:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56676 "EHLO mail.kernel.org"
+        id S2387830AbgAVJnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:43:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733142AbgAVJjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:39:14 -0500
+        id S2387825AbgAVJnG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:43:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF32724680;
-        Wed, 22 Jan 2020 09:39:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99AA32467B;
+        Wed, 22 Jan 2020 09:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685953;
-        bh=2XKmY0c9D7XUVpX17QA59ql3z4kAvoi44sZGTwYqWqk=;
+        s=default; t=1579686185;
+        bh=8u5bBSZvcbj5TDvKR7jmKt4eiSeLil8Ogw8aRHcZKuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sn/5f3vtqAFyLGNalD7YsteaneAI9mEQZYmYXXnz1OWytuehSE1ofIQpAtjnz/II/
-         gX71Ht12eLVQlN6C9FaOYQTDJgY0LUQl6evO9ROILnOUGGvsV8E85MmxgXoK7vDi9r
-         cSQ6CZ9CT8xfdNh1XGY3g/dxy3hDjIaYqVsJ5wEw=
+        b=t0dYCflvnv4wheV0zwV5xlJtiQTIH0RoSoEQRlsIs+6dMN0GW2jFgcFPyYpVG+LKd
+         jJQbpAqjFKbriFzyD47PeQsy5haBWwRf6Gie2nNAAQ4KrTk4ec30uEPda7QnwbCAh5
+         8rLRt8Nd2NoyyhQjRpMIxLGxI7VnSm04zwrybbDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
-        Neal Cardwell <ncardwell@google.com>,
+        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 49/65] tcp: fix marked lost packets not being retransmitted
+Subject: [PATCH 4.19 078/103] mlxsw: spectrum_qdisc: Include MC TCs in Qdisc counters
 Date:   Wed, 22 Jan 2020 10:29:34 +0100
-Message-Id: <20200122092758.260941988@linuxfoundation.org>
+Message-Id: <20200122092814.651229415@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +45,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit e176b1ba476cf36f723cfcc7a9e57f3cb47dec70 ]
+commit 85005b82e59fa7bb7388b12594ab2067bf73d66c upstream.
 
-When the packet pointed to by retransmit_skb_hint is unlinked by ACK,
-retransmit_skb_hint will be set to NULL in tcp_clean_rtx_queue().
-If packet loss is detected at this time, retransmit_skb_hint will be set
-to point to the current packet loss in tcp_verify_retransmit_hint(),
-then the packets that were previously marked lost but not retransmitted
-due to the restriction of cwnd will be skipped and cannot be
-retransmitted.
+mlxsw configures Spectrum in such a way that BUM traffic is passed not
+through its nominal traffic class TC, but through its MC counterpart TC+8.
+However, when collecting statistics, Qdiscs only look at the nominal TC and
+ignore the MC TC.
 
-To fix this, when retransmit_skb_hint is NULL, retransmit_skb_hint can
-be reset only after all marked lost packets are retransmitted
-(retrans_out >= lost_out), otherwise we need to traverse from
-tcp_rtx_queue_head in tcp_xmit_retransmit_queue().
+Add two helpers to compute the value for logical TC from the constituents,
+one for backlog, the other for tail drops. Use them throughout instead of
+going through the xstats pointer directly.
 
-Packetdrill to demonstrate:
+Counters for TX bytes and packets are deduced from packet priority
+counters, and therefore already include BUM traffic. wred_drop counter is
+irrelevant on MC TCs, because RED is not enabled on them.
 
-// Disable RACK and set max_reordering to keep things simple
-    0 `sysctl -q net.ipv4.tcp_recovery=0`
-   +0 `sysctl -q net.ipv4.tcp_max_reordering=3`
-
-// Establish a connection
-   +0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
-   +0 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
-   +0 bind(3, ..., ...) = 0
-   +0 listen(3, 1) = 0
-
-  +.1 < S 0:0(0) win 32792 <mss 1000,sackOK,nop,nop,nop,wscale 7>
-   +0 > S. 0:0(0) ack 1 <...>
- +.01 < . 1:1(0) ack 1 win 257
-   +0 accept(3, ..., ...) = 4
-
-// Send 8 data segments
-   +0 write(4, ..., 8000) = 8000
-   +0 > P. 1:8001(8000) ack 1
-
-// Enter recovery and 1:3001 is marked lost
- +.01 < . 1:1(0) ack 1 win 257 <sack 3001:4001,nop,nop>
-   +0 < . 1:1(0) ack 1 win 257 <sack 5001:6001 3001:4001,nop,nop>
-   +0 < . 1:1(0) ack 1 win 257 <sack 5001:7001 3001:4001,nop,nop>
-
-// Retransmit 1:1001, now retransmit_skb_hint points to 1001:2001
-   +0 > . 1:1001(1000) ack 1
-
-// 1001:2001 was ACKed causing retransmit_skb_hint to be set to NULL
- +.01 < . 1:1(0) ack 2001 win 257 <sack 5001:8001 3001:4001,nop,nop>
-// Now retransmit_skb_hint points to 4001:5001 which is now marked lost
-
-// BUG: 2001:3001 was not retransmitted
-   +0 > . 2001:3001(1000) ack 1
-
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Tested-by: Neal Cardwell <ncardwell@google.com>
+Fixes: 7b8195306694 ("mlxsw: spectrum: Configure MC-aware mode on mlxsw ports")
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp_input.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -932,9 +932,10 @@ static void tcp_update_reordering(struct
- /* This must be called before lost_out is incremented */
- static void tcp_verify_retransmit_hint(struct tcp_sock *tp, struct sk_buff *skb)
- {
--	if (!tp->retransmit_skb_hint ||
--	    before(TCP_SKB_CB(skb)->seq,
--		   TCP_SKB_CB(tp->retransmit_skb_hint)->seq))
-+	if ((!tp->retransmit_skb_hint && tp->retrans_out >= tp->lost_out) ||
-+	    (tp->retransmit_skb_hint &&
-+	     before(TCP_SKB_CB(skb)->seq,
-+		    TCP_SKB_CB(tp->retransmit_skb_hint)->seq)))
- 		tp->retransmit_skb_hint = skb;
+---
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c |   30 ++++++++++++++-----
+ 1 file changed, 23 insertions(+), 7 deletions(-)
+
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c
+@@ -195,6 +195,20 @@ mlxsw_sp_qdisc_get_xstats(struct mlxsw_s
+ 	return -EOPNOTSUPP;
  }
+ 
++static u64
++mlxsw_sp_xstats_backlog(struct mlxsw_sp_port_xstats *xstats, int tclass_num)
++{
++	return xstats->backlog[tclass_num] +
++	       xstats->backlog[tclass_num + 8];
++}
++
++static u64
++mlxsw_sp_xstats_tail_drop(struct mlxsw_sp_port_xstats *xstats, int tclass_num)
++{
++	return xstats->tail_drop[tclass_num] +
++	       xstats->tail_drop[tclass_num + 8];
++}
++
+ static void
+ mlxsw_sp_qdisc_bstats_per_priority_get(struct mlxsw_sp_port_xstats *xstats,
+ 				       u8 prio_bitmap, u64 *tx_packets,
+@@ -269,7 +283,7 @@ mlxsw_sp_setup_tc_qdisc_red_clean_stats(
+ 					       &stats_base->tx_bytes);
+ 	red_base->prob_mark = xstats->ecn;
+ 	red_base->prob_drop = xstats->wred_drop[tclass_num];
+-	red_base->pdrop = xstats->tail_drop[tclass_num];
++	red_base->pdrop = mlxsw_sp_xstats_tail_drop(xstats, tclass_num);
+ 
+ 	stats_base->overlimits = red_base->prob_drop + red_base->prob_mark;
+ 	stats_base->drops = red_base->prob_drop + red_base->pdrop;
+@@ -369,7 +383,8 @@ mlxsw_sp_qdisc_get_red_xstats(struct mlx
+ 
+ 	early_drops = xstats->wred_drop[tclass_num] - xstats_base->prob_drop;
+ 	marks = xstats->ecn - xstats_base->prob_mark;
+-	pdrops = xstats->tail_drop[tclass_num] - xstats_base->pdrop;
++	pdrops = mlxsw_sp_xstats_tail_drop(xstats, tclass_num) -
++		 xstats_base->pdrop;
+ 
+ 	res->pdrop += pdrops;
+ 	res->prob_drop += early_drops;
+@@ -402,9 +417,10 @@ mlxsw_sp_qdisc_get_red_stats(struct mlxs
+ 
+ 	overlimits = xstats->wred_drop[tclass_num] + xstats->ecn -
+ 		     stats_base->overlimits;
+-	drops = xstats->wred_drop[tclass_num] + xstats->tail_drop[tclass_num] -
++	drops = xstats->wred_drop[tclass_num] +
++		mlxsw_sp_xstats_tail_drop(xstats, tclass_num) -
+ 		stats_base->drops;
+-	backlog = xstats->backlog[tclass_num];
++	backlog = mlxsw_sp_xstats_backlog(xstats, tclass_num);
+ 
+ 	_bstats_update(stats_ptr->bstats, tx_bytes, tx_packets);
+ 	stats_ptr->qstats->overlimits += overlimits;
+@@ -575,9 +591,9 @@ mlxsw_sp_qdisc_get_prio_stats(struct mlx
+ 	tx_packets = stats->tx_packets - stats_base->tx_packets;
+ 
+ 	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
+-		drops += xstats->tail_drop[i];
++		drops += mlxsw_sp_xstats_tail_drop(xstats, i);
+ 		drops += xstats->wred_drop[i];
+-		backlog += xstats->backlog[i];
++		backlog += mlxsw_sp_xstats_backlog(xstats, i);
+ 	}
+ 	drops = drops - stats_base->drops;
+ 
+@@ -613,7 +629,7 @@ mlxsw_sp_setup_tc_qdisc_prio_clean_stats
+ 
+ 	stats_base->drops = 0;
+ 	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
+-		stats_base->drops += xstats->tail_drop[i];
++		stats_base->drops += mlxsw_sp_xstats_tail_drop(xstats, i);
+ 		stats_base->drops += xstats->wred_drop[i];
+ 	}
  
 
 
