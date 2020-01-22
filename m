@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9920C1451D2
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3332144F74
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:38:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729327AbgAVJcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:32:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44496 "EHLO mail.kernel.org"
+        id S1732846AbgAVJiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:38:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729935AbgAVJcB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:32:01 -0500
+        id S1732826AbgAVJiD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:38:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3FD724673;
-        Wed, 22 Jan 2020 09:31:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CABE72467E;
+        Wed, 22 Jan 2020 09:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685520;
-        bh=54W6OgmCDqeTuJsLiKooVfT40af7XsuLNWDViJLgAhU=;
+        s=default; t=1579685882;
+        bh=a8Krtvd5JwHc9XoGjtdThnRhX2rTSpgECSqg6Xznqo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t0ZIq6iibEjdqT6OWWZL+XhdQ6skU3hwYjYMF21ynOI+g+67cWgZSz1VYEiBLBQ6/
-         qsjwMxpwqAQ3+ZahDAXAetlcVZWKd+cSVLM0jTECVvDSnSVgWQy6WK66PIZTd/s0Dk
-         cBEhd+3aEMFWOj3BkEDc2mMd9xZs/PdGWjR+By04=
+        b=sdoI7GUvesZepFDe+LCSJg9ffpkOBRsqeYKDjpoXzgCdzuY+A78FgzpRADhpP7pmg
+         9a5J+xSmBacSV/ITUSe8utC9u92xXzNWtE7XLXukayGO1YtvflOiDue6lWq0AxQxtZ
+         XO7+NKgF+iUvz4W7QkKyTNM4aJ/WzzGRVWcwnAyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 48/76] USB: serial: quatech2: handle unbound ports
-Date:   Wed, 22 Jan 2020 10:29:04 +0100
-Message-Id: <20200122092757.863621015@linuxfoundation.org>
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Eric Paris <eparis@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Serge Hallyn <serge@hallyn.com>, Jann Horn <jannh@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 4.14 20/65] ptrace: reintroduce usage of subjective credentials in ptrace_has_cap()
+Date:   Wed, 22 Jan 2020 10:29:05 +0100
+Message-Id: <20200122092754.007578340@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit 9715a43eea77e42678a1002623f2d9a78f5b81a1 upstream.
+commit 6b3ad6649a4c75504edeba242d3fd36b3096a57f upstream.
 
-Check for NULL port data in the modem- and line-status handlers to avoid
-dereferencing a NULL pointer in the unlikely case where a port device
-isn't bound to a driver (e.g. after an allocation failure on port
-probe).
+Commit 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
+introduced the ability to opt out of audit messages for accesses to various
+proc files since they are not violations of policy.  While doing so it
+somehow switched the check from ns_capable() to
+has_ns_capability{_noaudit}(). That means it switched from checking the
+subjective credentials of the task to using the objective credentials. This
+is wrong since. ptrace_has_cap() is currently only used in
+ptrace_may_access() And is used to check whether the calling task (subject)
+has the CAP_SYS_PTRACE capability in the provided user namespace to operate
+on the target task (object). According to the cred.h comments this would
+mean the subjective credentials of the calling task need to be used.
+This switches ptrace_has_cap() to use security_capable(). Because we only
+call ptrace_has_cap() in ptrace_may_access() and in there we already have a
+stable reference to the calling task's creds under rcu_read_lock() there's
+no need to go through another series of dereferences and rcu locking done
+in ns_capable{_noaudit}().
 
-Note that the other (stubbed) event handlers qt2_process_xmit_empty()
-and qt2_process_flush() would need similar sanity checks in case they
-are ever implemented.
+As one example where this might be particularly problematic, Jann pointed
+out that in combination with the upcoming IORING_OP_OPENAT feature, this
+bug might allow unprivileged users to bypass the capability checks while
+asynchronously opening files like /proc/*/mem, because the capability
+checks for this would be performed against kernel credentials.
 
-Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
-Cc: stable <stable@vger.kernel.org>     # 3.5
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+To illustrate on the former point about this being exploitable: When
+io_uring creates a new context it records the subjective credentials of the
+caller. Later on, when it starts to do work it creates a kernel thread and
+registers a callback. The callback runs with kernel creds for
+ktask->real_cred and ktask->cred. To prevent this from becoming a
+full-blown 0-day io_uring will call override_cred() and override
+ktask->cred with the subjective credentials of the creator of the io_uring
+instance. With ptrace_has_cap() currently looking at ktask->real_cred this
+override will be ineffective and the caller will be able to open arbitray
+proc files as mentioned above.
+Luckily, this is currently not exploitable but will turn into a 0-day once
+IORING_OP_OPENAT{2} land in v5.6. Fix it now!
+
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Eric Paris <eparis@redhat.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Serge Hallyn <serge@hallyn.com>
+Reviewed-by: Jann Horn <jannh@google.com>
+Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/quatech2.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/ptrace.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/quatech2.c
-+++ b/drivers/usb/serial/quatech2.c
-@@ -872,7 +872,10 @@ static void qt2_update_msr(struct usb_se
- 	u8 newMSR = (u8) *ch;
- 	unsigned long flags;
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -258,12 +258,17 @@ static int ptrace_check_attach(struct ta
+ 	return ret;
+ }
  
-+	/* May be called from qt2_process_read_urb() for an unbound port. */
- 	port_priv = usb_get_serial_port_data(port);
-+	if (!port_priv)
-+		return;
+-static int ptrace_has_cap(struct user_namespace *ns, unsigned int mode)
++static bool ptrace_has_cap(const struct cred *cred, struct user_namespace *ns,
++			   unsigned int mode)
+ {
++	int ret;
++
+ 	if (mode & PTRACE_MODE_NOAUDIT)
+-		return has_ns_capability_noaudit(current, ns, CAP_SYS_PTRACE);
++		ret = security_capable(cred, ns, CAP_SYS_PTRACE);
+ 	else
+-		return has_ns_capability(current, ns, CAP_SYS_PTRACE);
++		ret = security_capable(cred, ns, CAP_SYS_PTRACE);
++
++	return ret == 0;
+ }
  
- 	spin_lock_irqsave(&port_priv->lock, flags);
- 	port_priv->shadowMSR = newMSR;
-@@ -900,7 +903,10 @@ static void qt2_update_lsr(struct usb_se
- 	unsigned long flags;
- 	u8 newLSR = (u8) *ch;
+ /* Returns 0 on success, -errno on denial. */
+@@ -315,7 +320,7 @@ static int __ptrace_may_access(struct ta
+ 	    gid_eq(caller_gid, tcred->sgid) &&
+ 	    gid_eq(caller_gid, tcred->gid))
+ 		goto ok;
+-	if (ptrace_has_cap(tcred->user_ns, mode))
++	if (ptrace_has_cap(cred, tcred->user_ns, mode))
+ 		goto ok;
+ 	rcu_read_unlock();
+ 	return -EPERM;
+@@ -334,7 +339,7 @@ ok:
+ 	mm = task->mm;
+ 	if (mm &&
+ 	    ((get_dumpable(mm) != SUID_DUMP_USER) &&
+-	     !ptrace_has_cap(mm->user_ns, mode)))
++	     !ptrace_has_cap(cred, mm->user_ns, mode)))
+ 	    return -EPERM;
  
-+	/* May be called from qt2_process_read_urb() for an unbound port. */
- 	port_priv = usb_get_serial_port_data(port);
-+	if (!port_priv)
-+		return;
- 
- 	if (newLSR & UART_LSR_BI)
- 		newLSR &= (u8) (UART_LSR_OE | UART_LSR_BI);
+ 	return security_ptrace_access_check(task, mode);
 
 
