@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 680BD145133
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:52:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 336E0144F85
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:38:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730073AbgAVJw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:52:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
+        id S1733101AbgAVJip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:38:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729277AbgAVJgZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:36:25 -0500
+        id S1733097AbgAVJim (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:38:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 331D024673;
-        Wed, 22 Jan 2020 09:36:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 481152467B;
+        Wed, 22 Jan 2020 09:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685784;
-        bh=U+exO/IhQYIUtg8AkY6Jou7+HjntXe3U5NgQyW5Z9Wc=;
+        s=default; t=1579685921;
+        bh=0W1V3W8CggVjNQyaN/zVeXev/bVrx1JcSlDjkkeRYbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfyvr8ZNCAP4PxkTwPpbcEewGMWuDPjQ3O5sl2ENHoZaZ7HDHiQyuCug/ZLAjw3FW
-         98vYOJI32G5d+kv0HyBGtrLVF1+Z/9YUBClkYSsbhWOmk6ak6zhQG1YZB9qyzNNUyn
-         vkMmpJ2S3ImD0BRmsYxJAXj5npRvihuaaAIdojyg=
+        b=zi8q41BuzEWFbAZTJeAf8y42cznEPwIqZDHRGewj+LJJwP+cu77DxMeCpGVd+J7bD
+         euFZvm7ZO9TtG38W+mndCqxvHzTqXuPppzOWi8QtgZ2GIpbU9dpiNJqq2Rk1p4ZnCQ
+         UrC6b2dsDYetfuT+IWdeh2oWq3T1eU3qLg30tICE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jozsef Kadlecsik <kadlec@netfilter.org>,
         Cong Wang <xiyou.wangcong@gmail.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 78/97] netfilter: fix a use-after-free in mtype_destroy()
+Subject: [PATCH 4.14 37/65] netfilter: fix a use-after-free in mtype_destroy()
 Date:   Wed, 22 Jan 2020 10:29:22 +0100
-Message-Id: <20200122092808.901675411@linuxfoundation.org>
+Message-Id: <20200122092756.195019267@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,7 +66,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/netfilter/ipset/ip_set_bitmap_gen.h
 +++ b/net/netfilter/ipset/ip_set_bitmap_gen.h
-@@ -66,9 +66,9 @@ mtype_destroy(struct ip_set *set)
+@@ -64,9 +64,9 @@ mtype_destroy(struct ip_set *set)
  	if (SET_WITH_TIMEOUT(set))
  		del_timer_sync(&map->gc);
  
