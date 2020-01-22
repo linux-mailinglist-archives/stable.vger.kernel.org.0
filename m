@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF481451CC
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:56:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5047144F7C
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:38:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729728AbgAVJ4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:56:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S1729762AbgAVJiV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:38:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729963AbgAVJcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:32:05 -0500
+        id S1732359AbgAVJiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:38:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1B8D24672;
-        Wed, 22 Jan 2020 09:32:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1A482467E;
+        Wed, 22 Jan 2020 09:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685525;
-        bh=KKDxA6qmVN0e3XiAxuUJ2RGDXFYpnYc8Ej8NWtOMrQU=;
+        s=default; t=1579685897;
+        bh=N/Ob0M7Zc8dRq0i/Iwf6x3QzGWCdqoUhslM1ppdvP0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/8646B8NFxaKEMUtOeuOmdQoHblVZzRCBwCbOSVnaAcIPb5BYnrmPNRuomizvbJj
-         pVJY6bg6SIoqgR033DUZos9jE/Gspgb89l3VC9IADO98PnJ6VS+0AKQHAUjJbaSCA2
-         UV0ZY1Dly3noKkBd/OkFyP1Wl9i1RKk6d7GHKNQQ=
+        b=GB+vmXBgF1RtFTyEsJgifDXD9F0gQZTahd9ei83CztKb/SzjVi42eb5E4jtaKLWrf
+         oMyDKpQtpNMY00WXrJK3wvXk6epNyK1SyYn7pJSPcoryLTXAVXzNyDU8xHMpzC1Qe4
+         /eN3aXiS6IDbybMVMUssanSAGhSwRmQQNMXXXhzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
-Subject: [PATCH 4.4 32/76] tty: serial: pch_uart: correct usage of dma_unmap_sg
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 03/65] ASoC: msm8916-wcd-analog: Fix selected events for MIC BIAS External1
 Date:   Wed, 22 Jan 2020 10:28:48 +0100
-Message-Id: <20200122092755.174221621@linuxfoundation.org>
+Message-Id: <20200122092752.035114311@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 74887542fdcc92ad06a48c0cca17cdf09fc8aa00 upstream.
+commit e0beec88397b163c7c4ea6fcfb67e8e07a2671dc upstream.
 
-Per Documentation/DMA-API-HOWTO.txt,
-To unmap a scatterlist, just call:
-	dma_unmap_sg(dev, sglist, nents, direction);
+MIC BIAS External1 sets pm8916_wcd_analog_enable_micbias_ext1()
+as event handler, which ends up in pm8916_wcd_analog_enable_micbias_ext().
 
-.. note::
+But pm8916_wcd_analog_enable_micbias_ext() only handles the POST_PMU
+event, which is not specified in the event flags for MIC BIAS External1.
+This means that the code in the event handler is never actually run.
 
-	The 'nents' argument to the dma_unmap_sg call must be
-	the _same_ one you passed into the dma_map_sg call,
-	it should _NOT_ be the 'count' value _returned_ from the
-	dma_map_sg call.
+Set SND_SOC_DAPM_POST_PMU as the only event for the handler to fix this.
 
-However in the driver, priv->nent is directly assigned with value
-returned from dma_map_sg, and dma_unmap_sg use priv->nent for unmap,
-this breaks the API usage.
-
-So introduce a new entry orig_nent to remember 'nents'.
-
-Fixes: da3564ee027e ("pch_uart: add multi-scatter processing")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1573623259-6339-1-git-send-email-peng.fan@nxp.com
+Fixes: 585e881e5b9e ("ASoC: codecs: Add msm8916-wcd analog codec")
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200111164006.43074-2-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/pch_uart.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/codecs/msm8916-wcd-analog.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -251,6 +251,7 @@ struct eg20t_port {
- 	struct dma_chan			*chan_rx;
- 	struct scatterlist		*sg_tx_p;
- 	int				nent;
-+	int				orig_nent;
- 	struct scatterlist		sg_rx;
- 	int				tx_dma_use;
- 	void				*rx_buf_virt;
-@@ -804,9 +805,10 @@ static void pch_dma_tx_complete(void *ar
- 	}
- 	xmit->tail &= UART_XMIT_SIZE - 1;
- 	async_tx_ack(priv->desc_tx);
--	dma_unmap_sg(port->dev, sg, priv->nent, DMA_TO_DEVICE);
-+	dma_unmap_sg(port->dev, sg, priv->orig_nent, DMA_TO_DEVICE);
- 	priv->tx_dma_use = 0;
- 	priv->nent = 0;
-+	priv->orig_nent = 0;
- 	kfree(priv->sg_tx_p);
- 	pch_uart_hal_enable_interrupt(priv, PCH_UART_HAL_TX_INT);
- }
-@@ -1031,6 +1033,7 @@ static unsigned int dma_handle_tx(struct
- 		dev_err(priv->port.dev, "%s:dma_map_sg Failed\n", __func__);
- 		return 0;
- 	}
-+	priv->orig_nent = num;
- 	priv->nent = nent;
+--- a/sound/soc/codecs/msm8916-wcd-analog.c
++++ b/sound/soc/codecs/msm8916-wcd-analog.c
+@@ -876,10 +876,10 @@ static const struct snd_soc_dapm_widget
  
- 	for (i = 0; i < nent; i++, sg++) {
+ 	SND_SOC_DAPM_SUPPLY("MIC BIAS External1", CDC_A_MICB_1_EN, 7, 0,
+ 			    pm8916_wcd_analog_enable_micbias_ext1,
+-			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
++			    SND_SOC_DAPM_POST_PMU),
+ 	SND_SOC_DAPM_SUPPLY("MIC BIAS External2", CDC_A_MICB_2_EN, 7, 0,
+ 			    pm8916_wcd_analog_enable_micbias_ext2,
+-			    SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_POST_PMD),
++			    SND_SOC_DAPM_POST_PMU),
+ 
+ 	SND_SOC_DAPM_ADC_E("ADC1", NULL, CDC_A_TX_1_EN, 7, 0,
+ 			   pm8916_wcd_analog_enable_adc,
 
 
