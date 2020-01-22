@@ -2,165 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 051F3145A83
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 18:03:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A855145ACD
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 18:26:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726083AbgAVRDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 12:03:35 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:39498 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729047AbgAVRDe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 12:03:34 -0500
-Received: by mail-lf1-f67.google.com with SMTP id y1so162200lfb.6
-        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 09:03:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=zM+sYNfN68/VlMHBQ28OqftNF6xyw8Hnnx+TFdLsACk=;
-        b=YngsELv1j2RQ0Pv9zae+M720BMjOkELwpWeRg3c+s3lZovhBORsoZy2y/4p6hxw8fZ
-         8Ec80r27bcCippPbe6fyRQYUEalliO+qqoxv0Xv/74zVHsu5NdhRl5DeseVsI3JVYvCj
-         BWtPy83jor2v6kn/6wYSvAQ2do464r2qKn4T0ui8bGaJzaRTBnc1OHkENK/s1rR3w3IH
-         40jTkTXcsYe14e6y/EbfiQoP0/BjibXht1iq3/n+dhZD08YeNIMDV7snggWYsBePUClm
-         5jE8mHjcDEMDuJ3179r1ihmJBdgUBRy3GWS7gLJXyoO9tg9ZTUIpSSZRz/82RjCrGLbY
-         6cuQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=zM+sYNfN68/VlMHBQ28OqftNF6xyw8Hnnx+TFdLsACk=;
-        b=CDalQr2BUnn8btEqAfl96eF/8Nj10y8sbXdxLd4tWzDDUzM4XCLZLdTozMZkBMRy4m
-         gAK+LvE70jXTbQDCE/cSqQ25GsNmJoWn2Cn6rO3vu94vEX6MKvHoH8iFtKZUKMAjJ/Uo
-         IfRZ7ryuRZACCsKF52nGQ3uH8uwgQeI3V0aXJbViCPmZH9lNR0lozvwWYMqFsMgST2Yj
-         p0WinknV10uIkCyxjWuUrpWoB0imCEVe3fPPKeDAkzVO6kfmFrftTI5mzdrJtvKiNxXp
-         YbOCCKLhVysI7naXu7Pkni+mAl3UbIc40dCD6Uzkw8143M7ZIM1scRBWhNLmS1cDlvEk
-         NPsg==
-X-Gm-Message-State: APjAAAWHRChBzSklKYiEzZqzSsa7SmOCJBfodjeWhnuVmraQxcKv38l2
-        CwlDVlCmdcsJFAQIOemYns545c7/opwjCnD8Cy12uBgQgBs=
-X-Google-Smtp-Source: APXvYqzzit4eCBkk59mE0XMjvsu19Ne34Er8Ak0RDXpP1K30LgYouyYzJTPnA3czMddxdbn1/jz6SIY9PKXwY89NeT8=
-X-Received: by 2002:ac2:4adc:: with SMTP id m28mr2340757lfp.26.1579712612116;
- Wed, 22 Jan 2020 09:03:32 -0800 (PST)
+        id S1726191AbgAVR0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 12:26:21 -0500
+Received: from mail25.static.mailgun.info ([104.130.122.25]:11800 "EHLO
+        mail25.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725802AbgAVR0V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 12:26:21 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1579713980; h=Date: Message-Id: Cc: To: References:
+ In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
+ Content-Type: Sender; bh=JT8t4mKOX65qBwKaBugFTnYrziFh/b4z7AwIEFhR5+o=;
+ b=B8xhS/UyWSZJfzTikpmvN6JLFU7HoGdRas2ZxwkERz1KMAdyOCXN6ye/AtOWG8HEzwcDUvfu
+ cOlXqQG5SwAywgCnLhBD6F5j1ZkaPM6qVAG7zI0+tZos4FLzJoq87DmlBZtQ21t1WHSjv2kK
+ omnVlvos+YulMOIFOHhV0VHOEXo=
+X-Mailgun-Sending-Ip: 104.130.122.25
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e2885b2.7f52ca6ca1b8-smtp-out-n03;
+ Wed, 22 Jan 2020 17:26:10 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 217F2C433A2; Wed, 22 Jan 2020 17:26:09 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
+        MISSING_MID,SPF_NONE autolearn=no autolearn_force=no version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id C10CCC433CB;
+        Wed, 22 Jan 2020 17:26:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org C10CCC433CB
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200122092803.587683021@linuxfoundation.org>
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 22 Jan 2020 22:33:20 +0530
-Message-ID: <CA+G9fYv+9iscZ+Xp85Gh=JbXhtPBOO5uigLuWsn8_7zOOvqdiA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 000/103] 4.19.98-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v4] iwlwifi: mvm: don't send the IWL_MVM_RXQ_NSSN_SYNC
+ notif to Rx queues
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20191203080849.12013-1-emmanuel.grumbach@intel.com>
+References: <20191203080849.12013-1-emmanuel.grumbach@intel.com>
+To:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Cc:     linux-wireless@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        stable@vger.kernel.org
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-Id: <20200122172609.217F2C433A2@smtp.codeaurora.org>
+Date:   Wed, 22 Jan 2020 17:26:09 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 22 Jan 2020 at 15:13, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.98 release.
-> There are 103 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 24 Jan 2020 09:25:24 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.98-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Emmanuel Grumbach <emmanuel.grumbach@intel.com> wrote:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> The purpose of this was to keep all the queues updated with
+> the Rx sequence numbers because unlikely yet possible
+> situations where queues can't understand if a specific
+> packet needs to be dropped or not.
+> 
+> Unfortunately, it was reported that this caused issues in
+> our DMA engine. We don't fully understand how this is related,
+> but this is being currently debugged. For now, just don't send
+> this notification to the Rx queues. This de-facto reverts my
+> commit 3c514bf831ac12356b695ff054bef641b9e99593:
+> 
+> iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues
+> 
+> This issue was reported here:
+> https://bugzilla.kernel.org/show_bug.cgi?id=204873
+> https://bugzilla.kernel.org/show_bug.cgi?id=205001
+> and others maybe.
+> 
+> Fixes: 3c514bf831ac ("iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues")
+> CC: <stable@vger.kernel.org> # 5.3+
+> Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-Summary
-------------------------------------------------------------------------
+Patch applied to wireless-drivers.git, thanks.
 
-kernel: 4.19.98-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 0ed30079b15d245f5a148a4ff156dff23d9569df
-git describe: v4.19.97-104-g0ed30079b15d
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.97-104-g0ed30079b15d
+d829229e35f3 iwlwifi: mvm: don't send the IWL_MVM_RXQ_NSSN_SYNC notif to Rx queues
 
+-- 
+https://patchwork.kernel.org/patch/11270795/
 
-No regressions (compared to build v4.19.97)
-
-
-No fixes (compared to build v4.19.97)
-
-Ran 18532 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-sched-tests
-* spectre-meltdown-checker-test
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* network-basic-tests
-* perf
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-cpuhotplug-tests
-* ltp-fcntl-locktests-tests
-* ltp-open-posix-tests
-* ltp-syscalls-tests
-* v4l2-compliance
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* ssuite
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
