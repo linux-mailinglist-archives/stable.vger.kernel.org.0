@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 146E8145058
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:45:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AE1F14502B
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:44:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729828AbgAVJpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:45:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37430 "EHLO mail.kernel.org"
+        id S2388036AbgAVJoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:44:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388025AbgAVJoV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:44:21 -0500
+        id S2387776AbgAVJoX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:44:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 598CA24689;
-        Wed, 22 Jan 2020 09:44:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9BA52468B;
+        Wed, 22 Jan 2020 09:44:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686260;
-        bh=uekGNvBbb8iL4au83+tOTlq3z6PxAJJO3z4muAo2nhk=;
+        s=default; t=1579686263;
+        bh=gEMbZSf7gz/38fyK2S0QNO50FzA33PkIo6Ay1nYgqT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7AbrtVr0bBU/YpvANACtBIJKYyGlrKUC2yRjM3J4yicVa7l3vEq2wv7Lj+u/nxlJ
-         l6esthmcGzpi5HxOJTEocy2HXNAF9UpvTZovjL6S4UVHfjszzXq03wXqIGd8brOwWZ
-         Q3lfpzhTYNe0X0VlCV0sYSp8rauznvAApcf9V1uo=
+        b=DycamOghaO5tOni2q2frO4wY1bwON5mcQx4ubgFpau2LrdbtLlVjvrXPZPyemXkj2
+         WS39eBtVkKyE2UVjQjaLd9L/4ZaNAFyZLEIlrD8lkeHtiphGA6OVfl+alydLvJKuG/
+         6+891UYq+xhPUC5NpsLtAuR6KcR0mf6TbypY7L2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 102/103] regulator: ab8500: Remove SYSCLKREQ from enum ab8505_regulator_id
-Date:   Wed, 22 Jan 2020 10:29:58 +0100
-Message-Id: <20200122092816.938064051@linuxfoundation.org>
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 103/103] hwmon: (pmbus/ibm-cffps) Switch LEDs to blocking brightness call
+Date:   Wed, 22 Jan 2020 10:29:59 +0100
+Message-Id: <20200122092817.056849882@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
 References: <20200122092803.587683021@linuxfoundation.org>
@@ -44,39 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Eddie James <eajames@linux.ibm.com>
 
-commit 458ea3ad033fc86e291712ce50cbe60c3428cf30 upstream.
+commit 9861ff954c7e83e2f738ce16fbe15f8a1e121771 upstream.
 
-Those regulators are not actually supported by the AB8500 regulator
-driver. There is no ab8500_regulator_info for them and no entry in
-ab8505_regulator_match.
+Since i2c_smbus functions can sleep, the brightness setting function
+for this driver must be the blocking version to avoid scheduling while
+atomic.
 
-As such, they cannot be registered successfully, and looking them
-up in ab8505_regulator_match causes an out-of-bounds array read.
-
-Fixes: 547f384f33db ("regulator: ab8500: add support for ab8505")
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20191106173125.14496-2-stephan@gerhold.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Link: https://lore.kernel.org/r/20191106200106.29519-2-eajames@linux.ibm.com
+Fixes: ef9e1cdf419a3 ("hwmon: (pmbus/cffps) Add led class device for power supply fault led")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/regulator/ab8500.h |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/hwmon/pmbus/ibm-cffps.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/include/linux/regulator/ab8500.h
-+++ b/include/linux/regulator/ab8500.h
-@@ -43,8 +43,6 @@ enum ab8505_regulator_id {
- 	AB8505_LDO_ANAMIC2,
- 	AB8505_LDO_AUX8,
- 	AB8505_LDO_ANA,
--	AB8505_SYSCLKREQ_2,
--	AB8505_SYSCLKREQ_4,
- 	AB8505_NUM_REGULATORS,
- };
+--- a/drivers/hwmon/pmbus/ibm-cffps.c
++++ b/drivers/hwmon/pmbus/ibm-cffps.c
+@@ -269,8 +269,8 @@ static int ibm_cffps_read_word_data(stru
+ 	return rc;
+ }
  
+-static void ibm_cffps_led_brightness_set(struct led_classdev *led_cdev,
+-					 enum led_brightness brightness)
++static int ibm_cffps_led_brightness_set(struct led_classdev *led_cdev,
++					enum led_brightness brightness)
+ {
+ 	int rc;
+ 	struct ibm_cffps *psu = container_of(led_cdev, struct ibm_cffps, led);
+@@ -286,9 +286,11 @@ static void ibm_cffps_led_brightness_set
+ 	rc = i2c_smbus_write_byte_data(psu->client, CFFPS_SYS_CONFIG_CMD,
+ 				       psu->led_state);
+ 	if (rc < 0)
+-		return;
++		return rc;
+ 
+ 	led_cdev->brightness = brightness;
++
++	return 0;
+ }
+ 
+ static int ibm_cffps_led_blink_set(struct led_classdev *led_cdev,
+@@ -324,7 +326,7 @@ static void ibm_cffps_create_led_class(s
+ 		 client->addr);
+ 	psu->led.name = psu->led_name;
+ 	psu->led.max_brightness = LED_FULL;
+-	psu->led.brightness_set = ibm_cffps_led_brightness_set;
++	psu->led.brightness_set_blocking = ibm_cffps_led_brightness_set;
+ 	psu->led.blink_set = ibm_cffps_led_blink_set;
+ 
+ 	rc = devm_led_classdev_register(dev, &psu->led);
 
 
