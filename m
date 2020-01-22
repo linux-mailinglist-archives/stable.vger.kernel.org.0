@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38886145013
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:43:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68AF9145071
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387914AbgAVJnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:43:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36300 "EHLO mail.kernel.org"
+        id S2387919AbgAVJnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:43:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387911AbgAVJnj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:43:39 -0500
+        id S2387752AbgAVJnm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:43:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80E9F2468C;
-        Wed, 22 Jan 2020 09:43:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC4F82468A;
+        Wed, 22 Jan 2020 09:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686219;
-        bh=ajjm70ua/EuSvqMKsWtvojZA6tFpJ0zWWBomHPhyMu0=;
+        s=default; t=1579686221;
+        bh=e5CRW54dsq2bYqXNwFy3jRK3OjNNRYCjwFha6ZoH1FY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPJuUDmZy2KGJns0iT2CGV4Sm/P7cRF/krV+aq6txU8uTbSFEbAYQUy5fpnfU6z8l
-         2h3j00AfFVnKEqj47kmtBvqaklR2QrynmhOuNN7bkeoDjO70bVpDQa8+o4YVIf8NvS
-         EUNIPwsK/0/vVFAtzkG839hTmm+fSxo/bXprE0DU=
+        b=i8+9C4zTOzgZoAT7AFC22zLtjrvgdSm2hy2gtFDFiAoWWlN9horfJ3aUMqzbNSWc1
+         veLgYHAkm/7/KtUJH/D/b2k9r3ec6mWYWctcdmVdxgeUYtNuXRh7A+tWKVqweAQ4+8
+         kfpVOeJktFncVJZLXmCeF+CpzyBuysTGrFy99VTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Sushma Kalakota <sushmax.kalakota@intel.com>
-Subject: [PATCH 4.19 091/103] drm/nouveau/mmu: qualify vmm during dtor
-Date:   Wed, 22 Jan 2020 10:29:47 +0100
-Message-Id: <20200122092815.819897902@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Brunnbauer <brunni@netestate.de>,
+        Jeff Mahoney <jeffm@suse.com>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.19 092/103] reiserfs: fix handling of -EOPNOTSUPP in reiserfs_for_each_xattr
+Date:   Wed, 22 Jan 2020 10:29:48 +0100
+Message-Id: <20200122092815.893804063@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
 References: <20200122092803.587683021@linuxfoundation.org>
@@ -44,33 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Derrick <jonathan.derrick@intel.com>
+From: Jeff Mahoney <jeffm@suse.com>
 
-commit 15516bf9abaa41421a6ded79a5a2fee86f9594e5 upstream.
+commit 394440d469413fa9b74f88a11f144d76017221f2 upstream.
 
-If the BAR initialization failed it may leave the vmm structure in an
-unitialized state, leading to a null-pointer-dereference when the vmm is
-dereferenced during teardown.
+Commit 60e4cf67a58 (reiserfs: fix extended attributes on the root
+directory) introduced a regression open_xa_root started returning
+-EOPNOTSUPP but it was not handled properly in reiserfs_for_each_xattr.
 
-Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Signed-off-by: Sushma Kalakota <sushmax.kalakota@intel.com>
+When the reiserfs module is built without CONFIG_REISERFS_FS_XATTR,
+deleting an inode would result in a warning and chowning an inode
+would also result in a warning and then fail to complete.
+
+With CONFIG_REISERFS_FS_XATTR enabled, the xattr root would always be
+present for read-write operations.
+
+This commit handles -EOPNOSUPP in the same way -ENODATA is handled.
+
+Fixes: 60e4cf67a582 ("reiserfs: fix extended attributes on the root directory")
+CC: stable@vger.kernel.org	# Commit 60e4cf67a58 was picked up by stable
+Link: https://lore.kernel.org/r/20200115180059.6935-1-jeffm@suse.com
+Reported-by: Michael Brunnbauer <brunni@netestate.de>
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/mmu/vmm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/reiserfs/xattr.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/vmm.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/vmm.c
-@@ -1423,7 +1423,7 @@ nvkm_vmm_get(struct nvkm_vmm *vmm, u8 pa
- void
- nvkm_vmm_part(struct nvkm_vmm *vmm, struct nvkm_memory *inst)
- {
--	if (inst && vmm->func->part) {
-+	if (inst && vmm && vmm->func->part) {
- 		mutex_lock(&vmm->mutex);
- 		vmm->func->part(vmm, inst);
- 		mutex_unlock(&vmm->mutex);
+--- a/fs/reiserfs/xattr.c
++++ b/fs/reiserfs/xattr.c
+@@ -319,8 +319,12 @@ static int reiserfs_for_each_xattr(struc
+ out_dir:
+ 	dput(dir);
+ out:
+-	/* -ENODATA isn't an error */
+-	if (err == -ENODATA)
++	/*
++	 * -ENODATA: this object doesn't have any xattrs
++	 * -EOPNOTSUPP: this file system doesn't have xattrs enabled on disk.
++	 * Neither are errors
++	 */
++	if (err == -ENODATA || err == -EOPNOTSUPP)
+ 		err = 0;
+ 	return err;
+ }
 
 
