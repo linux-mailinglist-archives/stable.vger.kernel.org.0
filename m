@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B3FF1454F1
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:17:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 483711454F3
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:17:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbgAVNRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:17:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32920 "EHLO mail.kernel.org"
+        id S1726590AbgAVNRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:17:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725790AbgAVNRc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:17:32 -0500
+        id S1725790AbgAVNRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:17:36 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C41A205F4;
-        Wed, 22 Jan 2020 13:17:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13B3E205F4;
+        Wed, 22 Jan 2020 13:17:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699052;
-        bh=s7Eug05bdiIlbMdyu6b3KiI5dqFWE03BlqSQCZUnISo=;
+        s=default; t=1579699055;
+        bh=9Ky4eerI2vkPmPs1MyU18huTmAOmuD+kfTOFo0H5Fi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCSpVF2TXDGj/gVegg7/BUOjyQX8kAWgpu7Gl1Qc5XUHksSBfplIfcVuZFijenW5Q
-         srUudMkydID11sqTe6qRtB6B4lULR4/bidFdIxBuiH06mbAGp9xKbBj7WRW1An7G9s
-         LyLRB3B+wV4VuSI0awNwEwrUqwEDA4hUnkSAx1sM=
+        b=Xr8lUN4P2O14F9A+6zr9SKqkORoJtggOouSM/7U3lhpajc9aRJulNgtT7s4T0M6Ex
+         a3VlFUu78mytqry1d58ZA88orlqnB5jpYa+dtR3NfAZ6/U/YQ2BfwUohTJhkWHH03j
+         h7CHgeC+nXRaLC/B0M87RtD8Sw+JRIeXLk6upNf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.4 028/222] arm64: dts: agilex/stratix10: fix pmu interrupt numbers
-Date:   Wed, 22 Jan 2020 10:26:54 +0100
-Message-Id: <20200122092835.470566254@linuxfoundation.org>
+        stable@vger.kernel.org, Jari Ruusu <jari.ruusu@gmail.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Luis Chamberlain <mcgrof@kernel.org>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 029/222] Fix built-in early-load Intel microcode alignment
+Date:   Wed, 22 Jan 2020 10:26:55 +0100
+Message-Id: <20200122092835.547224718@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -43,57 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Jari Ruusu <jari.ruusu@gmail.com>
 
-commit 210de0e996aee8e360ccc9e173fe7f0a7ed2f695 upstream.
+commit f5ae2ea6347a308cfe91f53b53682ce635497d0d upstream.
 
-Fix up the correct interrupt numbers for the PMU unit on Agilex
-and Stratix10.
+Intel Software Developer's Manual, volume 3, chapter 9.11.6 says:
 
-Fixes: 78cd6a9d8e15 ("arm64: dts: Add base stratix 10 dtsi")
-Cc: linux-stable <stable@vger.kernel.org>
-Reported-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+ "Note that the microcode update must be aligned on a 16-byte boundary
+  and the size of the microcode update must be 1-KByte granular"
+
+When early-load Intel microcode is loaded from initramfs, userspace tool
+'iucode_tool' has already 16-byte aligned those microcode bits in that
+initramfs image.  Image that was created something like this:
+
+ iucode_tool --write-earlyfw=FOO.cpio microcode-files...
+
+However, when early-load Intel microcode is loaded from built-in
+firmware BLOB using CONFIG_EXTRA_FIRMWARE= kernel config option, that
+16-byte alignment is not guaranteed.
+
+Fix this by forcing all built-in firmware BLOBs to 16-byte alignment.
+
+[ If we end up having other firmware with much bigger alignment
+  requirements, we might need to introduce some method for the firmware
+  to specify it, this is the minimal "just increase the alignment a bit
+  to account for this one special case" patch    - Linus ]
+
+Signed-off-by: Jari Ruusu <jari.ruusu@gmail.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi |    8 ++++----
- arch/arm64/boot/dts/intel/socfpga_agilex.dtsi     |    8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/base/firmware_loader/builtin/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-@@ -61,10 +61,10 @@
- 
- 	pmu {
- 		compatible = "arm,armv8-pmuv3";
--		interrupts = <0 120 8>,
--			     <0 121 8>,
--			     <0 122 8>,
--			     <0 123 8>;
-+		interrupts = <0 170 4>,
-+			     <0 171 4>,
-+			     <0 172 4>,
-+			     <0 173 4>;
- 		interrupt-affinity = <&cpu0>,
- 				     <&cpu1>,
- 				     <&cpu2>,
---- a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-+++ b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-@@ -47,10 +47,10 @@
- 
- 	pmu {
- 		compatible = "arm,armv8-pmuv3";
--		interrupts = <0 120 8>,
--			     <0 121 8>,
--			     <0 122 8>,
--			     <0 123 8>;
-+		interrupts = <0 170 4>,
-+			     <0 171 4>,
-+			     <0 172 4>,
-+			     <0 173 4>;
- 		interrupt-affinity = <&cpu0>,
- 				     <&cpu1>,
- 				     <&cpu2>,
+--- a/drivers/base/firmware_loader/builtin/Makefile
++++ b/drivers/base/firmware_loader/builtin/Makefile
+@@ -17,7 +17,7 @@ PROGBITS  = $(if $(CONFIG_ARM),%,@)progb
+ filechk_fwbin = \
+ 	echo "/* Generated by $(src)/Makefile */"		;\
+ 	echo "    .section .rodata"				;\
+-	echo "    .p2align $(ASM_ALIGN)"			;\
++	echo "    .p2align 4"					;\
+ 	echo "_fw_$(FWSTR)_bin:"				;\
+ 	echo "    .incbin \"$(fwdir)/$(FWNAME)\""		;\
+ 	echo "_fw_end:"						;\
 
 
