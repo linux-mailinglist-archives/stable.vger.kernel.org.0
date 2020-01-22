@@ -2,291 +2,249 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 428E31449D3
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 03:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2D1144A76
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 04:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726889AbgAVCcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 21:32:50 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:58710 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726407AbgAVCcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 21:32:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579660368;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=DnycTavGJhXX1zrywc+NmvqU/kiak3+Dlq8tmWHDftU=;
-        b=jJ1m/aQcCoJ/0cUG1W6QWFIBRa3mWxO8BYkFDYbXiyfMM/DBT1LoQmHKWtNCZ9Uo0biu0Y
-        Txu7AcEYTdXFvCnHQZ5KlPawIw776z5yn9/NYbtZ6FyPS604wU1idoSg7TqRxxzGQaC+6T
-        QoykrT32bIUq4Ohc/LKS1xbWx+ixmAw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-233-RXioRZlfOeOcfy-W9aREXg-1; Tue, 21 Jan 2020 21:32:45 -0500
-X-MC-Unique: RXioRZlfOeOcfy-W9aREXg-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1728981AbgAVDc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Jan 2020 22:32:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47016 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728927AbgAVDc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Jan 2020 22:32:56 -0500
+Received: from devnote2 (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B9DC6107B769
-        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 02:32:44 +0000 (UTC)
-Received: from [172.54.60.66] (cpt-1031.paas.prod.upshift.rdu2.redhat.com [10.0.19.58])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 121735C1C3;
-        Wed, 22 Jan 2020 02:32:42 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.14-rc1-58262df.cki
- (stable)
-Date:   Wed, 22 Jan 2020 02:32:41 -0000
-Message-ID: <cki.A99C67EB39.VKXWYZLD15@redhat.com>
-X-Gitlab-Pipeline-ID: 396359
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/396359
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+        by mail.kernel.org (Postfix) with ESMTPSA id D5961207E0;
+        Wed, 22 Jan 2020 03:32:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579663975;
+        bh=qXS5jitYwxJiAHZZsyERDvePAItKzFoI3L5s6Lm75u0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=pn/oq8KgnYx8VtfCCzTvkXTiba2p5/Pm/4ftFRhcUjZJ+XERpzgktjzwEWemMjrcm
+         v7Wb3JsWEgZZbkinYBye4Nxb+YetSW/nkvsmIm6woC2kHmqR/MtYGlAQqqpoWf+9zV
+         9zXNYl3GPl7mWC/1sNp37GRBBC+TKkGFLzOL12CQ=
+Date:   Wed, 22 Jan 2020 12:32:51 +0900
+From:   Masami Hiramatsu <mhiramat@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, stable@vger.kernel.org
+Subject: Re: [for-linus][PATCH 3/5] tracing: trigger: Replace unneeded
+ RCU-list traversals
+Message-Id: <20200122123251.044889aeeb07037d865b19e1@kernel.org>
+In-Reply-To: <20200122022623.20D812465A@mail.kernel.org>
+References: <20200121143956.757178876@goodmis.org>
+        <20200122022623.20D812465A@mail.kernel.org>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Wed__22_Jan_2020_12_32_51_+0900_JBYaE+JMzFDKfoOE"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-Hello,
+--Multipart=_Wed__22_Jan_2020_12_32_51_+0900_JBYaE+JMzFDKfoOE
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-We ran automated tests on a recent commit from this kernel tree:
+On Wed, 22 Jan 2020 02:26:22 +0000
+Sasha Levin <sashal@kernel.org> wrote:
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
-x-stable-rc.git
-            Commit: 58262dfd5845 - Linux 5.4.14-rc1
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: 30350d65ac56 ("tracing: Add variable support to hist triggers").
+> 
+> The bot has tested the following trees: v5.4.13, v4.19.97.
+> 
+> v5.4.13: Build OK!
+> v4.19.97: Build failed! Errors:
+>     kernel/trace/trace_events_hist.c:5725:34: error: macro "list_for_each_entry_rcu" passed 4 arguments, but takes just 3
+>     kernel/trace/trace_events_hist.c:5724:2: error: ‘list_for_each_entry_rcu’ undeclared (first use in this function)
+>     kernel/trace/trace_events_hist.c:5724:25: error: expected ‘;’ before ‘{’ token
 
-The results of these automated tests are provided below.
+Ah, that depends on commit 28875945ba98 ("rcu: Add support for consolidated-RCU reader checking").
+We need to remove lockdep_is_held() from that list_for_each_entry_rcu().
+(I've attached it)
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Thank you,
 
-All kernel binaries, config files, and logs are available for download here:
+-- 
+Masami Hiramatsu <mhiramat@kernel.org>
 
-  https://artifacts.cki-project.org/pipelines/396359
+--Multipart=_Wed__22_Jan_2020_12_32_51_+0900_JBYaE+JMzFDKfoOE
+Content-Type: application/octet-stream;
+ name="tracing-trigger-replace"
+Content-Disposition: attachment;
+ filename="tracing-trigger-replace"
+Content-Transfer-Encoding: base64
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+dHJhY2luZzogdHJpZ2dlcjogUmVwbGFjZSB1bm5lZWRlZCBSQ1UtbGlzdCB0cmF2ZXJzYWxzCgpG
+cm9tOiBNYXNhbWkgSGlyYW1hdHN1IDxtaGlyYW1hdEBrZXJuZWwub3JnPgoKV2l0aCBDT05GSUdf
+UFJPVkVfUkNVX0xJU1QsIEkgaGFkIG1hbnkgc3VzcGljaW91cyBSQ1Ugd2FybmluZ3MKd2hlbiBJ
+IHJhbiBmdHJhY2V0ZXN0IHRyaWdnZXIgdGVzdGNhc2VzLgoKLS0tLS0KICAjIGRtZXNnIC1jID4g
+L2Rldi9udWxsCiAgIyAuL2Z0cmFjZXRlc3QgdGVzdC5kL3RyaWdnZXIKICAuLi4KICAjIGRtZXNn
+IHwgZ3JlcCAiUkNVLWxpc3QgdHJhdmVyc2VkIiB8IGN1dCAtZiAyIC1kIF0gfCBjdXQgLWYgMiAt
+ZCAiICIKICBrZXJuZWwvdHJhY2UvdHJhY2VfZXZlbnRzX2hpc3QuYzo2MDcwCiAga2VybmVsL3Ry
+YWNlL3RyYWNlX2V2ZW50c19oaXN0LmM6MTc2MAogIGtlcm5lbC90cmFjZS90cmFjZV9ldmVudHNf
+aGlzdC5jOjU5MTEKICBrZXJuZWwvdHJhY2UvdHJhY2VfZXZlbnRzX3RyaWdnZXIuYzo1MDQKICBr
+ZXJuZWwvdHJhY2UvdHJhY2VfZXZlbnRzX2hpc3QuYzoxODEwCiAga2VybmVsL3RyYWNlL3RyYWNl
+X2V2ZW50c19oaXN0LmM6MzE1OAogIGtlcm5lbC90cmFjZS90cmFjZV9ldmVudHNfaGlzdC5jOjMx
+MDUKICBrZXJuZWwvdHJhY2UvdHJhY2VfZXZlbnRzX2hpc3QuYzo1NTE4CiAga2VybmVsL3RyYWNl
+L3RyYWNlX2V2ZW50c19oaXN0LmM6NTk5OAogIGtlcm5lbC90cmFjZS90cmFjZV9ldmVudHNfaGlz
+dC5jOjYwMTkKICBrZXJuZWwvdHJhY2UvdHJhY2VfZXZlbnRzX2hpc3QuYzo2MDQ0CiAga2VybmVs
+L3RyYWNlL3RyYWNlX2V2ZW50c190cmlnZ2VyLmM6MTUwMAogIGtlcm5lbC90cmFjZS90cmFjZV9l
+dmVudHNfdHJpZ2dlci5jOjE1NDAKICBrZXJuZWwvdHJhY2UvdHJhY2VfZXZlbnRzX3RyaWdnZXIu
+Yzo1MzkKICBrZXJuZWwvdHJhY2UvdHJhY2VfZXZlbnRzX3RyaWdnZXIuYzo1ODQKLS0tLS0KCkkg
+aW52ZXN0aWdhdGVkIHRob3NlIHdhcm5pbmdzIGFuZCBmb3VuZCB0aGF0IHRoZSBSQ1UtbGlzdAp0
+cmF2ZXJzYWxzIGluIGV2ZW50IHRyaWdnZXIgYW5kIGhpc3QgZGlkbid0IG5lZWQgdG8gdXNlClJD
+VSB2ZXJzaW9uIGJlY2F1c2UgdGhvc2Ugd2VyZSBjYWxsZWQgb25seSB1bmRlciBldmVudF9tdXRl
+eC4KCkkgYWxzbyBjaGVja2VkIG90aGVyIFJDVS1saXN0IHRyYXZlcnNhbHMgcmVsYXRlZCB0byBl
+dmVudAp0cmlnZ2VyIGxpc3QsIGFuZCBmb3VuZCB0aGF0IG1vc3Qgb2YgdGhlbSB3ZXJlIGNhbGxl
+ZCBmcm9tCmV2ZW50X2hpc3RfdHJpZ2dlcl9mdW5jKCkgb3IgaGlzdF91bnJlZ2lzdGVyX3RyaWdn
+ZXIoKSBvcgpyZWdpc3Rlci91bnJlZ2lzdGVyIGZ1bmN0aW9ucyBleGNlcHQgZm9yIGEgZmV3IGNh
+c2VzLgoKUmVwbGFjZSB0aGVzZSB1bm5lZWRlZCBSQ1UtbGlzdCB0cmF2ZXJzYWxzIHdpdGggbm9y
+bWFsIGxpc3QKdHJhdmVyc2FsIG1hY3JvIGFuZCBsb2NrZGVwX2Fzc2VydF9oZWxkKCkgdG8gY2hl
+Y2sgdGhlCmV2ZW50X211dGV4IGlzIGhlbGQuCgpMaW5rOiBodHRwOi8vbGttbC5rZXJuZWwub3Jn
+L3IvMTU3NjgwOTEwMzA1LjExNjg1LjE1MTEwMjM3OTU0Mjc1OTE1NzgyLnN0Z2l0QGRldm5vdGUy
+CgpDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZwpGaXhlczogMzAzNTBkNjVhYzU2NyAoInRyYWNp
+bmc6IEFkZCB2YXJpYWJsZSBzdXBwb3J0IHRvIGhpc3QgdHJpZ2dlcnMiKQpSZXZpZXdlZC1ieTog
+VG9tIFphbnVzc2kgPHphbnVzc2lAa2VybmVsLm9yZz4KU2lnbmVkLW9mZi1ieTogTWFzYW1pIEhp
+cmFtYXRzdSA8bWhpcmFtYXRAa2VybmVsLm9yZz4KU2lnbmVkLW9mZi1ieTogU3RldmVuIFJvc3Rl
+ZHQgKFZNd2FyZSkgPHJvc3RlZHRAZ29vZG1pcy5vcmc+Ci0tLQoga2VybmVsL3RyYWNlL3RyYWNl
+X2V2ZW50c19oaXN0LmMgICAgfCAgIDM4ICsrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0t
+LS0tCiBrZXJuZWwvdHJhY2UvdHJhY2VfZXZlbnRzX3RyaWdnZXIuYyB8ICAgMjAgKysrKysrKysr
+KysrKystLS0tCiAyIGZpbGVzIGNoYW5nZWQsIDQzIGluc2VydGlvbnMoKyksIDE1IGRlbGV0aW9u
+cygtKQoKZGlmZiAtLWdpdCBhL2tlcm5lbC90cmFjZS90cmFjZV9ldmVudHNfaGlzdC5jIGIva2Vy
+bmVsL3RyYWNlL3RyYWNlX2V2ZW50c19oaXN0LmMKaW5kZXggMGZiOTJkMGM3YjIwLi4zNWQ5Y2Vh
+YmI3ZGMgMTAwNjQ0Ci0tLSBhL2tlcm5lbC90cmFjZS90cmFjZV9ldmVudHNfaGlzdC5jCisrKyBi
+L2tlcm5lbC90cmFjZS90cmFjZV9ldmVudHNfaGlzdC5jCkBAIC0xNTExLDExICsxNTExLDEzIEBA
+IHN0YXRpYyBzdHJ1Y3QgaGlzdF9maWVsZCAqZmluZF92YXIoc3RydWN0IGhpc3RfdHJpZ2dlcl9k
+YXRhICpoaXN0X2RhdGEsCiAJc3RydWN0IGV2ZW50X3RyaWdnZXJfZGF0YSAqdGVzdDsKIAlzdHJ1
+Y3QgaGlzdF9maWVsZCAqaGlzdF9maWVsZDsKIAorCWxvY2tkZXBfYXNzZXJ0X2hlbGQoJmV2ZW50
+X211dGV4KTsKKwogCWhpc3RfZmllbGQgPSBmaW5kX3Zhcl9maWVsZChoaXN0X2RhdGEsIHZhcl9u
+YW1lKTsKIAlpZiAoaGlzdF9maWVsZCkKIAkJcmV0dXJuIGhpc3RfZmllbGQ7CiAKLQlsaXN0X2Zv
+cl9lYWNoX2VudHJ5X3JjdSh0ZXN0LCAmZmlsZS0+dHJpZ2dlcnMsIGxpc3QpIHsKKwlsaXN0X2Zv
+cl9lYWNoX2VudHJ5KHRlc3QsICZmaWxlLT50cmlnZ2VycywgbGlzdCkgewogCQlpZiAodGVzdC0+
+Y21kX29wcy0+dHJpZ2dlcl90eXBlID09IEVUVF9FVkVOVF9ISVNUKSB7CiAJCQl0ZXN0X2RhdGEg
+PSB0ZXN0LT5wcml2YXRlX2RhdGE7CiAJCQloaXN0X2ZpZWxkID0gZmluZF92YXJfZmllbGQodGVz
+dF9kYXRhLCB2YXJfbmFtZSk7CkBAIC0xNTY1LDcgKzE1NjcsOSBAQCBzdGF0aWMgc3RydWN0IGhp
+c3RfZmllbGQgKmZpbmRfZmlsZV92YXIoc3RydWN0IHRyYWNlX2V2ZW50X2ZpbGUgKmZpbGUsCiAJ
+c3RydWN0IGV2ZW50X3RyaWdnZXJfZGF0YSAqdGVzdDsKIAlzdHJ1Y3QgaGlzdF9maWVsZCAqaGlz
+dF9maWVsZDsKIAotCWxpc3RfZm9yX2VhY2hfZW50cnlfcmN1KHRlc3QsICZmaWxlLT50cmlnZ2Vy
+cywgbGlzdCkgeworCWxvY2tkZXBfYXNzZXJ0X2hlbGQoJmV2ZW50X211dGV4KTsKKworCWxpc3Rf
+Zm9yX2VhY2hfZW50cnkodGVzdCwgJmZpbGUtPnRyaWdnZXJzLCBsaXN0KSB7CiAJCWlmICh0ZXN0
+LT5jbWRfb3BzLT50cmlnZ2VyX3R5cGUgPT0gRVRUX0VWRU5UX0hJU1QpIHsKIAkJCXRlc3RfZGF0
+YSA9IHRlc3QtPnByaXZhdGVfZGF0YTsKIAkJCWhpc3RfZmllbGQgPSBmaW5kX3Zhcl9maWVsZCh0
+ZXN0X2RhdGEsIHZhcl9uYW1lKTsKQEAgLTI4MjgsNyArMjgzMiw5IEBAIHN0YXRpYyBjaGFyICpm
+aW5kX3RyaWdnZXJfZmlsdGVyKHN0cnVjdCBoaXN0X3RyaWdnZXJfZGF0YSAqaGlzdF9kYXRhLAog
+ewogCXN0cnVjdCBldmVudF90cmlnZ2VyX2RhdGEgKnRlc3Q7CiAKLQlsaXN0X2Zvcl9lYWNoX2Vu
+dHJ5X3JjdSh0ZXN0LCAmZmlsZS0+dHJpZ2dlcnMsIGxpc3QpIHsKKwlsb2NrZGVwX2Fzc2VydF9o
+ZWxkKCZldmVudF9tdXRleCk7CisKKwlsaXN0X2Zvcl9lYWNoX2VudHJ5KHRlc3QsICZmaWxlLT50
+cmlnZ2VycywgbGlzdCkgewogCQlpZiAodGVzdC0+Y21kX29wcy0+dHJpZ2dlcl90eXBlID09IEVU
+VF9FVkVOVF9ISVNUKSB7CiAJCQlpZiAodGVzdC0+cHJpdmF0ZV9kYXRhID09IGhpc3RfZGF0YSkK
+IAkJCQlyZXR1cm4gdGVzdC0+ZmlsdGVyX3N0cjsKQEAgLTI4NzksOSArMjg4NSwxMSBAQCBmaW5k
+X2NvbXBhdGlibGVfaGlzdChzdHJ1Y3QgaGlzdF90cmlnZ2VyX2RhdGEgKnRhcmdldF9oaXN0X2Rh
+dGEsCiAJc3RydWN0IGV2ZW50X3RyaWdnZXJfZGF0YSAqdGVzdDsKIAl1bnNpZ25lZCBpbnQgbl9r
+ZXlzOwogCisJbG9ja2RlcF9hc3NlcnRfaGVsZCgmZXZlbnRfbXV0ZXgpOworCiAJbl9rZXlzID0g
+dGFyZ2V0X2hpc3RfZGF0YS0+bl9maWVsZHMgLSB0YXJnZXRfaGlzdF9kYXRhLT5uX3ZhbHM7CiAK
+LQlsaXN0X2Zvcl9lYWNoX2VudHJ5X3JjdSh0ZXN0LCAmZmlsZS0+dHJpZ2dlcnMsIGxpc3QpIHsK
+KwlsaXN0X2Zvcl9lYWNoX2VudHJ5KHRlc3QsICZmaWxlLT50cmlnZ2VycywgbGlzdCkgewogCQlp
+ZiAodGVzdC0+Y21kX29wcy0+dHJpZ2dlcl90eXBlID09IEVUVF9FVkVOVF9ISVNUKSB7CiAJCQlo
+aXN0X2RhdGEgPSB0ZXN0LT5wcml2YXRlX2RhdGE7CiAKQEAgLTQ5MDUsNyArNDkxMyw3IEBAIHN0
+YXRpYyBpbnQgaGlzdF9zaG93KHN0cnVjdCBzZXFfZmlsZSAqbSwgdm9pZCAqdikKIAkJZ290byBv
+dXRfdW5sb2NrOwogCX0KIAotCWxpc3RfZm9yX2VhY2hfZW50cnlfcmN1KGRhdGEsICZldmVudF9m
+aWxlLT50cmlnZ2VycywgbGlzdCkgeworCWxpc3RfZm9yX2VhY2hfZW50cnkoZGF0YSwgJmV2ZW50
+X2ZpbGUtPnRyaWdnZXJzLCBsaXN0KSB7CiAJCWlmIChkYXRhLT5jbWRfb3BzLT50cmlnZ2VyX3R5
+cGUgPT0gRVRUX0VWRU5UX0hJU1QpCiAJCQloaXN0X3RyaWdnZXJfc2hvdyhtLCBkYXRhLCBuKysp
+OwogCX0KQEAgLTUyOTYsNyArNTMwNCw5IEBAIHN0YXRpYyBpbnQgaGlzdF9yZWdpc3Rlcl90cmln
+Z2VyKGNoYXIgKmdsb2IsIHN0cnVjdCBldmVudF90cmlnZ2VyX29wcyAqb3BzLAogCWlmIChoaXN0
+X2RhdGEtPmF0dHJzLT5uYW1lICYmICFuYW1lZF9kYXRhKQogCQlnb3RvIG5ldzsKIAotCWxpc3Rf
+Zm9yX2VhY2hfZW50cnlfcmN1KHRlc3QsICZmaWxlLT50cmlnZ2VycywgbGlzdCkgeworCWxvY2tk
+ZXBfYXNzZXJ0X2hlbGQoJmV2ZW50X211dGV4KTsKKworCWxpc3RfZm9yX2VhY2hfZW50cnkodGVz
+dCwgJmZpbGUtPnRyaWdnZXJzLCBsaXN0KSB7CiAJCWlmICh0ZXN0LT5jbWRfb3BzLT50cmlnZ2Vy
+X3R5cGUgPT0gRVRUX0VWRU5UX0hJU1QpIHsKIAkJCWlmICghaGlzdF90cmlnZ2VyX21hdGNoKGRh
+dGEsIHRlc3QsIG5hbWVkX2RhdGEsIGZhbHNlKSkKIAkJCQljb250aW51ZTsKQEAgLTUzODAsMTAg
+KzUzOTAsMTIgQEAgc3RhdGljIGJvb2wgaGF2ZV9oaXN0X3RyaWdnZXJfbWF0Y2goc3RydWN0IGV2
+ZW50X3RyaWdnZXJfZGF0YSAqZGF0YSwKIAlzdHJ1Y3QgZXZlbnRfdHJpZ2dlcl9kYXRhICp0ZXN0
+LCAqbmFtZWRfZGF0YSA9IE5VTEw7CiAJYm9vbCBtYXRjaCA9IGZhbHNlOwogCisJbG9ja2RlcF9h
+c3NlcnRfaGVsZCgmZXZlbnRfbXV0ZXgpOworCiAJaWYgKGhpc3RfZGF0YS0+YXR0cnMtPm5hbWUp
+CiAJCW5hbWVkX2RhdGEgPSBmaW5kX25hbWVkX3RyaWdnZXIoaGlzdF9kYXRhLT5hdHRycy0+bmFt
+ZSk7CiAKLQlsaXN0X2Zvcl9lYWNoX2VudHJ5X3JjdSh0ZXN0LCAmZmlsZS0+dHJpZ2dlcnMsIGxp
+c3QpIHsKKwlsaXN0X2Zvcl9lYWNoX2VudHJ5KHRlc3QsICZmaWxlLT50cmlnZ2VycywgbGlzdCkg
+ewogCQlpZiAodGVzdC0+Y21kX29wcy0+dHJpZ2dlcl90eXBlID09IEVUVF9FVkVOVF9ISVNUKSB7
+CiAJCQlpZiAoaGlzdF90cmlnZ2VyX21hdGNoKGRhdGEsIHRlc3QsIG5hbWVkX2RhdGEsIGZhbHNl
+KSkgewogCQkJCW1hdGNoID0gdHJ1ZTsKQEAgLTU0MDEsMTAgKzU0MTMsMTIgQEAgc3RhdGljIGJv
+b2wgaGlzdF90cmlnZ2VyX2NoZWNrX3JlZnMoc3RydWN0IGV2ZW50X3RyaWdnZXJfZGF0YSAqZGF0
+YSwKIAlzdHJ1Y3QgaGlzdF90cmlnZ2VyX2RhdGEgKmhpc3RfZGF0YSA9IGRhdGEtPnByaXZhdGVf
+ZGF0YTsKIAlzdHJ1Y3QgZXZlbnRfdHJpZ2dlcl9kYXRhICp0ZXN0LCAqbmFtZWRfZGF0YSA9IE5V
+TEw7CiAKKwlsb2NrZGVwX2Fzc2VydF9oZWxkKCZldmVudF9tdXRleCk7CisKIAlpZiAoaGlzdF9k
+YXRhLT5hdHRycy0+bmFtZSkKIAkJbmFtZWRfZGF0YSA9IGZpbmRfbmFtZWRfdHJpZ2dlcihoaXN0
+X2RhdGEtPmF0dHJzLT5uYW1lKTsKIAotCWxpc3RfZm9yX2VhY2hfZW50cnlfcmN1KHRlc3QsICZm
+aWxlLT50cmlnZ2VycywgbGlzdCkgeworCWxpc3RfZm9yX2VhY2hfZW50cnkodGVzdCwgJmZpbGUt
+PnRyaWdnZXJzLCBsaXN0KSB7CiAJCWlmICh0ZXN0LT5jbWRfb3BzLT50cmlnZ2VyX3R5cGUgPT0g
+RVRUX0VWRU5UX0hJU1QpIHsKIAkJCWlmICghaGlzdF90cmlnZ2VyX21hdGNoKGRhdGEsIHRlc3Qs
+IG5hbWVkX2RhdGEsIGZhbHNlKSkKIAkJCQljb250aW51ZTsKQEAgLTU0MjYsMTAgKzU0NDAsMTIg
+QEAgc3RhdGljIHZvaWQgaGlzdF91bnJlZ2lzdGVyX3RyaWdnZXIoY2hhciAqZ2xvYiwgc3RydWN0
+IGV2ZW50X3RyaWdnZXJfb3BzICpvcHMsCiAJc3RydWN0IGV2ZW50X3RyaWdnZXJfZGF0YSAqdGVz
+dCwgKm5hbWVkX2RhdGEgPSBOVUxMOwogCWJvb2wgdW5yZWdpc3RlcmVkID0gZmFsc2U7CiAKKwls
+b2NrZGVwX2Fzc2VydF9oZWxkKCZldmVudF9tdXRleCk7CisKIAlpZiAoaGlzdF9kYXRhLT5hdHRy
+cy0+bmFtZSkKIAkJbmFtZWRfZGF0YSA9IGZpbmRfbmFtZWRfdHJpZ2dlcihoaXN0X2RhdGEtPmF0
+dHJzLT5uYW1lKTsKIAotCWxpc3RfZm9yX2VhY2hfZW50cnlfcmN1KHRlc3QsICZmaWxlLT50cmln
+Z2VycywgbGlzdCkgeworCWxpc3RfZm9yX2VhY2hfZW50cnkodGVzdCwgJmZpbGUtPnRyaWdnZXJz
+LCBsaXN0KSB7CiAJCWlmICh0ZXN0LT5jbWRfb3BzLT50cmlnZ2VyX3R5cGUgPT0gRVRUX0VWRU5U
+X0hJU1QpIHsKIAkJCWlmICghaGlzdF90cmlnZ2VyX21hdGNoKGRhdGEsIHRlc3QsIG5hbWVkX2Rh
+dGEsIGZhbHNlKSkKIAkJCQljb250aW51ZTsKQEAgLTU0NTUsNyArNTQ3MSw5IEBAIHN0YXRpYyBi
+b29sIGhpc3RfZmlsZV9jaGVja19yZWZzKHN0cnVjdCB0cmFjZV9ldmVudF9maWxlICpmaWxlKQog
+CXN0cnVjdCBoaXN0X3RyaWdnZXJfZGF0YSAqaGlzdF9kYXRhOwogCXN0cnVjdCBldmVudF90cmln
+Z2VyX2RhdGEgKnRlc3Q7CiAKLQlsaXN0X2Zvcl9lYWNoX2VudHJ5X3JjdSh0ZXN0LCAmZmlsZS0+
+dHJpZ2dlcnMsIGxpc3QpIHsKKwlsb2NrZGVwX2Fzc2VydF9oZWxkKCZldmVudF9tdXRleCk7CisK
+KwlsaXN0X2Zvcl9lYWNoX2VudHJ5KHRlc3QsICZmaWxlLT50cmlnZ2VycywgbGlzdCkgewogCQlp
+ZiAodGVzdC0+Y21kX29wcy0+dHJpZ2dlcl90eXBlID09IEVUVF9FVkVOVF9ISVNUKSB7CiAJCQlo
+aXN0X2RhdGEgPSB0ZXN0LT5wcml2YXRlX2RhdGE7CiAJCQlpZiAoY2hlY2tfdmFyX3JlZnMoaGlz
+dF9kYXRhKSkKZGlmZiAtLWdpdCBhL2tlcm5lbC90cmFjZS90cmFjZV9ldmVudHNfdHJpZ2dlci5j
+IGIva2VybmVsL3RyYWNlL3RyYWNlX2V2ZW50c190cmlnZ2VyLmMKaW5kZXggY2QxMmVjYjY2ZWI5
+Li5iMDVkMWI2YTYyOTEgMTAwNjQ0Ci0tLSBhL2tlcm5lbC90cmFjZS90cmFjZV9ldmVudHNfdHJp
+Z2dlci5jCisrKyBiL2tlcm5lbC90cmFjZS90cmFjZV9ldmVudHNfdHJpZ2dlci5jCkBAIC00OTUs
+NyArNDk1LDkgQEAgdm9pZCB1cGRhdGVfY29uZF9mbGFnKHN0cnVjdCB0cmFjZV9ldmVudF9maWxl
+ICpmaWxlKQogCXN0cnVjdCBldmVudF90cmlnZ2VyX2RhdGEgKmRhdGE7CiAJYm9vbCBzZXRfY29u
+ZCA9IGZhbHNlOwogCi0JbGlzdF9mb3JfZWFjaF9lbnRyeV9yY3UoZGF0YSwgJmZpbGUtPnRyaWdn
+ZXJzLCBsaXN0KSB7CisJbG9ja2RlcF9hc3NlcnRfaGVsZCgmZXZlbnRfbXV0ZXgpOworCisJbGlz
+dF9mb3JfZWFjaF9lbnRyeShkYXRhLCAmZmlsZS0+dHJpZ2dlcnMsIGxpc3QpIHsKIAkJaWYgKGRh
+dGEtPmZpbHRlciB8fCBldmVudF9jb21tYW5kX3Bvc3RfdHJpZ2dlcihkYXRhLT5jbWRfb3BzKSB8
+fAogCQkgICAgZXZlbnRfY29tbWFuZF9uZWVkc19yZWMoZGF0YS0+Y21kX29wcykpIHsKIAkJCXNl
+dF9jb25kID0gdHJ1ZTsKQEAgLTUzMCw3ICs1MzIsOSBAQCBzdGF0aWMgaW50IHJlZ2lzdGVyX3Ry
+aWdnZXIoY2hhciAqZ2xvYiwgc3RydWN0IGV2ZW50X3RyaWdnZXJfb3BzICpvcHMsCiAJc3RydWN0
+IGV2ZW50X3RyaWdnZXJfZGF0YSAqdGVzdDsKIAlpbnQgcmV0ID0gMDsKIAotCWxpc3RfZm9yX2Vh
+Y2hfZW50cnlfcmN1KHRlc3QsICZmaWxlLT50cmlnZ2VycywgbGlzdCkgeworCWxvY2tkZXBfYXNz
+ZXJ0X2hlbGQoJmV2ZW50X211dGV4KTsKKworCWxpc3RfZm9yX2VhY2hfZW50cnkodGVzdCwgJmZp
+bGUtPnRyaWdnZXJzLCBsaXN0KSB7CiAJCWlmICh0ZXN0LT5jbWRfb3BzLT50cmlnZ2VyX3R5cGUg
+PT0gZGF0YS0+Y21kX29wcy0+dHJpZ2dlcl90eXBlKSB7CiAJCQlyZXQgPSAtRUVYSVNUOwogCQkJ
+Z290byBvdXQ7CkBAIC01NzUsNyArNTc5LDkgQEAgc3RhdGljIHZvaWQgdW5yZWdpc3Rlcl90cmln
+Z2VyKGNoYXIgKmdsb2IsIHN0cnVjdCBldmVudF90cmlnZ2VyX29wcyAqb3BzLAogCXN0cnVjdCBl
+dmVudF90cmlnZ2VyX2RhdGEgKmRhdGE7CiAJYm9vbCB1bnJlZ2lzdGVyZWQgPSBmYWxzZTsKIAot
+CWxpc3RfZm9yX2VhY2hfZW50cnlfcmN1KGRhdGEsICZmaWxlLT50cmlnZ2VycywgbGlzdCkgewor
+CWxvY2tkZXBfYXNzZXJ0X2hlbGQoJmV2ZW50X211dGV4KTsKKworCWxpc3RfZm9yX2VhY2hfZW50
+cnkoZGF0YSwgJmZpbGUtPnRyaWdnZXJzLCBsaXN0KSB7CiAJCWlmIChkYXRhLT5jbWRfb3BzLT50
+cmlnZ2VyX3R5cGUgPT0gdGVzdC0+Y21kX29wcy0+dHJpZ2dlcl90eXBlKSB7CiAJCQl1bnJlZ2lz
+dGVyZWQgPSB0cnVlOwogCQkJbGlzdF9kZWxfcmN1KCZkYXRhLT5saXN0KTsKQEAgLTE0OTAsNyAr
+MTQ5Niw5IEBAIGludCBldmVudF9lbmFibGVfcmVnaXN0ZXJfdHJpZ2dlcihjaGFyICpnbG9iLAog
+CXN0cnVjdCBldmVudF90cmlnZ2VyX2RhdGEgKnRlc3Q7CiAJaW50IHJldCA9IDA7CiAKLQlsaXN0
+X2Zvcl9lYWNoX2VudHJ5X3JjdSh0ZXN0LCAmZmlsZS0+dHJpZ2dlcnMsIGxpc3QpIHsKKwlsb2Nr
+ZGVwX2Fzc2VydF9oZWxkKCZldmVudF9tdXRleCk7CisKKwlsaXN0X2Zvcl9lYWNoX2VudHJ5KHRl
+c3QsICZmaWxlLT50cmlnZ2VycywgbGlzdCkgewogCQl0ZXN0X2VuYWJsZV9kYXRhID0gdGVzdC0+
+cHJpdmF0ZV9kYXRhOwogCQlpZiAodGVzdF9lbmFibGVfZGF0YSAmJgogCQkgICAgKHRlc3QtPmNt
+ZF9vcHMtPnRyaWdnZXJfdHlwZSA9PQpAQCAtMTUzMCw3ICsxNTM4LDkgQEAgdm9pZCBldmVudF9l
+bmFibGVfdW5yZWdpc3Rlcl90cmlnZ2VyKGNoYXIgKmdsb2IsCiAJc3RydWN0IGV2ZW50X3RyaWdn
+ZXJfZGF0YSAqZGF0YTsKIAlib29sIHVucmVnaXN0ZXJlZCA9IGZhbHNlOwogCi0JbGlzdF9mb3Jf
+ZWFjaF9lbnRyeV9yY3UoZGF0YSwgJmZpbGUtPnRyaWdnZXJzLCBsaXN0KSB7CisJbG9ja2RlcF9h
+c3NlcnRfaGVsZCgmZXZlbnRfbXV0ZXgpOworCisJbGlzdF9mb3JfZWFjaF9lbnRyeShkYXRhLCAm
+ZmlsZS0+dHJpZ2dlcnMsIGxpc3QpIHsKIAkJZW5hYmxlX2RhdGEgPSBkYXRhLT5wcml2YXRlX2Rh
+dGE7CiAJCWlmIChlbmFibGVfZGF0YSAmJgogCQkgICAgKGRhdGEtPmNtZF9vcHMtPnRyaWdnZXJf
+dHlwZSA9PQo=
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernels =
-have
-a Beaker recipe linked to next to each host.
-
+--Multipart=_Wed__22_Jan_2020_12_32_51_+0900_JBYaE+JMzFDKfoOE--
