@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5FC4145694
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BC8145696
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728792AbgAVN1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:27:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49614 "EHLO mail.kernel.org"
+        id S1731659AbgAVN14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:27:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731670AbgAVN1x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:27:53 -0500
+        id S1731005AbgAVN14 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:27:56 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F35252467C;
-        Wed, 22 Jan 2020 13:27:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DF3E20678;
+        Wed, 22 Jan 2020 13:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699671;
-        bh=e8Cw5CEz40XxjFFTY++GYnQ9BsmtmQKiYE+BZgp/8zw=;
+        s=default; t=1579699675;
+        bh=xcWkAncjJEirlvmD7/ZgT3G9R4hSi6j7tn63o+LVIuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OUecjRxIKs+j5axh7/A1gOydNZyKtnkcVBk19kJhRHrgiW0WZKw49QYy8qOf0LhXA
-         KAWjYFBWFSZTqMuFQgxXUS4gwuyR7wxAEJpMOGzIqOACrWjGbti3ZbyT87t8jb462n
-         3tpkaQNHlDB+W2ILpR1UcKrwmE5eJCbf7zdmuKEw=
+        b=FxF4bMDU5vRoFIEa+GD30lVwrhwLw0wLauMc4nSWnKyWv+V+3j/CLhxeKO90JTA3f
+         khM4rCU295PIW7XqbKDNEoNBSCSEQCz4LqzlQPrh4sI7hCZPRVLc5kPTHgrRtSD6X9
+         0eHNdbm5ddnd00oOzsIvhwWHeq643ySgY7uBVrtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tzu-En Huang <tehuang@realtek.com>,
-        Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 214/222] rtw88: fix potential read outside array boundary
-Date:   Wed, 22 Jan 2020 10:30:00 +0100
-Message-Id: <20200122092849.017723181@linuxfoundation.org>
+        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>
+Subject: [PATCH 5.4 215/222] perf probe: Fix wrong address verification
+Date:   Wed, 22 Jan 2020 10:30:01 +0100
+Message-Id: <20200122092849.088567780@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,111 +46,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzu-En Huang <tehuang@realtek.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 18a0696e85fde169e0109aa61d0505b2b935b59d upstream.
+commit 07d369857808b7e8e471bbbbb0074a6718f89b31 upstream.
 
-The level of cckpd is from 0 to 4, and it is the index of
-array pd_lvl[] and cs_lvl[]. However, the length of both arrays
-are 4, which is smaller than the possible maximum input index.
-Enumerate cck level to make sure the max level will not be wrong
-if new level is added in future.
+Since there are some DIE which has only ranges instead of the
+combination of entrypc/highpc, address verification must use
+dwarf_haspc() instead of dwarf_entrypc/dwarf_highpc.
 
-Fixes: 479c4ee931a6 ("rtw88: add dynamic cck pd mechanism")
-Signed-off-by: Tzu-En Huang <tehuang@realtek.com>
-Signed-off-by: Yan-Hsuan Chuang <yhchuang@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Also, the ranges only DIE will have a partial code in different section
+(e.g. unlikely code will be in text.unlikely as "FUNC.cold" symbol). In
+that case, we can not use dwarf_entrypc() or die_entrypc(), because the
+offset from original DIE can be a minus value.
+
+Instead, this simply gets the symbol and offset from symtab.
+
+Without this patch;
+
+  # perf probe -D clear_tasks_mm_cpumask:1
+  Failed to get entry address of clear_tasks_mm_cpumask
+    Error: Failed to add events.
+
+And with this patch:
+
+  # perf probe -D clear_tasks_mm_cpumask:1
+  p:probe/clear_tasks_mm_cpumask clear_tasks_mm_cpumask+0
+  p:probe/clear_tasks_mm_cpumask_1 clear_tasks_mm_cpumask+5
+  p:probe/clear_tasks_mm_cpumask_2 clear_tasks_mm_cpumask+8
+  p:probe/clear_tasks_mm_cpumask_3 clear_tasks_mm_cpumask+16
+  p:probe/clear_tasks_mm_cpumask_4 clear_tasks_mm_cpumask+82
+
+Committer testing:
+
+I managed to reproduce the above:
+
+  [root@quaco ~]# perf probe -D clear_tasks_mm_cpumask:1
+  p:probe/clear_tasks_mm_cpumask _text+919968
+  p:probe/clear_tasks_mm_cpumask_1 _text+919973
+  p:probe/clear_tasks_mm_cpumask_2 _text+919976
+  [root@quaco ~]#
+
+But then when trying to actually put the probe in place, it fails if I
+use :0 as the offset:
+
+  [root@quaco ~]# perf probe -L clear_tasks_mm_cpumask | head -5
+  <clear_tasks_mm_cpumask@/usr/src/debug/kernel-5.2.fc30/linux-5.2.18-200.fc30.x86_64/kernel/cpu.c:0>
+        0  void clear_tasks_mm_cpumask(int cpu)
+        1  {
+        2  	struct task_struct *p;
+
+  [root@quaco ~]# perf probe clear_tasks_mm_cpumask:0
+  Probe point 'clear_tasks_mm_cpumask' not found.
+    Error: Failed to add events.
+  [root@quaco
+
+The next patch is needed to fix this case.
+
+Fixes: 576b523721b7 ("perf probe: Fix probing symbols with optimization suffix")
+Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/157199318513.8075.10463906803299647907.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/realtek/rtw88/phy.c      |   17 ++++++++---------
- drivers/net/wireless/realtek/rtw88/phy.h      |    9 +++++++++
- drivers/net/wireless/realtek/rtw88/rtw8822c.c |    4 ++--
- 3 files changed, 19 insertions(+), 11 deletions(-)
+ tools/perf/util/probe-finder.c |   32 ++++++++++----------------------
+ 1 file changed, 10 insertions(+), 22 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtw88/phy.c
-+++ b/drivers/net/wireless/realtek/rtw88/phy.c
-@@ -118,7 +118,7 @@ static void rtw_phy_cck_pd_init(struct r
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -604,38 +604,26 @@ static int convert_to_trace_point(Dwarf_
+ 				  const char *function,
+ 				  struct probe_trace_point *tp)
+ {
+-	Dwarf_Addr eaddr, highaddr;
++	Dwarf_Addr eaddr;
+ 	GElf_Sym sym;
+ 	const char *symbol;
  
- 	for (i = 0; i <= RTW_CHANNEL_WIDTH_40; i++) {
- 		for (j = 0; j < RTW_RF_PATH_MAX; j++)
--			dm_info->cck_pd_lv[i][j] = 0;
-+			dm_info->cck_pd_lv[i][j] = CCK_PD_LV0;
+ 	/* Verify the address is correct */
+-	if (dwarf_entrypc(sp_die, &eaddr) != 0) {
+-		pr_warning("Failed to get entry address of %s\n",
+-			   dwarf_diename(sp_die));
+-		return -ENOENT;
+-	}
+-	if (dwarf_highpc(sp_die, &highaddr) != 0) {
+-		pr_warning("Failed to get end address of %s\n",
+-			   dwarf_diename(sp_die));
+-		return -ENOENT;
+-	}
+-	if (paddr > highaddr) {
+-		pr_warning("Offset specified is greater than size of %s\n",
++	if (!dwarf_haspc(sp_die, paddr)) {
++		pr_warning("Specified offset is out of %s\n",
+ 			   dwarf_diename(sp_die));
+ 		return -EINVAL;
  	}
  
- 	dm_info->cck_fa_avg = CCK_FA_AVG_RESET;
-@@ -461,7 +461,6 @@ static void rtw_phy_dpk_track(struct rtw
- 		chip->ops->dpk_track(rtwdev);
- }
- 
--#define CCK_PD_LV_MAX		5
- #define CCK_PD_FA_LV1_MIN	1000
- #define CCK_PD_FA_LV0_MAX	500
- 
-@@ -471,10 +470,10 @@ static u8 rtw_phy_cck_pd_lv_unlink(struc
- 	u32 cck_fa_avg = dm_info->cck_fa_avg;
- 
- 	if (cck_fa_avg > CCK_PD_FA_LV1_MIN)
--		return 1;
-+		return CCK_PD_LV1;
- 
- 	if (cck_fa_avg < CCK_PD_FA_LV0_MAX)
--		return 0;
-+		return CCK_PD_LV0;
- 
- 	return CCK_PD_LV_MAX;
- }
-@@ -494,15 +493,15 @@ static u8 rtw_phy_cck_pd_lv_link(struct
- 	u32 cck_fa_avg = dm_info->cck_fa_avg;
- 
- 	if (igi > CCK_PD_IGI_LV4_VAL && rssi > CCK_PD_RSSI_LV4_VAL)
--		return 4;
-+		return CCK_PD_LV4;
- 	if (igi > CCK_PD_IGI_LV3_VAL && rssi > CCK_PD_RSSI_LV3_VAL)
--		return 3;
-+		return CCK_PD_LV3;
- 	if (igi > CCK_PD_IGI_LV2_VAL || rssi > CCK_PD_RSSI_LV2_VAL)
--		return 2;
-+		return CCK_PD_LV2;
- 	if (cck_fa_avg > CCK_PD_FA_LV1_MIN)
--		return 1;
-+		return CCK_PD_LV1;
- 	if (cck_fa_avg < CCK_PD_FA_LV0_MAX)
--		return 0;
-+		return CCK_PD_LV0;
- 
- 	return CCK_PD_LV_MAX;
- }
---- a/drivers/net/wireless/realtek/rtw88/phy.h
-+++ b/drivers/net/wireless/realtek/rtw88/phy.h
-@@ -125,6 +125,15 @@ rtw_get_tx_power_params(struct rtw_dev *
- 			u8 rate, u8 bw, u8 ch, u8 regd,
- 			struct rtw_power_params *pwr_param);
- 
-+enum rtw_phy_cck_pd_lv {
-+	CCK_PD_LV0,
-+	CCK_PD_LV1,
-+	CCK_PD_LV2,
-+	CCK_PD_LV3,
-+	CCK_PD_LV4,
-+	CCK_PD_LV_MAX,
-+};
+-	symbol = dwarf_diename(sp_die);
++	/* Try to get actual symbol name from symtab */
++	symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
+ 	if (!symbol) {
+-		/* Try to get the symbol name from symtab */
+-		symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
+-		if (!symbol) {
+-			pr_warning("Failed to find symbol at 0x%lx\n",
+-				   (unsigned long)paddr);
+-			return -ENOENT;
+-		}
+-		eaddr = sym.st_value;
++		pr_warning("Failed to find symbol at 0x%lx\n",
++			   (unsigned long)paddr);
++		return -ENOENT;
+ 	}
++	eaddr = sym.st_value;
 +
- #define	MASKBYTE0		0xff
- #define	MASKBYTE1		0xff00
- #define	MASKBYTE2		0xff0000
---- a/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-@@ -3168,8 +3168,8 @@ rtw8822c_phy_cck_pd_set_reg(struct rtw_d
- static void rtw8822c_phy_cck_pd_set(struct rtw_dev *rtwdev, u8 new_lvl)
- {
- 	struct rtw_dm_info *dm_info = &rtwdev->dm_info;
--	s8 pd_lvl[4] = {2, 4, 6, 8};
--	s8 cs_lvl[4] = {2, 2, 2, 4};
-+	s8 pd_lvl[CCK_PD_LV_MAX] = {0, 2, 4, 6, 8};
-+	s8 cs_lvl[CCK_PD_LV_MAX] = {0, 2, 2, 2, 4};
- 	u8 cur_lvl;
- 	u8 nrx, bw;
- 
+ 	tp->offset = (unsigned long)(paddr - eaddr);
+ 	tp->address = (unsigned long)paddr;
+ 	tp->symbol = strdup(symbol);
 
 
