@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E61E71451E9
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36303144FBB
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:40:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729355AbgAVJar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:30:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42424 "EHLO mail.kernel.org"
+        id S1733232AbgAVJki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:40:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729352AbgAVJaq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:30:46 -0500
+        id S1733221AbgAVJkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:40:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 939662465B;
-        Wed, 22 Jan 2020 09:30:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1523B2467B;
+        Wed, 22 Jan 2020 09:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685446;
-        bh=KeMuUU1uohJ1StY+/CmAWDNzajPxBmntrU56E74dvHo=;
+        s=default; t=1579686036;
+        bh=zaYJ2yYnkIPpR/nxOzLlloLcX9c1tGE1ScxMW6b+25s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEu08xsgq7odDBZlsrTHQj1D1lbHhWn2/1SzUQg9AkOk3vsryqPpMEgIBRiOg5mYp
-         +5feYV8AKeVuImE99R1e7pojKnL7w/Uw0A4+K/DwmYe2y3LR+jUnI1U9S/R64Ga8lg
-         qO8uPmJLzps86jcR/iya6WSR4I1MDPP4ax+2q9jY=
+        b=R70e/svaOrUvKosTlfx0cIbAZMb2qqk+kifO0LYcvXRgaSmV6BG3CE17COz99xsuT
+         qQNMDElzUjx14btx1ul2wCuVk2GFsA404kKom0h2Nu4MKa2mB0iuc4GEmM2MQ5jot2
+         kutcDjQtC6/Hd/6xXnXGhBoESbEeammhZquFHXq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ran Bi <ran.bi@mediatek.com>,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.4 18/76] rtc: mt6397: fix alarm register overwrite
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 018/103] scsi: fnic: fix invalid stack access
 Date:   Wed, 22 Jan 2020 10:28:34 +0100
-Message-Id: <20200122092753.457349847@linuxfoundation.org>
+Message-Id: <20200122092806.456548426@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,103 +43,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ran Bi <ran.bi@mediatek.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 653997eeecef95c3ead4fba1b2d27e6a5854d6cd upstream.
+commit 42ec15ceaea74b5f7a621fc6686cbf69ca66c4cf upstream.
 
-Alarm registers high byte was reserved for other functions.
-This add mask in alarm registers operation functions.
-This also fix error condition in interrupt handler.
+gcc -O3 warns that some local variables are not properly initialized:
 
-Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
+drivers/scsi/fnic/vnic_dev.c: In function 'fnic_dev_hang_notify':
+drivers/scsi/fnic/vnic_dev.c:511:16: error: 'a0' is used uninitialized in this function [-Werror=uninitialized]
+  vdev->args[0] = *a0;
+  ~~~~~~~~~~~~~~^~~~~
+drivers/scsi/fnic/vnic_dev.c:691:6: note: 'a0' was declared here
+  u64 a0, a1;
+      ^~
+drivers/scsi/fnic/vnic_dev.c:512:16: error: 'a1' is used uninitialized in this function [-Werror=uninitialized]
+  vdev->args[1] = *a1;
+  ~~~~~~~~~~~~~~^~~~~
+drivers/scsi/fnic/vnic_dev.c:691:10: note: 'a1' was declared here
+  u64 a0, a1;
+          ^~
+drivers/scsi/fnic/vnic_dev.c: In function 'fnic_dev_mac_addr':
+drivers/scsi/fnic/vnic_dev.c:512:16: error: 'a1' is used uninitialized in this function [-Werror=uninitialized]
+  vdev->args[1] = *a1;
+  ~~~~~~~~~~~~~~^~~~~
+drivers/scsi/fnic/vnic_dev.c:698:10: note: 'a1' was declared here
+  u64 a0, a1;
+          ^~
 
-Signed-off-by: Ran Bi <ran.bi@mediatek.com>
-Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Link: https://lore.kernel.org/r/1576057435-3561-6-git-send-email-hsin-hsiung.wang@mediatek.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Apparently the code relies on the local variables occupying adjacent memory
+locations in the same order, but this is of course not guaranteed.
+
+Use an array of two u64 variables where needed to make it work correctly.
+
+I suspect there is also an endianness bug here, but have not digged in deep
+enough to be sure.
+
+Fixes: 5df6d737dd4b ("[SCSI] fnic: Add new Cisco PCI-Express FCoE HBA")
+Fixes: mmtom ("init/Kconfig: enable -O3 for all arches")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200107201602.4096790-1-arnd@arndb.de
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/rtc-mt6397.c |   47 +++++++++++++++++++++++++++++++++--------------
- 1 file changed, 33 insertions(+), 14 deletions(-)
+ drivers/scsi/fnic/vnic_dev.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -55,6 +55,14 @@
+--- a/drivers/scsi/fnic/vnic_dev.c
++++ b/drivers/scsi/fnic/vnic_dev.c
+@@ -445,26 +445,26 @@ int vnic_dev_soft_reset_done(struct vnic
  
- #define RTC_AL_SEC		0x0018
+ int vnic_dev_hang_notify(struct vnic_dev *vdev)
+ {
+-	u64 a0, a1;
++	u64 a0 = 0, a1 = 0;
+ 	int wait = 1000;
+ 	return vnic_dev_cmd(vdev, CMD_HANG_NOTIFY, &a0, &a1, wait);
+ }
  
-+#define RTC_AL_SEC_MASK		0x003f
-+#define RTC_AL_MIN_MASK		0x003f
-+#define RTC_AL_HOU_MASK		0x001f
-+#define RTC_AL_DOM_MASK		0x001f
-+#define RTC_AL_DOW_MASK		0x0007
-+#define RTC_AL_MTH_MASK		0x000f
-+#define RTC_AL_YEA_MASK		0x007f
-+
- #define RTC_PDN2		0x002e
- #define RTC_PDN2_PWRON_ALARM	BIT(4)
+ int vnic_dev_mac_addr(struct vnic_dev *vdev, u8 *mac_addr)
+ {
+-	u64 a0, a1;
++	u64 a[2] = {};
+ 	int wait = 1000;
+ 	int err, i;
  
-@@ -111,7 +119,7 @@ static irqreturn_t mtk_rtc_irq_handler_t
- 		irqen = irqsta & ~RTC_IRQ_EN_AL;
- 		mutex_lock(&rtc->lock);
- 		if (regmap_write(rtc->regmap, rtc->addr_base + RTC_IRQ_EN,
--				 irqen) < 0)
-+				 irqen) == 0)
- 			mtk_rtc_write_trigger(rtc);
- 		mutex_unlock(&rtc->lock);
+ 	for (i = 0; i < ETH_ALEN; i++)
+ 		mac_addr[i] = 0;
  
-@@ -233,12 +241,12 @@ static int mtk_rtc_read_alarm(struct dev
- 	alm->pending = !!(pdn2 & RTC_PDN2_PWRON_ALARM);
- 	mutex_unlock(&rtc->lock);
+-	err = vnic_dev_cmd(vdev, CMD_MAC_ADDR, &a0, &a1, wait);
++	err = vnic_dev_cmd(vdev, CMD_MAC_ADDR, &a[0], &a[1], wait);
+ 	if (err)
+ 		return err;
  
--	tm->tm_sec = data[RTC_OFFSET_SEC];
--	tm->tm_min = data[RTC_OFFSET_MIN];
--	tm->tm_hour = data[RTC_OFFSET_HOUR];
--	tm->tm_mday = data[RTC_OFFSET_DOM];
--	tm->tm_mon = data[RTC_OFFSET_MTH];
--	tm->tm_year = data[RTC_OFFSET_YEAR];
-+	tm->tm_sec = data[RTC_OFFSET_SEC] & RTC_AL_SEC_MASK;
-+	tm->tm_min = data[RTC_OFFSET_MIN] & RTC_AL_MIN_MASK;
-+	tm->tm_hour = data[RTC_OFFSET_HOUR] & RTC_AL_HOU_MASK;
-+	tm->tm_mday = data[RTC_OFFSET_DOM] & RTC_AL_DOM_MASK;
-+	tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_AL_MTH_MASK;
-+	tm->tm_year = data[RTC_OFFSET_YEAR] & RTC_AL_YEA_MASK;
+ 	for (i = 0; i < ETH_ALEN; i++)
+-		mac_addr[i] = ((u8 *)&a0)[i];
++		mac_addr[i] = ((u8 *)&a)[i];
  
- 	tm->tm_year += RTC_MIN_YEAR_OFFSET;
- 	tm->tm_mon--;
-@@ -259,14 +267,25 @@ static int mtk_rtc_set_alarm(struct devi
- 	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
- 	tm->tm_mon++;
+ 	return 0;
+ }
+@@ -489,30 +489,30 @@ void vnic_dev_packet_filter(struct vnic_
  
--	data[RTC_OFFSET_SEC] = tm->tm_sec;
--	data[RTC_OFFSET_MIN] = tm->tm_min;
--	data[RTC_OFFSET_HOUR] = tm->tm_hour;
--	data[RTC_OFFSET_DOM] = tm->tm_mday;
--	data[RTC_OFFSET_MTH] = tm->tm_mon;
--	data[RTC_OFFSET_YEAR] = tm->tm_year;
--
- 	mutex_lock(&rtc->lock);
-+	ret = regmap_bulk_read(rtc->regmap, rtc->addr_base + RTC_AL_SEC,
-+			       data, RTC_OFFSET_COUNT);
-+	if (ret < 0)
-+		goto exit;
-+
-+	data[RTC_OFFSET_SEC] = ((data[RTC_OFFSET_SEC] & ~(RTC_AL_SEC_MASK)) |
-+				(tm->tm_sec & RTC_AL_SEC_MASK));
-+	data[RTC_OFFSET_MIN] = ((data[RTC_OFFSET_MIN] & ~(RTC_AL_MIN_MASK)) |
-+				(tm->tm_min & RTC_AL_MIN_MASK));
-+	data[RTC_OFFSET_HOUR] = ((data[RTC_OFFSET_HOUR] & ~(RTC_AL_HOU_MASK)) |
-+				(tm->tm_hour & RTC_AL_HOU_MASK));
-+	data[RTC_OFFSET_DOM] = ((data[RTC_OFFSET_DOM] & ~(RTC_AL_DOM_MASK)) |
-+				(tm->tm_mday & RTC_AL_DOM_MASK));
-+	data[RTC_OFFSET_MTH] = ((data[RTC_OFFSET_MTH] & ~(RTC_AL_MTH_MASK)) |
-+				(tm->tm_mon & RTC_AL_MTH_MASK));
-+	data[RTC_OFFSET_YEAR] = ((data[RTC_OFFSET_YEAR] & ~(RTC_AL_YEA_MASK)) |
-+				(tm->tm_year & RTC_AL_YEA_MASK));
-+
- 	if (alm->enabled) {
- 		ret = regmap_bulk_write(rtc->regmap,
- 					rtc->addr_base + RTC_AL_SEC,
+ void vnic_dev_add_addr(struct vnic_dev *vdev, u8 *addr)
+ {
+-	u64 a0 = 0, a1 = 0;
++	u64 a[2] = {};
+ 	int wait = 1000;
+ 	int err;
+ 	int i;
+ 
+ 	for (i = 0; i < ETH_ALEN; i++)
+-		((u8 *)&a0)[i] = addr[i];
++		((u8 *)&a)[i] = addr[i];
+ 
+-	err = vnic_dev_cmd(vdev, CMD_ADDR_ADD, &a0, &a1, wait);
++	err = vnic_dev_cmd(vdev, CMD_ADDR_ADD, &a[0], &a[1], wait);
+ 	if (err)
+ 		pr_err("Can't add addr [%pM], %d\n", addr, err);
+ }
+ 
+ void vnic_dev_del_addr(struct vnic_dev *vdev, u8 *addr)
+ {
+-	u64 a0 = 0, a1 = 0;
++	u64 a[2] = {};
+ 	int wait = 1000;
+ 	int err;
+ 	int i;
+ 
+ 	for (i = 0; i < ETH_ALEN; i++)
+-		((u8 *)&a0)[i] = addr[i];
++		((u8 *)&a)[i] = addr[i];
+ 
+-	err = vnic_dev_cmd(vdev, CMD_ADDR_DEL, &a0, &a1, wait);
++	err = vnic_dev_cmd(vdev, CMD_ADDR_DEL, &a[0], &a[1], wait);
+ 	if (err)
+ 		pr_err("Can't del addr [%pM], %d\n", addr, err);
+ }
 
 
