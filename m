@@ -2,155 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C75145CFE
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 21:18:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A555145D01
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 21:22:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725911AbgAVUSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 15:18:35 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:43417 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725827AbgAVUSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 15:18:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579724311;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=CZFB953qV+gIBO5olx5LNPvRiXJZ0yhjDpEkk+yDmPc=;
-        b=TGWPEFeEej6Ls5fGKu3oC/hYEjHy3Pza5WYfCCmJxR47IMkkISsZ8puquAINBkcayGAdDJ
-        UnJpDilSain+dJovMLXEeSssqhASQe0griiP6NdNs4F5t11XBusM1623K3d9QynXHYA9nf
-        yY6xhv2fqeiwwrlx1w2z5K13swjD7Ec=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-264-SMWK3eoVPVmP8lRQuPiovw-1; Wed, 22 Jan 2020 15:18:30 -0500
-X-MC-Unique: SMWK3eoVPVmP8lRQuPiovw-1
-Received: by mail-qt1-f198.google.com with SMTP id e8so627586qtg.9
-        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 12:18:29 -0800 (PST)
+        id S1726099AbgAVUWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 15:22:00 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:40367 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725933AbgAVUWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 15:22:00 -0500
+Received: by mail-lj1-f196.google.com with SMTP id n18so495340ljo.7
+        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 12:21:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=SlE70b9GGvg8Ik4bLAYKDMNh9X9O3cEIpNzQoPhTPYI=;
+        b=bCqidwoCk+OIE0ZI+CE4W2w0NLFTQOV8nbURBEy6IU6TNwZL60tIfObVGJ/dQnYSnt
+         +bsfk4ZN/ECzjHzdhYbVVu1phdqX8VqAR3ZUgPJiazPotTKeSCr2mEg3UkTp918K+mwl
+         4wx8A+HT0ub+/MioSwUoY/eaUSxVlo6UkPViztK3rSUZpsy5sE3mD2c9tZzfdZ9WDRov
+         kPnYquChZRi7Xq+myJsRX9fdS2iDF7SPsCV63yKqNTgDS9NT8dgJRH4cPbN5jGuTwc3C
+         y1yxfgRlq+G0YYQaWVUJFisye4Sk2JJNDpSdr9I9pySxRHBa/uySjI7F0TBb+kHQey5G
+         aTYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:organization:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=CZFB953qV+gIBO5olx5LNPvRiXJZ0yhjDpEkk+yDmPc=;
-        b=s4VGX7o2J9OuPxmH2nFQyLgoB9KrIy88wnyfjoyGsR/D5uZoa6N50lA3Wkev59kpWc
-         1nOoJxJbA4tn5BvGpon8PjxL83mb/OdbaQyc3VGe64EOQrvjBn8xrXsoCw1LFNhZWF8x
-         NHzHVKf5nBZXsAzLqVHAZhP8yONaY5pBR52JW6w0EzMLZBtD8SPBlSJRF2S7HkJJ+9r5
-         UlNzhZEH37j7hcc/oUaTdJG2yB8Yc4FgiZG/XCPMZuylzN+2m+ry8ynJfIIZNphPJVRE
-         bEnAg1PQIXcOqepOj6KmVltI8SX3Ng5vhqYCDi44D7tALZuarqk5gRr/GTIHiRhMJvEF
-         to2g==
-X-Gm-Message-State: APjAAAWkOGtQjrw74lZFr/vllZqR9S0976upuIQc5sFxnyolODWQ5GBU
-        Jsy2ZqJR9akGsgNqKQL8uNrDqZOKxeCQSFSWibad+hxdlb7xCMsMh6EbCMRSft6muXu3S+hSjhj
-        SF7Jieif1QTB4eBOR
-X-Received: by 2002:a05:620a:56f:: with SMTP id p15mr10557830qkp.160.1579724305525;
-        Wed, 22 Jan 2020 12:18:25 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxJt7eLOsdHLJ4QKtTD3EU7lXYZhiFee2cOwokWCRVaccEWePb8GAyHZ6oAM374sdLYV1zyoA==
-X-Received: by 2002:a05:620a:56f:: with SMTP id p15mr10557814qkp.160.1579724305308;
-        Wed, 22 Jan 2020 12:18:25 -0800 (PST)
-Received: from dhcp-10-20-1-90.bss.redhat.com ([144.121.20.162])
-        by smtp.gmail.com with ESMTPSA id m8sm21978682qtk.60.2020.01.22.12.18.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jan 2020 12:18:24 -0800 (PST)
-Message-ID: <696e7d77904ecbe86878169efa18f49d7cb1a4ec.camel@redhat.com>
-Subject: Re: [PATCH v2] drm/dp_mst: Remove VCPI while disabling topology mgr
-From:   Lyude Paul <lyude@redhat.com>
-To:     "Lin, Wayne" <Wayne.Lin@amd.com>, Sean Paul <sean@poorly.run>
-Cc:     "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
-        "Zuo, Jerry" <Jerry.Zuo@amd.com>,
-        "Kazlauskas, Nicholas" <Nicholas.Kazlauskas@amd.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Date:   Wed, 22 Jan 2020 15:18:23 -0500
-In-Reply-To: <DM6PR12MB4137A84B694D85E26F8050D8FC0C0@DM6PR12MB4137.namprd12.prod.outlook.com>
-References: <20191205090043.7580-1-Wayne.Lin@amd.com>
-         <a6c4db964da7e00a6069d40abcb3aa887ef5522b.camel@redhat.com>
-         <ec3e020798d99ce638c05b0f3eb00ebf53c3bd7c.camel@redhat.com>
-         <DM6PR12MB41371AC4B0EC24E84AB0C84DFC580@DM6PR12MB4137.namprd12.prod.outlook.com>
-         <CAMavQK+pS40SQibFuirjLAmjmy8NbOcXWvNsFP8PanS6dEcXWw@mail.gmail.com>
-         <31d9eabe57a25ff8f4df22e645494d57715cdc0b.camel@redhat.com>
-         <CAMavQK+pOtQ62mp4DSRDW7nHDz4doW3LA5AV1NML-wFa3s3cQA@mail.gmail.com>
-         <cfae7fec779bd8fa4da0ad0e7664cf797a1700ab.camel@redhat.com>
-         <DM6PR12MB4137A84B694D85E26F8050D8FC0C0@DM6PR12MB4137.namprd12.prod.outlook.com>
-Organization: Red Hat
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.3 (3.34.3-1.fc31) 
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=SlE70b9GGvg8Ik4bLAYKDMNh9X9O3cEIpNzQoPhTPYI=;
+        b=aanQh6rDWRP4YlOykkErDP3uVzPMHjJhXbo96PntDSQZ2PK31ii1y0Vn7j/ZmG3y45
+         89B3OMe2fCDZ5AgTz0s+WvKTPrUIkoZUASn7bNFfOPwGDNsNUp5Tc1BAWZRGANyolayY
+         i7xK9sbAf3rK1GrWyet72U5L6uYErFzj9DXTl5gRNp8wf5duP340XT4A/uOlAT/VCVL5
+         UBeVrlADMu9zjYXFy8dM0L8Wat1y9o51Kh/bRbXh+Yye64PhMPaaBfW+pBcyYKi5Da0z
+         seb0u9exzvyVBQStodEfkExSWKgQoGSvsYZ1xeBdg4F/mkIdg00wa0W9FsUer2X2gZm1
+         Gl8A==
+X-Gm-Message-State: APjAAAUrxBsw2eXCypbF5WuRyGfwj+AZrWPlAtgzVId7+K3QsMk67sxu
+        QzCgoTlfp/pwMihTspknkwnBNS0pOled77/E2Agm2A==
+X-Google-Smtp-Source: APXvYqxAyOGy3TmikKcAXOITTYIlBv8awZbFxrro6cVwaB6Gi0h3uw1y0ZtvzHEEISpymMnzseO8lYsGGSECl4Jxquo=
+X-Received: by 2002:a2e:965a:: with SMTP id z26mr18377280ljh.104.1579724517965;
+ Wed, 22 Jan 2020 12:21:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 23 Jan 2020 01:51:46 +0530
+Message-ID: <CA+G9fYt5FzE_ZpPJvRavoowaKTDwH76PhUu8ak4VGkfueiy67A@mail.gmail.com>
+Subject: Re: [PATCH 4.4 00/76] 4.4.211-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2020-01-22 at 04:48 +0000, Lin, Wayne wrote:
-> [AMD Public Use]
-> 
-> Sorry for any inconvenience I brought.
+On Wed, 22 Jan 2020 at 15:01, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.4.211 release.
+> There are 76 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 24 Jan 2020 09:25:24 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.4.211-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Nothing to be sorry about! This happens from time to time, it's my fault for
-not noticing it in the first place anyway :P. Ville from Intel is able to
-review it, so there's no rush
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> Thank you so much Lyude, I will have a look on that fix patch later.
-> 
-> > -----Original Message-----
-> > From: Lyude Paul <lyude@redhat.com>
-> > Sent: Saturday, January 18, 2020 4:45 AM
-> > To: Sean Paul <sean@poorly.run>
-> > Cc: Lin, Wayne <Wayne.Lin@amd.com>; dri-devel@lists.freedesktop.org;
-> > amd-gfx@lists.freedesktop.org; Zuo, Jerry <Jerry.Zuo@amd.com>; Kazlauskas,
-> > Nicholas <Nicholas.Kazlauskas@amd.com>; stable@vger.kernel.org
-> > Subject: Re: [PATCH v2] drm/dp_mst: Remove VCPI while disabling topology
-> > mgr
-> > 
-> > Yeah that's fine with me, I'll send out a revert for this in just a moment
-> > 
-> > On Fri, 2020-01-17 at 15:43 -0500, Sean Paul wrote:
-> > > On Fri, Jan 17, 2020 at 3:27 PM Lyude Paul <lyude@redhat.com> wrote:
-> > > > On Fri, 2020-01-17 at 11:19 -0500, Sean Paul wrote:
-> > > > > On Mon, Dec 9, 2019 at 12:56 AM Lin, Wayne <Wayne.Lin@amd.com>
-> > wrote:
-> > > > > > > -----Original Message-----
-> > > > > > > From: Lyude Paul <lyude@redhat.com>
-> > > > > > > Sent: Saturday, December 7, 2019 3:57 AM
-> > > > > > > To: Lin, Wayne <Wayne.Lin@amd.com>;
-> > > > > > > dri-devel@lists.freedesktop.org; amd-gfx@lists.freedesktop.org
-> > > > > > > Cc: Kazlauskas, Nicholas <Nicholas.Kazlauskas@amd.com>;
-> > > > > > > Wentland, Harry <Harry.Wentland@amd.com>; Zuo, Jerry
-> > > > > > > <Jerry.Zuo@amd.com>; stable@vger.kernel.org
-> > > > > > > Subject: Re: [PATCH v2] drm/dp_mst: Remove VCPI while
-> > > > > > > disabling topology mgr
-> > > > > > > 
-> > > > > > > On Fri, 2019-12-06 at 14:24 -0500, Lyude Paul wrote:
-> > > > > > > > Reviewed-by: Lyude Paul <lyude@redhat.com>
-> > > > > > > > 
-> > > > > > > > I'll go ahead and push this to drm-misc-next-fixes right
-> > > > > > > > now, thanks!
-> > > > > > > 
-> > > > > > > Whoops-meant to say drm-misc-next here, anyway, pushed!
-> > > > > > Thanks for your time!
-> > > > > > 
-> > > > > 
-> > > > > I'm getting the following warning on unplug with this patch:
-> > > > > 
-> > > 
-> > > \snip
-> > > 
-> > > > I think I've got a better fix for this that should avoid that
-> > > > problem, I'll write up a patch and send it out in a bit
-> > > 
-> > > Thanks Lyude! Should we revert this patch for the time being?
-> > > 
-> > > > --
-> > > > Cheers,
-> > > >         Lyude Paul
-> > > > 
-> > --
-> > Cheers,
-> > 	Lyude Paul
-> --
-> Best regards,
-> Wayne
--- 
-Cheers,
-	Lyude Paul
+Summary
+------------------------------------------------------------------------
 
+kernel: 4.4.211-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.4.y
+git commit: 14fe1f1189f56887f53ae61e2e3218be16f0c2db
+git describe: v4.4.210-77-g14fe1f1189f5
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
+ld/v4.4.210-77-g14fe1f1189f5
+
+
+No regressions (compared to build v4.4.210)
+
+
+No fixes (compared to build v4.4.210)
+
+Ran 15214 total tests in the following environments and test suites.
+
+Environments
+--------------
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-open-posix-tests
+* ltp-sched-tests
+* spectre-meltdown-checker-test
+* kvm-unit-tests
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-fcntl-locktests-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* v4l2-compliance
+* perf
+* install-android-platform-tools-r2600
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.208-rc1
+git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
+git branch: 4.4.208-rc1-hikey-20200101-645
+git commit: 45aaddb4efb9c8a83ada6caeb9594f7fc5130ec3
+git describe: 4.4.208-rc1-hikey-20200101-645
+Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
+-oe/build/4.4.208-rc1-hikey-20200101-645
+
+
+No regressions (compared to build 4.4.208-rc1-hikey-20200101-644)
+
+
+No fixes (compared to build 4.4.208-rc1-hikey-20200101-644)
+
+Ran 1568 total tests in the following environments and test suites.
+
+Environments
+--------------
+- hi6220-hikey - arm64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
