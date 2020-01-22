@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E098144EFA
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E39AD144F27
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:36:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730418AbgAVJdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:33:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46844 "EHLO mail.kernel.org"
+        id S1730608AbgAVJfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:35:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730410AbgAVJdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:33:14 -0500
+        id S1731076AbgAVJfC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:35:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E0272467A;
-        Wed, 22 Jan 2020 09:33:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFAB62467B;
+        Wed, 22 Jan 2020 09:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685594;
-        bh=TDgMXZlJS+WrS/uN1NtUtQX7qncL4h0PuZMIy7Bx+V8=;
+        s=default; t=1579685702;
+        bh=9xdeNsOVEHQLVkfuwL5Kyd5qW8y1A+GYrf/n4nfRiwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bi1U8rI7+iIAxblAv/gu9OzPlQxe+JKaSgZ2fODKNajfT0p6+d1UvqQs51E2xlK7j
-         2LRV+E4MUk3ZF2I36ezMXEuHrh3wFt5qX950ZOntozK2arpiCR49JazHJtR/ie2ujO
-         BC8s8GHPYf9ZfjopIL6HwDYABwxBW8jizzvaIt00=
+        b=RYavCPBq4iB+n7SxbJ2MzgivYFf12iXt3KeHDbG7p/lMxKyMqtuOTHqgOv7xgUuzY
+         o8OrxleHnc4/dOUKb+6I26+/IaKP5kVVesZqgVyBztJP0eYTzI4KgaojVK2MuqAk2P
+         DbsFH1flr2UPsLYsWrgIQcgScz74vL3wqEsbo8IE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.4 30/76] compat_ioctl: handle SIOCOUTQNSD
-Date:   Wed, 22 Jan 2020 10:28:46 +0100
-Message-Id: <20200122092754.893872456@linuxfoundation.org>
+        stable@vger.kernel.org, Johnson Chen <johnsonch.chen@moxa.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 43/97] gpio: mpc8xxx: Add platform device to gpiochip->parent
+Date:   Wed, 22 Jan 2020 10:28:47 +0100
+Message-Id: <20200122092803.481211804@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Johnson CH Chen (陳昭勳) <JohnsonCH.Chen@moxa.com>
 
-commit 9d7bf41fafa5b5ddd4c13eb39446b0045f0a8167 upstream.
+[ Upstream commit 322f6a3182d42df18059a89c53b09d33919f755e ]
 
-Unlike the normal SIOCOUTQ, SIOCOUTQNSD was never handled in compat
-mode. Add it to the common socket compat handler along with similar
-ones.
+Dear Linus Walleij,
 
-Fixes: 2f4e1b397097 ("tcp: ioctl type SIOCOUTQNSD returns amount of data not sent")
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In old kernels, some APIs still try to use parent->of_node from struct gpio_chip,
+and it could be resulted in kernel panic because parent is NULL. Adding platform
+device to gpiochip->parent can fix this problem.
 
+Signed-off-by: Johnson Chen <johnsonch.chen@moxa.com>
+Link: https://patchwork.kernel.org/patch/11234609
+Link: https://lore.kernel.org/r/HK0PR01MB3521489269F76467DFD7843FFA450@HK0PR01MB3521.apcprd01.prod.exchangelabs.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/socket.c |    1 +
+ drivers/gpio/gpio-mpc8xxx.c | 1 +
  1 file changed, 1 insertion(+)
 
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -3143,6 +3143,7 @@ static int compat_sock_ioctl_trans(struc
- 	case SIOCSARP:
- 	case SIOCGARP:
- 	case SIOCDARP:
-+	case SIOCOUTQNSD:
- 	case SIOCATMARK:
- 		return sock_do_ioctl(net, sock, cmd, arg);
- 	}
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index bd777687233b..b67f61d31e25 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -306,6 +306,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	gc = &mpc8xxx_gc->gc;
++	gc->parent = &pdev->dev;
+ 
+ 	if (of_property_read_bool(np, "little-endian")) {
+ 		ret = bgpio_init(gc, &pdev->dev, 4,
+-- 
+2.20.1
+
 
 
