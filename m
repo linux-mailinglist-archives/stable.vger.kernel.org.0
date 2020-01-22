@@ -2,189 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C411457AC
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 15:22:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 478C61457CD
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 15:26:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728811AbgAVOWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 09:22:41 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:37110 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725871AbgAVOWk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 09:22:40 -0500
-Received: by mail-wr1-f66.google.com with SMTP id w15so7497966wru.4;
-        Wed, 22 Jan 2020 06:22:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=D5B46rZepvfhCMrrMr36ldZgrri9BFFr8qCNZvIQpqA=;
-        b=iqwV8vsxeNzwCGX7OOX2fVojc/gPAD7PJLTPV7YPvaX8B4dF9Y11pp4Trrg2hDZ/Ob
-         zDCOp/ueCsg+14zCzGf0o9jsNE7AeArgAVJuuJ22CrjPFFftJYp0ZTcLPwQMZPGJiH5p
-         Nt2rZ0Xjf7aQjzn1g8lS/J+tNjG1hi5ULHF7NocH90YYYHe5rh+/1ZV73jXQa9eRoMCO
-         8p+SAU4DV+um1JT5ATbQIqPS6Cl9HnFFqNe0AT7Lr0kVsSP0WtguAcja9/g0slXgbxM+
-         Bzzezvm0NmKwH2Dq4vgATni/bTId8GIFgnVpgejw/QUe/Yf+55wwnkrRXLedP3yn2i9z
-         QJLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=D5B46rZepvfhCMrrMr36ldZgrri9BFFr8qCNZvIQpqA=;
-        b=VNBKOik/ix/Eam/BqP/pFmhXZza5s65yDZKjQFs1rqIrUY2RJfRCiNbX2ozgnuLDUK
-         rqOB/p6Q0MuHF1VVegaYOoJ4HfaOZZpxclVCqMm6hu3qOLjvzEOl9iSVAOhvD++666st
-         aFJEOCTzlyHFvhy3ocsQkHc3ZRotCupPgPBUUtQT6Ag2ninfBq7BAOFWFJWDINw9kEaH
-         vPqHeE3Y4+Yve6oW9PwZEul+APrBpfSotXnCZDgvIQOir+gWeTOSSBUGncI15rTcV2bG
-         X9IOLQkvsjwNmQAQYTpuphTO5QCLO5uAaUbtfdA15pRm0+niiOH5NT2J9WZhIrBVWOwJ
-         TPTA==
-X-Gm-Message-State: APjAAAXkHuTQ1av9lmrjZv3q6xAVQ3pi3ikj1NqpMz8OYxelwGsOn59q
-        n3G72gEGsPBm+qwCdJLe88XEeM+j
-X-Google-Smtp-Source: APXvYqyNXneQfo1LkZwEKxeux40MUIkj5Kl2DuPRtMcKpilA28SeD40zEziGJOllIoCkMOEkN021Pw==
-X-Received: by 2002:adf:ce87:: with SMTP id r7mr11384684wrn.245.1579702958228;
-        Wed, 22 Jan 2020 06:22:38 -0800 (PST)
-Received: from 640k.localdomain ([93.56.166.5])
-        by smtp.gmail.com with ESMTPSA id x11sm4172282wmg.46.2020.01.22.06.22.37
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 22 Jan 2020 06:22:37 -0800 (PST)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     mtosatti@redhat.com, stable@vger.kernel.org
-Subject: [PATCH 2/2] KVM: x86: use raw clock values consistently
-Date:   Wed, 22 Jan 2020 15:22:33 +0100
-Message-Id: <1579702953-24184-3-git-send-email-pbonzini@redhat.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1579702953-24184-1-git-send-email-pbonzini@redhat.com>
-References: <1579702953-24184-1-git-send-email-pbonzini@redhat.com>
+        id S1728665AbgAVO0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 09:26:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48250 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729110AbgAVO0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 09:26:34 -0500
+Received: from localhost (unknown [84.241.205.26])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C6172467B;
+        Wed, 22 Jan 2020 14:26:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579703192;
+        bh=Z3DDtDQ0N6bwu/++6RZxej26KCF4dmzYDPe9dazrTzo=;
+        h=Subject:To:From:Date:From;
+        b=uGq2ioG7P9ftJKJ1vLUrXx7cnS9nXAJXhHByj6bh9YNZaCNFHoiKxPDtc1jTalXWz
+         XJ8DufeGAln4/Knr7eKDXI7VDi+bMyKAD5TTvhqcRzUZ7q0SneC9hXcx6uHNcPYfEJ
+         j8g/V8S9E1b9OM86liN2kZH7w6PBw4tOHSZ7AH/w=
+Subject: patch "binder: fix log spam for existing debugfs file creation." added to char-misc-testing
+To:     martin.fuzzey@flowbird.group, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, tkjos@google.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 22 Jan 2020 15:26:28 +0100
+Message-ID: <1579703188500@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 53fafdbb8b21f ("KVM: x86: switch KVMCLOCK base to monotonic raw
-clock") changed kvmclock to use tkr_raw instead of tkr_mono.  However,
-the default kvmclock_offset for the VM was still based on the monotonic
-clock and, if the raw clock drifted enough from the monotonic clock,
-this could cause a negative system_time to be written to the guest's
-struct pvclock.  RHEL5 does not like it and (if it boots fast enough to
-observe a negative time value) it hangs.
 
-There is another thing to be careful about: getboottime64 returns the
-host boot time in tkr_mono units, and subtracting tkr_raw units will
-cause the wallclock to be off if tkr_raw drifts from tkr_mono.  To
-avoid this, compute the wallclock delta from the current time instead
-of being clever and using getboottime64.
+This is a note to let you know that I've just added the patch titled
 
-Fixes: 53fafdbb8b21f ("KVM: x86: switch KVMCLOCK base to monotonic raw clock")
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+    binder: fix log spam for existing debugfs file creation.
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From eb143f8756e77c8fcfc4d574922ae9efd3a43ca9 Mon Sep 17 00:00:00 2001
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Date: Fri, 10 Jan 2020 16:44:01 +0100
+Subject: binder: fix log spam for existing debugfs file creation.
+
+Since commit 43e23b6c0b01 ("debugfs: log errors when something goes wrong")
+debugfs logs attempts to create existing files.
+
+However binder attempts to create multiple debugfs files with
+the same name when a single PID has multiple contexts, this leads
+to log spamming during an Android boot (17 such messages during
+boot on my system).
+
+Fix this by checking if we already know the PID and only create
+the debugfs entry for the first context per PID.
+
+Do the same thing for binderfs for symmetry.
+
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Acked-by: Todd Kjos <tkjos@google.com>
+Fixes: 43e23b6c0b01 ("debugfs: log errors when something goes wrong")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1578671054-5982-1-git-send-email-martin.fuzzey@flowbird.group
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c | 38 +++++++++++++++++++++++---------------
- 1 file changed, 23 insertions(+), 15 deletions(-)
+ drivers/android/binder.c | 37 +++++++++++++++++++------------------
+ 1 file changed, 19 insertions(+), 18 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 1b4273cce63c..b5e0648580e1 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1577,6 +1577,18 @@ static void update_pvclock_gtod(struct timekeeper *tk)
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index b2dad43dbf82..9fcc761031d8 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -5199,10 +5199,11 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
  
- 	write_seqcount_end(&vdata->seq);
- }
-+
-+static s64 get_kvmclock_base_ns(void)
-+{
-+	/* Count up from boot time, but with the frequency of the raw clock.  */
-+	return ktime_to_ns(ktime_add(ktime_get_raw(), pvclock_gtod_data.offs_boot));
-+}
-+#else
-+static s64 get_kvmclock_base_ns(void)
-+{
-+	/* Master clock not used, so we can just use CLOCK_BOOTTIME.  */
-+	return ktime_get_boottime_ns();
-+}
- #endif
+ static int binder_open(struct inode *nodp, struct file *filp)
+ {
+-	struct binder_proc *proc;
++	struct binder_proc *proc, *itr;
+ 	struct binder_device *binder_dev;
+ 	struct binderfs_info *info;
+ 	struct dentry *binder_binderfs_dir_entry_proc = NULL;
++	bool existing_pid = false;
  
- void kvm_set_pending_timer(struct kvm_vcpu *vcpu)
-@@ -1590,7 +1602,7 @@ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
- 	int version;
- 	int r;
- 	struct pvclock_wall_clock wc;
--	struct timespec64 boot;
-+	u64 wall_nsec;
+ 	binder_debug(BINDER_DEBUG_OPEN_CLOSE, "%s: %d:%d\n", __func__,
+ 		     current->group_leader->pid, current->pid);
+@@ -5235,19 +5236,24 @@ static int binder_open(struct inode *nodp, struct file *filp)
+ 	filp->private_data = proc;
  
- 	if (!wall_clock)
- 		return;
-@@ -1610,17 +1622,12 @@ static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock)
- 	/*
- 	 * The guest calculates current wall clock time by adding
- 	 * system time (updated by kvm_guest_time_update below) to the
--	 * wall clock specified here.  guest system time equals host
--	 * system time for us, thus we must fill in host boot time here.
-+	 * wall clock specified here.  We do the reverse here.
- 	 */
--	getboottime64(&boot);
-+	wall_nsec = ktime_get_real_ns() - get_kvmclock_ns(kvm);
+ 	mutex_lock(&binder_procs_lock);
++	hlist_for_each_entry(itr, &binder_procs, proc_node) {
++		if (itr->pid == proc->pid) {
++			existing_pid = true;
++			break;
++		}
++	}
+ 	hlist_add_head(&proc->proc_node, &binder_procs);
+ 	mutex_unlock(&binder_procs_lock);
  
--	if (kvm->arch.kvmclock_offset) {
--		struct timespec64 ts = ns_to_timespec64(kvm->arch.kvmclock_offset);
--		boot = timespec64_sub(boot, ts);
--	}
--	wc.sec = (u32)boot.tv_sec; /* overflow in 2106 guest time */
--	wc.nsec = boot.tv_nsec;
-+	wc.nsec = do_div(wall_nsec, 1000000000);
-+	wc.sec = (u32)wall_nsec; /* overflow in 2106 guest time */
- 	wc.version = version;
+-	if (binder_debugfs_dir_entry_proc) {
++	if (binder_debugfs_dir_entry_proc && !existing_pid) {
+ 		char strbuf[11];
  
- 	kvm_write_guest(kvm, wall_clock, &wc, sizeof(wc));
-@@ -1868,7 +1875,7 @@ void kvm_write_tsc(struct kvm_vcpu *vcpu, struct msr_data *msr)
- 
- 	raw_spin_lock_irqsave(&kvm->arch.tsc_write_lock, flags);
- 	offset = kvm_compute_tsc_offset(vcpu, data);
--	ns = ktime_get_boottime_ns();
-+	ns = get_kvmclock_base_ns();
- 	elapsed = ns - kvm->arch.last_tsc_nsec;
- 
- 	if (vcpu->arch.virtual_tsc_khz) {
-@@ -2206,7 +2213,7 @@ u64 get_kvmclock_ns(struct kvm *kvm)
- 	spin_lock(&ka->pvclock_gtod_sync_lock);
- 	if (!ka->use_master_clock) {
- 		spin_unlock(&ka->pvclock_gtod_sync_lock);
--		return ktime_get_boottime_ns() + ka->kvmclock_offset;
-+		return get_kvmclock_base_ns() + ka->kvmclock_offset;
+ 		snprintf(strbuf, sizeof(strbuf), "%u", proc->pid);
+ 		/*
+-		 * proc debug entries are shared between contexts, so
+-		 * this will fail if the process tries to open the driver
+-		 * again with a different context. The priting code will
+-		 * anyway print all contexts that a given PID has, so this
+-		 * is not a problem.
++		 * proc debug entries are shared between contexts.
++		 * Only create for the first PID to avoid debugfs log spamming
++		 * The printing code will anyway print all contexts for a given
++		 * PID so this is not a problem.
+ 		 */
+ 		proc->debugfs_entry = debugfs_create_file(strbuf, 0444,
+ 			binder_debugfs_dir_entry_proc,
+@@ -5255,19 +5261,16 @@ static int binder_open(struct inode *nodp, struct file *filp)
+ 			&proc_fops);
  	}
  
- 	hv_clock.tsc_timestamp = ka->master_cycle_now;
-@@ -2222,7 +2229,7 @@ u64 get_kvmclock_ns(struct kvm *kvm)
- 				   &hv_clock.tsc_to_system_mul);
- 		ret = __pvclock_read_cycles(&hv_clock, rdtsc());
- 	} else
--		ret = ktime_get_boottime_ns() + ka->kvmclock_offset;
-+		ret = get_kvmclock_base_ns() + ka->kvmclock_offset;
+-	if (binder_binderfs_dir_entry_proc) {
++	if (binder_binderfs_dir_entry_proc && !existing_pid) {
+ 		char strbuf[11];
+ 		struct dentry *binderfs_entry;
  
- 	put_cpu();
+ 		snprintf(strbuf, sizeof(strbuf), "%u", proc->pid);
+ 		/*
+ 		 * Similar to debugfs, the process specific log file is shared
+-		 * between contexts. If the file has already been created for a
+-		 * process, the following binderfs_create_file() call will
+-		 * fail with error code EEXIST if another context of the same
+-		 * process invoked binder_open(). This is ok since same as
+-		 * debugfs, the log file will contain information on all
+-		 * contexts of a given PID.
++		 * between contexts. Only create for the first PID.
++		 * This is ok since same as debugfs, the log file will contain
++		 * information on all contexts of a given PID.
+ 		 */
+ 		binderfs_entry = binderfs_create_file(binder_binderfs_dir_entry_proc,
+ 			strbuf, &proc_fops, (void *)(unsigned long)proc->pid);
+@@ -5277,10 +5280,8 @@ static int binder_open(struct inode *nodp, struct file *filp)
+ 			int error;
  
-@@ -2321,7 +2328,7 @@ static int kvm_guest_time_update(struct kvm_vcpu *v)
+ 			error = PTR_ERR(binderfs_entry);
+-			if (error != -EEXIST) {
+-				pr_warn("Unable to create file %s in binderfs (error %d)\n",
+-					strbuf, error);
+-			}
++			pr_warn("Unable to create file %s in binderfs (error %d)\n",
++				strbuf, error);
+ 		}
  	}
- 	if (!use_master_clock) {
- 		host_tsc = rdtsc();
--		kernel_ns = ktime_get_boottime_ns();
-+		kernel_ns = get_kvmclock_base_ns();
- 	}
  
- 	tsc_timestamp = kvm_read_l1_tsc(v, host_tsc);
-@@ -2361,6 +2368,7 @@ static int kvm_guest_time_update(struct kvm_vcpu *v)
- 	vcpu->hv_clock.tsc_timestamp = tsc_timestamp;
- 	vcpu->hv_clock.system_time = kernel_ns + v->kvm->arch.kvmclock_offset;
- 	vcpu->last_guest_tsc = tsc_timestamp;
-+	WARN_ON(vcpu->hv_clock.system_time < 0);
- 
- 	/* If the host uses TSC clocksource, then it is stable */
- 	pvclock_flags = 0;
-@@ -9473,7 +9481,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	mutex_init(&kvm->arch.apic_map_lock);
- 	spin_lock_init(&kvm->arch.pvclock_gtod_sync_lock);
- 
--	kvm->arch.kvmclock_offset = -ktime_get_boottime_ns();
-+	kvm->arch.kvmclock_offset = -get_kvmclock_base_ns();
- 	pvclock_update_vm_gtod_copy(kvm);
- 
- 	kvm->arch.guest_can_read_msr_platform_info = true;
 -- 
-1.8.3.1
+2.25.0
+
 
