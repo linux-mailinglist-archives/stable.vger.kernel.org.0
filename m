@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA20144FF9
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:42:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE0D3145195
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:55:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387789AbgAVJms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:42:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34846 "EHLO mail.kernel.org"
+        id S1729550AbgAVJzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:55:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387786AbgAVJms (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:42:48 -0500
+        id S1729587AbgAVJdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:33:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EA9824686;
-        Wed, 22 Jan 2020 09:42:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB4652071E;
+        Wed, 22 Jan 2020 09:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686167;
-        bh=NJH0x6mrZKdduu+9oqEYWb28XwjUZRK5hBaz8Far3hA=;
+        s=default; t=1579685599;
+        bh=e36sjmPaCPPq1/i9Ltj188SqoWa1clYoefAn7mPbTaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPTrc2cXouMs/ZCz/JWK4xURhpFkFYKQrp4ODihSS5BODAKfD3GmugV4fYWYEhm7O
-         uk3+gEsKb0e+kHiAPiWxzTlwUp7hfHso4Woav0cGpJI4XzfDaWgfvprvSYrAlDBHpn
-         rWlhWrv9i8MYOmOH5YAtB/PpsDgtKovrkrB7I3BE=
+        b=IjnoIz3BVOKOucX+wZB0elDz4y1HJTxIQ2qcx/eNo96zMEzZ7xMG5X7UZGXzkSBib
+         shX7Y+cybhEQgMZCFWn6vnZ+/ZLAvDwFZ8l+D08XVrPN4MM+ikBDz7v6L0YI8+LcAj
+         QTJ2YreURjE/8V5JhKBTRk36Mo4riYiBh/2ws3CE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 072/103] net/wan/fsl_ucc_hdlc: fix out of bounds write on array utdm_info
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.4 72/76] scsi: bnx2i: fix potential use after free
 Date:   Wed, 22 Jan 2020 10:29:28 +0100
-Message-Id: <20200122092814.159493424@linuxfoundation.org>
+Message-Id: <20200122092802.446948684@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit ddf420390526ede3b9ff559ac89f58cb59d9db2f ]
+commit 29d28f2b8d3736ac61c28ef7e20fda63795b74d9 upstream.
 
-Array utdm_info is declared as an array of MAX_HDLC_NUM (4) elements
-however up to UCC_MAX_NUM (8) elements are potentially being written
-to it.  Currently we have an array out-of-bounds write error on the
-last 4 elements. Fix this by making utdm_info UCC_MAX_NUM elements in
-size.
+The member hba->pcidev may be used after its reference is dropped. Move the
+put function to where it is never used to avoid potential use after free
+issues.
 
-Addresses-Coverity: ("Out-of-bounds write")
-Fixes: c19b6d246a35 ("drivers/net: support hdlc function for QE-UCC")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a77171806515 ("[SCSI] bnx2i: Removed the reference to the netdev->base_addr")
+Link: https://lore.kernel.org/r/1573043541-19126-1-git-send-email-bianpan2016@163.com
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wan/fsl_ucc_hdlc.c |    2 +-
+ drivers/scsi/bnx2i/bnx2i_iscsi.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wan/fsl_ucc_hdlc.c
-+++ b/drivers/net/wan/fsl_ucc_hdlc.c
-@@ -76,7 +76,7 @@ static struct ucc_tdm_info utdm_primary_
- 	},
- };
+--- a/drivers/scsi/bnx2i/bnx2i_iscsi.c
++++ b/drivers/scsi/bnx2i/bnx2i_iscsi.c
+@@ -915,12 +915,12 @@ void bnx2i_free_hba(struct bnx2i_hba *hb
+ 	INIT_LIST_HEAD(&hba->ep_ofld_list);
+ 	INIT_LIST_HEAD(&hba->ep_active_list);
+ 	INIT_LIST_HEAD(&hba->ep_destroy_list);
+-	pci_dev_put(hba->pcidev);
  
--static struct ucc_tdm_info utdm_info[MAX_HDLC_NUM];
-+static struct ucc_tdm_info utdm_info[UCC_MAX_NUM];
- 
- static int uhdlc_init(struct ucc_hdlc_private *priv)
- {
+ 	if (hba->regview) {
+ 		pci_iounmap(hba->pcidev, hba->regview);
+ 		hba->regview = NULL;
+ 	}
++	pci_dev_put(hba->pcidev);
+ 	bnx2i_free_mp_bdt(hba);
+ 	bnx2i_release_free_cid_que(hba);
+ 	iscsi_host_free(shost);
 
 
