@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC41014561E
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B6A4145621
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730121AbgAVNU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:20:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37414 "EHLO mail.kernel.org"
+        id S1728709AbgAVNVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:21:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726054AbgAVNU4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:20:56 -0500
+        id S1729030AbgAVNVC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:21:02 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68B9F2468B;
-        Wed, 22 Jan 2020 13:20:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC95D24688;
+        Wed, 22 Jan 2020 13:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699255;
-        bh=Z5U8oa2rY/Qhnxybo2dbSelwKsx2b8hEe5G6JYAeth4=;
+        s=default; t=1579699261;
+        bh=oZ3D/2tSzQfYgmBD0f7Y8DUisUQLp+WfsagJ3bkMHM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4Ndmqb6sfPL4zq2zIdRioeuPber4tf0/LVrjfO630KnR04vVovKqb1UdG2XK+pF0
-         icNVP6ci3I4i9w6Z4xDZpzHeKB77hI0N+MqMAWgQhJk6ZKhKqDG6sb3BWH704uhG/y
-         oy0CGT+LZ7+pR0BkF5Q/6CsRslb2fPSgVjKAcryA=
+        b=iqZr9KC9O9Dx4om7oEqsCEIBx93kvrtpNsPQr5ka3xjWsHlImacerHTxRHU2M3okp
+         GESvWBPO/o6TN68Rpe8qa2mEdFEv812LuAtvEyJx7qwuwqb+koUq5A3H/mJjAN0SHs
+         OGsl/z9r4Ydo3A9WnQCKyXNXTrVyfJth/8X09TeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Graham Cobb <g.btrfs@cobb.uk.net>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 089/222] Btrfs: always copy scrub arguments back to user space
-Date:   Wed, 22 Jan 2020 10:27:55 +0100
-Message-Id: <20200122092840.100648986@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Pingfan Liu <piliu@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 090/222] mm/memory_hotplug: dont free usage map when removing a re-added early section
+Date:   Wed, 22 Jan 2020 10:27:56 +0100
+Message-Id: <20200122092840.175336528@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -45,64 +48,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 5afe6ce748c1ea99e0d648153c05075e1ab93afb upstream.
+commit 8068df3b60373c390198f660574ea14c8098de57 upstream.
 
-If scrub returns an error we are not copying back the scrub arguments
-structure to user space. This prevents user space to know how much
-progress scrub has done if an error happened - this includes -ECANCELED
-which is returned when users ask for scrub to stop. A particular use
-case, which is used in btrfs-progs, is to resume scrub after it is
-canceled, in that case it relies on checking the progress from the scrub
-arguments structure and then use that progress in a call to resume
-scrub.
+When we remove an early section, we don't free the usage map, as the
+usage maps of other sections are placed into the same page.  Once the
+section is removed, it is no longer an early section (especially, the
+memmap is freed).  When we re-add that section, the usage map is reused,
+however, it is no longer an early section.  When removing that section
+again, we try to kfree() a usage map that was allocated during early
+boot - bad.
 
-So fix this by always copying the scrub arguments structure to user
-space, overwriting the value returned to user space with -EFAULT only if
-copying the structure failed to let user space know that either that
-copying did not happen, and therefore the structure is stale, or it
-happened partially and the structure is probably not valid and corrupt
-due to the partial copy.
+Let's check against PageReserved() to see if we are dealing with an
+usage map that was allocated during boot.  We could also check against
+!(PageSlab(usage_page) || PageCompound(usage_page)), but PageReserved() is
+cleaner.
 
-Reported-by: Graham Cobb <g.btrfs@cobb.uk.net>
-Link: https://lore.kernel.org/linux-btrfs/d0a97688-78be-08de-ca7d-bcb4c7fb397e@cobb.uk.net/
-Fixes: 06fe39ab15a6a4 ("Btrfs: do not overwrite scrub error with fault error in scrub ioctl")
-CC: stable@vger.kernel.org # 5.1+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Tested-by: Graham Cobb <g.btrfs@cobb.uk.net>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Can be triggered using memtrace under ppc64/powernv:
+
+  $ mount -t debugfs none /sys/kernel/debug/
+  $ echo 0x20000000 > /sys/kernel/debug/powerpc/memtrace/enable
+  $ echo 0x20000000 > /sys/kernel/debug/powerpc/memtrace/enable
+   ------------[ cut here ]------------
+   kernel BUG at mm/slub.c:3969!
+   Oops: Exception in kernel mode, sig: 5 [#1]
+   LE PAGE_SIZE=3D64K MMU=3DHash SMP NR_CPUS=3D2048 NUMA PowerNV
+   Modules linked in:
+   CPU: 0 PID: 154 Comm: sh Not tainted 5.5.0-rc2-next-20191216-00005-g0be1dba7b7c0 #61
+   NIP kfree+0x338/0x3b0
+   LR section_deactivate+0x138/0x200
+   Call Trace:
+     section_deactivate+0x138/0x200
+     __remove_pages+0x114/0x150
+     arch_remove_memory+0x3c/0x160
+     try_remove_memory+0x114/0x1a0
+     __remove_memory+0x20/0x40
+     memtrace_enable_set+0x254/0x850
+     simple_attr_write+0x138/0x160
+     full_proxy_write+0x8c/0x110
+     __vfs_write+0x38/0x70
+     vfs_write+0x11c/0x2a0
+     ksys_write+0x84/0x140
+     system_call+0x5c/0x68
+   ---[ end trace 4b053cbd84e0db62 ]---
+
+The first invocation will offline+remove memory blocks.  The second
+invocation will first add+online them again, in order to offline+remove
+them again (usually we are lucky and the exact same memory blocks will
+get "reallocated").
+
+Tested on powernv with boot memory: The usage map will not get freed.
+Tested on x86-64 with DIMMs: The usage map will get freed.
+
+Using Dynamic Memory under a Power DLAPR can trigger it easily.
+
+Triggering removal (I assume after previously removed+re-added) of
+memory from the HMC GUI can crash the kernel with the same call trace
+and is fixed by this patch.
+
+Link: http://lkml.kernel.org/r/20191217104637.5509-1-david@redhat.com
+Fixes: 326e1b8f83a4 ("mm/sparsemem: introduce a SECTION_IS_EARLY flag")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Tested-by: Pingfan Liu <piliu@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ioctl.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ mm/sparse.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -4254,7 +4254,19 @@ static long btrfs_ioctl_scrub(struct fil
- 			      &sa->progress, sa->flags & BTRFS_SCRUB_READONLY,
- 			      0);
+--- a/mm/sparse.c
++++ b/mm/sparse.c
+@@ -775,7 +775,14 @@ static void section_deactivate(unsigned
+ 	if (bitmap_empty(subsection_map, SUBSECTIONS_PER_SECTION)) {
+ 		unsigned long section_nr = pfn_to_section_nr(pfn);
  
--	if (ret == 0 && copy_to_user(arg, sa, sizeof(*sa)))
-+	/*
-+	 * Copy scrub args to user space even if btrfs_scrub_dev() returned an
-+	 * error. This is important as it allows user space to know how much
-+	 * progress scrub has done. For example, if scrub is canceled we get
-+	 * -ECANCELED from btrfs_scrub_dev() and return that error back to user
-+	 * space. Later user space can inspect the progress from the structure
-+	 * btrfs_ioctl_scrub_args and resume scrub from where it left off
-+	 * previously (btrfs-progs does this).
-+	 * If we fail to copy the btrfs_ioctl_scrub_args structure to user space
-+	 * then return -EFAULT to signal the structure was not copied or it may
-+	 * be corrupt and unreliable due to a partial copy.
-+	 */
-+	if (copy_to_user(arg, sa, sizeof(*sa)))
- 		ret = -EFAULT;
- 
- 	if (!(sa->flags & BTRFS_SCRUB_READONLY))
+-		if (!section_is_early) {
++		/*
++		 * When removing an early section, the usage map is kept (as the
++		 * usage maps of other sections fall into the same page). It
++		 * will be re-used when re-adding the section - which is then no
++		 * longer an early section. If the usage map is PageReserved, it
++		 * was allocated during boot.
++		 */
++		if (!PageReserved(virt_to_page(ms->usage))) {
+ 			kfree(ms->usage);
+ 			ms->usage = NULL;
+ 		}
 
 
