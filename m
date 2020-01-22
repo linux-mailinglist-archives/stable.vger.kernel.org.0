@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B41BC14517E
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B765144F0D
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:34:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730660AbgAVJya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:54:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730039AbgAVJd7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730063AbgAVJd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 22 Jan 2020 04:33:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48160 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730710AbgAVJd6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:33:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DC3B24673;
-        Wed, 22 Jan 2020 09:33:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D00DD24672;
+        Wed, 22 Jan 2020 09:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685635;
-        bh=EVjgaJW8OE5sV1Q9fTEbc2fZ13z60TLkZJ4lEhs+L4k=;
+        s=default; t=1579685638;
+        bh=WviVC5Ezmk5ibOmxnwu2jFCJQZQc64wGR2u526a4QPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RIWgB/TJ5pAf+dh2yvyBwY3MKr5wpmNYgVFqGWBpRycyo9DHotnY0Dj8obP9uPtFq
-         b1fsu4fL5klORFzhVPDVA7Lxs1DaG41aO/r69FA8tTC5t67Tqb/Vsl7yonY3gt0dIL
-         jcOomAjmX51hxic++pWv7pcIB6DbJL8upFV18f0g=
+        b=hnxziJx4C0ys8yHuXciVoRRWi14nZqY8W9sstC2FfW5bRPXLSpVIF9H0O9OvkNdb2
+         AngDS6iECoQNEdwTmVGbRr5RYCxDXBjtR6nKdBJKgkfv0C7sB8tGgGLhubFxRkxq35
+         PxBAGxUvWO3zX3BA5VGFmJbXlxc6ONgsnTZNuRE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Bob Picco <bob.picco@oracle.com>,
+        Kristina Martsenko <kristina.martsenko@arm.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.9 07/97] arm64: mm: BUG on unsupported manipulations of live kernel mappings
-Date:   Wed, 22 Jan 2020 10:28:11 +0100
-Message-Id: <20200122092756.943196447@linuxfoundation.org>
+Subject: [PATCH 4.9 08/97] arm64: dont open code page table entry creation
+Date:   Wed, 22 Jan 2020 10:28:12 +0100
+Message-Id: <20200122092757.097718691@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
 References: <20200122092755.678349497@linuxfoundation.org>
@@ -44,168 +47,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Kristina Martsenko <kristina.martsenko@arm.com>
 
-commit e98216b52176ba2bfa4bdb02f178f4d08832d465 upstream.
+commit 193383043f14a398393dc18bae8380f7fe665ec3 upstream.
 
-Now that we take care not manipulate the live kernel page tables in a
-way that may lead to TLB conflicts, the case where a table mapping is
-replaced by a block mapping can no longer occur. So remove the handling
-of this at the PUD and PMD levels, and instead, BUG() on any occurrence
-of live kernel page table manipulations that modify anything other than
-the permission bits.
+Instead of open coding the generation of page table entries, use the
+macros/functions that exist for this - pfn_p*d and p*d_populate. Most
+code in the kernel already uses these macros, this patch tries to fix
+up the few places that don't. This is useful for the next patch in this
+series, which needs to change the page table entry logic, and it's
+better to have that logic in one place.
 
-Since mark_rodata_ro() is the only caller where the kernel mappings that
-are being manipulated are actually live, drop the various conditional
-flush_tlb_all() invocations, and add a single call to mark_rodata_ro()
-instead.
+The KVM extended ID map is special, since we're creating a level above
+CONFIG_PGTABLE_LEVELS and the required function isn't available. Leave
+it as is and add a comment to explain it. (The normal kernel ID map code
+doesn't need this change because its page tables are created in assembly
+(__create_page_tables)).
 
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Tested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
+Tested-by: Bob Picco <bob.picco@oracle.com>
+Reviewed-by: Bob Picco <bob.picco@oracle.com>
+Signed-off-by: Kristina Martsenko <kristina.martsenko@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[bwh: Backported to 4.9: adjust context]
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/mm/mmu.c |   70 +++++++++++++++++++++++++++++++---------------------
- 1 file changed, 43 insertions(+), 27 deletions(-)
+ arch/arm64/include/asm/kvm_mmu.h |    5 +++++
+ arch/arm64/include/asm/pgtable.h |    1 +
+ arch/arm64/kernel/hibernate.c    |    3 +--
+ arch/arm64/mm/mmu.c              |   14 +++++++++-----
+ 4 files changed, 16 insertions(+), 7 deletions(-)
 
+--- a/arch/arm64/include/asm/kvm_mmu.h
++++ b/arch/arm64/include/asm/kvm_mmu.h
+@@ -300,6 +300,11 @@ static inline bool __kvm_cpu_uses_extend
+ 	return __cpu_uses_extended_idmap();
+ }
+ 
++/*
++ * Can't use pgd_populate here, because the extended idmap adds an extra level
++ * above CONFIG_PGTABLE_LEVELS (which is 2 or 3 if we're using the extended
++ * idmap), and pgd_populate is only available if CONFIG_PGTABLE_LEVELS = 4.
++ */
+ static inline void __kvm_extend_hypmap(pgd_t *boot_hyp_pgd,
+ 				       pgd_t *hyp_pgd,
+ 				       pgd_t *merged_hyp_pgd,
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -353,6 +353,7 @@ static inline int pmd_protnone(pmd_t pmd
+ 
+ #define pud_write(pud)		pte_write(pud_pte(pud))
+ #define pud_pfn(pud)		(((pud_val(pud) & PUD_MASK) & PHYS_MASK) >> PAGE_SHIFT)
++#define pfn_pud(pfn,prot)	(__pud(((phys_addr_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot)))
+ 
+ #define set_pmd_at(mm, addr, pmdp, pmd)	set_pte_at(mm, addr, (pte_t *)pmdp, pmd_pte(pmd))
+ 
+--- a/arch/arm64/kernel/hibernate.c
++++ b/arch/arm64/kernel/hibernate.c
+@@ -247,8 +247,7 @@ static int create_safe_exec_page(void *s
+ 	}
+ 
+ 	pte = pte_offset_kernel(pmd, dst_addr);
+-	set_pte(pte, __pte(virt_to_phys((void *)dst) |
+-			 pgprot_val(PAGE_KERNEL_EXEC)));
++	set_pte(pte, pfn_pte(virt_to_pfn(dst), PAGE_KERNEL_EXEC));
+ 
+ 	/*
+ 	 * Load our new page tables. A strict BBM approach requires that we
 --- a/arch/arm64/mm/mmu.c
 +++ b/arch/arm64/mm/mmu.c
-@@ -28,8 +28,6 @@
- #include <linux/memblock.h>
- #include <linux/fs.h>
- #include <linux/io.h>
--#include <linux/slab.h>
--#include <linux/stop_machine.h>
- 
- #include <asm/barrier.h>
- #include <asm/cputype.h>
-@@ -95,6 +93,17 @@ static phys_addr_t __init early_pgtable_
- 	return phys;
- }
- 
-+static bool pgattr_change_is_safe(u64 old, u64 new)
-+{
-+	/*
-+	 * The following mapping attributes may be updated in live
-+	 * kernel mappings without the need for break-before-make.
-+	 */
-+	static const pteval_t mask = PTE_PXN | PTE_RDONLY | PTE_WRITE;
-+
-+	return old  == 0 || new  == 0 || ((old ^ new) & ~mask) == 0;
-+}
-+
- static void alloc_init_pte(pmd_t *pmd, unsigned long addr,
- 				  unsigned long end, unsigned long pfn,
- 				  pgprot_t prot,
-@@ -115,8 +124,17 @@ static void alloc_init_pte(pmd_t *pmd, u
- 
- 	pte = pte_set_fixmap_offset(pmd, addr);
- 	do {
-+		pte_t old_pte = *pte;
-+
- 		set_pte(pte, pfn_pte(pfn, prot));
- 		pfn++;
-+
-+		/*
-+		 * After the PTE entry has been populated once, we
-+		 * only allow updates to the permission attributes.
-+		 */
-+		BUG_ON(!pgattr_change_is_safe(pte_val(old_pte), pte_val(*pte)));
-+
- 	} while (pte++, addr += PAGE_SIZE, addr != end);
- 
- 	pte_clear_fixmap();
-@@ -146,27 +164,27 @@ static void alloc_init_pmd(pud_t *pud, u
- 
- 	pmd = pmd_set_fixmap_offset(pud, addr);
- 	do {
-+		pmd_t old_pmd = *pmd;
-+
- 		next = pmd_addr_end(addr, end);
-+
- 		/* try section mapping first */
- 		if (((addr | next | phys) & ~SECTION_MASK) == 0 &&
- 		      allow_block_mappings) {
--			pmd_t old_pmd =*pmd;
- 			pmd_set_huge(pmd, phys, prot);
-+
- 			/*
--			 * Check for previous table entries created during
--			 * boot (__create_page_tables) and flush them.
-+			 * After the PMD entry has been populated once, we
-+			 * only allow updates to the permission attributes.
- 			 */
--			if (!pmd_none(old_pmd)) {
--				flush_tlb_all();
--				if (pmd_table(old_pmd)) {
--					phys_addr_t table = pmd_page_paddr(old_pmd);
--					if (!WARN_ON_ONCE(slab_is_available()))
--						memblock_free(table, PAGE_SIZE);
--				}
--			}
-+			BUG_ON(!pgattr_change_is_safe(pmd_val(old_pmd),
-+						      pmd_val(*pmd)));
- 		} else {
- 			alloc_init_pte(pmd, addr, next, __phys_to_pfn(phys),
- 				       prot, pgtable_alloc);
-+
-+			BUG_ON(pmd_val(old_pmd) != 0 &&
-+			       pmd_val(old_pmd) != pmd_val(*pmd));
- 		}
- 		phys += next - addr;
- 	} while (pmd++, addr = next, addr != end);
-@@ -204,33 +222,28 @@ static void alloc_init_pud(pgd_t *pgd, u
- 
- 	pud = pud_set_fixmap_offset(pgd, addr);
- 	do {
-+		pud_t old_pud = *pud;
-+
- 		next = pud_addr_end(addr, end);
- 
- 		/*
- 		 * For 4K granule only, attempt to put down a 1GB block
+@@ -495,8 +495,8 @@ static void __init map_kernel(pgd_t *pgd
+ 		 * entry instead.
  		 */
- 		if (use_1G_block(addr, next, phys) && allow_block_mappings) {
--			pud_t old_pud = *pud;
- 			pud_set_huge(pud, phys, prot);
+ 		BUG_ON(!IS_ENABLED(CONFIG_ARM64_16K_PAGES));
+-		set_pud(pud_set_fixmap_offset(pgd, FIXADDR_START),
+-			__pud(__pa(bm_pmd) | PUD_TYPE_TABLE));
++		pud_populate(&init_mm, pud_set_fixmap_offset(pgd, FIXADDR_START),
++			     lm_alias(bm_pmd));
+ 		pud_clear_fixmap();
+ 	} else {
+ 		BUG();
+@@ -611,7 +611,7 @@ int __meminit vmemmap_populate(unsigned
+ 			if (!p)
+ 				return -ENOMEM;
  
- 			/*
--			 * If we have an old value for a pud, it will
--			 * be pointing to a pmd table that we no longer
--			 * need (from swapper_pg_dir).
--			 *
--			 * Look up the old pmd table and free it.
-+			 * After the PUD entry has been populated once, we
-+			 * only allow updates to the permission attributes.
- 			 */
--			if (!pud_none(old_pud)) {
--				flush_tlb_all();
--				if (pud_table(old_pud)) {
--					phys_addr_t table = pud_page_paddr(old_pud);
--					if (!WARN_ON_ONCE(slab_is_available()))
--						memblock_free(table, PAGE_SIZE);
--				}
--			}
-+			BUG_ON(!pgattr_change_is_safe(pud_val(old_pud),
-+						      pud_val(*pud)));
- 		} else {
- 			alloc_init_pmd(pud, addr, next, phys, prot,
- 				       pgtable_alloc, allow_block_mappings);
-+
-+			BUG_ON(pud_val(old_pud) != 0 &&
-+			       pud_val(old_pud) != pud_val(*pud));
- 		}
- 		phys += next - addr;
- 	} while (pud++, addr = next, addr != end);
-@@ -396,6 +409,9 @@ void mark_rodata_ro(void)
- 	section_size = (unsigned long)__init_begin - (unsigned long)__start_rodata;
- 	create_mapping_late(__pa(__start_rodata), (unsigned long)__start_rodata,
- 			    section_size, PAGE_KERNEL_RO);
-+
-+	/* flush the TLBs after updating live kernel mappings */
-+	flush_tlb_all();
+-			set_pmd(pmd, __pmd(__pa(p) | PROT_SECT_NORMAL));
++			pmd_set_huge(pmd, __pa(p), __pgprot(PROT_SECT_NORMAL));
+ 		} else
+ 			vmemmap_verify((pte_t *)pmd, node, addr, next);
+ 	} while (addr = next, addr != end);
+@@ -797,15 +797,19 @@ int __init arch_ioremap_pmd_supported(vo
+ 
+ int pud_set_huge(pud_t *pud, phys_addr_t phys, pgprot_t prot)
+ {
++	pgprot_t sect_prot = __pgprot(PUD_TYPE_SECT |
++					pgprot_val(mk_sect_prot(prot)));
+ 	BUG_ON(phys & ~PUD_MASK);
+-	set_pud(pud, __pud(phys | PUD_TYPE_SECT | pgprot_val(mk_sect_prot(prot))));
++	set_pud(pud, pfn_pud(__phys_to_pfn(phys), sect_prot));
+ 	return 1;
  }
  
- static void __init map_kernel_segment(pgd_t *pgd, void *va_start, void *va_end,
+ int pmd_set_huge(pmd_t *pmd, phys_addr_t phys, pgprot_t prot)
+ {
++	pgprot_t sect_prot = __pgprot(PMD_TYPE_SECT |
++					pgprot_val(mk_sect_prot(prot)));
+ 	BUG_ON(phys & ~PMD_MASK);
+-	set_pmd(pmd, __pmd(phys | PMD_TYPE_SECT | pgprot_val(mk_sect_prot(prot))));
++	set_pmd(pmd, pfn_pmd(__phys_to_pfn(phys), sect_prot));
+ 	return 1;
+ }
+ 
 
 
