@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6CD14514F
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:53:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CDFF144ECA
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731227AbgAVJfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:35:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50330 "EHLO mail.kernel.org"
+        id S1729710AbgAVJb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:31:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731217AbgAVJfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:35:20 -0500
+        id S1729692AbgAVJb1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:31:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B10D924680;
-        Wed, 22 Jan 2020 09:35:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CCCE24687;
+        Wed, 22 Jan 2020 09:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685719;
-        bh=SrODrwLjsbBCvo1hth7eSOv3o1qQTnBUiccMhKqJXW0=;
+        s=default; t=1579685486;
+        bh=Xhb31yo7QquruxshJy8J/2Lz4MTb/iTgEo7w7vN7zqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbhggdNCUUhbbDLSysTb0IKeua/iA2bBNUIwm0RVdERUVoBFFSP59aHxxAN24qf6K
-         SBY0zBUVFcpY9efwsKSgfkv9GqjegT58XT1WY69pz18fJ2GPo2/lnP/WJQhxsSGQWQ
-         VxtRXc4P8iWrq8o8phOBUSiDqIHkEkaG4IQ7rrws=
+        b=1+3kLwMYN9ZTGAMNoxE33n9vak/fD8hP9ylnkSlzYLrGmyLuv+4Mb53T3nSnlzcS4
+         aPQfv36LCDSxsMAYGGb1bVvMxctaws/S06shxe4h/R+QYzzwzorNos3eFv1IfJDc70
+         2mpypZ6M188U707L/khAD3AIrbPAcsG2s8YOy1mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f584efa0ac7213c226b7@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Barret Rhoden <brho@google.com>,
-        Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "David S. Miller" <davem@davemloft.net>,
         Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.9 17/97] ext4: fix use-after-free race with debug_want_extra_isize
-Date:   Wed, 22 Jan 2020 10:28:21 +0100
-Message-Id: <20200122092758.736614924@linuxfoundation.org>
+Subject: [PATCH 4.4 06/76] mac80211: Do not send Layer 2 Update frame before authorization
+Date:   Wed, 22 Jan 2020 10:28:22 +0100
+Message-Id: <20200122092752.276949072@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,105 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Barret Rhoden <brho@google.com>
+From: Jouni Malinen <jouni@codeaurora.org>
 
-commit 7bc04c5c2cc467c5b40f2b03ba08da174a0d5fa7 upstream.
+commit 3e493173b7841259a08c5c8e5cbe90adb349da7e upstream.
 
-When remounting with debug_want_extra_isize, we were not performing the
-same checks that we do during a normal mount.  That allowed us to set a
-value for s_want_extra_isize that reached outside the s_inode_size.
+The Layer 2 Update frame is used to update bridges when a station roams
+to another AP even if that STA does not transmit any frames after the
+reassociation. This behavior was described in IEEE Std 802.11F-2003 as
+something that would happen based on MLME-ASSOCIATE.indication, i.e.,
+before completing 4-way handshake. However, this IEEE trial-use
+recommended practice document was published before RSN (IEEE Std
+802.11i-2004) and as such, did not consider RSN use cases. Furthermore,
+IEEE Std 802.11F-2003 was withdrawn in 2006 and as such, has not been
+maintained amd should not be used anymore.
 
-Fixes: e2b911c53584 ("ext4: clean up feature test macros with predicate functions")
-Reported-by: syzbot+f584efa0ac7213c226b7@syzkaller.appspotmail.com
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Barret Rhoden <brho@google.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-[bwh: Backported to 4.9: The debug_want_extra_isize mount option is not
- supported]
+Sending out the Layer 2 Update frame immediately after association is
+fine for open networks (and also when using SAE, FT protocol, or FILS
+authentication when the station is actually authenticated by the time
+association completes). However, it is not appropriate for cases where
+RSN is used with PSK or EAP authentication since the station is actually
+fully authenticated only once the 4-way handshake completes after
+authentication and attackers might be able to use the unauthenticated
+triggering of Layer 2 Update frame transmission to disrupt bridge
+behavior.
+
+Fix this by postponing transmission of the Layer 2 Update frame from
+station entry addition to the point when the station entry is marked
+authorized. Similarly, send out the VLAN binding update only if the STA
+entry has already been authorized.
+
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 4.4: adjust context]
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   56 +++++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 33 insertions(+), 23 deletions(-)
+ net/mac80211/cfg.c      |   11 +++--------
+ net/mac80211/sta_info.c |    4 ++++
+ 2 files changed, 7 insertions(+), 8 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3342,6 +3342,36 @@ int ext4_calculate_overhead(struct super
- 	return 0;
- }
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -1150,7 +1150,6 @@ static int ieee80211_add_station(struct
+ 	struct sta_info *sta;
+ 	struct ieee80211_sub_if_data *sdata;
+ 	int err;
+-	int layer2_update;
  
-+static void ext4_clamp_want_extra_isize(struct super_block *sb)
-+{
-+	struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	struct ext4_super_block *es = sbi->s_es;
-+
-+	/* determine the minimum size of new large inodes, if present */
-+	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE) {
-+		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
-+						     EXT4_GOOD_OLD_INODE_SIZE;
-+		if (ext4_has_feature_extra_isize(sb)) {
-+			if (sbi->s_want_extra_isize <
-+			    le16_to_cpu(es->s_want_extra_isize))
-+				sbi->s_want_extra_isize =
-+					le16_to_cpu(es->s_want_extra_isize);
-+			if (sbi->s_want_extra_isize <
-+			    le16_to_cpu(es->s_min_extra_isize))
-+				sbi->s_want_extra_isize =
-+					le16_to_cpu(es->s_min_extra_isize);
-+		}
-+	}
-+	/* Check if enough inode space is available */
-+	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
-+							sbi->s_inode_size) {
-+		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
-+						       EXT4_GOOD_OLD_INODE_SIZE;
-+		ext4_msg(sb, KERN_INFO,
-+			 "required extra inode space not available");
-+	}
-+}
-+
- static void ext4_set_resv_clusters(struct super_block *sb)
- {
- 	ext4_fsblk_t resv_clusters;
-@@ -4156,29 +4186,7 @@ no_journal:
- 	if (ext4_setup_super(sb, es, sb->s_flags & MS_RDONLY))
- 		sb->s_flags |= MS_RDONLY;
+ 	if (params->vlan) {
+ 		sdata = IEEE80211_DEV_TO_SUB_IF(params->vlan);
+@@ -1204,18 +1203,12 @@ static int ieee80211_add_station(struct
+ 	    test_sta_flag(sta, WLAN_STA_ASSOC))
+ 		rate_control_rate_init(sta);
  
--	/* determine the minimum size of new large inodes, if present */
--	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						     EXT4_GOOD_OLD_INODE_SIZE;
--		if (ext4_has_feature_extra_isize(sb)) {
--			if (sbi->s_want_extra_isize <
--			    le16_to_cpu(es->s_want_extra_isize))
--				sbi->s_want_extra_isize =
--					le16_to_cpu(es->s_want_extra_isize);
--			if (sbi->s_want_extra_isize <
--			    le16_to_cpu(es->s_min_extra_isize))
--				sbi->s_want_extra_isize =
--					le16_to_cpu(es->s_min_extra_isize);
--		}
--	}
--	/* Check if enough inode space is available */
--	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
--							sbi->s_inode_size) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						       EXT4_GOOD_OLD_INODE_SIZE;
--		ext4_msg(sb, KERN_INFO, "required extra inode space not"
--			 "available");
--	}
-+	ext4_clamp_want_extra_isize(sb);
- 
- 	ext4_set_resv_clusters(sb);
- 
-@@ -4959,6 +4967,8 @@ static int ext4_remount(struct super_blo
- 		goto restore_opts;
+-	layer2_update = sdata->vif.type == NL80211_IFTYPE_AP_VLAN ||
+-		sdata->vif.type == NL80211_IFTYPE_AP;
+-
+ 	err = sta_info_insert_rcu(sta);
+ 	if (err) {
+ 		rcu_read_unlock();
+ 		return err;
  	}
  
-+	ext4_clamp_want_extra_isize(sb);
-+
- 	if ((old_opts.s_mount_opt & EXT4_MOUNT_JOURNAL_CHECKSUM) ^
- 	    test_opt(sb, JOURNAL_CHECKSUM)) {
- 		ext4_msg(sb, KERN_ERR, "changing journal_checksum "
+-	if (layer2_update)
+-		cfg80211_send_layer2_update(sta->sdata->dev, sta->sta.addr);
+-
+ 	rcu_read_unlock();
+ 
+ 	return 0;
+@@ -1323,7 +1316,9 @@ static int ieee80211_change_station(stru
+ 				atomic_inc(&sta->sdata->bss->num_mcast_sta);
+ 		}
+ 
+-		cfg80211_send_layer2_update(sta->sdata->dev, sta->sta.addr);
++		if (sta->sta_state == IEEE80211_STA_AUTHORIZED)
++			cfg80211_send_layer2_update(sta->sdata->dev,
++						    sta->sta.addr);
+ 	}
+ 
+ 	err = sta_apply_parameters(local, sta, params);
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -1775,6 +1775,10 @@ int sta_info_move_state(struct sta_info
+ 			set_bit(WLAN_STA_AUTHORIZED, &sta->_flags);
+ 			ieee80211_check_fast_xmit(sta);
+ 		}
++		if (sta->sdata->vif.type == NL80211_IFTYPE_AP_VLAN ||
++		    sta->sdata->vif.type == NL80211_IFTYPE_AP)
++			cfg80211_send_layer2_update(sta->sdata->dev,
++						    sta->sta.addr);
+ 		break;
+ 	default:
+ 		break;
 
 
