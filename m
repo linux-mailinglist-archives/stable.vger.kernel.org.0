@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6107F1456C0
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD817145640
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726101AbgAVNaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:30:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41886 "EHLO mail.kernel.org"
+        id S1730061AbgAVNXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:23:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730770AbgAVNXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:23:35 -0500
+        id S1726231AbgAVNXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:23:48 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC94C205F4;
-        Wed, 22 Jan 2020 13:23:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C18F824688;
+        Wed, 22 Jan 2020 13:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699414;
-        bh=2of5CTXKjjGti1kbcPgJ/LjlfCW/6qH5PUVAquhJEno=;
+        s=default; t=1579699427;
+        bh=ZxYyBmcz/5wuirpUXUplrKtt/pbCq1dVIw7KyX/C3NU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8tXoLbjZbBzowbhyOWMhbK9vI+WlYa8v1d5hgO74hC7QJROxX/sbVl7uMxkHbyos
-         6mvOFp+MHFpUpm8zLdSx6Ke1dph/bKpnfGfbSzpDcNHR+oO7s9TF+YOrHVJZ/izm3B
-         jfsQSXXp0UHMwYBcc8OvPmCX3s1fEcWlMq8toGXk=
+        b=KNvHkO5OM1c+9vpJvn6uF3c9+hSrx5e+79WIM+Arz8Shw6TrnQTWK+7243pq4muVY
+         74gBaevxNqHp7Hu4fwk0JuL6mI33DU/6svDOvbCw4vyS1BbXBmqgZj/MEsYL3W1FM6
+         IGSk0jirTYn157JRgzj5Pp3s36aG17WbBh4t7eZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mohammed Gamal <mgamal@redhat.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
+        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 137/222] hv_netvsc: Fix memory leak when removing rndis device
-Date:   Wed, 22 Jan 2020 10:28:43 +0100
-Message-Id: <20200122092843.549078478@linuxfoundation.org>
+Subject: [PATCH 5.4 140/222] net: hns3: pad the short frame before sending to the hardware
+Date:   Wed, 22 Jan 2020 10:28:46 +0100
+Message-Id: <20200122092843.758942348@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,61 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohammed Gamal <mgamal@redhat.com>
+From: Yunsheng Lin <linyunsheng@huawei.com>
 
-[ Upstream commit 536dc5df2808efbefc5acee334d3c4f701790ec0 ]
+[ Upstream commit 36c67349a1a1c88b9cf11d7ca7762ababdb38867 ]
 
-kmemleak detects the following memory leak when hot removing
-a network device:
+The hardware can not handle short frames below or equal to 32
+bytes according to the hardware user manual, and it will trigger
+a RAS error when the frame's length is below 33 bytes.
 
-unreferenced object 0xffff888083f63600 (size 256):
-  comm "kworker/0:1", pid 12, jiffies 4294831717 (age 1113.676s)
-  hex dump (first 32 bytes):
-    00 40 c7 33 80 88 ff ff 00 00 00 00 10 00 00 00  .@.3............
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-  backtrace:
-    [<00000000d4a8f5be>] rndis_filter_device_add+0x117/0x11c0 [hv_netvsc]
-    [<000000009c02d75b>] netvsc_probe+0x5e7/0xbf0 [hv_netvsc]
-    [<00000000ddafce23>] vmbus_probe+0x74/0x170 [hv_vmbus]
-    [<00000000046e64f1>] really_probe+0x22f/0xb50
-    [<000000005cc35eb7>] driver_probe_device+0x25e/0x370
-    [<0000000043c642b2>] bus_for_each_drv+0x11f/0x1b0
-    [<000000005e3d09f0>] __device_attach+0x1c6/0x2f0
-    [<00000000a72c362f>] bus_probe_device+0x1a6/0x260
-    [<0000000008478399>] device_add+0x10a3/0x18e0
-    [<00000000cf07b48c>] vmbus_device_register+0xe7/0x1e0 [hv_vmbus]
-    [<00000000d46cf032>] vmbus_add_channel_work+0x8ab/0x1770 [hv_vmbus]
-    [<000000002c94bb64>] process_one_work+0x919/0x17d0
-    [<0000000096de6781>] worker_thread+0x87/0xb40
-    [<00000000fbe7397e>] kthread+0x333/0x3f0
-    [<000000004f844269>] ret_from_fork+0x3a/0x50
+This patch pads the SKB when skb->len is below 33 bytes before
+sending it to hardware.
 
-rndis_filter_device_add() allocates an instance of struct rndis_device
-which never gets deallocated as rndis_filter_device_remove() sets
-net_device->extension which points to the rndis_device struct to NULL,
-leaving the rndis_device dangling.
-
-Since net_device->extension is eventually freed in free_netvsc_device(),
-we refrain from setting it to NULL inside rndis_filter_device_remove()
-
-Signed-off-by: Mohammed Gamal <mgamal@redhat.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hyperv/rndis_filter.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/hyperv/rndis_filter.c
-+++ b/drivers/net/hyperv/rndis_filter.c
-@@ -1436,8 +1436,6 @@ void rndis_filter_device_remove(struct h
- 	/* Halt and release the rndis device */
- 	rndis_filter_halt_device(net_dev, rndis_dev);
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -54,6 +54,8 @@ MODULE_PARM_DESC(debug, " Network interf
+ #define HNS3_INNER_VLAN_TAG	1
+ #define HNS3_OUTER_VLAN_TAG	2
  
--	net_dev->extension = NULL;
--
- 	netvsc_device_remove(dev);
- }
++#define HNS3_MIN_TX_LEN		33U
++
+ /* hns3_pci_tbl - PCI Device ID Table
+  *
+  * Last entry must be all 0s
+@@ -1329,6 +1331,10 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_
+ 	int ret;
+ 	int i;
+ 
++	/* Hardware can only handle short frames above 32 bytes */
++	if (skb_put_padto(skb, HNS3_MIN_TX_LEN))
++		return NETDEV_TX_OK;
++
+ 	/* Prefetch the data used later */
+ 	prefetch(skb->data);
  
 
 
