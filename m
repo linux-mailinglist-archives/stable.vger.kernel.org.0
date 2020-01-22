@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0C7145164
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:53:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12C6D145060
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729536AbgAVJeo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:34:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49352 "EHLO mail.kernel.org"
+        id S2387700AbgAVJmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:42:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730959AbgAVJen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:34:43 -0500
+        id S2387701AbgAVJmV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:42:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DAE82467B;
-        Wed, 22 Jan 2020 09:34:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B43B24689;
+        Wed, 22 Jan 2020 09:42:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685682;
-        bh=OYHLdzTv6DuN+cQWgdk2ujfLcH7pBy3HLUC/selvCJg=;
+        s=default; t=1579686140;
+        bh=vHUg67buj3r9p7/SuoC+0nK7+Jt1NwydcxrhjrQZDqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZ4oC94EP+Bpu8nfhLtADzqRZ8+GH92ICpLol4EKI7d0vzJH7gEJxuRL+2G21meh8
-         kNfyBsuNhPHT3TMCtLgRBZftf2dk7LTWPbnu1jgVgHEIHZqsrKh2tcEjIYqjVlN17T
-         VwO6/+9exfFcX8Fmyn8Ip45QrT0yyi/c37NJuK3g=
+        b=N40CKS0/J6kQBkAmGgCY8Jcj+mgvoXX0W78tojfM5jcsvZtZd0yirytkkUxS+VmKP
+         aB94L4jcrnQ1v0fAogpAamrHegs/r2KY/PTLwjGQ7TIvB6eF5ocJPGUzKCZrOhZiRr
+         bGmXkqXFTTnhd3U7sC6rGzJYEXlpCa785rTrY4uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
-Subject: [PATCH 4.9 36/97] tty: serial: pch_uart: correct usage of dma_unmap_sg
+        stable@vger.kernel.org,
+        syzbot+2b2ef983f973e5c40943@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 024/103] ALSA: seq: Fix racy access for queue timer in proc read
 Date:   Wed, 22 Jan 2020 10:28:40 +0100
-Message-Id: <20200122092802.330819958@linuxfoundation.org>
+Message-Id: <20200122092807.412847495@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 74887542fdcc92ad06a48c0cca17cdf09fc8aa00 upstream.
+commit 60adcfde92fa40fcb2dbf7cc52f9b096e0cd109a upstream.
 
-Per Documentation/DMA-API-HOWTO.txt,
-To unmap a scatterlist, just call:
-	dma_unmap_sg(dev, sglist, nents, direction);
+snd_seq_info_timer_read() reads the information of the timer assigned
+for each queue, but it's done in a racy way which may lead to UAF as
+spotted by syzkaller.
 
-.. note::
+This patch applies the missing q->timer_mutex lock while accessing the
+timer object as well as a slight code change to adapt the standard
+coding style.
 
-	The 'nents' argument to the dma_unmap_sg call must be
-	the _same_ one you passed into the dma_map_sg call,
-	it should _NOT_ be the 'count' value _returned_ from the
-	dma_map_sg call.
-
-However in the driver, priv->nent is directly assigned with value
-returned from dma_map_sg, and dma_unmap_sg use priv->nent for unmap,
-this breaks the API usage.
-
-So introduce a new entry orig_nent to remember 'nents'.
-
-Fixes: da3564ee027e ("pch_uart: add multi-scatter processing")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1573623259-6339-1-git-send-email-peng.fan@nxp.com
+Reported-by: syzbot+2b2ef983f973e5c40943@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200115203733.26530-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/pch_uart.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/core/seq/seq_timer.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -252,6 +252,7 @@ struct eg20t_port {
- 	struct dma_chan			*chan_rx;
- 	struct scatterlist		*sg_tx_p;
- 	int				nent;
-+	int				orig_nent;
- 	struct scatterlist		sg_rx;
- 	int				tx_dma_use;
- 	void				*rx_buf_virt;
-@@ -806,9 +807,10 @@ static void pch_dma_tx_complete(void *ar
- 	}
- 	xmit->tail &= UART_XMIT_SIZE - 1;
- 	async_tx_ack(priv->desc_tx);
--	dma_unmap_sg(port->dev, sg, priv->nent, DMA_TO_DEVICE);
-+	dma_unmap_sg(port->dev, sg, priv->orig_nent, DMA_TO_DEVICE);
- 	priv->tx_dma_use = 0;
- 	priv->nent = 0;
-+	priv->orig_nent = 0;
- 	kfree(priv->sg_tx_p);
- 	pch_uart_hal_enable_interrupt(priv, PCH_UART_HAL_TX_INT);
+--- a/sound/core/seq/seq_timer.c
++++ b/sound/core/seq/seq_timer.c
+@@ -480,15 +480,19 @@ void snd_seq_info_timer_read(struct snd_
+ 		q = queueptr(idx);
+ 		if (q == NULL)
+ 			continue;
+-		if ((tmr = q->timer) == NULL ||
+-		    (ti = tmr->timeri) == NULL) {
+-			queuefree(q);
+-			continue;
+-		}
++		mutex_lock(&q->timer_mutex);
++		tmr = q->timer;
++		if (!tmr)
++			goto unlock;
++		ti = tmr->timeri;
++		if (!ti)
++			goto unlock;
+ 		snd_iprintf(buffer, "Timer for queue %i : %s\n", q->queue, ti->timer->name);
+ 		resolution = snd_timer_resolution(ti) * tmr->ticks;
+ 		snd_iprintf(buffer, "  Period time : %lu.%09lu\n", resolution / 1000000000, resolution % 1000000000);
+ 		snd_iprintf(buffer, "  Skew : %u / %u\n", tmr->skew, tmr->skew_base);
++unlock:
++		mutex_unlock(&q->timer_mutex);
+ 		queuefree(q);
+  	}
  }
-@@ -1033,6 +1035,7 @@ static unsigned int dma_handle_tx(struct
- 		dev_err(priv->port.dev, "%s:dma_map_sg Failed\n", __func__);
- 		return 0;
- 	}
-+	priv->orig_nent = num;
- 	priv->nent = nent;
- 
- 	for (i = 0; i < nent; i++, sg++) {
 
 
