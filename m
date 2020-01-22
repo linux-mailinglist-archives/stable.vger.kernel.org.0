@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D310C144FE8
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C41781450F6
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387679AbgAVJmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:42:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33792 "EHLO mail.kernel.org"
+        id S1731473AbgAVJiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:38:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387675AbgAVJmH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:42:07 -0500
+        id S1731590AbgAVJiN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:38:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C746C24686;
-        Wed, 22 Jan 2020 09:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B674B2467F;
+        Wed, 22 Jan 2020 09:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686126;
-        bh=eoX59fLjM2SRPxKMb6/ZkmgdRhP7HL/zBS9pFqPsnfg=;
+        s=default; t=1579685892;
+        bh=MP3X2BrlBok4cbtpD4ZKUkbaVbNUyQijtX2E5c4vpBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=peGSW4AfjKQ8dZLdnijTKNn4HUf5cyjpLxSeVcE6o51/Er/T/lSThnlQKijveTFKQ
-         f3nfbrrJS3/fsnZ6L6Ta8fG6T/jJsE638QZk2yzwojcF9Ip6Yf4p4+SeslflNIKO2D
-         mfLjc35whTsCh8YPbG/23s6n3dU2fBOCL5mLV53w=
+        b=P5h+eCN1qBaen5sJJE3/BCtIH/CKp3dp55rb49m/i+aQcSabvQuzgmXpyuPv/zhv2
+         S9CgxbIeBpZnqBRC8fxwfV6YC/c2iXEigxTZ3lfmP6359wA+NBNJJCRnXnxS4zJ/nz
+         1Ge7VNhjlx7X6law7J+T4Ah01hdymrbm6oWJS5RM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Thomas Willhalm <thomas.willhalm@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 053/103] mm/huge_memory.c: thp: fix conflict of above-47bit hint address and PMD alignment
+        stable@vger.kernel.org, Yuya Fujita <fujita.yuya@fujitsu.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.14 24/65] perf hists: Fix variable names inconsistency in hists__for_each() macro
 Date:   Wed, 22 Jan 2020 10:29:09 +0100
-Message-Id: <20200122092811.664061994@linuxfoundation.org>
+Message-Id: <20200122092754.370609927@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,138 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill A. Shutemov <kirill@shutemov.name>
+From: Yuya Fujita <fujita.yuya@fujitsu.com>
 
-[ Upstream commit 97d3d0f9a1cf132c63c0b8b8bd497b8a56283dd9 ]
+commit 55347ec340af401437680fd0e88df6739a967f9f upstream.
 
-Patch series "Fix two above-47bit hint address vs.  THP bugs".
+Variable names are inconsistent in hists__for_each macro().
 
-The two get_unmapped_area() implementations have to be fixed to provide
-THP-friendly mappings if above-47bit hint address is specified.
+Due to this inconsistency, the macro replaces its second argument with
+"fmt" regardless of its original name.
 
-This patch (of 2):
+So far it works because only "fmt" is passed to the second argument.
+However, this behavior is not expected and should be fixed.
 
-Filesystems use thp_get_unmapped_area() to provide THP-friendly
-mappings.  For DAX in particular.
+Fixes: f0786af536bb ("perf hists: Introduce hists__for_each_format macro")
+Fixes: aa6f50af822a ("perf hists: Introduce hists__for_each_sort_list macro")
+Signed-off-by: Yuya Fujita <fujita.yuya@fujitsu.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/OSAPR01MB1588E1C47AC22043175DE1B2E8520@OSAPR01MB1588.jpnprd01.prod.outlook.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Normally, the kernel doesn't create userspace mappings above 47-bit,
-even if the machine allows this (such as with 5-level paging on x86-64).
-Not all user space is ready to handle wide addresses.  It's known that
-at least some JIT compilers use higher bits in pointers to encode their
-information.
-
-Userspace can ask for allocation from full address space by specifying
-hint address (with or without MAP_FIXED) above 47-bits.  If the
-application doesn't need a particular address, but wants to allocate
-from whole address space it can specify -1 as a hint address.
-
-Unfortunately, this trick breaks thp_get_unmapped_area(): the function
-would not try to allocate PMD-aligned area if *any* hint address
-specified.
-
-Modify the routine to handle it correctly:
-
- - Try to allocate the space at the specified hint address with length
-   padding required for PMD alignment.
- - If failed, retry without length padding (but with the same hint
-   address);
- - If the returned address matches the hint address return it.
- - Otherwise, align the address as required for THP and return.
-
-The user specified hint address is passed down to get_unmapped_area() so
-above-47bit hint address will be taken into account without breaking
-alignment requirements.
-
-Link: http://lkml.kernel.org/r/20191220142548.7118-2-kirill.shutemov@linux.intel.com
-Fixes: b569bab78d8d ("x86/mm: Prepare to expose larger address space to userspace")
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reported-by: Thomas Willhalm <thomas.willhalm@intel.com>
-Tested-by: Dan Williams <dan.j.williams@intel.com>
-Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: "Bruggeman, Otto G" <otto.g.bruggeman@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/huge_memory.c | 38 ++++++++++++++++++++++++--------------
- 1 file changed, 24 insertions(+), 14 deletions(-)
+ tools/perf/util/hist.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 950466876625..5bb93cf18009 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -509,13 +509,13 @@ void prep_transhuge_page(struct page *page)
- 	set_compound_page_dtor(page, TRANSHUGE_PAGE_DTOR);
- }
+--- a/tools/perf/util/hist.h
++++ b/tools/perf/util/hist.h
+@@ -317,10 +317,10 @@ static inline void perf_hpp__prepend_sor
+ 	list_for_each_entry_safe(format, tmp, &(_list)->sorts, sort_list)
  
--static unsigned long __thp_get_unmapped_area(struct file *filp, unsigned long len,
-+static unsigned long __thp_get_unmapped_area(struct file *filp,
-+		unsigned long addr, unsigned long len,
- 		loff_t off, unsigned long flags, unsigned long size)
- {
--	unsigned long addr;
- 	loff_t off_end = off + len;
- 	loff_t off_align = round_up(off, size);
--	unsigned long len_pad;
-+	unsigned long len_pad, ret;
+ #define hists__for_each_format(hists, format) \
+-	perf_hpp_list__for_each_format((hists)->hpp_list, fmt)
++	perf_hpp_list__for_each_format((hists)->hpp_list, format)
  
- 	if (off_end <= off_align || (off_end - off_align) < size)
- 		return 0;
-@@ -524,30 +524,40 @@ static unsigned long __thp_get_unmapped_area(struct file *filp, unsigned long le
- 	if (len_pad < len || (off + len_pad) < off)
- 		return 0;
+ #define hists__for_each_sort_list(hists, format) \
+-	perf_hpp_list__for_each_sort_list((hists)->hpp_list, fmt)
++	perf_hpp_list__for_each_sort_list((hists)->hpp_list, format)
  
--	addr = current->mm->get_unmapped_area(filp, 0, len_pad,
-+	ret = current->mm->get_unmapped_area(filp, addr, len_pad,
- 					      off >> PAGE_SHIFT, flags);
--	if (IS_ERR_VALUE(addr))
-+
-+	/*
-+	 * The failure might be due to length padding. The caller will retry
-+	 * without the padding.
-+	 */
-+	if (IS_ERR_VALUE(ret))
- 		return 0;
+ extern struct perf_hpp_fmt perf_hpp__format[];
  
--	addr += (off - addr) & (size - 1);
--	return addr;
-+	/*
-+	 * Do not try to align to THP boundary if allocation at the address
-+	 * hint succeeds.
-+	 */
-+	if (ret == addr)
-+		return addr;
-+
-+	ret += (off - ret) & (size - 1);
-+	return ret;
- }
- 
- unsigned long thp_get_unmapped_area(struct file *filp, unsigned long addr,
- 		unsigned long len, unsigned long pgoff, unsigned long flags)
- {
-+	unsigned long ret;
- 	loff_t off = (loff_t)pgoff << PAGE_SHIFT;
- 
--	if (addr)
--		goto out;
- 	if (!IS_DAX(filp->f_mapping->host) || !IS_ENABLED(CONFIG_FS_DAX_PMD))
- 		goto out;
- 
--	addr = __thp_get_unmapped_area(filp, len, off, flags, PMD_SIZE);
--	if (addr)
--		return addr;
--
-- out:
-+	ret = __thp_get_unmapped_area(filp, addr, len, off, flags, PMD_SIZE);
-+	if (ret)
-+		return ret;
-+out:
- 	return current->mm->get_unmapped_area(filp, addr, len, pgoff, flags);
- }
- EXPORT_SYMBOL_GPL(thp_get_unmapped_area);
--- 
-2.20.1
-
 
 
