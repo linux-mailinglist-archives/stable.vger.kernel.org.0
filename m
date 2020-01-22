@@ -2,70 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE78D145ECC
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 23:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4F02145EB9
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 23:43:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725933AbgAVWuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 17:50:25 -0500
-Received: from mga12.intel.com ([192.55.52.136]:7331 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725884AbgAVWuZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 17:50:25 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 22 Jan 2020 14:50:24 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,351,1574150400"; 
-   d="scan'208";a="229541509"
-Received: from jovercas-mobl1.amr.corp.intel.com (HELO [10.254.105.26]) ([10.254.105.26])
-  by orsmga006.jf.intel.com with ESMTP; 22 Jan 2020 14:50:22 -0800
-Subject: Re: [alsa-devel] [PATCH] ASoC: topology: fix
- soc_tplg_fe_link_create() - link->dobj initialization order
-To:     Jaroslav Kysela <perex@perex.cz>, Mark Brown <broonie@kernel.org>
-Cc:     Dragos Tarcatu <dragos_tarcatu@mentor.com>,
-        Sasha Levin <sashal@kernel.org>,
-        ALSA development <alsa-devel@alsa-project.org>,
-        Takashi Iwai <tiwai@suse.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        stable@vger.kernel.org
-References: <20200122190752.3081016-1-perex@perex.cz>
- <26ae4dbd-b1b8-c640-0dc0-d8c2bbe666e2@linux.intel.com>
- <20200122202530.GG3833@sirena.org.uk>
- <045401f5-8d4c-cdc3-12fb-cf35148411e5@perex.cz>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <67f2a1cf-fe62-76fa-ccdb-869e2b0daee2@linux.intel.com>
-Date:   Wed, 22 Jan 2020 15:47:34 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1725943AbgAVWnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 17:43:35 -0500
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:60922 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725884AbgAVWne (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 17:43:34 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04427;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0ToN07GK_1579733009;
+Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0ToN07GK_1579733009)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 23 Jan 2020 06:43:32 +0800
+Subject: Re: [PATCH] mm: move_pages: report the number of non-attempted pages
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     mhocko@suse.com, richardw.yang@linux.intel.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <1579721990-18672-1-git-send-email-yang.shi@linux.alibaba.com>
+ <20200122140547.92940695cc47ccb7b7be7d44@linux-foundation.org>
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+Message-ID: <839e0184-59bd-669f-1c13-d9e83b95b274@linux.alibaba.com>
+Date:   Wed, 22 Jan 2020 14:43:20 -0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.7.0
 MIME-Version: 1.0
-In-Reply-To: <045401f5-8d4c-cdc3-12fb-cf35148411e5@perex.cz>
+In-Reply-To: <20200122140547.92940695cc47ccb7b7be7d44@linux-foundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
->>> I am not following. Is this a fix for linux-5.4-y only, or is it 
->>> needed on
->>> Mark's tree? In the latter case, what is broken? We've been using Mark's
->>> tree without issues, wondering what we missed?
->>
->> He's saying it's a fix for stable but it's just a cleanup and robustness
->> improvement in current kernels - when the patch 76d270364932 (ASoC:
->> topology: Check return value for snd_soc_add_dai_link()) was backported
->> by the bot the bot missed some other context which triggered bugs.
-> 
-> Exactly. It's because the commit 
-> 237d19080cd37e1ccf5462e63d8577d713f6da46 ("ASoC: soc-core: remove 
-> topology specific operation") removed the link->dobj checks, but this 
-> commit was not picked to the stable kernels.
-> 
-> The initialization reordering is fine for all kernels (and makes sense), 
-> so I would like to apply it everywhere.
 
-ok, thanks for the precisions.
+On 1/22/20 2:05 PM, Andrew Morton wrote:
+> On Thu, 23 Jan 2020 03:39:50 +0800 Yang Shi <yang.shi@linux.alibaba.com> wrote:
+>
+>> Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"),
+>> the semantic of move_pages() was changed to return the number of
+>> non-migrated pages (failed to migration) and the call would be aborted
+>> immediately if migrate_pages() returns positive value.  But it didn't
+>> report the number of pages that we even haven't attempted to migrate.
+>> So, fix it by including non-attempted pages in the return value.
+>>
+>> Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
+>> Suggested-by: Michal Hocko <mhocko@suse.com>
+>> Cc: Wei Yang <richardw.yang@linux.intel.com>
+>> Cc: <stable@vger.kernel.org>    [4.17+]
+>> Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+>> ---
+>> The patch is based off Wei Yang's cleanup patchset:
+>> https://lore.kernel.org/linux-mm/20200122011647.13636-1-richardw.yang@linux.intel.com/T/#t
+> Can you please redo this so it is applicable to current mainline?  That
+> will make it more easily backportable and this fix is higher priority
+> than a set of cleanups.
+
+Sure.
+
