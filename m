@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68AF9145071
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D35D1450D3
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387919AbgAVJnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:43:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36376 "EHLO mail.kernel.org"
+        id S1729849AbgAVJt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:49:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387752AbgAVJnm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:43:42 -0500
+        id S1733283AbgAVJjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:39:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC4F82468A;
-        Wed, 22 Jan 2020 09:43:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 937232468B;
+        Wed, 22 Jan 2020 09:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686221;
-        bh=e5CRW54dsq2bYqXNwFy3jRK3OjNNRYCjwFha6ZoH1FY=;
+        s=default; t=1579685990;
+        bh=+hd9Udz4Ps2z/wojx+W9QEsplHHxx6M6mA/RYUNdHLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8+9C4zTOzgZoAT7AFC22zLtjrvgdSm2hy2gtFDFiAoWWlN9horfJ3aUMqzbNSWc1
-         veLgYHAkm/7/KtUJH/D/b2k9r3ec6mWYWctcdmVdxgeUYtNuXRh7A+tWKVqweAQ4+8
-         kfpVOeJktFncVJZLXmCeF+CpzyBuysTGrFy99VTQ=
+        b=gUbLnluWw5My+EH7+yX7eZ7XuRLHDKxcIiwdcyHuJ/joSZBFd0WJon9QEOGygSCHD
+         1hFeeBotcQdZrGBHL1ZbFs/ZbP1yZCBW53DFBRFCZlGm1NEpcT1TPZqa/eoSvdif1P
+         Mt83BSotkjG1b2SpAcmJLM6wj1wd2cLad0VFxPJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Brunnbauer <brunni@netestate.de>,
-        Jeff Mahoney <jeffm@suse.com>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.19 092/103] reiserfs: fix handling of -EOPNOTSUPP in reiserfs_for_each_xattr
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 63/65] scsi: core: scsi_trace: Use get_unaligned_be*()
 Date:   Wed, 22 Jan 2020 10:29:48 +0100
-Message-Id: <20200122092815.893804063@linuxfoundation.org>
+Message-Id: <20200122092801.078870935@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +47,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Mahoney <jeffm@suse.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 394440d469413fa9b74f88a11f144d76017221f2 upstream.
+commit b1335f5b0486f61fb66b123b40f8e7a98e49605d upstream.
 
-Commit 60e4cf67a58 (reiserfs: fix extended attributes on the root
-directory) introduced a regression open_xa_root started returning
--EOPNOTSUPP but it was not handled properly in reiserfs_for_each_xattr.
+This patch fixes an unintended sign extension on left shifts. From Colin
+King: "Shifting a u8 left will cause the value to be promoted to an
+integer. If the top bit of the u8 is set then the following conversion to
+an u64 will sign extend the value causing the upper 32 bits to be set in
+the result."
 
-When the reiserfs module is built without CONFIG_REISERFS_FS_XATTR,
-deleting an inode would result in a warning and chowning an inode
-would also result in a warning and then fail to complete.
+Fix this by using get_unaligned_be*() instead.
 
-With CONFIG_REISERFS_FS_XATTR enabled, the xattr root would always be
-present for read-write operations.
-
-This commit handles -EOPNOSUPP in the same way -ENODATA is handled.
-
-Fixes: 60e4cf67a582 ("reiserfs: fix extended attributes on the root directory")
-CC: stable@vger.kernel.org	# Commit 60e4cf67a58 was picked up by stable
-Link: https://lore.kernel.org/r/20200115180059.6935-1-jeffm@suse.com
-Reported-by: Michael Brunnbauer <brunni@netestate.de>
-Signed-off-by: Jeff Mahoney <jeffm@suse.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: bf8162354233 ("[SCSI] add scsi trace core functions and put trace points")
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Douglas Gilbert <dgilbert@interlog.com>
+Link: https://lore.kernel.org/r/20191101211447.187151-1-bvanassche@acm.org
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/reiserfs/xattr.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_trace.c |  103 ++++++++++++----------------------------------
+ 1 file changed, 28 insertions(+), 75 deletions(-)
 
---- a/fs/reiserfs/xattr.c
-+++ b/fs/reiserfs/xattr.c
-@@ -319,8 +319,12 @@ static int reiserfs_for_each_xattr(struc
- out_dir:
- 	dput(dir);
+--- a/drivers/scsi/scsi_trace.c
++++ b/drivers/scsi/scsi_trace.c
+@@ -21,7 +21,7 @@
+ #include <trace/events/scsi.h>
+ 
+ #define SERVICE_ACTION16(cdb) (cdb[1] & 0x1f)
+-#define SERVICE_ACTION32(cdb) ((cdb[8] << 8) | cdb[9])
++#define SERVICE_ACTION32(cdb) (get_unaligned_be16(&cdb[8]))
+ 
+ static const char *
+ scsi_trace_misc(struct trace_seq *, unsigned char *, int);
+@@ -51,17 +51,12 @@ static const char *
+ scsi_trace_rw10(struct trace_seq *p, unsigned char *cdb, int len)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p);
+-	sector_t lba = 0, txlen = 0;
++	u32 lba, txlen;
+ 
+-	lba |= (cdb[2] << 24);
+-	lba |= (cdb[3] << 16);
+-	lba |= (cdb[4] << 8);
+-	lba |=  cdb[5];
+-	txlen |= (cdb[7] << 8);
+-	txlen |=  cdb[8];
++	lba = get_unaligned_be32(&cdb[2]);
++	txlen = get_unaligned_be16(&cdb[7]);
+ 
+-	trace_seq_printf(p, "lba=%llu txlen=%llu protect=%u",
+-			 (unsigned long long)lba, (unsigned long long)txlen,
++	trace_seq_printf(p, "lba=%u txlen=%u protect=%u", lba, txlen,
+ 			 cdb[1] >> 5);
+ 
+ 	if (cdb[0] == WRITE_SAME)
+@@ -76,19 +71,12 @@ static const char *
+ scsi_trace_rw12(struct trace_seq *p, unsigned char *cdb, int len)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p);
+-	sector_t lba = 0, txlen = 0;
++	u32 lba, txlen;
+ 
+-	lba |= (cdb[2] << 24);
+-	lba |= (cdb[3] << 16);
+-	lba |= (cdb[4] << 8);
+-	lba |=  cdb[5];
+-	txlen |= (cdb[6] << 24);
+-	txlen |= (cdb[7] << 16);
+-	txlen |= (cdb[8] << 8);
+-	txlen |=  cdb[9];
++	lba = get_unaligned_be32(&cdb[2]);
++	txlen = get_unaligned_be32(&cdb[6]);
+ 
+-	trace_seq_printf(p, "lba=%llu txlen=%llu protect=%u",
+-			 (unsigned long long)lba, (unsigned long long)txlen,
++	trace_seq_printf(p, "lba=%u txlen=%u protect=%u", lba, txlen,
+ 			 cdb[1] >> 5);
+ 	trace_seq_putc(p, 0);
+ 
+@@ -99,23 +87,13 @@ static const char *
+ scsi_trace_rw16(struct trace_seq *p, unsigned char *cdb, int len)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p);
+-	sector_t lba = 0, txlen = 0;
++	u64 lba;
++	u32 txlen;
+ 
+-	lba |= ((u64)cdb[2] << 56);
+-	lba |= ((u64)cdb[3] << 48);
+-	lba |= ((u64)cdb[4] << 40);
+-	lba |= ((u64)cdb[5] << 32);
+-	lba |= (cdb[6] << 24);
+-	lba |= (cdb[7] << 16);
+-	lba |= (cdb[8] << 8);
+-	lba |=  cdb[9];
+-	txlen |= (cdb[10] << 24);
+-	txlen |= (cdb[11] << 16);
+-	txlen |= (cdb[12] << 8);
+-	txlen |=  cdb[13];
++	lba = get_unaligned_be64(&cdb[2]);
++	txlen = get_unaligned_be32(&cdb[10]);
+ 
+-	trace_seq_printf(p, "lba=%llu txlen=%llu protect=%u",
+-			 (unsigned long long)lba, (unsigned long long)txlen,
++	trace_seq_printf(p, "lba=%llu txlen=%u protect=%u", lba, txlen,
+ 			 cdb[1] >> 5);
+ 
+ 	if (cdb[0] == WRITE_SAME_16)
+@@ -130,8 +108,8 @@ static const char *
+ scsi_trace_rw32(struct trace_seq *p, unsigned char *cdb, int len)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p), *cmd;
+-	sector_t lba = 0, txlen = 0;
+-	u32 ei_lbrt = 0;
++	u64 lba;
++	u32 ei_lbrt, txlen;
+ 
+ 	switch (SERVICE_ACTION32(cdb)) {
+ 	case READ_32:
+@@ -151,26 +129,12 @@ scsi_trace_rw32(struct trace_seq *p, uns
+ 		goto out;
+ 	}
+ 
+-	lba |= ((u64)cdb[12] << 56);
+-	lba |= ((u64)cdb[13] << 48);
+-	lba |= ((u64)cdb[14] << 40);
+-	lba |= ((u64)cdb[15] << 32);
+-	lba |= (cdb[16] << 24);
+-	lba |= (cdb[17] << 16);
+-	lba |= (cdb[18] << 8);
+-	lba |=  cdb[19];
+-	ei_lbrt |= (cdb[20] << 24);
+-	ei_lbrt |= (cdb[21] << 16);
+-	ei_lbrt |= (cdb[22] << 8);
+-	ei_lbrt |=  cdb[23];
+-	txlen |= (cdb[28] << 24);
+-	txlen |= (cdb[29] << 16);
+-	txlen |= (cdb[30] << 8);
+-	txlen |=  cdb[31];
+-
+-	trace_seq_printf(p, "%s_32 lba=%llu txlen=%llu protect=%u ei_lbrt=%u",
+-			 cmd, (unsigned long long)lba,
+-			 (unsigned long long)txlen, cdb[10] >> 5, ei_lbrt);
++	lba = get_unaligned_be64(&cdb[12]);
++	ei_lbrt = get_unaligned_be32(&cdb[20]);
++	txlen = get_unaligned_be32(&cdb[28]);
++
++	trace_seq_printf(p, "%s_32 lba=%llu txlen=%u protect=%u ei_lbrt=%u",
++			 cmd, lba, txlen, cdb[10] >> 5, ei_lbrt);
+ 
+ 	if (SERVICE_ACTION32(cdb) == WRITE_SAME_32)
+ 		trace_seq_printf(p, " unmap=%u", cdb[10] >> 3 & 1);
+@@ -185,7 +149,7 @@ static const char *
+ scsi_trace_unmap(struct trace_seq *p, unsigned char *cdb, int len)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p);
+-	unsigned int regions = cdb[7] << 8 | cdb[8];
++	unsigned int regions = get_unaligned_be16(&cdb[7]);
+ 
+ 	trace_seq_printf(p, "regions=%u", (regions - 8) / 16);
+ 	trace_seq_putc(p, 0);
+@@ -197,8 +161,8 @@ static const char *
+ scsi_trace_service_action_in(struct trace_seq *p, unsigned char *cdb, int len)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p), *cmd;
+-	sector_t lba = 0;
+-	u32 alloc_len = 0;
++	u64 lba;
++	u32 alloc_len;
+ 
+ 	switch (SERVICE_ACTION16(cdb)) {
+ 	case SAI_READ_CAPACITY_16:
+@@ -212,21 +176,10 @@ scsi_trace_service_action_in(struct trac
+ 		goto out;
+ 	}
+ 
+-	lba |= ((u64)cdb[2] << 56);
+-	lba |= ((u64)cdb[3] << 48);
+-	lba |= ((u64)cdb[4] << 40);
+-	lba |= ((u64)cdb[5] << 32);
+-	lba |= (cdb[6] << 24);
+-	lba |= (cdb[7] << 16);
+-	lba |= (cdb[8] << 8);
+-	lba |=  cdb[9];
+-	alloc_len |= (cdb[10] << 24);
+-	alloc_len |= (cdb[11] << 16);
+-	alloc_len |= (cdb[12] << 8);
+-	alloc_len |=  cdb[13];
++	lba = get_unaligned_be64(&cdb[2]);
++	alloc_len = get_unaligned_be32(&cdb[10]);
+ 
+-	trace_seq_printf(p, "%s lba=%llu alloc_len=%u", cmd,
+-			 (unsigned long long)lba, alloc_len);
++	trace_seq_printf(p, "%s lba=%llu alloc_len=%u", cmd, lba, alloc_len);
+ 
  out:
--	/* -ENODATA isn't an error */
--	if (err == -ENODATA)
-+	/*
-+	 * -ENODATA: this object doesn't have any xattrs
-+	 * -EOPNOTSUPP: this file system doesn't have xattrs enabled on disk.
-+	 * Neither are errors
-+	 */
-+	if (err == -ENODATA || err == -EOPNOTSUPP)
- 		err = 0;
- 	return err;
- }
+ 	trace_seq_putc(p, 0);
 
 
