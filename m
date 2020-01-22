@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C13C145142
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:53:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6CCE14508D
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:48:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730412AbgAVJxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:53:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51026 "EHLO mail.kernel.org"
+        id S1729325AbgAVJrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:47:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729347AbgAVJft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:35:49 -0500
+        id S2387661AbgAVJmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:42:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD2ED24680;
-        Wed, 22 Jan 2020 09:35:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D05824690;
+        Wed, 22 Jan 2020 09:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685748;
-        bh=avVuupftrpIesruOtjhHe5uiBqt8Nkzb/LAcbD4pABg=;
+        s=default; t=1579686124;
+        bh=ukVkUyF05fhN75MBR5+oeu5iKDPLeh+x2ejrY96sZbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ebmLiJGmPI3SuLBJMgJcf8L1HX0FaS+yn8Aak7GujhTZD896DG+F1AIc4ErswwwKS
-         INxdF6ztyB6ZTqEeZX80GGMB8GkQx5CiIPeWQLi3UL4x7dKyeixpR3jMCL2wVoL2Hc
-         G2qkoapb62EF0rCKtmSV1ATbyzK+vNxfuamlLv7k=
+        b=rD8jhizHHO8m5WTohmt6GeqLYf95VhdQXYWG1Efn7T8i5v1/5CEVJtjP8QFHQxC6G
+         0P8KDwh0FjdQbbzp7IEm2g9RgIt3M8aEGWREA9fIeEEmNvIjvZaMCvywXJJikNEhqS
+         gFEZBV7z548pV0Eu1tc0yLHgwY/FLLsPoBwXpfpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keiya Nobuta <nobuta.keiya@fujitsu.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.9 64/97] usb: core: hub: Improved device recognition on remote wakeup
+        stable@vger.kernel.org, Bharath Vedartham <linux.bhar@gmail.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 052/103] mm/huge_memory.c: make __thp_get_unmapped_area static
 Date:   Wed, 22 Jan 2020 10:29:08 +0100
-Message-Id: <20200122092806.651629548@linuxfoundation.org>
+Message-Id: <20200122092811.542790118@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keiya Nobuta <nobuta.keiya@fujitsu.com>
+From: Bharath Vedartham <linux.bhar@gmail.com>
 
-commit 9c06ac4c83df6d6fbdbf7488fbad822b4002ba19 upstream.
+[ Upstream commit b3b07077b01ecbbd98efede778c195567de25b71 ]
 
-If hub_activate() is called before D+ has stabilized after remote
-wakeup, the following situation might occur:
+__thp_get_unmapped_area is only used in mm/huge_memory.c.  Make it static.
+Tested by building and booting the kernel.
 
-         __      ___________________
-        /  \    /
-D+   __/    \__/
-
-Hub  _______________________________
-          |  ^   ^           ^
-          |  |   |           |
-Host _____v__|___|___________|______
-          |  |   |           |
-          |  |   |           \-- Interrupt Transfer (*3)
-          |  |    \-- ClearPortFeature (*2)
-          |   \-- GetPortStatus (*1)
-          \-- Host detects remote wakeup
-
-- D+ goes high, Host starts running by remote wakeup
-- D+ is not stable, goes low
-- Host requests GetPortStatus at (*1) and gets the following hub status:
-  - Current Connect Status bit is 0
-  - Connect Status Change bit is 1
-- D+ stabilizes, goes high
-- Host requests ClearPortFeature and thus Connect Status Change bit is
-  cleared at (*2)
-- After waiting 100 ms, Host starts the Interrupt Transfer at (*3)
-- Since the Connect Status Change bit is 0, Hub returns NAK.
-
-In this case, port_event() is not called in hub_event() and Host cannot
-recognize device. To solve this issue, flag change_bits even if only
-Connect Status Change bit is 1 when got in the first GetPortStatus.
-
-This issue occurs rarely because it only if D+ changes during a very
-short time between GetPortStatus and ClearPortFeature. However, it is
-fatal if it occurs in embedded system.
-
-Signed-off-by: Keiya Nobuta <nobuta.keiya@fujitsu.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200109051448.28150-1-nobuta.keiya@fujitsu.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: http://lkml.kernel.org/r/20190504102353.GA22525@bharath12345-Inspiron-5559
+Signed-off-by: Bharath Vedartham <linux.bhar@gmail.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/huge_memory.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -1162,6 +1162,7 @@ static void hub_activate(struct usb_hub
- 			 * PORT_OVER_CURRENT is not. So check for any of them.
- 			 */
- 			if (udev || (portstatus & USB_PORT_STAT_CONNECTION) ||
-+			    (portchange & USB_PORT_STAT_C_CONNECTION) ||
- 			    (portstatus & USB_PORT_STAT_OVERCURRENT) ||
- 			    (portchange & USB_PORT_STAT_C_OVERCURRENT))
- 				set_bit(port1, hub->change_bits);
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 5a1771bd5d04..950466876625 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -509,7 +509,7 @@ void prep_transhuge_page(struct page *page)
+ 	set_compound_page_dtor(page, TRANSHUGE_PAGE_DTOR);
+ }
+ 
+-unsigned long __thp_get_unmapped_area(struct file *filp, unsigned long len,
++static unsigned long __thp_get_unmapped_area(struct file *filp, unsigned long len,
+ 		loff_t off, unsigned long flags, unsigned long size)
+ {
+ 	unsigned long addr;
+-- 
+2.20.1
+
 
 
