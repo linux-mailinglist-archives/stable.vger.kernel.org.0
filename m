@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2B1144FFE
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B499C145190
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:55:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733105AbgAVJm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:42:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35026 "EHLO mail.kernel.org"
+        id S1729504AbgAVJd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:33:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387795AbgAVJm4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:42:56 -0500
+        id S1730535AbgAVJd1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:33:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0EC624686;
-        Wed, 22 Jan 2020 09:42:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04DBC2071E;
+        Wed, 22 Jan 2020 09:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686175;
-        bh=H1Lcg5rw+RgdPVHED2wBfHLTyKq6l7C8E9zOH9Hlf1E=;
+        s=default; t=1579685606;
+        bh=5WGXINjDL/R7zx+fD0zm5V5l3QeZzUfRZvA3tvado8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=giCUcAIFGD6gg0oUYgxhj2FHSan9Un2l1fonJ6F2Cdhj47nxgkbWRsn9ADG3dJ+Rt
-         lAXkH4OW9vdCRviBiQQABbGALYUHKVE8Wg9yLXrcBUV1scsHZXqP/vO+yHHq0hr25x
-         U2eZTB8KT2tJ3MFwCbYaSWUNXlgso58DlYnBvu7w=
+        b=lGX+TUCejXR5I/p2Za41Nv+z7BCT4bjpDNXrFkDNmNVMk+N9A45bx9xciwu+bp+pp
+         oFMs52FpyaZOygVIh/PIdFg27HMdWtqADVeDR588A7iLhMK59p4dkWDwO1sDQfQhJQ
+         FTB+z9iAgjn7QwnQDGyefhdlwUoA3feA9wgfC4lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 075/103] tcp: fix marked lost packets not being retransmitted
+        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>
+Subject: [PATCH 4.4 75/76] perf probe: Fix wrong address verification
 Date:   Wed, 22 Jan 2020 10:29:31 +0100
-Message-Id: <20200122092814.391579511@linuxfoundation.org>
+Message-Id: <20200122092803.019704608@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +46,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit e176b1ba476cf36f723cfcc7a9e57f3cb47dec70 ]
+commit 07d369857808b7e8e471bbbbb0074a6718f89b31 upstream.
 
-When the packet pointed to by retransmit_skb_hint is unlinked by ACK,
-retransmit_skb_hint will be set to NULL in tcp_clean_rtx_queue().
-If packet loss is detected at this time, retransmit_skb_hint will be set
-to point to the current packet loss in tcp_verify_retransmit_hint(),
-then the packets that were previously marked lost but not retransmitted
-due to the restriction of cwnd will be skipped and cannot be
-retransmitted.
+Since there are some DIE which has only ranges instead of the
+combination of entrypc/highpc, address verification must use
+dwarf_haspc() instead of dwarf_entrypc/dwarf_highpc.
 
-To fix this, when retransmit_skb_hint is NULL, retransmit_skb_hint can
-be reset only after all marked lost packets are retransmitted
-(retrans_out >= lost_out), otherwise we need to traverse from
-tcp_rtx_queue_head in tcp_xmit_retransmit_queue().
+Also, the ranges only DIE will have a partial code in different section
+(e.g. unlikely code will be in text.unlikely as "FUNC.cold" symbol). In
+that case, we can not use dwarf_entrypc() or die_entrypc(), because the
+offset from original DIE can be a minus value.
 
-Packetdrill to demonstrate:
+Instead, this simply gets the symbol and offset from symtab.
 
-// Disable RACK and set max_reordering to keep things simple
-    0 `sysctl -q net.ipv4.tcp_recovery=0`
-   +0 `sysctl -q net.ipv4.tcp_max_reordering=3`
+Without this patch;
 
-// Establish a connection
-   +0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
-   +0 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
-   +0 bind(3, ..., ...) = 0
-   +0 listen(3, 1) = 0
+  # perf probe -D clear_tasks_mm_cpumask:1
+  Failed to get entry address of clear_tasks_mm_cpumask
+    Error: Failed to add events.
 
-  +.1 < S 0:0(0) win 32792 <mss 1000,sackOK,nop,nop,nop,wscale 7>
-   +0 > S. 0:0(0) ack 1 <...>
- +.01 < . 1:1(0) ack 1 win 257
-   +0 accept(3, ..., ...) = 4
+And with this patch:
 
-// Send 8 data segments
-   +0 write(4, ..., 8000) = 8000
-   +0 > P. 1:8001(8000) ack 1
+  # perf probe -D clear_tasks_mm_cpumask:1
+  p:probe/clear_tasks_mm_cpumask clear_tasks_mm_cpumask+0
+  p:probe/clear_tasks_mm_cpumask_1 clear_tasks_mm_cpumask+5
+  p:probe/clear_tasks_mm_cpumask_2 clear_tasks_mm_cpumask+8
+  p:probe/clear_tasks_mm_cpumask_3 clear_tasks_mm_cpumask+16
+  p:probe/clear_tasks_mm_cpumask_4 clear_tasks_mm_cpumask+82
 
-// Enter recovery and 1:3001 is marked lost
- +.01 < . 1:1(0) ack 1 win 257 <sack 3001:4001,nop,nop>
-   +0 < . 1:1(0) ack 1 win 257 <sack 5001:6001 3001:4001,nop,nop>
-   +0 < . 1:1(0) ack 1 win 257 <sack 5001:7001 3001:4001,nop,nop>
+Committer testing:
 
-// Retransmit 1:1001, now retransmit_skb_hint points to 1001:2001
-   +0 > . 1:1001(1000) ack 1
+I managed to reproduce the above:
 
-// 1001:2001 was ACKed causing retransmit_skb_hint to be set to NULL
- +.01 < . 1:1(0) ack 2001 win 257 <sack 5001:8001 3001:4001,nop,nop>
-// Now retransmit_skb_hint points to 4001:5001 which is now marked lost
+  [root@quaco ~]# perf probe -D clear_tasks_mm_cpumask:1
+  p:probe/clear_tasks_mm_cpumask _text+919968
+  p:probe/clear_tasks_mm_cpumask_1 _text+919973
+  p:probe/clear_tasks_mm_cpumask_2 _text+919976
+  [root@quaco ~]#
 
-// BUG: 2001:3001 was not retransmitted
-   +0 > . 2001:3001(1000) ack 1
+But then when trying to actually put the probe in place, it fails if I
+use :0 as the offset:
 
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Tested-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  [root@quaco ~]# perf probe -L clear_tasks_mm_cpumask | head -5
+  <clear_tasks_mm_cpumask@/usr/src/debug/kernel-5.2.fc30/linux-5.2.18-200.fc30.x86_64/kernel/cpu.c:0>
+        0  void clear_tasks_mm_cpumask(int cpu)
+        1  {
+        2  	struct task_struct *p;
+
+  [root@quaco ~]# perf probe clear_tasks_mm_cpumask:0
+  Probe point 'clear_tasks_mm_cpumask' not found.
+    Error: Failed to add events.
+  [root@quaco
+
+The next patch is needed to fix this case.
+
+Fixes: 576b523721b7 ("perf probe: Fix probing symbols with optimization suffix")
+Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/157199318513.8075.10463906803299647907.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp_input.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -901,9 +901,10 @@ static void tcp_check_sack_reordering(st
- /* This must be called before lost_out is incremented */
- static void tcp_verify_retransmit_hint(struct tcp_sock *tp, struct sk_buff *skb)
+---
+ tools/perf/util/probe-finder.c |   32 ++++++++++----------------------
+ 1 file changed, 10 insertions(+), 22 deletions(-)
+
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -597,38 +597,26 @@ static int convert_to_trace_point(Dwarf_
+ 				  const char *function,
+ 				  struct probe_trace_point *tp)
  {
--	if (!tp->retransmit_skb_hint ||
--	    before(TCP_SKB_CB(skb)->seq,
--		   TCP_SKB_CB(tp->retransmit_skb_hint)->seq))
-+	if ((!tp->retransmit_skb_hint && tp->retrans_out >= tp->lost_out) ||
-+	    (tp->retransmit_skb_hint &&
-+	     before(TCP_SKB_CB(skb)->seq,
-+		    TCP_SKB_CB(tp->retransmit_skb_hint)->seq)))
- 		tp->retransmit_skb_hint = skb;
- }
+-	Dwarf_Addr eaddr, highaddr;
++	Dwarf_Addr eaddr;
+ 	GElf_Sym sym;
+ 	const char *symbol;
  
+ 	/* Verify the address is correct */
+-	if (dwarf_entrypc(sp_die, &eaddr) != 0) {
+-		pr_warning("Failed to get entry address of %s\n",
+-			   dwarf_diename(sp_die));
+-		return -ENOENT;
+-	}
+-	if (dwarf_highpc(sp_die, &highaddr) != 0) {
+-		pr_warning("Failed to get end address of %s\n",
+-			   dwarf_diename(sp_die));
+-		return -ENOENT;
+-	}
+-	if (paddr > highaddr) {
+-		pr_warning("Offset specified is greater than size of %s\n",
++	if (!dwarf_haspc(sp_die, paddr)) {
++		pr_warning("Specified offset is out of %s\n",
+ 			   dwarf_diename(sp_die));
+ 		return -EINVAL;
+ 	}
+ 
+-	symbol = dwarf_diename(sp_die);
++	/* Try to get actual symbol name from symtab */
++	symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
+ 	if (!symbol) {
+-		/* Try to get the symbol name from symtab */
+-		symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
+-		if (!symbol) {
+-			pr_warning("Failed to find symbol at 0x%lx\n",
+-				   (unsigned long)paddr);
+-			return -ENOENT;
+-		}
+-		eaddr = sym.st_value;
++		pr_warning("Failed to find symbol at 0x%lx\n",
++			   (unsigned long)paddr);
++		return -ENOENT;
+ 	}
++	eaddr = sym.st_value;
++
+ 	tp->offset = (unsigned long)(paddr - eaddr);
+ 	tp->address = (unsigned long)paddr;
+ 	tp->symbol = strdup(symbol);
 
 
