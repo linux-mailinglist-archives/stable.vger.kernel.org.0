@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1B7A145660
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C22C5145664
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731596AbgAVN02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:26:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47240 "EHLO mail.kernel.org"
+        id S1730958AbgAVN0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:26:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730958AbgAVN02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:26:28 -0500
+        id S1729163AbgAVN0b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:26:31 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB53B2467B;
-        Wed, 22 Jan 2020 13:26:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D787B2467B;
+        Wed, 22 Jan 2020 13:26:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699587;
-        bh=8QijUBSXZsydj3NB/meNkcDErESmAxv0joTQ/EXXFJs=;
+        s=default; t=1579699590;
+        bh=3TSY0k3j/NS0qp81sKVoj9zgSdog5u4XrMOmTpcP3dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lSCzDVB1MRIgcOqsjZMWaFbqk3768K75TQPJGoQbTub/1fezSWs1DjHJVWOuxf5J6
-         4zQ1tN8yKGmfC4NeJf0KBqo1phDwJIUBhLs2VvilkUl8RxejchtflpxyuZ61PhIMFr
-         DtC246SeELPaj2/nTs9K1/om22EIBx3CbBZyetec=
+        b=rAT8WlkKRiG/QTBSDZWy93uTXfPFwTUaKPzmfoSU+RZCkMllW3DrUOSx4FvhsC9N0
+         SyxkQliiMOB+WOlCjplREYIYOo1Su+DJdSWuZ50nWHG3eHuDY+6D837PW54QBjSS9I
+         yb+2v6o6T8hBzXh/0Z4CvF1ftbmMEvPIhxhuVCeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Smith <msmith626@gmail.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 151/222] bnxt_en: Do not treat DSN (Digital Serial Number) read failure as fatal.
-Date:   Wed, 22 Jan 2020 10:28:57 +0100
-Message-Id: <20200122092844.536923917@linuxfoundation.org>
+Subject: [PATCH 5.4 152/222] net: ethernet: ave: Avoid lockdep warning
+Date:   Wed, 22 Jan 2020 10:28:58 +0100
+Message-Id: <20200122092844.606889750@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,78 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit d061b2411d5f3d6272187ab734ce0640827fca13 ]
+[ Upstream commit 82d5d6a638cbd12b7dfe8acafd9efd87a656cc06 ]
 
-DSN read can fail, for example on a kdump kernel without PCIe extended
-config space support.  If DSN read fails, don't set the
-BNXT_FLAG_DSN_VALID flag and continue loading.  Check the flag
-to see if the stored DSN is valid before using it.  Only VF reps
-creation should fail without valid DSN.
+When building with PROVE_LOCKING=y, lockdep shows the following
+dump message.
 
-Fixes: 03213a996531 ("bnxt: move bp->switch_id initialization to PF probe")
-Reported-by: Marc Smith <msmith626@gmail.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+    INFO: trying to register non-static key.
+    the code is fine but needs lockdep annotation.
+    turning off the locking correctness validator.
+     ...
+
+Calling device_set_wakeup_enable() directly occurs this issue,
+and it isn't necessary for initialization, so this patch creates
+internal function __ave_ethtool_set_wol() and replaces with this
+in ave_init() and ave_resume().
+
+Fixes: 7200f2e3c9e2 ("net: ethernet: ave: Set initial wol state to disabled")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c     |    7 +++----
- drivers/net/ethernet/broadcom/bnxt/bnxt.h     |    1 +
- drivers/net/ethernet/broadcom/bnxt/bnxt_vfr.c |    3 +++
- 3 files changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/socionext/sni_ave.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -11299,7 +11299,7 @@ int bnxt_get_port_parent_id(struct net_d
- 		return -EOPNOTSUPP;
- 
- 	/* The PF and it's VF-reps only support the switchdev framework */
--	if (!BNXT_PF(bp))
-+	if (!BNXT_PF(bp) || !(bp->flags & BNXT_FLAG_DSN_VALID))
- 		return -EOPNOTSUPP;
- 
- 	ppid->id_len = sizeof(bp->switch_id);
-@@ -11691,6 +11691,7 @@ static int bnxt_pcie_dsn_get(struct bnxt
- 	put_unaligned_le32(dw, &dsn[0]);
- 	pci_read_config_dword(pdev, pos + 4, &dw);
- 	put_unaligned_le32(dw, &dsn[4]);
-+	bp->flags |= BNXT_FLAG_DSN_VALID;
- 	return 0;
+--- a/drivers/net/ethernet/socionext/sni_ave.c
++++ b/drivers/net/ethernet/socionext/sni_ave.c
+@@ -424,16 +424,22 @@ static void ave_ethtool_get_wol(struct n
+ 		phy_ethtool_get_wol(ndev->phydev, wol);
  }
  
-@@ -11802,9 +11803,7 @@ static int bnxt_init_one(struct pci_dev
+-static int ave_ethtool_set_wol(struct net_device *ndev,
+-			       struct ethtool_wolinfo *wol)
++static int __ave_ethtool_set_wol(struct net_device *ndev,
++				 struct ethtool_wolinfo *wol)
+ {
+-	int ret;
+-
+ 	if (!ndev->phydev ||
+ 	    (wol->wolopts & (WAKE_ARP | WAKE_MAGICSECURE)))
+ 		return -EOPNOTSUPP;
  
- 	if (BNXT_PF(bp)) {
- 		/* Read the adapter's DSN to use as the eswitch switch_id */
--		rc = bnxt_pcie_dsn_get(bp, bp->switch_id);
--		if (rc)
--			goto init_err_pci_clean;
-+		bnxt_pcie_dsn_get(bp, bp->switch_id);
- 	}
- 
- 	/* MTU range: 60 - FW defined max */
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -1510,6 +1510,7 @@ struct bnxt {
- 	#define BNXT_FLAG_NO_AGG_RINGS	0x20000
- 	#define BNXT_FLAG_RX_PAGE_MODE	0x40000
- 	#define BNXT_FLAG_MULTI_HOST	0x100000
-+	#define BNXT_FLAG_DSN_VALID	0x200000
- 	#define BNXT_FLAG_DOUBLE_DB	0x400000
- 	#define BNXT_FLAG_CHIP_NITRO_A0	0x1000000
- 	#define BNXT_FLAG_DIM		0x2000000
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_vfr.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_vfr.c
-@@ -398,6 +398,9 @@ static int bnxt_vf_reps_create(struct bn
- 	struct net_device *dev;
- 	int rc, i;
- 
-+	if (!(bp->flags & BNXT_FLAG_DSN_VALID))
-+		return -ENODEV;
+-	ret = phy_ethtool_set_wol(ndev->phydev, wol);
++	return phy_ethtool_set_wol(ndev->phydev, wol);
++}
 +
- 	bp->vf_reps = kcalloc(num_vfs, sizeof(vf_rep), GFP_KERNEL);
- 	if (!bp->vf_reps)
- 		return -ENOMEM;
++static int ave_ethtool_set_wol(struct net_device *ndev,
++			       struct ethtool_wolinfo *wol)
++{
++	int ret;
++
++	ret = __ave_ethtool_set_wol(ndev, wol);
+ 	if (!ret)
+ 		device_set_wakeup_enable(&ndev->dev, !!wol->wolopts);
+ 
+@@ -1216,7 +1222,7 @@ static int ave_init(struct net_device *n
+ 
+ 	/* set wol initial state disabled */
+ 	wol.wolopts = 0;
+-	ave_ethtool_set_wol(ndev, &wol);
++	__ave_ethtool_set_wol(ndev, &wol);
+ 
+ 	if (!phy_interface_is_rgmii(phydev))
+ 		phy_set_max_speed(phydev, SPEED_100);
+@@ -1768,7 +1774,7 @@ static int ave_resume(struct device *dev
+ 
+ 	ave_ethtool_get_wol(ndev, &wol);
+ 	wol.wolopts = priv->wolopts;
+-	ave_ethtool_set_wol(ndev, &wol);
++	__ave_ethtool_set_wol(ndev, &wol);
+ 
+ 	if (ndev->phydev) {
+ 		ret = phy_resume(ndev->phydev);
 
 
