@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43877144F83
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:38:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C49114505D
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732382AbgAVJik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:38:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55554 "EHLO mail.kernel.org"
+        id S2387529AbgAVJmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:42:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731745AbgAVJih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:38:37 -0500
+        id S2387689AbgAVJmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:42:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 333322467F;
-        Wed, 22 Jan 2020 09:38:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4261624680;
+        Wed, 22 Jan 2020 09:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685916;
-        bh=kkhHPsIUtD/Op93ihqK6Wwi4izPXgNFnmiocKWLEYPI=;
+        s=default; t=1579686133;
+        bh=0oF3uSLp7so0kjfvcUBglP4VRwZLRZ+56HRBZYyOKKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2U3H1xtsUvUazzk4/cMR8nWwDT9t1NY4EpTSQjeyQXGwC+VURC3w8aAKvXMcUeR6n
-         7H0gPn5JTJ/javLXoJTr4gPMlsIJQ+9s2u3j+qv9OYxHVtutDH3DlpsxxvxAWMz9Hz
-         BXeWtWIaMtwcHQkHPxfFFiyPT9v/dEKQ8jLqqgAU=
+        b=TBvC349hFi/kvZozUrxlCDGwqHGGJPtLw0j50At9nRFf1CiPYwJBOd38QmYf8xDg5
+         CyaM2SDx6sQD2eNHQkNlTfhsLsl/OAFK1SwUq3MdOCtsVDRH1zj1S2pqSrn+0EkaGI
+         aUbbqS1XWBLz1+WEWzrDGD3NrqydsWL8GoDh0rZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 27/65] btrfs: fix memory leak in qgroup accounting
+        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 056/103] cfg80211: fix deadlocks in autodisconnect work
 Date:   Wed, 22 Jan 2020 10:29:12 +0100
-Message-Id: <20200122092754.653813842@linuxfoundation.org>
+Message-Id: <20200122092812.073866895@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-commit 26ef8493e1ab771cb01d27defca2fa1315dc3980 upstream.
+commit 5a128a088a2ab0b5190eeb232b5aa0b1017a0317 upstream.
 
-When running xfstests on the current btrfs I get the following splat from
-kmemleak:
+Use methods which do not try to acquire the wdev lock themselves.
 
-unreferenced object 0xffff88821b2404e0 (size 32):
-  comm "kworker/u4:7", pid 26663, jiffies 4295283698 (age 8.776s)
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 10 ff fd 26 82 88 ff ff  ...........&....
-    10 ff fd 26 82 88 ff ff 20 ff fd 26 82 88 ff ff  ...&.... ..&....
-  backtrace:
-    [<00000000f94fd43f>] ulist_alloc+0x25/0x60 [btrfs]
-    [<00000000fd023d99>] btrfs_find_all_roots_safe+0x41/0x100 [btrfs]
-    [<000000008f17bd32>] btrfs_find_all_roots+0x52/0x70 [btrfs]
-    [<00000000b7660afb>] btrfs_qgroup_rescan_worker+0x343/0x680 [btrfs]
-    [<0000000058e66778>] btrfs_work_helper+0xac/0x1e0 [btrfs]
-    [<00000000f0188930>] process_one_work+0x1cf/0x350
-    [<00000000af5f2f8e>] worker_thread+0x28/0x3c0
-    [<00000000b55a1add>] kthread+0x109/0x120
-    [<00000000f88cbd17>] ret_from_fork+0x35/0x40
-
-This corresponds to:
-
-  (gdb) l *(btrfs_find_all_roots_safe+0x41)
-  0x8d7e1 is in btrfs_find_all_roots_safe (fs/btrfs/backref.c:1413).
-  1408
-  1409            tmp = ulist_alloc(GFP_NOFS);
-  1410            if (!tmp)
-  1411                    return -ENOMEM;
-  1412            *roots = ulist_alloc(GFP_NOFS);
-  1413            if (!*roots) {
-  1414                    ulist_free(tmp);
-  1415                    return -ENOMEM;
-  1416            }
-  1417
-
-Following the lifetime of the allocated 'roots' ulist, it gets freed
-again in btrfs_qgroup_account_extent().
-
-But this does not happen if the function is called with the
-'BTRFS_FS_QUOTA_ENABLED' flag cleared, then btrfs_qgroup_account_extent()
-does a short leave and directly returns.
-
-Instead of directly returning we should jump to the 'out_free' in order to
-free all resources as expected.
-
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-[ add comment ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Fixes: 37b1c004685a3 ("cfg80211: Support all iftypes in autodisconnect_wk")
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20200108115536.2262-1-markus.theil@tu-ilmenau.de
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/qgroup.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/wireless/sme.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -1928,8 +1928,12 @@ btrfs_qgroup_account_extent(struct btrfs
- 	u64 nr_old_roots = 0;
- 	int ret = 0;
- 
-+	/*
-+	 * If quotas get disabled meanwhile, the resouces need to be freed and
-+	 * we can't just exit here.
-+	 */
- 	if (!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags))
--		return 0;
-+		goto out_free;
- 
- 	if (new_roots) {
- 		if (!maybe_fs_roots(new_roots))
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -1281,14 +1281,14 @@ void cfg80211_autodisconnect_wk(struct w
+ 	if (wdev->conn_owner_nlportid) {
+ 		switch (wdev->iftype) {
+ 		case NL80211_IFTYPE_ADHOC:
+-			cfg80211_leave_ibss(rdev, wdev->netdev, false);
++			__cfg80211_leave_ibss(rdev, wdev->netdev, false);
+ 			break;
+ 		case NL80211_IFTYPE_AP:
+ 		case NL80211_IFTYPE_P2P_GO:
+-			cfg80211_stop_ap(rdev, wdev->netdev, false);
++			__cfg80211_stop_ap(rdev, wdev->netdev, false);
+ 			break;
+ 		case NL80211_IFTYPE_MESH_POINT:
+-			cfg80211_leave_mesh(rdev, wdev->netdev);
++			__cfg80211_leave_mesh(rdev, wdev->netdev);
+ 			break;
+ 		case NL80211_IFTYPE_STATION:
+ 		case NL80211_IFTYPE_P2P_CLIENT:
 
 
