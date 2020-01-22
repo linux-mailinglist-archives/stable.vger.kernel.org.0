@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C95F4145633
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47747145634
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729547AbgAVNWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:22:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39588 "EHLO mail.kernel.org"
+        id S1730502AbgAVNWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:22:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726219AbgAVNWK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:22:10 -0500
+        id S1730487AbgAVNWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:22:16 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B3922467B;
-        Wed, 22 Jan 2020 13:22:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A6632467B;
+        Wed, 22 Jan 2020 13:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699329;
-        bh=BBQi5io6JHy/ODYO57lusvam0tlkm6fTswXwRhVaoH0=;
+        s=default; t=1579699335;
+        bh=e9ZQfFjwOKU/ObdvaAfQZMdNRTkN7X/aHdOhJLXe0AE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1MhbL4+111HPxDgsG/XqXmXP/B6AIyf4rQd3S3Bbb6d65iBddz2GOsTOvlW8YnuJ2
-         qKlLRoKxNc/QlfrO6SI0pYpr2/JzdVU3h0H5j+COFR3mzoCu3s2Yu/b7BXQL0q6ai2
-         C9LvQQc4rmw9h7l+Cbncw4vG0i+n1QMC2dqCo3tE=
+        b=EQsgqBOmQD9jrX4B4sDwYOnqPcxEL91DkbbxYcPb0k5SZUCOBrc/a6PF5aCTgDgHU
+         kRY4EzI6KTMMVVp3VHPEVAdF1VXTzw/K+C62mMbJusHmzjtuwxfahwO1O7jiwM9Nlt
+         yLhZWVtpzneDRa/LLCwJvlAQeADc170x53wf74CI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuya Fujita <fujita.yuya@fujitsu.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 075/222] perf hists: Fix variable names inconsistency in hists__for_each() macro
-Date:   Wed, 22 Jan 2020 10:27:41 +0100
-Message-Id: <20200122092839.088051491@linuxfoundation.org>
+        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>, Jin Yao <yao.jin@intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.4 077/222] perf report: Fix incorrectly added dimensions as switch perf data file
+Date:   Wed, 22 Jan 2020 10:27:43 +0100
+Message-Id: <20200122092839.228537744@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -45,45 +49,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuya Fujita <fujita.yuya@fujitsu.com>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-commit 55347ec340af401437680fd0e88df6739a967f9f upstream.
+commit 0feba17bd7ee3b7e03d141f119049dcc23efa94e upstream.
 
-Variable names are inconsistent in hists__for_each macro().
+We observed an issue that was some extra columns displayed after switching
+perf data file in browser. The steps to reproduce:
 
-Due to this inconsistency, the macro replaces its second argument with
-"fmt" regardless of its original name.
+1. perf record -a -e cycles,instructions -- sleep 3
+2. perf report --group
+3. In browser, we use hotkey 's' to switch to another perf.data
+4. Now in browser, the extra columns 'Self' and 'Children' are displayed.
 
-So far it works because only "fmt" is passed to the second argument.
-However, this behavior is not expected and should be fixed.
+The issue is setup_sorting() executed again after repeat path, so dimensions
+are added again.
 
-Fixes: f0786af536bb ("perf hists: Introduce hists__for_each_format macro")
-Fixes: aa6f50af822a ("perf hists: Introduce hists__for_each_sort_list macro")
-Signed-off-by: Yuya Fujita <fujita.yuya@fujitsu.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
+This patch checks the last key returned from __cmd_report(). If it's
+K_SWITCH_INPUT_DATA, skips the setup_sorting().
+
+Fixes: ad0de0971b7f ("perf report: Enable the runtime switching of perf data file")
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Jin Yao <yao.jin@intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/OSAPR01MB1588E1C47AC22043175DE1B2E8520@OSAPR01MB1588.jpnprd01.prod.outlook.com
+Link: http://lore.kernel.org/lkml/20191220013722.20592-1-yao.jin@linux.intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/hist.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/perf/builtin-report.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/tools/perf/util/hist.h
-+++ b/tools/perf/util/hist.h
-@@ -339,10 +339,10 @@ static inline void perf_hpp__prepend_sor
- 	list_for_each_entry_safe(format, tmp, &(_list)->sorts, sort_list)
+--- a/tools/perf/builtin-report.c
++++ b/tools/perf/builtin-report.c
+@@ -1031,6 +1031,7 @@ int cmd_report(int argc, const char **ar
+ 	struct stat st;
+ 	bool has_br_stack = false;
+ 	int branch_mode = -1;
++	int last_key = 0;
+ 	bool branch_call_mode = false;
+ #define CALLCHAIN_DEFAULT_OPT  "graph,0.5,caller,function,percent"
+ 	static const char report_callchain_help[] = "Display call graph (stack chain/backtrace):\n\n"
+@@ -1396,7 +1397,8 @@ repeat:
+ 		sort_order = sort_tmp;
+ 	}
  
- #define hists__for_each_format(hists, format) \
--	perf_hpp_list__for_each_format((hists)->hpp_list, fmt)
-+	perf_hpp_list__for_each_format((hists)->hpp_list, format)
- 
- #define hists__for_each_sort_list(hists, format) \
--	perf_hpp_list__for_each_sort_list((hists)->hpp_list, fmt)
-+	perf_hpp_list__for_each_sort_list((hists)->hpp_list, format)
- 
- extern struct perf_hpp_fmt perf_hpp__format[];
- 
+-	if (setup_sorting(session->evlist) < 0) {
++	if ((last_key != K_SWITCH_INPUT_DATA) &&
++	    (setup_sorting(session->evlist) < 0)) {
+ 		if (sort_order)
+ 			parse_options_usage(report_usage, options, "s", 1);
+ 		if (field_order)
+@@ -1475,6 +1477,7 @@ repeat:
+ 	ret = __cmd_report(&report);
+ 	if (ret == K_SWITCH_INPUT_DATA) {
+ 		perf_session__delete(session);
++		last_key = K_SWITCH_INPUT_DATA;
+ 		goto repeat;
+ 	} else
+ 		ret = 0;
 
 
