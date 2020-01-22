@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD44144FB4
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:40:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 222A2145179
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:54:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387444AbgAVJkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:40:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59204 "EHLO mail.kernel.org"
+        id S1730258AbgAVJyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:54:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732848AbgAVJkW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:40:22 -0500
+        id S1730782AbgAVJeN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:34:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10BDB24699;
-        Wed, 22 Jan 2020 09:40:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABA402071E;
+        Wed, 22 Jan 2020 09:34:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686021;
-        bh=YntkyKDy5KI2DCgvhufavTpqfWURh67IqaGLyQej8mw=;
+        s=default; t=1579685653;
+        bh=kTMshfkHYfRs3dTLhnf994eG5Pob6Ezv13Q9wq1CC/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7Yk7OYp7d6xE7Z5dLevssNvn0AFNrG+Z3by/6yegTP+7Eh7xufyBkunbi53NFNYn
-         dowhEp3OTibWluu3FHPVOQMu54B45Ql2DPrrf7sSayLAbET6gFGAdoMxf4uEwTkV00
-         MHjh/1nKiPgO1UxV0LcfOro+P+8QcYspOoQv6kLw=
+        b=MgFSXVJn3JCHDwd6gpkWcKaev+fNc4BLilp4pUqwfnIz5f44S2VknXC1PzKKV2EZ2
+         cVQa2F80ANEX5Ds6auiZ9MAS6Y3TpzrobBYOHSH7oxYl2VIO5QUQmSaQ5DFaVtObO0
+         nhL+hvet3tw6Fldx2+1goohNtDHszsO52mLGqSOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 012/103] USB: serial: suppress driver bind attributes
-Date:   Wed, 22 Jan 2020 10:28:28 +0100
-Message-Id: <20200122092805.511916199@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Honggang Li <honli@redhat.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.9 25/97] RDMA/srpt: Report the SCSI residual to the initiator
+Date:   Wed, 22 Jan 2020 10:28:29 +0100
+Message-Id: <20200122092800.236132302@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit fdb838efa31e1ed9a13ae6ad0b64e30fdbd00570 upstream.
+commit e88982ad1bb12db699de96fbc07096359ef6176c upstream.
 
-USB-serial drivers must not be unbound from their ports before the
-corresponding USB driver is unbound from the parent interface so
-suppress the bind and unbind attributes.
+The code added by this patch is similar to the code that already exists in
+ibmvscsis_determine_resid(). This patch has been tested by running the
+following command:
 
-Unbinding a serial driver while it's port is open is a sure way to
-trigger a crash as any driver state is released on unbind while port
-hangup is handled on the parent USB interface level. Drivers for
-multiport devices where ports share a resource such as an interrupt
-endpoint also generally cannot handle individual ports going away.
+strace sg_raw -r 1k /dev/sdb 12 00 00 00 60 00 -o inquiry.bin |&
+    grep resid=
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191105214632.183302-1-bvanassche@acm.org
+Fixes: a42d985bd5b2 ("ib_srpt: Initial SRP Target merge for v3.3-rc1")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Acked-by: Honggang Li <honli@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/usb-serial.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/ulp/srpt/ib_srpt.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -1294,6 +1294,9 @@ static int usb_serial_register(struct us
- 		return -EINVAL;
- 	}
+--- a/drivers/infiniband/ulp/srpt/ib_srpt.c
++++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
+@@ -1234,9 +1234,11 @@ static int srpt_build_cmd_rsp(struct srp
+ 			      struct srpt_send_ioctx *ioctx, u64 tag,
+ 			      int status)
+ {
++	struct se_cmd *cmd = &ioctx->cmd;
+ 	struct srp_rsp *srp_rsp;
+ 	const u8 *sense_data;
+ 	int sense_data_len, max_sense_len;
++	u32 resid = cmd->residual_count;
  
-+	/* Prevent individual ports from being unbound. */
-+	driver->driver.suppress_bind_attrs = true;
+ 	/*
+ 	 * The lowest bit of all SAM-3 status codes is zero (see also
+@@ -1258,6 +1260,28 @@ static int srpt_build_cmd_rsp(struct srp
+ 	srp_rsp->tag = tag;
+ 	srp_rsp->status = status;
+ 
++	if (cmd->se_cmd_flags & SCF_UNDERFLOW_BIT) {
++		if (cmd->data_direction == DMA_TO_DEVICE) {
++			/* residual data from an underflow write */
++			srp_rsp->flags = SRP_RSP_FLAG_DOUNDER;
++			srp_rsp->data_out_res_cnt = cpu_to_be32(resid);
++		} else if (cmd->data_direction == DMA_FROM_DEVICE) {
++			/* residual data from an underflow read */
++			srp_rsp->flags = SRP_RSP_FLAG_DIUNDER;
++			srp_rsp->data_in_res_cnt = cpu_to_be32(resid);
++		}
++	} else if (cmd->se_cmd_flags & SCF_OVERFLOW_BIT) {
++		if (cmd->data_direction == DMA_TO_DEVICE) {
++			/* residual data from an overflow write */
++			srp_rsp->flags = SRP_RSP_FLAG_DOOVER;
++			srp_rsp->data_out_res_cnt = cpu_to_be32(resid);
++		} else if (cmd->data_direction == DMA_FROM_DEVICE) {
++			/* residual data from an overflow read */
++			srp_rsp->flags = SRP_RSP_FLAG_DIOVER;
++			srp_rsp->data_in_res_cnt = cpu_to_be32(resid);
++		}
++	}
 +
- 	usb_serial_operations_init(driver);
- 
- 	/* Add this device to our list of devices */
+ 	if (sense_data_len) {
+ 		BUILD_BUG_ON(MIN_MAX_RSP_SIZE <= sizeof(*srp_rsp));
+ 		max_sense_len = ch->max_ti_iu_len - sizeof(*srp_rsp);
 
 
