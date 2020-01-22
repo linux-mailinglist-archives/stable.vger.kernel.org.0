@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D976414557D
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:25:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1B34145590
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:25:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729451AbgAVNWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:22:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40144 "EHLO mail.kernel.org"
+        id S1729353AbgAVNXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:23:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725827AbgAVNW3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:22:29 -0500
+        id S1730693AbgAVNXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:23:07 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C4E62468C;
-        Wed, 22 Jan 2020 13:22:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA472205F4;
+        Wed, 22 Jan 2020 13:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699348;
-        bh=AZh0/pB0q2KopdriTAOIAUemGtq0gw/o3+IlVV507gY=;
+        s=default; t=1579699386;
+        bh=Ty9RH+RLqMXgUyZ5xZoWxctM3JahlJeZFqmLUuI2JFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIh1oDvXENvYrBxG76Ga+z3qHERYu9PXPffYrT03s29qxFaIQkIAK5FIyvJTB1207
-         tlY3p8DFf7e9beD6LF3S8XZq3r9tgMGMwks6voBc3048KAx1vIJn5jOZPtLT8ozQlN
-         0vzjLp3AIIG/WxFHjOQRwALaDxc+g85onBODxtm8=
+        b=g2vcqi8P2uaK3X3G+Rw/mqI3GXfrHZrLKPROK/dHL+r27VDTUhJCaH/XLjcvBTAio
+         QQs9FhHMP/9+SAsrG4QDy1pVchcRPWwaVDsnvpWoETZrmvsZvTjvCZuzhaJuCq1Ymk
+         DHHe7vBMf7S1fUSFKDDhYkVts6oYN7ILWFxr0a2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Jonathan Lemon <jonathan.lemon@gmail.com>
-Subject: [PATCH 5.4 110/222] bpf: Sockmap/tls, push write_space updates through ulp updates
-Date:   Wed, 22 Jan 2020 10:28:16 +0100
-Message-Id: <20200122092841.611847883@linuxfoundation.org>
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 5.4 111/222] bpf: Sockmap, skmsg helper overestimates push, pull, and pop bounds
+Date:   Wed, 22 Jan 2020 10:28:17 +0100
+Message-Id: <20200122092841.682573648@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -47,133 +46,97 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: John Fastabend <john.fastabend@gmail.com>
 
-commit 33bfe20dd7117dd81fd896a53f743a233e1ad64f upstream.
+commit 6562e29cf6f0ddd368657d97a8d484ffc30df5ef upstream.
 
-When sockmap sock with TLS enabled is removed we cleanup bpf/psock state
-and call tcp_update_ulp() to push updates to TLS ULP on top. However, we
-don't push the write_space callback up and instead simply overwrite the
-op with the psock stored previous op. This may or may not be correct so
-to ensure we don't overwrite the TLS write space hook pass this field to
-the ULP and have it fixup the ctx.
+In the push, pull, and pop helpers operating on skmsg objects to make
+data writable or insert/remove data we use this bounds check to ensure
+specified data is valid,
 
-This completes a previous fix that pushed the ops through to the ULP
-but at the time missed doing this for write_space, presumably because
-write_space TLS hook was added around the same time.
+ /* Bounds checks: start and pop must be inside message */
+ if (start >= offset + l || last >= msg->sg.size)
+     return -EINVAL;
 
-Fixes: 95fa145479fbc ("bpf: sockmap/tls, close can race with map free")
+The problem here is offset has already included the length of the
+current element the 'l' above. So start could be past the end of
+the scatterlist element in the case where start also points into an
+offset on the last skmsg element.
+
+To fix do the accounting slightly different by adding the length of
+the previous entry to offset at the start of the iteration. And
+ensure its initialized to zero so that the first iteration does
+nothing.
+
+Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
+Fixes: 6fff607e2f14b ("bpf: sk_msg program helper bpf_msg_push_data")
+Fixes: 7246d8ed4dcce ("bpf: helper to pop data from messages")
 Signed-off-by: John Fastabend <john.fastabend@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Acked-by: Song Liu <songliubraving@fb.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/bpf/20200111061206.8028-4-john.fastabend@gmail.com
+Link: https://lore.kernel.org/bpf/20200111061206.8028-5-john.fastabend@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/skmsg.h |   12 ++++++++----
- include/net/tcp.h     |    6 ++++--
- net/ipv4/tcp_ulp.c    |    6 ++++--
- net/tls/tls_main.c    |   10 +++++++---
- 4 files changed, 23 insertions(+), 11 deletions(-)
+ net/core/filter.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -355,17 +355,21 @@ static inline void sk_psock_restore_prot
- 					  struct sk_psock *psock)
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2231,10 +2231,10 @@ BPF_CALL_4(bpf_msg_pull_data, struct sk_
+ 	/* First find the starting scatterlist element */
+ 	i = msg->sg.start;
+ 	do {
++		offset += len;
+ 		len = sk_msg_elem(msg, i)->length;
+ 		if (start < offset + len)
+ 			break;
+-		offset += len;
+ 		sk_msg_iter_var_next(i);
+ 	} while (i != msg->sg.end);
+ 
+@@ -2346,7 +2346,7 @@ BPF_CALL_4(bpf_msg_push_data, struct sk_
+ 	   u32, len, u64, flags)
  {
- 	sk->sk_prot->unhash = psock->saved_unhash;
--	sk->sk_write_space = psock->saved_write_space;
+ 	struct scatterlist sge, nsge, nnsge, rsge = {0}, *psge;
+-	u32 new, i = 0, l, space, copy = 0, offset = 0;
++	u32 new, i = 0, l = 0, space, copy = 0, offset = 0;
+ 	u8 *raw, *to, *from;
+ 	struct page *page;
  
- 	if (psock->sk_proto) {
- 		struct inet_connection_sock *icsk = inet_csk(sk);
- 		bool has_ulp = !!icsk->icsk_ulp_data;
+@@ -2356,11 +2356,11 @@ BPF_CALL_4(bpf_msg_push_data, struct sk_
+ 	/* First find the starting scatterlist element */
+ 	i = msg->sg.start;
+ 	do {
++		offset += l;
+ 		l = sk_msg_elem(msg, i)->length;
  
--		if (has_ulp)
--			tcp_update_ulp(sk, psock->sk_proto);
--		else
-+		if (has_ulp) {
-+			tcp_update_ulp(sk, psock->sk_proto,
-+				       psock->saved_write_space);
-+		} else {
- 			sk->sk_prot = psock->sk_proto;
-+			sk->sk_write_space = psock->saved_write_space;
-+		}
- 		psock->sk_proto = NULL;
-+	} else {
-+		sk->sk_write_space = psock->saved_write_space;
- 	}
- }
+ 		if (start < offset + l)
+ 			break;
+-		offset += l;
+ 		sk_msg_iter_var_next(i);
+ 	} while (i != msg->sg.end);
  
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -2132,7 +2132,8 @@ struct tcp_ulp_ops {
- 	/* initialize ulp */
- 	int (*init)(struct sock *sk);
- 	/* update ulp */
--	void (*update)(struct sock *sk, struct proto *p);
-+	void (*update)(struct sock *sk, struct proto *p,
-+		       void (*write_space)(struct sock *sk));
- 	/* cleanup ulp */
- 	void (*release)(struct sock *sk);
- 	/* diagnostic */
-@@ -2147,7 +2148,8 @@ void tcp_unregister_ulp(struct tcp_ulp_o
- int tcp_set_ulp(struct sock *sk, const char *name);
- void tcp_get_available_ulp(char *buf, size_t len);
- void tcp_cleanup_ulp(struct sock *sk);
--void tcp_update_ulp(struct sock *sk, struct proto *p);
-+void tcp_update_ulp(struct sock *sk, struct proto *p,
-+		    void (*write_space)(struct sock *sk));
- 
- #define MODULE_ALIAS_TCP_ULP(name)				\
- 	__MODULE_INFO(alias, alias_userspace, name);		\
---- a/net/ipv4/tcp_ulp.c
-+++ b/net/ipv4/tcp_ulp.c
-@@ -96,17 +96,19 @@ void tcp_get_available_ulp(char *buf, si
- 	rcu_read_unlock();
- }
- 
--void tcp_update_ulp(struct sock *sk, struct proto *proto)
-+void tcp_update_ulp(struct sock *sk, struct proto *proto,
-+		    void (*write_space)(struct sock *sk))
+@@ -2506,7 +2506,7 @@ static void sk_msg_shift_right(struct sk
+ BPF_CALL_4(bpf_msg_pop_data, struct sk_msg *, msg, u32, start,
+ 	   u32, len, u64, flags)
  {
- 	struct inet_connection_sock *icsk = inet_csk(sk);
+-	u32 i = 0, l, space, offset = 0;
++	u32 i = 0, l = 0, space, offset = 0;
+ 	u64 last = start + len;
+ 	int pop;
  
- 	if (!icsk->icsk_ulp_ops) {
-+		sk->sk_write_space = write_space;
- 		sk->sk_prot = proto;
- 		return;
- 	}
+@@ -2516,11 +2516,11 @@ BPF_CALL_4(bpf_msg_pop_data, struct sk_m
+ 	/* First find the starting scatterlist element */
+ 	i = msg->sg.start;
+ 	do {
++		offset += l;
+ 		l = sk_msg_elem(msg, i)->length;
  
- 	if (icsk->icsk_ulp_ops->update)
--		icsk->icsk_ulp_ops->update(sk, proto);
-+		icsk->icsk_ulp_ops->update(sk, proto, write_space);
- }
+ 		if (start < offset + l)
+ 			break;
+-		offset += l;
+ 		sk_msg_iter_var_next(i);
+ 	} while (i != msg->sg.end);
  
- void tcp_cleanup_ulp(struct sock *sk)
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -798,15 +798,19 @@ out:
- 	return rc;
- }
- 
--static void tls_update(struct sock *sk, struct proto *p)
-+static void tls_update(struct sock *sk, struct proto *p,
-+		       void (*write_space)(struct sock *sk))
- {
- 	struct tls_context *ctx;
- 
- 	ctx = tls_get_ctx(sk);
--	if (likely(ctx))
-+	if (likely(ctx)) {
-+		ctx->sk_write_space = write_space;
- 		ctx->sk_proto = p;
--	else
-+	} else {
- 		sk->sk_prot = p;
-+		sk->sk_write_space = write_space;
-+	}
- }
- 
- static int tls_get_info(const struct sock *sk, struct sk_buff *skb)
 
 
