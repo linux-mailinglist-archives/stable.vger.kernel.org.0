@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B776144F3D
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:36:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 948031451B8
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:56:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731556AbgAVJfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:35:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51174 "EHLO mail.kernel.org"
+        id S1730016AbgAVJcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:32:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730716AbgAVJfx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:35:53 -0500
+        id S1730012AbgAVJcR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:32:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D13D20704;
-        Wed, 22 Jan 2020 09:35:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A1642071E;
+        Wed, 22 Jan 2020 09:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685753;
-        bh=ULzRYP2OrIeIGLif+7P/9iBBG1jNhnAQbs30VcaK2p4=;
+        s=default; t=1579685537;
+        bh=+xkFp8p9M2YP5yh6/o+n/1mHFliog5Xd/ra+QW6gKRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVjc9MBgX4gMAJp1aOqgz6Dyy2jNWECYaLUA83Z2odZNu5wpHB7m06HdB9wHsbaDE
-         N8rx7DnEzxWgckGb36M3FtUnACee68ZggHpj08RKeOhaah1b9BWSOYB3XOBDwmdfI6
-         rPQ5X51zCi3UoIRP9F5jniZ5rWNqn5m9SBJoCDuQ=
+        b=Biy0FSPJWCdWW6LI+hDY4sGxcT3siGYhTKnmez0E0cYEV1agv/qo90BiYsiNJc2x+
+         BppVNgnj9WOSpdY2HJnzMVVkvX5KWvxABk1+iB8nq+hSwWUBAd8Ow/YRk+Ed/Gmfg+
+         C3451WNzaC+YRPmSmQ2ta+QhI6Gtm88E9n2B+APg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuya Fujita <fujita.yuya@fujitsu.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.9 66/97] perf hists: Fix variable names inconsistency in hists__for_each() macro
+        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 54/76] net: stmmac: Enable 16KB buffer size
 Date:   Wed, 22 Jan 2020 10:29:10 +0100
-Message-Id: <20200122092806.958463630@linuxfoundation.org>
+Message-Id: <20200122092758.968566904@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuya Fujita <fujita.yuya@fujitsu.com>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-commit 55347ec340af401437680fd0e88df6739a967f9f upstream.
+commit b2f3a481c4cd62f78391b836b64c0a6e72b503d2 upstream.
 
-Variable names are inconsistent in hists__for_each macro().
+XGMAC supports maximum MTU that can go to 16KB. Lets add this check in
+the calculation of RX buffer size.
 
-Due to this inconsistency, the macro replaces its second argument with
-"fmt" regardless of its original name.
-
-So far it works because only "fmt" is passed to the second argument.
-However, this behavior is not expected and should be fixed.
-
-Fixes: f0786af536bb ("perf hists: Introduce hists__for_each_format macro")
-Fixes: aa6f50af822a ("perf hists: Introduce hists__for_each_sort_list macro")
-Signed-off-by: Yuya Fujita <fujita.yuya@fujitsu.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/OSAPR01MB1588E1C47AC22043175DE1B2E8520@OSAPR01MB1588.jpnprd01.prod.outlook.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 7ac6653a085b ("stmmac: Move the STMicroelectronics driver")
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/hist.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/tools/perf/util/hist.h
-+++ b/tools/perf/util/hist.h
-@@ -312,10 +312,10 @@ static inline void perf_hpp__prepend_sor
- 	list_for_each_entry_safe(format, tmp, &(_list)->sorts, sort_list)
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -935,7 +935,9 @@ static int stmmac_set_bfsize(int mtu, in
+ {
+ 	int ret = bufsize;
  
- #define hists__for_each_format(hists, format) \
--	perf_hpp_list__for_each_format((hists)->hpp_list, fmt)
-+	perf_hpp_list__for_each_format((hists)->hpp_list, format)
- 
- #define hists__for_each_sort_list(hists, format) \
--	perf_hpp_list__for_each_sort_list((hists)->hpp_list, fmt)
-+	perf_hpp_list__for_each_sort_list((hists)->hpp_list, format)
- 
- extern struct perf_hpp_fmt perf_hpp__format[];
- 
+-	if (mtu >= BUF_SIZE_4KiB)
++	if (mtu >= BUF_SIZE_8KiB)
++		ret = BUF_SIZE_16KiB;
++	else if (mtu >= BUF_SIZE_4KiB)
+ 		ret = BUF_SIZE_8KiB;
+ 	else if (mtu >= BUF_SIZE_2KiB)
+ 		ret = BUF_SIZE_4KiB;
 
 
