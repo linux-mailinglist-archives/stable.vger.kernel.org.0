@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC288144EA7
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 003EF14502E
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:44:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726083AbgAVJa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:30:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41806 "EHLO mail.kernel.org"
+        id S1726078AbgAVJo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:44:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726077AbgAVJa1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:30:27 -0500
+        id S2387737AbgAVJo3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:44:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 341EE24672;
-        Wed, 22 Jan 2020 09:30:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8B0D2467B;
+        Wed, 22 Jan 2020 09:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685426;
-        bh=Oogjn1641qqnsLaIbsL6+IzoJpqGsW+vBvF7sxRiUBY=;
+        s=default; t=1579686268;
+        bh=WXqow2Q5kJyEZxVqPMNEHF7RhyCD/SsnKIZuMpVzlp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPk81BVSjkRyoyXsVRz8maMfckaPsA7DzfZuD7cNlFNuEQwJxMXCsAB3efUGinmuD
-         Th2Cqof37kwbuwjJzg6u1smxu5f3W/94uekhNZMI14Dbz9V6AaHWsDz+fiB3ok3SZX
-         Oq/0xw0UQlHIJ2k9yozi3FriaDYMcf5YrhfP/b2M=
+        b=sX0l3ha0HjGvA3BBnvMi3onsrvUcJWjxo8QljGoxsvdIFc1j/8g1DGh2XlSkue+cT
+         JTNnie7MckyuH/LupjNgqKVM8otAxG5ngRaaZjbT+VByiD37DQO+w1VKseMYLgYs/N
+         NLxxgw+aAGw1kz2ijk6Dpz7vtPyYF20TnibGETDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.4 10/76] ALSA: line6: Fix memory leak at line6_init_pcm() error path
-Date:   Wed, 22 Jan 2020 10:28:26 +0100
-Message-Id: <20200122092752.571103099@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>
+Subject: [PATCH 5.4 001/222] ARM: dts: meson8: fix the size of the PMU registers
+Date:   Wed, 22 Jan 2020 10:26:27 +0100
+Message-Id: <20200122092833.441430663@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
+References: <20200122092833.339495161@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,57 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit 1bc8d18c75fef3b478dbdfef722aae09e2a9fde7 upstream.
+commit 46c9585ed4af688ff1be6d4e76d7ed2f04de4fba upstream.
 
-I forgot to release the allocated object at the early error path in
-line6_init_pcm().  For addressing it, slightly shuffle the code so
-that the PCM destructor (pcm->private_free) is assigned properly
-before all error paths.
+The PMU registers are at least 0x18 bytes wide. Meson8b already uses a
+size of 0x18. The structure of the PMU registers on Meson8 and Meson8b
+is similar but not identical.
 
-Fixes: 3450121997ce ("ALSA: line6: Fix write on zero-sized buffer")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[bwh: Backported to 4.4: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Meson8 and Meson8b have the following registers in common (starting at
+AOBUS + 0xe0):
+  #define AO_RTI_PWR_A9_CNTL0 0xe0 (0x38 << 2)
+  #define AO_RTI_PWR_A9_CNTL1 0xe4 (0x39 << 2)
+  #define AO_RTI_GEN_PWR_SLEEP0 0xe8 (0x3a << 2)
+  #define AO_RTI_GEN_PWR_ISO0 0x4c (0x3b << 2)
+
+Meson8b additionally has these three registers:
+  #define AO_RTI_GEN_PWR_ACK0 0xf0 (0x3c << 2)
+  #define AO_RTI_PWR_A9_MEM_PD0 0xf4 (0x3d << 2)
+  #define AO_RTI_PWR_A9_MEM_PD1 0xf8 (0x3e << 2)
+
+Thus we can assume that the register size of the PMU IP blocks is
+identical on both SoCs (and Meson8 just contains some reserved registers
+in that area) because the CEC registers start right after the PMU
+(AO_RTI_*) registers at AOBUS + 0x100 (0x40 << 2).
+
+The upcoming power domain driver will need to read and write the
+AO_RTI_GEN_PWR_SLEEP0 and AO_RTI_GEN_PWR_ISO0 registers, so the updated
+size is needed for that driver to work.
+
+Fixes: 4a5a27116b447d ("ARM: dts: meson8: add support for booting the secondary CPU cores")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/usb/line6/pcm.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/sound/usb/line6/pcm.c
-+++ b/sound/usb/line6/pcm.c
-@@ -523,6 +523,15 @@ int line6_init_pcm(struct usb_line6 *lin
- 	line6pcm->volume_monitor = 255;
- 	line6pcm->line6 = line6;
+---
+ arch/arm/boot/dts/meson8.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/arm/boot/dts/meson8.dtsi
++++ b/arch/arm/boot/dts/meson8.dtsi
+@@ -253,7 +253,7 @@
+ &aobus {
+ 	pmu: pmu@e0 {
+ 		compatible = "amlogic,meson8-pmu", "syscon";
+-		reg = <0xe0 0x8>;
++		reg = <0xe0 0x18>;
+ 	};
  
-+	spin_lock_init(&line6pcm->out.lock);
-+	spin_lock_init(&line6pcm->in.lock);
-+	line6pcm->impulse_period = LINE6_IMPULSE_DEFAULT_PERIOD;
-+
-+	line6->line6pcm = line6pcm;
-+
-+	pcm->private_data = line6pcm;
-+	pcm->private_free = line6_cleanup_pcm;
-+
- 	/* Read and write buffers are sized identically, so choose minimum */
- 	line6pcm->max_packet_size = min(
- 			usb_maxpacket(line6->usbdev,
-@@ -535,15 +544,6 @@ int line6_init_pcm(struct usb_line6 *lin
- 		return -EINVAL;
- 	}
- 
--	spin_lock_init(&line6pcm->out.lock);
--	spin_lock_init(&line6pcm->in.lock);
--	line6pcm->impulse_period = LINE6_IMPULSE_DEFAULT_PERIOD;
--
--	line6->line6pcm = line6pcm;
--
--	pcm->private_data = line6pcm;
--	pcm->private_free = line6_cleanup_pcm;
--
- 	err = line6_create_audio_out_urbs(line6pcm);
- 	if (err < 0)
- 		return err;
+ 	pinctrl_aobus: pinctrl@84 {
 
 
