@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A6F1451EB
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5DC8144FC7
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:41:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729372AbgAVJat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:30:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42492 "EHLO mail.kernel.org"
+        id S2387502AbgAVJlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:41:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729367AbgAVJat (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:30:49 -0500
+        id S2387478AbgAVJlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:41:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 393922071E;
-        Wed, 22 Jan 2020 09:30:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C92B24688;
+        Wed, 22 Jan 2020 09:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685448;
-        bh=Ftk3SuAMapPCOEACFpftjFh5YO/lzQfHkme+z3KUgIc=;
+        s=default; t=1579686061;
+        bh=DczAF+vKmAN+mWw+pcMpCxaJ1uY3iuKd2RO+aTQcOQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DUX1WnS3FOQovY1TSB/3V1IAwBBTfXJS1dyPnTIdIAxLVNkGu6SPcs9HRYOKfpiAe
-         0Lo6oCdVUWN0K42q4gbC3KkioAcScdApF6JcZSimKZ9PQp2H4NKZHpjip5XyAS3dOf
-         HwDbzo9aPbNpBUC6gurmKJMSG9nnCKvF3WANHlpw=
+        b=W6Z4GqqOuhSa4zSzy+ovRT70X2wT9q+HFKKfy3npxjTbFIulNn9MLqeeTApWT6Eso
+         z4BUy+Md6uEFx0gVQGJ7K1ovxWfpXtREi5ZM24dp3iK7sgMxSQ8P4mFIbb2b8v2TFk
+         DEkuL6zZJbhTcYDkZp8WsCJyySUjsu0WMKlh9N5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.4 19/76] iommu: Remove device link to group on failure
-Date:   Wed, 22 Jan 2020 10:28:35 +0100
-Message-Id: <20200122092753.557127612@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 020/103] ASoC: msm8916-wcd-analog: Fix selected events for MIC BIAS External1
+Date:   Wed, 22 Jan 2020 10:28:36 +0100
+Message-Id: <20200122092806.751557932@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Derrick <jonathan.derrick@intel.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 7d4e6ccd1fb09dbfbc49746ca82bd5c25ad4bfe4 upstream.
+commit e0beec88397b163c7c4ea6fcfb67e8e07a2671dc upstream.
 
-This adds the missing teardown step that removes the device link from
-the group when the device addition fails.
+MIC BIAS External1 sets pm8916_wcd_analog_enable_micbias_ext1()
+as event handler, which ends up in pm8916_wcd_analog_enable_micbias_ext().
 
-Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-Fixes: 797a8b4d768c5 ("iommu: Handle default domain attach failure")
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+But pm8916_wcd_analog_enable_micbias_ext() only handles the POST_PMU
+event, which is not specified in the event flags for MIC BIAS External1.
+This means that the code in the event handler is never actually run.
+
+Set SND_SOC_DAPM_POST_PMU as the only event for the handler to fix this.
+
+Fixes: 585e881e5b9e ("ASoC: codecs: Add msm8916-wcd analog codec")
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200111164006.43074-2-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/iommu.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/msm8916-wcd-analog.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -447,6 +447,7 @@ err_put_group:
- 	mutex_unlock(&group->mutex);
- 	dev->iommu_group = NULL;
- 	kobject_put(group->devices_kobj);
-+	sysfs_remove_link(group->devices_kobj, device->name);
- err_free_name:
- 	kfree(device->name);
- err_remove_link:
+--- a/sound/soc/codecs/msm8916-wcd-analog.c
++++ b/sound/soc/codecs/msm8916-wcd-analog.c
+@@ -885,10 +885,10 @@ static const struct snd_soc_dapm_widget
+ 
+ 	SND_SOC_DAPM_SUPPLY("MIC BIAS External1", CDC_A_MICB_1_EN, 7, 0,
+ 			    pm8916_wcd_analog_enable_micbias_ext1,
+-			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
++			    SND_SOC_DAPM_POST_PMU),
+ 	SND_SOC_DAPM_SUPPLY("MIC BIAS External2", CDC_A_MICB_2_EN, 7, 0,
+ 			    pm8916_wcd_analog_enable_micbias_ext2,
+-			    SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_POST_PMD),
++			    SND_SOC_DAPM_POST_PMU),
+ 
+ 	SND_SOC_DAPM_ADC_E("ADC1", NULL, CDC_A_TX_1_EN, 7, 0,
+ 			   pm8916_wcd_analog_enable_adc,
 
 
