@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CDC01451D1
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEEA81450F0
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729883AbgAVJby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:31:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44306 "EHLO mail.kernel.org"
+        id S1730768AbgAVJhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:37:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729882AbgAVJbx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:31:53 -0500
+        id S1732725AbgAVJhu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:37:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D79A2467A;
-        Wed, 22 Jan 2020 09:31:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94BC624692;
+        Wed, 22 Jan 2020 09:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685513;
-        bh=rfyTEBDo4u3jtWxJP62Z6HW7TktOsKaBxa7T+Abi5iA=;
+        s=default; t=1579685870;
+        bh=GPdTpONVAoS5bRlpiLav4WH2cZTWfYVCNy9oGRHurC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGRHEvjzzxXLGiL+eK4hA2t3M+VRe3JR2o0c9HodkRovHdS+i+w9Qo0CtTizCCHEj
-         FaEpLs6juISza926+4vCEK/F6fSCK4RdmZPc/+L6WmTWWAfQYbOn1OWADkDEvrubfQ
-         u91UwURdaBF3D1XZCZtssadoqwM0shtF1589pTtE=
+        b=Hne3rMUqnhYdobmZrVwcWgTwBlEY/ZwzoilVJMQwbkrxgQpbmAIIr2l8RlcG5Brwi
+         V62U9V8d02xUjSf6QlLGq67n4ZOrAoXMdQHb6o0sbxpkXjXuluwDk4eti+82AdBG1i
+         hcfOgRIkngOxLb2ROVnuYrqyzaqcnJHZWXHnVyLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 45/76] USB: serial: suppress driver bind attributes
+Subject: [PATCH 4.14 16/65] USB: serial: keyspan: handle unbound ports
 Date:   Wed, 22 Jan 2020 10:29:01 +0100
-Message-Id: <20200122092757.309020249@linuxfoundation.org>
+Message-Id: <20200122092753.412168453@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,18 +44,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit fdb838efa31e1ed9a13ae6ad0b64e30fdbd00570 upstream.
+commit 3018dd3fa114b13261e9599ddb5656ef97a1fa17 upstream.
 
-USB-serial drivers must not be unbound from their ports before the
-corresponding USB driver is unbound from the parent interface so
-suppress the bind and unbind attributes.
+Check for NULL port data in the control URB completion handlers to avoid
+dereferencing a NULL pointer in the unlikely case where a port device
+isn't bound to a driver (e.g. after an allocation failure on port
+probe()).
 
-Unbinding a serial driver while it's port is open is a sure way to
-trigger a crash as any driver state is released on unbind while port
-hangup is handled on the parent USB interface level. Drivers for
-multiport devices where ports share a resource such as an interrupt
-endpoint also generally cannot handle individual ports going away.
-
+Fixes: 0ca1268e109a ("USB Serial Keyspan: add support for USA-49WG & USA-28XG")
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable <stable@vger.kernel.org>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -63,20 +59,28 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/usb-serial.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/serial/keyspan.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -1350,6 +1350,9 @@ static int usb_serial_register(struct us
- 		return -EINVAL;
- 	}
+--- a/drivers/usb/serial/keyspan.c
++++ b/drivers/usb/serial/keyspan.c
+@@ -1062,6 +1062,8 @@ static void	usa49_glocont_callback(struc
+ 	for (i = 0; i < serial->num_ports; ++i) {
+ 		port = serial->port[i];
+ 		p_priv = usb_get_serial_port_data(port);
++		if (!p_priv)
++			continue;
  
-+	/* Prevent individual ports from being unbound. */
-+	driver->driver.suppress_bind_attrs = true;
-+
- 	usb_serial_operations_init(driver);
+ 		if (p_priv->resend_cont) {
+ 			dev_dbg(&port->dev, "%s - sending setup\n", __func__);
+@@ -1463,6 +1465,8 @@ static void usa67_glocont_callback(struc
+ 	for (i = 0; i < serial->num_ports; ++i) {
+ 		port = serial->port[i];
+ 		p_priv = usb_get_serial_port_data(port);
++		if (!p_priv)
++			continue;
  
- 	/* Add this device to our list of devices */
+ 		if (p_priv->resend_cont) {
+ 			dev_dbg(&port->dev, "%s - sending setup\n", __func__);
 
 
