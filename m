@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F2A144FDE
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:42:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FC351451D8
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387479AbgAVJlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:41:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33208 "EHLO mail.kernel.org"
+        id S1730393AbgAVJ4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:56:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387617AbgAVJlr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:41:47 -0500
+        id S1729903AbgAVJbz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:31:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0EA724686;
-        Wed, 22 Jan 2020 09:41:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E06D124673;
+        Wed, 22 Jan 2020 09:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686107;
-        bh=tAEX8k+O68fJuZfYx6mQBJTYLpBE2CrVhQuydpAimMg=;
+        s=default; t=1579685515;
+        bh=lFrp2fT6oAwU0C505gdh33LnzaHuMVacMPBXsfkRemY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWT1jJQSzDAVvkMK9js/fyLGwVIpD1fDoBHHYU2S256O9B8mRA5F9J8zfkV8AmFrf
-         xfM2dgbdEfvzhZ2n9ipiWR0EE/SUhrw27+TEVUfIXchScPFmaQk0U4aEAYpId8TQd2
-         IUHO39VaHJYp/3kYCEG9mjtmw2qvYlM+n12DE/7k=
+        b=yh/hWh7TK5NYf+qQeqasmNwDzcgmcHF2UFDwp20ki1dhaPmmERLz5MGCHGroxFwti
+         v8q+WaVQ1xYFEEO0Hvp/TDVSFc+1E5ShuPQfSAbyq8iT+/Xc6cbs+gPymzVCSNAx2k
+         tr1djPCaxsy8l+k4Onppla0fNp+O7LJEZqHke/Kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Qian Cai <cai@lca.pw>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 046/103] mm/page-writeback.c: avoid potential division by zero in wb_min_max_ratio()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 46/76] USB: serial: ch341: handle unbound port at reset_resume
 Date:   Wed, 22 Jan 2020 10:29:02 +0100
-Message-Id: <20200122092810.734690455@linuxfoundation.org>
+Message-Id: <20200122092757.494045423@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,79 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 6d9e8c651dd979aa666bee15f086745f3ea9c4b3 upstream.
+commit 4d5ef53f75c22d28f490bcc5c771fcc610a9afa4 upstream.
 
-Patch series "use div64_ul() instead of div_u64() if the divisor is
-unsigned long".
+Check for NULL port data in reset_resume() to avoid dereferencing a NULL
+pointer in case the port device isn't bound to a driver (e.g. after a
+failed control request at port probe).
 
-We were first inspired by commit b0ab99e7736a ("sched: Fix possible divide
-by zero in avg_atom () calculation"), then refer to the recently analyzed
-mm code, we found this suspicious place.
-
- 201                 if (min) {
- 202                         min *= this_bw;
- 203                         do_div(min, tot_bw);
- 204                 }
-
-And we also disassembled and confirmed it:
-
-  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 201
-  0xffffffff811c37da <__wb_calc_thresh+234>:      xor    %r10d,%r10d
-  0xffffffff811c37dd <__wb_calc_thresh+237>:      test   %rax,%rax
-  0xffffffff811c37e0 <__wb_calc_thresh+240>:      je 0xffffffff811c3800 <__wb_calc_thresh+272>
-  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 202
-  0xffffffff811c37e2 <__wb_calc_thresh+242>:      imul   %r8,%rax
-  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 203
-  0xffffffff811c37e6 <__wb_calc_thresh+246>:      mov    %r9d,%r10d    ---> truncates it to 32 bits here
-  0xffffffff811c37e9 <__wb_calc_thresh+249>:      xor    %edx,%edx
-  0xffffffff811c37eb <__wb_calc_thresh+251>:      div    %r10
-  0xffffffff811c37ee <__wb_calc_thresh+254>:      imul   %rbx,%rax
-  0xffffffff811c37f2 <__wb_calc_thresh+258>:      shr    $0x2,%rax
-  0xffffffff811c37f6 <__wb_calc_thresh+262>:      mul    %rcx
-  0xffffffff811c37f9 <__wb_calc_thresh+265>:      shr    $0x2,%rdx
-  0xffffffff811c37fd <__wb_calc_thresh+269>:      mov    %rdx,%r10
-
-This series uses div64_ul() instead of div_u64() if the divisor is
-unsigned long, to avoid truncation to 32-bit on 64-bit platforms.
-
-This patch (of 3):
-
-The variables 'min' and 'max' are unsigned long and do_div truncates
-them to 32 bits, which means it can test non-zero and be truncated to
-zero for division.  Fix this issue by using div64_ul() instead.
-
-Link: http://lkml.kernel.org/r/20200102081442.8273-2-wenyang@linux.alibaba.com
-Fixes: 693108a8a667 ("writeback: make bdi->min/max_ratio handling cgroup writeback aware")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 1ded7ea47b88 ("USB: ch341 serial: fix port number changed after resume")
+Cc: stable <stable@vger.kernel.org>     # 2.6.30
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/page-writeback.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ch341.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -200,11 +200,11 @@ static void wb_min_max_ratio(struct bdi_
- 	if (this_bw < tot_bw) {
- 		if (min) {
- 			min *= this_bw;
--			do_div(min, tot_bw);
-+			min = div64_ul(min, tot_bw);
- 		}
- 		if (max < 100) {
- 			max *= this_bw;
--			do_div(max, tot_bw);
-+			max = div64_ul(max, tot_bw);
- 		}
- 	}
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -555,9 +555,13 @@ static int ch341_tiocmget(struct tty_str
+ static int ch341_reset_resume(struct usb_serial *serial)
+ {
+ 	struct usb_serial_port *port = serial->port[0];
+-	struct ch341_private *priv = usb_get_serial_port_data(port);
++	struct ch341_private *priv;
+ 	int ret;
+ 
++	priv = usb_get_serial_port_data(port);
++	if (!priv)
++		return 0;
++
+ 	/* reconfigure ch341 serial port after bus-reset */
+ 	ch341_configure(serial->dev, priv);
  
 
 
