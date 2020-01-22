@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A24214511A
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:52:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56DAD144F56
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:36:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731216AbgAVJgs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:36:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52412 "EHLO mail.kernel.org"
+        id S1732198AbgAVJgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:36:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732125AbgAVJgr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:36:47 -0500
+        id S1730573AbgAVJgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:36:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35B7E24680;
-        Wed, 22 Jan 2020 09:36:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FFA72467B;
+        Wed, 22 Jan 2020 09:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685806;
-        bh=K64ZCmFD7ZV3wzJnReJx5yB7iYzJMGbv5X2Acvba6Ts=;
+        s=default; t=1579685809;
+        bh=6iiW+6cKKI/kGdLzzH3K+plX8sGlQdE7VetFRoAKqLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TL+tFBN4sT4B103zRGfhI74o0+d5gIVJ8df/HxlQx8JVa3yMgEYeezGALc8wbCubg
-         XXpI+a03J1tV/nKOieFAxp5FDELE541aY7OryJtvtvvVWXQN48XO0dWqLVKXOuWBQS
-         3q2Oyq0qVcphUWtg4D3YSgu/cj4OsdnOqh0/IX1M=
+        b=ov7ws+feAI/zu8PTU0wUrc6YFDx+I3lAxLQVtQwjjc6Pgj7zXmS8zGjEswHIejqD9
+         S7Wvf5xP5deZV+jsNvAASM8BWzhSk4kKqAcDkthJM5eOoUrjMSufMIJWe0ko9gCE17
+         HR/NcXgevyu3sjrstahKCihOBUaajMLp834hMwds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        RENARD Pierre-Francois <pfrenard@gmail.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Woojung Huh <woojung.huh@microchip.com>,
-        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 86/97] net: usb: lan78xx: limit size of local TSO packets
-Date:   Wed, 22 Jan 2020 10:29:30 +0100
-Message-Id: <20200122092810.126276788@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Juergen Gross <jgross@suse.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
+Subject: [PATCH 4.9 87/97] xen/blkfront: Adjust indentation in xlvbd_alloc_gendisk
+Date:   Wed, 22 Jan 2020 10:29:31 +0100
+Message-Id: <20200122092810.259748100@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
 References: <20200122092755.678349497@linuxfoundation.org>
@@ -47,46 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit f8d7408a4d7f60f8b2df0f81decdc882dd9c20dc ]
+commit 589b72894f53124a39d1bb3c0cecaf9dcabac417 upstream.
 
-lan78xx_tx_bh() makes sure to not exceed MAX_SINGLE_PACKET_SIZE
-bytes in the aggregated packets it builds, but does
-nothing to prevent large GSO packets being submitted.
+Clang warns:
 
-Pierre-Francois reported various hangs when/if TSO is enabled.
+../drivers/block/xen-blkfront.c:1117:4: warning: misleading indentation;
+statement is not part of the previous 'if' [-Wmisleading-indentation]
+                nr_parts = PARTS_PER_DISK;
+                ^
+../drivers/block/xen-blkfront.c:1115:3: note: previous statement is here
+                if (err)
+                ^
 
-For localy generated packets, we can use netif_set_gso_max_size()
-to limit the size of TSO packets.
+This is because there is a space at the beginning of this line; remove
+it so that the indentation is consistent according to the Linux kernel
+coding style and clang no longer warns.
 
-Note that forwarded packets could still hit the issue,
-so a complete fix might require implementing .ndo_features_check
-for this driver, forcing a software segmentation if the size
-of the TSO packet exceeds MAX_SINGLE_PACKET_SIZE.
+While we are here, the previous line has some trailing whitespace; clean
+that up as well.
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: RENARD Pierre-Francois <pfrenard@gmail.com>
-Tested-by: RENARD Pierre-Francois <pfrenard@gmail.com>
-Cc: Stefan Wahren <stefan.wahren@i2se.com>
-Cc: Woojung Huh <woojung.huh@microchip.com>
-Cc: Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c80a420995e7 ("xen-blkfront: handle Xen major numbers other than XENVBD")
+Link: https://github.com/ClangBuiltLinux/linux/issues/791
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Acked-by: Roger Pau Monné <roger.pau@citrix.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/usb/lan78xx.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -3375,6 +3375,7 @@ static int lan78xx_probe(struct usb_inte
- 
- 	if (netdev->mtu > (dev->hard_mtu - netdev->hard_header_len))
- 		netdev->mtu = dev->hard_mtu - netdev->hard_header_len;
-+	netif_set_gso_max_size(netdev, MAX_SINGLE_PACKET_SIZE - MAX_HEADER);
- 
- 	dev->ep_blkin = (intf->cur_altsetting)->endpoint + 0;
- 	dev->ep_blkout = (intf->cur_altsetting)->endpoint + 1;
+---
+ drivers/block/xen-blkfront.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1104,8 +1104,8 @@ static int xlvbd_alloc_gendisk(blkif_sec
+ 	if (!VDEV_IS_EXTENDED(info->vdevice)) {
+ 		err = xen_translate_vdev(info->vdevice, &minor, &offset);
+ 		if (err)
+-			return err;		
+- 		nr_parts = PARTS_PER_DISK;
++			return err;
++		nr_parts = PARTS_PER_DISK;
+ 	} else {
+ 		minor = BLKIF_MINOR_EXT(info->vdevice);
+ 		nr_parts = PARTS_PER_EXT_DISK;
 
 
