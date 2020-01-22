@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D5FA1451B9
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:56:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBFB14513A
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:52:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730100AbgAVJc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:32:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45244 "EHLO mail.kernel.org"
+        id S1730537AbgAVJgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:36:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730090AbgAVJc0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:32:26 -0500
+        id S1731591AbgAVJgA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:36:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D961A24673;
-        Wed, 22 Jan 2020 09:32:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF0002467A;
+        Wed, 22 Jan 2020 09:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685545;
-        bh=LYGMGxKOVbHmprK+6GDGpGUYa0T76JV+ECBQ2QZR9HQ=;
+        s=default; t=1579685760;
+        bh=69r7vk7uHEpTuwlwwAtbipRDW/05if9LicMmlZJ/A5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CdAtGk6mc0NZ/JxIhkKZhcdC3akh1RXE/iL45tky64ZCqXmYsjYGWxI+wPFx99c2K
-         vlFjFTBCD8eVtPW/PttBBe89cTflgJSm9PlkuiFahfutsvZaCvl8Dv14t2UxYCs+Ss
-         oETefynJsz4OB6MoO6JfX78z5+PNYs+RKGVDS/eQ=
+        b=QXcepaWFy8nfgFniH56r4ClN/sNFlesDuLukVYvoyv0cghibCzTysghEmCy844IE/
+         YnzQerzJ3YhdUSfK5XSLN6fLD82qwXrxDt/XPBRP2XKEkqcWMLSA6AARDdIwekICfp
+         ZgdAzpA/QBEOr5Vt+J5SgMxZJR60v3AkQkHYW39c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 57/76] USB: serial: keyspan: handle unbound ports
+        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 69/97] net: stmmac: 16KB buffer must be 16 byte aligned
 Date:   Wed, 22 Jan 2020 10:29:13 +0100
-Message-Id: <20200122092759.574398884@linuxfoundation.org>
+Message-Id: <20200122092807.473973825@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 3018dd3fa114b13261e9599ddb5656ef97a1fa17 ]
+commit 8605131747e7e1fd8f6c9f97a00287aae2b2c640 upstream.
 
-Check for NULL port data in the control URB completion handlers to avoid
-dereferencing a NULL pointer in the unlikely case where a port device
-isn't bound to a driver (e.g. after an allocation failure on port
-probe()).
+The 16KB RX Buffer must also be 16 byte aligned. Fix it.
 
-Fixes: 0ca1268e109a ("USB Serial Keyspan: add support for USA-49WG & USA-28XG")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7ac6653a085b ("stmmac: Move the STMicroelectronics driver")
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/serial/keyspan.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/common.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/serial/keyspan.c b/drivers/usb/serial/keyspan.c
-index 38112be0dbae..a79e9adf4e53 100644
---- a/drivers/usb/serial/keyspan.c
-+++ b/drivers/usb/serial/keyspan.c
-@@ -565,6 +565,8 @@ static void	usa49_glocont_callback(struct urb *urb)
- 	for (i = 0; i < serial->num_ports; ++i) {
- 		port = serial->port[i];
- 		p_priv = usb_get_serial_port_data(port);
-+		if (!p_priv)
-+			continue;
+--- a/drivers/net/ethernet/stmicro/stmmac/common.h
++++ b/drivers/net/ethernet/stmicro/stmmac/common.h
+@@ -326,8 +326,8 @@ struct dma_features {
+ 	unsigned int enh_desc;
+ };
  
- 		if (p_priv->resend_cont) {
- 			dev_dbg(&port->dev, "%s - sending setup\n", __func__);
-@@ -962,6 +964,8 @@ static void usa67_glocont_callback(struct urb *urb)
- 	for (i = 0; i < serial->num_ports; ++i) {
- 		port = serial->port[i];
- 		p_priv = usb_get_serial_port_data(port);
-+		if (!p_priv)
-+			continue;
- 
- 		if (p_priv->resend_cont) {
- 			dev_dbg(&port->dev, "%s - sending setup\n", __func__);
--- 
-2.20.1
-
+-/* GMAC TX FIFO is 8K, Rx FIFO is 16K */
+-#define BUF_SIZE_16KiB 16384
++/* RX Buffer size must be multiple of 4/8/16 bytes */
++#define BUF_SIZE_16KiB 16368
+ #define BUF_SIZE_8KiB 8192
+ #define BUF_SIZE_4KiB 4096
+ #define BUF_SIZE_2KiB 2048
 
 
