@@ -2,173 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 478C61457CD
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 15:26:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 549871457EE
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 15:37:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728665AbgAVO0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 09:26:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48250 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729110AbgAVO0e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 09:26:34 -0500
-Received: from localhost (unknown [84.241.205.26])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C6172467B;
-        Wed, 22 Jan 2020 14:26:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579703192;
-        bh=Z3DDtDQ0N6bwu/++6RZxej26KCF4dmzYDPe9dazrTzo=;
-        h=Subject:To:From:Date:From;
-        b=uGq2ioG7P9ftJKJ1vLUrXx7cnS9nXAJXhHByj6bh9YNZaCNFHoiKxPDtc1jTalXWz
-         XJ8DufeGAln4/Knr7eKDXI7VDi+bMyKAD5TTvhqcRzUZ7q0SneC9hXcx6uHNcPYfEJ
-         j8g/V8S9E1b9OM86liN2kZH7w6PBw4tOHSZ7AH/w=
-Subject: patch "binder: fix log spam for existing debugfs file creation." added to char-misc-testing
-To:     martin.fuzzey@flowbird.group, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, tkjos@google.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 22 Jan 2020 15:26:28 +0100
-Message-ID: <1579703188500@kroah.com>
+        id S1725884AbgAVOhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 09:37:07 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:41865 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725883AbgAVOhH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 09:37:07 -0500
+Received: by mail-lj1-f196.google.com with SMTP id h23so7063373ljc.8
+        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 06:37:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=c13zs8955RjOwO1R68Yo+jLBYdPImb6ylKEnAaJXyfI=;
+        b=Er1BCnrp9pDvNyImzTqxasJ+FYW8/qO7X6bhQUhS6CQLwAfmG9cXbpfioOahR9qOrF
+         /yIDow0U2JjXN0EnFsfK74W2eiQYgVwfeUa3ettvfdOTXIsy7jT0su4soPNOuPcczkto
+         3pQMzKhoFOh1OhCl/1PtV/HZXUVyrYHLw5lrpa6eUpvftZNoPuyFkFp3fdfpT1wATepV
+         SOS6Y9ilqaC/goEQ6aRfc5sYHNfe12bmF4/w+ZB8fQ8HbeTyIADc3I3W4RM0lp8dHXDL
+         dKHEcpCM0QECJ61cfTQyYCtOvS19tlSglws3Q9ANtu1fei+xCYALxdzY6A8FaM9ax9jb
+         7h8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=c13zs8955RjOwO1R68Yo+jLBYdPImb6ylKEnAaJXyfI=;
+        b=FWm5BaQ+iR2duP2tw5v0Txrm24YhqrpBt3xRED+4gEmXiE6zcXvUm6X8CDxfZ+EDk/
+         esbibE8OhPaPTMTv2B0zdIhqco7uKuFKfdGfQcR51wPWhgGdi4NK1AEYnyfegm54I9iu
+         f4mFObJB5EIigIsNl35PnMwCZqDdC5k7unhITOJWmwUCP4pqZY3HSqRBzwFZOm1yNO12
+         RLTtjY0Kh7IW0hTwC1OMtWs6cPP0D8XG/+Ybm7Youa+kUoa6JCSL+qJqwa7TZ/lNDEXy
+         tUOa752LrusaqozMmbLD512JKmhVCMsgDSbReMXIWcZ7Ox4FqCz7C6INxsujFXOLjWZZ
+         SGFA==
+X-Gm-Message-State: APjAAAVyLjj9O8qtTat+TJRF/k0Y9RGJiFXjW6JuB72xUDNKiioRcYFx
+        s0rPEW5vbPHe7HHCiWQjw4lIatIKuCtSo+VXLefvNQ==
+X-Google-Smtp-Source: APXvYqywzF2CDlmaQcEQ/h0GK7mqNcY3nemKFbD/fkL3KGrztNcgnnWKbJ0mlhX1LotfCWETqxh9T1ckkUhB/Tx1rn0=
+X-Received: by 2002:a2e:9c0b:: with SMTP id s11mr19310123lji.11.1579703825148;
+ Wed, 22 Jan 2020 06:37:05 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 22 Jan 2020 20:06:53 +0530
+Message-ID: <CA+G9fYv=neoAU80UdcQ_dRv78x02AXvkUX5y0kY2ZZ-meWQKQg@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/97] 4.9.211-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 22 Jan 2020 at 15:04, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.211 release.
+> There are 97 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 24 Jan 2020 09:25:24 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.211-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-This is a note to let you know that I've just added the patch titled
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-    binder: fix log spam for existing debugfs file creation.
+Summary
+------------------------------------------------------------------------
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
+kernel: 4.9.211-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: c10529b210d19bdf8fca0385b4e1e6374401dd5a
+git describe: v4.9.210-98-gc10529b210d1
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.210-98-gc10529b210d1
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+No regressions (compared to build v4.9.210)
 
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
+No fixes (compared to build v4.9.210)
 
-If you have any questions about this process, please let me know.
+Ran 21111 total tests in the following environments and test suites.
 
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
 
-From eb143f8756e77c8fcfc4d574922ae9efd3a43ca9 Mon Sep 17 00:00:00 2001
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Date: Fri, 10 Jan 2020 16:44:01 +0100
-Subject: binder: fix log spam for existing debugfs file creation.
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* spectre-meltdown-checker-test
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* network-basic-tests
+* perf
+* ltp-open-posix-tests
+* ltp-syscalls-tests
+* v4l2-compliance
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
 
-Since commit 43e23b6c0b01 ("debugfs: log errors when something goes wrong")
-debugfs logs attempts to create existing files.
-
-However binder attempts to create multiple debugfs files with
-the same name when a single PID has multiple contexts, this leads
-to log spamming during an Android boot (17 such messages during
-boot on my system).
-
-Fix this by checking if we already know the PID and only create
-the debugfs entry for the first context per PID.
-
-Do the same thing for binderfs for symmetry.
-
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Acked-by: Todd Kjos <tkjos@google.com>
-Fixes: 43e23b6c0b01 ("debugfs: log errors when something goes wrong")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1578671054-5982-1-git-send-email-martin.fuzzey@flowbird.group
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/android/binder.c | 37 +++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index b2dad43dbf82..9fcc761031d8 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -5199,10 +5199,11 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
- 
- static int binder_open(struct inode *nodp, struct file *filp)
- {
--	struct binder_proc *proc;
-+	struct binder_proc *proc, *itr;
- 	struct binder_device *binder_dev;
- 	struct binderfs_info *info;
- 	struct dentry *binder_binderfs_dir_entry_proc = NULL;
-+	bool existing_pid = false;
- 
- 	binder_debug(BINDER_DEBUG_OPEN_CLOSE, "%s: %d:%d\n", __func__,
- 		     current->group_leader->pid, current->pid);
-@@ -5235,19 +5236,24 @@ static int binder_open(struct inode *nodp, struct file *filp)
- 	filp->private_data = proc;
- 
- 	mutex_lock(&binder_procs_lock);
-+	hlist_for_each_entry(itr, &binder_procs, proc_node) {
-+		if (itr->pid == proc->pid) {
-+			existing_pid = true;
-+			break;
-+		}
-+	}
- 	hlist_add_head(&proc->proc_node, &binder_procs);
- 	mutex_unlock(&binder_procs_lock);
- 
--	if (binder_debugfs_dir_entry_proc) {
-+	if (binder_debugfs_dir_entry_proc && !existing_pid) {
- 		char strbuf[11];
- 
- 		snprintf(strbuf, sizeof(strbuf), "%u", proc->pid);
- 		/*
--		 * proc debug entries are shared between contexts, so
--		 * this will fail if the process tries to open the driver
--		 * again with a different context. The priting code will
--		 * anyway print all contexts that a given PID has, so this
--		 * is not a problem.
-+		 * proc debug entries are shared between contexts.
-+		 * Only create for the first PID to avoid debugfs log spamming
-+		 * The printing code will anyway print all contexts for a given
-+		 * PID so this is not a problem.
- 		 */
- 		proc->debugfs_entry = debugfs_create_file(strbuf, 0444,
- 			binder_debugfs_dir_entry_proc,
-@@ -5255,19 +5261,16 @@ static int binder_open(struct inode *nodp, struct file *filp)
- 			&proc_fops);
- 	}
- 
--	if (binder_binderfs_dir_entry_proc) {
-+	if (binder_binderfs_dir_entry_proc && !existing_pid) {
- 		char strbuf[11];
- 		struct dentry *binderfs_entry;
- 
- 		snprintf(strbuf, sizeof(strbuf), "%u", proc->pid);
- 		/*
- 		 * Similar to debugfs, the process specific log file is shared
--		 * between contexts. If the file has already been created for a
--		 * process, the following binderfs_create_file() call will
--		 * fail with error code EEXIST if another context of the same
--		 * process invoked binder_open(). This is ok since same as
--		 * debugfs, the log file will contain information on all
--		 * contexts of a given PID.
-+		 * between contexts. Only create for the first PID.
-+		 * This is ok since same as debugfs, the log file will contain
-+		 * information on all contexts of a given PID.
- 		 */
- 		binderfs_entry = binderfs_create_file(binder_binderfs_dir_entry_proc,
- 			strbuf, &proc_fops, (void *)(unsigned long)proc->pid);
-@@ -5277,10 +5280,8 @@ static int binder_open(struct inode *nodp, struct file *filp)
- 			int error;
- 
- 			error = PTR_ERR(binderfs_entry);
--			if (error != -EEXIST) {
--				pr_warn("Unable to create file %s in binderfs (error %d)\n",
--					strbuf, error);
--			}
-+			pr_warn("Unable to create file %s in binderfs (error %d)\n",
-+				strbuf, error);
- 		}
- 	}
- 
--- 
-2.25.0
-
-
+--=20
+Linaro LKFT
+https://lkft.linaro.org
