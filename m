@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0D3145195
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7139144F55
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:36:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729550AbgAVJzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:55:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
+        id S1732012AbgAVJgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:36:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729587AbgAVJdT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:33:19 -0500
+        id S1731991AbgAVJgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:36:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB4652071E;
-        Wed, 22 Jan 2020 09:33:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA6B424687;
+        Wed, 22 Jan 2020 09:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685599;
-        bh=e36sjmPaCPPq1/i9Ltj188SqoWa1clYoefAn7mPbTaA=;
+        s=default; t=1579685804;
+        bh=dFYKqZc6dYI9weUBdmlfJSBiQmCkdRyAKsj4+kb9y9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IjnoIz3BVOKOucX+wZB0elDz4y1HJTxIQ2qcx/eNo96zMEzZ7xMG5X7UZGXzkSBib
-         shX7Y+cybhEQgMZCFWn6vnZ+/ZLAvDwFZ8l+D08XVrPN4MM+ikBDz7v6L0YI8+LcAj
-         QTJ2YreURjE/8V5JhKBTRk36Mo4riYiBh/2ws3CE=
+        b=XOv9N/9PPDFOFYMRwKtsl1nTxpTFT31chRkTGeEjCf+hHjjJ7zMNSig52E4zGtd+U
+         8ivHyz2Vbh0PueX2uHFMQIoFaLW0s3FnUDcLaBFMsrdWsgY60Jmx2MOHuwMObTIADC
+         BF0biuOBULoUaGGFunpfZgAzoIAnRPKzxizlQYQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 72/76] scsi: bnx2i: fix potential use after free
-Date:   Wed, 22 Jan 2020 10:29:28 +0100
-Message-Id: <20200122092802.446948684@linuxfoundation.org>
+        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 85/97] tcp: fix marked lost packets not being retransmitted
+Date:   Wed, 22 Jan 2020 10:29:29 +0100
+Message-Id: <20200122092809.980970083@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-commit 29d28f2b8d3736ac61c28ef7e20fda63795b74d9 upstream.
+[ Upstream commit e176b1ba476cf36f723cfcc7a9e57f3cb47dec70 ]
 
-The member hba->pcidev may be used after its reference is dropped. Move the
-put function to where it is never used to avoid potential use after free
-issues.
+When the packet pointed to by retransmit_skb_hint is unlinked by ACK,
+retransmit_skb_hint will be set to NULL in tcp_clean_rtx_queue().
+If packet loss is detected at this time, retransmit_skb_hint will be set
+to point to the current packet loss in tcp_verify_retransmit_hint(),
+then the packets that were previously marked lost but not retransmitted
+due to the restriction of cwnd will be skipped and cannot be
+retransmitted.
 
-Fixes: a77171806515 ("[SCSI] bnx2i: Removed the reference to the netdev->base_addr")
-Link: https://lore.kernel.org/r/1573043541-19126-1-git-send-email-bianpan2016@163.com
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+To fix this, when retransmit_skb_hint is NULL, retransmit_skb_hint can
+be reset only after all marked lost packets are retransmitted
+(retrans_out >= lost_out), otherwise we need to traverse from
+tcp_rtx_queue_head in tcp_xmit_retransmit_queue().
+
+Packetdrill to demonstrate:
+
+// Disable RACK and set max_reordering to keep things simple
+    0 `sysctl -q net.ipv4.tcp_recovery=0`
+   +0 `sysctl -q net.ipv4.tcp_max_reordering=3`
+
+// Establish a connection
+   +0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
+   +0 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+   +0 bind(3, ..., ...) = 0
+   +0 listen(3, 1) = 0
+
+  +.1 < S 0:0(0) win 32792 <mss 1000,sackOK,nop,nop,nop,wscale 7>
+   +0 > S. 0:0(0) ack 1 <...>
+ +.01 < . 1:1(0) ack 1 win 257
+   +0 accept(3, ..., ...) = 4
+
+// Send 8 data segments
+   +0 write(4, ..., 8000) = 8000
+   +0 > P. 1:8001(8000) ack 1
+
+// Enter recovery and 1:3001 is marked lost
+ +.01 < . 1:1(0) ack 1 win 257 <sack 3001:4001,nop,nop>
+   +0 < . 1:1(0) ack 1 win 257 <sack 5001:6001 3001:4001,nop,nop>
+   +0 < . 1:1(0) ack 1 win 257 <sack 5001:7001 3001:4001,nop,nop>
+
+// Retransmit 1:1001, now retransmit_skb_hint points to 1001:2001
+   +0 > . 1:1001(1000) ack 1
+
+// 1001:2001 was ACKed causing retransmit_skb_hint to be set to NULL
+ +.01 < . 1:1(0) ack 2001 win 257 <sack 5001:8001 3001:4001,nop,nop>
+// Now retransmit_skb_hint points to 4001:5001 which is now marked lost
+
+// BUG: 2001:3001 was not retransmitted
+   +0 > . 2001:3001(1000) ack 1
+
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Tested-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/scsi/bnx2i/bnx2i_iscsi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_input.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/bnx2i/bnx2i_iscsi.c
-+++ b/drivers/scsi/bnx2i/bnx2i_iscsi.c
-@@ -915,12 +915,12 @@ void bnx2i_free_hba(struct bnx2i_hba *hb
- 	INIT_LIST_HEAD(&hba->ep_ofld_list);
- 	INIT_LIST_HEAD(&hba->ep_active_list);
- 	INIT_LIST_HEAD(&hba->ep_destroy_list);
--	pci_dev_put(hba->pcidev);
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -923,9 +923,10 @@ static void tcp_update_reordering(struct
+ /* This must be called before lost_out is incremented */
+ static void tcp_verify_retransmit_hint(struct tcp_sock *tp, struct sk_buff *skb)
+ {
+-	if (!tp->retransmit_skb_hint ||
+-	    before(TCP_SKB_CB(skb)->seq,
+-		   TCP_SKB_CB(tp->retransmit_skb_hint)->seq))
++	if ((!tp->retransmit_skb_hint && tp->retrans_out >= tp->lost_out) ||
++	    (tp->retransmit_skb_hint &&
++	     before(TCP_SKB_CB(skb)->seq,
++		    TCP_SKB_CB(tp->retransmit_skb_hint)->seq)))
+ 		tp->retransmit_skb_hint = skb;
  
- 	if (hba->regview) {
- 		pci_iounmap(hba->pcidev, hba->regview);
- 		hba->regview = NULL;
- 	}
-+	pci_dev_put(hba->pcidev);
- 	bnx2i_free_mp_bdt(hba);
- 	bnx2i_release_free_cid_que(hba);
- 	iscsi_host_free(shost);
+ 	if (!tp->lost_out ||
 
 
