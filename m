@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8A29145007
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:43:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 903FB144F93
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:39:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387803AbgAVJnI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:43:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35412 "EHLO mail.kernel.org"
+        id S1733177AbgAVJjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:39:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387834AbgAVJnH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:43:07 -0500
+        id S1732372AbgAVJjQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:39:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C13724688;
-        Wed, 22 Jan 2020 09:43:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CB5824683;
+        Wed, 22 Jan 2020 09:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686187;
-        bh=nmQXkcSiUAJqWYJ+V3uerZ+yCxSq758WLrSrWnOS+G4=;
+        s=default; t=1579685955;
+        bh=qoMCuMQpvnOIkcYaIt6WZ54nxWK5b5EAI4RuxSYfFYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CoTmTxFb/BnFDF/MfGp1bgi/TSjLyTm2E9N1/hOwlcQDuyylTphF7/x7AgMyk9N8X
-         /T5orrJQ/iS2BMthigWelN6oelr6h2lEmBH4ySrBDwpGMTWiHHS1Ah9EQjbf4A5/la
-         QAEWJhnb5cRcZ8Qw1d+Iw9wscY9COnCht4rJpGsw=
+        b=cTnQJE3gA6uDESWTq+cz2FITCq48N1lCE7ANRJEfz2oddRAmSmc2jXr9pLpxCEXrN
+         EiiFe75VbHzUjTXG4UoWIusHZ6NOpnkFt7ZOMCJuqm0GWotEMpk1svcdaLoI9kYgh1
+         jNjr3ENwwi9o4dMkNPXJ80z9B6NXsnre42wTBj+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nathan Chancellor <natechancellor@gmail.com>,
         Juergen Gross <jgross@suse.com>,
         =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
-Subject: [PATCH 4.19 079/103] xen/blkfront: Adjust indentation in xlvbd_alloc_gendisk
+Subject: [PATCH 4.14 50/65] xen/blkfront: Adjust indentation in xlvbd_alloc_gendisk
 Date:   Wed, 22 Jan 2020 10:29:35 +0100
-Message-Id: <20200122092814.733925700@linuxfoundation.org>
+Message-Id: <20200122092758.425246199@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -80,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/block/xen-blkfront.c
 +++ b/drivers/block/xen-blkfront.c
-@@ -1113,8 +1113,8 @@ static int xlvbd_alloc_gendisk(blkif_sec
+@@ -1115,8 +1115,8 @@ static int xlvbd_alloc_gendisk(blkif_sec
  	if (!VDEV_IS_EXTENDED(info->vdevice)) {
  		err = xen_translate_vdev(info->vdevice, &minor, &offset);
  		if (err)
