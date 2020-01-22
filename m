@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41DCD1451E5
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 978C9145063
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729186AbgAVJ5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:57:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43086 "EHLO mail.kernel.org"
+        id S2387448AbgAVJma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:42:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729559AbgAVJbL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:31:11 -0500
+        id S2387720AbgAVJm3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:42:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 860F82467B;
-        Wed, 22 Jan 2020 09:31:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A34A824680;
+        Wed, 22 Jan 2020 09:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685471;
-        bh=P7rZRElKkOwxcczbNkXYkerQ7t32gQFeDOJWyqJPqGo=;
+        s=default; t=1579686148;
+        bh=0uAs/JgDdMToNLZ1f9xVmDOb3m1ZaiXy12qiW+AgroA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EJ5EjTJYSr2VjWmbKw5uo2JJ09UpShKCx7+gnab8nK0q7vFyZ4bqOySXYQsqtfPm8
-         wen+dwv0sj9jG18VO8GCLj0qqYesGqocdTdvWKe3UzZeC0xvEhA8uady2gydo6OhZj
-         Bko+2hjwhQ7LyUEOd5QC1RBAPFf5r7ocsgd8dSBk=
+        b=YtdxkANc9HMwbWzMhYyCou0Bnv0WyWpe2GVlVgBXs6lA0h81zfTvIxL3Ag3VxFDnZ
+         XfgrDMmBT8IxVmA7Skvkb6Y6yEAefPXR3ftNdgZCwIlSGe13KJHdf5PAhS1uNj6q6G
+         J+YFQBqYaX6r8q00DPEAiay//yjxz1T1XmTatZ1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.4 27/76] iio: imu: adis16480: assign bias value only if operation succeeded
+        stable@vger.kernel.org, Jari Ruusu <jari.ruusu@gmail.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Luis Chamberlain <mcgrof@kernel.org>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 027/103] Fix built-in early-load Intel microcode alignment
 Date:   Wed, 22 Jan 2020 10:28:43 +0100
-Message-Id: <20200122092754.514655086@linuxfoundation.org>
+Message-Id: <20200122092807.905046027@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Jari Ruusu <jari.ruusu@gmail.com>
 
-commit 9b742763d9d4195e823ae6ece760c9ed0500c1dc upstream.
+commit f5ae2ea6347a308cfe91f53b53682ce635497d0d upstream.
 
-This was found only after the whole thing with the inline functions, but
-the compiler actually found something. The value of the `bias` (in
-adis16480_get_calibbias()) should only be set if the read operation was
-successful.
+Intel Software Developer's Manual, volume 3, chapter 9.11.6 says:
 
-No actual known problem occurs as users of this function all
-ultimately check the return value.  Hence probably not stable material.
+ "Note that the microcode update must be aligned on a 16-byte boundary
+  and the size of the microcode update must be 1-KByte granular"
 
-Fixes: 2f3abe6cbb6c9 ("iio:imu: Add support for the ADIS16480 and similar IMUs")
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+When early-load Intel microcode is loaded from initramfs, userspace tool
+'iucode_tool' has already 16-byte aligned those microcode bits in that
+initramfs image.  Image that was created something like this:
+
+ iucode_tool --write-earlyfw=FOO.cpio microcode-files...
+
+However, when early-load Intel microcode is loaded from built-in
+firmware BLOB using CONFIG_EXTRA_FIRMWARE= kernel config option, that
+16-byte alignment is not guaranteed.
+
+Fix this by forcing all built-in firmware BLOBs to 16-byte alignment.
+
+[ If we end up having other firmware with much bigger alignment
+  requirements, we might need to introduce some method for the firmware
+  to specify it, this is the minimal "just increase the alignment a bit
+  to account for this one special case" patch    - Linus ]
+
+Signed-off-by: Jari Ruusu <jari.ruusu@gmail.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/imu/adis16480.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ firmware/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/imu/adis16480.c
-+++ b/drivers/iio/imu/adis16480.c
-@@ -372,12 +372,14 @@ static int adis16480_get_calibbias(struc
- 	case IIO_MAGN:
- 	case IIO_PRESSURE:
- 		ret = adis_read_reg_16(&st->adis, reg, &val16);
--		*bias = sign_extend32(val16, 15);
-+		if (ret == 0)
-+			*bias = sign_extend32(val16, 15);
- 		break;
- 	case IIO_ANGL_VEL:
- 	case IIO_ACCEL:
- 		ret = adis_read_reg_32(&st->adis, reg, &val32);
--		*bias = sign_extend32(val32, 31);
-+		if (ret == 0)
-+			*bias = sign_extend32(val32, 31);
- 		break;
- 	default:
- 			ret = -EINVAL;
+--- a/firmware/Makefile
++++ b/firmware/Makefile
+@@ -19,7 +19,7 @@ quiet_cmd_fwbin = MK_FW   $@
+ 		  PROGBITS=$(if $(CONFIG_ARM),%,@)progbits;		     \
+ 		  echo "/* Generated by firmware/Makefile */"		> $@;\
+ 		  echo "    .section .rodata"				>>$@;\
+-		  echo "    .p2align $${ASM_ALIGN}"			>>$@;\
++		  echo "    .p2align 4"					>>$@;\
+ 		  echo "_fw_$${FWSTR}_bin:"				>>$@;\
+ 		  echo "    .incbin \"$(2)\""				>>$@;\
+ 		  echo "_fw_end:"					>>$@;\
 
 
