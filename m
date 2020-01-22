@@ -2,216 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A555145D01
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 21:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 510D8145D11
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 21:25:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726099AbgAVUWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 15:22:00 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:40367 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbgAVUWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 15:22:00 -0500
-Received: by mail-lj1-f196.google.com with SMTP id n18so495340ljo.7
-        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 12:21:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=SlE70b9GGvg8Ik4bLAYKDMNh9X9O3cEIpNzQoPhTPYI=;
-        b=bCqidwoCk+OIE0ZI+CE4W2w0NLFTQOV8nbURBEy6IU6TNwZL60tIfObVGJ/dQnYSnt
-         +bsfk4ZN/ECzjHzdhYbVVu1phdqX8VqAR3ZUgPJiazPotTKeSCr2mEg3UkTp918K+mwl
-         4wx8A+HT0ub+/MioSwUoY/eaUSxVlo6UkPViztK3rSUZpsy5sE3mD2c9tZzfdZ9WDRov
-         kPnYquChZRi7Xq+myJsRX9fdS2iDF7SPsCV63yKqNTgDS9NT8dgJRH4cPbN5jGuTwc3C
-         y1yxfgRlq+G0YYQaWVUJFisye4Sk2JJNDpSdr9I9pySxRHBa/uySjI7F0TBb+kHQey5G
-         aTYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=SlE70b9GGvg8Ik4bLAYKDMNh9X9O3cEIpNzQoPhTPYI=;
-        b=aanQh6rDWRP4YlOykkErDP3uVzPMHjJhXbo96PntDSQZ2PK31ii1y0Vn7j/ZmG3y45
-         89B3OMe2fCDZ5AgTz0s+WvKTPrUIkoZUASn7bNFfOPwGDNsNUp5Tc1BAWZRGANyolayY
-         i7xK9sbAf3rK1GrWyet72U5L6uYErFzj9DXTl5gRNp8wf5duP340XT4A/uOlAT/VCVL5
-         UBeVrlADMu9zjYXFy8dM0L8Wat1y9o51Kh/bRbXh+Yye64PhMPaaBfW+pBcyYKi5Da0z
-         seb0u9exzvyVBQStodEfkExSWKgQoGSvsYZ1xeBdg4F/mkIdg00wa0W9FsUer2X2gZm1
-         Gl8A==
-X-Gm-Message-State: APjAAAUrxBsw2eXCypbF5WuRyGfwj+AZrWPlAtgzVId7+K3QsMk67sxu
-        QzCgoTlfp/pwMihTspknkwnBNS0pOled77/E2Agm2A==
-X-Google-Smtp-Source: APXvYqxAyOGy3TmikKcAXOITTYIlBv8awZbFxrro6cVwaB6Gi0h3uw1y0ZtvzHEEISpymMnzseO8lYsGGSECl4Jxquo=
-X-Received: by 2002:a2e:965a:: with SMTP id z26mr18377280ljh.104.1579724517965;
- Wed, 22 Jan 2020 12:21:57 -0800 (PST)
+        id S1726194AbgAVUZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 15:25:33 -0500
+Received: from foss.arm.com ([217.140.110.172]:60376 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725827AbgAVUZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 15:25:33 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8BBC031B;
+        Wed, 22 Jan 2020 12:25:32 -0800 (PST)
+Received: from localhost (unknown [10.37.6.21])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 07C7E3F52E;
+        Wed, 22 Jan 2020 12:25:31 -0800 (PST)
+Date:   Wed, 22 Jan 2020 20:25:30 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc:     Jaroslav Kysela <perex@perex.cz>,
+        ALSA development <alsa-devel@alsa-project.org>,
+        Dragos Tarcatu <dragos_tarcatu@mentor.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [alsa-devel] [PATCH] ASoC: topology: fix
+ soc_tplg_fe_link_create() - link->dobj initialization order
+Message-ID: <20200122202530.GG3833@sirena.org.uk>
+References: <20200122190752.3081016-1-perex@perex.cz>
+ <26ae4dbd-b1b8-c640-0dc0-d8c2bbe666e2@linux.intel.com>
 MIME-Version: 1.0
-References: <20200122092751.587775548@linuxfoundation.org>
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 23 Jan 2020 01:51:46 +0530
-Message-ID: <CA+G9fYt5FzE_ZpPJvRavoowaKTDwH76PhUu8ak4VGkfueiy67A@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/76] 4.4.211-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="+1TulI7fc0PCHNy3"
+Content-Disposition: inline
+In-Reply-To: <26ae4dbd-b1b8-c640-0dc0-d8c2bbe666e2@linux.intel.com>
+X-Cookie: Sorry.  Nice try.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 22 Jan 2020 at 15:01, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.211 release.
-> There are 76 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 24 Jan 2020 09:25:24 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.211-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+--+1TulI7fc0PCHNy3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Summary
-------------------------------------------------------------------------
+On Wed, Jan 22, 2020 at 01:28:57PM -0600, Pierre-Louis Bossart wrote:
+> On 1/22/20 1:07 PM, Jaroslav Kysela wrote:
 
-kernel: 4.4.211-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 14fe1f1189f56887f53ae61e2e3218be16f0c2db
-git describe: v4.4.210-77-g14fe1f1189f5
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.210-77-g14fe1f1189f5
+> > The code which checks the return value for snd_soc_add_dai_link() call
+> > in soc_tplg_fe_link_create() moved the snd_soc_add_dai_link() call before
+> > link->dobj members initialization.
 
+> > While it does not affect the latest kernels, the old soc-core.c code
+> > in the stable kernels is affected. The snd_soc_add_dai_link() function uses
+> > the link->dobj.type member to check, if the link structure is valid.
 
-No regressions (compared to build v4.4.210)
+> > Reorder the link->dobj initialization to make things work again.
+> > It's harmless for the recent code (and the structure should be properly
+> > initialized before other calls anyway).
 
+> > The problem is in stable linux-5.4.y since version 5.4.11 when the
+> > upstream commit 76d270364932 was applied.
 
-No fixes (compared to build v4.4.210)
+> I am not following. Is this a fix for linux-5.4-y only, or is it needed on
+> Mark's tree? In the latter case, what is broken? We've been using Mark's
+> tree without issues, wondering what we missed?
 
-Ran 15214 total tests in the following environments and test suites.
+He's saying it's a fix for stable but it's just a cleanup and robustness
+improvement in current kernels - when the patch 76d270364932 (ASoC:
+topology: Check return value for snd_soc_add_dai_link()) was backported
+by the bot the bot missed some other context which triggered bugs.
 
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
+Copying in Sasha and Greg for stable (not sure if the list works by
+itself).
 
-Test Suites
------------
-* build
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-open-posix-tests
-* ltp-sched-tests
-* spectre-meltdown-checker-test
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-cpuhotplug-tests
-* ltp-fcntl-locktests-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* v4l2-compliance
-* perf
-* install-android-platform-tools-r2600
+--+1TulI7fc0PCHNy3
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Summary
-------------------------------------------------------------------------
+-----BEGIN PGP SIGNATURE-----
 
-kernel: 4.4.208-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.208-rc1-hikey-20200101-645
-git commit: 45aaddb4efb9c8a83ada6caeb9594f7fc5130ec3
-git describe: 4.4.208-rc1-hikey-20200101-645
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.208-rc1-hikey-20200101-645
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl4or7kACgkQJNaLcl1U
+h9AlFAf9GdHLtyqqHm/oAX8vYaBlzhtllzk3dKrVF51LCH5SfT4IjLbjo98Jwqry
+DfJAww08q99muDghi/G0ZXEx9xDszoCztyW4qp7CHK0P059Y4GEGzP9N1Dvb1BfD
+RQsnabaekuh0AD0TykUIvwG/a/NCAWLSRc033WL/iGFlQ46BOnXD2QwcaCI9KY3l
+OBX3eXh692YUqFVuOuoA8udZGi0fTQyrHpzc6YmOsDpvxwenm7wh6R28UH7Pi4YR
+r4ALhsV6opuUZXIzIbnNHne6Q7k2NfxGgWlaax+gaZpOoZs+vKMFRnm5E1hi8j4a
+6ENoV1eW/T1irjGFmygmDVN6/VAS6g==
+=aOM6
+-----END PGP SIGNATURE-----
 
-
-No regressions (compared to build 4.4.208-rc1-hikey-20200101-644)
-
-
-No fixes (compared to build 4.4.208-rc1-hikey-20200101-644)
-
-Ran 1568 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+--+1TulI7fc0PCHNy3--
