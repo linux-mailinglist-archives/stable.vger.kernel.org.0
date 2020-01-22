@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CDFF144ECA
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:33:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87CF4144FC1
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:40:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729710AbgAVJb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:31:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43486 "EHLO mail.kernel.org"
+        id S2387481AbgAVJkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:40:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729692AbgAVJb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:31:27 -0500
+        id S1733260AbgAVJkt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:40:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CCCE24687;
-        Wed, 22 Jan 2020 09:31:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 196A424684;
+        Wed, 22 Jan 2020 09:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685486;
-        bh=Xhb31yo7QquruxshJy8J/2Lz4MTb/iTgEo7w7vN7zqs=;
+        s=default; t=1579686048;
+        bh=8tE/D4mz4jFGF0L2PYaXFgqEex6xw+gmIOcsNkew/uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+3kLwMYN9ZTGAMNoxE33n9vak/fD8hP9ylnkSlzYLrGmyLuv+4Mb53T3nSnlzcS4
-         aPQfv36LCDSxsMAYGGb1bVvMxctaws/S06shxe4h/R+QYzzwzorNos3eFv1IfJDc70
-         2mpypZ6M188U707L/khAD3AIrbPAcsG2s8YOy1mE=
+        b=tdGLb7/q5eRCY3O3E//uXfl6tjDVDqtyinvoYMg2aMtkScbwja/gxFqBMzMb0jMiF
+         MPCPbinPWJ3JbjMnlmnnLXsGY8iElfGn19nK/Hc3ImAYujirwSqO3qqcRYcs88u55Z
+         7NlqR5dzI32S/clT3KJOgmt2Jbj0sEp4JHxKoJMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.4 06/76] mac80211: Do not send Layer 2 Update frame before authorization
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 006/103] ASoC: msm8916-wcd-digital: Reset RX interpolation path after use
 Date:   Wed, 22 Jan 2020 10:28:22 +0100
-Message-Id: <20200122092752.276949072@linuxfoundation.org>
+Message-Id: <20200122092804.628145113@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Malinen <jouni@codeaurora.org>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 3e493173b7841259a08c5c8e5cbe90adb349da7e upstream.
+commit 85578bbd642f65065039b1765ebe1a867d5435b0 upstream.
 
-The Layer 2 Update frame is used to update bridges when a station roams
-to another AP even if that STA does not transmit any frames after the
-reassociation. This behavior was described in IEEE Std 802.11F-2003 as
-something that would happen based on MLME-ASSOCIATE.indication, i.e.,
-before completing 4-way handshake. However, this IEEE trial-use
-recommended practice document was published before RSN (IEEE Std
-802.11i-2004) and as such, did not consider RSN use cases. Furthermore,
-IEEE Std 802.11F-2003 was withdrawn in 2006 and as such, has not been
-maintained amd should not be used anymore.
+For some reason, attempting to route audio through QDSP6 on MSM8916
+causes the RX interpolation path to get "stuck" after playing audio
+a few times. In this situation, the analog codec part is still working,
+but the RX path in the digital codec stops working, so you only hear
+the analog parts powering up. After a reboot everything works again.
 
-Sending out the Layer 2 Update frame immediately after association is
-fine for open networks (and also when using SAE, FT protocol, or FILS
-authentication when the station is actually authenticated by the time
-association completes). However, it is not appropriate for cases where
-RSN is used with PSK or EAP authentication since the station is actually
-fully authenticated only once the 4-way handshake completes after
-authentication and attackers might be able to use the unauthenticated
-triggering of Layer 2 Update frame transmission to disrupt bridge
-behavior.
+So far I was not able to reproduce the problem when using lpass-cpu.
 
-Fix this by postponing transmission of the Layer 2 Update frame from
-station entry addition to the point when the station entry is marked
-authorized. Similarly, send out the VLAN binding update only if the STA
-entry has already been authorized.
+The downstream kernel driver avoids this by resetting the RX
+interpolation path after use. In mainline we do something similar
+for the TX decimator (LPASS_CDC_CLK_TX_RESET_B1_CTL), but the
+interpolator reset (LPASS_CDC_CLK_RX_RESET_CTL) got lost when the
+msm8916-wcd driver was split into analog and digital.
 
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 4.4: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Fix this problem by adding the reset to
+msm8916_wcd_digital_enable_interpolator().
+
+Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200105102753.83108-1-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/mac80211/cfg.c      |   11 +++--------
- net/mac80211/sta_info.c |    4 ++++
- 2 files changed, 7 insertions(+), 8 deletions(-)
 
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -1150,7 +1150,6 @@ static int ieee80211_add_station(struct
- 	struct sta_info *sta;
- 	struct ieee80211_sub_if_data *sdata;
- 	int err;
--	int layer2_update;
- 
- 	if (params->vlan) {
- 		sdata = IEEE80211_DEV_TO_SUB_IF(params->vlan);
-@@ -1204,18 +1203,12 @@ static int ieee80211_add_station(struct
- 	    test_sta_flag(sta, WLAN_STA_ASSOC))
- 		rate_control_rate_init(sta);
- 
--	layer2_update = sdata->vif.type == NL80211_IFTYPE_AP_VLAN ||
--		sdata->vif.type == NL80211_IFTYPE_AP;
--
- 	err = sta_info_insert_rcu(sta);
- 	if (err) {
- 		rcu_read_unlock();
- 		return err;
+---
+ sound/soc/codecs/msm8916-wcd-digital.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- a/sound/soc/codecs/msm8916-wcd-digital.c
++++ b/sound/soc/codecs/msm8916-wcd-digital.c
+@@ -357,6 +357,12 @@ static int msm8916_wcd_digital_enable_in
+ 		snd_soc_component_write(component, rx_gain_reg[w->shift],
+ 			      snd_soc_component_read32(component, rx_gain_reg[w->shift]));
+ 		break;
++	case SND_SOC_DAPM_POST_PMD:
++		snd_soc_component_update_bits(component, LPASS_CDC_CLK_RX_RESET_CTL,
++					      1 << w->shift, 1 << w->shift);
++		snd_soc_component_update_bits(component, LPASS_CDC_CLK_RX_RESET_CTL,
++					      1 << w->shift, 0x0);
++		break;
  	}
- 
--	if (layer2_update)
--		cfg80211_send_layer2_update(sta->sdata->dev, sta->sta.addr);
--
- 	rcu_read_unlock();
- 
  	return 0;
-@@ -1323,7 +1316,9 @@ static int ieee80211_change_station(stru
- 				atomic_inc(&sta->sdata->bss->num_mcast_sta);
- 		}
- 
--		cfg80211_send_layer2_update(sta->sdata->dev, sta->sta.addr);
-+		if (sta->sta_state == IEEE80211_STA_AUTHORIZED)
-+			cfg80211_send_layer2_update(sta->sdata->dev,
-+						    sta->sta.addr);
- 	}
- 
- 	err = sta_apply_parameters(local, sta, params);
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -1775,6 +1775,10 @@ int sta_info_move_state(struct sta_info
- 			set_bit(WLAN_STA_AUTHORIZED, &sta->_flags);
- 			ieee80211_check_fast_xmit(sta);
- 		}
-+		if (sta->sdata->vif.type == NL80211_IFTYPE_AP_VLAN ||
-+		    sta->sdata->vif.type == NL80211_IFTYPE_AP)
-+			cfg80211_send_layer2_update(sta->sdata->dev,
-+						    sta->sta.addr);
- 		break;
- 	default:
- 		break;
+ }
 
 
