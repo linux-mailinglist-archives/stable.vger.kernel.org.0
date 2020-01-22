@@ -2,105 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C3C4145CC2
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 20:56:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D18145C8C
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 20:40:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725972AbgAVT4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 14:56:33 -0500
-Received: from mga04.intel.com ([192.55.52.120]:52025 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725827AbgAVT4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 14:56:32 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 22 Jan 2020 11:56:32 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,350,1574150400"; 
-   d="scan'208";a="250734872"
-Received: from jovercas-mobl1.amr.corp.intel.com (HELO [10.254.105.26]) ([10.254.105.26])
-  by fmsmga004.fm.intel.com with ESMTP; 22 Jan 2020 11:56:31 -0800
-Subject: Re: [alsa-devel] [PATCH] ASoC: topology: fix
- soc_tplg_fe_link_create() - link->dobj initialization order
-To:     Jaroslav Kysela <perex@perex.cz>,
-        ALSA development <alsa-devel@alsa-project.org>
-Cc:     Dragos Tarcatu <dragos_tarcatu@mentor.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-References: <20200122190752.3081016-1-perex@perex.cz>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <26ae4dbd-b1b8-c640-0dc0-d8c2bbe666e2@linux.intel.com>
-Date:   Wed, 22 Jan 2020 13:28:57 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
-MIME-Version: 1.0
-In-Reply-To: <20200122190752.3081016-1-perex@perex.cz>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1725884AbgAVTkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 14:40:02 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:47982 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725827AbgAVTkC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 14:40:02 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07484;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0ToMZIoB_1579721990;
+Received: from localhost(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0ToMZIoB_1579721990)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 23 Jan 2020 03:39:58 +0800
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+To:     mhocko@suse.com, richardw.yang@linux.intel.com,
+        akpm@linux-foundation.org
+Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] mm: move_pages: report the number of non-attempted pages
+Date:   Thu, 23 Jan 2020 03:39:50 +0800
+Message-Id: <1579721990-18672-1-git-send-email-yang.shi@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Since commit a49bd4d71637 ("mm, numa: rework do_pages_move"),
+the semantic of move_pages() was changed to return the number of
+non-migrated pages (failed to migration) and the call would be aborted
+immediately if migrate_pages() returns positive value.  But it didn't
+report the number of pages that we even haven't attempted to migrate.
+So, fix it by including non-attempted pages in the return value.
 
+Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
+Suggested-by: Michal Hocko <mhocko@suse.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Cc: <stable@vger.kernel.org>    [4.17+]
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+---
+The patch is based off Wei Yang's cleanup patchset:
+https://lore.kernel.org/linux-mm/20200122011647.13636-1-richardw.yang@linux.intel.com/T/#t
 
-On 1/22/20 1:07 PM, Jaroslav Kysela wrote:
-> The code which checks the return value for snd_soc_add_dai_link() call
-> in soc_tplg_fe_link_create() moved the snd_soc_add_dai_link() call before
-> link->dobj members initialization.
-> 
-> While it does not affect the latest kernels, the old soc-core.c code
-> in the stable kernels is affected. The snd_soc_add_dai_link() function uses
-> the link->dobj.type member to check, if the link structure is valid.
-> 
-> Reorder the link->dobj initialization to make things work again.
-> It's harmless for the recent code (and the structure should be properly
-> initialized before other calls anyway).
-> 
-> The problem is in stable linux-5.4.y since version 5.4.11 when the
-> upstream commit 76d270364932 was applied.
+ mm/migrate.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-I am not following. Is this a fix for linux-5.4-y only, or is it needed 
-on Mark's tree? In the latter case, what is broken? We've been using 
-Mark's tree without issues, wondering what we missed?
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 591f2e5..51b1b76 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -1582,7 +1582,7 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+ 
+ static int move_pages_and_store_status(struct mm_struct *mm, int node,
+ 		struct list_head *pagelist, int __user *status,
+-		int start, int nr)
++		int start, int nr, unsigned long total)
+ {
+ 	int err;
+ 
+@@ -1590,8 +1590,17 @@ static int move_pages_and_store_status(struct mm_struct *mm, int node,
+ 		return 0;
+ 
+ 	err = do_move_pages_to_node(mm, pagelist, node);
+-	if (err)
++	if (err) {
++		/*
++		 * Possitive err means the number of failed pages to
++		 * migrate.  Since we are going to abort and return the
++		 * number of non-migrated pages, so need incude the rest
++		 * of the nr_pages that are not attempted as well.
++		 */
++		if (err > 0)
++			err += total - start - nr - 1;
+ 		return err;
++	}
+ 	err = store_status(status, start, node, nr);
+ 	return err;
+ }
+@@ -1640,7 +1649,8 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+ 			start = i;
+ 		} else if (node != current_node) {
+ 			err = move_pages_and_store_status(mm, current_node,
+-					&pagelist, status, start, i - start);
++					&pagelist, status, start, i - start,
++					nr_pages);
+ 			if (err)
+ 				goto out;
+ 			start = i;
+@@ -1670,7 +1680,7 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+ 			goto out_flush;
+ 
+ 		err = move_pages_and_store_status(mm, current_node, &pagelist,
+-				status, start, i - start);
++				status, start, i - start, nr_pages);
+ 		if (err)
+ 			goto out;
+ 		current_node = NUMA_NO_NODE;
+@@ -1678,7 +1688,7 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+ out_flush:
+ 	/* Make sure we do not overwrite the existing error */
+ 	err1 = move_pages_and_store_status(mm, current_node, &pagelist,
+-				status, start, i - start);
++				status, start, i - start, nr_pages);
+ 	if (err >= 0)
+ 		err = err1;
+ out:
+-- 
+1.8.3.1
 
-> 
-> Fixes: 76d270364932 ("ASoC: topology: Check return value for snd_soc_add_dai_link()")
-> Cc: Dragos Tarcatu <dragos_tarcatu@mentor.com>
-> Cc: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-> Cc: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Jaroslav Kysela <perex@perex.cz>
-> ---
->   sound/soc/soc-topology.c | 7 ++++---
->   1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-> index 92e4f4d08bfa..4e1fe623c390 100644
-> --- a/sound/soc/soc-topology.c
-> +++ b/sound/soc/soc-topology.c
-> @@ -1906,6 +1906,10 @@ static int soc_tplg_fe_link_create(struct soc_tplg *tplg,
->   	link->num_codecs = 1;
->   	link->num_platforms = 1;
->   
-> +	link->dobj.index = tplg->index;
-> +	link->dobj.ops = tplg->ops;
-> +	link->dobj.type = SND_SOC_DOBJ_DAI_LINK;
-> +
->   	if (strlen(pcm->pcm_name)) {
->   		link->name = kstrdup(pcm->pcm_name, GFP_KERNEL);
->   		link->stream_name = kstrdup(pcm->pcm_name, GFP_KERNEL);
-> @@ -1942,9 +1946,6 @@ static int soc_tplg_fe_link_create(struct soc_tplg *tplg,
->   		goto err;
->   	}
->   
-> -	link->dobj.index = tplg->index;
-> -	link->dobj.ops = tplg->ops;
-> -	link->dobj.type = SND_SOC_DOBJ_DAI_LINK;
->   	list_add(&link->dobj.list, &tplg->comp->dobj_list);
->   
->   	return 0;
-> 
