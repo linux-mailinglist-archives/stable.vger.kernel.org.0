@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DE21144F96
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F68F145069
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733180AbgAVJjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:39:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57134 "EHLO mail.kernel.org"
+        id S2387849AbgAVJnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:43:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733194AbgAVJjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:39:21 -0500
+        id S2387842AbgAVJnM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:43:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F91924684;
-        Wed, 22 Jan 2020 09:39:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D89CF24689;
+        Wed, 22 Jan 2020 09:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685960;
-        bh=SpDzbbOwicUHa4Zm+r4y/NZKqNvo4lpUqQrWehgGjZg=;
+        s=default; t=1579686192;
+        bh=i10MW2+Qu7Z85NJhBoA491SH3xqli0eWFNlGQUOlvgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PfF58JN3nxHX6yvsXLcS528AtXGTjJlXx4r4QXegcuQOqNR4aYrYe4D81EhpMtM2
-         iwdT1S47MUp47JaFtqHNSD8B7J2moGDuoGe81JaV/pP+BVYj4CHOgODC+TKVTYbmt7
-         1O4SW50TXr8mPxvfOnkkoqCaoXw+Kis9QmDwFfOk=
+        b=xAfw69nA9TowUTnqQj3n1j1mr3zN6PQbJXGmm24Pu0uTYjVpaZNebJl7epJzl6kcr
+         sC5IW990SJTXXMl/EBD4/hK6W1GEo2b2suxkW58okyxmPpa/eWDgMPSYDRPedM8UeI
+         1wVffIB+lq4bxfGIYiVPVj8r6MWQoRqZSlLHc/go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Kevin Hilman <khilman@baylibre.com>
-Subject: [PATCH 4.14 52/65] arm64: dts: meson-gxl-s905x-khadas-vim: fix gpio-keys-polled node
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Marc Zyngier <maz@kernel.org>,
+        Palmer Dabbelt <palmer@sifive.com>
+Subject: [PATCH 4.19 081/103] irqchip: Place CONFIG_SIFIVE_PLIC into the menu
 Date:   Wed, 22 Jan 2020 10:29:37 +0100
-Message-Id: <20200122092758.839146818@linuxfoundation.org>
+Message-Id: <20200122092814.885385201@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-commit d5f6fa904ecbadbb8e9fa6302b0fc165bec0559a upstream.
+commit 0149385537e6d36f535fcd83cfcabf83a32f0836 upstream.
 
-Fix DTC warnings:
+Somehow CONFIG_SIFIVE_PLIC ended up outside of the "IRQ chip support"
+menu.
 
-arch/arm/dts/meson-gxl-s905x-khadas-vim.dtb: Warning (avoid_unnecessary_addr_size):
-   /gpio-keys-polled: unnecessary #address-cells/#size-cells
-      without "ranges" or child "reg" property
-
-Fixes: e15d2774b8c0 ("ARM64: dts: meson-gxl: add support for the Khadas VIM board")
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Fixes: 8237f8bc4f6e ("irqchip: add a SiFive PLIC driver")
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Palmer Dabbelt <palmer@sifive.com>
+Acked-by: Palmer Dabbelt <palmer@sifive.com>
+Link: https://lore.kernel.org/r/20191002144452.10178-1-j.neuschaefer@gmx.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/irqchip/Kconfig |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-@@ -33,11 +33,9 @@
+--- a/drivers/irqchip/Kconfig
++++ b/drivers/irqchip/Kconfig
+@@ -371,8 +371,6 @@ config QCOM_PDC
+ 	  Power Domain Controller driver to manage and configure wakeup
+ 	  IRQs for Qualcomm Technologies Inc (QTI) mobile chips.
  
- 	gpio-keys-polled {
- 		compatible = "gpio-keys-polled";
--		#address-cells = <1>;
--		#size-cells = <0>;
- 		poll-interval = <100>;
+-endmenu
+-
+ config SIFIVE_PLIC
+ 	bool "SiFive Platform-Level Interrupt Controller"
+ 	depends on RISCV
+@@ -384,3 +382,5 @@ config SIFIVE_PLIC
+ 	   interrupt sources are subordinate to the PLIC.
  
--		button@0 {
-+		power-button {
- 			label = "power";
- 			linux,code = <KEY_POWER>;
- 			gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_LOW>;
+ 	   If you don't know what to do here, say Y.
++
++endmenu
 
 
