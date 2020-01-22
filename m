@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE278145622
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C655145623
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730163AbgAVNVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:21:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37746 "EHLO mail.kernel.org"
+        id S1729650AbgAVNVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:21:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730155AbgAVNVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:21:06 -0500
+        id S1730155AbgAVNVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:21:09 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39BCD2468C;
-        Wed, 22 Jan 2020 13:21:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA63524688;
+        Wed, 22 Jan 2020 13:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699265;
-        bh=KBgjthE4MXi4jjoOKexi2wKqKnsrS/GTG2qljJ1vEok=;
+        s=default; t=1579699268;
+        bh=MNpFJ+xxo3lMFNVeamBfXT2zdZpC3ty89O9XeXXGr+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syUNxM/7i1jhydHF9iW/5AHgjZsOS1EuTqknxlRNbFy8Jql7pk//y5zqTnW+v/ggp
-         2OCzWaXSrqeQEL/Hf5ZTwVEti5OGUvEmvWuJ6ofBjBQgcYYmVIodesYic3Ii/lBkco
-         /yPfyCFXlNysZuY3Btwhq9mrHvV6MBidm5Z1330k=
+        b=2KSmaWWdciL3G3YZ3yvcmNwhTcXGq8u9dezlMSeG5dvCg6CgAqwKlog1BJZBX/u68
+         xMBNcSuuj+M6Dc6TBjxpTS4N0x5WiXpusA7KcE9hJoKmPZIhbnBeXOn0lx1/3M5N9H
+         MUCX+yZUJqzXupBoEmtuHUDUI8J7FB23mX/e47YI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
+        Song Liu <songliubraving@fb.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Qian Cai <cai@lca.pw>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 091/222] mm/page-writeback.c: avoid potential division by zero in wb_min_max_ratio()
-Date:   Wed, 22 Jan 2020 10:27:57 +0100
-Message-Id: <20200122092840.249902197@linuxfoundation.org>
+Subject: [PATCH 5.4 092/222] mm: khugepaged: add trace status description for SCAN_PAGE_HAS_PRIVATE
+Date:   Wed, 22 Jan 2020 10:27:58 +0100
+Message-Id: <20200122092840.322914725@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -46,79 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Yang Shi <yang.shi@linux.alibaba.com>
 
-commit 6d9e8c651dd979aa666bee15f086745f3ea9c4b3 upstream.
+commit 554913f600b45d73de12ad58c1ac7baa0f22a703 upstream.
 
-Patch series "use div64_ul() instead of div_u64() if the divisor is
-unsigned long".
+Commit 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem)
+FS") introduced a new khugepaged scan result: SCAN_PAGE_HAS_PRIVATE, but
+the corresponding description for trace events were not added.
 
-We were first inspired by commit b0ab99e7736a ("sched: Fix possible divide
-by zero in avg_atom () calculation"), then refer to the recently analyzed
-mm code, we found this suspicious place.
-
- 201                 if (min) {
- 202                         min *= this_bw;
- 203                         do_div(min, tot_bw);
- 204                 }
-
-And we also disassembled and confirmed it:
-
-  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 201
-  0xffffffff811c37da <__wb_calc_thresh+234>:      xor    %r10d,%r10d
-  0xffffffff811c37dd <__wb_calc_thresh+237>:      test   %rax,%rax
-  0xffffffff811c37e0 <__wb_calc_thresh+240>:      je 0xffffffff811c3800 <__wb_calc_thresh+272>
-  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 202
-  0xffffffff811c37e2 <__wb_calc_thresh+242>:      imul   %r8,%rax
-  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 203
-  0xffffffff811c37e6 <__wb_calc_thresh+246>:      mov    %r9d,%r10d    ---> truncates it to 32 bits here
-  0xffffffff811c37e9 <__wb_calc_thresh+249>:      xor    %edx,%edx
-  0xffffffff811c37eb <__wb_calc_thresh+251>:      div    %r10
-  0xffffffff811c37ee <__wb_calc_thresh+254>:      imul   %rbx,%rax
-  0xffffffff811c37f2 <__wb_calc_thresh+258>:      shr    $0x2,%rax
-  0xffffffff811c37f6 <__wb_calc_thresh+262>:      mul    %rcx
-  0xffffffff811c37f9 <__wb_calc_thresh+265>:      shr    $0x2,%rdx
-  0xffffffff811c37fd <__wb_calc_thresh+269>:      mov    %rdx,%r10
-
-This series uses div64_ul() instead of div_u64() if the divisor is
-unsigned long, to avoid truncation to 32-bit on 64-bit platforms.
-
-This patch (of 3):
-
-The variables 'min' and 'max' are unsigned long and do_div truncates
-them to 32 bits, which means it can test non-zero and be truncated to
-zero for division.  Fix this issue by using div64_ul() instead.
-
-Link: http://lkml.kernel.org/r/20200102081442.8273-2-wenyang@linux.alibaba.com
-Fixes: 693108a8a667 ("writeback: make bdi->min/max_ratio handling cgroup writeback aware")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
+Link: http://lkml.kernel.org/r/1574793844-2914-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/page-writeback.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/trace/events/huge_memory.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -201,11 +201,11 @@ static void wb_min_max_ratio(struct bdi_
- 	if (this_bw < tot_bw) {
- 		if (min) {
- 			min *= this_bw;
--			do_div(min, tot_bw);
-+			min = div64_ul(min, tot_bw);
- 		}
- 		if (max < 100) {
- 			max *= this_bw;
--			do_div(max, tot_bw);
-+			max = div64_ul(max, tot_bw);
- 		}
- 	}
+--- a/include/trace/events/huge_memory.h
++++ b/include/trace/events/huge_memory.h
+@@ -31,7 +31,8 @@
+ 	EM( SCAN_ALLOC_HUGE_PAGE_FAIL,	"alloc_huge_page_failed")	\
+ 	EM( SCAN_CGROUP_CHARGE_FAIL,	"ccgroup_charge_failed")	\
+ 	EM( SCAN_EXCEED_SWAP_PTE,	"exceed_swap_pte")		\
+-	EMe(SCAN_TRUNCATED,		"truncated")			\
++	EM( SCAN_TRUNCATED,		"truncated")			\
++	EMe(SCAN_PAGE_HAS_PRIVATE,	"page_has_private")		\
  
+ #undef EM
+ #undef EMe
 
 
