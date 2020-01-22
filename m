@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 898E814501E
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:44:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1CD41451A2
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:55:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387977AbgAVJoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:44:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36914 "EHLO mail.kernel.org"
+        id S1730241AbgAVJcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:32:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387975AbgAVJoB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:44:01 -0500
+        id S1729247AbgAVJcu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:32:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD4CB2468B;
-        Wed, 22 Jan 2020 09:44:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26EBE2071E;
+        Wed, 22 Jan 2020 09:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686241;
-        bh=ww7v8HP4bT2dIJ+PNYY4ouiv91+eJiffjJuPz+myJbw=;
+        s=default; t=1579685569;
+        bh=UQ5VAOVQ+FVHhGXA0WA7/9hntlL6iFc09BvrShyOi6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YmvdfF81D2qLVK/zSs9QpRpWR0mj7g9uDvjmMYT4RossqaTGZagVF9VLPCqJKCthH
-         HRSH1T8Wzqcn0dXHTAC/Z5q9C6H9G8YfTvfbuXVh7x60UHnEtonLOIxmx1QZVW8DxG
-         phfALHAUYSREFXiYrLe6cd6j2ZcPWi0E+6e6TMQ8=
+        b=ZoQsZ4LDRsDsJC+VZfJLdE+zAHJhVBnPEHyFR8v4koD1+8oq1s7mGyK/AidQc3EtD
+         7+yMrzsdCubPXw9lMDPMnVJnVvUF9kE1tKjORn6K9I37bRr8Mz3pyx4HhABGDSWNhD
+         9qW+NQ6hzbFrs8Z68eoQYdxSoC/r3wruGPjY3SCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 065/103] NFC: pn533: fix bulk-message timeout
-Date:   Wed, 22 Jan 2020 10:29:21 +0100
-Message-Id: <20200122092813.490088519@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        RENARD Pierre-Francois <pfrenard@gmail.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Woojung Huh <woojung.huh@microchip.com>,
+        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 66/76] net: usb: lan78xx: limit size of local TSO packets
+Date:   Wed, 22 Jan 2020 10:29:22 +0100
+Message-Id: <20200122092801.422221341@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit a112adafcb47760feff959ee1ecd10b74d2c5467 upstream.
+[ Upstream commit f8d7408a4d7f60f8b2df0f81decdc882dd9c20dc ]
 
-The driver was doing a synchronous uninterruptible bulk-transfer without
-using a timeout. This could lead to the driver hanging on probe due to a
-malfunctioning (or malicious) device until the device is physically
-disconnected. While sleeping in probe the driver prevents other devices
-connected to the same hub from being added to (or removed from) the bus.
+lan78xx_tx_bh() makes sure to not exceed MAX_SINGLE_PACKET_SIZE
+bytes in the aggregated packets it builds, but does
+nothing to prevent large GSO packets being submitted.
 
-An arbitrary limit of five seconds should be more than enough.
+Pierre-Francois reported various hangs when/if TSO is enabled.
 
-Fixes: dbafc28955fa ("NFC: pn533: don't send USB data off of the stack")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+For localy generated packets, we can use netif_set_gso_max_size()
+to limit the size of TSO packets.
+
+Note that forwarded packets could still hit the issue,
+so a complete fix might require implementing .ndo_features_check
+for this driver, forcing a software segmentation if the size
+of the TSO packet exceeds MAX_SINGLE_PACKET_SIZE.
+
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: RENARD Pierre-Francois <pfrenard@gmail.com>
+Tested-by: RENARD Pierre-Francois <pfrenard@gmail.com>
+Cc: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Woojung Huh <woojung.huh@microchip.com>
+Cc: Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/nfc/pn533/usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/lan78xx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/nfc/pn533/usb.c
-+++ b/drivers/nfc/pn533/usb.c
-@@ -403,7 +403,7 @@ static int pn533_acr122_poweron_rdr(stru
- 		       cmd, sizeof(cmd), false);
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -2961,6 +2961,7 @@ static int lan78xx_probe(struct usb_inte
  
- 	rc = usb_bulk_msg(phy->udev, phy->out_urb->pipe, buffer, sizeof(cmd),
--			  &transferred, 0);
-+			  &transferred, 5000);
- 	kfree(buffer);
- 	if (rc || (transferred != sizeof(cmd))) {
- 		nfc_err(&phy->udev->dev,
+ 	if (netdev->mtu > (dev->hard_mtu - netdev->hard_header_len))
+ 		netdev->mtu = dev->hard_mtu - netdev->hard_header_len;
++	netif_set_gso_max_size(netdev, MAX_SINGLE_PACKET_SIZE - MAX_HEADER);
+ 
+ 	dev->ep_blkin = (intf->cur_altsetting)->endpoint + 0;
+ 	dev->ep_blkout = (intf->cur_altsetting)->endpoint + 1;
 
 
