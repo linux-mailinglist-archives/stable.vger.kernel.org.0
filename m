@@ -2,99 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AE1F14502B
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A776714524D
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 11:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388036AbgAVJoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:44:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37496 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387776AbgAVJoX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:44:23 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9BA52468B;
-        Wed, 22 Jan 2020 09:44:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686263;
-        bh=gEMbZSf7gz/38fyK2S0QNO50FzA33PkIo6Ay1nYgqT0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DycamOghaO5tOni2q2frO4wY1bwON5mcQx4ubgFpau2LrdbtLlVjvrXPZPyemXkj2
-         WS39eBtVkKyE2UVjQjaLd9L/4ZaNAFyZLEIlrD8lkeHtiphGA6OVfl+alydLvJKuG/
-         6+891UYq+xhPUC5NpsLtAuR6KcR0mf6TbypY7L2A=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 103/103] hwmon: (pmbus/ibm-cffps) Switch LEDs to blocking brightness call
-Date:   Wed, 22 Jan 2020 10:29:59 +0100
-Message-Id: <20200122092817.056849882@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1725911AbgAVKPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 05:15:53 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:45410 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729281AbgAVKPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 05:15:53 -0500
+Received: by mail-lf1-f66.google.com with SMTP id 203so4850219lfa.12;
+        Wed, 22 Jan 2020 02:15:51 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=nAGmP7/E0+dkjElTkN6jQ2jIYPfA3j8DC+gRpJkqbEM=;
+        b=RR9APJA9q+P+rvlxm+E9R/AvatjJnDSjytvr7OMpj5tKI2MvPxuQETkiPOIYU22kUt
+         f4ehalsXkf/+oHBO/LEW0Ce8r+wZR1I8/BIS47LX94L5xR0bxL5DGhVsI0SkehCCTrKz
+         QxC1F1TwriIvWOobk58q+CuEaNtEyugimLkFiyYvuDjLANlv34QiZAxcpl7tv3GEeK0g
+         pqI2tI7xh/p7iem9MCsPgBNeGmndqMp2n7NN0/cUYmbIuagN0l9WhGKQSQbzaup0OQZ3
+         5u5iKuvN32cOpin9A2loRwgoT6JoTPf54ja5rm0cMfNV79vvLSBT4XVLff4wEk+Brfow
+         kTfw==
+X-Gm-Message-State: APjAAAVgKqmJpXfYW/ujtcO+yJ84IoJ8CxZs2QlRAXgjadFfnNcKkiTu
+        28NGomJxaNn/CZsGgZ/Nx+w=
+X-Google-Smtp-Source: APXvYqx1ZBBPf872QGty4fVC30qLUgko5wXFyT5uPwtOwckYEcWVbOSAkTvlTWqQkroYybLE+tCUfQ==
+X-Received: by 2002:ac2:5e2e:: with SMTP id o14mr1399159lfg.198.1579688151084;
+        Wed, 22 Jan 2020 02:15:51 -0800 (PST)
+Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
+        by smtp.gmail.com with ESMTPSA id r15sm19988772ljh.11.2020.01.22.02.15.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jan 2020 02:15:50 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@xi.terra>)
+        id 1iuD34-0007bU-71; Wed, 22 Jan 2020 11:15:46 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     linux-usb@vger.kernel.org, stable <stable@vger.kernel.org>
+Subject: [PATCH 1/5] USB: serial: ir-usb: add missing endpoint sanity check
+Date:   Wed, 22 Jan 2020 11:15:26 +0100
+Message-Id: <20200122101530.29176-2-johan@kernel.org>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200122101530.29176-1-johan@kernel.org>
+References: <20200122101530.29176-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+Add missing endpoint sanity check to avoid dereferencing a NULL-pointer
+on open() in case a device lacks a bulk-out endpoint.
 
-commit 9861ff954c7e83e2f738ce16fbe15f8a1e121771 upstream.
+Note that prior to commit f4a4cbb2047e ("USB: ir-usb: reimplement using
+generic framework") the oops would instead happen on open() if the
+device lacked a bulk-in endpoint and on write() if it lacked a bulk-out
+endpoint.
 
-Since i2c_smbus functions can sleep, the brightness setting function
-for this driver must be the blocking version to avoid scheduling while
-atomic.
-
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Link: https://lore.kernel.org/r/20191106200106.29519-2-eajames@linux.ibm.com
-Fixes: ef9e1cdf419a3 ("hwmon: (pmbus/cffps) Add led class device for power supply fault led")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: f4a4cbb2047e ("USB: ir-usb: reimplement using generic framework")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/hwmon/pmbus/ibm-cffps.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/usb/serial/ir-usb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/hwmon/pmbus/ibm-cffps.c
-+++ b/drivers/hwmon/pmbus/ibm-cffps.c
-@@ -269,8 +269,8 @@ static int ibm_cffps_read_word_data(stru
- 	return rc;
- }
+diff --git a/drivers/usb/serial/ir-usb.c b/drivers/usb/serial/ir-usb.c
+index 302eb9530859..c3b06fc5a7f0 100644
+--- a/drivers/usb/serial/ir-usb.c
++++ b/drivers/usb/serial/ir-usb.c
+@@ -195,6 +195,9 @@ static int ir_startup(struct usb_serial *serial)
+ 	struct usb_irda_cs_descriptor *irda_desc;
+ 	int rates;
  
--static void ibm_cffps_led_brightness_set(struct led_classdev *led_cdev,
--					 enum led_brightness brightness)
-+static int ibm_cffps_led_brightness_set(struct led_classdev *led_cdev,
-+					enum led_brightness brightness)
- {
- 	int rc;
- 	struct ibm_cffps *psu = container_of(led_cdev, struct ibm_cffps, led);
-@@ -286,9 +286,11 @@ static void ibm_cffps_led_brightness_set
- 	rc = i2c_smbus_write_byte_data(psu->client, CFFPS_SYS_CONFIG_CMD,
- 				       psu->led_state);
- 	if (rc < 0)
--		return;
-+		return rc;
- 
- 	led_cdev->brightness = brightness;
++	if (serial->num_bulk_in < 1 || serial->num_bulk_out < 1)
++		return -ENODEV;
 +
-+	return 0;
- }
- 
- static int ibm_cffps_led_blink_set(struct led_classdev *led_cdev,
-@@ -324,7 +326,7 @@ static void ibm_cffps_create_led_class(s
- 		 client->addr);
- 	psu->led.name = psu->led_name;
- 	psu->led.max_brightness = LED_FULL;
--	psu->led.brightness_set = ibm_cffps_led_brightness_set;
-+	psu->led.brightness_set_blocking = ibm_cffps_led_brightness_set;
- 	psu->led.blink_set = ibm_cffps_led_blink_set;
- 
- 	rc = devm_led_classdev_register(dev, &psu->led);
-
+ 	irda_desc = irda_usb_find_class_desc(serial, 0);
+ 	if (!irda_desc) {
+ 		dev_err(&serial->dev->dev,
+-- 
+2.24.1
 
