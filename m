@@ -2,58 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 312491456C6
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 962F614569A
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729410AbgAVNaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:30:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53456 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729083AbgAVNa3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:30:29 -0500
-Received: from localhost (unknown [84.241.205.26])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1729907AbgAVN2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:28:02 -0500
+Received: from smtp1.de.adit-jv.com ([93.241.18.167]:41954 "EHLO
+        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731953AbgAVN2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 08:28:00 -0500
+Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
+        by smtp1.de.adit-jv.com (Postfix) with ESMTP id C4B243C04C1;
+        Wed, 22 Jan 2020 14:27:58 +0100 (CET)
+Received: from smtp1.de.adit-jv.com ([127.0.0.1])
+        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id x3LQ2mdH3c4V; Wed, 22 Jan 2020 14:27:53 +0100 (CET)
+Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B410205F4;
-        Wed, 22 Jan 2020 13:30:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699827;
-        bh=rFF9R6k/DGZmUW30gr3bVUAty7o9u1eYYaO+Lr9Mkrw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1s9+hYaTq9mPNWAZKnkbtgLFMKls4rLTNgxxihMXRYrxn+XtaUjMstlZ8dTJ+qsg/
-         VBiadds+RsZRfCIbxOgCt6f4S9b0zsxoxeGgBMaU03FK+Dcgzsvnq8wl8lQAXgPdEd
-         gmchTEm7j814B7768ihYUgO/Oy71hJ5WvmrVHld4=
-Date:   Wed, 22 Jan 2020 14:25:42 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-usb@vger.kernel.org, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 3/5] USB: serial: ir-usb: fix IrLAP framing
-Message-ID: <20200122132542.GC3580@kroah.com>
-References: <20200122101530.29176-1-johan@kernel.org>
- <20200122101530.29176-4-johan@kernel.org>
+        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id A14D13C00C5;
+        Wed, 22 Jan 2020 14:27:53 +0100 (CET)
+Received: from lxhi-065.adit-jv.com (10.72.93.66) by HI2EXCH01.adit-jv.com
+ (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.468.0; Wed, 22 Jan
+ 2020 14:27:53 +0100
+Date:   Wed, 22 Jan 2020 14:27:50 +0100
+From:   Eugeniu Rosca <erosca@de.adit-jv.com>
+To:     Sasha Levin <sashal@kernel.org>
+CC:     Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Dirk Behme <dirk.behme@de.bosch.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        <stable@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>
+Subject: Re: [PATCH v2] arm64: kbuild: remove compressed images on 'make
+ ARCH=arm64 (dist)clean'
+Message-ID: <20200122132750.GA16142@lxhi-065.adit-jv.com>
+References: <20200121155439.1061-1-erosca@de.adit-jv.com>
+ <20200122022626.797B324677@mail.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20200122101530.29176-4-johan@kernel.org>
+In-Reply-To: <20200122022626.797B324677@mail.kernel.org>
+X-Originating-IP: [10.72.93.66]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 22, 2020 at 11:15:28AM +0100, Johan Hovold wrote:
-> Commit f4a4cbb2047e ("USB: ir-usb: reimplement using generic framework")
-> switched to using the generic write implementation which may combine
-> multiple write requests into larger transfers. This can break the IrLAP
-> protocol where end-of-frame is determined using the USB short packet
-> mechanism, for example, if multiple frames are sent in rapid succession.
+Hi Sasha,
+
+On Wed, Jan 22, 2020 at 02:26:25AM +0000, Sasha Levin wrote:
+> Hi,
 > 
-> Fixes: f4a4cbb2047e ("USB: ir-usb: reimplement using generic framework")
-> Cc: stable <stable@vger.kernel.org>     # 2.6.35
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
->  drivers/usb/serial/ir-usb.c | 113 +++++++++++++++++++++++++++++-------
->  1 file changed, 91 insertions(+), 22 deletions(-)
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: 0723c05fb75e ("arm64: enable more compressed Image formats").
+> 
+> The bot has tested the following trees: v5.4.13, v4.19.97, v4.14.166, v4.9.210, v4.4.210.
+> 
+> v5.4.13: Build OK!
+> v4.19.97: Build OK!
+> v4.14.166: Build OK!
+> v4.9.210: Build OK!
+> v4.4.210: Failed to apply! Possible dependencies:
+>     f8fa70f392fa ("arm64: localise Image objcopy flags")
 
-Ah, nice fix, sorry about that :(
+The heuristics of your scripts is correct.
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Upon picking f8fa70f392fa ("arm64: localise Image objcopy flags")
+first, the backporting conflict of ("arm64: kbuild: remove compressed
+images on 'make ARCH=arm64 (dist)clean'") is avoided.
+
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+
+Shared my thoughts above. Any other input needed?
+
+-- 
+Best Regards
+Eugeniu Rosca
