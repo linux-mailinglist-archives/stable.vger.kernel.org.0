@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1F60144FB3
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:40:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48DE7144F13
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:34:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387426AbgAVJkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:40:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59072 "EHLO mail.kernel.org"
+        id S1729285AbgAVJeP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:34:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387439AbgAVJkT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:40:19 -0500
+        id S1730154AbgAVJeL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:34:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2B4024684;
-        Wed, 22 Jan 2020 09:40:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A0CF24673;
+        Wed, 22 Jan 2020 09:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686019;
-        bh=nSAHvOUVAz2iud++EdWPQCKYaAGoYNGyurMVBBBXbtM=;
+        s=default; t=1579685650;
+        bh=lNwvgoE/PBtC0RiZuyLt2rKFKfMXnJYmrTD/qeV7Iio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ojXX74J/FamHPgk3KsSb392+XjmSVMR1lg208q1YjOX+WggC4zdgUczLfAHX18Jh
-         OqZefH5ty1YeLpeAax54I+GMu4Hb2qAln9iaHwZP1Bn1kuEWp9FyDPqU1vfeXBdHVi
-         3HIIDxsWFgbkvvPm4y7PhsxPgGpRImxxU/0xHA4M=
+        b=K1H5pLXvJMdeupj3q21MliQeUMthHNlOu81qTYORnNxTf+uKftNlf0lBgK+wf9/LM
+         q0W13BbKP4lLZvD268/TVRtx6jD1/uARw1X9JDJY5yvZDMpK8smtZbAtNbZrAEL9f2
+         acyUfXtdrqBh/8AYS6+9WGGCM2P7O+AEhtdkr1Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Reinhard Speyerer <rspmn@arcor.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 011/103] USB: serial: option: add support for Quectel RM500Q in QDL mode
-Date:   Wed, 22 Jan 2020 10:28:27 +0100
-Message-Id: <20200122092805.353380634@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.9 24/97] cifs: Adjust indentation in smb2_open_file
+Date:   Wed, 22 Jan 2020 10:28:28 +0100
+Message-Id: <20200122092800.048406188@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinhard Speyerer <rspmn@arcor.de>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit f3eaabbfd093c93d791eb930cc68d9b15246a65e upstream.
+commit 7935799e041ae10d380d04ea23868240f082bd11 upstream.
 
-Add support for Quectel RM500Q in QDL mode.
+Clang warns:
 
-T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 24 Spd=480  MxCh= 0
-D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0800 Rev= 0.00
-S:  Manufacturer=Qualcomm CDMA Technologies MSM
-S:  Product=QUSB_BULK_SN:xxxxxxxx
-S:  SerialNumber=xxxxxxxx
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=  2mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=10 Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+../fs/cifs/smb2file.c:70:3: warning: misleading indentation; statement
+is not part of the previous 'if' [-Wmisleading-indentation]
+         if (oparms->tcon->use_resilient) {
+         ^
+../fs/cifs/smb2file.c:66:2: note: previous statement is here
+        if (rc)
+        ^
+1 warning generated.
 
-It is assumed that the ZLP flag required for other Qualcomm-based
-5G devices also applies to Quectel RM500Q.
+This warning occurs because there is a space after the tab on this line.
+Remove it so that the indentation is consistent with the Linux kernel
+coding style and clang no longer warns.
 
-Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 592fafe644bf ("Add resilienthandles mount parm")
+Link: https://github.com/ClangBuiltLinux/linux/issues/826
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/cifs/smb2file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1107,6 +1107,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x30) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
-+	  .driver_info = ZLP },
+--- a/fs/cifs/smb2file.c
++++ b/fs/cifs/smb2file.c
+@@ -69,7 +69,7 @@ smb2_open_file(const unsigned int xid, s
+ 		goto out;
  
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
+ 
+-	 if (oparms->tcon->use_resilient) {
++	if (oparms->tcon->use_resilient) {
+ 		nr_ioctl_req.Timeout = 0; /* use server default (120 seconds) */
+ 		nr_ioctl_req.Reserved = 0;
+ 		rc = SMB2_ioctl(xid, oparms->tcon, fid->persistent_fid,
 
 
