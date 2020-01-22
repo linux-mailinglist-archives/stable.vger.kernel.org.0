@@ -2,48 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03D07144FD9
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F454145101
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:51:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731266AbgAVJlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:41:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32872 "EHLO mail.kernel.org"
+        id S1732594AbgAVJhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:37:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729774AbgAVJlf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:41:35 -0500
+        id S1731321AbgAVJhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:37:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E07A2467B;
-        Wed, 22 Jan 2020 09:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A160324680;
+        Wed, 22 Jan 2020 09:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686094;
-        bh=zifoekzfikkN0HLVFky+MYhZyiAk46TKaY6JJyZfnH0=;
+        s=default; t=1579685860;
+        bh=PMSIln64bD9O25YS78Zt5inzG7df2u5lU9cUIRgVk2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJ3Rrf/VNitsNmozXu0eg2aiP+GEtyw5Iz912UgBsFDk+e3XPoS99pTn4w26SBRUb
-         P6AyUOPj5KCb16kgMoMk1BJVoAPmkcDUNBJM+qIXLTVtfiYlQXY1QYtxDYsXPEeUFR
-         0CqQvdtPSG2CZdFLL7/HUP7QtqAOQRthhLyTBHJ4=
+        b=hGJl3FYJoUk3cByI3IULXEZtiDcRtQWmtbRKw4q5cDDNwH/VWfV0wbJvXx76poiEQ
+         9/Dxncbau+fP2tk34F1uOmKvy3RSalO28hZLD+dVViPUGwgUyqUFoGZnKXJS9r8sqq
+         0JevI49L2m+aXu+0eONlgTDSAl34ql3S3RX6kISc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Huang <ahuang12@lenovo.com>,
-        Xiaochun Lee <lixc17@lenovo.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 041/103] mm: memcg/slab: call flush_memcg_workqueue() only if memcg workqueue is valid
+        stable@vger.kernel.org, Reinhard Speyerer <rspmn@arcor.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 12/65] USB: serial: option: add support for Quectel RM500Q in QDL mode
 Date:   Wed, 22 Jan 2020 10:28:57 +0100
-Message-Id: <20200122092810.080610687@linuxfoundation.org>
+Message-Id: <20200122092752.951998274@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Huang <ahuang12@lenovo.com>
+From: Reinhard Speyerer <rspmn@arcor.de>
 
-commit 2fe20210fc5f5e62644678b8f927c49f2c6f42a7 upstream.
+commit f3eaabbfd093c93d791eb930cc68d9b15246a65e upstream.
 
-When booting with amd_iommu=off, the following WARNING message
-appears:
+Add support for Quectel RM500Q in QDL mode.
 
-  AMD-Vi: AMD IOMMU disabled on kernel command-line
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 0 at kernel/workqueue.c:2772 flush_workqueue+0x42e/0x450
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.5.0-rc3-amd-iommu #6
-  Hardware name: Lenovo ThinkSystem SR655-2S/7D2WRCZ000, BIOS D8E101L-1.00 12/05/2019
-  RIP: 0010:flush_workqueue+0x42e/0x450
-  Code: ff 0f 0b e9 7a fd ff ff 4d 89 ef e9 33 fe ff ff 0f 0b e9 7f fd ff ff 0f 0b e9 bc fd ff ff 0f 0b e9 a8 fd ff ff e8 52 2c fe ff <0f> 0b 31 d2 48 c7 c6 e0 88 c5 95 48 c7 c7 d8 ad f0 95 e8 19 f5 04
-  Call Trace:
-   kmem_cache_destroy+0x69/0x260
-   iommu_go_to_state+0x40c/0x5ab
-   amd_iommu_prepare+0x16/0x2a
-   irq_remapping_prepare+0x36/0x5f
-   enable_IR_x2apic+0x21/0x172
-   default_setup_apic_routing+0x12/0x6f
-   apic_intr_mode_init+0x1a1/0x1f1
-   x86_late_time_init+0x17/0x1c
-   start_kernel+0x480/0x53f
-   secondary_startup_64+0xb6/0xc0
-  ---[ end trace 30894107c3749449 ]---
-  x2apic: IRQ remapping doesn't support X2APIC mode
-  x2apic disabled
+T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 24 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0800 Rev= 0.00
+S:  Manufacturer=Qualcomm CDMA Technologies MSM
+S:  Product=QUSB_BULK_SN:xxxxxxxx
+S:  SerialNumber=xxxxxxxx
+C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=  2mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=10 Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-The warning is caused by the calling of 'kmem_cache_destroy()'
-in free_iommu_resources(). Here is the call path:
+It is assumed that the ZLP flag required for other Qualcomm-based
+5G devices also applies to Quectel RM500Q.
 
-  free_iommu_resources
-    kmem_cache_destroy
-      flush_memcg_workqueue
-        flush_workqueue
-
-The root cause is that the IOMMU subsystem runs before the workqueue
-subsystem, which the variable 'wq_online' is still 'false'.  This leads
-to the statement 'if (WARN_ON(!wq_online))' in flush_workqueue() is
-'true'.
-
-Since the variable 'memcg_kmem_cache_wq' is not allocated during the
-time, it is unnecessary to call flush_memcg_workqueue().  This prevents
-the WARNING message triggered by flush_workqueue().
-
-Link: http://lkml.kernel.org/r/20200103085503.1665-1-ahuang12@lenovo.com
-Fixes: 92ee383f6daab ("mm: fix race between kmem_cache destroy, create and deactivate")
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
-Reported-by: Xiaochun Lee <lixc17@lenovo.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/slab_common.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/mm/slab_common.c
-+++ b/mm/slab_common.c
-@@ -850,7 +850,8 @@ static void flush_memcg_workqueue(struct
- 	 * deactivates the memcg kmem_caches through workqueue. Make sure all
- 	 * previous workitems on workqueue are processed.
- 	 */
--	flush_workqueue(memcg_kmem_cache_wq);
-+	if (likely(memcg_kmem_cache_wq))
-+		flush_workqueue(memcg_kmem_cache_wq);
- }
- #else
- static inline int shutdown_memcg_caches(struct kmem_cache *s)
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1110,6 +1110,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x30) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
++	  .driver_info = ZLP },
+ 
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
 
 
