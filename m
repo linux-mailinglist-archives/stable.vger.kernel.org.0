@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FCC414564E
+	by mail.lfdr.de (Postfix) with ESMTP id E25D814564F
 	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730480AbgAVNZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:25:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44702 "EHLO mail.kernel.org"
+        id S1730682AbgAVNZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:25:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730771AbgAVNZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:25:10 -0500
+        id S1730667AbgAVNZY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:25:24 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 217CA2467B;
-        Wed, 22 Jan 2020 13:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 155F22467B;
+        Wed, 22 Jan 2020 13:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699509;
-        bh=rXFJZWdzOEkV5l16XswJpgwbtlDI+Ti+0UfzDeHAtfo=;
+        s=default; t=1579699522;
+        bh=fCIJuCwbP3GeGUag2GXGI+Y0xJ8Y2Pe80IWo5Xlaxi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5w3DukuKQxDqxCi1rqn5tjID+uW7MwJX0LKTwamcwoHdFTQVuT8XoB3Jy0JRvNAI
-         edIC1khUji1j4lz0JTur5Eq2XeY1OiJSyFZh+oDlUhplGoxcZh1YA9qtAA4Z4+knrD
-         0osOS9/8y1JE+EXqyXeUppcZPhdWRnMMpep5xHXQ=
+        b=wVkoyk6jfvqldGmYEi07Uw245tO7JB3pgL06bAxdqFwJkyxSCDK+F5y3LHvuuoJ3J
+         rX3+bjwZ5Mqbe7Cl+KsGm9/puZDziHwUB/i6nzyFcdQFhV9+G4ZPy2mHZgu73DpM4O
+         sIMi3d33kdBRI+dcdOYMUXx8BfZPYoY5eDWj/1LI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 167/222] net: stmmac: selftests: Update status when disabling RSS
-Date:   Wed, 22 Jan 2020 10:29:13 +0100
-Message-Id: <20200122092845.668971634@linuxfoundation.org>
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Maxime Ripard <mripard@kernel.org>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.4 171/222] dt-bindings: Add missing properties keyword enclosing snps,tso
+Date:   Wed, 22 Jan 2020 10:29:17 +0100
+Message-Id: <20200122092845.950277758@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -43,88 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <Jose.Abreu@synopsys.com>
+From: Rob Herring <robh@kernel.org>
 
-commit e715d74504352968cf24ac95476706bc911a69cd upstream.
+commit dbce0b65046d1735d7054c54ec2387dba84ba258 upstream.
 
-We are disabling RSS on HW but not updating the internal private status
-to the 'disabled' state. This is needed for next tc commit that will
-check if RSS is disabled before trying to apply filters.
+DT property definitions must be under a 'properties' keyword. This was
+missing for 'snps,tso' in an if/then clause. A meta-schema fix will
+catch future errors like this.
 
-Fixes: 4647e021193d ("net: stmmac: selftests: Add selftest for L3/L4 Filters")
-Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7db3545aef5f ("dt-bindings: net: stmmac: Convert the binding to a schemas")
+Cc: "David S. Miller" <davem@davemloft.net>
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c |   20 +++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ Documentation/devicetree/bindings/net/snps,dwmac.yaml |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-@@ -1297,16 +1297,19 @@ static int __stmmac_test_l3filt(struct s
- 	struct stmmac_packet_attrs attr = { };
- 	struct flow_dissector *dissector;
- 	struct flow_cls_offload *cls;
-+	int ret, old_enable = 0;
- 	struct flow_rule *rule;
--	int ret;
+--- a/Documentation/devicetree/bindings/net/snps,dwmac.yaml
++++ b/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+@@ -347,6 +347,7 @@ allOf:
+               - st,spear600-gmac
  
- 	if (!tc_can_offload(priv->dev))
- 		return -EOPNOTSUPP;
- 	if (!priv->dma_cap.l3l4fnum)
- 		return -EOPNOTSUPP;
--	if (priv->rss.enable)
-+	if (priv->rss.enable) {
-+		old_enable = priv->rss.enable;
-+		priv->rss.enable = false;
- 		stmmac_rss_configure(priv, priv->hw, NULL,
- 				     priv->plat->rx_queues_to_use);
-+	}
- 
- 	dissector = kzalloc(sizeof(*dissector), GFP_KERNEL);
- 	if (!dissector) {
-@@ -1373,7 +1376,8 @@ cleanup_cls:
- cleanup_dissector:
- 	kfree(dissector);
- cleanup_rss:
--	if (priv->rss.enable) {
-+	if (old_enable) {
-+		priv->rss.enable = old_enable;
- 		stmmac_rss_configure(priv, priv->hw, &priv->rss,
- 				     priv->plat->rx_queues_to_use);
- 	}
-@@ -1418,16 +1422,19 @@ static int __stmmac_test_l4filt(struct s
- 	struct stmmac_packet_attrs attr = { };
- 	struct flow_dissector *dissector;
- 	struct flow_cls_offload *cls;
-+	int ret, old_enable = 0;
- 	struct flow_rule *rule;
--	int ret;
- 
- 	if (!tc_can_offload(priv->dev))
- 		return -EOPNOTSUPP;
- 	if (!priv->dma_cap.l3l4fnum)
- 		return -EOPNOTSUPP;
--	if (priv->rss.enable)
-+	if (priv->rss.enable) {
-+		old_enable = priv->rss.enable;
-+		priv->rss.enable = false;
- 		stmmac_rss_configure(priv, priv->hw, NULL,
- 				     priv->plat->rx_queues_to_use);
-+	}
- 
- 	dissector = kzalloc(sizeof(*dissector), GFP_KERNEL);
- 	if (!dissector) {
-@@ -1499,7 +1506,8 @@ cleanup_cls:
- cleanup_dissector:
- 	kfree(dissector);
- cleanup_rss:
--	if (priv->rss.enable) {
-+	if (old_enable) {
-+		priv->rss.enable = old_enable;
- 		stmmac_rss_configure(priv, priv->hw, &priv->rss,
- 				     priv->plat->rx_queues_to_use);
- 	}
+     then:
++      properties:
+         snps,tso:
+           $ref: /schemas/types.yaml#definitions/flag
+           description:
 
 
