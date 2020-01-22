@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D20E1450F1
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A13CC14511F
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:52:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732725AbgAVJhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:37:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54142 "EHLO mail.kernel.org"
+        id S1729860AbgAVJhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:37:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731330AbgAVJhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:37:53 -0500
+        id S1732370AbgAVJhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:37:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 059B42467B;
-        Wed, 22 Jan 2020 09:37:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49C222467B;
+        Wed, 22 Jan 2020 09:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685872;
-        bh=uhZOXfEgUVaxst/qSwstVCoU4ELf0vVVov0AgutJGmg=;
+        s=default; t=1579685823;
+        bh=Gvw4IBVvTbh7LJegV1H9BhU7bNh5YLZ2sWO/BXanA6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rk/c2z7893NR2j89TLbJJmKHyJRoEcwyi6K5+vmJt536+/D6Ie8HOG3AuGjORngFa
-         s4qU+4AHcDrdiXcaAfQXeML79L/j2ejbj5Y+EFo/oixLGTWwbglForj1T862kjCjKx
-         LeZsZ8MJ/voQYwZgqId8Wau8LAbgRaBanhcZUggQ=
+        b=o6651WkTnrZpaSPvJjdNQ2JRqp1vFLdfWNz/xMAxP6mqq1c/wOtzt/MXgW9xF/lcQ
+         lgOzZ80/9E66YLTFQM4C0fzHfKroWWSGSBG+rrwGdpwHsdmcIY8N7ACJcDvxuJ2RlX
+         ZexS5Av93Ruhq2HOkMgdr+oAHU8smY+s7k1/LxLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 17/65] USB: serial: quatech2: handle unbound ports
+        stable@vger.kernel.org, Martin Jansen <martin.jansen@opticon.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 58/97] USB: serial: opticon: fix control-message timeouts
 Date:   Wed, 22 Jan 2020 10:29:02 +0100
-Message-Id: <20200122092753.508347592@linuxfoundation.org>
+Message-Id: <20200122092805.754146924@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 9715a43eea77e42678a1002623f2d9a78f5b81a1 upstream.
+commit 5e28055f340275a8616eee88ef19186631b4d136 upstream.
 
-Check for NULL port data in the modem- and line-status handlers to avoid
-dereferencing a NULL pointer in the unlikely case where a port device
-isn't bound to a driver (e.g. after an allocation failure on port
-probe).
+The driver was issuing synchronous uninterruptible control requests
+without using a timeout. This could lead to the driver hanging
+on open() or tiocmset() due to a malfunctioning (or malicious) device
+until the device is physically disconnected.
 
-Note that the other (stubbed) event handlers qt2_process_xmit_empty()
-and qt2_process_flush() would need similar sanity checks in case they
-are ever implemented.
+The USB upper limit of five seconds per request should be more than
+enough.
 
-Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
-Cc: stable <stable@vger.kernel.org>     # 3.5
+Fixes: 309a057932ab ("USB: opticon: add rts and cts support")
+Cc: stable <stable@vger.kernel.org>     # 2.6.39
+Cc: Martin Jansen <martin.jansen@opticon.com>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/quatech2.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/serial/opticon.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/quatech2.c
-+++ b/drivers/usb/serial/quatech2.c
-@@ -867,7 +867,10 @@ static void qt2_update_msr(struct usb_se
- 	u8 newMSR = (u8) *ch;
- 	unsigned long flags;
+--- a/drivers/usb/serial/opticon.c
++++ b/drivers/usb/serial/opticon.c
+@@ -116,7 +116,7 @@ static int send_control_msg(struct usb_s
+ 	retval = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
+ 				requesttype,
+ 				USB_DIR_OUT|USB_TYPE_VENDOR|USB_RECIP_INTERFACE,
+-				0, 0, buffer, 1, 0);
++				0, 0, buffer, 1, USB_CTRL_SET_TIMEOUT);
+ 	kfree(buffer);
  
-+	/* May be called from qt2_process_read_urb() for an unbound port. */
- 	port_priv = usb_get_serial_port_data(port);
-+	if (!port_priv)
-+		return;
- 
- 	spin_lock_irqsave(&port_priv->lock, flags);
- 	port_priv->shadowMSR = newMSR;
-@@ -895,7 +898,10 @@ static void qt2_update_lsr(struct usb_se
- 	unsigned long flags;
- 	u8 newLSR = (u8) *ch;
- 
-+	/* May be called from qt2_process_read_urb() for an unbound port. */
- 	port_priv = usb_get_serial_port_data(port);
-+	if (!port_priv)
-+		return;
- 
- 	if (newLSR & UART_LSR_BI)
- 		newLSR &= (u8) (UART_LSR_OE | UART_LSR_BI);
+ 	if (retval < 0)
 
 
