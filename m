@@ -2,170 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5604145E9A
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 23:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE78D145ECC
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 23:50:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728890AbgAVW0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 17:26:54 -0500
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:38883 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726811AbgAVW0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 17:26:53 -0500
-Received: by mail-pg1-f193.google.com with SMTP id a33so273630pgm.5
-        for <stable@vger.kernel.org>; Wed, 22 Jan 2020 14:26:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=swWbt3aJL3q8h4lz+/4twKGtWH3pxZbO2/WppH1VqRE=;
-        b=K0ohNbHMOAsVb4M6Ck8cIf3BM8XchMabhMit1TMM4M9rA7DOOGd/sgBcVKqk4Dkfyl
-         MzkiSn6mrkDn4Rzo4C7qixNHdL/CFF78glRDZyCApSy9ECeubN35sr+56Jowj5rwc1qX
-         P0nCx7C1QsIOrrIqxRuZIJCWeIkHckFcMN5GGbk1NVw9Y/JbCuMS4i3CzwgBPRDfpjcq
-         SBIyfImGz9ImHeT0LopgirqAnevkSzpfLi+UMd7UT0MkGdqNkR32HmrLKL2wP3KNBLbp
-         aDB8LJZb1z0/CHBTLZbYRBbK4qL9hHXMe7uTtYP/yX1g1i8LefORegdQRnX/eR1YsnR8
-         UbNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=swWbt3aJL3q8h4lz+/4twKGtWH3pxZbO2/WppH1VqRE=;
-        b=WMOI8Wss48BW0ruj6qEC/8ot7Qpi2Pw2U0qRvREl8n3ODo2GyT27DfPezNJnYqyRJ5
-         yYvW82WHXTBSS/i0dvX2VKygBIWNfUrQd2iCRqyvCJ1oDWRS6f+iZYexat2kLZYEDkjj
-         d9oor6RF8rVboMLi8BLI69k/cUWpFYg8Szff38qZn2/tW6s+fO6/oGcfbm5/bx6Q/J80
-         yRTC0i9pNMwS4P4FyNBmsgSksIeZ8EB7sCn5sx5f5FfBVUau7KVLpXq2VDln1rBOtrqt
-         F2wTKlabJwIO1cFxnsUu0N8+GCdiYpcLqz2U6WGiHwU6PYCqqLgDWIDEY38NVd7SS92P
-         S/+A==
-X-Gm-Message-State: APjAAAWnNI3bZlFNnIhOXbQ5UD/oPc1e8Rhgdg+syj1wGeHPCLzxFfOY
-        Ghd5MlqBBLoIyeqgpA9nSjOdJQ==
-X-Google-Smtp-Source: APXvYqxjWJnBDQWDLfs492qyC8m1YgOMNGISqY5eu6Q4wsVKzbqlsokkc0qtDmoQD/wqOD4EOckAOw==
-X-Received: by 2002:a62:3892:: with SMTP id f140mr4552209pfa.190.1579732012776;
-        Wed, 22 Jan 2020 14:26:52 -0800 (PST)
-Received: from localhost.localdomain ([2601:1c2:680:1319:692:26ff:feda:3a81])
-        by smtp.gmail.com with ESMTPSA id a28sm47793509pfh.119.2020.01.22.14.26.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jan 2020 14:26:52 -0800 (PST)
-From:   John Stultz <john.stultz@linaro.org>
-To:     lkml <linux-kernel@vger.kernel.org>
-Cc:     Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Yang Fei <fei.yang@intel.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Tejas Joglekar <tejas.joglekar@synopsys.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Jack Pham <jackp@codeaurora.org>, Todd Kjos <tkjos@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Linux USB List <linux-usb@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        John Stultz <john.stultz@linaro.org>
-Subject: [RFC][PATCH 2/2] usb: dwc3: gadget: Correct the logic for finding last SG entry
-Date:   Wed, 22 Jan 2020 22:26:45 +0000
-Message-Id: <20200122222645.38805-3-john.stultz@linaro.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200122222645.38805-1-john.stultz@linaro.org>
-References: <20200122222645.38805-1-john.stultz@linaro.org>
+        id S1725933AbgAVWuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 17:50:25 -0500
+Received: from mga12.intel.com ([192.55.52.136]:7331 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725884AbgAVWuZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 17:50:25 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 22 Jan 2020 14:50:24 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,351,1574150400"; 
+   d="scan'208";a="229541509"
+Received: from jovercas-mobl1.amr.corp.intel.com (HELO [10.254.105.26]) ([10.254.105.26])
+  by orsmga006.jf.intel.com with ESMTP; 22 Jan 2020 14:50:22 -0800
+Subject: Re: [alsa-devel] [PATCH] ASoC: topology: fix
+ soc_tplg_fe_link_create() - link->dobj initialization order
+To:     Jaroslav Kysela <perex@perex.cz>, Mark Brown <broonie@kernel.org>
+Cc:     Dragos Tarcatu <dragos_tarcatu@mentor.com>,
+        Sasha Levin <sashal@kernel.org>,
+        ALSA development <alsa-devel@alsa-project.org>,
+        Takashi Iwai <tiwai@suse.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        stable@vger.kernel.org
+References: <20200122190752.3081016-1-perex@perex.cz>
+ <26ae4dbd-b1b8-c640-0dc0-d8c2bbe666e2@linux.intel.com>
+ <20200122202530.GG3833@sirena.org.uk>
+ <045401f5-8d4c-cdc3-12fb-cf35148411e5@perex.cz>
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Message-ID: <67f2a1cf-fe62-76fa-ccdb-869e2b0daee2@linux.intel.com>
+Date:   Wed, 22 Jan 2020 15:47:34 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <045401f5-8d4c-cdc3-12fb-cf35148411e5@perex.cz>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
 
-As a process of preparing TRBs usb_gadget_map_request_by_dev() is
-called from dwc3_prepare_trbs() for mapping the request. This will
-call dma_map_sg() if req->num_sgs are greater than 0. dma_map_sg()
-will map the sg entries in sglist and return the number of mapped SGs.
-As a part of mapping, some sg entries having contigous memory may be
-merged together into a single sg (when IOMMU used). So, the number of
-mapped sg entries may not be equal to the number of orginal sg entries
-in the request (req->num_sgs).
+>>> I am not following. Is this a fix for linux-5.4-y only, or is it 
+>>> needed on
+>>> Mark's tree? In the latter case, what is broken? We've been using Mark's
+>>> tree without issues, wondering what we missed?
+>>
+>> He's saying it's a fix for stable but it's just a cleanup and robustness
+>> improvement in current kernels - when the patch 76d270364932 (ASoC:
+>> topology: Check return value for snd_soc_add_dai_link()) was backported
+>> by the bot the bot missed some other context which triggered bugs.
+> 
+> Exactly. It's because the commit 
+> 237d19080cd37e1ccf5462e63d8577d713f6da46 ("ASoC: soc-core: remove 
+> topology specific operation") removed the link->dobj checks, but this 
+> commit was not picked to the stable kernels.
+> 
+> The initialization reordering is fine for all kernels (and makes sense), 
+> so I would like to apply it everywhere.
 
-As a part of preparing the TRBs, dwc3_prepare_one_trb_sg() iterates over
-the sg entries present in the sglist and calls sg_is_last() to identify
-whether the sg entry is last and set IOC bit for the last sg entry. The
-sg_is_last() determines last sg if SG_END is set in sg->page_link. When
-IOMMU used, dma_map_sg() merges 2 or more sgs into a single sg and it
-doesn't retain the page_link properties. Because of this reason the
-sg_is_last() may not find SG_END and thus resulting in IOC bit never
-getting set.
-
-For example:
-
-Consider a request having 8 sg entries with each entry having a length of
-4096 bytes. Assume that sg1 & sg2, sg3 & sg4, sg5 & sg6, sg7 & sg8 are
-having contigous memory regions.
-
-Before calling dma_map_sg():
-            sg1-->sg2-->sg3-->sg4-->sg6-->sg7-->sg8
-dma_length: 4K    4K    4K    4K    4K    4K    4K
-SG_END:     False False False False False False True
-num_sgs = 8
-num_mapped_sgs = 0
-
-The dma_map_sg() merges sg1 & sg2 memory regions into sg1->dma_address.
-Similarly sg3 & sg4 into sg2->dma_address, sg5 & sg6 into the
-sg3->dma_address and sg6 & sg8 into sg4->dma_address. Here the memory
-regions are merged but the page_link properties like SG_END are not
-retained into the merged sgs.
-
-After calling dma_map_sg();
-            sg1-->sg2-->sg3-->sg4-->sg6-->sg7-->sg8
-dma_length: 8K    8K    8K    8K    0K    0K     0K
-SG_END:     False False False False False False True
-num_sgs = 8
-num_mapped_sgs = 4
-
-After calling dma_map_sg(), sg1,sg2,sg3,sg4 are having dma_length of
-8096 bytes each and remaining sg4,sg5,sg6,sg7 are having 0 bytes of
-dma_length.
-
-After dma_map_sg() is performed dma_perpare_trb_sg() iterates on all sg
-entries and sets IOC bit only for the sg8 (since sg_is_last() returns true
-only for sg8). But after calling dma_map_sg() the valid data are present
-only till sg4 and the IOC bit should be set for sg4 TRB only (which is not
-happening in the present code)
-
-The above mentioned issue can be fixed by determining last sg based on the
-req->num_queued_sgs instead of sg_is_last(). If (req->num_queued_sgs + 1)
-is equal to req->num_mapped_sgs, then this sg is the last sg. In the above
-example, the dwc3 driver has already queued 3 sgs (upto sg3), so the
-num_queued_sgs = 3. On preparing the next sg (i.e sg4), check for last sg
-(num_queued_sgs + 1) == num_mapped_sgs becomes true. So, the driver sets
-IOC bit for sg4. This patch does the same.
-
-At a practical level, this patch resolves USB transfer stalls
-seen with adb on dwc3 based db845c, pixel3 and other qcom
-hardware after functionfs gadget added scatter-gather support
-around v4.20.
-
-Cc: Felipe Balbi <felipe.balbi@linux.intel.com>
-Cc: Yang Fei <fei.yang@intel.com>
-Cc: Thinh Nguyen <thinhn@synopsys.com>
-Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Cc: Jack Pham <jackp@codeaurora.org>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Linux USB List <linux-usb@vger.kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-[jstultz: Add note to end of commit message on specific issue this resovles]
-Signed-off-by: John Stultz <john.stultz@linaro.org>
----
- drivers/usb/dwc3/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 1edce3bbb55c..30a80bc97cfe 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1068,7 +1068,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
- 		unsigned int rem = length % maxp;
- 		unsigned chain = true;
- 
--		if (sg_is_last(s))
-+		if ((req->num_queued_sgs + 1) == req->request.num_mapped_sgs)
- 			chain = false;
- 
- 		if (rem && usb_endpoint_dir_out(dep->endpoint.desc) && !chain) {
--- 
-2.17.1
-
+ok, thanks for the precisions.
