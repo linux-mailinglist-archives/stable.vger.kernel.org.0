@@ -2,84 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 962F614569A
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B98E51456D4
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:37:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729907AbgAVN2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:28:02 -0500
-Received: from smtp1.de.adit-jv.com ([93.241.18.167]:41954 "EHLO
-        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731953AbgAVN2A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 08:28:00 -0500
-Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
-        by smtp1.de.adit-jv.com (Postfix) with ESMTP id C4B243C04C1;
-        Wed, 22 Jan 2020 14:27:58 +0100 (CET)
-Received: from smtp1.de.adit-jv.com ([127.0.0.1])
-        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id x3LQ2mdH3c4V; Wed, 22 Jan 2020 14:27:53 +0100 (CET)
-Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id A14D13C00C5;
-        Wed, 22 Jan 2020 14:27:53 +0100 (CET)
-Received: from lxhi-065.adit-jv.com (10.72.93.66) by HI2EXCH01.adit-jv.com
- (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.468.0; Wed, 22 Jan
- 2020 14:27:53 +0100
-Date:   Wed, 22 Jan 2020 14:27:50 +0100
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Sasha Levin <sashal@kernel.org>
-CC:     Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Dirk Behme <dirk.behme@de.bosch.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        <stable@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        Eugeniu Rosca <roscaeugeniu@gmail.com>
-Subject: Re: [PATCH v2] arm64: kbuild: remove compressed images on 'make
- ARCH=arm64 (dist)clean'
-Message-ID: <20200122132750.GA16142@lxhi-065.adit-jv.com>
-References: <20200121155439.1061-1-erosca@de.adit-jv.com>
- <20200122022626.797B324677@mail.kernel.org>
+        id S1726135AbgAVNfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:35:51 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:34965 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725802AbgAVNfu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 08:35:50 -0500
+Received: by mail-lj1-f196.google.com with SMTP id j1so6845982lja.2;
+        Wed, 22 Jan 2020 05:35:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=3fjYpl4wYHR/AXS3qKqxZEP7aK65zfOBP0mwqPGjrtA=;
+        b=T0R3PN7F59oDjKQVb8ZJKdQAhCIF41fbyyulNjzP/uS7CekogLqLVE0z4t/4m+exA0
+         rP1sbF+jDPCmlsNoaqMkGgFspfMQEa42wwT4Xelz/Z2r+ASiOuFqQhGTd5Wp9cwiat9/
+         V3HQB4+fkuUrw1q8HXaEspe0KWLbi+BQ+SP1AmuqsDJgW+sfRa26dhx6S5Npudzy2cTQ
+         QCTzFcAOpcSXzDjzIFv91CYDiyNEjrgS8HKZnx4ngp4Qu6grPFU1jkyDD6d2+hwJxdpC
+         4yHBA5aDgja8eqnJp66z84A2YZcF3IROihXp9VK1LOb3qqSZj5gYOVbFV79LMJ4fabCw
+         da+w==
+X-Gm-Message-State: APjAAAX3Byv3HRUMPSWTdoyJqrsNRFRI0wA/Csi5qp+Lpx66XhE2zo0U
+        s94Z6MK6L03ef4lmUdWj+kk=
+X-Google-Smtp-Source: APXvYqyaa6QEGddsxxgyDC9DIgNiciGftAEetahsfVv5p8N14JImC2X7tcl0L9SvcODXHx7L5DEFLA==
+X-Received: by 2002:a2e:9804:: with SMTP id a4mr18980979ljj.10.1579700148682;
+        Wed, 22 Jan 2020 05:35:48 -0800 (PST)
+Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
+        by smtp.gmail.com with ESMTPSA id h7sm21054271lfj.29.2020.01.22.05.35.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jan 2020 05:35:48 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@kernel.org>)
+        id 1iuGAa-0008Mb-HY; Wed, 22 Jan 2020 14:35:44 +0100
+Date:   Wed, 22 Jan 2020 14:35:44 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org,
+        stable <stable@vger.kernel.org>, Felipe Balbi <balbi@kernel.org>
+Subject: Re: [PATCH 2/5] USB: serial: ir-usb: fix link-speed handling
+Message-ID: <20200122133544.GE8375@localhost>
+References: <20200122101530.29176-1-johan@kernel.org>
+ <20200122101530.29176-3-johan@kernel.org>
+ <20200122132450.GA3580@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200122022626.797B324677@mail.kernel.org>
-X-Originating-IP: [10.72.93.66]
+In-Reply-To: <20200122132450.GA3580@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
-
-On Wed, Jan 22, 2020 at 02:26:25AM +0000, Sasha Levin wrote:
-> Hi,
+On Wed, Jan 22, 2020 at 02:24:50PM +0100, Greg Kroah-Hartman wrote:
+> On Wed, Jan 22, 2020 at 11:15:27AM +0100, Johan Hovold wrote:
+> > Commit e0d795e4f36c ("usb: irda: cleanup on ir-usb module") added a USB
+> > IrDA header with common defines, but mistakingly switched to using the
+> > class-descriptor baud-rate bitmask values for the outbound header.
+> > 
+> > This broke link-speed handling for rates above 9600 baud, but a device
+> > would also be able to operate at the default 9600 baud until a
+> > link-speed request was issued (e.g. using the TCGETS ioctl).
 > 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: 0723c05fb75e ("arm64: enable more compressed Image formats").
-> 
-> The bot has tested the following trees: v5.4.13, v4.19.97, v4.14.166, v4.9.210, v4.4.210.
-> 
-> v5.4.13: Build OK!
-> v4.19.97: Build OK!
-> v4.14.166: Build OK!
-> v4.9.210: Build OK!
-> v4.4.210: Failed to apply! Possible dependencies:
->     f8fa70f392fa ("arm64: localise Image objcopy flags")
+> People still use this driver/hardware?  And this wasn't found until now?
+> wow...
 
-The heuristics of your scripts is correct.
+Good question. I was considering just removing the driver, but since it
+would have continued to work on low and default link speed I figured I
+better just fix it up.
 
-Upon picking f8fa70f392fa ("arm64: localise Image objcopy flags")
-first, the backporting conflict of ("arm64: kbuild: remove compressed
-images on 'make ARCH=arm64 (dist)clean'") is avoided.
-
+> > Fixes: e0d795e4f36c ("usb: irda: cleanup on ir-usb module")
+> > Cc: stable <stable@vger.kernel.org>     # 2.6.27
+> > Cc: Felipe Balbi <balbi@kernel.org>
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
 > 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
 > 
-> How should we proceed with this patch?
+> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Shared my thoughts above. Any other input needed?
+Thanks for reviewing.
 
--- 
-Best Regards
-Eugeniu Rosca
+Johan
