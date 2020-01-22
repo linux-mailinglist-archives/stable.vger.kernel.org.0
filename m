@@ -2,43 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2703714552E
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:20:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1916E145530
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:20:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729719AbgAVNTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:19:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35512 "EHLO mail.kernel.org"
+        id S1729746AbgAVNTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:19:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727816AbgAVNTf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:19:35 -0500
+        id S1729732AbgAVNTh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:19:37 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 947BA2071E;
-        Wed, 22 Jan 2020 13:19:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFA0324685;
+        Wed, 22 Jan 2020 13:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699174;
-        bh=5o1iS8b4oMfFF/foWqXLudFQPQzd0UBvLxrLI1zM6qc=;
+        s=default; t=1579699177;
+        bh=4mZaHo6CGGEjhoLAyszHVHx7u6Ppbk9GFGCtN7ajr8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5Om6LrIafW4pybBgUmn4ARnG99OQ/xcZnc0vMI16cfE8Y2QTSHbXaxZdcSD+JkQE
-         K2r4VJgbZO/unNqiVdo9F5S8XZ3kiXoVR2qQVOmF54/bP0m+qOhWc92nyG85cfguj6
-         yjdp9CK89E64HVFzBkEtyegZ4pKpnMTKMQ4HELLU=
+        b=p0PhzQ381w7pDeE3XHyMn3qRghTCqr/VroqC3Dl7czhNl+ox+QRa4JIC8Virti+JZ
+         BcxgffppOVG1GDwOCWpKUXcc1kZdUYfsuA6UWMdA5mv8vs+2d+x3ymKmUkqzn6WBnj
+         KPJLG6i9YkWgztpMcU/V9ymNhdvsi6WoSrd7lKSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        john.stultz@linaro.org, sboyd@kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>, tj@kernel.org,
-        Tony Luck <tony.luck@intel.com>,
-        Vikas Shivappa <vikas.shivappa@linux.intel.com>,
-        x86-ml <x86@kernel.org>
-Subject: [PATCH 5.4 062/222] x86/resctrl: Fix an imbalance in domain_remove_cpu()
-Date:   Wed, 22 Jan 2020 10:27:28 +0100
-Message-Id: <20200122092838.159130044@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 063/222] x86/CPU/AMD: Ensure clearing of SME/SEV features is maintained
+Date:   Wed, 22 Jan 2020 10:27:29 +0100
+Message-Id: <20200122092838.232080512@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -51,75 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit e278af89f1ba0a9ef20947db6afc2c9afa37e85b upstream.
+commit a006483b2f97af685f0e60f3a547c9ad4c9b9e94 upstream.
 
-A system that supports resource monitoring may have multiple resources
-while not all of these resources are capable of monitoring. Monitoring
-related state is initialized only for resources that are capable of
-monitoring and correspondingly this state should subsequently only be
-removed from these resources that are capable of monitoring.
+If the SME and SEV features are present via CPUID, but memory encryption
+support is not enabled (MSR 0xC001_0010[23]), the feature flags are cleared
+using clear_cpu_cap(). However, if get_cpu_cap() is later called, these
+feature flags will be reset back to present, which is not desired.
 
-domain_add_cpu() calls domain_setup_mon_state() only when r->mon_capable
-is true where it will initialize d->mbm_over. However,
-domain_remove_cpu() calls cancel_delayed_work(&d->mbm_over) without
-checking r->mon_capable resulting in an attempt to cancel d->mbm_over on
-all resources, even those that never initialized d->mbm_over because
-they are not capable of monitoring. Hence, it triggers a debugobjects
-warning when offlining CPUs because those timer debugobjects are never
-initialized:
+Change from using clear_cpu_cap() to setup_clear_cpu_cap() so that the
+clearing of the flags is maintained.
 
-  ODEBUG: assert_init not available (active state 0) object type:
-  timer_list hint: 0x0
-  WARNING: CPU: 143 PID: 789 at lib/debugobjects.c:484
-  debug_print_object
-  Hardware name: HP Synergy 680 Gen9/Synergy 680 Gen9 Compute Module, BIOS I40 05/23/2018
-  RIP: 0010:debug_print_object
-  Call Trace:
-  debug_object_assert_init
-  del_timer
-  try_to_grab_pending
-  cancel_delayed_work
-  resctrl_offline_cpu
-  cpuhp_invoke_callback
-  cpuhp_thread_fun
-  smpboot_thread_fn
-  kthread
-  ret_from_fork
-
-Fixes: e33026831bdb ("x86/intel_rdt/mbm: Handle counter overflow")
-Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: john.stultz@linaro.org
-Cc: sboyd@kernel.org
-Cc: <stable@vger.kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: tj@kernel.org
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vikas Shivappa <vikas.shivappa@linux.intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191211033042.2188-1-cai@lca.pw
+Cc: <stable@vger.kernel.org> # 4.16.x-
+Link: https://lkml.kernel.org/r/226de90a703c3c0be5a49565047905ac4e94e8f3.1579125915.git.thomas.lendacky@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/resctrl/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/amd.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/resctrl/core.c
-+++ b/arch/x86/kernel/cpu/resctrl/core.c
-@@ -618,7 +618,7 @@ static void domain_remove_cpu(int cpu, s
- 		if (static_branch_unlikely(&rdt_mon_enable_key))
- 			rmdir_mondata_subdir_allrdtgrp(r, d->id);
- 		list_del(&d->list);
--		if (is_mbm_enabled())
-+		if (r->mon_capable && is_mbm_enabled())
- 			cancel_delayed_work(&d->mbm_over);
- 		if (is_llc_occupancy_enabled() &&  has_busy_rmid(r, d)) {
- 			/*
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -615,9 +615,9 @@ static void early_detect_mem_encrypt(str
+ 		return;
+ 
+ clear_all:
+-		clear_cpu_cap(c, X86_FEATURE_SME);
++		setup_clear_cpu_cap(X86_FEATURE_SME);
+ clear_sev:
+-		clear_cpu_cap(c, X86_FEATURE_SEV);
++		setup_clear_cpu_cap(X86_FEATURE_SEV);
+ 	}
+ }
+ 
 
 
