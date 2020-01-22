@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CEA314504C
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:45:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A9F145057
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:45:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729538AbgAVJp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:45:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38584 "EHLO mail.kernel.org"
+        id S2387875AbgAVJob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:44:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387932AbgAVJo4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:44:56 -0500
+        id S2387869AbgAVJob (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:44:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 507122467B;
-        Wed, 22 Jan 2020 09:44:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59B172467B;
+        Wed, 22 Jan 2020 09:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686295;
-        bh=4mPE/gzMo7xTmp0JuJIxY5d1q1UzA0qYxFBlXRGY944=;
+        s=default; t=1579686270;
+        bh=VucpYl5rrM73xaq3i+UuX4QGtAhN8OnPEruv0uN/cXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6EBXgl4qjZ0Y8EbH7k70+IgL26hTtmVqTqWvrj995voGor6HtmkeZ56EG4xnyD28
-         ypztZUk1w5ICTYaGS787Z/Iwp9VJwemm7dpt1/euUUdtLTdv04MOIrKniV6xdoK2hA
-         wMqHlPjMfdS2nUx6Da/c+AcMN+fJKHdKrumVJPvY=
+        b=udGfdD/TNDKbsw8BgHV/E0PD7N77T6fqZx07QiqgwwTvUBpONTr7nYAnltlSy12tA
+         EQQ0HdExof7jrDwbYbyduckhdtbbURMuonmuJdDZlZIPWHipxNtoUcAp51U1CZa56C
+         UfOTlsnTL2oLN1YrMPS9qpcpERbe0zu7ArmiHALk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
-        Georgi Djakov <georgi.djakov@linaro.org>,
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 002/222] clk: qcom: gcc-sdm845: Add missing flag to votable GDSCs
-Date:   Wed, 22 Jan 2020 10:26:28 +0100
-Message-Id: <20200122092833.515642549@linuxfoundation.org>
+Subject: [PATCH 5.4 010/222] clk: Dont try to enable critical clocks if prepare failed
+Date:   Wed, 22 Jan 2020 10:26:36 +0100
+Message-Id: <20200122092834.104910280@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,96 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georgi Djakov <georgi.djakov@linaro.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 5e82548e26ef62e257dc2ff37c11acb5eb72728e upstream.
+commit 12ead77432f2ce32dea797742316d15c5800cb32 upstream.
 
-On sdm845 devices, during boot we see the following warnings (unless we
-have added 'pd_ignore_unused' to the kernel command line):
-	hlos1_vote_mmnoc_mmu_tbu_sf_gdsc status stuck at 'on'
-	hlos1_vote_mmnoc_mmu_tbu_hf1_gdsc status stuck at 'on'
-	hlos1_vote_mmnoc_mmu_tbu_hf0_gdsc status stuck at 'on'
-	hlos1_vote_aggre_noc_mmu_tbu2_gdsc status stuck at 'on'
-	hlos1_vote_aggre_noc_mmu_tbu1_gdsc status stuck at 'on'
-	hlos1_vote_aggre_noc_mmu_pcie_tbu_gdsc status stuck at 'on'
-	hlos1_vote_aggre_noc_mmu_audio_tbu_gdsc status stuck at 'on'
+The following traceback is seen if a critical clock fails to prepare.
 
-As the name of these GDSCs suggests, they are "votable" and in downstream
-DT, they all have the property "qcom,no-status-check-on-disable", which
-means that we should not poll the status bit when we disable them.
+bcm2835-clk 3f101000.cprman: plld: couldn't lock PLL
+------------[ cut here ]------------
+Enabling unprepared plld_per
+WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:1014 clk_core_enable+0xcc/0x2c0
+...
+Call trace:
+ clk_core_enable+0xcc/0x2c0
+ __clk_register+0x5c4/0x788
+ devm_clk_hw_register+0x4c/0xb0
+ bcm2835_register_pll_divider+0xc0/0x150
+ bcm2835_clk_probe+0x134/0x1e8
+ platform_drv_probe+0x50/0xa0
+ really_probe+0xd4/0x308
+ driver_probe_device+0x54/0xe8
+ device_driver_attach+0x6c/0x78
+ __driver_attach+0x54/0xd8
+...
 
-Luckily the VOTABLE flag already exists and it does exactly what we need,
-so let's make use of it to make the warnings disappear.
+Check return values from clk_core_prepare() and clk_core_enable() and
+bail out if any of those functions returns an error.
 
-Fixes: 06391eddb60a ("clk: qcom: Add Global Clock controller (GCC) driver for SDM845")
-Reported-by: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
-Link: https://lkml.kernel.org/r/20191126153437.11808-1-georgi.djakov@linaro.org
-Tested-by: Rob Clark <robdclark@gmail.com>
+Cc: Jerome Brunet <jbrunet@baylibre.com>
+Fixes: 99652a469df1 ("clk: migrate the count of orphaned clocks at init")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lkml.kernel.org/r/20191225163429.29694-1-linux@roeck-us.net
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/qcom/gcc-sdm845.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/clk/clk.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/qcom/gcc-sdm845.c
-+++ b/drivers/clk/qcom/gcc-sdm845.c
-@@ -3255,6 +3255,7 @@ static struct gdsc hlos1_vote_aggre_noc_
- 		.name = "hlos1_vote_aggre_noc_mmu_audio_tbu_gdsc",
- 	},
- 	.pwrsts = PWRSTS_OFF_ON,
-+	.flags = VOTABLE,
- };
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3408,11 +3408,17 @@ static int __clk_core_init(struct clk_co
+ 	if (core->flags & CLK_IS_CRITICAL) {
+ 		unsigned long flags;
  
- static struct gdsc hlos1_vote_aggre_noc_mmu_pcie_tbu_gdsc = {
-@@ -3263,6 +3264,7 @@ static struct gdsc hlos1_vote_aggre_noc_
- 		.name = "hlos1_vote_aggre_noc_mmu_pcie_tbu_gdsc",
- 	},
- 	.pwrsts = PWRSTS_OFF_ON,
-+	.flags = VOTABLE,
- };
+-		clk_core_prepare(core);
++		ret = clk_core_prepare(core);
++		if (ret)
++			goto out;
  
- static struct gdsc hlos1_vote_aggre_noc_mmu_tbu1_gdsc = {
-@@ -3271,6 +3273,7 @@ static struct gdsc hlos1_vote_aggre_noc_
- 		.name = "hlos1_vote_aggre_noc_mmu_tbu1_gdsc",
- 	},
- 	.pwrsts = PWRSTS_OFF_ON,
-+	.flags = VOTABLE,
- };
+ 		flags = clk_enable_lock();
+-		clk_core_enable(core);
++		ret = clk_core_enable(core);
+ 		clk_enable_unlock(flags);
++		if (ret) {
++			clk_core_unprepare(core);
++			goto out;
++		}
+ 	}
  
- static struct gdsc hlos1_vote_aggre_noc_mmu_tbu2_gdsc = {
-@@ -3279,6 +3282,7 @@ static struct gdsc hlos1_vote_aggre_noc_
- 		.name = "hlos1_vote_aggre_noc_mmu_tbu2_gdsc",
- 	},
- 	.pwrsts = PWRSTS_OFF_ON,
-+	.flags = VOTABLE,
- };
- 
- static struct gdsc hlos1_vote_mmnoc_mmu_tbu_hf0_gdsc = {
-@@ -3287,6 +3291,7 @@ static struct gdsc hlos1_vote_mmnoc_mmu_
- 		.name = "hlos1_vote_mmnoc_mmu_tbu_hf0_gdsc",
- 	},
- 	.pwrsts = PWRSTS_OFF_ON,
-+	.flags = VOTABLE,
- };
- 
- static struct gdsc hlos1_vote_mmnoc_mmu_tbu_hf1_gdsc = {
-@@ -3295,6 +3300,7 @@ static struct gdsc hlos1_vote_mmnoc_mmu_
- 		.name = "hlos1_vote_mmnoc_mmu_tbu_hf1_gdsc",
- 	},
- 	.pwrsts = PWRSTS_OFF_ON,
-+	.flags = VOTABLE,
- };
- 
- static struct gdsc hlos1_vote_mmnoc_mmu_tbu_sf_gdsc = {
-@@ -3303,6 +3309,7 @@ static struct gdsc hlos1_vote_mmnoc_mmu_
- 		.name = "hlos1_vote_mmnoc_mmu_tbu_sf_gdsc",
- 	},
- 	.pwrsts = PWRSTS_OFF_ON,
-+	.flags = VOTABLE,
- };
- 
- static struct clk_regmap *gcc_sdm845_clocks[] = {
+ 	clk_core_reparent_orphans_nolock();
 
 
