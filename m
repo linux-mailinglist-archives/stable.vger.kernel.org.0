@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A37561451A0
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:55:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 736881450E2
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730269AbgAVJc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:32:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46260 "EHLO mail.kernel.org"
+        id S1733112AbgAVJiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:38:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729764AbgAVJc6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:32:58 -0500
+        id S1733111AbgAVJit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:38:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1432C2071E;
-        Wed, 22 Jan 2020 09:32:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 839EC2467B;
+        Wed, 22 Jan 2020 09:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685577;
-        bh=JGMlHbylT8EJA5WRpMqhPRi9WQs9uvPiSiL9iidNKwE=;
+        s=default; t=1579685929;
+        bh=VDbWkC6uBBEeg/HWkCoBcE5qjljz8RrZQ0zWHQnLLnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvwQnZ7sdGZF8CZzIn2nZiCrWSANONJSdaIEfKa6o+SXm5ECcnh5XviXRBQcNVibz
-         vS0xpwAS1yibWHdJNCzpYGqkbcDQzE5V/qDnnuUE6Jsyw8FvkjB27qLBD80jx8tq/t
-         1HKnnkLhmlEdSIhL8kzqgT9VLnaBk2xVFTGQqXYE=
+        b=labauBqJBY8iP350DZdxpD0GGwGZArQ9ppCc++eR1gH/Q/za0wrH4Tp1eS2Cb/414
+         d1hjngQsY03SAOxMn/LiKlz4Pcpg8S5d3b6ADEV3uIXf3FUyXa0suEy/N9NXIl67rF
+         u59PIuhxiXURXpKlePG3OFfU64P1GuwZhH0FImeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e8a797964a4180eb57d5@syzkaller.appspotmail.com,
-        syzbot+34b582cf32c1db008f8e@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 69/76] cfg80211: check for set_wiphy_params
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.14 40/65] batman-adv: Fix DAT candidate selection on little endian systems
 Date:   Wed, 22 Jan 2020 10:29:25 +0100
-Message-Id: <20200122092801.906203889@linuxfoundation.org>
+Message-Id: <20200122092756.698323689@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit 24953de0a5e31dcca7e82c8a3c79abc2dfe8fb6e upstream.
+commit 4cc4a1708903f404d2ca0dfde30e71e052c6cbc9 upstream.
 
-Check if set_wiphy_params is assigned and return an error if not,
-some drivers (e.g. virt_wifi where syzbot reported it) don't have
-it.
+The distributed arp table is using a DHT to store and retrieve MAC address
+information for an IP address. This is done using unicast messages to
+selected peers. The potential peers are looked up using the IP address and
+the VID.
 
-Reported-by: syzbot+e8a797964a4180eb57d5@syzkaller.appspotmail.com
-Reported-by: syzbot+34b582cf32c1db008f8e@syzkaller.appspotmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200113125358.ac07f276efff.Ibd85ee1b12e47b9efb00a2adc5cd3fac50da791a@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+While the IP address is always stored in big endian byte order, this is not
+the case of the VID. It can (depending on the host system) either be big
+endian or little endian. The host must therefore always convert it to big
+endian to ensure that all devices calculate the same peers for the same
+lookup data.
+
+Fixes: be1db4f6615b ("batman-adv: make the Distributed ARP Table vlan aware")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/rdev-ops.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/batman-adv/distributed-arp-table.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/wireless/rdev-ops.h
-+++ b/net/wireless/rdev-ops.h
-@@ -517,6 +517,10 @@ static inline int
- rdev_set_wiphy_params(struct cfg80211_registered_device *rdev, u32 changed)
- {
- 	int ret;
-+
-+	if (!rdev->ops->set_wiphy_params)
-+		return -EOPNOTSUPP;
-+
- 	trace_rdev_set_wiphy_params(&rdev->wiphy, changed);
- 	ret = rdev->ops->set_wiphy_params(&rdev->wiphy, changed);
- 	trace_rdev_return_int(&rdev->wiphy, ret);
+--- a/net/batman-adv/distributed-arp-table.c
++++ b/net/batman-adv/distributed-arp-table.c
+@@ -243,6 +243,7 @@ static u32 batadv_hash_dat(const void *d
+ 	u32 hash = 0;
+ 	const struct batadv_dat_entry *dat = data;
+ 	const unsigned char *key;
++	__be16 vid;
+ 	u32 i;
+ 
+ 	key = (const unsigned char *)&dat->ip;
+@@ -252,7 +253,8 @@ static u32 batadv_hash_dat(const void *d
+ 		hash ^= (hash >> 6);
+ 	}
+ 
+-	key = (const unsigned char *)&dat->vid;
++	vid = htons(dat->vid);
++	key = (__force const unsigned char *)&vid;
+ 	for (i = 0; i < sizeof(dat->vid); i++) {
+ 		hash += key[i];
+ 		hash += (hash << 10);
 
 
