@@ -2,142 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4769B144CEF
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 09:06:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B724144D0C
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 09:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725862AbgAVIG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 03:06:57 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:36332 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725868AbgAVIG5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 03:06:57 -0500
-Received: by mail-wm1-f67.google.com with SMTP id p17so6114430wma.1;
-        Wed, 22 Jan 2020 00:06:54 -0800 (PST)
+        id S1725911AbgAVIOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 03:14:10 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:45719 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725900AbgAVIOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 03:14:10 -0500
+Received: by mail-wr1-f66.google.com with SMTP id j42so6161378wrj.12;
+        Wed, 22 Jan 2020 00:14:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=yQD6BMfgsUB2zOq+Dz3vFA3XMaEJr7rjWMT5V31lJ5U=;
-        b=ZBu6YbsZXpXW8FW+V/QXVy9LG1vHdZlIpNTchpPtw9k6TpMWs5gc43Fmgvk37HA5cA
-         7u8B0KRjBTuHUAqZUc71KCYTY0dlt29J3CRQAFxfUsWcXXDqalhD8LIQhvKTTi+YR+/B
-         CT/S+5H+JMhQGAvVY8jIFRtij9tFI70TiENjHTbUAdj34ACb9K5eBTkt9ERVoMy/WAWM
-         sOv62shNju8FkQptsVsjTTI+/Vz5wuf0Rwj7VrcScuiPIiHj0iToebcVEUdDqsi0CdoI
-         mHTW4U4zN6dVWRwHLIR4Xa+5ROmkk+PP+WfCZk0yAFC3Idn1Cxk6liS0Bk2rzS/HJtCM
-         mOFw==
-X-Gm-Message-State: APjAAAUrUlok2n/h/VE/8R4n+ykqEr2eku6FKwXOGp4vaEjWmHXraYGt
-        6dGg4omiNe3KPLVvefcgvvkVSIRX
-X-Google-Smtp-Source: APXvYqwNgTz3qLi4HX2cdSOMQc1vCTzd88y/8o+O59L5Ua2zKcJ3ht7mYGYZCXzAvQJpyMQxasO53A==
-X-Received: by 2002:a1c:f003:: with SMTP id a3mr1584888wmb.41.1579680414195;
-        Wed, 22 Jan 2020 00:06:54 -0800 (PST)
+        bh=Xc1OE301adpCBNtCcujnxgV30fLuT/0jt7wsYeyWTiw=;
+        b=G10Z8+4btQ/WyBIsGexaLb0r5r+YK1C8ovJF/namQRx8XXX4yp8MrLC78ctuFuZfKG
+         WUifP8WKFKmiTg/sJ0fUtH8fJF8UlmfLxYwg5UI2ig3Rofkkl472bsGSOFLtcqfySB33
+         OuzFJJoU0Km1n+60GoVAzsFAlT7otMooQPAuOUcUEFn0PTUqqrasmbLo6f4jev0Q4hey
+         qcOr9neNn9tGhvv/bOiM2xPG1aKn+pQyETQm+ZBAynLIvab88EkpFXdbuBUW7pAu7mKK
+         khyZqPhiZrGuNLPUmHhnm/lMRjdyE9NLgamGgYPZa6En7GYL+vSz1HMXWB2daMcL5MuF
+         Dz3g==
+X-Gm-Message-State: APjAAAUMpwjvjt8/P5keMMQrNR+K4whrVgPvpnqnvRg+YWRv6gO8yHPg
+        knSN49+UeCqwmxt53+1R3bk=
+X-Google-Smtp-Source: APXvYqyOheT4FKJM36xAAG9yMCEXeHGMeg+EQx4a7xD4e+fUU9QX1mOCKWXFyYyYhjo0+Jhd7Q+x3g==
+X-Received: by 2002:a05:6000:1187:: with SMTP id g7mr9774091wrx.109.1579680848513;
+        Wed, 22 Jan 2020 00:14:08 -0800 (PST)
 Received: from localhost (ip-37-188-245-167.eurotel.cz. [37.188.245.167])
-        by smtp.gmail.com with ESMTPSA id p15sm2716017wma.40.2020.01.22.00.06.52
+        by smtp.gmail.com with ESMTPSA id t25sm2838897wmj.19.2020.01.22.00.14.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jan 2020 00:06:52 -0800 (PST)
-Date:   Wed, 22 Jan 2020 09:06:51 +0100
+        Wed, 22 Jan 2020 00:14:07 -0800 (PST)
+Date:   Wed, 22 Jan 2020 09:14:06 +0100
 From:   Michal Hocko <mhocko@kernel.org>
-To:     Yang Shi <yang.shi@linux.alibaba.com>
-Cc:     Wei Yang <richardw.yang@linux.intel.com>,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] mm: move_pages: fix the return value if there are
- not-migrated pages
-Message-ID: <20200122080651.GN29276@dhcp22.suse.cz>
-References: <1579325203-16405-1-git-send-email-yang.shi@linux.alibaba.com>
- <20200120130624.GD18451@dhcp22.suse.cz>
- <20200120131744.GE18451@dhcp22.suse.cz>
- <20200121014416.GC1567@richard>
- <20200121084040.GC29276@dhcp22.suse.cz>
- <27b993f4-cc50-d5a9-1cda-89dd022aea16@linux.alibaba.com>
+To:     David Rientjes <rientjes@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Wei Yang <richardw.yang@linux.intel.com>, hannes@cmpxchg.org,
+        vdavydov.dev@gmail.com, ktkhai@virtuozzo.com,
+        kirill.shutemov@linux.intel.com, yang.shi@linux.alibaba.com,
+        cgroups@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: [Patch v4] mm: thp: remove the defer list related code since
+ this will not happen
+Message-ID: <20200122081406.GO29276@dhcp22.suse.cz>
+References: <20200117233836.3434-1-richardw.yang@linux.intel.com>
+ <20200118145421.0ab96d5d9bea21a3339d52fe@linux-foundation.org>
+ <alpine.DEB.2.21.2001181525250.27051@chino.kir.corp.google.com>
+ <20200120072237.GA18451@dhcp22.suse.cz>
+ <alpine.DEB.2.21.2001201307520.259466@chino.kir.corp.google.com>
+ <20200120212726.GB29276@dhcp22.suse.cz>
+ <alpine.DEB.2.21.2001211500250.157547@chino.kir.corp.google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <27b993f4-cc50-d5a9-1cda-89dd022aea16@linux.alibaba.com>
+In-Reply-To: <alpine.DEB.2.21.2001211500250.157547@chino.kir.corp.google.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 21-01-20 11:01:30, Yang Shi wrote:
+On Tue 21-01-20 15:08:39, David Rientjes wrote:
+> On Mon, 20 Jan 2020, Michal Hocko wrote:
 > 
-> 
-> On 1/21/20 12:40 AM, Michal Hocko wrote:
-> > On Tue 21-01-20 09:44:16, Wei Yang wrote:
-> > > On Mon, Jan 20, 2020 at 02:17:44PM +0100, Michal Hocko wrote:
-> > > > On Mon 20-01-20 14:06:26, Michal Hocko wrote:
-> > > > > On Sat 18-01-20 13:26:43, Yang Shi wrote:
-> > > > > > The do_move_pages_to_node() might return > 0 value, the number of pages
-> > > > > > that are not migrated, then the value will be returned to userspace
-> > > > > > directly.  But, move_pages() syscall would just return 0 or errno.  So,
-> > > > > > we need reset the return value to 0 for such case as what pre-v4.17 did.
-> > > > > The patch is wrong. migrate_pages returns the number of pages it
-> > > > > _hasn't_ migrated or -errno. Yeah that semantic sucks but...
-> > > > > So err != 0 is always an error. Except err > 0 doesn't really provide
-> > > > > any useful information to the userspace. I cannot really remember what
-> > > > > was the actual behavior before my rework because there were some gotchas
-> > > > > hidden there.
-> > > > OK, so I've double checked. do_move_page_to_node_array would carry the
-> > > > error code over to do_pages_move and it would store the status stored
-> > > > in the pm array. It contains page_to_nid(page) so the resulting code
-> > > > indeed behaves properly before my change and this is a regression. I
-> > > Thanks, I see the change.
+> > > > > When migrating memcg charges of thp memory, there are two possibilities:
+> > > > > 
+> > > > >  (1) The underlying compound page is mapped by a pmd and thus does is not 
+> > > > >      on a deferred split queue (it's mapped), or
+> > > > > 
+> > > > >  (2) The compound page is not mapped by a pmd and is awaiting split on a
+> > > > >      deferred split queue.
+> > > > > 
+> > > > > The current charge migration implementation does *not* migrate charges for 
+> > > > > thp memory on the deferred split queue, it only migrates charges for pages 
+> > > > > that are mapped by a pmd.
+> > > > > 
+> > > > > Thus, to migrate charges, the underlying compound page cannot be on a 
+> > > > > deferred split queue; no list manipulation needs to be done in 
+> > > > > mem_cgroup_move_account().
+> > > > > 
+> > > > > With the current code, the underlying compound page is moved to the 
+> > > > > deferred split queue of the memcg its memory is not charged to, so 
+> > > > > susbequent reclaim will consider these pages for the wrong memcg.  Remove 
+> > > > > the deferred split queue handling in mem_cgroup_move_account() entirely.
+> > > > 
+> > > > I believe this still doesn't describe the underlying problem to the full
+> > > > extent. What happens with the page on the deferred list when it
+> > > > shouldn't be there in fact? Unless I am missing something deferred_split_scan
+> > > > will simply split that huge page. Which is a bit unfortunate but nothing
+> > > > really critical. This should be mentioned in the changelog.
+> > > > 
 > > > 
-> > > > have a very vague recollection that this has been brought up already.
-> > > > <...looks in notes...>
-> > > > Found it! The report is
-> > > > http://lkml.kernel.org/r/0329efa0984b9b0252ef166abb4498c0795fab36.1535113317.git.jstancek@redhat.com
-> > > > and my proposed workaround was http://lkml.kernel.org/r/20180829145537.GZ10223@dhcp22.suse.cz
-> > > Well, the above two links return 404.
-> > You are right. They are not archived for some reason. Anyway, the patch
-> > I was proposing back then is below:
+> > > Are you referring to a compound page on the deferred split queue before a 
+> > > task is moved?  I'm not sure this is within the scope of Wei's patch.. 
+> > > this is simply preventing a page from being moved to the deferred split
+> > > queue of a memcg that it is not charged to.  Is there a concern about why 
+> > > this code can be removed or a suggestion on something else it should be 
+> > > doing instead?
 > > 
-> > commit cfb88c266b645197135cde2905c2bfc82f6d82a9
-> > Author: Michal Hocko <mhocko@suse.com>
-> > Date:   Wed Nov 14 12:19:09 2018 +0100
-> > 
-> >      mm: fix do_pages_move error reporting
-> >      a49bd4d71637 ("mm, numa: rework do_pages_move") has changed the way how
-> >      we report error to layers above. As the changelog mentioned the semantic
-> >      was quite unclear previously because the return 0 could mean both
-> >      success and failure.
-> >      The above mentioned commit didn't get all the way down to fix this
-> >      completely because it doesn't report pages that we even haven't
-> >      attempted to migrate and therefore we cannot simply say that the
-> >      semantic is:
-> >      - err < 0 - errno
-> >      - err >= 0 number of non-migrated pages.
-> >      Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
-> >      Signed-off-by: Michal Hocko <mhocko@suse.com>
+> > No, I do not have any concern about the patch itslef. It is that the
+> > changelog doesn't decribe the user visible effect. All I am saying is
+> > that the current code splits THPs of moved pages under memory pressure
+> > even if that is not needed. And that is a clear bug.
 > 
-> Thanks, Michal. But, it looks this patch still could return > 0 value (the
-> total number of non-migrated pages, including not even attempted pages) too,
-> but the problem we are trying to fix is to make do_pages_move() return <= 0
-> value only since the man page of move_pages() doesn't allow return > 0
-> value.
+> Ah, gotcha.  I tried to do this in the final paragraph of my amedment to 
+> Wei's patch and why it's important that this is marked as stable.
 
-Yes this patch just lives with the changed semantic and tries to make it
-sensible. So if some page cannot be migrated then we just stop and
-return the number of non migrated pages at the tail of the given array.
-This would make error handling slightly easier because you know that
-count - ret pages of the array can be skipped if ret >= 0.
+I considered "susbequent reclaim will consider these pages for the wrong
+memcg." quite unclear TBH.
+ 
+> The current code in 5.4 from commit 87eaceb3faa59 places any migrated 
+> compound page onto the deferred split queue of the destination memcg 
+> regardless of whether it has a mapping pmd 
+> (list_empty(page_deferred_list()) was already false) or it does not have a 
+> mapping pmd (but is now on the wrong queue).  For the latter, 
+> can_split_huge_page() can help for the actual split but not for the 
+> removal of the page that is now erroneously on the queue.
 
-> And, by looking into the old code (v4.16), I spotted another problem. The
-> migrate_pages() would store the migration failure error code into
-> page_to_node->status. So, When do_move_page_to_node_array() returns > 0
-> value, the return value would be reset to 0 and the migration error codes
-> for non-migrated pages would be stored into status to return to userspace.
-> But, the rework removed this.
-> 
-> I didn't dig into the intention of the rework, is it expected?
+Does that mean that those fully mapped THPs are not going to be split?
 
-I have tried to preserve the original semantic as possible. As explained
-in the changelog there were quite some discrepancies even before. This
-new one was not really intentional. We have effectively two options
-here. Either somebody really depend on the former semantic and we have
-to fix this or we can relax the semantic as the above patch attempts.
+> For the former, 
+> memcg reclaim would not see the pages that it should split under memcg 
+> pressure so we'll see the same memcg oom conditions we saw before the 
+> deferred split shrinker became SHRINKER_MEMCG_AWARE: unnecessary ooms.
 
-I would be more inclined for the second option as nobody has complained
-about the new semantic except for few ltp tests which do not represent
-real workload. If you have a real usecase then speak up please.
+OK, this is yet another user visibile effect and it would be better to
+mention it explicitly in the changelog. 
+
 -- 
 Michal Hocko
 SUSE Labs
