@@ -2,63 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C5D144B67
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 06:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E92D5144BE0
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 07:42:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725827AbgAVFpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 00:45:14 -0500
-Received: from mga12.intel.com ([192.55.52.136]:40212 "EHLO mga12.intel.com"
+        id S1725924AbgAVGm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 01:42:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725796AbgAVFpN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 00:45:13 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Jan 2020 21:45:13 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,348,1574150400"; 
-   d="scan'208";a="215793095"
-Received: from allen-box.sh.intel.com (HELO [10.239.159.138]) ([10.239.159.138])
-  by orsmga007.jf.intel.com with ESMTP; 21 Jan 2020 21:45:11 -0800
-Cc:     baolu.lu@linux.intel.com, Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] iommu/vt-d: call __dmar_remove_one_dev_info with valid
- pointer
-To:     Jerry Snitselaar <jsnitsel@redhat.com>,
-        iommu@lists.linux-foundation.org
-References: <20200122003426.16079-1-jsnitsel@redhat.com>
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-Message-ID: <ac036343-18a2-de7e-6bc2-45966f429c16@linux.intel.com>
-Date:   Wed, 22 Jan 2020 13:43:43 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1725975AbgAVGm0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 01:42:26 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FBE124655;
+        Wed, 22 Jan 2020 06:42:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1579675345;
+        bh=OlUikUxjN7Pp2B66t9mUuPE7/j9xO5sHotrCZhjZpzw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=QWxu2CkQIDK6ahgJ92/0+ElmJ/CAbfuU9DlQ/uplYV3uoeDwyMAiSG6OVrbU4xHqJ
+         7NGKRfjJam/mzj99RY6wQVTzgprFRKkOEzbgipKZhzmXQO1sZ26eMLVMb9TR5q0Qxg
+         v6YMe0QYNt+VlQnu96lpESt398llLiwKEMymnKnw=
+Date:   Wed, 22 Jan 2020 07:42:23 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Subject: Re: [PATCH v2 1/3] ARM: dts: imx6q-icore-mipi: Use 1.5 version of
+ i.Core MX6DL
+Message-ID: <20200122064223.GA2048571@kroah.com>
+References: <20191230120021.32630-1-jagan@amarulasolutions.com>
+ <20200109074625.GE4456@T480>
+ <CA+G9fYvKw7ijk-vxA58SR_d0_-3_in28uFG5H6pikypgDpAHPQ@mail.gmail.com>
+ <CAEUSe79LAxmMf31bt3hoEfUH3k3tqg=41mxy4yVJkYRTpw4k_Q@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200122003426.16079-1-jsnitsel@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEUSe79LAxmMf31bt3hoEfUH3k3tqg=41mxy4yVJkYRTpw4k_Q@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/22/20 8:34 AM, Jerry Snitselaar wrote:
-> It is possible for archdata.iommu to be set to
-> DEFER_DEVICE_DOMAIN_INFO or DUMMY_DEVICE_DOMAIN_INFO so check for
-> those values before calling __dmar_remove_one_dev_info. Without a
-> check it can result in a null pointer dereference. This has been seen
-> while booting a kdump kernel on an HP dl380 gen9.
+On Tue, Jan 21, 2020 at 05:07:41PM -0600, Daniel Díaz wrote:
+> Hello!
 > 
-> Cc: Joerg Roedel <joro@8bytes.org>
-> Cc: Lu Baolu <baolu.lu@linux.intel.com>
-> Cc: David Woodhouse <dwmw2@infradead.org>
-> Cc: stable@vger.kernel.org # 5.3+
-> Cc: linux-kernel@vger.kernel.org
-> Fixes: ae23bfb68f28 ("iommu/vt-d: Detach domain before using a private one")
-> Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> On Mon, 20 Jan 2020 at 23:22, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> > The following dtbs build error noticed for arm build on stable rc 4.19 branch.
+> >
+> > # make -sk KBUILD_BUILD_USER=KernelCI -C/linux ARCH=arm
+> > CROSS_COMPILE=arm-linux-gnueabihf- HOSTCC=gcc O=build dtbs
+> >  #
+> >  ../arch/arm/boot/dts/imx6dl-icore-mipi.dts:11:10: fatal error:
+> > imx6qdl-icore-1.5.dtsi: No such file or directory
+> >     11 | #include "imx6qdl-icore-1.5.dtsi"
+> >        |          ^~~~~~~~~~~~~~~~~~~~~~~~
+> >  compilation terminated.
+> >  make[2]: *** [scripts/Makefile.lib:294:
+> > arch/arm/boot/dts/imx6dl-icore-mipi.dtb] Error 1
+> 
+> This failed again on the latest 4.19.98-rc1 from
+> linux-stable-rc/4.19.y. Looks like it's missing 37c045d25e900 ("ARM:
+> dts: imx6qdl: Add Engicam i.Core 1.5 MX6") from mainline.
 
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Now fixed up, thanks.
 
-Best regards,
-baolu
+greg k-h
