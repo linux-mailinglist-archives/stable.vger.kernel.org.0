@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A13CC14511F
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4F2A144FDE
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:42:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729860AbgAVJhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:37:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52916 "EHLO mail.kernel.org"
+        id S2387479AbgAVJlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:41:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732370AbgAVJhE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:37:04 -0500
+        id S2387617AbgAVJlr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:41:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49C222467B;
-        Wed, 22 Jan 2020 09:37:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0EA724686;
+        Wed, 22 Jan 2020 09:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685823;
-        bh=Gvw4IBVvTbh7LJegV1H9BhU7bNh5YLZ2sWO/BXanA6g=;
+        s=default; t=1579686107;
+        bh=tAEX8k+O68fJuZfYx6mQBJTYLpBE2CrVhQuydpAimMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o6651WkTnrZpaSPvJjdNQ2JRqp1vFLdfWNz/xMAxP6mqq1c/wOtzt/MXgW9xF/lcQ
-         lgOzZ80/9E66YLTFQM4C0fzHfKroWWSGSBG+rrwGdpwHsdmcIY8N7ACJcDvxuJ2RlX
-         ZexS5Av93Ruhq2HOkMgdr+oAHU8smY+s7k1/LxLw=
+        b=sWT1jJQSzDAVvkMK9js/fyLGwVIpD1fDoBHHYU2S256O9B8mRA5F9J8zfkV8AmFrf
+         xfM2dgbdEfvzhZ2n9ipiWR0EE/SUhrw27+TEVUfIXchScPFmaQk0U4aEAYpId8TQd2
+         IUHO39VaHJYp/3kYCEG9mjtmw2qvYlM+n12DE/7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Jansen <martin.jansen@opticon.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 58/97] USB: serial: opticon: fix control-message timeouts
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Qian Cai <cai@lca.pw>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 046/103] mm/page-writeback.c: avoid potential division by zero in wb_min_max_ratio()
 Date:   Wed, 22 Jan 2020 10:29:02 +0100
-Message-Id: <20200122092805.754146924@linuxfoundation.org>
+Message-Id: <20200122092810.734690455@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-commit 5e28055f340275a8616eee88ef19186631b4d136 upstream.
+commit 6d9e8c651dd979aa666bee15f086745f3ea9c4b3 upstream.
 
-The driver was issuing synchronous uninterruptible control requests
-without using a timeout. This could lead to the driver hanging
-on open() or tiocmset() due to a malfunctioning (or malicious) device
-until the device is physically disconnected.
+Patch series "use div64_ul() instead of div_u64() if the divisor is
+unsigned long".
 
-The USB upper limit of five seconds per request should be more than
-enough.
+We were first inspired by commit b0ab99e7736a ("sched: Fix possible divide
+by zero in avg_atom () calculation"), then refer to the recently analyzed
+mm code, we found this suspicious place.
 
-Fixes: 309a057932ab ("USB: opticon: add rts and cts support")
-Cc: stable <stable@vger.kernel.org>     # 2.6.39
-Cc: Martin Jansen <martin.jansen@opticon.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+ 201                 if (min) {
+ 202                         min *= this_bw;
+ 203                         do_div(min, tot_bw);
+ 204                 }
+
+And we also disassembled and confirmed it:
+
+  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 201
+  0xffffffff811c37da <__wb_calc_thresh+234>:      xor    %r10d,%r10d
+  0xffffffff811c37dd <__wb_calc_thresh+237>:      test   %rax,%rax
+  0xffffffff811c37e0 <__wb_calc_thresh+240>:      je 0xffffffff811c3800 <__wb_calc_thresh+272>
+  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 202
+  0xffffffff811c37e2 <__wb_calc_thresh+242>:      imul   %r8,%rax
+  /usr/src/debug/kernel-4.9.168-016.ali3000/linux-4.9.168-016.ali3000.alios7.x86_64/mm/page-writeback.c: 203
+  0xffffffff811c37e6 <__wb_calc_thresh+246>:      mov    %r9d,%r10d    ---> truncates it to 32 bits here
+  0xffffffff811c37e9 <__wb_calc_thresh+249>:      xor    %edx,%edx
+  0xffffffff811c37eb <__wb_calc_thresh+251>:      div    %r10
+  0xffffffff811c37ee <__wb_calc_thresh+254>:      imul   %rbx,%rax
+  0xffffffff811c37f2 <__wb_calc_thresh+258>:      shr    $0x2,%rax
+  0xffffffff811c37f6 <__wb_calc_thresh+262>:      mul    %rcx
+  0xffffffff811c37f9 <__wb_calc_thresh+265>:      shr    $0x2,%rdx
+  0xffffffff811c37fd <__wb_calc_thresh+269>:      mov    %rdx,%r10
+
+This series uses div64_ul() instead of div_u64() if the divisor is
+unsigned long, to avoid truncation to 32-bit on 64-bit platforms.
+
+This patch (of 3):
+
+The variables 'min' and 'max' are unsigned long and do_div truncates
+them to 32 bits, which means it can test non-zero and be truncated to
+zero for division.  Fix this issue by using div64_ul() instead.
+
+Link: http://lkml.kernel.org/r/20200102081442.8273-2-wenyang@linux.alibaba.com
+Fixes: 693108a8a667 ("writeback: make bdi->min/max_ratio handling cgroup writeback aware")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/opticon.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/page-writeback.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/opticon.c
-+++ b/drivers/usb/serial/opticon.c
-@@ -116,7 +116,7 @@ static int send_control_msg(struct usb_s
- 	retval = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
- 				requesttype,
- 				USB_DIR_OUT|USB_TYPE_VENDOR|USB_RECIP_INTERFACE,
--				0, 0, buffer, 1, 0);
-+				0, 0, buffer, 1, USB_CTRL_SET_TIMEOUT);
- 	kfree(buffer);
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -200,11 +200,11 @@ static void wb_min_max_ratio(struct bdi_
+ 	if (this_bw < tot_bw) {
+ 		if (min) {
+ 			min *= this_bw;
+-			do_div(min, tot_bw);
++			min = div64_ul(min, tot_bw);
+ 		}
+ 		if (max < 100) {
+ 			max *= this_bw;
+-			do_div(max, tot_bw);
++			max = div64_ul(max, tot_bw);
+ 		}
+ 	}
  
- 	if (retval < 0)
 
 
