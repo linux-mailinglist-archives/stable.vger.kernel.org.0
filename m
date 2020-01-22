@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C72C14514B
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:53:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CD641450D1
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729863AbgAVJxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:53:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50726 "EHLO mail.kernel.org"
+        id S1730380AbgAVJtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:49:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731379AbgAVJfe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:35:34 -0500
+        id S2387431AbgAVJkO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:40:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5650424673;
-        Wed, 22 Jan 2020 09:35:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1E772468B;
+        Wed, 22 Jan 2020 09:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685733;
-        bh=UfNcciLhGR8mUtx9Sy6RXf1jvwXSevNstUj4IZjS/Dc=;
+        s=default; t=1579686014;
+        bh=krzHTMxg/dce0nPbCdhgzO8ZM4L8r+N76n5J4ZkzNCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zd2xM5+eqcqXJmgqBYsg1ahGg8nhIMVTxZW/mhvlwTdPZ/mlPuiKyEH6zVAFeknXb
-         /clmJ1b5Z/6CWOgzGB+bJNkn9kS156GItzAgxdLSdyhci0pHktJst/Z2zVbfJBqP4n
-         eABrql75kBGi+p9g2TLhKZkjaCh8vku8ObaBq+cw=
+        b=hv1wOYzjX9evrbt0afCoaR1k2RV9lEMrAkrZITfGYghxL4DTCGmxi+kmjdyhNo6vJ
+         QkHjxhv8LRZn02IxiPFeSiIM9AFdv5SOq3RckJ5vREjyJNjJ3ksWPf907Smvms/YCU
+         XpZmpIDGnPOLZ3kQU7fWbJnOq99MXMPUGzkpO5bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.9 13/97] mac80211: Do not send Layer 2 Update frame before authorization
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>
+Subject: [PATCH 4.19 001/103] ARM: dts: meson8: fix the size of the PMU registers
 Date:   Wed, 22 Jan 2020 10:28:17 +0100
-Message-Id: <20200122092757.991592555@linuxfoundation.org>
+Message-Id: <20200122092803.818714077@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,98 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Malinen <jouni@codeaurora.org>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit 3e493173b7841259a08c5c8e5cbe90adb349da7e upstream.
+commit 46c9585ed4af688ff1be6d4e76d7ed2f04de4fba upstream.
 
-The Layer 2 Update frame is used to update bridges when a station roams
-to another AP even if that STA does not transmit any frames after the
-reassociation. This behavior was described in IEEE Std 802.11F-2003 as
-something that would happen based on MLME-ASSOCIATE.indication, i.e.,
-before completing 4-way handshake. However, this IEEE trial-use
-recommended practice document was published before RSN (IEEE Std
-802.11i-2004) and as such, did not consider RSN use cases. Furthermore,
-IEEE Std 802.11F-2003 was withdrawn in 2006 and as such, has not been
-maintained amd should not be used anymore.
+The PMU registers are at least 0x18 bytes wide. Meson8b already uses a
+size of 0x18. The structure of the PMU registers on Meson8 and Meson8b
+is similar but not identical.
 
-Sending out the Layer 2 Update frame immediately after association is
-fine for open networks (and also when using SAE, FT protocol, or FILS
-authentication when the station is actually authenticated by the time
-association completes). However, it is not appropriate for cases where
-RSN is used with PSK or EAP authentication since the station is actually
-fully authenticated only once the 4-way handshake completes after
-authentication and attackers might be able to use the unauthenticated
-triggering of Layer 2 Update frame transmission to disrupt bridge
-behavior.
+Meson8 and Meson8b have the following registers in common (starting at
+AOBUS + 0xe0):
+  #define AO_RTI_PWR_A9_CNTL0 0xe0 (0x38 << 2)
+  #define AO_RTI_PWR_A9_CNTL1 0xe4 (0x39 << 2)
+  #define AO_RTI_GEN_PWR_SLEEP0 0xe8 (0x3a << 2)
+  #define AO_RTI_GEN_PWR_ISO0 0x4c (0x3b << 2)
 
-Fix this by postponing transmission of the Layer 2 Update frame from
-station entry addition to the point when the station entry is marked
-authorized. Similarly, send out the VLAN binding update only if the STA
-entry has already been authorized.
+Meson8b additionally has these three registers:
+  #define AO_RTI_GEN_PWR_ACK0 0xf0 (0x3c << 2)
+  #define AO_RTI_PWR_A9_MEM_PD0 0xf4 (0x3d << 2)
+  #define AO_RTI_PWR_A9_MEM_PD1 0xf8 (0x3e << 2)
 
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 4.9: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Thus we can assume that the register size of the PMU IP blocks is
+identical on both SoCs (and Meson8 just contains some reserved registers
+in that area) because the CEC registers start right after the PMU
+(AO_RTI_*) registers at AOBUS + 0x100 (0x40 << 2).
+
+The upcoming power domain driver will need to read and write the
+AO_RTI_GEN_PWR_SLEEP0 and AO_RTI_GEN_PWR_ISO0 registers, so the updated
+size is needed for that driver to work.
+
+Fixes: 4a5a27116b447d ("ARM: dts: meson8: add support for booting the secondary CPU cores")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/mac80211/cfg.c      |   11 +++--------
- net/mac80211/sta_info.c |    4 ++++
- 2 files changed, 7 insertions(+), 8 deletions(-)
 
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -1357,7 +1357,6 @@ static int ieee80211_add_station(struct
- 	struct sta_info *sta;
- 	struct ieee80211_sub_if_data *sdata;
- 	int err;
--	int layer2_update;
+---
+ arch/arm/boot/dts/meson8.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/arm/boot/dts/meson8.dtsi
++++ b/arch/arm/boot/dts/meson8.dtsi
+@@ -139,7 +139,7 @@
+ &aobus {
+ 	pmu: pmu@e0 {
+ 		compatible = "amlogic,meson8-pmu", "syscon";
+-		reg = <0xe0 0x8>;
++		reg = <0xe0 0x18>;
+ 	};
  
- 	if (params->vlan) {
- 		sdata = IEEE80211_DEV_TO_SUB_IF(params->vlan);
-@@ -1401,18 +1400,12 @@ static int ieee80211_add_station(struct
- 	    test_sta_flag(sta, WLAN_STA_ASSOC))
- 		rate_control_rate_init(sta);
- 
--	layer2_update = sdata->vif.type == NL80211_IFTYPE_AP_VLAN ||
--		sdata->vif.type == NL80211_IFTYPE_AP;
--
- 	err = sta_info_insert_rcu(sta);
- 	if (err) {
- 		rcu_read_unlock();
- 		return err;
- 	}
- 
--	if (layer2_update)
--		cfg80211_send_layer2_update(sta->sdata->dev, sta->sta.addr);
--
- 	rcu_read_unlock();
- 
- 	return 0;
-@@ -1521,7 +1514,9 @@ static int ieee80211_change_station(stru
- 				atomic_inc(&sta->sdata->bss->num_mcast_sta);
- 		}
- 
--		cfg80211_send_layer2_update(sta->sdata->dev, sta->sta.addr);
-+		if (sta->sta_state == IEEE80211_STA_AUTHORIZED)
-+			cfg80211_send_layer2_update(sta->sdata->dev,
-+						    sta->sta.addr);
- 	}
- 
- 	err = sta_apply_parameters(local, sta, params);
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -1896,6 +1896,10 @@ int sta_info_move_state(struct sta_info
- 			ieee80211_check_fast_xmit(sta);
- 			ieee80211_check_fast_rx(sta);
- 		}
-+		if (sta->sdata->vif.type == NL80211_IFTYPE_AP_VLAN ||
-+		    sta->sdata->vif.type == NL80211_IFTYPE_AP)
-+			cfg80211_send_layer2_update(sta->sdata->dev,
-+						    sta->sta.addr);
- 		break;
- 	default:
- 		break;
+ 	pinctrl_aobus: pinctrl@84 {
 
 
