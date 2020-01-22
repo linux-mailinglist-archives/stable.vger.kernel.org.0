@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98CB01451CA
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:56:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB8314513E
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729967AbgAVJcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:32:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44682 "EHLO mail.kernel.org"
+        id S1731411AbgAVJfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:35:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729951AbgAVJcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:32:08 -0500
+        id S1731455AbgAVJfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:35:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2311A24673;
-        Wed, 22 Jan 2020 09:32:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E179124672;
+        Wed, 22 Jan 2020 09:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685527;
-        bh=qGi+amHtg4nMFyTreTVC3CjCEdnJ/6cm/CDIADTgEpw=;
+        s=default; t=1579685743;
+        bh=54W6OgmCDqeTuJsLiKooVfT40af7XsuLNWDViJLgAhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRSAmXxFWBFRu9K6UykZCef6EIATEFuONd8E6DjnHQYlPufmrREa4R16dlc55KlHM
-         dEiacctlRLbXAFjMNT/wRwCsnGUSN6jU7W8AX3uS6CljzzjpHSXgUWxABrcbULU4/x
-         5seYLY9CAo0BwYPLgm+aEs0KKm6ILRmZXeQCVGuY=
+        b=MPPKv8ycwGGg8g33GKvc4Xpj+Ktgdx/mgD/P0jLx7932JNXrlCXPlXtKl9wPHCZiU
+         l9jrlSFBHik2w/YV8BpleFNLTjOOxrq4g7aJK+dBFOvrSLFuhA/aIqFHjJk7ZgmE+A
+         iS+Oru96fJlQ/txfti1uiAM5erG0XD/mahV2130I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keiya Nobuta <nobuta.keiya@fujitsu.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.4 50/76] usb: core: hub: Improved device recognition on remote wakeup
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 62/97] USB: serial: quatech2: handle unbound ports
 Date:   Wed, 22 Jan 2020 10:29:06 +0100
-Message-Id: <20200122092758.234882382@linuxfoundation.org>
+Message-Id: <20200122092806.372918821@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keiya Nobuta <nobuta.keiya@fujitsu.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 9c06ac4c83df6d6fbdbf7488fbad822b4002ba19 upstream.
+commit 9715a43eea77e42678a1002623f2d9a78f5b81a1 upstream.
 
-If hub_activate() is called before D+ has stabilized after remote
-wakeup, the following situation might occur:
+Check for NULL port data in the modem- and line-status handlers to avoid
+dereferencing a NULL pointer in the unlikely case where a port device
+isn't bound to a driver (e.g. after an allocation failure on port
+probe).
 
-         __      ___________________
-        /  \    /
-D+   __/    \__/
+Note that the other (stubbed) event handlers qt2_process_xmit_empty()
+and qt2_process_flush() would need similar sanity checks in case they
+are ever implemented.
 
-Hub  _______________________________
-          |  ^   ^           ^
-          |  |   |           |
-Host _____v__|___|___________|______
-          |  |   |           |
-          |  |   |           \-- Interrupt Transfer (*3)
-          |  |    \-- ClearPortFeature (*2)
-          |   \-- GetPortStatus (*1)
-          \-- Host detects remote wakeup
-
-- D+ goes high, Host starts running by remote wakeup
-- D+ is not stable, goes low
-- Host requests GetPortStatus at (*1) and gets the following hub status:
-  - Current Connect Status bit is 0
-  - Connect Status Change bit is 1
-- D+ stabilizes, goes high
-- Host requests ClearPortFeature and thus Connect Status Change bit is
-  cleared at (*2)
-- After waiting 100 ms, Host starts the Interrupt Transfer at (*3)
-- Since the Connect Status Change bit is 0, Hub returns NAK.
-
-In this case, port_event() is not called in hub_event() and Host cannot
-recognize device. To solve this issue, flag change_bits even if only
-Connect Status Change bit is 1 when got in the first GetPortStatus.
-
-This issue occurs rarely because it only if D+ changes during a very
-short time between GetPortStatus and ClearPortFeature. However, it is
-fatal if it occurs in embedded system.
-
-Signed-off-by: Keiya Nobuta <nobuta.keiya@fujitsu.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200109051448.28150-1-nobuta.keiya@fujitsu.com
+Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
+Cc: stable <stable@vger.kernel.org>     # 3.5
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/hub.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/quatech2.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -1146,6 +1146,7 @@ static void hub_activate(struct usb_hub
- 			 * PORT_OVER_CURRENT is not. So check for any of them.
- 			 */
- 			if (udev || (portstatus & USB_PORT_STAT_CONNECTION) ||
-+			    (portchange & USB_PORT_STAT_C_CONNECTION) ||
- 			    (portstatus & USB_PORT_STAT_OVERCURRENT) ||
- 			    (portchange & USB_PORT_STAT_C_OVERCURRENT))
- 				set_bit(port1, hub->change_bits);
+--- a/drivers/usb/serial/quatech2.c
++++ b/drivers/usb/serial/quatech2.c
+@@ -872,7 +872,10 @@ static void qt2_update_msr(struct usb_se
+ 	u8 newMSR = (u8) *ch;
+ 	unsigned long flags;
+ 
++	/* May be called from qt2_process_read_urb() for an unbound port. */
+ 	port_priv = usb_get_serial_port_data(port);
++	if (!port_priv)
++		return;
+ 
+ 	spin_lock_irqsave(&port_priv->lock, flags);
+ 	port_priv->shadowMSR = newMSR;
+@@ -900,7 +903,10 @@ static void qt2_update_lsr(struct usb_se
+ 	unsigned long flags;
+ 	u8 newLSR = (u8) *ch;
+ 
++	/* May be called from qt2_process_read_urb() for an unbound port. */
+ 	port_priv = usb_get_serial_port_data(port);
++	if (!port_priv)
++		return;
+ 
+ 	if (newLSR & UART_LSR_BI)
+ 		newLSR &= (u8) (UART_LSR_OE | UART_LSR_BI);
 
 
