@@ -2,17 +2,17 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E835145C1E
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 19:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE18F145C59
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 20:19:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725933AbgAVS7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 13:59:18 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:46736 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725884AbgAVS7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 13:59:18 -0500
-Received: by mail-pf1-f193.google.com with SMTP id n9so255258pff.13;
-        Wed, 22 Jan 2020 10:59:18 -0800 (PST)
+        id S1726004AbgAVTTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 14:19:11 -0500
+Received: from mail-il1-f195.google.com ([209.85.166.195]:39887 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725884AbgAVTTK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Jan 2020 14:19:10 -0500
+Received: by mail-il1-f195.google.com with SMTP id x5so279321ila.6;
+        Wed, 22 Jan 2020 11:19:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
@@ -29,14 +29,14 @@ X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
         bh=HQxdX8PTl7oCMbkeLII63nN9RNrnV/YOss11w33YIf8=;
-        b=pQBj01XZdsPm79phhTkYTeeVbQ5Clw8I7xtlqo2souB8rPyBFwkEG1JhTHFPmFyj+G
-         xECY/wlxgVtIBJwl8X6GhEMlMPmA4R4zKNeLTAfnA8rELdqRABUM0uJYDfYvUwyQgbWh
-         /JNPbJPNM5rNfp4Xd6U9t7N7F3ctIJ02hXSoNGjugSGV+VEUYZbhsOIw4Fs5Lg0+1WKw
-         79L64B9dOq2+eatpqEo4qA/L9lrsfj6Z5Q83o/8e6LhWObEmZrt10DnA3pe0trCg5vEM
-         PMczb81otVXzVGeemL9nm6o5KVt5IEkC1oPzqCq1USoH0nESmuv2h2Bj22ANZATs9Oap
-         Q3hg==
-X-Gm-Message-State: APjAAAVpXpR0Izm/UqhI4MaHyUK24ACtP3MXEd2tv8j2Bo7kRiMKNZv1
-        dTcdVjBv8EqVXOCZUVvl0CE=
+        b=tnTRwZbXJ3Qyc2hj55GDf7NmdsT6RZI3KqWtp6Pue6S2kCXgXx0JHx+AkNBojzq6t9
+         ROw0cppb+HXBN9JbCYfDflmtQo0msRjl4HNjPPQjCvL+JEgoyhQaWi7MyUX2C40tII3k
+         9NH6LKLgj8hi8rg35bLNlnoWf9RTmEcFmULnDIGK+DQiN0qiBcFUBE7KL+KEh7GwYctY
+         fuMO6hxScj5mGBFduJ11yvnqIu6fGKvfNE8KTURg9nluZJAQCqN9z8T8JJ9Kq4KY2NF7
+         0JEnhwxzTLfQY8rDdRztZA3rfbpz7ATvhN7q8I/VCfJ6cr/ikcPZ/l9CgzMaksqQ0GMw
+         cp8Q==
+X-Gm-Message-State: APjAAAVbVqZrd7Jqg9MqLa62wdjps/zLH5PTdcdnbZz2XFSYonkU9X4C
+        lBZOp4/lo5TI/NGAuSpHjAslUupc
 X-Google-Smtp-Source: APXvYqw6cm5OGqc+QD/QB6T5Q25CpnOFzxW545Nvuuzw+vPDYbWK+zakzkgPDkZZ03z+W/nHQ0CIug==
 X-Received: by 2002:a63:d14:: with SMTP id c20mr52583pgl.77.1579719549617;
         Wed, 22 Jan 2020 10:59:09 -0800 (PST)
