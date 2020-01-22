@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2780514514D
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDB02144FC4
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:40:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731292AbgAVJxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:53:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50524 "EHLO mail.kernel.org"
+        id S2387467AbgAVJky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:40:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731313AbgAVJf1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:35:27 -0500
+        id S2387486AbgAVJky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:40:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD2DC24673;
-        Wed, 22 Jan 2020 09:35:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE28024684;
+        Wed, 22 Jan 2020 09:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685726;
-        bh=KeMuUU1uohJ1StY+/CmAWDNzajPxBmntrU56E74dvHo=;
+        s=default; t=1579686053;
+        bh=wrLpKlP6U7BdNA7ktB/oVQBMEYL7VDL+VDGXDOaGkHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPGq5pvD4xlTrtDdRLp8RahscOmLdfM/OP3f0047H8bnmA0I0WAWLErQwee2dI/9T
-         GWPrZs6h2bcV2gNwVrIf5OfbKCJcfl3VnUaUi3f9XWf3ZISYzBfPj3ZuazIYuGluQ4
-         x5+gG/3dk34Jokhx7dLkEFiDplIzHogskcKIVAM8=
+        b=P/+f3ki/w0qwsZseT5aHvwa3S80XOBZW71NKFw0v03Q/QKMYp0/sWsZJVwwziMHl2
+         4kJmDPWP/LNmcGyWSRaiC//z6txv+003GyWXDl25grWHtr80iZJ1804TovwjKjSm5t
+         cib4jv7aY8j+etETU+dfnXUr2PGHOW71vd6jaQrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ran Bi <ran.bi@mediatek.com>,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.9 20/97] rtc: mt6397: fix alarm register overwrite
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jer=C3=B3nimo=20Borque?= <jeronimo@borque.com.ar>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 008/103] USB: serial: simple: Add Motorola Solutions TETRA MTP3xxx and MTP85xx
 Date:   Wed, 22 Jan 2020 10:28:24 +0100
-Message-Id: <20200122092759.303197667@linuxfoundation.org>
+Message-Id: <20200122092804.901629668@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,103 +44,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ran Bi <ran.bi@mediatek.com>
+From: Jerónimo Borque <jeronimo@borque.com.ar>
 
-commit 653997eeecef95c3ead4fba1b2d27e6a5854d6cd upstream.
+commit 260e41ac4dd3e5acb90be624c03ba7f019615b75 upstream.
 
-Alarm registers high byte was reserved for other functions.
-This add mask in alarm registers operation functions.
-This also fix error condition in interrupt handler.
+Add device-ids for the Motorola Solutions TETRA radios MTP3xxx series
+and MTP85xx series
 
-Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
+$ lsusb -vd 0cad:
 
-Signed-off-by: Ran Bi <ran.bi@mediatek.com>
-Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Link: https://lore.kernel.org/r/1576057435-3561-6-git-send-email-hsin-hsiung.wang@mediatek.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Bus 001 Device 009: ID 0cad:9015 Motorola CGISS TETRA PEI interface
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0        64
+  idVendor           0x0cad Motorola CGISS
+  idProduct          0x9015
+  bcdDevice           24.16
+  iManufacturer           1
+  iProduct                2
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0037
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          3
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      0
+      bInterfaceProtocol      0
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      0
+      bInterfaceProtocol      0
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+
+Bus 001 Device 010: ID 0cad:9013 Motorola CGISS TETRA PEI interface
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0        64
+  idVendor           0x0cad Motorola CGISS
+  idProduct          0x9013
+  bcdDevice           24.16
+  iManufacturer           1
+  iProduct                2
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0037
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          3
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      0
+      bInterfaceProtocol      0
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      0
+      bInterfaceProtocol      0
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+
+Signed-off-by: Jerónimo Borque <jeronimo@borque.com.ar>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/rtc-mt6397.c |   47 +++++++++++++++++++++++++++++++++--------------
- 1 file changed, 33 insertions(+), 14 deletions(-)
+ drivers/usb/serial/usb-serial-simple.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -55,6 +55,14 @@
+--- a/drivers/usb/serial/usb-serial-simple.c
++++ b/drivers/usb/serial/usb-serial-simple.c
+@@ -86,6 +86,8 @@ DEVICE(moto_modem, MOTO_IDS);
+ #define MOTOROLA_TETRA_IDS()			\
+ 	{ USB_DEVICE(0x0cad, 0x9011) },	/* Motorola Solutions TETRA PEI */ \
+ 	{ USB_DEVICE(0x0cad, 0x9012) },	/* MTP6550 */ \
++	{ USB_DEVICE(0x0cad, 0x9013) },	/* MTP3xxx */ \
++	{ USB_DEVICE(0x0cad, 0x9015) },	/* MTP85xx */ \
+ 	{ USB_DEVICE(0x0cad, 0x9016) }	/* TPG2200 */
+ DEVICE(motorola_tetra, MOTOROLA_TETRA_IDS);
  
- #define RTC_AL_SEC		0x0018
- 
-+#define RTC_AL_SEC_MASK		0x003f
-+#define RTC_AL_MIN_MASK		0x003f
-+#define RTC_AL_HOU_MASK		0x001f
-+#define RTC_AL_DOM_MASK		0x001f
-+#define RTC_AL_DOW_MASK		0x0007
-+#define RTC_AL_MTH_MASK		0x000f
-+#define RTC_AL_YEA_MASK		0x007f
-+
- #define RTC_PDN2		0x002e
- #define RTC_PDN2_PWRON_ALARM	BIT(4)
- 
-@@ -111,7 +119,7 @@ static irqreturn_t mtk_rtc_irq_handler_t
- 		irqen = irqsta & ~RTC_IRQ_EN_AL;
- 		mutex_lock(&rtc->lock);
- 		if (regmap_write(rtc->regmap, rtc->addr_base + RTC_IRQ_EN,
--				 irqen) < 0)
-+				 irqen) == 0)
- 			mtk_rtc_write_trigger(rtc);
- 		mutex_unlock(&rtc->lock);
- 
-@@ -233,12 +241,12 @@ static int mtk_rtc_read_alarm(struct dev
- 	alm->pending = !!(pdn2 & RTC_PDN2_PWRON_ALARM);
- 	mutex_unlock(&rtc->lock);
- 
--	tm->tm_sec = data[RTC_OFFSET_SEC];
--	tm->tm_min = data[RTC_OFFSET_MIN];
--	tm->tm_hour = data[RTC_OFFSET_HOUR];
--	tm->tm_mday = data[RTC_OFFSET_DOM];
--	tm->tm_mon = data[RTC_OFFSET_MTH];
--	tm->tm_year = data[RTC_OFFSET_YEAR];
-+	tm->tm_sec = data[RTC_OFFSET_SEC] & RTC_AL_SEC_MASK;
-+	tm->tm_min = data[RTC_OFFSET_MIN] & RTC_AL_MIN_MASK;
-+	tm->tm_hour = data[RTC_OFFSET_HOUR] & RTC_AL_HOU_MASK;
-+	tm->tm_mday = data[RTC_OFFSET_DOM] & RTC_AL_DOM_MASK;
-+	tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_AL_MTH_MASK;
-+	tm->tm_year = data[RTC_OFFSET_YEAR] & RTC_AL_YEA_MASK;
- 
- 	tm->tm_year += RTC_MIN_YEAR_OFFSET;
- 	tm->tm_mon--;
-@@ -259,14 +267,25 @@ static int mtk_rtc_set_alarm(struct devi
- 	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
- 	tm->tm_mon++;
- 
--	data[RTC_OFFSET_SEC] = tm->tm_sec;
--	data[RTC_OFFSET_MIN] = tm->tm_min;
--	data[RTC_OFFSET_HOUR] = tm->tm_hour;
--	data[RTC_OFFSET_DOM] = tm->tm_mday;
--	data[RTC_OFFSET_MTH] = tm->tm_mon;
--	data[RTC_OFFSET_YEAR] = tm->tm_year;
--
- 	mutex_lock(&rtc->lock);
-+	ret = regmap_bulk_read(rtc->regmap, rtc->addr_base + RTC_AL_SEC,
-+			       data, RTC_OFFSET_COUNT);
-+	if (ret < 0)
-+		goto exit;
-+
-+	data[RTC_OFFSET_SEC] = ((data[RTC_OFFSET_SEC] & ~(RTC_AL_SEC_MASK)) |
-+				(tm->tm_sec & RTC_AL_SEC_MASK));
-+	data[RTC_OFFSET_MIN] = ((data[RTC_OFFSET_MIN] & ~(RTC_AL_MIN_MASK)) |
-+				(tm->tm_min & RTC_AL_MIN_MASK));
-+	data[RTC_OFFSET_HOUR] = ((data[RTC_OFFSET_HOUR] & ~(RTC_AL_HOU_MASK)) |
-+				(tm->tm_hour & RTC_AL_HOU_MASK));
-+	data[RTC_OFFSET_DOM] = ((data[RTC_OFFSET_DOM] & ~(RTC_AL_DOM_MASK)) |
-+				(tm->tm_mday & RTC_AL_DOM_MASK));
-+	data[RTC_OFFSET_MTH] = ((data[RTC_OFFSET_MTH] & ~(RTC_AL_MTH_MASK)) |
-+				(tm->tm_mon & RTC_AL_MTH_MASK));
-+	data[RTC_OFFSET_YEAR] = ((data[RTC_OFFSET_YEAR] & ~(RTC_AL_YEA_MASK)) |
-+				(tm->tm_year & RTC_AL_YEA_MASK));
-+
- 	if (alm->enabled) {
- 		ret = regmap_bulk_write(rtc->regmap,
- 					rtc->addr_base + RTC_AL_SEC,
 
 
