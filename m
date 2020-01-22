@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3DD6144EBB
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:31:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AB29144FE9
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:42:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729437AbgAVJbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:31:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42814 "EHLO mail.kernel.org"
+        id S2387698AbgAVJmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:42:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729473AbgAVJbB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:31:01 -0500
+        id S1733172AbgAVJmS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:42:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB13124672;
-        Wed, 22 Jan 2020 09:31:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B37424680;
+        Wed, 22 Jan 2020 09:42:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685461;
-        bh=L4QAyqnjIbE6eR2gdAHHZr8L2R5BTRnTzBoUgeZVtl0=;
+        s=default; t=1579686138;
+        bh=mVsDAopeiFdOOAJlD7vY5WAS4z+/vv+buahmyoiVCKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2i72pUrQWV5sxrBl9kJYclI7xWfho/dPJqfdjfGgzCMtPPkmtjd8X8cyCUlUFJId
-         /NV6rk+gPsbBpPXp+hcs07fHf3DkQVjN7nidAvxxm6j16XgQpEb1zBS4Afa+gZS4AK
-         NYNnJL1+1GK4nCTmnTRhYMGafioOBlSpvK9oYK94=
+        b=gNadaqNH4womxjxwd4wUEE87CGyi/CNgJtTd9P3fe3saUtCX1lGh8Q/HCwYnmgZq6
+         5DZMm6oXQ47bsQa02ZplXeRnlKvPquuDe+hGVfO3rkmMijUrS0z7silEbZbApky5Ea
+         2Af/kQD3gyBUp2lDo823a224Trn16UcR6PCQDAnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Honggang Li <honli@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.4 23/76] RDMA/srpt: Report the SCSI residual to the initiator
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 023/103] ALSA: dice: fix fallback from protocol extension into limited functionality
 Date:   Wed, 22 Jan 2020 10:28:39 +0100
-Message-Id: <20200122092754.097947390@linuxfoundation.org>
+Message-Id: <20200122092807.241889346@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit e88982ad1bb12db699de96fbc07096359ef6176c upstream.
+commit 3e2dc6bdb56893bc28257e482e1dbe5d39f313df upstream.
 
-The code added by this patch is similar to the code that already exists in
-ibmvscsis_determine_resid(). This patch has been tested by running the
-following command:
+At failure of attempt to detect protocol extension, ALSA dice driver
+should be fallback to limited functionality. However it's not.
 
-strace sg_raw -r 1k /dev/sdb 12 00 00 00 60 00 -o inquiry.bin |&
-    grep resid=
+This commit fixes it.
 
-Link: https://lore.kernel.org/r/20191105214632.183302-1-bvanassche@acm.org
-Fixes: a42d985bd5b2 ("ib_srpt: Initial SRP Target merge for v3.3-rc1")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Acked-by: Honggang Li <honli@redhat.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Cc: <stable@vger.kernel.org> # v4.18+
+Fixes: 58579c056c1c9 ("ALSA: dice: use extended protocol to detect available stream formats")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20200113084630.14305-2-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/ulp/srpt/ib_srpt.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ sound/firewire/dice/dice-extension.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/ulp/srpt/ib_srpt.c
-+++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
-@@ -1513,9 +1513,11 @@ static int srpt_build_cmd_rsp(struct srp
- 			      struct srpt_send_ioctx *ioctx, u64 tag,
- 			      int status)
- {
-+	struct se_cmd *cmd = &ioctx->cmd;
- 	struct srp_rsp *srp_rsp;
- 	const u8 *sense_data;
- 	int sense_data_len, max_sense_len;
-+	u32 resid = cmd->residual_count;
+--- a/sound/firewire/dice/dice-extension.c
++++ b/sound/firewire/dice/dice-extension.c
+@@ -159,8 +159,11 @@ int snd_dice_detect_extension_formats(st
+ 		int j;
  
- 	/*
- 	 * The lowest bit of all SAM-3 status codes is zero (see also
-@@ -1537,6 +1539,28 @@ static int srpt_build_cmd_rsp(struct srp
- 	srp_rsp->tag = tag;
- 	srp_rsp->status = status;
+ 		for (j = i + 1; j < 9; ++j) {
+-			if (pointers[i * 2] == pointers[j * 2])
++			if (pointers[i * 2] == pointers[j * 2]) {
++				// Fallback to limited functionality.
++				err = -ENXIO;
+ 				goto end;
++			}
+ 		}
+ 	}
  
-+	if (cmd->se_cmd_flags & SCF_UNDERFLOW_BIT) {
-+		if (cmd->data_direction == DMA_TO_DEVICE) {
-+			/* residual data from an underflow write */
-+			srp_rsp->flags = SRP_RSP_FLAG_DOUNDER;
-+			srp_rsp->data_out_res_cnt = cpu_to_be32(resid);
-+		} else if (cmd->data_direction == DMA_FROM_DEVICE) {
-+			/* residual data from an underflow read */
-+			srp_rsp->flags = SRP_RSP_FLAG_DIUNDER;
-+			srp_rsp->data_in_res_cnt = cpu_to_be32(resid);
-+		}
-+	} else if (cmd->se_cmd_flags & SCF_OVERFLOW_BIT) {
-+		if (cmd->data_direction == DMA_TO_DEVICE) {
-+			/* residual data from an overflow write */
-+			srp_rsp->flags = SRP_RSP_FLAG_DOOVER;
-+			srp_rsp->data_out_res_cnt = cpu_to_be32(resid);
-+		} else if (cmd->data_direction == DMA_FROM_DEVICE) {
-+			/* residual data from an overflow read */
-+			srp_rsp->flags = SRP_RSP_FLAG_DIOVER;
-+			srp_rsp->data_in_res_cnt = cpu_to_be32(resid);
-+		}
-+	}
-+
- 	if (sense_data_len) {
- 		BUILD_BUG_ON(MIN_MAX_RSP_SIZE <= sizeof(*srp_rsp));
- 		max_sense_len = ch->max_ti_iu_len - sizeof(*srp_rsp);
 
 
