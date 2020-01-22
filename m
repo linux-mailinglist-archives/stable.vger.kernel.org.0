@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38AC1145066
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DAB1450E1
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387781AbgAVJmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:42:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
+        id S1729143AbgAVJuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:50:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387777AbgAVJmp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:42:45 -0500
+        id S1733125AbgAVJiy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:38:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA2ED2467B;
-        Wed, 22 Jan 2020 09:42:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5757E2467B;
+        Wed, 22 Jan 2020 09:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686165;
-        bh=qQTligRoMn1rcwW1M0BXrXltC+2WE7lvseXzLYSYWGU=;
+        s=default; t=1579685933;
+        bh=5+aN8LnHZLKcM+Ov72cMOGdccVnhGxIcDkOjPOrNlEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wn+NkSyv7c+6vfJhsyokSJThThUqlmG/SEerQAhM/60INh07jBg8j9O1aI6cWFgBR
-         /f5Q7i2ZRUWQnYHFVnxSk9o+z9T5EAlkj2RaHvOH/xhGTXtm1106h4WjgeuBZN18K5
-         xuW3J3qAGYctoMHI7Y0MdiZ3sODRFTvSe/1RAKps=
+        b=cqZsZ651kqRR2W8MAYzSryhD92xV7uNXKOegNuSmOVcvl7gejLxJvRakgyqxQK7DL
+         UGrBZe2fiN8EHvPqEV+1XmJPVjE4kAGY284DZyC95v12H+1HAP2osuF9HtG36Kt9zx
+         b6RdOdweJ8GAaeKChvyfTrQQ522GgTs7kwbyI83Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        RENARD Pierre-Francois <pfrenard@gmail.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Woojung Huh <woojung.huh@microchip.com>,
-        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
+        stable@vger.kernel.org, Mohammed Gamal <mgamal@redhat.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 071/103] net: usb: lan78xx: limit size of local TSO packets
+Subject: [PATCH 4.14 42/65] hv_netvsc: Fix memory leak when removing rndis device
 Date:   Wed, 22 Jan 2020 10:29:27 +0100
-Message-Id: <20200122092814.032899084@linuxfoundation.org>
+Message-Id: <20200122092757.036260646@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mohammed Gamal <mgamal@redhat.com>
 
-[ Upstream commit f8d7408a4d7f60f8b2df0f81decdc882dd9c20dc ]
+[ Upstream commit 536dc5df2808efbefc5acee334d3c4f701790ec0 ]
 
-lan78xx_tx_bh() makes sure to not exceed MAX_SINGLE_PACKET_SIZE
-bytes in the aggregated packets it builds, but does
-nothing to prevent large GSO packets being submitted.
+kmemleak detects the following memory leak when hot removing
+a network device:
 
-Pierre-Francois reported various hangs when/if TSO is enabled.
+unreferenced object 0xffff888083f63600 (size 256):
+  comm "kworker/0:1", pid 12, jiffies 4294831717 (age 1113.676s)
+  hex dump (first 32 bytes):
+    00 40 c7 33 80 88 ff ff 00 00 00 00 10 00 00 00  .@.3............
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+  backtrace:
+    [<00000000d4a8f5be>] rndis_filter_device_add+0x117/0x11c0 [hv_netvsc]
+    [<000000009c02d75b>] netvsc_probe+0x5e7/0xbf0 [hv_netvsc]
+    [<00000000ddafce23>] vmbus_probe+0x74/0x170 [hv_vmbus]
+    [<00000000046e64f1>] really_probe+0x22f/0xb50
+    [<000000005cc35eb7>] driver_probe_device+0x25e/0x370
+    [<0000000043c642b2>] bus_for_each_drv+0x11f/0x1b0
+    [<000000005e3d09f0>] __device_attach+0x1c6/0x2f0
+    [<00000000a72c362f>] bus_probe_device+0x1a6/0x260
+    [<0000000008478399>] device_add+0x10a3/0x18e0
+    [<00000000cf07b48c>] vmbus_device_register+0xe7/0x1e0 [hv_vmbus]
+    [<00000000d46cf032>] vmbus_add_channel_work+0x8ab/0x1770 [hv_vmbus]
+    [<000000002c94bb64>] process_one_work+0x919/0x17d0
+    [<0000000096de6781>] worker_thread+0x87/0xb40
+    [<00000000fbe7397e>] kthread+0x333/0x3f0
+    [<000000004f844269>] ret_from_fork+0x3a/0x50
 
-For localy generated packets, we can use netif_set_gso_max_size()
-to limit the size of TSO packets.
+rndis_filter_device_add() allocates an instance of struct rndis_device
+which never gets deallocated as rndis_filter_device_remove() sets
+net_device->extension which points to the rndis_device struct to NULL,
+leaving the rndis_device dangling.
 
-Note that forwarded packets could still hit the issue,
-so a complete fix might require implementing .ndo_features_check
-for this driver, forcing a software segmentation if the size
-of the TSO packet exceeds MAX_SINGLE_PACKET_SIZE.
+Since net_device->extension is eventually freed in free_netvsc_device(),
+we refrain from setting it to NULL inside rndis_filter_device_remove()
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: RENARD Pierre-Francois <pfrenard@gmail.com>
-Tested-by: RENARD Pierre-Francois <pfrenard@gmail.com>
-Cc: Stefan Wahren <stefan.wahren@i2se.com>
-Cc: Woojung Huh <woojung.huh@microchip.com>
-Cc: Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
+Signed-off-by: Mohammed Gamal <mgamal@redhat.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/lan78xx.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/hyperv/rndis_filter.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -3769,6 +3769,7 @@ static int lan78xx_probe(struct usb_inte
+--- a/drivers/net/hyperv/rndis_filter.c
++++ b/drivers/net/hyperv/rndis_filter.c
+@@ -1331,8 +1331,6 @@ void rndis_filter_device_remove(struct h
+ 	/* Halt and release the rndis device */
+ 	rndis_filter_halt_device(rndis_dev);
  
- 	/* MTU range: 68 - 9000 */
- 	netdev->max_mtu = MAX_SINGLE_PACKET_SIZE;
-+	netif_set_gso_max_size(netdev, MAX_SINGLE_PACKET_SIZE - MAX_HEADER);
+-	net_dev->extension = NULL;
+-
+ 	netvsc_device_remove(dev);
+ }
  
- 	dev->ep_blkin = (intf->cur_altsetting)->endpoint + 0;
- 	dev->ep_blkout = (intf->cur_altsetting)->endpoint + 1;
 
 
