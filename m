@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E098144EED
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:34:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D95C11450B1
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:49:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729629AbgAVJcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:32:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45880 "EHLO mail.kernel.org"
+        id S2387407AbgAVJkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:40:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729247AbgAVJcp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:32:45 -0500
+        id S2387403AbgAVJkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:40:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 403E72071E;
-        Wed, 22 Jan 2020 09:32:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9269C24686;
+        Wed, 22 Jan 2020 09:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685564;
-        bh=KihyWKk3SIkPemrHd6GuzvjWjwEY7Z9Koyl5Lj7HXM4=;
+        s=default; t=1579686007;
+        bh=1tcWBKbHwODMcpHBvb0yrTax8IjC2JFD9olAldecZLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cc7l4/tS8NDWpwil9zi7Qy4CSIIQZbWXu7Sjr3wZeDHHEUeYWPRqklYzxQAgO6Tdo
-         xcf5kEethMWwFWlGG2zBRYcHpx//n+g9z7Z1qfMhHPrh5ydkI7+dUlwIMVnwtxOlkG
-         3thbvpU8F3z3i46fSL96Gk6vlMs4tGsIZVms8mNg=
+        b=BAj74EmoRQ6CbwOhxqiIyD05Io4uV/QjUN83ZybvwwFtiG/2l+0JOQUrDzPpnt6Lv
+         ta+n1NhhHUbcFOQ7o0NSlV4YQG1HoNYZJ419A8yORb//MaBOetL9STl8TEDSjsguGa
+         4rpRVWnKiGznEr786sviacCcVNzt8M8LeNCBkzpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, hayeswang <hayeswang@realtek.com>,
-        Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 64/76] r8152: add missing endpoint sanity check
+        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 35/65] arm64: dts: agilex/stratix10: fix pmu interrupt numbers
 Date:   Wed, 22 Jan 2020 10:29:20 +0100
-Message-Id: <20200122092801.020020736@linuxfoundation.org>
+Message-Id: <20200122092755.858340529@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-[ Upstream commit 86f3f4cd53707ceeec079b83205c8d3c756eca93 ]
+[ Upstream commit 210de0e996aee8e360ccc9e173fe7f0a7ed2f695 ]
 
-Add missing endpoint sanity check to probe in order to prevent a
-NULL-pointer dereference (or slab out-of-bounds access) when retrieving
-the interrupt-endpoint bInterval on ndo_open() in case a device lacks
-the expected endpoints.
+Fix up the correct interrupt numbers for the PMU unit on Agilex
+and Stratix10.
 
-Fixes: 40a82917b1d3 ("net/usb/r8152: enable interrupt transfer")
-Cc: hayeswang <hayeswang@realtek.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 78cd6a9d8e15 ("arm64: dts: Add base stratix 10 dtsi")
+Cc: linux-stable <stable@vger.kernel.org>
+Reported-by: Meng Li <Meng.Li@windriver.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -4243,6 +4243,9 @@ static int rtl8152_probe(struct usb_inte
- 		return -ENODEV;
- 	}
+diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
+index e79f3defe002..c2ad4f97cef0 100644
+--- a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
++++ b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
+@@ -56,10 +56,10 @@
  
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 3)
-+		return -ENODEV;
-+
- 	usb_reset_device(udev);
- 	netdev = alloc_etherdev(sizeof(struct r8152));
- 	if (!netdev) {
+ 	pmu {
+ 		compatible = "arm,armv8-pmuv3";
+-		interrupts = <0 120 8>,
+-			     <0 121 8>,
+-			     <0 122 8>,
+-			     <0 123 8>;
++		interrupts = <0 170 4>,
++			     <0 171 4>,
++			     <0 172 4>,
++			     <0 173 4>;
+ 		interrupt-affinity = <&cpu0>,
+ 				     <&cpu1>,
+ 				     <&cpu2>,
+-- 
+2.20.1
+
 
 
