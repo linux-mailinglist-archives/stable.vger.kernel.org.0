@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF49144FD3
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:41:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45EC01450E8
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387443AbgAVJlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:41:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60792 "EHLO mail.kernel.org"
+        id S1733066AbgAVJib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:38:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387563AbgAVJlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:41:23 -0500
+        id S1732980AbgAVJi3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:38:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A57524684;
-        Wed, 22 Jan 2020 09:41:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1E6C2467B;
+        Wed, 22 Jan 2020 09:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686082;
-        bh=DBde7uZQI+nAKqKHJs8EuTBmhlPbAKjNh1GJFTUbcss=;
+        s=default; t=1579685909;
+        bh=BIESPlAn6ULQtQt/OSEJWfZLiOh1u+NRyAmVtFMibJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z2tv6bYl3RTp77BYaVpasAznrZ116rCkwSSFlv5lud4NfFhwfWjdlNOeZZMNbd/aT
-         pwpwjfTFEEqMjURDvYiG7Ryd7tna5y6RlgIVZrlet2tknrzMD7Dv9X5FshJXZa5jM1
-         5QpsijhM9vEYpdeyjHjdL2U7fffILKnTtbybivfs=
+        b=cLEInDyBajRAZUfjiNCAxC1pBjgh0w2/27MAzD8dLmAlk5A1K/tH/C34DPOJTA9FF
+         zlkCWwxKsAKpB1dfGcXTQwSc+eydR7nGIrgJUOxb/k54JddmN2a4NuywIuFWLT2Llx
+         Hh2QIgo8o9ntSEjKHQxp5tRuxYucVtcmUAzrMd5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
-Subject: [PATCH 4.19 037/103] x86/resctrl: Fix potential memory leak
+        stable@vger.kernel.org,
+        =?UTF-8?q?Lars=20M=C3=B6llendorf?= <lars.moellendorf@plating.de>,
+        Lars-Peter Clausen <lars@metafoo.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 08/65] iio: buffer: align the size of scan bytes to size of the largest element
 Date:   Wed, 22 Jan 2020 10:28:53 +0100
-Message-Id: <20200122092809.478517811@linuxfoundation.org>
+Message-Id: <20200122092752.442604047@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Lars Möllendorf <lars.moellendorf@plating.de>
 
-commit ab6a2114433a3b5b555983dcb9b752a85255f04b upstream.
+commit 883f616530692d81cb70f8a32d85c0d2afc05f69 upstream.
 
-set_cache_qos_cfg() is leaking memory when the given level is not
-RDT_RESOURCE_L3 or RDT_RESOURCE_L2. At the moment, this function is
-called with only valid levels but move the allocation after the valid
-level checks in order to make it more robust and future proof.
+Previous versions of `iio_compute_scan_bytes` only aligned each element
+to its own length (i.e. its own natural alignment). Because multiple
+consecutive sets of scan elements are buffered this does not work in
+case the computed scan bytes do not align with the natural alignment of
+the first scan element in the set.
 
- [ bp: Massage commit message. ]
+This commit fixes this by aligning the scan bytes to the natural
+alignment of the largest scan element in the set.
 
-Fixes: 99adde9b370de ("x86/intel_rdt: Enable L2 CDP in MSR IA32_L2_QOS_CFG")
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Reinette Chatre <reinette.chatre@intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20200102165844.133133-1-shakeelb@google.com
+Fixes: 959d2952d124 ("staging:iio: make iio_sw_buffer_preenable much more general.")
+Signed-off-by: Lars Möllendorf <lars.moellendorf@plating.de>
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/intel_rdt_rdtgroup.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/industrialio-buffer.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-+++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-@@ -1749,9 +1749,6 @@ static int set_cache_qos_cfg(int level,
- 	struct rdt_domain *d;
- 	int cpu;
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -570,7 +570,7 @@ static int iio_compute_scan_bytes(struct
+ 				const unsigned long *mask, bool timestamp)
+ {
+ 	unsigned bytes = 0;
+-	int length, i;
++	int length, i, largest = 0;
  
--	if (!zalloc_cpumask_var(&cpu_mask, GFP_KERNEL))
--		return -ENOMEM;
--
- 	if (level == RDT_RESOURCE_L3)
- 		update = l3_qos_cfg_update;
- 	else if (level == RDT_RESOURCE_L2)
-@@ -1759,6 +1756,9 @@ static int set_cache_qos_cfg(int level,
- 	else
- 		return -EINVAL;
+ 	/* How much space will the demuxed element take? */
+ 	for_each_set_bit(i, mask,
+@@ -578,13 +578,17 @@ static int iio_compute_scan_bytes(struct
+ 		length = iio_storage_bytes_for_si(indio_dev, i);
+ 		bytes = ALIGN(bytes, length);
+ 		bytes += length;
++		largest = max(largest, length);
+ 	}
  
-+	if (!zalloc_cpumask_var(&cpu_mask, GFP_KERNEL))
-+		return -ENOMEM;
+ 	if (timestamp) {
+ 		length = iio_storage_bytes_for_timestamp(indio_dev);
+ 		bytes = ALIGN(bytes, length);
+ 		bytes += length;
++		largest = max(largest, length);
+ 	}
 +
- 	r_l = &rdt_resources_all[level];
- 	list_for_each_entry(d, &r_l->domains, list) {
- 		/* Pick one CPU from each domain instance to update MSR */
++	bytes = ALIGN(bytes, largest);
+ 	return bytes;
+ }
+ 
 
 
