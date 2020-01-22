@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD30145647
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D75145637
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730004AbgAVNY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:24:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43398 "EHLO mail.kernel.org"
+        id S1729017AbgAVNWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:22:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729151AbgAVNYZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:24:25 -0500
+        id S1725827AbgAVNWi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:22:38 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 905532468A;
-        Wed, 22 Jan 2020 13:24:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71CCF24690;
+        Wed, 22 Jan 2020 13:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699465;
-        bh=q2Ktr8oEsKQfbcS/mb8ot+UDb6iWm9eHCebzprgScec=;
+        s=default; t=1579699358;
+        bh=THZTOQTBOsJRrzlwegB7sVd2vR3v8N9OdsvPhENhc5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQU642j/bc7AYTlj2oIhKMt5q9QjC2NrTghB0s8HGAXSwfnVsmYXo0uPZHaZOh2EB
-         dwG8WQvDofQ96AtY47BrQ7I4JiiMrv5NUdRM2ttNtI0aiKPLNO+TQH31uP8oILTMA7
-         Cm1RmAnvbzEuicn2zh7MHG9KiN0VNIgjSuzdeYG8=
+        b=yM2ptP1WXt38YUkHMqz5eeT6rUhN1FAtgiwv5A3hVJP+7JnRss9XSRXvv6vYoPi+E
+         B0xjXmbtLcdFfqyMKNnPZNwULURTmX3ek1HH3sYEW6gV+fyEYPCt1T+Ec2J5ev4uTT
+         jD+Zq1hjyS7vlwZq0t2aLiqCR4rLSF7V5zfEDyWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 118/222] cfg80211: fix deadlocks in autodisconnect work
-Date:   Wed, 22 Jan 2020 10:28:24 +0100
-Message-Id: <20200122092842.189163287@linuxfoundation.org>
+Subject: [PATCH 5.4 120/222] cfg80211: fix memory leak in cfg80211_cqm_rssi_update
+Date:   Wed, 22 Jan 2020 10:28:26 +0100
+Message-Id: <20200122092842.331958509@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -43,42 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Theil <markus.theil@tu-ilmenau.de>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 5a128a088a2ab0b5190eeb232b5aa0b1017a0317 upstream.
+commit df16737d438f534d0cc9948c7c5158f1986c5c87 upstream.
 
-Use methods which do not try to acquire the wdev lock themselves.
+The per-tid statistics need to be released after the call to rdev_get_station
 
 Cc: stable@vger.kernel.org
-Fixes: 37b1c004685a3 ("cfg80211: Support all iftypes in autodisconnect_wk")
-Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
-Link: https://lore.kernel.org/r/20200108115536.2262-1-markus.theil@tu-ilmenau.de
+Fixes: 8689c051a201 ("cfg80211: dynamically allocate per-tid stats for station info")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20200108170630.33680-2-nbd@nbd.name
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/sme.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/wireless/nl80211.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/wireless/sme.c
-+++ b/net/wireless/sme.c
-@@ -1307,14 +1307,14 @@ void cfg80211_autodisconnect_wk(struct w
- 	if (wdev->conn_owner_nlportid) {
- 		switch (wdev->iftype) {
- 		case NL80211_IFTYPE_ADHOC:
--			cfg80211_leave_ibss(rdev, wdev->netdev, false);
-+			__cfg80211_leave_ibss(rdev, wdev->netdev, false);
- 			break;
- 		case NL80211_IFTYPE_AP:
- 		case NL80211_IFTYPE_P2P_GO:
--			cfg80211_stop_ap(rdev, wdev->netdev, false);
-+			__cfg80211_stop_ap(rdev, wdev->netdev, false);
- 			break;
- 		case NL80211_IFTYPE_MESH_POINT:
--			cfg80211_leave_mesh(rdev, wdev->netdev);
-+			__cfg80211_leave_mesh(rdev, wdev->netdev);
- 			break;
- 		case NL80211_IFTYPE_STATION:
- 		case NL80211_IFTYPE_P2P_CLIENT:
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -10834,6 +10834,7 @@ static int cfg80211_cqm_rssi_update(stru
+ 		if (err)
+ 			return err;
+ 
++		cfg80211_sinfo_release_content(&sinfo);
+ 		if (sinfo.filled & BIT_ULL(NL80211_STA_INFO_BEACON_SIGNAL_AVG))
+ 			wdev->cqm_config->last_rssi_event_value =
+ 				(s8) sinfo.rx_beacon_signal_avg;
 
 
