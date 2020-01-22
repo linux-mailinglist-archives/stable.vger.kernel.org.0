@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 485E7144F2D
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CF49144FD3
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:41:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731214AbgAVJfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:35:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50252 "EHLO mail.kernel.org"
+        id S2387443AbgAVJlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:41:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731198AbgAVJfR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:35:17 -0500
+        id S2387563AbgAVJlX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:41:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C93E24673;
-        Wed, 22 Jan 2020 09:35:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A57524684;
+        Wed, 22 Jan 2020 09:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685716;
-        bh=sj6N5pE2/82h7vfPvxKma1ckeCsu0WweTBH31NIC6AI=;
+        s=default; t=1579686082;
+        bh=DBde7uZQI+nAKqKHJs8EuTBmhlPbAKjNh1GJFTUbcss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfQdrv05xpQVkYhQDcplKDysPx1ELdKxJBaAyHuGoQSBSBNSFj19WwCu3ysdCWV6P
-         YH0iEhDS1MG6VAtR2/h7TEdpLDm4ZBHnQH5pQGaY7+2u2GV6ToeT3zAft4MagM//zC
-         sjOmVM18NQwJ7tMaRL4qoXi5k08X+gX8o3wklZrY=
+        b=Z2tv6bYl3RTp77BYaVpasAznrZ116rCkwSSFlv5lud4NfFhwfWjdlNOeZZMNbd/aT
+         pwpwjfTFEEqMjURDvYiG7Ryd7tna5y6RlgIVZrlet2tknrzMD7Dv9X5FshJXZa5jM1
+         5QpsijhM9vEYpdeyjHjdL2U7fffILKnTtbybivfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Sid Manning <sidneym@quicinc.com>,
-        Brian Cain <bcain@codeaurora.org>,
-        Allison Randal <allison@lohutok.net>,
-        Richard Fontana <rfontana@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 49/97] hexagon: work around compiler crash
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
+Subject: [PATCH 4.19 037/103] x86/resctrl: Fix potential memory leak
 Date:   Wed, 22 Jan 2020 10:28:53 +0100
-Message-Id: <20200122092804.423358935@linuxfoundation.org>
+Message-Id: <20200122092809.478517811@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,52 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Shakeel Butt <shakeelb@google.com>
 
-[ Upstream commit 63e80314ab7cf4783526d2e44ee57a90514911c9 ]
+commit ab6a2114433a3b5b555983dcb9b752a85255f04b upstream.
 
-Clang cannot translate the string "r30" into a valid register yet.
+set_cache_qos_cfg() is leaking memory when the given level is not
+RDT_RESOURCE_L3 or RDT_RESOURCE_L2. At the moment, this function is
+called with only valid levels but move the allocation after the valid
+level checks in order to make it more robust and future proof.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/755
-Link: http://lkml.kernel.org/r/20191028155722.23419-1-ndesaulniers@google.com
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Suggested-by: Sid Manning <sidneym@quicinc.com>
-Reviewed-by: Brian Cain <bcain@codeaurora.org>
-Cc: Allison Randal <allison@lohutok.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Richard Fontana <rfontana@redhat.com>
+ [ bp: Massage commit message. ]
+
+Fixes: 99adde9b370de ("x86/intel_rdt: Enable L2 CDP in MSR IA32_L2_QOS_CFG")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Reinette Chatre <reinette.chatre@intel.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20200102165844.133133-1-shakeelb@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/hexagon/kernel/stacktrace.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/x86/kernel/cpu/intel_rdt_rdtgroup.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/hexagon/kernel/stacktrace.c b/arch/hexagon/kernel/stacktrace.c
-index f94918b449a8..03a0e10ecdcc 100644
---- a/arch/hexagon/kernel/stacktrace.c
-+++ b/arch/hexagon/kernel/stacktrace.c
-@@ -23,8 +23,6 @@
- #include <linux/thread_info.h>
- #include <linux/module.h>
+--- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
++++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+@@ -1749,9 +1749,6 @@ static int set_cache_qos_cfg(int level,
+ 	struct rdt_domain *d;
+ 	int cpu;
  
--register unsigned long current_frame_pointer asm("r30");
+-	if (!zalloc_cpumask_var(&cpu_mask, GFP_KERNEL))
+-		return -ENOMEM;
 -
- struct stackframe {
- 	unsigned long fp;
- 	unsigned long rets;
-@@ -42,7 +40,7 @@ void save_stack_trace(struct stack_trace *trace)
+ 	if (level == RDT_RESOURCE_L3)
+ 		update = l3_qos_cfg_update;
+ 	else if (level == RDT_RESOURCE_L2)
+@@ -1759,6 +1756,9 @@ static int set_cache_qos_cfg(int level,
+ 	else
+ 		return -EINVAL;
  
- 	low = (unsigned long)task_stack_page(current);
- 	high = low + THREAD_SIZE;
--	fp = current_frame_pointer;
-+	fp = (unsigned long)__builtin_frame_address(0);
- 
- 	while (fp >= low && fp <= (high - sizeof(*frame))) {
- 		frame = (struct stackframe *)fp;
--- 
-2.20.1
-
++	if (!zalloc_cpumask_var(&cpu_mask, GFP_KERNEL))
++		return -ENOMEM;
++
+ 	r_l = &rdt_resources_all[level];
+ 	list_for_each_entry(d, &r_l->domains, list) {
+ 		/* Pick one CPU from each domain instance to update MSR */
 
 
