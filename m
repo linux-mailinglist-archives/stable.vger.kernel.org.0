@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6FE5144FE6
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:42:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43877144F83
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:38:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387687AbgAVJmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:42:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33912 "EHLO mail.kernel.org"
+        id S1732382AbgAVJik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:38:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387427AbgAVJmM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:42:12 -0500
+        id S1731745AbgAVJih (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:38:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF3DC2468C;
-        Wed, 22 Jan 2020 09:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 333322467F;
+        Wed, 22 Jan 2020 09:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686131;
-        bh=jHBprxp/1PeGMzUlc4PrMliV22qHZ1Am/qBXQKmINT4=;
+        s=default; t=1579685916;
+        bh=kkhHPsIUtD/Op93ihqK6Wwi4izPXgNFnmiocKWLEYPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AP6xMEia/Gt16nvI77ECLTimujG1AWK8ffeW7cHfBFrVrmGPmfVVFThQy+WLtS56g
-         EbBW/kBv15l2Q98fxyvgo0Z1RHF5hGv5ATRb/N4RUkJe9uNS+bx+m/a1vgBNd3qXRl
-         q0gDjNW8fAS/bA+SYLhevAyTmdu0BPBONXhAJaCg=
+        b=2U3H1xtsUvUazzk4/cMR8nWwDT9t1NY4EpTSQjeyQXGwC+VURC3w8aAKvXMcUeR6n
+         7H0gPn5JTJ/javLXoJTr4gPMlsIJQ+9s2u3j+qv9OYxHVtutDH3DlpsxxvxAWMz9Hz
+         BXeWtWIaMtwcHQkHPxfFFiyPT9v/dEKQ8jLqqgAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.19 055/103] bpf: Fix incorrect verifier simulation of ARSH under ALU32
-Date:   Wed, 22 Jan 2020 10:29:11 +0100
-Message-Id: <20200122092811.937013164@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 27/65] btrfs: fix memory leak in qgroup accounting
+Date:   Wed, 22 Jan 2020 10:29:12 +0100
+Message-Id: <20200122092754.653813842@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,188 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit 0af2ffc93a4b50948f9dad2786b7f1bd253bf0b9 upstream.
+commit 26ef8493e1ab771cb01d27defca2fa1315dc3980 upstream.
 
-Anatoly has been fuzzing with kBdysch harness and reported a hang in one
-of the outcomes:
+When running xfstests on the current btrfs I get the following splat from
+kmemleak:
 
-  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-  0: (85) call bpf_get_socket_cookie#46
-  1: R0_w=invP(id=0) R10=fp0
-  1: (57) r0 &= 808464432
-  2: R0_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x30303030)) R10=fp0
-  2: (14) w0 -= 810299440
-  3: R0_w=invP(id=0,umax_value=4294967295,var_off=(0xcf800000; 0x3077fff0)) R10=fp0
-  3: (c4) w0 s>>= 1
-  4: R0_w=invP(id=0,umin_value=1740636160,umax_value=2147221496,var_off=(0x67c00000; 0x183bfff8)) R10=fp0
-  4: (76) if w0 s>= 0x30303030 goto pc+216
-  221: R0_w=invP(id=0,umin_value=1740636160,umax_value=2147221496,var_off=(0x67c00000; 0x183bfff8)) R10=fp0
-  221: (95) exit
-  processed 6 insns (limit 1000000) [...]
+unreferenced object 0xffff88821b2404e0 (size 32):
+  comm "kworker/u4:7", pid 26663, jiffies 4295283698 (age 8.776s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 10 ff fd 26 82 88 ff ff  ...........&....
+    10 ff fd 26 82 88 ff ff 20 ff fd 26 82 88 ff ff  ...&.... ..&....
+  backtrace:
+    [<00000000f94fd43f>] ulist_alloc+0x25/0x60 [btrfs]
+    [<00000000fd023d99>] btrfs_find_all_roots_safe+0x41/0x100 [btrfs]
+    [<000000008f17bd32>] btrfs_find_all_roots+0x52/0x70 [btrfs]
+    [<00000000b7660afb>] btrfs_qgroup_rescan_worker+0x343/0x680 [btrfs]
+    [<0000000058e66778>] btrfs_work_helper+0xac/0x1e0 [btrfs]
+    [<00000000f0188930>] process_one_work+0x1cf/0x350
+    [<00000000af5f2f8e>] worker_thread+0x28/0x3c0
+    [<00000000b55a1add>] kthread+0x109/0x120
+    [<00000000f88cbd17>] ret_from_fork+0x35/0x40
 
-Taking a closer look, the program was xlated as follows:
+This corresponds to:
 
-  # ./bpftool p d x i 12
-  0: (85) call bpf_get_socket_cookie#7800896
-  1: (bf) r6 = r0
-  2: (57) r6 &= 808464432
-  3: (14) w6 -= 810299440
-  4: (c4) w6 s>>= 1
-  5: (76) if w6 s>= 0x30303030 goto pc+216
-  6: (05) goto pc-1
-  7: (05) goto pc-1
-  8: (05) goto pc-1
-  [...]
-  220: (05) goto pc-1
-  221: (05) goto pc-1
-  222: (95) exit
+  (gdb) l *(btrfs_find_all_roots_safe+0x41)
+  0x8d7e1 is in btrfs_find_all_roots_safe (fs/btrfs/backref.c:1413).
+  1408
+  1409            tmp = ulist_alloc(GFP_NOFS);
+  1410            if (!tmp)
+  1411                    return -ENOMEM;
+  1412            *roots = ulist_alloc(GFP_NOFS);
+  1413            if (!*roots) {
+  1414                    ulist_free(tmp);
+  1415                    return -ENOMEM;
+  1416            }
+  1417
 
-Meaning, the visible effect is very similar to f54c7898ed1c ("bpf: Fix
-precision tracking for unbounded scalars"), that is, the fall-through
-branch in the instruction 5 is considered to be never taken given the
-conclusion from the min/max bounds tracking in w6, and therefore the
-dead-code sanitation rewrites it as goto pc-1. However, real-life input
-disagrees with verification analysis since a soft-lockup was observed.
+Following the lifetime of the allocated 'roots' ulist, it gets freed
+again in btrfs_qgroup_account_extent().
 
-The bug sits in the analysis of the ARSH. The definition is that we shift
-the target register value right by K bits through shifting in copies of
-its sign bit. In adjust_scalar_min_max_vals(), we do first coerce the
-register into 32 bit mode, same happens after simulating the operation.
-However, for the case of simulating the actual ARSH, we don't take the
-mode into account and act as if it's always 64 bit, but location of sign
-bit is different:
+But this does not happen if the function is called with the
+'BTRFS_FS_QUOTA_ENABLED' flag cleared, then btrfs_qgroup_account_extent()
+does a short leave and directly returns.
 
-  dst_reg->smin_value >>= umin_val;
-  dst_reg->smax_value >>= umin_val;
-  dst_reg->var_off = tnum_arshift(dst_reg->var_off, umin_val);
+Instead of directly returning we should jump to the 'out_free' in order to
+free all resources as expected.
 
-Consider an unknown R0 where bpf_get_socket_cookie() (or others) would
-for example return 0xffff. With the above ARSH simulation, we'd see the
-following results:
-
-  [...]
-  1: R1=ctx(id=0,off=0,imm=0) R2_w=invP65535 R10=fp0
-  1: (85) call bpf_get_socket_cookie#46
-  2: R0_w=invP(id=0) R10=fp0
-  2: (57) r0 &= 808464432
-    -> R0_runtime = 0x3030
-  3: R0_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x30303030)) R10=fp0
-  3: (14) w0 -= 810299440
-    -> R0_runtime = 0xcfb40000
-  4: R0_w=invP(id=0,umax_value=4294967295,var_off=(0xcf800000; 0x3077fff0)) R10=fp0
-                              (0xffffffff)
-  4: (c4) w0 s>>= 1
-    -> R0_runtime = 0xe7da0000
-  5: R0_w=invP(id=0,umin_value=1740636160,umax_value=2147221496,var_off=(0x67c00000; 0x183bfff8)) R10=fp0
-                              (0x67c00000)           (0x7ffbfff8)
-  [...]
-
-In insn 3, we have a runtime value of 0xcfb40000, which is '1100 1111 1011
-0100 0000 0000 0000 0000', the result after the shift has 0xe7da0000 that
-is '1110 0111 1101 1010 0000 0000 0000 0000', where the sign bit is correctly
-retained in 32 bit mode. In insn4, the umax was 0xffffffff, and changed into
-0x7ffbfff8 after the shift, that is, '0111 1111 1111 1011 1111 1111 1111 1000'
-and means here that the simulation didn't retain the sign bit. With above
-logic, the updates happen on the 64 bit min/max bounds and given we coerced
-the register, the sign bits of the bounds are cleared as well, meaning, we
-need to force the simulation into s32 space for 32 bit alu mode.
-
-Verification after the fix below. We're first analyzing the fall-through branch
-on 32 bit signed >= test eventually leading to rejection of the program in this
-specific case:
-
-  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-  0: (b7) r2 = 808464432
-  1: R1=ctx(id=0,off=0,imm=0) R2_w=invP808464432 R10=fp0
-  1: (85) call bpf_get_socket_cookie#46
-  2: R0_w=invP(id=0) R10=fp0
-  2: (bf) r6 = r0
-  3: R0_w=invP(id=0) R6_w=invP(id=0) R10=fp0
-  3: (57) r6 &= 808464432
-  4: R0_w=invP(id=0) R6_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x30303030)) R10=fp0
-  4: (14) w6 -= 810299440
-  5: R0_w=invP(id=0) R6_w=invP(id=0,umax_value=4294967295,var_off=(0xcf800000; 0x3077fff0)) R10=fp0
-  5: (c4) w6 s>>= 1
-  6: R0_w=invP(id=0) R6_w=invP(id=0,umin_value=3888119808,umax_value=4294705144,var_off=(0xe7c00000; 0x183bfff8)) R10=fp0
-                                              (0x67c00000)          (0xfffbfff8)
-  6: (76) if w6 s>= 0x30303030 goto pc+216
-  7: R0_w=invP(id=0) R6_w=invP(id=0,umin_value=3888119808,umax_value=4294705144,var_off=(0xe7c00000; 0x183bfff8)) R10=fp0
-  7: (30) r0 = *(u8 *)skb[808464432]
-  BPF_LD_[ABS|IND] uses reserved fields
-  processed 8 insns (limit 1000000) [...]
-
-Fixes: 9cbe1f5a32dc ("bpf/verifier: improve register value range tracking with ARSH")
-Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200115204733.16648-1-daniel@iogearbox.net
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+[ add comment ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/tnum.h  |    2 +-
- kernel/bpf/tnum.c     |    9 +++++++--
- kernel/bpf/verifier.c |   13 ++++++++++---
- 3 files changed, 18 insertions(+), 6 deletions(-)
+ fs/btrfs/qgroup.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/include/linux/tnum.h
-+++ b/include/linux/tnum.h
-@@ -26,7 +26,7 @@ struct tnum tnum_lshift(struct tnum a, u
- /* Shift (rsh) a tnum right (by a fixed shift) */
- struct tnum tnum_rshift(struct tnum a, u8 shift);
- /* Shift (arsh) a tnum right (by a fixed min_shift) */
--struct tnum tnum_arshift(struct tnum a, u8 min_shift);
-+struct tnum tnum_arshift(struct tnum a, u8 min_shift, u8 insn_bitness);
- /* Add two tnums, return @a + @b */
- struct tnum tnum_add(struct tnum a, struct tnum b);
- /* Subtract two tnums, return @a - @b */
---- a/kernel/bpf/tnum.c
-+++ b/kernel/bpf/tnum.c
-@@ -43,14 +43,19 @@ struct tnum tnum_rshift(struct tnum a, u
- 	return TNUM(a.value >> shift, a.mask >> shift);
- }
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1928,8 +1928,12 @@ btrfs_qgroup_account_extent(struct btrfs
+ 	u64 nr_old_roots = 0;
+ 	int ret = 0;
  
--struct tnum tnum_arshift(struct tnum a, u8 min_shift)
-+struct tnum tnum_arshift(struct tnum a, u8 min_shift, u8 insn_bitness)
- {
- 	/* if a.value is negative, arithmetic shifting by minimum shift
- 	 * will have larger negative offset compared to more shifting.
- 	 * If a.value is nonnegative, arithmetic shifting by minimum shift
- 	 * will have larger positive offset compare to more shifting.
- 	 */
--	return TNUM((s64)a.value >> min_shift, (s64)a.mask >> min_shift);
-+	if (insn_bitness == 32)
-+		return TNUM((u32)(((s32)a.value) >> min_shift),
-+			    (u32)(((s32)a.mask)  >> min_shift));
-+	else
-+		return TNUM((s64)a.value >> min_shift,
-+			    (s64)a.mask  >> min_shift);
- }
++	/*
++	 * If quotas get disabled meanwhile, the resouces need to be freed and
++	 * we can't just exit here.
++	 */
+ 	if (!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags))
+-		return 0;
++		goto out_free;
  
- struct tnum tnum_add(struct tnum a, struct tnum b)
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -3309,9 +3309,16 @@ static int adjust_scalar_min_max_vals(st
- 		/* Upon reaching here, src_known is true and
- 		 * umax_val is equal to umin_val.
- 		 */
--		dst_reg->smin_value >>= umin_val;
--		dst_reg->smax_value >>= umin_val;
--		dst_reg->var_off = tnum_arshift(dst_reg->var_off, umin_val);
-+		if (insn_bitness == 32) {
-+			dst_reg->smin_value = (u32)(((s32)dst_reg->smin_value) >> umin_val);
-+			dst_reg->smax_value = (u32)(((s32)dst_reg->smax_value) >> umin_val);
-+		} else {
-+			dst_reg->smin_value >>= umin_val;
-+			dst_reg->smax_value >>= umin_val;
-+		}
-+
-+		dst_reg->var_off = tnum_arshift(dst_reg->var_off, umin_val,
-+						insn_bitness);
- 
- 		/* blow away the dst_reg umin_value/umax_value and rely on
- 		 * dst_reg var_off to refine the result.
+ 	if (new_roots) {
+ 		if (!maybe_fs_roots(new_roots))
 
 
