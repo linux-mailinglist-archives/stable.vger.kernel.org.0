@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E9C31455BE
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:25:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C16FE1455C1
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:25:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730590AbgAVNYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:24:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44166 "EHLO mail.kernel.org"
+        id S1729121AbgAVNY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:24:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730589AbgAVNYv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:24:51 -0500
+        id S1730589AbgAVNYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:24:55 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D6D424697;
-        Wed, 22 Jan 2020 13:24:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EE9024688;
+        Wed, 22 Jan 2020 13:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699490;
-        bh=1YzfcHjs92uvAFnhEsI/u9hRXryDJjS0n+AS3ZKt7l4=;
+        s=default; t=1579699493;
+        bh=8u5bBSZvcbj5TDvKR7jmKt4eiSeLil8Ogw8aRHcZKuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=afGH3CTAh4hIVJUmOnkCLubYuv9uOU3kl4pTQ5gh6XYhiaCTizAKAEzuwJKm4oRm6
-         CbHiDREuGTtXtvK2w3A8NgtZLyLY+meTgLMITMQRyGeUfSw5bHose5sXkW+VdZaVgc
-         Dg4mtRycxo6vxCWQ1KWazedNQmjaCaGWqz5BG0Lg=
+        b=HrEgr8eUCOf0oh1O8jyZYUBvcH0lPJV2qyao26OCblvpzc6rAJFPWKTrNhVPM4F/C
+         cV+JgtC8BcrKAAmYZr0BlxGwF/GFb22vZobPUVwxVXslOlWCrOPGLqYaxcxzXAj32q
+         XkHtSkvIUFjWaKNcZwufLW6fmJzaU1Xcfvi5Vd0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jiri Pirko <jiri@mellanox.com>,
         Ido Schimmel <idosch@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 162/222] mlxsw: spectrum: Wipe xstats.backlog of down ports
-Date:   Wed, 22 Jan 2020 10:29:08 +0100
-Message-Id: <20200122092845.313521947@linuxfoundation.org>
+Subject: [PATCH 5.4 163/222] mlxsw: spectrum_qdisc: Include MC TCs in Qdisc counters
+Date:   Wed, 22 Jan 2020 10:29:09 +0100
+Message-Id: <20200122092845.384279560@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -47,20 +47,22 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Petr Machata <petrm@mellanox.com>
 
-commit ca7609ff3680c51d6c29897f3117aa2ad904f92a upstream.
+commit 85005b82e59fa7bb7388b12594ab2067bf73d66c upstream.
 
-Per-port counter cache used by Qdiscs is updated periodically, unless the
-port is down. The fact that the cache is not updated for down ports is no
-problem for most counters, which are relative in nature. However, backlog
-is absolute in nature, and if there is a non-zero value in the cache around
-the time that the port goes down, that value just stays there. This value
-then leaks to offloaded Qdiscs that report non-zero backlog even if
-there (obviously) is no traffic.
+mlxsw configures Spectrum in such a way that BUM traffic is passed not
+through its nominal traffic class TC, but through its MC counterpart TC+8.
+However, when collecting statistics, Qdiscs only look at the nominal TC and
+ignore the MC TC.
 
-The HW does not keep backlog of a downed port, so do likewise: as the port
-goes down, wipe the backlog value from xstats.
+Add two helpers to compute the value for logical TC from the constituents,
+one for backlog, the other for tail drops. Use them throughout instead of
+going through the xstats pointer directly.
 
-Fixes: 075ab8adaf4e ("mlxsw: spectrum: Collect tclass related stats periodically")
+Counters for TX bytes and packets are deduced from packet priority
+counters, and therefore already include BUM traffic. wred_drop counter is
+irrelevant on MC TCs, because RED is not enabled on them.
+
+Fixes: 7b8195306694 ("mlxsw: spectrum: Configure MC-aware mode on mlxsw ports")
 Signed-off-by: Petr Machata <petrm@mellanox.com>
 Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: Ido Schimmel <idosch@mellanox.com>
@@ -68,44 +70,84 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c |   30 ++++++++++++++-----
+ 1 file changed, 23 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -1161,6 +1161,9 @@ static void update_stats_cache(struct wo
- 			     periodic_hw_stats.update_dw.work);
- 
- 	if (!netif_carrier_ok(mlxsw_sp_port->dev))
-+		/* Note: mlxsw_sp_port_down_wipe_counters() clears the cache as
-+		 * necessary when port goes down.
-+		 */
- 		goto out;
- 
- 	mlxsw_sp_port_get_hw_stats(mlxsw_sp_port->dev,
-@@ -4170,6 +4173,15 @@ static int mlxsw_sp_port_unsplit(struct
- 	return 0;
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c
+@@ -195,6 +195,20 @@ mlxsw_sp_qdisc_get_xstats(struct mlxsw_s
+ 	return -EOPNOTSUPP;
  }
  
-+static void
-+mlxsw_sp_port_down_wipe_counters(struct mlxsw_sp_port *mlxsw_sp_port)
++static u64
++mlxsw_sp_xstats_backlog(struct mlxsw_sp_port_xstats *xstats, int tclass_num)
 +{
-+	int i;
-+
-+	for (i = 0; i < TC_MAX_QUEUE; i++)
-+		mlxsw_sp_port->periodic_hw_stats.xstats.backlog[i] = 0;
++	return xstats->backlog[tclass_num] +
++	       xstats->backlog[tclass_num + 8];
 +}
 +
- static void mlxsw_sp_pude_event_func(const struct mlxsw_reg_info *reg,
- 				     char *pude_pl, void *priv)
- {
-@@ -4191,6 +4203,7 @@ static void mlxsw_sp_pude_event_func(con
- 	} else {
- 		netdev_info(mlxsw_sp_port->dev, "link down\n");
- 		netif_carrier_off(mlxsw_sp_port->dev);
-+		mlxsw_sp_port_down_wipe_counters(mlxsw_sp_port);
++static u64
++mlxsw_sp_xstats_tail_drop(struct mlxsw_sp_port_xstats *xstats, int tclass_num)
++{
++	return xstats->tail_drop[tclass_num] +
++	       xstats->tail_drop[tclass_num + 8];
++}
++
+ static void
+ mlxsw_sp_qdisc_bstats_per_priority_get(struct mlxsw_sp_port_xstats *xstats,
+ 				       u8 prio_bitmap, u64 *tx_packets,
+@@ -269,7 +283,7 @@ mlxsw_sp_setup_tc_qdisc_red_clean_stats(
+ 					       &stats_base->tx_bytes);
+ 	red_base->prob_mark = xstats->ecn;
+ 	red_base->prob_drop = xstats->wred_drop[tclass_num];
+-	red_base->pdrop = xstats->tail_drop[tclass_num];
++	red_base->pdrop = mlxsw_sp_xstats_tail_drop(xstats, tclass_num);
+ 
+ 	stats_base->overlimits = red_base->prob_drop + red_base->prob_mark;
+ 	stats_base->drops = red_base->prob_drop + red_base->pdrop;
+@@ -369,7 +383,8 @@ mlxsw_sp_qdisc_get_red_xstats(struct mlx
+ 
+ 	early_drops = xstats->wred_drop[tclass_num] - xstats_base->prob_drop;
+ 	marks = xstats->ecn - xstats_base->prob_mark;
+-	pdrops = xstats->tail_drop[tclass_num] - xstats_base->pdrop;
++	pdrops = mlxsw_sp_xstats_tail_drop(xstats, tclass_num) -
++		 xstats_base->pdrop;
+ 
+ 	res->pdrop += pdrops;
+ 	res->prob_drop += early_drops;
+@@ -402,9 +417,10 @@ mlxsw_sp_qdisc_get_red_stats(struct mlxs
+ 
+ 	overlimits = xstats->wred_drop[tclass_num] + xstats->ecn -
+ 		     stats_base->overlimits;
+-	drops = xstats->wred_drop[tclass_num] + xstats->tail_drop[tclass_num] -
++	drops = xstats->wred_drop[tclass_num] +
++		mlxsw_sp_xstats_tail_drop(xstats, tclass_num) -
+ 		stats_base->drops;
+-	backlog = xstats->backlog[tclass_num];
++	backlog = mlxsw_sp_xstats_backlog(xstats, tclass_num);
+ 
+ 	_bstats_update(stats_ptr->bstats, tx_bytes, tx_packets);
+ 	stats_ptr->qstats->overlimits += overlimits;
+@@ -575,9 +591,9 @@ mlxsw_sp_qdisc_get_prio_stats(struct mlx
+ 	tx_packets = stats->tx_packets - stats_base->tx_packets;
+ 
+ 	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
+-		drops += xstats->tail_drop[i];
++		drops += mlxsw_sp_xstats_tail_drop(xstats, i);
+ 		drops += xstats->wred_drop[i];
+-		backlog += xstats->backlog[i];
++		backlog += mlxsw_sp_xstats_backlog(xstats, i);
  	}
- }
+ 	drops = drops - stats_base->drops;
+ 
+@@ -613,7 +629,7 @@ mlxsw_sp_setup_tc_qdisc_prio_clean_stats
+ 
+ 	stats_base->drops = 0;
+ 	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
+-		stats_base->drops += xstats->tail_drop[i];
++		stats_base->drops += mlxsw_sp_xstats_tail_drop(xstats, i);
+ 		stats_base->drops += xstats->wred_drop[i];
+ 	}
  
 
 
