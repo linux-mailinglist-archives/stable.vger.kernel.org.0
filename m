@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEEA81450F0
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 564D2145099
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:48:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730768AbgAVJhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:37:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54086 "EHLO mail.kernel.org"
+        id S2387612AbgAVJlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:41:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732725AbgAVJhu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:37:50 -0500
+        id S1733257AbgAVJlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:41:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94BC624692;
-        Wed, 22 Jan 2020 09:37:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3604B2467B;
+        Wed, 22 Jan 2020 09:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685870;
-        bh=GPdTpONVAoS5bRlpiLav4WH2cZTWfYVCNy9oGRHurC0=;
+        s=default; t=1579686104;
+        bh=maQjfsgIA8NAW0yeqbgi7Z5dRYal60dykrMctvY3S00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hne3rMUqnhYdobmZrVwcWgTwBlEY/ZwzoilVJMQwbkrxgQpbmAIIr2l8RlcG5Brwi
-         V62U9V8d02xUjSf6QlLGq67n4ZOrAoXMdQHb6o0sbxpkXjXuluwDk4eti+82AdBG1i
-         hcfOgRIkngOxLb2ROVnuYrqyzaqcnJHZWXHnVyLg=
+        b=yL14orwyW3Z6qhJVFt16cv90FNhSv7lsx1PSTtbXCJ3+jXhdMVEk3hbWGKvoyYuNg
+         gZRXItZbpj4yo1kKwktgYsHXuJ28/7gLR8kP3kHftfdbjdp5noFMYWy/6AmrPSv51n
+         EaWYfQoeV3nesM35nVkxIf0OAynlJWp8B+9w8jj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 16/65] USB: serial: keyspan: handle unbound ports
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 045/103] btrfs: fix memory leak in qgroup accounting
 Date:   Wed, 22 Jan 2020 10:29:01 +0100
-Message-Id: <20200122092753.412168453@linuxfoundation.org>
+Message-Id: <20200122092810.614009389@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
-References: <20200122092750.976732974@linuxfoundation.org>
+In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
+References: <20200122092803.587683021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit 3018dd3fa114b13261e9599ddb5656ef97a1fa17 upstream.
+commit 26ef8493e1ab771cb01d27defca2fa1315dc3980 upstream.
 
-Check for NULL port data in the control URB completion handlers to avoid
-dereferencing a NULL pointer in the unlikely case where a port device
-isn't bound to a driver (e.g. after an allocation failure on port
-probe()).
+When running xfstests on the current btrfs I get the following splat from
+kmemleak:
 
-Fixes: 0ca1268e109a ("USB Serial Keyspan: add support for USA-49WG & USA-28XG")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+unreferenced object 0xffff88821b2404e0 (size 32):
+  comm "kworker/u4:7", pid 26663, jiffies 4295283698 (age 8.776s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 10 ff fd 26 82 88 ff ff  ...........&....
+    10 ff fd 26 82 88 ff ff 20 ff fd 26 82 88 ff ff  ...&.... ..&....
+  backtrace:
+    [<00000000f94fd43f>] ulist_alloc+0x25/0x60 [btrfs]
+    [<00000000fd023d99>] btrfs_find_all_roots_safe+0x41/0x100 [btrfs]
+    [<000000008f17bd32>] btrfs_find_all_roots+0x52/0x70 [btrfs]
+    [<00000000b7660afb>] btrfs_qgroup_rescan_worker+0x343/0x680 [btrfs]
+    [<0000000058e66778>] btrfs_work_helper+0xac/0x1e0 [btrfs]
+    [<00000000f0188930>] process_one_work+0x1cf/0x350
+    [<00000000af5f2f8e>] worker_thread+0x28/0x3c0
+    [<00000000b55a1add>] kthread+0x109/0x120
+    [<00000000f88cbd17>] ret_from_fork+0x35/0x40
+
+This corresponds to:
+
+  (gdb) l *(btrfs_find_all_roots_safe+0x41)
+  0x8d7e1 is in btrfs_find_all_roots_safe (fs/btrfs/backref.c:1413).
+  1408
+  1409            tmp = ulist_alloc(GFP_NOFS);
+  1410            if (!tmp)
+  1411                    return -ENOMEM;
+  1412            *roots = ulist_alloc(GFP_NOFS);
+  1413            if (!*roots) {
+  1414                    ulist_free(tmp);
+  1415                    return -ENOMEM;
+  1416            }
+  1417
+
+Following the lifetime of the allocated 'roots' ulist, it gets freed
+again in btrfs_qgroup_account_extent().
+
+But this does not happen if the function is called with the
+'BTRFS_FS_QUOTA_ENABLED' flag cleared, then btrfs_qgroup_account_extent()
+does a short leave and directly returns.
+
+Instead of directly returning we should jump to the 'out_free' in order to
+free all resources as expected.
+
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+[ add comment ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/keyspan.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/btrfs/qgroup.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/keyspan.c
-+++ b/drivers/usb/serial/keyspan.c
-@@ -1062,6 +1062,8 @@ static void	usa49_glocont_callback(struc
- 	for (i = 0; i < serial->num_ports; ++i) {
- 		port = serial->port[i];
- 		p_priv = usb_get_serial_port_data(port);
-+		if (!p_priv)
-+			continue;
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -2055,8 +2055,12 @@ int btrfs_qgroup_account_extent(struct b
+ 	u64 nr_old_roots = 0;
+ 	int ret = 0;
  
- 		if (p_priv->resend_cont) {
- 			dev_dbg(&port->dev, "%s - sending setup\n", __func__);
-@@ -1463,6 +1465,8 @@ static void usa67_glocont_callback(struc
- 	for (i = 0; i < serial->num_ports; ++i) {
- 		port = serial->port[i];
- 		p_priv = usb_get_serial_port_data(port);
-+		if (!p_priv)
-+			continue;
++	/*
++	 * If quotas get disabled meanwhile, the resouces need to be freed and
++	 * we can't just exit here.
++	 */
+ 	if (!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags))
+-		return 0;
++		goto out_free;
  
- 		if (p_priv->resend_cont) {
- 			dev_dbg(&port->dev, "%s - sending setup\n", __func__);
+ 	if (new_roots) {
+ 		if (!maybe_fs_roots(new_roots))
 
 
