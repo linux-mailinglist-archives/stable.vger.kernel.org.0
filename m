@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A612144F1B
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:36:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F255E1451EF
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730974AbgAVJel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:34:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49286 "EHLO mail.kernel.org"
+        id S1729518AbgAVJbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:31:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730959AbgAVJek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:34:40 -0500
+        id S1729501AbgAVJbF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:31:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1B1B2467A;
-        Wed, 22 Jan 2020 09:34:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A11E2467B;
+        Wed, 22 Jan 2020 09:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685680;
-        bh=pGGSznadTDpUp/QlK1glxUgOtEg1Tqrc/xNzw4ipz7c=;
+        s=default; t=1579685463;
+        bh=2WNeRsDryRBzpXQN44EbufOyKvzcVAspZ6zfgL6yVVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yOFaJpLhqzb1r53R/rJEqtZoxWPSE+963RoxbD8uY3oouWYQ6hY8j0IlQSiYSRbtC
-         jt4cWUyHwt5k+Pt6IoK0McHJpkaukem9xewQ7XIevVo8rFNF+uywl8Y42Pus/Q73L9
-         3EjLHUeJB7m0WefFItzENWUblNSGgwwATlQYvPAM=
+        b=q8S5SJSFGG2TThweozqXqmGBlSBYmC5GjIw1HlorCC4DBEs0czMTvkQP49IPdKmGS
+         Pr/PQCLNcNETEXXUbFv2lJe9shCIqqtlzb+OpGKHfmYnFD0pPLADPEq2toJN9syVvZ
+         CDmjmBiAPp/UyxjyC4gAeNhxKYAgB05Dv6HDNsGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
-Subject: [PATCH 4.9 35/97] tty: serial: imx: use the sg count from dma_map_sg
-Date:   Wed, 22 Jan 2020 10:28:39 +0100
-Message-Id: <20200122092802.178322001@linuxfoundation.org>
+        stable@vger.kernel.org,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Luo Jiaxing <luojiaxing@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.4 24/76] scsi: enclosure: Fix stale device oops with hot replug
+Date:   Wed, 22 Jan 2020 10:28:40 +0100
+Message-Id: <20200122092754.228577286@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
-References: <20200122092755.678349497@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 
-commit 596fd8dffb745afcebc0ec6968e17fe29f02044c upstream.
+commit 529244bd1afc102ab164429d338d310d5d65e60d upstream.
 
-The dmaengine_prep_slave_sg needs to use sg count returned
-by dma_map_sg, not use sport->dma_tx_nents, because the return
-value of dma_map_sg is not always same with "nents".
+Doing an add/remove/add on a SCSI device in an enclosure leads to an oops
+caused by poisoned values in the enclosure device list pointers.  The
+reason is because we are keeping the enclosure device across the enclosed
+device add/remove/add but the current code is doing a
+device_add/device_del/device_add on it.  This is the wrong thing to do in
+sysfs, so fix it by not doing a device_del on the enclosure device simply
+because of a hot remove of the drive in the slot.
 
-Fixes: b4cdc8f61beb ("serial: imx: add DMA support for imx6q")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1573108875-26530-1-git-send-email-peng.fan@nxp.com
+[mkp: added missing email addresses]
+
+Fixes: 43d8eb9cfd0a ("[SCSI] ses: add support for enclosure component hot removal")
+Link: https://lore.kernel.org/r/1578532892.3852.10.camel@HansenPartnership.com
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Reported-by: Luo Jiaxing <luojiaxing@huawei.com>
+Tested-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/imx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/enclosure.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -548,7 +548,7 @@ static void imx_dma_tx(struct imx_port *
- 		dev_err(dev, "DMA mapping error for TX.\n");
- 		return;
+--- a/drivers/misc/enclosure.c
++++ b/drivers/misc/enclosure.c
+@@ -419,10 +419,9 @@ int enclosure_remove_device(struct enclo
+ 		cdev = &edev->component[i];
+ 		if (cdev->dev == dev) {
+ 			enclosure_remove_links(cdev);
+-			device_del(&cdev->cdev);
+ 			put_device(dev);
+ 			cdev->dev = NULL;
+-			return device_add(&cdev->cdev);
++			return 0;
+ 		}
  	}
--	desc = dmaengine_prep_slave_sg(chan, sgl, sport->dma_tx_nents,
-+	desc = dmaengine_prep_slave_sg(chan, sgl, ret,
- 					DMA_MEM_TO_DEV, DMA_PREP_INTERRUPT);
- 	if (!desc) {
- 		dma_unmap_sg(dev, sgl, sport->dma_tx_nents,
+ 	return -ENODEV;
 
 
