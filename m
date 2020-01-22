@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3311456A9
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ACFA1456AB
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729304AbgAVN2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:28:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50640 "EHLO mail.kernel.org"
+        id S1730620AbgAVN22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:28:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729475AbgAVN2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:28:24 -0500
+        id S1730876AbgAVN21 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:28:27 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1D302467B;
-        Wed, 22 Jan 2020 13:28:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E5E42467A;
+        Wed, 22 Jan 2020 13:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699703;
-        bh=h8sx2xo0z7T3FSXddIZF9RsNeBzBBAyDoxqFCf02lMg=;
+        s=default; t=1579699707;
+        bh=2tlsQcBQTsqZUcrgW4yjKs3w3iSmEgYakIwCnX2Xn44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMCoy8BO7ZxRR40iaEOdzA1QiXXq/V1Ydqh0zPP+8/uSs80c5hSD7KnOkwti512Ch
-         Ht3+iUV3fkTezjd4UHOsz/HyrQezf7dFQYiNaGOVclB4yvMB4pGjOqE/x6VBeCd+Cf
-         SyNhgOLFZbkYx0qijx+vvMVFY3QGYrDbZAwMrWPc=
+        b=N90Vo7Is30EMBLVbPD8Ww93TRA93Bortj9jaitS9hNfVfBKryoJ0sAC/zOcEDfWhL
+         Pi+XEVy56RgN5LIKWZ8OyNA+vdc6PDayQ61bmsJK8VVdiMpOIPKT+z1sQOzT4rD8BE
+         a/v7Q/vKx6BNnZRy9w7g2bFxOfydI9I9ElShDWQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.4 191/222] ARM: dts: Fix sgx sysconfig register for omap4
-Date:   Wed, 22 Jan 2020 10:29:37 +0100
-Message-Id: <20200122092847.355229972@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 5.4 192/222] Revert "arm64: dts: juno: add dma-ranges property"
+Date:   Wed, 22 Jan 2020 10:29:38 +0100
+Message-Id: <20200122092847.424461279@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -47,40 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-commit 3e5c3c41ae925458150273e2f74ffbf999530c5f upstream.
+commit 54fb3fe0f211d4729a2551cf9497bd612189af9d upstream.
 
-Looks like we've had the sgx sysconfig register and revision register
-always wrong for omap4, including the old platform data. Let's fix the
-offsets to what the TRM says. Otherwise the sgx module may never idle
-depending on the state of the real sysconfig register.
+This reverts commit 193d00a2b35ee3353813b4006a18131122087205.
 
-Fixes: d23a163ebe5a ("ARM: dts: Add nodes for missing omap4 interconnect target modules")
-Cc: H. Nikolaus Schaller <hns@goldelico.com>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Commit 951d48855d86 ("of: Make of_dma_get_range() work on bus nodes")
+reworked the logic such that of_dma_get_range() works correctly
+starting from a bus node containing "dma-ranges".
+
+Since on Juno we don't have a SoC level bus node and "dma-ranges" is
+present only in the root node, we get the following error:
+
+OF: translation of DMA address(0) to CPU address failed node(/sram@2e000000)
+OF: translation of DMA address(0) to CPU address failed node(/uart@7ff80000)
+...
+OF: translation of DMA address(0) to CPU address failed node(/mhu@2b1f0000)
+OF: translation of DMA address(0) to CPU address failed node(/iommu@2b600000)
+OF: translation of DMA address(0) to CPU address failed node(/iommu@2b600000)
+OF: translation of DMA address(0) to CPU address failed node(/iommu@2b600000)
+
+So let's fix it by dropping the "dma-ranges" property for now. This
+should be fine since it doesn't represent any kind of device-visible
+restriction; it was only there for completeness, and we've since given
+in to the assumption that missing "dma-ranges" implies a 1:1 mapping
+anyway.
+
+We can add it later with a proper SoC bus node and moving all the
+devices that belong there along with the "dma-ranges" if required.
+
+Fixes: 193d00a2b35e ("arm64: dts: juno: add dma-ranges property")
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/omap4.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/arm/juno-base.dtsi |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm/boot/dts/omap4.dtsi
-+++ b/arch/arm/boot/dts/omap4.dtsi
-@@ -330,8 +330,8 @@
+--- a/arch/arm64/boot/dts/arm/juno-base.dtsi
++++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
+@@ -6,7 +6,6 @@
+ 	/*
+ 	 *  Devices shared by all Juno boards
+ 	 */
+-	dma-ranges = <0 0 0 0 0x100 0>;
  
- 		target-module@56000000 {
- 			compatible = "ti,sysc-omap4", "ti,sysc";
--			reg = <0x5601fc00 0x4>,
--			      <0x5601fc10 0x4>;
-+			reg = <0x5600fe00 0x4>,
-+			      <0x5600fe10 0x4>;
- 			reg-names = "rev", "sysc";
- 			ti,sysc-midle = <SYSC_IDLE_FORCE>,
- 					<SYSC_IDLE_NO>,
+ 	memtimer: timer@2a810000 {
+ 		compatible = "arm,armv7-timer-mem";
 
 
