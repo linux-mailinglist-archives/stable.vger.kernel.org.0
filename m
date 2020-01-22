@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B511145010
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:43:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9E691451AC
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:55:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387454AbgAVJnd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:43:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36028 "EHLO mail.kernel.org"
+        id S1730177AbgAVJci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:32:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387883AbgAVJn3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:43:29 -0500
+        id S1729538AbgAVJci (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:32:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D222424680;
-        Wed, 22 Jan 2020 09:43:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 054582071E;
+        Wed, 22 Jan 2020 09:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686209;
-        bh=Dp6VtfTwcqViQmhEqLkrbqaVJBMMsF+zh6srQidMBpo=;
+        s=default; t=1579685557;
+        bh=U+exO/IhQYIUtg8AkY6Jou7+HjntXe3U5NgQyW5Z9Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RNoMlp7+dserQTbGs1DJHAcIKn9+9AQGCwgLltGVDUjlFsVzcgoRrD5aBJDuh6sZc
-         qrWDtxpaa9cljieT6y06ThQTythKzEmoVkRKNH3fO56DNlmZtrfz2UP0KUVYceEF4H
-         dl0pDZWNfJmF3pMb5nwC4VP1sS9g0MRWaAULepkQ=
+        b=ecsdtBj8EKejmT9nxaha6Owr5PoZEFsavlKiziTn1fqO4XkeXircA7WAyw3RSzkuF
+         jvprQHXSHhzg+HIBH7qPq+JZoBo8L7RwXa2jFBfiM2AYkkYblAWyV85fFwCC7zPbne
+         rv0BlMUZeHBX9fPRKpHVmLfHm0WmxSu0d2cLEo5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+76d0b80493ac881ff77b@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
+        syzbot+4c3cc6dbe7259dbf9054@syzkaller.appspotmail.com,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 061/103] netfilter: nft_tunnel: fix null-attribute check
+Subject: [PATCH 4.4 61/76] netfilter: fix a use-after-free in mtype_destroy()
 Date:   Wed, 22 Jan 2020 10:29:17 +0100
-Message-Id: <20200122092813.029931693@linuxfoundation.org>
+Message-Id: <20200122092800.371757114@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-commit 1c702bf902bd37349f6d91cd7f4b372b1e46d0ed upstream.
+commit c120959387efa51479056fd01dc90adfba7a590c upstream.
 
-else we get null deref when one of the attributes is missing, both
-must be non-null.
+map->members is freed by ip_set_free() right before using it in
+mtype_ext_cleanup() again. So we just have to move it down.
 
-Reported-by: syzbot+76d0b80493ac881ff77b@syzkaller.appspotmail.com
-Fixes: aaecfdb5c5dd8ba ("netfilter: nf_tables: match on tunnel metadata")
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Reported-by: syzbot+4c3cc6dbe7259dbf9054@syzkaller.appspotmail.com
+Fixes: 40cd63bf33b2 ("netfilter: ipset: Support extensions which need a per data destroy function")
+Acked-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_tunnel.c |    2 +-
+ net/netfilter/ipset/ip_set_bitmap_gen.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nft_tunnel.c
-+++ b/net/netfilter/nft_tunnel.c
-@@ -56,7 +56,7 @@ static int nft_tunnel_get_init(const str
- 	struct nft_tunnel *priv = nft_expr_priv(expr);
- 	u32 len;
+--- a/net/netfilter/ipset/ip_set_bitmap_gen.h
++++ b/net/netfilter/ipset/ip_set_bitmap_gen.h
+@@ -66,9 +66,9 @@ mtype_destroy(struct ip_set *set)
+ 	if (SET_WITH_TIMEOUT(set))
+ 		del_timer_sync(&map->gc);
  
--	if (!tb[NFTA_TUNNEL_KEY] &&
-+	if (!tb[NFTA_TUNNEL_KEY] ||
- 	    !tb[NFTA_TUNNEL_DREG])
- 		return -EINVAL;
+-	ip_set_free(map->members);
+ 	if (set->dsize && set->extensions & IPSET_EXT_DESTROY)
+ 		mtype_ext_cleanup(set);
++	ip_set_free(map->members);
+ 	ip_set_free(map);
  
+ 	set->data = NULL;
 
 
