@@ -2,107 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC90144ABA
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 05:12:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94205144AC1
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 05:24:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728609AbgAVEM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Jan 2020 23:12:57 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:41725 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727141AbgAVEM5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 23:12:57 -0500
-Received: by mail-wr1-f65.google.com with SMTP id c9so5740838wrw.8
-        for <stable@vger.kernel.org>; Tue, 21 Jan 2020 20:12:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hMNDaELr/b3NCM+MgnJOrVtvZeyd/6Le0eFHqLnTCG4=;
-        b=HlXUU3tVGnrUSJAM2EoO1ebie8pacRFzNbrNM1FYMnlsKC5sAiVPg1oPnxC0Hg//hK
-         xceaUWz99n/DR4gWRvUUFzItBNuX50U25MQ4qCvENBymgbXGUv4uc91OeAzhKVifQU/j
-         Med+npLPvj5wtDuqunCLArgVfLEcRqhq2GF30AcPa11NTXJkzM6/6whkbiYSXGA75TXr
-         4oWJdc8sTbwZLOountDPnC3XRT3cx8j9vfmortbj5b1L6jPX5PBtAMwHu/05S7Rn5ezI
-         o8jZhEf/PaCVsiE3WoNCA0aebpfw5VTuMSeQ8fqAeGsvY0D7VgkAkaJly/o2lVV6XIl6
-         u9oQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hMNDaELr/b3NCM+MgnJOrVtvZeyd/6Le0eFHqLnTCG4=;
-        b=bdKD3FzS+AuvK8+Ju1UtlKlzlZtvNZj21FJ47nY36Pi6WgI+qem92RmkdNjgnONZGf
-         CfG7S4vaobAtJxw9dry0fqqg/xsOD9DYuWragn+gW029jQztv/UmZyoCmd85pCsVZ5wU
-         qxxKrHOlsav1KonqFEU92R96axItKm6mn8xmy78DyKx9HExDE7TyY3vanaSnDaoHc5+a
-         lwZeoIbtNf8S2ubvGizutVwojHdFVhXGsMDeNr9O6/S7TIPLBTrKLiGAp29WE+j+w37t
-         YIldYbeDQtrjQbi7ktgfHlbt/miQ28vPtLSPB0+rTV4C7Fw10hB++hAwVL/nEMiwrs7v
-         zmNw==
-X-Gm-Message-State: APjAAAUmMF/5BVML+goPTbUVUVsJZiGf40VY1LTl/3ggbbKWCsfsi9s4
-        jKyx8Xak+Yv8RrQt7edppaNgeqgyFfEu2w==
-X-Google-Smtp-Source: APXvYqwy6SsbqMUksjhHQGaNXG8XgtCtQQOroCRP36cqCRk21hk73M+LZg7Tv4ef4+HNuNZ9KSLoHw==
-X-Received: by 2002:adf:f789:: with SMTP id q9mr9040386wrp.103.1579666373615;
-        Tue, 21 Jan 2020 20:12:53 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n16sm56197439wro.88.2020.01.21.20.12.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jan 2020 20:12:53 -0800 (PST)
-Message-ID: <5e27cbc5.1c69fb81.e161c.fe89@mx.google.com>
-Date:   Tue, 21 Jan 2020 20:12:53 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727141AbgAVEYr convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 21 Jan 2020 23:24:47 -0500
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:9708 "EHLO
+        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726605AbgAVEYq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Jan 2020 23:24:46 -0500
+IronPort-SDR: zdBBn8Mc8BbmdeOMRbvKnvezZaN7hmvtLgjj0g0WTVhDnGp/42T8LIgF68nNznKyX/S0UJnwV5
+ nM0QwXHm6jyxUu3ME7SHvxPrOoyuNQjXA+JBGCBxIi1NRH7X7cZlSrvMiVKpHJkRzHFwgIJhKU
+ OTepdsnRzQ/Fr+TDlAHW7O1+dH8pJs0wovw9mm7Ayf3Nq5nJx0l+OWdata7fHCF3rVc17J8t3k
+ tD7+18UEJzz2lR9tqN7eGHRRRtoWfwWRi1i3ck1F9ol/Ncekpg5weFG5bEVCHfMbQnYoI9VPm2
+ Ic8=
+X-IronPort-AV: E=Sophos;i="5.70,348,1574150400"; 
+   d="scan'208";a="45086045"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa3.mentor.iphmx.com with ESMTP; 21 Jan 2020 20:24:45 -0800
+IronPort-SDR: 1PEYK0Zhd73ljmnQXNlsUnwuMU8WaqBa6fggtZyqC72aoeTP0V474YLaDlRblaRzDFKAY3rpIV
+ GaY6B4Rr9C1A==
+From:   "Kumar, Vipul" <Vipul_Kumar@mentor.com>
+To:     Sasha Levin <sashal@kernel.org>,
+        Vipul Kumar <vipulk0511@gmail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on
+ Intel Bay Trail SoC
+Thread-Topic: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on
+ Intel Bay Trail SoC
+Thread-Index: AQHV0GkRCJ8wkYwpdkWzqz5/BlatGKf2e/EA//+aBCA=
+Date:   Wed, 22 Jan 2020 04:24:42 +0000
+Message-ID: <a764bca368794eccbda39238d85da9ba@svr-orw-mbx-01.mgc.mentorg.com>
+References: <1579617717-4098-1-git-send-email-vipulk0511@gmail.com>
+ <20200122022619.B95C024655@mail.kernel.org>
+In-Reply-To: <20200122022619.B95C024655@mail.kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [147.34.91.1]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.97-88-g854a2a8f9451
-Subject: stable-rc/linux-4.19.y boot: 57 boots: 1 failed,
- 53 passed with 3 untried/unknown (v4.19.97-88-g854a2a8f9451)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 57 boots: 1 failed, 53 passed with 3 untried/u=
-nknown (v4.19.97-88-g854a2a8f9451)
+Hi Sasha,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.97-88-g854a2a8f9451/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.97-88-g854a2a8f9451/
+As this patch is based on commit f3a02ecebed7 ("x86/tsc: Set TSC_KNOWN_FREQ and TSC_RELIABLE flags on Intel Atom SoCs") which was introduced in 4.14.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.97-88-g854a2a8f9451
-Git Commit: 854a2a8f9451c77029355b3ca1cf0c963aaaffd5
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 43 unique boards, 14 SoC families, 13 builds out of 206
+So, this patch is not applicable for kernel versions prior to 4.14.
 
-Boot Regressions Detected:
+As this patch is under review, can we put it on hold ?
 
-arc:
+Regards,
+Vipul 
 
-    hsdk_defconfig:
-        gcc-8:
-          hsdk:
-              lab-baylibre: new failure (last pass: v4.19.97-66-g6e319a78bc=
-27)
+-----Original Message-----
+From: Sasha Levin [mailto:sashal@kernel.org] 
+Sent: 22 January 2020 07:56
+To: Sasha Levin <sashal@kernel.org>; Vipul Kumar <vipulk0511@gmail.com>; Kumar, Vipul <Vipul_Kumar@mentor.com>; Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: linux-kernel@vger.kernel.org; Stable <stable@vger.kernel.org>; stable@vger.kernel.org; stable@vger.kernel.org
+Subject: Re: [v3] x86/tsc: Unset TSC_KNOWN_FREQ and TSC_RELIABLE flags on Intel Bay Trail SoC
 
-arm:
+Hi,
 
-    sunxi_defconfig:
-        gcc-8:
-          sun4i-a10-olinuxino-lime:
-              lab-baylibre: new failure (last pass: v4.19.97-66-g6e319a78bc=
-27)
+[This is an automated email]
 
-Boot Failure Detected:
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+The bot has tested the following trees: v5.4.13, v4.19.97, v4.14.166, v4.9.210, v4.4.210.
 
----
-For more info write to <info@kernelci.org>
+v5.4.13: Build OK!
+v4.19.97: Build OK!
+v4.14.166: Build failed! Errors:
+
+v4.9.210: Failed to apply! Possible dependencies:
+    f3a02ecebed7 ("x86/tsc: Set TSC_KNOWN_FREQ and TSC_RELIABLE flags on Intel Atom SoCs")
+
+v4.4.210: Failed to apply! Possible dependencies:
+    0007bccc3cfd ("x86: Replace RDRAND forced-reseed with simple sanity check")
+    07dc900e17a9 ("perf/x86: Move Kconfig.perf and other perf configuration bits to events/Kconfig")
+    1b74dde7c47c ("x86/cpu: Convert printk(KERN_<LEVEL> ...) to pr_<level>(...)")
+    218cfe4ed888 ("perf/x86: Move perf_event_amd_ibs.c ....... => x86/events/amd/ibs.c")
+    39b0332a2158 ("perf/x86: Move perf_event_amd.c ........... => x86/events/amd/core.c")
+    442f5c74cbea ("perf/x86: Use INST_RETIRED.TOTAL_CYCLES_PS for cycles:pp for Skylake")
+    5b26547dd7fa ("perf/x86: Move perf_event_amd_iommu.[ch] .. => x86/events/amd/iommu.[ch]")
+    724697648eec ("perf/x86: Use INST_RETIRED.PREC_DIST for cycles: ppp")
+    e633c65a1d58 ("x86/perf/intel/uncore: Make the Intel uncore PMU driver modular")
+    fa9cbf320e99 ("perf/x86: Move perf_event.c ............... => x86/events/core.c")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+-- 
+Thanks,
+Sasha
