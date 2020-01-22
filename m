@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C08201455A1
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:25:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4971455A4
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:25:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730185AbgAVNXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:23:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42144 "EHLO mail.kernel.org"
+        id S1730547AbgAVNX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:23:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730350AbgAVNXo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:23:44 -0500
+        id S1730850AbgAVNX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:23:58 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44EFB2467B;
-        Wed, 22 Jan 2020 13:23:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D7A2205F4;
+        Wed, 22 Jan 2020 13:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699423;
-        bh=Bw8ZGxJXZ1WFo1MtttC8xFlL7eSGqbHYNSdsB62/luU=;
+        s=default; t=1579699436;
+        bh=G+YRBn8Ej/zwu2zE2ThMC8ovK5ke9SkDOdhYkge223w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVqcjz2CoOwW0aSDzWo3tBqNH9vEeUE4sG8fGxixm08+mVFbeEhYOIgDm8Q8JKj2e
-         oVMoZ18E3mHBNpMsR4Lnmu+q6mN105+iQXF2hEqfWDDfz9npybnQuvBbWdbE65sojR
-         63l5cpsMZnOQssTN6DLyt4j4YKOeAM33HkCvJDII=
+        b=H2BNQZQUtqvZRWB+W5oIfb9q4ohd8NhcKu+TtMTlYeQ/hCvvFbiSq7cV68+LDYOdz
+         s+hVIgsV7cQSedmSavCDbqrwUIfMufonhGnrwA2/ZC+Z0k2+1Mf7sWEiauux49ApGV
+         6Wtxbe78TXKXQX+ObcFoZFNiIa7MOM2i5gy5RwRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Alexander Lobakin <alobakin@dlink.ru>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 139/222] net: dsa: tag_qca: fix doubled Tx statistics
-Date:   Wed, 22 Jan 2020 10:28:45 +0100
-Message-Id: <20200122092843.689580438@linuxfoundation.org>
+Subject: [PATCH 5.4 143/222] net/sched: act_ife: initalize ife->metalist earlier
+Date:   Wed, 22 Jan 2020 10:28:49 +0100
+Message-Id: <20200122092843.970302408@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -45,37 +46,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@dlink.ru>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit bd5874da57edd001b35cf28ae737779498c16a56 ]
+[ Upstream commit 44c23d71599f81a1c7fe8389e0319822dd50c37c ]
 
-DSA subsystem takes care of netdev statistics since commit 4ed70ce9f01c
-("net: dsa: Refactor transmit path to eliminate duplication"), so
-any accounting inside tagger callbacks is redundant and can lead to
-messing up the stats.
-This bug is present in Qualcomm tagger since day 0.
+It seems better to init ife->metalist earlier in tcf_ife_init()
+to avoid the following crash :
 
-Fixes: cafdc45c949b ("net-next: dsa: add Qualcomm tag RX/TX handler")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 10483 Comm: syz-executor216 Not tainted 5.5.0-rc5-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:_tcf_ife_cleanup net/sched/act_ife.c:412 [inline]
+RIP: 0010:tcf_ife_cleanup+0x6e/0x400 net/sched/act_ife.c:431
+Code: 48 c1 ea 03 80 3c 02 00 0f 85 94 03 00 00 49 8b bd f8 00 00 00 48 b8 00 00 00 00 00 fc ff df 4c 8d 67 e8 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 5c 03 00 00 48 bb 00 00 00 00 00 fc ff df 48 8b
+RSP: 0018:ffffc90001dc6d00 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffffff864619c0 RCX: ffffffff815bfa09
+RDX: 0000000000000000 RSI: 0000000000000004 RDI: 0000000000000000
+RBP: ffffc90001dc6d50 R08: 0000000000000004 R09: fffff520003b8d8e
+R10: fffff520003b8d8d R11: 0000000000000003 R12: ffffffffffffffe8
+R13: ffff8880a79fc000 R14: ffff88809aba0e00 R15: 0000000000000000
+FS:  0000000001b51880(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000563f52cce140 CR3: 0000000093541000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ tcf_action_cleanup+0x62/0x1b0 net/sched/act_api.c:119
+ __tcf_action_put+0xfa/0x130 net/sched/act_api.c:135
+ __tcf_idr_release net/sched/act_api.c:165 [inline]
+ __tcf_idr_release+0x59/0xf0 net/sched/act_api.c:145
+ tcf_idr_release include/net/act_api.h:171 [inline]
+ tcf_ife_init+0x97c/0x1870 net/sched/act_ife.c:616
+ tcf_action_init_1+0x6b6/0xa40 net/sched/act_api.c:944
+ tcf_action_init+0x21a/0x330 net/sched/act_api.c:1000
+ tcf_action_add+0xf5/0x3b0 net/sched/act_api.c:1410
+ tc_ctl_action+0x390/0x488 net/sched/act_api.c:1465
+ rtnetlink_rcv_msg+0x45e/0xaf0 net/core/rtnetlink.c:5424
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5442
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x58c/0x7d0 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x91c/0xea0 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:639 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:659
+ ____sys_sendmsg+0x753/0x880 net/socket.c:2330
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2384
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2417
+ __do_sys_sendmsg net/socket.c:2426 [inline]
+ __se_sys_sendmsg net/socket.c:2424 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2424
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: 11a94d7fd80f ("net/sched: act_ife: validate the control action inside init()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Davide Caratti <dcaratti@redhat.com>
+Reviewed-by: Davide Caratti <dcaratti@redhat.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/tag_qca.c |    3 ---
- 1 file changed, 3 deletions(-)
+ net/sched/act_ife.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/net/dsa/tag_qca.c
-+++ b/net/dsa/tag_qca.c
-@@ -33,9 +33,6 @@ static struct sk_buff *qca_tag_xmit(stru
- 	struct dsa_port *dp = dsa_slave_to_port(dev);
- 	u16 *phdr, hdr;
+--- a/net/sched/act_ife.c
++++ b/net/sched/act_ife.c
+@@ -536,6 +536,9 @@ static int tcf_ife_init(struct net *net,
+ 	}
  
--	dev->stats.tx_packets++;
--	dev->stats.tx_bytes += skb->len;
+ 	ife = to_ife(*a);
++	if (ret == ACT_P_CREATED)
++		INIT_LIST_HEAD(&ife->metalist);
++
+ 	err = tcf_action_check_ctrlact(parm->action, tp, &goto_ch, extack);
+ 	if (err < 0)
+ 		goto release_idr;
+@@ -565,10 +568,6 @@ static int tcf_ife_init(struct net *net,
+ 		p->eth_type = ife_type;
+ 	}
+ 
 -
- 	if (skb_cow_head(skb, 0) < 0)
- 		return NULL;
- 
+-	if (ret == ACT_P_CREATED)
+-		INIT_LIST_HEAD(&ife->metalist);
+-
+ 	if (tb[TCA_IFE_METALST]) {
+ 		err = nla_parse_nested_deprecated(tb2, IFE_META_MAX,
+ 						  tb[TCA_IFE_METALST], NULL,
 
 
