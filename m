@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF9C214501B
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E098144EED
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:34:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733276AbgAVJn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:43:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36782 "EHLO mail.kernel.org"
+        id S1729629AbgAVJcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:32:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387962AbgAVJn5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:43:57 -0500
+        id S1729247AbgAVJcp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:32:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B88FB2468A;
-        Wed, 22 Jan 2020 09:43:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 403E72071E;
+        Wed, 22 Jan 2020 09:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686236;
-        bh=3jh+31nXwDfRcP+YmrC/Pw1e5zClb/N+BiP4tD9fnVk=;
+        s=default; t=1579685564;
+        bh=KihyWKk3SIkPemrHd6GuzvjWjwEY7Z9Koyl5Lj7HXM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T70Nqit/tgM8YJWHC9Tik2sVD/qOy2YFYCfKUieuhXA2yR9Gp5KExhyMWrhHK2fn5
-         cR7pEPEf42udfh8wS5XJ92YTsIRN70kBJTkZ1tUnz2HhP8Hp0yvX4MfSTVhL6ibE+a
-         5Br96GYTrrLpl2lG4sunCRuqBCeH7CMGEDL68j4E=
+        b=cc7l4/tS8NDWpwil9zi7Qy4CSIIQZbWXu7Sjr3wZeDHHEUeYWPRqklYzxQAgO6Tdo
+         xcf5kEethMWwFWlGG2zBRYcHpx//n+g9z7Z1qfMhHPrh5ydkI7+dUlwIMVnwtxOlkG
+         3thbvpU8F3z3i46fSL96Gk6vlMs4tGsIZVms8mNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Oliverio <marco.oliverio@tanaza.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 063/103] netfilter: nf_tables: store transaction list locally while requesting module
-Date:   Wed, 22 Jan 2020 10:29:19 +0100
-Message-Id: <20200122092813.256915189@linuxfoundation.org>
+        stable@vger.kernel.org, hayeswang <hayeswang@realtek.com>,
+        Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 64/76] r8152: add missing endpoint sanity check
+Date:   Wed, 22 Jan 2020 10:29:20 +0100
+Message-Id: <20200122092801.020020736@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
+References: <20200122092751.587775548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,98 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit ec7470b834fe7b5d7eff11b6677f5d7fdf5e9a91 upstream.
+[ Upstream commit 86f3f4cd53707ceeec079b83205c8d3c756eca93 ]
 
-This patch fixes a WARN_ON in nft_set_destroy() due to missing
-set reference count drop from the preparation phase. This is triggered
-by the module autoload path. Do not exercise the abort path from
-nft_request_module() while preparation phase cleaning up is still
-pending.
+Add missing endpoint sanity check to probe in order to prevent a
+NULL-pointer dereference (or slab out-of-bounds access) when retrieving
+the interrupt-endpoint bInterval on ndo_open() in case a device lacks
+the expected endpoints.
 
- WARNING: CPU: 3 PID: 3456 at net/netfilter/nf_tables_api.c:3740 nft_set_destroy+0x45/0x50 [nf_tables]
- [...]
- CPU: 3 PID: 3456 Comm: nft Not tainted 5.4.6-arch3-1 #1
- RIP: 0010:nft_set_destroy+0x45/0x50 [nf_tables]
- Code: e8 30 eb 83 c6 48 8b 85 80 00 00 00 48 8b b8 90 00 00 00 e8 dd 6b d7 c5 48 8b 7d 30 e8 24 dd eb c5 48 89 ef 5d e9 6b c6 e5 c5 <0f> 0b c3 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 8b 7f 10 e9 52
- RSP: 0018:ffffac4f43e53700 EFLAGS: 00010202
- RAX: 0000000000000001 RBX: ffff99d63a154d80 RCX: 0000000001f88e03
- RDX: 0000000001f88c03 RSI: ffff99d6560ef0c0 RDI: ffff99d63a101200
- RBP: ffff99d617721de0 R08: 0000000000000000 R09: 0000000000000318
- R10: 00000000f0000000 R11: 0000000000000001 R12: ffffffff880fabf0
- R13: dead000000000122 R14: dead000000000100 R15: ffff99d63a154d80
- FS:  00007ff3dbd5b740(0000) GS:ffff99d6560c0000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00001cb5de6a9000 CR3: 000000016eb6a004 CR4: 00000000001606e0
- Call Trace:
-  __nf_tables_abort+0x3e3/0x6d0 [nf_tables]
-  nft_request_module+0x6f/0x110 [nf_tables]
-  nft_expr_type_request_module+0x28/0x50 [nf_tables]
-  nf_tables_expr_parse+0x198/0x1f0 [nf_tables]
-  nft_expr_init+0x3b/0xf0 [nf_tables]
-  nft_dynset_init+0x1e2/0x410 [nf_tables]
-  nf_tables_newrule+0x30a/0x930 [nf_tables]
-  nfnetlink_rcv_batch+0x2a0/0x640 [nfnetlink]
-  nfnetlink_rcv+0x125/0x171 [nfnetlink]
-  netlink_unicast+0x179/0x210
-  netlink_sendmsg+0x208/0x3d0
-  sock_sendmsg+0x5e/0x60
-  ____sys_sendmsg+0x21b/0x290
-
-Update comment on the code to describe the new behaviour.
-
-Reported-by: Marco Oliverio <marco.oliverio@tanaza.com>
-Fixes: 452238e8d5ff ("netfilter: nf_tables: add and use helper for module autoload")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 40a82917b1d3 ("net/usb/r8152: enable interrupt transfer")
+Cc: hayeswang <hayeswang@realtek.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/netfilter/nf_tables_api.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/net/usb/r8152.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -485,23 +485,21 @@ __nf_tables_chain_type_lookup(const stru
- }
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -4243,6 +4243,9 @@ static int rtl8152_probe(struct usb_inte
+ 		return -ENODEV;
+ 	}
  
- /*
-- * Loading a module requires dropping mutex that guards the
-- * transaction.
-- * We first need to abort any pending transactions as once
-- * mutex is unlocked a different client could start a new
-- * transaction.  It must not see any 'future generation'
-- * changes * as these changes will never happen.
-+ * Loading a module requires dropping mutex that guards the transaction.
-+ * A different client might race to start a new transaction meanwhile. Zap the
-+ * list of pending transaction and then restore it once the mutex is grabbed
-+ * again. Users of this function return EAGAIN which implicitly triggers the
-+ * transaction abort path to clean up the list of pending transactions.
-  */
- #ifdef CONFIG_MODULES
--static int __nf_tables_abort(struct net *net);
--
- static void nft_request_module(struct net *net, const char *fmt, ...)
- {
- 	char module_name[MODULE_NAME_LEN];
-+	LIST_HEAD(commit_list);
- 	va_list args;
- 	int ret;
- 
--	__nf_tables_abort(net);
-+	list_splice_init(&net->nft.commit_list, &commit_list);
- 
- 	va_start(args, fmt);
- 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
-@@ -512,6 +510,9 @@ static void nft_request_module(struct ne
- 	mutex_unlock(&net->nft.commit_mutex);
- 	request_module("%s", module_name);
- 	mutex_lock(&net->nft.commit_mutex);
++	if (intf->cur_altsetting->desc.bNumEndpoints < 3)
++		return -ENODEV;
 +
-+	WARN_ON_ONCE(!list_empty(&net->nft.commit_list));
-+	list_splice(&commit_list, &net->nft.commit_list);
- }
- #endif
- 
+ 	usb_reset_device(udev);
+ 	netdev = alloc_etherdev(sizeof(struct r8152));
+ 	if (!netdev) {
 
 
