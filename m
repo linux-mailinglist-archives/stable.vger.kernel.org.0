@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40570145630
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C221145643
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730389AbgAVNWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:22:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39358 "EHLO mail.kernel.org"
+        id S1729239AbgAVNYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:24:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729440AbgAVNWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:22:01 -0500
+        id S1729441AbgAVNYK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:24:10 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63501205F4;
-        Wed, 22 Jan 2020 13:21:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17B2D2468A;
+        Wed, 22 Jan 2020 13:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699320;
-        bh=Z4Vd7ZM0EKOEhvqieaC4mty9HR5DweP5i2aTVASEHVg=;
+        s=default; t=1579699449;
+        bh=VrtlMaqMSn19d9G4Yf2VkWyA29v8P9OI5I/Lj9pzz1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2E82z5g5NOAusGOy9/uG8xrjfo9UfFNLJ9jQP4jit5wnlHIAFyJg/04r9j1fbmeJ
-         NubdcStb46764m7KdKvGhHdm33g1sMKxHGhbS2gBa5E2Yx/VdZGoSqlNXMN3TuT7Up
-         Fk/payzCx3v84h21yt2Ev6pt30RQA+sWlnuKTRQw=
+        b=C49IEm+2ZTRqZ5CeO3E8T5wBHWX+w6mn/9uQLxwXHJc6g7eZPbqorzMENjBQZTgSM
+         bRJfMG4vYHcC7hBVSEh+NdIQcU0NYMfC61jameFpuiE2v3Wrv/K95hM+PtHIhFjABd
+         xLKS5tOTMoQOU5dWCxsGHVCk1lun5zcUdFqLFk2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.4 107/222] bpf: Fix incorrect verifier simulation of ARSH under ALU32
-Date:   Wed, 22 Jan 2020 10:28:13 +0100
-Message-Id: <20200122092841.397679069@linuxfoundation.org>
+        Jonathan Lemon <jonathan.lemon@gmail.com>
+Subject: [PATCH 5.4 113/222] bpf: Sockmap/tls, tls_sw can create a plaintext buf > encrypt buf
+Date:   Wed, 22 Jan 2020 10:28:19 +0100
+Message-Id: <20200122092841.824015725@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -45,188 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: John Fastabend <john.fastabend@gmail.com>
 
-commit 0af2ffc93a4b50948f9dad2786b7f1bd253bf0b9 upstream.
+commit d468e4775c1c351616947ba0cccc43273963b9b5 upstream.
 
-Anatoly has been fuzzing with kBdysch harness and reported a hang in one
-of the outcomes:
+It is possible to build a plaintext buffer using push helper that is larger
+than the allocated encrypt buffer. When this record is pushed to crypto
+layers this can result in a NULL pointer dereference because the crypto
+API expects the encrypt buffer is large enough to fit the plaintext
+buffer. Kernel splat below.
 
-  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-  0: (85) call bpf_get_socket_cookie#46
-  1: R0_w=invP(id=0) R10=fp0
-  1: (57) r0 &= 808464432
-  2: R0_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x30303030)) R10=fp0
-  2: (14) w0 -= 810299440
-  3: R0_w=invP(id=0,umax_value=4294967295,var_off=(0xcf800000; 0x3077fff0)) R10=fp0
-  3: (c4) w0 s>>= 1
-  4: R0_w=invP(id=0,umin_value=1740636160,umax_value=2147221496,var_off=(0x67c00000; 0x183bfff8)) R10=fp0
-  4: (76) if w0 s>= 0x30303030 goto pc+216
-  221: R0_w=invP(id=0,umin_value=1740636160,umax_value=2147221496,var_off=(0x67c00000; 0x183bfff8)) R10=fp0
-  221: (95) exit
-  processed 6 insns (limit 1000000) [...]
+To resolve catch the cases this can happen and split the buffer into two
+records to send individually. Unfortunately, there is still one case to
+handle where the split creates a zero sized buffer. In this case we merge
+the buffers and unmark the split. This happens when apply is zero and user
+pushed data beyond encrypt buffer. This fixes the original case as well
+because the split allocated an encrypt buffer larger than the plaintext
+buffer and the merge simply moves the pointers around so we now have
+a reference to the new (larger) encrypt buffer.
 
-Taking a closer look, the program was xlated as follows:
+Perhaps its not ideal but it seems the best solution for a fixes branch
+and avoids handling these two cases, (a) apply that needs split and (b)
+non apply case. The are edge cases anyways so optimizing them seems not
+necessary unless someone wants later in next branches.
 
-  # ./bpftool p d x i 12
-  0: (85) call bpf_get_socket_cookie#7800896
-  1: (bf) r6 = r0
-  2: (57) r6 &= 808464432
-  3: (14) w6 -= 810299440
-  4: (c4) w6 s>>= 1
-  5: (76) if w6 s>= 0x30303030 goto pc+216
-  6: (05) goto pc-1
-  7: (05) goto pc-1
-  8: (05) goto pc-1
-  [...]
-  220: (05) goto pc-1
-  221: (05) goto pc-1
-  222: (95) exit
+[  306.719107] BUG: kernel NULL pointer dereference, address: 0000000000000008
+[...]
+[  306.747260] RIP: 0010:scatterwalk_copychunks+0x12f/0x1b0
+[...]
+[  306.770350] Call Trace:
+[  306.770956]  scatterwalk_map_and_copy+0x6c/0x80
+[  306.772026]  gcm_enc_copy_hash+0x4b/0x50
+[  306.772925]  gcm_hash_crypt_remain_continue+0xef/0x110
+[  306.774138]  gcm_hash_crypt_continue+0xa1/0xb0
+[  306.775103]  ? gcm_hash_crypt_continue+0xa1/0xb0
+[  306.776103]  gcm_hash_assoc_remain_continue+0x94/0xa0
+[  306.777170]  gcm_hash_assoc_continue+0x9d/0xb0
+[  306.778239]  gcm_hash_init_continue+0x8f/0xa0
+[  306.779121]  gcm_hash+0x73/0x80
+[  306.779762]  gcm_encrypt_continue+0x6d/0x80
+[  306.780582]  crypto_gcm_encrypt+0xcb/0xe0
+[  306.781474]  crypto_aead_encrypt+0x1f/0x30
+[  306.782353]  tls_push_record+0x3b9/0xb20 [tls]
+[  306.783314]  ? sk_psock_msg_verdict+0x199/0x300
+[  306.784287]  bpf_exec_tx_verdict+0x3f2/0x680 [tls]
+[  306.785357]  tls_sw_sendmsg+0x4a3/0x6a0 [tls]
 
-Meaning, the visible effect is very similar to f54c7898ed1c ("bpf: Fix
-precision tracking for unbounded scalars"), that is, the fall-through
-branch in the instruction 5 is considered to be never taken given the
-conclusion from the min/max bounds tracking in w6, and therefore the
-dead-code sanitation rewrites it as goto pc-1. However, real-life input
-disagrees with verification analysis since a soft-lockup was observed.
+test_sockmap test signature to trigger bug,
 
-The bug sits in the analysis of the ARSH. The definition is that we shift
-the target register value right by K bits through shifting in copies of
-its sign bit. In adjust_scalar_min_max_vals(), we do first coerce the
-register into 32 bit mode, same happens after simulating the operation.
-However, for the case of simulating the actual ARSH, we don't take the
-mode into account and act as if it's always 64 bit, but location of sign
-bit is different:
+[TEST]: (1, 1, 1, sendmsg, pass,redir,start 1,end 2,pop (1,2),ktls,):
 
-  dst_reg->smin_value >>= umin_val;
-  dst_reg->smax_value >>= umin_val;
-  dst_reg->var_off = tnum_arshift(dst_reg->var_off, umin_val);
-
-Consider an unknown R0 where bpf_get_socket_cookie() (or others) would
-for example return 0xffff. With the above ARSH simulation, we'd see the
-following results:
-
-  [...]
-  1: R1=ctx(id=0,off=0,imm=0) R2_w=invP65535 R10=fp0
-  1: (85) call bpf_get_socket_cookie#46
-  2: R0_w=invP(id=0) R10=fp0
-  2: (57) r0 &= 808464432
-    -> R0_runtime = 0x3030
-  3: R0_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x30303030)) R10=fp0
-  3: (14) w0 -= 810299440
-    -> R0_runtime = 0xcfb40000
-  4: R0_w=invP(id=0,umax_value=4294967295,var_off=(0xcf800000; 0x3077fff0)) R10=fp0
-                              (0xffffffff)
-  4: (c4) w0 s>>= 1
-    -> R0_runtime = 0xe7da0000
-  5: R0_w=invP(id=0,umin_value=1740636160,umax_value=2147221496,var_off=(0x67c00000; 0x183bfff8)) R10=fp0
-                              (0x67c00000)           (0x7ffbfff8)
-  [...]
-
-In insn 3, we have a runtime value of 0xcfb40000, which is '1100 1111 1011
-0100 0000 0000 0000 0000', the result after the shift has 0xe7da0000 that
-is '1110 0111 1101 1010 0000 0000 0000 0000', where the sign bit is correctly
-retained in 32 bit mode. In insn4, the umax was 0xffffffff, and changed into
-0x7ffbfff8 after the shift, that is, '0111 1111 1111 1011 1111 1111 1111 1000'
-and means here that the simulation didn't retain the sign bit. With above
-logic, the updates happen on the 64 bit min/max bounds and given we coerced
-the register, the sign bits of the bounds are cleared as well, meaning, we
-need to force the simulation into s32 space for 32 bit alu mode.
-
-Verification after the fix below. We're first analyzing the fall-through branch
-on 32 bit signed >= test eventually leading to rejection of the program in this
-specific case:
-
-  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-  0: (b7) r2 = 808464432
-  1: R1=ctx(id=0,off=0,imm=0) R2_w=invP808464432 R10=fp0
-  1: (85) call bpf_get_socket_cookie#46
-  2: R0_w=invP(id=0) R10=fp0
-  2: (bf) r6 = r0
-  3: R0_w=invP(id=0) R6_w=invP(id=0) R10=fp0
-  3: (57) r6 &= 808464432
-  4: R0_w=invP(id=0) R6_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x30303030)) R10=fp0
-  4: (14) w6 -= 810299440
-  5: R0_w=invP(id=0) R6_w=invP(id=0,umax_value=4294967295,var_off=(0xcf800000; 0x3077fff0)) R10=fp0
-  5: (c4) w6 s>>= 1
-  6: R0_w=invP(id=0) R6_w=invP(id=0,umin_value=3888119808,umax_value=4294705144,var_off=(0xe7c00000; 0x183bfff8)) R10=fp0
-                                              (0x67c00000)          (0xfffbfff8)
-  6: (76) if w6 s>= 0x30303030 goto pc+216
-  7: R0_w=invP(id=0) R6_w=invP(id=0,umin_value=3888119808,umax_value=4294705144,var_off=(0xe7c00000; 0x183bfff8)) R10=fp0
-  7: (30) r0 = *(u8 *)skb[808464432]
-  BPF_LD_[ABS|IND] uses reserved fields
-  processed 8 insns (limit 1000000) [...]
-
-Fixes: 9cbe1f5a32dc ("bpf/verifier: improve register value range tracking with ARSH")
-Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
+Fixes: d3b18ad31f93d ("tls: add bpf support to sk_msg handling")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200115204733.16648-1-daniel@iogearbox.net
+Acked-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/bpf/20200111061206.8028-7-john.fastabend@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/tnum.h  |    2 +-
- kernel/bpf/tnum.c     |    9 +++++++--
- kernel/bpf/verifier.c |   13 ++++++++++---
- 3 files changed, 18 insertions(+), 6 deletions(-)
+ net/tls/tls_sw.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/include/linux/tnum.h
-+++ b/include/linux/tnum.h
-@@ -30,7 +30,7 @@ struct tnum tnum_lshift(struct tnum a, u
- /* Shift (rsh) a tnum right (by a fixed shift) */
- struct tnum tnum_rshift(struct tnum a, u8 shift);
- /* Shift (arsh) a tnum right (by a fixed min_shift) */
--struct tnum tnum_arshift(struct tnum a, u8 min_shift);
-+struct tnum tnum_arshift(struct tnum a, u8 min_shift, u8 insn_bitness);
- /* Add two tnums, return @a + @b */
- struct tnum tnum_add(struct tnum a, struct tnum b);
- /* Subtract two tnums, return @a - @b */
---- a/kernel/bpf/tnum.c
-+++ b/kernel/bpf/tnum.c
-@@ -44,14 +44,19 @@ struct tnum tnum_rshift(struct tnum a, u
- 	return TNUM(a.value >> shift, a.mask >> shift);
- }
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -677,12 +677,32 @@ static int tls_push_record(struct sock *
  
--struct tnum tnum_arshift(struct tnum a, u8 min_shift)
-+struct tnum tnum_arshift(struct tnum a, u8 min_shift, u8 insn_bitness)
- {
- 	/* if a.value is negative, arithmetic shifting by minimum shift
- 	 * will have larger negative offset compared to more shifting.
- 	 * If a.value is nonnegative, arithmetic shifting by minimum shift
- 	 * will have larger positive offset compare to more shifting.
- 	 */
--	return TNUM((s64)a.value >> min_shift, (s64)a.mask >> min_shift);
-+	if (insn_bitness == 32)
-+		return TNUM((u32)(((s32)a.value) >> min_shift),
-+			    (u32)(((s32)a.mask)  >> min_shift));
-+	else
-+		return TNUM((s64)a.value >> min_shift,
-+			    (s64)a.mask  >> min_shift);
- }
- 
- struct tnum tnum_add(struct tnum a, struct tnum b)
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -4824,9 +4824,16 @@ static int adjust_scalar_min_max_vals(st
- 		/* Upon reaching here, src_known is true and
- 		 * umax_val is equal to umin_val.
- 		 */
--		dst_reg->smin_value >>= umin_val;
--		dst_reg->smax_value >>= umin_val;
--		dst_reg->var_off = tnum_arshift(dst_reg->var_off, umin_val);
-+		if (insn_bitness == 32) {
-+			dst_reg->smin_value = (u32)(((s32)dst_reg->smin_value) >> umin_val);
-+			dst_reg->smax_value = (u32)(((s32)dst_reg->smax_value) >> umin_val);
-+		} else {
-+			dst_reg->smin_value >>= umin_val;
-+			dst_reg->smax_value >>= umin_val;
+ 	split_point = msg_pl->apply_bytes;
+ 	split = split_point && split_point < msg_pl->sg.size;
++	if (unlikely((!split &&
++		      msg_pl->sg.size +
++		      prot->overhead_size > msg_en->sg.size) ||
++		     (split &&
++		      split_point +
++		      prot->overhead_size > msg_en->sg.size))) {
++		split = true;
++		split_point = msg_en->sg.size;
++	}
+ 	if (split) {
+ 		rc = tls_split_open_record(sk, rec, &tmp, msg_pl, msg_en,
+ 					   split_point, prot->overhead_size,
+ 					   &orig_end);
+ 		if (rc < 0)
+ 			return rc;
++		/* This can happen if above tls_split_open_record allocates
++		 * a single large encryption buffer instead of two smaller
++		 * ones. In this case adjust pointers and continue without
++		 * split.
++		 */
++		if (!msg_pl->sg.size) {
++			tls_merge_open_record(sk, rec, tmp, orig_end);
++			msg_pl = &rec->msg_plaintext;
++			msg_en = &rec->msg_encrypted;
++			split = false;
 +		}
-+
-+		dst_reg->var_off = tnum_arshift(dst_reg->var_off, umin_val,
-+						insn_bitness);
- 
- 		/* blow away the dst_reg umin_value/umax_value and rely on
- 		 * dst_reg var_off to refine the result.
+ 		sk_msg_trim(sk, msg_en, msg_pl->sg.size +
+ 			    prot->overhead_size);
+ 	}
 
 
