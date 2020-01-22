@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27FBF145678
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F200C1456BD
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:36:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726605AbgAVN1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:27:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48326 "EHLO mail.kernel.org"
+        id S1729637AbgAVN3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:29:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729332AbgAVN1H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:27:07 -0500
+        id S1728799AbgAVN1K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:27:10 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D24624685;
-        Wed, 22 Jan 2020 13:27:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B20C224685;
+        Wed, 22 Jan 2020 13:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699627;
-        bh=bVmEqRxthyQil9CBv5ZYY8CyvuaiSbMYuOTK0Pqlna8=;
+        s=default; t=1579699630;
+        bh=a05LJki7/JjRwAFxjy9uKz+C9AjD8lWYO8aJVVSFOVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uTd54wRXV6BsZrBhfS+h798QhvtQE2JK7yTBQiGw/iwdv733NEAIceuClo9TPjFbM
-         3DXGLRJB1DstvtkuAR156FEMw2i2sZkNVWBVAPXotYa8W18rhftN69hGMJnLw3LLZH
-         uwByTeKqEp79ul0HGLUM6iCr3mVm1s5T2SenLx6E=
+        b=ZBw+S/QAA2qff7w1gP76Wh4elk2jlsU2KV9O6uwWQCb2CLbrBFLrFgX0uvQamXzPX
+         PXOowFzgs9RXEKw2y7s2y79jzvKTNBrJioPFXN9DNp1xWyYSqu09DJ58zXpK7YFgI7
+         Zk3gR3opasa9A2Zj2ApBThklGzJ6zc0JsQQyhQg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
-        John Garry <john.garry@huawei.com>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 201/222] scsi: hisi_sas: Set the BIST init value before enabling BIST
-Date:   Wed, 22 Jan 2020 10:29:47 +0100
-Message-Id: <20200122092848.097671225@linuxfoundation.org>
+Subject: [PATCH 5.4 202/222] scsi: qla4xxx: fix double free bug
+Date:   Wed, 22 Jan 2020 10:29:48 +0100
+Message-Id: <20200122092848.168309729@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -44,50 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Pan Bian <bianpan2016@163.com>
 
-commit 65a3b8bd56942dc988b8c05615bd3f510a10012b upstream.
+commit 3fe3d2428b62822b7b030577cd612790bdd8c941 upstream.
 
-If set the BIST init value after enabling BIST, there may be still some few
-error bits. According to the process, need to set the BIST init value
-before enabling BIST.
+The variable init_fw_cb is released twice, resulting in a double free
+bug. The call to the function dma_free_coherent() before goto is removed to
+get rid of potential double free.
 
-Fixes: 97b151e75861 ("scsi: hisi_sas: Add BIST support for phy loopback")
-Link: https://lore.kernel.org/r/1571926105-74636-3-git-send-email-john.garry@huawei.com
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
+Fixes: 2a49a78ed3c8 ("[SCSI] qla4xxx: added IPv6 support.")
+Link: https://lore.kernel.org/r/1572945927-27796-1-git-send-email-bianpan2016@163.com
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Acked-by: Manish Rangankar <mrangankar@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/scsi/qla4xxx/ql4_mbx.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -3022,11 +3022,6 @@ static int debugfs_set_bist_v3_hw(struct
- 		hisi_sas_phy_write32(hisi_hba, phy_id,
- 				     SAS_PHY_BIST_CTRL, reg_val);
+--- a/drivers/scsi/qla4xxx/ql4_mbx.c
++++ b/drivers/scsi/qla4xxx/ql4_mbx.c
+@@ -640,9 +640,6 @@ int qla4xxx_initialize_fw_cb(struct scsi
  
--		mdelay(100);
--		reg_val |= (CFG_RX_BIST_EN_MSK | CFG_TX_BIST_EN_MSK);
--		hisi_sas_phy_write32(hisi_hba, phy_id,
--				     SAS_PHY_BIST_CTRL, reg_val);
--
- 		/* set the bist init value */
- 		hisi_sas_phy_write32(hisi_hba, phy_id,
- 				     SAS_PHY_BIST_CODE,
-@@ -3035,6 +3030,11 @@ static int debugfs_set_bist_v3_hw(struct
- 				     SAS_PHY_BIST_CODE1,
- 				     SAS_PHY_BIST_CODE1_INIT);
+ 	if (qla4xxx_get_ifcb(ha, &mbox_cmd[0], &mbox_sts[0], init_fw_cb_dma) !=
+ 	    QLA_SUCCESS) {
+-		dma_free_coherent(&ha->pdev->dev,
+-				  sizeof(struct addr_ctrl_blk),
+-				  init_fw_cb, init_fw_cb_dma);
+ 		goto exit_init_fw_cb;
+ 	}
  
-+		mdelay(100);
-+		reg_val |= (CFG_RX_BIST_EN_MSK | CFG_TX_BIST_EN_MSK);
-+		hisi_sas_phy_write32(hisi_hba, phy_id,
-+				     SAS_PHY_BIST_CTRL, reg_val);
-+
- 		/* clear error bit */
- 		mdelay(100);
- 		hisi_sas_phy_read32(hisi_hba, phy_id, SAS_BIST_ERR_CNT);
 
 
