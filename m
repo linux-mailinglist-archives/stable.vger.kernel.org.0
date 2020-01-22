@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 678A8145084
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:47:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A24214511A
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:52:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730389AbgAVJq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:46:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34960 "EHLO mail.kernel.org"
+        id S1731216AbgAVJgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:36:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733268AbgAVJmx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:42:53 -0500
+        id S1732125AbgAVJgr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:36:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38CC424686;
-        Wed, 22 Jan 2020 09:42:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35B7E24680;
+        Wed, 22 Jan 2020 09:36:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686172;
-        bh=JPO2DeKM6qO8kI6UIuEs/caKlIsPk7xRdMr3G9SLUTs=;
+        s=default; t=1579685806;
+        bh=K64ZCmFD7ZV3wzJnReJx5yB7iYzJMGbv5X2Acvba6Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K43UDdL6j9Rnf0PZSmyhBLHpsJ8reVkosZVtnOyBYlNm7ACddnrxzc1Aa62FjoWf/
-         kZbTcwq/dOSCGFt6RfB3HHJDF8/CjwBB2j9RPBrgp5+phe5D8vWC4ZKqEWbwkPez+F
-         5hQzA+WHmMn6l4fGE26uIMPQOADtMgZFpEprO+/0=
+        b=TL+tFBN4sT4B103zRGfhI74o0+d5gIVJ8df/HxlQx8JVa3yMgEYeezGALc8wbCubg
+         XXpI+a03J1tV/nKOieFAxp5FDELE541aY7OryJtvtvvVWXQN48XO0dWqLVKXOuWBQS
+         3q2Oyq0qVcphUWtg4D3YSgu/cj4OsdnOqh0/IX1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, hayeswang <hayeswang@realtek.com>,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        RENARD Pierre-Francois <pfrenard@gmail.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Woojung Huh <woojung.huh@microchip.com>,
+        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 074/103] r8152: add missing endpoint sanity check
+Subject: [PATCH 4.9 86/97] net: usb: lan78xx: limit size of local TSO packets
 Date:   Wed, 22 Jan 2020 10:29:30 +0100
-Message-Id: <20200122092814.306814188@linuxfoundation.org>
+Message-Id: <20200122092810.126276788@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 86f3f4cd53707ceeec079b83205c8d3c756eca93 ]
+[ Upstream commit f8d7408a4d7f60f8b2df0f81decdc882dd9c20dc ]
 
-Add missing endpoint sanity check to probe in order to prevent a
-NULL-pointer dereference (or slab out-of-bounds access) when retrieving
-the interrupt-endpoint bInterval on ndo_open() in case a device lacks
-the expected endpoints.
+lan78xx_tx_bh() makes sure to not exceed MAX_SINGLE_PACKET_SIZE
+bytes in the aggregated packets it builds, but does
+nothing to prevent large GSO packets being submitted.
 
-Fixes: 40a82917b1d3 ("net/usb/r8152: enable interrupt transfer")
-Cc: hayeswang <hayeswang@realtek.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Pierre-Francois reported various hangs when/if TSO is enabled.
+
+For localy generated packets, we can use netif_set_gso_max_size()
+to limit the size of TSO packets.
+
+Note that forwarded packets could still hit the issue,
+so a complete fix might require implementing .ndo_features_check
+for this driver, forcing a software segmentation if the size
+of the TSO packet exceeds MAX_SINGLE_PACKET_SIZE.
+
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: RENARD Pierre-Francois <pfrenard@gmail.com>
+Tested-by: RENARD Pierre-Francois <pfrenard@gmail.com>
+Cc: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Woojung Huh <woojung.huh@microchip.com>
+Cc: Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/r8152.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/usb/lan78xx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -5167,6 +5167,9 @@ static int rtl8152_probe(struct usb_inte
- 		return -ENODEV;
- 	}
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3375,6 +3375,7 @@ static int lan78xx_probe(struct usb_inte
  
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 3)
-+		return -ENODEV;
-+
- 	usb_reset_device(udev);
- 	netdev = alloc_etherdev(sizeof(struct r8152));
- 	if (!netdev) {
+ 	if (netdev->mtu > (dev->hard_mtu - netdev->hard_header_len))
+ 		netdev->mtu = dev->hard_mtu - netdev->hard_header_len;
++	netif_set_gso_max_size(netdev, MAX_SINGLE_PACKET_SIZE - MAX_HEADER);
+ 
+ 	dev->ep_blkin = (intf->cur_altsetting)->endpoint + 0;
+ 	dev->ep_blkout = (intf->cur_altsetting)->endpoint + 1;
 
 
