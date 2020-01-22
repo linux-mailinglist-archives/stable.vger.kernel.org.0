@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 564D2145099
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:48:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D20E1450F1
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:50:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387612AbgAVJlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:41:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33172 "EHLO mail.kernel.org"
+        id S1732725AbgAVJhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:37:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733257AbgAVJlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:41:45 -0500
+        id S1731330AbgAVJhx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:37:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3604B2467B;
-        Wed, 22 Jan 2020 09:41:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 059B42467B;
+        Wed, 22 Jan 2020 09:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579686104;
-        bh=maQjfsgIA8NAW0yeqbgi7Z5dRYal60dykrMctvY3S00=;
+        s=default; t=1579685872;
+        bh=uhZOXfEgUVaxst/qSwstVCoU4ELf0vVVov0AgutJGmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yL14orwyW3Z6qhJVFt16cv90FNhSv7lsx1PSTtbXCJ3+jXhdMVEk3hbWGKvoyYuNg
-         gZRXItZbpj4yo1kKwktgYsHXuJ28/7gLR8kP3kHftfdbjdp5noFMYWy/6AmrPSv51n
-         EaWYfQoeV3nesM35nVkxIf0OAynlJWp8B+9w8jj8=
+        b=rk/c2z7893NR2j89TLbJJmKHyJRoEcwyi6K5+vmJt536+/D6Ie8HOG3AuGjORngFa
+         s4qU+4AHcDrdiXcaAfQXeML79L/j2ejbj5Y+EFo/oixLGTWwbglForj1T862kjCjKx
+         LeZsZ8MJ/voQYwZgqId8Wau8LAbgRaBanhcZUggQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 045/103] btrfs: fix memory leak in qgroup accounting
-Date:   Wed, 22 Jan 2020 10:29:01 +0100
-Message-Id: <20200122092810.614009389@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 17/65] USB: serial: quatech2: handle unbound ports
+Date:   Wed, 22 Jan 2020 10:29:02 +0100
+Message-Id: <20200122092753.508347592@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092803.587683021@linuxfoundation.org>
-References: <20200122092803.587683021@linuxfoundation.org>
+In-Reply-To: <20200122092750.976732974@linuxfoundation.org>
+References: <20200122092750.976732974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 26ef8493e1ab771cb01d27defca2fa1315dc3980 upstream.
+commit 9715a43eea77e42678a1002623f2d9a78f5b81a1 upstream.
 
-When running xfstests on the current btrfs I get the following splat from
-kmemleak:
+Check for NULL port data in the modem- and line-status handlers to avoid
+dereferencing a NULL pointer in the unlikely case where a port device
+isn't bound to a driver (e.g. after an allocation failure on port
+probe).
 
-unreferenced object 0xffff88821b2404e0 (size 32):
-  comm "kworker/u4:7", pid 26663, jiffies 4295283698 (age 8.776s)
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 10 ff fd 26 82 88 ff ff  ...........&....
-    10 ff fd 26 82 88 ff ff 20 ff fd 26 82 88 ff ff  ...&.... ..&....
-  backtrace:
-    [<00000000f94fd43f>] ulist_alloc+0x25/0x60 [btrfs]
-    [<00000000fd023d99>] btrfs_find_all_roots_safe+0x41/0x100 [btrfs]
-    [<000000008f17bd32>] btrfs_find_all_roots+0x52/0x70 [btrfs]
-    [<00000000b7660afb>] btrfs_qgroup_rescan_worker+0x343/0x680 [btrfs]
-    [<0000000058e66778>] btrfs_work_helper+0xac/0x1e0 [btrfs]
-    [<00000000f0188930>] process_one_work+0x1cf/0x350
-    [<00000000af5f2f8e>] worker_thread+0x28/0x3c0
-    [<00000000b55a1add>] kthread+0x109/0x120
-    [<00000000f88cbd17>] ret_from_fork+0x35/0x40
+Note that the other (stubbed) event handlers qt2_process_xmit_empty()
+and qt2_process_flush() would need similar sanity checks in case they
+are ever implemented.
 
-This corresponds to:
-
-  (gdb) l *(btrfs_find_all_roots_safe+0x41)
-  0x8d7e1 is in btrfs_find_all_roots_safe (fs/btrfs/backref.c:1413).
-  1408
-  1409            tmp = ulist_alloc(GFP_NOFS);
-  1410            if (!tmp)
-  1411                    return -ENOMEM;
-  1412            *roots = ulist_alloc(GFP_NOFS);
-  1413            if (!*roots) {
-  1414                    ulist_free(tmp);
-  1415                    return -ENOMEM;
-  1416            }
-  1417
-
-Following the lifetime of the allocated 'roots' ulist, it gets freed
-again in btrfs_qgroup_account_extent().
-
-But this does not happen if the function is called with the
-'BTRFS_FS_QUOTA_ENABLED' flag cleared, then btrfs_qgroup_account_extent()
-does a short leave and directly returns.
-
-Instead of directly returning we should jump to the 'out_free' in order to
-free all resources as expected.
-
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-[ add comment ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
+Cc: stable <stable@vger.kernel.org>     # 3.5
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/qgroup.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/serial/quatech2.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -2055,8 +2055,12 @@ int btrfs_qgroup_account_extent(struct b
- 	u64 nr_old_roots = 0;
- 	int ret = 0;
+--- a/drivers/usb/serial/quatech2.c
++++ b/drivers/usb/serial/quatech2.c
+@@ -867,7 +867,10 @@ static void qt2_update_msr(struct usb_se
+ 	u8 newMSR = (u8) *ch;
+ 	unsigned long flags;
  
-+	/*
-+	 * If quotas get disabled meanwhile, the resouces need to be freed and
-+	 * we can't just exit here.
-+	 */
- 	if (!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags))
--		return 0;
-+		goto out_free;
++	/* May be called from qt2_process_read_urb() for an unbound port. */
+ 	port_priv = usb_get_serial_port_data(port);
++	if (!port_priv)
++		return;
  
- 	if (new_roots) {
- 		if (!maybe_fs_roots(new_roots))
+ 	spin_lock_irqsave(&port_priv->lock, flags);
+ 	port_priv->shadowMSR = newMSR;
+@@ -895,7 +898,10 @@ static void qt2_update_lsr(struct usb_se
+ 	unsigned long flags;
+ 	u8 newLSR = (u8) *ch;
+ 
++	/* May be called from qt2_process_read_urb() for an unbound port. */
+ 	port_priv = usb_get_serial_port_data(port);
++	if (!port_priv)
++		return;
+ 
+ 	if (newLSR & UART_LSR_BI)
+ 		newLSR &= (u8) (UART_LSR_OE | UART_LSR_BI);
 
 
