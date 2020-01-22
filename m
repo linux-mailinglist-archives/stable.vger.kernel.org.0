@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF511451E2
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:57:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37E89145160
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 10:53:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729598AbgAVJbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 04:31:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43152 "EHLO mail.kernel.org"
+        id S1731050AbgAVJex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 04:34:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729537AbgAVJbN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 04:31:13 -0500
+        id S1730486AbgAVJex (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 04:34:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC5EA24672;
-        Wed, 22 Jan 2020 09:31:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E87824686;
+        Wed, 22 Jan 2020 09:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579685473;
-        bh=80qMqilDKb1q7yzrUTzmSO/ts7DiRjQ2oLgmnoGIPT8=;
+        s=default; t=1579685692;
+        bh=uxoYdEa1YMvd4QmddYEXwU+ZoyC4hc6YNpLE/Vn6OP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OYuuaRUjleupadYmnfEhMlsQcLiN84Us/xpAH4fM7PoQOMNSS/EYo9M1EDLxu1DWT
-         Fv1dhctOCH55O9zsgJFs3FOQI+9BaAD7y7NIHUm3lu7QmXCgHG+Uzm5p5hMemAbJ+G
-         EaAcCNyRtaVTAlAYD8/oO9JbpuD9s9akxZ0EfzAo=
+        b=sfiIcaXetScRFNYqVohJfaPyfAdnNld5HYV33J66xls8Z4xMtF4uJZ0KDS341pedf
+         NxN6ttmHMOy6pJ17EBJ3NujRkCGYWtLTh+TpjxPsVz+IdgupsX3akeFtZRtvsA7DZB
+         wMSfM2JyNc8JByhPlKkCo+94I4d5FHnxklfVhzeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.4 28/76] mei: fix modalias documentation
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 40/97] rtlwifi: Remove unnecessary NULL check in rtl_regd_init
 Date:   Wed, 22 Jan 2020 10:28:44 +0100
-Message-Id: <20200122092754.628553357@linuxfoundation.org>
+Message-Id: <20200122092803.030380998@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200122092751.587775548@linuxfoundation.org>
-References: <20200122092751.587775548@linuxfoundation.org>
+In-Reply-To: <20200122092755.678349497@linuxfoundation.org>
+References: <20200122092755.678349497@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 73668309215285366c433489de70d31362987be9 upstream.
+commit 091c6e9c083f7ebaff00b37ad13562d51464d175 upstream.
 
-mei client bus added the client protocol version to the device alias,
-but ABI documentation was not updated.
+When building with Clang + -Wtautological-pointer-compare:
 
-Fixes: b26864cad1c9 (mei: bus: add client protocol version to the device alias)
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191008005735.12707-1-tomas.winkler@intel.com
+drivers/net/wireless/realtek/rtlwifi/regd.c:389:33: warning: comparison
+of address of 'rtlpriv->regd' equal to a null pointer is always false
+[-Wtautological-pointer-compare]
+        if (wiphy == NULL || &rtlpriv->regd == NULL)
+                              ~~~~~~~~~^~~~    ~~~~
+1 warning generated.
+
+The address of an array member is never NULL unless it is the first
+struct member so remove the unnecessary check. This was addressed in
+the staging version of the driver in commit f986978b32b3 ("Staging:
+rtlwifi: remove unnecessary NULL check").
+
+While we are here, fix the following checkpatch warning:
+
+CHECK: Comparison to NULL could be written "!wiphy"
+35: FILE: drivers/net/wireless/realtek/rtlwifi/regd.c:389:
++       if (wiphy == NULL)
+
+Fixes: 0c8173385e54 ("rtl8192ce: Add new driver")
+Link:https://github.com/ClangBuiltLinux/linux/issues/750
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/ABI/testing/sysfs-bus-mei |    2 +-
+ drivers/net/wireless/realtek/rtlwifi/regd.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/ABI/testing/sysfs-bus-mei
-+++ b/Documentation/ABI/testing/sysfs-bus-mei
-@@ -4,7 +4,7 @@ KernelVersion:	3.10
- Contact:	Samuel Ortiz <sameo@linux.intel.com>
- 		linux-mei@linux.intel.com
- Description:	Stores the same MODALIAS value emitted by uevent
--		Format: mei:<mei device name>:<device uuid>:
-+		Format: mei:<mei device name>:<device uuid>:<protocol version>
+--- a/drivers/net/wireless/realtek/rtlwifi/regd.c
++++ b/drivers/net/wireless/realtek/rtlwifi/regd.c
+@@ -427,7 +427,7 @@ int rtl_regd_init(struct ieee80211_hw *h
+ 	struct wiphy *wiphy = hw->wiphy;
+ 	struct country_code_to_enum_rd *country = NULL;
  
- What:		/sys/bus/mei/devices/.../name
- Date:		May 2015
+-	if (wiphy == NULL || &rtlpriv->regd == NULL)
++	if (!wiphy)
+ 		return -EINVAL;
+ 
+ 	/* init country_code from efuse channel plan */
 
 
