@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B7314560C
-	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D851A145631
+	for <lists+stable@lfdr.de>; Wed, 22 Jan 2020 14:35:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729801AbgAVNTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Jan 2020 08:19:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35808 "EHLO mail.kernel.org"
+        id S1729440AbgAVNWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Jan 2020 08:22:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728811AbgAVNTr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Jan 2020 08:19:47 -0500
+        id S1728797AbgAVNWH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Jan 2020 08:22:07 -0500
 Received: from localhost (unknown [84.241.205.26])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4861820678;
-        Wed, 22 Jan 2020 13:19:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6A632468F;
+        Wed, 22 Jan 2020 13:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579699186;
-        bh=RSUDhfPhXk0dWiZ10UxNgdPkWdvoHWDWWByQvoZi8Lo=;
+        s=default; t=1579699326;
+        bh=TIZmAdVjHSTjlNlJIi5CrdgHyPu2IsR1hqWI2t3lnOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yeOfO4omESxdLvcUs6gqyvwKYXhk3SJdL8/Ynx5bKc2MIUaAk0U9XcX/x+EF/TSos
-         eV8Pyr5t4R3g/BiezgWxRXyS5nR4Og8zYT2Yz+uwXXIfxUtV9n66xPb1CPiIigEQJT
-         HgGeVx2L7iCe3h0qSCzzwYCzZ5xL6QkbdknCOr2M=
+        b=CNT6PYFkIi0+kvJAHsVGNpK6SoJOKq9rPz4Sy4Kcvg2AEv7/tWTti6jW0sQLmzPz8
+         EnT3fmE2g/XWkfrmCDt37IyChFbtPClRj7s5SqsHMJNwsS3n/TmSa6GWBUvmO2w6qA
+         yYQUdpsE0MkqMAEGtbe85aJtSA4gALMPkX0nJVjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.4 066/222] x86/efistub: Disable paging at mixed mode entry
-Date:   Wed, 22 Jan 2020 10:27:32 +0100
-Message-Id: <20200122092838.449657394@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.4 074/222] clk: samsung: exynos5420: Keep top G3D clocks enabled
+Date:   Wed, 22 Jan 2020 10:27:40 +0100
+Message-Id: <20200122092839.017829447@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200122092833.339495161@linuxfoundation.org>
 References: <20200122092833.339495161@linuxfoundation.org>
@@ -48,46 +47,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit 4911ee401b7ceff8f38e0ac597cbf503d71e690c upstream.
+commit 67f96ff7c8f073648696eab50fd23ded23441067 upstream.
 
-The EFI mixed mode entry code goes through the ordinary startup_32()
-routine before jumping into the kernel's EFI boot code in 64-bit
-mode. The 32-bit startup code must be entered with paging disabled,
-but this is not documented as a requirement for the EFI handover
-protocol, and so we should disable paging explicitly when entering
-the kernel from 32-bit EFI firmware.
+In Exynos542x/5800 SoCs, the G3D leaf clocks are located in the G3D power
+domain. This is similar to the other hardware modules and their power
+domains. However there is one thing specific to G3D clocks hierarchy.
+Unlike other hardware modules, the G3D clocks hierarchy doesn't have any
+gate clock between the TOP part of the hierarchy and the part located in
+the power domain and some SoC internal busses are sourced directly from
+the TOP muxes. The consequence of this design if the fact that the TOP
+part of the hierarchy has to be enabled permanently to ensure proper
+operation of the SoC power related components (G3D power domain and
+Exynos Power Management Unit for system suspend/resume).
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Arvind Sankar <nivedita@alum.mit.edu>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-efi@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191224132909.102540-4-ardb@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+This patch adds an explicit call to clk_prepare_enable() on the last MUX
+in the TOP part of G3D clock hierarchy to keep it enabled permanently to
+ensure that the internal busses get their clock regardless of the main
+G3D clock enablement status.
+
+This fixes following imprecise abort issue observed on Odroid XU3/XU4
+after enabling Panfrost driver by commit 1a5a85c56402 "ARM: dts: exynos:
+Add Mali/GPU node on Exynos5420 and enable it on Odroid XU3/4"):
+
+panfrost 11800000.gpu: clock rate = 400000000
+panfrost 11800000.gpu: failed to get regulator: -517
+panfrost 11800000.gpu: regulator init failed -517
+Power domain G3D disable failed
+...
+panfrost 11800000.gpu: clock rate = 400000000
+8<--- cut here ---
+Unhandled fault: imprecise external abort (0x1406) at 0x00000000
+pgd = (ptrval)
+[00000000] *pgd=00000000
+Internal error: : 1406 [#1] PREEMPT SMP ARM
+Modules linked in:
+CPU: 7 PID: 53 Comm: kworker/7:1 Not tainted 5.4.0-rc8-next-20191119-00032-g56f1001191a6 #6923
+Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
+Workqueue: events deferred_probe_work_func
+PC is at panfrost_gpu_soft_reset+0x94/0x110
+LR is at ___might_sleep+0x128/0x2dc
+...
+[<c05c231c>] (panfrost_gpu_soft_reset) from [<c05c2704>] (panfrost_gpu_init+0x10/0x67c)
+[<c05c2704>] (panfrost_gpu_init) from [<c05c15d0>] (panfrost_device_init+0x158/0x2cc)
+[<c05c15d0>] (panfrost_device_init) from [<c05c0cb0>] (panfrost_probe+0x80/0x178)
+[<c05c0cb0>] (panfrost_probe) from [<c05cfaa0>] (platform_drv_probe+0x48/0x9c)
+[<c05cfaa0>] (platform_drv_probe) from [<c05cd20c>] (really_probe+0x1c4/0x474)
+[<c05cd20c>] (really_probe) from [<c05cd694>] (driver_probe_device+0x78/0x1bc)
+[<c05cd694>] (driver_probe_device) from [<c05cb374>] (bus_for_each_drv+0x74/0xb8)
+[<c05cb374>] (bus_for_each_drv) from [<c05ccfa8>] (__device_attach+0xd4/0x16c)
+[<c05ccfa8>] (__device_attach) from [<c05cc110>] (bus_probe_device+0x88/0x90)
+[<c05cc110>] (bus_probe_device) from [<c05cc634>] (deferred_probe_work_func+0x4c/0xd0)
+[<c05cc634>] (deferred_probe_work_func) from [<c0149df0>] (process_one_work+0x300/0x864)
+[<c0149df0>] (process_one_work) from [<c014a3ac>] (worker_thread+0x58/0x5a0)
+[<c014a3ac>] (worker_thread) from [<c0151174>] (kthread+0x12c/0x160)
+[<c0151174>] (kthread) from [<c01010b4>] (ret_from_fork+0x14/0x20)
+Exception stack(0xee03dfb0 to 0xee03dff8)
+...
+Code: e594300c e5933020 e3130c01 1a00000f (ebefff50).
+---[ end trace badde2b74a65a540 ]---
+
+In the above case, the Panfrost driver disables G3D clocks after failure
+of getting the needed regulator and return with -EPROVE_DEFER code. This
+causes G3D power domain disable failure and then, during second probe
+an imprecise abort is triggered due to undefined power domain state.
+
+Fixes: 45f10dabb56b ("clk: samsung: exynos5420: Add SET_RATE_PARENT flag to clocks on G3D path")
+Fixes: c9f7567aff31 ("clk: samsung: exynos542x: Move G3D subsystem clocks to its sub-CMU")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lkml.kernel.org/r/20191216131407.17225-1-m.szyprowski@samsung.com
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Acked-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/boot/compressed/head_64.S |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/clk/samsung/clk-exynos5420.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -244,6 +244,11 @@ ENTRY(efi32_stub_entry)
- 	leal	efi32_config(%ebp), %eax
- 	movl	%eax, efi_config(%ebp)
+--- a/drivers/clk/samsung/clk-exynos5420.c
++++ b/drivers/clk/samsung/clk-exynos5420.c
+@@ -12,6 +12,7 @@
+ #include <linux/clk-provider.h>
+ #include <linux/of.h>
+ #include <linux/of_address.h>
++#include <linux/clk.h>
  
-+	/* Disable paging */
-+	movl	%cr0, %eax
-+	btrl	$X86_CR0_PG_BIT, %eax
-+	movl	%eax, %cr0
+ #include "clk.h"
+ #include "clk-cpu.h"
+@@ -1630,6 +1631,13 @@ static void __init exynos5x_clk_init(str
+ 				     exynos5x_subcmus);
+ 	}
+ 
++	/*
++	 * Keep top part of G3D clock path enabled permanently to ensure
++	 * that the internal busses get their clock regardless of the
++	 * main G3D clock enablement status.
++	 */
++	clk_prepare_enable(__clk_lookup("mout_sw_aclk_g3d"));
 +
- 	jmp	startup_32
- ENDPROC(efi32_stub_entry)
- #endif
+ 	samsung_clk_of_add_provider(np, ctx);
+ }
+ 
 
 
